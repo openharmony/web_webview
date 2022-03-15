@@ -28,7 +28,7 @@ class OHOS_NWEB_EXPORT NWebAdapterHelper {
 public:
     static NWebAdapterHelper &Instance();
     ~NWebAdapterHelper() = default;
-    bool Init();
+    bool Init(bool from_ark = true);
     std::shared_ptr<NWeb> CreateNWeb(Rosen::Window *window, const NWebInitArgs &initArgs);
     std::shared_ptr<NWeb> CreateNWeb(sptr<Surface> surface,
                                      const NWebInitArgs &initArgs,

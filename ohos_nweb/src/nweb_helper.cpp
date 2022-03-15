@@ -26,6 +26,8 @@
 namespace {
 const uint32_t NWEB_SURFACE_MAX_WIDTH = 7680;
 const uint32_t NWEB_SURFACE_MAX_HEIGHT = 7680;
+const std::string LOAD_LIB_DIR_SANDBOX = "/data/storage/el1/bundle/nweb/libs/arm";
+const std::string LOAD_LIB_DIR_INSTALLATION = "/data/app/el1/bundle/public/com.ohos.nweb/libs/arm";
 }
 
 namespace  OHOS::NWeb {
@@ -41,9 +43,12 @@ bool NWebHelper::LoadLib()
     if (libHandleNWebAdapter_ != nullptr && libHandleWebEngine_ != nullptr) {
         return true;
     }
+    if (loadLibPath_.empty()) {
+        return false;
+    }
     Dl_namespace dlns;
     dlns_init(&dlns, "nweb_ns");
-    dlns_create(&dlns, "/data/storage/el1/bundle/nweb/libs/arm");
+    dlns_create(&dlns, loadLibPath_.c_str());
     const std::string LIB_PATH_NWEB_ADAPTER = "libnweb_adapter.so";
     const std::string LIB_PATH_WEB_ENGINE = "libweb_engine.so";
     void *libHandleWebEngine = dlopen_ns(&dlns, LIB_PATH_WEB_ENGINE.c_str(), RTLD_NOW);
@@ -66,9 +71,11 @@ bool NWebHelper::LoadLib()
     if (libHandleNWebAdapter_ != nullptr && libHandleWebEngine_ != nullptr) {
         return true;
     }
-    const std::string LOAD_LIB_DIR = "/data/storage/el1/bundle/nweb/libs/arm";
-    const std::string LIB_PATH_NWEB_ADAPTER = LOAD_LIB_DIR + "/libnweb_adapter.so";
-    const std::string LIB_PATH_WEB_ENGINE = LOAD_LIB_DIR + "/libweb_engine.so";
+    if (loadLibPath_.empty()) {
+        return false;
+    }
+    const std::string LIB_PATH_NWEB_ADAPTER = loadLibPath_ + "/libnweb_adapter.so";
+    const std::string LIB_PATH_WEB_ENGINE = loadLibPath_ + "/libweb_engine.so";
     void *libHandleWebEngine = ::dlopen(LIB_PATH_WEB_ENGINE.c_str(), RTLD_NOW);
     if (libHandleWebEngine == nullptr) {
         WVLOG_E("fail to dlopen %{public}s, errmsg=%{public}s", LIB_PATH_WEB_ENGINE.c_str(), dlerror());
@@ -97,8 +104,13 @@ void NWebHelper::UnloadLib()
     }
 }
 
-bool NWebHelper::Init()
+bool NWebHelper::Init(bool from_ark)
 {
+    if (!from_ark) {
+        loadLibPath_ = LOAD_LIB_DIR_INSTALLATION;
+    } else {
+        loadLibPath_ = LOAD_LIB_DIR_SANDBOX;
+    }
     return LoadLib();
 }
 
@@ -137,9 +149,9 @@ NWebAdapterHelper &NWebAdapterHelper::Instance()
     return helper;
 }
 
-bool NWebAdapterHelper::Init()
+bool NWebAdapterHelper::Init(bool from_ark)
 {
-    return NWebHelper::Instance().Init();
+    return NWebHelper::Instance().Init(from_ark);
 }
 
 std::shared_ptr<NWeb> NWebAdapterHelper::CreateNWeb(Rosen::Window *window, const NWebInitArgs &initArgs)
