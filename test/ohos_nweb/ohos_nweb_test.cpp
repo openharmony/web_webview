@@ -179,7 +179,7 @@ void RegistEventCb(sptr<Rosen::Window> window, std::shared_ptr<OHOS::NWeb::NWeb>
 void TestPrepare()
 {
     TESTLOG_I("TestPrepare");
-    if (!OHOS::NWeb::NWebAdapterHelper::Instance().Init()) {
+    if (!OHOS::NWeb::NWebAdapterHelper::Instance().Init(false)) {
         TESTLOG_E("fail to init NWebAdapterHelper, test end");
         return;
     }
@@ -215,7 +215,7 @@ void TestPrepare()
 void TestPrepareWithClient(std::shared_ptr<OHOS::NWeb::NWebHandler> client)
 {
     TESTLOG_I("TestPrepare");
-    if (!OHOS::NWeb::NWebAdapterHelper::Instance().Init()) {
+    if (!OHOS::NWeb::NWebAdapterHelper::Instance().Init(false)) {
         TESTLOG_E("fail to init NWebAdapterHelper, test end");
         return;
     }
@@ -1463,7 +1463,7 @@ void Test102()
 void Test103()
 {
     TESTLOG_I("start103");
-    if (!OHOS::NWeb::NWebAdapterHelper::Instance().Init()) {
+    if (!OHOS::NWeb::NWebAdapterHelper::Instance().Init(false)) {
         TESTLOG_E("fail to init NWebAdapterHelper, test end");
         return;
     }

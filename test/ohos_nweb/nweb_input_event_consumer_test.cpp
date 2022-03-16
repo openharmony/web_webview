@@ -23,11 +23,13 @@ NWebInputEventConsumerTest::NWebInputEventConsumerTest(std::shared_ptr<NWeb> nwe
 void NWebInputEventConsumerTest::OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const
 {
     DispatchPointerEvent(pointerEvent);
+    pointerEvent->MarkProcessed();
 }
 
 void NWebInputEventConsumerTest::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const
 {
     DispatchKeyEvent(keyEvent);
+    keyEvent->MarkProcessed();
 }
 
 void NWebInputEventConsumerTest::DispatchPointerEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const
