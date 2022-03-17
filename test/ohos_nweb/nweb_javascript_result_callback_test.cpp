@@ -19,7 +19,7 @@
 #include "nweb_test_log.h"
 
 namespace OHOS::NWeb {
-std::shared_ptr<NWebValue> WebJavaScriptResultCallBackTest::GetJavaScriptResult(
+std::shared_ptr<NWebValue> NWebJavaScriptResultCallBackTest::GetJavaScriptResult(
     std::vector<std::shared_ptr<NWebValue>> args, const std::string &method, const std::string &object_name)
 {
     TESTLOG_I("GetJavaScriptResult=%{public}s", object_name.c_str());
@@ -27,7 +27,7 @@ std::shared_ptr<NWebValue> WebJavaScriptResultCallBackTest::GetJavaScriptResult(
     std::shared_ptr<NWebValue> value = std::make_shared<NWebValue>(NWebValue::Type::NONE);
     return value;
 }
-void WebJavaScriptResultCallBackTest::RegisterArkJSfunction(const std::string &objectname)
+void NWebJavaScriptResultCallBackTest::RegisterArkJSfunction(const std::string &objectname)
 {
     std::unique_lock<std::mutex> lk(object_mtx_);
     if (objector_map_.find(objectname) != objector_map_.end()) {
@@ -35,7 +35,7 @@ void WebJavaScriptResultCallBackTest::RegisterArkJSfunction(const std::string &o
     }
     objector_map_[objectname] = "method";
 }
-void WebJavaScriptResultCallBackTest::UnregisterArkJSfunction(const std::string &objectname)
+void NWebJavaScriptResultCallBackTest::UnregisterArkJSfunction(const std::string &objectname)
 {
     std::unique_lock<std::mutex> lk(object_mtx_);
     if (objector_map_.find(objectname) == objector_map_.end()) {

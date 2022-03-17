@@ -21,12 +21,12 @@
 namespace OHOS::NWeb {
 class NWebJSDialogImplTest : public NWebHandler {
 public:
-    enum {
+    enum class Type {
         CONFIRM,
         CANCEL
     };
     NWebJSDialogImplTest() = default;
-    explicit NWebJSDialogImplTest(int type) : type_(type) {}
+    explicit NWebJSDialogImplTest(Type type) : type_(type) {}
     ~NWebJSDialogImplTest() = default;
     void SetNWeb(std::shared_ptr<NWeb> nweb) override;
     bool OnAlertDialogByJS(const std::string &url,
@@ -45,7 +45,7 @@ public:
     bool OnConsoleLog(const NWebConsoleLog& message) override;
 private:
     std::weak_ptr<NWeb> nwebweak_;
-    int type_;
+    Type type_;
 };
 } // namespace OHOS::NWeb
 

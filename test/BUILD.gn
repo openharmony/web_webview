@@ -32,9 +32,9 @@ ohos_executable("nweb_test") {
   install_enable = false
 
   sources = [
-    "ohos_nweb/nweb_client_impl_test.cpp",
-    "ohos_nweb/nweb_client_impl_test_for_intercept.cpp",
     "ohos_nweb/nweb_downloadlistener_impl_test.cpp",
+    "ohos_nweb/nweb_handler_impl_test.cpp",
+    "ohos_nweb/nweb_handler_impl_test_for_intercept.cpp",
     "ohos_nweb/nweb_input_event_consumer_test.cpp",
     "ohos_nweb/nweb_javascript_result_callback_test.cpp",
     "ohos_nweb/nweb_js_dialog_impl_test.cpp",

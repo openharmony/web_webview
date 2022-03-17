@@ -27,7 +27,7 @@ bool NWebJSDialogImplTest::OnAlertDialogByJS(const std::string &url,
                                              std::shared_ptr<NWebJSDialogResult> result)
 {
     TESTLOG_I("OnAlertDialogByJS message:%{public}s", message.c_str());
-    type_ == CONFIRM ? result->Confirm() : result->Cancel();
+    type_ == Type::CONFIRM ? result->Confirm() : result->Cancel();
     return true;
 }
 
@@ -36,7 +36,7 @@ bool NWebJSDialogImplTest::OnBeforeUnloadByJS(const std::string &url,
                                               std::shared_ptr<NWebJSDialogResult> result)
 {
     TESTLOG_I("OnBeforeUnloadByJS message:%{public}s", message.c_str());
-    type_ == CONFIRM ? result->Confirm() : result->Cancel();
+    type_ == Type::CONFIRM ? result->Confirm() : result->Cancel();
     return true;
 }
 
@@ -47,7 +47,7 @@ bool NWebJSDialogImplTest::OnPromptDialogByJs(const std::string &url,
 {
     TESTLOG_I("OnPromptDialogByJs message:%{public}s", message.c_str());
     TESTLOG_I("OnPromptDialogByJs defaultValue:%{public}s", defaultValue.c_str());
-    type_ == CONFIRM ? result->Confirm("my input") : result->Cancel();
+    type_ == Type::CONFIRM ? result->Confirm("my input") : result->Cancel();
     return true;
 }
 
@@ -56,7 +56,7 @@ bool NWebJSDialogImplTest::OnConfirmDialogByJS(const std::string &url,
                                                std::shared_ptr<NWebJSDialogResult> result)
 {
     TESTLOG_I("OnConfirmDialogByJS message:%{public}s", message.c_str());
-    type_ == CONFIRM ? result->Confirm() : result->Cancel();
+    type_ == Type::CONFIRM ? result->Confirm() : result->Cancel();
     return true;
 }
 
