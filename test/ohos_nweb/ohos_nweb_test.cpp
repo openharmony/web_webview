@@ -26,12 +26,11 @@
 #include <vsync_helper.h>
 #include <zlib.h>
 
-#include "window.h"
 #include <ui/rs_surface_node.h>
 #include "nweb_test_log.h"
 #include "nweb.h"
-#include "nweb_client_impl_test.h"
-#include "nweb_client_impl_test_for_intercept.h"
+#include "nweb_handler_impl_test.h"
+#include "nweb_handler_impl_test_for_intercept.h"
 #include "nweb_cookie_manager.h"
 #include "nweb_downloadlistener_impl_test.h"
 #include "nweb_adapter_helper.h"
@@ -41,6 +40,7 @@
 #include "nweb_javascript_result_callback_test.h"
 #include "nweb_js_dialog_impl_test.h"
 #include "nweb_cookie_test_callback.h"
+#include "window.h"
 
 using namespace OHOS;
 
@@ -1216,7 +1216,7 @@ void Test226()
             OHOS::NWeb::NWebPreference::AccessMode::COMPATIBILITY_MODE);
         mixed_content_mode = g_webSettings->AccessModeForSecureOriginLoadFromInsecure();
         if (mixed_content_mode != OHOS::NWeb::NWebPreference::AccessMode::COMPATIBILITY_MODE) {
-            TESTLOG_E("Error! mixed_content_mode :%{public}d != %{public}d.", mixed_content_mode, 
+            TESTLOG_E("Error! mixed_content_mode :%{public}d != %{public}d.", mixed_content_mode,
                 OHOS::NWeb::NWebPreference::AccessMode::COMPATIBILITY_MODE);
         } else {
             TESTLOG_I("mixed_content_mode=%{public}d", mixed_content_mode);
@@ -1410,8 +1410,8 @@ void Test100()
     TESTLOG_I("start100");
     TestPrepare();
     TestWebSettingsForNormalWeb();
-    std::shared_ptr<OHOS::NWeb::WebJavaScriptResultCallBackTest> result_callback
-        = std::make_shared<OHOS::NWeb::WebJavaScriptResultCallBackTest>();
+    std::shared_ptr<OHOS::NWeb::NWebJavaScriptResultCallBackTest> result_callback
+        = std::make_shared<OHOS::NWeb::NWebJavaScriptResultCallBackTest>();
     g_nweb->SetNWebJavaScriptResultCallBack(result_callback);
     g_nweb->Load(g_url);
     std::this_thread::sleep_for(std::chrono::seconds(TIME_SECONDS_FIVE));
@@ -1589,7 +1589,7 @@ void Test109()
 {
     TESTLOG_I("start109");
     TestPrepareWithClient(std::make_shared<OHOS::NWeb::NWebJSDialogImplTest>(
-        OHOS::NWeb::NWebJSDialogImplTest::CONFIRM
+        OHOS::NWeb::NWebJSDialogImplTest::Type::CONFIRM
     ));
     TestWebSettingsForNormalWeb();
     g_nweb->Load("file:///data/local/cef/cef_user_data/JsDiaTest.html");
@@ -1601,7 +1601,7 @@ void Test110()
 {
     TESTLOG_I("start110");
     TestPrepareWithClient(std::make_shared<OHOS::NWeb::NWebJSDialogImplTest>(
-        OHOS::NWeb::NWebJSDialogImplTest::CANCEL
+        OHOS::NWeb::NWebJSDialogImplTest::Type::CANCEL
     ));
     TestWebSettingsForNormalWeb();
     g_nweb->Load("file:///data/local/cef/cef_user_data/JsDiaTest.html");
@@ -1613,7 +1613,7 @@ void Test111()
 {
     TESTLOG_I("start111");
     TestPrepareWithClient(std::make_shared<OHOS::NWeb::NWebJSDialogImplTest>(
-        OHOS::NWeb::NWebJSDialogImplTest::CONFIRM
+        OHOS::NWeb::NWebJSDialogImplTest::Type::CONFIRM
     ));
     TestWebSettingsForNormalWeb();
     g_nweb->Load("file:///data/local/cef/cef_user_data/JsBeforeUnloadTest.html");
@@ -1630,7 +1630,7 @@ void Test112()
 {
     TESTLOG_I("start112");
     TestPrepareWithClient(std::make_shared<OHOS::NWeb::NWebJSDialogImplTest>(
-        OHOS::NWeb::NWebJSDialogImplTest::CANCEL
+        OHOS::NWeb::NWebJSDialogImplTest::Type::CANCEL
     ));
     TestWebSettingsForNormalWeb();
     g_nweb->Load("file:///data/local/cef/cef_user_data/JsBeforeUnloadTest.html");
@@ -1663,101 +1663,16 @@ void Test113()
     TESTLOG_I("end113");
 }
 
-void Test301()
-{
-    TESTLOG_I("start301");
-    TestPrepare();
-    TestWebSettingsForNormalWeb();
-    g_nweb->Load(g_url);
-    g_window->Show();
-    std::shared_ptr<OHOS::NWeb::SetCookieTestCallback> setCookieCallback =
-        std::make_shared<OHOS::NWeb::SetCookieTestCallback>();
-    std::shared_ptr<OHOS::NWeb::ExistCookieTestCallback> existCookieCallback =
-        std::make_shared<OHOS::NWeb::ExistCookieTestCallback>();
-    std::shared_ptr<OHOS::NWeb::StoreCookieTestCallback> storeCookieCallback =
-        std::make_shared<OHOS::NWeb::StoreCookieTestCallback>();
-    std::shared_ptr<OHOS::NWeb::DeleteCookieTestCallback> deleteCookieCallback =
-        std::make_shared<OHOS::NWeb::DeleteCookieTestCallback>();
-    std::shared_ptr<OHOS::NWeb::ReturnCookieTestCallback> returnCookieCallback =
-        std::make_shared<OHOS::NWeb::ReturnCookieTestCallback>();
-    OHOS::NWeb::NWebCookieManager::GetInstance()->DeleteCookieEntirely(deleteCookieCallback);
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    OHOS::NWeb::NWebCookieManager::GetInstance()->ExistCookies(existCookieCallback);
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    OHOS::NWeb::NWebCookieManager::GetInstance()->SetCookie(
-        "http://www.baidu.com",
-        "a=b",
-        setCookieCallback);
-    OHOS::NWeb::NWebCookieManager::GetInstance()->SetCookie(
-        "http://www.baidu.com",
-        "c=d",
-        setCookieCallback);
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    OHOS::NWeb::NWebCookieManager::GetInstance()->ExistCookies(existCookieCallback);
-    OHOS::NWeb::NWebCookieManager::GetInstance()->ReturnCookie(
-        "http://www.baidu.com",
-        returnCookieCallback);
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    OHOS::NWeb::NWebCookieManager::GetInstance()->DeleteCookieEntirely(deleteCookieCallback);
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    OHOS::NWeb::NWebCookieManager::GetInstance()->ExistCookies(existCookieCallback);
-    TESTLOG_I("end301");
-}
-
-void Test302()
-{
-    TESTLOG_I("start302");
-    TestPrepare();
-    TestWebSettingsForNormalWeb();
-    g_nweb->Load(g_url);
-    g_window->Show();
-    std::shared_ptr<OHOS::NWeb::SetCookieTestCallback> setCookieCallback =
-        std::make_shared<OHOS::NWeb::SetCookieTestCallback>();
-    std::shared_ptr<OHOS::NWeb::ExistCookieTestCallback> existCookieCallback =
-        std::make_shared<OHOS::NWeb::ExistCookieTestCallback>();
-    std::shared_ptr<OHOS::NWeb::StoreCookieTestCallback> storeCookieCallback =
-        std::make_shared<OHOS::NWeb::StoreCookieTestCallback>();
-    std::shared_ptr<OHOS::NWeb::DeleteCookieTestCallback> deleteCookieCallback =
-        std::make_shared<OHOS::NWeb::DeleteCookieTestCallback>();
-    std::shared_ptr<OHOS::NWeb::ReturnCookieTestCallback> returnCookieCallback =
-        std::make_shared<OHOS::NWeb::ReturnCookieTestCallback>();
-    OHOS::NWeb::NWebCookieManager::GetInstance()->DeleteCookieEntirely(deleteCookieCallback);
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    OHOS::NWeb::NWebCookieManager::GetInstance()->ExistCookies(existCookieCallback);
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    OHOS::NWeb::NWebCookieManager::GetInstance()->SetCookie(
-        "http://www.baidu.com",
-        "a=b; Expires=Wed, 5 Oct 2022 07:28:00 GMT; path=/; domain=www.baidu.com",
-        setCookieCallback);
-    OHOS::NWeb::NWebCookieManager::GetInstance()->SetCookie(
-        "http://www.baidu.com",
-        "c=d; path=/; domain=www.baidu.com",
-        setCookieCallback);
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    OHOS::NWeb::NWebCookieManager::GetInstance()->ExistCookies(existCookieCallback);
-    OHOS::NWeb::NWebCookieManager::GetInstance()->ReturnCookie(
-        "http://www.baidu.com",
-        returnCookieCallback);
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    OHOS::NWeb::NWebCookieManager::GetInstance()->DeleteSessionCookies(deleteCookieCallback);
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    OHOS::NWeb::NWebCookieManager::GetInstance()->ReturnCookie(
-        "http://www.baidu.com",
-        returnCookieCallback);
-    OHOS::NWeb::NWebCookieManager::GetInstance()->ExistCookies(existCookieCallback);
-    TESTLOG_I("end302");
-}
-
 struct OhosNWebTest {
     int32_t id;
     const char *desc;
     void (*func)();
 };
 
-#define ADD_TEST(tests, id_, desc_) \
-    tests.push_back({               \
-        .id = id_,                  \
-        .desc = desc_,              \
+#define ADD_TEST(tests, id_, desc_)   \
+    (tests).push_back({               \
+        .id = (id_),                  \
+        .desc = (desc_),              \
         .func = Test##id_ })
 
 void InitTest(std::vector<struct OhosNWebTest> &tests)
@@ -1824,8 +1739,6 @@ void InitTest(std::vector<struct OhosNWebTest> &tests)
         "IsCreateWindowsByJavaScriptAllowed");
     ADD_TEST(tests, 230, "Test websettings api:PutJavaScriptEnabled and IsJavaScriptAllowed");
     ADD_TEST(tests, 231, "Test websettings api:PutDefaultTextEncodingFormat and DefaultTextEncodingFormat");
-    ADD_TEST(tests, 301, "Test cookieManager session cookie");
-    ADD_TEST(tests, 302, "Test cookieManager has expire cookie");
 }
 
 void Usage(const char *argv0, const std::vector<struct OhosNWebTest> &tests)

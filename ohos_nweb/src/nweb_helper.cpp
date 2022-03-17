@@ -115,7 +115,7 @@ std::shared_ptr<NWeb> NWebHelper::CreateNWeb(const NWebCreateInfo &create_info)
     }
 
     const std::string CREATE_NWEB_FUNC_NAME = "CreateNWeb";
-    CreateNWebFuncType funcCreateNWeb = 
+    CreateNWebFuncType funcCreateNWeb =
         reinterpret_cast<CreateNWebFuncType>(dlsym(libHandleNWebAdapter_, CREATE_NWEB_FUNC_NAME.c_str()));
     if (funcCreateNWeb == nullptr) {
         WVLOG_E("fail to dlsym %{public}s from libohoswebview.so", CREATE_NWEB_FUNC_NAME.c_str());

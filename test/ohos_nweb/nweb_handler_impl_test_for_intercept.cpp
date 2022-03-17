@@ -13,19 +13,17 @@
  * limitations under the License.
  */
 
-#include "nweb_client_impl_test_for_intercept.h"
+#include "nweb_handler_impl_test_for_intercept.h"
 
-#include <fstream>
+#include <cstdio>
 #include <cstring>
+#include <fstream>
 #include <string>
 #include <sstream>
-#include <stdio.h>
-#include <string.h>
 #include <unistd.h>
 #include "nweb_test_log.h"
 #include "nweb_url_resource_request.h"
 #include "nweb_url_resource_response.h"
-#include "utils.h"
 #include "securec.h"
 
 namespace OHOS::NWeb {
@@ -48,7 +46,10 @@ bool ReadFileToString(const char* path, std::string& data)
     while ((len = fread(buf, 1, sizeof(buf), file)) > 0) {
         data.append(buf, len);
     }
-    fclose(file);
+    int ret = fclose(file);
+    if (ret < 0) {
+        TESTLOG_I("fclose error");
+    }
     return true;
 }
 

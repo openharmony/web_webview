@@ -26,10 +26,10 @@
 #include "nweb_value.h"
 
 namespace OHOS::NWeb {
-class WebJavaScriptResultCallBackTest : public OHOS::NWeb::NWebJavaScriptResultCallBack {
+class NWebJavaScriptResultCallBackTest : public OHOS::NWeb::NWebJavaScriptResultCallBack {
 public:
-    WebJavaScriptResultCallBackTest() {}
-    ~WebJavaScriptResultCallBackTest() = default;
+    NWebJavaScriptResultCallBackTest() {}
+    ~NWebJavaScriptResultCallBackTest() = default;
     std::shared_ptr<OHOS::NWeb::NWebValue>
     GetJavaScriptResult(std::vector<std::shared_ptr<OHOS::NWeb::NWebValue>> args,
                         const std::string& method,
