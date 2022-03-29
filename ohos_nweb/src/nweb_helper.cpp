@@ -26,8 +26,10 @@
 namespace {
 const uint32_t NWEB_SURFACE_MAX_WIDTH = 7680;
 const uint32_t NWEB_SURFACE_MAX_HEIGHT = 7680;
-const std::string LOAD_LIB_DIR_SANDBOX = "/data/storage/el1/bundle/nweb/libs/arm";
-const std::string LOAD_LIB_DIR_INSTALLATION = "/data/app/el1/bundle/public/com.ohos.nweb/libs/arm";
+const std::string RELATIVE_PATH_FOR_MOCK = "libs/arm";
+const std::string RELATIVE_PATH_FOR_BUNDLE = "nweb/libs/arm";
+const std::string LIB_NAME_WEB_ENGINE = "libweb_engine.so";
+const std::string LIB_NAME_NWEB_ADAPTER = "libnweb_adapter.so";
 }
 
 namespace  OHOS::NWeb {
@@ -38,53 +40,63 @@ NWebHelper &NWebHelper::Instance()
 }
 
 #ifdef __MUSL__
-bool NWebHelper::LoadLib()
+bool NWebHelper::LoadLib(bool from_ark)
 {
     if (libHandleNWebAdapter_ != nullptr && libHandleWebEngine_ != nullptr) {
         return true;
     }
-    if (loadLibPath_.empty()) {
+    if (bundlePath_.empty()) {
         return false;
+    }
+    std::string loadLibPath;
+    if (from_ark) {
+        loadLibPath = bundlePath_ + "/" + RELATIVE_PATH_FOR_BUNDLE;
+    } else {
+        loadLibPath = bundlePath_ + "/" + RELATIVE_PATH_FOR_MOCK;
     }
     Dl_namespace dlns;
     dlns_init(&dlns, "nweb_ns");
-    dlns_create(&dlns, loadLibPath_.c_str());
-    const std::string LIB_PATH_NWEB_ADAPTER = "libnweb_adapter.so";
-    const std::string LIB_PATH_WEB_ENGINE = "libweb_engine.so";
-    void *libHandleWebEngine = dlopen_ns(&dlns, LIB_PATH_WEB_ENGINE.c_str(), RTLD_NOW);
+    dlns_create(&dlns, loadLibPath.c_str());
+    void *libHandleWebEngine = dlopen_ns(&dlns, LIB_NAME_WEB_ENGINE.c_str(), RTLD_NOW);
     if (libHandleWebEngine == nullptr) {
-        WVLOG_E("fail to dlopen %{public}s, errmsg=%{public}s", LIB_PATH_WEB_ENGINE.c_str(), dlerror());
+        WVLOG_E("fail to dlopen %{public}s, errmsg=%{public}s", LIB_NAME_WEB_ENGINE.c_str(), dlerror());
         return false;
     }
     libHandleWebEngine_ = libHandleWebEngine;
-    void *libHandleNWebAdapter = dlopen_ns(&dlns, LIB_PATH_NWEB_ADAPTER.c_str(), RTLD_NOW);
+    void *libHandleNWebAdapter = dlopen_ns(&dlns, LIB_NAME_NWEB_ADAPTER.c_str(), RTLD_NOW);
     if (libHandleNWebAdapter == nullptr) {
-        WVLOG_E("fail to dlopen %{public}s, errmsg=%{public}s", LIB_PATH_NWEB_ADAPTER.c_str(), dlerror());
+        WVLOG_E("fail to dlopen %{public}s, errmsg=%{public}s", LIB_NAME_NWEB_ADAPTER.c_str(), dlerror());
         return false;
     }
     libHandleNWebAdapter_ = libHandleNWebAdapter;
     return true;
 }
 #else
-bool NWebHelper::LoadLib()
+bool NWebHelper::LoadLib(bool from_ark)
 {
     if (libHandleNWebAdapter_ != nullptr && libHandleWebEngine_ != nullptr) {
         return true;
     }
-    if (loadLibPath_.empty()) {
+    if (bundlePath_.empty()) {
         return false;
     }
-    const std::string LIB_PATH_NWEB_ADAPTER = loadLibPath_ + "/libnweb_adapter.so";
-    const std::string LIB_PATH_WEB_ENGINE = loadLibPath_ + "/libweb_engine.so";
-    void *libHandleWebEngine = ::dlopen(LIB_PATH_WEB_ENGINE.c_str(), RTLD_NOW);
+    std::string loadLibPath;
+    if (from_ark) {
+        loadLibPath = bundlePath_ + "/" + RELATIVE_PATH_FOR_BUNDLE;
+    } else {
+        loadLibPath = bundlePath_ + "/" + RELATIVE_PATH_FOR_MOCK;
+    }
+    const std::string libPathWebEngine = loadLibPath + "/" + LIB_NAME_WEB_ENGINE;
+    const std::string libPathWebAdapter = loadLibPath + "/" + LIB_NAME_NWEB_ADAPTER;
+    void *libHandleWebEngine = ::dlopen(libPathWebEngine.c_str(), RTLD_NOW);
     if (libHandleWebEngine == nullptr) {
-        WVLOG_E("fail to dlopen %{public}s, errmsg=%{public}s", LIB_PATH_WEB_ENGINE.c_str(), dlerror());
+        WVLOG_E("fail to dlopen %{public}s, errmsg=%{public}s", libPathWebEngine.c_str(), dlerror());
         return false;
     }
     libHandleWebEngine_ = libHandleWebEngine;
-    void *libHandleNWebAdapter = ::dlopen(LIB_PATH_NWEB_ADAPTER.c_str(), RTLD_NOW);
+    void *libHandleNWebAdapter = ::dlopen(libPathWebAdapter.c_str(), RTLD_NOW);
     if (libHandleNWebAdapter == nullptr) {
-        WVLOG_E("fail to dlopen %{public}s, errmsg=%{public}s", LIB_PATH_NWEB_ADAPTER.c_str(), dlerror());
+        WVLOG_E("fail to dlopen %{public}s, errmsg=%{public}s", libPathWebAdapter.c_str(), dlerror());
         return false;
     }
     libHandleNWebAdapter_ = libHandleNWebAdapter;
@@ -106,12 +118,12 @@ void NWebHelper::UnloadLib()
 
 bool NWebHelper::Init(bool from_ark)
 {
-    if (!from_ark) {
-        loadLibPath_ = LOAD_LIB_DIR_INSTALLATION;
-    } else {
-        loadLibPath_ = LOAD_LIB_DIR_SANDBOX;
-    }
-    return LoadLib();
+    return LoadLib(from_ark);
+}
+
+void NWebHelper::SetBundlePath(const std::string& path)
+{
+    bundlePath_ = path;
 }
 
 NWebHelper::~NWebHelper()

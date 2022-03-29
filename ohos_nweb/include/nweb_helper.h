@@ -28,16 +28,17 @@ public:
     bool Init(bool from_ark = true);
 
     std::shared_ptr<NWeb> CreateNWeb(const NWebCreateInfo &create_info);
+    void SetBundlePath(const std::string& path);
 
 private:
     NWebHelper() = default;
-    bool LoadLib();
+    bool LoadLib(bool from_ark);
     void UnloadLib();
 
 private:
     void *libHandleNWebAdapter_ = nullptr;
     void *libHandleWebEngine_ = nullptr;
-    std::string loadLibPath_;
+    std::string bundlePath_;
 };
 } // namespace OHOS::NWeb
 
