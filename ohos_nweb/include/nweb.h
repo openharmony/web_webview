@@ -118,6 +118,11 @@ public:
      */
     virtual void NavigateForward() const = 0;
 
+    /** 
+     * Delete back and forward history list.
+     */
+    virtual void DeleteNavigateHistory() = 0;
+
     /**
      * Reload the current URL.
      *

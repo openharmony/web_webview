@@ -24,18 +24,16 @@ class OHOS_NWEB_EXPORT NWebPreference {
 public:
     NWebPreference() = default;
     virtual ~NWebPreference() = default;
-
     enum class AccessMode { ALWAYS_ALLOW = 0, NEVER_ALLOW = 1, COMPATIBILITY_MODE = 2 };
-
-    /* Synchronously set NWebPreference and web preferences */
+    /* synchronous set NWebPreference and web preferences */
     /**
-     * Enable or disable content URL(content from a content provider installed
+     * Enables or disables content URL(content from a content provider installed
      * in the system) access within NWeb. The default is true.
      */
     virtual void PutEnableContentAccess(bool flag) = 0;
 
     /**
-     * Enable or disable file system access within NWeb. But files in the
+     * Enables or disables file system access within NWeb. But files in the
      * path of AppData are still accessible. The default is false.
      */
     virtual void PutEnableRawFileAccess(bool flag) = 0;
@@ -69,7 +67,7 @@ public:
     virtual void PutCursiveFontFamilyName(std::string font) = 0;
 
     /**
-     * Enable or disable the database storage API. The default is false.
+     * Enables or disables the database storage API. The default is false.
      * This setting is global and effectd all NWeb instances in a
      * process. You must modify this before loading any NWeb page so that the
      * changes won't be ignored.
@@ -101,7 +99,7 @@ public:
     virtual void PutDefaultTextEncodingFormat(std::string encoding) = 0;
 
     /**
-     * Enable or disable the DOM storage API. The default value is false.
+     * Enables or disables the DOM storage API. The default value is false.
      */
     virtual void PutDomStorageEnabled(bool flag) = 0;
 
@@ -120,7 +118,7 @@ public:
     virtual void PutFixedFontFamilyName(std::string font) = 0;
 
     /**
-     * Enable or disable the force dark mode for this NWeb.
+     * Enables or disables the force dark mode for this NWeb.
      *
      * @param forceDark true if set the force dark mode for this NWeb.
      */
@@ -157,6 +155,13 @@ public:
      *             the specified range will be pinned.
      */
     virtual void PutLogicalFontSizeLowerLimit(int size) = 0;
+
+    /**
+     * Sets whether the WebView loads pages in overview mode, that is, zooms out the
+     * content to fit on screen by width.
+     *
+     */
+    virtual void PutLoadWithOverviewMode(bool flag) = 0;
 
     /**
      * Put the sans-serif font family name. The default is "sans-serif".
@@ -227,6 +232,17 @@ public:
      * attempts to set a value of false will be failed.
      */
     virtual void PutBlockNetwork(bool flag) = 0;
+
+    enum CacheModeFlag {
+        USE_DEFAULT = 0,
+        USE_CACHE_ELSE_NETWORK,
+        USE_NO_CACHE,
+        USE_CACHE_ONLY
+    };
+    /**
+     * PutCacheMode
+     */
+    virtual void PutCacheMode(CacheModeFlag flag) = 0;
 
     /* get methods */
     /**
@@ -378,6 +394,13 @@ public:
     virtual int LogicalFontSizeLowerLimit() = 0;
 
     /**
+     * Get the swith for the overview mode.
+     *
+     * @see PutLoadWithOverviewMode
+     */
+    virtual bool IsLoadWithOverviewMode() = 0;
+
+    /**
      * Get the sans-serif font family name.
      *
      * @see PutSansSerifFontFamilyName
@@ -440,7 +463,13 @@ public:
      * @see PutBlockNetwork
      */
     virtual bool IsNetworkBlocked() = 0;
+
+    /**
+     * Get cache mode
+     *
+     * @see PutCacheMode
+     */
+    virtual CacheModeFlag CacheMode() = 0;
 };
 }  // namespace OHOS::NWeb
-
 #endif  // NWEB_PREFERENCE_H

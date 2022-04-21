@@ -24,6 +24,7 @@
 #include "nweb.h"
 #include "nweb_console_log.h"
 #include "nweb_geolocation_callback_interface.h"
+#include "nweb_file_selector_params.h"
 #include "nweb_js_dialog_result.h"
 #include "nweb_url_resource_error.h"
 #include "nweb_url_resource_request.h"
@@ -60,6 +61,25 @@ enum class ImageAlphaType {
     // Transparency with post-multiplied alpha component.
     ALPHA_TYPE_POSTMULTIPLIED = 2,
 };
+
+enum class RenderExitReason {
+    // Render process non-zero exit status
+    PROCESS_ABNORMAL_TERMINATION,
+
+    // SIGKILL or task manager kill
+    PROCESS_WAS_KILLED,
+
+    // Segmentation fault
+    PROCESS_CRASHED,
+
+    // Out of memory
+    PROCESS_OOM,
+
+    // Unknown reason
+    PROCESS_EXIT_UNKNOWN,
+};
+
+using FileSelectorCallback = NWebValueCallback<std::vector<std::string>&>;
 
 class OHOS_NWEB_EXPORT NWebHandler {
 public:
@@ -312,6 +332,32 @@ public:
      * permission.
      */
     virtual void OnPermissionRequestCanceled(std::shared_ptr<NWebAccessRequest> request) {}
+
+    /**
+     * @brief called when the render process exit.
+     *
+     * @param reason  the detail reason why render process exit, the implementation of this callback
+     * should attempt to clean up the specific nweb that was set by SetNWeb interface.
+     */
+    virtual void OnRenderExited(RenderExitReason reason) {}
+
+    /**
+     * @brief inform application to update its visited links database.
+     *
+     * @param url the url being visited.
+     * @param isReload true if the url is being reload.
+     */
+    virtual void OnRefreshAccessedHistory(const std::string& url, bool isReload) {}
+
+    /**
+     * @brief inform application to show a file selector.
+     * @param callback the file list to select.
+     * @param params the params of file selector.
+     */
+    virtual bool OnFileSelectorShow(std::shared_ptr<FileSelectorCallback> callback,
+                                    std::shared_ptr<NWebFileSelectorParams> params) {
+        return false;
+    }
 };
 }  // namespace OHOS::NWeb
 

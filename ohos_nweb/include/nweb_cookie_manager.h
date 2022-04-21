@@ -30,13 +30,6 @@ public:
     virtual ~NWebCookieManager() = default;
 
     /**
-     * @brief Get the singleton NWebCookieManager instance.
-     *
-     * @return the singleton NWebCookieManager instance.
-     */
-    static NWebCookieManager* GetInstance();
-
-    /**
      * @brief Get whether the instance can send and accept cookies.
      *
      * @return true if the instance send and accept cookies.
@@ -86,6 +79,16 @@ public:
                            std::shared_ptr<NWebValueCallback<bool>> callback) = 0;
 
     /**
+     * @brief Set a single cookie (key-value pair) for the given URL sync.
+     *
+     * @param url the URL for which the cookie is to be set.
+     * @param value the cookie as a string, using the format of the 'Set-Cookie' HTTP response header.
+     * @return true if success else false.
+     */
+    virtual bool SetCookie(const std::string &url,
+                           const std::string &value) = 0;
+
+    /**
      * @brief Get whether there are stored cookies.
      *
      * @param callback a callback to be executed when the cookie has checked.
@@ -99,6 +102,14 @@ public:
      * @param callback a callback to be executed when cookies has Stored.
      */
     virtual void Store(std::shared_ptr<NWebValueCallback<bool>> callback) = 0;
+
+    /**
+     * @brief Ensure all cookies currently accessible through the ReturnCookie API are written to
+     * persistent storage sync.
+     *
+     * @return true if success else false.
+     */
+    virtual bool Store() = 0;
 
     /**
      * @brief Remove all session cookies, which are cookies without an expiration date.
