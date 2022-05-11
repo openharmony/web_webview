@@ -21,9 +21,17 @@ position = exec_script(
         [ "cd $native_source_path; if [ -d $web_dir ]; then echo true; else echo false; fi" ],
         "value")
 if (!position) {
-  web_source = "prebuilts/arm/NWeb.hap"
+  if (target_cpu == "arm64") {
+    web_source = "prebuilts/arm64/NWeb.hap"
+  } else if (target_cpu == "arm") {
+    web_source = "prebuilts/arm/NWeb.hap"
+  }
 } else {
-  web_source = "../nweb_hap/NWeb.hap"
+  if (target_cpu == "arm64") {
+    web_source = "../nweb_hap/arm64/NWeb.hap"
+  } else if (target_cpu == "arm") {
+    web_source = "../nweb_hap/arm/NWeb.hap"
+  }
 }
 
 config("nweb_config") {
