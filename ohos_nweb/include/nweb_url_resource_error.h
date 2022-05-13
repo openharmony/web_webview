@@ -19,6 +19,7 @@
 #include <string>
 
 #include "nweb_export.h"
+
 namespace OHOS::NWeb {
 class OHOS_NWEB_EXPORT NWebUrlResourceError {
 public:
@@ -27,9 +28,9 @@ public:
     virtual ~NWebUrlResourceError() = default;
 
     /**
-     * @brief Gets the error description.
+     * @brief Get the error description.
      *
-     * @brief Gets the ErrorInfo.
+     * @brief Get the ErrorInfo.
      *
      * @return The description of the error.
      */
@@ -42,6 +43,6 @@ public:
      */
     virtual int ErrorCode() const = 0;
 };
-}
+} // namespace OHOS::NWeb
 
 #endif // NWEB_URL_RESOURCE_ERROR_H

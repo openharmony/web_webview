@@ -23,7 +23,7 @@ namespace OHOS::NWeb {
 class NWebUrlResourceResponse {
 public:
     /**
-     * @brief Constructs a resource response with the given parameters.
+     * @brief Construct a resource response with the given parameters.
      *
      * @param mime_type the resource response's MIME type, for example {
      * "text/html"}.
@@ -33,7 +33,7 @@ public:
      * [400, 599]. Causing a redirect by specifying a 3xx code is not supported.
      * @param reason_phrase the phrase describing the status code, for example
      * "OK". Must be non-empty.
-     * @param request_headers the resource response's headers represented as a
+     * @param response_headers the resource response's headers represented as a
      * mapping of header name -> header value.
      * @param input_stream the input stream that provides the resource response's
      * data.
@@ -42,13 +42,13 @@ public:
                             const std::string& encoding,
                             const int status_code,
                             const std::string& reason_phrase,
-                            const std::map<std::string, std::string>& request_headers,
+                            const std::map<std::string, std::string>& response_headers,
                             std::string& input_stream)
         : mime_type_(mime_type),
           encoding_(encoding),
           status_code_(status_code),
           reason_phrase_(reason_phrase),
-          request_headers_(request_headers),
+          response_headers_(response_headers),
           input_stream_(input_stream) {}
 
     NWebUrlResourceResponse(const std::string& mime_type,
@@ -82,7 +82,7 @@ public:
     }
 
     /**
-     * @brief Constructs a resource response with the given parameters.
+     * @brief Construct a resource response with the given parameters.
      *
      * @param encoding encoding { "utf-8" }
      */
@@ -102,7 +102,7 @@ public:
     }
 
     /**
-     * @brief Constructs a resource response with the given parameters.
+     * @brief Construct a resource response with the given parameters.
      *
      * @param mime_type mime_type{ "text/html" }
      */
@@ -112,7 +112,7 @@ public:
     }
 
     /**
-     * @brief get mimetype
+     * @brief Get mimetype
      *
      * @retval mimetype The resource response's MIME type
      */
@@ -124,27 +124,27 @@ public:
     /**
      * @brief Set ResponseHeaders
      *
-     * @param request_headers request header
+     * @param response_headers response header
      */
-    void PutResponseHeaders(const std::map<std::string, std::string>& request_headers)
+    void PutResponseHeaders(const std::map<std::string, std::string>& response_headers)
     {
-        request_headers_ = request_headers;
+        response_headers_ = response_headers;
     }
 
     /**
      * @brief Get ResponseHeaders
      *
-     * @retval request headers
+     * @retval response headers
      */
     const std::map<std::string, std::string>& ResponseHeaders()
     {
-        return request_headers_;
+        return response_headers_;
     }
 
     /**
      * @brief Set StatusCode And ReasonPhrase
      *
-     * @param status_code  status code
+     * @param status_code status code
      * @param reasonphrase reason phrase
      */
     void PutResponseStateAndStatuscode(int status_code,
@@ -155,7 +155,7 @@ public:
     }
 
     /**
-     * @brief get status code
+     * @brief Get status code
      *
      * @retval status code
     */
@@ -173,13 +173,15 @@ public:
     {
         return reason_phrase_;
     }
+
 private:
     std::string mime_type_;
     std::string encoding_;
     int status_code_ = 200;
     std::string reason_phrase_;
-    std::map<std::string, std::string> request_headers_;
+    std::map<std::string, std::string> response_headers_;
     std::string& input_stream_;
 };
-}
-#endif
+} // namespace OHOS::NWeb
+
+#endif // NWEB_URL_RESOURCE_RESPONSE_H

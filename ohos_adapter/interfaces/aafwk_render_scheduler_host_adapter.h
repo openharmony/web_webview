@@ -13,26 +13,20 @@
  * limitations under the License.
  */
 
-#ifndef NWEB_JAVASCRIPT_RESULT_CALLBACK_H
-#define NWEB_JAVASCRIPT_RESULT_CALLBACK_H
+#ifndef AAFWK_RENDER_SCHEDULER_HOST_ADAPTER_H
+#define AAFWK_RENDER_SCHEDULER_HOST_ADAPTER_H
 
-#include <string>
-#include <vector>
-#include "nweb_export.h"
-#include "nweb_value.h"
+#include <cstdint>
 
 namespace OHOS::NWeb {
-class OHOS_NWEB_EXPORT NWebJavaScriptResultCallBack {
+class AafwkRenderSchedulerHostAdapter {
 public:
-    NWebJavaScriptResultCallBack() = default;
+    AafwkRenderSchedulerHostAdapter() = default;
 
-    virtual ~NWebJavaScriptResultCallBack() = default;
+    virtual ~AafwkRenderSchedulerHostAdapter() = default;
 
-    virtual std::shared_ptr<NWebValue> GetJavaScriptResult(
-        std::vector<std::shared_ptr<NWebValue>> args,
-        const std::string &method,
-        const std::string &object_name) = 0;
+    virtual void NotifyBrowserFd(int32_t ipcFd, int32_t sharedFd) = 0;
 };
-} // namespace OHOS::NWeb
+}  // namespace OHOS::NWeb
 
-#endif // NWEB_JAVASCRIPT_RESULT_CALLBACK_H
+#endif  // AAFWK_RENDER_SCHEDULER_HOST_ADAPTER_H

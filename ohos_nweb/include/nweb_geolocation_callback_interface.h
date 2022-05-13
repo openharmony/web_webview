@@ -38,6 +38,6 @@ public:
                                            bool allow,
                                            bool retain) = 0;
 };
-}  // namespace OHOS::NWeb
+} // namespace OHOS::NWeb
 
 #endif  // NWEB_GEOLOCATION_CALLBACK_INTERFACE_H

@@ -13,26 +13,24 @@
  * limitations under the License.
  */
 
-#ifndef NWEB_JAVASCRIPT_RESULT_CALLBACK_H
-#define NWEB_JAVASCRIPT_RESULT_CALLBACK_H
+#ifndef OHOS_ADAPTER_HELPER_H
+#define OHOS_ADAPTER_HELPER_H
 
-#include <string>
-#include <vector>
-#include "nweb_export.h"
-#include "nweb_value.h"
+#include <memory>
+#include "aafwk_app_mgr_client_adapter.h"
 
 namespace OHOS::NWeb {
-class OHOS_NWEB_EXPORT NWebJavaScriptResultCallBack {
+class OhosAdapterHelper {
 public:
-    NWebJavaScriptResultCallBack() = default;
+    static OhosAdapterHelper &GetInstance();
 
-    virtual ~NWebJavaScriptResultCallBack() = default;
+    virtual ~OhosAdapterHelper() = default;
 
-    virtual std::shared_ptr<NWebValue> GetJavaScriptResult(
-        std::vector<std::shared_ptr<NWebValue>> args,
-        const std::string &method,
-        const std::string &object_name) = 0;
+    std::unique_ptr<AafwkAppMgrClientAdapter> CreateAafwkAdapter();
+
+private:
+    OhosAdapterHelper() = default;
 };
-} // namespace OHOS::NWeb
+}  // namespace OHOS::NWeb
 
-#endif // NWEB_JAVASCRIPT_RESULT_CALLBACK_H
+#endif  // OHOS_ADAPTER_HELPER_H
