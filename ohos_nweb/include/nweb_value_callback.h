@@ -28,6 +28,6 @@ public:
 
     virtual void OnReceiveValue(T value) = 0;
 };
-}
+} // namespace OHOS::NWeb
 
-#endif  // NWebValueCallback
+#endif  // VALUE_CALLBACK_H

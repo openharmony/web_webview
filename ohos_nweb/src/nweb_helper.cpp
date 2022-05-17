@@ -155,6 +155,23 @@ std::shared_ptr<NWeb> NWebHelper::CreateNWeb(const NWebCreateInfo &create_info)
     return nweb;
 }
 
+using GetCookieManagerFunc = NWebCookieManager *(*)();
+NWebCookieManager *NWebHelper::GetCookieManager()
+{
+    if (libHandleNWebAdapter_ == nullptr) {
+        return nullptr;
+    }
+
+    const std::string COOKIE_FUNC_NAME = "GetCookieManager";
+    GetCookieManagerFunc cookieFunc = 
+        reinterpret_cast<GetCookieManagerFunc>(dlsym(libHandleNWebAdapter_, COOKIE_FUNC_NAME.c_str()));
+    if (cookieFunc == nullptr) {
+        WVLOG_E("fail to dlsym %{public}s from libohoswebview.so", COOKIE_FUNC_NAME.c_str());
+        return nullptr;
+    }
+    return cookieFunc();
+}
+
 NWebAdapterHelper &NWebAdapterHelper::Instance()
 {
     static NWebAdapterHelper helper;

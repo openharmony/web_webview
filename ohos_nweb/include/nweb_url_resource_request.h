@@ -15,6 +15,7 @@
 
 #ifndef NWEB_URL_RESOURCE_REQUEST_H
 #define NWEB_URL_RESOURCE_REQUEST_H
+
 #include <map>
 #include <string>
 
@@ -28,36 +29,36 @@ public:
     virtual ~NWebUrlResourceRequest() = default;
 
     /**
-     * @brief Gets the method associated with the request, for example "GET".
+     * @brief Get the method associated with the request, for example "GET".
      *
      * @retval method the method associated with the request.
      */
     virtual const std::string &Method() = 0;
 
     /**
-     * @brief  Gets the headers associated with the request.
+     * @brief Get the headers associated with the request.
      *
      * @retval the headers associated with the request.
      */
     virtual const std::map<std::string, std::string> &RequestHeaders() = 0;
 
     /**
-     * @brief Gets the URL for which the resource request was made.
+     * @brief Get the URL for which the resource request was made.
      *
      * @retval URL url string
      */
     virtual const std::string &Url() = 0;
 
     /**
-     * @brief Gets whether a gesture (such as a click) was associated with the
+     * @brief Get whether a gesture (such as a click) was associated with the
      * request.
      *
-     * @retval gesture
+     * @retval gesture whether was associated with the request.
      */
     virtual bool FromGesture() = 0;
 
     /**
-     * @brief Gets whether the request was made in order to fetch the main frame's
+     * @brief Get whether the request was made in order to fetch the main frame's
      * document.
      *
      * @retval Is main frame
@@ -65,12 +66,12 @@ public:
     virtual bool IsAboutMainFrame() = 0;
 
     /**
-     * @brief Gets whether the request was a result of a server-side redirect.
+     * @brief Get whether the request was a result of a server-side redirect.
      *
      * @retval is redirect
      */
     virtual bool IsRequestRedirect() = 0;
 };
-}
+}  // namespace OHOS::NWeb
 
-#endif
+#endif  // NWEB_URL_RESOURCE_REQUEST_H

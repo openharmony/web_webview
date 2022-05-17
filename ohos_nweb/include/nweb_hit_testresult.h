@@ -23,10 +23,11 @@
 namespace OHOS::NWeb {
 class OHOS_NWEB_EXPORT HitTestResult {
 public:
-    HitTestResult() {
-        type_ = UNKNOWN_TYPE;
+    HitTestResult() : type_(UNKNOWN_TYPE) {
     }
+
     virtual ~HitTestResult() = default;
+
     /**
      * Default HitTestResult, where the target is unknown.
      */
@@ -83,10 +84,11 @@ public:
     std::string GetExtra() {
         return extra_;
     }
+
 private:
     int type_;
     std::string extra_;
 };
-}
+} // namespace OHOS::NWeb
 
 #endif  // WEB_HIT_TESTRESULT_H

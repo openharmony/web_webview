@@ -45,15 +45,16 @@ struct OHOS_NWEB_EXPORT NWebCreateInfo {
     uint32_t height = 0;
 
     /* output frame cb */
-    std::function<bool(const char*, uint32_t, uint32_t)> output_render_frame =
-    nullptr;
+    std::function<bool(const char*, uint32_t, uint32_t)> output_render_frame = nullptr;
 
     /* init args */
     NWebInitArgs init_args;
+
+    void* producer_surface = nullptr;
 };
 
 class OHOS_NWEB_EXPORT NWeb : public std::enable_shared_from_this<NWeb> {
-    public:
+public:
     NWeb() = default;
     virtual ~NWeb() = default;
 
@@ -72,52 +73,64 @@ class OHOS_NWEB_EXPORT NWeb : public std::enable_shared_from_this<NWeb> {
     virtual void OnNavigateBack() = 0;
 
     /**
-     * Loads the given URL.
+     * Load the given URL.
      *
-     * @param url String: the URL of the resource to load This value cannot be
+     * @param url String: the URL of the resource to load. This value cannot be
      * null.
      *
      * @return title string for the current page.
      */
     virtual void Load(const std::string& url) const = 0;
+
     /**
-     * Gets whether this NWeb has a back history item.
+     * Get whether this NWeb has a back history item.
      *
      * @return true if this NWeb has a back history item
      */
     virtual bool IsNavigatebackwardAllowed() const = 0;
+
     /**
-     * Gets whether this NWeb has a forward history item.
+     * Get whether this NWeb has a forward history item.
      *
      * @return true if this NWeb has a forward history item
      */
     virtual bool IsNavigateForwardAllowed() const = 0;
+
     /**
-     * Gets whether this NWeb has a back or forward history item for number of
+     * Get whether this NWeb has a back or forward history item for number of
      * steps.
      *
      * @param numSteps int: the negative or positive number of steps to move the
-     * history
+     * history.
      * @return true if this NWeb has a forward history item
      */
     virtual bool CanNavigateBackOrForward(int numSteps) const = 0;
+
     /**
-     * Goes back in the history of this NWeb.
+     * Go back in the history of this NWeb.
      *
      */
     virtual void NavigateBack() const = 0;
+
     /**
-     * Goes forward in the history of this NWeb.
+     * Go forward in the history of this NWeb.
      *
      */
     virtual void NavigateForward() const = 0;
+
+    /** 
+     * Delete back and forward history list.
+     */
+    virtual void DeleteNavigateHistory() = 0;
+
     /**
-     * Reloads the current URL.
+     * Reload the current URL.
      *
      */
     virtual void Reload() const = 0;
+
     /**
-     * Performs a zoom operation in this NWeb.
+     * Perform a zoom operation in this NWeb.
      *
      * @param zoomFactor float: the zoom factor to apply. The zoom factor will be
      * clamped to the NWeb's zoom limits. This value must be in the range 0.01
@@ -127,16 +140,18 @@ class OHOS_NWEB_EXPORT NWeb : public std::enable_shared_from_this<NWeb> {
     virtual void Zoom(float zoomFactor) const = 0;
 
     /**
-     * Stops the current load.
+     * Stop the current load.
      *
      * @param code string: javascript code
      */
     virtual void Stop() const = 0;
+
     /**
      * ExecuteJavaScript
      *
      */
     virtual void ExecuteJavaScript(const std::string& code) const = 0;
+
     /**
      * ExecuteJavaScript plus
      *
@@ -146,83 +161,88 @@ class OHOS_NWEB_EXPORT NWeb : public std::enable_shared_from_this<NWeb> {
      *
      */
     virtual void ExecuteJavaScript(
-            const std::string& code,
-            std::shared_ptr<NWebValueCallback<std::string>> callback) const = 0;
+        const std::string& code,
+        std::shared_ptr<NWebValueCallback<std::string>> callback) const = 0;
+
     /**
-     * Gets the NWebPreference object used to control the settings for this
+     * Get the NWebPreference object used to control the settings for this
      * NWeb.
      *
      * @return a NWebPreference object that can be used to control this NWeb's
      * settings This value cannot be null.
      */
     virtual const std::shared_ptr<NWebPreference> GetPreference() const = 0;
+
     /**
-     * Gets the last hit test result.
+     * Get the last hit test result.
      *
      * @return the last HitTestResult
      */
     virtual HitTestResult GetHitTestResult() const = 0;
 
     /**
-     * Sets the background color for this view.
+     * Set the background color for this view.
      *
      * @param color int: the color of the background
      *
      */
     virtual void PutBackgroundColor(int color) const = 0;
+
     /**
-     * Sets the NWebDownloadCallback that will receive download event.
+     * Set the NWebDownloadCallback that will receive download event.
      * This will replace the current handler.
      *
-     * @param downloadListener NWebDownloadCallback:
-     *
+     * @param downloadListener NWebDownloadCallback.
      */
     virtual void PutDownloadCallback(
-            std::shared_ptr<NWebDownloadCallback> downloadListener) = 0;
+        std::shared_ptr<NWebDownloadCallback> downloadListener) = 0;
+
     /**
-     * Sets the NWebHandler that will receive various notifications and
+     * Set the NWebHandler that will receive various notifications and
      * requests. This will replace the current handler.
      *
-     * @param client NWebHandler: an implementation of NWebHandler This value
+     * @param client NWebHandler: an implementation of NWebHandler. This value
      * cannot be null.
-     *
      */
     virtual void SetNWebHandler(std::shared_ptr<NWebHandler> handler) = 0;
+
     /**
-     * Gets the NWebHandler.
+     * Get the NWebHandler.
      *
      * @return Gets the NWebHandler.
      */
     virtual const std::shared_ptr<NWebHandler> GetNWebHandler() const = 0;
+
     /**
-     * Gets the title for the current page.
+     * Get the title for the current page.
      *
      * @return title string for the current page.
      */
     virtual std::string Title() = 0;
+
     /**
-     * Gets the progress for the current page.
+     * Get the progress for the current page.
      *
      * @return progress for the current page.
      */
     virtual int PageLoadProgress() = 0;
 
     /**
-     * Gets the height of the HTML content.
+     * Get the height of the HTML content.
      *
      * @return the height of the HTML content.
      */
     virtual int ContentHeight() = 0;
 
     /**
-     * Gets the current scale of this NWeb.
+     * Get the current scale of this NWeb.
      *
      * @return the current scale
      */
     virtual float Scale() = 0;
 
     /**
-     * Loads the given URL with additional HTTP headers, specified as a map
+     * Load the given URL with additional HTTP headers, specified as a map
      * from name to value. Note that if this map contains any of the headers that
      * are set by default by this NWeb, such as those controlling caching,
      * accept types or the User-Agent, their values may be overridden by this
@@ -234,11 +254,11 @@ class OHOS_NWEB_EXPORT NWeb : public std::enable_shared_from_this<NWeb> {
      * @param additionalHttpHeaders additionalHttpHeaders
      */
     virtual void Load(
-            std::string& url,
-            std::map<std::string, std::string> additionalHttpHeaders) = 0;
+        std::string& url,
+        std::map<std::string, std::string> additionalHttpHeaders) = 0;
 
     /**
-     * Loads the given data into this NWeb, using baseUrl as the base URL for
+     * Load the given data into this NWeb, using baseUrl as the base URL for
      * the content. The base URL is used both to resolve relative URLs and when
      * applying JavaScript's same origin policy. The historyUrl is used for the
      * history entry.
@@ -261,7 +281,7 @@ class OHOS_NWEB_EXPORT NWeb : public std::enable_shared_from_this<NWeb> {
                                         const std::string& historyUrl) = 0;
 
     /**
-     * Loads the given data into this NWeb.
+     * Load the given data into this NWeb.
      *
      * @param data String: the URL to use as the page's base URL. If null defaults
      * to 'about:blank'. This value may be null.
@@ -277,21 +297,21 @@ class OHOS_NWEB_EXPORT NWeb : public std::enable_shared_from_this<NWeb> {
      * RegisterArkJSfunction
      *
      * @param object_name  String: objector name
-     * @param method_list vector<String>: vector list ,method list
+     * @param method_list vector<String>: vector list, method list
      */
     virtual void RegisterArkJSfunction(
-            const std::string& object_name,
-            const std::vector<std::string>& method_list) = 0;
+        const std::string& object_name,
+        const std::vector<std::string>& method_list) = 0;
 
     /**
      * UnregisterArkJSfunction
      *
      * @param object_name  String: objector name
-     * @param method_list vector<String>: vector list ,method list
+     * @param method_list vector<String>: vector list, method list
      */
     virtual void UnregisterArkJSfunction(
-            const std::string& object_name,
-            const std::vector<std::string>& method_list) = 0;
+        const std::string& object_name,
+        const std::vector<std::string>& method_list) = 0;
 
     /**
      * SetNWebJavaScriptResultCallBack
@@ -299,8 +319,8 @@ class OHOS_NWEB_EXPORT NWeb : public std::enable_shared_from_this<NWeb> {
      * @param callback  NWebJavaScriptResultCallBack: callback client
      */
     virtual void SetNWebJavaScriptResultCallBack(
-            std::shared_ptr<NWebJavaScriptResultCallBack> callback) = 0;
+        std::shared_ptr<NWebJavaScriptResultCallBack> callback) = 0;
 };
 }  // namespace OHOS::NWeb
 
-#endif
+#endif // NWEB_H

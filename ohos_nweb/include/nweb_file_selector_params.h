@@ -13,26 +13,38 @@
  * limitations under the License.
  */
 
-#ifndef NWEB_JAVASCRIPT_RESULT_CALLBACK_H
-#define NWEB_JAVASCRIPT_RESULT_CALLBACK_H
+#ifndef NWEB_FILE_SELECTOR_PARAMS_H
+#define NWEB_FILE_SELECTOR_PARAMS_H
 
 #include <string>
 #include <vector>
 #include "nweb_export.h"
-#include "nweb_value.h"
 
 namespace OHOS::NWeb {
-class OHOS_NWEB_EXPORT NWebJavaScriptResultCallBack {
+using AcceptTypeList = std::vector<std::string>;
+class OHOS_NWEB_EXPORT NWebFileSelectorParams {
 public:
-    NWebJavaScriptResultCallBack() = default;
+    enum FileSelectorMode{
+        FILE_OPEN_MODE = 0,
+        FILE_OPEN_MULTIPLE_MODE,
+        FILE_OPEN_FOLDER_MODE,
+        FILE_SAVE_MODE
+    };
 
-    virtual ~NWebJavaScriptResultCallBack() = default;
+    NWebFileSelectorParams() = default;
 
-    virtual std::shared_ptr<NWebValue> GetJavaScriptResult(
-        std::vector<std::shared_ptr<NWebValue>> args,
-        const std::string &method,
-        const std::string &object_name) = 0;
+    virtual ~NWebFileSelectorParams() = default;
+
+    virtual const std::string Title() const = 0;
+
+    virtual FileSelectorMode Mode() const = 0;
+
+    virtual const std::string DefaultFilename() const = 0;
+
+    virtual const AcceptTypeList AcceptType() const = 0;
+
+    virtual bool IsCapture() const = 0;
 };
-} // namespace OHOS::NWeb
+}
 
-#endif // NWEB_JAVASCRIPT_RESULT_CALLBACK_H
+#endif

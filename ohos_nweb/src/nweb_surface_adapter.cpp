@@ -20,7 +20,7 @@
 #include <ui/rs_surface_node.h>
 #include <sync_fence.h>
 #include "nweb_log.h"
- 
+
 namespace {
 constexpr int BITS_PER_PIXEL = 4;
 }
@@ -39,6 +39,7 @@ NWebCreateInfo NWebSurfaceAdapter::GetCreateInfo(sptr<Surface> surface,
 {
     NWebCreateInfo createInfo = {
         .init_args = initArgs,
+        .producer_surface = reinterpret_cast<void *>(&surface),
     };
     if (surface == nullptr) {
         return createInfo;
@@ -56,8 +57,8 @@ void NWebSurfaceAdapter::GetSize(sptr<Surface> surface,
     if (surface == nullptr) {
         return;
     }
-    createInfo.width = (width == 0) ? surface->GetDefaultWidth() : width;
-    createInfo.height = (height == 0) ? surface->GetDefaultHeight() : height;
+    createInfo.width = (width == 0) ? (uint32_t)surface->GetDefaultWidth() : width;
+    createInfo.height = (height == 0) ? (uint32_t)surface->GetDefaultHeight() : height;
 }
 
 void NWebSurfaceAdapter::GetRenderInterface(sptr<Surface> surface, NWebCreateInfo &createInfo)
@@ -125,11 +126,11 @@ bool NWebSurfaceAdapter::CopyFrame(
         WVLOG_E("fail to get buffer addr");
         return false;
     }
- 
+
     uint32_t srcStride = width * BITS_PER_PIXEL;
-    uint32_t dstStride = surfaceBuffer->GetStride();
+    uint32_t dstStride = (uint32_t)surfaceBuffer->GetStride();
     uint32_t copiedSize = 0;
- 
+
     for (uint32_t currHeight = 0; currHeight < height; ++currHeight) {
         if (copiedSize + dstStride > surfaceBuffer->GetSize()) {
             WVLOG_E("copy size overflow, drop this frame(%{public}u*%{public}u)", width, height);

@@ -13,19 +13,19 @@
  * limitations under the License.
  */
 
-#ifndef NWEB_VALUE_H_
-#define NWEB_VALUE_H_
+#ifndef NWEB_VALUE_H
+#define NWEB_VALUE_H
 
 #include <iostream>
 #include <string>
 #include "nweb_export.h"
 
 namespace OHOS::NWeb {
-    union data_union {
-        int n;
-        double f;
-        bool b;
-    };
+union data_union {
+    int n;
+    double f;
+    bool b;
+};
 
 class OHOS_NWEB_EXPORT NWebValue {
 public:
@@ -40,7 +40,7 @@ public:
         LIST
     };
 
-    NWebValue(Type type) : type_(type) {}
+    explicit NWebValue(Type type) : type_(type) {}
 
     ~NWebValue() = default;
 
@@ -76,6 +76,6 @@ private:
     std::string str_;
     std::string str_json_;
 };
-}
+} // namespace OHOS::NWeb
 
-#endif  // NWEB_VALUE_H_
+#endif  // NWEB_VALUE_H

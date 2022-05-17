@@ -23,21 +23,24 @@ namespace OHOS::NWeb {
 class OHOS_NWEB_EXPORT NWebJSDialogResult {
 public:
     virtual ~NWebJSDialogResult() = default;
+
     /**
      * @brief Handle a confirmation response from the user.
      */
     virtual void Confirm() = 0;
+
     /**
      * @brief Handle a confirmation response from the user with input message.
      *
      * @param message confirm message.
      */
     virtual void Confirm(const std::string &message) = 0;
+
     /**
      * @brief Handle the result if the user cancelled the dialog.
      */
     virtual void Cancel() = 0;
 };
-}
+} // namespace OHOS::NWeb
 
-#endif
+#endif // NWEB_JS_DISLOG_RESULT_H

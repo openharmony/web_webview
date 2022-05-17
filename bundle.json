@@ -34,7 +34,8 @@
         "build": {
             "sub_component": [
                 "//base/web/webview/ohos_nweb:libnweb",
-                "//base/web/webview/ohos_nweb:nweb_hap"
+                "//base/web/webview/ohos_nweb:nweb_hap",
+                "//base/web/webview/ohos_adapter:nweb_ohos_adapter"
             ],
             "inner_kits": [
                 {
