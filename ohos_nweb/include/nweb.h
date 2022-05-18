@@ -71,6 +71,7 @@ public:
     virtual void OnTouchMove(int32_t id, double x, double y) = 0;
     virtual void OnTouchCancel() = 0;
     virtual void OnNavigateBack() = 0;
+    virtual bool SendKeyEvent(int32_t keyCode, int32_t keyAction) = 0;
 
     /**
      * Load the given URL.
