@@ -377,7 +377,9 @@ public:
 
     virtual void OnQuickMenuDismissed() {}
 
-    virtual bool OnHttpAuthRequestByJS(std::shared_ptr<NWebJSHttpAuthResult> result) {
+    virtual bool OnHttpAuthRequestByJS(std::shared_ptr<NWebJSHttpAuthResult> result,
+                                       const std::string &host,
+                                       const std::string &realm) {
         return false;
     }
 };
