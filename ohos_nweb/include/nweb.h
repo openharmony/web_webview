@@ -76,6 +76,8 @@ public:
     virtual void OnTouchCancel() = 0;
     virtual void OnNavigateBack() = 0;
     virtual bool SendKeyEvent(int32_t keyCode, int32_t keyAction) = 0;
+    virtual void SendMouseWheelEvent(double x, double y, double deltaX, double deltaY) = 0;
+    virtual void SendMouseEvent(int x, int y, int button, int action) = 0;
 
     /**
      * Load the given URL.
