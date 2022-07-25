@@ -44,6 +44,10 @@ private:
     static napi_value JsConstructor(napi_env env, napi_callback_info info);
 
     static bool GetStringPara(napi_env env, napi_value argv, std::string& outValue);
+
+    static bool GetSize(napi_env env, napi_value argv, size_t& outValue);
+
+    static bool GetCharPara(napi_env env, napi_value argv, char* buffer, size_t bufferSize);
 };
 } // namespace OHOS
 

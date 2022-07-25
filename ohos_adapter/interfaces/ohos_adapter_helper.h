@@ -44,7 +44,7 @@ public:
 
     OhosWebDataBaseAdapter& GetOhosWebDataBaseAdapterInstance();
 
-    PasteBoardClientAdapter& GetPasteBoard();
+    PasteBoardClientAdapter& GetPasteBoard() const;
 private:
     OhosAdapterHelper() = default;
 

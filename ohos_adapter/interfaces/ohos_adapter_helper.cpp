@@ -61,7 +61,7 @@ std::unique_ptr<NetConnectAdapter> OhosAdapterHelper::CreateNetConnectAdapter()
     return std::make_unique<NetConnectAdapterImpl>();
 }
 
-PasteBoardClientAdapter& OhosAdapterHelper::GetPasteBoard()
+PasteBoardClientAdapter& OhosAdapterHelper::GetPasteBoard() const
 {
     return PasteBoardClientAdapterImpl::GetInstance();
 }

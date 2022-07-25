@@ -26,14 +26,14 @@ public:
 
     virtual ~OhosWebDataBaseAdapter() = default;
 
-    virtual bool ExistHttpAuthUsernamePassword() const = 0;
+    virtual bool ExistHttpAuthCredentials() const = 0;
 
-    virtual void ClearHttpAuthUsernamePassword() = 0;
+    virtual void DeleteHttpAuthCredentials() = 0;
 
-    virtual void SaveHttpAuthUsernamePassword(const std::string& host, const std::string& realm,
-        const std::string& username, const std::string& password) = 0;
+    virtual void SaveHttpAuthCredentials(const std::string& host, const std::string& realm,
+        const std::string& username, const char* password) = 0;
 
-    virtual void GetHttpAuthUsernamePassword(const std::string& host, const std::string& realm,
+    virtual void GetHttpAuthCredentials(const std::string& host, const std::string& realm,
         std::vector<std::string>& usernamePassword) const = 0;
 };
 } // namespace OHOS::NWeb

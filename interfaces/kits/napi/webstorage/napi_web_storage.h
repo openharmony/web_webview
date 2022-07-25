@@ -89,6 +89,7 @@ private:
         napi_value *argv, const std::string origin, bool isQuato);
     static napi_value GetOriginUsageOrQuotaPromise(napi_env env,
         napi_value *argv, const std::string origin, bool isQuato);
+    static napi_value JsGetOriginUsageOrQuota(napi_env env, napi_callback_info info, bool isQuato);
     static napi_value JsGetOriginQuota(napi_env env, napi_callback_info info);
     static napi_value JsGetOriginUsage(napi_env env, napi_callback_info info);
     static napi_value JsConstructor(napi_env env, napi_callback_info info);

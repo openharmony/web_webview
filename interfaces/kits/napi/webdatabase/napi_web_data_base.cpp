@@ -21,6 +21,12 @@
 #include "nweb_helper.h"
 #include "securec.h"
 
+constexpr int32_t PARAMZERO = 0;
+constexpr int32_t PARAMONE = 1;
+constexpr int32_t PARAMTWO = 2;
+constexpr int32_t PARAMTHREE = 3;
+constexpr int32_t PARAMFOUR = 4;
+
 namespace OHOS {
 napi_value NapiWebDataBase::Init(napi_env env, napi_value exports)
 {
@@ -46,7 +52,7 @@ napi_value NapiWebDataBase::JsDeleteHttpAuthCredentials(napi_env env, napi_callb
     napi_value result = nullptr;
     OHOS::NWeb::NWebDataBase* dataBase = OHOS::NWeb::NWebHelper::Instance().GetDataBase();
     if (dataBase != nullptr) {
-        dataBase->ClearHttpAuthUsernamePassword();
+        dataBase->DeleteHttpAuthCredentials();
     }
     napi_get_undefined(env, &result);
     return result;
@@ -59,7 +65,7 @@ napi_value NapiWebDataBase::JsExistHttpAuthCredentials(napi_env env, napi_callba
 
     OHOS::NWeb::NWebDataBase* dataBase = OHOS::NWeb::NWebHelper::Instance().GetDataBase();
     if (dataBase != nullptr) {
-        isExist = dataBase->ExistHttpAuthUsernamePassword();
+        isExist = dataBase->ExistHttpAuthCredentials();
     }
     NAPI_CALL(env, napi_get_boolean(env, isExist, &result));
     return result;
@@ -88,6 +94,36 @@ bool NapiWebDataBase::GetStringPara(napi_env env, napi_value argv, std::string& 
     return true;
 }
 
+bool NapiWebDataBase::GetSize(napi_env env, napi_value argv, size_t& outValue)
+{
+    size_t bufferSize = 0;
+    napi_valuetype valueType = napi_null;
+
+    napi_typeof(env, argv, &valueType);
+    if (valueType != napi_string) {
+        return false;
+    }
+    napi_get_value_string_utf8(env, argv, nullptr, 0, &bufferSize);
+    if (bufferSize > MAX_STRING_LENGTH) {
+        return false;
+    }
+    outValue = bufferSize;
+    return true;
+}
+
+bool NapiWebDataBase::GetCharPara(napi_env env, napi_value argv, char* buffer, size_t bufferSize)
+{
+    if (bufferSize == 0) {
+        return false;
+    }
+    size_t jsStringLength = 0;
+    napi_get_value_string_utf8(env, argv, buffer, bufferSize + 1, &jsStringLength);
+    if (jsStringLength != bufferSize) {
+        return false;
+    }
+    return true;
+}
+
 napi_value NapiWebDataBase::JsSaveHttpAuthCredentials(napi_env env, napi_callback_info info)
 {
     napi_value retValue = nullptr;
@@ -95,28 +131,34 @@ napi_value NapiWebDataBase::JsSaveHttpAuthCredentials(napi_env env, napi_callbac
     napi_value argv[4] = { 0 };
     
     napi_get_cb_info(env, info, &argc, argv, &retValue, nullptr);
-    NAPI_ASSERT(env, argc == 4, "requires 4 parameter");
+    NAPI_ASSERT(env, argc == PARAMFOUR, "requires 4 parameter");
 
     bool ret;
     std::string host;
-    ret = GetStringPara(env, argv[0], host);
+    ret = GetStringPara(env, argv[PARAMZERO], host);
     NAPI_ASSERT_BASE(env, ret, "get para0 failed", retValue);
 
     std::string realm;
-    ret = GetStringPara(env, argv[1], realm);
+    ret = GetStringPara(env, argv[PARAMONE], realm);
     NAPI_ASSERT_BASE(env, ret, "get para1 failed", retValue);
 
     std::string username;
-    ret = GetStringPara(env, argv[2], username);
+    ret = GetStringPara(env, argv[PARAMTWO], username);
     NAPI_ASSERT_BASE(env, ret, "get para2 failed", retValue);
 
-    std::string password;
-    ret = GetStringPara(env, argv[3], password);
+    size_t bufferSize = 0;
+    ret = GetSize(env, argv[PARAMTHREE], bufferSize);
     NAPI_ASSERT_BASE(env, ret, "get para3 failed", retValue);
+    if (bufferSize > 0) {
+        char password[bufferSize + 1];
+        ret = GetCharPara(env, argv[PARAMTHREE], password, bufferSize);
+        NAPI_ASSERT_BASE(env, ret, "get para3 failed", retValue);
 
-    OHOS::NWeb::NWebDataBase* dataBase = OHOS::NWeb::NWebHelper::Instance().GetDataBase();
-    if (dataBase != nullptr) {
-        dataBase->SaveHttpAuthUsernamePassword(host, realm, username, password);
+        OHOS::NWeb::NWebDataBase* dataBase = OHOS::NWeb::NWebHelper::Instance().GetDataBase();
+        if (dataBase != nullptr) {
+            dataBase->SaveHttpAuthCredentials(host, realm, username, password);
+        }
+        (void)memset_s(password, sizeof(password), 0, sizeof(password));
     }
 
     napi_value result = nullptr;
@@ -131,15 +173,15 @@ napi_value NapiWebDataBase::JsGetHttpAuthCredentials(napi_env env, napi_callback
     napi_value argv[2] = { 0 };
 
     napi_get_cb_info(env, info, &argc, argv, &retValue, nullptr);
-    NAPI_ASSERT(env, argc == 2, "requires 2 parameter");
+    NAPI_ASSERT(env, argc == PARAMTWO, "requires 2 parameter");
 
     bool ret;
     std::string host;
-    ret = GetStringPara(env, argv[0], host);
+    ret = GetStringPara(env, argv[PARAMZERO], host);
     NAPI_ASSERT_BASE(env, ret, "get para0 failed", retValue);
 
     std::string realm;
-    ret = GetStringPara(env, argv[1], realm);
+    ret = GetStringPara(env, argv[PARAMONE], realm);
     NAPI_ASSERT_BASE(env, ret, "get para1 failed", retValue);
 
     std::vector<std::string> usernamePassword;
@@ -148,7 +190,7 @@ napi_value NapiWebDataBase::JsGetHttpAuthCredentials(napi_env env, napi_callback
 
     OHOS::NWeb::NWebDataBase* dataBase = OHOS::NWeb::NWebHelper::Instance().GetDataBase();
     if (dataBase != nullptr) {
-        usernamePassword = dataBase->GetHttpAuthUsernamePassword(host, realm);
+        usernamePassword = dataBase->GetHttpAuthCredentials(host, realm);
     }
     for (uint32_t i = 0; i < usernamePassword.size(); i++) {
         std::string str = usernamePassword[i];
