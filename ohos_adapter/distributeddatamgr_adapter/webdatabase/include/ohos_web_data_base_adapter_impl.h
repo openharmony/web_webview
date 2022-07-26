@@ -41,14 +41,14 @@ public:
 
     virtual ~OhosWebDataBaseAdapterImpl() = default;
 
-    bool ExistHttpAuthUsernamePassword() const override;
+    bool ExistHttpAuthCredentials() const override;
 
-    void ClearHttpAuthUsernamePassword() override;
+    void DeleteHttpAuthCredentials() override;
 
-    void SaveHttpAuthUsernamePassword(const std::string& host, const std::string& realm,
-        const std::string& username, const std::string& password) override;
+    void SaveHttpAuthCredentials(const std::string& host, const std::string& realm,
+        const std::string& username, const char* password) override;
 
-    void GetHttpAuthUsernamePassword(const std::string& host, const std::string& realm,
+    void GetHttpAuthCredentials(const std::string& host, const std::string& realm,
         std::vector<std::string>& usernamePassword) const override;
 
 private:

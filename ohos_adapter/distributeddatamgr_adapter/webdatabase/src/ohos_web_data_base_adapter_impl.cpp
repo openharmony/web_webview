@@ -90,11 +90,11 @@ OhosWebDataBaseAdapterImpl::OhosWebDataBaseAdapterImpl()
     WVLOG_I("webdatabase create rdb store end");
 }
 
-void OhosWebDataBaseAdapterImpl::SaveHttpAuthUsernamePassword(const std::string& host, const std::string& realm,
-    const std::string& username, const std::string& password)
+void OhosWebDataBaseAdapterImpl::SaveHttpAuthCredentials(const std::string& host, const std::string& realm,
+    const std::string& username, const char* password)
 {
     WVLOG_I("webdatabase save http auth info");
-    if (host.empty() || realm.empty() || username.empty() || password.empty()) {
+    if (host.empty() || realm.empty() || username.empty() || password == nullptr) {
         return;
     }
     if (rdbStore_ == nullptr) {
@@ -117,7 +117,7 @@ void OhosWebDataBaseAdapterImpl::SaveHttpAuthUsernamePassword(const std::string&
     WVLOG_I("webdatabase save http auth info end");
 }
 
-void OhosWebDataBaseAdapterImpl::GetHttpAuthUsernamePassword(const std::string& host, const std::string& realm,
+void OhosWebDataBaseAdapterImpl::GetHttpAuthCredentials(const std::string& host, const std::string& realm,
     std::vector<std::string>& usernamePassword) const
 {
     WVLOG_I("webdatabase get username and password");
@@ -151,7 +151,7 @@ void OhosWebDataBaseAdapterImpl::GetHttpAuthUsernamePassword(const std::string& 
     return;
 }
 
-bool OhosWebDataBaseAdapterImpl::ExistHttpAuthUsernamePassword() const
+bool OhosWebDataBaseAdapterImpl::ExistHttpAuthCredentials() const
 {
     WVLOG_I("webdatabase check exist http auth info");
     if (rdbStore_ == nullptr) {
@@ -170,7 +170,7 @@ bool OhosWebDataBaseAdapterImpl::ExistHttpAuthUsernamePassword() const
     return true;
 }
 
-void OhosWebDataBaseAdapterImpl::ClearHttpAuthUsernamePassword()
+void OhosWebDataBaseAdapterImpl::DeleteHttpAuthCredentials()
 {
     WVLOG_I("webdatabase clear all http auth info");
     if (rdbStore_ == nullptr) {

@@ -33,13 +33,13 @@ public:
      *
      * @return true if instances saved any http authentication credentials.
      */
-    virtual bool ExistHttpAuthUsernamePassword() const = 0;
+    virtual bool ExistHttpAuthCredentials() const = 0;
 
     /**
      * @brief clear all saved authentication credentials.
      *
      */
-    virtual void ClearHttpAuthUsernamePassword() = 0;
+    virtual void DeleteHttpAuthCredentials() = 0;
 
     /**
      * @brief save http authentication credentials.
@@ -49,8 +49,8 @@ public:
      * @param username the username.
      * @param password the password.
      */
-    virtual void SaveHttpAuthUsernamePassword(const std::string& host, const std::string& realm,
-        const std::string& username, const std::string& password) = 0;
+    virtual void SaveHttpAuthCredentials(const std::string& host, const std::string& realm,
+        const std::string& username, const char* password) = 0;
 
     /**
      * @brief get username and password.
@@ -59,7 +59,7 @@ public:
      * @param realm the realm to which the credentials apply.
      * @return return an array containing username and password.
      */
-    virtual std::vector<std::string> GetHttpAuthUsernamePassword(const std::string& host,
+    virtual std::vector<std::string> GetHttpAuthCredentials(const std::string& host,
         const std::string& realm) const = 0;
 };
 } // namespace OHOS::NWeb

@@ -345,7 +345,7 @@ napi_value NapiWebStorage::GetOriginUsageOrQuotaPromise(napi_env env,
     return promise;
 }
 
-napi_value NapiWebStorage::JsGetOriginQuota(napi_env env, napi_callback_info info)
+napi_value NapiWebStorage::JsGetOriginUsageOrQuota(napi_env env, napi_callback_info info, bool isQuato)
 {
     napi_value retValue = nullptr;
     size_t argc = 1;
@@ -370,41 +370,20 @@ napi_value NapiWebStorage::JsGetOriginQuota(napi_env env, napi_callback_info inf
         napi_get_cb_info(env, info, &argc, argv, &retValue, nullptr);
         napi_typeof(env, argv[argcCallback - 1], &valueType);
         if (valueType == napi_function) {
-            return GetOriginUsageOrQuotaAsync(env, argv, origin, true);
+            return GetOriginUsageOrQuotaAsync(env, argv, origin, isQuato);
         }
     }
-    return GetOriginUsageOrQuotaPromise(env, argv, origin, true);
+    return GetOriginUsageOrQuotaPromise(env, argv, origin, isQuato);
+}
+
+napi_value NapiWebStorage::JsGetOriginQuota(napi_env env, napi_callback_info info)
+{
+    return JsGetOriginUsageOrQuota(env, info, true);
 }
 
 napi_value NapiWebStorage::JsGetOriginUsage(napi_env env, napi_callback_info info)
 {
-    napi_value retValue = nullptr;
-    size_t argc = 1;
-    size_t argcPromise = 1;
-    size_t argcCallback = 2;
-    napi_value argv[2] = { 0 };
-    napi_get_cb_info(env, info, &argc, argv, &retValue, nullptr);
-    NAPI_ASSERT(env, argc == argcPromise || argc == argcCallback, "requires 1 or 2 parameter");
-    napi_valuetype valueType = napi_null;
-    napi_typeof(env, argv[0], &valueType);
-    NAPI_ASSERT(env, valueType == napi_string, "type mismatch for parameter 1");
-    size_t bufferSize = 0;
-    napi_get_value_string_utf8(env, argv[0], nullptr, 0, &bufferSize);
-    NAPI_ASSERT_BASE(env, bufferSize < MAX_WEB_STRING_LENGTH, "string length too large", retValue);
-    char stringValue[bufferSize + 1];
-    size_t jsStringLength = 0;
-    napi_get_value_string_utf8(env, argv[0], stringValue, bufferSize + 1, &jsStringLength);
-    NAPI_ASSERT_BASE(env, jsStringLength == bufferSize, "string length wrong", retValue);
-    std::string origin(stringValue);
-    if (argc == argcCallback) {
-        valueType = napi_undefined;
-        napi_get_cb_info(env, info, &argc, argv, &retValue, nullptr);
-        napi_typeof(env, argv[argcCallback - 1], &valueType);
-        if (valueType == napi_function) {
-            return GetOriginUsageOrQuotaAsync(env, argv, origin, false);
-        }
-    }
-    return GetOriginUsageOrQuotaPromise(env, argv, origin, false);
+    return JsGetOriginUsageOrQuota(env, info, false);
 }
 
 napi_value NapiWebStorage::JsConstructor(napi_env env, napi_callback_info info)
