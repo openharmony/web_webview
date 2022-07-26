@@ -140,14 +140,13 @@ void OhosWebDataBaseAdapterImpl::GetHttpAuthCredentials(const std::string& host,
     }
 
     int32_t columnIndex;
-    std::string userName;
-    std::string passWord;
+    std::string tmp;
     resultSet->GetColumnIndex(HTTPAUTH_USERNAME_COL, columnIndex);
-    resultSet->GetString(columnIndex, userName);
+    resultSet->GetString(columnIndex, tmp);
+    usernamePassword.push_back(tmp);
     resultSet->GetColumnIndex(HTTPAUTH_PASSWORD_COL, columnIndex);
-    resultSet->GetString(columnIndex, passWord);
-    usernamePassword.push_back(userName);
-    usernamePassword.push_back(passWord);
+    resultSet->GetString(columnIndex, tmp);
+    usernamePassword.push_back(tmp);
     return;
 }
 
