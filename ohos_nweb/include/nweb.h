@@ -391,6 +391,52 @@ public:
      * @param forward bool: find back or forward.
      */
     virtual void FindNext(const bool forward) const = 0;
+
+    /**
+     * Saves the current view as a web archive.
+     *
+     * @param baseName the filename where the archive should be placed This value cannot be null.
+     * @param autoName if false, takes basename to be a file. If true, basename is assumed to be
+     * a directory in which a filename will be chosen according to the URL of the
+     * current page.
+     */
+    virtual void StoreWebArchive(const std::string &baseName, bool autoName,
+        std::shared_ptr<NWebValueCallback<std::string>> callback) const = 0;
+
+    /**
+     * create two web message ports.
+     * @param ports the web message ports.
+     */
+    virtual void CreateWebMessagePorts(std::vector<std::string>& ports) = 0;
+
+    /**
+     * post messag event to the html main frame.
+     * @param message the message
+     * @param ports the web message ports.
+     * @param uri the uri
+     */
+    virtual void PostWebMessage(std::string& message, std::vector<std::string>& ports, std::string& targetUri) = 0;
+
+    /**
+     * close the message port.
+     * @param handle the web message port handle.
+     */
+    virtual void ClosePort(std::string& handle) = 0;
+
+    /**
+     * use the port to send message.
+     * @param handle the web message port handle.
+     * @param data the message send to html5.
+     */
+    virtual void PostPortMessage(std::string& handle, std::string& data) = 0;
+
+    /**
+     * set the callback of th port handle.
+     * @param handle the web message port handle.
+     * @param callback to receive the message when th other port post message.
+     */
+    virtual void SetPortMessageCallback(std::string& handle,
+        std::shared_ptr<NWebValueCallback<std::string>> callback) = 0;
 };
 }  // namespace OHOS::NWeb
 

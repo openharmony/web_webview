@@ -19,6 +19,7 @@ config("web_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "$SUBSYSTEM_DIR/interfaces/kits/napi/common",
+    "$SUBSYSTEM_DIR/interfaces/kits/napi/webasynccontroller",
     "$SUBSYSTEM_DIR/interfaces/kits/napi/webdatabase",
     "$SUBSYSTEM_DIR/interfaces/kits/napi/webstorage",
   ]
@@ -33,6 +34,7 @@ ohos_shared_library("webview_napi") {
 
   sources = [
     "$SUBSYSTEM_DIR/interfaces/kits/napi/common/napi_webview_native_module.cpp",
+    "$SUBSYSTEM_DIR/interfaces/kits/napi/webasynccontroller/napi_web_async_controller.cpp",
     "$SUBSYSTEM_DIR/interfaces/kits/napi/webdatabase/napi_web_data_base.cpp",
     "$SUBSYSTEM_DIR/interfaces/kits/napi/webstorage/napi_web_storage.cpp",
   ]
