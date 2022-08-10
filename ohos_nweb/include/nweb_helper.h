@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,7 +25,7 @@
 #include "nweb_export.h"
 #include "nweb_web_storage.h"
 
-namespace  OHOS::NWeb {
+namespace OHOS::NWeb {
 class OHOS_NWEB_EXPORT NWebHelper {
 public:
     static NWebHelper &Instance();
@@ -36,7 +36,8 @@ public:
     NWebCookieManager *GetCookieManager();
     NWebDataBase *GetDataBase();
     NWebWebStorage *GetWebStorage();
-    void SetBundlePath(const std::string& path);
+    NWeb *GetNWeb(int32_t nweb_id);
+    void SetBundlePath(const std::string &path);
 
 private:
     NWebHelper() = default;

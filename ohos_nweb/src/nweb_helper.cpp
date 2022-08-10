@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -42,7 +42,7 @@ const std::string LIB_NAME_WEB_ENGINE = "libweb_engine.so";
 const std::string LIB_NAME_NWEB_ADAPTER = "libnweb_adapter.so";
 }
 
-namespace  OHOS::NWeb {
+namespace OHOS::NWeb {
 NWebHelper &NWebHelper::Instance()
 {
     static NWebHelper helper;
@@ -131,7 +131,7 @@ bool NWebHelper::Init(bool from_ark)
     return LoadLib(from_ark);
 }
 
-void NWebHelper::SetBundlePath(const std::string& path)
+void NWebHelper::SetBundlePath(const std::string &path)
 {
     bundlePath_ = path;
 }
@@ -173,13 +173,29 @@ NWebCookieManager *NWebHelper::GetCookieManager()
     }
 
     const std::string COOKIE_FUNC_NAME = "GetCookieManager";
-    GetCookieManagerFunc cookieFunc = 
+    GetCookieManagerFunc cookieFunc =
         reinterpret_cast<GetCookieManagerFunc>(dlsym(libHandleNWebAdapter_, COOKIE_FUNC_NAME.c_str()));
     if (cookieFunc == nullptr) {
         WVLOG_E("fail to dlsym %{public}s from libohoswebview.so", COOKIE_FUNC_NAME.c_str());
         return nullptr;
     }
     return cookieFunc();
+}
+
+using GetNWebFunc = NWeb *(*)(int32_t);
+NWeb *NWebHelper::GetNWeb(int32_t nweb_id)
+{
+    if (libHandleNWebAdapter_ == nullptr) {
+        return nullptr;
+    }
+
+    const std::string GET_NWEB_FUNC_NAME = "GetNWeb";
+    GetNWebFunc getNWebFunc = reinterpret_cast<GetNWebFunc>(dlsym(libHandleNWebAdapter_, GET_NWEB_FUNC_NAME.c_str()));
+    if (getNWebFunc == nullptr) {
+        WVLOG_E("fail to dlsym %{public}s from libohoswebview.so", GET_NWEB_FUNC_NAME.c_str());
+        return nullptr;
+    }
+    return getNWebFunc(nweb_id);
 }
 
 using GetDataBaseFunc = NWebDataBase *(*)();
@@ -243,10 +259,8 @@ std::shared_ptr<NWeb> NWebAdapterHelper::CreateNWeb(Rosen::Window *window, const
     return nweb;
 }
 
-std::shared_ptr<NWeb> NWebAdapterHelper::CreateNWeb(sptr<Surface> surface,
-                                                    const NWebInitArgs &initArgs,
-                                                    uint32_t width,
-                                                    uint32_t height)
+std::shared_ptr<NWeb> NWebAdapterHelper::CreateNWeb(sptr<Surface> surface, const NWebInitArgs &initArgs, uint32_t width,
+    uint32_t height)
 {
     if (surface == nullptr) {
         WVLOG_E("fail to create nweb, input surface is nullptr");

@@ -15,6 +15,8 @@
 #include <unistd.h>
 
 #include "napi/native_api.h"
+#include "napi/native_node_api.h"
+#include "napi_web_async_controller.h"
 #include "napi_web_data_base.h"
 #include "napi_web_storage.h"
 
@@ -24,6 +26,7 @@ static napi_value WebViewExport(napi_env env, napi_value exports)
 {
     NapiWebDataBase::Init(env, exports);
     NapiWebStorage::Init(env, exports);
+    NapiWebAsyncController::Init(env, exports);
     return exports;
 }
 EXTERN_C_END
