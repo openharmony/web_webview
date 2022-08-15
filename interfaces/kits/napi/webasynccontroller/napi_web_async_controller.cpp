@@ -189,30 +189,7 @@ void NapiWebAsyncController::StoreWebArchiveCallback(const std::string &baseName
     napi_ref jsCallback)
 {
     OHOS::NWeb::NWeb *nweb = OHOS::NWeb::NWebHelper::Instance().GetNWeb(nweb_id_);
-    if (nweb) {
-        auto callbackImpl = std::make_shared<OHOS::NWeb::NWebStoreWebArchiveCallback>();
-        if (callbackImpl && jsCallback != nullptr) {
-            callbackImpl->SetCallBack([env, jCallback = std::move(jsCallback)](std::string result) {
-                if (!env) {
-                    return;
-                }
-                napi_value callback = nullptr;
-                napi_get_reference_value(env, jCallback, &callback);
-
-                napi_value jsResult = nullptr;
-                napi_value callbackResult = nullptr;
-                if (result.empty()) {
-                    napi_get_null(env, &jsResult);
-                } else {
-                    napi_create_string_utf8(env, result.c_str(), NAPI_AUTO_LENGTH, &jsResult);
-                }
-                napi_call_function(env, nullptr, callback, 1, &jsResult, &callbackResult);
-
-                napi_delete_reference(env, jCallback);
-            });
-        }
-        nweb->StoreWebArchive(baseName, autoName, callbackImpl);
-    } else {
+    if (!nweb) {
         HILOG_ERROR(LOG_APP, "not found a valid nweb");
         napi_value callback = nullptr;
         napi_value jsResult = nullptr;
@@ -222,7 +199,34 @@ void NapiWebAsyncController::StoreWebArchiveCallback(const std::string &baseName
         napi_get_null(env, &jsResult);
         napi_call_function(env, nullptr, callback, 1, &jsResult, &callbackResult);
         napi_delete_reference(env, jsCallback);
+        return;
     }
+
+    if (jsCallback == nullptr) {
+        return;
+    }
+
+    auto callbackImpl = std::make_shared<OHOS::NWeb::NWebStoreWebArchiveCallback>();
+    callbackImpl->SetCallBack([env, jCallback = std::move(jsCallback)](std::string result) {
+        if (!env) {
+            return;
+        }
+        napi_value callback = nullptr;
+        napi_get_reference_value(env, jCallback, &callback);
+
+        napi_value jsResult = nullptr;
+        napi_value callbackResult = nullptr;
+        if (result.empty()) {
+            napi_get_null(env, &jsResult);
+        } else {
+            napi_create_string_utf8(env, result.c_str(), NAPI_AUTO_LENGTH, &jsResult);
+        }
+        napi_call_function(env, nullptr, callback, 1, &jsResult, &callbackResult);
+
+        napi_delete_reference(env, jCallback);
+    });
+    nweb->StoreWebArchive(baseName, autoName, callbackImpl);
+
     return;
 }
 
@@ -230,30 +234,33 @@ void NapiWebAsyncController::StoreWebArchivePromise(const std::string &baseName,
     napi_deferred deferred)
 {
     OHOS::NWeb::NWeb *nweb = OHOS::NWeb::NWebHelper::Instance().GetNWeb(nweb_id_);
-    if (nweb) {
-        auto callbackImpl = std::make_shared<OHOS::NWeb::NWebStoreWebArchiveCallback>();
-        if (callbackImpl && deferred != nullptr) {
-            callbackImpl->SetCallBack([env, deferred](std::string result) {
-                if (!env) {
-                    return;
-                }
-                napi_value jsResult = nullptr;
-                if (!result.empty()) {
-                    napi_create_string_utf8(env, result.c_str(), NAPI_AUTO_LENGTH, &jsResult);
-                    napi_resolve_deferred(env, deferred, jsResult);
-                } else {
-                    napi_get_null(env, &jsResult);
-                    napi_reject_deferred(env, deferred, jsResult);
-                }
-            });
-        }
-        nweb->StoreWebArchive(baseName, autoName, callbackImpl);
-    } else {
+    if (!nweb) {
         HILOG_ERROR(LOG_APP, "not found a valid nweb");
         napi_value jsResult = nullptr;
         napi_get_null(env, &jsResult);
         napi_reject_deferred(env, deferred, jsResult);
+        return;
     }
+
+    if (deferred == nullptr) {
+        return;
+    }
+
+    auto callbackImpl = std::make_shared<OHOS::NWeb::NWebStoreWebArchiveCallback>();
+    callbackImpl->SetCallBack([env, deferred](std::string result) {
+        if (!env) {
+            return;
+        }
+        napi_value jsResult = nullptr;
+        if (!result.empty()) {
+            napi_create_string_utf8(env, result.c_str(), NAPI_AUTO_LENGTH, &jsResult);
+            napi_resolve_deferred(env, deferred, jsResult);
+        } else {
+            napi_get_null(env, &jsResult);
+            napi_reject_deferred(env, deferred, jsResult);
+        }
+    });
+    nweb->StoreWebArchive(baseName, autoName, callbackImpl);
     return;
 }
 } // namespace OHOS
