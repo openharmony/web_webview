@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef NWEB_STORE_WEB_ARCHIVE_CALLBACK_
-#define NWEB_STORE_WEB_ARCHIVE_CALLBACK_
+#ifndef NWEB_STORE_WEB_ARCHIVE_CALLBACK_H
+#define NWEB_STORE_WEB_ARCHIVE_CALLBACK_H
 
 #include "nweb_value_callback.h"
 
@@ -39,4 +39,4 @@ private:
     std::function<void(std::string)> callback_;
 };
 } // namespace OHOS::NWeb
-#endif // NWEB_STORE_WEB_ARCHIVE_CALLBACK_
+#endif // NWEB_STORE_WEB_ARCHIVE_CALLBACK_H

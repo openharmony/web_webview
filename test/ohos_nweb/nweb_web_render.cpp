@@ -70,7 +70,7 @@ int main(int argc, const char* argv[])
     }
     std::stringstream argv_ss;
     const char separator = '#';
-    for (int i=0; i < argc - 1; ++i) {
+    for (int i = 0; i < argc - 1; ++i) {
         argv_ss << argv[i] << separator;
     }
     argv_ss << argv[argc-1];
