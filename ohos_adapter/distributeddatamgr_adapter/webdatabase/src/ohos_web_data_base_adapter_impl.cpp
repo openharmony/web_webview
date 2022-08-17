@@ -69,12 +69,6 @@ OhosWebDataBaseAdapterImpl::OhosWebDataBaseAdapterImpl()
         WVLOG_E("webdatabase get context failed");
         return;
     }
-    auto hapInfo = context->GetHapModuleInfo();
-    if (hapInfo == nullptr) {
-        WVLOG_E("webdatabase get hapInfo failed");
-        return;
-    }
-    std::string moduleName = hapInfo->moduleName;
     std::string bundleName = context->GetBundleName();
     std::string databaseDir = context->GetDatabaseDir();
     std::string name = HTTP_AUTH_DATABASE_FILE;
@@ -83,7 +77,6 @@ OhosWebDataBaseAdapterImpl::OhosWebDataBaseAdapterImpl()
     RdbStoreConfig config("");
     config.SetPath(std::move(realPath));
     config.SetBundleName(bundleName);
-    config.SetModuleName(moduleName);
     config.SetName(std::move(name));
     config.SetArea(context->GetArea());
     WVLOG_I("webdatabase databaseDir=%{public}s", databaseDir.c_str());

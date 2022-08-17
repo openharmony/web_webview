@@ -23,11 +23,13 @@
 #include "nweb_helper.h"
 #include "securec.h"
 
+namespace {
 constexpr int32_t PARAMZERO = 0;
 constexpr int32_t PARAMONE = 1;
 constexpr int32_t PARAMTWO = 2;
 constexpr int32_t PARAMTHREE = 3;
 constexpr int32_t PARAMFOUR = 4;
+}
 
 namespace OHOS {
 napi_value NapiWebDataBase::Init(napi_env env, napi_value exports)

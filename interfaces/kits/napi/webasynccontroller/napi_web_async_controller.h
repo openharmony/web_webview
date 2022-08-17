@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef NWEB_NAPI_WEB_ASYNC_CONTROLLER_H_
-#define NWEB_NAPI_WEB_ASYNC_CONTROLLER_H_
+#ifndef NWEB_NAPI_WEB_ASYNC_CONTROLLER_H
+#define NWEB_NAPI_WEB_ASYNC_CONTROLLER_H
 
 #include "hilog/log.h"
 #include "napi/native_api.h"
@@ -46,4 +46,4 @@ private:
 };
 } // namespace OHOS
 
-#endif // NWEB_NAPI_WEB_ASYNC_CONTROLLER_H_
+#endif // NWEB_NAPI_WEB_ASYNC_CONTROLLER_H
