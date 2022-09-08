@@ -22,6 +22,15 @@
 #include "nweb_helper.h"
 #include "nweb_web_storage.h"
 
+namespace {
+constexpr int32_t MAX_WEB_STRING_LENGTH = 40960;
+constexpr int32_t INTERFACE_OK = 0;
+constexpr int32_t INTERFACE_ERROR = -1;
+constexpr int32_t RESULT_COUNT = 2;
+constexpr int32_t PARAMZERO = 0;
+constexpr int32_t PARAMONE = 1;
+}
+
 namespace OHOS {
 napi_value NapiWebStorage::Init(napi_env env, napi_value exports)
 {

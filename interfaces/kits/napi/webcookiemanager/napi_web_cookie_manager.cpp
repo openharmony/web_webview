@@ -62,9 +62,9 @@ napi_value NapiWebCookieManager::JsConstructor(napi_env env, napi_callback_info 
     return thisVar;
 }
 
-constexpr int MAX_STRING_LENGTH = 40960;
 bool NapiWebCookieManager::GetStringPara(napi_env env, napi_value argv, std::string& outValue)
 {
+    constexpr int32_t MAX_STRING_LENGTH = 40960;
     size_t bufferSize = 0;
     napi_valuetype valueType = napi_null;
 
@@ -126,9 +126,9 @@ napi_value NapiWebCookieManager::JsGetCookie(napi_env env, napi_callback_info in
     return result;
 }
 
-constexpr int SETCOOKIE_PARA_NUM = 2;
 napi_value NapiWebCookieManager::JsSetCookie(napi_env env, napi_callback_info info)
 {
+    constexpr int32_t SETCOOKIE_PARA_NUM = 2;
     napi_value retValue = nullptr;
     size_t argc = SETCOOKIE_PARA_NUM;
     napi_value argv[2] = { 0, 0 };

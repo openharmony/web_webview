@@ -23,7 +23,7 @@ class NWebHandlerImplTest : public NWebHandler {
 public:
     NWebHandlerImplTest() = default;
     ~NWebHandlerImplTest() = default;
-    virtual void SetNWeb(std::shared_ptr<NWeb> nweb) override;
+    void SetNWeb(std::shared_ptr<NWeb> nweb) override;
     void OnProxyDied() override;
     void OnRouterPush(const std::string& param) override;
     void OnMessage(const std::string& param) override;

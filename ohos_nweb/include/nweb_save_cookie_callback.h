@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef NWEB_SAVE_COOKIE_CALLBACK_
-#define NWEB_SAVE_COOKIE_CALLBACK_
+#ifndef NWEB_SAVE_COOKIE_CALLBACK_H
+#define NWEB_SAVE_COOKIE_CALLBACK_H
 
 #include "nweb_value_callback.h"
 
@@ -39,4 +39,4 @@ private:
     std::function<void(bool)> callback_;
 };
 } // namespace OHOS::NWeb
-#endif // NWEB_SAVE_COOKIE_CALLBACK_
+#endif // NWEB_SAVE_COOKIE_CALLBACK_H

@@ -24,6 +24,7 @@
 #include "securec.h"
 
 namespace {
+constexpr int32_t MAX_STRING_LENGTH = 40960;
 constexpr int32_t PARAMZERO = 0;
 constexpr int32_t PARAMONE = 1;
 constexpr int32_t PARAMTWO = 2;

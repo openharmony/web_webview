@@ -24,9 +24,6 @@
 #include "napi/native_node_api.h"
 
 namespace OHOS {
-const std::string WEB_DATA_BASE_CLASS_NAME = "WebDataBase";
-constexpr int MAX_STRING_LENGTH = 40960;
-
 class NapiWebDataBase {
 public:
     NapiWebDataBase() {}

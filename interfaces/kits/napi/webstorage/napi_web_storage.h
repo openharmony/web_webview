@@ -26,18 +26,6 @@
 #include "node_api_types.h"
 
 namespace OHOS {
-const std::string WEB_STORAGE_CLASS_NAME = "WebStorage";
-constexpr int MAX_WEB_STRING_LENGTH = 40960;
-constexpr int INTERFACE_OK = 0;
-constexpr int INTERFACE_ERROR = -1;
-constexpr int RESULT_COUNT = 2;
-constexpr int PARAMZERO = 0;
-constexpr int PARAMONE = 1;
-constexpr int PARAMTWO = 2;
-constexpr int PARAMTHREE = 3;
-constexpr int PARAMFOUR = 4;
-constexpr int PARAMFIVE = 5;
-
 struct GetOriginUsageOrQuotaParam {
     int retValue;
     bool isQuato;
