@@ -77,9 +77,9 @@ private:
     static void GetOriginUsageOrQuotaComplete(napi_env env, napi_status status, void *data);
     static void GetOriginUsageOrQuotaPromiseComplete(napi_env env, napi_status status, void *data);
     static napi_value GetOriginUsageOrQuotaAsync(napi_env env,
-        napi_value *argv, const std::string origin, bool isQuato);
+        napi_value *argv, const std::string& origin, bool isQuato);
     static napi_value GetOriginUsageOrQuotaPromise(napi_env env,
-        napi_value *argv, const std::string origin, bool isQuato);
+        napi_value *argv, const std::string& origin, bool isQuato);
     static napi_value JsGetOriginUsageOrQuota(napi_env env, napi_callback_info info, bool isQuato);
     static napi_value JsGetOriginQuota(napi_env env, napi_callback_info info);
     static napi_value JsGetOriginUsage(napi_env env, napi_callback_info info);

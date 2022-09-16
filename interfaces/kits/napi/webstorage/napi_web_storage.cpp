@@ -146,7 +146,7 @@ void NapiWebStorage::GetNapiWebStorageOriginForResult(napi_env env,
 
 void NapiWebStorage::GetOriginComplete(napi_env env, napi_status status, void *data)
 {
-    GetOriginsParam* param = (GetOriginsParam*)data;
+    GetOriginsParam* param = static_cast<GetOriginsParam*>(data);
     napi_value setResult[RESULT_COUNT] = {0};
     if (param->status) {
         setResult[PARAMZERO] = GetErrorCodeValue(env, param->errCode);
@@ -168,7 +168,7 @@ void NapiWebStorage::GetOriginComplete(napi_env env, napi_status status, void *d
 
 void NapiWebStorage::GetOriginsPromiseComplete(napi_env env, napi_status status, void *data)
 {
-    GetOriginsParam* param = (GetOriginsParam*)data;
+    GetOriginsParam* param = static_cast<GetOriginsParam*>(data);
     napi_value setResult[RESULT_COUNT] = {0};
     setResult[PARAMZERO] = GetErrorCodeValue(env, param->errCode);
     napi_create_array(env, &setResult[PARAMONE]);
@@ -268,7 +268,7 @@ void NapiWebStorage::ExecuteGetOriginUsageOrQuota(napi_env env, void *data)
 
 void NapiWebStorage::GetOriginUsageOrQuotaComplete(napi_env env, napi_status status, void *data)
 {
-    GetOriginUsageOrQuotaParam* param = (GetOriginUsageOrQuotaParam*)data;
+    GetOriginUsageOrQuotaParam* param = static_cast<GetOriginUsageOrQuotaParam*>(data);
     napi_value setResult[RESULT_COUNT] = {0};
     if (param->status) {
         setResult[PARAMZERO] = GetErrorCodeValue(env, param->errCode);
@@ -291,7 +291,7 @@ void NapiWebStorage::GetOriginUsageOrQuotaComplete(napi_env env, napi_status sta
 
 void NapiWebStorage::GetOriginUsageOrQuotaPromiseComplete(napi_env env, napi_status status, void *data)
 {
-    GetOriginUsageOrQuotaParam* param = (GetOriginUsageOrQuotaParam*)data;
+    GetOriginUsageOrQuotaParam* param = static_cast<GetOriginUsageOrQuotaParam*>(data);
     napi_value setResult[RESULT_COUNT] = {0};
     setResult[PARAMZERO] = GetErrorCodeValue(env, param->errCode);
     napi_create_uint32(env, static_cast<uint32_t>(param->retValue), &setResult[PARAMONE]);
@@ -307,7 +307,7 @@ void NapiWebStorage::GetOriginUsageOrQuotaPromiseComplete(napi_env env, napi_sta
 }
 
 napi_value NapiWebStorage::GetOriginUsageOrQuotaAsync(napi_env env,
-    napi_value *argv, const std::string origin, bool isQuato)
+    napi_value *argv, const std::string& origin, bool isQuato)
 {
     napi_value result = nullptr;
     napi_value resourceName = nullptr;
@@ -333,7 +333,7 @@ napi_value NapiWebStorage::GetOriginUsageOrQuotaAsync(napi_env env,
 }
 
 napi_value NapiWebStorage::GetOriginUsageOrQuotaPromise(napi_env env,
-    napi_value *argv, const std::string origin, bool isQuato)
+    napi_value *argv, const std::string& origin, bool isQuato)
 {
     napi_deferred deferred = nullptr;
     napi_value promise = nullptr;

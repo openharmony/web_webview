@@ -167,15 +167,15 @@ napi_value NapiWebAsyncController::JS_NapiWebAsyncController(napi_env env, napi_
         return nullptr;
     }
 
-    int32_t nweb_id = -1;
-    napi_get_value_int32(env, result, &nweb_id);
+    int32_t nwebId = -1;
+    napi_get_value_int32(env, result, &nwebId);
 
-    NapiWebAsyncController *webAsyncController = new NapiWebAsyncController(env, thisVar, nweb_id);
+    NapiWebAsyncController *webAsyncController = new NapiWebAsyncController(env, thisVar, nwebId);
 
     napi_wrap(
         env, thisVar, webAsyncController,
         [](napi_env env, void *data, void *hint) {
-            NapiWebAsyncController *webAsyncController = (NapiWebAsyncController *)data;
+            NapiWebAsyncController *webAsyncController = static_cast<NapiWebAsyncController *>(data);
             delete webAsyncController;
         },
         nullptr, nullptr);
@@ -183,12 +183,12 @@ napi_value NapiWebAsyncController::JS_NapiWebAsyncController(napi_env env, napi_
     return thisVar;
 }
 
-NapiWebAsyncController::NapiWebAsyncController(napi_env env, napi_value thisVar, int32_t nweb_id) : nweb_id_(nweb_id) {}
+NapiWebAsyncController::NapiWebAsyncController(napi_env env, napi_value thisVar, int32_t nwebId) : nwebId_(nwebId) {}
 
 void NapiWebAsyncController::StoreWebArchiveCallback(const std::string &baseName, bool autoName, napi_env env,
     napi_ref jsCallback)
 {
-    OHOS::NWeb::NWeb *nweb = OHOS::NWeb::NWebHelper::Instance().GetNWeb(nweb_id_);
+    OHOS::NWeb::NWeb *nweb = OHOS::NWeb::NWebHelper::Instance().GetNWeb(nwebId_);
     if (!nweb) {
         HILOG_ERROR(LOG_APP, "not found a valid nweb");
         napi_value callback = nullptr;
@@ -233,7 +233,7 @@ void NapiWebAsyncController::StoreWebArchiveCallback(const std::string &baseName
 void NapiWebAsyncController::StoreWebArchivePromise(const std::string &baseName, bool autoName, napi_env env,
     napi_deferred deferred)
 {
-    OHOS::NWeb::NWeb *nweb = OHOS::NWeb::NWebHelper::Instance().GetNWeb(nweb_id_);
+    OHOS::NWeb::NWeb *nweb = OHOS::NWeb::NWebHelper::Instance().GetNWeb(nwebId_);
     if (!nweb) {
         HILOG_ERROR(LOG_APP, "not found a valid nweb");
         napi_value jsResult = nullptr;

@@ -25,7 +25,7 @@ namespace OHOS {
 // The asynchronous interface of NWeb is implemented through this interface.
 class NapiWebAsyncController {
 public:
-    NapiWebAsyncController(napi_env env, napi_value this_var, int32_t nweb_id);
+    NapiWebAsyncController(napi_env env, napi_value thisVar, int32_t nwebId);
     ~NapiWebAsyncController() = default;
 
     static napi_value Init(napi_env env, napi_value exports);
@@ -38,11 +38,11 @@ private:
         bool autoName);
 
     // Saves the current view as a web archive by way of callback.
-    void StoreWebArchiveCallback(const std::string &baseName, bool autoName, napi_env env, napi_ref callback);
+    void StoreWebArchiveCallback(const std::string &baseName, bool autoName, napi_env env, napi_ref jsCallback);
     // Saves the current view as a web archive by way of promise.
     void StoreWebArchivePromise(const std::string &baseName, bool autoName, napi_env env, napi_deferred deferred);
 
-    int32_t nweb_id_ { -1 };
+    int32_t nwebId_ { -1 };
 };
 } // namespace OHOS
 
