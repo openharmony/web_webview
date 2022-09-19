@@ -1453,8 +1453,7 @@ void Test98()
     TestWebSettingsForNormalWeb();
 
     std::stringstream ss;
-    ss << "<html><body bgcolor=\"white\">Source:<pre>" << "source"
-        << "</pre></body></html>";
+    ss << "<html><body bgcolor=\"white\">Source:<pre>" << "source" << "</pre></body></html>";
 
     g_nweb->LoadWithDataAndBaseUrl("", ss.str(), "text/html", "UTF-8", "");
     g_window->Show();
@@ -1467,8 +1466,7 @@ void Test99()
     TestPrepare();
     TestWebSettingsForNormalWeb();
     std::stringstream ss;
-    ss << "<html><body bgcolor=\"white\">Source:<pre>" << "source"
-        << "</pre></body></html>";
+    ss << "<html><body bgcolor=\"white\">Source:<pre>" << "source" << "</pre></body></html>";
 
     g_nweb->LoadWithDataAndBaseUrl("", "", "text/html", "UTF-8", "http://www.baidu.com");
     float scale = g_nweb->Scale();

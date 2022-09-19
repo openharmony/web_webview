@@ -27,7 +27,6 @@ namespace {
 constexpr int32_t PARAMZERO = 0;
 constexpr int32_t PARAMONE = 1;
 constexpr int32_t PARAMTWO = 2;
-constexpr int32_t MAX_STRING_LENGTH = 40960;
 constexpr int32_t RESULT_COUNT = 2;
 constexpr int32_t INTERFACE_OK = 0;
 constexpr int32_t INTERFACE_ERROR = -1;
@@ -80,6 +79,7 @@ napi_value NapiGeolocationPermission::Init(napi_env env, napi_value exports)
 
 bool NapiGeolocationPermission::GetStringPara(napi_env env, napi_value argv, std::string& outValue)
 {
+    constexpr int32_t MAX_STRING_LENGTH = 40960;
     size_t bufferSize = 0;
     napi_valuetype valueType = napi_null;
 

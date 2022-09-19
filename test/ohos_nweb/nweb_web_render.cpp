@@ -73,7 +73,7 @@ int main(int argc, const char* argv[])
     for (int i = 0; i < argc - 1; ++i) {
         argv_ss << argv[i] << separator;
     }
-    argv_ss << argv[argc-1];
+    argv_ss << argv[argc - 1];
     func(argv_ss.str().data());
     if (libHandleWebEngine != nullptr) {
         ::dlclose(libHandleWebEngine);
