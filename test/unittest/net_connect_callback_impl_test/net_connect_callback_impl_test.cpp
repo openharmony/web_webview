@@ -44,7 +44,7 @@ void NetConnectCallbackImplTest::SetUp(void)
 void NetConnectCallbackImplTest::TearDown(void)
 {}
 
-class NetConnCallbackTest: public NetConnCallback {
+class NetConnCallbackTest : public NetConnCallback {
 public:
     NetConnCallbackTest() = default;
     virtual ~NetConnCallbackTest() = default;
@@ -75,8 +75,8 @@ public:
  */
 HWTEST_F(NetConnectCallbackImplTest, NetConnectCallbackImplTest_001, TestSize.Level1)
 {
-    std::shared_ptr<NetConnCallbackTest> cb(new NetConnCallbackTest);
-    std::shared_ptr<NetConnectCallbackImpl> netConnectCallbackImpl(new NetConnectCallbackImpl(cb));
+    std::shared_ptr<NetConnCallbackTest> cb = std::make_shared<NetConnCallbackTest>();
+    std::shared_ptr<NetConnectCallbackImpl> netConnectCallbackImpl = std::make_shared<NetConnectCallbackImpl>(cb);
     EXPECT_NE(netConnectCallbackImpl, nullptr);
     sptr<NetHandle> netHandle(new NetHandle);
     sptr<NetHandle> netHandleNull(nullptr);
@@ -84,8 +84,8 @@ HWTEST_F(NetConnectCallbackImplTest, NetConnectCallbackImplTest_001, TestSize.Le
     sptr<NetLinkInfo> infoNull(nullptr);
     EXPECT_EQ(netConnectCallbackImpl->NetAvailable(netHandle), 0);
     EXPECT_EQ(netConnectCallbackImpl->NetAvailable(netHandleNull), 0);
-    EXPECT_EQ(netConnectCallbackImpl->NetConnectionPropertiesChange(netHandle,info), 0);
-    EXPECT_EQ(netConnectCallbackImpl->NetConnectionPropertiesChange(netHandleNull,infoNull), 0);
+    EXPECT_EQ(netConnectCallbackImpl->NetConnectionPropertiesChange(netHandle, info), 0);
+    EXPECT_EQ(netConnectCallbackImpl->NetConnectionPropertiesChange(netHandleNull, infoNull), 0);
     EXPECT_EQ(netConnectCallbackImpl->NetLost(netHandle), 0);
     EXPECT_EQ(netConnectCallbackImpl->NetUnavailable(), 0);
 
@@ -104,13 +104,13 @@ HWTEST_F(NetConnectCallbackImplTest, NetConnectCallbackImplTest_001, TestSize.Le
  */
 HWTEST_F(NetConnectCallbackImplTest, NetConnectCallbackImplTest_002, TestSize.Level1)
 {
-    std::shared_ptr<NetConnectCallbackImpl> netConnectCallbackImpl(new NetConnectCallbackImpl(nullptr));
+    std::shared_ptr<NetConnectCallbackImpl> netConnectCallbackImpl = std::make_shared<NetConnectCallbackImpl>(nullptr);
     sptr<NetHandle> netHandle(new NetHandle);
     sptr<NetLinkInfo> info(new NetLinkInfo);
     EXPECT_EQ(netConnectCallbackImpl->NetAvailable(netHandle), 0);
-    EXPECT_EQ(netConnectCallbackImpl->NetConnectionPropertiesChange(netHandle,info), 0);
+    EXPECT_EQ(netConnectCallbackImpl->NetConnectionPropertiesChange(netHandle, info), 0);
     EXPECT_EQ(netConnectCallbackImpl->NetLost(netHandle), 0);
     EXPECT_EQ(netConnectCallbackImpl->NetUnavailable(), 0);
-    EXPECT_EQ(netConnectCallbackImpl->NetBlockStatusChange(netHandle, false), 0); 
+    EXPECT_EQ(netConnectCallbackImpl->NetBlockStatusChange(netHandle, false), 0);
 }
 }

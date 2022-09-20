@@ -36,29 +36,54 @@ public:
     void OnTouchMove(int32_t id, double x, double y) override {}
     void OnTouchCancel() override {}
     void OnNavigateBack() override {}
-    bool SendKeyEvent(int32_t keyCode, int32_t keyAction) override {return true;}
+    bool SendKeyEvent(int32_t keyCode, int32_t keyAction) override
+    {
+        return true;
+    }
     void SendMouseWheelEvent(double x, double y, double deltaX, double deltaY) override {}
     void SendMouseEvent(int x, int y, int button, int action, int count) override {}
     void Load(const std::string& url) const override {}
-    bool IsNavigatebackwardAllowed() const override {return true;}
-    bool IsNavigateForwardAllowed() const override {return true;}
-    bool CanNavigateBackOrForward(int numSteps) const override {return true;}
+    bool IsNavigatebackwardAllowed() const override
+    {
+        return true;
+    }
+    bool IsNavigateForwardAllowed() const override
+    {
+        return true;
+    }
+    bool CanNavigateBackOrForward(int numSteps) const override
+    {
+        return true;
+    }
     void NavigateBack() const override {}
     void NavigateForward() const override {}
     void NavigateBackOrForward(int step) const override {}
     void DeleteNavigateHistory() override {}
     void Reload() const override {}
     void Zoom(float zoomFactor) const override {}
-    bool ZoomIn() const override {return true;}
-    bool ZoomOut() const override {return true;}
+    bool ZoomIn() const override
+    {
+        return true;
+    }
+    bool ZoomOut() const override
+    {
+        return true;
+    }
     void Stop() const override {}
     void ExecuteJavaScript(const std::string& code) const override {}
     void ExecuteJavaScript(
         const std::string& code,
         std::shared_ptr<NWebValueCallback<std::string>> callback) const override {}
-    const std::shared_ptr<NWebPreference> GetPreference() const override {return nullptr;}
-    unsigned int GetWebId() const override {return 0;}
-    HitTestResult GetHitTestResult() const override {
+    const std::shared_ptr<NWebPreference> GetPreference() const override
+    {
+        return nullptr;
+    }
+    unsigned int GetWebId() const override
+    {
+        return 0;
+    }
+    HitTestResult GetHitTestResult() const override
+    {
         HitTestResult test;
         return test;
     }
@@ -67,11 +92,26 @@ public:
     void PutDownloadCallback(
         std::shared_ptr<NWebDownloadCallback> downloadListener) override {}
     void SetNWebHandler(std::shared_ptr<NWebHandler> handler) override {}
-    const std::shared_ptr<NWebHandler> GetNWebHandler() const override {return nullptr;}
-    std::string Title() override {return nullptr;}
-    int PageLoadProgress() override {return 0;}
-    int ContentHeight() override {return 0;}
-    float Scale() override {return 0;}
+    const std::shared_ptr<NWebHandler> GetNWebHandler() const override
+    {
+        return nullptr;
+    }
+    std::string Title() override
+    {
+        return nullptr;
+    }
+    int PageLoadProgress() override
+    {
+        return 0;
+    }
+    int ContentHeight() override
+    {
+        return 0;
+    }
+    float Scale() override
+    {
+        return 0;
+    }
     void Load(
         std::string& url,
         std::map<std::string, std::string> additionalHttpHeaders) override {}
@@ -106,7 +146,10 @@ public:
         std::shared_ptr<NWebValueCallback<std::string>> callback) override {}
     void SendDragEvent(const DragEvent& dragEvent) const override {}
     void ClearSslCache() override {}
-    std::string GetUrl() const override {return "/data";}
+    std::string GetUrl() const override
+    {
+        return "/data";
+    }
     void ClearClientAuthenticationCache() override {}
 };
 }
