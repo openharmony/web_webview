@@ -21,24 +21,40 @@
 #include "audio_renderer_adapter.h"
 #include "audio_renderer_adapter_impl.h"
 #include "audio_system_manager_adapter_impl.h"
+#include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/application_context.h"
 
 using namespace testing;
 using namespace testing::ext;
+using namespace OHOS::AbilityRuntime;
 
-namespace OHOS::NWeb {
+namespace OHOS {
 namespace {
 const int RESULT_OK = 0;
 const bool TRUE_OK = true;
 const std::string CACHE_PATH = "/data/local/tmp";
-std::shared_ptr<AudioRendererAdapterImpl> g_audioRender;
+std::shared_ptr<NWeb::AudioRendererAdapterImpl> g_audioRender = nullptr;
+std::shared_ptr<AbilityRuntime::ApplicationContext> g_applicationContext = nullptr;
 } // namespace
 
+namespace AbilityRuntime {
+    std::shared_ptr<ApplicationContext> Context::GetApplicationContext()
+    {
+        return g_applicationContext;
+    }
+} // namespace OHOS::AbilityRuntime
+
+namespace NWeb {
 class NWebAudioAdapterTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
+};
+
+class ApplicationContextMock : public ApplicationContext {
+public:
+    MOCK_METHOD0(GetCacheDir, std::string());
 };
 
 class AudioCallbackTest : public AudioManagerCallbackAdapter {
@@ -408,4 +424,73 @@ HWTEST_F(NWebAudioAdapterTest, NWebAudioAdapterTest_AudioAdapterImpl_013, TestSi
     ret = g_audioRender->Release();
     EXPECT_NE(ret, TRUE_OK);
 }
+
+/**
+ * @tc.name: NWebAudioAdapterTest_AudioAdapterImpl_014.
+ * @tc.desc: Audio adapter unittest.
+ * @tc.type: FUNC
+ * @tc.require:I5RWOG
+ */
+HWTEST_F(NWebAudioAdapterTest, NWebAudioAdapterTest_AudioAdapterImpl_014, TestSize.Level1)
+{
+    ApplicationContextMock *contextMock = new ApplicationContextMock();
+    EXPECT_NE(contextMock, nullptr);
+    EXPECT_CALL(*contextMock, GetCacheDir())
+        .Times(1)
+        .WillRepeatedly(::testing::Return(""));
+    EXPECT_EQ(g_applicationContext, nullptr);
+    g_applicationContext.reset(contextMock);
+    EXPECT_NE(g_applicationContext, nullptr);
+
+    std::shared_ptr<AudioRendererAdapterImpl> audioRenderImpl = std::make_shared<AudioRendererAdapterImpl>();
+    EXPECT_NE(audioRenderImpl, nullptr);
+
+    AudioAdapterRendererOptions rendererOptions;
+    rendererOptions.samplingRate = AudioAdapterSamplingRate::SAMPLE_RATE_44100;
+    rendererOptions.encoding = AudioAdapterEncodingType::ENCODING_PCM;
+    rendererOptions.format = AudioAdapterSampleFormat::SAMPLE_S16LE;
+    rendererOptions.channels = AudioAdapterChannel::STEREO;
+    rendererOptions.contentType = AudioAdapterContentType::CONTENT_TYPE_MUSIC;
+    rendererOptions.streamUsage = AudioAdapterStreamUsage::STREAM_USAGE_MEDIA;
+    rendererOptions.rendererFlags = 0;
+    int32_t retNum = audioRenderImpl->Create(rendererOptions);
+    g_applicationContext.reset();
+    EXPECT_EQ(g_applicationContext, nullptr);
+    EXPECT_EQ(retNum, AudioAdapterCode::AUDIO_ERROR);
+}
+
+/**
+ * @tc.name: NWebAudioAdapterTest_AudioAdapterImpl_015.
+ * @tc.desc: Audio adapter unittest.
+ * @tc.type: FUNC
+ * @tc.require:I5HRX9
+ */
+HWTEST_F(NWebAudioAdapterTest, NWebAudioAdapterTest_AudioAdapterImpl_015, TestSize.Level1)
+{
+    ApplicationContextMock *contextMock = new ApplicationContextMock();
+    EXPECT_NE(contextMock, nullptr);
+    EXPECT_CALL(*contextMock, GetCacheDir())
+        .Times(1)
+        .WillRepeatedly(::testing::Return(CACHE_PATH));
+    EXPECT_EQ(g_applicationContext, nullptr);
+    g_applicationContext.reset(contextMock);
+    EXPECT_NE(g_applicationContext, nullptr);
+
+    std::shared_ptr<AudioRendererAdapterImpl> audioRenderImpl = std::make_shared<AudioRendererAdapterImpl>();
+    EXPECT_NE(audioRenderImpl, nullptr);
+
+    AudioAdapterRendererOptions rendererOptions;
+    rendererOptions.samplingRate = AudioAdapterSamplingRate::SAMPLE_RATE_44100;
+    rendererOptions.encoding = AudioAdapterEncodingType::ENCODING_PCM;
+    rendererOptions.format = AudioAdapterSampleFormat::SAMPLE_S16LE;
+    rendererOptions.channels = AudioAdapterChannel::STEREO;
+    rendererOptions.contentType = AudioAdapterContentType::CONTENT_TYPE_MUSIC;
+    rendererOptions.streamUsage = AudioAdapterStreamUsage::STREAM_USAGE_MEDIA;
+    rendererOptions.rendererFlags = 0;
+    int32_t retNum = audioRenderImpl->Create(rendererOptions);
+    g_applicationContext.reset();
+    EXPECT_EQ(g_applicationContext, nullptr);
+    EXPECT_EQ(retNum, AudioAdapterCode::AUDIO_OK);
+}
 }  // namespace OHOS::NWeb
+}  // namespace OHOS
