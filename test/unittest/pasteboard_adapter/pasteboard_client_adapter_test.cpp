@@ -881,6 +881,12 @@ HWTEST_F(NWebPasteboardAdapterTest, NWebPasteboardAdapter_GetUri_039, TestSize.L
         result = -1;
     }
     EXPECT_EQ(RESULT_OK, result);
+    g_datarecord->record_ = g_datarecord->builder_->SetUri(nullptr).Build();
+    uri = g_datarecord->GetUri();
+    if (uri == nullptr) {
+        result = -1;
+    }
+    EXPECT_NE(RESULT_OK, result);
     uri = g_pasternull->GetUri();
     if (uri == nullptr) {
         result = -1;
@@ -906,6 +912,12 @@ HWTEST_F(NWebPasteboardAdapterTest, NWebPasteboardAdapter_GetCustomData_040, Tes
         result = -1;
     }
     EXPECT_EQ(RESULT_OK, result);
+    g_datarecord->record_ = g_datarecord->builder_->SetCustomData(nullptr).Build();
+    customData = g_datarecord->GetCustomData();
+    if (customData == nullptr) {
+        result = -1;
+    }
+    EXPECT_NE(RESULT_OK, result);
     customData = g_pasternull->GetCustomData();
     if (customData == nullptr) {
         result = -1;
