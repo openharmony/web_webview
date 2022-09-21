@@ -18,6 +18,7 @@ config("ohos_adapter_public_interface") {
     "//base/web/webview/ohos_adapter/interfaces",
     "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core/include/bundlemgr",
     "//base/global/resource_management/interfaces/inner_api/include",
+    "//foundation/systemabilitymgr/safwk/services/safwk/include",
   ]
 }
 
@@ -38,6 +39,7 @@ ohos_shared_library("nweb_ohos_adapter") {
     "net_connect_adapter/src/net_connect_utils.cpp",
     "pasteboard_adapter/src/pasteboard_client_adapter_impl.cpp",
     "power_mgr_adapter/src/power_mgr_client_adapter_impl.cpp",
+    "soc_perf_adapter/src/soc_perf_client_adapter_impl.cpp",
   ]
 
   cflags = [
@@ -56,6 +58,7 @@ ohos_shared_library("nweb_ohos_adapter") {
     "pasteboard_adapter/include",
     "audio_adapter/include",
     "multimodalinput_adapter/include",
+    "soc_perf_adapter/include",
     "//base/web/webview/ohos_nweb/include",
     "//third_party/jsoncpp/include",
     "//third_party/json/include",
@@ -82,6 +85,7 @@ ohos_shared_library("nweb_ohos_adapter") {
     "pasteboard:pasteboard_client",
     "power_manager:powermgr_client",
     "relational_store:native_rdb",
+    "soc_perf:socperf_client",
     "window_manager:libdm",
   ]
 

@@ -27,6 +27,7 @@
 #include "power_mgr_client_adapter.h"
 #include "audio_renderer_adapter.h"
 #include "audio_system_manager_adapter.h"
+#include "soc_perf_client_adapter.h"
 
 namespace OHOS::NWeb {
 class OhosAdapterHelper {
@@ -56,6 +57,8 @@ public:
     OhosWebPermissionDataBaseAdapter& GetWebPermissionDataBaseInstance();
 
     std::unique_ptr<MMIAdapter> CreateMMIAdapter();
+
+    std::unique_ptr<SocPerfClientAdapter> CreateSocPerfClientAdapter();
 private:
     OhosAdapterHelper() = default;
 
