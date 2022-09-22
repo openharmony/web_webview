@@ -26,6 +26,7 @@
 #include "ohos_web_permission_data_base_adapter_impl.h"
 #include "pasteboard_client_adapter_impl.h"
 #include "power_mgr_client_adapter_impl.h"
+#include "soc_perf_client_adapter_impl.h"
 
 namespace OHOS::NWeb {
 // static
@@ -88,5 +89,10 @@ OhosWebPermissionDataBaseAdapter& OhosAdapterHelper::GetWebPermissionDataBaseIns
 std::unique_ptr<MMIAdapter> OhosAdapterHelper::CreateMMIAdapter()
 {
     return std::make_unique<MMIAdapterImpl>();
+}
+
+std::unique_ptr<SocPerfClientAdapter> OhosAdapterHelper::CreateSocPerfClientAdapter()
+{
+    return std::make_unique<SocPerfClientAdapterImpl>();
 }
 }  // namespace OHOS::NWeb
