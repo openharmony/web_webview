@@ -21,6 +21,7 @@ config("module_private_config") {
   include_dirs = [
     "//base/web/webview/ohos_adapter/audio_adapter/include",
     "//third_party/googletest/googlemock/include",
+    "//third_party/json/include",
   ]
 }
 
@@ -33,11 +34,13 @@ ohos_unittest("nweb_audio_adapter_test") {
 
   deps = [
     "//base/web/webview/ohos_adapter:nweb_ohos_adapter",
+    "//foundation/ability/ability_runtime/frameworks/native/appkit:app_context",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
+    "ability_runtime:app_manager",
     "multimedia_audio_framework:audio_client",
     "multimedia_audio_framework:audio_renderer",
   ]
