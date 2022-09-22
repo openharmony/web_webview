@@ -255,6 +255,11 @@ public:
      */
     virtual void PutMediaPlayGestureAccess(bool flag) = 0;
 
+    /**
+     * Put whether smooth mode is supported.
+     */
+    virtual void PutPinchSmoothMode(bool flag) = 0;
+
     /* get methods */
     /**
      * Get if content URL(content from a content provider installed
@@ -493,6 +498,11 @@ public:
      * Get whether media playback needs to be triggered by user gestures.
      */
     virtual bool GetMediaPlayGestureAccess() = 0;
+
+    /**
+     * Get whether smooth mode is supported.
+     */
+    virtual bool GetPinchSmoothMode() = 0;
 };
 }  // namespace OHOS::NWeb
 #endif  // NWEB_PREFERENCE_H
