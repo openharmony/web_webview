@@ -28,6 +28,7 @@ using namespace OHOS::NWeb;
 namespace OHOS {
 namespace {
     bool g_unregister = false;
+    constexpr uint64_t DISPLAY_ID_INVALID = -1ULL;
 }
 
 namespace Rosen {
@@ -200,13 +201,36 @@ HWTEST_F(DisplayManagerAdapterImplTest, DisplayManagerAdapterImplTest_004, TestS
  */
 HWTEST_F(DisplayManagerAdapterImplTest, DisplayManagerAdapterImplTest_005, TestSize.Level1)
 {
-    std::unique_ptr<DisplayManagerAdapterImpl> displayManagerAdapterImpl(new DisplayManagerAdapterImpl);
+    std::shared_ptr<DisplayManagerAdapterImpl> displayManagerAdapterImpl(new DisplayManagerAdapterImpl);
     std::shared_ptr<DisplayListenerAdapter> listener(new DisplayListenerAdapterTest);
     EXPECT_NE(displayManagerAdapterImpl, nullptr);
+    EXPECT_NE(displayManagerAdapterImpl->GetDefaultDisplayId(), DISPLAY_ID_INVALID);
+    EXPECT_NE(displayManagerAdapterImpl->GetDefaultDisplay(), nullptr);
+    std::shared_ptr<DisplayListenerAdapterImpl> displayListenerAdapterImpl(new DisplayListenerAdapterImpl);
+    EXPECT_EQ(displayManagerAdapterImpl->RegisterDisplayListener(listener), true);
     EXPECT_FALSE(displayManagerAdapterImpl->UnregisterDisplayListener(listener));
     std::shared_ptr<DisplayListenerAdapter> listener1(new DisplayListenerAdapterTest);
     EXPECT_FALSE(displayManagerAdapterImpl->UnregisterDisplayListener(listener1));
     g_unregister = true;
+}
+
+/**
+ * @tc.name: DisplayManagerAdapterImplTest_006.
+ * @tc.desc: test lock type.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, DisplayManagerAdapterImplTest_006, TestSize.Level1)
+{
+    sptr<Display> display = DisplayManager::GetInstance().GetDefaultDisplay();
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(display);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+    EXPECT_NE(displayAdapterImpl->GetId(), static_cast<DisplayId>(-1));
+    EXPECT_NE(displayAdapterImpl->GetWidth(), -1);
+    EXPECT_NE(displayAdapterImpl->GetHeight(), -1);
+    EXPECT_NE(displayAdapterImpl->GetVirtualPixelRatio(), -1);
+    EXPECT_NE(displayAdapterImpl->GetRotation(), RotationType::ROTATION_BUTT);
+    EXPECT_NE(displayAdapterImpl->GetOrientation(), OrientationType::BUTT);
 }
 }
 }
