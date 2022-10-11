@@ -1381,6 +1381,7 @@ napi_value NapiWebviewController::DeleteJavaScriptRegister(napi_env env, napi_ca
     WebviewController *controller = nullptr;
     napi_unwrap(env, thisVar, (void **)&controller);
     if (!controller) {
+        BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return result;
     }
     ErrCode ret = controller->DeleteJavaScriptRegister(objName, {});
@@ -1444,6 +1445,7 @@ napi_value NapiWebviewController::RunJavaScriptInternal(napi_env env, napi_callb
     napi_unwrap(env, thisVar, (void **)&webviewController);
 
     if (!webviewController) {
+        BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return result;
     }
 
