@@ -907,6 +907,7 @@ napi_value NapiWebviewController::StoreWebArchiveInternal(napi_env env, napi_cal
     napi_unwrap(env, thisVar, (void **)&webviewController);
 
     if (!webviewController) {
+        BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return result;
     }
 
@@ -952,9 +953,9 @@ napi_value NapiWebviewController::GetHitTestValue(napi_env env, napi_callback_in
     napi_create_uint32(env, nwebResult.GetType(), &type);
     napi_set_named_property(env, result, "type", type);
 
-    napi_value extraData;
-    napi_create_string_utf8(env, nwebResult.GetExtra().c_str(), NAPI_AUTO_LENGTH, &extraData);
-    napi_set_named_property(env, result, "extraData", extraData);
+    napi_value extra;
+    napi_create_string_utf8(env, nwebResult.GetExtra().c_str(), NAPI_AUTO_LENGTH, &extra);
+    napi_set_named_property(env, result, "extra", extra);
 
     return result;
 }
