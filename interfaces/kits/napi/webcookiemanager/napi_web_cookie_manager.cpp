@@ -403,12 +403,12 @@ napi_value NapiWebCookieManager::JsSaveCookieAsync(napi_env env, napi_callback_i
 napi_value NapiWebCookieManager::JsSaveCookieSync(napi_env env, napi_callback_info info)
 {
     napi_value result = nullptr;
-    bool ret = false;
     OHOS::NWeb::NWebCookieManager* cookieManager = OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
     if (cookieManager != nullptr) {
-        ret = cookieManager->Store();
+        cookieManager->Store();
     }
-    NAPI_CALL(env, napi_get_boolean(env, ret, &result));
+
+    napi_get_undefined(env, &result);
     return result;
 }
 } // namespace NWeb
