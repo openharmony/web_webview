@@ -1360,7 +1360,6 @@ napi_value NapiWebviewController::RegisterJavaScriptProxy(napi_env env, napi_cal
 
 napi_value NapiWebviewController::DeleteJavaScriptRegister(napi_env env, napi_callback_info info)
 {
-    WVLOG_D("NapiWebviewController::DeleteJavaScriptRegister");
     napi_value thisVar = nullptr;
     napi_value result = nullptr;
     size_t argc = INTEGER_ONE;
