@@ -48,7 +48,7 @@
                 "common_event_service",
                 "bundle_framework",
                 "power_manager",
-                "samgr_standard"
+                "samgr"
             ],
             "third_party": [
                 "chromium",
