@@ -167,7 +167,7 @@ public:
      * to 100.0 inclusive.
      *
      * @return the error id.
-     * 
+     *
      */
     virtual int Zoom(float zoomFactor) const = 0;
 
