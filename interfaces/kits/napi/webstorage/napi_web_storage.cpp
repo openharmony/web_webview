@@ -259,10 +259,11 @@ napi_value NapiWebStorage::JsGetOrigins(napi_env env, napi_callback_info info)
         napi_valuetype valueType = napi_undefined;
         napi_get_cb_info(env, info, &argc, &argv, &retValue, nullptr);
         napi_typeof(env, argv, &valueType);
-        if (valueType == napi_function) {
-            return GetOriginsAsync(env, &argv);
+        if (valueType != napi_function) {
+            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+            return nullptr;
         }
-        return result;
+        return GetOriginsAsync(env, &argv);
     }
     return GetOriginsPromise(env);
 }
@@ -427,9 +428,11 @@ napi_value NapiWebStorage::JsGetOriginUsageOrQuota(napi_env env, napi_callback_i
         valueType = napi_undefined;
         napi_get_cb_info(env, info, &argc, argv, &retValue, nullptr);
         napi_typeof(env, argv[argcCallback - 1], &valueType);
-        if (valueType == napi_function) {
-            return GetOriginUsageOrQuotaAsync(env, argv, origin, isQuato);
+        if (valueType != napi_function) {
+            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+            return nullptr;
         }
+        return GetOriginUsageOrQuotaAsync(env, argv, origin, isQuato);
     }
     return GetOriginUsageOrQuotaPromise(env, argv, origin, isQuato);
 }

@@ -298,9 +298,11 @@ napi_value NapiGeolocationPermission::JsGetAccessibleGeolocation(napi_env env, n
     if (argc == argcCallback) {
         napi_valuetype valueType = napi_undefined;
         napi_typeof(env, argv[PARAMONE], &valueType);
-        if (valueType == napi_function) {
-            return GetPermissionStateAsync(env, argv, origin);
+        if (valueType != napi_function) {
+            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+            return nullptr;
         }
+        GetPermissionStateAsync(env, argv, origin);
         napi_value result = nullptr;
         napi_get_undefined(env, &result);
         return result;
@@ -428,9 +430,11 @@ napi_value NapiGeolocationPermission::JsGetStoredGeolocation(napi_env env, napi_
     if (argc == argcCallback) {
         napi_valuetype valueType = napi_undefined;
         napi_typeof(env, argv, &valueType);
-        if (valueType == napi_function) {
-            return GetOriginsAsync(env, &argv);
+        if (valueType != napi_function) {
+            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+            return nullptr;
         }
+        GetOriginsAsync(env, &argv);
         napi_value result = nullptr;
         napi_get_undefined(env, &result);
         return result;
