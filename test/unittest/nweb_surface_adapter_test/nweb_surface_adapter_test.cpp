@@ -51,7 +51,6 @@ sptr<OHOS::Rosen::Window> g_window;
 NWebCreateInfo g_info;
 sptr<SurfaceBuffer> g_surfaceBuffer = nullptr;
 const std::string MOCK_INSTALLATION_DIR = "/data/app/el1/bundle/public/com.ohos.nweb";
-const std::string test_buffer = "test render frame buffer";
 const uint32_t DEFAULT_WIDTH = 2560;
 const uint32_t DEFAULT_HEIGHT = 1396;
 constexpr int BITS_PER_PIXEL = 4;
@@ -63,7 +62,7 @@ public:
     static void TearDownTestCase(void);
     void SetUp() override;
     void TearDown() override;
-    virtual void OnBufferAvailable() override;
+    void OnBufferAvailable() override;
 };
 
 void NWebSurfaceAdapterTest::OnBufferAvailable()
