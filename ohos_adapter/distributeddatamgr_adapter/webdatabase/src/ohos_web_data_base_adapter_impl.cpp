@@ -23,6 +23,7 @@
 using namespace OHOS::NativeRdb;
 using namespace OHOS::NWeb;
 
+namespace{
 static const int32_t RDB_VERSION = 1;
 static const std::string HTTP_AUTH_DATABASE_FILE = "http_auth.db";
 
@@ -42,6 +43,7 @@ static const std::string CREATE_TABLE = "CREATE TABLE " + HTTPAUTH_TABLE_NAME
     + ") ON CONFLICT REPLACE);";
 
 const std::string WEB_PATH = "/web";
+}
 
 int32_t DataBaseRdbOpenCallBack::OnCreate(OHOS::NativeRdb::RdbStore& store)
 {

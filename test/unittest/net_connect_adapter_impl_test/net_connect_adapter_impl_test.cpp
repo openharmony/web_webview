@@ -96,7 +96,7 @@ void NetConnectAdapterImplTest::SetUp(void)
 void NetConnectAdapterImplTest::TearDown(void)
 {}
 
-class NetConnCallbackTest: public NetConnCallback {
+class NetConnCallbackTest : public NetConnCallback {
 public:
     NetConnCallbackTest() = default;
     virtual ~NetConnCallbackTest() = default;
@@ -127,8 +127,8 @@ public:
  */
 HWTEST_F(NetConnectAdapterImplTest, NetConnectAdapterImplTest_001, TestSize.Level1)
 {
-    std::shared_ptr<NetConnCallbackTest> cb(new NetConnCallbackTest);
-    std::shared_ptr<NetConnectAdapterImpl> netConnectAdapterImpl(new NetConnectAdapterImpl);
+    std::shared_ptr<NetConnCallbackTest> cb = std::make_shared<NetConnCallbackTest>();
+    std::shared_ptr<NetConnectAdapterImpl> netConnectAdapterImpl = std::make_shared<NetConnectAdapterImpl>();
     EXPECT_NE(netConnectAdapterImpl, nullptr);
     EXPECT_EQ(netConnectAdapterImpl->RegisterNetConnCallback(cb), 0);
     g_regNetConnCallback = -1;
@@ -152,7 +152,7 @@ HWTEST_F(NetConnectAdapterImplTest, NetConnectAdapterImplTest_001, TestSize.Leve
  */
 HWTEST_F(NetConnectAdapterImplTest, NetConnectAdapterImplTest_002, TestSize.Level1)
 {
-    std::shared_ptr<NetConnectAdapterImpl> netConnectAdapterImpl(new NetConnectAdapterImpl);
+    std::shared_ptr<NetConnectAdapterImpl> netConnectAdapterImpl = std::make_shared<NetConnectAdapterImpl>();
     NetConnectType type = NetConnectType::CONNECTION_UNKNOWN;
     NetConnectSubtype subtype = NetConnectSubtype::SUBTYPE_UNKNOWN;
     EXPECT_EQ(netConnectAdapterImpl->GetDefaultNetConnect(type, subtype), 0);
@@ -162,7 +162,7 @@ HWTEST_F(NetConnectAdapterImplTest, NetConnectAdapterImplTest_002, TestSize.Leve
     g_getDefaultNet = -1;
     EXPECT_EQ(netConnectAdapterImpl->GetDefaultNetConnect(type, subtype), -1);
     g_getDefaultNet = 0;
-    g_getNetCap = -1; 
+    g_getNetCap = -1;
     EXPECT_EQ(netConnectAdapterImpl->GetDefaultNetConnect(type, subtype), -1);
 }
 }

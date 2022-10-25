@@ -91,7 +91,7 @@ bool NapiParseUtils::ParseStringArray(napi_env env, napi_value argv, std::vector
 
         std::string str;
         if (ParseString(env, item, str)) {
-             outValue.push_back(str);
+            outValue.push_back(str);
         }
     }
 
@@ -108,7 +108,7 @@ bool NapiParseUtils::ParseFloat(napi_env env, napi_value argv, float& outValue)
 
     double value;
     napi_get_value_double(env, argv, &value);
-    outValue = (float)value;
+    outValue = static_cast<float>(value);
     return true;
 }
 } // namespace NWeb

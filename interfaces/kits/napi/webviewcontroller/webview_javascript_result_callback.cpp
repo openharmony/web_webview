@@ -83,7 +83,7 @@ void WebviewJavaScriptResultCallBack::RegisterJavaScriptProxy(napi_env env, napi
         napi_get_named_property(env, obj, methodName.c_str(), &result);
         napi_typeof(env, result, &valueType);
         if (valueType != napi_function) {
-            continue;;
+            continue;
         }
         napi_create_reference(env, result, 1, &callback);
         jsObj.methodMap[methodName] = callback;

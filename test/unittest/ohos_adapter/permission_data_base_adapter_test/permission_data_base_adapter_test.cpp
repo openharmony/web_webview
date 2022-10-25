@@ -41,6 +41,8 @@ namespace {
 const std::string TEST_ORIGIN = "test_origin";
 const std::string NO_EXIST_ORIGIN = "no_exist_origin";
 const std::string WEB_PATH = "/web";
+const int32_t TIME_SECONDS_THREE = 3;
+const int32_t DATABASE_DIR_PERMISSION = 0700;
 std::shared_ptr<NWeb::OhosWebPermissionDataBaseAdapter> g_dataBaseNull = nullptr;
 std::shared_ptr<AbilityRuntime::ApplicationContext> g_applicationContext = nullptr;
 } // namespace
@@ -85,14 +87,14 @@ void PermissionDataBaseAdapterTest::SetUpTestCase(void)
         .Times(1)
         .WillRepeatedly(::testing::Return("com.example.testapplication"));
     EXPECT_CALL(*contextMock, GetCacheDir())
-        .Times(3)
+        .Times(TIME_SECONDS_THREE)
         .WillRepeatedly(::testing::Return("/data"));
 
     g_applicationContext.reset(contextMock);
     g_dataBaseNull.reset(new OhosWebPermissionDataBaseAdapterImpl());
     std::string databaseDir = g_applicationContext->GetCacheDir() + WEB_PATH;
     if (access(databaseDir.c_str(), F_OK) != 0) {
-        result = mkdir(databaseDir.c_str(), 0700) == 0;
+        result = mkdir(databaseDir.c_str(), DATABASE_DIR_PERMISSION) == 0;
         EXPECT_TRUE(result);
     }
     InitPermissionDataBase();
@@ -106,7 +108,7 @@ void PermissionDataBaseAdapterTest::SetUpTestCase(void)
 
 void PermissionDataBaseAdapterTest::TearDownTestCase(void)
 {
-    system( "rm -rf /data/web");
+    system("rm -rf /data/web");
 }
 
 void PermissionDataBaseAdapterTest::SetUp(void)

@@ -35,6 +35,8 @@ namespace OHOS {
 namespace {
 const std::string WEB_DNS_DATABASE_FILE = "web_dns.db";
 const std::string WEB_PATH = "/web";
+const int32_t TIME_SECONDS_THREE = 3;
+const int32_t DATABASE_DIR_PERMISSION = 0700;
 std::shared_ptr<NWeb::OhosWebDnsDataBaseAdapter> g_dataBaseNull = nullptr;
 std::shared_ptr<AbilityRuntime::ApplicationContext> g_applicationContext = nullptr;
 } // namespace
@@ -85,14 +87,14 @@ void DnsDataBaseAdapterTest::SetUpTestCase(void)
         .Times(1)
         .WillRepeatedly(::testing::Return("com.example.testapplication"));
     EXPECT_CALL(*contextMock, GetCacheDir())
-        .Times(3)
+        .Times(TIME_SECONDS_THREE)
         .WillRepeatedly(::testing::Return("/data"));
     g_applicationContext.reset(contextMock);
     InitDnsDataBase();
 
     std::string databaseDir = g_applicationContext->GetCacheDir() + WEB_PATH;
     if (access(databaseDir.c_str(), F_OK) != 0) {
-        result = mkdir(databaseDir.c_str(), 0700) == 0;
+        result = mkdir(databaseDir.c_str(), DATABASE_DIR_PERMISSION) == 0;
         EXPECT_TRUE(result);
     }
     InitDnsDataBase();
@@ -100,7 +102,7 @@ void DnsDataBaseAdapterTest::SetUpTestCase(void)
 
 void DnsDataBaseAdapterTest::TearDownTestCase(void)
 {
-    system( "rm -rf /data/web");
+    system("rm -rf /data/web");
     g_applicationContext.reset();
 }
 
@@ -223,8 +225,6 @@ HWTEST_F(DnsDataBaseAdapterTest, DnsDataBaseAdapterTest_ClearAllHostname_005, Te
         g_dataBaseNull->ClearAllHostname();
     }
 }
-
-
 
 /**
  * @tc.name: DnsDataBaseAdapterTest_CallBack_006
