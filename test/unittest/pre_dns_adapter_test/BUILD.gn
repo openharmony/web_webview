@@ -19,8 +19,10 @@ config("module_private_config") {
   visibility = [ ":*" ]
 
   include_dirs = [
+    "//base/web/webview/ohos_adapter/distributeddatamgr_adapter/webdatabase/include",
     "//base/web/webview/ohos_adapter/interfaces",
     "//base/web/webview/test/unittest/common",
+    "//third_party/googletest/googlemock/include",
   ]
 }
 
@@ -36,6 +38,9 @@ ohos_unittest("pre_dns_adapter_test") {
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/zlib:libz",
+  ]
+  external_deps = [
+    "relational_store:native_rdb"
   ]
 }
 
