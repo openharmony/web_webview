@@ -33,9 +33,9 @@ namespace {
 namespace OHOS {
 namespace NWeb {
 using namespace NWebError;
-WebviewController::WebviewController(int32_t webId)
+WebviewController::WebviewController(int32_t nwebId)
 {
-    nweb_ = OHOS::NWeb::NWebHelper::Instance().GetNWeb(webId);
+    nweb_ = OHOS::NWeb::NWebHelper::Instance().GetNWeb(nwebId);
 }
 
 bool WebviewController::AccessForward()
@@ -133,7 +133,7 @@ int32_t WebviewController::GetWebId() const
 {
     int32_t webId = -1;
     if (nweb_) {
-        webId = nweb_->GetWebId();
+        webId = static_cast<int32_t>(nweb_->GetWebId());
     }
     return webId;
 }

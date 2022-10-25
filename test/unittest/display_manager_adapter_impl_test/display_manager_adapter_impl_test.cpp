@@ -39,7 +39,7 @@ bool DisplayManager::UnregisterDisplayListener(sptr<IDisplayListener> listener)
 }
 
 namespace NWeb {
-class DisplayListenerAdapterTest: public DisplayListenerAdapter {
+class DisplayListenerAdapterTest : public DisplayListenerAdapter {
 public:
     DisplayListenerAdapterTest() = default;
 
@@ -96,7 +96,7 @@ HWTEST_F(DisplayManagerAdapterImplTest, DisplayManagerAdapterImplTest_001, TestS
  */
 HWTEST_F(DisplayManagerAdapterImplTest, DisplayManagerAdapterImplTest_002, TestSize.Level1)
 {
-    std::shared_ptr<DisplayListenerAdapter> listener(new DisplayListenerAdapterTest);
+    std::shared_ptr<DisplayListenerAdapter> listener = std::make_shared<DisplayListenerAdapterTest>();
     std::unique_ptr<DisplayListenerAdapterImpl> displayListenerAdapterImpl =
         std::make_unique<DisplayListenerAdapterImpl>(listener);
     displayListenerAdapterImpl->OnCreate(static_cast<DisplayId>(1));
@@ -203,13 +203,13 @@ HWTEST_F(DisplayManagerAdapterImplTest, DisplayManagerAdapterImplTest_005, TestS
 {
     std::shared_ptr<DisplayManagerAdapterImpl> displayManagerAdapterImpl =
         std::make_shared<DisplayManagerAdapterImpl>();
-    std::shared_ptr<DisplayListenerAdapter> listener(new DisplayListenerAdapterTest);
+    std::shared_ptr<DisplayListenerAdapter> listener = std::make_shared<DisplayListenerAdapterTest>();
     EXPECT_NE(displayManagerAdapterImpl, nullptr);
     EXPECT_NE(displayManagerAdapterImpl->GetDefaultDisplayId(), DISPLAY_ID_INVALID);
     EXPECT_NE(displayManagerAdapterImpl->GetDefaultDisplay(), nullptr);
     EXPECT_EQ(displayManagerAdapterImpl->RegisterDisplayListener(listener), true);
     EXPECT_FALSE(displayManagerAdapterImpl->UnregisterDisplayListener(listener));
-    std::shared_ptr<DisplayListenerAdapter> listener1(new DisplayListenerAdapterTest);
+    std::shared_ptr<DisplayListenerAdapter> listener1 = std::make_shared<DisplayListenerAdapterTest>();
     EXPECT_FALSE(displayManagerAdapterImpl->UnregisterDisplayListener(listener1));
     g_unregister = true;
 }

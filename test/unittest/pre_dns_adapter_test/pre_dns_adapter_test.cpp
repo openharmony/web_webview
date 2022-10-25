@@ -23,22 +23,24 @@ using namespace OHOS;
 using namespace OHOS::NWeb;
 
 namespace {
-bool g_test_flag_1 = false;
-bool g_test_flag_2 = false;
-bool g_test_flag_3 = false;
+bool g_testFlag1 = false;
+bool g_testFlag2 = false;
+bool g_testFlag3 = false;
 }
 
 namespace OHOS::NWeb {
 class OhosWebDnsDataBaseAdapterMock : public OhosWebDnsDataBaseAdapter {
 public:
-    static OhosWebDnsDataBaseAdapterMock& GetInstance() {
+    static OhosWebDnsDataBaseAdapterMock& GetInstance()
+    {
         static OhosWebDnsDataBaseAdapterMock instance;
         return instance;
     }
 
     virtual ~OhosWebDnsDataBaseAdapterMock() = default;
 
-    bool ExistHostname(const std::string& hostname) const override {
+    bool ExistHostname(const std::string& hostname) const override
+    {
         return true;
     }
 
@@ -49,26 +51,29 @@ public:
     void ClearAllHostname() override {}
 };
 
-void OhosWebDnsDataBaseAdapterMock::GetHostnames(std::vector<std::string>& hostnames) const {
-    if (g_test_flag_1) {
+void OhosWebDnsDataBaseAdapterMock::GetHostnames(std::vector<std::string>& hostnames) const
+{
+    if (g_testFlag1) {
         return;
-    } else if (g_test_flag_2) {
+    } else if (g_testFlag2) {
         hostnames.push_back("m.pinduoduo.com");
-    } else if (g_test_flag_3) {
+    } else if (g_testFlag3) {
         hostnames.push_back("getaddrinfo_error");
     }
 }
  
 class OhosAdapterHelper {
 public:
-    static OhosAdapterHelper &GetInstance() {
+    static OhosAdapterHelper &GetInstance()
+    {
         static OhosAdapterHelper ohosAdapter;
         return ohosAdapter;
     }
 
     virtual ~OhosAdapterHelper() = default;
 
-    OhosWebDnsDataBaseAdapter& GetWebDnsDataBaseInstance() {
+    OhosWebDnsDataBaseAdapter& GetWebDnsDataBaseInstance()
+    {
         return OhosWebDnsDataBaseAdapterMock::GetInstance();
     }
 private:
@@ -107,17 +112,17 @@ void PreDnsAdapterTest::TearDown(void)
  */
 HWTEST_F(PreDnsAdapterTest, PreDnsAdapterTest_001, TestSize.Level1)
 {
-    g_test_flag_1 = true;
+    g_testFlag1 = true;
     PreDnsInThread();
-    g_test_flag_1 = false;
+    g_testFlag1 = false;
 
-    g_test_flag_2 = true;
+    g_testFlag2 = true;
     PreDnsInThread();
-    g_test_flag_2 = false;
+    g_testFlag2 = false;
 
-    g_test_flag_3 = true;
+    g_testFlag3 = true;
     PreDnsInThread();
-    g_test_flag_3 = false;
+    g_testFlag3 = false;
 }
 
 } // namespace NWeb
