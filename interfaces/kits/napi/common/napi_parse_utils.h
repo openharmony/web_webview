@@ -33,6 +33,8 @@ constexpr int INTEGER_FIVE = 5;
 
 class NapiParseUtils {
 public:
+    static napi_value CreateEnumConstructor(napi_env env, napi_callback_info info);
+    static napi_value ToInt32Value(napi_env env, int32_t number);
     static bool ParseInt32(napi_env env, napi_value argv, int32_t& outValue);
     static bool ParseString(napi_env env, napi_value argv, std::string& outValue);
     static bool ParseBoolean(napi_env env, napi_value argv, bool& outValue);

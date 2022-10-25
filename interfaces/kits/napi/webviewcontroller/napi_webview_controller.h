@@ -25,6 +25,7 @@ namespace OHOS {
 namespace NWeb {
 const std::string WEBVIEW_CONTROLLER_CLASS_NAME = "WebviewController";
 const std::string WEB_MESSAGE_PORT_CLASS_NAME = "WebMessagePort";
+const std::string WEB_HITTESTTYPE_V9_ENUM_NAME = "HitTestTypeV9";
 
 class NapiWebviewController {
 public:
