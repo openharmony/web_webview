@@ -420,7 +420,7 @@ ErrCode WebviewController::LoadData(std::string data, std::string mimeType, std:
     if (baseUrl.empty() && historyUrl.empty()) {
         return nweb_->LoadWithData(data, mimeType, encoding);
     }
-    return nweb_->LoadWithDataAndBaseUrl(data, mimeType, encoding, baseUrl, historyUrl);
+    return nweb_->LoadWithDataAndBaseUrl(baseUrl, data, mimeType, encoding, historyUrl);
 }
 
 int WebviewController::ConverToWebHitTestType(int hitType)

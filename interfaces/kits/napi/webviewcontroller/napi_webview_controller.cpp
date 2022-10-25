@@ -33,6 +33,7 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
 {
     napi_property_descriptor properties[] = {
         DECLARE_NAPI_FUNCTION("setWebId", NapiWebviewController::SetWebId),
+        DECLARE_NAPI_FUNCTION("jsProxy", NapiWebviewController::InnerJsProxy),
         DECLARE_NAPI_FUNCTION("accessForward", NapiWebviewController::AccessForward),
         DECLARE_NAPI_FUNCTION("accessBackward", NapiWebviewController::AccessBackward),
         DECLARE_NAPI_FUNCTION("accessStep", NapiWebviewController::AccessStep),
@@ -64,7 +65,6 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("clearClientAuthenticationCache", NapiWebviewController::ClearClientAuthenticationCache),
         DECLARE_NAPI_FUNCTION("stop", NapiWebviewController::Stop),
         DECLARE_NAPI_FUNCTION("zoom", NapiWebviewController::Zoom),
-        DECLARE_NAPI_FUNCTION("jsProxy", NapiWebviewController::JsProxy),
         DECLARE_NAPI_FUNCTION("registerJavaScriptProxy", NapiWebviewController::RegisterJavaScriptProxy),
         DECLARE_NAPI_FUNCTION("deleteJavaScriptRegister", NapiWebviewController::DeleteJavaScriptRegister),
         DECLARE_NAPI_FUNCTION("runJavaScript", NapiWebviewController::RunJavaScript),
@@ -126,6 +126,47 @@ napi_value NapiWebviewController::SetWebId(napi_env env, napi_callback_info info
     }
 
     return thisVar;
+}
+
+napi_value NapiWebviewController::InnerJsProxy(napi_env env, napi_callback_info info)
+{
+    WVLOG_D("NapiWebviewController::InnerJsProxy");
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
+    size_t argc = INTEGER_THREE;
+    napi_value argv[INTEGER_THREE] = { 0 };
+
+    napi_get_undefined(env, &result);
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (argc != INTEGER_THREE) {
+        WVLOG_E("Failed to run InnerJsProxy beacuse of wrong Param number.");
+        return result;
+    }
+
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, argv[INTEGER_ZERO], &valueType);
+    if (valueType != napi_object) {
+        WVLOG_E("Failed to run InnerJsProxy beacuse of wrong Param type.");
+        return result;
+    }
+
+    std::string objName;
+    std::vector<std::string> methodList;
+    if (!NapiParseUtils::ParseString(env, argv[INTEGER_ONE], objName) ||
+        !NapiParseUtils::ParseStringArray(env, argv[INTEGER_TWO], methodList)) {
+        WVLOG_E("Failed to run InnerJsProxy beacuse of wrong Param type.");
+        return result;
+    }
+
+    WebviewController *controller = nullptr;
+    napi_unwrap(env, thisVar, (void **)&controller);
+    if (!controller) {
+        WVLOG_E("Failed to run InnerJsProxy. The WebviewController must be associted with a Web component.");
+        return result;
+    }
+    controller->SetNWebJavaScriptResultCallBack();
+    controller->RegisterJavaScriptProxy(env, argv[INTEGER_ZERO], objName, methodList);
+    return result;
 }
 
 napi_value NapiWebviewController::AccessForward(napi_env env, napi_callback_info info)
@@ -1296,43 +1337,6 @@ napi_value NapiWebviewController::Zoom(napi_env env, napi_callback_info info)
     }
 
     NAPI_CALL(env, napi_get_undefined(env, &result));
-    return result;
-}
-
-napi_value NapiWebviewController::JsProxy(napi_env env, napi_callback_info info)
-{
-    WVLOG_D("NapiWebviewController::JsProxy");
-    napi_value thisVar = nullptr;
-    napi_value result = nullptr;
-    size_t argc = INTEGER_THREE;
-    napi_value argv[INTEGER_THREE] = { 0 };
-
-    napi_get_undefined(env, &result);
-    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
-    if (argc != INTEGER_THREE) {
-        return result;
-    }
-
-    napi_valuetype valueType = napi_undefined;
-    napi_typeof(env, argv[INTEGER_ZERO], &valueType);
-    if (valueType != napi_object) {
-        return result;
-    }
-
-    std::string objName;
-    std::vector<std::string> methodList;
-    if (!NapiParseUtils::ParseString(env, argv[INTEGER_ONE], objName) ||
-        !NapiParseUtils::ParseStringArray(env, argv[INTEGER_TWO], methodList)) {
-        return result;
-    }
-
-    WebviewController *controller = nullptr;
-    napi_unwrap(env, thisVar, (void **)&controller);
-    if (!controller) {
-        return result;
-    }
-    controller->SetNWebJavaScriptResultCallBack();
-    controller->RegisterJavaScriptProxy(env, argv[INTEGER_ZERO], objName, methodList);
     return result;
 }
 

@@ -38,6 +38,8 @@ private:
 
     static napi_value SetWebId(napi_env env, napi_callback_info info);
 
+    static napi_value InnerJsProxy(napi_env env, napi_callback_info info);
+
     static napi_value AccessForward(napi_env env, napi_callback_info info);
 
     static napi_value AccessBackward(napi_env env, napi_callback_info info);
@@ -105,8 +107,6 @@ private:
     static napi_value Stop(napi_env env, napi_callback_info info);
 
     static napi_value Zoom(napi_env env, napi_callback_info info);
-
-    static napi_value JsProxy(napi_env env, napi_callback_info info);
 
     static napi_value RegisterJavaScriptProxy(napi_env env, napi_callback_info info);
 
