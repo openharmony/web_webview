@@ -21,6 +21,20 @@ constexpr int MAX_STRING_LENGTH = 40960;
 
 namespace OHOS {
 namespace NWeb {
+napi_value NapiParseUtils::CreateEnumConstructor(napi_env env, napi_callback_info info)
+{
+    napi_value arg = nullptr;
+    napi_get_cb_info(env, info, nullptr, nullptr, &arg, nullptr);
+    return arg;
+}
+
+napi_value NapiParseUtils::ToInt32Value(napi_env env, int32_t number)
+{
+    napi_value result = nullptr;
+    napi_create_int32(env, number, &result);
+    return result;
+}
+
 bool NapiParseUtils::ParseInt32(napi_env env, napi_value argv, int32_t& outValue)
 {
     napi_valuetype valueType = napi_undefined;

@@ -89,6 +89,31 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         msgPortProperties, &msgPortCons));
     NAPI_CALL(env, napi_create_reference(env, msgPortCons, 1, &g_classWebMsgPort));
     NAPI_CALL(env, napi_set_named_property(env, exports, WEB_MESSAGE_PORT_CLASS_NAME.c_str(), msgPortCons));
+
+    napi_value hitTestTypeEnum = nullptr;
+    napi_property_descriptor hitTestTypeProperties[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("EditText", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(WebHitTestType::EDIT))),
+        DECLARE_NAPI_STATIC_PROPERTY("Email", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(WebHitTestType::EMAIL))),
+        DECLARE_NAPI_STATIC_PROPERTY("HttpAnchor", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(WebHitTestType::HTTP))),
+        DECLARE_NAPI_STATIC_PROPERTY("HttpAnchorImg", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(WebHitTestType::HTTP_IMG))),
+        DECLARE_NAPI_STATIC_PROPERTY("Img", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(WebHitTestType::IMG))),
+        DECLARE_NAPI_STATIC_PROPERTY("Map", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(WebHitTestType::MAP))),
+        DECLARE_NAPI_STATIC_PROPERTY("Phone", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(WebHitTestType::PHONE))),
+        DECLARE_NAPI_STATIC_PROPERTY("Unknown", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(WebHitTestType::UNKNOWN))),
+    };
+    napi_define_class(env, WEB_HITTESTTYPE_V9_ENUM_NAME.c_str(), WEB_HITTESTTYPE_V9_ENUM_NAME.length(),
+        NapiParseUtils::CreateEnumConstructor, nullptr, sizeof(hitTestTypeProperties) /
+        sizeof(hitTestTypeProperties[0]), hitTestTypeProperties, &hitTestTypeEnum);
+    napi_set_named_property(env, exports, WEB_HITTESTTYPE_V9_ENUM_NAME.c_str(), hitTestTypeEnum);
+    
     return exports;
 }
 
