@@ -15,7 +15,6 @@
 
 #include "nweb_window_adapter.h"
 
-#include <display_type.h>
 #include <refbase.h>
 #include <securec.h>
 #include <surface.h>
@@ -77,8 +76,8 @@ void NWebWindowAdapter::GetRenderInterface(Rosen::Window *window, NWebCreateInfo
             .width = window->GetRect().width_,
             .height = window->GetRect().height_,
             .strideAlignment = sizeof(void *),
-            .format = PIXEL_FMT_RGBA_8888,
-            .usage = HBM_USE_CPU_READ | HBM_USE_CPU_WRITE | HBM_USE_MEM_DMA,
+            .format = GRAPHIC_PIXEL_FMT_RGBA_8888,
+            .usage = GRAPHIC_USAGE_CPU_READ | GRAPHIC_USAGE_CPU_WRITE | GRAPHIC_USAGE_MEM_DMA,
             .timeout = 0,
         };
 
