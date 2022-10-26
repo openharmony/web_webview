@@ -241,7 +241,7 @@ bool PasteDataRecordAdapterImpl::GetImgData(ClipBoardImageData &imageData)
         return false;
     }
 
-    imgBuffer_ = (uint8_t *)calloc((size_t)bufferSize_, sizeof(uint8_t));
+    imgBuffer_ = static_cast<uint8_t *>(calloc(static_cast<size_t>(bufferSize_), sizeof(uint8_t)));
     if (imgBuffer_ == nullptr) {
         WVLOG_E("calloc imgbuffer failed");
         return false;

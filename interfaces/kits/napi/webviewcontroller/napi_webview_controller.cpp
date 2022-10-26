@@ -433,7 +433,7 @@ napi_value NapiWebviewController::PostMessage(napi_env env, napi_callback_info i
     }
     uint32_t arrayLen = 0;
     NAPI_CALL(env, napi_get_array_length(env, argv[INTEGER_ONE], &arrayLen));
-    if (arrayLen <= 0) {
+    if (arrayLen == 0) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
         return result;
     }
@@ -1057,9 +1057,9 @@ napi_value NapiWebviewController::LoadUrl(napi_env env, napi_callback_info info)
         BusinessError::ThrowErrorByErrcode(env, INVALID_URL);
     }
     std::string fileProtocolName = "file";
-    std::string fileProtocol = "file:///";
     if (webSrc.substr(INTEGER_ZERO, fileProtocolName.size()) == "file") {
         std::string filePath = webSrc;
+        std::string fileProtocol = "file:///";
         filePath.erase(INTEGER_ZERO, fileProtocol.size());
         int isFileExist = access(filePath.c_str(), F_OK);
         if (isFileExist == -1) {
@@ -1082,7 +1082,7 @@ napi_value NapiWebviewController::LoadUrl(napi_env env, napi_callback_info info)
 }
 
 napi_value NapiWebviewController::LoadUrlWithHttpHeaders(napi_env env, napi_callback_info info, const std::string& url,
-    napi_value* argv, WebviewController* webviewController)
+    const napi_value* argv, WebviewController* webviewController)
 {
     napi_value result = nullptr;
     std::map<std::string, std::string> httpHeaders;

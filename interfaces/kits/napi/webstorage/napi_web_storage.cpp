@@ -215,7 +215,7 @@ napi_value NapiWebStorage::GetOriginsAsync(napi_env env, napi_value *argv)
     napi_create_reference(env, *argv, 1, &param->callbackRef);
     NAPI_CALL(env, napi_create_string_utf8(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, ExecuteGetOrigins,
-        GetOriginComplete, (void *)param, &param->asyncWork));
+        GetOriginComplete, static_cast<void *>(param), &param->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, param->asyncWork));
     napi_get_undefined(env, &result);
     return result;
@@ -236,7 +236,7 @@ napi_value NapiWebStorage::GetOriginsPromise(napi_env env)
     napi_value resourceName = nullptr;
     NAPI_CALL(env, napi_create_string_utf8(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, ExecuteGetOrigins,
-        GetOriginsPromiseComplete, (void *)param, &param->asyncWork));
+        GetOriginsPromiseComplete, static_cast<void *>(param), &param->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, param->asyncWork));
     return promise;
 }
@@ -360,7 +360,7 @@ napi_value NapiWebStorage::GetOriginUsageOrQuotaAsync(napi_env env,
     napi_create_reference(env, argv[PARAMONE], 1, &param->callbackRef);
     NAPI_CALL(env, napi_create_string_utf8(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, ExecuteGetOriginUsageOrQuota,
-        GetOriginUsageOrQuotaComplete, (void *)param, &param->asyncWork));
+        GetOriginUsageOrQuotaComplete, static_cast<void *>(param), &param->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, param->asyncWork));
     napi_get_undefined(env, &result);
     return result;
@@ -387,7 +387,7 @@ napi_value NapiWebStorage::GetOriginUsageOrQuotaPromise(napi_env env,
     napi_value resourceName = nullptr;
     NAPI_CALL(env, napi_create_string_utf8(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, ExecuteGetOriginUsageOrQuota,
-        GetOriginUsageOrQuotaPromiseComplete, (void *)param, &param->asyncWork));
+        GetOriginUsageOrQuotaPromiseComplete, static_cast<void *>(param), &param->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, param->asyncWork));
     return promise;
 }

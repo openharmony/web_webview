@@ -810,7 +810,7 @@ HWTEST_F(NWebPasteboardAdapterTest, NWebPasteboardAdapter_Clear_035, TestSize.Le
 {
     uint32_t bufferSize = 20;
     if (g_datarecord->imgBuffer_ == nullptr) {
-        g_datarecord->imgBuffer_ = (uint8_t *)calloc((size_t)bufferSize, sizeof(uint8_t));
+        g_datarecord->imgBuffer_ = static_cast<uint8_t *>(calloc(static_cast<size_t>(bufferSize), sizeof(uint8_t)));
     }
     g_datarecord->Clear();
 }

@@ -245,7 +245,7 @@ napi_value NapiGeolocationPermission::GetPermissionStateAsync(napi_env env, napi
     napi_create_reference(env, argv[1], 1, &param->callbackRef);
     NAPI_CALL(env, napi_create_string_utf8(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, ExecuteGetPermissionState,
-        GetPermissionStateComplete, (void *)param, &param->asyncWork));
+        GetPermissionStateComplete, static_cast<void *>(param), &param->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, param->asyncWork));
     napi_get_undefined(env, &result);
     return result;
@@ -271,7 +271,7 @@ napi_value NapiGeolocationPermission::GetPermissionStatePromise(napi_env env, na
     napi_value resourceName = nullptr;
     NAPI_CALL(env, napi_create_string_utf8(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, ExecuteGetPermissionState,
-        GetPermissionStatePromiseComplete, (void *)param, &param->asyncWork));
+        GetPermissionStatePromiseComplete, static_cast<void *>(param), &param->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, param->asyncWork));
     return promise;
 }
@@ -389,7 +389,7 @@ napi_value NapiGeolocationPermission::GetOriginsAsync(napi_env env, napi_value *
     napi_create_reference(env, *argv, 1, &param->callbackRef);
     NAPI_CALL(env, napi_create_string_utf8(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, ExecuteGetOrigins,
-        GetOriginComplete, (void *)param, &param->asyncWork));
+        GetOriginComplete, static_cast<void *>(param), &param->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, param->asyncWork));
     napi_get_undefined(env, &result);
     return result;
@@ -410,7 +410,7 @@ napi_value NapiGeolocationPermission::GetOriginsPromise(napi_env env)
     napi_value resourceName = nullptr;
     NAPI_CALL(env, napi_create_string_utf8(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, ExecuteGetOrigins,
-        GetOriginsPromiseComplete, (void *)param, &param->asyncWork));
+        GetOriginsPromiseComplete, static_cast<void *>(param), &param->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, param->asyncWork));
     return promise;
 }
