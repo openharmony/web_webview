@@ -13,75 +13,24 @@
  * limitations under the License.
  */
 
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include "nweb_pre_dns_adapter.h"
+#include "ohos_adapter_helper.h"
 #include "ohos_web_data_base_adapter.h"
+#define private public
+#include "ohos_web_dns_data_base_adapter_impl.h"
+#undef private
 
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::NWeb;
 
-namespace {
-bool g_testFlag1 = false;
-bool g_testFlag2 = false;
-bool g_testFlag3 = false;
-}
-
 namespace OHOS::NWeb {
-class OhosWebDnsDataBaseAdapterMock : public OhosWebDnsDataBaseAdapter {
+class OhosWebDnsDataBaseAdapterMock : public OhosWebDnsDataBaseAdapterImpl {
 public:
-    static OhosWebDnsDataBaseAdapterMock& GetInstance()
-    {
-        static OhosWebDnsDataBaseAdapterMock instance;
-        return instance;
-    }
-
-    virtual ~OhosWebDnsDataBaseAdapterMock() = default;
-
-    bool ExistHostname(const std::string& hostname) const override
-    {
-        return true;
-    }
-
-    void InsertHostname(const std::string& hostname) override {}
-    
-    void GetHostnames(std::vector<std::string>& hostnames) const override;
-
-    void ClearAllHostname() override {}
-};
-
-void OhosWebDnsDataBaseAdapterMock::GetHostnames(std::vector<std::string>& hostnames) const
-{
-    if (g_testFlag1) {
-        return;
-    } else if (g_testFlag2) {
-        hostnames.push_back("m.pinduoduo.com");
-    } else if (g_testFlag3) {
-        hostnames.push_back("getaddrinfo_error");
-    }
-}
- 
-class OhosAdapterHelper {
-public:
-    static OhosAdapterHelper &GetInstance()
-    {
-        static OhosAdapterHelper ohosAdapter;
-        return ohosAdapter;
-    }
-
-    virtual ~OhosAdapterHelper() = default;
-
-    OhosWebDnsDataBaseAdapter& GetWebDnsDataBaseInstance()
-    {
-        return OhosWebDnsDataBaseAdapterMock::GetInstance();
-    }
-private:
-    OhosAdapterHelper() = default;
-
-    OhosAdapterHelper(const OhosAdapterHelper&) = delete;
-
-    OhosAdapterHelper& operator=(const OhosAdapterHelper&) = delete;
+    MOCK_CONST_METHOD1(GetHostnames, void(std::vector<std::string>&));
 };
 
 class PreDnsAdapterTest : public testing::Test {
@@ -92,11 +41,23 @@ public:
     void TearDown();
 };
 
+static OhosWebDnsDataBaseAdapterMock *adapterMock;
+OhosWebDnsDataBaseAdapter &OhosAdapterHelper::GetWebDnsDataBaseInstance()
+{
+    std::cout << "GetWebDnsDataBaseInstance\n";
+    return *adapterMock;
+}
+
 void PreDnsAdapterTest::SetUpTestCase(void)
-{}
+{
+    adapterMock = new OhosWebDnsDataBaseAdapterMock();
+    ASSERT_NE(adapterMock, nullptr);
+}
 
 void PreDnsAdapterTest::TearDownTestCase(void)
-{}
+{
+    delete adapterMock;
+}
 
 void PreDnsAdapterTest::SetUp(void)
 {}
@@ -112,17 +73,24 @@ void PreDnsAdapterTest::TearDown(void)
  */
 HWTEST_F(PreDnsAdapterTest, PreDnsAdapterTest_001, TestSize.Level1)
 {
-    g_testFlag1 = true;
+    std::vector<std::string> hostInfo;
+    EXPECT_CALL(*adapterMock, GetHostnames(::testing::_))
+        .Times(1)
+        .WillRepeatedly(::testing::SetArgReferee<0>(hostInfo));
     PreDnsInThread();
-    g_testFlag1 = false;
 
-    g_testFlag2 = true;
+    hostInfo.push_back("m.pinduoduo.com");
+    hostInfo.push_back("mcdn.pinduoduo.com");
+    EXPECT_CALL(*adapterMock, GetHostnames(::testing::_))
+        .Times(1)
+        .WillRepeatedly(::testing::SetArgReferee<0>(hostInfo));
     PreDnsInThread();
-    g_testFlag2 = false;
 
-    g_testFlag3 = true;
+    hostInfo.push_back("test_error");
+    EXPECT_CALL(*adapterMock, GetHostnames(::testing::_))
+        .Times(1)
+        .WillRepeatedly(::testing::SetArgReferee<0>(hostInfo));
     PreDnsInThread();
-    g_testFlag3 = false;
 }
 
 } // namespace NWeb
