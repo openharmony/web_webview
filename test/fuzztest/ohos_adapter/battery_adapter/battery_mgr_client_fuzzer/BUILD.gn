@@ -37,7 +37,10 @@ ohos_fuzztest("Battery_Mgr_Client_Fuzzer") {
     "//foundation/graphic/graphic_2d:libsurface",
   ]
 
-  external_deps = [ "battery_manager:batterysrv_client" ]
+  external_deps = [
+    "battery_manager:batterysrv_client",
+    "common_event_service:cesfwk_innerkits",
+  ]
 }
 
 ###############################################################################
