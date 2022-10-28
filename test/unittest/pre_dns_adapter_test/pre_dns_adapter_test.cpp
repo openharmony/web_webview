@@ -41,22 +41,22 @@ public:
     void TearDown();
 };
 
-static OhosWebDnsDataBaseAdapterMock *adapterMock;
+static OhosWebDnsDataBaseAdapterMock *g_adapterMock;
 OhosWebDnsDataBaseAdapter &OhosAdapterHelper::GetWebDnsDataBaseInstance()
 {
     std::cout << "GetWebDnsDataBaseInstance\n";
-    return *adapterMock;
+    return *g_adapterMock;
 }
 
 void PreDnsAdapterTest::SetUpTestCase(void)
 {
-    adapterMock = new OhosWebDnsDataBaseAdapterMock();
-    ASSERT_NE(adapterMock, nullptr);
+    g_adapterMock = new OhosWebDnsDataBaseAdapterMock();
+    ASSERT_NE(g_adapterMock, nullptr);
 }
 
 void PreDnsAdapterTest::TearDownTestCase(void)
 {
-    delete adapterMock;
+    delete g_adapterMock;
 }
 
 void PreDnsAdapterTest::SetUp(void)
@@ -74,20 +74,20 @@ void PreDnsAdapterTest::TearDown(void)
 HWTEST_F(PreDnsAdapterTest, PreDnsAdapterTest_001, TestSize.Level1)
 {
     std::vector<std::string> hostInfo;
-    EXPECT_CALL(*adapterMock, GetHostnames(::testing::_))
+    EXPECT_CALL(*g_adapterMock, GetHostnames(::testing::_))
         .Times(1)
         .WillRepeatedly(::testing::SetArgReferee<0>(hostInfo));
     PreDnsInThread();
 
     hostInfo.push_back("m.pinduoduo.com");
     hostInfo.push_back("mcdn.pinduoduo.com");
-    EXPECT_CALL(*adapterMock, GetHostnames(::testing::_))
+    EXPECT_CALL(*g_adapterMock, GetHostnames(::testing::_))
         .Times(1)
         .WillRepeatedly(::testing::SetArgReferee<0>(hostInfo));
     PreDnsInThread();
 
     hostInfo.push_back("test_error");
-    EXPECT_CALL(*adapterMock, GetHostnames(::testing::_))
+    EXPECT_CALL(*g_adapterMock, GetHostnames(::testing::_))
         .Times(1)
         .WillRepeatedly(::testing::SetArgReferee<0>(hostInfo));
     PreDnsInThread();

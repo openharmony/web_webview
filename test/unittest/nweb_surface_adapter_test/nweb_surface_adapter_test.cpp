@@ -342,11 +342,13 @@ HWTEST_F(NWebSurfaceAdapterTest, NWebSurfaceAdapterTest_GetRenderInterface_002, 
     g_info.output_render_frame(src, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     sptr<Surface> surface = nullptr;
     surfaceAdapter.GetRenderInterface(surface, g_info);
-    (void)memset(src, 0, DEFAULT_WIDTH * DEFAULT_HEIGHT * BITS_PER_PIXEL);
+    (void)memset_s(src, DEFAULT_WIDTH * DEFAULT_HEIGHT * BITS_PER_PIXEL, 0,
+        DEFAULT_WIDTH * DEFAULT_HEIGHT * BITS_PER_PIXEL);
     g_info.output_render_frame(src, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     sptr<SurfaceMock> mock = new SurfaceMock();
     surfaceAdapter.GetRenderInterface(mock, g_info);
-    (void)memset(src, 0, DEFAULT_WIDTH * DEFAULT_HEIGHT * BITS_PER_PIXEL);
+    (void)memset_s(src, DEFAULT_WIDTH * DEFAULT_HEIGHT * BITS_PER_PIXEL, 0,
+        DEFAULT_WIDTH * DEFAULT_HEIGHT * BITS_PER_PIXEL);
     g_info.output_render_frame(src, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 }
 
@@ -397,7 +399,8 @@ HWTEST_F(NWebSurfaceAdapterTest, NWebSurfaceAdapterTest_CopyFrame_004, TestSize.
     EXPECT_NE(g_surfaceBuffer, nullptr);
     result = surfaceAdapter.CopyFrame(g_surfaceBuffer, src, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     EXPECT_TRUE(result);
-    (void)memset(src, 0, DEFAULT_WIDTH * DEFAULT_HEIGHT * BITS_PER_PIXEL);
+    (void)memset_s(src, DEFAULT_WIDTH * DEFAULT_HEIGHT * BITS_PER_PIXEL, 0,
+        DEFAULT_WIDTH * DEFAULT_HEIGHT * BITS_PER_PIXEL);
     SurfaceBufferImplMock *mock = new SurfaceBufferImplMock();
     EXPECT_CALL(*mock, GetVirAddr())
         .Times(1)

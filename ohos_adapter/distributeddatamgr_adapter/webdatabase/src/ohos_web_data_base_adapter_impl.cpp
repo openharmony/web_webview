@@ -23,7 +23,7 @@
 using namespace OHOS::NativeRdb;
 using namespace OHOS::NWeb;
 
-namespace{
+namespace {
 static const int32_t RDB_VERSION = 1;
 static const std::string HTTP_AUTH_DATABASE_FILE = "http_auth.db";
 
