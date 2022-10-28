@@ -26,7 +26,7 @@ using namespace OHOS::EventFwk;
 namespace OHOS {
     bool DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     {
-        if ((data == nullptr) || (size <= 0)) {
+        if ((data == nullptr) || (size == 0)) {
             return false;
         }
         CommonEventSubscribeInfo subscribe;
