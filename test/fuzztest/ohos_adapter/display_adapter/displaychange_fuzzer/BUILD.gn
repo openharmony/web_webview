@@ -1,0 +1,57 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#####################hydra-fuzz###################
+import("//build/config/features.gni")
+import("//build/test.gni")
+
+##############################fuzztest##########################################
+ohos_fuzztest("DisplayChangeFuzzTest") {
+  module_out_path = "web/webview"
+  fuzz_config_file = "//base/web/webview/test/fuzztest/ohos_adapter/display_adapter/displaychange_fuzzer"
+
+  include_dirs = [
+    "//base/web/webview/test/ohos_nweb",
+    "//base\web/webview/ohos_adapter/display_manager_adapter/include",
+    "//base/web/webview/test/fuzztest",
+  ]
+  cflags = [
+    "-g",
+    "-O0",
+    "-Wno-unused-variable",
+    "-fno-omit-frame-pointer",
+  ]
+  sources = [ "displaychange_fuzzer.cpp" ]
+  deps = [
+    "//base/web/webview/ohos_adapter:nweb_ohos_adapter",
+    "//foundation/graphic/graphic_2d:libsurface",
+  ]
+
+  external_deps = [
+    "multimedia_audio_framework:audio_client",
+    "multimedia_audio_framework:audio_renderer",
+    "multimedia_image_framework:image_native",
+    "window_manager:libdm",
+  ]
+}
+
+###############################################################################
+group("fuzztest") {
+  testonly = true
+  deps = []
+  deps += [
+    # deps file
+    ":DisplayChangeFuzzTest",
+  ]
+}
+###############################################################################
