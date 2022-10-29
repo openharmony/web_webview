@@ -26,11 +26,11 @@ using namespace OHOS::NWeb;
 namespace OHOS {
     bool DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     {
-        if ((data == nullptr) || (size <= 0)) {
+        if ((data == nullptr) || (size == 0)) {
             return false;
         }
         AafwkAppMgrClientAdapterImpl render;
-        pid_t renderPid; 
+        pid_t renderPid;
         int status = 0;
         if (memcpy_s(&renderPid, size, data, size) != 0) {
             return false;

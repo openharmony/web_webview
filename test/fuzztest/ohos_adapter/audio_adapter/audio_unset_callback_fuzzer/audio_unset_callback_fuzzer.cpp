@@ -26,7 +26,7 @@ using namespace OHOS::NWeb;
 namespace OHOS {
     bool DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     {
-        if ((data == nullptr) || (size <= 0)) {
+        if ((data == nullptr) || (size == 0)) {
             return false;
         }
         AudioSystemManagerAdapterImpl::GetInstance().UnsetAudioManagerInterruptCallback();
