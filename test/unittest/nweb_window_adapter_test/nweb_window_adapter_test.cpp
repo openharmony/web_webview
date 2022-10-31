@@ -26,7 +26,6 @@
 #define protected public
 #define private public
 
-#include <vsync_helper.h>
 #include <ui/rs_surface_node.h>
 #include "nweb_window_adapter.h"
 #include "nweb.h"
@@ -34,7 +33,6 @@
 #include "surface_buffer.h"
 #include "surface_type.h"
 #include "pointer_event.h"
-#include "vsync_helper_impl.h"
 #include "window.h"
 
 using namespace testing;

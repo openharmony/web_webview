@@ -20,7 +20,6 @@
 #include <securec.h>
 #include <surface.h>
 #include <ui/rs_surface_node.h>
-#include <vsync_helper.h>
 
 #include "graphic_common.h"
 #include "graphic_common_c.h"
@@ -28,6 +27,7 @@
 #include "nweb_log.h"
 #include "surface_buffer.h"
 #include "surface_type.h"
+#include "transaction/rs_interfaces.h"
 #include "wm_common.h"
 
 namespace OHOS::NWeb {
@@ -127,14 +127,23 @@ void NWebWindowAdapter::RequestVsync(Rosen::Window *window, std::shared_ptr<NWeb
         return;
     }
 
+    auto& rsClient = OHOS::Rosen::RSInterfaces::GetInstance();
+    if (receiver_ == nullptr) {
+        receiver_ = rsClient.CreateVSyncReceiver("NWeb_" + std::to_string(::getpid()));
+        if (receiver_ == nullptr) {
+            WVLOG_E("FAIL to CreateVSyncReceiver");
+            return;
+        }
+    }
+    receiver_->Init();
+
     std::weak_ptr<NWeb> nwebWeak(nweb);
     VsyncCbInfo *info = new(std::nothrow) VsyncCbInfo { nwebWeak };
     if (info == nullptr) {
         return;
     }
-    FrameCallback frameCb = {
-        .timestamp_ = 0,
-        .userdata_ = reinterpret_cast<void *>(info),
+    Rosen::VSyncReceiver::FrameCallback frameCb = {
+        .userData_ = reinterpret_cast<void *>(info),
         .callback_ = [window, this] (int64_t time, void *userdata) -> void {
             VsyncCbInfo *info = reinterpret_cast<VsyncCbInfo *>(userdata);
             std::weak_ptr<NWeb> nwebWeak = info->nwebWeak;
@@ -147,11 +156,10 @@ void NWebWindowAdapter::RequestVsync(Rosen::Window *window, std::shared_ptr<NWeb
             this->VsyncCb(window, nwebWeak.lock());
         },
     };
-    if (VsyncHelper::Current() != nullptr) {
-        VsyncError ret = VsyncHelper::Current()->RequestFrameCallback(frameCb);
-        if (ret != VSYNC_ERROR_OK) {
-            WVLOG_E("FAIL to request frame callback for nweb render, ret=%{public}d", ret);
-        }
+
+    int ret = receiver_->RequestNextVSync(frameCb);
+    if (ret != 0) {
+        WVLOG_E("NWebWindowAdapter RequestVsync RequestNextVSync fail, ret=%{public}d", ret);
     }
 }
 
