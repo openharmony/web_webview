@@ -29,7 +29,14 @@ namespace OHOS {
             return false;
         }
         AudioAdapterRendererOptions rendererOptions;
-        std::string cachePath = (char *)data;
+        rendererOptions.samplingRate = AudioAdapterSamplingRate::SAMPLE_RATE_44100;
+        rendererOptions.encoding = AudioAdapterEncodingType::ENCODING_PCM;
+        rendererOptions.format = AudioAdapterSampleFormat::SAMPLE_S16LE;
+        rendererOptions.channels = AudioAdapterChannel::STEREO;
+        rendererOptions.contentType = AudioAdapterContentType::CONTENT_TYPE_MUSIC;
+        rendererOptions.streamUsage = AudioAdapterStreamUsage::STREAM_USAGE_MEDIA;
+        rendererOptions.rendererFlags = 0;
+        std::string cachePath(reinterpret_cast<const char*>(data), size);
         AudioRendererAdapterImpl adapter;
         adapter.Create(rendererOptions, cachePath);
         return true;

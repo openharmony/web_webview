@@ -133,7 +133,7 @@ namespace OHOS {
         if (g_nweb == nullptr) {
             return true;
         }
-        std::string code = (char *)data;
+        std::string code(reinterpret_cast<const char*>(data), size);
         g_nweb->ExecuteJavaScript(code);
         return true;
     }

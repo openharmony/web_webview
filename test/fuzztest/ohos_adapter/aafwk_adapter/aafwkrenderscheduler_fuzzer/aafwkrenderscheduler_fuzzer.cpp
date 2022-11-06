@@ -25,16 +25,20 @@ using namespace OHOS::NWeb;
 namespace OHOS {
     bool DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     {
-        if ((data == nullptr) || (size == 0)) {
+        if ((data == nullptr) || size < 2 * sizeof(int32_t)) {
             return false;
         }
         std::shared_ptr<AafwkRenderSchedulerHostAdapter> adapter = nullptr;
         AafwkRenderSchedulerImpl render(adapter);
-        int32_t ipcFd;
+        int32_t ipcFd = 0;
         int32_t sharedFd = 0;
-        if (memcpy_s(&ipcFd, size, data, size) != 0) {
+        if (memcpy_s(&ipcFd, sizeof(int32_t), data, sizeof(int32_t)) != 0) {
             return false;
         }
+        if (memcpy_s(&sharedFd, sizeof(int32_t), data + sizeof(int32_t), sizeof(int32_t)) != 0) {
+            return false;
+        }
+
         render.NotifyBrowserFd(ipcFd, sharedFd);
         return true;
     }
