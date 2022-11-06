@@ -34,7 +34,7 @@ namespace OHOS {
         int32_t sharedFd = 0;
         std::string renderParam = (char *)data;
         pid_t renderPid = 0;
-        if (memcpy_s(&ipcFd, size, data, size) != 0) {
+        if (memcpy_s(&ipcFd, sizeof(int32_t), data, sizeof(int32_t)) != 0) {
             return false;
         }
         render.StartRenderProcess(renderParam, ipcFd, sharedFd, renderPid);
