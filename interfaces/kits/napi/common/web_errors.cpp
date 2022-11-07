@@ -30,7 +30,7 @@ const std::string CAN_NOT_REGISTER_MESSAGE_EVENT_MSG = "Can not register message
 const std::string CANNOT_DEL_JAVA_SCRIPT_PROXY_MSG = "Cannot delete JavaScriptProxy.";
 const std::string CANNOT_ZOOM_IN_OR_ZOOM_OUT_MSG = "Cannot zoom in or zoom out";
 const std::string CAN_NOT_POST_MESSAGE_MSG = "Can not post message using this port";
-const std::string INVALID_ORIGIN_MSG = "Invalid permission origin";
+const std::string INVALID_ORIGIN_MSG = "Invalid origin";
 const std::string NO_WEBSTORAGE_ORIGIN_MSG = "Invalid web storage origin";
 }
 
