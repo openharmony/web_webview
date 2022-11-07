@@ -20,18 +20,18 @@
 
 namespace {
 // error message
-const std::string PARAM_CHECK_ERROR_MSG = "Invaild input parameter";
-const std::string INIT_ERROR_MSG = "Init error. The WebviewController must be associted with a Web component";
-const std::string INVALID_URL_MSG = "Invaild url";
-const std::string INVALID_RESOURCE_MSG = "Invaild resource path or file type";
+const std::string PARAM_CHECK_ERROR_MSG = "Invalid input parameter";
+const std::string INIT_ERROR_MSG = "Init error. The WebviewController must be associated with a Web component";
+const std::string INVALID_URL_MSG = "Invalid url";
+const std::string INVALID_RESOURCE_MSG = "Invalid resource path or file type";
 const std::string FUNCTION_NOT_ENABLE_MSG = "Function not enable";
-const std::string INVALID_COOKIE_VALUE_MSG = "Invaild cookie value";
+const std::string INVALID_COOKIE_VALUE_MSG = "Invalid cookie value";
 const std::string CAN_NOT_REGISTER_MESSAGE_EVENT_MSG = "Can not register message event using this port";
 const std::string CANNOT_DEL_JAVA_SCRIPT_PROXY_MSG = "Cannot delete JavaScriptProxy.";
 const std::string CANNOT_ZOOM_IN_OR_ZOOM_OUT_MSG = "Cannot zoom in or zoom out";
 const std::string CAN_NOT_POST_MESSAGE_MSG = "Can not post message using this port";
-const std::string INVALID_ORIGIN_MSG = "Invaild permission origin";
-const std::string NO_WEBSTORAGE_ORIGIN_MSG = "Invaild web storage origin";
+const std::string INVALID_ORIGIN_MSG = "Invalid origin";
+const std::string NO_WEBSTORAGE_ORIGIN_MSG = "Invalid web storage origin";
 }
 
 namespace OHOS {
