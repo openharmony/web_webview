@@ -14,6 +14,7 @@
  */
 
 #include <cstring>
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <securec.h>
 #include <unordered_map>
@@ -30,8 +31,12 @@
 #include "nweb_window_adapter.h"
 #include "nweb.h"
 #include "nweb_adapter_helper.h"
+#include "vsync_receiver.h"
+#include "vsync_distributor.h"
+#include "vsync_controller.h"
 #include "surface_buffer.h"
 #include "surface_type.h"
+#include "transaction/rs_interfaces.h"
 #include "pointer_event.h"
 #include "window.h"
 
@@ -39,8 +44,35 @@ using namespace testing;
 using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::MMI;
+using namespace OHOS::Rosen;
 
-namespace OHOS::NWeb {
+namespace OHOS {
+namespace Rosen {
+
+class RSInterfacesMock : public RSInterfaces {
+public:
+    MOCK_METHOD2(CreateVSyncReceiver, std::shared_ptr<VSyncReceiver>(const std::string&,
+                 const std::shared_ptr<OHOS::AppExecFwk::EventHandler> &));
+};
+
+namespace {
+RSInterfacesMock *g_instance = new RSInterfacesMock();
+sptr<VSyncConnection> vsyncConnection = nullptr;
+}
+
+class VSyncReceiverMock : public VSyncReceiver {
+public:
+    VSyncReceiverMock() : VSyncReceiver(vsyncConnection) {}
+    MOCK_METHOD1(RequestNextVSync, VsyncError(FrameCallback));
+};
+
+RSInterfaces &RSInterfaces::GetInstance()
+{
+    return *g_instance;
+}
+}
+
+namespace NWeb {
 namespace {
 sptr<OHOS::Rosen::Window> g_window;
 NWebCreateInfo g_info;
@@ -161,5 +193,59 @@ HWTEST_F(NWebWindowAdapterTest, NWebWindowAdapter_RequestVsync_003, TestSize.Lev
     windowAdapter.RequestVsync(window.GetRefPtr(), mock);
     windowAdapter.VsyncCb(window.GetRefPtr(), mock);
     windowAdapter.RegistEventCb(window.GetRefPtr(), mock);
+}
+
+/**
+ * @tc.name: NWebInputEvent_RequestVsync_004.
+ * @tc.desc: Test the RequestVsync.
+ * @tc.type: FUNC
+ * @tc.require:issueI5R6E0
+ */
+HWTEST_F(NWebWindowAdapterTest, NWebWindowAdapter_RequestVsync_004, TestSize.Level1)
+{
+    auto windowAdapter = NWebWindowAdapter::Instance();
+    std::shared_ptr<NWeb> mock = std::make_shared<NWebMock>();
+    EXPECT_NE(mock, nullptr);
+    VSyncReceiverMock *vsyncMock = new VSyncReceiverMock();
+    EXPECT_NE(vsyncMock, nullptr);
+    windowAdapter.receiver_.reset(vsyncMock);
+    windowAdapter.RequestVsync(g_window.GetRefPtr(), mock);
+}
+
+/**
+ * @tc.name: NWebInputEvent_RequestVsync_005.
+ * @tc.desc: Test the RequestVsync.
+ * @tc.type: FUNC
+ * @tc.require:issueI5R6E0
+ */
+HWTEST_F(NWebWindowAdapterTest, NWebWindowAdapter_RequestVsync_005, TestSize.Level1)
+{
+    if (g_instance) {
+        delete g_instance;
+        g_instance = nullptr;
+    }
+    g_instance = new RSInterfacesMock();
+    auto windowAdapter = NWebWindowAdapter::Instance();
+    windowAdapter.receiver_ = nullptr;
+    std::shared_ptr<NWeb> mock = std::make_shared<NWebMock>();
+    EXPECT_NE(mock, nullptr);
+    std::shared_ptr<VSyncReceiverMock> vsmock = std::make_shared<VSyncReceiverMock>();
+    EXPECT_NE(vsmock, nullptr);
+    testing::Mock::AllowLeak(g_instance);
+    EXPECT_CALL(*g_instance, CreateVSyncReceiver(::testing::_, ::testing::_))
+        .Times(1)
+        .WillRepeatedly(::testing::Return(vsmock));
+    VSyncReceiverMock *receiver = vsmock.get();
+    testing::Mock::AllowLeak(receiver);
+    EXPECT_CALL(*receiver, RequestNextVSync(::testing::_))
+        .Times(1)
+        .WillRepeatedly(::testing::Return(GSError::GSERROR_OK));
+    windowAdapter.RequestVsync(g_window.GetRefPtr(), mock);
+
+    EXPECT_CALL(*g_instance, CreateVSyncReceiver(::testing::_, ::testing::_))
+        .Times(1)
+        .WillRepeatedly(::testing::Return(nullptr));
+    windowAdapter.RequestVsync(g_window.GetRefPtr(), mock);
+}
 }
 }
