@@ -15,6 +15,7 @@
 
 #include "ohos_web_data_base_adapter_impl.h"
 #include <cinttypes>
+#include <securec.h>
 #include <unistd.h>
 #include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/application_context.h"
 #include "nweb_log.h"
@@ -38,7 +39,7 @@ static const std::string CREATE_TABLE = "CREATE TABLE " + HTTPAUTH_TABLE_NAME
     + " (" + ID_COL + " INTEGER PRIMARY KEY, "
     + HTTPAUTH_HOST_COL + " TEXT, " + HTTPAUTH_REALM_COL
     + " TEXT, " + HTTPAUTH_USERNAME_COL + " TEXT, "
-    + HTTPAUTH_PASSWORD_COL + " TEXT," + " UNIQUE ("
+    + HTTPAUTH_PASSWORD_COL + " BLOB," + " UNIQUE ("
     + HTTPAUTH_HOST_COL + ", " + HTTPAUTH_REALM_COL
     + ") ON CONFLICT REPLACE);";
 
@@ -116,12 +117,14 @@ void OhosWebDataBaseAdapterImpl::SaveHttpAuthCredentials(const std::string& host
 
     int32_t errCode;
     int64_t outRowId;
+    std::vector<uint8_t> passwordVector(password, password + strlen(password));
     NativeRdb::ValuesBucket valuesBucket;
     valuesBucket.Clear();
     valuesBucket.PutString(HTTPAUTH_HOST_COL, host);
     valuesBucket.PutString(HTTPAUTH_REALM_COL, realm);
     valuesBucket.PutString(HTTPAUTH_USERNAME_COL, username);
-    valuesBucket.PutString(HTTPAUTH_PASSWORD_COL, password);
+    valuesBucket.PutBlob(HTTPAUTH_PASSWORD_COL, passwordVector);
+    (void)memset_s(&passwordVector[0], passwordVector.size(), 0, passwordVector.size());
     errCode = rdbStore_->Insert(outRowId, HTTPAUTH_TABLE_NAME, valuesBucket);
     if (errCode != NativeRdb::E_OK) {
         WVLOG_E("webdatabase rdb store insert failed, errCode=%{public}d", errCode);
@@ -131,10 +134,10 @@ void OhosWebDataBaseAdapterImpl::SaveHttpAuthCredentials(const std::string& host
 }
 
 void OhosWebDataBaseAdapterImpl::GetHttpAuthCredentials(const std::string& host, const std::string& realm,
-    std::vector<std::string>& usernamePassword) const
+    std::string& username, char* password, uint32_t passwordSize) const
 {
     WVLOG_I("webdatabase get username and password");
-    if (host.empty() || realm.empty()) {
+    if (host.empty() || realm.empty() || password == nullptr) {
         return;
     }
     if (rdbStore_ == nullptr) {
@@ -153,15 +156,22 @@ void OhosWebDataBaseAdapterImpl::GetHttpAuthCredentials(const std::string& host,
     }
 
     int32_t columnIndex;
-    std::string userName;
-    std::string passWord;
+    std::vector<uint8_t> passwordVector;
     resultSet->GetColumnIndex(HTTPAUTH_USERNAME_COL, columnIndex);
-    resultSet->GetString(columnIndex, userName);
+    resultSet->GetString(columnIndex, username);
     resultSet->GetColumnIndex(HTTPAUTH_PASSWORD_COL, columnIndex);
-    resultSet->GetString(columnIndex, passWord);
-    usernamePassword.push_back(userName);
-    usernamePassword.push_back(passWord);
-    return;
+    resultSet->GetBlob(columnIndex, passwordVector);
+
+    if (passwordVector.size() > passwordSize - 1) {
+        WVLOG_E("webdatabase get credential fail: pwd too long");
+        return;
+    }
+    if (memcpy_s(password, passwordSize - 1, &passwordVector[0], passwordVector.size()) != EOK) {
+        WVLOG_E("webdatabase get credential fail: memcpy fail");
+        return;
+    }
+    password[passwordVector.size()] = 0;
+    (void)memset_s(&passwordVector[0], passwordVector.size(), 0, passwordVector.size());
 }
 
 bool OhosWebDataBaseAdapterImpl::ExistHttpAuthCredentials() const

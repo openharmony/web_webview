@@ -34,7 +34,7 @@ public:
         const std::string& username, const char* password) = 0;
 
     virtual void GetHttpAuthCredentials(const std::string& host, const std::string& realm,
-        std::vector<std::string>& usernamePassword) const = 0;
+        std::string& username, char* password, uint32_t passwordSize) const = 0;
 };
 
 enum class WebPermissionType: int32_t {

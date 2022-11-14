@@ -38,6 +38,7 @@ ohos_unittest("data_base_adapter_test") {
   deps = [
     "//base/web/webview/ohos_adapter:nweb_ohos_adapter",
     "//foundation/ability/ability_runtime/frameworks/native/appkit:app_context",
+    "//foundation/graphic/graphic_2d:libsurface",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]

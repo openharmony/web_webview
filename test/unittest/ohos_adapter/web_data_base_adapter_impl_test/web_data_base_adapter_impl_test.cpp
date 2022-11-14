@@ -185,14 +185,18 @@ HWTEST_F(WebDataBaseAdapterImplTest, WebDataBaseAdapterImplTest_SaveHttpAuthCred
  */
 HWTEST_F(WebDataBaseAdapterImplTest, WebDataBaseAdapterImplTest_GetHttpAuthCredentials_004, TestSize.Level1)
 {
-    std::vector<std::string> usernamePassword;
+    std::string username;
+    constexpr int32_t maxLength = 256;
+    char password[maxLength + 1] = {0};
     auto& dataBase = OhosWebDataBaseAdapterImpl::GetInstance();
-    dataBase.GetHttpAuthCredentials("", TEST_REALME, usernamePassword);
-    dataBase.GetHttpAuthCredentials(TEST_HOST, "", usernamePassword);
-    dataBase.GetHttpAuthCredentials(TEST_HOST, TEST_REALME, usernamePassword);
+    dataBase.GetHttpAuthCredentials("", TEST_REALME, username, password, maxLength + 1);
+    dataBase.GetHttpAuthCredentials(TEST_HOST, "", username, password, maxLength + 1);
+    dataBase.GetHttpAuthCredentials(TEST_HOST, TEST_REALME, username, nullptr, maxLength + 1);
+    dataBase.GetHttpAuthCredentials(TEST_HOST, TEST_REALME, username, password, maxLength + 1);
     if (g_dataBaseNull) {
-        g_dataBaseNull->GetHttpAuthCredentials(TEST_HOST, TEST_REALME, usernamePassword);
+        g_dataBaseNull->GetHttpAuthCredentials(TEST_HOST, TEST_REALME, username, password, maxLength + 1);
     }
+    (void)memset_s(password, maxLength + 1, 0, maxLength + 1);
 }
 
 /**
