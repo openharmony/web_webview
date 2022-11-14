@@ -126,7 +126,7 @@ namespace OHOS {
         if (g_nweb == nullptr) {
             return true;
         }
-        std::string baseUrl = (char *)data;
+        std::string baseUrl((const char *)data, size);
         const std::string datas;
         const std::string mimeType;
         const std::string encoding;

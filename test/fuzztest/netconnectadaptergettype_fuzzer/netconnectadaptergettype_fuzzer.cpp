@@ -15,6 +15,9 @@
 
 #include "netconnectadaptergettype_fuzzer.h"
 
+#include <cstring>
+#include <securec.h>
+
 #define private public
 #include "net_connect_adapter_impl.h"
 #include "net_connect_utils.h"
@@ -30,8 +33,14 @@ namespace OHOS {
         }
         std::shared_ptr<NWeb::NetConnectAdapterImpl> netConnectAdapterImpl =
             std::make_shared<NWeb::NetConnectAdapterImpl>();
-        NWeb::NetConnectType type = NWeb::NetConnectType::CONNECTION_UNKNOWN;
-        NWeb::NetConnectSubtype subtype = NWeb::NetConnectSubtype::SUBTYPE_UNKNOWN;
+        NWeb::NetConnectType type;
+        NWeb::NetConnectSubtype subtype;
+        if (memcpy_s(&type, sizeof(NWeb::NetConnectType), data, sizeof(NWeb::NetConnectType)) != 0) {
+            return false;
+        }
+        if (memcpy_s(&subtype, sizeof(NWeb::NetConnectSubtype), data, sizeof(NWeb::NetConnectSubtype)) != 0) {
+            return false;
+        }
         netConnectAdapterImpl->GetDefaultNetConnect(type, subtype);
         return true;
     }

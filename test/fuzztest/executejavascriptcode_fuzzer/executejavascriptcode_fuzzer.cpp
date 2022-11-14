@@ -134,7 +134,7 @@ namespace OHOS {
         if (g_nweb == nullptr) {
             return true;
         }
-        std::string code = (char *)data;
+        std::string code((const char *)data, size);
         std::shared_ptr<NWeb::NWebValueCallback<std::string>> callback;
         g_nweb->ExecuteJavaScript(code, callback);
         return true;

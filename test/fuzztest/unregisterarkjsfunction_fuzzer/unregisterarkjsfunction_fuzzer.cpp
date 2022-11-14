@@ -126,7 +126,7 @@ namespace OHOS {
         if (g_nweb == nullptr) {
             return true;
         }
-        const std::string object_name = (char *)data;
+        const std::string object_name((const char *)data, size);
         const std::vector<std::string> method_list;
         g_nweb->UnregisterArkJSfunction(object_name, method_list);
         return true;
