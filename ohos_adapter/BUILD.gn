@@ -79,6 +79,7 @@ ohos_shared_library("nweb_ohos_adapter") {
     "core_service:tel_core_service_api",
     "file_api:remote_uri_native",
     "hiviewdfx_hilog_native:libhilog",
+    "init:libbegetutil",
     "input:libmmi-client",
     "ipc:ipc_core",
     "multimedia_audio_framework:audio_client",

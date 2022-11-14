@@ -15,6 +15,9 @@
 
 #include "display_manager_adapter_impl.h"
 
+#include "nweb_log.h"
+#include "syspara/parameters.h"
+
 using namespace OHOS::Rosen;
 using namespace OHOS::NWeb;
 
@@ -167,5 +170,11 @@ bool DisplayManagerAdapterImpl::UnregisterDisplayListener(
         return true;
     }
     return false;
+}
+
+bool DisplayManagerAdapterImpl::IsDefaultPortrait()
+{
+    std::string deviceType = OHOS::system::GetDeviceType();
+    return deviceType == "phone" || deviceType == "default";
 }
 }
