@@ -56,8 +56,8 @@ void NWebBatteryEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData 
     auto capacity = data.GetWant().GetIntParam(KEY_CAPACITY, defaultInvalid);
     auto isChangingType = data.GetWant().GetIntParam(KEY_CHARGE_TYPE, defaultInvalid);
     bool ischanging = true;
-    if ((isChangingType == static_cast<int>(BatteryPluggedType::PLUGGED_TYPE_NONE))
-        ||(isChangingType == static_cast<int>(BatteryPluggedType::PLUGGED_TYPE_BUTT))) {
+    if ((isChangingType == static_cast<int>(BatteryPluggedType::PLUGGED_TYPE_NONE)) ||
+        (isChangingType == static_cast<int>(BatteryPluggedType::PLUGGED_TYPE_BUTT))) {
         ischanging = false;
     }
     const double changeFullLevel = 100.f;
@@ -109,8 +109,8 @@ std::unique_ptr<WebBatteryInfo> BatteryMgrClientAdapterImpl::RequestBatteryInfo(
     auto capacity = battClient.GetCapacity();
     auto isChangingType = battClient.GetPluggedType();
     bool ischanging = true;
-    if ((isChangingType == BatteryPluggedType::PLUGGED_TYPE_NONE)
-        ||(isChangingType == BatteryPluggedType::PLUGGED_TYPE_BUTT)) {
+    if ((isChangingType == BatteryPluggedType::PLUGGED_TYPE_NONE) ||
+        (isChangingType == BatteryPluggedType::PLUGGED_TYPE_BUTT)) {
         ischanging = false;
     }
     const double changeFullLevel = 100.f;
