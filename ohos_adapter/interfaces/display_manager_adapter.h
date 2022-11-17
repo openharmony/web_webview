@@ -86,6 +86,8 @@ public:
     virtual bool RegisterDisplayListener(std::shared_ptr<DisplayListenerAdapter> listener) = 0;
 
     virtual bool UnregisterDisplayListener(std::shared_ptr<DisplayListenerAdapter> listener) = 0;
+
+    virtual bool IsDefaultPortrait() = 0;
 };
 }  // namespace OHOS::NWeb
 

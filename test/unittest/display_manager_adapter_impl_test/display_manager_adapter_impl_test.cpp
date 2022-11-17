@@ -18,7 +18,6 @@
 #include "display_manager_adapter_impl.h"
 #undef private
 
-
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS;
@@ -35,6 +34,14 @@ namespace Rosen {
 bool DisplayManager::UnregisterDisplayListener(sptr<IDisplayListener> listener)
 {
     return g_unregister;
+}
+}
+
+std::string g_deviceType = "";
+namespace system {
+std::string GetDeviceType()
+{
+    return g_deviceType;
 }
 }
 
@@ -231,6 +238,25 @@ HWTEST_F(DisplayManagerAdapterImplTest, DisplayManagerAdapterImplTest_006, TestS
     EXPECT_NE(displayAdapterImpl->GetVirtualPixelRatio(), -1);
     EXPECT_NE(displayAdapterImpl->GetRotation(), RotationType::ROTATION_BUTT);
     EXPECT_NE(displayAdapterImpl->GetOrientation(), OrientationType::BUTT);
+}
+
+/**
+ * @tc.name: DisplayManagerAdapterImplTest_007.
+ * @tc.desc: test IsDefaultPortrait.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, DisplayManagerAdapterImplTest_007, TestSize.Level1)
+{
+    std::shared_ptr<DisplayManagerAdapterImpl> displayManagerAdapterImpl =
+        std::make_shared<DisplayManagerAdapterImpl>();
+    EXPECT_NE(displayManagerAdapterImpl, nullptr);
+    g_deviceType = "phone";
+    EXPECT_EQ(displayManagerAdapterImpl->IsDefaultPortrait(), true);
+    g_deviceType = "default";
+    EXPECT_EQ(displayManagerAdapterImpl->IsDefaultPortrait(), true);
+    g_deviceType = "tablet";
+    EXPECT_EQ(displayManagerAdapterImpl->IsDefaultPortrait(), false);
 }
 }
 }

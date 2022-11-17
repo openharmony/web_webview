@@ -60,10 +60,11 @@ class DisplayManagerAdapterImpl : public DisplayManagerAdapter {
 public:
     DisplayManagerAdapterImpl() = default;
     virtual ~DisplayManagerAdapterImpl() = default;
-    DisplayId GetDefaultDisplayId();
-    std::shared_ptr<DisplayAdapter> GetDefaultDisplay();
-    bool RegisterDisplayListener(std::shared_ptr<DisplayListenerAdapter> listener);
-    bool UnregisterDisplayListener(std::shared_ptr<DisplayListenerAdapter> listener);
+    DisplayId GetDefaultDisplayId() override;
+    std::shared_ptr<DisplayAdapter> GetDefaultDisplay() override;
+    bool RegisterDisplayListener(std::shared_ptr<DisplayListenerAdapter> listener) override;
+    bool UnregisterDisplayListener(std::shared_ptr<DisplayListenerAdapter> listener) override;
+    bool IsDefaultPortrait() override;
 private:
     ListenerMap reg_;
 };
