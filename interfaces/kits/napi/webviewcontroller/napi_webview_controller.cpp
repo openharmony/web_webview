@@ -552,11 +552,22 @@ napi_value NapiWebMessagePort::PostMessageEvent(napi_env env, napi_callback_info
         return result;
     }
 
-    std::string message;
-    if (!NapiParseUtils::ParseString(env, argv[INTEGER_ZERO], message)) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+    size_t bufferSize = 0;
+    napi_get_value_string_utf8(env, argv[INTEGER_ZERO], nullptr, 0, &bufferSize);
+    if (bufferSize > UINT_MAX) {
+        WVLOG_E("String length is too long");
         return result;
     }
+    char* stringValue = new char[bufferSize + 1];
+    if (stringValue == nullptr) {
+        BusinessError::ThrowErrorByErrcode(env, NEW_OOM);
+        return result;
+    }
+    size_t jsStringLength = 0;
+    napi_get_value_string_utf8(env, argv[INTEGER_ZERO], stringValue, bufferSize + 1, &jsStringLength);
+    std::string message(stringValue);
+    delete [] stringValue;
+    stringValue = nullptr;
 
     WebMessagePort *msgPort = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&msgPort));
