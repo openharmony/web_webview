@@ -25,7 +25,8 @@ using namespace OHOS::NWeb;
 namespace OHOS {
     bool DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     {
-        if ((data == nullptr) || size < 2 * sizeof(int32_t)) {
+        constexpr int fdNum = 2;
+        if ((data == nullptr) || size < fdNum * sizeof(int32_t)) {
             return false;
         }
         std::shared_ptr<AafwkRenderSchedulerHostAdapter> adapter = nullptr;

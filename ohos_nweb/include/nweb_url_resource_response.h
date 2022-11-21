@@ -227,7 +227,7 @@ private:
     std::string reason_phrase_;
     std::map<std::string, std::string> response_headers_;
     std::string input_stream_;
-    int fd_;
+    int fd_ = -1;
     bool isFileFd_ = false;
     bool isDataReady_ = true;
     std::shared_ptr<NWebResourceReadyCallback> readyCallback_;
