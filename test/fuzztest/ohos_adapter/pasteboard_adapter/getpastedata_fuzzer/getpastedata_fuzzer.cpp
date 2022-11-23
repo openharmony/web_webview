@@ -19,18 +19,26 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        PasteBoardClientAdapterImpl::GetInstance().Clear();
-        PasteRecordList dataName;
-        PasteBoardClientAdapterImpl::GetInstance().GetPasteData(dataName);
-        PasteBoardClientAdapterImpl::GetInstance().SetPasteData(dataName);
-        PasteBoardClientAdapterImpl::GetInstance().HasPasteData();
-        return true;
+bool DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    int result = 0;
+    PasteRecordList dataname;
+    std::shared_ptr<PasteDataRecordAdapter> record = PasteDataRecordAdapter::NewRecord("text/html");
+    if (record == nullptr) {
+        result = false;
+    }
+    std::shared_ptr<std::string> pasteData = std::make_shared<std::string>("test");
+    record->SetHtmlText(pasteData);
+    dataname.push_back(record);
+    PasteBoardClientAdapterImpl::GetInstance().SetPasteData(dataname);
+    PasteBoardClientAdapterImpl::GetInstance().GetPasteData(dataname);
+    PasteBoardClientAdapterImpl::GetInstance().HasPasteData();
+    PasteBoardClientAdapterImpl::GetInstance().Clear();
+    return true;
+}
 }
 
 /* Fuzzer entry point */
