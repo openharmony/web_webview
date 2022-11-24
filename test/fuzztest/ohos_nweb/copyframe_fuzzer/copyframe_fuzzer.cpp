@@ -117,7 +117,7 @@ sptr<Rosen::Window> CreateWindow()
 bool DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
 {
     constexpr int BITS_PER_PIXEL = 4;
-    if ((data == nullptr) || (size == 0)) {
+    if ((data == nullptr) || (size < sizeof(uint32_t))) {
         return false;
     }
     sptr<Rosen::Window> window = CreateWindow();

@@ -114,7 +114,7 @@ namespace OHOS {
 
     bool DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     {
-        if ((data == nullptr) || (size == 0)) {
+        if ((data == nullptr) || (size < sizeof(int32_t))) {
             return true;
         }
         g_window = CreateWindow();
@@ -130,7 +130,7 @@ namespace OHOS {
         if (memcpy_s(&keyCode, sizeof(int32_t), data, sizeof(int32_t)) != 0) {
             return true;
         }
-        if (memcpy_s(&keyAction, sizeof(int32_t), data + sizeof(int32_t), sizeof(int32_t)) != 0) {
+        if (memcpy_s(&keyAction, sizeof(int32_t), data, sizeof(int32_t)) != 0) {
             return true;
         }
         g_nweb->SendKeyEvent(keyCode, keyAction);

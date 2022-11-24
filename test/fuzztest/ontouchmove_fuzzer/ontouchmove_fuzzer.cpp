@@ -114,7 +114,7 @@ namespace OHOS {
 
     bool DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     {
-        if ((data == nullptr) || (size == 0)) {
+        if ((data == nullptr) || (size < sizeof(double))) {
             return true;
         }
         g_window = CreateWindow();
@@ -131,10 +131,10 @@ namespace OHOS {
         if (memcpy_s(&id, sizeof(uint32_t), data, sizeof(uint32_t)) != 0) {
             return true;
         }
-        if (memcpy_s(&x, sizeof(double), data + sizeof(uint32_t), sizeof(double)) != 0) {
+        if (memcpy_s(&x, sizeof(double), data, sizeof(double)) != 0) {
             return true;
         }
-        if (memcpy_s(&y, sizeof(double), data + sizeof(uint32_t) + sizeof(double), sizeof(double)) != 0) {
+        if (memcpy_s(&y, sizeof(double), data, sizeof(double)) != 0) {
             return true;
         }
         g_nweb->OnTouchMove(id, x, y);
