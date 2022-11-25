@@ -332,6 +332,7 @@ HitTestResult WebviewController::GetHitTestValue()
     OHOS::NWeb::HitTestResult nwebResult;
     if (nweb_) {
         nwebResult = nweb_->GetHitTestResult();
+        nwebResult.SetType(ConverToWebHitTestType(nwebResult.GetType()));
     }
     return nwebResult;
 }
