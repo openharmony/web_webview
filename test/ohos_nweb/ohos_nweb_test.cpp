@@ -23,10 +23,10 @@
 #include <unistd.h>
 #include <unordered_map>
 #include <vector>
-#include <vsync_helper.h>
 #include <zlib.h>
 
 #include <ui/rs_surface_node.h>
+#include "event_handler.h"
 #include "nweb_test_log.h"
 #include "nweb.h"
 #include "nweb_handler_impl_test.h"

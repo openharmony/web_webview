@@ -77,7 +77,7 @@ ohos_shared_library("libnweb") {
   ]
 
   deps = [
-    "//foundation/graphic/graphic_2d:libvsync_client",
+    "//foundation/graphic/graphic_2d/rosen/modules/composer:libcomposer",
     "//foundation/graphic/graphic_2d/rosen/modules/render_service_client:librender_service_client",
   ]
 

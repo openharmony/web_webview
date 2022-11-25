@@ -38,7 +38,6 @@ ohos_unittest("permission_data_base_adapter_test") {
     "//base/web/webview/ohos_nweb:libnweb",
     "//foundation/ability/ability_runtime/frameworks/native/appkit:app_context",
     "//foundation/graphic/graphic_2d:libsurface",
-    "//foundation/graphic/graphic_2d:libvsync_client",
     "//foundation/graphic/graphic_2d/rosen/modules/render_service_client:librender_service_client",
     "//foundation/window/window_manager/wm:libwm",
     "//third_party/googletest:gmock_main",

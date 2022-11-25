@@ -47,13 +47,14 @@ ohos_executable("nweb_test") {
 
   deps = [
     "//base/web/webview/ohos_nweb:libnweb",
-    "//foundation/graphic/graphic_2d:libvsync_client",
+    "//foundation/graphic/graphic_2d/rosen/modules/composer:libcomposer",
     "//foundation/graphic/graphic_2d/rosen/modules/render_service_client:librender_service_client",
     "//foundation/window/window_manager/wm:libwm",
     "//third_party/zlib:libz",
   ]
 
   external_deps = [
+    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "input:libmmi-client",
   ]

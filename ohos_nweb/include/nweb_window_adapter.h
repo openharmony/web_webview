@@ -20,6 +20,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <vsync_receiver.h>
 
 #include "nweb.h"
 #include "nweb_adapter_common.h"
@@ -39,6 +40,7 @@ private:
 
 private:
     std::unordered_map<Rosen::Window *, NWebWindowInfo> windowInfoMap_;
+    std::shared_ptr<Rosen::VSyncReceiver> receiver_ = nullptr;
 };
 } // namespace OHOS
 
