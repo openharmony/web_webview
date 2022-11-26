@@ -90,6 +90,7 @@ OhosWebDataBaseAdapterImpl::OhosWebDataBaseAdapterImpl()
     config.SetBundleName(bundleName);
     config.SetName(std::move(name));
     config.SetArea(context->GetArea());
+    config.SetEncryptStatus(true);
     WVLOG_I("webdatabase databaseDir=%{public}s", databaseDir.c_str());
     WVLOG_I("webdatabase bundleName=%{public}s", bundleName.c_str());
 
