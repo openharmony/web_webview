@@ -201,7 +201,6 @@
                 "//base/web/webview/test/fuzztest/ohos_adapter/pasteboard_adapter/imagetoclipboardalphatype_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ohos_adapter/pasteboard_adapter/imagetoclipboardcolortype_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ohos_adapter/pasteboard_adapter/addhtmlrecord_fuzzer:fuzztest",
-                "//base/web/webview/test/fuzztest/ohos_adapter/pasteboard_adapter/getpastedata_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ohos_adapter/pasteboard_adapter/getrecordat_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ohos_adapter/pasteboard_adapter/sethtmltext_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ohos_adapter/pasteboard_adapter/setplaintext_fuzzer:fuzztest",
