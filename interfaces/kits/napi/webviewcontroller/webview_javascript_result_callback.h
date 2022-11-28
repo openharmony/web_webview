@@ -16,6 +16,8 @@
 #ifndef NWEB_WEBVIEW_JAVASCRIPT_RESULT_CALLBACK_IMPL_H
 #define NWEB_WEBVIEW_JAVASCRIPT_RESULT_CALLBACK_IMPL_H
 
+#include <condition_variable>
+#include <mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -25,6 +27,7 @@
 #include "napi/native_node_api.h"
 #include "nweb_javascript_result_callback.h"
 #include "nweb_value.h"
+#include "uv.h"
 
 namespace OHOS::NWeb {
 struct JavaScriptObj {
@@ -45,14 +48,23 @@ public:
         const std::vector<std::string>& methodList);
 
     bool DeleteJavaScriptRegister(const std::string& objName);
+
 private:
     std::unordered_map<std::string, JavaScriptObj> objectMap_;
-
-    void ParseNwebValue2NapiValue(napi_env env, std::shared_ptr<OHOS::NWeb::NWebValue> value,
+    static void ParseNwebValue2NapiValue(napi_env env, std::shared_ptr<OHOS::NWeb::NWebValue> value,
         std::vector<napi_value>& argv);
 
-    void ParseNapiValue2NwebValue(napi_env env, napi_value value, std::shared_ptr<NWebValue> nwebValue);
+    static void ParseNapiValue2NwebValue(napi_env env, napi_value value, std::shared_ptr<NWebValue> nwebValue);
+    static void UvJsCallbackThreadWoker(uv_work_t *work, int status);
+    struct NapiJsCallBackParm {
+        napi_env env_;
+        napi_ref callback_;
+        std::vector<std::shared_ptr<NWebValue>> args_;
+        std::shared_ptr<NWebValue> value_;
+        std::mutex mutex_;
+        std::condition_variable condition_;
+        bool ready_ = false;
+    };
 };
- 
 }
 #endif
