@@ -16,29 +16,35 @@
 #define NWEB_WEBVIEW_JAVA_SCRIPT_EXECUTE_CALLBACK_H
 
 #include <string>
+#include <uv.h>
 
+#include "napi/native_api.h"
+#include "napi/native_node_api.h"
 #include "nweb_value_callback.h"
 
 namespace OHOS::NWeb {
 class WebviewJavaScriptExecuteCallback : public OHOS::NWeb::NWebValueCallback<std::string> {
 public:
-    WebviewJavaScriptExecuteCallback() = default;
+    explicit WebviewJavaScriptExecuteCallback(napi_env env, napi_ref callbackRef, napi_deferred deferred)
+        : env_(env), callbackRef_(callbackRef), deferred_(deferred) {}
     ~WebviewJavaScriptExecuteCallback() = default;
-
-    void OnReceiveValue(std::string result) override
-    {
-        if (callback_) {
-            callback_(result);
-        }
-    }
-
-    void SetCallBack(const std::function<void(std::string)> &&callback)
-    {
-        callback_ = callback;
-    }
+    void OnReceiveValue(std::string result) override;
 
 private:
-    std::function<void(std::string)> callback_;
+    struct JavaScriptExecuteParam {
+        napi_env env_;
+        napi_ref callbackRef_;
+        napi_deferred deferred_;
+        std::string result_;
+    };
+
+    napi_env env_ = nullptr;
+    napi_ref callbackRef_ = nullptr;
+    napi_deferred deferred_ = nullptr;
+
+    static void UvAfterWorkCb(uv_work_t* work, int status);
+    static void UvAfterWorkCbAsync(napi_env env, napi_ref callbackRef, const std::string& result);
+    static void UvAfterWorkCbPromise(napi_env env, napi_deferred deferred, const std::string& result);
 };
 
 }

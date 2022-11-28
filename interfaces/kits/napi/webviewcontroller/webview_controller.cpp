@@ -586,27 +586,7 @@ void WebviewController::RunJavaScriptCallback(const std::string &script, napi_en
         return;
     }
 
-    auto callbackImpl = std::make_shared<WebviewJavaScriptExecuteCallback>();
-    callbackImpl->SetCallBack([env, jCallback = std::move(jsCallback)](std::string result) {
-        if (!env) {
-            return;
-        }
-        napi_value setResult[RESULT_COUNT] = {0};
-        if (result.empty()) {
-            setResult[PARAMZERO] = BusinessError::CreateError(env, NWebError::INVALID_RESOURCE);
-            napi_get_null(env, &setResult[PARAMONE]);
-        } else {
-            napi_get_undefined(env, &setResult[PARAMZERO]);
-            napi_create_string_utf8(env, result.c_str(), NAPI_AUTO_LENGTH, &setResult[PARAMONE]);
-        }
-        napi_value args[RESULT_COUNT] = {setResult[PARAMZERO], setResult[PARAMONE]};
-        napi_value callback = nullptr;
-        napi_get_reference_value(env, jCallback, &callback);
-        napi_value callbackResult = nullptr;
-        napi_call_function(env, nullptr, callback, RESULT_COUNT, args, &callbackResult);
-
-        napi_delete_reference(env, jCallback);
-    });
+    auto callbackImpl = std::make_shared<WebviewJavaScriptExecuteCallback>(env, jsCallback, nullptr);
     nweb_->ExecuteJavaScript(script, callbackImpl);
 }
 
@@ -624,21 +604,7 @@ void WebviewController::RunJavaScriptPromise(const std::string &script, napi_env
         return;
     }
 
-    auto callbackImpl = std::make_shared<WebviewJavaScriptExecuteCallback>();
-    callbackImpl->SetCallBack([env, deferred](std::string result) {
-        if (!env) {
-            return;
-        }
-        napi_value setResult[RESULT_COUNT] = {0};
-        setResult[PARAMZERO] = NWebError::BusinessError::CreateError(env, NWebError::INVALID_RESOURCE);
-        napi_create_string_utf8(env, result.c_str(), NAPI_AUTO_LENGTH, &setResult[PARAMONE]);
-        napi_value args[RESULT_COUNT] = {setResult[PARAMZERO], setResult[PARAMONE]};
-        if (!result.empty()) {
-            napi_resolve_deferred(env, deferred, args[PARAMONE]);
-        } else {
-            napi_reject_deferred(env, deferred, args[PARAMZERO]);
-        }
-    });
+    auto callbackImpl = std::make_shared<WebviewJavaScriptExecuteCallback>(env, nullptr, deferred);
     nweb_->ExecuteJavaScript(script, callbackImpl);
 }
 
