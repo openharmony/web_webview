@@ -60,10 +60,12 @@ public:
      *
      * @param host the host to which the credentials apply.
      * @param realm the realm to which the credentials apply.
-     * @return return an array containing username and password.
+     * @param username the username.
+     * @param password the password.
+     * @param passwordSize the password array size.
      */
-    virtual std::vector<std::string> GetHttpAuthCredentials(const std::string& host,
-        const std::string& realm) const = 0;
+    virtual void GetHttpAuthCredentials(const std::string& host, const std::string& realm,
+        std::string& username, char* password, uint32_t passwordSize) const = 0;
 
     /**
      * @brief gets whether the instance holds the specifies permission for the specified source.

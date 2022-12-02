@@ -16,6 +16,7 @@
 #include "napi_web_data_base.h"
 
 #include <cstdint>
+#include <cstring>
 #include <vector>
 
 #include "business_error.h"
@@ -27,6 +28,7 @@
 
 namespace {
 constexpr int32_t MAX_STRING_LENGTH = 40960;
+constexpr int32_t MAX_PWD_LENGTH = 256;
 constexpr int32_t PARAMZERO = 0;
 constexpr int32_t PARAMONE = 1;
 constexpr int32_t PARAMTWO = 2;
@@ -168,7 +170,7 @@ napi_value NapiWebDataBase::JsSaveHttpAuthCredentials(napi_env env, napi_callbac
     }
 
     size_t bufferSize = 0;
-    if (!GetSize(env, argv[PARAMTHREE], bufferSize)) {
+    if (!GetSize(env, argv[PARAMTHREE], bufferSize) || bufferSize > MAX_PWD_LENGTH) {
         NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
         return nullptr;
     }
@@ -220,20 +222,24 @@ napi_value NapiWebDataBase::JsGetHttpAuthCredentials(napi_env env, napi_callback
         return nullptr;
     }
 
-    std::vector<std::string> usernamePassword;
+    std::string username;
+    char password[MAX_PWD_LENGTH + 1] = {0};
     napi_value result = nullptr;
     napi_create_array(env, &result);
 
     OHOS::NWeb::NWebDataBase* dataBase = OHOS::NWeb::NWebHelper::Instance().GetDataBase();
     if (dataBase != nullptr) {
-        usernamePassword = dataBase->GetHttpAuthCredentials(host, realm);
+        dataBase->GetHttpAuthCredentials(host, realm, username, password, MAX_PWD_LENGTH + 1);
     }
-    for (uint32_t i = 0; i < usernamePassword.size(); i++) {
-        std::string str = usernamePassword[i];
-        napi_value val = nullptr;
-        napi_create_string_utf8(env, str.c_str(), str.length(), &val);
-        napi_set_element(env, result, i, val);
+    if (!username.empty() && strlen(password) > 0) {
+        napi_value nameVal = nullptr;
+        napi_value pwdVal = nullptr;
+        napi_create_string_utf8(env, username.c_str(), username.length(), &nameVal);
+        napi_set_element(env, result, PARAMZERO, nameVal);
+        napi_create_string_utf8(env, password, strlen(password), &pwdVal);
+        napi_set_element(env, result, PARAMONE, pwdVal);
     }
+    (void)memset_s(password, MAX_PWD_LENGTH + 1, 0, MAX_PWD_LENGTH + 1);
     return result;
 }
 

@@ -25,17 +25,16 @@ using namespace OHOS::NWeb;
 namespace OHOS {
     bool DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     {
+        constexpr int32_t maxLen = 256;
         if ((data == nullptr) || (size == 0)) {
             return false;
         }
         std::string host((const char *)data, size);
         std::string realm((const char *)data, size);
-        std::string name((const char *)data, size);
-        std::string str((const char *)data, size);
-        std::vector<std::string> user;
-        user.push_back(name);
-        user.push_back(str);
-        OhosWebDataBaseAdapterImpl::GetInstance().GetHttpAuthCredentials(host, realm, user);
+        std::string username;
+        char password[maxLen + 1] = {0};
+        OhosWebDataBaseAdapterImpl::GetInstance().GetHttpAuthCredentials(host, realm, username, password, maxLen + 1);
+        (void)memset_s(password, maxLen + 1, 0, maxLen + 1);
         return true;
     }
 }

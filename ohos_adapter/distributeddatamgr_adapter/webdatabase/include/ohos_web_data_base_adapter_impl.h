@@ -49,7 +49,7 @@ public:
         const std::string& username, const char* password) override;
 
     void GetHttpAuthCredentials(const std::string& host, const std::string& realm,
-        std::vector<std::string>& usernamePassword) const override;
+        std::string& username, char* password, uint32_t passwordSize) const override;
 
 private:
     OhosWebDataBaseAdapterImpl();

@@ -30,7 +30,10 @@ ohos_fuzztest("GetHttpAuthCredentialsFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
   sources = [ "gethttpauthcredentials_fuzzer.cpp" ]
-  deps = [ "//base/web/webview/ohos_adapter:nweb_ohos_adapter" ]
+  deps = [
+    "//base/web/webview/ohos_adapter:nweb_ohos_adapter",
+    "//foundation/graphic/graphic_2d:libsurface",
+  ]
 
   external_deps = [ "relational_store:native_rdb" ]
 }
