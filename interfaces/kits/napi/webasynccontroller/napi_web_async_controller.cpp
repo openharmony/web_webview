@@ -17,6 +17,7 @@
 #include "nweb.h"
 #include "nweb_helper.h"
 #include "nweb_store_web_archive_callback.h"
+#include <memory>
 
 #undef LOG_TAG
 #define LOG_TAG "NapiWebAsyncController"
@@ -189,7 +190,8 @@ NapiWebAsyncController::NapiWebAsyncController(napi_env env, napi_value thisVar,
 void NapiWebAsyncController::StoreWebArchiveCallback(const std::string &baseName, bool autoName, napi_env env,
     napi_ref jsCallback)
 {
-    OHOS::NWeb::NWeb *nweb = OHOS::NWeb::NWebHelper::Instance().GetNWeb(nwebId_);
+    std::weak_ptr<NWeb> nweb_weak = OHOS::NWeb::NWebHelper::Instance().GetNWeb(nwebId_);
+    auto nweb = nweb_weak.lock();
     if (!nweb) {
         HILOG_ERROR(LOG_APP, "not found a valid nweb");
         napi_value callback = nullptr;
@@ -234,7 +236,8 @@ void NapiWebAsyncController::StoreWebArchiveCallback(const std::string &baseName
 void NapiWebAsyncController::StoreWebArchivePromise(const std::string &baseName, bool autoName, napi_env env,
     napi_deferred deferred)
 {
-    OHOS::NWeb::NWeb *nweb = OHOS::NWeb::NWebHelper::Instance().GetNWeb(nwebId_);
+    std::weak_ptr<NWeb> nweb_weak = OHOS::NWeb::NWebHelper::Instance().GetNWeb(nwebId_);
+    auto nweb = nweb_weak.lock();
     if (!nweb) {
         HILOG_ERROR(LOG_APP, "not found a valid nweb");
         napi_value jsResult = nullptr;

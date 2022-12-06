@@ -74,7 +74,7 @@ HWTEST_F(OhosAdapterHelperTest, OhosAdapterHelper_GetCookieManager_001, TestSize
     auto storage = helper.GetWebStorage();
     EXPECT_NE(storage, nullptr);
     auto nweb = helper.GetNWeb(nweb_id);
-    EXPECT_EQ(nweb, nullptr);
+    EXPECT_EQ(nweb.lock(), nullptr);
 }
 
 /**
@@ -157,7 +157,7 @@ HWTEST_F(OhosAdapterHelperTest, OhosAdapterHelper_GetDataBase_004, TestSize.Leve
     auto storage = helper.GetWebStorage();
     EXPECT_EQ(storage, nullptr);
     auto nweb = helper.GetNWeb(nweb_id);
-    EXPECT_EQ(nweb, nullptr);
+    EXPECT_EQ(nweb.lock(), nullptr);
     helper.UnloadLib();
 }
 }

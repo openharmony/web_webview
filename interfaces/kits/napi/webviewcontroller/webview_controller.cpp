@@ -33,16 +33,14 @@ namespace {
 namespace OHOS {
 namespace NWeb {
 using namespace NWebError;
-WebviewController::WebviewController(int32_t nwebId)
-{
-    nweb_ = OHOS::NWeb::NWebHelper::Instance().GetNWeb(nwebId);
-}
+WebviewController::WebviewController(int32_t nwebId) : nweb_(NWebHelper::Instance().GetNWeb(nwebId)) {}
 
 bool WebviewController::AccessForward()
 {
     bool access = false;
-    if (nweb_) {
-        access = nweb_->IsNavigateForwardAllowed();
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        access = nweb_ptr->IsNavigateForwardAllowed();
     }
     return access;
 }
@@ -50,8 +48,9 @@ bool WebviewController::AccessForward()
 bool WebviewController::AccessBackward()
 {
     bool access = false;
-    if (nweb_) {
-        access = nweb_->IsNavigatebackwardAllowed();
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        access = nweb_ptr->IsNavigatebackwardAllowed();
     }
     return access;
 }
@@ -59,72 +58,81 @@ bool WebviewController::AccessBackward()
 bool WebviewController::AccessStep(int32_t step)
 {
     bool access = false;
-    if (nweb_) {
-        access = nweb_->CanNavigateBackOrForward(step);
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        access = nweb_ptr->CanNavigateBackOrForward(step);
     }
     return access;
 }
 
 void WebviewController::ClearHistory()
 {
-    if (nweb_) {
-        nweb_->DeleteNavigateHistory();
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->DeleteNavigateHistory();
     }
 }
 
 void WebviewController::Forward()
 {
-    if (nweb_) {
-        nweb_->NavigateForward();
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->NavigateForward();
     }
 }
 
 void WebviewController::Backward()
 {
-    if (nweb_) {
-        nweb_->NavigateBack();
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->NavigateBack();
     }
 }
 
 void WebviewController::OnActive()
 {
-    if (nweb_) {
-        nweb_->OnContinue();
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->OnContinue();
     }
 }
 
 void WebviewController::OnInactive()
 {
-    if (nweb_) {
-        nweb_->OnPause();
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->OnPause();
     }
 }
 
 void WebviewController::Refresh()
 {
-    if (nweb_) {
-        nweb_->Reload();
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->Reload();
     }
 }
 
 ErrCode WebviewController::ZoomIn()
 {
-    if (!nweb_) {
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
         return INIT_ERROR;
     }
     ErrCode result = NWebError::NO_ERROR;
-    result = nweb_->ZoomIn();
+    result = nweb_ptr->ZoomIn();
 
     return result;
 }
 
 ErrCode WebviewController::ZoomOut()
 {
-    if (!nweb_) {
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
         return INIT_ERROR;
     }
     ErrCode result = NWebError::NO_ERROR;
-    result = nweb_->ZoomOut();
+    result = nweb_ptr->ZoomOut();
 
     return result;
 }
@@ -132,18 +140,20 @@ ErrCode WebviewController::ZoomOut()
 int32_t WebviewController::GetWebId() const
 {
     int32_t webId = -1;
-    if (nweb_) {
-        webId = static_cast<int32_t>(nweb_->GetWebId());
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        webId = static_cast<int32_t>(nweb_ptr->GetWebId());
     }
     return webId;
 }
 
 std::string WebviewController::GetUserAgent()
 {
-    if (!nweb_) {
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
         return "";
     }
-    std::shared_ptr<OHOS::NWeb::NWebPreference> setting = nweb_->GetPreference();
+    std::shared_ptr<OHOS::NWeb::NWebPreference> setting = nweb_ptr->GetPreference();
     if (!setting) {
         return "";
     }
@@ -153,8 +163,9 @@ std::string WebviewController::GetUserAgent()
 std::string WebviewController::GetTitle()
 {
     std::string title = "";
-    if (nweb_) {
-        title = nweb_->Title();
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        title = nweb_ptr->Title();
     }
     return title;
 }
@@ -162,26 +173,29 @@ std::string WebviewController::GetTitle()
 int32_t WebviewController::GetPageHeight()
 {
     int32_t pageHeight = 0;
-    if (nweb_) {
-        pageHeight = nweb_->ContentHeight();
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        pageHeight = nweb_ptr->ContentHeight();
     }
     return pageHeight;
 }
 
 ErrCode WebviewController::BackOrForward(int32_t step)
 {
-    if (!nweb_) {
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
         return INIT_ERROR;
     }
 
-    nweb_->NavigateBackOrForward(step);
+    nweb_ptr->NavigateBackOrForward(step);
     return NWebError::NO_ERROR;
 }
 
 void WebviewController::StoreWebArchiveCallback(const std::string &baseName, bool autoName, napi_env env,
     napi_ref jsCallback)
 {
-    if (!nweb_) {
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
         napi_value setResult[RESULT_COUNT] = {0};
         setResult[PARAMZERO] = BusinessError::CreateError(env, NWebError::INIT_ERROR);
         napi_get_null(env, &setResult[PARAMONE]);
@@ -220,14 +234,15 @@ void WebviewController::StoreWebArchiveCallback(const std::string &baseName, boo
 
         napi_delete_reference(env, jCallback);
     });
-    nweb_->StoreWebArchive(baseName, autoName, callbackImpl);
+    nweb_ptr->StoreWebArchive(baseName, autoName, callbackImpl);
     return;
 }
 
 void WebviewController::StoreWebArchivePromise(const std::string &baseName, bool autoName, napi_env env,
     napi_deferred deferred)
 {
-    if (!nweb_) {
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
         napi_value jsResult = nullptr;
         jsResult = NWebError::BusinessError::CreateError(env, NWebError::INIT_ERROR);
         napi_reject_deferred(env, deferred, jsResult);
@@ -253,50 +268,52 @@ void WebviewController::StoreWebArchivePromise(const std::string &baseName, bool
             napi_reject_deferred(env, deferred, args[PARAMZERO]);
         }
     });
-    nweb_->StoreWebArchive(baseName, autoName, callbackImpl);
+    nweb_ptr->StoreWebArchive(baseName, autoName, callbackImpl);
     return;
 }
 
 ErrCode WebviewController::CreateWebMessagePorts(std::vector<std::string>& ports)
 {
-    if (!nweb_) {
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
         return INIT_ERROR;
     }
 
-    nweb_->CreateWebMessagePorts(ports);
+    nweb_ptr->CreateWebMessagePorts(ports);
     return NWebError::NO_ERROR;
 }
 
 ErrCode WebviewController::PostWebMessage(std::string& message, std::vector<std::string>& ports, std::string& targetUrl)
 {
-    if (!nweb_) {
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
         return INIT_ERROR;
     }
 
-    nweb_->PostWebMessage(message, ports, targetUrl);
+    nweb_ptr->PostWebMessage(message, ports, targetUrl);
     return NWebError::NO_ERROR;
 }
 
 WebMessagePort::WebMessagePort(int32_t nwebId, std::string& port)
-{
-    nweb_ = OHOS::NWeb::NWebHelper::Instance().GetNWeb(nwebId);
-    portHandle_ = port;
-}
+    : nweb_(NWebHelper::Instance().GetNWeb(nwebId)), portHandle_(port)
+{}
 
 ErrCode WebMessagePort::ClosePort()
 {
-    if (!nweb_) {
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
         return INIT_ERROR;
     }
 
-    nweb_->ClosePort(portHandle_);
+    nweb_ptr->ClosePort(portHandle_);
     portHandle_.clear();
     return NWebError::NO_ERROR;
 }
 
 ErrCode WebMessagePort::PostPortMessage(std::string& data)
 {
-    if (!nweb_) {
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
         return INIT_ERROR;
     }
 
@@ -304,13 +321,14 @@ ErrCode WebMessagePort::PostPortMessage(std::string& data)
         WVLOG_E("can't post message, message port already closed");
         return CAN_NOT_POST_MESSAGE;
     }
-    nweb_->PostPortMessage(portHandle_, data);
+    nweb_ptr->PostPortMessage(portHandle_, data);
     return NWebError::NO_ERROR;
 }
 
 ErrCode WebMessagePort::SetPortMessageCallback(std::shared_ptr<NWebValueCallback<std::string>> callback)
 {
-    if (!nweb_) {
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
         return INIT_ERROR;
     }
 
@@ -318,7 +336,7 @@ ErrCode WebMessagePort::SetPortMessageCallback(std::shared_ptr<NWebValueCallback
         WVLOG_E("can't register message port callback event, message port already closed");
         return CAN_NOT_REGISTER_MESSAGE_EVENT;
     }
-    nweb_->SetPortMessageCallback(portHandle_, callback);
+    nweb_ptr->SetPortMessageCallback(portHandle_, callback);
     return NWebError::NO_ERROR;
 }
 
@@ -330,8 +348,9 @@ std::string WebMessagePort::GetPortHandle() const
 HitTestResult WebviewController::GetHitTestValue()
 {
     OHOS::NWeb::HitTestResult nwebResult;
-    if (nweb_) {
-        nwebResult = nweb_->GetHitTestResult();
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nwebResult = nweb_ptr->GetHitTestResult();
         nwebResult.SetType(ConverToWebHitTestType(nwebResult.GetType()));
     }
     return nwebResult;
@@ -339,8 +358,9 @@ HitTestResult WebviewController::GetHitTestValue()
 
 void WebviewController::RequestFocus()
 {
-    if (nweb_) {
-        nweb_->OnFocus();
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->OnFocus();
     }
 }
 
@@ -398,30 +418,33 @@ bool WebviewController::ParseUrl(napi_env env, napi_value urlObj, std::string& r
 
 ErrCode WebviewController::LoadUrl(std::string url)
 {
-    if (!nweb_) {
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
         return INIT_ERROR;
     }
-    return nweb_->Load(url);
+    return nweb_ptr->Load(url);
 }
 
 ErrCode WebviewController::LoadUrl(std::string url, std::map<std::string, std::string> httpHeaders)
 {
-    if (!nweb_) {
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
         return INIT_ERROR;
     }
-    return nweb_->Load(url, httpHeaders);
+    return nweb_ptr->Load(url, httpHeaders);
 }
 
 ErrCode WebviewController::LoadData(std::string data, std::string mimeType, std::string encoding,
     std::string baseUrl, std::string historyUrl)
 {
-    if (!nweb_) {
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
         return INIT_ERROR;
     }
     if (baseUrl.empty() && historyUrl.empty()) {
-        return nweb_->LoadWithData(data, mimeType, encoding);
+        return nweb_ptr->LoadWithData(data, mimeType, encoding);
     }
-    return nweb_->LoadWithDataAndBaseUrl(baseUrl, data, mimeType, encoding, historyUrl);
+    return nweb_ptr->LoadWithDataAndBaseUrl(baseUrl, data, mimeType, encoding, historyUrl);
 }
 
 int WebviewController::ConverToWebHitTestType(int hitType)
@@ -467,8 +490,9 @@ int WebviewController::ConverToWebHitTestType(int hitType)
 
 int WebviewController::GetHitTest()
 {
-    if (nweb_) {
-        return ConverToWebHitTestType(nweb_->GetHitTestResult().GetType());
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        return ConverToWebHitTestType(nweb_ptr->GetHitTestResult().GetType());
     }
     return static_cast<int>(WebHitTestType::UNKNOWN);
 }
@@ -476,53 +500,60 @@ int WebviewController::GetHitTest()
 
 void WebviewController::ClearMatches()
 {
-    if (nweb_) {
-        nweb_->ClearMatches();
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->ClearMatches();
     }
 }
 
 void WebviewController::SearchNext(bool forward)
 {
-    if (nweb_) {
-        nweb_->FindNext(forward);
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->FindNext(forward);
     }
 }
 
 void WebviewController::SearchAllAsync(const std::string& searchString)
 {
-    if (nweb_) {
-        nweb_->FindAllAsync(searchString);
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->FindAllAsync(searchString);
     }
 }
 
 void WebviewController::ClearSslCache()
 {
-    if (nweb_) {
-        nweb_->ClearSslCache();
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->ClearSslCache();
     }
 }
 
 void WebviewController::ClearClientAuthenticationCache()
 {
-    if (nweb_) {
-        nweb_->ClearClientAuthenticationCache();
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->ClearClientAuthenticationCache();
     }
 }
 
 void WebviewController::Stop()
 {
-    if (nweb_) {
-        nweb_->Stop();
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->Stop();
     }
 }
 
 ErrCode WebviewController::Zoom(float factor)
 {
-    if (!nweb_) {
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
         return INIT_ERROR;
     }
     ErrCode result = NWebError::NO_ERROR;
-    result = nweb_->Zoom(factor);
+    result = nweb_ptr->Zoom(factor);
 
     return result;
 }
@@ -530,8 +561,9 @@ ErrCode WebviewController::Zoom(float factor)
 ErrCode WebviewController::DeleteJavaScriptRegister(const std::string& objName,
     const std::vector<std::string>& methodList)
 {
-    if (nweb_) {
-        nweb_->UnregisterArkJSfunction(objName, methodList);
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->UnregisterArkJSfunction(objName, methodList);
     }
 
     if (javaScriptResultCb_) {
@@ -546,29 +578,32 @@ ErrCode WebviewController::DeleteJavaScriptRegister(const std::string& objName,
 
 void WebviewController::SetNWebJavaScriptResultCallBack()
 {
-    if (!nweb_ || javaScriptResultCb_) {
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr || javaScriptResultCb_) {
         return;
     }
 
     javaScriptResultCb_ = std::make_shared<WebviewJavaScriptResultCallBack>();
-    nweb_->SetNWebJavaScriptResultCallBack(javaScriptResultCb_);
+    nweb_ptr->SetNWebJavaScriptResultCallBack(javaScriptResultCb_);
 }
 
 void WebviewController::RegisterJavaScriptProxy(napi_env env, napi_value obj,
     const std::string& objName, const std::vector<std::string>& methodList)
 {
-    if (!nweb_) {
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
         return;
     }
     if (javaScriptResultCb_) {
         javaScriptResultCb_->RegisterJavaScriptProxy(env, obj, objName, methodList);
     }
-    nweb_->RegisterArkJSfunction(objName, methodList);
+    nweb_ptr->RegisterArkJSfunction(objName, methodList);
 }
 
 void WebviewController::RunJavaScriptCallback(const std::string &script, napi_env env, napi_ref jsCallback)
 {
-    if (!nweb_) {
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
         napi_value setResult[RESULT_COUNT] = {0};
         setResult[PARAMZERO] = BusinessError::CreateError(env, NWebError::INIT_ERROR);
         napi_get_null(env, &setResult[PARAMONE]);
@@ -587,13 +622,14 @@ void WebviewController::RunJavaScriptCallback(const std::string &script, napi_en
     }
 
     auto callbackImpl = std::make_shared<WebviewJavaScriptExecuteCallback>(env, jsCallback, nullptr);
-    nweb_->ExecuteJavaScript(script, callbackImpl);
+    nweb_ptr->ExecuteJavaScript(script, callbackImpl);
 }
 
 void WebviewController::RunJavaScriptPromise(const std::string &script, napi_env env,
     napi_deferred deferred)
 {
-    if (!nweb_) {
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
         napi_value jsResult = nullptr;
         jsResult = NWebError::BusinessError::CreateError(env, NWebError::INIT_ERROR);
         napi_reject_deferred(env, deferred, jsResult);
@@ -605,14 +641,15 @@ void WebviewController::RunJavaScriptPromise(const std::string &script, napi_env
     }
 
     auto callbackImpl = std::make_shared<WebviewJavaScriptExecuteCallback>(env, nullptr, deferred);
-    nweb_->ExecuteJavaScript(script, callbackImpl);
+    nweb_ptr->ExecuteJavaScript(script, callbackImpl);
 }
 
 std::string WebviewController::GetUrl()
 {
     std::string url = "";
-    if (nweb_) {
-        url = nweb_->GetUrl();
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        url = nweb_ptr->GetUrl();
     }
     return url;
 }
