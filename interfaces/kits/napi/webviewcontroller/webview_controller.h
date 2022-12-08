@@ -16,6 +16,7 @@
 #ifndef NWEB_WEBVIEW_CONTROLLER_H
 #define NWEB_WEBVIEW_CONTROLLER_H
 
+#include <memory>
 #include <string>
 #include <unordered_map>
 
@@ -146,7 +147,7 @@ private:
     int ConverToWebHitTestType(int hitType);
 
 private:
-    OHOS::NWeb::NWeb* nweb_ = nullptr;
+    std::weak_ptr<OHOS::NWeb::NWeb> nweb_;
     std::shared_ptr<WebviewJavaScriptResultCallBack> javaScriptResultCb_ = nullptr;
 };
 
@@ -165,7 +166,7 @@ public:
     std::string GetPortHandle() const;
 
 private:
-    OHOS::NWeb::NWeb* nweb_ = nullptr;
+    std::weak_ptr<OHOS::NWeb::NWeb> nweb_;
     std::string portHandle_;
 };
 } // namespace NWeb

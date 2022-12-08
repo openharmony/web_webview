@@ -36,7 +36,7 @@ public:
     NWebCookieManager *GetCookieManager();
     NWebDataBase *GetDataBase();
     NWebWebStorage *GetWebStorage();
-    NWeb *GetNWeb(int32_t nweb_id);
+    std::weak_ptr<NWeb> GetNWeb(int32_t nweb_id);
     void SetBundlePath(const std::string &path);
 
 private:
