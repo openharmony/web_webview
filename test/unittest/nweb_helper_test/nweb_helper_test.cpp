@@ -19,7 +19,9 @@
 #include <ui/rs_surface_node.h>
 #include <unordered_map>
 
+#define private public
 #include "nweb.h"
+#include "nweb_helper.h"
 #include "nweb_adapter_helper.h"
 #include "window.h"
 
@@ -30,7 +32,6 @@ using namespace OHOS;
 namespace OHOS::NWeb {
 namespace {
 const bool RESULT_OK = true;
-const bool RESULT_FAIL = false;
 const int DEFAULT_WIDTH = 2560;
 const int DEFAULT_HEIGHT = 1396;
 const std::string ARG_URL = "--url";
@@ -159,15 +160,6 @@ HWTEST_F(NwebHelperTest, NWebHelper_CreateNWeb_002, TestSize.Level1)
     if (!NWebAdapterHelper::Instance().Init(false)) {
         return;
     }
-    sptr<OHOS::Rosen::Window> g_window = CreateWindow();
-    bool result = false;
-
-    std::shared_ptr<NWeb> g_nweb =
-        NWebAdapterHelper::Instance().CreateNWeb(g_window.GetRefPtr(), GetInitArgs());
-    if (g_nweb != nullptr) {
-        result = true;
-    }
-    EXPECT_EQ(RESULT_FAIL, result);
 }
 
 /**
@@ -200,5 +192,11 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetDataBase_004, TestSize.Level1)
         result = true;
     }
     EXPECT_EQ(RESULT_OK, result);
+
+    sptr<OHOS::Rosen::Window> window = CreateWindow();
+    NWebHelper::Instance().libHandleNWebAdapter_ = nullptr;
+    std::shared_ptr<NWeb> nweb =
+       NWebAdapterHelper::Instance().CreateNWeb(window.GetRefPtr(), GetInitArgs());
+    EXPECT_EQ(nweb, nullptr);
 }
 } // namespace OHOS::NWeb

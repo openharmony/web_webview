@@ -24,6 +24,7 @@
 
 #define private public
 #include "nweb_input_event_consumer.h"
+#include "nweb_helper.h"
 #undef private
 
 #include "nweb.h"
@@ -56,10 +57,6 @@ void NWebInputEventTest::SetUpTestCase(void)
     NWebHelper::Instance().SetBundlePath(MOCK_INSTALLATION_DIR);
     bool result = NWebAdapterHelper::Instance().Init(false);
     EXPECT_TRUE(result);
-    sptr<OHOS::Rosen::Window> window = CreateWindow();
-    EXPECT_NE(window, nullptr);
-    g_nweb = NWebAdapterHelper::Instance().CreateNWeb(window.GetRefPtr(), GetInitArgs());
-    EXPECT_EQ(g_nweb, nullptr);
 }
 
 void NWebInputEventTest::TearDownTestCase(void)
@@ -137,5 +134,20 @@ HWTEST_F(NWebInputEventTest, NWebInputEvent_OnInputEvent_002, TestSize.Level1)
     EXPECT_FALSE(result);
     result = input->OnInputEvent(keyEvent);
     EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: NWebInputEvent_CreateNWeb_003.
+ * @tc.desc: Test the CreateNWeb.
+ * @tc.type: FUNC
+ * @tc.require:issueI5NXG9
+ */
+HWTEST_F(NWebInputEventTest, NWebInputEvent_CreateNWeb_003, TestSize.Level1)
+{
+    sptr<OHOS::Rosen::Window> window = CreateWindow();
+    EXPECT_NE(window, nullptr);
+    NWebHelper::Instance().libHandleNWebAdapter_ = nullptr;
+    g_nweb = NWebAdapterHelper::Instance().CreateNWeb(window.GetRefPtr(), GetInitArgs());
+    EXPECT_EQ(g_nweb, nullptr);
 }
 }
