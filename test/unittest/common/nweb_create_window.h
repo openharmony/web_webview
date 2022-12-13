@@ -31,7 +31,7 @@ public:
         return true;
     }
     std::unique_ptr<Rosen::RSSurfaceFrame> RequestFrame(int32_t width, int32_t height,
-        uint64_t uiTimestamp = 0) override
+        uint64_t uiTimestamp = 0, bool useAFBC = true) override
     {
         return nullptr;
     }
