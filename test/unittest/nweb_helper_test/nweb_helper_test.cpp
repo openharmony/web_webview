@@ -149,26 +149,12 @@ HWTEST_F(NwebHelperTest, NWebHelper_SetBundlePath_001, TestSize.Level1)
 }
 
 /**
- * @tc.name: NWebHelper_CreateNWeb_002
- * @tc.desc: In this scence CreateNWeb will be fail.
- * @tc.type: FUNC
- * @tc.require: AR000GGHJ8
- */
-HWTEST_F(NwebHelperTest, NWebHelper_CreateNWeb_002, TestSize.Level1)
-{
-    NWebHelper::Instance().SetBundlePath(MOCK_INSTALLATION_DIR);
-    if (!NWebAdapterHelper::Instance().Init(false)) {
-        return;
-    }
-}
-
-/**
- * @tc.name: NWebHelper_GetWebStorage_003
+ * @tc.name: NWebHelper_GetWebStorage_002
  * @tc.desc: GetWebStorage.
  * @tc.type: FUNC
  * @tc.require: AR000GGHJ8
  */
-HWTEST_F(NwebHelperTest, NWebHelper_GetWebStorage_003, TestSize.Level1)
+HWTEST_F(NwebHelperTest, NWebHelper_GetWebStorage_002, TestSize.Level1)
 {
     auto web_storage = NWebHelper::Instance().GetWebStorage();
     bool result = false;
@@ -179,12 +165,12 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetWebStorage_003, TestSize.Level1)
 }
 
 /**
- * @tc.name: NWebHelper_GetDataBase_004
+ * @tc.name: NWebHelper_GetDataBase_003
  * @tc.desc: GetDataBase.
  * @tc.type: FUNC
  * @tc.require:issueI5OESN
  */
-HWTEST_F(NwebHelperTest, NWebHelper_GetDataBase_004, TestSize.Level1)
+HWTEST_F(NwebHelperTest, NWebHelper_GetDataBase_003, TestSize.Level1)
 {
     auto dataBase = NWebHelper::Instance().GetDataBase();
     bool result = false;
