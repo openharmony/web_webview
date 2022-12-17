@@ -293,6 +293,31 @@ public:
 
     void Dump(std::string &result) const override
     {}
+
+    int32_t GetDefaultFormat()
+    {
+        return 0;
+    }
+
+    GSError SetDefaultFormat(int32_t format)
+    {
+        return GSERROR_NOT_SUPPORT;
+    }
+
+    int32_t GetDefaultColorGamut()
+    {
+        return 0;
+    }
+
+    GSError SetDefaultColorGamut(int32_t colorGamut)
+    {
+        return GSERROR_NOT_SUPPORT;
+    }
+
+    sptr<NativeSurface> GetNativeSurface()
+    {
+        return nullptr;
+    }
 };
 
 class SurfaceBufferImplMock : public SurfaceBufferImpl {
