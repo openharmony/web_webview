@@ -29,7 +29,7 @@ class DisplayListenerAdapterImpl
     : public OHOS::Rosen::DisplayManager::IDisplayListener {
 public:
     explicit DisplayListenerAdapterImpl(std::shared_ptr<DisplayListenerAdapter> listener);
-    virtual ~DisplayListenerAdapterImpl() = default;
+    ~DisplayListenerAdapterImpl() override = default;
     void OnCreate(DisplayId id) override;
     void OnDestroy(DisplayId id) override;
     void OnChange(DisplayId id) override;
@@ -41,13 +41,13 @@ class DisplayAdapterImpl : public DisplayAdapter {
 public:
     DisplayAdapterImpl() = delete;
     explicit DisplayAdapterImpl(sptr<OHOS::Rosen::Display> display);
-    virtual ~DisplayAdapterImpl() = default;
-    DisplayId GetId();
-    int32_t GetWidth();
-    int32_t GetHeight();
-    float GetVirtualPixelRatio();
-    RotationType GetRotation();
-    OrientationType GetOrientation();
+    ~DisplayAdapterImpl() override = default;
+    DisplayId GetId() override;
+    int32_t GetWidth() override;
+    int32_t GetHeight() override;
+    float GetVirtualPixelRatio() override;
+    RotationType GetRotation() override;
+    OrientationType GetOrientation() override;
 private:
     sptr<OHOS::Rosen::Display> display_;
     OHOS::NWeb::RotationType ConvertRotationType(OHOS::Rosen::Rotation type);
@@ -59,7 +59,7 @@ using ListenerMap =
 class DisplayManagerAdapterImpl : public DisplayManagerAdapter {
 public:
     DisplayManagerAdapterImpl() = default;
-    virtual ~DisplayManagerAdapterImpl() = default;
+    ~DisplayManagerAdapterImpl() override = default;
     DisplayId GetDefaultDisplayId() override;
     std::shared_ptr<DisplayAdapter> GetDefaultDisplay() override;
     bool RegisterDisplayListener(std::shared_ptr<DisplayListenerAdapter> listener) override;

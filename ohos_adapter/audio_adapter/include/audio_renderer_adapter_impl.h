@@ -27,7 +27,7 @@ class AudioRendererAdapterImpl : public AudioRendererAdapter {
 public:
     AudioRendererAdapterImpl() = default;
 
-    ~AudioRendererAdapterImpl() = default;
+    ~AudioRendererAdapterImpl() override = default;
 
     int32_t Create(const AudioAdapterRendererOptions &rendererOptions,
         std::string cachePath = std::string()) override;

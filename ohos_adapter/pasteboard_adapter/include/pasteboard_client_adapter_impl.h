@@ -39,7 +39,7 @@ public:
     PasteDataRecordAdapterImpl(const std::string& mimeType,
                                std::shared_ptr<std::string> htmlText,
                                std::shared_ptr<std::string> plainText);
-    PasteDataRecordAdapterImpl(const std::string& mimeType);
+    explicit PasteDataRecordAdapterImpl(const std::string& mimeType);
     bool SetHtmlText(std::shared_ptr<std::string> htmlText) override;
     bool SetPlainText(std::shared_ptr<std::string> plainText) override;
     bool SetImgData(std::shared_ptr<ClipBoardImageData> imageData) override;

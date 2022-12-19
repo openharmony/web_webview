@@ -25,7 +25,7 @@ using namespace OHOS::AudioStandard;
 
 class AudioManagerCallbackAdapterImpl : public AudioManagerCallback {
 public:
-    AudioManagerCallbackAdapterImpl(std::shared_ptr<AudioManagerCallbackAdapter> cb);
+    explicit AudioManagerCallbackAdapterImpl(std::shared_ptr<AudioManagerCallbackAdapter> cb);
 
     ~AudioManagerCallbackAdapterImpl() = default;
 
@@ -41,7 +41,7 @@ public:
 
     static AudioSystemManagerAdapterImpl& GetInstance();
 
-    virtual ~AudioSystemManagerAdapterImpl() = default;
+    ~AudioSystemManagerAdapterImpl() override = default;
 
     bool HasAudioOutputDevices() const override;
 

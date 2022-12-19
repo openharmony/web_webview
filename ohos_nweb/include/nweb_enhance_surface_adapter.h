@@ -16,8 +16,8 @@
 #ifndef NWEB_ENHANCE_SURFACE_ADAPTER_H
 #define NWEB_ENHANCE_SURFACE_ADAPTER_H
 
+#include <cstdint>
 #include <refbase.h>
-#include <stdint.h>
 #include <surface.h>
 
 #include "nweb.h"

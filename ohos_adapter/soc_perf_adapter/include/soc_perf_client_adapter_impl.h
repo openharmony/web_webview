@@ -23,7 +23,7 @@ class SocPerfClientAdapterImpl : public SocPerfClientAdapter {
 public:
     SocPerfClientAdapterImpl();
 
-    ~SocPerfClientAdapterImpl() = default;
+    ~SocPerfClientAdapterImpl() override = default;
 
     void ApplySocPerfConfigById(int32_t id) override;
 
@@ -31,4 +31,4 @@ public:
 };
 }  // namespace content
 
-#endif  // SOC_PERF_CLIENT_ADAPTER_IMPL_H
+#endif  // SOC_PERF_CLIENT_ADAPTER_IMPL_H

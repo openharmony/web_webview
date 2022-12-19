@@ -39,7 +39,7 @@ namespace OHOS::NWeb {
     public:
         static OhosWebDnsDataBaseAdapterImpl& GetInstance();
 
-        virtual ~OhosWebDnsDataBaseAdapterImpl() = default;
+        ~OhosWebDnsDataBaseAdapterImpl() override = default;
 
         bool ExistHostname(const std::string& hostname) const override;
 

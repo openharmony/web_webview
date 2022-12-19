@@ -26,9 +26,9 @@ namespace OHOS::NWeb {
 using namespace OHOS::NetManagerStandard;
 class NetConnectCallbackImpl : public NetConnCallbackStub {
 public:
-    NetConnectCallbackImpl(std::shared_ptr<NetConnCallback> cb);
+    explicit NetConnectCallbackImpl(std::shared_ptr<NetConnCallback> cb);
 
-    virtual ~NetConnectCallbackImpl() = default;
+    ~NetConnectCallbackImpl() override = default;
 
     int32_t NetAvailable(sptr<NetHandle> &netHandle) override;
     int32_t NetCapabilitiesChange(sptr<NetHandle> &netHandle, const sptr<NetAllCapabilities> &netAllCap) override;
