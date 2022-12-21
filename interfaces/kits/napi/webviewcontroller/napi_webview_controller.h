@@ -38,6 +38,8 @@ public:
 private:
     static napi_value JsConstructor(napi_env env, napi_callback_info info);
 
+    static napi_value InitializeWebEngine(napi_env env, napi_callback_info info);
+
     static napi_value SetWebId(napi_env env, napi_callback_info info);
 
     static napi_value InnerJsProxy(napi_env env, napi_callback_info info);

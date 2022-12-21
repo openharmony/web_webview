@@ -18,7 +18,9 @@
 #include <securec.h>
 #include <unistd.h>
 #include <uv.h>
+
 #include "business_error.h"
+#include "context/application_context.h"
 #include "napi_parse_utils.h"
 #include "nweb.h"
 #include "nweb_helper.h"
@@ -31,11 +33,13 @@
 namespace OHOS {
 namespace NWeb {
 using namespace NWebError;
+using NWebError::NO_ERROR;
 thread_local napi_ref g_classWebMsgPort;
 thread_local napi_ref g_historyListRef;
 napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
 {
     napi_property_descriptor properties[] = {
+        DECLARE_NAPI_STATIC_FUNCTION("initializeWebEngine", NapiWebviewController::InitializeWebEngine),
         DECLARE_NAPI_FUNCTION("setWebId", NapiWebviewController::SetWebId),
         DECLARE_NAPI_FUNCTION("jsProxy", NapiWebviewController::InnerJsProxy),
         DECLARE_NAPI_FUNCTION("accessForward", NapiWebviewController::AccessForward),
@@ -134,7 +138,7 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         historyListProperties, &historyList);
     napi_create_reference(env, historyList, 1, &g_historyListRef);
     napi_set_named_property(env, exports, WEB_HISTORY_LIST_CLASS_NAME.c_str(), historyList);
-    
+
     return exports;
 }
 
@@ -143,6 +147,32 @@ napi_value NapiWebviewController::JsConstructor(napi_env env, napi_callback_info
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, nullptr));
     return thisVar;
+}
+
+napi_value NapiWebviewController::InitializeWebEngine(napi_env env, napi_callback_info info)
+{
+    WVLOG_D("InitializeWebEngine invoked.");
+
+    // obtain bundle path
+    std::shared_ptr<AbilityRuntime::ApplicationContext> ctx =
+        AbilityRuntime::ApplicationContext::GetApplicationContext();
+    if (!ctx) {
+        WVLOG_E("Failed to init web engine due to nil application context.");
+        return nullptr;
+    }
+
+    // load so
+    const std::string& bundle_path = ctx->GetBundleCodeDir();
+    NWebHelper::Instance().SetBundlePath(bundle_path);
+    if (!NWebHelper::Instance().Init(true)) {
+        WVLOG_E("Failed to init web engine due to NWebHelper failure.");
+        return nullptr;
+    }
+
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_undefined(env, &result));
+    WVLOG_I("NWebHelper initialized, init web engine done, bundle_path: %{public}s", bundle_path.c_str());
+    return result;
 }
 
 napi_value NapiWebviewController::SetWebId(napi_env env, napi_callback_info info)
@@ -1605,7 +1635,7 @@ napi_value NapiWebviewController::SetNetworkAvailable(napi_env env, napi_callbac
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
         return result;
     }
-    
+
     if (!NapiParseUtils::ParseBoolean(env, argv[0], enable)) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
         return result;
@@ -1738,7 +1768,7 @@ napi_value NapiWebviewController::RemoveCache(napi_env env, napi_callback_info i
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
         return result;
     }
-    
+
     if (!NapiParseUtils::ParseBoolean(env, argv[0], include_disk_files)) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
         return result;
