@@ -163,6 +163,9 @@ public:
     void PutDownloadCallback(
         std::shared_ptr<NWebDownloadCallback> downloadListener) override
     {}
+    void PutReleaseSurfaceCallback(
+        std::shared_ptr<NWebReleaseSurfaceCallback> releaseSurfaceListener) override
+    {}
     void SetNWebHandler(std::shared_ptr<NWebHandler> handler) override
     {}
     const std::shared_ptr<NWebHandler> GetNWebHandler() const override

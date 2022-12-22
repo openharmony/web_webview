@@ -23,6 +23,7 @@
 #include <memory>
 
 #include "nweb_adapter_helper.h"
+#include "nweb_enhance_surface_adapter.h"
 #include "nweb_log.h"
 #include "nweb_surface_adapter.h"
 #include "nweb_window_adapter.h"
@@ -275,6 +276,27 @@ std::shared_ptr<NWeb> NWebAdapterHelper::CreateNWeb(sptr<Surface> surface, const
         return nullptr;
     }
     auto createInfo = NWebSurfaceAdapter::Instance().GetCreateInfo(surface, initArgs, width, height);
+    auto nweb = NWebHelper::Instance().CreateNWeb(createInfo);
+    if (nweb == nullptr) {
+        WVLOG_E("fail to create nweb instance");
+    }
+    return nweb;
+}
+
+std::shared_ptr<NWeb> NWebAdapterHelper::CreateNWeb(void *enhanceSurfaceInfo,
+                                                    const NWebInitArgs &initArgs,
+                                                    uint32_t width,
+                                                    uint32_t height)
+{
+    if (enhanceSurfaceInfo == nullptr) {
+        WVLOG_E("fail to create nweb, input surface is nullptr");
+        return nullptr;
+    }
+    if (width > NWEB_SURFACE_MAX_WIDTH || height > NWEB_SURFACE_MAX_HEIGHT) {
+        WVLOG_E("input size %{public}u*%{public}u is invalid.", width, height);
+        return nullptr;
+    }
+    auto createInfo = NWebEnhanceSurfaceAdapter::Instance().GetCreateInfo(enhanceSurfaceInfo, initArgs, width, height);
     auto nweb = NWebHelper::Instance().CreateNWeb(createInfo);
     if (nweb == nullptr) {
         WVLOG_E("fail to create nweb instance");

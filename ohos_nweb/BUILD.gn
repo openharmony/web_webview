@@ -70,6 +70,7 @@ ohos_shared_library("libnweb") {
   configs = [ ":nweb_config" ]
   public_configs = [ ":nweb_public_interface" ]
   sources = [
+    "src/nweb_enhance_surface_adapter.cpp",
     "src/nweb_helper.cpp",
     "src/nweb_input_event_consumer.cpp",
     "src/nweb_surface_adapter.cpp",
