@@ -34,7 +34,10 @@ public:
                                      const NWebInitArgs &initArgs,
                                      uint32_t width = 0,
                                      uint32_t height = 0);
-
+    std::shared_ptr<NWeb> CreateNWeb(void *enhanceSurfaceInfo,
+                                     const NWebInitArgs &initArgs,
+                                     uint32_t width = 0,
+                                     uint32_t height = 0);
 private:
     NWebAdapterHelper() = default;
 };
