@@ -120,9 +120,9 @@ public:
     /**
      * Enables or disables the force dark mode for this NWeb.
      *
-     * @param forceDark true if set the force dark mode for this NWeb.
+     * @param forceDark True if set the force dark mode enabled for this NWeb.
      */
-    virtual void PutDarkModeEnabled(int forceDark) = 0;
+    virtual void PutForceDarkModeEnabled(int forceDark) = 0;
 
     /**
      * Put whether JavaScript can open windows by JavaScript. This applies to the
@@ -372,11 +372,11 @@ public:
     virtual std::string FixedFontFamilyName() = 0;
 
     /**
-     * Get if the dark mode for this NWeb is supported.
+     * Get whether the force dark mode is enabled for this NWeb.
      *
-     * @see PutDarkModeEnabled
+     * @see PutForceDarkModeEnabled
      */
-    virtual int DarkModeEnabled() = 0;
+    virtual int ForceDarkModeEnabled() = 0;
 
     /**
      * Get if JavaScript can open windows.
@@ -514,6 +514,20 @@ public:
      * @see PutMultiWindowAccess
      */
     virtual bool IsMultiWindowAccess() = 0;
+
+    /**
+     * Enables or disables the dark mode prefer-color-scheme for this NWeb.
+     *
+     * @param darkScheme True if set the dark mode prefer-color-scheme enabled for this NWeb.
+     */
+    virtual void PutDarkSchemeEnabled(int darkScheme) = 0;
+
+    /**
+     * Get whether the dark mode prefer-color-scheme is enabled for this NWeb.
+     *
+     * @see PutDarkSchemeEnabled
+     */
+    virtual int DarkSchemeEnabled() = 0;
 };
 }  // namespace OHOS::NWeb
 #endif  // NWEB_PREFERENCE_H
