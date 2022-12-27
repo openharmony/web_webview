@@ -602,27 +602,43 @@ napi_value NapiWebMessagePort::PostMessageEvent(napi_env env, napi_callback_info
     }
     napi_valuetype valueType = napi_undefined;
     napi_typeof(env, argv[INTEGER_ZERO], &valueType);
-    if (valueType != napi_string) {
+
+    bool isArrayBuffer = false;
+    NAPI_CALL(env, napi_is_arraybuffer(env, argv[INTEGER_ZERO], &isArrayBuffer));
+    if (valueType != napi_string && !isArrayBuffer) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
         return result;
     }
 
-    size_t bufferSize = 0;
-    napi_get_value_string_utf8(env, argv[INTEGER_ZERO], nullptr, 0, &bufferSize);
-    if (bufferSize > UINT_MAX) {
-        WVLOG_E("String length is too long");
-        return result;
+    auto webMsg = std::make_shared<OHOS::NWeb::NWebMessage>(NWebValue::Type::NONE);
+    if (valueType == napi_string) {
+        size_t bufferSize = 0;
+        napi_get_value_string_utf8(env, argv[INTEGER_ZERO], nullptr, 0, &bufferSize);
+        if (bufferSize > UINT_MAX) {
+            WVLOG_E("String length is too long");
+            return result;
+        }
+        char* stringValue = new char[bufferSize + 1];
+        if (stringValue == nullptr) {
+            BusinessError::ThrowErrorByErrcode(env, NEW_OOM);
+            return result;
+        }
+        size_t jsStringLength = 0;
+        napi_get_value_string_utf8(env, argv[INTEGER_ZERO], stringValue, bufferSize + 1, &jsStringLength);
+        std::string message(stringValue);
+        delete [] stringValue;
+        stringValue = nullptr;
+
+        webMsg->SetType(NWebValue::Type::STRING);
+        webMsg->SetString(message);
+    } else if (isArrayBuffer) {
+        uint8_t *arrBuf = nullptr;
+        size_t byteLength = 0;
+        napi_get_arraybuffer_info(env, argv[INTEGER_ZERO], (void**)&arrBuf, &byteLength);
+        std::vector<uint8_t> vecData(arrBuf, arrBuf + byteLength);
+        webMsg->SetType(NWebValue::Type::BINARY);
+        webMsg->SetBinary(vecData);
     }
-    char* stringValue = new char[bufferSize + 1];
-    if (stringValue == nullptr) {
-        BusinessError::ThrowErrorByErrcode(env, NEW_OOM);
-        return result;
-    }
-    size_t jsStringLength = 0;
-    napi_get_value_string_utf8(env, argv[INTEGER_ZERO], stringValue, bufferSize + 1, &jsStringLength);
-    std::string message(stringValue);
-    delete [] stringValue;
-    stringValue = nullptr;
 
     WebMessagePort *msgPort = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&msgPort));
@@ -630,7 +646,7 @@ napi_value NapiWebMessagePort::PostMessageEvent(napi_env env, napi_callback_info
         WVLOG_E("post message failed, napi unwrap msg port failed");
         return nullptr;
     }
-    ErrCode ret = msgPort->PostPortMessage(message);
+    ErrCode ret = msgPort->PostPortMessage(webMsg);
     if (ret != NO_ERROR) {
         BusinessError::ThrowErrorByErrcode(env, ret);
         return result;
@@ -640,9 +656,49 @@ napi_value NapiWebMessagePort::PostMessageEvent(napi_env env, napi_callback_info
     return result;
 }
 
-void NWebValueCallbackImpl::OnReceiveValue(std::string result)
+void NWebValueCallbackImpl::UvWebMessageOnReceiveValueCallback(uv_work_t *work, int status)
 {
-    WVLOG_D("message port received msg, msg = %{public}s", result.c_str());
+    if (work == nullptr) {
+        WVLOG_E("uv work is null");
+        return;
+    }
+    NapiWebMessagePort::WebMsgPortParam *data = reinterpret_cast<NapiWebMessagePort::WebMsgPortParam*>(work->data);
+    if (data == nullptr) {
+        WVLOG_E("WebMsgPortParam is null");
+        delete work;
+        work = nullptr;
+        return;
+    }
+    napi_value result[INTEGER_ONE] = {0};
+    std::shared_ptr<NWebMessage> webMsg = data->msg_;
+    if (webMsg->GetType() == NWebValue::Type::STRING) {
+        std::string msgStr = webMsg->GetString();
+        napi_create_string_utf8(data->env_, msgStr.c_str(), msgStr.length(), &result[INTEGER_ZERO]);
+    } else if (webMsg->GetType() == NWebValue::Type::BINARY) {
+        std::vector<uint8_t> msgArr = webMsg->GetBinary();
+        void *arrayData = nullptr;
+        napi_create_arraybuffer(data->env_, msgArr.size(), &arrayData, &result[INTEGER_ZERO]);
+        if (arrayData == nullptr) {
+            WVLOG_E("Create arraybuffer failed");
+            return;
+        }
+        for (int i = 0; i < msgArr.size(); ++i) {
+            *(uint8_t*)((uint8_t*)arrayData + i) = msgArr[i];
+        }
+    }
+    napi_value onMsgEventFunc = nullptr;
+    napi_get_reference_value(data->env_, data->callback_, &onMsgEventFunc);
+    napi_value placeHodler = nullptr;
+    napi_call_function(data->env_, nullptr, onMsgEventFunc, INTEGER_ONE, &result[INTEGER_ZERO], &placeHodler);
+
+    std::unique_lock<std::mutex> lock(data->mutex_);
+    data->ready_ = true;
+    data->condition_.notify_all();
+}
+
+void NWebValueCallbackImpl::OnReceiveValue(std::shared_ptr<NWebMessage> result)
+{
+    WVLOG_D("message port received msg");
     uv_loop_s *loop = nullptr;
     uv_work_t *work = nullptr;
     napi_get_uv_event_loop(env_, &loop);
@@ -665,38 +721,16 @@ void NWebValueCallbackImpl::OnReceiveValue(std::string result)
     param->callback_ = callback_;
     param->msg_ = result;
     work->data = reinterpret_cast<void*>(param);
-    int ret = uv_queue_work(loop, work, [](uv_work_t *work) {}, [](uv_work_t *work, int status) {
-        if (work == nullptr) {
-            WVLOG_E("uv work is null");
-            return;
-        }
-        NapiWebMessagePort::WebMsgPortParam *data = reinterpret_cast<NapiWebMessagePort::WebMsgPortParam*>(work->data);
-        if (data == nullptr) {
-            WVLOG_E("WebMsgPortParam is null");
-            delete work;
-            work = nullptr;
-            return;
-        }
-        napi_value result[INTEGER_ONE] = {0};
-        napi_create_string_utf8(data->env_, data->msg_.c_str(), data->msg_.length(), &result[INTEGER_ZERO]);
-        napi_value onMsgEventFunc = nullptr;
-        napi_get_reference_value(data->env_, data->callback_, &onMsgEventFunc);
-        napi_value placeHodler = nullptr;
-        napi_call_function(data->env_, nullptr, onMsgEventFunc, INTEGER_ONE, &result[INTEGER_ZERO], &placeHodler);
-        delete data;
-        data = nullptr;
+    uv_queue_work(loop, work, [](uv_work_t *work) {}, UvWebMessageOnReceiveValueCallback);
+    std::unique_lock<std::mutex> lock(param->mutex_);
+    param->condition_.wait(lock, [&param] { return param->ready_; });
+    if (param != nullptr) {
+        delete param;
+        param = nullptr;
+    }
+    if (work != nullptr) {
         delete work;
         work = nullptr;
-    });
-    if (ret != 0) {
-        if (param != nullptr) {
-            delete param;
-            param = nullptr;
-        }
-        if (work != nullptr) {
-            delete work;
-            work = nullptr;
-        }
     }
 }
 

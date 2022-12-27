@@ -25,6 +25,7 @@
 #include "napi/native_node_api.h"
 #include "nweb.h"
 #include "nweb_helper.h"
+#include "nweb_web_message.h"
 #include "web_errors.h"
 #include "webview_javascript_result_callback.h"
 
@@ -184,9 +185,9 @@ public:
 
     ErrCode ClosePort();
 
-    ErrCode PostPortMessage(std::string& data);
+    ErrCode PostPortMessage(std::shared_ptr<NWebMessage> data);
 
-    ErrCode SetPortMessageCallback(std::shared_ptr<NWebValueCallback<std::string>> callback);
+    ErrCode SetPortMessageCallback(std::shared_ptr<NWebValueCallback<std::shared_ptr<NWebMessage>>> callback);
 
     std::string GetPortHandle() const;
 

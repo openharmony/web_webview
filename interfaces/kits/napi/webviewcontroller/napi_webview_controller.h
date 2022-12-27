@@ -16,10 +16,14 @@
 #ifndef NWEB_NAPI_WEBVIEW_CONTROLLER_H
 #define NWEB_NAPI_WEBVIEW_CONTROLLER_H
 
+#include <condition_variable>
+#include <mutex>
+
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
 #include "webview_controller.h"
+#include "uv.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -148,15 +152,16 @@ private:
     static napi_value ScrollPageUp(napi_env env, napi_callback_info info);
 };
 
-class NWebValueCallbackImpl : public OHOS::NWeb::NWebValueCallback<std::string> {
+class NWebValueCallbackImpl : public OHOS::NWeb::NWebValueCallback<std::shared_ptr<NWebMessage>> {
 public:
     NWebValueCallbackImpl(napi_env env, napi_ref callback) : env_(env), callback_(callback) {}
     ~NWebValueCallbackImpl();
-    void OnReceiveValue(std::string result) override;
+    void OnReceiveValue(std::shared_ptr<NWebMessage> result) override;
 
 private:
     napi_env env_;
     napi_ref callback_;
+    static void UvWebMessageOnReceiveValueCallback(uv_work_t *work, int status);
 };
 
 class NapiWebMessagePort {
@@ -167,7 +172,10 @@ public:
     struct WebMsgPortParam {
         napi_env env_;
         napi_ref callback_;
-        std::string msg_;
+        std::shared_ptr<NWebMessage> msg_;
+        std::mutex mutex_;
+        bool ready_ = false;
+        std::condition_variable condition_;
     };
 
     static napi_value JsConstructor(napi_env env, napi_callback_info info);

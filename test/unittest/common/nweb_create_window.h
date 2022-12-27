@@ -237,10 +237,10 @@ public:
     {}
     void ClosePort(std::string& handle) override
     {}
-    void PostPortMessage(std::string& handle, std::string& data) override
+    void PostPortMessage(std::string& handle, std::shared_ptr<NWebMessage> data) override
     {}
     void SetPortMessageCallback(std::string& handle,
-        std::shared_ptr<NWebValueCallback<std::string>> callback) override
+        std::shared_ptr<NWebValueCallback<std::shared_ptr<NWebMessage>>> callback) override
     {}
     void SendDragEvent(const DragEvent& dragEvent) const override
     {}

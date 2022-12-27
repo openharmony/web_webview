@@ -311,7 +311,7 @@ ErrCode WebMessagePort::ClosePort()
     return NWebError::NO_ERROR;
 }
 
-ErrCode WebMessagePort::PostPortMessage(std::string& data)
+ErrCode WebMessagePort::PostPortMessage(std::shared_ptr<NWebMessage> data)
 {
     auto nweb_ptr = nweb_.lock();
     if (!nweb_ptr) {
@@ -326,7 +326,8 @@ ErrCode WebMessagePort::PostPortMessage(std::string& data)
     return NWebError::NO_ERROR;
 }
 
-ErrCode WebMessagePort::SetPortMessageCallback(std::shared_ptr<NWebValueCallback<std::string>> callback)
+ErrCode WebMessagePort::SetPortMessageCallback(
+    std::shared_ptr<NWebValueCallback<std::shared_ptr<NWebMessage>>> callback)
 {
     auto nweb_ptr = nweb_.lock();
     if (!nweb_ptr) {

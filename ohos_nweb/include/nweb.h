@@ -30,6 +30,7 @@
 #include "nweb_release_surface_callback.h"
 #include "nweb_value_callback.h"
 #include "nweb_hit_testresult.h"
+#include "nweb_web_message.h"
 
 namespace OHOS::NWeb {
 class NWebHandler;
@@ -486,7 +487,7 @@ public:
      * @param handle the web message port handle.
      * @param data the message send to html5.
      */
-    virtual void PostPortMessage(std::string& handle, std::string& data) = 0;
+    virtual void PostPortMessage(std::string& handle, std::shared_ptr<NWebMessage> data) = 0;
 
     /**
      * set the callback of th port handle.
@@ -494,7 +495,7 @@ public:
      * @param callback to receive the message when th other port post message.
      */
     virtual void SetPortMessageCallback(std::string& handle,
-        std::shared_ptr<NWebValueCallback<std::string>> callback) = 0;
+        std::shared_ptr<NWebValueCallback<std::shared_ptr<NWebMessage>>> callback) = 0;
 
     /**
      * send drag event to nweb.
