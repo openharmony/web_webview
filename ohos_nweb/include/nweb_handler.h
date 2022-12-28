@@ -39,37 +39,6 @@
 #include "nweb_url_resource_response.h"
 
 namespace OHOS::NWeb {
-/**
- * @brief Describes how pixel bits encoder color data.
- */
-enum class ImageColorType {
-    // Unknown color type.
-    COLOR_TYPE_UNKNOWN = -1,
-
-    // RGBA with 8 bits per pixel (32bits total).
-    COLOR_TYPE_RGBA_8888 = 0,
-
-    // BGRA with 8 bits per pixel (32bits total).
-    COLOR_TYPE_BGRA_8888 = 1,
-};
-
-/**
- * @brief Describes how to interpret the alpha value of a pixel.
- */
-enum class ImageAlphaType {
-    // Unknown alpha type.
-    ALPHA_TYPE_UNKNOWN = -1,
-
-    // No transparency. The alpha component is ignored.
-    ALPHA_TYPE_OPAQUE = 0,
-
-    // Transparency with pre-multiplied alpha component.
-    ALPHA_TYPE_PREMULTIPLIED = 1,
-
-    // Transparency with post-multiplied alpha component.
-    ALPHA_TYPE_POSTMULTIPLIED = 2,
-};
-
 enum class RenderExitReason {
     // Render process non-zero exit status
     PROCESS_ABNORMAL_TERMINATION,

@@ -26,6 +26,7 @@ namespace NWeb {
 const std::string WEBVIEW_CONTROLLER_CLASS_NAME = "WebviewController";
 const std::string WEB_MESSAGE_PORT_CLASS_NAME = "WebMessagePort";
 const std::string WEB_HITTESTTYPE_V9_ENUM_NAME = "HitTestTypeV9";
+const std::string WEB_HISTORY_LIST_CLASS_NAME = "WebHistoryList";
 
 class NapiWebviewController {
 public:
@@ -119,6 +120,22 @@ private:
         const std::string &script);
 
     static napi_value GetUrl(napi_env env, napi_callback_info info);
+     
+    static napi_value GetOriginalUrl(napi_env env, napi_callback_info info);
+
+    static napi_value SetNetworkAvailable(napi_env env, napi_callback_info info);
+
+    static napi_value InnerGetWebId(napi_env env, napi_callback_info info);
+
+    static napi_value HasImage(napi_env env, napi_callback_info info);
+
+    static napi_value HasImageInternal(napi_env env, napi_callback_info info);
+
+    static napi_value RemoveCache(napi_env env, napi_callback_info info);
+
+    static napi_value getBackForwardEntries(napi_env env, napi_callback_info info);
+
+    static napi_value GetFavicon(napi_env env, napi_callback_info info);
 };
 
 class NWebValueCallbackImpl : public OHOS::NWeb::NWebValueCallback<std::string> {
@@ -150,6 +167,19 @@ public:
     static napi_value PostMessageEvent(napi_env env, napi_callback_info info);
 
     static napi_value OnMessageEvent(napi_env env, napi_callback_info info);
+};
+
+class NapiWebHistoryList {
+public:
+    NapiWebHistoryList() = default;
+    ~NapiWebHistoryList() = default;
+
+    static napi_value JsConstructor(napi_env env, napi_callback_info info);
+
+    static napi_value GetItem(napi_env env, napi_callback_info info);
+
+private:
+    static napi_value GetFavicon(napi_env env, std::shared_ptr<NWebHistoryItem> item);
 };
 } // namespace NWeb
 } // namespace OHOS
