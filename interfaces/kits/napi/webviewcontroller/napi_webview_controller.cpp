@@ -42,6 +42,7 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_FUNCTION("initializeWebEngine", NapiWebviewController::InitializeWebEngine),
         DECLARE_NAPI_FUNCTION("setWebId", NapiWebviewController::SetWebId),
         DECLARE_NAPI_FUNCTION("jsProxy", NapiWebviewController::InnerJsProxy),
+        DECLARE_NAPI_FUNCTION("getCustomeSchemeCmdLine", NapiWebviewController::InnerGetCustomeSchemeCmdLine),
         DECLARE_NAPI_FUNCTION("accessForward", NapiWebviewController::AccessForward),
         DECLARE_NAPI_FUNCTION("accessBackward", NapiWebviewController::AccessBackward),
         DECLARE_NAPI_FUNCTION("accessStep", NapiWebviewController::AccessStep),
@@ -88,6 +89,7 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("restoreWebState", NapiWebviewController::RestoreWebState),
         DECLARE_NAPI_FUNCTION("pageDown", NapiWebviewController::ScrollPageDown),
         DECLARE_NAPI_FUNCTION("pageUp", NapiWebviewController::ScrollPageUp),
+        DECLARE_NAPI_STATIC_FUNCTION("customizeSchemes", NapiWebviewController::CustomizeSchemes),
     };
     napi_value constructor = nullptr;
     napi_define_class(env, WEBVIEW_CONTROLLER_CLASS_NAME.c_str(), WEBVIEW_CONTROLLER_CLASS_NAME.length(),
@@ -246,6 +248,15 @@ napi_value NapiWebviewController::InnerJsProxy(napi_env env, napi_callback_info 
     }
     controller->SetNWebJavaScriptResultCallBack();
     controller->RegisterJavaScriptProxy(env, argv[INTEGER_ZERO], objName, methodList);
+    return result;
+}
+
+napi_value NapiWebviewController::InnerGetCustomeSchemeCmdLine(napi_env env, napi_callback_info info)
+{
+    WebviewController::existNweb_ = true;
+    napi_value result = nullptr;
+    std::string cmdLine = WebviewController::customeSchemeCmdLine_;
+    napi_create_string_utf8(env, cmdLine.c_str(), cmdLine.length(), &result);
     return result;
 }
 
@@ -2185,6 +2196,86 @@ napi_value NapiWebviewController::ScrollPageUp(napi_env env, napi_callback_info 
         return nullptr;
     }
     webviewController->ScrollPageUp(top);
+    return result;
+}
+
+bool CheckSchemeName(const std::string& schemeName)
+{
+    if (schemeName.empty() || schemeName.size() > MAX_CUSTOM_SCHEME_NAME_LENGTH) {
+        WVLOG_E("Invalid scheme name length");
+        return false;
+    }
+    for (auto it = schemeName.begin(); it != schemeName.end(); it++) {
+        char chr = *it;
+        if (!((chr >= 'a' && chr <= 'z') || (chr >= '0' && chr <= '9') ||
+            (chr == '.') || (chr == '+') || (chr == '-'))) {
+            WVLOG_E("invalid character %{public}c", chr);
+            return false;
+        }
+    }
+    return true;
+}
+
+napi_value NapiWebviewController::CustomizeSchemes(napi_env env, napi_callback_info info)
+{
+    if (WebviewController::existNweb_) {
+        WVLOG_E("There exist web component which has been already created.");
+    }
+
+    napi_value result = nullptr;
+    napi_value thisVar = nullptr;
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE];
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        return nullptr;
+    }
+    napi_value array = argv[INTEGER_ZERO];
+    bool isArray = false;
+    napi_is_array(env, array, &isArray);
+    if (isArray) {
+        std::string cmdLine;
+        uint32_t arrayLength = INTEGER_ZERO;
+        napi_get_array_length(env, array, &arrayLength);
+        if (arrayLength > MAX_CUSTOM_SCHEME_SIZE) {
+            BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+            return nullptr;
+        }
+        for (uint32_t i = 0; i < arrayLength; ++i) {
+            std::string schemeName;
+            bool isSupportCORS;
+            bool isSupportFetch;
+            napi_value schemeNameObj = nullptr;
+            napi_value isSupportCORSObj = nullptr;
+            napi_value isSupportFetchObj = nullptr;
+            napi_value obj = nullptr;
+            napi_get_element(env, array, i, &obj);
+            if ((napi_get_named_property(env, obj, "schemeName", &schemeNameObj) != napi_ok) ||
+                (napi_get_named_property(env, obj, "isSupportCORS", &isSupportCORSObj) != napi_ok) ||
+                (napi_get_named_property(env, obj, "isSupportFetch", &isSupportFetchObj) != napi_ok)) {
+                BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+                return nullptr;
+            }
+            NapiParseUtils::ParseString(env, schemeNameObj, schemeName);
+            if (!CheckSchemeName(schemeName)) {
+                BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+                return nullptr;
+            }
+            NapiParseUtils::ParseBoolean(env, isSupportCORSObj, isSupportCORS);
+            NapiParseUtils::ParseBoolean(env, isSupportFetchObj, isSupportFetch);
+            std::string corsCmdLine = isSupportCORS ? "1," : "0,";
+            std::string fetchCmdLine = isSupportFetch ? "1;" : "0;";
+            cmdLine.append(schemeName + "," + corsCmdLine + fetchCmdLine);
+        }
+        cmdLine.pop_back();
+        WVLOG_I("Reg scheme cmdline %{public}s", cmdLine.c_str());
+        WebviewController::customeSchemeCmdLine_ = cmdLine;
+    } else {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        return nullptr;
+    }
+    NAPI_CALL(env, napi_get_undefined(env, &result));
     return result;
 }
 } // namespace NWeb

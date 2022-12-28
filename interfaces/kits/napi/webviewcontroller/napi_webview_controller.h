@@ -48,6 +48,8 @@ private:
 
     static napi_value InnerJsProxy(napi_env env, napi_callback_info info);
 
+    static napi_value InnerGetCustomeSchemeCmdLine(napi_env env, napi_callback_info info);
+
     static napi_value AccessForward(napi_env env, napi_callback_info info);
 
     static napi_value AccessBackward(napi_env env, napi_callback_info info);
@@ -150,6 +152,8 @@ private:
     static napi_value ScrollPageDown(napi_env env, napi_callback_info info);
 
     static napi_value ScrollPageUp(napi_env env, napi_callback_info info);
+
+    static napi_value CustomizeSchemes(napi_env env, napi_callback_info info);
 };
 
 class NWebValueCallbackImpl : public OHOS::NWeb::NWebValueCallback<std::shared_ptr<NWebMessage>> {

@@ -172,6 +172,10 @@ public:
 private:
     int ConverToWebHitTestType(int hitType);
 
+public:
+    static std::string customeSchemeCmdLine_;
+    static bool existNweb_;
+
 private:
     std::weak_ptr<OHOS::NWeb::NWeb> nweb_;
     std::shared_ptr<WebviewJavaScriptResultCallBack> javaScriptResultCb_ = nullptr;
