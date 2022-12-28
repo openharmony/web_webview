@@ -19,7 +19,9 @@
 #include <ui/rs_surface_node.h>
 #include <unordered_map>
 
+#define private public
 #include "nweb.h"
+#include "nweb_helper.h"
 #include "nweb_adapter_helper.h"
 #include "window.h"
 
@@ -30,7 +32,6 @@ using namespace OHOS;
 namespace OHOS::NWeb {
 namespace {
 const bool RESULT_OK = true;
-const bool RESULT_FAIL = false;
 const int DEFAULT_WIDTH = 2560;
 const int DEFAULT_HEIGHT = 1396;
 const std::string ARG_URL = "--url";
@@ -148,35 +149,12 @@ HWTEST_F(NwebHelperTest, NWebHelper_SetBundlePath_001, TestSize.Level1)
 }
 
 /**
- * @tc.name: NWebHelper_CreateNWeb_002
- * @tc.desc: In this scence CreateNWeb will be fail.
- * @tc.type: FUNC
- * @tc.require: AR000GGHJ8
- */
-HWTEST_F(NwebHelperTest, NWebHelper_CreateNWeb_002, TestSize.Level1)
-{
-    NWebHelper::Instance().SetBundlePath(MOCK_INSTALLATION_DIR);
-    if (!NWebAdapterHelper::Instance().Init(false)) {
-        return;
-    }
-    sptr<OHOS::Rosen::Window> g_window = CreateWindow();
-    bool result = false;
-
-    std::shared_ptr<NWeb> g_nweb =
-        NWebAdapterHelper::Instance().CreateNWeb(g_window.GetRefPtr(), GetInitArgs());
-    if (g_nweb != nullptr) {
-        result = true;
-    }
-    EXPECT_EQ(RESULT_FAIL, result);
-}
-
-/**
- * @tc.name: NWebHelper_GetWebStorage_003
+ * @tc.name: NWebHelper_GetWebStorage_002
  * @tc.desc: GetWebStorage.
  * @tc.type: FUNC
  * @tc.require: AR000GGHJ8
  */
-HWTEST_F(NwebHelperTest, NWebHelper_GetWebStorage_003, TestSize.Level1)
+HWTEST_F(NwebHelperTest, NWebHelper_GetWebStorage_002, TestSize.Level1)
 {
     auto web_storage = NWebHelper::Instance().GetWebStorage();
     bool result = false;
@@ -187,12 +165,12 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetWebStorage_003, TestSize.Level1)
 }
 
 /**
- * @tc.name: NWebHelper_GetDataBase_004
+ * @tc.name: NWebHelper_GetDataBase_003
  * @tc.desc: GetDataBase.
  * @tc.type: FUNC
  * @tc.require:issueI5OESN
  */
-HWTEST_F(NwebHelperTest, NWebHelper_GetDataBase_004, TestSize.Level1)
+HWTEST_F(NwebHelperTest, NWebHelper_GetDataBase_003, TestSize.Level1)
 {
     auto dataBase = NWebHelper::Instance().GetDataBase();
     bool result = false;
@@ -200,5 +178,11 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetDataBase_004, TestSize.Level1)
         result = true;
     }
     EXPECT_EQ(RESULT_OK, result);
+
+    sptr<OHOS::Rosen::Window> window = CreateWindow();
+    NWebHelper::Instance().libHandleNWebAdapter_ = nullptr;
+    std::shared_ptr<NWeb> nweb =
+       NWebAdapterHelper::Instance().CreateNWeb(window.GetRefPtr(), GetInitArgs());
+    EXPECT_EQ(nweb, nullptr);
 }
 } // namespace OHOS::NWeb
