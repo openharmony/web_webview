@@ -22,6 +22,7 @@
 #include "display_manager_adapter_impl.h"
 #include "mmi_adapter_impl.h"
 #include "net_connect_adapter_impl.h"
+#include "ohos_init_web_adapter_impl.h"
 #include "ohos_web_data_base_adapter_impl.h"
 #include "ohos_web_dns_data_base_adapter_impl.h"
 #include "ohos_web_permission_data_base_adapter_impl.h"
@@ -101,4 +102,9 @@ OhosWebDnsDataBaseAdapter &OhosAdapterHelper::GetWebDnsDataBaseInstance()
 {
     return OhosWebDnsDataBaseAdapterImpl::GetInstance();
 }
-}  // namespace OHOS::NWeb
+
+std::unique_ptr<OhosInitWebAdapter> OhosAdapterHelper::GetInitWebAdapter() const
+{
+    return std::make_unique<OhosInitWebAdapterImpl>();
+}
+} // namespace OHOS::NWeb

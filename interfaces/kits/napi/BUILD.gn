@@ -23,6 +23,7 @@ config("web_public_config") {
     "$SUBSYSTEM_DIR/interfaces/kits/napi/webviewcontroller",
     "$SUBSYSTEM_DIR/interfaces/kits/napi/webcookiemanager",
     "$SUBSYSTEM_DIR/interfaces/kits/napi/webdatabase",
+    "$SUBSYSTEM_DIR/interfaces/kits/napi/webfunction",
     "$SUBSYSTEM_DIR/interfaces/kits/napi/webstorage",
   ]
 }
@@ -33,6 +34,7 @@ ohos_shared_library("webview_napi") {
     "//commonlibrary/c_utils/base/include",
     "//foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime",
     "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core/include/bundlemgr",
+    "$SUBSYSTEM_DIR/ohos_adapter/interfaces",
   ]
   public_configs = [ ":web_public_config" ]
 
@@ -45,6 +47,8 @@ ohos_shared_library("webview_napi") {
     "$SUBSYSTEM_DIR/interfaces/kits/napi/webcookiemanager/napi_web_cookie_manager.cpp",
     "$SUBSYSTEM_DIR/interfaces/kits/napi/webdatabase/napi_geolocation_permission.cpp",
     "$SUBSYSTEM_DIR/interfaces/kits/napi/webdatabase/napi_web_data_base.cpp",
+    "$SUBSYSTEM_DIR/interfaces/kits/napi/webfunction/napi_webview_function.cpp",
+    "$SUBSYSTEM_DIR/interfaces/kits/napi/webfunction/webview_web_inited_callback.cpp",
     "$SUBSYSTEM_DIR/interfaces/kits/napi/webstorage/napi_web_storage.cpp",
     "$SUBSYSTEM_DIR/interfaces/kits/napi/webviewcontroller/napi_webview_controller.cpp",
     "$SUBSYSTEM_DIR/interfaces/kits/napi/webviewcontroller/webview_controller.cpp",
@@ -61,6 +65,8 @@ ohos_shared_library("webview_napi") {
     "napi:ace_napi",
     "webview:libnweb",
   ]
+
+  deps = [ "$SUBSYSTEM_DIR/ohos_adapter:nweb_ohos_adapter" ]
 
   relative_install_dir = "module/web"
 

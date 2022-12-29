@@ -19,6 +19,7 @@
 #include "napi_geolocation_permission.h"
 #include "napi_web_async_controller.h"
 #include "napi_webview_controller.h"
+#include "napi_webview_function.h"
 #include "napi_web_cookie_manager.h"
 #include "napi_web_data_base.h"
 #include "napi_web_storage.h"
@@ -34,6 +35,7 @@ static napi_value WebViewExport(napi_env env, napi_value exports)
     NapiWebviewController::Init(env, exports);
     NapiWebCookieManager::Init(env, exports);
     NapiGeolocationPermission::Init(env, exports);
+    WebFunctionInit(env, exports);
     return exports;
 }
 EXTERN_C_END

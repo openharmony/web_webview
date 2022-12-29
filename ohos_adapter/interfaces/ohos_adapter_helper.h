@@ -22,6 +22,7 @@
 #include "display_manager_adapter.h"
 #include "net_connect_adapter.h"
 #include "mmi_adapter.h"
+#include "ohos_init_web_adapter.h"
 #include "ohos_web_data_base_adapter.h"
 #include "pasteboard_client_adapter.h"
 #include "power_mgr_client_adapter.h"
@@ -61,6 +62,9 @@ public:
     std::unique_ptr<SocPerfClientAdapter> CreateSocPerfClientAdapter();
 
     OhosWebDnsDataBaseAdapter& GetWebDnsDataBaseInstance();
+
+    std::unique_ptr<OhosInitWebAdapter> GetInitWebAdapter() const;
+
 private:
     OhosAdapterHelper() = default;
 
