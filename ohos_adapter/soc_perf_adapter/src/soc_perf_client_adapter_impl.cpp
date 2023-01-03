@@ -15,7 +15,7 @@
 
 #include "soc_perf_client_adapter_impl.h"
 #if defined(NWEB_SOC_PERF)
-#include "client/socperf_client.h"
+#include "socperf_client.h"
 #endif
 namespace OHOS::NWeb {
 SocPerfClientAdapterImpl::SocPerfClientAdapterImpl() {}
