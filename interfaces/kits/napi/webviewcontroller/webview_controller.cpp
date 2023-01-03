@@ -22,6 +22,7 @@
 #include "nweb_store_web_archive_callback.h"
 #include "webview_javascript_execute_callback.h"
 #include "webview_javascript_result_callback.h"
+#include "webview_hasimage_callback.h"
 #include "web_errors.h"
 
 namespace {
@@ -652,6 +653,116 @@ std::string WebviewController::GetUrl()
         url = nweb_ptr->GetUrl();
     }
     return url;
+}
+
+std::string WebviewController::GetOriginalUrl()
+{
+    std::string url = "";
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        url = nweb_ptr->GetOriginalUrl();
+    }
+    return url;
+}
+
+void WebviewController::PutNetworkAvailable(bool enable)
+{
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->PutNetworkAvailable(enable);
+    }
+}
+
+ErrCode WebviewController::HasImagesCallback(napi_env env, napi_ref jsCallback)
+{
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
+        napi_value setResult[RESULT_COUNT] = {0};
+        setResult[PARAMZERO] = BusinessError::CreateError(env, NWebError::INIT_ERROR);
+        napi_get_null(env, &setResult[PARAMONE]);
+
+        napi_value args[RESULT_COUNT] = {setResult[PARAMZERO], setResult[PARAMONE]};
+        napi_value callback = nullptr;
+        napi_get_reference_value(env, jsCallback, &callback);
+        napi_value callbackResult = nullptr;
+        napi_call_function(env, nullptr, callback, RESULT_COUNT, args, &callbackResult);
+        napi_delete_reference(env, jsCallback);
+        return NWebError::INIT_ERROR;
+    }
+
+    if (jsCallback == nullptr) {
+        return NWebError::PARAM_CHECK_ERROR;
+    }
+
+    auto callbackImpl = std::make_shared<WebviewHasImageCallback>(env, jsCallback, nullptr);
+    nweb_ptr->HasImages(callbackImpl);
+    return NWebError::NO_ERROR;
+}
+
+ErrCode WebviewController::HasImagesPromise(napi_env env, napi_deferred deferred)
+{
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
+        napi_value jsResult = nullptr;
+        jsResult = NWebError::BusinessError::CreateError(env, NWebError::INIT_ERROR);
+        napi_reject_deferred(env, deferred, jsResult);
+        return NWebError::INIT_ERROR;
+    }
+
+    if (deferred == nullptr) {
+        return NWebError::PARAM_CHECK_ERROR;
+    }
+
+    auto callbackImpl = std::make_shared<WebviewHasImageCallback>(env, nullptr, deferred);
+    nweb_ptr->HasImages(callbackImpl);
+    return NWebError::NO_ERROR;
+}
+
+void WebviewController::RemoveCache(bool include_disk_files)
+{
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->RemoveCache(include_disk_files);
+    }
+}
+
+std::shared_ptr<NWebHistoryList> WebviewController::GetHistoryList()
+{
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
+        return nullptr;
+    }
+    return nweb_ptr->GetHistoryList();
+}
+
+std::shared_ptr<NWebHistoryItem> WebHistoryList::GetItem(int32_t index)
+{
+    if (!sptrHistoryList_) {
+        return nullptr;
+    }
+    return sptrHistoryList_->GetItem(index);
+}
+
+int32_t WebHistoryList::GetListSize()
+{
+    int32_t listSize = 0;
+
+    if (!sptrHistoryList_) {
+        return listSize;
+    }
+    listSize = sptrHistoryList_->GetListSize();
+    return listSize;
+}
+
+bool WebviewController::GetFavicon(
+    const void **data, size_t &width, size_t &height, ImageColorType &colorType, ImageAlphaType &alphaType)
+{
+    bool isGetFavicon = false;
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        isGetFavicon = nweb_ptr->GetFavicon(data, width, height, colorType, alphaType);
+    }
+    return isGetFavicon;
 }
 
 } // namespace NWeb

@@ -48,6 +48,7 @@ ohos_shared_library("webview_napi") {
     "$SUBSYSTEM_DIR/interfaces/kits/napi/webstorage/napi_web_storage.cpp",
     "$SUBSYSTEM_DIR/interfaces/kits/napi/webviewcontroller/napi_webview_controller.cpp",
     "$SUBSYSTEM_DIR/interfaces/kits/napi/webviewcontroller/webview_controller.cpp",
+    "$SUBSYSTEM_DIR/interfaces/kits/napi/webviewcontroller/webview_hasimage_callback.cpp",
     "$SUBSYSTEM_DIR/interfaces/kits/napi/webviewcontroller/webview_javascript_execute_callback.cpp",
     "$SUBSYSTEM_DIR/interfaces/kits/napi/webviewcontroller/webview_javascript_result_callback.cpp",
   ]
@@ -55,6 +56,8 @@ ohos_shared_library("webview_napi") {
   external_deps = [
     "ability_runtime:app_context",
     "hiviewdfx_hilog_native:libhilog",
+    "multimedia_image_framework:image",
+    "multimedia_image_framework:image_native",
     "napi:ace_napi",
     "webview:libnweb",
   ]
