@@ -27,7 +27,7 @@ class AudioManagerCallbackAdapterImpl : public AudioManagerCallback {
 public:
     explicit AudioManagerCallbackAdapterImpl(std::shared_ptr<AudioManagerCallbackAdapter> cb);
 
-    ~AudioManagerCallbackAdapterImpl() = default;
+    ~AudioManagerCallbackAdapterImpl() override = default;
 
     void OnInterrupt(const InterruptAction &interruptAction) override;
 

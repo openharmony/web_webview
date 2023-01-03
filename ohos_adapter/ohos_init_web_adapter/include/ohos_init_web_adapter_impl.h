@@ -23,7 +23,7 @@ class OhosInitWebAdapterImpl : public OhosInitWebAdapter {
 public:
     OhosInitWebAdapterImpl() = default;
 
-    virtual ~OhosInitWebAdapterImpl() = default;
+    ~OhosInitWebAdapterImpl() override = default;
 
     WebRunInitedCallback* GetRunWebInitedCallback() override;
 
