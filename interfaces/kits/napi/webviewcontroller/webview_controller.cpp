@@ -665,11 +665,11 @@ std::string WebviewController::GetOriginalUrl()
     return url;
 }
 
-void WebviewController::PutNetworkAvailable(bool enable)
+void WebviewController::PutNetworkAvailable(bool available)
 {
     auto nweb_ptr = nweb_.lock();
     if (nweb_ptr) {
-        nweb_ptr->PutNetworkAvailable(enable);
+        nweb_ptr->PutNetworkAvailable(available);
     }
 }
 
