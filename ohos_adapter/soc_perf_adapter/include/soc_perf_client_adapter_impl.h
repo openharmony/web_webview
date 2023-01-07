@@ -26,6 +26,8 @@ public:
     ~SocPerfClientAdapterImpl() = default;
 
     void ApplySocPerfConfigById(int32_t id) override;
+
+    void ApplySocPerfConfigByIdEx(int32_t id, bool onOffTag) override;
 };
 }  // namespace content
 
