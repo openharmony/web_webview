@@ -26,6 +26,8 @@ public:
     virtual ~SocPerfClientAdapter() = default;
 
     virtual void ApplySocPerfConfigById(int32_t id) = 0;
+
+    virtual void ApplySocPerfConfigByIdEx(int32_t id, bool onOffTag) = 0;
 };
 }  // namespace OHOS::NWeb
 
