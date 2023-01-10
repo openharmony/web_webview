@@ -40,6 +40,8 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
 {
     napi_property_descriptor properties[] = {
         DECLARE_NAPI_STATIC_FUNCTION("initializeWebEngine", NapiWebviewController::InitializeWebEngine),
+        DECLARE_NAPI_STATIC_FUNCTION("setWebDebuggingAccess", NapiWebviewController::SetWebDebuggingAccess),
+        DECLARE_NAPI_FUNCTION("getWebDebuggingAccess", NapiWebviewController::InnerGetWebDebuggingAccess),
         DECLARE_NAPI_FUNCTION("setWebId", NapiWebviewController::SetWebId),
         DECLARE_NAPI_FUNCTION("jsProxy", NapiWebviewController::InnerJsProxy),
         DECLARE_NAPI_FUNCTION("getCustomeSchemeCmdLine", NapiWebviewController::InnerGetCustomeSchemeCmdLine),
@@ -186,6 +188,41 @@ napi_value NapiWebviewController::InitializeWebEngine(napi_env env, napi_callbac
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_undefined(env, &result));
     WVLOG_I("NWebHelper initialized, init web engine done, bundle_path: %{public}s", bundle_path.c_str());
+    return result;
+}
+
+napi_value NapiWebviewController::SetWebDebuggingAccess(napi_env env, napi_callback_info info)
+{
+    WVLOG_D("SetWebDebuggingAccess start");
+
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = {0};
+
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        return result;
+    }
+
+    bool webDebuggingAccess = false;
+    if (!NapiParseUtils::ParseBoolean(env, argv[0], webDebuggingAccess)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        return result;
+    }
+    WebviewController::webDebuggingAccess_ = webDebuggingAccess;
+
+    NAPI_CALL(env, napi_get_undefined(env, &result));
+    return result;
+}
+
+napi_value NapiWebviewController::InnerGetWebDebuggingAccess(napi_env env, napi_callback_info info)
+{
+    WVLOG_D("InnerGetWebDebuggingAccess start");
+    bool webDebuggingAccess = WebviewController::webDebuggingAccess_;
+    napi_value result = nullptr;
+    napi_get_boolean(env, webDebuggingAccess, &result);
     return result;
 }
 
