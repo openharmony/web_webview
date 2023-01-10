@@ -77,6 +77,71 @@ struct ImageOptions {
     size_t height;
 };
 
+// Cursor type values.
+enum class CursorType: int32_t {
+    CT_POINTER = 0,
+    CT_CROSS,
+    CT_HAND,
+    CT_IBEAM,
+    CT_WAIT,
+    CT_HELP,
+    CT_EASTRESIZE,
+    CT_NORTHRESIZE,
+    CT_NORTHEASTRESIZE,
+    CT_NORTHWESTRESIZE,
+    CT_SOUTHRESIZE,
+    CT_SOUTHEASTRESIZE,
+    CT_SOUTHWESTRESIZE,
+    CT_WESTRESIZE,
+    CT_NORTHSOUTHRESIZE,
+    CT_EASTWESTRESIZE,
+    CT_NORTHEASTSOUTHWESTRESIZE,
+    CT_NORTHWESTSOUTHEASTRESIZE,
+    CT_COLUMNRESIZE,
+    CT_ROWRESIZE,
+    CT_MIDDLEPANNING,
+    CT_EASTPANNING,
+    CT_NORTHPANNING,
+    CT_NORTHEASTPANNING,
+    CT_NORTHWESTPANNING,
+    CT_SOUTHPANNING,
+    CT_SOUTHEASTPANNING,
+    CT_SOUTHWESTPANNING,
+    CT_WESTPANNING,
+    CT_MOVE,
+    CT_VERTICALTEXT,
+    CT_CELL,
+    CT_CONTEXTMENU,
+    CT_ALIAS,
+    CT_PROGRESS,
+    CT_NODROP,
+    CT_COPY,
+    CT_NONE,
+    CT_NOTALLOWED,
+    CT_ZOOMIN,
+    CT_ZOOMOUT,
+    CT_GRAB,
+    CT_GRABBING,
+    CT_MIDDLE_PANNING_VERTICAL,
+    CT_MIDDLE_PANNING_HORIZONTAL,
+    CT_CUSTOM,
+    CT_DND_NONE,
+    CT_DND_MOVE,
+    CT_DND_COPY,
+    CT_DND_LINK,
+    CT_MAX_VALUE,
+};
+
+struct NWebCursorInfo {
+    int32_t width = 0;
+    int32_t height = 0;
+    int32_t x = 0;
+    int32_t y = 0;
+    float scale = 1.0;
+    // buff will be width*height*4 bytes in size and represents a BGRA image with an upper-left origin.
+    std::unique_ptr<uint8_t[]> buff = nullptr;
+};
+
 using FileSelectorCallback = NWebValueCallback<std::vector<std::string>&>;
 
 class OHOS_NWEB_EXPORT NWebHandler {
@@ -444,6 +509,16 @@ public:
      * @param handler sets whether to resend data.
      */
     virtual void OnDataResubmission(std::shared_ptr<NWebDataResubmissionCallback> handler) {}
+
+    /**
+     * @brief Called when the browser is cursor has changed.
+     * @param type Cursor type.
+     * @param info If |type| is CT_CUSTOM then |info| will be populated with the custom cursor information.
+     * @return True if the cursor change was handled or false for default handling.
+     */
+    virtual bool OnCursorChange(const CursorType& type, const NWebCursorInfo& info) {
+        return false;
+    }
 };
 }  // namespace OHOS::NWeb
 
