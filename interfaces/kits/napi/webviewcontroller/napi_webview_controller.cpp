@@ -84,6 +84,10 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("removeCache", NapiWebviewController::RemoveCache),
         DECLARE_NAPI_FUNCTION("getFavicon", NapiWebviewController::GetFavicon),
         DECLARE_NAPI_FUNCTION("getBackForwardEntries", NapiWebviewController::getBackForwardEntries),
+        DECLARE_NAPI_FUNCTION("serializeWebState", NapiWebviewController::SerializeWebState),
+        DECLARE_NAPI_FUNCTION("restoreWebState", NapiWebviewController::RestoreWebState),
+        DECLARE_NAPI_FUNCTION("pageDown", NapiWebviewController::ScrollPageDown),
+        DECLARE_NAPI_FUNCTION("pageUp", NapiWebviewController::ScrollPageUp),
     };
     napi_value constructor = nullptr;
     napi_define_class(env, WEBVIEW_CONTROLLER_CLASS_NAME.c_str(), WEBVIEW_CONTROLLER_CLASS_NAME.length(),
@@ -2012,6 +2016,142 @@ napi_value NapiWebviewController::GetFavicon(napi_env env, napi_callback_info in
     return jsPixelMap;
 }
 
+napi_value NapiWebviewController::SerializeWebState(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
+    napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, nullptr);
+    napi_get_null(env, &result);
 
+    WebviewController *webviewController = nullptr;
+    napi_unwrap(env, thisVar, (void **)&webviewController);
+    if (!webviewController) {
+        BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
+        return result;
+    }
+
+    void *data = nullptr;
+    napi_value buffer = nullptr;
+    auto webState = webviewController->SerializeWebState();
+    if (!webState) {
+        return result;
+    }
+
+    NAPI_CALL(env, napi_create_arraybuffer(env, webState->size(), &data, &buffer));
+    int retCode = memcpy_s(data, webState->size(), webState->data(), webState->size());
+    if (retCode != 0) {
+        return result;
+    }
+    NAPI_CALL(env, napi_create_typedarray(env, napi_uint8_array, webState->size(), buffer, 0, &result));
+    return result;
+}
+
+napi_value NapiWebviewController::RestoreWebState(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+    napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, nullptr);
+    napi_get_null(env, &result);
+
+    WebviewController *webviewController = nullptr;
+    napi_unwrap(env, thisVar, (void **)&webviewController);
+    if (!webviewController) {
+        BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
+        return result;
+    }
+
+    bool isTypedArray = false;
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        return result;
+    }
+    NAPI_CALL(env, napi_is_typedarray(env, argv[0], &isTypedArray));
+    if (!isTypedArray) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        return result;
+    }
+
+    napi_typedarray_type type;
+    size_t length = 0;
+    napi_value buffer = nullptr;
+    size_t offset = 0;
+    NAPI_CALL(env, napi_get_typedarray_info(env, argv[0], &type, &length, nullptr, &buffer, &offset));
+    if (type != napi_uint8_array) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        return result;
+    }
+    uint8_t *data = nullptr;
+    size_t total = 0;
+    NAPI_CALL(env, napi_get_arraybuffer_info(env, buffer, reinterpret_cast<void **>(&data), &total));
+    length = std::min<size_t>(length, total - offset);
+    std::vector<uint8_t> state(length);
+    int retCode = memcpy_s(state.data(), state.size(), &data[offset], length);
+    if (retCode != 0) {
+        return result;
+    }
+    webviewController->RestoreWebState(std::make_shared<std::vector<uint8_t>>(state));
+    return result;
+}
+
+napi_value NapiWebviewController::ScrollPageDown(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+    bool bottom;
+
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        return result;
+    }
+
+    if (!NapiParseUtils::ParseBoolean(env, argv[0], bottom)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        return result;
+    }
+
+    WebviewController *webviewController = nullptr;
+    napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
+    if ((!webviewController) || (status != napi_ok)) {
+        BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
+        return nullptr;
+    }
+    webviewController->ScrollPageDown(bottom);
+    return result;
+}
+
+napi_value NapiWebviewController::ScrollPageUp(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+    bool top;
+
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        return result;
+    }
+
+    if (!NapiParseUtils::ParseBoolean(env, argv[0], top)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        return result;
+    }
+
+    WebviewController *webviewController = nullptr;
+    napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
+    if ((!webviewController) || (status != napi_ok)) {
+        BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
+        return nullptr;
+    }
+    webviewController->ScrollPageUp(top);
+    return result;
+}
 } // namespace NWeb
 } // namespace OHOS

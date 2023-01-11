@@ -122,7 +122,7 @@ private:
         const std::string &script);
 
     static napi_value GetUrl(napi_env env, napi_callback_info info);
-     
+
     static napi_value GetOriginalUrl(napi_env env, napi_callback_info info);
 
     static napi_value SetNetworkAvailable(napi_env env, napi_callback_info info);
@@ -138,6 +138,14 @@ private:
     static napi_value getBackForwardEntries(napi_env env, napi_callback_info info);
 
     static napi_value GetFavicon(napi_env env, napi_callback_info info);
+
+    static napi_value SerializeWebState(napi_env env, napi_callback_info info);
+
+    static napi_value RestoreWebState(napi_env env, napi_callback_info info);
+
+    static napi_value ScrollPageDown(napi_env env, napi_callback_info info);
+
+    static napi_value ScrollPageUp(napi_env env, napi_callback_info info);
 };
 
 class NWebValueCallbackImpl : public OHOS::NWeb::NWebValueCallback<std::string> {

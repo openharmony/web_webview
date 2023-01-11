@@ -160,6 +160,14 @@ public:
     bool GetFavicon(
         const void **data, size_t &width, size_t &height, ImageColorType &colorType, ImageAlphaType &alphaType);
 
+    WebState SerializeWebState();
+
+    bool RestoreWebState(WebState state);
+
+    void ScrollPageDown(bool bottom);
+
+    void ScrollPageUp(bool top);
+
 private:
     int ConverToWebHitTestType(int hitType);
 

@@ -765,5 +765,41 @@ bool WebviewController::GetFavicon(
     return isGetFavicon;
 }
 
+WebState WebviewController::SerializeWebState()
+{
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        return nweb_ptr->SerializeWebState();
+    }
+    return nullptr;
+}
+
+bool WebviewController::RestoreWebState(WebState state)
+{
+    bool isRestored = false;
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        isRestored = nweb_ptr->RestoreWebState(state);
+    }
+    return isRestored;
+}
+
+void WebviewController::ScrollPageDown(bool bottom)
+{
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->PageDown(bottom);
+    }
+    return;
+}
+
+void WebviewController::ScrollPageUp(bool top)
+{
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->PageUp(top);
+    }
+    return;
+}
 } // namespace NWeb
 } // namespace OHOS
