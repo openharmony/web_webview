@@ -528,6 +528,30 @@ public:
      * @see PutDarkSchemeEnabled
      */
     virtual int DarkSchemeEnabled() = 0;
+
+    /**
+     * Get whether enable horizontal scroll bar.
+     *
+     * @see PutHorizontalScrollBarAcces
+     */
+    virtual bool IsHorizontalScrollBarAccess() = 0;
+
+    /**
+     * Get whether enable vertical scroll bar.
+     *
+     * @see PutVerticalScrollBarAcces
+     */
+    virtual bool IsVerticalScrollBarAccess() = 0;
+
+    /**
+     * Put whether the horizontal scroll bar. The default is true.
+     */
+    virtual void PutHorizontalScrollBarAccess(bool flag) = 0;
+
+    /**
+     * Put whether the vertical scroll bar. The default is true.
+     */
+    virtual void PutVerticalScrollBarAccess(bool flag) = 0;
 };
 }  // namespace OHOS::NWeb
 #endif  // NWEB_PREFERENCE_H

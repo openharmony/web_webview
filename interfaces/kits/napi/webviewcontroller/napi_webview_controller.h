@@ -153,6 +153,12 @@ private:
 
     static napi_value ScrollPageUp(napi_env env, napi_callback_info info);
 
+    static napi_value ScrollTo(napi_env env, napi_callback_info info);
+
+    static napi_value ScrollBy(napi_env env, napi_callback_info info);
+
+    static napi_value SlideScroll(napi_env env, napi_callback_info info);
+
     static napi_value CustomizeSchemes(napi_env env, napi_callback_info info);
 };
 

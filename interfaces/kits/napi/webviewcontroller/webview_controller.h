@@ -169,6 +169,12 @@ public:
 
     void ScrollPageUp(bool top);
 
+    void ScrollTo(float x, float y);
+
+    void ScrollBy(float deltaX, float deltaY);
+
+    void SlideScroll(float vx, float vy);
+
 private:
     int ConverToWebHitTestType(int hitType);
 
