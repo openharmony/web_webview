@@ -130,14 +130,16 @@ HWTEST_F(NetConnectAdapterImplTest, NetConnectAdapterImplTest_001, TestSize.Leve
     std::shared_ptr<NetConnCallbackTest> cb = std::make_shared<NetConnCallbackTest>();
     std::shared_ptr<NetConnectAdapterImpl> netConnectAdapterImpl = std::make_shared<NetConnectAdapterImpl>();
     EXPECT_NE(netConnectAdapterImpl, nullptr);
+    g_regNetConnCallback = static_cast<int32_t>(NetConnResultCode::NET_CONN_SUCCESS);
     EXPECT_EQ(netConnectAdapterImpl->RegisterNetConnCallback(cb), 0);
     g_regNetConnCallback = -1;
     EXPECT_EQ(netConnectAdapterImpl->RegisterNetConnCallback(cb), -1);
     EXPECT_EQ(netConnectAdapterImpl->RegisterNetConnCallback(nullptr), -1);
+    g_unregNetConnCallback = static_cast<int32_t>(NetConnResultCode::NET_CONN_SUCCESS);
     EXPECT_EQ(netConnectAdapterImpl->UnregisterNetConnCallback(cb), 0);
     EXPECT_EQ(netConnectAdapterImpl->UnregisterNetConnCallback(cb), -1);
 
-    g_regNetConnCallback = 0;
+    g_regNetConnCallback = static_cast<int32_t>(NetConnResultCode::NET_CONN_SUCCESS);
     EXPECT_EQ(netConnectAdapterImpl->RegisterNetConnCallback(cb), 0);
     g_unregNetConnCallback = -1;
     EXPECT_EQ(netConnectAdapterImpl->UnregisterNetConnCallback(cb), -1);
@@ -155,13 +157,15 @@ HWTEST_F(NetConnectAdapterImplTest, NetConnectAdapterImplTest_002, TestSize.Leve
     std::shared_ptr<NetConnectAdapterImpl> netConnectAdapterImpl = std::make_shared<NetConnectAdapterImpl>();
     NetConnectType type = NetConnectType::CONNECTION_UNKNOWN;
     NetConnectSubtype subtype = NetConnectSubtype::SUBTYPE_UNKNOWN;
+    g_getDefaultNet = static_cast<int32_t>(NetConnResultCode::NET_CONN_SUCCESS);
+    g_getNetCap = static_cast<int32_t>(NetConnResultCode::NET_CONN_SUCCESS);
     EXPECT_EQ(netConnectAdapterImpl->GetDefaultNetConnect(type, subtype), 0);
     g_networkState = new NetworkState();
     g_slotId = -1;
     EXPECT_EQ(netConnectAdapterImpl->GetDefaultNetConnect(type, subtype), 0);
     g_getDefaultNet = -1;
     EXPECT_EQ(netConnectAdapterImpl->GetDefaultNetConnect(type, subtype), -1);
-    g_getDefaultNet = 0;
+    g_getDefaultNet = static_cast<int32_t>(NetConnResultCode::NET_CONN_SUCCESS);
     g_getNetCap = -1;
     EXPECT_EQ(netConnectAdapterImpl->GetDefaultNetConnect(type, subtype), -1);
 }
