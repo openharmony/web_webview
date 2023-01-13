@@ -225,13 +225,13 @@ public:
         return GSError::GSERROR_OK;
     }
 
-    GSError SetTransform(TransformType transform) override
+    GSError SetTransform(GraphicTransformType transform) override
     {
         return GSError::GSERROR_OK;
     }
-    TransformType GetTransform() const override
+    GraphicTransformType GetTransform() const override
     {
-        return TransformType::ROTATE_NONE;
+        return GraphicTransformType::GRAPHIC_ROTATE_NONE;
     }
 
     GSError IsSupportedAlloc(const std::vector<VerifyAllocInfo> &infos,
