@@ -38,22 +38,29 @@ public:
     enum ContextMenuMediaType {
         CM_MT_NONE,
         CM_MT_IMAGE,
-        CM_MT_VIDEO,
-        CM_MT_AUDIO,
-        CM_MT_FILE,
-        CM_MT_PLUGIN,
     };
 
     enum ContextMenuEditStateFlags {
         CM_ES_NONE = 0,
-        CM_ES_CAN_UNDO = 1 << 0,
-        CM_ES_CAN_REDO = 1 << 1,
-        CM_ES_CAN_CUT = 1 << 2,
-        CM_ES_CAN_COPY = 1 << 3,
-        CM_ES_CAN_PASTE = 1 << 4,
-        CM_ES_CAN_DELETE = 1 << 5,
-        CM_ES_CAN_SELECT_ALL = 1 << 6,
-        CM_ES_CAN_TRANSLATE = 1 << 7,
+        CM_ES_CAN_CUT = 1 << 0,
+        CM_ES_CAN_COPY = 1 << 1,
+        CM_ES_CAN_PASTE = 1 << 2,
+        CM_ES_CAN_SELECT_ALL = 1 << 3,
+    };
+
+    enum ContextMenuInputFieldType {
+        CM_IT_NONE = 0,
+        CM_IT_PLAINTEXT = 1,
+        CM_IT_PASSWORD = 2,
+        CM_IT_NUMBER = 3,
+        CM_IT_TELEPHONE = 4,
+        CM_IT_OTHER = 5,
+    };
+
+    enum ContextMenuSourceType {
+        CM_ST_NONE = 0,
+        CM_ST_MOUSE = 1,
+        CM_ST_LONG_PRESS = 2,
     };
 
     virtual ~NWebContextMenuParams() = default;
@@ -81,6 +88,12 @@ public:
     virtual bool IsEditable() = 0;
 
     virtual int32_t GetEditStateFlags() = 0;
+
+    virtual ContextMenuSourceType GetSourceType() = 0;
+
+    virtual ContextMenuInputFieldType GetInputFieldType() = 0;
+
+    virtual std::string GetSelectionText() = 0;
 };
 
 class OHOS_NWEB_EXPORT NWebQuickMenuParams {
@@ -123,6 +136,11 @@ enum MenuEventFlags {
 
 enum MenuCommandId {
     CI_IMAGE_COPY = 0,
+    CI_COPY = 1,
+    CI_PASTE = 2,
+    CI_CUT = 3,
+    CI_SELECT_ALL = 4,
+    CI_DELETE = 5,
 };
 
 class OHOS_NWEB_EXPORT NWebContextMenuCallback {

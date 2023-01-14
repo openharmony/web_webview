@@ -16,10 +16,14 @@
 #ifndef NWEB_NAPI_WEBVIEW_CONTROLLER_H
 #define NWEB_NAPI_WEBVIEW_CONTROLLER_H
 
+#include <condition_variable>
+#include <mutex>
+
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
 #include "webview_controller.h"
+#include "uv.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -38,9 +42,13 @@ public:
 private:
     static napi_value JsConstructor(napi_env env, napi_callback_info info);
 
+    static napi_value InitializeWebEngine(napi_env env, napi_callback_info info);
+
     static napi_value SetWebId(napi_env env, napi_callback_info info);
 
     static napi_value InnerJsProxy(napi_env env, napi_callback_info info);
+
+    static napi_value InnerGetCustomeSchemeCmdLine(napi_env env, napi_callback_info info);
 
     static napi_value AccessForward(napi_env env, napi_callback_info info);
 
@@ -120,7 +128,7 @@ private:
         const std::string &script);
 
     static napi_value GetUrl(napi_env env, napi_callback_info info);
-     
+
     static napi_value GetOriginalUrl(napi_env env, napi_callback_info info);
 
     static napi_value SetNetworkAvailable(napi_env env, napi_callback_info info);
@@ -136,17 +144,34 @@ private:
     static napi_value getBackForwardEntries(napi_env env, napi_callback_info info);
 
     static napi_value GetFavicon(napi_env env, napi_callback_info info);
+
+    static napi_value SerializeWebState(napi_env env, napi_callback_info info);
+
+    static napi_value RestoreWebState(napi_env env, napi_callback_info info);
+
+    static napi_value ScrollPageDown(napi_env env, napi_callback_info info);
+
+    static napi_value ScrollPageUp(napi_env env, napi_callback_info info);
+
+    static napi_value ScrollTo(napi_env env, napi_callback_info info);
+
+    static napi_value ScrollBy(napi_env env, napi_callback_info info);
+
+    static napi_value SlideScroll(napi_env env, napi_callback_info info);
+
+    static napi_value CustomizeSchemes(napi_env env, napi_callback_info info);
 };
 
-class NWebValueCallbackImpl : public OHOS::NWeb::NWebValueCallback<std::string> {
+class NWebValueCallbackImpl : public OHOS::NWeb::NWebValueCallback<std::shared_ptr<NWebMessage>> {
 public:
     NWebValueCallbackImpl(napi_env env, napi_ref callback) : env_(env), callback_(callback) {}
     ~NWebValueCallbackImpl();
-    void OnReceiveValue(std::string result) override;
+    void OnReceiveValue(std::shared_ptr<NWebMessage> result) override;
 
 private:
     napi_env env_;
     napi_ref callback_;
+    static void UvWebMessageOnReceiveValueCallback(uv_work_t *work, int status);
 };
 
 class NapiWebMessagePort {
@@ -157,7 +182,10 @@ public:
     struct WebMsgPortParam {
         napi_env env_;
         napi_ref callback_;
-        std::string msg_;
+        std::shared_ptr<NWebMessage> msg_;
+        std::mutex mutex_;
+        bool ready_ = false;
+        std::condition_variable condition_;
     };
 
     static napi_value JsConstructor(napi_env env, napi_callback_info info);

@@ -25,6 +25,7 @@
 #include "napi/native_node_api.h"
 #include "nweb.h"
 #include "nweb_helper.h"
+#include "nweb_web_message.h"
 #include "web_errors.h"
 #include "webview_javascript_result_callback.h"
 
@@ -160,8 +161,26 @@ public:
     bool GetFavicon(
         const void **data, size_t &width, size_t &height, ImageColorType &colorType, ImageAlphaType &alphaType);
 
+    WebState SerializeWebState();
+
+    bool RestoreWebState(WebState state);
+
+    void ScrollPageDown(bool bottom);
+
+    void ScrollPageUp(bool top);
+
+    void ScrollTo(float x, float y);
+
+    void ScrollBy(float deltaX, float deltaY);
+
+    void SlideScroll(float vx, float vy);
+
 private:
     int ConverToWebHitTestType(int hitType);
+
+public:
+    static std::string customeSchemeCmdLine_;
+    static bool existNweb_;
 
 private:
     std::weak_ptr<OHOS::NWeb::NWeb> nweb_;
@@ -176,9 +195,9 @@ public:
 
     ErrCode ClosePort();
 
-    ErrCode PostPortMessage(std::string& data);
+    ErrCode PostPortMessage(std::shared_ptr<NWebMessage> data);
 
-    ErrCode SetPortMessageCallback(std::shared_ptr<NWebValueCallback<std::string>> callback);
+    ErrCode SetPortMessageCallback(std::shared_ptr<NWebValueCallback<std::shared_ptr<NWebMessage>>> callback);
 
     std::string GetPortHandle() const;
 

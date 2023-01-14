@@ -741,7 +741,7 @@ void Test213()
     TestWebSettingsForNormalWeb();
 
     if (g_webSettings != nullptr) {
-        bool force_dark_mode_enabled = g_webSettings->DarkModeEnabled();
+        bool force_dark_mode_enabled = g_webSettings->ForceDarkModeEnabled();
         if (force_dark_mode_enabled) {
             TESTLOG_E("Error! force_dark_mode_enabled default value:%{public}d != false.", force_dark_mode_enabled);
         } else {
@@ -749,8 +749,8 @@ void Test213()
         }
 
         TESTLOG_I("Set force_dark_mode_enabled to true.");
-        g_webSettings->PutDarkModeEnabled(true);
-        force_dark_mode_enabled = g_webSettings->DarkModeEnabled();
+        g_webSettings->PutForceDarkModeEnabled(true);
+        force_dark_mode_enabled = g_webSettings->ForceDarkModeEnabled();
         if (!force_dark_mode_enabled) {
             TESTLOG_E("Error! force_dark_mode_enabled :%{public}d != true.", force_dark_mode_enabled);
         } else {
@@ -762,6 +762,37 @@ void Test213()
     g_window->Show();
 
     TESTLOG_I("Test213 end");
+}
+
+void Test234()
+{
+    TESTLOG_I("Test234 start");
+
+    TestPrepare();
+    TestWebSettingsForNormalWeb();
+
+    if (g_webSettings != nullptr) {
+        bool dark_scheme_enabled = g_webSettings->DarkSchemeEnabled();
+        if (dark_scheme_enabled) {
+            TESTLOG_E("Error! dark_scheme_enabled default value:%{public}d != false.", dark_scheme_enabled);
+        } else {
+            TESTLOG_I("dark_scheme_enabled default value: %{public}d", dark_scheme_enabled);
+        }
+
+        TESTLOG_I("Set dark_scheme_enabled to true.");
+        g_webSettings->PutDarkSchemeEnabled(true);
+        dark_scheme_enabled = g_webSettings->DarkSchemeEnabled();
+        if (!dark_scheme_enabled) {
+            TESTLOG_E("Error! dark_scheme_enabled :%{public}d != true.", dark_scheme_enabled);
+        } else {
+            TESTLOG_I("dark_scheme_enabled=%{public}d", dark_scheme_enabled);
+        }
+    }
+
+    g_nweb->Load(g_url);
+    g_window->Show();
+
+    TESTLOG_I("Test234 end");
 }
 
 void Test214()
@@ -1787,7 +1818,7 @@ void InitTest(std::vector<struct OhosNWebTest> &tests)
     ADD_TEST(tests, 210, "Test websettings api:PutDomStorageEnabled and IsDomStorageEnabled");
     ADD_TEST(tests, 211, "Test websettings api:PutFantasyFontFamilyName and FantasyFontFamilyName");
     ADD_TEST(tests, 212, "Test websettings api:PutFixedFontFamilyName and FixedFontFamilyName");
-    ADD_TEST(tests, 213, "Test websettings api:PutDarkModeEnabled and DarkModeEnabled");
+    ADD_TEST(tests, 213, "Test websettings api:PutForceDarkModeEnabled and ForceDarkModeEnabled");
     ADD_TEST(tests, 214, "Test websettings api:PutIsCreateWindowsByJavaScriptAllowed and " \
         "IsCreateWindowsByJavaScriptAllowed");
     ADD_TEST(tests, 215, "Test websettings api:PutJavaScriptEnabled and IsJavaScriptAllowed");
@@ -1812,6 +1843,7 @@ void InitTest(std::vector<struct OhosNWebTest> &tests)
     ADD_TEST(tests, 231, "Test websettings api:PutDefaultTextEncodingFormat and DefaultTextEncodingFormat");
     ADD_TEST(tests, 232, "Test websettings api:PutBlockNetwork and IsNetworkBlocked");
     ADD_TEST(tests, 233, "Test websettings api:PutWebDebuggingAccess and IsWebDebuggingAccess");
+    ADD_TEST(tests, 234, "Test websettings api:PutDarkSchemeEnabled and DarkSchemeEnabled");
 }
 
 void Usage(const char *argv0, const std::vector<struct OhosNWebTest> &tests)

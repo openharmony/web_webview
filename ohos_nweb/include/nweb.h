@@ -30,6 +30,7 @@
 #include "nweb_release_surface_callback.h"
 #include "nweb_value_callback.h"
 #include "nweb_hit_testresult.h"
+#include "nweb_web_message.h"
 
 namespace OHOS::NWeb {
 class NWebHandler;
@@ -105,6 +106,8 @@ struct OHOS_NWEB_EXPORT DragEvent {
     double y;
     DragAction action;
 };
+
+using WebState = std::shared_ptr<std::vector<uint8_t>>;
 
 class OHOS_NWEB_EXPORT NWeb : public std::enable_shared_from_this<NWeb> {
 public:
@@ -486,7 +489,7 @@ public:
      * @param handle the web message port handle.
      * @param data the message send to html5.
      */
-    virtual void PostPortMessage(std::string& handle, std::string& data) = 0;
+    virtual void PostPortMessage(std::string& handle, std::shared_ptr<NWebMessage> data) = 0;
 
     /**
      * set the callback of th port handle.
@@ -494,7 +497,7 @@ public:
      * @param callback to receive the message when th other port post message.
      */
     virtual void SetPortMessageCallback(std::string& handle,
-        std::shared_ptr<NWebValueCallback<std::string>> callback) = 0;
+        std::shared_ptr<NWebValueCallback<std::shared_ptr<NWebMessage>>> callback) = 0;
 
     /**
      * send drag event to nweb.
@@ -536,7 +539,7 @@ public:
      */
     virtual void PutReleaseSurfaceCallback(
         std::shared_ptr<NWebReleaseSurfaceCallback> releaseSurfaceListener) = 0;
-	
+
 	/**
      * Get the original url of the current web page.
      *
@@ -580,10 +583,62 @@ public:
 
     /**
      * Get navigation history list
-     * 
+     *
      * @return navigation history list
     */
     virtual std::shared_ptr<NWebHistoryList> GetHistoryList() = 0;
+
+    /**
+     * Get Web back forward state.
+     *
+     * @return web back forward state.
+    */
+    virtual WebState SerializeWebState() = 0;
+
+    /**
+     * Restore Web back forward state.
+     *
+     * @param web back forward state.
+    */
+    virtual bool RestoreWebState(WebState state) = 0;
+
+    /**
+     * Move page up.
+     *
+     * @param top whether move to the top.
+    */
+    virtual void PageUp(bool top) = 0;
+
+    /**
+     * Move page down.
+     *
+     * @param bottom whether move to the bottom.
+    */
+    virtual void PageDown(bool bottom) = 0;
+
+    /**
+     * Scroll to the position.
+     *
+     * @param x the x of the position.
+     * @param y the y of the position.
+    */
+    virtual void ScrollTo(float x, float y) = 0;
+
+    /**
+     * Scroll by the delta position.
+     *
+     * @param deltaX the deltaX of the position.
+     * @param deltaY the deltaY of the position.
+    */
+    virtual void ScrollBy(float deltaX, float deltaY) = 0;
+
+    /**
+     * Slide by the speed.
+     *
+     * @param vx the vx of the speed.
+     * @param vy the vy of the speed.
+    */
+    virtual void SlideScroll(float vx, float vy) = 0;
 };
 }  // namespace OHOS::NWeb
 

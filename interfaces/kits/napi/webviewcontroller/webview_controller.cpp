@@ -34,6 +34,8 @@ namespace {
 namespace OHOS {
 namespace NWeb {
 using namespace NWebError;
+std::string WebviewController::customeSchemeCmdLine_ = "";
+bool WebviewController::existNweb_ = false;
 WebviewController::WebviewController(int32_t nwebId) : nweb_(NWebHelper::Instance().GetNWeb(nwebId)) {}
 
 bool WebviewController::AccessForward()
@@ -311,7 +313,7 @@ ErrCode WebMessagePort::ClosePort()
     return NWebError::NO_ERROR;
 }
 
-ErrCode WebMessagePort::PostPortMessage(std::string& data)
+ErrCode WebMessagePort::PostPortMessage(std::shared_ptr<NWebMessage> data)
 {
     auto nweb_ptr = nweb_.lock();
     if (!nweb_ptr) {
@@ -326,7 +328,8 @@ ErrCode WebMessagePort::PostPortMessage(std::string& data)
     return NWebError::NO_ERROR;
 }
 
-ErrCode WebMessagePort::SetPortMessageCallback(std::shared_ptr<NWebValueCallback<std::string>> callback)
+ErrCode WebMessagePort::SetPortMessageCallback(
+    std::shared_ptr<NWebValueCallback<std::shared_ptr<NWebMessage>>> callback)
 {
     auto nweb_ptr = nweb_.lock();
     if (!nweb_ptr) {
@@ -765,5 +768,68 @@ bool WebviewController::GetFavicon(
     return isGetFavicon;
 }
 
+WebState WebviewController::SerializeWebState()
+{
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        return nweb_ptr->SerializeWebState();
+    }
+    return nullptr;
+}
+
+bool WebviewController::RestoreWebState(WebState state)
+{
+    bool isRestored = false;
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        isRestored = nweb_ptr->RestoreWebState(state);
+    }
+    return isRestored;
+}
+
+void WebviewController::ScrollPageDown(bool bottom)
+{
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->PageDown(bottom);
+    }
+    return;
+}
+
+void WebviewController::ScrollPageUp(bool top)
+{
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->PageUp(top);
+    }
+    return;
+}
+
+void WebviewController::ScrollTo(float x, float y)
+{
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->ScrollTo(x, y);
+    }
+    return;
+}
+
+void WebviewController::ScrollBy(float deltaX, float deltaY)
+{
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->ScrollBy(deltaX, deltaY);
+    }
+    return;
+}
+
+void WebviewController::SlideScroll(float vx, float vy)
+{
+    auto nweb_ptr = nweb_.lock();
+    if (nweb_ptr) {
+        nweb_ptr->SlideScroll(vx, vy);
+    }
+    return;
+}
 } // namespace NWeb
 } // namespace OHOS
