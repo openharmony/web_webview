@@ -23,9 +23,9 @@
 namespace OHOS::NWeb {
 class AafwkRenderSchedulerImpl : public OHOS::AppExecFwk::RenderSchedulerHost {
 public:
-    AafwkRenderSchedulerImpl(std::shared_ptr<AafwkRenderSchedulerHostAdapter> adapter);
+    explicit AafwkRenderSchedulerImpl(std::shared_ptr<AafwkRenderSchedulerHostAdapter> adapter);
 
-    ~AafwkRenderSchedulerImpl() = default;
+    ~AafwkRenderSchedulerImpl() override = default;
 
     void NotifyBrowserFd(int32_t ipcFd, int32_t sharedFd) override;
 

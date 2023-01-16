@@ -39,7 +39,7 @@ class OhosWebPermissionDataBaseAdapterImpl : public OhosWebPermissionDataBaseAda
 public:
     static OhosWebPermissionDataBaseAdapterImpl& GetInstance();
 
-    virtual ~OhosWebPermissionDataBaseAdapterImpl() = default;
+    ~OhosWebPermissionDataBaseAdapterImpl() override = default;
 
     bool ExistPermissionByOrigin(const std::string& origin, const WebPermissionType& key) const override;
 

@@ -39,7 +39,7 @@ class WebviewJavaScriptResultCallBack : public NWebJavaScriptResultCallBack {
 public:
     WebviewJavaScriptResultCallBack() {}
 
-    ~WebviewJavaScriptResultCallBack();
+    ~WebviewJavaScriptResultCallBack() override;
 
     std::shared_ptr<NWebValue> GetJavaScriptResult(std::vector<std::shared_ptr<NWebValue>> args,
         const std::string& method, const std::string& objName) override;

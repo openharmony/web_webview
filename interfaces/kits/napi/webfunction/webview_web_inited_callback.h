@@ -35,8 +35,8 @@ public:
 
 class WebRunInitedCallbackImpl : public WebRunInitedCallback {
 public:
-    WebRunInitedCallbackImpl(WebInitedCallbackParam *param) : param_(param) {}
-    ~WebRunInitedCallbackImpl() {}
+    explicit WebRunInitedCallbackImpl(WebInitedCallbackParam *param) : param_(param) {}
+    ~WebRunInitedCallbackImpl() override {}
     void RunInitedCallback() override;
 
     WebInitedCallbackParam *param_ = nullptr;

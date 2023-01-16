@@ -30,7 +30,7 @@ public:
     WebBatteryInfoImpl(double level, bool isCharging, int disChargingTime, int chargingTime)
         : level_(level), isCharging_(isCharging), disChargingTime_(disChargingTime), chargingTime_(chargingTime) {}
 
-    virtual ~WebBatteryInfoImpl() = default;
+    ~WebBatteryInfoImpl() override = default;
 
     double GetLevel() override;
 
@@ -58,7 +58,7 @@ private:
 class BatteryMgrClientAdapterImpl : public BatteryMgrClientAdapter {
 public:
     BatteryMgrClientAdapterImpl() = default;
-    virtual ~BatteryMgrClientAdapterImpl() = default;
+    ~BatteryMgrClientAdapterImpl() override = default;
 
     void RegBatteryEvent(const BatteryEventCallback&& eventCallback) override;
   

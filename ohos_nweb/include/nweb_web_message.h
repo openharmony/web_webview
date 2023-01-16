@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef NWEB_WEB_MESSAGE_H_
-#define NWEB_WEB_MESSAGE_H_
+#ifndef NWEB_WEB_MESSAGE_H
+#define NWEB_WEB_MESSAGE_H
 
 #include <vector>
 
@@ -40,4 +40,4 @@ private:
 };
 } // namespace OHOS::NWeb
 
-#endif  // NWEB_WEB_MESSAGE_H_
+#endif  // NWEB_WEB_MESSAGE_H

@@ -696,7 +696,7 @@ void NWebValueCallbackImpl::UvWebMessageOnReceiveValueCallback(uv_work_t *work, 
             WVLOG_E("Create arraybuffer failed");
             return;
         }
-        for (int i = 0; i < msgArr.size(); ++i) {
+        for (size_t i = 0; i < msgArr.size(); ++i) {
             *(uint8_t*)((uint8_t*)arrayData + i) = msgArr[i];
         }
     }

@@ -23,9 +23,9 @@
 namespace OHOS::NWeb {
 class MMIListenerAdapterImpl : public MMI::IInputDeviceListener {
 public:
-    MMIListenerAdapterImpl(std::shared_ptr<MMIListenerAdapter> listener);
+    explicit MMIListenerAdapterImpl(std::shared_ptr<MMIListenerAdapter> listener);
 
-    ~MMIListenerAdapterImpl();
+    ~MMIListenerAdapterImpl() override;
 
     void OnDeviceAdded(int32_t deviceId, const std::string &type) override;
 
@@ -39,7 +39,7 @@ class MMIAdapterImpl : public MMIAdapter {
 public:
     MMIAdapterImpl() = default;
 
-    ~MMIAdapterImpl() = default;
+    ~MMIAdapterImpl() override = default;
 
     int32_t RegisterDevListener(std::string type, std::shared_ptr<MMIListenerAdapter> listener) override;
 

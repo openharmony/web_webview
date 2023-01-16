@@ -31,7 +31,7 @@ class NetConnectAdapterImpl : public NetConnectAdapter {
 public:
     NetConnectAdapterImpl() = default;
 
-    virtual ~NetConnectAdapterImpl() = default;
+    ~NetConnectAdapterImpl() override = default;
 
     int32_t RegisterNetConnCallback(std::shared_ptr<NetConnCallback> cb) override;
 

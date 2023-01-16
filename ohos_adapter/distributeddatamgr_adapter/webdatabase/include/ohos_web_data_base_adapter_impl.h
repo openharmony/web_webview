@@ -39,7 +39,7 @@ class OhosWebDataBaseAdapterImpl : public OhosWebDataBaseAdapter {
 public:
     static OhosWebDataBaseAdapterImpl& GetInstance();
 
-    virtual ~OhosWebDataBaseAdapterImpl() = default;
+    ~OhosWebDataBaseAdapterImpl() override = default;
 
     bool ExistHttpAuthCredentials() const override;
 

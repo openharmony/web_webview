@@ -28,7 +28,7 @@ class AafwkAppMgrClientAdapterImpl : public AafwkAppMgrClientAdapter {
 public:
     AafwkAppMgrClientAdapterImpl();
 
-    virtual ~AafwkAppMgrClientAdapterImpl() = default;
+    ~AafwkAppMgrClientAdapterImpl() override = default;
 
     int StartRenderProcess(const std::string &renderParam, int32_t ipcFd, int32_t sharedFd, pid_t &renderPid) override;
 
