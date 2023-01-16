@@ -31,6 +31,7 @@ public:
     static NWebHelper &Instance();
     ~NWebHelper();
     bool Init(bool from_ark = true);
+    static void TryPreReadLib(bool isFirstTimeStartUpWeb, const std::string &bundlePath);
 
     std::shared_ptr<NWeb> CreateNWeb(const NWebCreateInfo &create_info);
     NWebCookieManager *GetCookieManager();
