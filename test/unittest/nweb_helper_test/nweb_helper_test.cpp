@@ -34,6 +34,7 @@ namespace {
 const bool RESULT_OK = true;
 const int DEFAULT_WIDTH = 2560;
 const int DEFAULT_HEIGHT = 1396;
+const int32_t NWEB_SURFACE_MAX_WIDTH = 7681;
 const std::string ARG_URL = "--url";
 const std::string ARG_DUMP = "--dump-path";
 const std::string ARG_FRAME_INFO = "--frame-info";
