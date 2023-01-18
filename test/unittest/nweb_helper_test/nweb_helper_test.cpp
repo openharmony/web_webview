@@ -34,7 +34,7 @@ namespace {
 const bool RESULT_OK = true;
 const int DEFAULT_WIDTH = 2560;
 const int DEFAULT_HEIGHT = 1396;
-const int32_t NWEB_SURFACE_MAX_WIDTH = 7681;
+const int32_t NWEB_MAX_WIDTH = 7681;
 const std::string ARG_URL = "--url";
 const std::string ARG_DUMP = "--dump-path";
 const std::string ARG_FRAME_INFO = "--frame-info";
@@ -196,10 +196,10 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetDataBase_003, TestSize.Level1)
                                                     DEFAULT_WIDTH, DEFAULT_HEIGHT);
     EXPECT_EQ(nweb, nullptr);
     nweb = NWebAdapterHelper::Instance().CreateNWeb(enhanceSurfaceInfo, GetInitArgs(),
-                                                    DEFAULT_WIDTH, NWEB_SURFACE_MAX_WIDTH);
+                                                    DEFAULT_WIDTH, NWEB_MAX_WIDTH);
     EXPECT_EQ(nweb, nullptr);
     nweb = NWebAdapterHelper::Instance().CreateNWeb(enhanceSurfaceInfo, GetInitArgs(),
-                                                    NWEB_SURFACE_MAX_WIDTH, DEFAULT_HEIGHT);
+                                                    NWEB_MAX_WIDTH, DEFAULT_HEIGHT);
     EXPECT_EQ(nweb, nullptr);
 }
 } // namespace OHOS::NWeb
