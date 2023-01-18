@@ -184,5 +184,21 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetDataBase_003, TestSize.Level1)
     std::shared_ptr<NWeb> nweb =
        NWebAdapterHelper::Instance().CreateNWeb(window.GetRefPtr(), GetInitArgs());
     EXPECT_EQ(nweb, nullptr);
+
+    void *enhanceSurfaceInfo = nullptr;
+    int32_t temp = 1;
+    nweb = NWebAdapterHelper::Instance().CreateNWeb(enhanceSurfaceInfo, GetInitArgs(),
+                                                    DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    EXPECT_EQ(nweb, nullptr);
+    enhanceSurfaceInfo = static_cast<void *>(&temp);
+    nweb = NWebAdapterHelper::Instance().CreateNWeb(enhanceSurfaceInfo, GetInitArgs(),
+                                                    DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    EXPECT_EQ(nweb, nullptr);
+    nweb = NWebAdapterHelper::Instance().CreateNWeb(enhanceSurfaceInfo, GetInitArgs(),
+                                                    DEFAULT_WIDTH, NWEB_SURFACE_MAX_WIDTH);
+    EXPECT_EQ(nweb, nullptr);
+    nweb = NWebAdapterHelper::Instance().CreateNWeb(enhanceSurfaceInfo, GetInitArgs(),
+                                                    NWEB_SURFACE_MAX_WIDTH, DEFAULT_HEIGHT);
+    EXPECT_EQ(nweb, nullptr);
 }
 } // namespace OHOS::NWeb
