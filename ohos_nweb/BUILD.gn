@@ -26,9 +26,6 @@ if (!position) {
     defines = [ "webview_arm64" ]
   } else if (target_cpu == "arm") {
     web_source = "prebuilts/arm/NWeb.hap"
-  } else if (target_cpu == "x86_64") {
-    web_source = "prebuilts/arm64/NWeb.hap"
-    defines = [ "webview_arm64" ]
   }
 } else {
   if (target_cpu == "arm64") {
@@ -39,8 +36,8 @@ if (!position) {
     }
     defines = [ "webview_arm64" ]
   } else if (target_cpu == "x86_64") {
-    web_source = "../nweb_hap/arm64/NWeb.hap"
-    defines = [ "webview_arm64" ]
+    web_source = "../nweb_hap/x86_64/NWeb.hap"
+    defines = [ "webview_x86_64" ]
   }
 }
 

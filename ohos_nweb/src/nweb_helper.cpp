@@ -36,9 +36,12 @@
 namespace {
 const uint32_t NWEB_SURFACE_MAX_WIDTH = 7680;
 const uint32_t NWEB_SURFACE_MAX_HEIGHT = 7680;
-#ifdef webview_arm64
+#if defined(webview_arm64)
 const std::string RELATIVE_PATH_FOR_MOCK = "libs/arm64";
 const std::string RELATIVE_PATH_FOR_BUNDLE = "nweb/libs/arm64";
+#elif defined(webview_x86_64)
+const std::string RELATIVE_PATH_FOR_MOCK = "libs/x86_64";
+const std::string RELATIVE_PATH_FOR_BUNDLE = "nweb/libs/x86_64";
 #else
 const std::string RELATIVE_PATH_FOR_MOCK = "libs/arm";
 const std::string RELATIVE_PATH_FOR_BUNDLE = "nweb/libs/arm";
