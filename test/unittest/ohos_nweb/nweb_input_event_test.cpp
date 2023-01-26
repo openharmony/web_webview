@@ -146,7 +146,7 @@ HWTEST_F(NWebInputEventTest, NWebInputEvent_CreateNWeb_003, TestSize.Level1)
 {
     sptr<OHOS::Rosen::Window> window = CreateWindow();
     EXPECT_NE(window, nullptr);
-    NWebHelper::Instance().libHandleNWebAdapter_ = nullptr;
+    NWebHelper::Instance().libHandleWebEngine_ = nullptr;
     g_nweb = NWebAdapterHelper::Instance().CreateNWeb(window.GetRefPtr(), GetInitArgs());
     EXPECT_EQ(g_nweb, nullptr);
 }

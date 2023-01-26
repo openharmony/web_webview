@@ -181,7 +181,7 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetDataBase_003, TestSize.Level1)
     EXPECT_EQ(RESULT_OK, result);
 
     sptr<OHOS::Rosen::Window> window = CreateWindow();
-    NWebHelper::Instance().libHandleNWebAdapter_ = nullptr;
+    NWebHelper::Instance().libHandleWebEngine_ = nullptr;
     std::shared_ptr<NWeb> nweb =
        NWebAdapterHelper::Instance().CreateNWeb(window.GetRefPtr(), GetInitArgs());
     EXPECT_EQ(nweb, nullptr);
