@@ -46,7 +46,6 @@ private:
     void UnloadLib();
 
 private:
-    void *libHandleNWebAdapter_ = nullptr;
     void *libHandleWebEngine_ = nullptr;
     std::string bundlePath_;
 };

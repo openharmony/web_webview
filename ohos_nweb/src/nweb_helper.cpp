@@ -36,9 +36,12 @@
 namespace {
 const uint32_t NWEB_SURFACE_MAX_WIDTH = 7680;
 const uint32_t NWEB_SURFACE_MAX_HEIGHT = 7680;
-#ifdef webview_arm64
+#if defined(webview_arm64)
 const std::string RELATIVE_PATH_FOR_MOCK = "libs/arm64";
 const std::string RELATIVE_PATH_FOR_BUNDLE = "nweb/libs/arm64";
+#elif defined(webview_x86_64)
+const std::string RELATIVE_PATH_FOR_MOCK = "libs/x86_64";
+const std::string RELATIVE_PATH_FOR_BUNDLE = "nweb/libs/x86_64";
 #else
 const std::string RELATIVE_PATH_FOR_MOCK = "libs/arm";
 const std::string RELATIVE_PATH_FOR_BUNDLE = "nweb/libs/arm";
@@ -58,7 +61,7 @@ NWebHelper &NWebHelper::Instance()
 #ifdef __MUSL__
 bool NWebHelper::LoadLib(bool from_ark)
 {
-    if (libHandleNWebAdapter_ != nullptr && libHandleWebEngine_ != nullptr) {
+    if (libHandleWebEngine_ != nullptr) {
         return true;
     }
     if (bundlePath_.empty()) {
@@ -79,18 +82,12 @@ bool NWebHelper::LoadLib(bool from_ark)
         return false;
     }
     libHandleWebEngine_ = libHandleWebEngine;
-    void *libHandleNWebAdapter = dlopen_ns(&dlns, LIB_NAME_NWEB_ADAPTER.c_str(), RTLD_NOW);
-    if (libHandleNWebAdapter == nullptr) {
-        WVLOG_E("fail to dlopen %{public}s, errmsg=%{public}s", LIB_NAME_NWEB_ADAPTER.c_str(), dlerror());
-        return false;
-    }
-    libHandleNWebAdapter_ = libHandleNWebAdapter;
     return true;
 }
 #else
 bool NWebHelper::LoadLib(bool from_ark)
 {
-    if (libHandleNWebAdapter_ != nullptr && libHandleWebEngine_ != nullptr) {
+    if (libHandleWebEngine_ != nullptr) {
         return true;
     }
     if (bundlePath_.empty()) {
@@ -103,29 +100,18 @@ bool NWebHelper::LoadLib(bool from_ark)
         loadLibPath = bundlePath_ + "/" + RELATIVE_PATH_FOR_MOCK;
     }
     const std::string libPathWebEngine = loadLibPath + "/" + LIB_NAME_WEB_ENGINE;
-    const std::string libPathWebAdapter = loadLibPath + "/" + LIB_NAME_NWEB_ADAPTER;
     void *libHandleWebEngine = ::dlopen(libPathWebEngine.c_str(), RTLD_NOW);
     if (libHandleWebEngine == nullptr) {
         WVLOG_E("fail to dlopen %{public}s, errmsg=%{public}s", libPathWebEngine.c_str(), dlerror());
         return false;
     }
     libHandleWebEngine_ = libHandleWebEngine;
-    void *libHandleNWebAdapter = ::dlopen(libPathWebAdapter.c_str(), RTLD_NOW);
-    if (libHandleNWebAdapter == nullptr) {
-        WVLOG_E("fail to dlopen %{public}s, errmsg=%{public}s", libPathWebAdapter.c_str(), dlerror());
-        return false;
-    }
-    libHandleNWebAdapter_ = libHandleNWebAdapter;
     return true;
 }
 #endif
 
 void NWebHelper::UnloadLib()
 {
-    if (libHandleNWebAdapter_ != nullptr) {
-        ::dlclose(libHandleNWebAdapter_);
-        libHandleNWebAdapter_ = nullptr;
-    }
     if (libHandleWebEngine_ != nullptr) {
         ::dlclose(libHandleWebEngine_);
         libHandleWebEngine_ = nullptr;
@@ -219,13 +205,13 @@ NWebHelper::~NWebHelper()
 using CreateNWebFuncType = void(*)(const NWebCreateInfo &, std::shared_ptr<NWeb> &);
 std::shared_ptr<NWeb> NWebHelper::CreateNWeb(const NWebCreateInfo &create_info)
 {
-    if (libHandleNWebAdapter_ == nullptr) {
+    if (libHandleWebEngine_ == nullptr) {
         return nullptr;
     }
 
     const std::string CREATE_NWEB_FUNC_NAME = "CreateNWeb";
     CreateNWebFuncType funcCreateNWeb =
-        reinterpret_cast<CreateNWebFuncType>(dlsym(libHandleNWebAdapter_, CREATE_NWEB_FUNC_NAME.c_str()));
+        reinterpret_cast<CreateNWebFuncType>(dlsym(libHandleWebEngine_, CREATE_NWEB_FUNC_NAME.c_str()));
     if (funcCreateNWeb == nullptr) {
         WVLOG_E("fail to dlsym %{public}s from libohoswebview.so", CREATE_NWEB_FUNC_NAME.c_str());
         return nullptr;
@@ -243,13 +229,13 @@ std::shared_ptr<NWeb> NWebHelper::CreateNWeb(const NWebCreateInfo &create_info)
 using GetCookieManagerFunc = NWebCookieManager *(*)();
 NWebCookieManager *NWebHelper::GetCookieManager()
 {
-    if (libHandleNWebAdapter_ == nullptr) {
+    if (libHandleWebEngine_ == nullptr) {
         return nullptr;
     }
 
     const std::string COOKIE_FUNC_NAME = "GetCookieManager";
     GetCookieManagerFunc cookieFunc =
-        reinterpret_cast<GetCookieManagerFunc>(dlsym(libHandleNWebAdapter_, COOKIE_FUNC_NAME.c_str()));
+        reinterpret_cast<GetCookieManagerFunc>(dlsym(libHandleWebEngine_, COOKIE_FUNC_NAME.c_str()));
     if (cookieFunc == nullptr) {
         WVLOG_E("fail to dlsym %{public}s from libohoswebview.so", COOKIE_FUNC_NAME.c_str());
         return nullptr;
@@ -261,13 +247,13 @@ using GetNWebFunc = void(*)(int32_t, std::weak_ptr<NWeb> &);
 std::weak_ptr<NWeb> NWebHelper::GetNWeb(int32_t nweb_id)
 {
     std::weak_ptr<OHOS::NWeb::NWeb> nweb;
-    if (libHandleNWebAdapter_ == nullptr) {
-        WVLOG_E("libHandleNWebAdapter_ is nullptr");
+    if (libHandleWebEngine_ == nullptr) {
+        WVLOG_E("libHandleWebEngine_ is nullptr");
         return nweb;
     }
 
     const std::string GET_NWEB_FUNC_NAME = "GetNWeb";
-    GetNWebFunc getNWebFunc = reinterpret_cast<GetNWebFunc>(dlsym(libHandleNWebAdapter_, GET_NWEB_FUNC_NAME.c_str()));
+    GetNWebFunc getNWebFunc = reinterpret_cast<GetNWebFunc>(dlsym(libHandleWebEngine_, GET_NWEB_FUNC_NAME.c_str()));
     if (getNWebFunc == nullptr) {
         WVLOG_E("fail to dlsym %{public}s from libohoswebview.so", GET_NWEB_FUNC_NAME.c_str());
         return nweb;
@@ -280,13 +266,13 @@ std::weak_ptr<NWeb> NWebHelper::GetNWeb(int32_t nweb_id)
 using GetDataBaseFunc = NWebDataBase *(*)();
 NWebDataBase *NWebHelper::GetDataBase()
 {
-    if (libHandleNWebAdapter_ == nullptr) {
+    if (libHandleWebEngine_ == nullptr) {
         return nullptr;
     }
 
     const std::string DATA_BASE_FUNC_NAME = "GetDataBase";
     GetDataBaseFunc dataBaseFunc =
-        reinterpret_cast<GetDataBaseFunc>(dlsym(libHandleNWebAdapter_, DATA_BASE_FUNC_NAME.c_str()));
+        reinterpret_cast<GetDataBaseFunc>(dlsym(libHandleWebEngine_, DATA_BASE_FUNC_NAME.c_str()));
     if (dataBaseFunc == nullptr) {
         WVLOG_E("fail to dlsym %{public}s from libohoswebview.so", DATA_BASE_FUNC_NAME.c_str());
         return nullptr;
@@ -297,12 +283,12 @@ NWebDataBase *NWebHelper::GetDataBase()
 using GetWebStorageFunc = NWebWebStorage *(*)();
 NWebWebStorage *NWebHelper::GetWebStorage()
 {
-    if (libHandleNWebAdapter_ == nullptr) {
+    if (libHandleWebEngine_ == nullptr) {
         return nullptr;
     }
     const std::string STORAGE_FUNC_NAME = "GetWebStorage";
     GetWebStorageFunc storageFunc =
-        reinterpret_cast<GetWebStorageFunc>(dlsym(libHandleNWebAdapter_, STORAGE_FUNC_NAME.c_str()));
+        reinterpret_cast<GetWebStorageFunc>(dlsym(libHandleWebEngine_, STORAGE_FUNC_NAME.c_str()));
     if (storageFunc == nullptr) {
         WVLOG_E("fail to dlsym %{public}s from libohoswebview.so", STORAGE_FUNC_NAME.c_str());
         return nullptr;
