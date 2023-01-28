@@ -138,16 +138,13 @@ HWTEST_F(OhosAdapterHelperTest, OhosAdapterHelper_GetDataBase_004, TestSize.Leve
     NWebCreateInfo create_info;
     helper.LoadLib(true);
     helper.libHandleWebEngine_ = nullptr;
-    helper.libHandleNWebAdapter_ = nullptr;
     helper.LoadLib(true);
     helper.bundlePath_ = "";
     helper.LoadLib(true);
     helper.libHandleWebEngine_ = nullptr;
     helper.LoadLib(true);
-    helper.libHandleNWebAdapter_ = nullptr;
     helper.LoadLib(true);
     helper.libHandleWebEngine_ = nullptr;
-    helper.libHandleNWebAdapter_ = nullptr;
     auto webview = helper.CreateNWeb(create_info);
     EXPECT_EQ(webview, nullptr);
     auto cook = helper.GetCookieManager();
