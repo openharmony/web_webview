@@ -33,6 +33,7 @@
 #include "nweb_js_http_auth_result.h"
 #include "nweb_js_ssl_error_result.h"
 #include "nweb_js_ssl_select_cert_result.h"
+#include "nweb_select_popup_menu.h"
 #include "nweb_touch_handle_state.h"
 #include "nweb_url_resource_error.h"
 #include "nweb_url_resource_request.h"
@@ -519,6 +520,9 @@ public:
     virtual bool OnCursorChange(const CursorType& type, const NWebCursorInfo& info) {
         return false;
     }
+
+    virtual void OnSelectPopupMenu(std::shared_ptr<NWebSelectPopupMenuParam> params,
+                                   std::shared_ptr<NWebSelectPopupMenuCallback> callback) {}
 };
 }  // namespace OHOS::NWeb
 
