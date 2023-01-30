@@ -138,6 +138,11 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         sizeof(hitTestTypeProperties[0]), hitTestTypeProperties, &hitTestTypeEnum);
     napi_set_named_property(env, exports, WEB_HITTESTTYPE_V9_ENUM_NAME.c_str(), hitTestTypeEnum);
 
+    napi_define_class(env, WEB_HITTESTTYPE_ENUM_NAME.c_str(), WEB_HITTESTTYPE_ENUM_NAME.length(),
+        NapiParseUtils::CreateEnumConstructor, nullptr, sizeof(hitTestTypeProperties) /
+        sizeof(hitTestTypeProperties[0]), hitTestTypeProperties, &hitTestTypeEnum);
+    napi_set_named_property(env, exports, WEB_HITTESTTYPE_ENUM_NAME.c_str(), hitTestTypeEnum);
+
     napi_value historyList = nullptr;
     napi_property_descriptor historyListProperties[] = {
         DECLARE_NAPI_FUNCTION("getItemAtIndex", NapiWebHistoryList::GetItem)
@@ -1220,7 +1225,7 @@ napi_value NapiWebviewController::LoadUrlWithHttpHeaders(napi_env env, napi_call
                 continue;
             }
             NapiParseUtils::ParseString(env, keyObj, key);
-            NapiParseUtils::ParseString(env, keyObj, value);
+            NapiParseUtils::ParseString(env, valueObj, value);
             httpHeaders[key] = value;
         }
     } else {
