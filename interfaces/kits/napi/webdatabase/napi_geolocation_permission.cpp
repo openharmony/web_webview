@@ -233,13 +233,13 @@ napi_value NapiGeolocationPermission::GetPermissionStateAsync(napi_env env, napi
     napi_value resourceName = nullptr;
 
     GetOriginPermissionStateParam *param = new GetOriginPermissionStateParam {
-        .origin = origin,
         .retValue = false,
+        .origin = origin,
+        .env = env,
         .asyncWork = nullptr,
         .deferred = nullptr,
         .jsStringRef = nullptr,
         .callbackRef = nullptr,
-        .env = env,
     };
     napi_create_reference(env, argv[0], 1, &param->jsStringRef);
     napi_create_reference(env, argv[1], 1, &param->callbackRef);
@@ -259,13 +259,13 @@ napi_value NapiGeolocationPermission::GetPermissionStatePromise(napi_env env, na
     napi_create_promise(env, &deferred, &promise);
 
     GetOriginPermissionStateParam *param = new GetOriginPermissionStateParam {
-        .origin = origin,
         .retValue = false,
+        .origin = origin,
+        .env = env,
         .asyncWork = nullptr,
         .deferred = deferred,
         .jsStringRef = nullptr,
         .callbackRef = nullptr,
-        .env = env,
     };
     napi_create_reference(env, argv[0], 1, &param->jsStringRef);
     napi_value resourceName = nullptr;
@@ -381,10 +381,10 @@ napi_value NapiGeolocationPermission::GetOriginsAsync(napi_env env, napi_value *
     napi_value resourceName = nullptr;
 
     GetPermissionOriginsParam *param = new GetPermissionOriginsParam {
+        .env = env,
         .asyncWork = nullptr,
         .deferred = nullptr,
         .callbackRef = nullptr,
-        .env = env,
     };
     napi_create_reference(env, *argv, 1, &param->callbackRef);
     NAPI_CALL(env, napi_create_string_utf8(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
@@ -402,10 +402,10 @@ napi_value NapiGeolocationPermission::GetOriginsPromise(napi_env env)
     napi_create_promise(env, &deferred, &promise);
 
     GetPermissionOriginsParam *param = new GetPermissionOriginsParam {
+        .env = env,
         .asyncWork = nullptr,
         .deferred = deferred,
         .callbackRef = nullptr,
-        .env = env,
     };
     napi_value resourceName = nullptr;
     NAPI_CALL(env, napi_create_string_utf8(env, __func__, NAPI_AUTO_LENGTH, &resourceName));

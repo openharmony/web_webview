@@ -126,7 +126,8 @@ namespace OHOS {
         if (g_nweb == nullptr) {
             return true;
         }
-        int32_t keyCode, keyAction;
+        int32_t keyCode;
+        int32_t keyAction;
         if (memcpy_s(&keyCode, sizeof(int32_t), data, sizeof(int32_t)) != 0) {
             return true;
         }

@@ -127,7 +127,8 @@ namespace OHOS {
             return true;
         }
         uint32_t id;
-        double x, y;
+        double x;
+        double y;
         if (memcpy_s(&id, sizeof(uint32_t), data, sizeof(uint32_t)) != 0) {
             return true;
         }
