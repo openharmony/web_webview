@@ -207,10 +207,10 @@ napi_value NapiWebStorage::GetOriginsAsync(napi_env env, napi_value *argv)
     napi_value resourceName = nullptr;
 
     GetOriginsParam *param = new GetOriginsParam {
+        .env = env,
         .asyncWork = nullptr,
         .deferred = nullptr,
         .callbackRef = nullptr,
-        .env = env,
     };
     napi_create_reference(env, *argv, 1, &param->callbackRef);
     NAPI_CALL(env, napi_create_string_utf8(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
@@ -228,10 +228,10 @@ napi_value NapiWebStorage::GetOriginsPromise(napi_env env)
     napi_create_promise(env, &deferred, &promise);
 
     GetOriginsParam *param = new GetOriginsParam {
+        .env = env,
         .asyncWork = nullptr,
         .deferred = deferred,
         .callbackRef = nullptr,
-        .env = env,
     };
     napi_value resourceName = nullptr;
     NAPI_CALL(env, napi_create_string_utf8(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
@@ -347,14 +347,14 @@ napi_value NapiWebStorage::GetOriginUsageOrQuotaAsync(napi_env env,
     napi_value resourceName = nullptr;
 
     GetOriginUsageOrQuotaParam *param = new GetOriginUsageOrQuotaParam {
-        .asyncWork = nullptr,
-        .deferred = nullptr,
+        .retValue = -1,
         .isQuato = isQuato,
         .origin = origin,
-        .retValue = -1,
         .jsStringRef = nullptr,
-        .callbackRef = nullptr,
         .env = env,
+        .asyncWork = nullptr,
+        .deferred = nullptr,
+        .callbackRef = nullptr,
     };
     napi_create_reference(env, argv[PARAMZERO], 1, &param->jsStringRef);
     napi_create_reference(env, argv[PARAMONE], 1, &param->callbackRef);
@@ -374,14 +374,14 @@ napi_value NapiWebStorage::GetOriginUsageOrQuotaPromise(napi_env env,
     napi_create_promise(env, &deferred, &promise);
 
     GetOriginUsageOrQuotaParam *param = new GetOriginUsageOrQuotaParam {
-        .asyncWork = nullptr,
-        .deferred = deferred,
+        .retValue = -1,
         .isQuato = isQuato,
         .origin = origin,
-        .retValue = -1,
         .jsStringRef = nullptr,
-        .callbackRef = nullptr,
         .env = env,
+        .asyncWork = nullptr,
+        .deferred = deferred,
+        .callbackRef = nullptr,
     };
     napi_create_reference(env, argv[PARAMZERO], 1, &param->jsStringRef);
     napi_value resourceName = nullptr;
