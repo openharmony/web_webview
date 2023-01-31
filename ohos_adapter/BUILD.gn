@@ -94,10 +94,9 @@ ohos_shared_library("nweb_ohos_adapter") {
     "window_manager:libdm",
   ]
 
-  defines = []
-  if ("${product_name}" == "rk3568" || "${product_name}" == "m40") {
+  if (defined(global_parts_info.resourceschedule_soc_perf)) {
     external_deps += [ "soc_perf:socperf_client" ]
-    defines += [ "NWEB_SOC_PERF" ]
+    defines = [ "NWEB_SOC_PERF" ]
   }
 
   deps = [
