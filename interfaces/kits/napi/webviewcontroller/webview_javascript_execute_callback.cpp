@@ -76,6 +76,11 @@ void WebviewJavaScriptExecuteCallback::UvAfterWorkCb(uv_work_t* work, int status
         work = nullptr;
         return;
     }
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(param->env_, &scope);
+    if (scope == nullptr) {
+        return;
+    }
 
     if (param->callbackRef_) {
         UvAfterWorkCbAsync(param->env_, param->callbackRef_, param->result_);
@@ -83,6 +88,7 @@ void WebviewJavaScriptExecuteCallback::UvAfterWorkCb(uv_work_t* work, int status
         UvAfterWorkCbPromise(param->env_, param->deferred_, param->result_);
     }
 
+    napi_close_handle_scope(param->env_, scope);
     delete param;
     param = nullptr;
     delete work;
@@ -101,7 +107,7 @@ void WebviewJavaScriptExecuteCallback::UvAfterWorkCbAsync(napi_env env, napi_ref
         napi_get_undefined(env, &setResult[INTEGER_ZERO]);
         napi_create_string_utf8(env, result.c_str(), NAPI_AUTO_LENGTH, &setResult[INTEGER_ONE]);
     }
-    
+
     napi_value args[INTEGER_TWO] = {setResult[INTEGER_ZERO], setResult[INTEGER_ONE]};
     napi_value callback = nullptr;
     napi_value callbackResult = nullptr;

@@ -43,6 +43,11 @@ void WebviewJavaScriptResultCallBack::UvJsCallbackThreadWoker(uv_work_t *work, i
         work = nullptr;
         return;
     }
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(param->env_, &scope);
+    if (scope == nullptr) {
+        return;
+    }
 
     std::vector<napi_value> argv = {};
     for (std::shared_ptr<NWebValue> input: param->args_) {
@@ -59,6 +64,7 @@ void WebviewJavaScriptResultCallBack::UvJsCallbackThreadWoker(uv_work_t *work, i
     std::unique_lock<std::mutex> lock(param->mutex_);
     param->ready_ = true;
     param->condition_.notify_all();
+    napi_close_handle_scope(param->env_, scope);
 }
 
 std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptResult(

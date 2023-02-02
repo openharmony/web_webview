@@ -729,6 +729,12 @@ void NWebValueCallbackImpl::UvWebMessageOnReceiveValueCallback(uv_work_t *work, 
         work = nullptr;
         return;
     }
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(data->env_, &scope);
+    if (scope == nullptr) {
+        return;
+    }
+
     napi_value result[INTEGER_ONE] = {0};
     std::shared_ptr<NWebMessage> webMsg = data->msg_;
     if (webMsg->GetType() == NWebValue::Type::STRING) {
@@ -740,6 +746,7 @@ void NWebValueCallbackImpl::UvWebMessageOnReceiveValueCallback(uv_work_t *work, 
         napi_create_arraybuffer(data->env_, msgArr.size(), &arrayData, &result[INTEGER_ZERO]);
         if (arrayData == nullptr) {
             WVLOG_E("Create arraybuffer failed");
+            napi_close_handle_scope(data->env_, scope);
             return;
         }
         for (size_t i = 0; i < msgArr.size(); ++i) {
@@ -754,6 +761,7 @@ void NWebValueCallbackImpl::UvWebMessageOnReceiveValueCallback(uv_work_t *work, 
     std::unique_lock<std::mutex> lock(data->mutex_);
     data->ready_ = true;
     data->condition_.notify_all();
+    napi_close_handle_scope(data->env_, scope);
 }
 
 void NWebValueCallbackImpl::OnReceiveValue(std::shared_ptr<NWebMessage> result)

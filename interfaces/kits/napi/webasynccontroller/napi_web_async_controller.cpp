@@ -218,6 +218,12 @@ void NapiWebAsyncController::StoreWebArchiveCallback(const std::string &baseName
         if (!env) {
             return;
         }
+        napi_handle_scope scope = nullptr;
+        napi_open_handle_scope(env, &scope);
+        if (scope == nullptr) {
+            return;
+        }
+
         napi_value callback = nullptr;
         napi_get_reference_value(env, jCallback, &callback);
 
@@ -231,6 +237,7 @@ void NapiWebAsyncController::StoreWebArchiveCallback(const std::string &baseName
         napi_call_function(env, nullptr, callback, 1, &jsResult, &callbackResult);
 
         napi_delete_reference(env, jCallback);
+        napi_close_handle_scope(env, scope);
     });
     nweb->StoreWebArchive(baseName, autoName, callbackImpl);
 
@@ -259,6 +266,12 @@ void NapiWebAsyncController::StoreWebArchivePromise(const std::string &baseName,
         if (!env) {
             return;
         }
+        napi_handle_scope scope = nullptr;
+        napi_open_handle_scope(env, &scope);
+        if (scope == nullptr) {
+            return;
+        }
+
         napi_value jsResult = nullptr;
         if (!result.empty()) {
             napi_create_string_utf8(env, result.c_str(), NAPI_AUTO_LENGTH, &jsResult);
@@ -267,6 +280,7 @@ void NapiWebAsyncController::StoreWebArchivePromise(const std::string &baseName,
             napi_get_null(env, &jsResult);
             napi_reject_deferred(env, deferred, jsResult);
         }
+        napi_close_handle_scope(env, scope);
     });
     nweb->StoreWebArchive(baseName, autoName, callbackImpl);
     return;
