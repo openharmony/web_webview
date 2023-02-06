@@ -196,7 +196,11 @@ bool PasteDataRecordAdapterImpl::SetImgData(std::shared_ptr<ClipBoardImageData> 
     }
     uint64_t stride = static_cast<uint64_t>(imageData->width) << 2;
     uint64_t bufferSize = stride * static_cast<uint64_t>(imageData->height);
-    pixelMap->WritePixels(reinterpret_cast<const uint8_t *>(imageData->data), bufferSize);
+    uint32_t ret = pixelMap->WritePixels(reinterpret_cast<const uint8_t *>(imageData->data), bufferSize);
+    if (ret != SUCCESS) {
+        WVLOG_E("write pixel map failed %{public}d", ret);
+        return false;
+    }
 
     std::shared_ptr<Media::PixelMap> pixelMapIn = move(pixelMap);
 
