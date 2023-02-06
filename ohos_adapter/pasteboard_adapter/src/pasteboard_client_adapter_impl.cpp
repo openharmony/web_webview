@@ -18,6 +18,7 @@
 #include <securec.h>
 #include "nweb_log.h"
 #include "remote_uri.h"
+#include "media_errors.h"
 
 using namespace OHOS::MiscServices;
 using namespace OHOS::DistributedFS::ModuleRemoteUri;
@@ -197,8 +198,8 @@ bool PasteDataRecordAdapterImpl::SetImgData(std::shared_ptr<ClipBoardImageData> 
     uint64_t stride = static_cast<uint64_t>(imageData->width) << 2;
     uint64_t bufferSize = stride * static_cast<uint64_t>(imageData->height);
     uint32_t ret = pixelMap->WritePixels(reinterpret_cast<const uint8_t *>(imageData->data), bufferSize);
-    if (ret != SUCCESS) {
-        WVLOG_E("write pixel map failed %{public}d", ret);
+    if (ret != Media::SUCCESS) {
+        WVLOG_E("write pixel map failed %{public}u", ret);
         return false;
     }
 
