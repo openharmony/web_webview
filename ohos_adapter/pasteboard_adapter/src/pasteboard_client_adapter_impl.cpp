@@ -18,6 +18,7 @@
 #include <securec.h>
 #include "nweb_log.h"
 #include "remote_uri.h"
+#include "media_errors.h"
 
 using namespace OHOS::MiscServices;
 using namespace OHOS::DistributedFS::ModuleRemoteUri;
@@ -183,16 +184,22 @@ bool PasteDataRecordAdapterImpl::SetImgData(std::shared_ptr<ClipBoardImageData> 
         WVLOG_E("imageData is null");
         return false;
     }
-    Media::InitializationOptions opts;
-    opts.size.width = imageData->width;
-    opts.size.height = imageData->height;
-    opts.pixelFormat = ClipboardToImageColorType(imageData->colorType);
-    opts.alphaType = ClipboardToImageAlphaType(imageData->alphaType);
-
-    std::unique_ptr<Media::PixelMap> pixelMap =
-        Media::PixelMap::Create(imageData->data, static_cast<uint32_t>(imageData->dataSize), opts);
+    Media::InitializationOptions opt;
+    opt.size.width = imageData->width;
+    opt.size.height = imageData->height;
+    opt.pixelFormat = ClipboardToImageColorType(imageData->colorType);
+    opt.alphaType = ClipboardToImageAlphaType(imageData->alphaType);
+    opt.editable = true;
+    std::unique_ptr<Media::PixelMap> pixelMap = Media::PixelMap::Create(opt);
     if (pixelMap == nullptr) {
         WVLOG_E("create pixel map failed");
+        return false;
+    }
+    uint64_t stride = static_cast<uint64_t>(imageData->width) << 2;
+    uint64_t bufferSize = stride * static_cast<uint64_t>(imageData->height);
+    uint32_t ret = pixelMap->WritePixels(reinterpret_cast<const uint8_t *>(imageData->data), bufferSize);
+    if (ret != Media::SUCCESS) {
+        WVLOG_E("write pixel map failed %{public}u", ret);
         return false;
     }
 
