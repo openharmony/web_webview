@@ -105,7 +105,7 @@ HWTEST_F(BatteryMgrAdapterTest, BatteryAdapter_OnReceiveEvent_001, TestSize.Leve
     Want want;
     want.SetAction(CommonEventSupport::COMMON_EVENT_BATTERY_CHANGED);
     CommonEventData data(want);
-    std::string key = ToString(PowerMgr::BatteryInfo::COMMON_EVENT_CODE_PLUGGED_TYPE);
+    std::string key = PowerMgr::BatteryInfo::COMMON_EVENT_KEY_PLUGGED_TYPE;
     g_batter->OnReceiveEvent(data);
 
     want.SetParam(key, static_cast<int>(BatteryPluggedType::PLUGGED_TYPE_NONE));

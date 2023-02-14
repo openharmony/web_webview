@@ -51,8 +51,8 @@ void NWebBatteryEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData 
         return;
     }
     int32_t defaultInvalid = -1;
-    std::string KEY_CAPACITY = ToString(PowerMgr::BatteryInfo::COMMON_EVENT_CODE_CAPACITY);
-    std::string KEY_CHARGE_TYPE = ToString(PowerMgr::BatteryInfo::COMMON_EVENT_CODE_PLUGGED_TYPE);
+    std::string KEY_CAPACITY = PowerMgr::BatteryInfo::COMMON_EVENT_KEY_CAPACITY;
+    std::string KEY_CHARGE_TYPE = PowerMgr::BatteryInfo::COMMON_EVENT_KEY_PLUGGED_TYPE;
     auto capacity = data.GetWant().GetIntParam(KEY_CAPACITY, defaultInvalid);
     auto isChangingType = data.GetWant().GetIntParam(KEY_CHARGE_TYPE, defaultInvalid);
     bool ischanging = true;
