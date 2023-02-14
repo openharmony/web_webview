@@ -31,6 +31,7 @@
 #include "power_mgr_client_adapter_impl.h"
 #include "soc_perf_client_adapter_impl.h"
 #include "system_properties_adapter_impl.h"
+#include "datashare_adapter_impl.h"
 #include "vsync_adapter_impl.h"
 
 namespace OHOS::NWeb {
@@ -124,5 +125,10 @@ std::unique_ptr<VSyncAdapter> OhosAdapterHelper::GetVSyncAdapter() const
 std::unique_ptr<OhosInitWebAdapter> OhosAdapterHelper::GetInitWebAdapter() const
 {
     return std::make_unique<OhosInitWebAdapterImpl>();
+}
+
+DatashareAdapter& OhosAdapterHelper::GetDatashareInstance() const
+{
+    return DatashareAdapterImpl::GetInstance();
 }
 } // namespace OHOS::NWeb
