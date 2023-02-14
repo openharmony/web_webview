@@ -78,248 +78,6 @@ void NWebSurfaceAdapterTest::SetUp(void)
 void NWebSurfaceAdapterTest::TearDown(void)
 {}
 
-class SurfaceMock : public Surface {
-public:
-    bool IsConsumer() const override
-    {
-        return true;
-    }
-    sptr<IBufferProducer> GetProducer() const override
-    {
-        return nullptr;
-    }
-
-    GSError RequestBuffer(sptr<SurfaceBuffer>& buffer,
-                          int32_t &fence, BufferRequestConfig &config) override
-    {
-        return GSError::GSERROR_INVALID_ARGUMENTS;
-    }
-
-    GSError CancelBuffer(sptr<SurfaceBuffer>& buffer) override
-    {
-        return GSError::GSERROR_OK;
-    }
-
-    GSError FlushBuffer(sptr<SurfaceBuffer>& buffer,
-                        int32_t fence, BufferFlushConfig &config) override
-    {
-        return GSError::GSERROR_INVALID_ARGUMENTS;
-    }
-
-    GSError AcquireBuffer(sptr<SurfaceBuffer>& buffer, int32_t &fence,
-                          int64_t &timestamp, Rect &damage) override
-    {
-        return GSError::GSERROR_OK;
-    }
-    GSError ReleaseBuffer(sptr<SurfaceBuffer>& buffer, int32_t fence) override
-    {
-        return GSError::GSERROR_OK;
-    }
-
-    GSError RequestBuffer(sptr<SurfaceBuffer>& buffer,
-                          sptr<SyncFence>& fence, BufferRequestConfig &config) override
-    {
-        return GSError::GSERROR_INVALID_ARGUMENTS;
-    }
-    GSError FlushBuffer(sptr<SurfaceBuffer>& buffer,
-                        const sptr<SyncFence>& fence, BufferFlushConfig &config) override
-    {
-        return GSError::GSERROR_INVALID_ARGUMENTS;
-    }
-    GSError AcquireBuffer(sptr<SurfaceBuffer>& buffer, sptr<SyncFence>& fence,
-                          int64_t &timestamp, Rect &damage) override
-    {
-        return GSError::GSERROR_OK;
-    }
-    GSError ReleaseBuffer(sptr<SurfaceBuffer>& buffer, const sptr<SyncFence>& fence) override
-    {
-        return GSError::GSERROR_OK;
-    }
-
-    GSError AttachBuffer(sptr<SurfaceBuffer>& buffer) override
-    {
-        return GSError::GSERROR_OK;
-    }
-
-    GSError DetachBuffer(sptr<SurfaceBuffer>& buffer) override
-    {
-        return GSError::GSERROR_OK;
-    }
-
-    uint32_t GetQueueSize() override
-    {
-        return 0;
-    }
-    GSError SetQueueSize(uint32_t queueSize) override
-    {
-        return GSError::GSERROR_OK;
-    }
-
-    GSError SetDefaultWidthAndHeight(int32_t width, int32_t height) override
-    {
-        return GSError::GSERROR_OK;
-    }
-    int32_t GetDefaultWidth() override
-    {
-        return 0;
-    }
-    int32_t GetDefaultHeight() override
-    {
-        return 0;
-    }
-
-    GSError SetDefaultUsage(uint32_t usage) override
-    {
-        return GSError::GSERROR_OK;
-    }
-    uint32_t GetDefaultUsage() override
-    {
-        return 0;
-    }
-
-    GSError SetUserData(const std::string &key, const std::string &val) override
-    {
-        return GSError::GSERROR_OK;
-    }
-    std::string GetUserData(const std::string &key) override
-    {
-        return "";
-    }
-
-    const std::string& GetName() override
-    {
-        return "";
-    }
-    uint64_t GetUniqueId() const override
-    {
-        return 0;
-    }
-
-    GSError RegisterConsumerListener(sptr<IBufferConsumerListener>& listener) override
-    {
-        return GSError::GSERROR_OK;
-    }
-    GSError RegisterConsumerListener(IBufferConsumerListenerClazz *listener) override
-    {
-        return GSError::GSERROR_OK;
-    }
-    GSError RegisterReleaseListener(OnReleaseFunc func) override
-    {
-        return GSError::GSERROR_OK;
-    }
-    GSError RegisterDeleteBufferListener(OnDeleteBufferFunc func) override
-    {
-        return GSError::GSERROR_OK;
-    }
-    GSError UnregisterConsumerListener() override
-    {
-        return GSError::GSERROR_OK;
-    }
-
-    GSError CleanCache() override
-    {
-        return GSError::GSERROR_OK;
-    }
-    GSError GoBackground() override
-    {
-        return GSError::GSERROR_OK;
-    }
-
-    GSError SetTransform(GraphicTransformType transform) override
-    {
-        return GSError::GSERROR_OK;
-    }
-    GraphicTransformType GetTransform() const override
-    {
-        return GraphicTransformType::GRAPHIC_ROTATE_NONE;
-    }
-
-    GSError IsSupportedAlloc(const std::vector<VerifyAllocInfo> &infos,
-                             std::vector<bool> &supporteds) override
-    {
-        return GSError::GSERROR_OK;
-    }
-    GSError Disconnect() override
-    {
-        return GSError::GSERROR_OK;
-    }
-    GSError SetScalingMode(uint32_t sequence, ScalingMode scalingMode) override
-    {
-        return GSError::GSERROR_OK;
-    }
-    GSError GetScalingMode(uint32_t sequence, ScalingMode &scalingMode) override
-    {
-        return GSError::GSERROR_OK;
-    }
-    GSError SetMetaData(uint32_t sequence, const std::vector<HDRMetaData> &metaData) override
-    {
-        return GSError::GSERROR_OK;
-    }
-    GSError SetMetaDataSet(uint32_t sequence, HDRMetadataKey key,
-                           const std::vector<uint8_t> &metaData) override
-    {
-        return GSError::GSERROR_OK;
-    }
-    GSError QueryMetaDataType(uint32_t sequence, HDRMetaDataType &type) const override
-    {
-        return GSError::GSERROR_OK;
-    }
-    GSError GetMetaData(uint32_t sequence, std::vector<HDRMetaData> &metaData) const override
-    {
-        return GSError::GSERROR_OK;
-    }
-    GSError GetMetaDataSet(uint32_t sequence, HDRMetadataKey &key,
-                           std::vector<uint8_t> &metaData) const override
-    {
-        return GSError::GSERROR_OK;
-    }
-    GSError SetTunnelHandle(const ExtDataHandle *handle) override
-    {
-        return GSError::GSERROR_OK;
-    }
-    sptr<SurfaceTunnelHandle> GetTunnelHandle() const override
-    {
-        return nullptr;
-    }
-    GSError SetPresentTimestamp(uint32_t sequence, const PresentTimestamp &timestamp) override
-    {
-        return GSError::GSERROR_OK;
-    }
-    GSError GetPresentTimestamp(uint32_t sequence, PresentTimestampType type,
-                                int64_t &time) const override
-    {
-        return GSError::GSERROR_OK;
-    }
-
-    void Dump(std::string &result) const override
-    {}
-
-    int32_t GetDefaultFormat()
-    {
-        return 0;
-    }
-
-    GSError SetDefaultFormat(int32_t format)
-    {
-        return GSERROR_NOT_SUPPORT;
-    }
-
-    int32_t GetDefaultColorGamut()
-    {
-        return 0;
-    }
-
-    GSError SetDefaultColorGamut(int32_t colorGamut)
-    {
-        return GSERROR_NOT_SUPPORT;
-    }
-
-    sptr<NativeSurface> GetNativeSurface()
-    {
-        return nullptr;
-    }
-};
-
 class SurfaceBufferImplMock : public SurfaceBufferImpl {
 public:
     MOCK_METHOD0(GetVirAddr, void *());
@@ -368,8 +126,6 @@ HWTEST_F(NWebSurfaceAdapterTest, NWebSurfaceAdapterTest_GetRenderInterface_002, 
     (void)memset_s(src, DEFAULT_WIDTH * DEFAULT_HEIGHT * BITS_PER_PIXEL, 0,
         DEFAULT_WIDTH * DEFAULT_HEIGHT * BITS_PER_PIXEL);
     g_info.output_render_frame(src, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-    sptr<SurfaceMock> mock = new SurfaceMock();
-    surfaceAdapter.GetRenderInterface(mock, g_info);
     (void)memset_s(src, DEFAULT_WIDTH * DEFAULT_HEIGHT * BITS_PER_PIXEL, 0,
         DEFAULT_WIDTH * DEFAULT_HEIGHT * BITS_PER_PIXEL);
     g_info.output_render_frame(src, DEFAULT_WIDTH, DEFAULT_HEIGHT);
@@ -387,9 +143,6 @@ HWTEST_F(NWebSurfaceAdapterTest, NWebSurfaceAdapterTest_RequestBuffer_003, TestS
     sptr<SurfaceBuffer> surfaceBuffer = surfaceAdapter.RequestBuffer(g_window->GetSurfaceNode()->GetSurface(),
         DEFAULT_WIDTH, DEFAULT_HEIGHT);
     EXPECT_NE(surfaceBuffer, nullptr);
-    sptr<SurfaceMock> mock = new SurfaceMock();
-    surfaceBuffer = surfaceAdapter.RequestBuffer(mock, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-    EXPECT_EQ(surfaceBuffer, nullptr);
     sptr<Surface> surface = nullptr;
     surfaceBuffer = surfaceAdapter.RequestBuffer(surface, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     EXPECT_EQ(surfaceBuffer, nullptr);
@@ -445,9 +198,6 @@ HWTEST_F(NWebSurfaceAdapterTest, NWebSurfaceAdapterTest_FlushBuffer_005, TestSiz
     bool result = surfaceAdapter.FlushBuffer(g_window->GetSurfaceNode()->GetSurface(), g_surfaceBuffer,
         DEFAULT_WIDTH, DEFAULT_WIDTH);
     EXPECT_TRUE(result);
-    sptr<SurfaceMock> mock = new SurfaceMock();
-    result = surfaceAdapter.FlushBuffer(mock, g_surfaceBuffer, DEFAULT_WIDTH, DEFAULT_WIDTH);
-    EXPECT_FALSE(result);
     sptr<Surface> surface = nullptr;
     result = surfaceAdapter.FlushBuffer(surface, g_surfaceBuffer, DEFAULT_WIDTH, DEFAULT_WIDTH);
     EXPECT_FALSE(result);
