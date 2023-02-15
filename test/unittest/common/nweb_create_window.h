@@ -77,7 +77,7 @@ public:
     {}
     void OnFocus() const override
     {}
-    void OnBlur() const override
+    void OnBlur(const BlurReason& blurReason) const override
     {}
     void OnTouchPress(int32_t id, double x, double y) override
     {}
