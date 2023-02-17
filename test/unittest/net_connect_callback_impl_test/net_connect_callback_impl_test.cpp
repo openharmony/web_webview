@@ -30,12 +30,7 @@ using namespace OHOS::Telephony;
 namespace OHOS {
 namespace Telephony {
 namespace {
-sptr<NetworkState> g_networkState = nullptr;
 int32_t g_slotId = 0;
-}
-const sptr<NetworkState> CoreServiceClient::GetNetworkState(int32_t slotId)
-{
-    return g_networkState;
 }
 
 int32_t CellularDataClient::GetDefaultCellularDataSlotId()
@@ -118,7 +113,6 @@ HWTEST_F(NetConnectCallbackImplTest, NetConnectCallbackImplTest_001, TestSize.Le
     netAllCap->bearerTypes_.insert(NetBearType::BEARER_ETHERNET);
     netAllCap->bearerTypes_.insert(NetBearType::BEARER_CELLULAR);
     EXPECT_EQ(netConnectCallbackImpl->NetCapabilitiesChange(netHandle, netAllCap), 0);
-    g_networkState = new NetworkState();
     g_slotId = -1;
     EXPECT_EQ(netConnectCallbackImpl->NetCapabilitiesChange(netHandle, netAllCap), 0);
     EXPECT_EQ(netConnectCallbackImpl->NetCapabilitiesChange(netHandle, nullptr), 0);
