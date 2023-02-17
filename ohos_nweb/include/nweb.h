@@ -107,6 +107,12 @@ struct OHOS_NWEB_EXPORT DragEvent {
     DragAction action;
 };
 
+enum class BlurReason : int32_t {
+    FOCUS_SWITCH = 0,
+    WINDOW_BLUR = 1,
+    FRAME_DESTROY = 2,
+};
+
 using WebState = std::shared_ptr<std::vector<uint8_t>>;
 
 class OHOS_NWEB_EXPORT NWeb : public std::enable_shared_from_this<NWeb> {
@@ -123,7 +129,7 @@ public:
 
     /* focus event */
     virtual void OnFocus() const = 0;
-    virtual void OnBlur() const = 0;
+    virtual void OnBlur(const BlurReason& blurReason) const = 0;
 
     /* event interface */
     virtual void OnTouchPress(int32_t id, double x, double y) = 0;
