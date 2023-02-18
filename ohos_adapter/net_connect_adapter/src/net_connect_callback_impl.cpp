@@ -57,7 +57,8 @@ int32_t NetConnectCallbackImpl::NetCapabilitiesChange(sptr<NetHandle> &netHandle
                 WVLOG_E("get default soltId failed, ret = %{public}d.", slotId);
                 slotId = 0;
             }
-            auto networkState = CoreServiceClient::GetInstance().GetNetworkState(slotId);
+            sptr<NetworkState> networkState = nullptr;
+            CoreServiceClient::GetInstance().GetNetworkState(slotId, networkState);
             if (networkState != nullptr) {
                 radioTech = networkState->GetPsRadioTech();
                 WVLOG_I("net radio tech = %{public}d.", static_cast<int32_t>(radioTech));

@@ -37,7 +37,6 @@ namespace {
     int32_t g_unregNetConnCallback = 0;
     int32_t g_getDefaultNet = 0;
     int32_t g_getNetCap = 0;
-    sptr<NetworkState> g_networkState = nullptr;
     int32_t g_slotId = 0;
 }
 
@@ -63,11 +62,6 @@ int32_t NetConnClient::GetNetCapabilities(const NetHandle &nethamdle, NetAllCapa
 }
 
 namespace Telephony {
-const sptr<NetworkState> CoreServiceClient::GetNetworkState(int32_t slotId)
-{
-    return g_networkState;
-}
-
 int32_t CellularDataClient::GetDefaultCellularDataSlotId()
 {
     return g_slotId;
@@ -160,7 +154,6 @@ HWTEST_F(NetConnectAdapterImplTest, NetConnectAdapterImplTest_002, TestSize.Leve
     g_getDefaultNet = static_cast<int32_t>(NetConnResultCode::NET_CONN_SUCCESS);
     g_getNetCap = static_cast<int32_t>(NetConnResultCode::NET_CONN_SUCCESS);
     EXPECT_EQ(netConnectAdapterImpl->GetDefaultNetConnect(type, subtype), 0);
-    g_networkState = new NetworkState();
     g_slotId = -1;
     EXPECT_EQ(netConnectAdapterImpl->GetDefaultNetConnect(type, subtype), 0);
     g_getDefaultNet = -1;
