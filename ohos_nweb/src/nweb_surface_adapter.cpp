@@ -112,7 +112,11 @@ sptr<SurfaceBuffer> NWebSurfaceAdapter::RequestBuffer(sptr<Surface> surface, uin
         return nullptr;
     }
 
-    sptr<SyncFence> tempFence = new SyncFence(releaseFence);
+    sptr<SyncFence> tempFence = new (std::nothrow) SyncFence(releaseFence);
+    if (tempFence == nullptr) {
+        WVLOG_E("new tempFence failed");
+        return nullptr;
+    }
     tempFence->Wait(100); // 100 ms
 
     return surfaceBuffer;
