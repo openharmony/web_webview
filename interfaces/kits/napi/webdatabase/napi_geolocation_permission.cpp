@@ -232,7 +232,7 @@ napi_value NapiGeolocationPermission::GetPermissionStateAsync(napi_env env, napi
     napi_value result = nullptr;
     napi_value resourceName = nullptr;
 
-    GetOriginPermissionStateParam *param = new GetOriginPermissionStateParam {
+    GetOriginPermissionStateParam *param = new (std::nothrow) GetOriginPermissionStateParam {
         .retValue = false,
         .origin = origin,
         .env = env,
@@ -241,6 +241,9 @@ napi_value NapiGeolocationPermission::GetPermissionStateAsync(napi_env env, napi
         .jsStringRef = nullptr,
         .callbackRef = nullptr,
     };
+    if (param == nullptr) {
+        return nullptr;
+    }
     napi_create_reference(env, argv[0], 1, &param->jsStringRef);
     napi_create_reference(env, argv[1], 1, &param->callbackRef);
     NAPI_CALL(env, napi_create_string_utf8(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
@@ -258,7 +261,7 @@ napi_value NapiGeolocationPermission::GetPermissionStatePromise(napi_env env, na
     napi_value promise = nullptr;
     napi_create_promise(env, &deferred, &promise);
 
-    GetOriginPermissionStateParam *param = new GetOriginPermissionStateParam {
+    GetOriginPermissionStateParam *param = new (std::nothrow) GetOriginPermissionStateParam {
         .retValue = false,
         .origin = origin,
         .env = env,
@@ -267,6 +270,9 @@ napi_value NapiGeolocationPermission::GetPermissionStatePromise(napi_env env, na
         .jsStringRef = nullptr,
         .callbackRef = nullptr,
     };
+    if (param == nullptr) {
+        return nullptr;
+    }
     napi_create_reference(env, argv[0], 1, &param->jsStringRef);
     napi_value resourceName = nullptr;
     NAPI_CALL(env, napi_create_string_utf8(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
@@ -380,12 +386,15 @@ napi_value NapiGeolocationPermission::GetOriginsAsync(napi_env env, napi_value *
     napi_value result = nullptr;
     napi_value resourceName = nullptr;
 
-    GetPermissionOriginsParam *param = new GetPermissionOriginsParam {
+    GetPermissionOriginsParam *param = new (std::nothrow) GetPermissionOriginsParam {
         .env = env,
         .asyncWork = nullptr,
         .deferred = nullptr,
         .callbackRef = nullptr,
     };
+    if (param == nullptr) {
+        return nullptr;
+    }
     napi_create_reference(env, *argv, 1, &param->callbackRef);
     NAPI_CALL(env, napi_create_string_utf8(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, ExecuteGetOrigins,
@@ -401,12 +410,15 @@ napi_value NapiGeolocationPermission::GetOriginsPromise(napi_env env)
     napi_value promise = nullptr;
     napi_create_promise(env, &deferred, &promise);
 
-    GetPermissionOriginsParam *param = new GetPermissionOriginsParam {
+    GetPermissionOriginsParam *param = new (std::nothrow) GetPermissionOriginsParam {
         .env = env,
         .asyncWork = nullptr,
         .deferred = deferred,
         .callbackRef = nullptr,
     };
+    if (param == nullptr) {
+        return nullptr;
+    }
     napi_value resourceName = nullptr;
     NAPI_CALL(env, napi_create_string_utf8(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, ExecuteGetOrigins,

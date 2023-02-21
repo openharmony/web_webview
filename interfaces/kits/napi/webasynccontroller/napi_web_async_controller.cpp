@@ -172,7 +172,11 @@ napi_value NapiWebAsyncController::JS_NapiWebAsyncController(napi_env env, napi_
     int32_t nwebId = -1;
     napi_get_value_int32(env, result, &nwebId);
 
-    NapiWebAsyncController *webAsyncController = new NapiWebAsyncController(env, thisVar, nwebId);
+    NapiWebAsyncController *webAsyncController = new (std::nothrow) NapiWebAsyncController(env, thisVar, nwebId);
+    if (webAsyncController == nullptr) {
+        HILOG_ERROR(LOG_APP, "new webAsyncController failed");
+        return nullptr;
+    }
 
     napi_wrap(
         env, thisVar, webAsyncController,

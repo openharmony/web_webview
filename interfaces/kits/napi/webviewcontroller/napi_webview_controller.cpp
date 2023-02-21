@@ -202,7 +202,11 @@ napi_value NapiWebviewController::SetWebId(napi_env env, napi_callback_info info
         WVLOG_E("Parse web id failed.");
         return nullptr;
     }
-    WebviewController *webviewController = new WebviewController(webId);
+    WebviewController *webviewController = new (std::nothrow) WebviewController(webId);
+    if (webviewController == nullptr) {
+        BusinessError::ThrowErrorByErrcode(env, NEW_OOM);
+        return nullptr;
+    }
     napi_status status = napi_wrap(
         env, thisVar, webviewController,
         [](napi_env env, void *data, void *hint) {
@@ -637,7 +641,7 @@ napi_value NapiWebMessagePort::PostMessageEvent(napi_env env, napi_callback_info
             WVLOG_E("String length is too long");
             return result;
         }
-        char* stringValue = new char[bufferSize + 1];
+        char* stringValue = new (std::nothrow) char[bufferSize + 1];
         if (stringValue == nullptr) {
             BusinessError::ThrowErrorByErrcode(env, NEW_OOM);
             return result;
@@ -1997,7 +2001,7 @@ napi_value NapiWebviewController::getBackForwardEntries(napi_env env, napi_callb
         return result;
     }
 
-    WebHistoryList *webHistoryList = new WebHistoryList(list);
+    WebHistoryList *webHistoryList = new (std::nothrow) WebHistoryList(list);
     if (webHistoryList == nullptr) {
         return result;
     }

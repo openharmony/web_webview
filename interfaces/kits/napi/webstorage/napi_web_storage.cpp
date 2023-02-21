@@ -206,12 +206,15 @@ napi_value NapiWebStorage::GetOriginsAsync(napi_env env, napi_value *argv)
     napi_value result = nullptr;
     napi_value resourceName = nullptr;
 
-    GetOriginsParam *param = new GetOriginsParam {
+    GetOriginsParam *param = new (std::nothrow) GetOriginsParam {
         .env = env,
         .asyncWork = nullptr,
         .deferred = nullptr,
         .callbackRef = nullptr,
     };
+    if (param == nullptr) {
+        return nullptr;
+    }
     napi_create_reference(env, *argv, 1, &param->callbackRef);
     NAPI_CALL(env, napi_create_string_utf8(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, ExecuteGetOrigins,
@@ -227,12 +230,15 @@ napi_value NapiWebStorage::GetOriginsPromise(napi_env env)
     napi_value promise = nullptr;
     napi_create_promise(env, &deferred, &promise);
 
-    GetOriginsParam *param = new GetOriginsParam {
+    GetOriginsParam *param = new (std::nothrow) GetOriginsParam {
         .env = env,
         .asyncWork = nullptr,
         .deferred = deferred,
         .callbackRef = nullptr,
     };
+    if (param == nullptr) {
+        return nullptr;
+    }
     napi_value resourceName = nullptr;
     NAPI_CALL(env, napi_create_string_utf8(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, ExecuteGetOrigins,
@@ -346,7 +352,7 @@ napi_value NapiWebStorage::GetOriginUsageOrQuotaAsync(napi_env env,
     napi_value result = nullptr;
     napi_value resourceName = nullptr;
 
-    GetOriginUsageOrQuotaParam *param = new GetOriginUsageOrQuotaParam {
+    GetOriginUsageOrQuotaParam *param = new (std::nothrow) GetOriginUsageOrQuotaParam {
         .retValue = -1,
         .isQuato = isQuato,
         .origin = origin,
@@ -356,6 +362,9 @@ napi_value NapiWebStorage::GetOriginUsageOrQuotaAsync(napi_env env,
         .deferred = nullptr,
         .callbackRef = nullptr,
     };
+    if (param == nullptr) {
+        return nullptr;
+    }
     napi_create_reference(env, argv[PARAMZERO], 1, &param->jsStringRef);
     napi_create_reference(env, argv[PARAMONE], 1, &param->callbackRef);
     NAPI_CALL(env, napi_create_string_utf8(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
@@ -373,7 +382,7 @@ napi_value NapiWebStorage::GetOriginUsageOrQuotaPromise(napi_env env,
     napi_value promise = nullptr;
     napi_create_promise(env, &deferred, &promise);
 
-    GetOriginUsageOrQuotaParam *param = new GetOriginUsageOrQuotaParam {
+    GetOriginUsageOrQuotaParam *param = new (std::nothrow) GetOriginUsageOrQuotaParam {
         .retValue = -1,
         .isQuato = isQuato,
         .origin = origin,
@@ -383,6 +392,9 @@ napi_value NapiWebStorage::GetOriginUsageOrQuotaPromise(napi_env env,
         .deferred = deferred,
         .callbackRef = nullptr,
     };
+    if (param == nullptr) {
+        return nullptr;
+    }
     napi_create_reference(env, argv[PARAMZERO], 1, &param->jsStringRef);
     napi_value resourceName = nullptr;
     NAPI_CALL(env, napi_create_string_utf8(env, __func__, NAPI_AUTO_LENGTH, &resourceName));

@@ -71,8 +71,15 @@ napi_value JsOnce(napi_env env, napi_callback_info info)
 
 void RegisterWebInitedCallback(napi_env env, napi_ref callback)
 {
-    WebInitedCallbackParam *param = new WebInitedCallbackParam(env, callback);
-    WebRunInitedCallback *runWebInitedCallbackObj = new WebRunInitedCallbackImpl(param);
+    WebInitedCallbackParam *param = new (std::nothrow) WebInitedCallbackParam(env, callback);
+    if (param == nullptr) {
+        return;
+    }
+    WebRunInitedCallback *runWebInitedCallbackObj = new (std::nothrow) WebRunInitedCallbackImpl(param);
+    if (runWebInitedCallbackObj == nullptr) {
+        delete param;
+        return;
+    }
     OhosAdapterHelper::GetInstance().GetInitWebAdapter()->SetRunWebInitedCallback(std::move(runWebInitedCallbackObj));
 }
 } // namespace NWeb
