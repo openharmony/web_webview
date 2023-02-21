@@ -35,7 +35,7 @@ int32_t NetConnectAdapterImpl::RegisterNetConnCallback(std::shared_ptr<NetConnCa
     }
 
     int32_t ret = DelayedSingleton<NetConnClient>::GetInstance()->RegisterNetConnCallback(callbackImpl);
-    if (ret != NetConnResultCode::NET_CONN_SUCCESS) {
+    if (ret != NETMANAGER_SUCCESS) {
         WVLOG_E("register NetConnCallback failed, ret = %{public}d.", ret);
         return -1;
     }
@@ -59,7 +59,7 @@ int32_t NetConnectAdapterImpl::UnregisterNetConnCallback(std::shared_ptr<NetConn
     }
 
     int32_t ret = DelayedSingleton<NetConnClient>::GetInstance()->UnregisterNetConnCallback(it->second);
-    if (ret != NetConnResultCode::NET_CONN_SUCCESS) {
+    if (ret != NETMANAGER_SUCCESS) {
         WVLOG_E("unregister NetConnCallback failed, ret = %{public}d.", ret);
         return -1;
     }
@@ -73,7 +73,7 @@ int32_t NetConnectAdapterImpl::GetDefaultNetConnect(NetConnectType &type, NetCon
 {
     NetHandle netHandle;
     int32_t ret = DelayedSingleton<NetConnClient>::GetInstance()->GetDefaultNet(netHandle);
-    if (ret != NetConnResultCode::NET_CONN_SUCCESS) {
+    if (ret != NETMANAGER_SUCCESS) {
         WVLOG_E("get default net failed, ret = %{public}d.", ret);
         return -1;
     }
@@ -81,7 +81,7 @@ int32_t NetConnectAdapterImpl::GetDefaultNetConnect(NetConnectType &type, NetCon
 
     NetAllCapabilities netAllCap;
     ret = DelayedSingleton<NetConnClient>::GetInstance()->GetNetCapabilities(netHandle, netAllCap);
-    if (ret != NetConnResultCode::NET_CONN_SUCCESS) {
+    if (ret != NETMANAGER_SUCCESS) {
         WVLOG_E("get default net capbilities failed, ret = %{public}d.", ret);
         return -1;
     }
@@ -111,4 +111,4 @@ int32_t NetConnectAdapterImpl::GetDefaultNetConnect(NetConnectType &type, NetCon
     WVLOG_D("NetAllCapabilities dump, %{public}s.", netAllCap.ToString("").c_str());
     return 0;
 }
-}  // namespace OHOS::NWeb
+} // namespace OHOS::NWeb
