@@ -29,6 +29,7 @@
 #include "audio_renderer_adapter.h"
 #include "audio_system_manager_adapter.h"
 #include "soc_perf_client_adapter.h"
+#include "datashare_adapter.h"
 
 namespace OHOS::NWeb {
 class OhosAdapterHelper {
@@ -64,6 +65,8 @@ public:
     OhosWebDnsDataBaseAdapter& GetWebDnsDataBaseInstance();
 
     std::unique_ptr<OhosInitWebAdapter> GetInitWebAdapter() const;
+
+    DatashareAdapter& GetDatashareInstance() const;
 
 private:
     OhosAdapterHelper() = default;
