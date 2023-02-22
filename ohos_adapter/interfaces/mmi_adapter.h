@@ -18,11 +18,10 @@
 
 #include <functional>
 
-
 namespace OHOS::NWeb {
 enum MMIAdapterKeyboardType : int32_t {
     NONE = 0,
-    UNKNOWN = 1,
+    UNKNOWN_TYPE = 1,
     ALPHABETIC_KEYBOARD = 2,
     DIGITAL_KEYBOARD = 3,
     HANDWRITING_PEN = 4,
@@ -37,11 +36,19 @@ public:
     virtual void OnDeviceRemoved(int32_t deviceId, const std::string &type) = 0;
 };
 
+using InputEventCallback = std::function<void(int32_t, int32_t)>;
+
 class MMIAdapter {
 public:
     MMIAdapter() = default;
 
     virtual ~MMIAdapter() = default;
+
+    virtual const char* KeyCodeToString(int32_t keyCode) = 0;
+
+    virtual int32_t RegisterMMIInputListener(const InputEventCallback&& eventCallback) = 0;
+
+    virtual void UnregisterMMIInputListener(int32_t monitorId) = 0;
 
     virtual int32_t RegisterDevListener(std::string type, std::shared_ptr<MMIListenerAdapter> listener) = 0;
 

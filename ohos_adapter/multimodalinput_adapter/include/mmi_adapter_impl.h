@@ -19,6 +19,7 @@
 #include "mmi_adapter.h"
 
 #include "input_manager.h"
+#include "key_event.h"
 
 namespace OHOS::NWeb {
 class MMIListenerAdapterImpl : public MMI::IInputDeviceListener {
@@ -35,11 +36,33 @@ private:
     std::shared_ptr<MMIListenerAdapter> listener_ = nullptr;
 };
 
+class MMIInputListenerAdapterImpl : public MMI::IInputEventConsumer {
+public:
+    explicit MMIInputListenerAdapterImpl(const InputEventCallback& listener);
+
+    ~MMIInputListenerAdapterImpl() override;
+
+    void OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const override;
+
+    void OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const override;
+
+    void OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const override;
+
+private:
+    InputEventCallback listener_ = nullptr;
+};
+
 class MMIAdapterImpl : public MMIAdapter {
 public:
     MMIAdapterImpl() = default;
 
     ~MMIAdapterImpl() override = default;
+
+    const char* KeyCodeToString(int32_t keyCode) override;
+
+    int32_t RegisterMMIInputListener(const InputEventCallback&& eventCallback) override;
+
+    void UnregisterMMIInputListener(int32_t monitorId) override;
 
     int32_t RegisterDevListener(std::string type, std::shared_ptr<MMIListenerAdapter> listener) override;
 
@@ -51,6 +74,7 @@ public:
 
 private:
     std::shared_ptr<MMI::IInputDeviceListener> devListener_ = nullptr;
+    std::shared_ptr<MMI::IInputEventConsumer> inputListener_ = nullptr;
 };
 }  // namespace OHOS::NWeb
 
