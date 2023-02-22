@@ -73,6 +73,7 @@ struct OHOS_NWEB_EXPORT NWebInitArgs {
     std::list<std::string> web_engine_args_to_delete;
     bool multi_renderer_process = false;
     bool is_enhance_surface = false;
+    bool is_popup = false;
 };
 
 struct OHOS_NWEB_EXPORT NWebCreateInfo {
