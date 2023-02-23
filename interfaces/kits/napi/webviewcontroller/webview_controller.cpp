@@ -36,6 +36,7 @@ namespace NWeb {
 using namespace NWebError;
 std::string WebviewController::customeSchemeCmdLine_ = "";
 bool WebviewController::existNweb_ = false;
+bool WebviewController::webDebuggingAccess_ = false;
 WebviewController::WebviewController(int32_t nwebId) : nweb_(NWebHelper::Instance().GetNWeb(nwebId)) {}
 
 bool WebviewController::AccessForward()

@@ -181,6 +181,7 @@ private:
 public:
     static std::string customeSchemeCmdLine_;
     static bool existNweb_;
+    static bool webDebuggingAccess_;
 
 private:
     std::weak_ptr<OHOS::NWeb::NWeb> nweb_;
