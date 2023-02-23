@@ -29,6 +29,7 @@
 #include "pasteboard_client_adapter_impl.h"
 #include "power_mgr_client_adapter_impl.h"
 #include "soc_perf_client_adapter_impl.h"
+#include "datashare_adapter_impl.h"
 
 namespace OHOS::NWeb {
 // static
@@ -106,5 +107,10 @@ OhosWebDnsDataBaseAdapter &OhosAdapterHelper::GetWebDnsDataBaseInstance()
 std::unique_ptr<OhosInitWebAdapter> OhosAdapterHelper::GetInitWebAdapter() const
 {
     return std::make_unique<OhosInitWebAdapterImpl>();
+}
+
+DatashareAdapter& OhosAdapterHelper::GetDatashareInstance() const
+{
+    return DatashareAdapterImpl::GetInstance();
 }
 } // namespace OHOS::NWeb
