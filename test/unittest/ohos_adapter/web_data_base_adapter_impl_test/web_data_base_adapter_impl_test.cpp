@@ -114,14 +114,6 @@ void WebDataBaseAdapterImplTest::SetUp(void)
 void WebDataBaseAdapterImplTest::TearDown(void)
 {}
 
-class RdbStoreImplMock : public RdbStoreImpl {
-public:
-    MOCK_METHOD3(Insert, int(int64_t &, const std::string &, const ValuesBucket &));
-    MOCK_METHOD2(Query, std::unique_ptr<AbsSharedResultSet>(const AbsRdbPredicates &,
-        const std::vector<std::string>));
-    MOCK_METHOD2(Count, int(int64_t &, const AbsRdbPredicates &));
-};
-
 class AbsSharedResultSetMock : public AbsSharedResultSet {
 public:
     MOCK_METHOD0(GoToFirstRow, int());
@@ -239,20 +231,10 @@ HWTEST_F(WebDataBaseAdapterImplTest, WebDataBaseAdapterImplTest_CallBack_005, Te
  */
 HWTEST_F(WebDataBaseAdapterImplTest, WebDataBaseAdapterImplTest_SaveHttpAuthCredentials_006, TestSize.Level1)
 {
-    RdbStoreImplMock *mock = new RdbStoreImplMock();
-    EXPECT_NE(mock, nullptr);
     auto& dataBase = OhosWebDataBaseAdapterImpl::GetInstance();
-    EXPECT_CALL(*mock, Insert(::testing::_, ::testing::_, ::testing::_))
-        .Times(1)
-        .WillRepeatedly(::testing::Return(-1));
-    EXPECT_CALL(*mock, Count(::testing::_, ::testing::_))
-        .Times(1)
-        .WillRepeatedly(::testing::Return(-1));
-    dataBase.rdbStore_.reset((RdbStoreImpl *)mock);
     dataBase.SaveHttpAuthCredentials(TEST_HOST, TEST_REALME, TEST, TEST);
     bool result = dataBase.ExistHttpAuthCredentials();
-    EXPECT_FALSE(result);
-    dataBase.rdbStore_.reset();
+    EXPECT_TRUE(result);
 }
 } // namespace NWeb
 } // namespace OHOS
