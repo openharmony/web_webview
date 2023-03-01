@@ -22,7 +22,7 @@
 namespace OHOS::NWeb {
 class IMFTextListenerAdapterImpl : public MiscServices::OnTextChangedListener {
 public:
-    explicit IMFTextListenerAdapterImpl(std::shared_ptr<IMFTextListenerAdapter> listener);
+    explicit IMFTextListenerAdapterImpl(const std::shared_ptr<IMFTextListenerAdapter> &listener);
 
     ~IMFTextListenerAdapterImpl();
 
@@ -56,10 +56,13 @@ public:
 
     ~IMFAdapterImpl() override = default;
 
-    void Attach(std::shared_ptr<IMFTextListenerAdapter> listener, bool isShowKeyboard,
-        IMFAdapterTextInputType inputType) override;
+    bool Attach(std::shared_ptr<IMFTextListenerAdapter> listener, bool isShowKeyboard) override;
+
+    void ShowCurrentInput(const IMFAdapterTextInputType &inputType) override;
 
     void HideTextInput() override;
+
+    void Close() override;
 
     void OnCursorUpdate(IMFAdapterCursorInfo cursorInfo) override;
 
@@ -67,7 +70,6 @@ public:
 
 private:
     sptr<MiscServices::OnTextChangedListener> textListener_ = nullptr;
-    bool isAttached_ = false;
 };
 } // namespace OHOS::NWeb
 

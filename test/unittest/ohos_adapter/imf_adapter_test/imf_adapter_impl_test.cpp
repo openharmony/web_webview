@@ -132,10 +132,9 @@ void NWebIMFAdapterTest::TearDown(void) {}
  */
 HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_001, TestSize.Level1)
 {
-    auto inputType = IMFAdapterTextInputType::NONE;
-    g_imf->Attach(nullptr, false, inputType);
+    bool res = g_imf->Attach(nullptr, false);
     EXPECT_EQ(g_imf->textListener_, nullptr);
-    EXPECT_EQ(g_imf->isAttached_, false);
+    EXPECT_FALSE(res);
 }
 
 /**
@@ -147,12 +146,13 @@ HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_001, TestSize.Lev
 HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_002, TestSize.Level1)
 {
     auto listener = std::make_shared<IMFTextListenerTest>();
-    auto inputType = IMFAdapterTextInputType::TEXT;
-    g_imf->Attach(listener, false, inputType);
+    bool res = g_imf->Attach(listener, true);
+    EXPECT_TRUE(res);
     EXPECT_NE(g_imf->textListener_, nullptr);
-    EXPECT_EQ(g_imf->isAttached_, true);
-    g_imf->Attach(listener, true, inputType);
-    g_imf->isAttached_ = false;
+    g_imf->HideTextInput();
+    g_imf->Close();
+    delete g_imf->textListener_;
+    g_imf->textListener_ = nullptr;
 }
 
 /**
@@ -164,14 +164,13 @@ HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_002, TestSize.Lev
 HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_003, TestSize.Level1)
 {
     auto listener = std::make_shared<IMFTextListenerTest>();
-    auto inputType = IMFAdapterTextInputType::NUMBER;
-    EXPECT_EQ(g_imf->isAttached_, false);
-    g_imf->Attach(listener, true, inputType);
-    EXPECT_EQ(g_imf->isAttached_, true);
-    g_imf->Attach(listener, true, inputType);
+    bool res = g_imf->Attach(listener, false);
+    EXPECT_TRUE(res);
+    EXPECT_NE(g_imf->textListener_, nullptr);
+    g_imf->ShowCurrentInput(IMFAdapterTextInputType::TEXT);
+    g_imf->ShowCurrentInput(IMFAdapterTextInputType::NUMBER);
     g_imf->HideTextInput();
-    EXPECT_EQ(g_imf->isAttached_, false);
-    g_imf->HideTextInput();
+    g_imf->Close();
     delete g_imf->textListener_;
     g_imf->textListener_ = nullptr;
 }

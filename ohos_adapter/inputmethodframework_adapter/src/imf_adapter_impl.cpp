@@ -18,7 +18,7 @@
 #include "nweb_log.h"
 
 namespace OHOS::NWeb {
-IMFTextListenerAdapterImpl::IMFTextListenerAdapterImpl(std::shared_ptr<IMFTextListenerAdapter> listener)
+IMFTextListenerAdapterImpl::IMFTextListenerAdapterImpl(const std::shared_ptr<IMFTextListenerAdapter> &listener)
     : listener_(listener) {};
 
 IMFTextListenerAdapterImpl::~IMFTextListenerAdapterImpl()
@@ -128,44 +128,43 @@ void IMFTextListenerAdapterImpl::HandleSelect(int32_t keyCode, int32_t cursorMov
     }
 }
 
-void IMFAdapterImpl::Attach(std::shared_ptr<IMFTextListenerAdapter> listener, bool isShowKeyboard,
-    IMFAdapterTextInputType inputType)
+bool IMFAdapterImpl::Attach(std::shared_ptr<IMFTextListenerAdapter> listener, bool isShowKeyboard)
 {
     if (!listener) {
         WVLOG_E("the listener is nullptr");
-        return;
+        return false;
     }
     if (!textListener_) {
         textListener_ = new (std::nothrow) IMFTextListenerAdapterImpl(listener);
         if (!textListener_) {
             WVLOG_E("new textListener failed");
-            return;
+            return false;
         }
     }
-    if (isShowKeyboard && isAttached_) {
-        MiscServices::Configuration config;
-        if (inputType == IMFAdapterTextInputType::NUMBER) {
-            config.SetTextInputType(MiscServices::TextInputType::NUMBER);
-        } else {
-            config.SetTextInputType(MiscServices::TextInputType::TEXT);
-        }
-        MiscServices::InputMethodController::GetInstance()->OnConfigurationChange(config);
-        MiscServices::InputMethodController::GetInstance()->ShowCurrentInput();
+    MiscServices::InputMethodController::GetInstance()->Attach(textListener_, isShowKeyboard);
+    return true;
+}
+
+void IMFAdapterImpl::ShowCurrentInput(const IMFAdapterTextInputType &inputType)
+{
+    MiscServices::Configuration config;
+    if (inputType == IMFAdapterTextInputType::NUMBER) {
+        config.SetTextInputType(MiscServices::TextInputType::NUMBER);
     } else {
-        MiscServices::InputMethodController::GetInstance()->Attach(textListener_, isShowKeyboard);
-        isAttached_ = true;
+        config.SetTextInputType(MiscServices::TextInputType::TEXT);
     }
+    MiscServices::InputMethodController::GetInstance()->OnConfigurationChange(config);
+    MiscServices::InputMethodController::GetInstance()->ShowCurrentInput();
 }
 
 void IMFAdapterImpl::HideTextInput()
 {
-    if (isAttached_) {
-        MiscServices::InputMethodController::GetInstance()->HideTextInput();
-        MiscServices::InputMethodController::GetInstance()->Close();
-        isAttached_ = false;
-    } else {
-        WVLOG_I("text keyboard is not attached.");
-    }
+    MiscServices::InputMethodController::GetInstance()->HideTextInput();
+}
+
+void IMFAdapterImpl::Close()
+{
+    MiscServices::InputMethodController::GetInstance()->Close();
 }
 
 void IMFAdapterImpl::OnCursorUpdate(IMFAdapterCursorInfo cursorInfo)

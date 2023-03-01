@@ -88,10 +88,13 @@ public:
 
     virtual ~IMFAdapter() = default;
 
-    virtual void Attach(std::shared_ptr<IMFTextListenerAdapter> listener, bool isShowKeyboard,
-        IMFAdapterTextInputType inputType) = 0;
+    virtual bool Attach(std::shared_ptr<IMFTextListenerAdapter> listener, bool isShowKeyboard) = 0;
+
+    virtual void ShowCurrentInput(const IMFAdapterTextInputType &inputType) = 0;
 
     virtual void HideTextInput() = 0;
+
+    virtual void Close() = 0;
 
     virtual void OnCursorUpdate(IMFAdapterCursorInfo cursorInfo) = 0;
 
