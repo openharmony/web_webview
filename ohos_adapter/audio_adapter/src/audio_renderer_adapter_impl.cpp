@@ -77,6 +77,16 @@ const std::unordered_map<AudioAdapterStreamUsage, StreamUsage> STREAM_USAGE_MAP 
     {AudioAdapterStreamUsage::STREAM_USAGE_NOTIFICATION_RINGTONE, StreamUsage::STREAM_USAGE_NOTIFICATION_RINGTONE},
 };
 
+AudioRendererWriteCallbackImpl::AudioRendererWriteCallbackImpl(
+    std::shared_ptr<AudioRendererWriteCallbackAdapter> callback) : callback_(callback) {}
+
+void AudioRendererWriteCallbackImpl::OnWriteData(size_t length)
+{
+    if (callback_) {
+        callback_->OnWriteData(length);
+    }
+}
+
 int32_t AudioRendererAdapterImpl::Create(const AudioAdapterRendererOptions &rendererOptions,
     std::string cachePath)
 {
@@ -173,6 +183,49 @@ float AudioRendererAdapterImpl::GetVolume() const
         return AUDIO_NULL_ERROR;
     }
     return audio_renderer_->GetVolume();
+}
+
+int32_t AudioRendererAdapterImpl::Enqueue(const BufferDescAdapter& bufDesc)
+{
+    if (audio_renderer_ == nullptr) {
+        WVLOG_E("audio renderer is nullptr");
+        return AUDIO_NULL_ERROR;
+    }
+    BufferDesc bufInfo;
+    bufInfo.buffer =  bufDesc.buffer;
+    bufInfo.bufLength =  bufDesc.bufLength;
+    bufInfo.dataLength =  bufDesc.dataLength;
+    int32_t ret = audio_renderer_->Enqueue(bufInfo);
+    if (ret != AudioStandard::SUCCESS) {
+        WVLOG_E("audio renderer enqueue faild");
+        return AUDIO_ERROR;
+    }
+    return AUDIO_OK;
+}
+
+int32_t AudioRendererAdapterImpl::SetAudioRendererWriteCallbackAdapter(
+        const std::shared_ptr<AudioRendererWriteCallbackAdapter>& callback)
+{
+    if (callback == nullptr) {
+        WVLOG_E("audio renderer write callback is nullptr");
+        return AUDIO_NULL_ERROR;
+    }
+    callback_ = std::make_shared<AudioRendererWriteCallbackImpl>(callback);
+    if (audio_renderer_ == nullptr) {
+        WVLOG_E("audio renderer is nullptr");
+        return AUDIO_NULL_ERROR;
+    }
+    int32_t ret = audio_renderer_->SetRenderMode(RENDER_MODE_CALLBACK);
+    if (ret != AudioStandard::SUCCESS) {
+        WVLOG_E("audio renderer set render mode faild");
+        return AUDIO_ERROR;
+    }
+    ret = audio_renderer_->SetRendererWriteCallback(callback_);
+    if (ret != AudioStandard::SUCCESS) {
+        WVLOG_E("audio renderer set renderer write callback faild");
+        return AUDIO_ERROR;
+    }
+    return AUDIO_OK;
 }
 
 AudioSamplingRate AudioRendererAdapterImpl::GetAudioSamplingRate(AudioAdapterSamplingRate samplingRate)

@@ -23,6 +23,15 @@
 namespace OHOS::NWeb {
 using namespace OHOS::AudioStandard;
 
+class AudioRendererWriteCallbackImpl : public AudioRendererWriteCallback {
+public:
+    explicit AudioRendererWriteCallbackImpl(std::shared_ptr<AudioRendererWriteCallbackAdapter> callback);
+    ~AudioRendererWriteCallbackImpl() override = default;
+    void OnWriteData(size_t length) override;
+private:
+    std::shared_ptr<AudioRendererWriteCallbackAdapter> callback_ = nullptr;
+};
+
 class AudioRendererAdapterImpl : public AudioRendererAdapter {
 public:
     AudioRendererAdapterImpl() = default;
@@ -46,6 +55,11 @@ public:
 
     float GetVolume() const override;
 
+    int32_t Enqueue(const BufferDescAdapter& bufDesc) override;
+
+    int32_t SetAudioRendererWriteCallbackAdapter(
+        const std::shared_ptr<AudioRendererWriteCallbackAdapter>& callback) override;
+
     static AudioSamplingRate GetAudioSamplingRate(AudioAdapterSamplingRate samplingRate);
 
     static AudioEncodingType GetAudioEncodingType(AudioAdapterEncodingType encodingType);
@@ -60,6 +74,7 @@ public:
 
 private:
     std::unique_ptr<AudioRenderer> audio_renderer_;
+    std::shared_ptr<AudioRendererWriteCallbackImpl> callback_;
 };
 }  // namespace OHOS::NWeb
 
