@@ -15,10 +15,12 @@
 
 #include "pasteboard_client_adapter_impl.h"
 
+#include <mutex>
 #include <securec.h>
+
+#include "media_errors.h"
 #include "nweb_log.h"
 #include "remote_uri.h"
-#include "media_errors.h"
 
 using namespace OHOS::MiscServices;
 using namespace OHOS::DistributedFS::ModuleRemoteUri;
@@ -466,12 +468,19 @@ void PasteBoardClientAdapterImpl::AddPasteboardChangedObserver(
     std::shared_ptr<PasteboardObserverAdapter> callback)
 {
     if (callback) {
-        sptr<PasteboardObserver> observer =
-            new PasteboardObserverAdapterImpl(callback);
-        if (!observer) {
-            return;
+        sptr<PasteboardObserver> observer;
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            ObserverMap::iterator iter = reg_.find(callback.get());
+            if (iter != reg_.end()) {
+                return;
+            }
+            observer = new (std::nothrow) PasteboardObserverAdapterImpl(callback);
+            if (!observer) {
+                return;
+            }
+            reg_.emplace(std::make_pair(callback.get(), observer));
         }
-        reg_.emplace(std::make_pair(callback.get(), observer));
         PasteboardClient::GetInstance()->AddPasteboardChangedObserver(observer);
     }
 }
@@ -480,17 +489,17 @@ void PasteBoardClientAdapterImpl::RemovePasteboardChangedObserver(
     std::shared_ptr<PasteboardObserverAdapter> callback)
 {
     if (callback) {
-        sptr<PasteboardObserver> observer =
-            new PasteboardObserverAdapterImpl(callback);
-        if (!observer) {
-            return;
-        }
-        ObserverMap::iterator iter = reg_.find(callback.get());
-        if (iter == reg_.end()) {
-            return;
+        sptr<PasteboardObserver> observer;
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            ObserverMap::iterator iter = reg_.find(callback.get());
+            if (iter == reg_.end()) {
+                return;
+            }
+            observer = iter->second;
+            reg_.erase(iter);
         }
         PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(observer);
-        reg_.erase(iter);
     }
 }
-}
+} // namespace OHOS::NWeb

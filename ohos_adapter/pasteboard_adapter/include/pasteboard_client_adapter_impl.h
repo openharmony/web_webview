@@ -86,7 +86,6 @@ using ObserverMap =
     std::map<PasteboardObserverAdapter*, sptr<MiscServices::PasteboardObserver>>;
 class PasteBoardClientAdapterImpl : public PasteBoardClientAdapter {
 public:
-    PasteBoardClientAdapterImpl() = default;
     static PasteBoardClientAdapterImpl& GetInstance();
     bool GetPasteData(PasteRecordList& data) override;
     void SetPasteData(const PasteRecordList& data) override;
@@ -98,10 +97,14 @@ public:
     void AddPasteboardChangedObserver(std::shared_ptr<PasteboardObserverAdapter> callback) override;
     void RemovePasteboardChangedObserver(std::shared_ptr<PasteboardObserverAdapter> callback) override;
 private:
+    PasteBoardClientAdapterImpl() = default;
+    PasteBoardClientAdapterImpl(const PasteBoardClientAdapterImpl&) = delete;
+    PasteBoardClientAdapterImpl& operator=(const PasteBoardClientAdapterImpl&) = delete;
     uint32_t tokenId_ = 0;
     bool isLocalPaste_ = false;
     ObserverMap reg_;
+    std::mutex mutex_;
 };
-}
+} // namespace OHOS::NWeb
 
-#endif
+#endif // PASTEBOARD_CLIENT_ADAPTER_IMPL_H
