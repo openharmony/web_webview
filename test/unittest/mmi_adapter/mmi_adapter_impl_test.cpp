@@ -19,6 +19,7 @@
 
 #include "ohos_adapter_helper.h"
 #include "mmi_adapter.h"
+#include "key_event.h"
 
 #define private public
 #include "mmi_adapter_impl.h"
@@ -145,5 +146,41 @@ HWTEST_F(NWebMMIAdapterTest, NWebMMIAdapterTest_MMIAdapterImpl_006, TestSize.Lev
     listenerTest->listener_ = nullptr;
     listenerTest->OnDeviceAdded(1, "add");
     listenerTest->OnDeviceRemoved(1, "remove");
+
+    const char *code = g_mmi->KeyCodeToString(MMI::KeyEvent::KEYCODE_UNKNOWN);
+    EXPECT_NE(code, nullptr);
+    int32_t result = g_mmi->RegisterMMIInputListener(nullptr);
+    EXPECT_EQ(result, -1);
+    InputEventCallback eventCallback = [](int32_t, int32_t) {};
+    result = g_mmi->RegisterMMIInputListener(std::move(eventCallback));
+    EXPECT_NE(result, -1);
+    g_mmi->UnregisterMMIInputListener(MMI::KeyEvent::KEYCODE_UNKNOWN);
+}
+
+/**
+ * @tc.name: NWebMMIAdapterTest_MMIAdapterImpl_007.
+ * @tc.desc: MMIInputListenerAdapterImpl.
+ * @tc.type: FUNC.
+ * @tc.require:I5OZZ8
+ */
+HWTEST_F(NWebMMIAdapterTest, NWebMMIAdapterTest_MMIInputListenerAdapterImpl_007, TestSize.Level1)
+{
+    InputEventCallback listener = [](int32_t, int32_t) {};
+    MMIInputListenerAdapterImpl listenerAdapter(listener);
+    std::shared_ptr<MMI::KeyEvent> keyEvent = MMI::KeyEvent::Create();
+    std::shared_ptr<MMI::PointerEvent> pointerEvent = nullptr;
+    std::shared_ptr<MMI::AxisEvent> axisEvent = nullptr;
+    keyEvent->SetKeyAction(MMI::KeyEvent::KEY_ACTION_DOWN);
+    listenerAdapter.OnInputEvent(keyEvent);
+    listenerAdapter.OnInputEvent(pointerEvent);
+    listenerAdapter.OnInputEvent(axisEvent);
+
+    keyEvent->SetKeyAction(MMI::KeyEvent::KEY_ACTION_UP);
+    listenerAdapter.OnInputEvent(keyEvent);
+    keyEvent->SetKeyAction(MMI::KeyEvent::KEY_ACTION_CANCEL);
+    listenerAdapter.OnInputEvent(keyEvent);
+
+    MMIInputListenerAdapterImpl listenerAdapterImpl(nullptr);
+    listenerAdapterImpl.OnInputEvent(keyEvent);
 }
 }  // namespace OHOS::NWeb

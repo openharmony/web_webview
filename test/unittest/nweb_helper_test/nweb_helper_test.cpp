@@ -202,4 +202,18 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetDataBase_003, TestSize.Level1)
                                                     NWEB_MAX_WIDTH, DEFAULT_HEIGHT);
     EXPECT_EQ(nweb, nullptr);
 }
+
+/**
+ * @tc.name: NWebHelper_TryPreReadLib_004
+ * @tc.desc: TryPreReadLib.
+ * @tc.type: FUNC
+ * @tc.require: AR000GGHJ8
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_TryPreReadLib_004, TestSize.Level1)
+{
+    NWebHelper::Instance().TryPreReadLib(false, MOCK_INSTALLATION_DIR);
+    NWebHelper::Instance().TryPreReadLib(true, MOCK_INSTALLATION_DIR);
+    bool result = NWebHelper::Instance().Init(false);
+    EXPECT_TRUE(result);
+}
 } // namespace OHOS::NWeb

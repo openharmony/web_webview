@@ -238,6 +238,8 @@
                 "//base/web/webview/test/unittest/ohos_adapter_helper:unittest",
                 "//base/web/webview/test/unittest/napi_web_cookie_manager_test:unittest",
                 "//base/web/webview/test/unittest/ohos_adapter/web_data_base_adapter_impl_test:unittest",
+                "//base/web/webview/test/unittest/ohos_adapter/datashare_adapter_impl_test:unittest",
+                "//base/web/webview/test/unittest/ohos_adapter/ohos_init_web_adapter:unittest",
                 "//base/web/webview/test/unittest/audio_adapter_impl_test:unittest",
                 "//base/web/webview/test/unittest/net_connect_callback_impl_test:unittest",
                 "//base/web/webview/test/unittest/nweb_window_adapter_test:unittest",
