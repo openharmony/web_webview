@@ -15,7 +15,6 @@
 
 #include "webview_controller.h"
 
-#include "context/application_context.h"
 #include "business_error.h"
 #include "napi_parse_utils.h"
 #include "nweb_log.h"
@@ -369,18 +368,38 @@ void WebviewController::RequestFocus()
     }
 }
 
-bool WebviewController::ParseUrl(napi_env env, napi_value urlObj, std::string& result)
+std::shared_ptr<Global::Resource::ResourceManager> WebviewController::GetResourceMgr(std::string bundleName,
+    std::string moduleName)
+{
+    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
+        AbilityRuntime::ApplicationContext::GetApplicationContext();
+    if (!context) {
+        WVLOG_E("Failed to get application Context.");
+        return nullptr;
+    }
+    if (bundleName.empty() || moduleName.empty()) {
+        return context->GetResourceManager();
+    }
+    auto moduleContext = context->CreateModuleContext(bundleName, moduleName);
+    if (!moduleContext) {
+        WVLOG_E("Failed to get module Context.");
+        return nullptr;
+    }
+    return moduleContext->GetResourceManager();
+}
+
+ErrCode WebviewController::ParseUrl(napi_env env, napi_value urlObj, std::string& result)
 {
     napi_valuetype valueType = napi_null;
     napi_typeof(env, urlObj, &valueType);
     if ((valueType != napi_object) && (valueType != napi_string)) {
         WVLOG_E("Unable to parse url object.");
-        return false;
+        return NWebError::INVALID_URL;
     }
     if (valueType == napi_string) {
         NapiParseUtils::ParseString(env, urlObj, result);
         WVLOG_D("The parsed url is: %{public}s", result.c_str());
-        return true;
+        return NWebError::NO_ERROR;
     }
     napi_value type = nullptr;
     napi_valuetype typeVlueType = napi_null;
@@ -396,29 +415,39 @@ bool WebviewController::ParseUrl(napi_env env, napi_value urlObj, std::string& r
             napi_is_array(env, paraArray, &isArray);
             if (!isArray) {
                 WVLOG_E("Unable to parse parameter array from url object.");
-                return false;
+                return NWebError::INVALID_RESOURCE;
             }
             napi_value fileNameObj;
+            napi_value bundleNameObj;
+            napi_value moduleNameObj;
             std::string fileName;
+            std::string bundleName;
+            std::string moduleName;
             napi_get_element(env, paraArray, 0, &fileNameObj);
+            napi_get_named_property(env, urlObj, "bundleName", &bundleNameObj);
+            napi_get_named_property(env, urlObj, "moduleName", &moduleNameObj);
             NapiParseUtils::ParseString(env, fileNameObj, fileName);
-            std::shared_ptr<AbilityRuntime::ApplicationContext> context =
-                AbilityRuntime::ApplicationContext::GetApplicationContext();
-            std::string packagePath = "file:///" + context->GetBundleCodeDir() + "/";
-            std::string bundleName = context->GetBundleName() + "/";
-            std::shared_ptr<AppExecFwk::ApplicationInfo> appInfo = context->GetApplicationInfo();
-            std::string entryDir = appInfo->entryDir;
-            bool isStage = entryDir.find("entry") == std::string::npos ? false : true;
-            result = isStage ? packagePath + "entry/resources/rawfile/" + fileName :
-                packagePath + bundleName + "assets/entry/resources/rawfile/" + fileName;
+            NapiParseUtils::ParseString(env, bundleNameObj, bundleName);
+            NapiParseUtils::ParseString(env, moduleNameObj, moduleName);
+            auto resourceManager = GetResourceMgr(bundleName, moduleName);
+            if (!resourceManager) {
+                WVLOG_E("Get resourceManager failed.");
+                return NWebError::INVALID_RESOURCE;
+            }
+            auto state = resourceManager->GetRawFilePathByName(fileName, result);
+            if (state != Global::Resource::SUCCESS) {
+                WVLOG_E("Get rawfile path by name failed.");
+                return NWebError::INVALID_RESOURCE;
+            }
+            result = "file:///" + result;
             WVLOG_D("The parsed url is: %{public}s", result.c_str());
-            return true;
+            return NWebError::NO_ERROR;
         }
         WVLOG_E("The type parsed from url object is not RAWFILE.");
-        return false;
+        return NWebError::INVALID_URL;
     }
     WVLOG_E("Unable to parse type from url object.");
-    return false;
+    return NWebError::INVALID_URL;
 }
 
 ErrCode WebviewController::LoadUrl(std::string url)

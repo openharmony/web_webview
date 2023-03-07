@@ -1213,21 +1213,13 @@ napi_value NapiWebviewController::LoadUrl(napi_env env, napi_callback_info info)
         return nullptr;
     }
     std::string webSrc;
-    if (!webviewController->ParseUrl(env, argv[INTEGER_ZERO], webSrc)) {
-        BusinessError::ThrowErrorByErrcode(env, INVALID_URL);
-    }
-    std::string fileProtocolName = "file";
-    if (webSrc.substr(INTEGER_ZERO, fileProtocolName.size()) == "file") {
-        std::string filePath = webSrc;
-        std::string fileProtocol = "file:///";
-        filePath.erase(INTEGER_ZERO, fileProtocol.size());
-        int isFileExist = access(filePath.c_str(), F_OK);
-        if (isFileExist == -1) {
-            BusinessError::ThrowErrorByErrcode(env, INVALID_RESOURCE);
-        }
+    ErrCode ret = webviewController->ParseUrl(env, argv[INTEGER_ZERO], webSrc);
+    if (ret != NO_ERROR) {
+        BusinessError::ThrowErrorByErrcode(env, ret);
+        return nullptr;
     }
     if (argc == INTEGER_ONE) {
-        ErrCode ret = webviewController->LoadUrl(webSrc);
+        ret = webviewController->LoadUrl(webSrc);
         if (ret != NO_ERROR) {
             if (ret == NWEB_ERROR) {
                 return nullptr;

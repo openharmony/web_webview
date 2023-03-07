@@ -20,6 +20,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "context/application_context.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
@@ -105,7 +106,7 @@ public:
 
     void RequestFocus();
 
-    bool ParseUrl(napi_env env, napi_value urlObj, std::string& result);
+    ErrCode ParseUrl(napi_env env, napi_value urlObj, std::string& result);
 
     ErrCode LoadUrl(std::string url);
 
@@ -176,6 +177,8 @@ public:
     void SlideScroll(float vx, float vy);
 
 private:
+    std::shared_ptr<Global::Resource::ResourceManager> GetResourceMgr(std::string bundleName, std::string moduleName);
+
     int ConverToWebHitTestType(int hitType);
 
 public:
