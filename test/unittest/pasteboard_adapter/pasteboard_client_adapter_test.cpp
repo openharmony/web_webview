@@ -519,7 +519,7 @@ HWTEST_F(NWebPasteboardAdapterTest, NWebPasteboardAdapter_AllRecords_019, TestSi
  */
 HWTEST_F(NWebPasteboardAdapterTest, NWebPasteboardAdapter_GetInstance_020, TestSize.Level1)
 {
-    PasteBoardClientAdapterImpl count = PasteBoardClientAdapterImpl::GetInstance();
+    PasteBoardClientAdapterImpl::GetInstance();
 }
 
 /**
