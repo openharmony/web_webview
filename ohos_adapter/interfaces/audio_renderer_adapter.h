@@ -92,6 +92,19 @@ enum AudioAdapterCode : int32_t {
     AUDIO_NULL_ERROR = -2,
 };
 
+struct BufferDescAdapter {
+    uint8_t* buffer;
+    size_t bufLength;
+    size_t dataLength;
+};
+
+class AudioRendererWriteCallbackAdapter {
+public:
+    AudioRendererWriteCallbackAdapter() = default;
+    virtual ~AudioRendererWriteCallbackAdapter() = default;
+    virtual void OnWriteData(size_t length);
+};
+
 class AudioRendererAdapter {
 public:
     AudioRendererAdapter() = default;
@@ -114,6 +127,11 @@ public:
     virtual int32_t SetVolume(float volume) const = 0;
 
     virtual float GetVolume() const = 0;
+
+    virtual int32_t Enqueue(const BufferDescAdapter& bufDesc) = 0;
+
+    virtual int32_t SetAudioRendererWriteCallbackAdapter(
+        const std::shared_ptr<AudioRendererWriteCallbackAdapter>& callback) = 0;
 };
 } // namespace OHOS::NWeb
 
