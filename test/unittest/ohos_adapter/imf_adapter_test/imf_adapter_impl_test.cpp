@@ -237,6 +237,7 @@ HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_005, TestSize.Lev
 HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_InsertText_006, TestSize.Level1)
 {
     auto listenerTest = std::make_shared<IMFTextListenerAdapterImpl>(nullptr);
+    EXPECT_NE(listenerTest, nullptr);
     std::u16string text;
     MiscServices::KeyEvent event;
     MiscServices::KeyboardInfo info;
