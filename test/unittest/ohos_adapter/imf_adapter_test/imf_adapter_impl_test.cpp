@@ -148,6 +148,8 @@ HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_002, TestSize.Lev
     auto listener = std::make_shared<IMFTextListenerTest>();
     bool res = g_imf->Attach(listener, true);
     EXPECT_TRUE(res);
+    res = g_imf->Attach(listener, true);
+    EXPECT_TRUE(res);
     EXPECT_NE(g_imf->textListener_, nullptr);
     g_imf->HideTextInput();
     g_imf->Close();
@@ -209,11 +211,44 @@ HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_005, TestSize.Lev
     listenerTest->DeleteBackward(0);
     listenerTest->SendKeyEventFromInputMethod(event);
     listenerTest->SendKeyboardInfo(info);
+    info.SetKeyboardStatus(static_cast<int32_t>(MiscServices::KeyboardStatus::SHOW));
+    listenerTest->SendKeyboardInfo(info);
+    info.SetKeyboardStatus(static_cast<int32_t>(MiscServices::KeyboardStatus::HIDE));
+    info.SetFunctionKey(static_cast<int32_t>(MiscServices::FunctionKey::CONFIRM));
+    listenerTest->SendKeyboardInfo(info);
+    listenerTest->SetKeyboardStatus(true);
+    listenerTest->MoveCursor(MiscServices::Direction::NONE);
+    listenerTest->MoveCursor(MiscServices::Direction::UP);
+    listenerTest->MoveCursor(MiscServices::Direction::DOWN);
+    listenerTest->MoveCursor(MiscServices::Direction::LEFT);
+    listenerTest->MoveCursor(MiscServices::Direction::RIGHT);
+    listenerTest->HandleSetSelection(0, 0);
+    listenerTest->HandleExtendAction(0);
+    listenerTest->HandleSelect(0, 0);
+    EXPECT_EQ(listener->VerifyAllSuccess(), true);
+}
+
+/**
+ * @tc.name: NWebIMFAdapterTest_InsertText_006.
+ * @tc.desc: IMF adapter unittest.
+ * @tc.type: FUNC.
+ * @tc.require:
+ */
+HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_InsertText_006, TestSize.Level1)
+{
+    auto listenerTest = std::make_shared<IMFTextListenerAdapterImpl>(nullptr);
+    std::u16string text;
+    MiscServices::KeyEvent event;
+    MiscServices::KeyboardInfo info;
+    listenerTest->InsertText(text);
+    listenerTest->DeleteForward(0);
+    listenerTest->DeleteBackward(0);
+    listenerTest->SendKeyEventFromInputMethod(event);
+    listenerTest->SendKeyboardInfo(info);
     listenerTest->SetKeyboardStatus(true);
     listenerTest->MoveCursor(MiscServices::Direction::NONE);
     listenerTest->HandleSetSelection(0, 0);
     listenerTest->HandleExtendAction(0);
     listenerTest->HandleSelect(0, 0);
-    EXPECT_EQ(listener->VerifyAllSuccess(), true);
 }
 } // namespace OHOS::NWeb
