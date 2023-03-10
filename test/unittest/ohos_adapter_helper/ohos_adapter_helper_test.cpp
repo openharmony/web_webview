@@ -75,8 +75,6 @@ HWTEST_F(OhosAdapterHelperTest, OhosAdapterHelper_GetCookieManager_001, TestSize
     EXPECT_NE(storage, nullptr);
     auto nweb = helper.GetNWeb(nweb_id);
     EXPECT_EQ(nweb.lock(), nullptr);
-    NWebDOHConfig config;
-    helper.SetHttpDns(config);
 }
 
 /**
@@ -147,8 +145,6 @@ HWTEST_F(OhosAdapterHelperTest, OhosAdapterHelper_GetDataBase_004, TestSize.Leve
     helper.LoadLib(true);
     helper.LoadLib(true);
     helper.libHandleWebEngine_ = nullptr;
-    NWebDOHConfig config;
-    NWebHelper::Instance().SetHttpDns(config);
     auto webview = helper.CreateNWeb(create_info);
     EXPECT_EQ(webview, nullptr);
     auto cook = helper.GetCookieManager();
