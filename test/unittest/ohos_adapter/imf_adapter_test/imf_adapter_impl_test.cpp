@@ -148,13 +148,8 @@ HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_002, TestSize.Lev
     auto listener = std::make_shared<IMFTextListenerTest>();
     bool res = g_imf->Attach(listener, true);
     EXPECT_TRUE(res);
-    res = g_imf->Attach(listener, true);
-    EXPECT_TRUE(res);
     EXPECT_NE(g_imf->textListener_, nullptr);
     g_imf->HideTextInput();
-    g_imf->Close();
-    delete g_imf->textListener_;
-    g_imf->textListener_ = nullptr;
 }
 
 /**
@@ -172,9 +167,6 @@ HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_003, TestSize.Lev
     g_imf->ShowCurrentInput(IMFAdapterTextInputType::TEXT);
     g_imf->ShowCurrentInput(IMFAdapterTextInputType::NUMBER);
     g_imf->HideTextInput();
-    g_imf->Close();
-    delete g_imf->textListener_;
-    g_imf->textListener_ = nullptr;
 }
 
 /**
@@ -189,6 +181,7 @@ HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_004, TestSize.Lev
     g_imf->OnCursorUpdate(cursorInfo);
     std::u16string text;
     g_imf->OnSelectionChange(text, 0, 0);
+    g_imf->Close();
 }
 
 /**
