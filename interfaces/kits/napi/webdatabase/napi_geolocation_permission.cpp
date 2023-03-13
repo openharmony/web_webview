@@ -169,6 +169,11 @@ napi_value NapiGeolocationPermission::JsDeleteAllGeolocation(napi_env env, napi_
 void NapiGeolocationPermission::GetPermissionStateComplete(napi_env env, napi_status status, void *data)
 {
     GetOriginPermissionStateParam *param = static_cast<GetOriginPermissionStateParam *>(data);
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(env, &scope);
+    if (scope == nullptr) {
+        return;
+    }
     napi_value setResult[RESULT_COUNT] = {0};
     if (param->status) {
         setResult[PARAMZERO] = NWebError::BusinessError::CreateError(env, param->errCode);
@@ -185,6 +190,7 @@ void NapiGeolocationPermission::GetPermissionStateComplete(napi_env env, napi_st
     napi_delete_reference(env, param->jsStringRef);
     napi_delete_reference(env, param->callbackRef);
     napi_delete_async_work(env, param->asyncWork);
+    napi_close_handle_scope(env, scope);
     delete param;
     param = nullptr;
 }
@@ -192,6 +198,11 @@ void NapiGeolocationPermission::GetPermissionStateComplete(napi_env env, napi_st
 void NapiGeolocationPermission::GetPermissionStatePromiseComplete(napi_env env, napi_status status, void *data)
 {
     GetOriginPermissionStateParam *param = static_cast<GetOriginPermissionStateParam *>(data);
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(env, &scope);
+    if (scope == nullptr) {
+        return;
+    }
     napi_value setResult[RESULT_COUNT] = {0};
     setResult[PARAMZERO] = NWebError::BusinessError::CreateError(env, param->errCode);
     napi_get_boolean(env, param->retValue, &setResult[PARAMONE]);
@@ -203,6 +214,7 @@ void NapiGeolocationPermission::GetPermissionStatePromiseComplete(napi_env env, 
     }
     napi_delete_reference(env, param->jsStringRef);
     napi_delete_async_work(env, param->asyncWork);
+    napi_close_handle_scope(env, scope);
     delete param;
     param = nullptr;
 }
@@ -319,6 +331,11 @@ napi_value NapiGeolocationPermission::JsGetAccessibleGeolocation(napi_env env, n
 void NapiGeolocationPermission::GetOriginComplete(napi_env env, napi_status status, void *data)
 {
     GetPermissionOriginsParam *param = static_cast<GetPermissionOriginsParam *>(data);
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(env, &scope);
+    if (scope == nullptr) {
+        return;
+    }
     napi_value setResult[RESULT_COUNT] = {0};
     if (param->status) {
         napi_get_undefined(env, &setResult[PARAMZERO]);
@@ -340,6 +357,7 @@ void NapiGeolocationPermission::GetOriginComplete(napi_env env, napi_status stat
     napi_call_function(env, nullptr, callback, RESULT_COUNT, args, &returnVal);
     napi_delete_reference(env, param->callbackRef);
     napi_delete_async_work(env, param->asyncWork);
+    napi_close_handle_scope(env, scope);
     delete param;
     param = nullptr;
 }
@@ -347,6 +365,11 @@ void NapiGeolocationPermission::GetOriginComplete(napi_env env, napi_status stat
 void NapiGeolocationPermission::GetOriginsPromiseComplete(napi_env env, napi_status status, void *data)
 {
     GetPermissionOriginsParam *param = static_cast<GetPermissionOriginsParam *>(data);
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(env, &scope);
+    if (scope == nullptr) {
+        return;
+    }
     napi_value setResult[RESULT_COUNT] = {0};
     napi_get_undefined(env, &setResult[PARAMZERO]);
     napi_create_array(env, &setResult[PARAMONE]);
@@ -363,6 +386,7 @@ void NapiGeolocationPermission::GetOriginsPromiseComplete(napi_env env, napi_sta
         napi_reject_deferred(env, param->deferred, args[0]);
     }
     napi_delete_async_work(env, param->asyncWork);
+    napi_close_handle_scope(env, scope);
     delete param;
     param = nullptr;
 }
