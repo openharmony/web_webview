@@ -204,7 +204,7 @@ int32_t AudioRendererAdapterImpl::Enqueue(const BufferDescAdapter& bufDesc)
 }
 
 int32_t AudioRendererAdapterImpl::SetAudioRendererWriteCallbackAdapter(
-        const std::shared_ptr<AudioRendererWriteCallbackAdapter>& callback)
+    const std::shared_ptr<AudioRendererWriteCallbackAdapter>& callback)
 {
     if (callback == nullptr) {
         WVLOG_E("audio renderer write callback is nullptr");
