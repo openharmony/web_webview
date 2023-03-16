@@ -646,6 +646,13 @@ public:
      * @param vy the vy of the speed.
     */
     virtual void SlideScroll(float vx, float vy) = 0;
+
+    /**
+     * Notify whether the popup window is initialized successfully.
+     *
+     * @param result whether success.
+     */
+    virtual void NotifyPopupWindowResult(bool result) = 0;
 };
 }  // namespace OHOS::NWeb
 

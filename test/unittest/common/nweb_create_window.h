@@ -294,6 +294,8 @@ public:
     {}
     void SlideScroll(float vx, float vy) override
     {}
+    void NotifyPopupWindowResult(bool result) override
+    {}
 };
 }
 #endif

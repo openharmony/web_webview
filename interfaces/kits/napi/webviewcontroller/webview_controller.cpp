@@ -38,6 +38,16 @@ bool WebviewController::existNweb_ = false;
 bool WebviewController::webDebuggingAccess_ = false;
 WebviewController::WebviewController(int32_t nwebId) : nweb_(NWebHelper::Instance().GetNWeb(nwebId)) {}
 
+void WebviewController::SetWebId(int32_t nwebId)
+{
+    nweb_ = NWebHelper::Instance().GetNWeb(nwebId);
+}
+
+bool WebviewController::IsInit()
+{
+    return nweb_.lock() ? true : false;
+}
+
 bool WebviewController::AccessForward()
 {
     bool access = false;
