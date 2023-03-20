@@ -136,8 +136,8 @@ static void DoPreReadLib(const std::string &bundlePath)
         return;
     }
 
-    static const int singleReadSize = 5 * 1024 * 1024;
-    char *buf = new (std::nothrow) char[singleReadSize];
+    static const int SINGLE_READ_SIZE = 5 * 1024 * 1024;
+    char *buf = new (std::nothrow) char[SINGLE_READ_SIZE];
     if (buf == nullptr) {
         WVLOG_E("malloc buf failed");
         return;
@@ -150,13 +150,13 @@ static void DoPreReadLib(const std::string &bundlePath)
         return;
     }
 
-    int readCnt = stats.st_size / singleReadSize;
-    if (readCnt * singleReadSize < stats.st_size) {
+    int readCnt = stats.st_size / SINGLE_READ_SIZE;
+    if (readCnt * SINGLE_READ_SIZE < stats.st_size) {
         readCnt += 1;
     }
 
     for (int i = 0; i < readCnt; i++) {
-        (void)read(fd, buf, singleReadSize);
+        (void)read(fd, buf, SINGLE_READ_SIZE);
     }
 
     (void)close(fd);
