@@ -386,6 +386,12 @@ void NWebSaveCookieCallbackImpl::UvJsCallbackThreadWoker(uv_work_t *work, int st
         work = nullptr;
         return;
     }
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(data->env_, &scope);
+    if (scope == nullptr) {
+        return;
+    }
+
     if (data->callback_) {
         napi_value result[INTEGER_ONE] = {0};
         napi_get_null(data->env_, &result[INTEGER_ZERO]);
@@ -402,6 +408,7 @@ void NWebSaveCookieCallbackImpl::UvJsCallbackThreadWoker(uv_work_t *work, int st
         napi_resolve_deferred(data->env_, data->deferred_, jsResult);
     }
 
+    napi_close_handle_scope(data->env_, scope);
     delete data;
     data = nullptr;
     delete work;
