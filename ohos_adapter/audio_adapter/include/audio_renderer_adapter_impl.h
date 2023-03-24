@@ -57,6 +57,8 @@ public:
 
     int32_t Enqueue(const BufferDescAdapter& bufDesc) override;
 
+    int32_t GetBufferDesc(BufferDescAdapter& bufDesc) override;
+
     int32_t SetAudioRendererWriteCallbackAdapter(
         const std::shared_ptr<AudioRendererWriteCallbackAdapter>& callback) override;
 
