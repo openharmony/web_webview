@@ -130,6 +130,8 @@ public:
 
     virtual int32_t Enqueue(const BufferDescAdapter& bufDesc) = 0;
 
+    virtual int32_t GetBufferDesc(BufferDescAdapter& bufDesc) = 0;
+
     virtual int32_t SetAudioRendererWriteCallbackAdapter(
         const std::shared_ptr<AudioRendererWriteCallbackAdapter>& callback) = 0;
 };

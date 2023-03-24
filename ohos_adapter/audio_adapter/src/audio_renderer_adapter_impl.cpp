@@ -203,6 +203,24 @@ int32_t AudioRendererAdapterImpl::Enqueue(const BufferDescAdapter& bufDesc)
     return AUDIO_OK;
 }
 
+int32_t AudioRendererAdapterImpl::GetBufferDesc(BufferDescAdapter& bufDesc)
+{
+    if (audio_renderer_ == nullptr) {
+        WVLOG_E("audio renderer is nullptr");
+        return AUDIO_NULL_ERROR;
+    }
+    BufferDesc bufInfo;
+    int32_t ret = audio_renderer_->GetBufferDesc(bufInfo);
+    if (ret != AudioStandard::SUCCESS) {
+        WVLOG_E("audio renderer get buffer desc faild");
+        return AUDIO_ERROR;
+    }
+    bufDesc.buffer = bufInfo.buffer;
+    bufDesc.bufLength = bufInfo.bufLength;
+    bufDesc.dataLength = bufInfo.dataLength;
+    return AUDIO_OK;
+}
+
 int32_t AudioRendererAdapterImpl::SetAudioRendererWriteCallbackAdapter(
     const std::shared_ptr<AudioRendererWriteCallbackAdapter>& callback)
 {
