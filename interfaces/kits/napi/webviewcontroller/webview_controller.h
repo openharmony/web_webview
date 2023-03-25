@@ -59,8 +59,13 @@ enum class ResourceType : uint32_t {
 
 class WebviewController {
 public:
+    explicit WebviewController() = default;
     explicit WebviewController(int32_t nwebId);
     ~WebviewController() = default;
+
+    bool IsInit();
+
+    void SetWebId(int32_t nwebId);
 
     bool AccessForward();
 

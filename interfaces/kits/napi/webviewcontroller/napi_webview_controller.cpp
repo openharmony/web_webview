@@ -95,6 +95,7 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("scrollBy", NapiWebviewController::ScrollBy),
         DECLARE_NAPI_FUNCTION("slideScroll", NapiWebviewController::SlideScroll),
         DECLARE_NAPI_STATIC_FUNCTION("customizeSchemes", NapiWebviewController::CustomizeSchemes),
+        DECLARE_NAPI_FUNCTION("innerGetThisVar", NapiWebviewController::InnerGetThisVar),
     };
     napi_value constructor = nullptr;
     napi_define_class(env, WEBVIEW_CONTROLLER_CLASS_NAME.c_str(), WEBVIEW_CONTROLLER_CLASS_NAME.length(),
@@ -162,6 +163,23 @@ napi_value NapiWebviewController::JsConstructor(napi_env env, napi_callback_info
 {
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, nullptr));
+
+    WebviewController *webviewController = new (std::nothrow) WebviewController();
+    if (webviewController == nullptr) {
+        WVLOG_E("new webview controller failed");
+        return nullptr;
+    }
+    napi_status status = napi_wrap(
+        env, thisVar, webviewController,
+        [](napi_env env, void *data, void *hint) {
+            WebviewController *webviewController = static_cast<WebviewController *>(data);
+            delete webviewController;
+        },
+        nullptr, nullptr);
+    if (status != napi_ok) {
+        WVLOG_E("Wrap native webviewController failed.");
+        return nullptr;
+    }
     return thisVar;
 }
 
@@ -226,6 +244,23 @@ napi_value NapiWebviewController::InnerGetWebDebuggingAccess(napi_env env, napi_
     return result;
 }
 
+napi_value NapiWebviewController::InnerGetThisVar(napi_env env, napi_callback_info info)
+{
+    WVLOG_D("InnerGetThisVar start");
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
+    napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, nullptr);
+    WebviewController *webviewController = nullptr;
+    napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
+    if ((!webviewController) || (status != napi_ok)) {
+        WVLOG_E("webviewController is nullptr.");
+        napi_create_int64(env, 0, &result);
+    } else {
+        napi_create_int64(env, reinterpret_cast<int64_t>(webviewController), &result);
+    }
+    return result;
+}
+
 napi_value NapiWebviewController::SetWebId(napi_env env, napi_callback_info info)
 {
     napi_value thisVar = nullptr;
@@ -239,23 +274,13 @@ napi_value NapiWebviewController::SetWebId(napi_env env, napi_callback_info info
         WVLOG_E("Parse web id failed.");
         return nullptr;
     }
-    WebviewController *webviewController = new (std::nothrow) WebviewController(webId);
-    if (webviewController == nullptr) {
-        BusinessError::ThrowErrorByErrcode(env, NEW_OOM);
+    WebviewController *webviewController = nullptr;
+    napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
+    if ((!webviewController) || (status != napi_ok)) {
+        WVLOG_E("webviewController is nullptr.");
         return nullptr;
     }
-    napi_status status = napi_wrap(
-        env, thisVar, webviewController,
-        [](napi_env env, void *data, void *hint) {
-            WebviewController *webviewController = static_cast<WebviewController *>(data);
-            delete webviewController;
-        },
-        nullptr, nullptr);
-    if (status != napi_ok) {
-        WVLOG_E("Wrap native webviewController failed.");
-        return nullptr;
-    }
-
+    webviewController->SetWebId(webId);
     return thisVar;
 }
 
@@ -291,7 +316,7 @@ napi_value NapiWebviewController::InnerJsProxy(napi_env env, napi_callback_info 
 
     WebviewController *controller = nullptr;
     napi_unwrap(env, thisVar, (void **)&controller);
-    if (!controller) {
+    if (!controller || !controller->IsInit()) {
         WVLOG_E("Failed to run InnerJsProxy. The WebviewController must be associted with a Web component.");
         return result;
     }
@@ -317,7 +342,7 @@ napi_value NapiWebviewController::AccessForward(napi_env env, napi_callback_info
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -335,7 +360,7 @@ napi_value NapiWebviewController::AccessBackward(napi_env env, napi_callback_inf
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -353,7 +378,7 @@ napi_value NapiWebviewController::Forward(napi_env env, napi_callback_info info)
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -371,7 +396,7 @@ napi_value NapiWebviewController::Backward(napi_env env, napi_callback_info info
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -401,7 +426,7 @@ napi_value NapiWebviewController::AccessStep(napi_env env, napi_callback_info in
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -419,7 +444,7 @@ napi_value NapiWebviewController::ClearHistory(napi_env env, napi_callback_info 
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -437,7 +462,7 @@ napi_value NapiWebviewController::OnActive(napi_env env, napi_callback_info info
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -456,7 +481,7 @@ napi_value NapiWebviewController::OnInactive(napi_env env, napi_callback_info in
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -475,7 +500,7 @@ napi_value NapiWebviewController::Refresh(napi_env env, napi_callback_info info)
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -494,7 +519,7 @@ napi_value NapiWebviewController::CreateWebMessagePorts(napi_env env, napi_callb
 
     WebviewController *webviewController = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&webviewController));
-    if (webviewController == nullptr) {
+    if (webviewController == nullptr || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         WVLOG_E("create message port failed, napi unwrap webviewController failed");
         return nullptr;
@@ -580,7 +605,7 @@ napi_value NapiWebviewController::PostMessage(napi_env env, napi_callback_info i
 
     WebviewController *webviewController = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&webviewController));
-    if (webviewController == nullptr) {
+    if (webviewController == nullptr || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         WVLOG_E("post port to html failed, napi unwrap webviewController failed");
         return nullptr;
@@ -903,7 +928,7 @@ napi_value NapiWebviewController::ZoomIn(napi_env env, napi_callback_info info)
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -929,7 +954,7 @@ napi_value NapiWebviewController::ZoomOut(napi_env env, napi_callback_info info)
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -955,7 +980,7 @@ napi_value NapiWebviewController::GetWebId(napi_env env, napi_callback_info info
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -974,7 +999,7 @@ napi_value NapiWebviewController::GetUserAgent(napi_env env, napi_callback_info 
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -994,7 +1019,7 @@ napi_value NapiWebviewController::GetTitle(napi_env env, napi_callback_info info
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -1014,7 +1039,7 @@ napi_value NapiWebviewController::GetPageHeight(napi_env env, napi_callback_info
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -1049,7 +1074,7 @@ napi_value NapiWebviewController::BackOrForward(napi_env env, napi_callback_info
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -1125,7 +1150,7 @@ napi_value NapiWebviewController::StoreWebArchiveInternal(napi_env env, napi_cal
     WebviewController *webviewController = nullptr;
     napi_unwrap(env, thisVar, (void **)&webviewController);
 
-    if (!webviewController) {
+    if (!webviewController || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return result;
     }
@@ -1159,7 +1184,7 @@ napi_value NapiWebviewController::GetHitTestValue(napi_env env, napi_callback_in
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -1187,7 +1212,7 @@ napi_value NapiWebviewController::RequestFocus(napi_env env, napi_callback_info 
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -1210,7 +1235,7 @@ napi_value NapiWebviewController::LoadUrl(napi_env env, napi_callback_info info)
     }
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -1301,7 +1326,7 @@ napi_value NapiWebviewController::LoadData(napi_env env, napi_callback_info info
     }
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -1346,7 +1371,7 @@ napi_value NapiWebviewController::GetHitTest(napi_env env, napi_callback_info in
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -1366,7 +1391,7 @@ napi_value NapiWebviewController::ClearMatches(napi_env env, napi_callback_info 
 
     WebviewController *controller = nullptr;
     napi_unwrap(env, thisVar, (void **)&controller);
-    if (!controller) {
+    if (!controller || !controller->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return result;
     }
@@ -1395,7 +1420,7 @@ napi_value NapiWebviewController::SearchNext(napi_env env, napi_callback_info in
 
     WebviewController *controller = nullptr;
     napi_unwrap(env, thisVar, (void **)&controller);
-    if (!controller) {
+    if (!controller || !controller->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return result;
     }
@@ -1424,7 +1449,7 @@ napi_value NapiWebviewController::SearchAllAsync(napi_env env, napi_callback_inf
 
     WebviewController *controller = nullptr;
     napi_unwrap(env, thisVar, (void **)&controller);
-    if (!controller) {
+    if (!controller || !controller->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return result;
     }
@@ -1442,7 +1467,7 @@ napi_value NapiWebviewController::ClearSslCache(napi_env env, napi_callback_info
 
     WebviewController *controller = nullptr;
     napi_unwrap(env, thisVar, (void **)&controller);
-    if (!controller) {
+    if (!controller || !controller->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return result;
     }
@@ -1460,7 +1485,7 @@ napi_value NapiWebviewController::ClearClientAuthenticationCache(napi_env env, n
 
     WebviewController *controller = nullptr;
     napi_unwrap(env, thisVar, (void **)&controller);
-    if (!controller) {
+    if (!controller || !controller->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return result;
     }
@@ -1477,7 +1502,7 @@ napi_value NapiWebviewController::Stop(napi_env env, napi_callback_info info)
 
     WebviewController *controller = nullptr;
     napi_unwrap(env, thisVar, (void **)&controller);
-    if (!controller) {
+    if (!controller || !controller->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return result;
     }
@@ -1507,7 +1532,7 @@ napi_value NapiWebviewController::Zoom(napi_env env, napi_callback_info info)
 
     WebviewController *controller = nullptr;
     napi_unwrap(env, thisVar, (void **)&controller);
-    if (!controller) {
+    if (!controller || !controller->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return result;
     }
@@ -1561,7 +1586,7 @@ napi_value NapiWebviewController::RegisterJavaScriptProxy(napi_env env, napi_cal
 
     WebviewController *controller = nullptr;
     napi_unwrap(env, thisVar, (void **)&controller);
-    if (!controller) {
+    if (!controller || !controller->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return result;
     }
@@ -1591,7 +1616,7 @@ napi_value NapiWebviewController::DeleteJavaScriptRegister(napi_env env, napi_ca
 
     WebviewController *controller = nullptr;
     napi_unwrap(env, thisVar, (void **)&controller);
-    if (!controller) {
+    if (!controller || !controller->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return result;
     }
@@ -1655,7 +1680,7 @@ napi_value NapiWebviewController::RunJavaScriptInternal(napi_env env, napi_callb
     WebviewController *webviewController = nullptr;
     napi_unwrap(env, thisVar, (void **)&webviewController);
 
-    if (!webviewController) {
+    if (!webviewController || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return result;
     }
@@ -1689,7 +1714,7 @@ napi_value NapiWebviewController::GetUrl(napi_env env, napi_callback_info info)
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -1709,7 +1734,7 @@ napi_value NapiWebviewController::GetOriginalUrl(napi_env env, napi_callback_inf
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -1741,7 +1766,7 @@ napi_value NapiWebviewController::SetNetworkAvailable(napi_env env, napi_callbac
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -1758,7 +1783,7 @@ napi_value NapiWebviewController::InnerGetWebId(napi_env env, napi_callback_info
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
     int32_t webId = -1;
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         WVLOG_E("Init error. The WebviewController must be associated with a Web component.");
         napi_create_int32(env, webId, &result);
         return result;
@@ -1814,7 +1839,7 @@ napi_value NapiWebviewController::HasImageInternal(napi_env env, napi_callback_i
     WebviewController *webviewController = nullptr;
     napi_unwrap(env, thisVar, (void **)&webviewController);
 
-    if (!webviewController) {
+    if (!webviewController || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return result;
     }
@@ -1874,7 +1899,7 @@ napi_value NapiWebviewController::RemoveCache(napi_env env, napi_callback_info i
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -2028,7 +2053,7 @@ napi_value NapiWebviewController::getBackForwardEntries(napi_env env, napi_callb
 
     NAPI_CALL(env, napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, nullptr));
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&webviewController));
-    if (webviewController == nullptr) {
+    if (webviewController == nullptr || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -2077,7 +2102,7 @@ napi_value NapiWebviewController::GetFavicon(napi_env env, napi_callback_info in
     WebviewController *webviewController = nullptr;
     napi_unwrap(env, thisVar, (void **)&webviewController);
 
-    if (!webviewController) {
+    if (!webviewController || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return result;
     }
@@ -2119,7 +2144,7 @@ napi_value NapiWebviewController::SerializeWebState(napi_env env, napi_callback_
 
     WebviewController *webviewController = nullptr;
     napi_unwrap(env, thisVar, (void **)&webviewController);
-    if (!webviewController) {
+    if (!webviewController || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return result;
     }
@@ -2151,7 +2176,7 @@ napi_value NapiWebviewController::RestoreWebState(napi_env env, napi_callback_in
 
     WebviewController *webviewController = nullptr;
     napi_unwrap(env, thisVar, (void **)&webviewController);
-    if (!webviewController) {
+    if (!webviewController || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return result;
     }
@@ -2211,7 +2236,7 @@ napi_value NapiWebviewController::ScrollPageDown(napi_env env, napi_callback_inf
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -2240,7 +2265,7 @@ napi_value NapiWebviewController::ScrollPageUp(napi_env env, napi_callback_info 
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -2355,7 +2380,7 @@ napi_value NapiWebviewController::ScrollTo(napi_env env, napi_callback_info info
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -2390,7 +2415,7 @@ napi_value NapiWebviewController::ScrollBy(napi_env env, napi_callback_info info
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
@@ -2425,7 +2450,7 @@ napi_value NapiWebviewController::SlideScroll(napi_env env, napi_callback_info i
 
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
