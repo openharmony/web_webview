@@ -231,7 +231,7 @@ void NWebHandlerImplTest::OnResource(const std::string &url)
 }
 
 void NWebHandlerImplTest::OnGeolocationShow(const std::string& origin,
-                                            NWebGeolocationCallbackInterface* callback)
+                                            std::shared_ptr<NWebGeolocationCallbackInterface> callback)
 {
     TESTLOG_I("NWebHandlerImplTest::OnGeolocationShow called, origin=%{public}s", origin.c_str());
     callback->GeolocationCallbackInvoke(origin, true, true);

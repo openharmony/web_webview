@@ -50,7 +50,7 @@ public:
     void OnPageTitle(const std::string &title) override;
     void OnResource(const std::string &url) override;
     void OnGeolocationShow(const std::string& origin,
-                           NWebGeolocationCallbackInterface* callback) override;
+                           std::shared_ptr<NWebGeolocationCallbackInterface> callback) override;
     void OnGeolocationHide() override;
     void OnPermissionRequest(std::shared_ptr<NWebAccessRequest> request) override;
     void OnPermissionRequestCanceled(std::shared_ptr<NWebAccessRequest> request) override;

@@ -308,7 +308,7 @@ public:
      * geolocation
      */
     virtual void OnGeolocationShow(const std::string& origin,
-                                   NWebGeolocationCallbackInterface* callback) {}
+                                   std::shared_ptr<NWebGeolocationCallbackInterface> callback) {}
 
     /**
      * @brief Notify the host application that the web page wants to display a
