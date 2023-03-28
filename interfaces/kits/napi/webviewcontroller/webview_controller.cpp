@@ -458,12 +458,24 @@ ErrCode WebviewController::ParseUrl(napi_env env, napi_value urlObj, std::string
                 WVLOG_E("Get resourceManager failed.");
                 return NWebError::INVALID_RESOURCE;
             }
-            auto state = resourceManager->GetRawFilePathByName(fileName, result);
+
+            // Adapt to the input like: "file:///index.html?a=1", before the new solution comes, copy from arkui.
+            auto it = std::find_if(fileName.begin(), fileName.end(), [](char c) {
+                return (c == '#') || (c == '?');
+            });
+            std::string params;
+            std::string newFileName = fileName;
+            if (it != fileName.end()) {
+                newFileName = std::string(fileName.begin(), it);
+                params = std::string(it, fileName.end());
+            }
+            auto state = resourceManager->GetRawFilePathByName(newFileName, result);
             if (state != Global::Resource::SUCCESS) {
-                WVLOG_E("Get rawfile path by name failed.");
+                WVLOG_E("GetRawfile error, filename:%{public}s, error:%{public}u, newfilename = %{public}s",
+                    fileName.c_str(), state, newFileName.c_str());
                 return NWebError::INVALID_RESOURCE;
             }
-            result = "file:///" + result;
+            result = "file:///" + result + params;
             WVLOG_D("The parsed url is: %{public}s", result.c_str());
             return NWebError::NO_ERROR;
         }
