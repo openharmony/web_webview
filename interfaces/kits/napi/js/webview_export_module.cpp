@@ -13,25 +13,12 @@
  * limitations under the License.
  */
 
-#include "native_engine/native_engine.h"
-
 extern const char _binary_webview_export_js_start[];
 extern const char _binary_webview_export_js_end[];
 extern const char _binary_webview_export_abc_start[];
 extern const char _binary_webview_export_abc_end[];
 
-extern "C" __attribute__((constructor)) void NAPI_web_webview_AutoRegister()
-{
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "web.webview",
-        .fileName = "web/libwebview_napi.so/webview_export.js",
-    };
-
-    moduleManager->Register(&newModuleInfo);
-}
-
-extern "C" __attribute__((visibility("default"))) void NAPI_web_webview_GetJSCode(const char** buf, int* bufLen)
+extern "C" __attribute__((visibility("default"))) void NAPI_web_webview_GetJSCode(const char **buf, int *bufLen)
 {
     if (buf != nullptr) {
         *buf = _binary_webview_export_js_start;
