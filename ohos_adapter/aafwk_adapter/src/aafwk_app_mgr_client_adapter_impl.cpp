@@ -15,11 +15,15 @@
 
 #include "aafwk_app_mgr_client_adapter_impl.h"
 
+#include <chrono>
+#include <thread>
 #include "aafwk_render_scheduler_impl.h"
 #include "nweb_log.h"
 
 namespace {
 constexpr int GET_TERMINATION_STATUS_MAX_CNT = 5;
+constexpr int START_RENDER_PROCESS_MAX_CNT = 10;
+constexpr int RET_ALREADY_EXIST_RENDER = 8454244; // copy from ability_runtime
 }
 
 namespace OHOS::NWeb {
@@ -34,9 +38,23 @@ int AafwkAppMgrClientAdapterImpl::StartRenderProcess(
         return -1;
     }
 
-    int ret = appMgrClient_->StartRenderProcess(renderParam, ipcFd, sharedFd, crashFd, renderPid);
+    int retryCnt = 0;
+    int ret;
+    do {
+        ret = appMgrClient_->StartRenderProcess(renderParam, ipcFd, sharedFd, crashFd, renderPid);
+        if (ret == RET_ALREADY_EXIST_RENDER) {
+            WVLOG_E("app mgr client start render process failed, render process already exist.");
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            continue;
+        }
+        if (ret != 0) {
+            WVLOG_E("app mgr client start render process failed, ret = %{public}d.", ret);
+            return -1;
+        }
+    } while (ret != 0 && ++retryCnt < START_RENDER_PROCESS_MAX_CNT);
+
     if (ret != 0) {
-        WVLOG_E("app mgr client start render process failed, ret = %{public}d.", ret);
+        WVLOG_E("over max retry times, app mgr client start render process failed, ret = %{public}d.", ret);
         return -1;
     }
 
