@@ -21,13 +21,8 @@
 #include "parameter.h"
 
 namespace OHOS::NWeb {
-static constexpr int32_t SYSPARA_MAX_SIZE = 128;
 static constexpr const char* DEFAULT_HTTP_PROXY_HOST = "NONE";
-static constexpr const char* DEFAULT_HTTP_PROXY_PORT = "0";
 static constexpr const char* DEFAULT_HTTP_PROXY_EXCLUSION_LIST = "NONE";
-static constexpr const char* HTTP_PROXY_HOST_KEY = "persist.netmanager_base.http_proxy.host";
-static constexpr const char* HTTP_PROXY_PORT_KEY = "persist.netmanager_base.http_proxy.port";
-static constexpr const char* HTTP_PROXY_EXCLUSIONS_KEY = "persist.netmanager_base.http_proxy.exclusion_list";
 
 namespace Base64 {
 static std::string BASE64_CHARS = /* NOLINT */
@@ -285,18 +280,28 @@ void NetProxyEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData& da
 
 void NetProxyAdapterImpl::GetProperty(std::string& host, uint16_t& port, std::string& pacUrl, std::string& exclusion)
 {
-    char httpProxyHost[SYSPARA_MAX_SIZE] = { 0 };
-    char httpProxyPort[SYSPARA_MAX_SIZE] = { 0 };
-    char httpProxyExclusions[SYSPARA_MAX_SIZE] = { 0 };
-    GetParameter(HTTP_PROXY_HOST_KEY, DEFAULT_HTTP_PROXY_HOST, httpProxyHost, sizeof(httpProxyHost));
-    GetParameter(HTTP_PROXY_PORT_KEY, DEFAULT_HTTP_PROXY_PORT, httpProxyPort, sizeof(httpProxyPort));
-    GetParameter(
-        HTTP_PROXY_EXCLUSIONS_KEY, DEFAULT_HTTP_PROXY_EXCLUSION_LIST, httpProxyExclusions, sizeof(httpProxyExclusions));
+    std::string httpProxyExclusions;
+    NetManagerStandard::HttpProxy httpProxy;
 
-    host = Base64::Decode(httpProxyHost);
+    int32_t ret = DelayedSingleton<NetManagerStandard::NetConnClient>::GetInstance()->GetGlobalHttpProxy(httpProxy);
+    if (ret != NetManagerStandard::NET_CONN_SUCCESS) {
+        WVLOG_E("netproxy config change, get global http proxy from OH network failed");
+        return;
+    }
+
+    host = httpProxy.GetHost();
     if (host == DEFAULT_HTTP_PROXY_HOST) {
         WVLOG_E("get netproxy property failed, host is null");
         host = std::string();
+    }
+
+    auto lastIndex = --httpProxy.GetExclusionList().end();
+    for (auto it = httpProxy.GetExclusionList().begin(); it != httpProxy.GetExclusionList().end(); ++it) {
+        if (it == lastIndex) {
+            httpProxyExclusions.append(*it);
+            continue;
+        }
+        httpProxyExclusions.append(*it + ",");
     }
 
     exclusion = httpProxyExclusions;
@@ -305,7 +310,7 @@ void NetProxyAdapterImpl::GetProperty(std::string& host, uint16_t& port, std::st
         exclusion = std::string();
     }
 
-    port = std::atoi(httpProxyPort);
+    port = httpProxy.GetPort();
 
     WVLOG_D("get netproxy property, host is %{public}s, port is %{public}d, exclusion is %{public}s", host.c_str(),
         port, exclusion.c_str());
