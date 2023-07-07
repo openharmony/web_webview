@@ -174,6 +174,33 @@ std::string WebviewController::GetUserAgent()
     return setting->DefaultUserAgent();
 }
 
+std::string WebviewController::GetCustomUserAgent() const
+{
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
+        return "";
+    }
+    std::shared_ptr<OHOS::NWeb::NWebPreference> setting = nweb_ptr->GetPreference();
+    if (!setting) {
+        return "";
+    }
+    return setting->UserAgent();
+}
+
+ErrCode WebviewController::SetCustomUserAgent(const std::string& userAgent)
+{
+    auto nweb_ptr = nweb_.lock();
+    if (!nweb_ptr) {
+        return NWebError::INIT_ERROR;
+    }
+    std::shared_ptr<OHOS::NWeb::NWebPreference> setting = nweb_ptr->GetPreference();
+    if (!setting) {
+        return NWebError::INIT_ERROR;
+    }
+    setting->PutUserAgent(userAgent);
+    return NWebError::NO_ERROR;
+}
+
 std::string WebviewController::GetTitle()
 {
     std::string title = "";

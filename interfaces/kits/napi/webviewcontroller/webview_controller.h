@@ -108,6 +108,10 @@ public:
 
     std::string GetUserAgent();
 
+    std::string GetCustomUserAgent() const;
+
+    ErrCode SetCustomUserAgent(const std::string& userAgent);
+
     std::string GetTitle();
 
     int32_t GetPageHeight();

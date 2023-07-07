@@ -67,6 +67,8 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("zoomOut", NapiWebviewController::ZoomOut),
         DECLARE_NAPI_FUNCTION("getWebId", NapiWebviewController::GetWebId),
         DECLARE_NAPI_FUNCTION("getUserAgent", NapiWebviewController::GetUserAgent),
+        DECLARE_NAPI_FUNCTION("getCustomUserAgent", NapiWebviewController::GetCustomUserAgent),
+        DECLARE_NAPI_FUNCTION("setCustomUserAgent", NapiWebviewController::SetCustomUserAgent),
         DECLARE_NAPI_FUNCTION("getTitle", NapiWebviewController::GetTitle),
         DECLARE_NAPI_FUNCTION("getPageHeight", NapiWebviewController::GetPageHeight),
         DECLARE_NAPI_FUNCTION("backOrForward", NapiWebviewController::BackOrForward),
@@ -1810,6 +1812,57 @@ napi_value NapiWebviewController::GetUserAgent(napi_env env, napi_callback_info 
     userAgent = webviewController->GetUserAgent();
     napi_create_string_utf8(env, userAgent.c_str(), userAgent.length(), &result);
 
+    return result;
+}
+
+napi_value NapiWebviewController::GetCustomUserAgent(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, nullptr);
+
+    WebviewController *webviewController = nullptr;
+    napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
+        BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
+        return nullptr;
+    }
+
+    napi_value result = nullptr;
+    std::string userAgent = webviewController->GetCustomUserAgent();
+    napi_create_string_utf8(env, userAgent.c_str(), userAgent.length(), &result);
+    return result;
+}
+
+napi_value NapiWebviewController::SetCustomUserAgent(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE];
+    NAPI_CALL(env, napi_get_undefined(env, &result));
+
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        return result;
+    }
+
+    std::string userAgent;
+    if (!NapiParseUtils::ParseString(env, argv[INTEGER_ZERO], userAgent)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        return result;
+    }
+
+    WebviewController *webviewController = nullptr;
+    napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
+        BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
+        return result;
+    }
+    ErrCode ret = webviewController->SetCustomUserAgent(userAgent);
+    if (ret != NO_ERROR) {
+        BusinessError::ThrowErrorByErrcode(env, ret);
+    }
     return result;
 }
 
