@@ -260,22 +260,22 @@ HWTEST_F(ScreenCaptureAdapterImplTest, ScreenCaptureAdapterImplTest_Capture_004,
  */
 HWTEST_F(ScreenCaptureAdapterImplTest, ScreenCaptureAdapterImplTest_OHScreenCaptureCallback_005, TestSize.Level1)
 {
-   auto callbackMock = std::make_shared<ScreenCaptureCallbackAdapterTest>();
-   EXPECT_NE(callbackMock, nullptr);
-   auto callback = std::make_shared<OHScreenCaptureCallback>(callbackMock);
-   EXPECT_NE(callback, nullptr);
-   EXPECT_NE(callback->callback_, nullptr);
-   callback->OnError(ScreenCaptureErrorType::SCREEN_CAPTURE_ERROR_EXTEND_START, 0);
-   callback->OnAudioBufferAvailable(true, AudioCaptureSourceType::SOURCE_DEFAULT);
-   callback->OnAudioBufferAvailable(true, AudioCaptureSourceType::MIC);
-   callback->OnAudioBufferAvailable(true, AudioCaptureSourceType::ALL_PLAYBACK);
-   callback->OnAudioBufferAvailable(true, AudioCaptureSourceType::APP_PLAYBACK);
-   callback->OnAudioBufferAvailable(true, AudioCaptureSourceType::SOURCE_INVALID);
-   callback->OnVideoBufferAvailable(true);
-   callback->callback_ = nullptr;
-   callback->OnError(ScreenCaptureErrorType::SCREEN_CAPTURE_ERROR_EXTEND_START, 0);
-   callback->OnAudioBufferAvailable(true, AudioCaptureSourceType::SOURCE_DEFAULT);
-   callback->OnVideoBufferAvailable(true);
+    auto callbackMock = std::make_shared<ScreenCaptureCallbackAdapterTest>();
+    EXPECT_NE(callbackMock, nullptr);
+    auto callback = std::make_shared<OHScreenCaptureCallback>(callbackMock);
+    EXPECT_NE(callback, nullptr);
+    EXPECT_NE(callback->callback_, nullptr);
+    callback->OnError(ScreenCaptureErrorType::SCREEN_CAPTURE_ERROR_EXTEND_START, 0);
+    callback->OnAudioBufferAvailable(true, AudioCaptureSourceType::SOURCE_DEFAULT);
+    callback->OnAudioBufferAvailable(true, AudioCaptureSourceType::MIC);
+    callback->OnAudioBufferAvailable(true, AudioCaptureSourceType::ALL_PLAYBACK);
+    callback->OnAudioBufferAvailable(true, AudioCaptureSourceType::APP_PLAYBACK);
+    callback->OnAudioBufferAvailable(true, AudioCaptureSourceType::SOURCE_INVALID);
+    callback->OnVideoBufferAvailable(true);
+    callback->callback_ = nullptr;
+    callback->OnError(ScreenCaptureErrorType::SCREEN_CAPTURE_ERROR_EXTEND_START, 0);
+    callback->OnAudioBufferAvailable(true, AudioCaptureSourceType::SOURCE_DEFAULT);
+    callback->OnVideoBufferAvailable(true);
 }
 
 /**
