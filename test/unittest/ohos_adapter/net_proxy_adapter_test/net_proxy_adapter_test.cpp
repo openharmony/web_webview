@@ -53,13 +53,13 @@ public:
     MOCK_METHOD1(GetGlobalHttpProxy, int32_t(HttpProxy &));
     MOCK_METHOD1(GetDefaultHttpProxy, int32_t(HttpProxy &));
 };
-NetConnClientMock *mock = nullptr;
+NetConnClientMock *g_mock = nullptr;
 NetConnClient &NetConnClient::GetInstance()
 {
-    if (!mock) {
-        mock = new NetConnClientMock();
+    if (!g_mock) {
+        g_mock = new NetConnClientMock();
     }
-    return *mock;
+    return *g_mock;
 }
 }
 
@@ -201,11 +201,11 @@ HWTEST_F(NetProxyAdapterTest, NetProxyAdapterTest_OnReceiveEvent_001, TestSize.L
     Want want;
     want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_HTTP_PROXY_CHANGE);
     data.SetWant(want);
-    EXPECT_CALL(*mock, GetGlobalHttpProxy(::testing::_))
+    EXPECT_CALL(*g_mock, GetGlobalHttpProxy(::testing::_))
         .Times(1)
         .WillRepeatedly(::testing::Return(NetManagerStandard::NET_CONN_SUCCESS));
     criber.OnReceiveEvent(data);
-    EXPECT_CALL(*mock, GetGlobalHttpProxy(::testing::_))
+    EXPECT_CALL(*g_mock, GetGlobalHttpProxy(::testing::_))
         .Times(1)
         .WillRepeatedly(::testing::Return(NetManagerStandard::NET_CONN_ERR_INPUT_NULL_PTR));
     criber.OnReceiveEvent(data);
@@ -213,11 +213,11 @@ HWTEST_F(NetProxyAdapterTest, NetProxyAdapterTest_OnReceiveEvent_001, TestSize.L
     uint16_t port;
     std::string pacUrl;
     std::string exclusion;
-    EXPECT_CALL(*mock, GetGlobalHttpProxy(::testing::_))
+    EXPECT_CALL(*g_mock, GetGlobalHttpProxy(::testing::_))
         .Times(1)
         .WillRepeatedly(::testing::Return(NetManagerStandard::NET_CONN_SUCCESS));
     NetProxyAdapterImpl::GetInstance().GetProperty(host, port, pacUrl, exclusion);
-    EXPECT_CALL(*mock, GetGlobalHttpProxy(::testing::_))
+    EXPECT_CALL(*g_mock, GetGlobalHttpProxy(::testing::_))
         .Times(1)
         .WillRepeatedly(::testing::Return(NetManagerStandard::NET_CONN_ERR_INPUT_NULL_PTR));
     NetProxyAdapterImpl::GetInstance().GetProperty(host, port, pacUrl, exclusion);
