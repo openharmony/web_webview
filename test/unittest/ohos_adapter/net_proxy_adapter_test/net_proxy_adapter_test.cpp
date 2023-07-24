@@ -29,6 +29,39 @@ using namespace testing::ext;
 using namespace OHOS::AAFwk;
 using namespace OHOS::NetManagerStandard;
 using namespace OHOS::Security::AccessToken;
+using namespace OHOS::EventFwk;
+
+namespace OHOS::EventFwk {
+namespace {
+bool g_subscribeCommonEventRet = true;
+bool g_unSubscribeCommonEventRet = true;
+}
+bool CommonEventManager::SubscribeCommonEvent(const std::shared_ptr<CommonEventSubscriber> &subscriber)
+{
+    return g_subscribeCommonEventRet;
+}
+
+bool CommonEventManager::UnSubscribeCommonEvent(const std::shared_ptr<CommonEventSubscriber> &subscriber)
+{
+    return g_unSubscribeCommonEventRet;
+}
+}
+
+namespace OHOS::NetManagerStandard {
+class NetConnClientMock : public NetConnClient {
+public:
+    MOCK_METHOD1(GetGlobalHttpProxy, int32_t(HttpProxy &));
+    MOCK_METHOD1(GetDefaultHttpProxy, int32_t(HttpProxy &));
+};
+NetConnClientMock *g_mock = nullptr;
+NetConnClient &NetConnClient::GetInstance()
+{
+    if (!g_mock) {
+        g_mock = new NetConnClientMock();
+    }
+    return *g_mock;
+}
+}
 
 namespace OHOS::NWeb {
 namespace {
@@ -168,11 +201,25 @@ HWTEST_F(NetProxyAdapterTest, NetProxyAdapterTest_OnReceiveEvent_001, TestSize.L
     Want want;
     want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_HTTP_PROXY_CHANGE);
     data.SetWant(want);
+    EXPECT_CALL(*g_mock, GetGlobalHttpProxy(::testing::_))
+        .Times(1)
+        .WillRepeatedly(::testing::Return(NetManagerStandard::NET_CONN_SUCCESS));
+    criber.OnReceiveEvent(data);
+    EXPECT_CALL(*g_mock, GetGlobalHttpProxy(::testing::_))
+        .Times(1)
+        .WillRepeatedly(::testing::Return(NetManagerStandard::NET_CONN_ERR_INPUT_NULL_PTR));
     criber.OnReceiveEvent(data);
     std::string host;
     uint16_t port;
     std::string pacUrl;
     std::string exclusion;
+    EXPECT_CALL(*g_mock, GetGlobalHttpProxy(::testing::_))
+        .Times(1)
+        .WillRepeatedly(::testing::Return(NetManagerStandard::NET_CONN_SUCCESS));
+    NetProxyAdapterImpl::GetInstance().GetProperty(host, port, pacUrl, exclusion);
+    EXPECT_CALL(*g_mock, GetGlobalHttpProxy(::testing::_))
+        .Times(1)
+        .WillRepeatedly(::testing::Return(NetManagerStandard::NET_CONN_ERR_INPUT_NULL_PTR));
     NetProxyAdapterImpl::GetInstance().GetProperty(host, port, pacUrl, exclusion);
 }
 
@@ -195,6 +242,9 @@ HWTEST_F(NetProxyAdapterTest, NetProxyAdapterTest_RegNetProxyEvent_002, TestSize
     EXPECT_NE(NetProxyAdapterImpl::GetInstance().cb_, nullptr);
     result = NetProxyAdapterImpl::GetInstance().StartListen();
     EXPECT_TRUE(result);
+    g_subscribeCommonEventRet = false;
+    result = NetProxyAdapterImpl::GetInstance().StartListen();
+    EXPECT_FALSE(result);
 }
 
 /**
@@ -211,6 +261,9 @@ HWTEST_F(NetProxyAdapterTest, NetProxyAdapterTest_GetProperty_003, TestSize.Leve
     std::string exclusion;
     NetProxyAdapterImpl::GetInstance().GetProperty(host, port, pacUrl, exclusion);
     EXPECT_NE(NetProxyAdapterImpl::GetInstance().commonEventSubscriber_, nullptr);
+    g_unSubscribeCommonEventRet = false;
+    NetProxyAdapterImpl::GetInstance().StopListen();
+    g_unSubscribeCommonEventRet = true;
     NetProxyAdapterImpl::GetInstance().StopListen();
     NetProxyAdapterImpl::GetInstance().commonEventSubscriber_ = nullptr;
     NetProxyAdapterImpl::GetInstance().StopListen();
@@ -229,7 +282,10 @@ HWTEST_F(NetProxyAdapterTest, NetProxyAdapterTest_Encode_004, TestSize.Level1)
     EXPECT_TRUE(result.empty());
     result = Base64::Decode(source);
     EXPECT_TRUE(result.empty());
-    source = "webtest";
+    source = "++webtest";
+    Base64::Decode(source);
+    source = "webtest++++++";
+    Base64::Decode(source);
     result = Base64::Encode(source);
     EXPECT_FALSE(result.empty());
 }

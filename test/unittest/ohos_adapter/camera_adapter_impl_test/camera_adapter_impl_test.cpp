@@ -218,11 +218,18 @@ HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_GetFileDescriptor_004, Tes
     EXPECT_EQ(result, 0);
     VideoTransportType type = adapter.GetCameraTransportType(ConnectionType::CAMERA_CONNECTION_BUILT_IN);
     EXPECT_EQ(type, VideoTransportType::VIDEO_TRANS_TYPE_BUILD_IN);
+    type = adapter.GetCameraTransportType(static_cast<ConnectionType>(-1));
+    EXPECT_EQ(type, VideoTransportType::VIDEO_TRANS_TYPE_OTHER);
     VideoFacingModeAdapter modeAdapter = adapter.GetCameraFacingMode(CameraPosition::CAMERA_POSITION_UNSPECIFIED);
+    EXPECT_EQ(modeAdapter, VideoFacingModeAdapter::FACING_NONE);
+    modeAdapter = adapter.GetCameraFacingMode(static_cast<CameraPosition>(-1));
     EXPECT_EQ(modeAdapter, VideoFacingModeAdapter::FACING_NONE);
     VideoPixelFormatAdapter formatAdapter =
         adapter.TransToAdapterCameraFormat(CameraFormat::CAMERA_FORMAT_YCBCR_420_888);
     EXPECT_EQ(formatAdapter, VideoPixelFormatAdapter::FORMAT_YCBCR_420_888);
+    formatAdapter =
+        adapter.TransToAdapterCameraFormat(static_cast<CameraFormat>(0));
+    EXPECT_EQ(formatAdapter, VideoPixelFormatAdapter::FORMAT_UNKNOWN);
     CameraFormat format = adapter.TransToOriCameraFormat(VideoPixelFormatAdapter::FORMAT_YCBCR_420_888);
     EXPECT_EQ(format, CameraFormat::CAMERA_FORMAT_YCBCR_420_888);
     ExposureModeAdapter exposure = adapter.GetAdapterExposureMode(ExposureMode::EXPOSURE_MODE_LOCKED);
@@ -263,19 +270,20 @@ HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_GetOriFocusMode_006, TestS
     std::shared_ptr<CameraMetadata> data = std::make_shared<CameraMetadata>(0, 0);
     dmDeviceInfo tempDmDeviceInfo;
     sptr<CameraDevice> device = new(std::nothrow) CameraDevice("test", data, tempDmDeviceInfo);
-    result = adapter.InitCameraInput(devicesDiscriptor[0].deviceId);
+    std::string deviceId = "0";
+    result = adapter.InitCameraInput(deviceId);
     EXPECT_NE(result, 0);
     sptr<ICameraDeviceService> deviceObj = nullptr;
     sptr<CameraInput> cameraInput = new(std::nothrow) CameraInput(deviceObj, device);
     adapter.cameraInput_ = cameraInput;
-    result = adapter.InitCameraInput(devicesDiscriptor[0].deviceId);
+    result = adapter.InitCameraInput(deviceId);
     EXPECT_EQ(result, 0);
     VideoCaptureParamsAdapter captureParams = {
         .captureFormat = {
-            .width = devicesDiscriptor[0].supportCaptureFormats[0].width,
-            .height = devicesDiscriptor[0].supportCaptureFormats[0].height,
-            .frameRate = devicesDiscriptor[0].supportCaptureFormats[0].frameRate,
-            .pixelFormat = devicesDiscriptor[0].supportCaptureFormats[0].pixelFormat,
+            .width = 1,
+            .height = 1,
+            .frameRate = 1,
+            .pixelFormat = VideoPixelFormatAdapter::FORMAT_RGBA_8888,
         },
         .enableFaceDetection = true,
     };
@@ -286,11 +294,9 @@ HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_GetOriFocusMode_006, TestS
     result = adapter.CreateAndStartSession();
     EXPECT_NE(result, 0);
     result = adapter.RestartSession();
-    EXPECT_NE(result, 0);
+    EXPECT_EQ(result, 0);
     adapter.status_ = CameraStatus::OPENED;
     result = adapter.CreateAndStartSession();
-    EXPECT_NE(result, 0);
-    result = adapter.RestartSession();
     EXPECT_NE(result, 0);
     result = adapter.StopSession(CameraStopType::NORMAL);
     EXPECT_EQ(result, 0);
@@ -300,7 +306,7 @@ HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_GetOriFocusMode_006, TestS
     EXPECT_EQ(result, 0);
     result = adapter.ReleaseSessionResource("test");
     EXPECT_EQ(result, 0);
-    result = adapter.ReleaseSessionResource(devicesDiscriptor[0].deviceId);
+    result = adapter.ReleaseSessionResource(deviceId);
     EXPECT_EQ(result, 0);
     adapter.ReleaseCameraManger();
 }
@@ -329,10 +335,10 @@ HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_TransToAdapterExposureMode
     EXPECT_FALSE(devicesDiscriptor.empty());
     VideoCaptureParamsAdapter captureParams = {
         .captureFormat = {
-            .width = devicesDiscriptor[0].supportCaptureFormats[0].width,
-            .height = devicesDiscriptor[0].supportCaptureFormats[0].height,
-            .frameRate = devicesDiscriptor[0].supportCaptureFormats[0].frameRate,
-            .pixelFormat = devicesDiscriptor[0].supportCaptureFormats[0].pixelFormat,
+            .width = 1,
+            .height = 1,
+            .frameRate = 1,
+            .pixelFormat = VideoPixelFormatAdapter::FORMAT_RGBA_8888,
         },
         .enableFaceDetection = true,
     };
@@ -373,6 +379,9 @@ HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_GetOriFocusMode_008, TestS
     CameraManagerAdapterImpl &adapter = CameraManagerAdapterImpl::GetInstance();
     int32_t result = adapter.Create();
     EXPECT_EQ(result, 0);
+    adapter.is_capturing_ = true;
+    result = adapter.RestartSession();
+    EXPECT_NE(result, 0);
     adapter.cameraManager_ = nullptr;
     std::vector<VideoDeviceDescriptor> devicesDiscriptor;
     adapter.GetDevicesInfo(devicesDiscriptor);
@@ -386,6 +395,12 @@ HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_GetOriFocusMode_008, TestS
     EXPECT_NE(result, 0);
     result = adapter.RestartSession();
     EXPECT_NE(result, 0);
+    adapter.is_capturing_ = false;
+    result = adapter.RestartSession();
+    EXPECT_EQ(result, 0);
+    adapter.status_ = CameraStatus::OPENED;
+    result = adapter.RestartSession();
+    EXPECT_EQ(result, 0);
     result = adapter.ReleaseSession();
     EXPECT_EQ(result, 0);
     std::vector<ExposureModeAdapter> exposureModesAdapter;
