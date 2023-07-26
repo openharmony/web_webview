@@ -86,6 +86,10 @@ private:
 
     static napi_value GetUserAgent(napi_env env, napi_callback_info info);
 
+    static napi_value GetCustomUserAgent(napi_env env, napi_callback_info info);
+
+    static napi_value SetCustomUserAgent(napi_env env, napi_callback_info info);
+
     static napi_value GetTitle(napi_env env, napi_callback_info info);
 
     static napi_value GetPageHeight(napi_env env, napi_callback_info info);
