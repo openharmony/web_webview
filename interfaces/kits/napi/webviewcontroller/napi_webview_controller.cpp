@@ -32,13 +32,38 @@
 #include "web_errors.h"
 #include "webview_javascript_execute_callback.h"
 
+namespace OHOS {
+namespace NWeb {
 namespace {
 constexpr uint32_t URL_MAXIMUM = 2048;
 constexpr uint32_t SOCKET_MAXIMUM = 6;
 constexpr char URL_REGEXPR[] = "^http(s)?:\\/\\/.+";
+
+bool ParsePrepareUrl(napi_env env, napi_value urlObj, std::string& url)
+{
+    napi_valuetype valueType = napi_null;
+    napi_typeof(env, urlObj, &valueType);
+
+    if (valueType == napi_string) {
+        NapiParseUtils::ParseString(env, urlObj, url);
+        if (url.size() > URL_MAXIMUM) {
+            WVLOG_E("The URL exceeds the maximum length of %{public}d", URL_MAXIMUM);
+            return false;
+        }
+
+        if (!regex_match(url, std::regex(URL_REGEXPR, std::regex_constants::icase))) {
+            WVLOG_E("ParsePrepareUrl error");
+            return false;
+        }
+
+        return true;
+    }
+
+    WVLOG_E("Unable to parse type from url object.");
+    return false;
 }
-namespace OHOS {
-namespace NWeb {
+} // namespace
+
 using namespace NWebError;
 using NWebError::NO_ERROR;
 thread_local napi_ref g_classWebMsgPort;
@@ -3434,7 +3459,7 @@ napi_value NapiWebviewController::PrefetchPage(napi_env env, napi_callback_info 
         return nullptr;
     }
     std::string url;
-    if (!webviewController->ParseUrl(env, argv[INTEGER_ZERO], url)) {
+    if (!ParsePrepareUrl(env, argv[INTEGER_ZERO], url)) {
         BusinessError::ThrowErrorByErrcode(env, INVALID_URL);
         return nullptr;
     }
@@ -3493,35 +3518,6 @@ napi_value NapiWebviewController::PrefetchPageWithHttpHeaders(napi_env env, napi
     }
     NAPI_CALL(env, napi_get_undefined(env, &result));
     return result;
-}
-
-bool ParsePrepareUrl(napi_env env, napi_value urlObj, std::string& url)
-{
-    napi_valuetype valueType = napi_null;
-    napi_typeof(env, urlObj, &valueType);
-    if ((valueType != napi_object) && (valueType != napi_string)) {
-        WVLOG_E("Unable to parse url object.");
-        return false;
-    }
-
-    if (valueType == napi_string) {
-        NapiParseUtils::ParseString(env, urlObj, url);
-        if (url.size() > URL_MAXIMUM) {
-            WVLOG_E("The URL exceeds the maximum length of 2048");
-            return false;
-        }
-
-        if (!regex_match(url, std::regex(URL_REGEXPR, std::regex_constants::icase))) {
-            WVLOG_E("ParsePrepareUrl error");
-            return false;
-        }
-
-        WVLOG_D("The parsed url is: %{public}s", url.c_str());
-        return true;
-    }
-
-    WVLOG_E("Unable to parse type from url object.");
-    return false;
 }
 
 napi_value NapiWebviewController::PrepareForPageLoad(napi_env env, napi_callback_info info)
