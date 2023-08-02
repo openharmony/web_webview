@@ -24,6 +24,7 @@
 #undef private
 
 #include "extractor.h"
+#include "zip_file_reader.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -127,11 +128,21 @@ HWTEST_F(OhosResourceAdapterTest, OhosResourceAdapterTest_GetRawFileData_002, Te
  */
 HWTEST_F(OhosResourceAdapterTest, OhosResourceAdapterTest_OhosFileMapperImpl_003, TestSize.Level1)
 {
-    std::string rawFile = "test_web";
-    size_t len = rawFile.size();
-    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(rawFile);
+    std::string hapPath = "";
+    if (access(NWEB_HAP_PATH.c_str(), F_OK) == 0) {
+        hapPath = NWEB_HAP_PATH;
+    }
+    if (access(NWEB_HAP_PATH_1.c_str(), F_OK) == 0) {
+        hapPath = NWEB_HAP_PATH_1;
+    }
+    std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(hapPath);
+    EXPECT_NE(extractor, nullptr);
+    std::shared_ptr<OHOS::AbilityBase::ZipFileReader> fileReader =
+        OHOS::AbilityBase::ZipFileReader::CreateZipFileReader(hapPath);
+    EXPECT_NE(fileReader, nullptr);
     std::unique_ptr<OHOS::AbilityBase::FileMapper> fileMap = std::make_unique<OHOS::AbilityBase::FileMapper>();
-    fileMap->CreateFileMapper(rawFile, true, 0, 1, len);
+    EXPECT_NE(fileMap, nullptr);
+    fileMap->CreateFileMapper(fileReader, hapPath, 0, hapPath.size(), true);
     OhosFileMapperImpl apperImpl(std::move(fileMap), extractor);
     int32_t result = apperImpl.GetFd();
     EXPECT_EQ(result, -1);
@@ -142,7 +153,7 @@ HWTEST_F(OhosResourceAdapterTest, OhosResourceAdapterTest_OhosFileMapperImpl_003
     bool isCompressed = apperImpl.IsCompressed();
     EXPECT_TRUE(isCompressed);
     void* data = apperImpl.GetDataPtr();
-    EXPECT_EQ(data, nullptr);
+    EXPECT_NE(data, nullptr);
     size_t dataLen = apperImpl.GetDataLen();
     EXPECT_NE(dataLen, 0);
     std::unique_ptr<uint8_t[]> dest;
