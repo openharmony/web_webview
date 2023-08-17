@@ -223,6 +223,14 @@ int64_t LocationInfoImpl::GetTimeSinceBoot() const
     return location_->GetTimeSinceBoot();
 }
 
+std::string LocationInfoImpl::GetAdditions() const
+{
+    if (location_ == nullptr) {
+        return "";
+    }
+    return location_->GetAdditions();
+}
+
 std::unique_ptr<OHOS::Location::Location>& LocationInfoImpl::GetLocation()
 {
     return location_;

@@ -55,6 +55,7 @@ public:
     double GetDirection() const override;
     int64_t GetTimeStamp() const override;
     int64_t GetTimeSinceBoot() const override;
+    std::string GetAdditions() const override;
     std::unique_ptr<OHOS::Location::Location>& GetLocation();
 private:
     std::unique_ptr<OHOS::Location::Location> location_;
