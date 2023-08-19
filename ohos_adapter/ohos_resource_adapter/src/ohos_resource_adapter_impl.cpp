@@ -289,7 +289,7 @@ bool OhosResourceAdapterImpl::GetRawFileMapper(const std::shared_ptr<OHOS::Abili
     if (!manager) {
         return false;
     }
-    std::unique_ptr<OHOS::AbilityBase::FileMapper> fileMap = manager->GetData(rawFile);
+    std::unique_ptr<OHOS::AbilityBase::FileMapper> fileMap = manager->GetMmapData(rawFile);
     if (fileMap == nullptr) {
         return false;
     }
