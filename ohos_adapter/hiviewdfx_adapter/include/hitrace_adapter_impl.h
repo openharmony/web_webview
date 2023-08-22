@@ -34,6 +34,8 @@ public:
     void FinishAsyncTrace(const std::string& value, int32_t taskId) override;
 
     void CountTrace(const std::string& name, int64_t count) override;
+
+    bool IsHiTraceEnable() override;
 };
 } // namespace OHOS::NWeb
 

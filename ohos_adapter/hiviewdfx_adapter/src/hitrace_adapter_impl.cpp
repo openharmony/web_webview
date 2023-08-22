@@ -16,6 +16,8 @@
 #include "hitrace_adapter_impl.h"
 
 #include "hitrace_meter.h"
+#include "nweb_log.h"
+#include "parameters.h"
 
 namespace OHOS::NWeb {
 HiTraceAdapterImpl& HiTraceAdapterImpl::GetInstance()
@@ -47,5 +49,17 @@ void HiTraceAdapterImpl::FinishAsyncTrace(const std::string& value, int32_t task
 void HiTraceAdapterImpl::CountTrace(const std::string& name, int64_t count)
 {
     ::CountTrace(HITRACE_TAG_NWEB, name, count);
+}
+
+bool HiTraceAdapterImpl::IsHiTraceEnable()
+{
+    const std::string KEY_TRACE_TAG = "debug.hitrace.tags.enableflags";
+
+    uint64_t tags = OHOS::system::GetUintParameter<uint64_t>(KEY_TRACE_TAG, 0);
+    if (tags == 0) {
+        WVLOG_E("HiTraceAdapterImpl GetUintParameter %s error.", KEY_TRACE_TAG.c_str());
+        return false;
+    }
+    return (tags & HITRACE_TAG_NWEB);
 }
 } // namespace OHOS::NWeb
