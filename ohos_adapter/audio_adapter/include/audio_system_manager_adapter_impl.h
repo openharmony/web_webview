@@ -35,6 +35,18 @@ private:
     std::shared_ptr<AudioManagerCallbackAdapter> cb_ = nullptr;
 };
 
+class AudioManagerDeviceChangeCallbackAdapterImpl : public AudioManagerDeviceChangeCallback {
+public:
+    explicit AudioManagerDeviceChangeCallbackAdapterImpl(std::shared_ptr<AudioManagerDeviceChangeCallbackAdapter> cb);
+
+    ~AudioManagerDeviceChangeCallbackAdapterImpl() override = default;
+
+    void OnDeviceChange(const DeviceChangeAction& deviceChangeAction) override;
+
+private:
+    std::shared_ptr<AudioManagerDeviceChangeCallbackAdapter> cb_ = nullptr;
+};
+
 class AudioSystemManagerAdapterImpl : public AudioSystemManagerAdapter {
 public:
     AudioSystemManagerAdapterImpl() = default;
@@ -61,10 +73,15 @@ public:
 
     AudioAdapterDeviceDesc GetDefaultOutputDevice() override;
 
+    int32_t SetDeviceChangeCallback(const std::shared_ptr<AudioManagerDeviceChangeCallbackAdapter>& callback) override;
+
+    int32_t UnsetDeviceChangeCallback() override;
+
     static AudioStreamType GetStreamType(AudioAdapterStreamType streamType);
 
 private:
     std::shared_ptr<AudioManagerCallbackAdapterImpl> callback_;
+    std::shared_ptr<AudioManagerDeviceChangeCallbackAdapterImpl> deviceChangeCallback_ = nullptr;
 };
 }  // namespace OHOS::NWeb
 
