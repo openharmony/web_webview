@@ -31,6 +31,8 @@ public:
 
     virtual void CountTrace(const std::string& name, int64_t count) = 0;
 
+    virtual bool IsHiTraceEnable() = 0;
+
 protected:
     HiTraceAdapter() = default;
 
