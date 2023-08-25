@@ -34,6 +34,7 @@
 #include "hisysevent_adapter.h"
 #include "hitrace_adapter.h"
 #include "imf_adapter.h"
+#include "keystore_adapter.h"
 #include "media_adapter.h"
 #include "mmi_adapter.h"
 #include "net_connect_adapter.h"
@@ -90,6 +91,8 @@ public:
     std::unique_ptr<VSyncAdapter> GetVSyncAdapter() const;
 
     std::unique_ptr<OhosInitWebAdapter> GetInitWebAdapter() const;
+
+    KeystoreAdapter& GetKeystoreAdapterInstance() const;
 
     EnterpriseDeviceManagementAdapter& GetEnterpriseDeviceManagementInstance() const;
 

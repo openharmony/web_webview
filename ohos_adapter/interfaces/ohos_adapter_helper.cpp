@@ -30,6 +30,7 @@
 #include "hisysevent_adapter_impl.h"
 #include "hitrace_adapter_impl.h"
 #include "imf_adapter_impl.h"
+#include "keystore_adapter_impl.h"
 #include "mmi_adapter_impl.h"
 #include "net_connect_adapter_impl.h"
 #include "net_proxy_adapter_impl.h"
@@ -145,6 +146,11 @@ std::unique_ptr<VSyncAdapter> OhosAdapterHelper::GetVSyncAdapter() const
 std::unique_ptr<OhosInitWebAdapter> OhosAdapterHelper::GetInitWebAdapter() const
 {
     return std::make_unique<OhosInitWebAdapterImpl>();
+}
+
+KeystoreAdapter& OhosAdapterHelper::GetKeystoreAdapterInstance() const
+{
+    return KeystoreAdapterImpl::GetInstance();
 }
 
 EnterpriseDeviceManagementAdapter& OhosAdapterHelper::GetEnterpriseDeviceManagementInstance() const

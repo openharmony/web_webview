@@ -49,6 +49,7 @@
                 "hilog",
                 "hisysevent",
                 "hitrace",
+                "huks",
                 "imf",
                 "init",
                 "input",
