@@ -127,11 +127,12 @@ napi_value NapiWebCookieManager::JsGetCookie(napi_env env, napi_callback_info in
     std::string cookieContent = "";
 
     OHOS::NWeb::NWebCookieManager* cookieManager = OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
+    bool is_valid = true;
     if (cookieManager != nullptr) {
-        cookieContent = cookieManager->ReturnCookie(url);
+        cookieContent = cookieManager->ReturnCookie(url, is_valid);
     }
 
-    if (cookieContent == "") {
+    if (cookieContent == "" && !is_valid) {
         NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::INVALID_URL);
         return nullptr;
     }
