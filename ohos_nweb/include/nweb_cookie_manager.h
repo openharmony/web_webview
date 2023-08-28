@@ -88,7 +88,7 @@ public:
      * @param url the URL for which the cookies are requested.
      * @return the cookie value for given URL.
      */
-    virtual std::string ReturnCookie(const std::string &url) = 0;
+    virtual std::string ReturnCookie(const std::string &url, bool &is_valid) = 0;
 
     /**
      * @brief Set a single cookie (key-value pair) for the given URL.
