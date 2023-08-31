@@ -77,6 +77,8 @@ public:
     virtual int64_t GetTimeStamp() const = 0;
 
     virtual int64_t GetTimeSinceBoot() const = 0;
+
+    virtual std::string GetAdditions() const = 0;
 };
 
 class LocationCallbackAdapter {
