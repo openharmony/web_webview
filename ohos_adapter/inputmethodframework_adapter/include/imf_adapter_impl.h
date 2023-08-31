@@ -66,6 +66,9 @@ public:
 
     bool Attach(std::shared_ptr<IMFTextListenerAdapter> listener, bool isShowKeyboard) override;
 
+    bool Attach(std::shared_ptr<IMFTextListenerAdapter> listener, bool isShowKeyboard,
+        const IMFAdapterTextConfig& config) override;
+
     void ShowCurrentInput(const IMFAdapterTextInputType &inputType) override;
 
     void HideTextInput() override;

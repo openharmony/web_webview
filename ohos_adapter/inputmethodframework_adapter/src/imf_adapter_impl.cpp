@@ -207,6 +207,40 @@ bool IMFAdapterImpl::Attach(std::shared_ptr<IMFTextListenerAdapter> listener, bo
     return true;
 }
 
+bool IMFAdapterImpl::Attach(
+    std::shared_ptr<IMFTextListenerAdapter> listener, bool isShowKeyboard, const IMFAdapterTextConfig &config)
+{
+    if (!listener) {
+        WVLOG_E("the listener is nullptr");
+        return false;
+    }
+    if (!textListener_) {
+        textListener_ = new (std::nothrow) IMFTextListenerAdapterImpl(listener);
+        if (!textListener_) {
+            WVLOG_E("new textListener failed");
+            return false;
+        }
+    }
+
+    MiscServices::InputAttribute inputAttribute = { .inputPattern = config.inputAttribute.inputPattern,
+        .enterKeyType = config.inputAttribute.enterKeyType };
+
+    MiscServices::CursorInfo imfInfo = {
+        .left = config.cursorInfo.left,
+        .top = config.cursorInfo.top,
+        .width = config.cursorInfo.width,
+        .height = config.cursorInfo.height
+    };
+
+    MiscServices::TextConfig textConfig = { .inputAttribute = inputAttribute, .cursorInfo = imfInfo };
+    int32_t ret = MiscServices::InputMethodController::GetInstance()->Attach(textListener_, isShowKeyboard, textConfig);
+    if (ret != 0) {
+        WVLOG_E("inputmethod attach failed, errcode=%{public}d", ret);
+        return false;
+    }
+    return true;
+}
+
 void IMFAdapterImpl::ShowCurrentInput(const IMFAdapterTextInputType& inputType)
 {
     MiscServices::Configuration config;
