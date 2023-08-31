@@ -48,6 +48,23 @@ struct IMFAdapterCursorInfo {
     double height = 0.0;
 };
 
+struct IMFAdapterInputAttribute {
+    int32_t inputPattern = 0;
+    int32_t enterKeyType = 0;
+};
+
+struct IMFAdapterSelectionRange {
+    int32_t start = -1;
+    int32_t end = -1;
+};
+
+struct IMFAdapterTextConfig {
+    IMFAdapterInputAttribute inputAttribute = {};
+    IMFAdapterCursorInfo cursorInfo = {};
+    IMFAdapterSelectionRange range = {};
+    uint32_t windowId = -1;
+};
+
 enum class IMFAdapterKeyboardStatus : int32_t { NONE = 0, HIDE, SHOW };
 
 class IMFAdapterFunctionKey {
@@ -108,6 +125,9 @@ public:
     virtual ~IMFAdapter() = default;
 
     virtual bool Attach(std::shared_ptr<IMFTextListenerAdapter> listener, bool isShowKeyboard) = 0;
+
+    virtual bool Attach(
+        std::shared_ptr<IMFTextListenerAdapter> listener, bool isShowKeyboard, const IMFAdapterTextConfig& config) = 0;
 
     virtual void ShowCurrentInput(const IMFAdapterTextInputType &inputType) = 0;
 
