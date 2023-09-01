@@ -55,8 +55,8 @@ ProductDeviceType SystemPropertiesAdapterImpl::GetProductDeviceType() const
         return ProductDeviceType::DEVICE_TYPE_MOBILE;
     } else if (deviceType == "tablet") {
         return ProductDeviceType::DEVICE_TYPE_TABLET;
-    } else if (deviceType == "pc") {
-        return ProductDeviceType::DEVICE_TYPE_PC;
+    } else if (deviceType == "2in1") {
+        return ProductDeviceType::DEVICE_TYPE_2IN1;
     }
 
     return ProductDeviceType::DEVICE_TYPE_UNKNOWN;
