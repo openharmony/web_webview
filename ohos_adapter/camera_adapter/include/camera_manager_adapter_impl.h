@@ -65,6 +65,19 @@ private:
     sptr<SurfaceBuffer> buffer_ = nullptr;
 };
 
+class CameraManagerAdapterCallback : public CameraManagerCallback {
+public:
+    explicit CameraManagerAdapterCallback(std::shared_ptr<CameraStatusCallbackAdapter> callback);
+    ~CameraManagerAdapterCallback() = default;
+    void OnCameraStatusChanged(const CameraStatusInfo &cameraStatusInfo) const override;
+    void OnFlashlightStatusChanged(const std::string &cameraID,
+                                   const FlashStatus flashStatus) const override;
+
+private:
+    CameraStatusAdapter GetAdapterCameraStatus(CameraStatus status) const;
+    std::shared_ptr<CameraStatusCallbackAdapter> statusCallback_;
+};
+
 class CameraManagerAdapterImpl : public CameraManagerAdapter {
 public:
     static CameraManagerAdapterImpl& GetInstance();
@@ -72,7 +85,7 @@ public:
 
     ~CameraManagerAdapterImpl() override = default;
 
-    int32_t Create() override;
+    int32_t Create(std::shared_ptr<CameraStatusCallbackAdapter> cameraStatusCallback) override;
 
     void GetDevicesInfo(std::vector<VideoDeviceDescriptor> &devicesDiscriptor) override;
 
@@ -94,13 +107,17 @@ public:
 
     int32_t StopSession(CameraStopType stopType) override;
 
-    CameraStatus GetCameraStatus() override;
+    CameraStatusAdapter GetCameraStatus() override;
 
     bool IsExistCaptureTask() override;
 
     int32_t StartStream(const std::string &deviceId,
         const VideoCaptureParamsAdapter &captureParams,
         std::shared_ptr<CameraBufferListenerAdapter> listener) override;
+
+    void SetForegroundFlag(bool isForeground) override;
+
+    void SetCameraStatus(CameraStatusAdapter status) override;
 
 private:
     VideoTransportType GetCameraTransportType(ConnectionType connectType);
@@ -135,11 +152,13 @@ private:
     const uint32_t RANGE_MAX_SIZE = 2;
     const uint32_t RANGE_MIN_INDEX = 0;
     const uint32_t RANGE_MAX_INDEX = 1;
-    CameraStatus status_ = CameraStatus::CLOSED;
+    CameraStatusAdapter status_ = CameraStatusAdapter::AVAILABLE;
     std::mutex mutex_;
-    bool input_inited_flag_ = false;
-    bool is_capturing_ = false;
+    bool inputInitedFlag_ = false;
+    bool isCapturing_ = false;
+    bool isForegound_ = false;
     std::mutex restart_mutex_;
+    std::shared_ptr<CameraManagerAdapterCallback> cameraMngrCallback_;
 };
 
 class CameraSurfaceListener : public IBufferConsumerListener {

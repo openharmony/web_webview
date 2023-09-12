@@ -77,6 +77,13 @@ const std::unordered_map<FlashModeAdapter, FlashMode> FLASH_MODE_MAP = {
     {FlashModeAdapter::FLASH_MODE_ALWAYS_OPEN, FLASH_MODE_ALWAYS_OPEN},
 };
 
+const std::unordered_map<CameraStatus, CameraStatusAdapter> CAMERA_STATUS_MAP = {
+    {CAMERA_STATUS_APPEAR, CameraStatusAdapter::APPEAR},
+    {CAMERA_STATUS_DISAPPEAR, CameraStatusAdapter::DISAPPEAR},
+    {CAMERA_STATUS_AVAILABLE, CameraStatusAdapter::AVAILABLE},
+    {CAMERA_STATUS_UNAVAILABLE, CameraStatusAdapter::UNAVAILABLE},
+};
+
 VideoTransportType CameraManagerAdapterImpl::GetCameraTransportType(ConnectionType connectType)
 {
     auto item = TRANS_TYPE_MAP.find(connectType);
@@ -163,9 +170,10 @@ CameraManagerAdapterImpl& CameraManagerAdapterImpl::GetInstance()
     return instance;
 }
 
-int32_t CameraManagerAdapterImpl::Create()
+int32_t CameraManagerAdapterImpl::Create(std::shared_ptr<CameraStatusCallbackAdapter> cameraStatusCallback)
 {
     std::lock_guard<std::mutex> lock(mutex_);
+
     WVLOG_I("create CameraManagerAdapterImpl");
     if (cameraManager_ == nullptr) {
         cameraManager_ = CameraManager::GetInstance();
@@ -174,6 +182,8 @@ int32_t CameraManagerAdapterImpl::Create()
             return CAMERA_ERROR;
         }
     }
+    cameraMngrCallback_ = std::make_shared<CameraManagerAdapterCallback>(cameraStatusCallback);
+    cameraManager_->SetCallback(cameraMngrCallback_);
     return CAMERA_OK;
 }
 
@@ -237,12 +247,12 @@ int32_t CameraManagerAdapterImpl::InitCameraInput(const std::string &deviceId)
 {
     int32_t result = CAMERA_ERROR;
 
-    if (status_ != CameraStatus::CLOSED) {
+    if (status_ == CameraStatusAdapter::UNAVAILABLE) {
         WVLOG_E("camera is not closed");
         return result;
     }
 
-    if (input_inited_flag_) {
+    if (inputInitedFlag_) {
         WVLOG_E("input is already inited");
         return result;
     }
@@ -271,7 +281,7 @@ int32_t CameraManagerAdapterImpl::InitCameraInput(const std::string &deviceId)
             return result;
         }
         deviceId_ = deviceId;
-        input_inited_flag_ = true;
+        inputInitedFlag_ = true;
     }
 
     result = CAMERA_OK;
@@ -284,7 +294,7 @@ int32_t CameraManagerAdapterImpl::InitPreviewOutput(const VideoCaptureParamsAdap
     int32_t result = CAMERA_ERROR;
     Size previewSize;
 
-    if (!input_inited_flag_) {
+    if (!inputInitedFlag_) {
         WVLOG_E("input is not inited");
         return result;
     }
@@ -450,7 +460,7 @@ bool CameraManagerAdapterImpl::IsFlashModeSupported(FlashModeAdapter focusMode)
 int32_t CameraManagerAdapterImpl::CreateAndStartSession()
 {
     int32_t result = CAMERA_ERROR;
-    if (status_ == CameraStatus::OPENED) {
+    if (status_ == CameraStatusAdapter::UNAVAILABLE) {
         WVLOG_E("camera is already opened");
         return result;
     }
@@ -495,8 +505,8 @@ int32_t CameraManagerAdapterImpl::CreateAndStartSession()
         return result;
     }
     result = CAMERA_OK;
-    status_ = CameraStatus::OPENED;
-    is_capturing_ = true;
+    status_ = CameraStatusAdapter::UNAVAILABLE;
+    isCapturing_ = true;
     return result;
 }
 
@@ -504,13 +514,13 @@ int32_t CameraManagerAdapterImpl::RestartSession()
 {
     std::lock_guard<std::mutex> lock(restart_mutex_);
     WVLOG_I("RestartSession %{public}s", deviceId_.c_str());
-    if (!is_capturing_) {
+    if (!isCapturing_) {
         WVLOG_E("this web tab is not capturing");
         return CAMERA_OK;
     }
 
-    if (status_ == CameraStatus::OPENED) {
-        WVLOG_E("camera is already opened");
+    if (!((isForegound_) && (status_ == CameraStatusAdapter::AVAILABLE))) {
+        WVLOG_E("can not restart session, status:%{public}d, isForeground:%{public}d", status_, isForegound_);
         return CAMERA_OK;
     }
 
@@ -519,13 +529,20 @@ int32_t CameraManagerAdapterImpl::RestartSession()
         return CAMERA_ERROR;
     }
 
+    cameraInput_ = nullptr;
+    previewOutput_ = nullptr;
+    previewSurface_ = nullptr;
+    previewSurfaceListener_ = nullptr;
+    inputInitedFlag_ = false;
+    captureSession_ = nullptr;
+
     if (StartStream(deviceId_, captureParams_, listener_) != CAMERA_OK) {
         WVLOG_E("restart stream failed");
         ReleaseSessionResource(deviceId_);
         ReleaseSession();
         return CAMERA_ERROR;
     }
-    status_ = CameraStatus::OPENED;
+    status_ = CameraStatusAdapter::UNAVAILABLE;
     return CAMERA_OK;
 }
 
@@ -533,7 +550,7 @@ int32_t CameraManagerAdapterImpl::StopSession(CameraStopType stopType)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     WVLOG_I("StopSession");
-    if (status_ == CameraStatus::CLOSED) {
+    if (status_ == CameraStatusAdapter::AVAILABLE) {
         WVLOG_E("camera is already closed when stop session");
         return CAMERA_OK;
     }
@@ -541,7 +558,7 @@ int32_t CameraManagerAdapterImpl::StopSession(CameraStopType stopType)
     ReleaseSession();
     
     if (stopType == CameraStopType::NORMAL) {
-        is_capturing_ = false;
+        isCapturing_ = false;
     }
     return CAMERA_OK;
 }
@@ -578,8 +595,9 @@ int32_t CameraManagerAdapterImpl::ReleaseSessionResource(const std::string &devi
 
     previewSurface_ = nullptr;
     previewSurfaceListener_ = nullptr;
-    status_ = CameraStatus::CLOSED;
-    input_inited_flag_ = false;
+    status_ = CameraStatusAdapter::AVAILABLE;
+    inputInitedFlag_ = false;
+    isForegound_ = false;
 
     return CAMERA_OK;
 }
@@ -591,15 +609,23 @@ int32_t CameraManagerAdapterImpl::ReleaseCameraManger()
     ReleaseSessionResource(deviceId_);
     ReleaseSession();
     cameraManager_ = nullptr;
-    status_ = CameraStatus::CLOSED;
-    input_inited_flag_ = false;
+    status_ = CameraStatusAdapter::AVAILABLE;
+    inputInitedFlag_ = false;
+    isForegound_ = false;
+    cameraMngrCallback_ = nullptr;
     return CAMERA_OK;
 }
 
-CameraStatus CameraManagerAdapterImpl::GetCameraStatus()
+CameraStatusAdapter CameraManagerAdapterImpl::GetCameraStatus()
 {
     std::lock_guard<std::mutex> lock(mutex_);
     return status_;
+}
+
+void CameraManagerAdapterImpl::SetCameraStatus(CameraStatusAdapter status)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    status_ = status;
 }
 
 bool CameraManagerAdapterImpl::IsExistCaptureTask()
@@ -609,8 +635,14 @@ bool CameraManagerAdapterImpl::IsExistCaptureTask()
         WVLOG_E("cameraManager_ is nullptr");
         return false;
     }
-    return is_capturing_;
+    return isCapturing_;
 }
+
+void CameraManagerAdapterImpl::SetForegroundFlag(bool isForeground)
+{
+    isForegound_ = isForeground;
+}
+
 
 int32_t CameraManagerAdapterImpl::StartStream(const std::string &deviceId,
     const VideoCaptureParamsAdapter &captureParams,
@@ -814,5 +846,38 @@ int32_t CameraSurfaceAdapterImpl::ReleaseBuffer(std::unique_ptr<CameraSurfaceBuf
     }
     auto bufferImpl = static_cast<CameraSurfaceBufferAdapterImpl*>(bufferAdapter.get());
     return cSurface_->ReleaseBuffer(bufferImpl->GetBuffer(), fence);
+}
+
+CameraManagerAdapterCallback::CameraManagerAdapterCallback(std::shared_ptr<CameraStatusCallbackAdapter>
+    cameraStatusCallback): statusCallback_(cameraStatusCallback)
+{
+    WVLOG_I("Create CameraManagerAdapterCallback");
+}
+
+CameraStatusAdapter CameraManagerAdapterCallback::GetAdapterCameraStatus(CameraStatus status) const
+{
+    auto item = CAMERA_STATUS_MAP.find(status);
+    if (item == CAMERA_STATUS_MAP.end()) {
+        WVLOG_E("ori camera status %{public}d not found", status);
+        return CameraStatusAdapter::APPEAR;
+    }
+    return item->second;
+}
+
+void CameraManagerAdapterCallback::OnCameraStatusChanged(const CameraStatusInfo &cameraStatusInfo) const
+{
+    WVLOG_I("OnCameraStatusChanged: %{public}d", cameraStatusInfo.cameraStatus);
+    CameraStatusAdapter cameraStatusAdapter = GetAdapterCameraStatus(cameraStatusInfo.cameraStatus);
+    if (statusCallback_) {
+        WVLOG_I("adapter status callback");
+        statusCallback_->OnCameraStatusChanged(cameraStatusAdapter);
+    }
+    return;
+}
+
+void CameraManagerAdapterCallback::OnFlashlightStatusChanged(const std::string &cameraID,
+                                                             const FlashStatus flashStatus) const
+{
+    return;
 }
 }  // namespace OHOS::NWeb
