@@ -76,11 +76,6 @@ enum class RangeIDAdapter {
     RANGE_ID_EXP_COMPENSATION,
 };
 
-enum class CameraStatus {
-    OPENED = 0,
-    CLOSED
-};
-
 enum class CameraStopType {
     TO_BACK = 0,
     NORMAL
@@ -92,6 +87,13 @@ typedef struct FormatAdapterTag {
     float frameRate;
     VideoPixelFormatAdapter pixelFormat;
 } FormatAdapter;
+
+enum CameraStatusAdapter {
+    APPEAR = 0,
+    DISAPPEAR,
+    AVAILABLE,
+    UNAVAILABLE
+};
 
 typedef struct VideoDeviceDescriptorTag {
     std::string displayName;
@@ -171,13 +173,20 @@ public:
         CameraRotationInfo rotationInfo) = 0;
 };
 
+class CameraStatusCallbackAdapter {
+public:
+    virtual ~CameraStatusCallbackAdapter() = default;
+
+    virtual void OnCameraStatusChanged(CameraStatusAdapter cameraStatusAdapter) = 0;
+};
+
 class CameraManagerAdapter {
 public:
     CameraManagerAdapter() = default;
 
     virtual ~CameraManagerAdapter() = default;
 
-    virtual int32_t Create() = 0;
+    virtual int32_t Create(std::shared_ptr<CameraStatusCallbackAdapter> cameraStatusCallback) = 0;
 
     virtual void GetDevicesInfo(std::vector<VideoDeviceDescriptor> &devicesDiscriptor) = 0;
 
@@ -199,13 +208,17 @@ public:
 
     virtual int32_t StopSession(CameraStopType stopType) = 0;
 
-    virtual CameraStatus GetCameraStatus() = 0;
+    virtual CameraStatusAdapter GetCameraStatus() = 0;
 
     virtual bool IsExistCaptureTask() = 0;
 
     virtual int32_t StartStream(const std::string &deviceId,
         const VideoCaptureParamsAdapter &captureParams,
         std::shared_ptr<CameraBufferListenerAdapter> listener) = 0;
+
+    virtual void SetForegroundFlag(bool isForeground) = 0;
+
+    virtual void SetCameraStatus(CameraStatusAdapter status) = 0;
 };
 } // namespace OHOS::NWeb
 
