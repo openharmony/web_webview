@@ -82,7 +82,7 @@ HWTEST_F(ResSchedAdapterImplTest, ResSchedAdapterImplTest_ReportWindowStatus_002
     bool result = resAdapter->ReportWindowStatus(static_cast<ResSchedStatusAdapter>(-1), 1, 1);
     EXPECT_FALSE(result);
     result = resAdapter->ReportWindowStatus(ResSchedStatusAdapter::THREAD_CREATED, 1, 1);
-    EXPECT_TRUE(result);
+    EXPECT_FALSE(result);
 
     result = resAdapter->ReportScene(static_cast<ResSchedStatusAdapter>(-1), ResSchedSceneAdapter::CLICK);
     EXPECT_FALSE(result);
@@ -90,6 +90,11 @@ HWTEST_F(ResSchedAdapterImplTest, ResSchedAdapterImplTest_ReportWindowStatus_002
     EXPECT_FALSE(result);
     result = resAdapter->ReportScene(ResSchedStatusAdapter::THREAD_CREATED, ResSchedSceneAdapter::CLICK);
     EXPECT_TRUE(result);
+
+    resAdapter->ReportNWebInit(ResSchedStatusAdapter::WEB_SCENE_ENTER, 1);
+    result = resAdapter->ReportWindowStatus(ResSchedStatusAdapter::THREAD_CREATED, 1, 1, 1);
+    EXPECT_TRUE(result);
+    resAdapter->ReportNWebInit(ResSchedStatusAdapter::WEB_SCENE_EXIT, 1);
 }
 }
 } // namespace NWeb
