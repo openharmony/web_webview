@@ -108,6 +108,18 @@ void AudioManagerCallbackAdapterImpl::OnInterrupt(const InterruptAction& interru
     }
 }
 
+AudioManagerDeviceChangeCallbackAdapterImpl::AudioManagerDeviceChangeCallbackAdapterImpl(
+    std::shared_ptr<AudioManagerDeviceChangeCallbackAdapter> cb)
+    : cb_(cb) {};
+
+void AudioManagerDeviceChangeCallbackAdapterImpl::OnDeviceChange(const DeviceChangeAction& deviceChangeAction)
+{
+    if (!cb_) {
+        return;
+    }
+    cb_->OnDeviceChange();
+}
+
 AudioSystemManagerAdapterImpl& AudioSystemManagerAdapterImpl::GetInstance()
 {
     static AudioSystemManagerAdapterImpl instance;
@@ -261,6 +273,33 @@ AudioAdapterDeviceDesc AudioSystemManagerAdapterImpl::GetDefaultOutputDevice()
         desc.deviceName = deviceTypeKey->second;
     }
     return desc;
+}
+
+int32_t AudioSystemManagerAdapterImpl::SetDeviceChangeCallback(
+    const std::shared_ptr<AudioManagerDeviceChangeCallbackAdapter>& callback)
+{
+    if (callback == nullptr) {
+        WVLOG_E("audio device change callback is nullptr");
+        return AUDIO_NULL_ERROR;
+    }
+    DeviceFlag deviceFlag = DeviceFlag::OUTPUT_DEVICES_FLAG;
+    deviceChangeCallback_ = std::make_shared<AudioManagerDeviceChangeCallbackAdapterImpl>(callback);
+    if (deviceChangeCallback_ == nullptr) {
+        WVLOG_E("audio device change callback impl is nullptr");
+        return AUDIO_NULL_ERROR;
+    }
+    int32_t ret = AudioSystemManager::GetInstance()->SetDeviceChangeCallback(deviceFlag, deviceChangeCallback_);
+    if (ret != AudioStandard::SUCCESS) {
+        WVLOG_E("audio manager set audio device change callback failed, code: %{public}d", ret);
+        return AUDIO_ERROR;
+    }
+    return AUDIO_OK;
+}
+
+int32_t AudioSystemManagerAdapterImpl::UnsetDeviceChangeCallback()
+{
+    int32_t ret = AudioSystemManager::GetInstance()->UnsetDeviceChangeCallback();
+    return ret;
 }
 
 AudioStreamType AudioSystemManagerAdapterImpl::GetStreamType(AudioAdapterStreamType streamType)

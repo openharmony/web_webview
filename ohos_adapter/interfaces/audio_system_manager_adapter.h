@@ -17,6 +17,7 @@
 #define AUDIO_SYSTEM_MANAGER_ADAPTER_H
 
 #include <vector>
+
 #include "audio_renderer_adapter.h"
 
 namespace OHOS::NWeb {
@@ -33,7 +34,7 @@ enum class AudioAdapterStreamType {
     STREAM_BLUETOOTH_SCO = 8,
     STREAM_ENFORCED_AUDIBLE = 9,
     STREAM_DTMF = 10,
-    STREAM_TTS =  11,
+    STREAM_TTS = 11,
     STREAM_ACCESSIBILITY = 12,
     STREAM_RECORDING = 13,
     STREAM_ALL = 100
@@ -75,6 +76,15 @@ public:
     virtual void OnResume() = 0;
 };
 
+class AudioManagerDeviceChangeCallbackAdapter {
+public:
+    AudioManagerDeviceChangeCallbackAdapter() = default;
+
+    virtual ~AudioManagerDeviceChangeCallbackAdapter() = default;
+
+    virtual void OnDeviceChange() = 0;
+};
+
 class AudioSystemManagerAdapter {
 public:
     AudioSystemManagerAdapter() = default;
@@ -85,17 +95,22 @@ public:
 
     virtual bool HasAudioInputDevices() const = 0;
 
-    virtual int32_t RequestAudioFocus(const AudioAdapterInterrupt &audioInterrupt) = 0;
+    virtual int32_t RequestAudioFocus(const AudioAdapterInterrupt& audioInterrupt) = 0;
 
-    virtual int32_t AbandonAudioFocus(const AudioAdapterInterrupt &audioInterrupt) = 0;
+    virtual int32_t AbandonAudioFocus(const AudioAdapterInterrupt& audioInterrupt) = 0;
 
-    virtual int32_t SetAudioManagerInterruptCallback(const std::shared_ptr<AudioManagerCallbackAdapter> &callback) = 0;
+    virtual int32_t SetAudioManagerInterruptCallback(const std::shared_ptr<AudioManagerCallbackAdapter>& callback) = 0;
 
     virtual int32_t UnsetAudioManagerInterruptCallback() = 0;
 
     virtual std::vector<AudioAdapterDeviceDesc> GetDevices(AdapterDeviceFlag flag) const = 0;
 
     virtual int32_t SelectAudioDevice(AudioAdapterDeviceDesc desc, bool isInput) const = 0;
+
+    virtual int32_t SetDeviceChangeCallback(
+        const std::shared_ptr<AudioManagerDeviceChangeCallbackAdapter>& callback) = 0;
+
+    virtual int32_t UnsetDeviceChangeCallback() = 0;
 
     virtual AudioAdapterDeviceDesc GetDefaultOutputDevice() = 0;
 };
