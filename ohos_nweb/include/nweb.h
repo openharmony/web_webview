@@ -431,11 +431,11 @@ public:
      * RegisterArkJSfunction
      *
      * @param object_name  String: objector name
-     * @param method_list  vector<String>: vector list, method list
-     * @param object_id    int32_t: object id
+     * @param method_list vector<String>: vector list, method list
      */
     virtual void RegisterArkJSfunction(
-        const std::string& object_name, const std::vector<std::string>& method_list, const int32_t object_id) = 0;
+        const std::string& object_name,
+        const std::vector<std::string>& method_list) = 0;
 
     /**
      * UnregisterArkJSfunction
@@ -608,12 +608,12 @@ public:
      * Get navigation history list
      *
      * @return navigation history list
-     */
+    */
     virtual std::shared_ptr<NWebHistoryList> GetHistoryList() = 0;
 
     /**
-     * Set the NWebReleaseSurfaceCallback that will receive release surface
-     * event. This will replace the current handler.
+     * Set the NWebReleaseSurfaceCallback that will receive release surface event.
+     * This will replace the current handler.
      *
      * @param releaseSurfaceListener NWebReleaseSurfaceCallback.
      */
@@ -624,28 +624,28 @@ public:
      * Get Web back forward state.
      *
      * @return web back forward state.
-     */
+    */
     virtual WebState SerializeWebState() = 0;
 
     /**
      * Restore Web back forward state.
      *
      * @param web back forward state.
-     */
+    */
     virtual bool RestoreWebState(WebState state) = 0;
 
     /**
      * Move page up.
      *
      * @param top whether move to the top.
-     */
+    */
     virtual void PageUp(bool top) = 0;
 
     /**
      * Move page down.
      *
      * @param bottom whether move to the bottom.
-     */
+    */
     virtual void PageDown(bool bottom) = 0;
 
     /**
@@ -653,7 +653,7 @@ public:
      *
      * @param x the x of the position.
      * @param y the y of the position.
-     */
+    */
     virtual void ScrollTo(float x, float y) = 0;
 
     /**
@@ -661,7 +661,7 @@ public:
      *
      * @param deltaX the deltaX of the position.
      * @param deltaY the deltaY of the position.
-     */
+    */
     virtual void ScrollBy(float deltaX, float deltaY) = 0;
 
     /**
@@ -669,7 +669,7 @@ public:
      *
      * @param vx the vx of the speed.
      * @param vy the vy of the speed.
-     */
+    */
     virtual void SlideScroll(float vx, float vy) = 0;
 
     /**

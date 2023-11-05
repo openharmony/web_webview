@@ -209,7 +209,6 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("stop", NapiWebviewController::Stop),
         DECLARE_NAPI_FUNCTION("zoom", NapiWebviewController::Zoom),
         DECLARE_NAPI_FUNCTION("registerJavaScriptProxy", NapiWebviewController::RegisterJavaScriptProxy),
-        DECLARE_NAPI_FUNCTION("innerCompleteWindowNew", NapiWebviewController::InnerCompleteWindowNew),
         DECLARE_NAPI_FUNCTION("deleteJavaScriptRegister", NapiWebviewController::DeleteJavaScriptRegister),
         DECLARE_NAPI_FUNCTION("runJavaScript", NapiWebviewController::RunJavaScript),
         DECLARE_NAPI_FUNCTION("runJavaScriptExt", NapiWebviewController::RunJavaScriptExt),
@@ -2442,29 +2441,6 @@ napi_value NapiWebviewController::Zoom(napi_env env, napi_callback_info info)
 
     NAPI_CALL(env, napi_get_undefined(env, &result));
     return result;
-}
-
-napi_value NapiWebviewController::InnerCompleteWindowNew(napi_env env, napi_callback_info info)
-{
-    napi_value thisVar = nullptr;
-    size_t argc = INTEGER_ONE;
-    napi_value argv[INTEGER_ONE];
-    void* data = nullptr;
-    napi_get_cb_info(env, info, &argc, argv, &thisVar, &data);
-
-    int32_t parentNwebId = -1;
-    if (!NapiParseUtils::ParseInt32(env, argv[0], parentNwebId) || parentNwebId == -1) {
-        WVLOG_E("Parse parent nweb id failed.");
-        return nullptr;
-    }
-    WebviewController* webviewController = nullptr;
-    napi_status status = napi_unwrap(env, thisVar, (void**)&webviewController);
-    if ((!webviewController) || (status != napi_ok)) {
-        WVLOG_E("webviewController is nullptr.");
-        return nullptr;
-    }
-    webviewController->InnerCompleteWindowNew(parentNwebId);
-    return thisVar;
 }
 
 napi_value NapiWebviewController::RegisterJavaScriptProxy(napi_env env, napi_callback_info info)

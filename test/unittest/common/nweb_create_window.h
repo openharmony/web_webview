@@ -172,8 +172,7 @@ public:
     }
     void RegisterArkJSfunction(
         const std::string& object_name,
-        const std::vector<std::string>& method_list,
-        const int32_t object_id) override
+        const std::vector<std::string>& method_list) override
     {}
     void UnregisterArkJSfunction(
         const std::string& object_name,

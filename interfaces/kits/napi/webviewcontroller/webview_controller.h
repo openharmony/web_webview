@@ -76,13 +76,11 @@ class WebviewController {
 public:
     explicit WebviewController() = default;
     explicit WebviewController(int32_t nwebId);
-    ~WebviewController();
+    ~WebviewController() = default;
 
     bool IsInit();
 
     void SetWebId(int32_t nwebId);
-
-    WebviewController* FromID(int32_t nwebId);
 
     bool AccessForward();
 
@@ -157,12 +155,10 @@ public:
 
     ErrCode Zoom(float factor);
 
-    void InnerCompleteWindowNew(int32_t parentNwebId);
-
     void SetNWebJavaScriptResultCallBack();
 
-    void RegisterJavaScriptProxy(
-        napi_env env, napi_value obj, const std::string& objName, const std::vector<std::string>& methodList);
+    void RegisterJavaScriptProxy(napi_env env, napi_value obj,
+        const std::string& objName, const std::vector<std::string>& methodList);
 
     ErrCode DeleteJavaScriptRegister(const std::string& objName,
         const std::vector<std::string>& methodList);
@@ -223,9 +219,7 @@ public:
     static bool webDebuggingAccess_;
 
 private:
-    std::mutex webMtx_;
     std::weak_ptr<OHOS::NWeb::NWeb> nweb_;
-    int32_t id_ = -1;
     std::shared_ptr<WebviewJavaScriptResultCallBack> javaScriptResultCb_ = nullptr;
     std::string hapPath_ = "";
 };

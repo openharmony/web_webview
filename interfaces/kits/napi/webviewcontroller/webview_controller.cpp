@@ -34,68 +34,14 @@ constexpr int32_t RESULT_COUNT = 2;
 namespace OHOS {
 namespace NWeb {
 using namespace NWebError;
-std::unordered_map<int32_t, WebviewController*> g_webview_controller_map;
 std::string WebviewController::customeSchemeCmdLine_ = "";
 bool WebviewController::existNweb_ = false;
 bool WebviewController::webDebuggingAccess_ = false;
-
-WebviewController::WebviewController(int32_t nwebId) : nweb_(NWebHelper::Instance().GetNWeb(nwebId)), id_(nwebId)
-{
-    if (IsInit()) {
-        std::unique_lock<std::mutex> lk(webMtx_);
-        g_webview_controller_map.emplace(nwebId, this);
-    }
-}
-
-WebviewController::~WebviewController()
-{
-    std::unique_lock<std::mutex> lk(webMtx_);
-    g_webview_controller_map.erase(id_);
-}
+WebviewController::WebviewController(int32_t nwebId) : nweb_(NWebHelper::Instance().GetNWeb(nwebId)) {}
 
 void WebviewController::SetWebId(int32_t nwebId)
 {
-    id_ = nwebId;
     nweb_ = NWebHelper::Instance().GetNWeb(nwebId);
-    std::unique_lock<std::mutex> lk(webMtx_);
-    g_webview_controller_map.emplace(nwebId, this);
-}
-
-WebviewController* WebviewController::FromID(int32_t nwebId)
-{
-    std::unique_lock<std::mutex> lk(webMtx_);
-    if (auto it = g_webview_controller_map.find(nwebId); it != g_webview_controller_map.end()) {
-        auto control = it->second;
-        return control;
-    }
-    return nullptr;
-}
-
-void WebviewController::InnerCompleteWindowNew(int32_t parentNwebId)
-{
-    WVLOG_D("WebviewController::InnerCompleteWindowNew parentNwebId == "
-            "%{public}d ",
-        parentNwebId);
-    if (parentNwebId < 0) {
-        WVLOG_E("WebviewController::InnerCompleteWindowNew parentNwebId == %{public}d "
-                "error",
-            parentNwebId);
-        return;
-    }
-    auto parentControl = FromID(parentNwebId);
-    if (!parentControl || !(parentControl->javaScriptResultCb_)) {
-        WVLOG_E("WebviewController::InnerCompleteWindowNew parentControl or "
-                "javaScriptResultCb_ is null");
-        return;
-    }
-    auto objs = parentControl->javaScriptResultCb_->GetObjects();
-    this->SetNWebJavaScriptResultCallBack();
-    for (auto it = objs.begin(); it != objs.end(); it++) {
-        if (it->second && this->IsInit()) {
-            this->RegisterJavaScriptProxy(
-                it->second->GetEnv(), it->second->GetValue(), it->first, it->second->GetMethodNames());
-        }
-    }
 }
 
 bool WebviewController::IsInit()
@@ -710,31 +656,17 @@ void WebviewController::SetNWebJavaScriptResultCallBack()
     nweb_ptr->SetNWebJavaScriptResultCallBack(javaScriptResultCb_);
 }
 
-void WebviewController::RegisterJavaScriptProxy(
-    napi_env env, napi_value obj, const std::string& objName, const std::vector<std::string>& methodList)
+void WebviewController::RegisterJavaScriptProxy(napi_env env, napi_value obj,
+    const std::string& objName, const std::vector<std::string>& methodList)
 {
     auto nweb_ptr = nweb_.lock();
     if (!nweb_ptr) {
-        WVLOG_E("WebviewController::RegisterJavaScriptProxy nweb_ptr is null");
         return;
     }
-    JavaScriptOb::ObjectID objId =
-        static_cast<JavaScriptOb::ObjectID>(JavaScriptOb::JavaScriptObjIdErrorCode::WEBCONTROLLERERROR);
-
-    if (!javaScriptResultCb_) {
-        WVLOG_E("WebviewController::RegisterJavaScriptProxy javaScriptResultCb_ is "
-                "null");
-        return;
+    if (javaScriptResultCb_) {
+        javaScriptResultCb_->RegisterJavaScriptProxy(env, obj, objName, methodList);
     }
-
-    if (methodList.empty()) {
-        WVLOG_E("WebviewController::RegisterJavaScriptProxy methodList is "
-                "empty");
-        return;
-    }
-
-    objId = javaScriptResultCb_->RegisterJavaScriptProxy(env, obj, objName, methodList);
-    nweb_ptr->RegisterArkJSfunction(objName, methodList, objId);
+    nweb_ptr->RegisterArkJSfunction(objName, methodList);
 }
 
 void WebviewController::RunJavaScriptCallback(

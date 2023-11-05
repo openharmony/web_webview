@@ -31,8 +31,7 @@ namespace OHOS {
         }
         const std::string object_name((const char *)data, size);
         const std::vector<std::string> method_list;
-        const int32_t object_id = 1;
-        g_nweb->RegisterArkJSfunction(object_name, method_list, object_id);
+        g_nweb->RegisterArkJSfunction(object_name, method_list);
         return true;
     }
 }

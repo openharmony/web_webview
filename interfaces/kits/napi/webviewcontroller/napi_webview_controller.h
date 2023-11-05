@@ -132,8 +132,6 @@ private:
 
     static napi_value Zoom(napi_env env, napi_callback_info info);
 
-    static napi_value InnerCompleteWindowNew(napi_env env, napi_callback_info info);
-
     static napi_value RegisterJavaScriptProxy(napi_env env, napi_callback_info info);
 
     static napi_value DeleteJavaScriptRegister(napi_env env, napi_callback_info info);

@@ -28,15 +28,10 @@ public:
 
     virtual ~NWebJavaScriptResultCallBack() = default;
 
-    virtual std::shared_ptr<NWebValue> GetJavaScriptResult(std::vector<std::shared_ptr<NWebValue>> args,
-        const std::string& method, const std::string& object_name, int32_t routing_id, int32_t object_id) = 0;
-
-    virtual bool HasJavaScriptObjectMethods(int32_t object_id, const std::string& method_name) = 0;
-
-    virtual std::shared_ptr<NWebValue> GetJavaScriptObjectMethods(int32_t object_id) = 0;
-
-    virtual void RemoveJavaScriptObjectHolder(int32_t holder, int32_t objectId) = 0;
-    virtual void RemoveTransientJavaScriptObject() = 0;
+    virtual std::shared_ptr<NWebValue> GetJavaScriptResult(
+        std::vector<std::shared_ptr<NWebValue>> args,
+        const std::string &method,
+        const std::string &object_name) = 0;
 };
 } // namespace OHOS::NWeb
 
