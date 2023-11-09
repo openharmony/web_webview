@@ -24,7 +24,7 @@ namespace OHOS::NWeb {
 enum class ProductDeviceType {
     DEVICE_TYPE_MOBILE,
     DEVICE_TYPE_TABLET,
-    DEVICE_TYPE_PC,
+    DEVICE_TYPE_2IN1,
     DEVICE_TYPE_UNKNOWN
 };
 class SystemPropertiesAdapter {
