@@ -21,6 +21,7 @@
 
 #define private public
 #include "ohos_resource_adapter_impl.h"
+#include "application_context.h"
 #undef private
 
 #include "extractor.h"
@@ -29,13 +30,23 @@
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::AbilityBase;
+using namespace OHOS::AbilityRuntime;
 
 namespace OHOS {
 namespace {
 constexpr uint32_t MODULE_NAME_SIZE = 32;
 const std::string NWEB_HAP_PATH = "/system/app/com.ohos.nweb/NWeb.hap";
 const std::string NWEB_HAP_PATH_1 = "/system/app/NWeb/NWeb.hap";
+std::shared_ptr<AbilityRuntime::ApplicationContext> g_applicationContext = nullptr;
 }
+
+namespace AbilityRuntime {
+std::shared_ptr<ApplicationContext> Context::GetApplicationContext()
+{
+    return g_applicationContext;
+}
+} // namespace AbilityRuntime
+
 namespace NWeb {
 class OhosResourceAdapterTest : public testing::Test {
 public:
@@ -56,6 +67,12 @@ void OhosResourceAdapterTest::SetUp(void)
 
 void OhosResourceAdapterTest::TearDown(void)
 {}
+
+class ApplicationContextMock : public ApplicationContext {
+public:
+    MOCK_CONST_METHOD0(GetResourceManager, std::shared_ptr<Global::Resource::ResourceManager>());
+    MOCK_METHOD2(CreateModuleContext, std::shared_ptr<Context>(const std::string &, const std::string &));
+};
 
 /**
  * @tc.name: OhosResourceAdapterTest_Init_001
@@ -101,8 +118,12 @@ HWTEST_F(OhosResourceAdapterTest, OhosResourceAdapterTest_GetRawFileData_002, Te
     uint16_t time;
     result = adapterImpl.GetRawFileLastModTime(rawFile, date, time, true);
     EXPECT_FALSE(result);
+    result = adapterImpl.GetRawFileLastModTime(rawFile, date, time, false);
+    EXPECT_FALSE(result);
     time_t times;
     result = adapterImpl.GetRawFileLastModTime(rawFile, times, true);
+    EXPECT_FALSE(result);
+    result = adapterImpl.GetRawFileLastModTime(rawFile, times, false);
     EXPECT_FALSE(result);
     result = adapterImpl.HasEntry(extractor, rawFile);
     EXPECT_FALSE(result);
@@ -213,6 +234,56 @@ HWTEST_F(OhosResourceAdapterTest, OhosResourceAdapterTest_ParseModuleName_004, T
     EXPECT_EQ(result, "");
     free(configStr);
     configStr = nullptr;
+}
+
+/**
+ * @tc.name: OhosResourceAdapterTest_GetResourceMgr_005
+ * @tc.desc: GetResourceMgr.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(OhosResourceAdapterTest, OhosResourceAdapterTest_GetResourceMgr_005, TestSize.Level1)
+{
+    std::string hapPath = "";
+    if (access(NWEB_HAP_PATH.c_str(), F_OK) == 0) {
+        hapPath = NWEB_HAP_PATH;
+    }
+    if (access(NWEB_HAP_PATH_1.c_str(), F_OK) == 0) {
+        hapPath = NWEB_HAP_PATH_1;
+    }
+    OhosResourceAdapterImpl adapterImpl(hapPath);
+    std::unique_ptr<uint8_t[]> dest;
+    std::string rawFile = "";
+    size_t len = rawFile.size();
+    bool result = adapterImpl.GetRawFileData(rawFile, len, dest, false);
+    EXPECT_FALSE(result);
+    rawFile = "resources/rawfile/";
+    len = rawFile.size();
+    result = adapterImpl.GetRawFileData(rawFile, len, dest, false);
+    EXPECT_FALSE(result);
+    rawFile = "resources/rawfile/bundleName";
+    len = rawFile.size();
+    result = adapterImpl.GetRawFileData(rawFile, len, dest, false);
+    EXPECT_FALSE(result);
+    rawFile = "resources/rawfile/bundleName/";
+    len = rawFile.size();
+    result = adapterImpl.GetRawFileData(rawFile, len, dest, false);
+    EXPECT_FALSE(result);
+    rawFile = "resources/rawfile/bundleName/moduleName";
+    len = rawFile.size();
+    result = adapterImpl.GetRawFileData(rawFile, len, dest, false);
+    EXPECT_FALSE(result);
+    rawFile = "resources/rawfile/bundleName/moduleName/";
+    len = rawFile.size();
+    result = adapterImpl.GetRawFileData(rawFile, len, dest, false);
+    EXPECT_FALSE(result);
+    rawFile = "resources/rawfile/bundleName/moduleName/test";
+    len = rawFile.size();
+    result = adapterImpl.GetRawFileData(rawFile, len, dest, false);
+    EXPECT_FALSE(result);
+    g_applicationContext = std::make_shared<ApplicationContextMock>();
+    result = adapterImpl.GetRawFileData(rawFile, len, dest, false);
+    EXPECT_FALSE(result);
 }
 }
 } // namespace NWeb

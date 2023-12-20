@@ -79,7 +79,14 @@ HWTEST_F(KeystoreAdapterImplTest, KeystoreAdapterImplTest_InitParamSet_001, Test
             .uint32Param = HKS_MODE_CBC
         }
     };
-    int32_t result = KeystoreAdapterImpl::GetInstance().InitParamSet(&paramSet, decryptParams,
+
+    int32_t result = KeystoreAdapterImpl::GetInstance().InitParamSet(nullptr, decryptParams,
+        sizeof(decryptParams) / sizeof(HksParam));
+    EXPECT_NE(result, 0);
+    result = KeystoreAdapterImpl::GetInstance().InitParamSet(&paramSet, nullptr,
+        sizeof(decryptParams) / sizeof(HksParam));
+    EXPECT_NE(result, 0);
+    result = KeystoreAdapterImpl::GetInstance().InitParamSet(&paramSet, decryptParams,
         sizeof(decryptParams) / sizeof(HksParam));
     EXPECT_EQ(result, 0);
     std::string alias = "test";

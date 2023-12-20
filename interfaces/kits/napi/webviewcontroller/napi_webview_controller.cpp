@@ -1022,6 +1022,10 @@ napi_value NapiWebMessageExt::SetType(napi_env env, napi_callback_info info)
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
         return result;
     }
+    if (type <= static_cast<int>(WebMessageType::NOTSUPPORT) || type > static_cast<int>(WebMessageType::ERROR)) {
+        BusinessError::ThrowErrorByErrcode(env, TYPE_NOT_MATCH_WITCH_VALUE);
+        return result;
+    }
     WebMessageExt *webMessageExt = nullptr;
     status = napi_unwrap(env, thisVar, (void **)&webMessageExt);
     if (status != napi_ok) {
@@ -1034,7 +1038,6 @@ napi_value NapiWebMessageExt::SetType(napi_env env, napi_callback_info info)
         WVLOG_E("NapiWebMessageExt::SetType webMessageExt is null");
         return result;
     }
-
     webMessageExt->SetType(type);
     return result;
 }

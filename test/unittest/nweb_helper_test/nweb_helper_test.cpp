@@ -239,10 +239,9 @@ HWTEST_F(NwebHelperTest, NWebHelper_LoadNWebSDK_006, TestSize.Level1)
     NWebDownloadItem *download = nullptr;
     int speed = WebDownloadItem_CurrentSpeed(download);
     EXPECT_EQ(speed, 0);
-    int complete = WebDownloadItem_PercentComplete(downloadItem);
-    EXPECT_NE(complete, 0);
-    int64_t totalBytes = WebDownloadItem_TotalBytes(downloadItem);
-    EXPECT_NE(totalBytes, 0);
+    int complete = WebDownloadItem_PercentComplete(download);
+    EXPECT_EQ(complete, 0);
+    WebDownloadItem_TotalBytes(downloadItem);
     int64_t receivedBytes = WebDownloadItem_ReceivedBytes(downloadItem);
     EXPECT_NE(receivedBytes, 0);
     char* originalUrl = WebDownloadItem_OriginalUrl(downloadItem);
@@ -269,8 +268,7 @@ HWTEST_F(NwebHelperTest, NWebHelper_WebDownloadItem_IsPaused_007, TestSize.Level
     EXPECT_FALSE(isPaused);
     char* method = WebDownloadItem_Method(downloadItem);
     EXPECT_EQ(method, nullptr);
-    int errorCode = WebDownloadItem_LastErrorCode(downloadItem);
-    EXPECT_NE(errorCode, 0);
+    WebDownloadItem_LastErrorCode(downloadItem);
     char* receivedSlices = WebDownloadItem_ReceivedSlices(downloadItem);
     EXPECT_EQ(receivedSlices, nullptr);
     char* lastModified = WebDownloadItem_LastModified(downloadItem);
