@@ -134,5 +134,28 @@ HWTEST_F(NWebValueTest, NWebValue_Double_005, TestSize.Level1)
 
     double actual = nwebValue->GetDouble();
     EXPECT_DOUBLE_EQ(testData, actual);
+    nwebValue->IsNone();
+    nwebValue->IsBoolean();
+    nwebValue->IsString();
+    nwebValue->IsDouble();
+    nwebValue->IsINTEGER();
+    nwebValue->IsList();
+    nwebValue->IsDictionary();
+    nwebValue->IsBinary();
+    nwebValue->GetListValueSize();
+    nwebValue->GetListValue();
+    NWebValue value;
+    nwebValue->AddListValue(value);
+    nwebValue->deleteListValue();
+    nwebValue->GetDictionaryValueSize();
+    nwebValue->GetDictionaryValueKeys();
+    std::string key;
+    nwebValue->HasDictionaryValueKey(key);
+    nwebValue->GetDictionaryValue();
+    nwebValue->AddDictionaryValue("test", value);
+    nwebValue->DeleteDictionaryValue(key);
+    nwebValue->GetBinaryValueSize();
+    nwebValue->GetBinaryValue();
+    nwebValue->validateType(NWebValue::Type::NONE);
 }
 } // namespace OHOS::NWeb

@@ -25,6 +25,8 @@
 #define private public
 #include "camera_manager_adapter_impl.h"
 #include "nweb_surface_adapter.h"
+#include "camera_device.h"
+#include "camera_manager.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -411,11 +413,14 @@ HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_GetOriFocusMode_008, TestS
     adapter.isCapturing_ = true;
     result = adapter.RestartSession();
     EXPECT_NE(result, 0);
+    result = adapter.RestartSession();
+    EXPECT_NE(result, 0);
     adapter.cameraManager_ = nullptr;
+    result = adapter.RestartSession();
+    EXPECT_NE(result, 0);
     std::vector<VideoDeviceDescriptor> devicesDiscriptor;
     adapter.GetDevicesInfo(devicesDiscriptor);
     EXPECT_TRUE(devicesDiscriptor.empty());
-
     std::string deviceId = "0";
     result = adapter.InitCameraInput(deviceId);
     EXPECT_NE(result, 0);
@@ -434,7 +439,6 @@ HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_GetOriFocusMode_008, TestS
     std::vector<ExposureModeAdapter> exposureModesAdapter;
     result = adapter.GetExposureModes(exposureModesAdapter);
     EXPECT_NE(result, 0);
-
     ExposureModeAdapter exposureModeAdapter;
     result = adapter.GetCurrentExposureMode(exposureModeAdapter);
     EXPECT_NE(result, 0);
@@ -504,7 +508,14 @@ HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_InitCameraInput_010, TestS
     result = adapter.StartStream(deviceId, captureParams, nullptr);
     EXPECT_NE(result, 0);
     adapter.status_ = CameraStatusAdapter::AVAILABLE;
+    adapter.inputInitedFlag_ = true;
+    result = adapter.InitCameraInput(deviceId);
+    EXPECT_NE(result, 0);
     adapter.inputInitedFlag_ = false;
+    sptr<CameraDevice> cameraObj = new(std::nothrow) CameraDevice();
+    adapter.cameraManager_->cameraObjList.emplace_back(cameraObj);
+    result = adapter.InitCameraInput(deviceId);
+    EXPECT_NE(result, 0);
     adapter.cameraManager_ = nullptr;
     result = adapter.InitCameraInput(deviceId);
     EXPECT_NE(result, 0);
@@ -535,11 +546,22 @@ HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_CameraManagerAdapterCallba
     EXPECT_EQ(status, CameraStatusAdapter::APPEAR);
     status = adapter.GetAdapterCameraStatus(static_cast<CameraStatus>(-1));
     EXPECT_EQ(status, CameraStatusAdapter::APPEAR);
+    sptr<CameraDevice> cameraObj = new(std::nothrow) CameraDevice();
     CameraStatusInfo cameraStatusInfo = {
         .cameraInfo = nullptr,
         .cameraDevice = nullptr,
         .cameraStatus = CameraStatus::CAMERA_STATUS_APPEAR
     };
+    adapter.OnCameraStatusChanged(cameraStatusInfo);
+    cameraStatusInfo.cameraDevice = cameraObj;
+    adapter.OnCameraStatusChanged(cameraStatusInfo);
+    cameraStatusInfo.cameraStatus = CameraStatus::CAMERA_STATUS_DISAPPEAR;
+    adapter.OnCameraStatusChanged(cameraStatusInfo);
+    cameraStatusInfo.cameraStatus = CameraStatus::CAMERA_STATUS_AVAILABLE;
+    adapter.OnCameraStatusChanged(cameraStatusInfo);
+    cameraStatusInfo.cameraStatus = CameraStatus::CAMERA_STATUS_UNAVAILABLE;
+    adapter.OnCameraStatusChanged(cameraStatusInfo);
+    cameraStatusInfo.cameraStatus = static_cast<CameraStatus>(-1);
     adapter.OnCameraStatusChanged(cameraStatusInfo);
     adapter.statusCallback_ = nullptr;
     adapter.OnCameraStatusChanged(cameraStatusInfo);
