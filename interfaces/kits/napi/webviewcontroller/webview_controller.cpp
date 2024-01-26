@@ -800,7 +800,11 @@ ErrCode WebviewController::DeleteJavaScriptRegister(const std::string& objName,
 void WebviewController::SetNWebJavaScriptResultCallBack()
 {
     auto nweb_ptr = nweb_.lock();
-    if (!nweb_ptr || javaScriptResultCb_) {
+    if (!nweb_ptr) {
+        return;
+    }
+
+    if (javaScriptResultCb_ && (javaScriptResultCb_->GetNWebId() == id_)) {
         return;
     }
 

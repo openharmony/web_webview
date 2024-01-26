@@ -448,6 +448,11 @@ public:
 
     void CallH5FunctionInternal(napi_env env, H5Bundle& bundle, std::vector<std::shared_ptr<NWebValue>> nwebArgs);
 
+    int32_t GetNWebId()
+    {
+        return nwebId_;
+    }
+
 private:
     bool RemoveNamedObject(const std::string& name);
 
@@ -463,11 +468,6 @@ private:
 
     std::shared_ptr<NWebValue> GetJavaScriptResultSelf(std::vector<std::shared_ptr<NWebValue>> args,
         const std::string& method, const std::string& objName, int32_t routingId, int32_t objectId);
-
-    int32_t GetNWebId()
-    {
-        return nwebId_;
-    }
 
     std::weak_ptr<OHOS::NWeb::NWeb> nweb_;
     int32_t nwebId_ = -1;
