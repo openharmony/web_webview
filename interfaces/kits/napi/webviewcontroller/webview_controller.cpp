@@ -804,6 +804,10 @@ void WebviewController::SetNWebJavaScriptResultCallBack()
         return;
     }
 
+    if (javaScriptResultCb_ && (javaScriptResultCb_->GetNWebId() == id_)) {
+        return;
+    }
+
     javaScriptResultCb_ = std::make_shared<WebviewJavaScriptResultCallBack>(nweb_, id_);
     nweb_ptr->SetNWebJavaScriptResultCallBack(javaScriptResultCb_);
 }
