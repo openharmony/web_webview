@@ -26,9 +26,15 @@ ohos_unittest("nweb_helper_test") {
 
   include_dirs = [ "../common" ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = [
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
 
   external_deps = [
+    "ability_runtime:app_context",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "graphic_2d:librender_service_client",
     "hilog:libhilog",

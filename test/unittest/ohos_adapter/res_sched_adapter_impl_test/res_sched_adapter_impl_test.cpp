@@ -74,6 +74,23 @@ HWTEST_F(ResSchedAdapterImplTest, ResSchedAdapterImplTest_ReportKeyThread_001, T
     result = resAdapter->ReportKeyThread(ResSchedStatusAdapter::THREAD_CREATED,
         1, 0, ResSchedRoleAdapter::IMPORTANT_AUDIO);
     EXPECT_TRUE(result);
+
+    resAdapter->ReportWindowId(1, 1);
+    result = resAdapter->ReportKeyThread(ResSchedStatusAdapter::THREAD_CREATED,
+        1, 0, ResSchedRoleAdapter::IMPORTANT_AUDIO);
+    EXPECT_TRUE(result);
+    resAdapter->ReportWindowId(1, -1);
+    result = resAdapter->ReportKeyThread(ResSchedStatusAdapter::THREAD_CREATED,
+        1, 0, ResSchedRoleAdapter::IMPORTANT_AUDIO);
+    EXPECT_TRUE(result);
+    resAdapter->ReportWindowId(-1, -1);
+    result = resAdapter->ReportKeyThread(ResSchedStatusAdapter::THREAD_CREATED,
+        1, 0, ResSchedRoleAdapter::IMPORTANT_AUDIO);
+    EXPECT_TRUE(result);
+    resAdapter->ReportWindowId(-1, 1);
+    result = resAdapter->ReportKeyThread(ResSchedStatusAdapter::THREAD_CREATED,
+        1, 0, ResSchedRoleAdapter::IMPORTANT_AUDIO);
+    EXPECT_TRUE(result);
 }
 
 /**
@@ -90,6 +107,8 @@ HWTEST_F(ResSchedAdapterImplTest, ResSchedAdapterImplTest_ReportWindowStatus_002
     EXPECT_FALSE(result);
     result = resAdapter->ReportWindowStatus(ResSchedStatusAdapter::THREAD_CREATED, 1, 1);
     EXPECT_FALSE(result);
+    result = resAdapter->ReportWindowStatus(static_cast<ResSchedStatusAdapter>(-1), 1, 1, 1);
+    EXPECT_FALSE(result);
 
     result = resAdapter->ReportScene(static_cast<ResSchedStatusAdapter>(-1), ResSchedSceneAdapter::CLICK);
     EXPECT_FALSE(result);
@@ -105,6 +124,12 @@ HWTEST_F(ResSchedAdapterImplTest, ResSchedAdapterImplTest_ReportWindowStatus_002
     resAdapter->ReportNWebInit(ResSchedStatusAdapter::WEB_SCENE_ENTER, 1);
     result = resAdapter->ReportWindowStatus(ResSchedStatusAdapter::THREAD_CREATED, 1, 1, 1);
     EXPECT_TRUE(result);
+    result = resAdapter->ReportWindowStatus(ResSchedStatusAdapter::THREAD_CREATED, 1, 1, 1);
+    EXPECT_TRUE(result);
+    result = resAdapter->ReportWindowStatus(ResSchedStatusAdapter::THREAD_CREATED, 1, 0, 1);
+    EXPECT_TRUE(result);
+    result = resAdapter->ReportWindowStatus(ResSchedStatusAdapter::THREAD_CREATED, 0, 1, 1);
+    EXPECT_FALSE(result);
     resAdapter->ReportNWebInit(ResSchedStatusAdapter::WEB_SCENE_EXIT, 1);
 }
 
