@@ -253,7 +253,7 @@ HWTEST_F(OhosResourceAdapterTest, OhosResourceAdapterTest_GetResourceMgr_005, Te
     }
     OhosResourceAdapterImpl adapterImpl(hapPath);
     std::unique_ptr<uint8_t[]> dest;
-    std::string rawFile = "";
+    std::string rawFile = "test";
     size_t len = rawFile.size();
     bool result = adapterImpl.GetRawFileData(rawFile, len, dest, false);
     EXPECT_FALSE(result);

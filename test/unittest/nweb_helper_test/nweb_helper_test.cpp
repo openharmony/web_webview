@@ -15,6 +15,7 @@
 
 #include <cstring>
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 #include <securec.h>
 #include <ui/rs_surface_node.h>
 #include <unordered_map>
@@ -25,13 +26,15 @@
 #include "nweb_adapter_helper.h"
 #include "nweb_create_window.h"
 #include "nweb_c_api.h"
+#include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/application_context.h"
 
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::Rosen;
+using namespace OHOS::AbilityRuntime;
 
-namespace OHOS::NWeb {
+namespace OHOS {
 namespace {
 sptr<Surface> g_surface = nullptr;
 const bool RESULT_OK = true;
@@ -39,7 +42,17 @@ const int DEFAULT_WIDTH = 2560;
 const int DEFAULT_HEIGHT = 1396;
 const int32_t NWEB_MAX_WIDTH = 7681;
 const std::string MOCK_INSTALLATION_DIR = "/data/app/el1/bundle/public/com.ohos.nweb";
+std::shared_ptr<AbilityRuntime::ApplicationContext> g_applicationContext = nullptr;
 } // namespace
+
+namespace AbilityRuntime {
+std::shared_ptr<ApplicationContext> Context::GetApplicationContext()
+{
+    return g_applicationContext;
+}
+} // namespace AbilityRuntime
+
+namespace NWeb {
 
 class NwebHelperTest : public testing::Test {
 public:
@@ -47,6 +60,11 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
+};
+
+class ApplicationContextMock : public ApplicationContext {
+public:
+    MOCK_CONST_METHOD0(GetBaseDir, std::string());
 };
 
 void NwebHelperTest::SetUpTestCase(void)
@@ -94,11 +112,30 @@ HWTEST_F(NwebHelperTest, NWebHelper_SetBundlePath_001, TestSize.Level1)
     NWebHelper::Instance().PrepareForPageLoad("web_test", true, 0);
     result = NWebHelper::Instance().InitAndRun(false);
     EXPECT_FALSE(result);
+    ApplicationContextMock *contextMock = new ApplicationContextMock();
+    ASSERT_NE(contextMock, nullptr);
+    g_applicationContext.reset(contextMock);
+    EXPECT_CALL(*contextMock, GetBaseDir())
+        .Times(1)
+        .WillRepeatedly(::testing::Return(""));
+    result = NWebHelper::Instance().InitAndRun(false);
+    EXPECT_FALSE(result);
+    NWebAdapterHelper::Instance().CreateNWeb(g_surface, GetInitArgs(),
+        DEFAULT_WIDTH, DEFAULT_HEIGHT);
+
+    EXPECT_CALL(*contextMock, GetBaseDir())
+        .Times(2)
+        .WillRepeatedly(::testing::Return("test_web"));
+    result = NWebHelper::Instance().InitAndRun(false);
+    EXPECT_TRUE(result);
+    NWebAdapterHelper::Instance().CreateNWeb(g_surface, GetInitArgs(),
+        DEFAULT_WIDTH, DEFAULT_HEIGHT);
     result = NWebHelper::Instance().LoadNWebSDK();
     EXPECT_TRUE(result);
     result = NWebHelper::Instance().LoadNWebSDK();
     EXPECT_TRUE(result);
     WebDownloadManager_PutDownloadCallback(nullptr);
+    g_applicationContext.reset();
 }
 
 /**
@@ -215,6 +252,14 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetConfigPath_005, TestSize.Level1)
  */
 HWTEST_F(NwebHelperTest, NWebHelper_LoadNWebSDK_006, TestSize.Level1)
 {
+    NWebCreateInfo create_info;
+    NWebHelper::Instance().SetBundlePath(MOCK_INSTALLATION_DIR);
+    bool result = NWebAdapterHelper::Instance().Init(false);
+    EXPECT_EQ(RESULT_OK, result);
+    std::shared_ptr<NWeb> nweb = NWebHelper::Instance().CreateNWeb(create_info);
+    EXPECT_NE(nweb, nullptr);
+    result = NWebHelper::Instance().LoadNWebSDK();
+    EXPECT_TRUE(result);
     static WebDownloadDelegateCallback *downloadCallback;
     WebDownloader_CreateDownloadDelegateCallback(&downloadCallback);
     EXPECT_NE(downloadCallback, nullptr);
@@ -241,6 +286,7 @@ HWTEST_F(NwebHelperTest, NWebHelper_LoadNWebSDK_006, TestSize.Level1)
     EXPECT_EQ(speed, 0);
     int complete = WebDownloadItem_PercentComplete(download);
     EXPECT_EQ(complete, 0);
+    WebDownloadItem_SetReceivedBytes(downloadItem, 1);
     WebDownloadItem_TotalBytes(downloadItem);
     int64_t receivedBytes = WebDownloadItem_ReceivedBytes(downloadItem);
     EXPECT_NE(receivedBytes, 0);
@@ -260,6 +306,8 @@ HWTEST_F(NwebHelperTest, NWebHelper_LoadNWebSDK_006, TestSize.Level1)
  */
 HWTEST_F(NwebHelperTest, NWebHelper_WebDownloadItem_IsPaused_007, TestSize.Level1)
 {
+    bool result = NWebHelper::Instance().LoadNWebSDK();
+    EXPECT_TRUE(result);
     NWebDownloadItem *downloadItem = nullptr;
     WebDownloadItem_CreateWebDownloadItem(&downloadItem);
     EXPECT_NE(downloadItem, nullptr);
@@ -273,8 +321,8 @@ HWTEST_F(NwebHelperTest, NWebHelper_WebDownloadItem_IsPaused_007, TestSize.Level
     EXPECT_EQ(receivedSlices, nullptr);
     char* lastModified = WebDownloadItem_LastModified(downloadItem);
     EXPECT_EQ(lastModified, nullptr);
-    int nWebId = WebDownloadItem_NWebId(downloadItem);
-    EXPECT_NE(nWebId, 0);
+    int nWebId = WebDownloadItem_NWebId(download);
+    EXPECT_EQ(nWebId, 0);
     WebDownloadItem_Destroy(downloadItem);
     DestroyBeforeDownloadCallbackWrapper(nullptr);
     DestroyDownloadItemCallbackWrapper(nullptr);
@@ -304,3 +352,4 @@ HWTEST_F(NwebHelperTest, NWebHelper_WebDownloadItem_IsPaused_007, TestSize.Level
     EXPECT_NE(mimeType, nullptr);
 }
 } // namespace OHOS::NWeb
+}
