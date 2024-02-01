@@ -127,4 +127,9 @@ std::string SystemPropertiesAdapterImpl::GetNetlogMode() const
 {
     return OHOS::system::GetParameter("web.debug.netlog", "");
 }
+
+bool SystemPropertiesAdapterImpl::GetTraceDebugEnable() const
+{
+    return OHOS::system::GetBoolParameter("web.debug.trace", false);
+}
 } // namespace OHOS::NWeb

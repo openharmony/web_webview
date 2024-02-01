@@ -47,6 +47,8 @@ public:
     int32_t GetSoftwareSeniorVersion() const override;
 
     std::string GetNetlogMode() const override;
+
+    bool GetTraceDebugEnable() const override;
 private:
     SystemPropertiesAdapterImpl();
 

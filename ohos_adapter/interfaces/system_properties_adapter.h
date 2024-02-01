@@ -54,6 +54,8 @@ public:
     virtual int32_t GetSoftwareSeniorVersion() const = 0;
 
     virtual std::string GetNetlogMode() const = 0;
+
+    virtual bool GetTraceDebugEnable() const = 0;
 };
 
 }  // namespace OHOS::NWeb
