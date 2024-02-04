@@ -244,8 +244,11 @@ HWTEST_F(NetProxyAdapterTest, NetProxyAdapterTest_RegNetProxyEvent_002, TestSize
     result = NetProxyAdapterImpl::GetInstance().StartListen();
     EXPECT_TRUE(result);
     NetManagerStandard::HttpProxy httpProxy;
+    httpProxy.SetHost("");
     NetManagerStandard::NetConnClient::GetInstance().SetAppHttpProxy(httpProxy);
     httpProxy.SetHost("NONE");
+    NetManagerStandard::NetConnClient::GetInstance().SetAppHttpProxy(httpProxy);
+    httpProxy.SetHost("test_web");
     NetManagerStandard::NetConnClient::GetInstance().SetAppHttpProxy(httpProxy);
 
     EventFwk::CommonEventData data;

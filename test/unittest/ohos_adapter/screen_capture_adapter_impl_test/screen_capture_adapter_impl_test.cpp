@@ -25,6 +25,7 @@
 #include "nweb_adapter_helper.h"
 #include "token_setproc.h"
 #include "screen_capture.h"
+#include "foundation/graphic/graphic_surface/surface/include/surface_buffer_impl.h"
 
 #define private public
 #include "screen_capture_adapter_impl.h"
@@ -260,12 +261,14 @@ HWTEST_F(ScreenCaptureAdapterImplTest, ScreenCaptureAdapterImplTest_Capture_004,
     EXPECT_CALL(*mock, StopScreenCapture())
         .Times(1)
         .WillRepeatedly(::testing::Return(Media::MSERR_OK));
-
+    EXPECT_CALL(*mock, SetMicrophoneEnabled(::testing::_))
+        .Times(1)
+        .WillRepeatedly(::testing::Return(Media::MSERR_NO_MEMORY));
     result = adapterImpl->StartCapture();
     EXPECT_EQ(result, 0);
+    adapterImpl->SetMicrophoneEnable(true);
     result = adapterImpl->StopCapture();
     EXPECT_EQ(result, 0);
-
     EXPECT_CALL(*mock, StartScreenCapture())
         .Times(1)
         .WillRepeatedly(::testing::Return(Media::MSERR_NO_MEMORY));
@@ -280,6 +283,10 @@ HWTEST_F(ScreenCaptureAdapterImplTest, ScreenCaptureAdapterImplTest_Capture_004,
     EXPECT_NE(callbackAdapter, nullptr);
     result = g_screenCapture->SetCaptureCallback(callbackAdapter);
     EXPECT_EQ(result, 0);
+    EXPECT_CALL(*mock, SetScreenCaptureCallback(::testing::_))
+        .Times(1)
+        .WillRepeatedly(::testing::Return(Media::MSERR_NO_MEMORY));
+    adapterImpl->SetCaptureCallback(callbackAdapter);
     result = g_screenCapture->SetCaptureCallback(nullptr);
     EXPECT_EQ(result, -1);
     g_screenCapture->screenCapture_ = nullptr;
@@ -345,6 +352,35 @@ HWTEST_F(ScreenCaptureAdapterImplTest, ScreenCaptureAdapterImplTest_Init_006, Te
     adapterImpl->screenCapture_ = OHOS::Media::ScreenCaptureFactory::CreateScreenCapture();
     result = adapterImpl->Init(config);
     EXPECT_EQ(result, 0);
+}
+
+/**
+ * @tc.name: ScreenCaptureAdapterImplTest_AcquireVideoBuffer_007
+ * @tc.desc: AcquireVideoBuffer.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(ScreenCaptureAdapterImplTest, ScreenCaptureAdapterImplTest_AcquireVideoBuffer_007, TestSize.Level1)
+{
+    auto adapterImpl = std::make_shared<ScreenCaptureAdapterImpl>();
+    EXPECT_NE(adapterImpl, nullptr);
+    ScreenCaptureImplMock *mock = new ScreenCaptureImplMock();
+    EXPECT_NE(mock, nullptr);
+    sptr<OHOS::SurfaceBuffer> surfacebuffer = new SurfaceBufferImpl(0);
+    EXPECT_NE(surfacebuffer, nullptr);
+    adapterImpl->screenCapture_.reset(mock);
+    EXPECT_CALL(*mock, AcquireVideoBuffer(::testing::_, ::testing::_, ::testing::_))
+        .Times(1)
+        .WillRepeatedly(::testing::Return(surfacebuffer));
+
+    EXPECT_CALL(*mock, ReleaseVideoBuffer())
+        .Times(1)
+        .WillRepeatedly(::testing::Return(Media::MSERR_OK));
+    std::unique_ptr<SurfaceBufferAdapter> buffer = adapterImpl->AcquireVideoBuffer();
+    EXPECT_NE(buffer, nullptr);
+    int32_t result = adapterImpl->ReleaseVideoBuffer();
+    EXPECT_EQ(result, 0);
+    adapterImpl->screenCapture_.reset();
 }
 }
 } // namespace NWeb
