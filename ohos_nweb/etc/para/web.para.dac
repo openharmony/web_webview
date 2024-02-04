@@ -13,3 +13,4 @@
 
 web.optimization = root:root:0644
 web.debug. = root:root:0775
+web.debug.trace = root:root:0666
