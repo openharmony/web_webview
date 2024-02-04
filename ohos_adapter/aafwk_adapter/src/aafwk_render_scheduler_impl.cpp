@@ -18,8 +18,9 @@
 #include "nweb_log.h"
 
 namespace OHOS::NWeb {
-AafwkRenderSchedulerImpl::AafwkRenderSchedulerImpl(std::shared_ptr<AafwkRenderSchedulerHostAdapter> adapter) :
-    renderSchedulerHostAdapter_(adapter) {}
+AafwkRenderSchedulerImpl::AafwkRenderSchedulerImpl(std::shared_ptr<AafwkRenderSchedulerHostAdapter> adapter)
+    : renderSchedulerHostAdapter_(adapter)
+{}
 
 void AafwkRenderSchedulerImpl::NotifyBrowserFd(int32_t ipcFd, int32_t sharedFd, int32_t crashFd)
 {
@@ -31,4 +32,4 @@ void AafwkRenderSchedulerImpl::NotifyBrowserFd(int32_t ipcFd, int32_t sharedFd, 
 
     renderSchedulerHostAdapter_->NotifyBrowserFd(ipcFd, sharedFd, crashFd);
 }
-}  // namespace OHOS::NWeb
+} // namespace OHOS::NWeb

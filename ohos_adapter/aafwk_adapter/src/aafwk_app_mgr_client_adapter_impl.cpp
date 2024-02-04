@@ -17,6 +17,7 @@
 
 #include <chrono>
 #include <thread>
+
 #include "aafwk_render_scheduler_impl.h"
 #include "nweb_log.h"
 
@@ -25,11 +26,12 @@ constexpr int GET_TERMINATION_STATUS_MAX_CNT = 5;
 constexpr int START_RENDER_PROCESS_MAX_CNT = 10;
 constexpr int SLEEP_FOR_MILLI_SECONDS_CNT = 10;
 constexpr int RET_ALREADY_EXIST_RENDER = 8454244; // copy from ability_runtime
-}
+} // namespace
 
 namespace OHOS::NWeb {
-AafwkAppMgrClientAdapterImpl::AafwkAppMgrClientAdapterImpl() :
-    appMgrClient_(std::make_unique<AppExecFwk::AppMgrClient>()) {}
+AafwkAppMgrClientAdapterImpl::AafwkAppMgrClientAdapterImpl()
+    : appMgrClient_(std::make_unique<AppExecFwk::AppMgrClient>())
+{}
 
 int AafwkAppMgrClientAdapterImpl::StartRenderProcess(
     const std::string& renderParam, int32_t ipcFd, int32_t sharedFd, int32_t crashFd, pid_t& renderPid)
@@ -106,4 +108,4 @@ int AafwkAppMgrClientAdapterImpl::GetRenderProcessTerminationStatus(pid_t render
 
     return 0;
 }
-}  // namespace OHOS::NWeb
+} // namespace OHOS::NWeb
