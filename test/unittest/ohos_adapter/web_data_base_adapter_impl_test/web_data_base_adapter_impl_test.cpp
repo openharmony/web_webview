@@ -176,6 +176,7 @@ HWTEST_F(WebDataBaseAdapterImplTest, WebDataBaseAdapterImplTest_GetHttpAuthCrede
     dataBase.GetHttpAuthCredentials(TEST_HOST, TEST_REALME, username, nullptr, maxLength + 1);
     dataBase.GetHttpAuthCredentials(TEST_HOST, TEST_REALME, username, password, maxLength + 1);
     if (g_dataBaseNull) {
+        g_dataBaseNull->GetHttpAuthCredentials(TEST_HOST, TEST_REALME, username, password, -1);
         g_dataBaseNull->GetHttpAuthCredentials(TEST_HOST, TEST_REALME, username, password, maxLength + 1);
     }
     (void)memset_s(password, maxLength + 1, 0, maxLength + 1);

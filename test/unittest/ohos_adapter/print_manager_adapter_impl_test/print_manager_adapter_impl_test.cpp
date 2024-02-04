@@ -71,6 +71,17 @@ public:
  */
 HWTEST_F(PrintManagerAdapterImplTest, PrintManagerAdapterImplTest_InitParamSet_001, TestSize.Level1)
 {
+#if defined(NWEB_PRINT_ENABLE)
+    std::vector<std::string> fileList = { "/data/storage/el2/base/print.png" };
+    std::vector<uint32_t> fdList = { 1 };
+    std::string taskId;
+    PrintManagerAdapterImpl::GetInstance().StartPrint(fileList, fdList, taskId);
+    std::shared_ptr<PrintDocumentAdapterAdapter> printDocumentAdapterImpl;
+    PrintAttributesAdapter printAttributesAdapter;
+    PrintManagerAdapterImpl::GetInstance().Print("webPrintTestJob", printDocumentAdapterImpl, printAttributesAdapter);
+    void* token = nullptr;
+    PrintManagerAdapterImpl::GetInstance().Print("webPrintTestJob", printDocumentAdapterImpl,
+        printAttributesAdapter, token);
     std::shared_ptr<PrintDocumentAdapterAdapter> mock = std::make_shared<PrintDocumentAdapterImplMock>();
     EXPECT_NE(mock, nullptr);
     PrintDocumentAdapterImpl documentAdapter(mock);
@@ -87,6 +98,7 @@ HWTEST_F(PrintManagerAdapterImplTest, PrintManagerAdapterImplTest_InitParamSet_0
     documentAdapter.cb_ = nullptr;
     documentAdapter.onStartLayoutWrite(jobId, oldAttrs, newAttrs, fd, writeResultCallback);
     documentAdapter.onJobStateChanged(jobId, state);
+#endif
 }
 }
 } // namespace NWeb
