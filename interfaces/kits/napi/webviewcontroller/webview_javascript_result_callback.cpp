@@ -665,7 +665,7 @@ bool IsCallableObject(napi_env env, napi_value& value, std::vector<std::string>*
     bool hasProperty = false;
     s = napi_has_named_property(env, value, annotation.c_str(), &hasProperty);
     if (s != napi_ok) {
-        WVLOG_E("IsCallableObject napi api call fail");
+        WVLOG_W("IsCallableObject napi api call fail");
     }
     if (!hasProperty) {
         WVLOG_D("IsCallableObject has not methodNameList property");
@@ -876,6 +876,7 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptResultS
 {
     std::shared_ptr<NWebValue> ret = std::make_shared<NWebValue>(NWebValue::Type::NONE);
     std::shared_ptr<JavaScriptOb> jsObj = FindObject(objectId);
+    Ace::ContainerScope containerScope(jsObj->GetContainerScopeId());
     napi_handle_scope scope = nullptr;
     napi_open_handle_scope(jsObj->GetEnv(), &scope);
     if (scope == nullptr) {
