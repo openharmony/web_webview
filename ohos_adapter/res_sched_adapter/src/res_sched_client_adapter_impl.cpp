@@ -92,8 +92,9 @@ bool ReportSceneInternal(ResSchedStatusAdapter statusAdapter, ResSchedSceneAdapt
 
     int64_t status;
     bool ret = ConvertStatus(statusAdapter, status);
-    if (!ret)
+    if (!ret) {
         return false;
+    }
 
     int32_t scene_id;
     if (auto it = RES_SCENE_MAP.find(sceneAdapter); it == RES_SCENE_MAP.end()) {

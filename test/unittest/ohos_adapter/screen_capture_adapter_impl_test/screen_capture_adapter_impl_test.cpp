@@ -60,7 +60,6 @@ constexpr int32_t AUDIO_SAMPLE_RATE = 16000;
 constexpr int32_t AUDIO_CHANNELS = 2;
 constexpr int32_t SCREEN_WIDTH = 1080;
 constexpr int32_t SCREEN_HEIGHT = 720;
-//constexpr int32_t SLEEP_FOR_MILLI_SECONDS_CNT = 500;
 std::shared_ptr<ScreenCaptureAdapterImpl> g_screenCapture = nullptr;
 
 class ScreenCaptureCallbackAdapterTest : public ScreenCaptureCallbackAdapter {
