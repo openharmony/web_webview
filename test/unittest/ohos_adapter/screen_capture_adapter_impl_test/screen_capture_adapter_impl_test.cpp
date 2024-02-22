@@ -46,6 +46,8 @@ public:
     MOCK_METHOD1(SetMicrophoneEnabled, int32_t(bool));
     MOCK_METHOD0(StartScreenCapture, int32_t());
     MOCK_METHOD0(StopScreenCapture, int32_t());
+    MOCK_METHOD0(StartScreenRecording, int32_t());
+    MOCK_METHOD0(StopScreenRecording, int32_t());
     MOCK_METHOD2(AcquireAudioBuffer, int32_t(std::shared_ptr<AudioBuffer> &, AudioCaptureSourceType));
     MOCK_METHOD3(AcquireVideoBuffer, sptr<OHOS::SurfaceBuffer>(int32_t &, int64_t &, OHOS::Rect &));
     MOCK_METHOD1(ReleaseAudioBuffer, int32_t(AudioCaptureSourceType));
