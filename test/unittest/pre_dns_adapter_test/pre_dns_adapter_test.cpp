@@ -57,6 +57,7 @@ void PreDnsAdapterTest::SetUpTestCase(void)
 void PreDnsAdapterTest::TearDownTestCase(void)
 {
     delete g_adapterMock;
+    g_adapterMock = nullptr;
 }
 
 void PreDnsAdapterTest::SetUp(void)
