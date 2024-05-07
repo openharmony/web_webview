@@ -919,7 +919,7 @@ void WebviewController::RegisterJavaScriptProxy(
                std::back_inserter(allMethodList));
     objId = javaScriptResultCb_->RegisterJavaScriptProxy(env, obj, objName, allMethodList, asyncMethodList);
 
-    nweb_ptr->RegisterArkJSfunction(objName, syncMethodList, asyncMethodList, objId);
+    nweb_ptr->RegisterArkJSfunction(objName, syncMethodList, objId);
 }
 
 void WebviewController::RunJavaScriptCallback(
