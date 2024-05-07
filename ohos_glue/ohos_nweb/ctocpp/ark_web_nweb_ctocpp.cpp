@@ -2167,6 +2167,20 @@ bool ArkWebNWebCToCpp::TerminateRenderProcess()
 }
 
 ARK_WEB_NO_SANITIZE
+void ArkWebNWebCToCpp::SuggestionSelected(int32_t index)
+{
+    ARK_WEB_CTOCPP_DV_LOG("capi struct is %{public}ld", (long)this);
+
+    ark_web_nweb_t* _struct = GetStruct();
+    ARK_WEB_CTOCPP_CHECK_PARAM(_struct, );
+
+    ARK_WEB_CTOCPP_CHECK_FUNC_MEMBER(_struct, suggestion_selected, );
+
+    // Execute
+    _struct->suggestion_selected(_struct, index);
+}
+
+ARK_WEB_NO_SANITIZE
 void ArkWebNWebCToCpp::RegisterArkJSfunction(const ArkWebString& object_name, const ArkWebStringVector& method_list,
     const ArkWebStringVector& async_method_list, const int32_t object_id)
 {
@@ -2179,20 +2193,6 @@ void ArkWebNWebCToCpp::RegisterArkJSfunction(const ArkWebString& object_name, co
 
     // Execute
     _struct->register_ark_jsfunction2(_struct, &object_name, &method_list, &async_method_list, object_id);
-}
-
-ARK_WEB_NO_SANITIZE
-void ArkWebNWebCToCpp::SuggestionSelected(int32_t index)
-{
-    ARK_WEB_CTOCPP_DV_LOG("capi struct is %{public}ld", (long)this);
-
-    ark_web_nweb_t* _struct = GetStruct();
-    ARK_WEB_CTOCPP_CHECK_PARAM(_struct, );
-
-    ARK_WEB_CTOCPP_CHECK_FUNC_MEMBER(_struct, suggestion_selected, );
-
-    // Execute
-    _struct->suggestion_selected(_struct, index);
 }
 
 ARK_WEB_NO_SANITIZE

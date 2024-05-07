@@ -1055,6 +1055,13 @@ public:
     bool TerminateRenderProcess() override;
 
     /**
+     * Get value of Autofill index.
+     * @param index index value.
+     */
+    /*--ark web()--*/
+    void SuggestionSelected(int32_t index) override;
+
+        /**
      * @brief RegisterArkJSfunction
      *
      * @param object_name  String: objector name
@@ -1065,13 +1072,6 @@ public:
     /*--ark web()--*/
     void RegisterArkJSfunction(const std::string& object_name, const std::vector<std::string>& method_list,
         const std::vector<std::string>& async_method_list, const int32_t object_id) override;
-
-    /**
-     * Get value of Autofill index.
-     * @param index index value.
-     */
-    /*--ark web()--*/
-    void SuggestionSelected(int32_t index) override;
 
     /**
      * @brief Send touchpad fling event.

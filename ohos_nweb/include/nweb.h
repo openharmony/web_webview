@@ -1244,6 +1244,12 @@ public:
      */
     /*--ark web()--*/
     virtual bool TerminateRenderProcess() = 0;
+   
+    /**
+     * Get value of Autofill index.
+     * @param index index value.
+     */
+    virtual void SuggestionSelected(int32_t index) = 0;
 
     /**
      * RegisterArkJSfunction
@@ -1258,12 +1264,6 @@ public:
         const std::vector<std::string>& method_list,
         const std::vector<std::string>& async_method_list,
         const int32_t object_id) = 0;
-   
-    /**
-     * Get value of Autofill index.
-     * @param index index value.
-     */
-    virtual void SuggestionSelected(int32_t index) = 0;
 
     /**
      * @brief Send touchpad fling event.
