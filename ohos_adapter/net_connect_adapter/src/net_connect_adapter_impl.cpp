@@ -136,8 +136,8 @@ std::vector<std::string> NetConnectAdapterImpl::GetDnsServers()
     for (const auto &dns : info.dnsList_) {
         servers.emplace_back(dns.address_);
     }
-    WVLOG_I("get dns servers success, net id = %{public}d, servers size = %{public}u.",
-        netHandle.GetNetId(), servers.size());
+    WVLOG_I("get dns servers success, net id = %{public}d, servers size = %{public}d.",
+        netHandle.GetNetId(), static_cast<int32_t>(servers.size()));
     return servers;
 }
 } // namespace OHOS::NWeb
