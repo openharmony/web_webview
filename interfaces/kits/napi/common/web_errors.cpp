@@ -14,9 +14,10 @@
  */
 
 #include "web_errors.h"
-
 #include <string>
 #include <unordered_map>
+#include <cstdarg>
+#include "securec.h"
 
 namespace {
 // error message
@@ -44,6 +45,19 @@ const std::string RESOURCE_HANDLER_INVALID_MSG = "Resource handler is invalid";
 }
 
 namespace OHOS {
+namespace ParamCheckErrorMsgTemplate {
+   const char* TYPE_ERROR = "BusinessError 401: Parameter error. The type of '%s' must be %s.";
+   const char* TYPE_ALL_STRING = "BusinessError 401: Parameter error. The type of params must be string.";
+   const char* TYPE_ALL_INT = "BusinessError 401: Parameter error. The type of params must be int.";
+   const char* PARAM_TYEPS_ERROR = "BusinessError 401: Parameter error. The type of params is error.";
+   const char* PARAM_NUMBERS_ERROR_ONE = "BusinessError 401: Parameter error. The number of params must be %s.";
+   const char* PARAM_NUMBERS_ERROR_TWO = "BusinessError 401: Parameter error. The number of params must be %s or %s.";
+   const char* PARAM_NUMBERS_ERROR_THREE = 
+       "BusinessError 401: Parameter error. The number of params must be %s or %s or %s.";
+   const char* PARAM_NOT_NULL = "BusinessError 401: Parameter error. The type of '%s' can not be ignored.";
+   const char* PARAM_NOT_NULL_TWO = "BusinessError 401: Parameter error. The type of '%s' and '%s' can not be ignored.";
+   const char* PARAM_TYPE_INVALID = "BusinessError 401: Parameter error. The type of '%s' is invalid.";
+}
 namespace NWebError {
 std::unordered_map<ErrCode, std::string> g_errCodeMsgMap = {
     {PARAM_CHECK_ERROR, PARAM_CHECK_ERROR_MSG},
@@ -72,6 +86,18 @@ std::unordered_map<ErrCode, std::string> g_errCodeMsgMap = {
 std::string GetErrMsgByErrCode(ErrCode code)
 {
     return g_errCodeMsgMap[code];
+}
+std::string FormatString(const char *errorMsgTemplate, ...)
+{
+    char sbuf[256];
+    va_list args;
+    va_start(args, errorMsgTemplate);
+    if (vsnprintf_s(sbuf, sizeof(sbuf), sizeof(sbuf) - 1, errorMsgTemplate, args) <0){
+        va_end(args);
+        return "";  
+    }
+    va_end(args);
+    return sbuf;
 }
 } // namespace NWebError
 } // namespace OHOS

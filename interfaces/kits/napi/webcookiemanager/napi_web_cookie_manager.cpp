@@ -207,19 +207,22 @@ napi_value NapiWebCookieManager::JsGetCookie(napi_env env, napi_callback_info in
 
     napi_get_cb_info(env, info, &argc, argv, &retValue, nullptr);
     if (argc != INTEGER_TWO && argc != argcForOld) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_TWO, "one", "two"));
         return nullptr;
     }
 
     std::string url;
     if (!GetStringPara(env, argv[INTEGER_ZERO], url)) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "url", "string"));
         return nullptr;
     }
 
     bool incognitoMode = false;
     if (argc == INTEGER_TWO && !GetBooleanPara(env, argv[INTEGER_ONE], incognitoMode)) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
         return nullptr;
     }
 
@@ -393,13 +396,15 @@ napi_value NapiWebCookieManager::JsPutAcceptCookieEnabled(napi_env env, napi_cal
 
     napi_get_cb_info(env, info, &argc, argv, &retValue, nullptr);
     if (argc != INTEGER_ONE) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
         return nullptr;
     }
 
     bool accept;
     if (!GetBooleanPara(env, argv[INTEGER_ZERO], accept)) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "accept", "booleane"));
         return nullptr;
     }
 
@@ -436,13 +441,15 @@ napi_value NapiWebCookieManager::JsPutAcceptThirdPartyCookieEnabled(napi_env env
 
     napi_get_cb_info(env, info, &argc, argv, &retValue, nullptr);
     if (argc != INTEGER_ONE) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
         return nullptr;
     }
 
     bool accept;
     if (!GetBooleanPara(env, argv[INTEGER_ZERO], accept)) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "accept", "boolean"));
         return nullptr;
     }
 
@@ -704,7 +711,8 @@ napi_value NapiWebCookieManager::JsSaveCookieAsync(napi_env env, napi_callback_i
 
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
     if (argc != argcPromise && argc != argcCallback) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_TWO, "zero", "one"));
         return nullptr;
     }
 
@@ -715,7 +723,8 @@ napi_value NapiWebCookieManager::JsSaveCookieAsync(napi_env env, napi_callback_i
         napi_valuetype valueType = napi_null;
         napi_typeof(env, argv[argcCallback - 1], &valueType);
         if (valueType != napi_function) {
-            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "callback", "function"));
             return nullptr;
         }
         napi_ref jsCallback = nullptr;

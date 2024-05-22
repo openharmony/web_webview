@@ -131,13 +131,15 @@ napi_value NapiGeolocationPermission::ProcessActionByType(napi_env env, napi_cal
     napi_value argv[PARAMTWO] = { 0 };
     napi_get_cb_info(env, info, &argc, argv, &retValue, nullptr);
     if (argc != PARAMTWO && argc != argcForOld) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_TWO, "one", "two"));
         return nullptr;
     }
 
     std::string origin;
     if (!GetStringPara(env, argv[PARAMZERO], origin)) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "origin", "string"));
         return nullptr;
     }
     bool incognitoMode = false;
@@ -339,44 +341,45 @@ napi_value NapiGeolocationPermission::JsGetAccessibleGeolocation(napi_env env, n
     size_t argcPromiseForOld = PARAMONE;
     size_t argcPromise = PARAMTWO;
     size_t argcCallback = PARAMTHREE;
-
     napi_value argv[PARAMTHREE] = { 0 };
     napi_get_cb_info(env, info, &argc, argv, &retValue, nullptr);
     if (argc != argcPromise && argc != argcCallback && argc != argcPromiseForOld) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_THREE, "one", "two", "three"));
         return nullptr;
     }
-
     std::string origin;
     if (!GetStringPara(env, argv[PARAMZERO], origin)) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "origin", "string"));
         return nullptr;
     }
-
     bool incognitoMode = false;
     napi_value result = nullptr;
     if (argc == argcCallback) {
         napi_valuetype valueType = napi_undefined;
         napi_typeof(env, argv[PARAMONE], &valueType);
         if (valueType != napi_function) {
-            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "callback", "function"));
             return nullptr;
         }
         if (!GetBooleanPara(env, argv[PARAMTWO], incognitoMode)) {
-            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
             return nullptr;
         }
         GetPermissionStateAsync(env, argv, origin, incognitoMode);
         napi_get_undefined(env, &result);
         return result;
     }
-
     if (argc == PARAMTWO) {
         napi_valuetype valueType = napi_undefined;
         napi_typeof(env, argv[PARAMONE], &valueType);
         if (valueType != napi_function) {
             if (!GetBooleanPara(env, argv[PARAMONE], incognitoMode)) {
-                NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+                NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+                    NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
                 return nullptr;
             }
             return GetPermissionStatePromise(env, argv, origin, incognitoMode);
@@ -385,7 +388,6 @@ napi_value NapiGeolocationPermission::JsGetAccessibleGeolocation(napi_env env, n
         napi_get_undefined(env, &result);
         return result;
     }
-
     return GetPermissionStatePromise(env, argv, origin, incognitoMode);
 }
 
@@ -529,7 +531,8 @@ napi_value NapiGeolocationPermission::JsGetStoredGeolocation(napi_env env, napi_
     napi_value argv[PARAMTWO] = { 0 };
     napi_get_cb_info(env, info, &argc, argv, &retValue, nullptr);
     if (argc != argcPromise && argc != argcCallback && argc != argcForZero) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_THREE, "one", "two", "three"));
         return nullptr;
     }
 
@@ -538,12 +541,14 @@ napi_value NapiGeolocationPermission::JsGetStoredGeolocation(napi_env env, napi_
         napi_valuetype valueType = napi_undefined;
         napi_typeof(env, argv[PARAMZERO], &valueType);
         if (valueType != napi_function) {
-            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "callback", "function"));
             return nullptr;
         }
 
         if (!GetBooleanPara(env, argv[PARAMONE], incognitoMode)) {
-            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
             return nullptr;
         }
         GetOriginsAsync(env, argv, incognitoMode);
@@ -557,7 +562,8 @@ napi_value NapiGeolocationPermission::JsGetStoredGeolocation(napi_env env, napi_
         napi_typeof(env, argv[PARAMZERO], &valueType);
         if (valueType != napi_function) {
             if (!GetBooleanPara(env, argv[PARAMZERO], incognitoMode)) {
-                NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+                NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+                    NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
                 return nullptr;
             }
             return GetOriginsPromise(env, incognitoMode);
