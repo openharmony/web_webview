@@ -2253,13 +2253,15 @@ napi_value NapiWebviewController::SetCustomUserAgent(napi_env env, napi_callback
 
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
     if (argc != INTEGER_ONE) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
         return result;
     }
 
     std::string userAgent;
     if (!NapiParseUtils::ParseString(env, argv[INTEGER_ZERO], userAgent)) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "userAgent", "string"));
         return result;
     }
 
@@ -2484,7 +2486,8 @@ napi_value NapiWebviewController::PostUrl(napi_env env, napi_callback_info info)
     napi_value argv[INTEGER_TWO] = { 0 };
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
     if (argc != INTEGER_TWO) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "two"));
         return result;
     }
 
@@ -2497,14 +2500,16 @@ napi_value NapiWebviewController::PostUrl(napi_env env, napi_callback_info info)
 
     std::string url;
     if (!NapiParseUtils::ParseString(env, argv[INTEGER_ZERO], url)) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "url", "string"));
         return result;
     }
 
     bool isArrayBuffer = false;
     NAPI_CALL(env, napi_is_arraybuffer(env, argv[INTEGER_ONE], &isArrayBuffer));
     if (!isArrayBuffer) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "postData", "array"));
         return result;
     }
 
@@ -3200,12 +3205,14 @@ napi_value NapiWebviewController::SetNetworkAvailable(napi_env env, napi_callbac
 
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
     if (argc != INTEGER_ONE) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
         return result;
     }
 
     if (!NapiParseUtils::ParseBoolean(env, argv[0], enable)) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "enable", "booleane"));
         return result;
     }
 
@@ -3253,7 +3260,8 @@ napi_value NapiWebviewController::HasImage(napi_env env, napi_callback_info info
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
 
     if (argc != argcPromiseParaNum && argc != argcCallbackParaNum) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_TWO, "zero", "one"));
         return result;
     }
 
@@ -3262,7 +3270,8 @@ napi_value NapiWebviewController::HasImage(napi_env env, napi_callback_info info
         napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
         napi_typeof(env, argv[argcCallbackParaNum - 1], &valueType);
         if (valueType != napi_function) {
-            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "callback", "function"));
             return result;
         }
     }
@@ -3331,12 +3340,14 @@ napi_value NapiWebviewController::RemoveCache(napi_env env, napi_callback_info i
 
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
     if (argc != INTEGER_ONE) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
         return result;
     }
 
     if (!NapiParseUtils::ParseBoolean(env, argv[0], includeDiskFiles)) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "clearRom", "boolean"));
         return result;
     }
 
@@ -3463,15 +3474,18 @@ napi_value NapiWebHistoryList::GetItem(napi_env env, napi_callback_info info)
         return result;
     }
     if (argc != INTEGER_ONE) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
         return result;
     }
     if (!NapiParseUtils::ParseInt32(env, argv[0], index)) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NOT_NULL_TWO, "index", "int"));
         return result;
     }
     if (index >= historyList->GetListSize() || index < 0) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            "BusinessError 401: Parameter error. The value of index must be greater than or equal to 0");
         return result;
     }
 
@@ -3679,12 +3693,14 @@ napi_value NapiWebviewController::ScrollPageDown(napi_env env, napi_callback_inf
 
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
     if (argc != INTEGER_ONE) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
         return result;
     }
 
     if (!NapiParseUtils::ParseBoolean(env, argv[0], bottom)) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "bottom", "booleane"));
         return result;
     }
 
@@ -3708,12 +3724,14 @@ napi_value NapiWebviewController::ScrollPageUp(napi_env env, napi_callback_info 
 
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
     if (argc != INTEGER_ONE) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
         return result;
     }
 
     if (!NapiParseUtils::ParseBoolean(env, argv[0], top)) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "top", "booleane"));
         return result;
     }
 
@@ -3844,14 +3862,16 @@ napi_value NapiWebviewController::CustomizeSchemes(napi_env env, napi_callback_i
     napi_value argv[INTEGER_ONE];
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
     if (argc != INTEGER_ONE) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
         return nullptr;
     }
     napi_value array = argv[INTEGER_ZERO];
     bool isArray = false;
     napi_is_array(env, array, &isArray);
     if (!isArray) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "schemes", "array"));
         return nullptr;
     }
     int32_t registerResult = CustomizeSchemesArrayDataHandler(env, array);
@@ -3860,7 +3880,8 @@ napi_value NapiWebviewController::CustomizeSchemes(napi_env env, napi_callback_i
         return result;
     }
     if (registerResult == PARAM_CHECK_ERROR) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "schemeName", "string"));
         return nullptr;
     }
     BusinessError::ThrowErrorByErrcode(env, REGISTER_CUSTOM_SCHEME_FAILED);
@@ -4844,6 +4865,8 @@ napi_value NapiWebviewController::SetWebSchemeHandler(napi_env env, napi_callbac
     std::string scheme = "";
     if (!NapiParseUtils::ParseString(env, argv[0], scheme)) {
         WVLOG_E("NapiWebviewController::SetWebSchemeHandler parse scheme failed");
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "scheme", "string"));
         return nullptr;
     }
 
@@ -4886,6 +4909,8 @@ napi_value NapiWebviewController::SetServiceWorkerWebSchemeHandler(
     std::string scheme = "";
     if (!NapiParseUtils::ParseString(env, argv[0], scheme)) {
         WVLOG_E("NapiWebviewController::SetWebSchemeHandler parse scheme failed");
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "scheme", "string"));
         return nullptr;
     }
 
