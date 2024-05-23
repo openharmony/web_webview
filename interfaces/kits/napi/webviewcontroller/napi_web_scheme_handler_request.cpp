@@ -1110,12 +1110,33 @@ napi_value NapiWebHttpBodyStream::JS_Initialize(napi_env env, napi_callback_info
     return result;
 }
 
+bool checkReadParamsNumber(napi_env env, const size_t argc) {
+    size_t argcPromise = INTEGER_ONE;
+    size_t argcCallback = INTEGER_TWO;
+    if (argc != argcPromise && argc != argcCallback) {
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_TWO, "one", "two"));
+        WVLOG_E("NapiWebHttpBodyStream::JS_Read parse failed");
+        return false;
+    }
+    return true;
+}
+
+bool checkReadBufLen(napi_env env, const int32_t bufLen) {
+    if (bufLen <= 0) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            "BusinessError 401: Parameter error. The value of size must be a number greater than 0.");
+        WVLOG_E("NapiWebHttpBodyStream::JS_Read parse failed");
+        return false;
+    }
+    return true;
+}
+
 napi_value NapiWebHttpBodyStream::JS_Read(napi_env env, napi_callback_info info)
 {
     napi_value thisVar = nullptr;
     void* data = nullptr;
     size_t argc = INTEGER_TWO;
-    size_t argcPromise = INTEGER_ONE;
     size_t argcCallback = INTEGER_TWO;
     napi_value argv[INTEGER_TWO] = {0};
     WebHttpBodyStream *stream = nullptr;
@@ -1128,24 +1149,16 @@ napi_value NapiWebHttpBodyStream::JS_Read(napi_env env, napi_callback_info info)
         WVLOG_E("NapiWebHttpBodyStream::JS_Initialize stream is nullptr");
         return nullptr;
     }
-    if (argc != argcPromise && argc != argcCallback) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_TWO, "one", "two"));
+    if (!checkReadParamsNumber(env, argc)) {
         return nullptr;
     }
+
     int32_t bufLen = 0;
-    if (!NapiParseUtils::ParseInt32(env, argv[0], bufLen)) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "size", "int"));
-        WVLOG_E("NapiWebHttpBodyStream::JS_Read parse failed");
+    NapiParseUtils::ParseInt32(env, argv[0], bufLen);
+    if (!checkReadBufLen(env, bufLen)) {
         return nullptr;
     }
-    if (bufLen <= 0) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-            "BusinessError 401: Parameter error. The size must be greater than 0.");
-        WVLOG_E("NapiWebHttpBodyStream::JS_Read parse failed");
-        return nullptr;
-    }
+
     if (argc == argcCallback) {
         napi_valuetype valueType = napi_null;
         napi_typeof(env, argv[argcCallback - 1], &valueType);

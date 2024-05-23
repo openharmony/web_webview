@@ -29,7 +29,7 @@ errMsgMap.set(PARAM_CHECK_ERROR, ERROR_MSG_INVALID_PARAM);
 
 class BusinessError extends Error {
   constructor(code, errorMsg = "undefined") {
-    if(errorMsg == "undefined") {
+    if(errorMsg === "undefined") {
       let msg = errMsgMap.get(code);
       super(msg);
     }else{
