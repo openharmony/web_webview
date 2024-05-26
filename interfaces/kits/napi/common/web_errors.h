@@ -21,6 +21,18 @@
 #include <string>
 
 namespace OHOS {
+namespace ParamCheckErrorMsgTemplate {
+   extern const char* TYPE_ERROR;
+   extern const char* TYPE_ALL_STRING;
+   extern const char* TYPE_ALL_INT;
+   extern const char* PARAM_TYEPS_ERROR;
+   extern const char* PARAM_NUMBERS_ERROR_ONE;
+   extern const char* PARAM_NUMBERS_ERROR_TWO;
+   extern const char* PARAM_NUMBERS_ERROR_THREE;
+   extern const char* PARAM_NOT_NULL;
+   extern const char* PARAM_NOT_NULL_TWO;
+   extern const char* PARAM_TYPE_INVALID;
+}
 namespace NWebError {
 constexpr ErrCode NWEB_ERROR = -1;
 constexpr ErrCode NO_ERROR = 0;
@@ -48,6 +60,7 @@ constexpr ErrCode RESOURCE_HANDLER_INVALID = 17100021;
 constexpr ErrCode HTTP_BODY_STREAN_INIT_FAILED = 17100022;
 
 std::string GetErrMsgByErrCode(ErrCode code);
+std::string FormatString(const char *errorMsgTemplate, ...);
 }
 }
 #endif

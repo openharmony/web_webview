@@ -86,26 +86,30 @@ napi_value NapiWebStorage::JsDeleteOrigin(napi_env env, napi_callback_info info)
     napi_value result = nullptr;
     napi_get_cb_info(env, info, &argc, &argv, &retValue, nullptr);
     if (argc != 1) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
         return nullptr;
     }
     size_t bufferSize = 0;
     napi_valuetype valueType = napi_null;
     napi_typeof(env, argv, &valueType);
     if (valueType != napi_string) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "origin", "string"));
         return nullptr;
     }
     napi_get_value_string_utf8(env, argv, nullptr, 0, &bufferSize);
     if (bufferSize >= MAX_WEB_STRING_LENGTH) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+            "BusinessError 401: Parameter error. The length of 'origin' must less than 40960.");
         return nullptr;
     }
     char stringValue[bufferSize + 1];
     size_t jsStringLength = 0;
     napi_get_value_string_utf8(env, argv, stringValue, bufferSize + 1, &jsStringLength);
     if (jsStringLength != bufferSize) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+            "BusinessError 401: Parameter error. The length of 'origin' obtained twice are different");
         return nullptr;
     }
     std::string origin(stringValue);
@@ -285,7 +289,8 @@ napi_value NapiWebStorage::JsGetOrigins(napi_env env, napi_callback_info info)
     napi_get_undefined(env, &result);
     napi_get_cb_info(env, info, &argc, &argv, &retValue, nullptr);
     if (argc != argcPromise && argc != argcCallback) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_TWO, "zero", "one"));
         return nullptr;
     }
     if (argc == argcCallback) {
@@ -293,7 +298,8 @@ napi_value NapiWebStorage::JsGetOrigins(napi_env env, napi_callback_info info)
         napi_get_cb_info(env, info, &argc, &argv, &retValue, nullptr);
         napi_typeof(env, argv, &valueType);
         if (valueType != napi_function) {
-            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "callback","function"));
             return nullptr;
         }
         return GetOriginsAsync(env, &argv);
@@ -452,26 +458,30 @@ napi_value NapiWebStorage::JsGetOriginUsageOrQuota(napi_env env, napi_callback_i
     napi_value argv[RESULT_COUNT] = {0};
     napi_get_cb_info(env, info, &argc, argv, &retValue, nullptr);
     if (argc != argcPromise && argc != argcCallback) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_TWO, "one", "two"));
         return nullptr;
     }
     napi_valuetype valueType = napi_null;
     napi_typeof(env, argv[PARAMZERO], &valueType);
     if (valueType != napi_string) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "origin", "string"));
         return nullptr;
     }
     size_t bufferSize = 0;
     napi_get_value_string_utf8(env, argv[PARAMZERO], nullptr, 0, &bufferSize);
     if (bufferSize >= MAX_WEB_STRING_LENGTH) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            "BusinessError 401: Parameter error. The length of 'origin' must less than 40960.");
         return nullptr;
     }
     char stringValue[bufferSize + 1];
     size_t jsStringLength = 0;
     napi_get_value_string_utf8(env, argv[PARAMZERO], stringValue, bufferSize + 1, &jsStringLength);
     if (jsStringLength != bufferSize) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            "BusinessError 401: Parameter error. The length of 'origin' obtained twice are different");
         return nullptr;
     }
     std::string origin(stringValue);
@@ -480,7 +490,8 @@ napi_value NapiWebStorage::JsGetOriginUsageOrQuota(napi_env env, napi_callback_i
         napi_get_cb_info(env, info, &argc, argv, &retValue, nullptr);
         napi_typeof(env, argv[argcCallback - 1], &valueType);
         if (valueType != napi_function) {
-            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "callback","function"));
             return nullptr;
         }
         return GetOriginUsageOrQuotaAsync(env, argv, origin, isQuato);
