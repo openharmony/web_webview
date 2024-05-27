@@ -37,7 +37,7 @@ void BusinessError::ThrowErrorByErrcode(napi_env env, int32_t errCode)
     napi_throw_error(env, std::to_string(errCode).c_str(), GetErrMsgByErrCode(errCode).c_str());
 }
 
-void BusinessError::ThrowErrorByErrcode(napi_env env, int32_t errCode, std::string errorMsg)
+void BusinessError::ThrowErrorByErrcode(napi_env env, int32_t errCode, const std::string& errorMsg)
 {
     napi_throw_error(env, std::to_string(errCode).c_str(), errorMsg.c_str());
 }

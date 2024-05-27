@@ -31,7 +31,7 @@ class BusinessError extends Error {
   constructor(code, errorMsg = "undefined") {
     if(errorMsg === "undefined") {
       let msg = errMsgMap.get(code);
-      super(msg);
+      super(msg);      
     }else{
       super(errorMsg);
     }
@@ -221,7 +221,8 @@ function selectPicture(param, selectResult) {
 Object.defineProperty(webview.WebviewController.prototype, 'getCertificate', {
   value: function (callback) {
     if (arguments.length !== 0 && arguments.length !== 1) {
-      throw new BusinessError(PARAM_CHECK_ERROR);
+      throw new BusinessError(PARAM_CHECK_ERROR, 
+        "BusinessError 401: Parameter error. The number of params must be zero or one.");
     }
 
     let certChainData = this.innerGetCertificate();
@@ -231,7 +232,8 @@ Object.defineProperty(webview.WebviewController.prototype, 'getCertificate', {
     } else {
       console.log('get certificate async callback');
       if (typeof callback !== 'function') {
-        throw new BusinessError(PARAM_CHECK_ERROR);
+        throw new BusinessError(PARAM_CHECK_ERROR, 
+          "BusinessError 401: Parameter error. The type of 'callback' must be function." );
       }
       getCertificatePromise(certChainData).then(x509CertArray => {
         callback(undefined, x509CertArray);

@@ -14,7 +14,6 @@
  */
 
 #include "web_errors.h"
-
 #include <string>
 #include <unordered_map>
 #include <cstdarg>
@@ -53,7 +52,7 @@ namespace ParamCheckErrorMsgTemplate {
    const char* PARAM_TYEPS_ERROR = "BusinessError 401: Parameter error. The type of params is error.";
    const char* PARAM_NUMBERS_ERROR_ONE = "BusinessError 401: Parameter error. The number of params must be %s.";
    const char* PARAM_NUMBERS_ERROR_TWO = "BusinessError 401: Parameter error. The number of params must be %s or %s.";
-   const char* PARAM_NUMBERS_ERROR_THREE =
+   const char* PARAM_NUMBERS_ERROR_THREE = 
        "BusinessError 401: Parameter error. The number of params must be %s or %s or %s.";
    const char* PARAM_NOT_NULL = "BusinessError 401: Parameter error. The type of '%s' can not be ignored.";
    const char* PARAM_NOT_NULL_TWO = "BusinessError 401: Parameter error. The type of '%s' and '%s' can not be ignored.";
@@ -95,7 +94,7 @@ std::string FormatString(const char *errorMsgTemplate, ...)
     va_start(args, errorMsgTemplate);
     if (vsnprintf_s(sbuf, sizeof(sbuf), sizeof(sbuf) - 1, errorMsgTemplate, args) <0){
         va_end(args);
-        return "";
+        return "";  
     }
     va_end(args);
     return sbuf;
