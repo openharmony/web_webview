@@ -383,7 +383,8 @@ napi_value NapiWebSchemeHandlerResponse::JS_SetUrl(napi_env env, napi_callback_i
     }
     std::string url = "";
     if (!NapiParseUtils::ParseString(env, argv[0], url)) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "url", "string"));
         return nullptr;
     }
     response->SetUrl(url.c_str());
@@ -427,7 +428,8 @@ napi_value NapiWebSchemeHandlerResponse::JS_SetStatus(napi_env env, napi_callbac
     }
     int32_t status = 0;
     if (!NapiParseUtils::ParseInt32(env, argv[0], status)) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "code", "int"));
         WVLOG_E("NapiWebSchemeHandlerResponse::JS_SetStatus parse failed");
         return nullptr;
     }
@@ -478,7 +480,8 @@ napi_value NapiWebSchemeHandlerResponse::JS_SetStatusText(napi_env env, napi_cal
     }
     std::string statusText = "";
     if (!NapiParseUtils::ParseString(env, argv[0], statusText)) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "text", "string"));
         return nullptr;
     }
     response->SetStatusText(statusText.c_str());
@@ -527,7 +530,8 @@ napi_value NapiWebSchemeHandlerResponse::JS_SetMimeType(napi_env env, napi_callb
     }
     std::string mimeType = "";
     if (!NapiParseUtils::ParseString(env, argv[0], mimeType)) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "type", "string"));
         return nullptr;
     }
     response->SetMimeType(mimeType.c_str());
@@ -577,7 +581,8 @@ napi_value NapiWebSchemeHandlerResponse::JS_SetEncoding(napi_env env, napi_callb
     }
     std::string encoding = "";
     if (!NapiParseUtils::ParseString(env, argv[0], encoding)) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "encoding", "string"));
         return nullptr;
     }
     response->SetEncoding(encoding.c_str());
@@ -633,11 +638,27 @@ napi_value NapiWebSchemeHandlerResponse::JS_SetHeaderByName(napi_env env, napi_c
     std::string name;
     std::string value;
     bool overwrite = false;
-    if (argc != INTEGER_THREE ||
-        !NapiParseUtils::ParseString(env, argv[INTEGER_ZERO], name) ||
-        !NapiParseUtils::ParseString(env, argv[INTEGER_ONE], value) ||
-        !NapiParseUtils::ParseBoolean(env, argv[INTEGER_TWO], overwrite)) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+    if (argc != INTEGER_THREE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "three"));
+        WVLOG_E("NapiWebSchemeHandlerResponse::JS_SetHeaderByName parse failed");
+        return nullptr;
+    }
+    if (!NapiParseUtils::ParseString(env, argv[INTEGER_ZERO], name)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "name", "string"));
+        WVLOG_E("NapiWebSchemeHandlerResponse::JS_SetHeaderByName parse failed");
+        return nullptr;
+    }
+    if (!NapiParseUtils::ParseString(env, argv[INTEGER_ONE], value)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "value", "string"));
+        WVLOG_E("NapiWebSchemeHandlerResponse::JS_SetHeaderByName parse failed");
+        return nullptr;
+    }
+    if (!NapiParseUtils::ParseBoolean(env, argv[INTEGER_TWO], overwrite)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "overwrite", "booleane"));
         WVLOG_E("NapiWebSchemeHandlerResponse::JS_SetHeaderByName parse failed");
         return nullptr;
     }
@@ -681,9 +702,14 @@ napi_value NapiWebSchemeHandlerResponse::JS_SetNetErrorCode(napi_env env, napi_c
         return nullptr;
     }
     int32_t code = 0;
-    if (argc != INTEGER_ONE ||
-        !NapiParseUtils::ParseInt32(env, argv[0], code)) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
+        return nullptr;
+    }
+    if (!NapiParseUtils::ParseInt32(env, argv[0], code)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "code", "int"));
         return nullptr;
     }
     response->SetErrorCode(code);
@@ -745,8 +771,14 @@ napi_value NapiWebSchemeHandler::JS_RequestStart(napi_env env, napi_callback_inf
     napi_valuetype valueType = napi_undefined;
     napi_typeof(env, argv[0], &valueType);
 
-    if (argc != INTEGER_ONE || valueType != napi_function) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
+        return nullptr;
+    }
+    if (valueType != napi_function) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "callback", "function"));
         return nullptr;
     }
 
@@ -846,6 +878,12 @@ napi_value NapiWebResourceHandler::JS_DidReceiveResponse(napi_env env, napi_call
     void *data = nullptr;
     napi_get_cb_info(env, info, &argc, argv, &thisVar, &data);
 
+    if (argc != 1) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
+        return nullptr;
+    }
+
     WebResourceHandler *resourceHandler = nullptr;
     napi_unwrap(env, thisVar, (void **)&resourceHandler);
 
@@ -879,7 +917,8 @@ napi_value NapiWebResourceHandler::JS_DidReceiveResponseBody(napi_env env, napi_
     napi_get_cb_info(env, info, &argc, argv, &thisVar, &data);
 
     if (argc != 1) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
         return nullptr;
     }
 
@@ -951,6 +990,8 @@ napi_value NapiWebResourceHandler::JS_DidFailWithError(napi_env env, napi_callba
     int32_t errorCode;
     if (!NapiParseUtils::ParseInt32(env, argv[0], errorCode)) {
         WVLOG_E("JS_DidFailWithError unwrap error code failed");
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "code", "int"));
         return nullptr;
     }
     
@@ -1069,12 +1110,33 @@ napi_value NapiWebHttpBodyStream::JS_Initialize(napi_env env, napi_callback_info
     return result;
 }
 
+bool checkReadParamsNumber(napi_env env, const size_t argc) {
+    size_t argcPromise = INTEGER_ONE;
+    size_t argcCallback = INTEGER_TWO;
+    if (argc != argcPromise && argc != argcCallback) {
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_TWO, "one", "two"));
+        WVLOG_E("NapiWebHttpBodyStream::JS_Read parse failed");
+        return false;
+    }
+    return true;
+}
+
+bool checkReadBufLen(napi_env env, const int32_t bufLen) {
+    if (bufLen <= 0) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            "BusinessError 401: Parameter error. The value of size must be a number greater than 0.");
+        WVLOG_E("NapiWebHttpBodyStream::JS_Read parse failed");
+        return false;
+    }
+    return true;
+}
+
 napi_value NapiWebHttpBodyStream::JS_Read(napi_env env, napi_callback_info info)
 {
     napi_value thisVar = nullptr;
     void* data = nullptr;
     size_t argc = INTEGER_TWO;
-    size_t argcPromise = INTEGER_ONE;
     size_t argcCallback = INTEGER_TWO;
     napi_value argv[INTEGER_TWO] = {0};
     WebHttpBodyStream *stream = nullptr;
@@ -1087,21 +1149,22 @@ napi_value NapiWebHttpBodyStream::JS_Read(napi_env env, napi_callback_info info)
         WVLOG_E("NapiWebHttpBodyStream::JS_Initialize stream is nullptr");
         return nullptr;
     }
-    if (argc != argcPromise && argc != argcCallback) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+    if (!checkReadParamsNumber(env, argc)) {
         return nullptr;
     }
+
     int32_t bufLen = 0;
-    if (!NapiParseUtils::ParseInt32(env, argv[0], bufLen) || bufLen <= 0) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
-        WVLOG_E("NapiWebHttpBodyStream::JS_Read parse failed");
+    NapiParseUtils::ParseInt32(env, argv[0], bufLen);
+    if (!checkReadBufLen(env, bufLen)) {
         return nullptr;
     }
+
     if (argc == argcCallback) {
         napi_valuetype valueType = napi_null;
         napi_typeof(env, argv[argcCallback - 1], &valueType);
         if (valueType != napi_function) {
-            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR);
+            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "callback", "function"));
             return nullptr;
         }
         napi_ref jsCallback = nullptr;
