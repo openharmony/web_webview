@@ -42,6 +42,8 @@ public:
     bool HasGesture();
     const WebHeaderList& GetHeader();
     ArkWeb_HttpBodyStream* GetHttpBodyStream();
+    int32_t GetRequestResourceType();
+    char* GetFrameUrl();
 private:
     napi_env env_;
     char* url_ = nullptr;
@@ -52,6 +54,8 @@ private:
     bool hasGesture_ = false;
     WebHeaderList headerList_;
     ArkWeb_HttpBodyStream* stream_ = nullptr;
+    int32_t requestResourceType_ = -1;
+    char* frameUrl_ = nullptr;
 };
 
 class WebSchemeHandlerResponse {

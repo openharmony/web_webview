@@ -113,6 +113,14 @@
     },
     {
         "first_introduced": "12",
+        "name": "OH_ArkWebResourceRequest_GetResourceType"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkWebResourceRequest_GetFrameUrl"
+    },
+    {
+        "first_introduced": "12",
         "name": "OH_ArkWebHttpBodyStream_SetReadCallback"
     },
     {
