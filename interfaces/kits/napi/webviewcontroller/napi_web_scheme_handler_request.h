@@ -22,6 +22,29 @@
 
 namespace OHOS {
 namespace NWeb {
+enum class WebResourceType {
+    /* These constants match their equivalents in Chromium's ResourceType and should not be renumbered. */
+    MAIN_FRAME = 0,
+    SUB_FRAME,
+    STYLE_SHEET,
+    SCRIPT,
+    IMAGE,
+    FONT_RESOURCE,
+    SUB_RESOURCE,
+    OBJECT,
+    MEDIA,
+    WORKER,
+    SHARED_WORKER,
+    PREFETCH,
+    FAVICON,
+    XHR,
+    PING,
+    SERVICE_WORKER,
+    CSP_REPORT,
+    PLUGIN_RESOURCE,
+    NAVIGATION_PRELOAD_MAIN_FRAME = 19,
+    NAVIGATION_PRELOAD_SUB_FRAME = 20
+};
 const std::string WEB_SCHEME_HANDLER = "WebSchemeHandler";
 const std::string WEB_SCHEME_HANDLER_REQUEST = "WebSchemeHandlerRequest";
 const std::string WEB_SCHEME_HANDLER_RESPONSE = "WebSchemeHandlerResponse";
@@ -46,6 +69,11 @@ public:
     static napi_value JS_IsMainFrame(napi_env env, napi_callback_info cbinfo);
     static napi_value JS_HasGesture(napi_env env, napi_callback_info cbinfo);
     static napi_value JS_HttpBodyStream(napi_env env, napi_callback_info cbinfo);
+    static napi_value JS_GetRequestResourceType(napi_env env, napi_callback_info cbinfo);
+    static napi_value JS_GetFrameUrl(napi_env env, napi_callback_info cbinfo);
+
+private:
+    static napi_status ExportEnumWebResourceType(napi_env env, napi_value* value);
 };
 
 class NapiWebSchemeHandlerResponse {

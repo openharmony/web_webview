@@ -35,6 +35,7 @@ napi_value NapiWebSchemeHandlerRequest::Init(napi_env env, napi_value exports)
 {
     WVLOG_D("NapiWebSchemeHandlerRequest::Init");
     ExportWebSchemeHandlerRequestClass(env, &exports);
+    ExportEnumWebResourceType(env, &exports);
     return exports;
 }
 
@@ -50,6 +51,8 @@ void NapiWebSchemeHandlerRequest::ExportWebSchemeHandlerRequestClass(
         DECLARE_NAPI_FUNCTION("isMainFrame", JS_IsMainFrame),
         DECLARE_NAPI_FUNCTION("hasGesture", JS_HasGesture),
         DECLARE_NAPI_FUNCTION("getHttpBodyStream", JS_HttpBodyStream),
+        DECLARE_NAPI_FUNCTION("getRequestResourceType", JS_GetRequestResourceType),
+        DECLARE_NAPI_FUNCTION("getFrameUrl", JS_GetFrameUrl),
     };
     napi_value webSchemeHandlerRequest = nullptr;
     napi_define_class(env, WEB_SCHEME_HANDLER_REQUEST.c_str(), WEB_SCHEME_HANDLER_REQUEST.length(),
@@ -71,6 +74,8 @@ napi_status NapiWebSchemeHandlerRequest::DefineProperties(
         DECLARE_NAPI_FUNCTION("isMainFrame", JS_IsMainFrame),
         DECLARE_NAPI_FUNCTION("hasGesture", JS_HasGesture),
         DECLARE_NAPI_FUNCTION("getHttpBodyStream", JS_HttpBodyStream),
+        DECLARE_NAPI_FUNCTION("getRequestResourceType", JS_GetRequestResourceType),
+        DECLARE_NAPI_FUNCTION("getFrameUrl", JS_GetFrameUrl),
     };
     return napi_define_properties(env, *object, sizeof(properties) / sizeof(properties[0]), properties);
 }
@@ -285,6 +290,101 @@ napi_value NapiWebSchemeHandlerRequest::JS_HttpBodyStream(napi_env env, napi_cal
         nullptr, nullptr);
     NapiWebHttpBodyStream::DefineProperties(env, &httpBodyStreamObject);
     return httpBodyStreamObject;
+}
+
+napi_value NapiWebSchemeHandlerRequest::JS_GetRequestResourceType(napi_env env, napi_callback_info cbinfo)
+{
+    napi_value thisVar = nullptr;
+    void *data = nullptr;
+    WebSchemeHandlerRequest *request = nullptr;
+    napi_get_cb_info(env, cbinfo, nullptr, nullptr, &thisVar, &data);
+
+    napi_unwrap(env, thisVar, (void **)&request);
+    if (!request) {
+        WVLOG_E("NapiWebSchemeHandlerRequest::JS_GetRequestResourceType request is nullptr");
+        return nullptr;
+    }
+
+    napi_value value;
+    napi_create_int32(env, request->GetRequestResourceType(), &value);
+    return value;
+}
+
+napi_value NapiWebSchemeHandlerRequest::JS_GetFrameUrl(napi_env env, napi_callback_info cbinfo)
+{
+    napi_value thisVar = nullptr;
+    void *data = nullptr;
+    WebSchemeHandlerRequest *request = nullptr;
+    napi_get_cb_info(env, cbinfo, nullptr, nullptr, &thisVar, &data);
+
+    napi_unwrap(env, thisVar, (void **)&request);
+    if (!request) {
+        WVLOG_E("NapiWebSchemeHandlerRequest::JS_GetFrameUrl request is nullptr");
+        return nullptr;
+    }
+    
+    napi_value value;
+    char *result = request->GetFrameUrl();
+    napi_status status = napi_create_string_utf8(env, result, NAPI_AUTO_LENGTH, &value);
+    if (status != napi_ok) {
+        WVLOG_E("NapiWebSchemeHandlerRequest::JS_GetFrameUrl response get frame url failed");
+        return nullptr;
+    }
+    return value;
+}
+
+napi_status NapiWebSchemeHandlerRequest::ExportEnumWebResourceType(napi_env env, napi_value* value) {
+    WVLOG_D("begin to export enum web resource type");
+
+    const std::string NPI_WEB_RESOURCE_TYPE_ENUM_NAME = "WebResourceType";
+    napi_property_descriptor properties[] = {
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "MAIN_FRAME", NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebResourceType::MAIN_FRAME))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "SUB_FRAME", NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebResourceType::SUB_FRAME))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "STYLE_SHEET", NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebResourceType::STYLE_SHEET))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "SCRIPT", NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebResourceType::SCRIPT))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "IMAGE", NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebResourceType::IMAGE))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "FONT_RESOURCE", NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebResourceType::FONT_RESOURCE))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "SUB_RESOURCE", NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebResourceType::SUB_RESOURCE))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "OBJECT", NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebResourceType::OBJECT))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "MEDIA", NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebResourceType::MEDIA))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "WORKER", NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebResourceType::WORKER))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "SHARED_WORKER", NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebResourceType::SHARED_WORKER))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "PREFETCH", NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebResourceType::PREFETCH))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "FAVICON", NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebResourceType::FAVICON))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "XHR", NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebResourceType::XHR))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "PING", NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebResourceType::PING))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "SERVICE_WORKER", NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebResourceType::SERVICE_WORKER))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "CSP_REPORT", NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebResourceType::CSP_REPORT))),
+        DECLARE_NAPI_STATIC_PROPERTY("PLUGIN_RESOURCE",
+            NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebResourceType::PLUGIN_RESOURCE))),
+        DECLARE_NAPI_STATIC_PROPERTY("NAVIGATION_PRELOAD_MAIN_FRAME",
+            NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebResourceType::NAVIGATION_PRELOAD_MAIN_FRAME))),
+        DECLARE_NAPI_STATIC_PROPERTY("NAVIGATION_PRELOAD_SUB_FRAME",
+            NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebResourceType::NAVIGATION_PRELOAD_SUB_FRAME))),
+    };
+
+    napi_value enumValue = nullptr;
+    napi_define_class(env, NPI_WEB_RESOURCE_TYPE_ENUM_NAME.c_str(), NPI_WEB_RESOURCE_TYPE_ENUM_NAME.length(),
+        NapiParseUtils::CreateEnumConstructor, nullptr, sizeof(properties) / sizeof(properties[0]), properties,
+        &enumValue);
+    return napi_set_named_property(env, *value, NPI_WEB_RESOURCE_TYPE_ENUM_NAME.c_str(), enumValue);
 }
 
 napi_value NapiWebSchemeHandlerResponse::Init(napi_env env, napi_value exports)
