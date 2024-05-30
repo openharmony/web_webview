@@ -85,7 +85,6 @@
         "build": {
             "sub_component": [
                 "//base/web/webview/interfaces/inner_api:web_inner_kit",
-                "//base/web/webview/interfaces/kits/cj:cj_webview_ffi",
                 "//base/web/webview/interfaces/kits/napi:webview_napi",
                 "//base/web/webview/interfaces/kits/napi:neterrorlist_napi",
                 "//base/web/webview/interfaces/native:webview_ndk",
@@ -134,17 +133,6 @@
                         "header_base": "//base/web/webview/ohos_adapter"
                     },
                     "name": "//base/web/webview/ohos_adapter:nweb_ohos_adapter"
-                },
-                {
-                    "header": {
-                        "header_files": [
-                            "webview_controller_impl.h",
-                            "web_cookie_manager.h",
-                            "webview_ffi.h"
-                        ],
-                        "header_base": "//base/web/webview/interfaces/kits/cj/include"
-                    },
-                    "name": "//base/web/webview/interfaces/kits/cj:cj_webview_ffi"
                 }
             ],
             "test": [
