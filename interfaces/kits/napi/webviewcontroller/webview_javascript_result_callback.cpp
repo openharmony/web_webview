@@ -556,9 +556,10 @@ bool ParseBasicTypeNapiValue2NwebValue(napi_env env, napi_value& value,
             nwebValue->SetString(strVal);
             break;
         }
-        default:
-            WVLOG_E("ParseBasicTypeNapiValue2NwebValue invalid type");
+        default: {
+            WVLOG_D("ParseBasicTypeNapiValue2NwebValue invalid type");
             return false;
+        }
     }
     return true;
 }
@@ -658,21 +659,45 @@ void ParseDictionaryNapiValue2NwebValue(
     }
 }
 
-bool IsCallableObject(napi_env env, napi_value& value, std::vector<std::string>* methodNameList)
+bool HasAnnotationProperty(napi_env env, napi_value& value)
 {
     std::string annotation = "methodNameListForJsProxy";
     napi_status s = napi_ok;
     bool hasProperty = false;
-    s = napi_has_named_property(env, value, annotation.c_str(), &hasProperty);
+    napi_value napi_str;
+    s = napi_create_string_utf8(env, annotation.c_str(), NAPI_AUTO_LENGTH,
+                                &napi_str);
     if (s != napi_ok) {
-        WVLOG_W("IsCallableObject napi api call fail");
+        WVLOG_E("HasAnnotationProperty napi api call fail");
     }
-    if (!hasProperty) {
-        WVLOG_D("IsCallableObject has not methodNameList property");
+    s = napi_has_own_property(env, value, napi_str, &hasProperty);
+    if (s != napi_ok) {
+        WVLOG_D("HasAnnotationProperty napi api call fail");
+    }
+    WVLOG_D(
+        "HasAnnotationProperty hasProperty = "
+        "%{public}d",
+        hasProperty);
+    return hasProperty;
+}
+
+bool IsCallableObject(napi_env env,
+                      napi_value& value,
+                      std::vector<std::string>* methodNameList)
+{
+    std::string annotation = "methodNameListForJsProxy";
+    napi_status s = napi_ok;
+    napi_value napi_str;
+    s = napi_create_string_utf8(env, annotation.c_str(), NAPI_AUTO_LENGTH,
+                                &napi_str);
+    if (s != napi_ok) {
+        WVLOG_E("IsCallableObject napi api call fail");
+    }
+    if (!HasAnnotationProperty(env, value)) {
         return false;
     }
     napi_value result;
-    s = napi_get_named_property(env, value, annotation.c_str(), &result);
+    s = napi_get_property(env, value, napi_str, &result);
     if (s != napi_ok) {
         WVLOG_E("IsCallableObject napi api call fail");
     }
@@ -926,7 +951,10 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptResult(
     int32_t routingId, int32_t objectId)
 {
     (void)objName; // to be compatible with older webcotroller, classname may be empty
-    WVLOG_D("GetJavaScriptResult method = %{public}s", method.c_str());
+    WVLOG_D(
+        "GetJavaScriptResult objName = %{public}s, method = %{public}s, "
+        "routingId = %{public}d, objectId = %{public}d",
+        objName.c_str(), method.c_str(), routingId, objectId);
     std::shared_ptr<NWebValue> ret = std::make_shared<NWebValue>(NWebValue::Type::NONE);
     std::shared_ptr<JavaScriptOb> jsObj = FindObject(objectId);
     if (!jsObj || !jsObj->HasMethod(method)) {
@@ -1092,7 +1120,10 @@ bool WebviewJavaScriptResultCallBack::HasJavaScriptObjectMethods(int32_t objectI
         return ret;
     }
     if (pthread_self() == engine->GetTid()) {
-        WVLOG_D("has javaScript object methods already in js thread");
+        WVLOG_D(
+            "has javaScript object methods already in js thread, objectId = "
+            "%{public}d, methodName = %{public}s",
+            objectId, methodName.c_str());
         napi_handle_scope scope = nullptr;
         napi_open_handle_scope(env, &scope);
         if (scope == nullptr) {
@@ -1109,7 +1140,11 @@ bool WebviewJavaScriptResultCallBack::HasJavaScriptObjectMethods(int32_t objectI
         napi_close_handle_scope(env, scope);
         return ret;
     } else {
-        WVLOG_D("has javaScript object methods, not in js thread, post task to js thread");
+        WVLOG_D(
+            "has javaScript object methods, not in js thread, post task to js "
+            "thread, objectId = "
+            "%{public}d, methodName = %{public}s",
+            objectId, methodName.c_str());
         return PostHasJavaScriptObjectMethodsToJsThread(objectId, methodName);
     }
 }
@@ -1200,7 +1235,10 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptObjectM
     }
 
     if (pthread_self() == engine->GetTid()) {
-        WVLOG_D("get javaScript object methods already in js thread");
+        WVLOG_D(
+            "get javaScript object methods already in js thread, objectId = "
+            "%{public}d",
+            objectId);
         napi_handle_scope scope = nullptr;
         napi_open_handle_scope(env, &scope);
         if (scope == nullptr) {
@@ -1217,7 +1255,10 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptObjectM
         napi_close_handle_scope(env, scope);
         return ret;
     } else {
-        WVLOG_D("get javaScript object methods, not in js thread, post task to js thread");
+        WVLOG_D(
+            "get javaScript object methods, not in js thread, post task to js "
+            "thread, objectId = %{public}d",
+            objectId);
         return PostGetJavaScriptObjectMethodsToJsThread(objectId);
     }
 }
@@ -1393,8 +1434,9 @@ JavaScriptOb::ObjectID WebviewJavaScriptResultCallBack::AddObject(
         auto new_object = methodName ? JavaScriptOb::CreateNamed(env, containerScopeId, object)
                                      : JavaScriptOb::CreateTransient(env, containerScopeId, object, holder);
         objectId = nextObjectId_++;
-        WVLOG_D("WebviewJavaScriptResultCallBack::AddObject objectId = "
-                "%{public}d",
+        WVLOG_D(
+            "WebviewJavaScriptResultCallBack::AddObject objectId = "
+            "%{public}d",
             static_cast<int32_t>(objectId));
         objects_[objectId] = new_object;
         retainedObjectSet_.insert(new_object);
@@ -1410,6 +1452,11 @@ JavaScriptOb::ObjectID WebviewJavaScriptResultCallBack::AddNamedObject(
     bool methodName = FindObjectIdInJsTd(env, obj, &objectId);
     if (methodName && iter != namedObjects_.end() && iter->second == objectId) {
         // Nothing to do.
+        WVLOG_D(
+            "WebviewJavaScriptResultCallBack::AddNamedObject obj and "
+            "objName(%{public}s) "
+            "already exist",
+            objName.c_str());
         return objectId;
     }
     if (iter != namedObjects_.end()) {
@@ -1449,9 +1496,12 @@ JavaScriptOb::ObjectID WebviewJavaScriptResultCallBack::RegisterJavaScriptProxy(
     if (namedObjects_.find(objName) != namedObjects_.end() && objects_[namedObjects_[objName]]) {
         objects_[namedObjects_[objName]]->SetMethods(methodList);
     }
-    WVLOG_D("WebviewJavaScriptResultCallBack::RegisterJavaScriptProxy called, "
-            "objectId = %{public}d",
-        static_cast<int32_t>(objId));
+    for (auto& item : methodList) {
+        WVLOG_D(
+            "WebviewJavaScriptResultCallBack::RegisterJavaScriptProxy called, "
+            "objectId = %{public}d, objName = %{public}s, method = %{public}s",
+            static_cast<int32_t>(objId), objName.c_str(), item.c_str());
+    }
     return objId;
 }
 
