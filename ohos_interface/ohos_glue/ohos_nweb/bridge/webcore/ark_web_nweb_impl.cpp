@@ -1137,4 +1137,9 @@ void ArkWebNWebImpl::OnAutofillCancel(const ArkWebString& fillContent)
 {
     nweb_nweb_->OnAutofillCancel(ArkWebStringStructToClass(fillContent));
 }
+
+void ArkWebNWebImpl::GetScrollOffset(float* offset_x, float* offset_y)
+{
+    nweb_nweb_->GetScrollOffset(offset_x, offset_y);
+}
 } // namespace OHOS::ArkWeb
