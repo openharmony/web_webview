@@ -1339,4 +1339,9 @@ void ArkWebNWebWrapper::OnDestroyImageAnalyzerOverlay()
 {
     ark_web_nweb_->OnDestroyImageAnalyzerOverlay();
 }
+
+void ArkWebNWebWrapper::GetScrollOffset(float* offset_x, float* offset_y)
+{
+    ark_web_nweb_->GetScrollOffset(offset_x, offset_y);
+}
 } // namespace OHOS::ArkWeb

@@ -545,6 +545,8 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setBackForwardCacheOptions", NapiWebviewController::SetBackForwardCacheOptions),
         DECLARE_NAPI_FUNCTION("scrollByWithResult", NapiWebviewController::ScrollByWithResult),
         DECLARE_NAPI_FUNCTION("updateInstanceId", NapiWebviewController::UpdateInstanceId),
+        DECLARE_NAPI_FUNCTION("getScrollOffset",
+            NapiWebviewController::GetScrollOffset),
     };
     napi_value constructor = nullptr;
     napi_define_class(env, WEBVIEW_CONTROLLER_CLASS_NAME.c_str(), WEBVIEW_CONTROLLER_CLASS_NAME.length(),
@@ -6289,6 +6291,30 @@ napi_value NapiWebviewController::ScrollByWithResult(napi_env env, napi_callback
    bool scrollByWithResult = webviewController->ScrollByWithResult(deltaX, deltaY);
    NAPI_CALL(env, napi_get_boolean(env, scrollByWithResult, &result));
    return result;
+}
+
+napi_value NapiWebviewController::GetScrollOffset(napi_env env,
+    napi_callback_info info)
+{
+    napi_value result = nullptr;
+    napi_value horizontal;
+    napi_value vertical;
+    float offsetX = 0;
+    float offsetY = 0;
+
+    WebviewController* webviewController = GetWebviewController(env, info);
+    if (!webviewController) {
+        return nullptr;
+    }
+
+    webviewController->GetScrollOffset(&offsetX, &offsetY);
+
+    napi_create_object(env, &result);
+    napi_create_double(env, static_cast<double>(offsetX), &horizontal);
+    napi_create_double(env, static_cast<double>(offsetY), &vertical);
+    napi_set_named_property(env, result, "x", horizontal);
+    napi_set_named_property(env, result, "y", vertical);
+    return result;
 }
 } // namespace NWeb
 } // namespace OHOS

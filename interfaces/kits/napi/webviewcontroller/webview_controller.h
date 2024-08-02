@@ -384,6 +384,7 @@ public:
 
     bool ScrollByWithResult(float deltaX, float deltaY);
 
+    void GetScrollOffset(float* offset_x, float* offset_y);
 private:
     int ConverToWebHitTestType(int hitType);
 
