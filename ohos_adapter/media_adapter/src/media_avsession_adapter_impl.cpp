@@ -18,8 +18,13 @@
 #include "ability_manager_client.h"
 #include "avsession_errors.h"
 #include "avsession_manager.h"
+#include "bundle_mgr_proxy.h"
 #include "element_name.h"
+#include "if_system_ability_manager.h"
+#include "iservice_registry.h"
 #include "nweb_log.h"
+#include "parameters.h"
+#include "system_ability_definition.h"
 
 namespace OHOS::NWeb {
 
@@ -107,18 +112,55 @@ void MediaAVSessionCallbackImpl::OnCastDisplayChange(
 }
 
 void MediaAVSessionKey::Init() {
-    WVLOG_I("media avsession adapter Init in");
     pid_ = getprocpid();
     element_ = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
-    WVLOG_I("media avsession adapter Init AAFwk BundleName=%{public}s, AbilityName=%{public}s",
-            element_.GetBundleName().c_str(), element_.GetAbilityName().c_str());
     auto context = AbilityRuntime::ApplicationContext::GetApplicationContext();
     if (context) {
         element_.SetBundleName(context->GetBundleName());
-        WVLOG_I("media avsession adapter Init context BundleName()=%{public}s", context->GetBundleName().c_str());
     }
     type_ = MediaAVSessionType::MEDIA_TYPE_INVALID;
-    WVLOG_I("media avsession adapter Init out");
+
+    // SA application can get AbilityName by GetTopAbility, but others cannnot.
+    if (!element_.GetAbilityName().empty()){
+        return;
+    }
+
+    sptr<ISystemAbilityManager> systemAbilityManager =
+        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (systemAbilityManager == nullptr) {
+        WVLOG_E("get SystemAbilityManager failed");
+        return;
+    }
+    sptr<IRemoteObject> remoteObject =
+        systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (remoteObject == nullptr) {
+        WVLOG_E("get Bundle Manager failed");
+        return;
+    }
+    auto bundleMgr = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (bundleMgr == nullptr) {
+        WVLOG_E("get Bundle Manager failed");
+        return;
+    }
+    AppExecFwk::BundleInfo bundleInfo;
+    auto flag = (static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) | 
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY));
+    if (bundleMgr->GetBundleInfoForSelf(flag, bundleInfo) != 0) {
+        WVLOG_E("get bundle info failed");
+        return;
+    }
+    auto hapModuleInfos = bundleInfo.hapModuleInfos;
+    if (hapModuleInfos.empty()) {
+        WVLOG_E("get hapModuleInfos failed");
+        return;
+    }
+    auto abilityInfos = hapModuleInfos[0].abilityInfos;
+    if (abilityInfos.empty()) {
+        WVLOG_E("get abilityInfos failed");
+        return;
+    }
+    element_.SetAbilityName(abilityInfos[0].name);
+    return;
 }
 
 int32_t MediaAVSessionKey::GetPID() {
