@@ -67,6 +67,12 @@ public:
     virtual void OnReceiveValue(const std::vector<std::shared_ptr<NWebWebStorageOrigin>>& value) = 0;
 };
 
+class OHOS_NWEB_EXPORT NWebArrayBufferValueCallback {
+public:
+    virtual ~NWebArrayBufferValueCallback() = default;
+
+    virtual void OnReceiveValue(const char* value, const long size) = 0;
+};
 } // namespace OHOS::NWeb
 
 #endif // NWebValueCallback

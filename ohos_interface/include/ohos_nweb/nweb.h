@@ -194,6 +194,20 @@ public:
     virtual std::string GetFormData() = 0;
 };
 
+class OHOS_NWEB_EXPORT NWebPDFConfigArgs {
+public:
+    virtual ~NWebPDFConfigArgs() = default;
+
+    virtual double GetWidth() = 0;
+    virtual double GetHeight() = 0;
+    virtual double GetScale() = 0;
+    virtual double GetMarginTop() = 0;
+    virtual double GetMarginBottom() = 0;
+    virtual double GetMarginRight() = 0;
+    virtual double GetMarginLeft() = 0;
+    virtual bool GetShouldPrintBackground() = 0;
+};
+
 enum class PrecompileError : int32_t { OK = 0, INTERNAL_ERROR = -1 };
 
 class OHOS_NWEB_EXPORT CacheOptions {
@@ -1509,6 +1523,15 @@ public:
      * @param duration: anime duration.
      */
     virtual void ScrollByWithAnime(float delta_x, float delta_y, int32_t duration) {}
+
+    /**
+     * @brief ExecuteCreatePDFExt
+     *
+     * @param pdfConfig The current configuration when creating pdf.
+     * @param callback NWebArrayBufferValueCallback: CreatePDF running result.
+     */
+    virtual void ExecuteCreatePDFExt(std::shared_ptr<NWebPDFConfigArgs> pdfConfig,
+        std::shared_ptr<NWebArrayBufferValueCallback> callback) {}
 };
 
 } // namespace OHOS::NWeb

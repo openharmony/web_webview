@@ -275,6 +275,59 @@ private:
     std::string form_data_;
 };
 
+class NWebPDFConfigArgsImpl : public NWebPDFConfigArgs {
+public:
+    NWebPDFConfigArgsImpl(const double width, const double height, const double scale, const double marginTop,
+        const double marginBottom, const double marginRight, const double marginLeft, const bool shouldPrintBackground)
+        : width_(width), height_(height), scale_(scale), marginTop_(marginTop), marginBottom_(marginBottom),
+          marginRight_(marginRight), marginLeft_(marginLeft), shouldPrintBackground_(shouldPrintBackground)
+    {}
+
+    ~NWebPDFConfigArgsImpl() = default;
+
+    double GetWidth() override
+    {
+        return width_;
+    }
+    double GetHeight() override
+    {
+        return height_;
+    }
+    double GetScale() override
+    {
+        return scale_;
+    }
+    double GetMarginTop() override
+    {
+        return marginTop_;
+    }
+    double GetMarginBottom() override
+    {
+        return marginBottom_;
+    }
+    double GetMarginRight() override
+    {
+        return marginRight_;
+    }
+    double GetMarginLeft() override
+    {
+        return marginLeft_;
+    }
+    bool GetShouldPrintBackground() override
+    {
+        return shouldPrintBackground_;
+    }
+
+private:
+    double width_;
+    double height_;
+    double scale_;
+    double marginTop_;
+    double marginBottom_;
+    double marginRight_;
+    double marginLeft_;
+    bool shouldPrintBackground_;
+};
 } // namespace OHOS::NWeb
 
 #endif // NWEB_INIT_PARAMS_H

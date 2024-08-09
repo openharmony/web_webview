@@ -42,6 +42,7 @@ const std::string WEB_RENDER_PROCESS_MODE_ENUM_NAME = "RenderProcessMode";
 const std::string OFFLINE_RESOURCE_TYPE_ENUM_NAME = "OfflineResourceType";
 const std::string WEB_SCROLL_TYPE_ENUM_NAME = "ScrollType";
 const std::string WEB_PRESSURE_LEVEL_ENUM_NAME = "PressureLevel";
+constexpr double TEN_MILLIMETER_TO_INCH = 0.39;
 
 struct Scheme {
     std::string name;
@@ -61,6 +62,13 @@ struct OfflineResourceValue {
     napi_value resource;
     napi_value responseHeaders;
     napi_value type;
+};
+
+struct PDFMarginConfig {
+    double top = TEN_MILLIMETER_TO_INCH;
+    double bottom = TEN_MILLIMETER_TO_INCH;
+    double right = TEN_MILLIMETER_TO_INCH;
+    double left = TEN_MILLIMETER_TO_INCH;
 };
 
 class NapiWebviewController {
@@ -184,6 +192,8 @@ private:
         bool extention, napi_value argv, napi_value result);
 
     static napi_value RunJavaScriptInternalExt(napi_env env, napi_callback_info info, bool extention);
+
+    static napi_value RunCreatePDFExt(napi_env env, napi_callback_info info);
 
     static napi_value TerminateRenderProcess(napi_env env, napi_callback_info info);
 

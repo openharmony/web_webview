@@ -19,6 +19,7 @@
 
 #include "ohos_nweb/include/ark_web_accessibility_event_callback.h"
 #include "ohos_nweb/include/ark_web_accessibility_node_info.h"
+#include "ohos_nweb/include/ark_web_array_buffer_value_callback.h"
 #include "ohos_nweb/include/ark_web_bool_value_callback.h"
 #include "ohos_nweb/include/ark_web_cache_options.h"
 #include "ohos_nweb/include/ark_web_create_native_media_player_callback.h"
@@ -31,6 +32,7 @@
 #include "ohos_nweb/include/ark_web_js_proxy_callback_vector.h"
 #include "ohos_nweb/include/ark_web_js_result_callback.h"
 #include "ohos_nweb/include/ark_web_message_value_callback.h"
+#include "ohos_nweb/include/ark_web_pdfconfig_args.h"
 #include "ohos_nweb/include/ark_web_preference.h"
 #include "ohos_nweb/include/ark_web_release_surface_callback.h"
 #include "ohos_nweb/include/ark_web_screen_lock_callback.h"
@@ -1603,6 +1605,16 @@ class ArkWebNWeb : public virtual ArkWebBaseRefCounted {
    */
   /*--ark web()--*/
   virtual void ScrollByWithAnime(float delta_x, float delta_y, int32_t duration) = 0;
+
+    /**
+     * @brief ExecuteCreatePDFExt
+     *
+     * @param pdfConfig The current configuration when creating pdf.
+     * @param callback NWebArrayBufferValueCallback: CreatePDF running result.
+     */
+    /*--ark web()--*/
+    virtual void ExecuteCreatePDFExt(ArkWebRefPtr<ArkWebPDFConfigArgs> pdfConfig,
+        ArkWebRefPtr<ArkWebArrayBufferValueCallback> callback) = 0;
 };
 
 }  // namespace OHOS::ArkWeb
