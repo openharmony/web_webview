@@ -381,6 +381,8 @@ public:
     void ScrollByWithAnime(float deltaX, float deltaY, int32_t duration) ;
 
     void SetBackForwardCacheOptions(int32_t size, int32_t timeToLive);
+
+    bool ScrollByWithResult(float deltaX, float deltaY);
 private:
     int ConverToWebHitTestType(int hitType);
 
