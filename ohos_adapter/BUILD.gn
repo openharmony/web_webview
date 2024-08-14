@@ -19,12 +19,27 @@ config("ohos_adapter_public_interface") {
 }
 
 ohos_shared_library("nweb_ohos_adapter") {
+  output_name = "arkweb_os_adapter"
+
   if (target_cpu == "arm64") {
     branch_protector_ret = "pac_ret"
     branch_protector_frt = "bti"
   }
 
-  defines = [ "HILOG_TAG=\"webadapter\"" ]
+  defines = [
+    "HILOG_TAG=\"webadapter\"",
+    "WEBVIEW_PACKAGE_NAME=\"${webview_package_name}\"",
+    "WEBVIEW_SANDBOX_LIB_PATH=\"${webview_sandbox_lib_path}\"",
+    "WEBVIEW_CRASHPAD_HANDLER_SO=\"${webview_crashpad_handler_so}\"",
+    "WEBVIEW_SANDBOX_RELATIVE_LIB_PATH=\"${webview_sandbox_relative_lib_path}\"",
+    "WEBVIEW_ENGINE_SO=\"${webview_engine_so}\"",
+    "WEBVIEW_SANDBOX_HAP_PATH=\"${webview_sandbox_hap_path}\"",
+    "WEBVIEW_APP_HAP_PATH=\"${webview_app_hap_path}\"",
+    "WEBVIEW_APP_HAP_PATH2=\"${webview_app_hap_path2}\"",
+    "WEBVIEW_HAP_PATH=\"${webview_hap_path}\"",
+    "WEBVIEW_SANDBOX_PATH=\"${webview_sandbox_path}\"",
+  ]
+
   sources = [
     "aafwk_adapter/src/aafwk_app_mgr_client_adapter_impl.cpp",
     "aafwk_adapter/src/aafwk_browser_client_adapter_impl.cpp",

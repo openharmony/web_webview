@@ -27,8 +27,10 @@ using namespace OHOS::Location;
 namespace {
 #if defined (__aarch64__) || defined (__x86_64__)
 const std::string NWEB_WRAPPER_SO_PATH = "/system/lib64/libnweb_ohos_wrapper.z.so";
+const std::string ARKWEB_WRAPPER_SO_PATH = "/system/lib64/libarkweb_os_wrapper.z.so";
 #else
 const std::string NWEB_WRAPPER_SO_PATH = "/system/lib/libnweb_ohos_wrapper.z.so";
+const std::string ARKWEB_WRAPPER_SO_PATH = "/system/lib/libarkweb_os_wrapper.z.so";
 #endif
 int32_t ConvertScenario(int32_t scenario)
 {
@@ -229,6 +231,9 @@ StopLocatingFuncType LocationProxyAdapterImpl::stopLocatingFunc_;
 
 LocationProxyAdapterImpl::LocationProxyAdapterImpl()
 {
+    if (!wrapperHandle_) {
+        wrapperHandle_ = dlopen(ARKWEB_WRAPPER_SO_PATH.c_str(), RTLD_NOW | RTLD_GLOBAL);
+    }
     if (!wrapperHandle_) {
         wrapperHandle_ = dlopen(NWEB_WRAPPER_SO_PATH.c_str(), RTLD_NOW | RTLD_GLOBAL);
     }

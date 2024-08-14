@@ -38,6 +38,22 @@ ArkWebNWebBridgeHelper& ArkWebNWebBridgeHelper::GetInstance()
     return helper;
 }
 
+bool ArkWebNWebBridgeHelper::InitArkWeb(
+    bool runMode, const std::string& baseDir,
+    const std::string& relativeLibPath, const std::string& arkWebEngineSo)
+{
+    std::string libDirPath = baseDir + "/" + RELATIVE_PATH_FOR_MOCK;
+    if (runMode) {
+        libDirPath = baseDir + "/" + relativeLibPath;
+    }
+#ifdef __MUSL__
+    return LoadLibFile(RTLD_NOW | RTLD_GLOBAL, "nweb_ns", libDirPath, arkWebEngineSo);
+#else
+    std::string libFilePath = libDirPath + "/" + arkWebEngineSo;
+    return LoadLibFile(RTLD_NOW, libFilePath);
+#endif
+}
+
 bool ArkWebNWebBridgeHelper::Init(bool runMode, const std::string& baseDir)
 {
 #ifdef __MUSL__

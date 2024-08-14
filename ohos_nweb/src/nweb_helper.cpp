@@ -613,17 +613,24 @@ bool NWebHelper::LoadLib(bool from_ark)
     }
     std::string loadLibPath;
     if (from_ark) {
-        loadLibPath = bundlePath_ + "/" + RELATIVE_PATH_FOR_BUNDLE;
+        loadLibPath = bundlePath_ + "/" + WEBVIEW_SANDBOX_RELATIVE_LIB_PATH;
     } else {
         loadLibPath = bundlePath_ + "/" + RELATIVE_PATH_FOR_MOCK;
     }
     Dl_namespace dlns;
     dlns_init(&dlns, "nweb_ns");
     dlns_create(&dlns, loadLibPath.c_str());
-    void *libHandleWebEngine = dlopen_ns(&dlns, LIB_NAME_WEB_ENGINE.c_str(), RTLD_NOW | RTLD_GLOBAL);
+    void *libHandleWebEngine = dlopen_ns(&dlns, WEBVIEW_ENGINE_SO, RTLD_NOW | RTLD_GLOBAL);
     if (libHandleWebEngine == nullptr) {
-        WVLOG_E("fail to dlopen %{public}s, errmsg=%{public}s", LIB_NAME_WEB_ENGINE.c_str(), dlerror());
-        return false;
+        if (from_ark) {
+            loadLibPath = bundlePath_ + "/" + RELATIVE_PATH_FOR_BUNDLE;
+        }
+        dlns_create(&dlns, loadLibPath.c_str());
+        libHandleWebEngine = dlopen_ns(&dlns, LIB_NAME_WEB_ENGINE.c_str(), RTLD_NOW | RTLD_GLOBAL);
+        if (libHandleWebEngine == nullptr) {
+            WVLOG_E("fail to dlopen %{public}s, errmsg=%{public}s", LIB_NAME_WEB_ENGINE.c_str(), dlerror());
+            return false;
+        }
     }
     libHandleWebEngine_ = libHandleWebEngine;
     auto appMgrClient = std::make_unique<OHOS::AppExecFwk::AppMgrClient>();
@@ -646,15 +653,22 @@ bool NWebHelper::LoadLib(bool from_ark)
     }
     std::string loadLibPath;
     if (from_ark) {
-        loadLibPath = bundlePath_ + "/" + RELATIVE_PATH_FOR_BUNDLE;
+        loadLibPath = bundlePath_ + "/" + WEBVIEW_SANDBOX_RELATIVE_LIB_PATH;
     } else {
         loadLibPath = bundlePath_ + "/" + RELATIVE_PATH_FOR_MOCK;
     }
-    const std::string libPathWebEngine = loadLibPath + "/" + LIB_NAME_WEB_ENGINE;
+    const std::string libPathWebEngine = loadLibPath + "/" + WEBVIEW_ENGINE_SO;
     void *libHandleWebEngine = ::dlopen(libPathWebEngine.c_str(), RTLD_NOW);
     if (libHandleWebEngine == nullptr) {
-        WVLOG_E("fail to dlopen %{public}s, errmsg=%{public}s", libPathWebEngine.c_str(), dlerror());
-        return false;
+        if (from_ark) {
+            loadLibPath = bundlePath_ + "/" + RELATIVE_PATH_FOR_BUNDLE;
+        }
+        const std::string libPathWebEngine2 = loadLibPath + "/" + LIB_NAME_WEB_ENGINE;
+        libHandleWebEngine = ::dlopen(libPathWebEngine2.c_str(), RTLD_NOW);
+        if (libHandleWebEngine == nullptr) {
+            WVLOG_E("fail to dlopen %{public}s, errmsg=%{public}s", libPathWebEngine2.c_str(), dlerror());
+            return false;
+        }
     }
     libHandleWebEngine_ = libHandleWebEngine;
     return true;
@@ -718,12 +732,15 @@ bool NWebHelper::LoadEngine()
 static void DoPreReadLib(const std::string &bundlePath)
 {
     WVLOG_I("NWebHelper PreReadLib");
-    std::string libPathWebEngine = bundlePath + "/" + RELATIVE_PATH_FOR_BUNDLE + "/" + LIB_NAME_WEB_ENGINE;
+    std::string libPathWebEngine = bundlePath + "/" + WEBVIEW_SANDBOX_RELATIVE_LIB_PATH + "/" + WEBVIEW_ENGINE_SO;
 
     char tempPath[PATH_MAX] = {0};
     if (realpath(libPathWebEngine.c_str(), tempPath) == nullptr) {
-        WVLOG_E("path to realpath error, errno(%{public}d):%{public}s", errno, strerror(errno));
-        return;
+        libPathWebEngine = bundlePath + "/" + RELATIVE_PATH_FOR_BUNDLE + "/" + LIB_NAME_WEB_ENGINE;
+        if (realpath(libPathWebEngine.c_str(), tempPath) == nullptr) {
+            WVLOG_E("path to realpath error");
+            return;
+        }
     }
 
     struct stat stats;
@@ -788,8 +805,13 @@ bool NWebHelper::Init(bool from_ark)
         return false;
     }
 
-    if (!OHOS::ArkWeb::ArkWebNWebBridgeHelper::GetInstance().Init(from_ark, bundlePath_)) {
-        return false;
+    std::string relativeLibPath = WEBVIEW_SANDBOX_RELATIVE_LIB_PATH;
+    std::string arkWebEngineSo = WEBVIEW_ENGINE_SO;
+    if (!OHOS::ArkWeb::ArkWebNWebBridgeHelper::GetInstance().InitArkWeb(
+        from_ark, bundlePath_, relativeLibPath, arkWebEngineSo)) {
+        if (!OHOS::ArkWeb::ArkWebNWebBridgeHelper::GetInstance().Init(from_ark, bundlePath_)) {
+            return false;
+        }
     }
 
     return LoadEngine();

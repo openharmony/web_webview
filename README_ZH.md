@@ -4,7 +4,7 @@
 - [相关仓](#相关仓)
 ## 简介
 ### 内容介绍
-nweb是OpenHarmony webview组件的Native引擎，基于Chromium和CEF构建。
+arkweb是OpenHarmony webview组件的Native引擎，基于Chromium和CEF构建。
 ### 软件架构
 软件架构说明
 ![](figures/Web-architecture_ZH.png "web软件架构图")
@@ -17,7 +17,7 @@ nweb是OpenHarmony webview组件的Native引擎，基于Chromium和CEF构建。
 .
 ├── ohos_nweb            # openharmony适配代码
 │   ├── include
-│   ├── prebuilts        # NWeb.hap，基于third_party_chromium源码仓构建
+│   ├── prebuilts        # ArkWebCore.hap，基于third_party_chromium源码仓构建
 │   └── src
 └── test                 # nwebview测试代码
 ```

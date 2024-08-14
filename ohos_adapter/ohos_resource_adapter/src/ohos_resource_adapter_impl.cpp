@@ -123,7 +123,7 @@ bool ParseRawFile(const std::string& rawFile,
     return true;
 }
 
-std::string convertToSandboxPath(const std::string& installPath)
+std::string convertToSandboxPath(const std::string& installPath, const std::string& prefixPath)
 {
     if (installPath.empty()) {
         return "";
@@ -132,22 +132,76 @@ std::string convertToSandboxPath(const std::string& installPath)
     if (result != std::string::npos) {
         size_t pos = installPath.find_last_of('/');
         if (pos != std::string::npos && pos != installPath.size() - 1) {
-            return HAP_SANDBOX_PATH_PREFIX + installPath.substr(pos + 1);
+            return prefixPath + installPath.substr(pos + 1);
         }
     }
     return installPath;
 }
 
-std::string GetNWebHapPath(const std::string& arkWebCoreHapPathOverride)
+std::string GetArkWebHapPath(const std::string& arkWebCoreHapPathOverride,
+                             std::vector<std::pair<std::string, int>>& errorMessage)
 {
-    std::vector<std::pair<std::string, int>> errorMessage;
+    std::string prefixPath = WEBVIEW_SANDBOX_PATH;
     if (access(arkWebCoreHapPathOverride.c_str(), F_OK) == 0) {
-        WVLOG_D("eixt HAP_arkWebCoreHapPathOverride");
-        return convertToSandboxPath(arkWebCoreHapPathOverride);
+        std::string sandboxPath = convertToSandboxPath(arkWebCoreHapPathOverride, prefixPath);
+        if (access(sandboxPath.c_str(), F_OK) == 0) {
+            WVLOG_D("eixt HAP_arkWebCoreHapPathOverride");
+            return sandboxPath;
+        }
     }
     errorMessage.emplace_back("access arkWebCoreHapPathOverride path failed", errno);
 
-    std::string installPath = convertToSandboxPath(OHOS::system::GetParameter(PERSIST_ARKWEBCORE_INSTALL_PATH, ""));
+    std::string installPath = convertToSandboxPath(
+        OHOS::system::GetParameter(PERSIST_ARKWEBCORE_INSTALL_PATH, ""), prefixPath);
+    if (access(installPath.c_str(), F_OK) == 0) {
+        WVLOG_D("exit install_path,%{public}s", installPath.c_str());
+        return installPath;
+    }
+    errorMessage.emplace_back("access nweb install path failed", errno);
+
+    if (access(WEBVIEW_SANDBOX_HAP_PATH, F_OK) == 0) {
+        WVLOG_D("exit WEBVIEW_SANDBOX_HAP_PATH");
+        return WEBVIEW_SANDBOX_HAP_PATH;
+    }
+    errorMessage.emplace_back("access arkwebcore hap sandbox path failed", errno);
+    if (access(WEBVIEW_APP_HAP_PATH2, F_OK) == 0) {
+        WVLOG_D("exit WEBVIEW_APP_HAP_PATH2");
+        return WEBVIEW_APP_HAP_PATH2;
+    }
+    errorMessage.emplace_back("access ohos nweb hap path failed", errno);
+    if (access(WEBVIEW_APP_HAP_PATH, F_OK) == 0) {
+        WVLOG_D("exit WEBVIEW_APP_HAP_PATH");
+        return WEBVIEW_APP_HAP_PATH;
+    }
+    errorMessage.emplace_back("access nweb hap path failed", errno);
+    if (access(WEBVIEW_HAP_PATH, F_OK) == 0) {
+        WVLOG_D("exit WEBVIEW_HAP_PATH");
+        return WEBVIEW_HAP_PATH;
+    }
+    errorMessage.emplace_back("access nweb hap module update path failed", errno);
+    return "";
+}
+
+std::string GetNWebHapPath(const std::string& arkWebCoreHapPathOverride)
+{
+    std::vector<std::pair<std::string, int>> errorMessage;
+    std::string arkWebHapPath = GetArkWebHapPath(arkWebCoreHapPathOverride, errorMessage);
+    if (!arkWebHapPath.empty()) {
+        return arkWebHapPath;
+    }
+
+    std::string prefixPath = HAP_SANDBOX_PATH_PREFIX;
+    if (access(arkWebCoreHapPathOverride.c_str(), F_OK) == 0) {
+        std::string sandboxPath = convertToSandboxPath(arkWebCoreHapPathOverride, prefixPath);
+        WVLOG_D("sandboxPath,%{public}s", sandboxPath.c_str());
+        if (access(sandboxPath.c_str(), F_OK) == 0) {
+            return sandboxPath;
+        }
+    }
+    errorMessage.emplace_back("access arkWebCoreHapPathOverride path failed", errno);
+
+    std::string installPath = convertToSandboxPath(
+        OHOS::system::GetParameter(PERSIST_ARKWEBCORE_INSTALL_PATH, ""), prefixPath);
     WVLOG_D("install_path,%{public}s", installPath.c_str());
     if (access(installPath.c_str(), F_OK) == 0) {
         return installPath;
@@ -164,17 +218,14 @@ std::string GetNWebHapPath(const std::string& arkWebCoreHapPathOverride)
         WVLOG_D("eixt NWEB_HAP_PATH");
         return NWEB_HAP_PATH;
     }
-    WVLOG_W("access ohos nweb hap path failed, errno(%{public}d): %{public}s", errno, strerror(errno));
     if (access(NWEB_HAP_PATH_1.c_str(), F_OK) == 0) {
         WVLOG_D("eixt NWEB_HAP_PATH_1");
         return NWEB_HAP_PATH_1;
     }
-    WVLOG_W("access nweb hap path failed, errno(%{public}d): %{public}s", errno, strerror(errno));
     if (access(NWEB_HAP_PATH_MODULE_UPDATE.c_str(), F_OK) == 0) {
         WVLOG_D("eixt NWEB_HAP_PATH_MODULE_UPDATE");
         return NWEB_HAP_PATH_MODULE_UPDATE;
     }
-    WVLOG_W("access nweb hap module update path failed, errno(%{public}d): %{public}s", errno, strerror(errno));
     std::string install_path =
         OHOS::system::GetParameter("persist.arkwebcore.install_path", NWEB_HAP_PATH_MODULE_UPDATE);
     if (access(install_path.c_str(), F_OK) == 0) {

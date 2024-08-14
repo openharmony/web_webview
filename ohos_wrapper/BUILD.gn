@@ -15,10 +15,9 @@ import("//build/ohos.gni")
 import("../config.gni")
 
 ohos_shared_library("nweb_ohos_wrapper") {
-  if (target_cpu == "arm64") {
-    branch_protector_ret = "pac_ret"
-    branch_protector_frt = "bti"
-  }
+  output_name = "arkweb_os_wrapper"
+  branch_protector_ret = "pac_ret"
+  branch_protector_frt = "bti"
 
   sources = []
 

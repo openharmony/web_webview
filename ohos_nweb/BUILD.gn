@@ -12,18 +12,28 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("../config.gni")
 import("../web_aafwk.gni")
 
 webview_root_path = webview_path
 if (target_cpu == "arm64") {
-  web_source = "prebuilts/arm64/NWeb.hap"
+  web_source = "prebuilts/arm64/ArkWebCore.hap"
   defines = [ "webview_arm64" ]
 } else if (target_cpu == "arm") {
-  web_source = "prebuilts/arm/NWeb.hap"
+  web_source = "prebuilts/arm/ArkWebCore.hap"
+  defines = []
 } else if (target_cpu == "x86_64") {
-  web_source = "prebuilts/arm64/NWeb.hap"
+  web_source = "prebuilts/arm64/ArkWebCore.hap"
   defines = [ "webview_x86_64" ]
 }
+
+defines += [
+  "WEBVIEW_PACKAGE_NAME=\"${webview_package_name}\"",
+  "WEBVIEW_SANDBOX_LIB_PATH=\"${webview_sandbox_lib_path}\"",
+  "WEBVIEW_CRASHPAD_HANDLER_SO=\"${webview_crashpad_handler_so}\"",
+  "WEBVIEW_SANDBOX_RELATIVE_LIB_PATH=\"${webview_sandbox_relative_lib_path}\"",
+  "WEBVIEW_ENGINE_SO=\"${webview_engine_so}\"",
+]
 
 config("nweb_config") {
   include_dirs = [ "include" ]
@@ -64,10 +74,9 @@ ohos_shared_library("web_configs") {
 }
 
 ohos_shared_library("libnweb") {
-  if (target_cpu == "arm64") {
-    branch_protector_ret = "pac_ret"
-    branch_protector_frt = "bti"
-  }
+  output_name = "arkweb_core_loader"
+  branch_protector_ret = "pac_ret"
+  branch_protector_frt = "bti"
 
   configs = [
     ":nweb_config",
@@ -121,7 +130,7 @@ ohos_shared_library("libnweb") {
 
 ohos_prebuilt_etc("nweb_hap") {
   source = web_source
-  module_install_dir = "app/com.ohos.nweb"
+  module_install_dir = "app/${webview_package_name}"
   part_name = "webview"
   subsystem_name = "web"
   license_file = "./prebuilts/NOTICE"
@@ -163,6 +172,8 @@ ohos_prebuilt_etc("context-menu") {
 }
 
 ohos_executable("chrome_crashpad_handler") {
+  output_name = "arkweb_crashpad_handler"
+
   install_enable = true
 
   include_dirs = [ "include" ]
@@ -171,7 +182,6 @@ ohos_executable("chrome_crashpad_handler") {
 
   external_deps = [ "hilog:libhilog" ]
 
-  defines = []
   if (target_cpu == "arm64") {
     branch_protector_ret = "pac_ret"
     branch_protector_frt = "bti"
