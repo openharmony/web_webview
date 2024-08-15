@@ -291,6 +291,10 @@ void AudioRendererAdapterImpl::SetInterruptMode(bool audioExclusive)
 
 bool AudioRendererAdapterImpl::IsRendererStateRunning()
 {
+    if (audio_renderer_ == nullptr) {
+        WVLOG_E("audio rendderer is nullptr");
+        return false;
+    }
     return audio_renderer_->GetStatus() == OHOS::AudioStandard::RendererState::RENDERER_RUNNING;
 }
 
