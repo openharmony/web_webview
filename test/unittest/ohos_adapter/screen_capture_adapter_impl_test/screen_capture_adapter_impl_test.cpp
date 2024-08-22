@@ -46,6 +46,7 @@ public:
     MOCK_METHOD1(SetMicrophoneEnabled, int32_t(bool));
     MOCK_METHOD1(SetCanvasRotation, int32_t(bool));
     MOCK_METHOD2(ResizeCanvas, int32_t(int32_t, int32_t));
+    MOCK_METHOD1(SkipPrivacyMode, int32_t(std::vector<uint64_t>&));
     MOCK_METHOD0(StartScreenCapture, int32_t());
     MOCK_METHOD1(StartScreenCaptureWithSurface, int32_t(sptr<Surface>));
     MOCK_METHOD0(StopScreenCapture, int32_t());
