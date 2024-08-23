@@ -1476,6 +1476,11 @@ public:
     virtual bool ScrollByWithResult(float delta_x, float delta_y) {
         return false;
     }
+
+    /**
+     * @brief Called when image analyzer is destory.
+     */
+    virtual void OnDestroyImageAnalyzerOverlay() {}
 };
 
 } // namespace OHOS::NWeb
