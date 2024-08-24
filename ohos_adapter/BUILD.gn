@@ -11,294 +11,291 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/ohos.gni")
-import("../config.gni")
-
-config("ohos_adapter_public_interface") {
-  include_dirs = [ "interfaces" ]
-}
-
-ohos_shared_library("nweb_ohos_adapter") {
-  branch_protector_ret = "pac_ret"
-  branch_protector_frt = "bti"
-
-  defines = [ "HILOG_TAG=\"webadapter\"" ]
+#config("ohos_adapter_public_interface") {
+#  include_dirs = [ "interfaces" ]
+#}
+#
+shared_library("nweb_ohos_adapter") {
+#  branch_protector_ret = "pac_ret"
+#  branch_protector_frt = "bti"
+#
+#  defines = [ "HILOG_TAG=\"webadapter\"" ]
   sources = [
-    "aafwk_adapter/src/aafwk_app_mgr_client_adapter_impl.cpp",
-    "aafwk_adapter/src/aafwk_browser_client_adapter_impl.cpp",
-    "aafwk_adapter/src/aafwk_browser_host_impl.cpp",
-    "aafwk_adapter/src/aafwk_render_scheduler_impl.cpp",
-    "access_token_adapter/src/access_token_adapter_impl.cpp",
-    "background_task_adapter/src/background_task_impl.cpp",
-    "cert_mgr_adapter/src/cert_mgr_adapter_impl.cpp",
-    "datashare_adapter/src/datashare_adapter_impl.cpp",
-    "date_time_format_adapter/src/date_time_format_adapter_impl.cpp",
-    "display_manager_adapter/src/display_manager_adapter_impl.cpp",
-    "distributeddatamgr_adapter/webdatabase/src/ohos_web_data_base_adapter_impl.cpp",
-    "distributeddatamgr_adapter/webdatabase/src/ohos_web_permission_data_base_adapter_impl.cpp",
-    "enterprise_device_management_adapter/src/enterprise_device_management_adapter_impl.cpp",
-    "event_handler_adapter/src/event_handler_adapter_impl.cpp",
-    "flowbuffer_adapter/src/flowbuffer_adapter_impl.cpp",
-    "graphic_adapter/src/ashmem_adapter_impl.cpp",
-    "graphic_adapter/src/native_image_adapter_impl.cpp",
-    "graphic_adapter/src/surface_adapter_impl.cpp",
-    "graphic_adapter/src/vsync_adapter_impl.cpp",
-    "graphic_adapter/src/window_adapter_impl.cpp",
-    "hiviewdfx_adapter/src/hilog_adapter.cpp",
-    "hiviewdfx_adapter/src/hisysevent_adapter_impl.cpp",
-    "hiviewdfx_adapter/src/hitrace_adapter_impl.cpp",
-    "inputmethodframework_adapter/src/imf_adapter_impl.cpp",
-    "keystore_adapter/src/keystore_adapter_impl.cpp",
-    "multimodalinput_adapter/src/mmi_adapter_impl.cpp",
-    "net_proxy_adapter/src/net_proxy_adapter_impl.cpp",
-    "ohos_adapter_helper/src/ohos_adapter_helper_impl.cpp",
-    "ohos_image_adapter/src/ohos_image_decoder_adapter_impl.cpp",
-    "ohos_init_web_adapter/src/ohos_init_web_adapter_impl.cpp",
-    "ohos_resource_adapter/src/ohos_resource_adapter_impl.cpp",
-    "pasteboard_adapter/src/pasteboard_client_adapter_impl.cpp",
-    "print_manager_adapter/src/print_manager_adapter_impl.cpp",
-    "res_sched_adapter/src/res_sched_client_adapter_impl.cpp",
-    "soc_perf_adapter/src/soc_perf_client_adapter_impl.cpp",
-    "system_properties_adapter/src/system_properties_adapter_impl.cpp",
+#    "aafwk_adapter/src/aafwk_app_mgr_client_adapter_impl.cpp",
+#    "aafwk_adapter/src/aafwk_browser_client_adapter_impl.cpp",
+#    "aafwk_adapter/src/aafwk_browser_host_impl.cpp",
+#    "aafwk_adapter/src/aafwk_render_scheduler_impl.cpp",
+#    "access_token_adapter/src/access_token_adapter_impl.cpp",
+#    "background_task_adapter/src/background_task_impl.cpp",
+#    "cert_mgr_adapter/src/cert_mgr_adapter_impl.cpp",
+#    "datashare_adapter/src/datashare_adapter_impl.cpp",
+#    "date_time_format_adapter/src/date_time_format_adapter_impl.cpp",
+#    "display_manager_adapter/src/display_manager_adapter_impl.cpp",
+#    "distributeddatamgr_adapter/webdatabase/src/ohos_web_data_base_adapter_impl.cpp",
+#    "distributeddatamgr_adapter/webdatabase/src/ohos_web_permission_data_base_adapter_impl.cpp",
+#    "enterprise_device_management_adapter/src/enterprise_device_management_adapter_impl.cpp",
+#    "event_handler_adapter/src/event_handler_adapter_impl.cpp",
+#    "flowbuffer_adapter/src/flowbuffer_adapter_impl.cpp",
+#    "graphic_adapter/src/ashmem_adapter_impl.cpp",
+#    "graphic_adapter/src/native_image_adapter_impl.cpp",
+#    "graphic_adapter/src/surface_adapter_impl.cpp",
+#    "graphic_adapter/src/vsync_adapter_impl.cpp",
+#    "graphic_adapter/src/window_adapter_impl.cpp",
+#    "hiviewdfx_adapter/src/hilog_adapter.cpp",
+#    "hiviewdfx_adapter/src/hisysevent_adapter_impl.cpp",
+#    "hiviewdfx_adapter/src/hitrace_adapter_impl.cpp",
+#    "inputmethodframework_adapter/src/imf_adapter_impl.cpp",
+#    "keystore_adapter/src/keystore_adapter_impl.cpp",
+#    "multimodalinput_adapter/src/mmi_adapter_impl.cpp",
+#    "net_proxy_adapter/src/net_proxy_adapter_impl.cpp",
+#    "ohos_adapter_helper/src/ohos_adapter_helper_impl.cpp",
+#    "ohos_image_adapter/src/ohos_image_decoder_adapter_impl.cpp",
+#    "ohos_init_web_adapter/src/ohos_init_web_adapter_impl.cpp",
+#    "ohos_resource_adapter/src/ohos_resource_adapter_impl.cpp",
+#    "pasteboard_adapter/src/pasteboard_client_adapter_impl.cpp",
+#    "print_manager_adapter/src/print_manager_adapter_impl.cpp",
+#    "res_sched_adapter/src/res_sched_client_adapter_impl.cpp",
+#    "soc_perf_adapter/src/soc_perf_client_adapter_impl.cpp",
+#    "system_properties_adapter/src/system_properties_adapter_impl.cpp",
   ]
-
-  cflags = [
-    "-Wall",
-    "-Werror",
-    "-g3",
-  ]
-
-  include_dirs = [
-    "../ohos_nweb/include",
-    "aafwk_adapter/include",
-    "access_token_adapter/include",
-    "audio_adapter/include",
-    "battery_mgr_adapter/include",
-    "camera_adapter/include",
-    "cert_mgr_adapter/include",
-    "datashare_adapter/include",
-    "date_time_format_adapter/include",
-    "display_manager_adapter/include",
-    "distributeddatamgr_adapter/webdatabase/include",
-    "enterprise_device_management_adapter/include",
-    "event_handler_adapter/include",
-    "flowbuffer_adapter/include",
-    "graphic_adapter/include",
-    "hiviewdfx_adapter/include",
-    "inputmethodframework_adapter/include",
-    "keystore_adapter/include",
-    "location_adapter/include",
-    "media_adapter/include",
-    "multimodalinput_adapter/include",
-    "net_connect_adapter/include",
-    "net_proxy_adapter/include",
-    "ohos_adapter_helper/include",
-    "ohos_image_adapter/include",
-    "ohos_init_web_adapter/include",
-    "ohos_resource_adapter/include",
-    "pasteboard_adapter/include",
-    "power_mgr_adapter/include",
-    "print_manager_adapter/include",
-    "screen_capture_adapter/include",
-    "soc_perf_adapter/include",
-    "system_properties_adapter/include",
-    "sensor_adapter/include",
-  ]
-
-  public_configs = [ ":ohos_adapter_public_interface" ]
-
-  external_deps = [
-    "ability_base:extractortool",
-    "ability_base:zuri",
-    "ability_runtime:ability_manager",
-    "ability_runtime:abilitykit_native",
-    "ability_runtime:app_context",
-    "ability_runtime:app_manager",
-    "access_token:libaccesstoken_sdk",
-    "app_file_service:fileuri_native",
-    "background_task_mgr:bgtaskmgr_innerkits",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
-    "c_utils:utils",
-    "certificate_manager:cert_manager_sdk",
-    "common_event_service:cesfwk_innerkits",
-    "data_share:datashare_common",
-    "data_share:datashare_consumer",
-    "eventhandler:libeventhandler",
-    "file_api:remote_uri_native",
-    "graphic_2d:libcomposer",
-    "graphic_2d:libnative_image",
-    "graphic_2d:librender_service_client",
-    "graphic_surface:surface",
-    "hilog:libhilog",
-    "hisysevent:libhisysevent",
-    "hitrace:hitrace_meter",
-    "huks:libhukssdk",
-    "image_framework:image_native",
-    "imf:inputmethod_client",
-    "init:libbeget_proxy",
-    "init:libbegetutil",
-    "input:libmmi-client",
-    "ipc:ipc_core",
-    "napi:ace_napi",
-    "netmanager_base:net_conn_manager_if",
-    "netstack:net_ssl",
-    "openssl:libssl_shared",
-    "pasteboard:pasteboard_client",
-    "relational_store:native_rdb",
-    "resource_schedule_service:ressched_client",
-    "samgr:samgr_proxy",
-    "time_service:time_client",
-    "window_manager:libdm",
-  ]
-  public_external_deps = [ "ability_base:want" ]
-
-  if (webview_soc_perf_enable) {
-    external_deps += [ "soc_perf:socperf_client" ]
-    defines += [ "NWEB_SOC_PERF" ]
-  }
-
-  if (webview_audio_enable) {
+#
+#  cflags = [
+#    "-Wall",
+#    "-Werror",
+#    "-g3",
+#  ]
+#
+#  include_dirs = [
+#    "../ohos_nweb/include",
+#    "aafwk_adapter/include",
+#    "access_token_adapter/include",
+#    "audio_adapter/include",
+#    "battery_mgr_adapter/include",
+#    "camera_adapter/include",
+#    "cert_mgr_adapter/include",
+#    "datashare_adapter/include",
+#    "date_time_format_adapter/include",
+#    "display_manager_adapter/include",
+#    "distributeddatamgr_adapter/webdatabase/include",
+#    "enterprise_device_management_adapter/include",
+#    "event_handler_adapter/include",
+#    "flowbuffer_adapter/include",
+#    "graphic_adapter/include",
+#    "hiviewdfx_adapter/include",
+#    "inputmethodframework_adapter/include",
+#    "keystore_adapter/include",
+#    "location_adapter/include",
+#    "media_adapter/include",
+#    "multimodalinput_adapter/include",
+#    "net_connect_adapter/include",
+#    "net_proxy_adapter/include",
+#    "ohos_adapter_helper/include",
+#    "ohos_image_adapter/include",
+#    "ohos_init_web_adapter/include",
+#    "ohos_resource_adapter/include",
+#    "pasteboard_adapter/include",
+#    "power_mgr_adapter/include",
+#    "print_manager_adapter/include",
+#    "screen_capture_adapter/include",
+#    "soc_perf_adapter/include",
+#    "system_properties_adapter/include",
+#    "sensor_adapter/include",
+#  ]
+#
+#  public_configs = [ ":ohos_adapter_public_interface" ]
+#
+#  external_deps = [
+#    "ability_base:extractortool",
+#    "ability_base:zuri",
+#    "ability_runtime:ability_manager",
+#    "ability_runtime:abilitykit_native",
+#    "ability_runtime:app_context",
+#    "ability_runtime:app_manager",
+#    "access_token:libaccesstoken_sdk",
+#    "app_file_service:fileuri_native",
+#    "background_task_mgr:bgtaskmgr_innerkits",
+#    "bundle_framework:appexecfwk_base",
+#    "bundle_framework:appexecfwk_core",
+#    "c_utils:utils",
+#    "certificate_manager:cert_manager_sdk",
+#    "common_event_service:cesfwk_innerkits",
+#    "data_share:datashare_common",
+#    "data_share:datashare_consumer",
+#    "eventhandler:libeventhandler",
+#    "file_api:remote_uri_native",
+#    "graphic_2d:libcomposer",
+#    "graphic_2d:libnative_image",
+#    "graphic_2d:librender_service_client",
+#    "graphic_surface:surface",
+#    "hilog:libhilog",
+#    "hisysevent:libhisysevent",
+#    "hitrace:hitrace_meter",
+#    "huks:libhukssdk",
+#    "image_framework:image_native",
+#    "imf:inputmethod_client",
+#    "init:libbeget_proxy",
+#    "init:libbegetutil",
+#    "input:libmmi-client",
+#    "ipc:ipc_core",
+#    "napi:ace_napi",
+#    "netmanager_base:net_conn_manager_if",
+#    "netstack:net_ssl",
+#    "openssl:libssl_shared",
+#    "pasteboard:pasteboard_client",
+#    "relational_store:native_rdb",
+#    "resource_schedule_service:ressched_client",
+#    "samgr:samgr_proxy",
+#    "time_service:time_client",
+#    "window_manager:libdm",
+#  ]
+#  public_external_deps = [ "ability_base:want" ]
+#
+#  if (webview_soc_perf_enable) {
+#    external_deps += [ "soc_perf:socperf_client" ]
+#    defines += [ "NWEB_SOC_PERF" ]
+#  }
+#
+#  if (webview_audio_enable) {
+#    sources += [
+#      "audio_adapter/src/audio_capturer_adapter_impl.cpp",
+#      "audio_adapter/src/audio_device_desc_adapter_impl.cpp",
+#      "audio_adapter/src/audio_renderer_adapter_impl.cpp",
+#      "audio_adapter/src/audio_system_manager_adapter_impl.cpp",
+#    ]
+#    external_deps += [
+#      "audio_framework:audio_capturer",
+#      "audio_framework:audio_client",
+#      "audio_framework:audio_renderer",
+#    ]
+#    defines += [ "NWEB_AUDIO_ENABLE" ]
+#  } else {
+#    sources += [
+#      "audio_adapter/src/audio_capturer_adapter_mock.cpp",
+#      "audio_adapter/src/audio_device_desc_adapter_mock.cpp",
+#      "audio_adapter/src/audio_renderer_adapter_mock.cpp",
+#      "audio_adapter/src/audio_system_manager_adapter_mock.cpp",
+#    ]
+#  }
+#
+#  if (webview_location_enable) {
+#    sources += [
+#      "location_adapter/src/location_callback_adapter_impl.cpp",
+#      "location_adapter/src/location_instance_impl.cpp",
+#      "location_adapter/src/location_proxy_adapter_impl.cpp",
+#    ]
+#    external_deps += [
+#      "location:lbsservice_common",
+#      "location:locator_sdk",
+#    ]
+#    defines += [ "NWEB_LOCATION_ENABLE" ]
+#  } else {
+#    sources += [ "location_adapter/src/location_proxy_adapter_mock.cpp" ]
+#  }
+#
+#  if (webview_avcodec_enable) {
     sources += [
-      "audio_adapter/src/audio_capturer_adapter_impl.cpp",
-      "audio_adapter/src/audio_device_desc_adapter_impl.cpp",
-      "audio_adapter/src/audio_renderer_adapter_impl.cpp",
-      "audio_adapter/src/audio_system_manager_adapter_impl.cpp",
+#      "media_adapter/src/buffer_info_adapter_impl.cpp",
+#      "media_adapter/src/capability_data_adapter_impl.cpp",
+#      "media_adapter/src/codec_format_adapter_impl.cpp",
+      "media_adapter/src/media_codec_decoder_adapter_impl_test.cpp",
+#      "media_adapter/src/media_codec_encoder_adapter_impl.cpp",
+#      "media_adapter/src/media_codec_list_adapter_impl.cpp",
+#      "media_adapter/src/ohos_buffer_adapter_impl.cpp",
     ]
-    external_deps += [
-      "audio_framework:audio_capturer",
-      "audio_framework:audio_client",
-      "audio_framework:audio_renderer",
-    ]
-    defines += [ "NWEB_AUDIO_ENABLE" ]
-  } else {
-    sources += [
-      "audio_adapter/src/audio_capturer_adapter_mock.cpp",
-      "audio_adapter/src/audio_device_desc_adapter_mock.cpp",
-      "audio_adapter/src/audio_renderer_adapter_mock.cpp",
-      "audio_adapter/src/audio_system_manager_adapter_mock.cpp",
-    ]
-  }
-
-  if (webview_location_enable) {
-    sources += [
-      "location_adapter/src/location_callback_adapter_impl.cpp",
-      "location_adapter/src/location_instance_impl.cpp",
-      "location_adapter/src/location_proxy_adapter_impl.cpp",
-    ]
-    external_deps += [
-      "location:lbsservice_common",
-      "location:locator_sdk",
-    ]
-    defines += [ "NWEB_LOCATION_ENABLE" ]
-  } else {
-    sources += [ "location_adapter/src/location_proxy_adapter_mock.cpp" ]
-  }
-
-  if (webview_avcodec_enable) {
-    sources += [
-      "media_adapter/src/buffer_info_adapter_impl.cpp",
-      "media_adapter/src/capability_data_adapter_impl.cpp",
-      "media_adapter/src/codec_format_adapter_impl.cpp",
-      "media_adapter/src/media_codec_decoder_adapter_impl.cpp",
-      "media_adapter/src/media_codec_encoder_adapter_impl.cpp",
-      "media_adapter/src/media_codec_list_adapter_impl.cpp",
-      "media_adapter/src/ohos_buffer_adapter_impl.cpp",
-    ]
-    external_deps += [
-      "av_codec:av_codec_client",
-      "media_foundation:media_foundation",
-    ]
-    defines += [ "NWEB_MEDIA_AVCODEC_ENABLE" ]
-  } else {
-    sources += [ "media_adapter/src/media_codec_list_adapter_mock.cpp" ]
-  }
-
-  if (webview_media_player_enable) {
-    sources += [ "media_adapter/src/player_framework_adapter_impl.cpp" ]
-    external_deps += [ "player_framework:media_client" ]
-    defines += [ "NWEB_MEDIA_PLAYER_ENABLE" ]
-  }
-
-  if (webview_camera_enable) {
-    sources += [
-      "camera_adapter/src/camera_manager_adapter_impl.cpp",
-      "camera_adapter/src/camera_rotation_info_adapter_impl.cpp",
-      "camera_adapter/src/format_adapter_impl.cpp",
-      "camera_adapter/src/video_capture_range_adapter_impl.cpp",
-      "camera_adapter/src/video_control_support_adapter_impl.cpp",
-      "camera_adapter/src/video_device_descriptor_adapter_impl.cpp",
-      "screen_capture_adapter/src/screen_capture_adapter_impl.cpp",
-    ]
-    external_deps += [ "camera_framework:camera_framework" ]
-    defines += [ "NWEB_CAMERA_ENABLE" ]
-  } else {
-    sources += [
-      "camera_adapter/src/camera_manager_adapter_mock.cpp",
-      "camera_adapter/src/camera_rotation_info_adapter_mock.cpp",
-      "camera_adapter/src/format_adapter_mock.cpp",
-      "camera_adapter/src/video_capture_range_adapter_mock.cpp",
-      "camera_adapter/src/video_control_support_adapter_mock.cpp",
-      "camera_adapter/src/video_device_descriptor_adapter_mock.cpp",
-    ]
-  }
-
-  if (webview_telephony_enable) {
-    sources += [
-      "net_connect_adapter/src/net_capabilities_adapter_impl.cpp",
-      "net_connect_adapter/src/net_connect_adapter_impl.cpp",
-      "net_connect_adapter/src/net_connect_callback_impl.cpp",
-      "net_connect_adapter/src/net_connect_utils.cpp",
-      "net_connect_adapter/src/net_connection_properties_adapter_impl.cpp",
-    ]
-    external_deps += [
-      "cellular_data:tel_cellular_data_api",
-      "core_service:tel_core_service_api",
-    ]
-    defines += [ "NWEB_TEL_ENABLE" ]
-  }
-
-  if (webview_battery_manager_enable) {
-    sources += [ "battery_mgr_adapter/src/battery_mgr_client_adapter_impl.cpp" ]
-    external_deps += [ "battery_manager:batterysrv_client" ]
-    defines += [ "NWEB_BATTERY_MANAGER_ENABLE" ]
-  }
-
-  if (webview_power_manager_enable) {
-    sources += [ "power_mgr_adapter/src/power_mgr_client_adapter_impl.cpp" ]
-    external_deps += [ "power_manager:powermgr_client" ]
-    defines += [ "NWEB_POWER_MANAGER_ENABLE" ]
-  }
-
-  if (webview_print_enable) {
-    external_deps += [
-      "print_fwk:print_client",
-      "print_fwk:print_helper",
-      "print_fwk:print_models",
-    ]
-    defines += [ "NWEB_PRINT_ENABLE" ]
-  }
-
-  if (webview_enterprise_device_manager_enable) {
-    external_deps += [ "enterprise_device_management:edmservice_kits" ]
-    defines += [ "NWEB_ENTERPRISE_DEVICE_MANAGER_ENABLE" ]
-  }
-
-  if (webview_media_avsession_enable) {
-    sources += [ "media_adapter/src/media_avsession_adapter_impl.cpp" ]
-    external_deps += [ "av_session:avsession_client" ]
-    defines += [ "NWEB_MEDIA_AVSESSION_ENABLE" ]
-  }
-
-  if (webview_sensors_sensor_enable) {
-    sources += [ "sensor_adapter/src/sensor_adapter_impl.cpp" ]
-    external_deps += [ "sensor:sensor_interface_native" ]
-    defines += [ "NWEB_SENSORS_SENSOR_ENABLE" ]
-  }
-
-  innerapi_tags = [ "platformsdk" ]
-  part_name = "webview"
-  subsystem_name = "web"
-
-  deps = [ "../ohos_nweb:web_configs" ]
+#    external_deps += [
+#      "av_codec:av_codec_client",
+#      "media_foundation:media_foundation",
+#    ]
+#    defines += [ "NWEB_MEDIA_AVCODEC_ENABLE" ]
+#  } else {
+#    sources += [ "media_adapter/src/media_codec_list_adapter_mock.cpp" ]
+#  }
+#
+#  if (webview_media_player_enable) {
+#    sources += [ "media_adapter/src/player_framework_adapter_impl.cpp" ]
+#    external_deps += [ "player_framework:media_client" ]
+#    defines += [ "NWEB_MEDIA_PLAYER_ENABLE" ]
+#  }
+#
+#  if (webview_camera_enable) {
+#    sources += [
+#      "camera_adapter/src/camera_manager_adapter_impl.cpp",
+#      "camera_adapter/src/camera_rotation_info_adapter_impl.cpp",
+#      "camera_adapter/src/format_adapter_impl.cpp",
+#      "camera_adapter/src/video_capture_range_adapter_impl.cpp",
+#      "camera_adapter/src/video_control_support_adapter_impl.cpp",
+#      "camera_adapter/src/video_device_descriptor_adapter_impl.cpp",
+#      "screen_capture_adapter/src/screen_capture_adapter_impl.cpp",
+#    ]
+#    external_deps += [ "camera_framework:camera_framework" ]
+#    defines += [ "NWEB_CAMERA_ENABLE" ]
+#  } else {
+#    sources += [
+#      "camera_adapter/src/camera_manager_adapter_mock.cpp",
+#      "camera_adapter/src/camera_rotation_info_adapter_mock.cpp",
+#      "camera_adapter/src/format_adapter_mock.cpp",
+#      "camera_adapter/src/video_capture_range_adapter_mock.cpp",
+#      "camera_adapter/src/video_control_support_adapter_mock.cpp",
+#      "camera_adapter/src/video_device_descriptor_adapter_mock.cpp",
+#    ]
+#  }
+#
+#  if (webview_telephony_enable) {
+#    sources += [
+#      "net_connect_adapter/src/net_capabilities_adapter_impl.cpp",
+#      "net_connect_adapter/src/net_connect_adapter_impl.cpp",
+#      "net_connect_adapter/src/net_connect_callback_impl.cpp",
+#      "net_connect_adapter/src/net_connect_utils.cpp",
+#      "net_connect_adapter/src/net_connection_properties_adapter_impl.cpp",
+#    ]
+#    external_deps += [
+#      "cellular_data:tel_cellular_data_api",
+#      "core_service:tel_core_service_api",
+#    ]
+#    defines += [ "NWEB_TEL_ENABLE" ]
+#  }
+#
+#  if (webview_battery_manager_enable) {
+#    sources += [ "battery_mgr_adapter/src/battery_mgr_client_adapter_impl.cpp" ]
+#    external_deps += [ "battery_manager:batterysrv_client" ]
+#    defines += [ "NWEB_BATTERY_MANAGER_ENABLE" ]
+#  }
+#
+#  if (webview_power_manager_enable) {
+#    sources += [ "power_mgr_adapter/src/power_mgr_client_adapter_impl.cpp" ]
+#    external_deps += [ "power_manager:powermgr_client" ]
+#    defines += [ "NWEB_POWER_MANAGER_ENABLE" ]
+#  }
+#
+#  if (webview_print_enable) {
+#    external_deps += [
+#      "print_fwk:print_client",
+#      "print_fwk:print_helper",
+#      "print_fwk:print_models",
+#    ]
+#    defines += [ "NWEB_PRINT_ENABLE" ]
+#  }
+#
+#  if (webview_enterprise_device_manager_enable) {
+#    external_deps += [ "enterprise_device_management:edmservice_kits" ]
+#    defines += [ "NWEB_ENTERPRISE_DEVICE_MANAGER_ENABLE" ]
+#  }
+#
+#  if (webview_media_avsession_enable) {
+#    sources += [ "media_adapter/src/media_avsession_adapter_impl.cpp" ]
+#    external_deps += [ "av_session:avsession_client" ]
+#    defines += [ "NWEB_MEDIA_AVSESSION_ENABLE" ]
+#  }
+#
+#  if (webview_sensors_sensor_enable) {
+#    sources += [ "sensor_adapter/src/sensor_adapter_impl.cpp" ]
+#    external_deps += [ "sensor:sensor_interface_native" ]
+#    defines += [ "NWEB_SENSORS_SENSOR_ENABLE" ]
+#  }
+#
+#  innerapi_tags = [ "platformsdk" ]
+#  part_name = "webview"
+#  subsystem_name = "web"
+#
+#  deps = [ "../ohos_nweb:web_configs" ]
 }
