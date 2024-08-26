@@ -41,6 +41,7 @@ const std::string WEB_SECURITY_LEVEL_ENUM_NAME = "SecurityLevel";
 const std::string WEB_RENDER_PROCESS_MODE_ENUM_NAME = "RenderProcessMode";
 const std::string OFFLINE_RESOURCE_TYPE_ENUM_NAME = "OfflineResourceType";
 const std::string WEB_PRESSURE_LEVEL_ENUM_NAME = "PressureLevel";
+const std::string WEB_SCROLL_TYPE_ENUM_NAME = "ScrollType";
 
 struct Scheme {
     std::string name;

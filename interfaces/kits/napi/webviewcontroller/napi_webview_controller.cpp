@@ -727,6 +727,16 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         sizeof(pressureLevelProperties[0]), pressureLevelProperties, &pressureLevelEnum);
     napi_set_named_property(env, exports, WEB_PRESSURE_LEVEL_ENUM_NAME.c_str(), pressureLevelEnum);
 
+    napi_value scrollTypeEnum = nullptr;
+    napi_property_descriptor scrollTypeProperties[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("EVENT", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(ScrollType::EVENT))),
+    };
+    napi_define_class(env, WEB_SCROLL_TYPE_ENUM_NAME.c_str(), WEB_SCROLL_TYPE_ENUM_NAME.length(),
+        NapiParseUtils::CreateEnumConstructor, nullptr, sizeof(scrollTypeProperties) /
+        sizeof(scrollTypeProperties[0]), scrollTypeProperties, &scrollTypeEnum);
+    napi_set_named_property(env, exports, WEB_SCROLL_TYPE_ENUM_NAME.c_str(), scrollTypeEnum);
+
     WebviewJavaScriptExecuteCallback::InitJSExcute(env, exports);
     return exports;
 }
@@ -4236,30 +4246,40 @@ napi_value NapiWebviewController::SetScrollable(napi_env env, napi_callback_info
 {
     napi_value thisVar = nullptr;
     napi_value result = nullptr;
-    size_t argc = INTEGER_ONE;
-    napi_value argv[INTEGER_ONE] = { 0 };
-    bool isEnableScroll;
+    size_t argc = INTEGER_TWO;
+    size_t argcForOld = INTEGER_ONE;
+    napi_value argv[INTEGER_TWO] = { 0 };
 
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
-    if (argc != INTEGER_ONE) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
+    if (argc != INTEGER_TWO && argc != argcForOld) {
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_TWO, "one", "two"));
         return result;
     }
-
+    bool isEnableScroll;
     if (!NapiParseUtils::ParseBoolean(env, argv[0], isEnableScroll)) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "enable", "boolean"));
         return result;
     }
 
-    WebviewController *webviewController = nullptr;
-    napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
+    int32_t scrollType = -1;
+    if (argc == INTEGER_TWO) {
+        if (!NapiParseUtils::ParseInt32(env, argv[INTEGER_ONE], scrollType) || scrollType < 0 ||
+            scrollType >= INTEGER_ONE) {
+            WVLOG_E("BusinessError: 401. The character of 'scrollType' must be int32.");
+            BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+            return result;
+        }
+    }
+
+    WebviewController* webviewController = nullptr;
+    napi_status status = napi_unwrap(env, thisVar, (void**)&webviewController);
     if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
-    webviewController->SetScrollable(isEnableScroll);
+    webviewController->SetScrollable(isEnableScroll, scrollType);
     return result;
 }
 
@@ -5610,7 +5630,7 @@ napi_value NapiWebviewController::SetBackForwardCacheOptions(napi_env env, napi_
             size = BFCACHE_DEFAULT_SIZE;
         }
     }
-    
+
     if (napi_get_named_property(env, argv[INTEGER_ZERO], "timeToLive", &timeToLiveObj) == napi_ok) {
         if (!NapiParseUtils::ParseInt32(env, timeToLiveObj, timeToLive)) {
             timeToLive = BFCACHE_DEFAULT_TIMETOLIVE;
