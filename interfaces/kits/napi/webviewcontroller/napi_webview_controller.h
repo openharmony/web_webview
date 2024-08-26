@@ -355,6 +355,7 @@ private:
 
     static napi_value TrimMemoryByPressureLevel(napi_env env, napi_callback_info info);
 
+    static napi_value ScrollByWithResult(napi_env env, napi_callback_info info);
     static int32_t maxFdNum_;
     static std::atomic<int32_t> usedFd_;
     };

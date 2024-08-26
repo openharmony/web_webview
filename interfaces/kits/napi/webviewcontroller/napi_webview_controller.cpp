@@ -532,6 +532,7 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setBackForwardCacheOptions", NapiWebviewController::SetBackForwardCacheOptions),
         DECLARE_NAPI_STATIC_FUNCTION("trimMemoryByPressureLevel",
             NapiWebviewController::TrimMemoryByPressureLevel),
+        DECLARE_NAPI_FUNCTION("scrollByWithResult", NapiWebviewController::ScrollByWithResult),
     };
     napi_value constructor = nullptr;
     napi_define_class(env, WEBVIEW_CONTROLLER_CLASS_NAME.c_str(), WEBVIEW_CONTROLLER_CLASS_NAME.length(),
@@ -6258,6 +6259,44 @@ napi_value NapiWebviewController::TrimMemoryByPressureLevel(napi_env env,
     NWebHelper::Instance().TrimMemoryByPressureLevel(memoryLevel);
     NAPI_CALL(env, napi_get_undefined(env, &result));
     return result;
+}
+
+napi_value NapiWebviewController::ScrollByWithResult(napi_env env, napi_callback_info info)
+{
+   napi_value thisVar = nullptr;
+   napi_value result = nullptr;
+   size_t argc = INTEGER_TWO;
+   napi_value argv[INTEGER_TWO] = { 0 };
+   float deltaX;
+   float deltaY;
+
+   napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+   if (argc != INTEGER_TWO) {
+       BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+           NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "two"));
+       return result;
+   }
+
+   if (!NapiParseUtils::ParseFloat(env, argv[INTEGER_ZERO], deltaX)) {
+       BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+           NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "deltaX", "number"));
+       return result;
+   }
+
+   if (!NapiParseUtils::ParseFloat(env, argv[INTEGER_ONE], deltaY)) {
+       BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+           NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "deltaY", "number"));
+       return result;
+   }
+
+   WebviewController *webviewController = GetWebviewController(env, info);
+   if (!webviewController) {
+       return nullptr;
+   }
+
+   bool scrollByWithResult = webviewController->ScrollByWithResult(deltaX, deltaY);
+   NAPI_CALL(env, napi_get_boolean(env, scrollByWithResult, &result));
+   return result;
 }
 } // namespace NWeb
 } // namespace OHOS

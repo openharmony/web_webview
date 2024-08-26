@@ -1339,4 +1339,9 @@ void ArkWebNWebWrapper::OnAutofillCancel(const std::string& fillContent)
 
     ArkWebStringStructRelease(stFillContent);
 }
+
+bool ArkWebNWebWrapper::ScrollByWithResult(float delta_x, float delta_y)
+{
+    return ark_web_nweb_->ScrollByWithResult(delta_x, delta_y);
+}
 } // namespace OHOS::ArkWeb

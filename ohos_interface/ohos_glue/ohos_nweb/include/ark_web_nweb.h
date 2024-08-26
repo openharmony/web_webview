@@ -1465,6 +1465,16 @@ public:
      */
     /*--ark web()--*/
     virtual void OnAutofillCancel(const ArkWebString& fillContent) = 0;
+
+    /**
+     * Scroll by the delta distance if web is not foucsed.
+     *
+     * @param delta_x horizontal offset.
+     * @param delta_y vertical offset.
+     * @return false if web is touched down.
+     */
+    /*--ark web()--*/
+    virtual bool ScrollByWithResult(float delta_x, float delta_y) = 0;
 };
 
 } // namespace OHOS::ArkWeb
