@@ -265,6 +265,8 @@ public:
 
     void SetScrollable(bool enable);
 
+    void SetScrollable(bool enable, int32_t scrollType);
+
     bool GetScrollable();
 
     void InnerSetHapPath(const std::string &hapPath);

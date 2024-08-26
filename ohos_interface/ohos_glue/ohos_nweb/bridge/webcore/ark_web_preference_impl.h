@@ -652,6 +652,11 @@ public:
      */
     void PutOverlayScrollbarEnabled(bool enable) override;
 
+    /**
+     * @brief Set whether the scroll is enabled.
+     */
+    void SetScrollable(bool enable, int32_t scrollType) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebPreference> nweb_preference_;
 };

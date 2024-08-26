@@ -1983,5 +1983,18 @@ void WebviewController::SetBackForwardCacheOptions(int32_t size, int32_t timeToL
 
     nweb_ptr->SetBackForwardCacheOptions(size, timeToLive);
 }
+
+void WebviewController::SetScrollable(bool enable, int32_t scrollType)
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return;
+    }
+    std::shared_ptr<OHOS::NWeb::NWebPreference> setting = nweb_ptr->GetPreference();
+    if (!setting) {
+        return;
+    }
+    return setting->SetScrollable(enable, scrollType);
+}
 } // namespace NWeb
 } // namespace OHOS

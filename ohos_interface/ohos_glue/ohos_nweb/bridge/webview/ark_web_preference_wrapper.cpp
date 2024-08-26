@@ -562,4 +562,9 @@ void ArkWebPreferenceWrapper::SetSurfaceId(const std::string& surfaceId)
     ArkWebStringStructRelease(stSurfaceId);
 }
 
+void ArkWebPreferenceWrapper::SetScrollable(bool enable, int32_t scrollType)
+{
+    ark_web_preference_->SetScrollable(enable, scrollType);
+}
+
 } // namespace OHOS::ArkWeb
