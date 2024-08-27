@@ -16,46 +16,19 @@
 #ifndef MEDIA_CODEC_DECODER_ADAPTER_IMPL_H
 #define MEDIA_CODEC_DECODER_ADAPTER_IMPL_H
 
-#include <atomic>
-#include <condition_variable>
-#include <cstdint>
-#include <mutex>
-#include <queue>
-#include <thread>
-
-#include "avcodec_errors.h"
-#include "avcodec_video_decoder.h"
+#include <map>
+#include <multimedia/player_framework/native_avcodec_base.h>
+#include <multimedia/player_framework/native_avcodec_videodecoder.h>
+#include <multimedia/player_framework/native_avformat.h>
 #include "media_codec_decoder_adapter.h"
-#include "media_description.h"
-#include "meta_key.h"
 
 namespace OHOS::NWeb {
-using namespace OHOS::MediaAVCodec;
-
-class DecoderCallbackImpl : public MediaAVCodec::AVCodecCallback {
-public:
-    DecoderCallbackImpl(std::shared_ptr<DecoderCallbackAdapter> cb);
-
-    ~DecoderCallbackImpl() override = default;
-
-    void OnError(MediaAVCodec::AVCodecErrorType errorType, int32_t errorCode) override;
-
-    void OnOutputFormatChanged(const Media::Format& format) override;
-
-    void OnInputBufferAvailable(uint32_t index, std::shared_ptr<Media::AVSharedMemory> buffer) override;
-
-    void OnOutputBufferAvailable(uint32_t index, MediaAVCodec::AVCodecBufferInfo info,
-        MediaAVCodec::AVCodecBufferFlag flag, std::shared_ptr<Media::AVSharedMemory> buffer) override;
-
-private:
-    std::shared_ptr<DecoderCallbackAdapter> cb_ = nullptr;
-};
 
 class MediaCodecDecoderAdapterImpl : public MediaCodecDecoderAdapter {
 public:
     MediaCodecDecoderAdapterImpl() = default;
 
-    ~MediaCodecDecoderAdapterImpl() override = default;
+    ~MediaCodecDecoderAdapterImpl() override;
 
     DecoderAdapterCode CreateVideoDecoderByMime(const std::string& mimetype) override;
 
@@ -88,15 +61,22 @@ public:
 
     DecoderAdapterCode SetCallbackDec(const std::shared_ptr<DecoderCallbackAdapter> callback) override;
 
-    static ErrorType GetErrorType(MediaAVCodec::AVCodecErrorType codecErrorType);
+    static BufferFlag GetBufferFlag(OH_AVCodecBufferFlags codecBufferFlag);
 
-    static BufferFlag GetBufferFlag(MediaAVCodec::AVCodecBufferFlag codecBufferFlag);
+    static OH_AVCodecBufferFlags GetAVBufferFlag(BufferFlag bufferFlag);
 
-    static MediaAVCodec::AVCodecBufferFlag GetAVBufferFlag(BufferFlag bufferFlag);
+    void OnError(int32_t errorCode);
+
+    void OnOutputFormatChanged(OH_AVFormat* format);
+
+    void OnInputBufferAvailable(uint32_t index, OH_AVBuffer* buffer);
+
+    void OnOutputBufferAvailable(uint32_t index, OH_AVBuffer* buffer);
 
 private:
-    std::shared_ptr<OHOS::MediaAVCodec::AVCodecVideoDecoder> decoder_ = nullptr;
-    std::shared_ptr<DecoderCallbackImpl> callback_ = nullptr;
+    OH_AVCodec* decoder_ = nullptr;
+    std::shared_ptr<DecoderCallbackAdapter> callback_ = nullptr;
+    std::map<uint32_t, OH_AVBuffer*> bufferMap_;
 };
 } // namespace OHOS::NWeb
 
