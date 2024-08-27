@@ -61,6 +61,6 @@ group("unittest") {
   testonly = true
   deps = []
   if (webview_enable_heif_decoder) {
-    deps = [ ":ohos_image_decoder_adapter_test" ]
+    deps += [ ":ohos_image_decoder_adapter_test" ]
   }
 }
