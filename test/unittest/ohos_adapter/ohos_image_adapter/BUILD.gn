@@ -48,7 +48,7 @@ ohos_unittest("ohos_image_decoder_adapter_test") {
   if (webview_enable_heif_decoder) {
     external_deps += [
       "image_framework:image_native",
-      "image_framework:image_native",
+      "image_framework:image_utils",
     ]
   }
 
