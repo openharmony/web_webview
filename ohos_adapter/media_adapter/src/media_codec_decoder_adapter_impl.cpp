@@ -14,53 +14,44 @@
  */
 
 #include "media_codec_decoder_adapter_impl.h"
-#include "buffer_info_adapter_impl.h"
-#include <cstddef>
-#include <cstdint>
-#include <memory>
-#include <system_error>
+#include <native_buffer/native_buffer.h>
 #include <unordered_map>
-#include <utility>
-
-#include "foundation/graphic/graphic_surface/interfaces/inner_api/surface/window.h"
-#include "native_window.h"
-#include "nweb_log.h"
+#include "buffer_info_adapter_impl.h"
 #include "ohos_buffer_adapter_impl.h"
 
 using namespace OHOS::NWeb;
-using namespace std;
+
 namespace {
-const std::unordered_map<OHOS::MediaAVCodec::AVCodecErrorType, ErrorType> ERROR_TYPE_MAP = {
-    { OHOS::MediaAVCodec::AVCodecErrorType::AVCODEC_ERROR_INTERNAL, ErrorType::CODEC_ERROR_INTERNAL },
-    { OHOS::MediaAVCodec::AVCodecErrorType::AVCODEC_ERROR_EXTEND_START, ErrorType::CODEC_ERROR_EXTEND_START }
-};
-
-const std::unordered_map<OHOS::MediaAVCodec::AVCodecBufferFlag, BufferFlag> BUFFER_FLAG_MAP = {
-    { OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_NONE, BufferFlag::CODEC_BUFFER_FLAG_NONE },
-    { OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_EOS, BufferFlag::CODEC_BUFFER_FLAG_EOS },
-    { OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_SYNC_FRAME, BufferFlag::CODEC_BUFFER_FLAG_SYNC_FRAME },
-    { OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_PARTIAL_FRAME,
+const std::unordered_map<OH_AVCodecBufferFlags, BufferFlag> BUFFER_FLAG_MAP = {
+    { OH_AVCodecBufferFlags::AVCODEC_BUFFER_FLAGS_NONE, BufferFlag::CODEC_BUFFER_FLAG_NONE },
+    { OH_AVCodecBufferFlags::AVCODEC_BUFFER_FLAGS_EOS, BufferFlag::CODEC_BUFFER_FLAG_EOS },
+    { OH_AVCodecBufferFlags::AVCODEC_BUFFER_FLAGS_SYNC_FRAME, BufferFlag::CODEC_BUFFER_FLAG_SYNC_FRAME },
+    { OH_AVCodecBufferFlags::AVCODEC_BUFFER_FLAGS_INCOMPLETE_FRAME,
         BufferFlag::CODEC_BUFFER_FLAG_PARTIAL_FRAME },
-    { OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_CODEC_DATA, BufferFlag::CODEC_BUFFER_FLAG_CODEC_DATA }
+    { OH_AVCodecBufferFlags::AVCODEC_BUFFER_FLAGS_CODEC_DATA, BufferFlag::CODEC_BUFFER_FLAG_CODEC_DATA }
 };
 
-const std::unordered_map<BufferFlag, OHOS::MediaAVCodec::AVCodecBufferFlag> AV_BUFFER_FLAG_MAP = {
-    { BufferFlag::CODEC_BUFFER_FLAG_NONE, OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_NONE },
-    { BufferFlag::CODEC_BUFFER_FLAG_EOS, OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_EOS },
-    { BufferFlag::CODEC_BUFFER_FLAG_SYNC_FRAME, OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_SYNC_FRAME },
+const std::unordered_map<BufferFlag, OH_AVCodecBufferFlags> AV_BUFFER_FLAG_MAP = {
+    { BufferFlag::CODEC_BUFFER_FLAG_NONE, OH_AVCodecBufferFlags::AVCODEC_BUFFER_FLAGS_NONE },
+    { BufferFlag::CODEC_BUFFER_FLAG_EOS, OH_AVCodecBufferFlags::AVCODEC_BUFFER_FLAGS_EOS },
+    { BufferFlag::CODEC_BUFFER_FLAG_SYNC_FRAME, OH_AVCodecBufferFlags::AVCODEC_BUFFER_FLAGS_SYNC_FRAME },
     { BufferFlag::CODEC_BUFFER_FLAG_PARTIAL_FRAME,
-        OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_PARTIAL_FRAME },
-    { BufferFlag::CODEC_BUFFER_FLAG_CODEC_DATA, OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_CODEC_DATA }
+        OH_AVCodecBufferFlags::AVCODEC_BUFFER_FLAGS_INCOMPLETE_FRAME },
+    { BufferFlag::CODEC_BUFFER_FLAG_CODEC_DATA, OH_AVCodecBufferFlags::AVCODEC_BUFFER_FLAGS_CODEC_DATA }
 };
 } // namespace
 
-DecoderCallbackImpl::DecoderCallbackImpl(std::shared_ptr<DecoderCallbackAdapter> cb) : cb_(cb) {};
+MediaCodecDecoderAdapterImpl::~MediaCodecDecoderAdapterImpl()
+{
+    if (decoder_ != nullptr) {
+        ReleaseDecoder();
+    }
+}
 
 DecoderAdapterCode MediaCodecDecoderAdapterImpl::CreateVideoDecoderByMime(const std::string& mimetype)
 {
-    decoder_ = VideoDecoderFactory::CreateByMime(mimetype);
+    decoder_ = OH_VideoDecoder_CreateByMime(mimetype.c_str());
     if (decoder_ == nullptr) {
-        WVLOG_E("MediaCodecDecoder create failed.");
         return DecoderAdapterCode::DECODER_ERROR;
     }
 
@@ -69,9 +60,8 @@ DecoderAdapterCode MediaCodecDecoderAdapterImpl::CreateVideoDecoderByMime(const 
 
 DecoderAdapterCode MediaCodecDecoderAdapterImpl::CreateVideoDecoderByName(const std::string& name)
 {
-    decoder_ = VideoDecoderFactory::CreateByName(name);
+    decoder_ = OH_VideoDecoder_CreateByName(name.c_str());
     if (decoder_ == nullptr) {
-        WVLOG_E("MediaCodecDecoder create failed.");
         return DecoderAdapterCode::DECODER_ERROR;
     }
 
@@ -81,22 +71,24 @@ DecoderAdapterCode MediaCodecDecoderAdapterImpl::CreateVideoDecoderByName(const 
 DecoderAdapterCode MediaCodecDecoderAdapterImpl::ConfigureDecoder(const std::shared_ptr<DecoderFormatAdapter> format)
 {
     if (decoder_ == nullptr) {
-        WVLOG_E("MediaCodecDecoder is nullptr.");
         return DecoderAdapterCode::DECODER_ERROR;
     }
 
     if (format == nullptr) {
-        WVLOG_E("format is nullptr.");
         return DecoderAdapterCode::DECODER_ERROR;
     }
 
-    OHOS::Media::Format codecFormat;
+    OH_AVFormat* codecFormat = OH_AVFormat_Create();
+    if (codecFormat == nullptr) {
+        return DecoderAdapterCode::DECODER_ERROR;
+    }
 
-    codecFormat.PutIntValue(OHOS::MediaAVCodec::MediaDescriptionKey::MD_KEY_WIDTH, format->GetWidth());
-    codecFormat.PutIntValue(OHOS::MediaAVCodec::MediaDescriptionKey::MD_KEY_HEIGHT, format->GetHeight());
+    OH_AVFormat_SetIntValue(codecFormat, OH_MD_KEY_WIDTH, format->GetWidth());
+    OH_AVFormat_SetIntValue(codecFormat, OH_MD_KEY_HEIGHT, format->GetHeight());
 
-    int32_t ret = decoder_->Configure(codecFormat);
-    if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
+    OH_AVErrCode ret = OH_VideoDecoder_Configure(decoder_, codecFormat);
+    OH_AVFormat_Destroy(codecFormat);
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         return DecoderAdapterCode::DECODER_ERROR;
     }
     return DecoderAdapterCode::DECODER_OK;
@@ -105,22 +97,24 @@ DecoderAdapterCode MediaCodecDecoderAdapterImpl::ConfigureDecoder(const std::sha
 DecoderAdapterCode MediaCodecDecoderAdapterImpl::SetParameterDecoder(const std::shared_ptr<DecoderFormatAdapter> format)
 {
     if (decoder_ == nullptr) {
-        WVLOG_E("MediaCodecDecoder is nullptr.");
         return DecoderAdapterCode::DECODER_ERROR;
     }
 
     if (format == nullptr) {
-        WVLOG_E("format is nullptr.");
         return DecoderAdapterCode::DECODER_ERROR;
     }
 
-    OHOS::Media::Format codecFormat;
+    OH_AVFormat* codecFormat = OH_AVFormat_Create();
+    if (codecFormat == nullptr) {
+        return DecoderAdapterCode::DECODER_ERROR;
+    }
 
-    codecFormat.PutIntValue(OHOS::MediaAVCodec::MediaDescriptionKey::MD_KEY_WIDTH, format->GetWidth());
-    codecFormat.PutIntValue(OHOS::MediaAVCodec::MediaDescriptionKey::MD_KEY_HEIGHT, format->GetHeight());
+    OH_AVFormat_SetIntValue(codecFormat, OH_MD_KEY_WIDTH, format->GetWidth());
+    OH_AVFormat_SetIntValue(codecFormat, OH_MD_KEY_HEIGHT, format->GetHeight());
 
-    int32_t ret = decoder_->SetParameter(codecFormat);
-    if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
+    OH_AVErrCode ret = OH_VideoDecoder_SetParameter(decoder_, codecFormat);
+    OH_AVFormat_Destroy(codecFormat);
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         return DecoderAdapterCode::DECODER_ERROR;
     }
     return DecoderAdapterCode::DECODER_OK;
@@ -129,21 +123,18 @@ DecoderAdapterCode MediaCodecDecoderAdapterImpl::SetParameterDecoder(const std::
 DecoderAdapterCode MediaCodecDecoderAdapterImpl::SetOutputSurface(void* window)
 {
     if (decoder_ == nullptr) {
-        WVLOG_E("MediaCodecDecoder is nullptr.");
         return DecoderAdapterCode::DECODER_ERROR;
     }
 
     OHNativeWindow* window_ = reinterpret_cast<OHNativeWindow*>(window);
-    if (window_ == nullptr || window_->surface == nullptr) {
-        WVLOG_E("Window is nullptr.");
+    if (window_ == nullptr) {
         return DecoderAdapterCode::DECODER_ERROR;
     }
-    int32_t usage = BUFFER_USAGE_MEM_DMA;
-    NativeWindowHandleOpt(window_, SET_USAGE, usage);
-    WVLOG_I("MediaCodecDecoder default to opening Hebc.");
+    int32_t usage = NATIVEBUFFER_USAGE_MEM_DMA;
+    OH_NativeWindow_NativeWindowHandleOpt(window_, SET_USAGE, usage);
 
-    int32_t ret = decoder_->SetOutputSurface(window_->surface);
-    if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
+    OH_AVErrCode ret = OH_VideoDecoder_SetSurface(decoder_, window_);
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         return DecoderAdapterCode::DECODER_ERROR;
     }
     return DecoderAdapterCode::DECODER_OK;
@@ -152,12 +143,11 @@ DecoderAdapterCode MediaCodecDecoderAdapterImpl::SetOutputSurface(void* window)
 DecoderAdapterCode MediaCodecDecoderAdapterImpl::PrepareDecoder()
 {
     if (decoder_ == nullptr) {
-        WVLOG_E("MediaCodecDecoder is nullptr.");
         return DecoderAdapterCode::DECODER_ERROR;
     }
 
-    int32_t ret = decoder_->Prepare();
-    if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
+    OH_AVErrCode ret = OH_VideoDecoder_Prepare(decoder_);
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         return DecoderAdapterCode::DECODER_ERROR;
     }
     return DecoderAdapterCode::DECODER_OK;
@@ -166,11 +156,10 @@ DecoderAdapterCode MediaCodecDecoderAdapterImpl::PrepareDecoder()
 DecoderAdapterCode MediaCodecDecoderAdapterImpl::StartDecoder()
 {
     if (decoder_ == nullptr) {
-        WVLOG_E("MediaCodecDecoder is nullptr.");
         return DecoderAdapterCode::DECODER_ERROR;
     }
-    int32_t ret = decoder_->Start();
-    if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
+    OH_AVErrCode ret = OH_VideoDecoder_Start(decoder_);
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         return DecoderAdapterCode::DECODER_ERROR;
     }
     return DecoderAdapterCode::DECODER_OK;
@@ -179,11 +168,10 @@ DecoderAdapterCode MediaCodecDecoderAdapterImpl::StartDecoder()
 DecoderAdapterCode MediaCodecDecoderAdapterImpl::StopDecoder()
 {
     if (decoder_ == nullptr) {
-        WVLOG_E("MediaCodecDecoder is nullptr.");
         return DecoderAdapterCode::DECODER_ERROR;
     }
-    int32_t ret = decoder_->Stop();
-    if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
+    OH_AVErrCode ret = OH_VideoDecoder_Stop(decoder_);
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         return DecoderAdapterCode::DECODER_ERROR;
     }
     return DecoderAdapterCode::DECODER_OK;
@@ -192,11 +180,10 @@ DecoderAdapterCode MediaCodecDecoderAdapterImpl::StopDecoder()
 DecoderAdapterCode MediaCodecDecoderAdapterImpl::FlushDecoder()
 {
     if (decoder_ == nullptr) {
-        WVLOG_E("MediaCodecDecoder is nullptr.");
         return DecoderAdapterCode::DECODER_ERROR;
     }
-    int32_t ret = decoder_->Flush();
-    if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
+    OH_AVErrCode ret = OH_VideoDecoder_Flush(decoder_);
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         return DecoderAdapterCode::DECODER_ERROR;
     }
     return DecoderAdapterCode::DECODER_OK;
@@ -205,11 +192,10 @@ DecoderAdapterCode MediaCodecDecoderAdapterImpl::FlushDecoder()
 DecoderAdapterCode MediaCodecDecoderAdapterImpl::ResetDecoder()
 {
     if (decoder_ == nullptr) {
-        WVLOG_E("MediaCodecDecoder is nullptr.");
         return DecoderAdapterCode::DECODER_ERROR;
     }
-    int32_t ret = decoder_->Reset();
-    if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
+    OH_AVErrCode ret = OH_VideoDecoder_Reset(decoder_);
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         return DecoderAdapterCode::DECODER_ERROR;
     }
     return DecoderAdapterCode::DECODER_OK;
@@ -218,11 +204,11 @@ DecoderAdapterCode MediaCodecDecoderAdapterImpl::ResetDecoder()
 DecoderAdapterCode MediaCodecDecoderAdapterImpl::ReleaseDecoder()
 {
     if (decoder_ == nullptr) {
-        WVLOG_E("MediaCodecDecoder is nullptr.");
         return DecoderAdapterCode::DECODER_ERROR;
     }
-    int32_t ret = decoder_->Release();
-    if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
+    OH_AVErrCode ret = OH_VideoDecoder_Destroy(decoder_);
+    decoder_ = nullptr;
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         return DecoderAdapterCode::DECODER_ERROR;
     }
     return DecoderAdapterCode::DECODER_OK;
@@ -231,21 +217,19 @@ DecoderAdapterCode MediaCodecDecoderAdapterImpl::ReleaseDecoder()
 DecoderAdapterCode MediaCodecDecoderAdapterImpl::QueueInputBufferDec(
     uint32_t index, int64_t presentationTimeUs, int32_t size, int32_t offset, BufferFlag flag)
 {
-    struct OHOS::MediaAVCodec::AVCodecBufferInfo bufferInfo;
-
-    bufferInfo.presentationTimeUs = presentationTimeUs;
-    bufferInfo.size = size;
-    bufferInfo.offset = offset;
-
-    AVCodecBufferFlag bufferFlag = MediaCodecDecoderAdapterImpl::GetAVBufferFlag(flag);
-
     if (decoder_ == nullptr) {
-        WVLOG_E("MediaCodecDecoder is nullptr.");
         return DecoderAdapterCode::DECODER_ERROR;
     }
 
-    int32_t ret = decoder_->QueueInputBuffer(index, bufferInfo, bufferFlag);
-    if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
+    OH_AVCodecBufferAttr attr;
+    attr.pts = presentationTimeUs;
+    attr.size = size;
+    attr.offset = offset;
+    attr.flags = MediaCodecDecoderAdapterImpl::GetAVBufferFlag(flag);
+
+    OH_AVBuffer_SetBufferAttr(bufferMap_[index], &attr);
+    OH_AVErrCode ret = OH_VideoDecoder_PushInputBuffer(decoder_, index);
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         return DecoderAdapterCode::DECODER_ERROR;
     }
     return DecoderAdapterCode::DECODER_OK;
@@ -253,29 +237,26 @@ DecoderAdapterCode MediaCodecDecoderAdapterImpl::QueueInputBufferDec(
 
 DecoderAdapterCode MediaCodecDecoderAdapterImpl::GetOutputFormatDec(std::shared_ptr<DecoderFormatAdapter> format)
 {
-    OHOS::Media::Format codecFormat;
-
     if (decoder_ == nullptr) {
-        WVLOG_E("MediaCodecDecoder is nullptr.");
         return DecoderAdapterCode::DECODER_ERROR;
     }
 
     if (format == nullptr) {
-        WVLOG_E("format is nullptr.");
         return DecoderAdapterCode::DECODER_ERROR;
     }
 
-    int32_t ret = decoder_->GetOutputFormat(codecFormat);
-    if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
+    OH_AVFormat* codecFormat = OH_VideoDecoder_GetOutputDescription(decoder_);
+    if (codecFormat == nullptr) {
         return DecoderAdapterCode::DECODER_ERROR;
     }
 
     int32_t width = 0;
     int32_t height = 0;
-    codecFormat.GetIntValue(OHOS::Media::Tag::VIDEO_DISPLAY_WIDTH, width);
-    codecFormat.GetIntValue(OHOS::Media::Tag::VIDEO_DISPLAY_HEIGHT, height);
+    OH_AVFormat_GetIntValue(codecFormat, OH_MD_KEY_VIDEO_PIC_WIDTH, &width);
+    OH_AVFormat_GetIntValue(codecFormat, OH_MD_KEY_VIDEO_PIC_HEIGHT, &height);
     format->SetWidth(width);
     format->SetHeight(height);
+    OH_AVFormat_Destroy(codecFormat);
 
     return DecoderAdapterCode::DECODER_OK;
 }
@@ -283,12 +264,16 @@ DecoderAdapterCode MediaCodecDecoderAdapterImpl::GetOutputFormatDec(std::shared_
 DecoderAdapterCode MediaCodecDecoderAdapterImpl::ReleaseOutputBufferDec(uint32_t index, bool isRender)
 {
     if (decoder_ == nullptr) {
-        WVLOG_E("MediaCodecDecoder is nullptr.");
         return DecoderAdapterCode::DECODER_ERROR;
     }
 
-    int32_t ret = decoder_->ReleaseOutputBuffer(index, isRender);
-    if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
+    OH_AVErrCode ret;
+    if (isRender) {
+        ret = OH_VideoDecoder_RenderOutputBuffer(decoder_, index);
+    } else {
+        ret = OH_VideoDecoder_FreeOutputBuffer(decoder_, index);
+    }
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         return DecoderAdapterCode::DECODER_ERROR;
     }
     return DecoderAdapterCode::DECODER_OK;
@@ -296,128 +281,130 @@ DecoderAdapterCode MediaCodecDecoderAdapterImpl::ReleaseOutputBufferDec(uint32_t
 
 DecoderAdapterCode MediaCodecDecoderAdapterImpl::SetCallbackDec(const std::shared_ptr<DecoderCallbackAdapter> callback)
 {
-    if (callback == nullptr) {
-        WVLOG_E("Media Callback is NULL.");
-        return DecoderAdapterCode::DECODER_ERROR;
-    }
-
-    callback_ = std::make_shared<DecoderCallbackImpl>(callback);
-    if (callback_ == nullptr) {
-        WVLOG_E("Create Callback failed.");
-        return DecoderAdapterCode::DECODER_ERROR;
-    }
-
     if (decoder_ == nullptr) {
-        WVLOG_E("MediaCodecDecoder is nullptr.");
         return DecoderAdapterCode::DECODER_ERROR;
     }
 
-    int32_t ret = decoder_->SetCallback(callback_);
-    if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
+    if (callback == nullptr) {
+        return DecoderAdapterCode::DECODER_ERROR;
+    }
+
+    callback_ = callback;
+    if (callback_ == nullptr) {
+        return DecoderAdapterCode::DECODER_ERROR;
+    }
+
+    struct OH_AVCodecCallback cb;
+    cb.onError = [] (OH_AVCodec *codec, int32_t errorCode, void *userData) {
+        (void)codec;
+        static_cast<MediaCodecDecoderAdapterImpl*>(userData)->OnError(errorCode);
+    };
+    cb.onStreamChanged = [] (OH_AVCodec *codec, OH_AVFormat *format, void *userData) {
+        (void)codec;
+        static_cast<MediaCodecDecoderAdapterImpl*>(userData)->OnOutputFormatChanged(format);
+    };
+    cb.onNeedInputBuffer = [] (OH_AVCodec *codec, uint32_t index, OH_AVBuffer *buffer, void *userData) {
+        (void)codec;
+        static_cast<MediaCodecDecoderAdapterImpl*>(userData)->OnInputBufferAvailable(index, buffer);
+    };
+    cb.onNewOutputBuffer = [] (OH_AVCodec *codec, uint32_t index, OH_AVBuffer *buffer, void *userData) {
+        (void)codec;
+        static_cast<MediaCodecDecoderAdapterImpl*>(userData)->OnOutputBufferAvailable(index, buffer);
+    };
+
+    OH_AVErrCode ret = OH_VideoDecoder_RegisterCallback(decoder_, cb, this);
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         return DecoderAdapterCode::DECODER_ERROR;
     }
     return DecoderAdapterCode::DECODER_OK;
 }
 
-ErrorType MediaCodecDecoderAdapterImpl::GetErrorType(AVCodecErrorType codecErrorType)
-{
-    auto type = ERROR_TYPE_MAP.find(codecErrorType);
-    if (type == ERROR_TYPE_MAP.end()) {
-        WVLOG_E("error type not found.");
-        return ErrorType::CODEC_ERROR_INTERNAL;
-    }
-    return type->second;
-}
-
-BufferFlag MediaCodecDecoderAdapterImpl::GetBufferFlag(AVCodecBufferFlag codecBufferFlag)
+BufferFlag MediaCodecDecoderAdapterImpl::GetBufferFlag(OH_AVCodecBufferFlags codecBufferFlag)
 {
     auto flag = BUFFER_FLAG_MAP.find(codecBufferFlag);
     if (flag == BUFFER_FLAG_MAP.end()) {
-        WVLOG_E("buffer flag not found.");
         return BufferFlag::CODEC_BUFFER_FLAG_NONE;
     }
     return flag->second;
 }
 
-AVCodecBufferFlag MediaCodecDecoderAdapterImpl::GetAVBufferFlag(BufferFlag bufferFlag)
+OH_AVCodecBufferFlags MediaCodecDecoderAdapterImpl::GetAVBufferFlag(BufferFlag bufferFlag)
 {
     auto flag = AV_BUFFER_FLAG_MAP.find(bufferFlag);
     if (flag == AV_BUFFER_FLAG_MAP.end()) {
-        WVLOG_E("buffer flag not found.");
-        return AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_NONE;
+        return OH_AVCodecBufferFlags::AVCODEC_BUFFER_FLAGS_NONE;
     }
     return flag->second;
 }
 
-void DecoderCallbackImpl::OnError(AVCodecErrorType errorType, int32_t errorCode)
+void MediaCodecDecoderAdapterImpl::OnError(int32_t errorCode)
 {
-    if (!cb_) {
-        WVLOG_E("callback is NULL.");
+    if (!callback_) {
         return;
     }
 
-    ErrorType errType = MediaCodecDecoderAdapterImpl::GetErrorType(errorType);
-
-    cb_->OnError(errType, errorCode);
+    callback_->OnError(ErrorType::CODEC_ERROR_INTERNAL, errorCode);
 }
 
-void DecoderCallbackImpl::OnOutputFormatChanged(const Media::Format& format)
+void MediaCodecDecoderAdapterImpl::OnOutputFormatChanged(OH_AVFormat* format)
 {
-    if (!cb_) {
-        WVLOG_E("callback is NULL.");
+    if (!callback_) {
         return;
     }
 
     int32_t width = 0;
     int32_t height = 0;
-    format.GetIntValue(OHOS::MediaAVCodec::MediaDescriptionKey::MD_KEY_WIDTH, width);
-    format.GetIntValue(OHOS::MediaAVCodec::MediaDescriptionKey::MD_KEY_HEIGHT, height);
+    OH_AVFormat_GetIntValue(format, OH_MD_KEY_WIDTH, &width);
+    OH_AVFormat_GetIntValue(format, OH_MD_KEY_HEIGHT, &height);
 
-    cb_->OnStreamChanged(width, height, 0);
+    callback_->OnStreamChanged(width, height, 0);
 }
 
-void DecoderCallbackImpl::OnInputBufferAvailable(uint32_t index, std::shared_ptr<Media::AVSharedMemory> buffer)
+void MediaCodecDecoderAdapterImpl::OnInputBufferAvailable(uint32_t index, OH_AVBuffer* buffer)
 {
-    if (!cb_) {
-        WVLOG_E("callback is NULL.");
+    if (!callback_) {
         return;
     }
 
-    if (buffer == nullptr || buffer->GetBase() == nullptr) {
+    if (buffer == nullptr || OH_AVBuffer_GetAddr(buffer) == nullptr) {
         return;
     }
 
     std::shared_ptr<OhosBufferAdapterImpl> ohosBuffer = std::make_shared<OhosBufferAdapterImpl>();
     if (ohosBuffer == nullptr) {
-        WVLOG_E("new OhosBufferAdapterImpl failed");
         return;
     }
 
-    ohosBuffer->SetAddr(buffer->GetBase());
-    ohosBuffer->SetBufferSize(buffer->GetSize());
-    cb_->OnNeedInputData(index, ohosBuffer);
+    bufferMap_[index] = buffer;
+
+    ohosBuffer->SetAddr(OH_AVBuffer_GetAddr(buffer));
+    ohosBuffer->SetBufferSize(OH_AVBuffer_GetCapacity(buffer));
+    callback_->OnNeedInputData(index, ohosBuffer);
 }
 
-void DecoderCallbackImpl::OnOutputBufferAvailable(
-    uint32_t index, AVCodecBufferInfo info, AVCodecBufferFlag flag, std::shared_ptr<Media::AVSharedMemory> buffer)
+void MediaCodecDecoderAdapterImpl::OnOutputBufferAvailable(uint32_t index, OH_AVBuffer* buffer)
 {
-    if (!cb_) {
-        WVLOG_E("callback is NULL.");
+    if (!callback_) {
+        return;
+    }
+
+    OH_AVCodecBufferAttr attr;
+    OH_AVErrCode ret = OH_AVBuffer_GetBufferAttr(buffer, &attr);
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         return;
     }
 
     std::shared_ptr<BufferInfoAdapterImpl> info_ = std::make_shared<BufferInfoAdapterImpl>();
     if (!info_) {
-        WVLOG_E("new BufferInfoAdapterImpl failed");
         return;
     }
 
-    info_->SetPresentationTimeUs(info.presentationTimeUs);
-    info_->SetSize(info.size);
-    info_->SetOffset(info.offset);
+    info_->SetPresentationTimeUs(attr.pts);
+    info_->SetSize(attr.size);
+    info_->SetOffset(attr.offset);
 
     BufferFlag flag_;
 
-    flag_ = MediaCodecDecoderAdapterImpl::GetBufferFlag(flag);
-    cb_->OnNeedOutputData(index, info_, flag_);
+    flag_ = MediaCodecDecoderAdapterImpl::GetBufferFlag(static_cast<OH_AVCodecBufferFlags>(attr.flags));
+    callback_->OnNeedOutputData(index, info_, flag_);
 }

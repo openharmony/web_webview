@@ -339,6 +339,7 @@ if [ $buildgn = 1 ]; then
 fi
 time_end_for_gn=$(date +%s)
 
+cp -r ../deps_code/webview/ohos_interface/include/ohos_adapter ./ohos_adapter/interfaces
 third_party/depot_tools/ninja -C $build_dir -j$buildcount nweb_ohos_adapter
 time_end_for_build=$(date +%s)
 
