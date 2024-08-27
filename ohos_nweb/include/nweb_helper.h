@@ -52,7 +52,7 @@ public:
     void SetWebTag(int32_t nwebId, const char* webTag);
     void PrepareForPageLoad(std::string url, bool preconnectable, int32_t numSockets);
     bool LoadNWebSDK();
-    void* GetWebEngineHandler();
+    void* GetWebEngineHandler(bool shouldRun = false);
     void SetConnectionTimeout(const int32_t& timeout);
     void SetCustomSchemeCmdLine(const std::string& cmd)
     {

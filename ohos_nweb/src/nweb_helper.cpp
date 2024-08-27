@@ -660,7 +660,7 @@ bool NWebHelper::LoadLib(bool from_ark)
 }
 #endif
 
-void* NWebHelper::GetWebEngineHandler()
+void* NWebHelper::GetWebEngineHandler(bool shouldRun)
 {
     WVLOG_I("NWebHelper GetWebEngineHandler");
     if (libHandleWebEngine_) {
@@ -677,10 +677,18 @@ void* NWebHelper::GetWebEngineHandler()
     // load so
     const std::string& bundle_path = ctx->GetBundleCodeDir();
     SetBundlePath(bundle_path);
-    if (!Init(true)) {
-        WVLOG_I("NWebHelper Init failed");
-        return nullptr;
+    if (shouldRun) {
+        if (!InitAndRun(true)) {
+            WVLOG_I("NWebHelper Init failed");
+            return nullptr;
+        }
+    } else {
+        if (!Init(true)) {
+            WVLOG_I("NWebHelper Init failed.");
+            return nullptr;
+        }
     }
+    
     return libHandleWebEngine_;
 }
 
