@@ -16,10 +16,7 @@
 #ifndef CERT_MGR_ADAPTER_IMPL_H
 #define CERT_MGR_ADAPTER_IMPL_H
 
-#include "cert_manager_api.h"
 #include "cert_mgr_adapter.h"
-#include "net_ssl_type.h"
-#include "net_ssl.h"
 
 namespace OHOS::NWeb {
 class CertManagerAdapterImpl final : public CertManagerAdapter {
@@ -51,16 +48,6 @@ public:
     bool GetTrustAnchorsForHostName(const std::string& hostname, std::vector<std::string>& certs) override;
 
     bool GetPinSetForHostName(const std::string& hostname, std::vector<std::string>& pins) override;
-private:
-    int32_t InitCertList(struct CertList **cList);
-
-    int32_t InitCertInfo(struct CertInfo *certInfo);
-
-    int32_t GetCertInfo(char *uri, struct CertInfo *certInfo, int32_t certType);
-
-    void FreeCMBlobData(struct CmBlob *blob);
-
-    void FreeCertList(CertList *certList);
 };
 
 } // namespace OHOS::NWeb
