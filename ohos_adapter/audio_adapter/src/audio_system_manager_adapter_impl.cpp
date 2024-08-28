@@ -164,7 +164,42 @@ bool AudioSystemManagerAdapterImpl::HasAudioInputDevices()
     }
     return true;
 }
+const std::unordered_map<AudioAdapterContentType, ContentType> CONTENT_TYPE_MAP = {
+    { AudioAdapterContentType::CONTENT_TYPE_UNKNOWN, ContentType::CONTENT_TYPE_UNKNOWN },
+    { AudioAdapterContentType::CONTENT_TYPE_SPEECH, ContentType::CONTENT_TYPE_SPEECH },
+    { AudioAdapterContentType::CONTENT_TYPE_MUSIC, ContentType::CONTENT_TYPE_MUSIC },
+    { AudioAdapterContentType::CONTENT_TYPE_MOVIE, ContentType::CONTENT_TYPE_MOVIE },
+    { AudioAdapterContentType::CONTENT_TYPE_SONIFICATION, ContentType::CONTENT_TYPE_SONIFICATION },
+    { AudioAdapterContentType::CONTENT_TYPE_RINGTONE, ContentType::CONTENT_TYPE_RINGTONE },
+};
 
+const std::unordered_map<AudioAdapterStreamUsage, StreamUsage> STREAM_USAGE_MAP = {
+    { AudioAdapterStreamUsage::STREAM_USAGE_UNKNOWN, StreamUsage::STREAM_USAGE_UNKNOWN },
+    { AudioAdapterStreamUsage::STREAM_USAGE_MEDIA, StreamUsage::STREAM_USAGE_MEDIA },
+    { AudioAdapterStreamUsage::STREAM_USAGE_VOICE_COMMUNICATION, StreamUsage::STREAM_USAGE_VIDEO_COMMUNICATION },
+    { AudioAdapterStreamUsage::STREAM_USAGE_VOICE_ASSISTANT, StreamUsage::STREAM_USAGE_VOICE_ASSISTANT },
+    { AudioAdapterStreamUsage::STREAM_USAGE_NOTIFICATION_RINGTONE, StreamUsage::STREAM_USAGE_NOTIFICATION_RINGTONE },
+};
+
+ContentType AudioSystemManagerAdapterImpl::GetAudioContentType(AudioAdapterContentType contentType)
+{
+    auto item = CONTENT_TYPE_MAP.find(contentType);
+    if (item == CONTENT_TYPE_MAP.end()) {
+        WVLOG_E("audio content type not found");
+        return ContentType::CONTENT_TYPE_MUSIC;
+    }
+    return item->second;
+}
+
+StreamUsage AudioSystemManagerAdapterImpl::GetAudioStreamUsage(AudioAdapterStreamUsage streamUsage)
+{
+    auto item = STREAM_USAGE_MAP.find(streamUsage);
+    if (item == STREAM_USAGE_MAP.end()) {
+        WVLOG_E("audio stream usage not found");
+        return StreamUsage::STREAM_USAGE_MEDIA;
+    }
+    return item->second;
+}
 int32_t AudioSystemManagerAdapterImpl::RequestAudioFocus(const std::shared_ptr<AudioInterruptAdapter> audioInterrupt)
 {
     if (!audioInterrupt) {
@@ -173,8 +208,8 @@ int32_t AudioSystemManagerAdapterImpl::RequestAudioFocus(const std::shared_ptr<A
     }
 
     AudioInterrupt interruptParams;
-    interruptParams.streamUsage = AudioRendererAdapterImpl::GetAudioStreamUsage(audioInterrupt->GetStreamUsage());
-    interruptParams.contentType = AudioRendererAdapterImpl::GetAudioContentType(audioInterrupt->GetContentType());
+    interruptParams.streamUsage = GetAudioStreamUsage(audioInterrupt->GetStreamUsage());
+    interruptParams.contentType = GetAudioContentType(audioInterrupt->GetContentType());
     interruptParams.audioFocusType.streamType = GetStreamType(audioInterrupt->GetStreamType());
 
     int32_t ret = AudioSystemManager::GetInstance()->RequestAudioFocus(interruptParams);
@@ -193,8 +228,8 @@ int32_t AudioSystemManagerAdapterImpl::AbandonAudioFocus(const std::shared_ptr<A
     }
 
     AudioInterrupt interruptParams;
-    interruptParams.streamUsage = AudioRendererAdapterImpl::GetAudioStreamUsage(audioInterrupt->GetStreamUsage());
-    interruptParams.contentType = AudioRendererAdapterImpl::GetAudioContentType(audioInterrupt->GetContentType());
+    interruptParams.streamUsage = GetAudioStreamUsage(audioInterrupt->GetStreamUsage());
+    interruptParams.contentType = GetAudioContentType(audioInterrupt->GetContentType());
     interruptParams.audioFocusType.streamType = GetStreamType(audioInterrupt->GetStreamType());
 
     int32_t ret = AudioSystemManager::GetInstance()->AbandonAudioFocus(interruptParams);

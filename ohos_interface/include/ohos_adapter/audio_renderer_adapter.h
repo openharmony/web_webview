@@ -93,6 +93,8 @@ public:
     virtual AudioAdapterStreamUsage GetStreamUsage() = 0;
 
     virtual int32_t GetRenderFlags() = 0;
+
+    virtual int32_t GetFrameSize() = 0;
 };
 
 enum AudioAdapterCode : int32_t {
@@ -110,6 +112,8 @@ public:
     virtual void OnSuspend() = 0;
 
     virtual void OnResume() = 0;
+
+    virtual int32_t OnWriteDataCallback(void* buffer, int32_t length) = 0;
 };
 
 enum class AudioAdapterDeviceChangeReason : int32_t {

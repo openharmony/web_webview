@@ -34,4 +34,8 @@ void ArkAudioRendererCallbackAdapterWrapper::OnResume()
     ctocpp_->OnResume();
 }
 
+int32_t ArkAudioRendererCallbackAdapterWrapper::OnWriteDataCallback(void* buffer, int32_t length)
+{
+    return ctocpp_->OnWriteDataCallback(buffer, length);
+}
 } // namespace OHOS::ArkWeb
