@@ -14,16 +14,17 @@
  */
 
 #include "system_properties_adapter_impl.h"
-
+#ifdef WEBVIEW_ONLY
 #include <securec.h>
-
 #include "init_param.h"
-#include "nweb_config_helper.h"
-#include "nweb_log.h"
 #include "parameter.h"
 #include "parameters.h"
 #include "sysversion.h"
+#endif
+#include "nweb_config_helper.h"
+#include "nweb_log.h"
 #include "hitrace_adapter_impl.h"
+#include <deviceinfo.h>
 
 namespace OHOS::NWeb {
 const std::string FACTORY_CONFIG_VALUE = "factoryConfig";
@@ -40,7 +41,8 @@ const std::unordered_map<std::string, PropertiesKey> PROP_KEY_MAP = {
     {PROP_RENDER_DUMP, PropertiesKey::PROP_RENDER_DUMP},
     {PROP_DEBUG_TRACE, PropertiesKey::PROP_DEBUG_TRACE}};
 
-void SystemPropertiesChangeCallback(const char* key, const char* value, void* context) {
+void SystemPropertiesChangeCallback(const char* key, const char* value, void* context) 
+{
     WVLOG_D("sys prop change key: %{public}s ,value : %{public}s ", key,  value);
     SystemPropertiesAdapterImpl::GetInstance().DispatchAllWatcherInfo(key, value);
 }
@@ -54,8 +56,7 @@ SystemPropertiesAdapterImpl& SystemPropertiesAdapterImpl::GetInstance()
 
 SystemPropertiesAdapterImpl::SystemPropertiesAdapterImpl()
 {
-    std::string osFullName =
-        OHOS::system::GetParameter("const.ohos.fullname", "");
+    std::string osFullName = OH_GetOSFullName();
     if (osFullName.empty()) {
         WVLOG_E("get os full name failed");
         return;
@@ -87,22 +88,30 @@ SystemPropertiesAdapterImpl::~SystemPropertiesAdapterImpl()
 
 bool SystemPropertiesAdapterImpl::GetResourceUseHapPathEnable()
 {
+#ifdef WEBVIEW_ONLY
     return OHOS::system::GetBoolParameter("compress", false);
+#else
+    return false;
+#endif
 }
 
 std::string SystemPropertiesAdapterImpl::GetDeviceInfoProductModel()
 {
-    return GetProductModel();
+    return OH_GetProductModel();
 }
 
 std::string SystemPropertiesAdapterImpl::GetDeviceInfoBrand()
 {
-    return GetBrand();
+    return OH_GetBrand();
 }
 
 int32_t SystemPropertiesAdapterImpl::GetDeviceInfoMajorVersion()
 {
+#ifdef WEBVIEW_ONLY
     return GetMajorVersion();
+#else
+    return 0;
+#endif
 }
 
 ProductDeviceType SystemPropertiesAdapterImpl::GetProductDeviceType()
@@ -113,7 +122,7 @@ ProductDeviceType SystemPropertiesAdapterImpl::GetProductDeviceType()
     }
     WVLOG_W("read config factoryLevel: fail");
     // RK or other device cant read config，need read from system deviceType
-    std::string deviceType = OHOS::system::GetDeviceType();
+    std::string deviceType = OH_GetDeviceType();
     if (deviceType == "phone" || deviceType == "default") {
         return ProductDeviceType::DEVICE_TYPE_MOBILE;
     } else if (deviceType == "tablet") {
@@ -146,11 +155,16 @@ ProductDeviceType SystemPropertiesAdapterImpl::AnalysisFromConfig()
 
 bool SystemPropertiesAdapterImpl::GetWebOptimizationValue()
 {
+#ifdef WEBVIEW_ONLY
     return OHOS::system::GetBoolParameter("web.optimization", true);
+#else
+    return true;
+#endif
 }
 
 bool SystemPropertiesAdapterImpl::IsAdvancedSecurityMode()
 {
+#ifdef WEBVIEW_ONLY
     char buffer[32] = { 0 };
     uint32_t buffSize = sizeof(buffer);
 
@@ -158,11 +172,14 @@ bool SystemPropertiesAdapterImpl::IsAdvancedSecurityMode()
         return true;
     }
     return false;
+#else
+    return false;
+#endif
 }
 
 std::string SystemPropertiesAdapterImpl::GetUserAgentOSName()
 {
-    return OHOS::system::GetParameter("const.product.os.dist.name", "");
+    return OH_GetDistributionOSName();
 }
 
 int32_t SystemPropertiesAdapterImpl::GetSoftwareMajorVersion()
@@ -177,17 +194,38 @@ int32_t SystemPropertiesAdapterImpl::GetSoftwareSeniorVersion()
 
 std::string SystemPropertiesAdapterImpl::GetNetlogMode()
 {
+#ifdef WEBVIEW_ONLY
     return OHOS::system::GetParameter("web.debug.netlog", "");
+#else
+    return "";
+#endif
 }
 
 bool SystemPropertiesAdapterImpl::GetTraceDebugEnable()
 {
+#ifdef WEBVIEW_ONLY
     return OHOS::system::GetBoolParameter("web.debug.trace", false);
+#else
+    return false;
+#endif
 }
 
 std::string SystemPropertiesAdapterImpl::GetSiteIsolationMode()
 {
+#ifdef WEBVIEW_ONLY
     return OHOS::system::GetParameter("web.debug.strictsiteIsolation.enable", "");
+#else
+    return "";
+#endif
+}
+
+int32_t SystemPropertiesAdapterImpl::GetFlowBufMaxFd()
+{
+#ifdef WEBVIEW_ONLY
+    return OHOS::system::GetIntParameter("web.flowbuffer.maxfd", -1);
+#else
+    return -1;
+#endif
 }
 
 bool SystemPropertiesAdapterImpl::GetOOPGPUEnable()
@@ -195,10 +233,15 @@ bool SystemPropertiesAdapterImpl::GetOOPGPUEnable()
     if (GetDeviceInfoProductModel() == "emulator") {
         return false;
     }
+#ifdef WEBVIEW_ONLY
     if (OHOS::system::GetParameter("web.oop.gpu", "") == "true") {
         return true;
     }
+    
     return false;
+#else
+    return true;
+#endif
 }
 
 std::string SystemPropertiesAdapterImpl::GetOOPGPUStatus()
@@ -206,24 +249,28 @@ std::string SystemPropertiesAdapterImpl::GetOOPGPUStatus()
     if (GetDeviceInfoProductModel() == "emulator") {
         return "false";
     }
+#ifdef WEBVIEW_ONLY
     return OHOS::system::GetParameter("web.oop.gpu", "");
+#else
+    return "";
+#endif
 }
 
 void SystemPropertiesAdapterImpl::SetOOPGPUDisable()
 {
+#ifdef WEBVIEW_ONLY
     if (OHOS::system::GetParameter("web.oop.gpu", "") == "None") {
         OHOS::system::SetParameter("web.oop.gpu", "false");
     }
+#else
+    WVLOG_E("could not set any parameter");
+#endif
     return;
-}
-
-int32_t SystemPropertiesAdapterImpl::GetFlowBufMaxFd()
-{
-    return OHOS::system::GetIntParameter("web.flowbuffer.maxfd", -1);
 }
 
 void SystemPropertiesAdapterImpl::AddAllSysPropWatchers()
 {
+#ifdef WEBVIEW_ONLY
     for (auto &item : PROP_KEY_MAP) {
         auto errNo =  WatchParameter(item.first.c_str(), SystemPropertiesChangeCallback, nullptr);
         if (errNo == 0) {
@@ -233,16 +280,19 @@ void SystemPropertiesAdapterImpl::AddAllSysPropWatchers()
             WVLOG_E("add watch error result: %{public}d", errNo);
         }
     }
+#endif
 }
 
 void SystemPropertiesAdapterImpl::RemoveAllSysPropWatchers()
 {
+#ifdef WEBVIEW_ONLY
     for (auto &item : PROP_KEY_MAP) {
         auto errNo = RemoveParameterWatcher(item.first.c_str(), nullptr, nullptr);
         if (errNo != 0) {
             WVLOG_E("remove watch error result: %{public}d", errNo);
         }
     }
+#endif
 }
 
 void SystemPropertiesAdapterImpl::DispatchAllWatcherInfo(const char* key, const char* value)
@@ -309,7 +359,11 @@ void SystemPropertiesAdapterImpl::DetachSysPropObserver(PropertiesKey key, Syste
 
 bool SystemPropertiesAdapterImpl::GetBoolParameter(const std::string& key, bool defaultValue)
 {
+#ifdef WEBVIEW_ONLY
     return OHOS::system::GetBoolParameter(key, defaultValue);
+#else
+    return defaultValue;
+#endif
 }
 
 std::vector<FrameRateSetting> SystemPropertiesAdapterImpl::GetLTPOConfig(const std::string& settingName)
