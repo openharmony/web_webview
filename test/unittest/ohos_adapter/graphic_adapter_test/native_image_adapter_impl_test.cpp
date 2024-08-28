@@ -18,8 +18,8 @@
 #include <gtest/gtest.h>
 
 #define private public
-#include "iconsumer_surface.h"
 #include "native_image_adapter_impl.h"
+#include <native_image/native_image.h>
 
 using namespace testing;
 using namespace testing::ext;
