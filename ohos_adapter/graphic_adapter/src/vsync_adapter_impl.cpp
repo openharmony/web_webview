@@ -17,10 +17,6 @@
 
 #include <native_vsync/graphic_error_code.h>
 
-#include "aafwk_browser_client_adapter_impl.h"
-#include "res_sched_client_adapter.h"
-#include "system_properties_adapter_impl.h"
-
 namespace OHOS::NWeb {
 
 #define WVLOG_E(...)
