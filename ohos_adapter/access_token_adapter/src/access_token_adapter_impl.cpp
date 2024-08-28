@@ -15,9 +15,7 @@
 
 #include "access_token_adapter_impl.h"
 
-#include "accesstoken_kit.h"
-#include "ipc_skeleton.h"
-#include "nweb_log.h"
+#include <accesstoken/ability_access_control.h>
 
 namespace OHOS::NWeb {
 AccessTokenAdapterImpl& AccessTokenAdapterImpl::GetInstance()
@@ -28,8 +26,6 @@ AccessTokenAdapterImpl& AccessTokenAdapterImpl::GetInstance()
 
 bool AccessTokenAdapterImpl::VerifyAccessToken(const std::string& permissionName)
 {
-    uint32_t tokenID = IPCSkeleton::GetCallingTokenID();
-    return Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenID, permissionName) ==
-        Security::AccessToken::PERMISSION_GRANTED;
+    return OH_AT_CheckSelfPermission(permissionName.c_str());
 }
 } // namespace OHOS::NWeb

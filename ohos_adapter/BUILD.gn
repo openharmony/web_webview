@@ -25,7 +25,7 @@ shared_library("nweb_ohos_adapter") {
 #    "aafwk_adapter/src/aafwk_browser_client_adapter_impl.cpp",
 #    "aafwk_adapter/src/aafwk_browser_host_impl.cpp",
 #    "aafwk_adapter/src/aafwk_render_scheduler_impl.cpp",
-#    "access_token_adapter/src/access_token_adapter_impl.cpp",
+     "access_token_adapter/src/access_token_adapter_impl.cpp",
 #    "background_task_adapter/src/background_task_impl.cpp",
 #    "cert_mgr_adapter/src/cert_mgr_adapter_impl.cpp",
 #    "datashare_adapter/src/datashare_adapter_impl.cpp",
@@ -68,7 +68,7 @@ shared_library("nweb_ohos_adapter") {
   include_dirs = [
 #    "../ohos_nweb/include",
 #    "aafwk_adapter/include",
-#    "access_token_adapter/include",
+     "access_token_adapter/include",
 #    "audio_adapter/include",
 #    "battery_mgr_adapter/include",
 #    "camera_adapter/include",
