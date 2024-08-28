@@ -18,11 +18,9 @@
 #include <cstring>
 #include <sys/mman.h>
 
-#include "ashmem.h"
+#include "ashmem_adapter.h"
 #include "nweb_log.h"
 #include "ohos_adapter_helper.h"
-#include "res_sched_client_adapter.h"
-#include "securec.h"
 
 namespace OHOS::NWeb {
 namespace {
@@ -54,22 +52,24 @@ bool FlowbufferAdapterImpl::NeedReportScene()
 
 void FlowbufferAdapterImpl::StartPerformanceBoost()
 {
+#ifdef WEBVIEW_ONLY
     if (!NeedReportScene()) {
         return;
     }
     OHOS::NWeb::ResSchedClientAdapter::ReportScene(
         OHOS::NWeb::ResSchedStatusAdapter::WEB_SCENE_ENTER, OHOS::NWeb::ResSchedSceneAdapter::KEY_TASK);
+#endif
 }
 
 void* FlowbufferAdapterImpl::CreateAshmem(size_t size, int mapType, int& fd)
 {
-    fd = AshmemCreate(nullptr, size);
+    fd = OHOS::NWEB::ShmemAdapterCreate(nullptr, size);
     if (fd < 0) {
         WVLOG_E("Create ashmem failed, fd: %{public}d", fd);
         return nullptr;
     }
 
-    int result = AshmemSetProt(fd, PROT_READ | PROT_WRITE);
+    int result = OHOS::NWEB::ShmemAdapterSetProt(fd, PROT_READ | PROT_WRITE);
     if (result < 0) {
         close(fd);
         WVLOG_E("Ashmem set port failed, result: %{public}d", result);
@@ -94,7 +94,7 @@ void* FlowbufferAdapterImpl::CreateAshmemWithFd(const int fd, size_t size, int m
         return nullptr;
     }
 
-    int ashmemSize = AshmemGetSize(fd);
+    int ashmemSize = OHOS::NWEB::ShmemAdapterGetSize(fd);
     if (ashmemSize < 0 || size_t(ashmemSize) < size) {
         WVLOG_E("CreateAshmemWithFd failed, ashmemSize: %{public}d, size: %{public}zu", ashmemSize, size);
         return nullptr;

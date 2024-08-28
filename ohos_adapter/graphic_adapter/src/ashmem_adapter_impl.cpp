@@ -15,11 +15,11 @@
 
 #include "graphic_adapter.h"
 
-#include "ashmem.h"
+#include "ashmem_adapter.h"
 
 namespace OHOS::NWeb {
 int AshmemAdapter::AshmemCreate(const char* name, size_t size)
 {
-    return OHOS::AshmemCreate(name, size);
+    return OHOS::NWeb::ShmemAdapterCreate(name, size);
 }
 } // namespace OHOS::NWeb
