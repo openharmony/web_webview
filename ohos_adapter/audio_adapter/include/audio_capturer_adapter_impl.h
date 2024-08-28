@@ -17,28 +17,18 @@
 #define AUDIO_CAPTURER_ADAPTER_IMPL_H
 
 #include "audio_capturer_adapter.h"
-
-#include <unordered_set>
-#if defined(NWEB_AUDIO_ENABLE)
-#include "audio_capturer.h"
-#endif
+#include <ohaudio/native_audiocapturer.h>
+#include <ohaudio/native_audiostream_base.h>
+#include <ohaudio/native_audiostreambuilder.h>
+#include <ohaudio/native_audio_common.h>
 
 namespace OHOS::NWeb {
-#if defined(NWEB_AUDIO_ENABLE)
-using namespace OHOS::AudioStandard;
 
-class AudioCapturerReadCallbackImpl : public AudioCapturerReadCallback {
-public:
-    AudioCapturerReadCallbackImpl(std::shared_ptr<AudioCapturerReadCallbackAdapter> cb);
-
-    ~AudioCapturerReadCallbackImpl() override = default;
-
-    void OnReadData(size_t length) override;
-
-private:
-    std::shared_ptr<AudioCapturerReadCallbackAdapter> cb_ = nullptr;
-};
-#endif
+typedef struct {
+    std::shared_ptr<AudioCapturerReadCallbackAdapter> callback;
+    uint8_t *buffer;
+    size_t length;
+} UserDataCallBack;
 
 class AudioCapturerAdapterImpl : public AudioCapturerAdapter {
 public:
@@ -66,20 +56,22 @@ public:
 
     int64_t GetAudioTime() override;
 
-#if defined(NWEB_AUDIO_ENABLE)
-    static AudioSamplingRate GetAudioSamplingRate(AudioAdapterSamplingRate samplingRate);
+    static int32_t GetAudioSamplingRate(AudioAdapterSamplingRate samplingRate);
 
-    static AudioEncodingType GetAudioEncodingType(AudioAdapterEncodingType encodingType);
+    static OH_AudioStream_EncodingType GetAudioEncodingType(AudioAdapterEncodingType encodingType);
 
-    static AudioSampleFormat GetAudioSampleFormat(AudioAdapterSampleFormat sampleFormat);
+    static OH_AudioStream_SampleFormat GetAudioSampleFormat(AudioAdapterSampleFormat sampleFormat);
 
-    static AudioChannel GetAudioChannel(AudioAdapterChannel channel);
+    static int32_t GetAudioChannel(AudioAdapterChannel channel);
 
-    static SourceType GetAudioSourceType(AudioAdapterSourceType SourceType);
+    static OH_AudioStream_SourceType GetAudioSourceType(AudioAdapterSourceType SourceType);
 
 private:
-    std::unique_ptr<AudioCapturer> audio_capturer_;
-#endif
+    OH_AudioCapturer* audio_capturer_ = nullptr;
+    std::shared_ptr<UserDataCallBack> userDataCallBack_;
+
+    bool AudioStreamBuilderSet(OH_AudioStreamBuilder* builder,
+        const std::shared_ptr<AudioCapturerOptionsAdapter> capturerOptions);
 };
 }  // namespace OHOS::NWeb
 
