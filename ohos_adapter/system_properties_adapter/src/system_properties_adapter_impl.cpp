@@ -61,6 +61,12 @@ SystemPropertiesAdapterImpl::SystemPropertiesAdapterImpl()
         WVLOG_E("get os full name failed");
         return;
     }
+    size_t index = osFullName.find('-');
+    if (index == std::string::npos) {
+        return;
+    }
+    std::string baseOsNameTmp = osFullName.substr(0, index);
+
     int versionPartOne;
     int versionPartTwo;
     int versionPartThree;
@@ -78,6 +84,7 @@ SystemPropertiesAdapterImpl::SystemPropertiesAdapterImpl()
     }
     softwareMajorVersion_ = versionPartOne;
     softwareSeniorVersion_ = versionPartTwo;
+    baseOsName_ = baseOsNameTmp;
     AddAllSysPropWatchers();
 }
 
@@ -164,6 +171,16 @@ bool SystemPropertiesAdapterImpl::IsAdvancedSecurityMode()
 std::string SystemPropertiesAdapterImpl::GetUserAgentOSName()
 {
     return OHOS::system::GetParameter("const.product.os.dist.name", "");
+}
+
+std::string SystemPropertiesAdapterImpl::GetUserAgentOSVersion()
+{
+    return OHOS::system::GetParameter("const.product.os.dist.version", "");
+}
+
+std::string SystemPropertiesAdapterImpl::GetUserAgentBaseOSName()
+{
+    return baseOsName_;
 }
 
 int32_t SystemPropertiesAdapterImpl::GetSoftwareMajorVersion()
