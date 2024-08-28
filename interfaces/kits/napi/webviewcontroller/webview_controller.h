@@ -122,6 +122,10 @@ enum class PressureLevel : int {
     MEMORY_PRESSURE_LEVEL_CRITICAL = 2,
 };
 
+enum class ScrollType : int {
+    EVENT = 0,
+};
+
 class WebPrintDocument;
 class WebviewController {
 public:
