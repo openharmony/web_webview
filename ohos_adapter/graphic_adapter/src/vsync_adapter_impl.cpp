@@ -15,6 +15,7 @@
 
 #include "vsync_adapter_impl.h"
 
+#include <unistd.h>
 #include <native_vsync/graphic_error_code.h>
 
 namespace OHOS::NWeb {
@@ -43,7 +44,7 @@ VSyncAdapterImpl& VSyncAdapterImpl::GetInstance()
 VSyncErrorCode VSyncAdapterImpl::Init()
 {
     if (!vsyncReceiver_) {
-        const std::string vsyncName = "NWeb_" + std::to_string(::getprocpid());
+        const std::string vsyncName = "NWeb_" + std::to_string(getpid());
         vsyncReceiver_ = OH_NativeVSync_Create(vsyncName.c_str(), vsyncName.length());
         if (!vsyncReceiver_) {
             WVLOG_E("CreateVSyncReceiver failed");
