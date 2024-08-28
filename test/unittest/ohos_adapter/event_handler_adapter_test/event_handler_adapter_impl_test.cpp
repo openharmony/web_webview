@@ -16,7 +16,6 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "event_runner.h"
 #include "nweb_log.h"
 #include "ohos_adapter_helper.h"
 
@@ -73,7 +72,7 @@ HWTEST_F(EventHandlerAdapterImplTest, EventHandlerAdapterImplTest_EventHandlerAd
     int32_t fd = -1;
     auto eventHandlerTest = std::make_unique<EventHandlerAdapterImpl>();
     ASSERT_NE(eventHandlerTest, nullptr);
-    EXPECT_EQ(eventHandlerTest->eventHandler_, nullptr);
+    EXPECT_NE(eventHandlerTest->loop_, nullptr);
     bool res = eventHandlerTest->AddFileDescriptorListener(fd, EventHandlerAdapter::INPUT_EVENT, nullptr);
     EXPECT_FALSE(res);
 
@@ -82,8 +81,6 @@ HWTEST_F(EventHandlerAdapterImplTest, EventHandlerAdapterImplTest_EventHandlerAd
     EXPECT_FALSE(res);
     eventHandlerTest->RemoveFileDescriptorListener(fd);
 
-    auto listenerTest = std::make_shared<EventHandlerFDListenerAdapterImpl>(nullptr);
-    listenerTest->OnReadable(fd);
     EXPECT_FALSE(listener->VerifySuccess());
 }
 
@@ -98,17 +95,15 @@ HWTEST_F(EventHandlerAdapterImplTest, EventHandlerAdapterImplTest_EventHandlerAd
     int32_t fd = -1;
     auto eventHandlerTest = std::make_unique<EventHandlerAdapterImpl>();
     ASSERT_NE(eventHandlerTest, nullptr);
-    auto runner = AppExecFwk::EventRunner::Create();
-    eventHandlerTest->eventHandler_ = std::make_shared<AppExecFwk::EventHandler>(runner);
-    ASSERT_NE(eventHandlerTest->eventHandler_, nullptr);
+    ASSERT_NE(eventHandlerTest->loop_, nullptr);
 
     auto listener = std::make_shared<EventHandlerFDListenerTest>();
     bool res = eventHandlerTest->AddFileDescriptorListener(fd, EventHandlerAdapter::INPUT_EVENT, listener);
     EXPECT_FALSE(res);
     eventHandlerTest->RemoveFileDescriptorListener(fd);
 
-    auto listenerTest = std::make_shared<EventHandlerFDListenerAdapterImpl>(listener);
-    listenerTest->OnReadable(fd);
+    auto listenerTest = std::make_shared<EventHandlerFDListenerAdapterImpl>(listener, fd);
+    listenerTest->GetFDListener()->OnReadable(fd);
     EXPECT_TRUE(listener->VerifySuccess());
 }
 } // namespace OHOS::NWeb

@@ -18,6 +18,8 @@
 #include <unordered_map>
 
 #include "nweb_log.h"
+#include <media/native_avcapability.h>
+#include <media/native_avmagic.h>
 
 namespace OHOS::NWeb {
 
@@ -27,44 +29,42 @@ MediaCodecListAdapterImpl& MediaCodecListAdapterImpl::GetInstance()
     return instance;
 }
 
-void MediaCodecListAdapterImpl::TransToAdapterCapability(
-    const CapabilityData* data, std::shared_ptr<CapabilityDataAdapterImpl>& adapterData)
-{
-    if (adapterData == nullptr) {
-        WVLOG_E("MediaCodecEncoder adapterData is null");
-        return;
-    }
-
-    if (data == nullptr) {
-        WVLOG_E("MediaCodecEncoder data is null.");
-        adapterData->SetMaxWidth(0);
-        adapterData->SetMaxHeight(0);
-        adapterData->SetMaxframeRate(0);
-        return;
-    }
-    adapterData->SetMaxWidth(data->width.maxVal);
-    adapterData->SetMaxHeight(data->height.maxVal);
-    adapterData->SetMaxframeRate(data->frameRate.maxVal);
-}
-
 std::shared_ptr<CapabilityDataAdapter> MediaCodecListAdapterImpl::GetCodecCapability(
     const std::string& mime, const bool isEncoder)
 {
     std::shared_ptr<CapabilityDataAdapterImpl> capabilityAdapter = std::make_shared<CapabilityDataAdapterImpl>();
-    if (capabilityAdapter == nullptr) {
-        WVLOG_E("new CapabilityDataAdapterImpl failed.");
+    std::string& mine = const_cast<std::string&>(mime);
+    OH_AVCapability *oh_AVCapability = OH_AVCodec_GetCapability(mine.c_str(), true);
+    if (oh_AVCapability == nullptr) {
+        WVLOG_E("OH_AVCodec_GetCapability failed.");
         return nullptr;
     }
+    OH_AVRange widthRange;
+    OH_AVErrCode width_error_code = OH_AVCapability_GetVideoWidthRange(oh_AVCapability, &widthRange);
+    if (width_error_code != AV_ERR_OK) {
+        capabilityAdapter->SetMaxWidth(0);
+        WVLOG_E("OH_AVCapability_GetVideoWidthRange failed. SetMaxWidth zero");
+    } else {
+        capabilityAdapter->SetMaxWidth(widthRange.maxVal);
+    }
 
-    if (avCodecList_ == nullptr) {
-        avCodecList_ = AVCodecListFactory::CreateAVCodecList();
+    OH_AVRange heightRange;
+    OH_AVErrCode height_error_code = OH_AVCapability_GetVideoHeightRange(oh_AVCapability, &heightRange);
+    if (height_error_code != AV_ERR_OK) {
+        capabilityAdapter->SetMaxHeight(0);
+        WVLOG_E("OH_AVCapability_GetVideoHeightRange failed. SetMaxHeight zero");
+    } else {
+        capabilityAdapter->SetMaxHeight(heightRange.maxVal);
     }
-    if (avCodecList_ == nullptr) {
-        WVLOG_E("CreateAVCodecList failed.");
-        return capabilityAdapter;
+
+    OH_AVRange frameRateRange;
+    OH_AVErrCode frameRate_error_code = OH_AVCapability_GetVideoFrameRateRange(oh_AVCapability, &frameRateRange);
+    if (frameRate_error_code != AV_ERR_OK) {
+        capabilityAdapter->SetMaxframeRate(0);
+        WVLOG_E("OH_AVCapability_GetVideoFrameRateRange failed. SetMaxframeRate zero");
+    } else {
+        capabilityAdapter->SetMaxframeRate(frameRateRange.maxVal);
     }
-    CapabilityData* capabilityData = avCodecList_->GetCapability(mime, true, AVCodecCategory::AVCODEC_NONE);
-    TransToAdapterCapability(capabilityData, capabilityAdapter);
     return capabilityAdapter;
 }
 } // namespace OHOS::NWeb

@@ -40,6 +40,7 @@ public:
 
     int32_t GetRenderFlags() override;
 
+    int32_t GetFrameSize() override;
 private:
     ArkWebRefPtr<ArkAudioRendererOptionsAdapter> ctocpp_;
 };

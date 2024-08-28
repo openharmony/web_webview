@@ -91,6 +91,10 @@ public:
 
 #if defined(NWEB_AUDIO_ENABLE)
     static AudioStreamType GetStreamType(AudioAdapterStreamType streamType);
+    
+    ContentType GetAudioContentType(AudioAdapterContentType contentType);
+
+    StreamUsage GetAudioStreamUsage(AudioAdapterStreamUsage streamUsage);
 
 private:
     int32_t SelectAudioOutputDevice(bool isCallDevice, const std::vector<sptr<AudioDeviceDescriptor>>& device) const;

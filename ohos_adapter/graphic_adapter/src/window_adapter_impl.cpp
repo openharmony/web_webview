@@ -17,10 +17,11 @@
 
 #include <cstdarg>
 
+#include <native_window/external_window.h>
+#include <native_buffer/native_buffer.h>
+
 #include "nweb_log.h"
-#include "foundation/graphic/graphic_surface/interfaces/inner_api/surface/surface.h"
-#include "foundation/graphic/graphic_surface/interfaces/inner_api/surface/window.h"
-#include "foundation/graphic/graphic_surface/surface/include/native_window.h"
+
 
 namespace OHOS::NWeb {
 
@@ -32,50 +33,36 @@ WindowAdapterImpl& WindowAdapterImpl::GetInstance()
 
 NWebNativeWindow WindowAdapterImpl::CreateNativeWindowFromSurface(void* pSurface)
 {
-    OHNativeWindow* window = ::CreateNativeWindowFromSurface(pSurface);
+    WVLOG_D("CreateNativeWindowFromSurface");
+    OHNativeWindow* window = OH_NativeWindow_CreateNativeWindow(pSurface);
     if (!window) {
         return nullptr;
     }
-    int32_t usage = BUFFER_USAGE_MEM_DMA;
-    NativeWindowHandleOpt(window, SET_USAGE, usage);
+    int32_t usage = NATIVEBUFFER_USAGE_MEM_DMA;
+    OH_NativeWindow_NativeWindowHandleOpt(window, SET_USAGE, usage);
     return reinterpret_cast<NWebNativeWindow>(window);
 }
 
 void WindowAdapterImpl::DestroyNativeWindow(NWebNativeWindow window)
 {
-    ::DestoryNativeWindow(reinterpret_cast<OHNativeWindow*>(window));
+    WVLOG_D("DestroyWindow");
+    OH_NativeWindow_DestroyNativeWindow(reinterpret_cast<OHNativeWindow*>(window));
 }
 
 int32_t WindowAdapterImpl::NativeWindowSetBufferGeometry(NWebNativeWindow window, int32_t width, int32_t height)
 {
-    return ::NativeWindowHandleOpt(reinterpret_cast<OHNativeWindow*>(window), SET_BUFFER_GEOMETRY, width, height);
+    WVLOG_D("NativeWindowSetBufferGeometry %{public}d * %{public}d", width, height);
+    return OH_NativeWindow_NativeWindowHandleOpt(reinterpret_cast<OHNativeWindow*>(window),
+        SET_BUFFER_GEOMETRY, width, height);
 }
 
 void WindowAdapterImpl::NativeWindowSurfaceCleanCache(NWebNativeWindow window)
 {
-    WVLOG_D("WindowAdapterImpl::NativeWindowSurfaceCleanCache");
-    auto nativeWindow = reinterpret_cast<OHNativeWindow*>(window);
-    if (!nativeWindow || !nativeWindow->surface) {
-        WVLOG_D("window or surface is null, no need to clean surface cache");
-        return;
-    }
-    nativeWindow->surface->CleanCache();
+    WVLOG_D("[adapter mock] WindowAdapterImpl::NativeWindowSurfaceCleanCache");
 }
 
 void WindowAdapterImpl::NativeWindowSurfaceCleanCacheWithPara(NWebNativeWindow window, bool cleanAll)
 {
-    WVLOG_D("WindowAdapterImpl::NativeWindowSurfaceCleanCacheWithPara");
-    auto nativeWindow = reinterpret_cast<OHNativeWindow*>(window);
-    if (!nativeWindow || !nativeWindow->surface) {
-        WVLOG_D("window or surface is null, no need to clean surface cache");
-        return;
-    }
-    
-    // eglDestroySurface has disconnected the surface link
-    GSError ret = nativeWindow->surface->Connect();
-    if (ret == (int32_t)GSERROR_OK) {
-        nativeWindow->surface->CleanCache(cleanAll);
-        nativeWindow->surface->Disconnect();
-    }
+    WVLOG_D("[adapter mock] WindowAdapterImpl::NativeWindowSurfaceCleanCacheWithPara");
 }
 } // namespace OHOS::NWeb

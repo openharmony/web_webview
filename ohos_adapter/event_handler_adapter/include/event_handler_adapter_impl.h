@@ -16,28 +16,33 @@
 #ifndef EVENT_HANDLER_ADAPTER_IMPL_H
 #define EVENT_HANDLER_ADAPTER_IMPL_H
 
-#include "event_handler.h"
 #include "event_handler_adapter.h"
-#include "file_descriptor_listener.h"
+#include <ffrt/loop.h>
 
 namespace OHOS::NWeb {
-class EventHandlerFDListenerAdapterImpl : public AppExecFwk::FileDescriptorListener {
+
+static constexpr int32_t INVALID_FD = -1;
+
+class EventHandlerFDListenerAdapterImpl {
 public:
-    explicit EventHandlerFDListenerAdapterImpl(const std::shared_ptr<EventHandlerFDListenerAdapter>& listener);
+    explicit EventHandlerFDListenerAdapterImpl(const std::shared_ptr<EventHandlerFDListenerAdapter>& listener,
+                                               int32_t fileDescriptor);
 
-    ~EventHandlerFDListenerAdapterImpl() override = default;
+    ~EventHandlerFDListenerAdapterImpl() {}
 
-    void OnReadable(int32_t fileDescriptor) override;
+    std::shared_ptr<EventHandlerFDListenerAdapter> GetFDListener() {return listener_;}
+    int32_t GetFileDescriptor() {return fileDescriptor_;}
 
 private:
     std::shared_ptr<EventHandlerFDListenerAdapter> listener_ = nullptr;
+    int32_t fileDescriptor_ = INVALID_FD;
 };
 
 class EventHandlerAdapterImpl : public EventHandlerAdapter {
 public:
     EventHandlerAdapterImpl();
 
-    ~EventHandlerAdapterImpl() override = default;
+    ~EventHandlerAdapterImpl() override;
 
     bool AddFileDescriptorListener(int32_t fileDescriptor, uint32_t events,
         const std::shared_ptr<EventHandlerFDListenerAdapter> listener) override;
@@ -45,7 +50,8 @@ public:
     void RemoveFileDescriptorListener(int32_t fileDescriptor) override;
 
 private:
-    std::shared_ptr<AppExecFwk::EventHandler> eventHandler_ = nullptr;
+    ffrt_loop_t loop_ = nullptr;
+    std::unordered_map<int32_t, EventHandlerFDListenerAdapterImpl *> fdListenerMap_;
 };
 } // namespace OHOS::NWeb
 

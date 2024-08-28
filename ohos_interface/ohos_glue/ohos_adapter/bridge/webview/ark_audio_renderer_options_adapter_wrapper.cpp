@@ -59,4 +59,8 @@ int32_t ArkAudioRendererOptionsAdapterWrapper::GetRenderFlags()
     return ctocpp_->GetRenderFlags();
 }
 
+int32_t ArkAudioRendererOptionsAdapterWrapper::GetFrameSize()
+{
+    return ctocpp_->GetFrameSize();
+}
 } // namespace OHOS::ArkWeb
