@@ -28,7 +28,7 @@ public:
     explicit EventHandlerFDListenerAdapterImpl(const std::shared_ptr<EventHandlerFDListenerAdapter>& listener,
                                                int32_t fileDescriptor);
 
-    ~EventHandlerFDListenerAdapterImpl() {};
+    ~EventHandlerFDListenerAdapterImpl() {}
 
     std::shared_ptr<EventHandlerFDListenerAdapter> GetFDListener() {return listener_;}
     int32_t GetFileDescriptor() {return fileDescriptor_;}
