@@ -76,11 +76,9 @@ HWTEST_F(GraphicAdapterTest, GraphicAdapterTest_RequestVsync_001, TestSize.Level
     adapter.SetFrameRateLinkerEnable(true);
     adapter.SetFrameRateLinkerEnable(false);
     adapter.SetFramePreferredRate(0);
-    adapter.frameRateLinker_ = nullptr;
     adapter.SetFrameRateLinkerEnable(true);
     adapter.SetFrameRateLinkerEnable(true);
     adapter.SetFramePreferredRate(60);
-    adapter.vsyncHandler_ = nullptr;
     adapter.SetOnVsyncCallback(OnVsyncCallback);
     adapter.SetOnVsyncEndCallback(OnVsyncCallback);
     adapter.OnVsync(1, client);
