@@ -18,7 +18,7 @@
 #include <sys/types.h>
 #include <hilog/log.h>
 #include <string>
-#include <stdio.h>
+#include <cstdio>
 
 namespace OHOS::NWeb {
 namespace {
