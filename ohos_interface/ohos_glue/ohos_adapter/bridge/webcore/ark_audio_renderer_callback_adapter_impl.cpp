@@ -32,4 +32,8 @@ void ArkAudioRendererCallbackAdapterImpl::OnResume()
     real_->OnResume();
 }
 
+int32_t ArkAudioRendererCallbackAdapterImpl::OnWriteDataCallback(void* buffer, int32_t length)
+{
+    return real_->OnWriteDataCallback(buffer, length);
+}
 } // namespace OHOS::ArkWeb

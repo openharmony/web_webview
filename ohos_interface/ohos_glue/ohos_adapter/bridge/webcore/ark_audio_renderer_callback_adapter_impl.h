@@ -30,6 +30,8 @@ public:
 
     void OnResume() override;
 
+    int32_t OnWriteDataCallback(void* buffer, int32_t length) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::AudioRendererCallbackAdapter> real_;
 

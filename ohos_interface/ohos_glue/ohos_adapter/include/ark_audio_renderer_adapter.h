@@ -45,6 +45,9 @@ public:
 
     /*--ark web()--*/
     virtual int32_t GetRenderFlags() = 0;
+
+    /*--ark web()--*/
+    virtual int32_t GetFrameSize() = 0;
 };
 
 /*--ark web(source=webcore)--*/
@@ -55,6 +58,9 @@ public:
 
     /*--ark web()--*/
     virtual void OnResume() = 0;
+
+    /*--ark web()--*/
+    virtual int32_t OnWriteDataCallback(void* buffer, int32_t length) = 0;
 };
 
 /*--ark web(source=webcore)--*/

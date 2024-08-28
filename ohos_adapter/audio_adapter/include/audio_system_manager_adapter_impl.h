@@ -21,7 +21,6 @@
 #include "audio_system_manager_adapter.h"
 
 namespace OHOS::NWeb {
-using namespace OHOS::AudioStandard;
 class AudioSystemManagerAdapterImpl : public AudioSystemManagerAdapter {
 public:
     AudioSystemManagerAdapterImpl() = default;
@@ -45,6 +44,8 @@ public:
     virtual std::vector<std::shared_ptr<AudioDeviceDescAdapter>> GetDevices(AdapterDeviceFlag flag) override;
 
     int32_t SelectAudioDeviceById(int32_t deviceId, bool isInput) override;
+
+    int32_t SelectAudioDeviceByIdImpl(int32_t deviceId, bool isInput, bool isCallDevice);
 
     std::shared_ptr<AudioDeviceDescAdapter> GetDefaultOutputDevice() override;
 

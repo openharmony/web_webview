@@ -22,7 +22,8 @@
 #include <unordered_map>
 
 #include "audio_device_desc_adapter_impl.h"
-#include "nweb_log.h"
+#define WVLOG_E(...)
+#define WVLOG_I(...)
 
 namespace OHOS::NWeb {
 const std::string DEVICE_TYPE_NONE = "device/none";
@@ -247,10 +248,46 @@ int32_t AudioSystemManagerAdapterImpl::SelectAudioOutputDevice(
     // 2. create audioRenderer
     OH_AudioRenderer* audioRenderer;
     OH_AudioDevice_Type deviceType;
-    OH_AudioDeviceDescriptor* defaultDeviceDescriptor = (OH_AudioDeviceDescriptor*)audioDeviceArray->descriptors[0];
+    OH_AudioDeviceDescriptor* defaultDeviceDescriptor = (OH_AudioDeviceDescriptor*)audioDeviceArray.descriptors[0];
     OH_AudioDeviceDescriptor_GetDeviceType(defaultDeviceDescriptor, &deviceType);
     OH_AudioStreamBuilder_GenerateRenderer(builder, &audioRenderer);
     return (int32_t)OH_AudioRenderer_SetDefaultOutputDevice(audioRenderer, deviceType);
+}
+
+int32_t AudioSystemManagerAdapterImpl::SelectAudioDeviceByIdImpl(int32_t deviceId, bool isInput, bool isCallDevice)
+{
+    OH_AudioDeviceDescriptorArray* audioDeviceArray = nullptr;
+    OH_AudioRoutingManager* audioRoutingManager;
+    OH_AudioManager_GetAudioRoutingManager(&audioRoutingManager);
+    if (isCallDevice) {
+        OH_AudioRoutingManager_GetAvailableDevices(audioRoutingManager,
+            isInput ? AUDIO_DEVICE_USAGE_CALL_INPUT : AUDIO_DEVICE_USAGE_CALL_OUTPUT, &audioDeviceArray);
+    } else {
+        OH_AudioRoutingManager_GetAvailableDevices(audioRoutingManager,
+            isInput ? AUDIO_DEVICE_USAGE_CALL_INPUT : AUDIO_DEVICE_USAGE_MEDIA_OUTPUT, &audioDeviceArray);
+    }
+    if (audioDeviceArray == nullptr) {
+        WVLOG_E("AudioSystemManagerAdapterImpl::SelectAudioDeviceByIdImpl device list empty");
+        return AUDIO_ERROR;
+    }
+    for (uint32_t i = 0; i < audioDeviceArray->size; i++) {
+        uint32_t ohAudioDeviceId = 0;
+        OH_AudioDeviceDescriptor* ohAudioDeviceDescriptor = (OH_AudioDeviceDescriptor*)audioDeviceArray->descriptors[i];
+        OH_AudioDeviceDescriptor_GetDeviceId(ohAudioDeviceDescriptor, &ohAudioDeviceId);
+        if (ohAudioDeviceId == deviceId) {
+            OH_AudioDeviceDescriptorArray* tmpAudioDeviceArray =
+                (OH_AudioDeviceDescriptorArray*)malloc(sizeof(OH_AudioDeviceDescriptorArray));
+            tmpAudioDeviceArray->size = 1;
+            tmpAudioDeviceArray->descriptors[0] = ohAudioDeviceDescriptor;
+            int32_t ret =
+                isInput ? AUDIOSTREAM_ERROR_ILLEGAL_STATE : SelectAudioOutputDevice(isCallDevice, *tmpAudioDeviceArray);
+            free(tmpAudioDeviceArray);
+            OH_AudioRoutingManager_ReleaseDevices(audioRoutingManager, audioDeviceArray);
+            return ret;
+        }
+    }
+    OH_AudioRoutingManager_ReleaseDevices(audioRoutingManager, audioDeviceArray);
+    return AUDIO_ERROR;
 }
 
 int32_t AudioSystemManagerAdapterImpl::SelectAudioDeviceById(int32_t deviceId, bool isInput)
@@ -282,35 +319,7 @@ int32_t AudioSystemManagerAdapterImpl::SelectAudioDeviceById(int32_t deviceId, b
     if (isInput && deviceId == ADAPTER_AUDIO_DEFAULT_DEVICE_ID) {
         return AUDIOSTREAM_ERROR_ILLEGAL_STATE;
     }
-
-    if (isCallDevice) {
-        OH_AudioRoutingManager_GetAvailableDevices(audioRoutingManager,
-            isInput ? AUDIO_DEVICE_USAGE_CALL_INPUT : AUDIO_DEVICE_USAGE_CALL_OUTPUT, &audioDeviceArray);
-    } else {
-        OH_AudioRoutingManager_GetAvailableDevices(audioRoutingManager,
-            isInput ? AUDIO_DEVICE_USAGE_CALL_INPUT : AUDIO_DEVICE_USAGE_MEDIA_OUTPUT, &audioDeviceArray);
-    }
-    if (audioDeviceArray == nullptr) {
-        WVLOG_E("AudioSystemManagerAdapterImpl::SelectAudioDeviceById device list empty");
-        return audioDeviceAdapterList;
-    }
-    for (uint32_t i = 0; i < audioDeviceArray->size; i++) {
-        uint32_t ohAudioDeviceId = 0;
-        OH_AudioDeviceDescriptor* ohAudioDeviceDescriptor = (OH_AudioDeviceDescriptor*)audioDeviceArray->descriptors[i];
-        OH_AudioDeviceDescriptor_GetDeviceId(ohAudioDeviceDescriptor, &ohAudioDeviceId);
-        if (ohAudioDeviceId == deviceId) {
-            OH_AudioDeviceDescriptorArray* tmpAudioDeviceArray =
-                (OH_AudioDeviceDescriptorArray*)malloc(sizeof(OH_AudioDeviceDescriptorArray));
-            tmpAudioDeviceArray->size = 1;
-            tmpAudioDeviceArray->descriptors[0] = ohAudioDeviceDescriptor;
-            int32_t ret =
-                isInput ? AUDIOSTREAM_ERROR_ILLEGAL_STATE : SelectAudioOutputDevice(isCallDevice, *tmpAudioDeviceArray);
-            free(tmpAudioDeviceArray);
-            OH_AudioRoutingManager_ReleaseDevices(audioRoutingManager, audioDeviceArray);
-            return ret;
-        }
-    }
-    return AUDIO_ERROR;
+    return SelectAudioDeviceByIdImpl(deviceId, isInput, isCallDevice);
 }
 
 std::shared_ptr<AudioDeviceDescAdapter> AudioSystemManagerAdapterImpl::GetDefaultOutputDevice()
