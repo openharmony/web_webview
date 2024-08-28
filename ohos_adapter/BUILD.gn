@@ -57,6 +57,7 @@ shared_library("nweb_ohos_adapter") {
 #    "res_sched_adapter/src/res_sched_client_adapter_impl.cpp",
 #    "soc_perf_adapter/src/soc_perf_client_adapter_impl.cpp",
 #    "system_properties_adapter/src/system_properties_adapter_impl.cpp",
+     "audio_adapter/src/audio_system_manager_adapter_impl.cpp",
   ]
 #
 #  cflags = [
@@ -69,7 +70,7 @@ shared_library("nweb_ohos_adapter") {
 #    "../ohos_nweb/include",
 #    "aafwk_adapter/include",
 #    "access_token_adapter/include",
-#    "audio_adapter/include",
+     "audio_adapter/include",
 #    "battery_mgr_adapter/include",
 #    "camera_adapter/include",
 #    "cert_mgr_adapter/include",

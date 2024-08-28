@@ -16,41 +16,12 @@
 #ifndef AUDIO_SYSTEM_MANAGER_ADAPTER_IMPL_H
 #define AUDIO_SYSTEM_MANAGER_ADAPTER_IMPL_H
 
+#include <ohaudio/native_audio_routing_manager.h>
+
 #include "audio_system_manager_adapter.h"
 
-#if defined(NWEB_AUDIO_ENABLE)
-#include "audio_system_manager.h"
-#endif
-
 namespace OHOS::NWeb {
-#if defined(NWEB_AUDIO_ENABLE)
 using namespace OHOS::AudioStandard;
-
-class AudioManagerCallbackAdapterImpl : public AudioManagerCallback {
-public:
-    explicit AudioManagerCallbackAdapterImpl(std::shared_ptr<AudioManagerCallbackAdapter> cb);
-
-    ~AudioManagerCallbackAdapterImpl() override = default;
-
-    void OnInterrupt(const InterruptAction& interruptAction) override;
-
-private:
-    std::shared_ptr<AudioManagerCallbackAdapter> cb_ = nullptr;
-};
-
-class AudioManagerDeviceChangeCallbackAdapterImpl : public AudioManagerDeviceChangeCallback {
-public:
-    explicit AudioManagerDeviceChangeCallbackAdapterImpl(std::shared_ptr<AudioManagerDeviceChangeCallbackAdapter> cb);
-
-    ~AudioManagerDeviceChangeCallbackAdapterImpl() override = default;
-
-    void OnDeviceChange(const DeviceChangeAction& deviceChangeAction) override;
-
-private:
-    std::shared_ptr<AudioManagerDeviceChangeCallbackAdapter> cb_ = nullptr;
-};
-#endif
-
 class AudioSystemManagerAdapterImpl : public AudioSystemManagerAdapter {
 public:
     AudioSystemManagerAdapterImpl() = default;
@@ -85,20 +56,12 @@ public:
 
     bool SetLanguage(const std::string& language) override;
 
-    std::string GetDeviceName(DeviceType deviceType);
+    std::string GetDeviceName(OH_AudioDevice_Type deviceType);
 
     std::string language_ = "zh";
 
-#if defined(NWEB_AUDIO_ENABLE)
-    static AudioStreamType GetStreamType(AudioAdapterStreamType streamType);
-
 private:
-    int32_t SelectAudioOutputDevice(bool isCallDevice, const std::vector<sptr<AudioDeviceDescriptor>>& device) const;
-
-private:
-    std::shared_ptr<AudioManagerCallbackAdapterImpl> callback_;
-    std::shared_ptr<AudioManagerDeviceChangeCallbackAdapterImpl> deviceChangeCallback_ = nullptr;
-#endif
+    int32_t SelectAudioOutputDevice(bool isCallDevice, OH_AudioDeviceDescriptorArray& audioDeviceArray) const;
 };
 } // namespace OHOS::NWeb
 

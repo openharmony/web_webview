@@ -14,34 +14,17 @@
  */
 
 #include "audio_system_manager_adapter_impl.h"
-#include "audio_device_desc_adapter_impl.h"
 
+#include <ohaudio/native_audio_device_base.h>
+#include <ohaudio/native_audio_manager.h>
+#include <ohaudio/native_audio_routing_manager.h>
+#include <ohaudio/native_audiostreambuilder.h>
 #include <unordered_map>
 
-#include "audio_errors.h"
-#include "audio_renderer_adapter_impl.h"
+#include "audio_device_desc_adapter_impl.h"
 #include "nweb_log.h"
 
 namespace OHOS::NWeb {
-const std::unordered_map<AudioAdapterStreamType, AudioStreamType> STREAM_TYPE_MAP = {
-    { AudioAdapterStreamType::STREAM_DEFAULT, AudioStreamType::STREAM_DEFAULT },
-    { AudioAdapterStreamType::STREAM_VOICE_CALL, AudioStreamType::STREAM_VOICE_CALL },
-    { AudioAdapterStreamType::STREAM_MUSIC, AudioStreamType::STREAM_MUSIC },
-    { AudioAdapterStreamType::STREAM_RING, AudioStreamType::STREAM_RING },
-    { AudioAdapterStreamType::STREAM_MEDIA, AudioStreamType::STREAM_MEDIA },
-    { AudioAdapterStreamType::STREAM_VOICE_ASSISTANT, AudioStreamType::STREAM_VOICE_ASSISTANT },
-    { AudioAdapterStreamType::STREAM_SYSTEM, AudioStreamType::STREAM_SYSTEM },
-    { AudioAdapterStreamType::STREAM_ALARM, AudioStreamType::STREAM_ALARM },
-    { AudioAdapterStreamType::STREAM_NOTIFICATION, AudioStreamType::STREAM_NOTIFICATION },
-    { AudioAdapterStreamType::STREAM_BLUETOOTH_SCO, AudioStreamType::STREAM_BLUETOOTH_SCO },
-    { AudioAdapterStreamType::STREAM_ENFORCED_AUDIBLE, AudioStreamType::STREAM_ENFORCED_AUDIBLE },
-    { AudioAdapterStreamType::STREAM_DTMF, AudioStreamType::STREAM_DTMF },
-    { AudioAdapterStreamType::STREAM_TTS, AudioStreamType::STREAM_TTS },
-    { AudioAdapterStreamType::STREAM_ACCESSIBILITY, AudioStreamType::STREAM_ACCESSIBILITY },
-    { AudioAdapterStreamType::STREAM_RECORDING, AudioStreamType::STREAM_RECORDING },
-    { AudioAdapterStreamType::STREAM_ALL, AudioStreamType::STREAM_ALL },
-};
-
 const std::string DEVICE_TYPE_NONE = "device/none";
 const std::string DEVICE_TYPE_INVALID = "device/invalid";
 const std::string DEVICE_TYPE_EARPIECE = "device/earpiece";
@@ -54,6 +37,9 @@ const std::string DEVICE_TYPE_MIC = "device/mic";
 const std::string DEVICE_TYPE_USB_HEADSET = "device/usb_headset";
 const std::string DEVICE_TYPE_FILE_SINK = "device/file_sink";
 const std::string DEVICE_TYPE_FILE_SOURCE = "device/file_source";
+const std::string DEVICE_TYPE_DISPLAY_PORT = "device/display_port";
+const std::string DEVICE_TYPE_REMOTE_CAST = "device/remote_cast";
+const std::string DEVICE_TYPE_DEFAULT = "device/default";
 const std::string DEVICE_TYPE_MAX = "device/max";
 
 const std::string DEVICE_TYPE_NONE_ZH_CN = "无";
@@ -68,78 +54,45 @@ const std::string DEVICE_TYPE_MIC_ZH_CN = "麦克风";
 const std::string DEVICE_TYPE_USB_HEADSET_ZH_CN = "USB 耳机";
 const std::string DEVICE_TYPE_FILE_SINK_ZH_CN = "device/file_sink";
 const std::string DEVICE_TYPE_FILE_SOURCE_ZH_CN = "device/file_source";
+const std::string DEVICE_TYPE_DISPLAY_PORT_ZH_CN = "DP设备";
+const std::string DEVICE_TYPE_REMOTE_CAST_ZH_CN = "投屏设备";
+const std::string DEVICE_TYPE_DEFAULT_ZH_CN = "device/default";
 const std::string DEVICE_TYPE_MAX_ZH_CN = "device/max";
 
-const std::unordered_map<DeviceType, std::string> DEVICE_TYPE_NAME_ZH_CN_MAP = {
-    { DeviceType::DEVICE_TYPE_NONE, DEVICE_TYPE_NONE_ZH_CN},
-    { DeviceType::DEVICE_TYPE_INVALID, DEVICE_TYPE_INVALID_ZH_CN},
-    { DeviceType::DEVICE_TYPE_EARPIECE, DEVICE_TYPE_EARPIECE_ZH_CN},
-    { DeviceType::DEVICE_TYPE_SPEAKER, DEVICE_TYPE_SPEAKER_ZH_CN},
-    { DeviceType::DEVICE_TYPE_WIRED_HEADSET, DEVICE_TYPE_WIRED_HEADSET_ZH_CN},
-    { DeviceType::DEVICE_TYPE_WIRED_HEADPHONES, DEVICE_TYPE_WIRED_HEADPHONES_ZH_CN},
-    { DeviceType::DEVICE_TYPE_BLUETOOTH_SCO, DEVICE_TYPE_BLUETOOTH_SCO_ZH_CN},
-    { DeviceType::DEVICE_TYPE_BLUETOOTH_A2DP, DEVICE_TYPE_BLUETOOTH_A2DP_ZH_CN},
-    { DeviceType::DEVICE_TYPE_MIC, DEVICE_TYPE_MIC_ZH_CN},
-    { DeviceType::DEVICE_TYPE_USB_HEADSET, DEVICE_TYPE_USB_HEADSET_ZH_CN},
-    { DeviceType::DEVICE_TYPE_FILE_SINK, DEVICE_TYPE_FILE_SINK_ZH_CN},
-    { DeviceType::DEVICE_TYPE_FILE_SOURCE, DEVICE_TYPE_FILE_SOURCE_ZH_CN},
-    { DeviceType::DEVICE_TYPE_MAX, DEVICE_TYPE_MAX_ZH_CN},
+const std::unordered_map<OH_AudioDevice_Type, std::string> OH_DEVICE_TYPE_NAME_ZH_CN_MAP = {
+    { AUDIO_DEVICE_TYPE_INVALID, DEVICE_TYPE_INVALID_ZH_CN },
+    { AUDIO_DEVICE_TYPE_EARPIECE, DEVICE_TYPE_EARPIECE_ZH_CN },
+    { AUDIO_DEVICE_TYPE_SPEAKER, DEVICE_TYPE_SPEAKER_ZH_CN },
+    { AUDIO_DEVICE_TYPE_WIRED_HEADSET, DEVICE_TYPE_WIRED_HEADSET_ZH_CN },
+    { AUDIO_DEVICE_TYPE_WIRED_HEADPHONES, DEVICE_TYPE_WIRED_HEADPHONES_ZH_CN },
+    { AUDIO_DEVICE_TYPE_BLUETOOTH_SCO, DEVICE_TYPE_BLUETOOTH_SCO_ZH_CN },
+    { AUDIO_DEVICE_TYPE_BLUETOOTH_A2DP, DEVICE_TYPE_BLUETOOTH_A2DP_ZH_CN },
+    { AUDIO_DEVICE_TYPE_MIC, DEVICE_TYPE_MIC_ZH_CN },
+    { AUDIO_DEVICE_TYPE_USB_HEADSET, DEVICE_TYPE_USB_HEADSET_ZH_CN },
+    { AUDIO_DEVICE_TYPE_DISPLAY_PORT, DEVICE_TYPE_DISPLAY_PORT_ZH_CN },
+    { AUDIO_DEVICE_TYPE_REMOTE_CAST, DEVICE_TYPE_REMOTE_CAST_ZH_CN },
+    { AUDIO_DEVICE_TYPE_DEFAULT, DEVICE_TYPE_DEFAULT_ZH_CN },
 };
 
-const std::unordered_map<DeviceType, std::string> DEVICE_TYPE_MAP = {
-    { DeviceType::DEVICE_TYPE_NONE, DEVICE_TYPE_NONE },
-    { DeviceType::DEVICE_TYPE_INVALID, DEVICE_TYPE_INVALID },
-    { DeviceType::DEVICE_TYPE_EARPIECE, DEVICE_TYPE_EARPIECE },
-    { DeviceType::DEVICE_TYPE_SPEAKER, DEVICE_TYPE_SPEAKER },
-    { DeviceType::DEVICE_TYPE_WIRED_HEADSET, DEVICE_TYPE_WIRED_HEADSET },
-    { DeviceType::DEVICE_TYPE_WIRED_HEADPHONES, DEVICE_TYPE_WIRED_HEADPHONES },
-    { DeviceType::DEVICE_TYPE_BLUETOOTH_SCO, DEVICE_TYPE_BLUETOOTH_SCO },
-    { DeviceType::DEVICE_TYPE_BLUETOOTH_A2DP, DEVICE_TYPE_BLUETOOTH_A2DP },
-    { DeviceType::DEVICE_TYPE_MIC, DEVICE_TYPE_MIC },
-    { DeviceType::DEVICE_TYPE_USB_HEADSET, DEVICE_TYPE_USB_HEADSET },
-    { DeviceType::DEVICE_TYPE_FILE_SINK, DEVICE_TYPE_FILE_SINK },
-    { DeviceType::DEVICE_TYPE_FILE_SOURCE, DEVICE_TYPE_FILE_SOURCE },
-    { DeviceType::DEVICE_TYPE_MAX, DEVICE_TYPE_MAX },
+const std::unordered_map<OH_AudioDevice_Type, std::string> OH_DEVICE_TYPE_MAP = {
+    { AUDIO_DEVICE_TYPE_INVALID, DEVICE_TYPE_INVALID },
+    { AUDIO_DEVICE_TYPE_EARPIECE, DEVICE_TYPE_EARPIECE },
+    { AUDIO_DEVICE_TYPE_SPEAKER, DEVICE_TYPE_SPEAKER },
+    { AUDIO_DEVICE_TYPE_WIRED_HEADSET, DEVICE_TYPE_WIRED_HEADSET },
+    { AUDIO_DEVICE_TYPE_WIRED_HEADPHONES, DEVICE_TYPE_WIRED_HEADPHONES },
+    { AUDIO_DEVICE_TYPE_BLUETOOTH_SCO, DEVICE_TYPE_BLUETOOTH_SCO },
+    { AUDIO_DEVICE_TYPE_BLUETOOTH_A2DP, DEVICE_TYPE_BLUETOOTH_A2DP },
+    { AUDIO_DEVICE_TYPE_MIC, DEVICE_TYPE_MIC },
+    { AUDIO_DEVICE_TYPE_USB_HEADSET, DEVICE_TYPE_USB_HEADSET },
+    { AUDIO_DEVICE_TYPE_DISPLAY_PORT, DEVICE_TYPE_DISPLAY_PORT },
+    { AUDIO_DEVICE_TYPE_REMOTE_CAST, DEVICE_TYPE_REMOTE_CAST },
+    { AUDIO_DEVICE_TYPE_DEFAULT, DEVICE_TYPE_DEFAULT },
 };
 
 const int32_t ADAPTER_AUDIO_DEFAULT_DEVICE_ID = 1000000;
 const int32_t ADAPTER_AUDIO_UNDEFINED_DEVICE_ID = 1000001;
 const char* ADAPTER_AUDIO_DEFAULT_DEVICE_NAME = "(default)";
 const char* ADAPTER_AUDIO_UNDEFINED_DEVICE_NAME = "(undefined)";
-
-AudioManagerCallbackAdapterImpl::AudioManagerCallbackAdapterImpl(std::shared_ptr<AudioManagerCallbackAdapter> cb)
-    : cb_(cb) {};
-
-void AudioManagerCallbackAdapterImpl::OnInterrupt(const InterruptAction& interruptAction)
-{
-    if (!cb_) {
-        return;
-    }
-    switch (interruptAction.interruptHint) {
-        case InterruptHint::INTERRUPT_HINT_PAUSE:
-        case InterruptHint::INTERRUPT_HINT_STOP:
-            cb_->OnSuspend();
-            break;
-        case InterruptHint::INTERRUPT_HINT_RESUME:
-            cb_->OnResume();
-            break;
-        default:
-            WVLOG_E("audio manager interrupt hint not foud, code: %{public}d", interruptAction.interruptHint);
-            break;
-    }
-}
-
-AudioManagerDeviceChangeCallbackAdapterImpl::AudioManagerDeviceChangeCallbackAdapterImpl(
-    std::shared_ptr<AudioManagerDeviceChangeCallbackAdapter> cb)
-    : cb_(cb) {};
-
-void AudioManagerDeviceChangeCallbackAdapterImpl::OnDeviceChange(const DeviceChangeAction& deviceChangeAction)
-{
-    if (!cb_) {
-        return;
-    }
-    cb_->OnDeviceChange();
-}
 
 AudioSystemManagerAdapterImpl& AudioSystemManagerAdapterImpl::GetInstance()
 {
@@ -149,19 +102,29 @@ AudioSystemManagerAdapterImpl& AudioSystemManagerAdapterImpl::GetInstance()
 
 bool AudioSystemManagerAdapterImpl::HasAudioOutputDevices()
 {
-    DeviceType outputDeviceType = AudioSystemManager::GetInstance()->GetActiveOutputDevice();
-    if (outputDeviceType == DeviceType::DEVICE_TYPE_NONE || outputDeviceType == DeviceType::DEVICE_TYPE_INVALID) {
+    OH_AudioRoutingManager* audioRoutingManager;
+    OH_AudioManager_GetAudioRoutingManager(&audioRoutingManager);
+    OH_AudioDeviceDescriptorArray* audioDeviceArray;
+    OH_AudioCommon_Result ohRet =
+        OH_AudioRoutingManager_GetDevices(audioRoutingManager, AUDIO_DEVICE_FLAG_OUTPUT, &audioDeviceArray);
+    if (ohRet != AUDIOCOMMON_RESULT_SUCCESS) {
         return false;
     }
+    OH_AudioRoutingManager_ReleaseDevices(audioRoutingManager, audioDeviceArray);
     return true;
 }
 
 bool AudioSystemManagerAdapterImpl::HasAudioInputDevices()
 {
-    DeviceType inputDeviceType = AudioSystemManager::GetInstance()->GetActiveInputDevice();
-    if (inputDeviceType == DeviceType::DEVICE_TYPE_NONE || inputDeviceType == DeviceType::DEVICE_TYPE_INVALID) {
+    OH_AudioRoutingManager* audioRoutingManager;
+    OH_AudioManager_GetAudioRoutingManager(&audioRoutingManager);
+    OH_AudioDeviceDescriptorArray* audioDeviceArray;
+    OH_AudioCommon_Result ohRet =
+        OH_AudioRoutingManager_GetDevices(audioRoutingManager, AUDIO_DEVICE_FLAG_INPUT, &audioDeviceArray);
+    if (ohRet != AUDIOCOMMON_RESULT_SUCCESS) {
         return false;
     }
+    OH_AudioRoutingManager_ReleaseDevices(audioRoutingManager, audioDeviceArray);
     return true;
 }
 
@@ -172,16 +135,7 @@ int32_t AudioSystemManagerAdapterImpl::RequestAudioFocus(const std::shared_ptr<A
         return AUDIO_ERROR;
     }
 
-    AudioInterrupt interruptParams;
-    interruptParams.streamUsage = AudioRendererAdapterImpl::GetAudioStreamUsage(audioInterrupt->GetStreamUsage());
-    interruptParams.contentType = AudioRendererAdapterImpl::GetAudioContentType(audioInterrupt->GetContentType());
-    interruptParams.audioFocusType.streamType = GetStreamType(audioInterrupt->GetStreamType());
-
-    int32_t ret = AudioSystemManager::GetInstance()->RequestAudioFocus(interruptParams);
-    if (ret != AudioStandard::SUCCESS) {
-        WVLOG_E("audio request audio focus failed, code: %{public}d", ret);
-        return AUDIO_ERROR;
-    }
+    // in actual, this interface is invalid.
     return AUDIO_OK;
 }
 
@@ -192,16 +146,7 @@ int32_t AudioSystemManagerAdapterImpl::AbandonAudioFocus(const std::shared_ptr<A
         return AUDIO_ERROR;
     }
 
-    AudioInterrupt interruptParams;
-    interruptParams.streamUsage = AudioRendererAdapterImpl::GetAudioStreamUsage(audioInterrupt->GetStreamUsage());
-    interruptParams.contentType = AudioRendererAdapterImpl::GetAudioContentType(audioInterrupt->GetContentType());
-    interruptParams.audioFocusType.streamType = GetStreamType(audioInterrupt->GetStreamType());
-
-    int32_t ret = AudioSystemManager::GetInstance()->AbandonAudioFocus(interruptParams);
-    if (ret != AudioStandard::SUCCESS) {
-        WVLOG_E("audio abandon audio focus failed, code: %{public}d", ret);
-        return AUDIO_ERROR;
-    }
+    // in actual, this interface is invalid.
     return AUDIO_OK;
 }
 
@@ -212,39 +157,28 @@ int32_t AudioSystemManagerAdapterImpl::SetAudioManagerInterruptCallback(
         WVLOG_E("set audio manager interrupt callback is nullptr");
         return AUDIO_NULL_ERROR;
     }
-    callback_ = std::make_shared<AudioManagerCallbackAdapterImpl>(callback);
-
-    int32_t ret = AudioSystemManager::GetInstance()->SetAudioManagerInterruptCallback(callback_);
-    if (ret != AudioStandard::SUCCESS) {
-        WVLOG_E("audio manager set interrupt callback failed, code: %{public}d", ret);
-        return AUDIO_ERROR;
-    }
+    // in actual, this interface is invalid.
     return AUDIO_OK;
 }
 
 int32_t AudioSystemManagerAdapterImpl::UnsetAudioManagerInterruptCallback()
 {
-    int32_t ret = AudioSystemManager::GetInstance()->UnsetAudioManagerInterruptCallback();
-    if (ret != AudioStandard::SUCCESS) {
-        WVLOG_E("audio manager unset interrupt callback failed, code: %{public}d", ret);
-        return AUDIO_ERROR;
-    }
-    callback_ = nullptr;
+    // in actual, this interface is invalid.
     return AUDIO_OK;
 }
 
-std::string AudioSystemManagerAdapterImpl::GetDeviceName(DeviceType deviceType)
+std::string AudioSystemManagerAdapterImpl::GetDeviceName(OH_AudioDevice_Type deviceType)
 {
     WVLOG_I("GetDeviceName language: %{public}s", language_.c_str());
     if (language_ == "zh") {
-        auto deviceTypeKey = DEVICE_TYPE_NAME_ZH_CN_MAP.find(deviceType);
-        if (deviceTypeKey != DEVICE_TYPE_NAME_ZH_CN_MAP.end()) {
+        auto deviceTypeKey = OH_DEVICE_TYPE_NAME_ZH_CN_MAP.find(deviceType);
+        if (deviceTypeKey != OH_DEVICE_TYPE_NAME_ZH_CN_MAP.end()) {
             return deviceTypeKey->second;
         }
         return DEVICE_TYPE_NONE_ZH_CN;
     } else {
-        auto deviceTypeKey = DEVICE_TYPE_MAP.find(deviceType);
-        if (deviceTypeKey != DEVICE_TYPE_MAP.end()) {
+        auto deviceTypeKey = OH_DEVICE_TYPE_MAP.find(deviceType);
+        if (deviceTypeKey != OH_DEVICE_TYPE_MAP.end()) {
             return deviceTypeKey->second;
         }
         return DEVICE_TYPE_NONE;
@@ -254,131 +188,155 @@ std::string AudioSystemManagerAdapterImpl::GetDeviceName(DeviceType deviceType)
 std::vector<std::shared_ptr<AudioDeviceDescAdapter>> AudioSystemManagerAdapterImpl::GetDevices(AdapterDeviceFlag flag)
 {
     bool isCallDevice = false;
-    auto audioScene = AudioSystemManager::GetInstance()->GetAudioScene();
-    if (audioScene == AudioStandard::AudioScene::AUDIO_SCENE_PHONE_CALL ||
-        audioScene == AudioStandard::AudioScene::AUDIO_SCENE_PHONE_CHAT) {
+    OH_AudioManager* audioManager;
+    OH_AudioScene audioScene;
+    OH_GetAudioManager(&audioManager);
+    OH_GetAudioScene(audioManager, &audioScene);
+    if (audioScene == AUDIO_SCENE_PHONE_CALL || audioScene == AUDIO_SCENE_VOICE_CHAT) {
         isCallDevice = true;
     }
-    std::vector<std::unique_ptr<AudioDeviceDescriptor>> audioDeviceList;
+    std::vector<std::shared_ptr<AudioDeviceDescAdapter>> audioDeviceAdapterList;
+    OH_AudioRoutingManager* audioRoutingManager;
+    OH_AudioDeviceDescriptorArray* audioDeviceArray = nullptr;
+    OH_AudioManager_GetAudioRoutingManager(&audioRoutingManager);
     if (flag == AdapterDeviceFlag::OUTPUT_DEVICES_FLAG) {
-        audioDeviceList = AudioRoutingManager::GetInstance()->GetAvailableDevices(
-            isCallDevice ? AudioDeviceUsage::CALL_OUTPUT_DEVICES : AudioDeviceUsage::MEDIA_OUTPUT_DEVICES);
+        OH_AudioRoutingManager_GetAvailableDevices(audioRoutingManager,
+            isCallDevice ? AUDIO_DEVICE_USAGE_CALL_OUTPUT : AUDIO_DEVICE_USAGE_MEDIA_OUTPUT, &audioDeviceArray);
     } else if (flag == AdapterDeviceFlag::INPUT_DEVICES_FLAG) {
-        audioDeviceList = AudioRoutingManager::GetInstance()->GetAvailableDevices(AudioDeviceUsage::CALL_INPUT_DEVICES);
+        OH_AudioRoutingManager_GetAvailableDevices(
+            audioRoutingManager, AUDIO_DEVICE_USAGE_CALL_INPUT, &audioDeviceArray);
     } else if (flag == AdapterDeviceFlag::ALL_DEVICES_FLAG) {
-        audioDeviceList = AudioRoutingManager::GetInstance()->GetAvailableDevices(
-            isCallDevice ? AudioDeviceUsage::ALL_CALL_DEVICES : AudioDeviceUsage::ALL_MEDIA_DEVICES);
+        OH_AudioRoutingManager_GetAvailableDevices(audioRoutingManager,
+            isCallDevice ? AUDIO_DEVICE_USAGE_CALL_ALL : AUDIO_DEVICE_USAGE_MEDIA_ALL, &audioDeviceArray);
     }
 
-    std::vector<std::shared_ptr<AudioDeviceDescAdapter>> audioDeviceAdapterList;
-    for (auto& audioDevice : audioDeviceList) {
+    if (audioDeviceArray == nullptr) {
+        return audioDeviceAdapterList;
+    }
+    for (uint32_t i = 0; i < audioDeviceArray->size; i++) {
+        OH_AudioDeviceDescriptor* ohAudioDeviceDescriptor = (OH_AudioDeviceDescriptor*)audioDeviceArray->descriptors[i];
         std::shared_ptr<AudioDeviceDescAdapterImpl> desc = std::make_shared<AudioDeviceDescAdapterImpl>();
         if (!desc) {
-            WVLOG_E("AudioSystemManagerAdapterImpl::GetDevices create desc failed");
             return audioDeviceAdapterList;
         }
-
-        desc->SetDeviceId(audioDevice->deviceId_);
-        if (audioDevice->deviceName_.empty()) {
-            desc->SetDeviceName(GetDeviceName(audioDevice->deviceType_));
+        uint32_t deviceId = 0;
+        OH_AudioDeviceDescriptor_GetDeviceId(ohAudioDeviceDescriptor, &deviceId);
+        desc->SetDeviceId(deviceId);
+        char* deviceNameNDK;
+        OH_AudioDeviceDescriptor_GetDeviceName(ohAudioDeviceDescriptor, &deviceNameNDK);
+        std::string deviceName(deviceNameNDK);
+        if (deviceName.empty()) {
+            OH_AudioDevice_Type deviceType;
+            OH_AudioDeviceDescriptor_GetDeviceType(ohAudioDeviceDescriptor, &deviceType);
+            desc->SetDeviceName(GetDeviceName(deviceType));
         } else {
-            desc->SetDeviceName(audioDevice->deviceName_);
+            desc->SetDeviceName(deviceName);
         }
         audioDeviceAdapterList.emplace_back(desc);
     }
+    OH_AudioRoutingManager_ReleaseDevices(audioRoutingManager, audioDeviceArray);
     return audioDeviceAdapterList;
 }
 
 int32_t AudioSystemManagerAdapterImpl::SelectAudioOutputDevice(
-    bool isCallDevice, const std::vector<sptr<AudioDeviceDescriptor>>& device) const
+    bool isCallDevice, OH_AudioDeviceDescriptorArray& audioDeviceArray) const
 {
-    if (isCallDevice) {
-        sptr<AudioRendererFilter> filter = new (std::nothrow) AudioRendererFilter;
-        if (!filter) {
-            WVLOG_E("AudioSystemManagerAdapterImpl::SelectAudioOutputDevice new filter failed");
-            return AUDIO_ERROR;
-        }
-        filter->rendererInfo.streamUsage = StreamUsage::STREAM_USAGE_VOICE_COMMUNICATION;
-        filter->rendererInfo.rendererFlags = 0;
-        return AudioSystemManager::GetInstance()->SelectOutputDevice(filter, device);
-    }
-    return AudioSystemManager::GetInstance()->SelectOutputDevice(device);
+    // 1. create builder
+    OH_AudioStreamBuilder* builder;
+    OH_AudioStreamBuilder_Create(&builder, AUDIOSTREAM_TYPE_RENDERER);
+    // 2. create audioRenderer
+    OH_AudioRenderer* audioRenderer;
+    OH_AudioDevice_Type deviceType;
+    OH_AudioDeviceDescriptor* defaultDeviceDescriptor = (OH_AudioDeviceDescriptor*)audioDeviceArray->descriptors[0];
+    OH_AudioDeviceDescriptor_GetDeviceType(defaultDeviceDescriptor, &deviceType);
+    OH_AudioStreamBuilder_GenerateRenderer(builder, &audioRenderer);
+    return (int32_t)OH_AudioRenderer_SetDefaultOutputDevice(audioRenderer, deviceType);
 }
 
 int32_t AudioSystemManagerAdapterImpl::SelectAudioDeviceById(int32_t deviceId, bool isInput)
 {
-    WVLOG_I("AudioSystemManagerAdapterImpl::SelectAudioDevice isInput: %{public}s", isInput ? "true" : "false");
     if (deviceId == ADAPTER_AUDIO_UNDEFINED_DEVICE_ID) {
         WVLOG_E("Cannot select undefined audio device.");
         return AUDIO_ERROR;
     }
     bool isCallDevice = false;
-    auto audioScene = AudioSystemManager::GetInstance()->GetAudioScene();
-    if (audioScene == AudioStandard::AudioScene::AUDIO_SCENE_PHONE_CALL ||
-        audioScene == AudioStandard::AudioScene::AUDIO_SCENE_PHONE_CHAT) {
+    OH_AudioManager* audioManager;
+    OH_AudioScene audioScene;
+    OH_GetAudioManager(&audioManager);
+    OH_GetAudioScene(audioManager, &audioScene);
+    if (audioScene == AUDIO_SCENE_PHONE_CALL || audioScene == AUDIO_SCENE_VOICE_CHAT) {
         isCallDevice = true;
     }
+    OH_AudioDeviceDescriptorArray* audioDeviceArray = nullptr;
+    OH_AudioRoutingManager* audioRoutingManager;
+    OH_AudioManager_GetAudioRoutingManager(&audioRoutingManager);
     if (!isInput && deviceId == ADAPTER_AUDIO_DEFAULT_DEVICE_ID) {
         WVLOG_I("Select default audio output Device.");
-        AudioRendererInfo rendererInfo;
-        rendererInfo.contentType = ContentType::CONTENT_TYPE_SPEECH;
-        rendererInfo.streamUsage =
-            isCallDevice ? StreamUsage::STREAM_USAGE_VOICE_COMMUNICATION : StreamUsage::STREAM_USAGE_MUSIC;
-        rendererInfo.rendererFlags = 0;
-        std::vector<sptr<AudioDeviceDescriptor>> defaultOutputDevice;
-        AudioRoutingManager::GetInstance()->GetPreferredOutputDeviceForRendererInfo(rendererInfo, defaultOutputDevice);
-        return SelectAudioOutputDevice(isCallDevice, defaultOutputDevice);
+        OH_AudioRoutingManager_GetPreferredOutputDevice(audioRoutingManager,
+            isCallDevice ? AUDIOSTREAM_USAGE_VOICE_COMMUNICATION : AUDIOSTREAM_USAGE_MUSIC, &audioDeviceArray);
+        int32_t ret =
+            audioDeviceArray == nullptr ? AUDIO_ERROR : SelectAudioOutputDevice(isCallDevice, *audioDeviceArray);
+        OH_AudioRoutingManager_ReleaseDevices(audioRoutingManager, audioDeviceArray);
+        return ret;
     }
     if (isInput && deviceId == ADAPTER_AUDIO_DEFAULT_DEVICE_ID) {
-        WVLOG_I("Select default audio input Device.");
-        AudioCapturerInfo capturerInfo;
-        capturerInfo.sourceType = AudioStandard::SourceType::SOURCE_TYPE_VOICE_COMMUNICATION;
-        capturerInfo.capturerFlags = 0;
-        std::vector<sptr<AudioDeviceDescriptor>> defaultInputDevice;
-        AudioRoutingManager::GetInstance()->GetPreferredInputDeviceForCapturerInfo(capturerInfo, defaultInputDevice);
-        return AudioSystemManager::GetInstance()->SelectInputDevice(defaultInputDevice);
+        return AUDIOSTREAM_ERROR_ILLEGAL_STATE;
     }
 
-    std::vector<std::unique_ptr<AudioDeviceDescriptor>> audioDeviceList;
     if (isCallDevice) {
-        audioDeviceList = AudioRoutingManager::GetInstance()->GetAvailableDevices(
-            isInput ? AudioDeviceUsage::CALL_INPUT_DEVICES : AudioDeviceUsage::CALL_OUTPUT_DEVICES);
+        OH_AudioRoutingManager_GetAvailableDevices(audioRoutingManager,
+            isInput ? AUDIO_DEVICE_USAGE_CALL_INPUT : AUDIO_DEVICE_USAGE_CALL_OUTPUT, &audioDeviceArray);
     } else {
-        audioDeviceList = AudioRoutingManager::GetInstance()->GetAvailableDevices(
-            isInput ? AudioDeviceUsage::CALL_INPUT_DEVICES : AudioDeviceUsage::MEDIA_OUTPUT_DEVICES);
+        OH_AudioRoutingManager_GetAvailableDevices(audioRoutingManager,
+            isInput ? AUDIO_DEVICE_USAGE_CALL_INPUT : AUDIO_DEVICE_USAGE_MEDIA_OUTPUT, &audioDeviceArray);
     }
-    for (auto& device : audioDeviceList) {
-        if (device->deviceId_ == deviceId) {
-            std::vector<sptr<AudioDeviceDescriptor>> selectedAudioDevice { device.release() };
-            return isInput ? AudioSystemManager::GetInstance()->SelectInputDevice(selectedAudioDevice)
-                           : SelectAudioOutputDevice(isCallDevice, selectedAudioDevice);
+    if (audioDeviceArray == nullptr) {
+        WVLOG_E("AudioSystemManagerAdapterImpl::SelectAudioDeviceById device list empty");
+        return audioDeviceAdapterList;
+    }
+    for (uint32_t i = 0; i < audioDeviceArray->size; i++) {
+        uint32_t ohAudioDeviceId = 0;
+        OH_AudioDeviceDescriptor* ohAudioDeviceDescriptor = (OH_AudioDeviceDescriptor*)audioDeviceArray->descriptors[i];
+        OH_AudioDeviceDescriptor_GetDeviceId(ohAudioDeviceDescriptor, &ohAudioDeviceId);
+        if (ohAudioDeviceId == deviceId) {
+            OH_AudioDeviceDescriptorArray* tmpAudioDeviceArray =
+                (OH_AudioDeviceDescriptorArray*)malloc(sizeof(OH_AudioDeviceDescriptorArray));
+            tmpAudioDeviceArray->size = 1;
+            tmpAudioDeviceArray->descriptors[0] = ohAudioDeviceDescriptor;
+            int32_t ret =
+                isInput ? AUDIOSTREAM_ERROR_ILLEGAL_STATE : SelectAudioOutputDevice(isCallDevice, *tmpAudioDeviceArray);
+            free(tmpAudioDeviceArray);
+            OH_AudioRoutingManager_ReleaseDevices(audioRoutingManager, audioDeviceArray);
+            return ret;
         }
     }
-    WVLOG_E("can't find any device by audio device id");
     return AUDIO_ERROR;
 }
 
 std::shared_ptr<AudioDeviceDescAdapter> AudioSystemManagerAdapterImpl::GetDefaultOutputDevice()
 {
     bool isCallDevice = false;
-    auto audioScene = AudioSystemManager::GetInstance()->GetAudioScene();
-    if (audioScene == AudioStandard::AudioScene::AUDIO_SCENE_PHONE_CALL ||
-        audioScene == AudioStandard::AudioScene::AUDIO_SCENE_PHONE_CHAT) {
+    OH_AudioManager* audioManager;
+    OH_AudioScene audioScene;
+    OH_GetAudioManager(&audioManager);
+    OH_GetAudioScene(audioManager, &audioScene);
+    if (audioScene == AUDIO_SCENE_PHONE_CALL || audioScene == AUDIO_SCENE_VOICE_CHAT) {
         isCallDevice = true;
     }
-    AudioRendererInfo rendererInfo;
-    rendererInfo.contentType = ContentType::CONTENT_TYPE_SPEECH;
-    rendererInfo.streamUsage =
-        isCallDevice ? StreamUsage::STREAM_USAGE_VOICE_COMMUNICATION : StreamUsage::STREAM_USAGE_MUSIC;
-    rendererInfo.rendererFlags = 0;
-    std::vector<sptr<AudioDeviceDescriptor>> defaultOutputDevice;
-    AudioRoutingManager::GetInstance()->GetPreferredOutputDeviceForRendererInfo(rendererInfo, defaultOutputDevice);
+    OH_AudioDeviceDescriptorArray* audioDeviceArray = nullptr;
+    OH_AudioRoutingManager* audioRoutingManager;
+    OH_AudioManager_GetAudioRoutingManager(&audioRoutingManager);
+    OH_AudioRoutingManager_GetPreferredOutputDevice(audioRoutingManager,
+        isCallDevice ? AUDIOSTREAM_USAGE_VOICE_COMMUNICATION : AUDIOSTREAM_USAGE_MUSIC, &audioDeviceArray);
 
-    if (defaultOutputDevice.empty() || !defaultOutputDevice[0]) {
+    if (audioDeviceArray == nullptr) {
         WVLOG_E("AudioSystemManagerAdapterImpl::GetDefaultOutputDevice failed.");
         return nullptr;
     }
-    auto defaultDevice = defaultOutputDevice[0];
+
+    uint32_t ohAudioDeviceId = 0;
+    OH_AudioDeviceDescriptor* defaultDeviceDescriptor = (OH_AudioDeviceDescriptor*)audioDeviceArray->descriptors[0];
+    OH_AudioDeviceDescriptor_GetDeviceId(defaultDeviceDescriptor, &ohAudioDeviceId);
 
     std::shared_ptr<AudioDeviceDescAdapterImpl> desc = std::make_shared<AudioDeviceDescAdapterImpl>();
     if (!desc) {
@@ -386,27 +344,37 @@ std::shared_ptr<AudioDeviceDescAdapter> AudioSystemManagerAdapterImpl::GetDefaul
         return nullptr;
     }
 
-    desc->SetDeviceId(defaultDevice->deviceId_);
-    if (defaultDevice->deviceName_.empty()) {
-       desc->SetDeviceName(GetDeviceName(defaultDevice->deviceType_));
+    desc->SetDeviceId(ohAudioDeviceId);
+    char* deviceNameNDK;
+    OH_AudioDeviceDescriptor_GetDeviceName(defaultDeviceDescriptor, &deviceNameNDK);
+    std::string deviceName(deviceNameNDK);
+    if (deviceName.empty()) {
+        OH_AudioDevice_Type deviceType;
+        OH_AudioDeviceDescriptor_GetDeviceType(defaultDeviceDescriptor, &deviceType);
+        desc->SetDeviceName(GetDeviceName(deviceType));
     } else {
-        desc->SetDeviceName(defaultDevice->deviceName_);
+        desc->SetDeviceName(deviceName);
     }
+    OH_AudioRoutingManager_ReleaseDevices(audioRoutingManager, audioDeviceArray);
     return desc;
 }
 
 std::shared_ptr<AudioDeviceDescAdapter> AudioSystemManagerAdapterImpl::GetDefaultInputDevice()
 {
-    AudioCapturerInfo capturerInfo;
-    capturerInfo.sourceType = AudioStandard::SourceType::SOURCE_TYPE_VOICE_COMMUNICATION;
-    capturerInfo.capturerFlags = 0;
-    std::vector<sptr<AudioDeviceDescriptor>> defaultInputDevice;
-    AudioRoutingManager::GetInstance()->GetPreferredInputDeviceForCapturerInfo(capturerInfo, defaultInputDevice);
-    if (defaultInputDevice.empty() || !defaultInputDevice[0]) {
+    OH_AudioDeviceDescriptorArray* audioDeviceArray = nullptr;
+    OH_AudioRoutingManager* audioRoutingManager;
+    OH_AudioManager_GetAudioRoutingManager(&audioRoutingManager);
+    OH_AudioRoutingManager_GetPreferredInputDevice(
+        audioRoutingManager, AUDIOSTREAM_SOURCE_TYPE_VOICE_COMMUNICATION, &audioDeviceArray);
+
+    if (audioDeviceArray == nullptr) {
         WVLOG_E("AudioSystemManagerAdapterImpl::GetDefaultInputDevice failed.");
         return nullptr;
     }
-    auto defaultDevice = defaultInputDevice[0];
+
+    uint32_t ohAudioDeviceId = 0;
+    OH_AudioDeviceDescriptor* defaultDeviceDescriptor = (OH_AudioDeviceDescriptor*)audioDeviceArray->descriptors[0];
+    OH_AudioDeviceDescriptor_GetDeviceId(defaultDeviceDescriptor, &ohAudioDeviceId);
 
     std::shared_ptr<AudioDeviceDescAdapterImpl> desc = std::make_shared<AudioDeviceDescAdapterImpl>();
     if (!desc) {
@@ -414,12 +382,18 @@ std::shared_ptr<AudioDeviceDescAdapter> AudioSystemManagerAdapterImpl::GetDefaul
         return nullptr;
     }
 
-    desc->SetDeviceId(defaultDevice->deviceId_);
-    if (defaultDevice->deviceName_.empty()) {
-        desc->SetDeviceName(GetDeviceName(defaultDevice->deviceType_));
+    desc->SetDeviceId(ohAudioDeviceId);
+    char* deviceNameNDK;
+    OH_AudioDeviceDescriptor_GetDeviceName(defaultDeviceDescriptor, &deviceNameNDK);
+    std::string deviceName(deviceNameNDK);
+    if (deviceName.empty()) {
+        OH_AudioDevice_Type deviceType;
+        OH_AudioDeviceDescriptor_GetDeviceType(defaultDeviceDescriptor, &deviceType);
+        desc->SetDeviceName(GetDeviceName(deviceType));
     } else {
-        desc->SetDeviceName(defaultDevice->deviceName_);
+        desc->SetDeviceName(deviceName);
     }
+    OH_AudioRoutingManager_ReleaseDevices(audioRoutingManager, audioDeviceArray);
     return desc;
 }
 
@@ -432,6 +406,13 @@ bool AudioSystemManagerAdapterImpl::SetLanguage(const std::string& language)
     language_ = language;
     return true;
 }
+static std::shared_ptr<AudioManagerDeviceChangeCallbackAdapter> ohCallbackImpl = nullptr;
+static int32_t OHDeviceChangedCallback(
+    OH_AudioDevice_ChangeType type, OH_AudioDeviceDescriptorArray* audioDeviceDescriptorArray)
+{
+    ohCallbackImpl->OnDeviceChange();
+    return 0;
+}
 
 int32_t AudioSystemManagerAdapterImpl::SetDeviceChangeCallback(
     std::shared_ptr<AudioManagerDeviceChangeCallbackAdapter> callback)
@@ -440,15 +421,13 @@ int32_t AudioSystemManagerAdapterImpl::SetDeviceChangeCallback(
         WVLOG_E("audio device change callback is nullptr");
         return AUDIO_NULL_ERROR;
     }
-    DeviceFlag deviceFlag = DeviceFlag::OUTPUT_DEVICES_FLAG;
-    deviceChangeCallback_ = std::make_shared<AudioManagerDeviceChangeCallbackAdapterImpl>(callback);
-    if (deviceChangeCallback_ == nullptr) {
-        WVLOG_E("audio device change callback impl is nullptr");
-        return AUDIO_NULL_ERROR;
-    }
-    int32_t ret = AudioSystemManager::GetInstance()->SetDeviceChangeCallback(deviceFlag, deviceChangeCallback_);
-    if (ret != AudioStandard::SUCCESS) {
-        WVLOG_E("audio manager set audio device change callback failed, code: %{public}d", ret);
+    ohCallbackImpl = callback;
+    OH_AudioRoutingManager* audioRoutingManager;
+    OH_AudioManager_GetAudioRoutingManager(&audioRoutingManager);
+    OH_AudioCommon_Result ohRet = OH_AudioRoutingManager_RegisterDeviceChangeCallback(
+        audioRoutingManager, AUDIO_DEVICE_FLAG_OUTPUT, OHDeviceChangedCallback);
+    if (ohRet != AUDIOCOMMON_RESULT_SUCCESS) {
+        WVLOG_E("audio manager set audio device change callback failed, code: %{public}d", ohRet);
         return AUDIO_ERROR;
     }
     return AUDIO_OK;
@@ -456,17 +435,10 @@ int32_t AudioSystemManagerAdapterImpl::SetDeviceChangeCallback(
 
 int32_t AudioSystemManagerAdapterImpl::UnsetDeviceChangeCallback()
 {
-    int32_t ret = AudioSystemManager::GetInstance()->UnsetDeviceChangeCallback();
+    ohCallbackImpl = nullptr;
+    OH_AudioRoutingManager* audioRoutingManager;
+    OH_AudioManager_GetAudioRoutingManager(&audioRoutingManager);
+    int32_t ret = (int32_t)OH_AudioRoutingManager_UnregisterDeviceChangeCallback(audioRoutingManager, nullptr);
     return ret;
-}
-
-AudioStreamType AudioSystemManagerAdapterImpl::GetStreamType(AudioAdapterStreamType streamType)
-{
-    auto item = STREAM_TYPE_MAP.find(streamType);
-    if (item == STREAM_TYPE_MAP.end()) {
-        WVLOG_E("audio stream type not found");
-        return AudioStreamType::STREAM_DEFAULT;
-    }
-    return item->second;
 }
 } // namespace OHOS::NWeb
