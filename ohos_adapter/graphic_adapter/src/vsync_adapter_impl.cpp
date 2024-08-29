@@ -15,13 +15,11 @@
 
 #include "vsync_adapter_impl.h"
 
+#include "nweb_log.h"
 #include <unistd.h>
 #include <native_vsync/graphic_error_code.h>
 
 namespace OHOS::NWeb {
-
-#define WVLOG_E(...)
-#define WVLOG_D(...)
 
 namespace {
 const std::string THREAD_NAME = "VSync-webview";

@@ -86,7 +86,7 @@ shared_library("nweb_ohos_adapter") {
     "event_handler_adapter/include",
 #    "flowbuffer_adapter/include",
     "graphic_adapter/include",
-#    "hiviewdfx_adapter/include",
+    "hiviewdfx_adapter/include",
 #    "inputmethodframework_adapter/include",
 #    "keystore_adapter/include",
 #    "location_adapter/include",
