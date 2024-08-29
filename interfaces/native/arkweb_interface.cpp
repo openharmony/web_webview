@@ -20,24 +20,52 @@
 #include "arkweb_type.h"
 #include "nweb_helper.h"
 #include "nweb_log.h"
+#include "arkweb_error_code.h"
 
 namespace {
-#define ARKWEB_NATIVE_FOR_EACH_COMPONENT_API_FN(DO)          \
-    DO(onControllerAttached, OH_ArkWeb_OnControllerAttached) \
-    DO(onPageBegin, OH_ArkWeb_OnPageBegin)                   \
-    DO(onPageEnd, OH_ArkWeb_OnPageEnd)                       \
+#define ARKWEB_NATIVE_FOR_EACH_COMPONENT_API_FN(DO)           \
+    DO(onControllerAttached, OH_ArkWeb_OnControllerAttached); \
+    DO(onPageBegin, OH_ArkWeb_OnPageBegin);                   \
+    DO(onPageEnd, OH_ArkWeb_OnPageEnd);                       \
     DO(onDestroy, OH_ArkWeb_OnDestroy)
+ 
+#define ARKWEB_NATIVE_FOR_EACH_CONTROLLER_API_FN(DO)                          \
+    DO(runJavaScript, OH_ArkWeb_RunJavaScript);                               \
+    DO(registerJavaScriptProxy, OH_ArkWeb_RegisterJavaScriptProxy);           \
+    DO(deleteJavaScriptRegister, OH_ArkWeb_DeleteJavaScriptProxy);            \
+    DO(refresh, OH_ArkWeb_Refresh);                                           \
+    DO(registerAsyncJavaScriptProxy, OH_ArkWeb_RegisterAsyncJavaScriptProxy); \
+    DO(createWebMessagePorts, OH_ArkWeb_CreateWebMessagePorts);               \
+    DO(destroyWebMessagePorts, OH_ArkWeb_DestroyWebMessagePorts);             \
+    DO(postWebMessage, OH_ArkWeb_PostWebMessage)
+ 
+#define ARKWEB_NATIVE_FOR_EACH_WEBMESSAGEPORT_API_FN(DO) \
+    DO(postMessage, OH_WebMessage_PostMessage);          \
+    DO(close, OH_WebMessage_Close);                      \
+    DO(setMessageEventHandler, OH_WebMessage_SetMessageEventHandler)
+ 
+#define ARKWEB_NATIVE_FOR_EACH_WEBMESSAGE_API_FN(DO)        \
+    DO(createWebMessage, OH_WebMessage_CreateWebMessage);   \
+    DO(destroyWebMessage, OH_WebMessage_DestroyWebMessage); \
+    DO(setType, OH_WebMessage_SetType);                     \
+    DO(getType, OH_WebMessage_GetType);                     \
+    DO(setData, OH_WebMessage_SetData);                     \
+    DO(getData, OH_WebMessage_GetData)
 
-#define ARKWEB_NATIVE_FOR_EACH_CONTROLLER_API_FN(DO)               \
-    DO(runJavaScript, OH_ArkWeb_RunJavaScript)                     \
-    DO(registerJavaScriptProxy, OH_ArkWeb_RegisterJavaScriptProxy) \
-    DO(deleteJavaScriptRegister, OH_ArkWeb_DeleteJavaScriptProxy)  \
-    DO(refresh, OH_ArkWeb_Refresh)                                 \
-    DO(registerAsyncJavaScriptProxy, OH_ArkWeb_RegisterAsyncJavaScriptProxy)  \
-    DO(registerJavaScriptProxyEx, OH_ArkWeb_RegisterJavaScriptProxyEx)
+#define ARKWEB_NATIVE_FOR_EACH_WEBCOOKIEMANAGER_API_FN(DO)                \
+    DO(fetchCookieSync, OH_CookieManager_FetchCookieSync);                \
+    DO(configCookieSync, OH_CookieManager_ConfigCookieSync);              \
+    DO(existCookies, OH_CookieManager_ExistCookies);                      \
+    DO(clearAllCookiesSync, OH_CookieManager_ClearAllCookiesSync);        \
+    DO(clearSessionCookiesSync, OH_CookieManager_ClearSessionCookiesSync)
 
 ArkWeb_ComponentAPI* g_ComponentImpl = nullptr;
 ArkWeb_ControllerAPI* g_ControllerImpl = nullptr;
+ArkWeb_WebMessagePortAPI* g_WebMessagePortImpl = nullptr;
+ArkWeb_WebMessageAPI* g_WebMessageImpl = nullptr;
+ArkWeb_CookieManagerAPI* g_CookieManagerImpl = nullptr;
+
+void* g_webEngineHandle = nullptr;
 
 } // namespace
 
@@ -70,8 +98,9 @@ static bool LoadComponentAPI()
         WVLOG_E("NativeArkWeb webEngineHandle is nullptr");
         return false;
     }
-#define ARKWEB_NATIVE_LOAD_FN_PTR(fn, ndkFn) LoadFunction(webEngineHandle, #ndkFn, &(g_ComponentImpl->fn));
-    ARKWEB_NATIVE_FOR_EACH_COMPONENT_API_FN(ARKWEB_NATIVE_LOAD_FN_PTR)
+    g_webEngineHandle = webEngineHandle;
+#define ARKWEB_NATIVE_LOAD_FN_PTR(fn, ndkFn) LoadFunction(g_webEngineHandle, #ndkFn, &(g_ComponentImpl->fn))
+    ARKWEB_NATIVE_FOR_EACH_COMPONENT_API_FN(ARKWEB_NATIVE_LOAD_FN_PTR);
 #undef ARKWEB_NATIVE_LOAD_FN_PTR
 
     return true;
@@ -95,8 +124,91 @@ static bool LoadControllerAPI()
         WVLOG_E("NativeArkWeb webEngineHandle is nullptr");
         return false;
     }
-#define ARKWEB_NATIVE_LOAD_FN_PTR(fn, ndkFn) LoadFunction(webEngineHandle, #ndkFn, &(g_ControllerImpl->fn));
-    ARKWEB_NATIVE_FOR_EACH_CONTROLLER_API_FN(ARKWEB_NATIVE_LOAD_FN_PTR)
+
+    g_webEngineHandle = webEngineHandle;
+#define ARKWEB_NATIVE_LOAD_FN_PTR(fn, ndkFn) LoadFunction(g_webEngineHandle, #ndkFn, &(g_ControllerImpl->fn))
+    ARKWEB_NATIVE_FOR_EACH_CONTROLLER_API_FN(ARKWEB_NATIVE_LOAD_FN_PTR);
+#undef ARKWEB_NATIVE_LOAD_FN_PTR
+ 
+    return true;
+}
+ 
+static bool LoadWebMessagePortAPI()
+{
+    if (g_WebMessagePortImpl) {
+        WVLOG_I("NativeArkWeb web message port api already loaded");
+        return true;
+    }
+    g_WebMessagePortImpl = new ArkWeb_WebMessagePortAPI();
+    if (!g_WebMessagePortImpl) {
+        WVLOG_E("NativeArkWeb web message port api is nullptr");
+        return false;
+    }
+    g_WebMessagePortImpl->size = sizeof(ArkWeb_WebMessagePortAPI);
+ 
+    void* webEngineHandle = OHOS::NWeb::NWebHelper::Instance().GetWebEngineHandler();
+    if (!webEngineHandle) {
+        WVLOG_E("NativeArkWeb webEngineHandle is nullptr");
+        return false;
+    }
+    g_webEngineHandle = webEngineHandle;
+#define ARKWEB_NATIVE_LOAD_FN_PTR(fn, ndkFn) LoadFunction(g_webEngineHandle, #ndkFn, &(g_WebMessagePortImpl->fn))
+    ARKWEB_NATIVE_FOR_EACH_WEBMESSAGEPORT_API_FN(ARKWEB_NATIVE_LOAD_FN_PTR);
+#undef ARKWEB_NATIVE_LOAD_FN_PTR
+ 
+    return true;
+}
+ 
+static bool LoadWebMessageAPI()
+{
+    if (g_WebMessageImpl) {
+        WVLOG_I("NativeArkWeb web message api already loaded");
+        return true;
+    }
+    g_WebMessageImpl = new ArkWeb_WebMessageAPI();
+    if (!g_WebMessageImpl) {
+        WVLOG_E("NativeArkWeb web message api is nullptr");
+        return false;
+    }
+    g_WebMessageImpl->size = sizeof(ArkWeb_WebMessageAPI);
+    void* webEngineHandle = OHOS::NWeb::NWebHelper::Instance().GetWebEngineHandler();
+    if (!webEngineHandle) {
+        WVLOG_E("NativeArkWeb webEngineHandle is nullptr");
+        return false;
+    }
+    g_webEngineHandle = webEngineHandle;
+#define ARKWEB_NATIVE_LOAD_FN_PTR(fn, ndkFn) LoadFunction(g_webEngineHandle, #ndkFn, &(g_WebMessageImpl->fn))
+    ARKWEB_NATIVE_FOR_EACH_WEBMESSAGE_API_FN(ARKWEB_NATIVE_LOAD_FN_PTR);
+#undef ARKWEB_NATIVE_LOAD_FN_PTR
+
+    return true;
+}
+
+static bool LoadCookieManagerAPI()
+{
+    if (g_CookieManagerImpl) {
+        WVLOG_I("NativeArkWeb cookie manager api already loaded");
+        return true;
+    }
+
+    g_CookieManagerImpl = new ArkWeb_CookieManagerAPI();
+    if (!g_CookieManagerImpl) {
+        WVLOG_E("NativeArkWeb cookie manager api is nullptr");
+        return false;
+    }
+
+    g_CookieManagerImpl->size = sizeof(ArkWeb_CookieManagerAPI);
+
+    if (g_webEngineHandle == nullptr) {
+        g_webEngineHandle = OHOS::NWeb::NWebHelper::Instance().GetWebEngineHandler(true);
+        if (!g_webEngineHandle) {
+            WVLOG_E("NativeArkWeb webEngineHandle is nullptr");
+            return false;
+        }
+    }
+
+#define ARKWEB_NATIVE_LOAD_FN_PTR(fn, ndkFn) LoadFunction(g_webEngineHandle, #ndkFn, &(g_CookieManagerImpl->fn))
+    ARKWEB_NATIVE_FOR_EACH_WEBCOOKIEMANAGER_API_FN(ARKWEB_NATIVE_LOAD_FN_PTR);
 #undef ARKWEB_NATIVE_LOAD_FN_PTR
 
     return true;
@@ -116,6 +228,24 @@ ArkWeb_AnyNativeAPI* OH_ArkWeb_GetNativeAPI(ArkWeb_NativeAPIVariantKind type)
                 return nullptr;
             }
             return reinterpret_cast<ArkWeb_AnyNativeAPI*>(g_ControllerImpl);
+        }
+        case ARKWEB_NATIVE_WEB_MESSAGE_PORT: {
+            if (!LoadWebMessagePortAPI()) {
+                return nullptr;
+            }
+            return reinterpret_cast<ArkWeb_AnyNativeAPI*>(g_WebMessagePortImpl);
+        }
+        case ARKWEB_NATIVE_WEB_MESSAGE: {
+            if (!LoadWebMessageAPI()) {
+                return nullptr;
+            }
+            return reinterpret_cast<ArkWeb_AnyNativeAPI*>(g_WebMessageImpl);
+        }
+        case ARKWEB_NATIVE_COOKIE_MANAGER: {
+            if (!LoadCookieManagerAPI()) {
+                return nullptr;
+            }
+            return reinterpret_cast<ArkWeb_AnyNativeAPI*>(g_CookieManagerImpl);
         }
         default: {
             WVLOG_E("fail to get %{public}d arkweb api family", type);

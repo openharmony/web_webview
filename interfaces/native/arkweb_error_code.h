@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,6 +24,7 @@
  * @file arkweb_error_code.h
  *
  * @brief Declares the APIs for the ArkWeb errors.
+ * @kit ArkWeb
  * @library libohweb.so
  * @syscap SystemCapability.Web.Webview.Core
  * @since 12
@@ -32,6 +33,22 @@
 #define ARKWEB_ERROR_CODE_H
 
 typedef enum ArkWeb_ErrorCode {
+/*
+ * @brief Success.
+ *
+ * @syscap SystemCapability.Web.Webview.Core
+ * @since 12
+ */
+ARKWEB_SUCCESS = 0,
+ 
+/*
+ * @brief Init error. The WebviewController must be associated with a Web component.
+ *
+ * @syscap SystemCapability.Web.Webview.Core
+ * @since 12
+ */
+ARKWEB_INIT_ERROR = 17100001,
+
 /*
  * @brief Unknown error.
  *
@@ -55,6 +72,22 @@ ARKWEB_INVALID_PARAM = 17100101,
  * @since 12
  */
 ARKWEB_SCHEME_REGISTER_FAILED = 17100102,
+
+/*
+ * @brief Invalid url.
+ *
+ * @syscap SystemCapability.Web.Webview.Core
+ * @since 12
+ */
+ARKWEB_INVALID_URL = 17100103,
+ 
+/*
+ * @brief Invalid cookie value.
+ *
+ * @syscap SystemCapability.Web.Webview.Core
+ * @since 12
+ */
+ARKWEB_INVALID_COOKIE_VALUE = 17100104,
 } ArkWeb_ErrorCode;
 
 #endif // ARKWEB_ERROR_CODE_H
