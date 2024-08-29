@@ -21,9 +21,8 @@
 #include <ohaudio/native_audiostreambuilder.h>
 #include <unordered_map>
 
+#include "nweb_log.h"
 #include "audio_device_desc_adapter_impl.h"
-#define WVLOG_E(...)
-#define WVLOG_I(...)
 
 namespace OHOS::NWeb {
 const std::string DEVICE_TYPE_NONE = "device/none";

@@ -22,10 +22,9 @@
 #include <BasicServicesKit/oh_commonevent_support.h>
 #include <BasicServicesKit/time_service.h>
 
-namespace OHOS::NWeb {
+#include "nweb_log.h"
 
-#define WVLOG_I(...)
-#define WVLOG_E(...)
+namespace OHOS::NWeb {
 
 constexpr int MAX_TIMEZONE_LEN = 32;
 
