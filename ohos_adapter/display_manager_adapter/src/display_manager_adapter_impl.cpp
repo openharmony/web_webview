@@ -80,7 +80,6 @@ OHOS::NWeb::DisplayOrientation DisplayAdapterImpl::ConvertDisplayOrientationType
         default:
             return OHOS::NWeb::DisplayOrientation::UNKNOWN;
     }
-    return OHOS::NWeb::DisplayOrientation::UNKNOWN;
 }
 
 DisplayId DisplayAdapterImpl::GetId()
