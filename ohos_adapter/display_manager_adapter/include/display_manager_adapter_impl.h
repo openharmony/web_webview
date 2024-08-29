@@ -20,27 +20,24 @@
 
 #include "display_manager_adapter.h"
 
-#include "display.h"
-#include "display_manager.h"
-#include "dm_common.h"
+#include <window_manager/oh_display_info.h>
+#include <window_manager/oh_display_manager.h>
 
 namespace OHOS::NWeb {
-class DisplayListenerAdapterImpl
-    : public OHOS::Rosen::DisplayManager::IDisplayListener {
+class DisplayListenerAdapterImpl {
 public:
     explicit DisplayListenerAdapterImpl(std::shared_ptr<DisplayListenerAdapter> listener);
-    ~DisplayListenerAdapterImpl() override = default;
-    void OnCreate(DisplayId id) override;
-    void OnDestroy(DisplayId id) override;
-    void OnChange(DisplayId id) override;
+    ~DisplayListenerAdapterImpl() = default;
+    void OnCreate(DisplayId id);
+    void OnDestroy(DisplayId id);
+    void OnChange(DisplayId id);
 private:
     std::shared_ptr<DisplayListenerAdapter> listener_;
 };
 
 class DisplayAdapterImpl : public DisplayAdapter {
 public:
-    DisplayAdapterImpl() = delete;
-    explicit DisplayAdapterImpl(sptr<OHOS::Rosen::Display> display);
+    DisplayAdapterImpl();
     ~DisplayAdapterImpl() override = default;
     DisplayId GetId() override;
     int32_t GetWidth() override;
@@ -51,14 +48,13 @@ public:
     int32_t GetDpi() override;
     DisplayOrientation GetDisplayOrientation() override;
 private:
-    sptr<OHOS::Rosen::Display> display_;
-    OHOS::NWeb::RotationType ConvertRotationType(OHOS::Rosen::Rotation type);
-    OHOS::NWeb::OrientationType ConvertOrientationType(OHOS::Rosen::Orientation type);
-    OHOS::NWeb::DisplayOrientation ConvertDisplayOrientationType(OHOS::Rosen::DisplayOrientation type);
+    OHOS::NWeb::RotationType ConvertRotationType(NativeDisplayManager_Rotation type);
+    OHOS::NWeb::OrientationType ConvertOrientationType(NativeDisplayManager_Orientation type);
+    OHOS::NWeb::DisplayOrientation ConvertDisplayOrientationType(NativeDisplayManager_Orientation type);
 };
 
 using ListenerMap =
-    std::map<int32_t, sptr<DisplayListenerAdapterImpl>>;
+    std::map<int32_t, std::shared_ptr<DisplayListenerAdapterImpl>>;
 class DisplayManagerAdapterImpl : public DisplayManagerAdapter {
 public:
     DisplayManagerAdapterImpl() = default;
@@ -68,8 +64,9 @@ public:
     uint32_t RegisterDisplayListener(std::shared_ptr<DisplayListenerAdapter> listener) override;
     bool UnregisterDisplayListener(uint32_t id) override;
     bool IsDefaultPortrait() override;
+    static void DisplayChangeCallback(uint64_t displayId);
 private:
-    ListenerMap reg_;
+    static ListenerMap reg_;
 };
 }
 
