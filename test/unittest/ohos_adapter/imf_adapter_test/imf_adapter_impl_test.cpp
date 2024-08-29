@@ -287,7 +287,7 @@ void NWebIMFAdapterTest::TearDown(void) {}
 HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_001, TestSize.Level1)
 {
     bool res = g_imf->Attach(nullptr, false);
-    EXPECT_EQ(g_imf->textListener_, nullptr);
+    EXPECT_EQ(g_imf->textEditorProxy_, nullptr);
     EXPECT_FALSE(res);
 }
 
@@ -302,7 +302,7 @@ HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_002, TestSize.Lev
     auto listener = std::make_shared<IMFTextListenerTest>();
     bool res = g_imf->Attach(listener, true);
     EXPECT_FALSE(res);
-    EXPECT_NE(g_imf->textListener_, nullptr);
+    EXPECT_NE(g_imf->textEditorProxy_, nullptr);
     g_imf->HideTextInput();
 }
 
@@ -317,7 +317,7 @@ HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_003, TestSize.Lev
     auto listener = std::make_shared<IMFTextListenerTest>();
     bool res = g_imf->Attach(listener, false);
     EXPECT_FALSE(res);
-    EXPECT_NE(g_imf->textListener_, nullptr);
+    EXPECT_NE(g_imf->textEditorProxy_, nullptr);
     g_imf->ShowCurrentInput(IMFAdapterTextInputType::TEXT);
     g_imf->ShowCurrentInput(IMFAdapterTextInputType::NUMBER);
     g_imf->HideTextInput();
@@ -353,32 +353,34 @@ HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_005, TestSize.Lev
     auto listener = std::make_shared<IMFTextListenerTest>();
     auto listenerTest = std::make_shared<IMFTextListenerAdapterImpl>(listener);
     std::u16string text;
-    MiscServices::KeyEvent event;
-    MiscServices::FunctionKey functionKey;
+    std::shared_ptr<IMFAdapterFunctionKeyAdapterImpl> functionKey =
+        std::make_ptr<IMFAdapterFunctionKeyAdapterImpl>();
     listenerTest->InsertText(text);
     listenerTest->DeleteForward(0);
     listenerTest->DeleteBackward(0);
-    listenerTest->SendKeyEventFromInputMethod(event);
-    listenerTest->SendKeyboardStatus(MiscServices::KeyboardStatus::SHOW);
+    listenerTest->SendKeyEventFromInputMethod();
+    listenerTest->SendKeyboardStatus(IMFAdapterKeyboardStatus::SHOW);
     listenerTest->SendFunctionKey(functionKey);
     listenerTest->SetKeyboardStatus(true);
 
-    listenerTest->MoveCursor(MiscServices::Direction::NONE);
-    listenerTest->MoveCursor(MiscServices::Direction::UP);
-    listenerTest->MoveCursor(MiscServices::Direction::DOWN);
-    listenerTest->MoveCursor(MiscServices::Direction::LEFT);
-    listenerTest->MoveCursor(MiscServices::Direction::RIGHT);
+    listenerTest->MoveCursor(IMFAdapterDirection::NONE);
+    listenerTest->MoveCursor(IMFAdapterDirection::UP);
+    listenerTest->MoveCursor(IMFAdapterDirection::DOWN);
+    listenerTest->MoveCursor(IMFAdapterDirection::LEFT);
+    listenerTest->MoveCursor(IMFAdapterDirection::RIGHT);
     listenerTest->HandleSetSelection(0, 0);
     listenerTest->HandleExtendAction(0);
     listenerTest->HandleSelect(0, 0);
     listenerTest->GetTextIndexAtCursor();
     listenerTest->GetLeftTextOfCursor(0);
     listenerTest->GetRightTextOfCursor(0);
-    MiscServices::Range range { 0, 0 };
-    listenerTest->SetPreviewText(text, range);
+    int32_t start = 0, end = 0;
+    listenerTest->SetPreviewText(text, start, end);
     listenerTest->FinishTextPreview();
+    std::string test("test");
+    InputMethod_PrivateCommand *privateCommand = OH_PrivateCommand_Create((char *)test.c_str(), test.length());
     const std::unordered_map<std::string, MiscServices::PrivateDataValue> privateCommand;
-    listenerTest->ReceivePrivateCommand(privateCommand);
+    listenerTest->ReceivePrivateCommand(&privateCommand, 1);
 }
 
 /**
@@ -393,25 +395,26 @@ HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_006, TestSize.Lev
     EXPECT_NE(imf_adapter, nullptr);
     auto listener = std::make_shared<IMFTextListenerTest>();
     auto listenerTest = std::make_shared<IMFTextListenerAdapterImpl>(listener);
-    MiscServices::FunctionKey functionKey;
+    std::shared_ptr<IMFAdapterFunctionKeyAdapterImpl> functionKey =
+        std::make_shared<IMFAdapterFunctionKeyAdapterImpl>();
     listenerTest->SendFunctionKey(functionKey);
-    functionKey.SetEnterKeyType(MiscServices::EnterKeyType::UNSPECIFIED);
+    functionKey->SetEnterKeyType(IMFAdapterEnterKeyType::UNSPECIFIED);
     listenerTest->SendFunctionKey(functionKey);
-    functionKey.SetEnterKeyType(MiscServices::EnterKeyType::NONE);
+    functionKey->SetEnterKeyType(IMFAdapterEnterKeyType::NONE);
     listenerTest->SendFunctionKey(functionKey);
-    functionKey.SetEnterKeyType(MiscServices::EnterKeyType::GO);
+    functionKey->SetEnterKeyType(IMFAdapterEnterKeyType::GO);
     listenerTest->SendFunctionKey(functionKey);
-    functionKey.SetEnterKeyType(MiscServices::EnterKeyType::SEARCH);
+    functionKey->SetEnterKeyType(IMFAdapterEnterKeyType::SEARCH);
     listenerTest->SendFunctionKey(functionKey);
-    functionKey.SetEnterKeyType(MiscServices::EnterKeyType::SEND);
+    functionKey->SetEnterKeyType(IMFAdapterEnterKeyType::SEND);
     listenerTest->SendFunctionKey(functionKey);
-    functionKey.SetEnterKeyType(MiscServices::EnterKeyType::NEXT);
+    functionKey->SetEnterKeyType(IMFAdapterEnterKeyType::NEXT);
     listenerTest->SendFunctionKey(functionKey);
-    functionKey.SetEnterKeyType(MiscServices::EnterKeyType::DONE);
+    functionKey->SetEnterKeyType(IMFAdapterEnterKeyType::DONE);
     listenerTest->SendFunctionKey(functionKey);
-    functionKey.SetEnterKeyType(MiscServices::EnterKeyType::PREVIOUS);
+    functionKey->SetEnterKeyType(IMFAdapterEnterKeyType::PREVIOUS);
     listenerTest->SendFunctionKey(functionKey);
-    functionKey.SetEnterKeyType(MiscServices::EnterKeyType::NEW_LINE);
+    functionKey->SetEnterKeyType(IMFAdapterEnterKeyType::NEW_LINE);
     listenerTest->SendFunctionKey(functionKey);
     EXPECT_EQ(listener->VerifyFunctionKeySuccess(), true);
 }
@@ -427,27 +430,29 @@ HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_InsertText_007, TestSize.Level1)
     auto listenerTest = std::make_shared<IMFTextListenerAdapterImpl>(nullptr);
     EXPECT_NE(listenerTest, nullptr);
     std::u16string text;
-    MiscServices::KeyEvent event;
-    MiscServices::FunctionKey functionKey;
+    std::shared_ptr<IMFAdapterFunctionKeyAdapterImpl> functionKey =
+        std::make_ptr<IMFAdapterFunctionKeyAdapterImpl>();
     listenerTest->InsertText(text);
     listenerTest->DeleteForward(0);
     listenerTest->DeleteBackward(0);
-    listenerTest->SendKeyEventFromInputMethod(event);
-    listenerTest->SendKeyboardStatus(MiscServices::KeyboardStatus::SHOW);
+    listenerTest->SendKeyEventFromInputMethod();
+    listenerTest->SendKeyboardStatus(IMFAdapterKeyboardStatus::SHOW);
     listenerTest->SendFunctionKey(functionKey);
     listenerTest->SetKeyboardStatus(true);
-    listenerTest->MoveCursor(MiscServices::Direction::NONE);
+    listenerTest->MoveCursor(IMFAdapterDirection::NONE);
     listenerTest->HandleSetSelection(0, 0);
     listenerTest->HandleExtendAction(0);
     listenerTest->HandleSelect(0, 0);
     listenerTest->GetTextIndexAtCursor();
     listenerTest->GetLeftTextOfCursor(0);
     listenerTest->GetRightTextOfCursor(0);
-    MiscServices::Range range { 0, 0 };
-    listenerTest->SetPreviewText(text, range);
+    int32_t start = 0, end = 0;
+    listenerTest->SetPreviewText(text, start, end);
     listenerTest->FinishTextPreview();
+    std::string test("test");
+    InputMethod_PrivateCommand *privateCommand = OH_PrivateCommand_Create((char *)test.c_str(), test.length());
     const std::unordered_map<std::string, MiscServices::PrivateDataValue> privateCommand;
-    listenerTest->ReceivePrivateCommand(privateCommand);
+    listenerTest->ReceivePrivateCommand(&privateCommand, 1);
 }
 
 /**
@@ -480,11 +485,24 @@ HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_009, TestSize.Lev
     EXPECT_NE(imf_adapter, nullptr);
     auto listener = std::make_shared<IMFTextListenerTest>();
     auto listenerTest = std::make_shared<IMFTextListenerAdapterImpl>(listener);
-    std::unordered_map<std::string, MiscServices::PrivateDataValue> privateCommand;
-    privateCommand = { { "test", "test" } };
-    listenerTest->ReceivePrivateCommand(privateCommand);
-    privateCommand = { { "previewTextStyle", "underline" } };
-    listenerTest->ReceivePrivateCommand(privateCommand);
+    InputMethod_PrivateCommand *privateCommand[4];
+    std::shared_ptr<string> key = std::make_shared<string>("test");
+    std::shared_ptr<string> value = std::make_shared<string>("test");
+    privateCommand[0] = OH_PrivateCommand_Create((char *)key.c_str(), key.length());
+    OH_PrivateCommand_SetStrValue(privateCommand[0], (char *)value.c_str(), value.length());
+    std::shared_ptr<string> key = std::make_shared<string>("previewTextStyle");
+    std::shared_ptr<string> value = std::make_shared<string>("underline");
+    privateCommand[1] = OH_PrivateCommand_Create((char *)key.c_str(), key.length());
+    OH_PrivateCommand_SetStrValue(privateCommand[1], (char *)value.c_str(), value.length());
+    std::shared_ptr<string> key = std::make_shared<string>("com.autofill.params.userName");
+    std::shared_ptr<string> value = std::make_shared<string>("test");
+    privateCommand[2] = OH_PrivateCommand_Create((char *)key.c_str(), key.length());
+    OH_PrivateCommand_SetStrValue(privateCommand[2], (char *)value.c_str(), value.length());
+    std::shared_ptr<string> key = std::make_shared<string>("com.autofill.params.otherAccount");
+    bool boolValue = true;
+    privateCommand[3] = OH_PrivateCommand_Create((char *)key.c_str(), key.length());
+    OH_PrivateCommand_SetBoolValue(privateCommand[3], boolValue);
+    listenerTest->ReceivePrivateCommand(privateCommand, 4);
 }
 
 /**
@@ -502,7 +520,7 @@ HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_InsertText_010, TestSize.Level1)
 
     result = g_imf->Attach(listener, true, config, false);
     EXPECT_FALSE(result);
-    EXPECT_NE(g_imf->textListener_, nullptr);
+    EXPECT_NE(g_imf->textEditorProxy_, nullptr);
     g_imf->HideTextInput();
 }
 
