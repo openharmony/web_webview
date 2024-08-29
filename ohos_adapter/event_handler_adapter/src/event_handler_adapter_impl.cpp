@@ -16,11 +16,9 @@
 #include "event_handler_adapter_impl.h"
 
 #include <sys/epoll.h>
+#include "nweb_log.h"
 
 namespace OHOS::NWeb {
-
-#define WVLOG_E(...)
-#define WVLOG_D(...)
 
 void FfrtCallback(void* data, uint32_t events)
 {
