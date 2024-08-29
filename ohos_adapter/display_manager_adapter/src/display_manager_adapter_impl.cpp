@@ -51,12 +51,12 @@ OHOS::NWeb::RotationType DisplayAdapterImpl::ConvertRotationType(NativeDisplayMa
     switch (type) {
         case NativeDisplayManager_Rotation::DISPLAY_MANAGER_ROTATION_0:
             return OHOS::NWeb::RotationType::ROTATION_0;
-        case NativeDisplayManager_Rotation::ROTATION_90:
-            return OHOS::NWeb::RotationType::DISPLAY_MANAGER_ROTATION_90;
-        case NativeDisplayManager_Rotation::ROTATION_180:
-            return OHOS::NWeb::RotationType::DISPLAY_MANAGER_ROTATION_180;
-        case NativeDisplayManager_Rotation::ROTATION_270:
-            return OHOS::NWeb::RotationType::DISPLAY_MANAGER_ROTATION_270;
+        case NativeDisplayManager_Rotation::DISPLAY_MANAGER_ROTATION_90:
+            return OHOS::NWeb::RotationType::ROTATION_90;
+        case NativeDisplayManager_Rotation::DISPLAY_MANAGER_ROTATION_180:
+            return OHOS::NWeb::RotationType::ROTATION_180;
+        case NativeDisplayManager_Rotation::DISPLAY_MANAGER_ROTATION_270:
+            return OHOS::NWeb::RotationType::ROTATION_270;
         default:
             return OHOS::NWeb::RotationType::ROTATION_BUTT;
     }
@@ -72,15 +72,16 @@ OHOS::NWeb::DisplayOrientation DisplayAdapterImpl::ConvertDisplayOrientationType
     switch (type) {
         case NativeDisplayManager_Orientation::DISPLAY_MANAGER_PORTRAIT:
             return OHOS::NWeb::DisplayOrientation::PORTRAIT;
-        case OHOS::Rosen::DisplayOrientation::DISPLAY_MANAGER_LANDSCAPE:
+        case NativeDisplayManager_Orientation::DISPLAY_MANAGER_LANDSCAPE:
             return OHOS::NWeb::DisplayOrientation::LANDSCAPE;
-        case OHOS::Rosen::DisplayOrientation::DISPLAY_MANAGER_PORTRAIT_INVERTED:
+        case NativeDisplayManager_Orientation::DISPLAY_MANAGER_PORTRAIT_INVERTED:
             return OHOS::NWeb::DisplayOrientation::PORTRAIT_INVERTED;
-        case OHOS::Rosen::DisplayOrientation::DISPLAY_MANAGER_LANDSCAPE_INVERTED:
+        case NativeDisplayManager_Orientation::DISPLAY_MANAGER_LANDSCAPE_INVERTED:
             return OHOS::NWeb::DisplayOrientation::LANDSCAPE_INVERTED;
         default:
             return OHOS::NWeb::DisplayOrientation::UNKNOWN;
     }
+    return OHOS::NWeb::DisplayOrientation::UNKNOWN;
 }
 
 DisplayId DisplayAdapterImpl::GetId()
@@ -95,7 +96,7 @@ DisplayId DisplayAdapterImpl::GetId()
 
 int32_t DisplayAdapterImpl::GetWidth()
 {
-    uint64_t width;
+    int32_t width;
     NativeDisplayManager_ErrorCode errorCode = OH_NativeDisplayManager_GetDefaultDisplayWidth(&width);
     if (NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK != errorCode) {
         return static_cast<DisplayId>(-1);
@@ -105,7 +106,7 @@ int32_t DisplayAdapterImpl::GetWidth()
 
 int32_t DisplayAdapterImpl::GetHeight()
 {
-    uint64_t height;
+    int32_t height;
     NativeDisplayManager_ErrorCode errorCode = OH_NativeDisplayManager_GetDefaultDisplayHeight(&height);
     if (NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK != errorCode) {
         return -1;
@@ -126,7 +127,7 @@ float DisplayAdapterImpl::GetVirtualPixelRatio()
 
 RotationType DisplayAdapterImpl::GetRotation()
 {
-    NativeDisplayManager_Orientation displayRotatio;
+    NativeDisplayManager_Rotation displayRotatio;
     NativeDisplayManager_ErrorCode errorCode
         = OH_NativeDisplayManager_GetDefaultDisplayOrientation(&displayRotatio);
     if (NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK != errorCode) {
@@ -167,7 +168,7 @@ DisplayOrientation DisplayAdapterImpl::GetDisplayOrientation()
     return ConvertDisplayOrientationType(displayOrientation);
 }
 
-ListenerMap DisplayAdapterImpl:reg_ = {};
+ListenerMap DisplayAdapterImpl::reg_ = {};
 DisplayId DisplayManagerAdapterImpl::GetDefaultDisplayId()
 {
     uint64_t displayId;
