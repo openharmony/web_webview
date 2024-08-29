@@ -61,11 +61,6 @@ OHOS::NWeb::RotationType DisplayAdapterImpl::ConvertRotationType(NativeDisplayMa
     }
 }
 
-OHOS::NWeb::OrientationType DisplayAdapterImpl::ConvertOrientationType(NativeDisplayManager_Orientation type)
-{
-    return OHOS::NWeb::OrientationType::BUTT;
-}
-
 OHOS::NWeb::DisplayOrientation DisplayAdapterImpl::ConvertDisplayOrientationType(NativeDisplayManager_Orientation type)
 {
     switch (type) {
@@ -136,13 +131,7 @@ RotationType DisplayAdapterImpl::GetRotation()
 
 OrientationType DisplayAdapterImpl::GetOrientation()
 {
-    NativeDisplayManager_Orientation displayOrientation;
-    NativeDisplayManager_ErrorCode errorCode 
-        = OH_NativeDisplayManager_GetDefaultDisplayOrientation(&displayOrientation);
-    if (NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK != errorCode) {
-        return OrientationType::BUTT;
-    }
-    return ConvertOrientationType(displayOrientation);
+    return OHOS::NWeb::OrientationType::BUTT;
 }
 
 int32_t DisplayAdapterImpl::GetDpi()
