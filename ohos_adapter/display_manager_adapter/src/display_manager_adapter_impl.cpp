@@ -15,11 +15,10 @@
 
 #include "display_manager_adapter_impl.h"
 
-#include "display_info.h"
-#include "nweb_log.h"
-#include "syspara/parameters.h"
+#include <deviceinfo.h>
+#include <string>
+#define WVLOG_E(...)
 
-using namespace OHOS::Rosen;
 using namespace OHOS::NWeb;
 
 namespace OHOS::NWeb {
@@ -45,59 +44,39 @@ void DisplayListenerAdapterImpl::OnChange(DisplayId id)
     }
 }
 
-DisplayAdapterImpl::DisplayAdapterImpl(sptr<OHOS::Rosen::Display> display)
-    : display_(display) {}
+DisplayAdapterImpl::DisplayAdapterImpl() {}
 
-OHOS::NWeb::RotationType DisplayAdapterImpl::ConvertRotationType(OHOS::Rosen::Rotation type)
+OHOS::NWeb::RotationType DisplayAdapterImpl::ConvertRotationType(NativeDisplayManager_Rotation type)
 {
     switch (type) {
-        case OHOS::Rosen::Rotation::ROTATION_0:
+        case NativeDisplayManager_Rotation::DISPLAY_MANAGER_ROTATION_0:
             return OHOS::NWeb::RotationType::ROTATION_0;
-        case OHOS::Rosen::Rotation::ROTATION_90:
-            return OHOS::NWeb::RotationType::ROTATION_90;
-        case OHOS::Rosen::Rotation::ROTATION_180:
-            return OHOS::NWeb::RotationType::ROTATION_180;
-        case OHOS::Rosen::Rotation::ROTATION_270:
-            return OHOS::NWeb::RotationType::ROTATION_270;
+        case NativeDisplayManager_Rotation::ROTATION_90:
+            return OHOS::NWeb::RotationType::DISPLAY_MANAGER_ROTATION_90;
+        case NativeDisplayManager_Rotation::ROTATION_180:
+            return OHOS::NWeb::RotationType::DISPLAY_MANAGER_ROTATION_180;
+        case NativeDisplayManager_Rotation::ROTATION_270:
+            return OHOS::NWeb::RotationType::DISPLAY_MANAGER_ROTATION_270;
         default:
             return OHOS::NWeb::RotationType::ROTATION_BUTT;
     }
 }
 
-OHOS::NWeb::OrientationType DisplayAdapterImpl::ConvertOrientationType(OHOS::Rosen::Orientation type)
+OHOS::NWeb::OrientationType DisplayAdapterImpl::ConvertOrientationType(NativeDisplayManager_Orientation type)
 {
-    switch (type) {
-        case OHOS::Rosen::Orientation::UNSPECIFIED:
-            return OHOS::NWeb::OrientationType::UNSPECIFIED;
-        case OHOS::Rosen::Orientation::VERTICAL:
-            return OHOS::NWeb::OrientationType::VERTICAL;
-        case OHOS::Rosen::Orientation::HORIZONTAL:
-            return OHOS::NWeb::OrientationType::HORIZONTAL;
-        case OHOS::Rosen::Orientation::REVERSE_VERTICAL:
-            return OHOS::NWeb::OrientationType::REVERSE_VERTICAL;
-        case OHOS::Rosen::Orientation::REVERSE_HORIZONTAL:
-            return OHOS::NWeb::OrientationType::REVERSE_HORIZONTAL;
-        case OHOS::Rosen::Orientation::SENSOR:
-            return OHOS::NWeb::OrientationType::SENSOR;
-        case OHOS::Rosen::Orientation::SENSOR_VERTICAL:
-            return OHOS::NWeb::OrientationType::SENSOR_VERTICAL;
-        case OHOS::Rosen::Orientation::SENSOR_HORIZONTAL:
-            return OHOS::NWeb::OrientationType::SENSOR_HORIZONTAL;
-        default:
-            return OHOS::NWeb::OrientationType::BUTT;
-    }
+    return OHOS::NWeb::DisplayOrientation::UNKNOWN;
 }
 
-OHOS::NWeb::DisplayOrientation DisplayAdapterImpl::ConvertDisplayOrientationType(OHOS::Rosen::DisplayOrientation type)
+OHOS::NWeb::DisplayOrientation DisplayAdapterImpl::ConvertDisplayOrientationType(NativeDisplayManager_Orientation type)
 {
     switch (type) {
-        case OHOS::Rosen::DisplayOrientation::PORTRAIT:
+        case NativeDisplayManager_Orientation::DISPLAY_MANAGER_PORTRAIT:
             return OHOS::NWeb::DisplayOrientation::PORTRAIT;
-        case OHOS::Rosen::DisplayOrientation::LANDSCAPE:
+        case OHOS::Rosen::DisplayOrientation::DISPLAY_MANAGER_LANDSCAPE:
             return OHOS::NWeb::DisplayOrientation::LANDSCAPE;
-        case OHOS::Rosen::DisplayOrientation::PORTRAIT_INVERTED:
+        case OHOS::Rosen::DisplayOrientation::DISPLAY_MANAGER_PORTRAIT_INVERTED:
             return OHOS::NWeb::DisplayOrientation::PORTRAIT_INVERTED;
-        case OHOS::Rosen::DisplayOrientation::LANDSCAPE_INVERTED:
+        case OHOS::Rosen::DisplayOrientation::DISPLAY_MANAGER_LANDSCAPE_INVERTED:
             return OHOS::NWeb::DisplayOrientation::LANDSCAPE_INVERTED;
         default:
             return OHOS::NWeb::DisplayOrientation::UNKNOWN;
@@ -106,121 +85,148 @@ OHOS::NWeb::DisplayOrientation DisplayAdapterImpl::ConvertDisplayOrientationType
 
 DisplayId DisplayAdapterImpl::GetId()
 {
-    if (display_ != nullptr) {
-        return display_->GetId();
+    uint64_t displayId;
+    NativeDisplayManager_ErrorCode errorCode = OH_NativeDisplayManager_GetDefaultDisplayId(&displayId);
+    if (NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK != errorCode) {
+        return static_cast<DisplayId>(-1);
     }
-    return static_cast<DisplayId>(-1);
+    return displayId;
 }
 
 int32_t DisplayAdapterImpl::GetWidth()
 {
-    if (display_ != nullptr) {
-        return display_->GetWidth();
+    uint64_t width;
+    NativeDisplayManager_ErrorCode errorCode = OH_NativeDisplayManager_GetDefaultDisplayWidth(&width);
+    if (NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK != errorCode) {
+        return static_cast<DisplayId>(-1);
     }
-    return -1;
+    return width;
 }
 
 int32_t DisplayAdapterImpl::GetHeight()
 {
-    if (display_ != nullptr) {
-        return display_->GetHeight();
+    uint64_t height;
+    NativeDisplayManager_ErrorCode errorCode = OH_NativeDisplayManager_GetDefaultDisplayHeight(&height);
+    if (NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK != errorCode) {
+        return -1;
     }
-    return -1;
+    return height;
 }
 
 float DisplayAdapterImpl::GetVirtualPixelRatio()
 {
-    if (display_ != nullptr) {
-        return display_->GetVirtualPixelRatio();
+    float virtualPixel;
+    NativeDisplayManager_ErrorCode errorCode
+        = OH_NativeDisplayManager_GetDefaultDisplayVirtualPixelRatio(&virtualPixel);
+    if (NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK != errorCode) {
+        return -1;
     }
-    return -1;
+    return virtualPixel;
 }
 
 RotationType DisplayAdapterImpl::GetRotation()
 {
-    if (display_ != nullptr) {
-        return ConvertRotationType(display_->GetRotation());
+    NativeDisplayManager_Orientation displayRotatio;
+    NativeDisplayManager_ErrorCode errorCode
+        = OH_NativeDisplayManager_GetDefaultDisplayOrientation(&displayRotatio);
+    if (NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK != errorCode) {
+        return RotationType::ROTATION_BUTT;
     }
-    return RotationType::ROTATION_BUTT;
+    return ConvertRotationType(displayRotatio);
 }
 
 OrientationType DisplayAdapterImpl::GetOrientation()
 {
-    if (display_ != nullptr) {
-        return ConvertOrientationType(display_->GetOrientation());
+    NativeDisplayManager_Orientation displayOrientation;
+    NativeDisplayManager_ErrorCode errorCode 
+        = OH_NativeDisplayManager_GetDefaultDisplayOrientation(&displayOrientation);
+    if (NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK != errorCode) {
+        return OrientationType::BUTT;
     }
-    return OrientationType::BUTT;
+    return ConvertOrientationType(displayOrientation);
 }
 
 int32_t DisplayAdapterImpl::GetDpi()
 {
-    if (display_ != nullptr) {
-        return display_->GetDpi();
+    int32_t densityDpi;
+    NativeDisplayManager_ErrorCode errorCode = OH_NativeDisplayManager_GetDefaultDisplayDensityDpi(&densityDpi);
+    if (NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK != errorCode) {
+        return -1;
     }
-    return -1;
+    return densityDpi;
 }
 
 DisplayOrientation DisplayAdapterImpl::GetDisplayOrientation()
 {
-    if (display_ != nullptr) {
-        auto displayInfo = display_->GetDisplayInfo();
-        if (displayInfo != nullptr) {
-            return ConvertDisplayOrientationType(displayInfo->GetDisplayOrientation());
-        }
+    NativeDisplayManager_Orientation displayOrientation;
+    NativeDisplayManager_ErrorCode errorCode
+        = OH_NativeDisplayManager_GetDefaultDisplayOrientation(&displayOrientation);
+    if (NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK != errorCode) {
+        return DisplayOrientation::UNKNOWN;
     }
-    return DisplayOrientation::UNKNOWN;
+    return ConvertDisplayOrientationType(displayOrientation);
 }
 
+ListenerMap DisplayAdapterImpl:reg_ = {};
 DisplayId DisplayManagerAdapterImpl::GetDefaultDisplayId()
 {
-    return DisplayManager::GetInstance().GetDefaultDisplayId();
+    uint64_t displayId;
+    NativeDisplayManager_ErrorCode errorCode = OH_NativeDisplayManager_GetDefaultDisplayId(&displayId);
+    if (NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK != errorCode) {
+        return static_cast<DisplayId>(-1);
+    }
+    return displayId;
 }
 
 std::shared_ptr<DisplayAdapter> DisplayManagerAdapterImpl::GetDefaultDisplay()
 {
-    sptr<Display> display = DisplayManager::GetInstance().GetDefaultDisplay();
-    return std::make_shared<DisplayAdapterImpl>(display);
+    return std::make_shared<DisplayAdapterImpl>();
+}
+
+void DisplayManagerAdapterImp::DisplayChangeCallback(uint64_t displayId) {
+    WLOG_D("DisplayManagerAdapterImpl::DisplayChangeCallback");
+    for(auto iter = reg_.begin(); iter != reg_.end(); ++iter) {
+        iter->second->OnChange(displayId);
+    }
 }
 
 uint32_t DisplayManagerAdapterImpl::RegisterDisplayListener(
     std::shared_ptr<DisplayListenerAdapter> listener)
 {
-    static uint32_t count = 1;
-    sptr<DisplayListenerAdapterImpl> reg =
-        new (std::nothrow) DisplayListenerAdapterImpl(listener);
+    WLOG_D("DisplayManagerAdapterImpl::RegisterDisplayListener");
+    std::shared_ptr<DisplayListenerAdapterImpl> reg =
+        std::make_shared<DisplayListenerAdapterImpl>(listener);
     if (reg == nullptr) {
-        return false;
-    }
-
-    uint32_t id = count++;
-    if (count == 0) {
-        count++;
-    }
-
-    reg_.emplace(std::make_pair(id, reg));
-    if (DisplayManager::GetInstance().RegisterDisplayListener(reg) == DMError::DM_OK) {
-        return id;
-    } else {
         return 0;
     }
+    
+    uint32_t listenerIndex;
+    if (OH_NativeDisplayManager_RegisterDisplayChangeListener(DisplayChangeCallback, reg)
+        != NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK ) {
+        return 0;
+    }
+    reg_.emplace(std::make_pair(listenerIndex, reg));
+    return listenerIndex;
 }
 
 bool DisplayManagerAdapterImpl::UnregisterDisplayListener(uint32_t id)
 {
+    WLOG_D("DisplayManagerAdapterImpl::UnregisterDisplayListener");
     ListenerMap::iterator iter = reg_.find(id);
     if (iter == reg_.end()) {
         return false;
     }
-    if (DisplayManager::GetInstance().UnregisterDisplayListener(iter->second) == DMError::DM_OK) {
-        reg_.erase(iter);
-        return true;
+    if (OH_NativeDisplayManager_UnregisterDisplayChangeListener(id)
+        != NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK ) {
+        return false;
     }
-    return false;
+    reg_.erase(iter);
+    return true;
 }
 
 bool DisplayManagerAdapterImpl::IsDefaultPortrait()
 {
-    std::string deviceType = OHOS::system::GetDeviceType();
+    std::string deviceType = OH_GetDeviceType();
     return deviceType == "phone" || deviceType == "default";
 }
 }
