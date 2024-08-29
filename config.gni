@@ -25,6 +25,7 @@ declare_args() {
   webview_enterprise_device_manager_enable = true
   webview_media_avsession_enable = true
   webview_sensors_sensor_enable = true
+  webview_enable_heif_decoder = true
 
   if (defined(global_parts_info) &&
       !defined(global_parts_info.resourceschedule_soc_perf)) {
@@ -79,5 +80,9 @@ declare_args() {
   if (defined(global_parts_info) &&
       !defined(global_parts_info.sensors_sensor)) {
     webview_sensors_sensor_enable = false
+  }
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.hdf_drivers_interface_display)) {
+    webview_enable_heif_decoder = false
   }
 }
