@@ -16,19 +16,22 @@
 #ifndef DATE_TIME_FORMAT_ADAPTER_IMPL_H
 #define DATE_TIME_FORMAT_ADAPTER_IMPL_H
 
+#include "date_time_format_adapter.h"
+
 #include <string>
 #include <vector>
 #include <map>
+#include <mutex>
 
-#include "date_time_format_adapter.h"
-
-#include "common_event_manager.h"
-#include "common_event_subscriber.h"
-#include "common_event_support.h"
-#include "matching_skills.h"
-#include "want.h"
+#include <BasicServicesKit/oh_commonevent.h>
 
 namespace OHOS::NWeb {
+
+enum EventCallbackState {
+    INACTIVE,
+    ACTIVE,
+};
+
 class WebTimezoneInfoImpl final : public WebTimezoneInfo {
 public:
     WebTimezoneInfoImpl(std::string tzId, bool isValid)
@@ -46,19 +49,6 @@ private:
     bool isValid_;
 };
 
-class NWebTimeZoneEventSubscriber : public EventFwk::CommonEventSubscriber {
-public:
-    NWebTimeZoneEventSubscriber(EventFwk::CommonEventSubscribeInfo& in,
-                                std::shared_ptr<TimezoneEventCallbackAdapter> cb);
-
-    ~NWebTimeZoneEventSubscriber() override = default;
-
-    void OnReceiveEvent(const EventFwk::CommonEventData& data) override;
-
-private:
-    std::shared_ptr<TimezoneEventCallbackAdapter> eventCallback_;
-};
-
 class DateTimeFormatAdapterImpl : public DateTimeFormatAdapter {
 public:
     DateTimeFormatAdapterImpl() = default;
@@ -73,9 +63,13 @@ public:
 
     std::string GetTimezone() override;
 
+    static void DateTimeFormatReceiveCallback(const CommonEvent_RcvData *data);
 private:
     std::shared_ptr<TimezoneEventCallbackAdapter> cb_ = nullptr;
-    std::shared_ptr<EventFwk::CommonEventSubscriber> commonEventSubscriber_ = nullptr;
+    static std::map<const std::shared_ptr<TimezoneEventCallbackAdapter>, EventCallbackState> cbMap_;
+    static CommonEvent_SubscribeInfo *commonEventSubscribeInfo_;
+    static CommonEvent_Subscriber *commonEventSubscriber_;
+    static std::mutex mutex_;
 };
 } // namespace OHOS::NWeb
 

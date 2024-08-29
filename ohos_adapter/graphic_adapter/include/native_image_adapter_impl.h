@@ -16,7 +16,7 @@
 #ifndef NATIVE_IAMGE_IMPL_ADAPTER
 #define NATIVE_IAMGE_IMPL_ADAPTER
 
-#include "foundation/graphic/graphic_2d/interfaces/inner_api/surface/native_image.h"
+#include <native_image/native_image.h>
 #include "graphic_adapter.h"
 
 namespace OHOS::NWeb {
