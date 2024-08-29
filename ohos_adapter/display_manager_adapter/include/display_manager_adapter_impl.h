@@ -27,7 +27,7 @@ namespace OHOS::NWeb {
 class DisplayListenerAdapterImpl {
 public:
     explicit DisplayListenerAdapterImpl(std::shared_ptr<DisplayListenerAdapter> listener);
-    ~DisplayListenerAdapterImpl() override = default;
+    ~DisplayListenerAdapterImpl() = default;
     void OnCreate(DisplayId id);
     void OnDestroy(DisplayId id);
     void OnChange(DisplayId id);
