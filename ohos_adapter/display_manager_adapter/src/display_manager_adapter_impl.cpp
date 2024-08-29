@@ -17,7 +17,6 @@
 
 #include <deviceinfo.h>
 #include <string>
-#define WVLOG_E(...)
 
 using namespace OHOS::NWeb;
 
@@ -64,7 +63,7 @@ OHOS::NWeb::RotationType DisplayAdapterImpl::ConvertRotationType(NativeDisplayMa
 
 OHOS::NWeb::OrientationType DisplayAdapterImpl::ConvertOrientationType(NativeDisplayManager_Orientation type)
 {
-    return OHOS::NWeb::DisplayOrientation::UNKNOWN;
+    return OHOS::NWeb::OrientationType::BUTT;
 }
 
 OHOS::NWeb::DisplayOrientation DisplayAdapterImpl::ConvertDisplayOrientationType(NativeDisplayManager_Orientation type)
@@ -99,7 +98,7 @@ int32_t DisplayAdapterImpl::GetWidth()
     int32_t width;
     NativeDisplayManager_ErrorCode errorCode = OH_NativeDisplayManager_GetDefaultDisplayWidth(&width);
     if (NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK != errorCode) {
-        return static_cast<DisplayId>(-1);
+        return -1;
     }
     return width;
 }
@@ -129,7 +128,7 @@ RotationType DisplayAdapterImpl::GetRotation()
 {
     NativeDisplayManager_Rotation displayRotatio;
     NativeDisplayManager_ErrorCode errorCode
-        = OH_NativeDisplayManager_GetDefaultDisplayOrientation(&displayRotatio);
+        = OH_NativeDisplayManager_GetDefaultDisplayRotation(&displayRotatio);
     if (NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK != errorCode) {
         return RotationType::ROTATION_BUTT;
     }
@@ -168,7 +167,7 @@ DisplayOrientation DisplayAdapterImpl::GetDisplayOrientation()
     return ConvertDisplayOrientationType(displayOrientation);
 }
 
-ListenerMap DisplayAdapterImpl::reg_ = {};
+ListenerMap DisplayManagerAdapterImpl::reg_ = {};
 DisplayId DisplayManagerAdapterImpl::GetDefaultDisplayId()
 {
     uint64_t displayId;
@@ -184,8 +183,7 @@ std::shared_ptr<DisplayAdapter> DisplayManagerAdapterImpl::GetDefaultDisplay()
     return std::make_shared<DisplayAdapterImpl>();
 }
 
-void DisplayManagerAdapterImp::DisplayChangeCallback(uint64_t displayId) {
-    WLOG_D("DisplayManagerAdapterImpl::DisplayChangeCallback");
+void DisplayManagerAdapterImpl::DisplayChangeCallback(uint64_t displayId) {
     for(auto iter = reg_.begin(); iter != reg_.end(); ++iter) {
         iter->second->OnChange(displayId);
     }
@@ -194,7 +192,6 @@ void DisplayManagerAdapterImp::DisplayChangeCallback(uint64_t displayId) {
 uint32_t DisplayManagerAdapterImpl::RegisterDisplayListener(
     std::shared_ptr<DisplayListenerAdapter> listener)
 {
-    WLOG_D("DisplayManagerAdapterImpl::RegisterDisplayListener");
     std::shared_ptr<DisplayListenerAdapterImpl> reg =
         std::make_shared<DisplayListenerAdapterImpl>(listener);
     if (reg == nullptr) {
@@ -202,8 +199,8 @@ uint32_t DisplayManagerAdapterImpl::RegisterDisplayListener(
     }
     
     uint32_t listenerIndex;
-    if (OH_NativeDisplayManager_RegisterDisplayChangeListener(DisplayChangeCallback, reg)
-        != NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK ) {
+    if (OH_NativeDisplayManager_RegisterDisplayChangeListener(DisplayChangeCallback, &listenerIndex)
+        != NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK) {
         return 0;
     }
     reg_.emplace(std::make_pair(listenerIndex, reg));
@@ -212,13 +209,12 @@ uint32_t DisplayManagerAdapterImpl::RegisterDisplayListener(
 
 bool DisplayManagerAdapterImpl::UnregisterDisplayListener(uint32_t id)
 {
-    WLOG_D("DisplayManagerAdapterImpl::UnregisterDisplayListener");
     ListenerMap::iterator iter = reg_.find(id);
     if (iter == reg_.end()) {
         return false;
     }
     if (OH_NativeDisplayManager_UnregisterDisplayChangeListener(id)
-        != NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK ) {
+        != NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK) {
         return false;
     }
     reg_.erase(iter);
