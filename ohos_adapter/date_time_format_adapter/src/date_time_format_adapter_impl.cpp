@@ -48,19 +48,18 @@ void DateTimeFormatAdapterImpl::RegTimezoneEvent(std::shared_ptr<TimezoneEventCa
     WVLOG_I("Reg Timezone Event.");
     cb_ = std::move(eventCallback);
     std::lock_guard<std::mutex> lock(mutex_);
-    if (cbMap_.find(cb_) != cbMap_.end()) {
+    if (cbMap_.find(cb_) == cbMap_.end()) {
         cbMap_[cb_] = INACTIVE;
     }
 }
 
 void DateTimeFormatAdapterImpl::DateTimeFormatReceiveCallback(const CommonEvent_RcvData *data)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
-    WVLOG_I("receive timezone action: %{public}s", OH_CommonEvent_GetEventFromRcvData(data));
-    if (strcmp(OH_CommonEvent_GetEventFromRcvData(data), COMMON_EVENT_TIMEZONE_CHANGED)) {
+    if (data == nullptr || strcmp(OH_CommonEvent_GetEventFromRcvData(data), COMMON_EVENT_TIMEZONE_CHANGED)) {
         return;
     }
 
+    WVLOG_I("receive timezone action: %{public}s", OH_CommonEvent_GetEventFromRcvData(data));
     char timeZone[MAX_TIMEZONE_LEN] = {0};
     TimeService_ErrCode ret = OH_TimeService_GetTimeZone(timeZone, sizeof(timeZone));
     if (ret != TIMESERVICE_ERR_OK) {
@@ -71,6 +70,7 @@ void DateTimeFormatAdapterImpl::DateTimeFormatReceiveCallback(const CommonEvent_
     std::shared_ptr<WebTimezoneInfoImpl> timeZoneInfo = 
         std::make_shared<WebTimezoneInfoImpl>(std::string(timeZone), true);
 
+    std::lock_guard<std::mutex> lock(mutex_);
     for (const auto &i : cbMap_) {
         if (i.second == ACTIVE) {
             i.first->TimezoneChanged(timeZoneInfo);
