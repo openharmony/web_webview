@@ -16,11 +16,9 @@
 #include <string>
 #include <vector>
 
+#include "nweb_log.h"
 #include "cert_mgr_adapter_impl.h"
 #include <network/netstack/net_ssl/net_ssl_c.h>
-
-#define WVLOG_D(...)
-#define WVLOG_E(...)
 
 using namespace OHOS::NWeb;
 

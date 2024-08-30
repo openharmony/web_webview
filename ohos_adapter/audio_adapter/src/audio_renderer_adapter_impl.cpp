@@ -16,14 +16,12 @@
 #include "audio_renderer_adapter_impl.h"
 
 #include <unordered_map>
+#include "nweb_log.h"
 
 namespace OHOS::NWeb {
 constexpr int64_t NS_TO_S = 1000000000; // 1s = 1000000000ns
 constexpr int32_t DEFAULT_SAMPLING_RATE = 44100; // 44100:see SAMPLING_RATE_MAP
 constexpr int32_t DEFAULT_AUDIO_CHANNELS = 2; // 2:see AUDIO_CHANNEL_MAP
-
-#define WVLOG_E(...) 
-#define WVLOG_I(...) 
 
 const std::unordered_map<AudioAdapterSamplingRate, int32_t> SAMPLING_RATE_MAP = {
     { AudioAdapterSamplingRate::SAMPLE_RATE_8000, 8000 },   // Common sampling rate 8000

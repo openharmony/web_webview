@@ -29,11 +29,11 @@
 #include <unistd.h>
 #include <dlfcn.h>
 
+#include "nweb_log.h"
+
 namespace OHOS::NWeb {
 static  pthread_mutex_t g_ashmemLock = PTHREAD_MUTEX_INITIALIZER;
 static const char *ASHMEM_PATH = "/""ASHMEM_NAME_DEF";
-
-#define WVLOG_E(...)
 
 static int ShmemAdapterOpenLocked()
 {
@@ -95,8 +95,7 @@ int ShmemAdapterCreate(const char *name, int size)
     if (name != nullptr) {
         if (strlen(name) >= ASHMEM_NAME_LEN) {
             close(fd);
-            WVLOG_E("%{public}s: failed to exec strcpy_s, name = %{public}s, ret = %{public}d",
-                __func__, name, ret);
+            WVLOG_E("%{public}s: failed to exec strcpy_s, name = %{public}s", __func__, name);
             return -1;
         }
 
