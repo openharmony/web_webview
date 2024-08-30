@@ -21,6 +21,7 @@ config("module_private_config") {
   include_dirs = [
     "../../../../ohos_adapter/inputmethodframework_adapter/include",
     "../../../../ohos_nweb/include",
+    "../../../../ohos_adapter/ndk/include",
   ]
 }
 

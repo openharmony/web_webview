@@ -47,7 +47,7 @@ shared_library("nweb_ohos_adapter") {
     "hiviewdfx_adapter/src/hilog_adapter.cpp",
 #    "hiviewdfx_adapter/src/hisysevent_adapter_impl.cpp",
 #    "hiviewdfx_adapter/src/hitrace_adapter_impl.cpp",
-#    "inputmethodframework_adapter/src/imf_adapter_impl.cpp",
+    "inputmethodframework_adapter/src/imf_adapter_impl.cpp",
 #    "keystore_adapter/src/keystore_adapter_impl.cpp",
 #    "multimodalinput_adapter/src/mmi_adapter_impl.cpp",
 #    "net_proxy_adapter/src/net_proxy_adapter_impl.cpp",
@@ -87,7 +87,7 @@ shared_library("nweb_ohos_adapter") {
 #    "flowbuffer_adapter/include",
     "graphic_adapter/include",
     "hiviewdfx_adapter/include",
-#    "inputmethodframework_adapter/include",
+    "inputmethodframework_adapter/include",
 #    "keystore_adapter/include",
 #    "location_adapter/include",
      "media_adapter/include",
@@ -105,6 +105,7 @@ shared_library("nweb_ohos_adapter") {
 #    "soc_perf_adapter/include",
 #    "system_properties_adapter/include",
 #    "sensor_adapter/include",
+    "//third_party/jsoncpp/source/include/"
   ]
 #
   public_configs = [ ":ohos_adapter_public_interface" ]
