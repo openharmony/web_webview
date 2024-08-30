@@ -85,4 +85,5 @@ declare_args() {
       !defined(global_parts_info.hdf_drivers_interface_display)) {
     webview_enable_heif_decoder = false
   }
+  webview_enable_heif_decoder = false
 }
