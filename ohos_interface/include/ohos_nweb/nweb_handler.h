@@ -989,6 +989,8 @@ public:
      * @param hide hide.
      */
     virtual void HideHandleAndQuickMenuIfNecessary(bool hide) {}
+
+    virtual void OnNativeEmbedVisibilityChange(const std::string& embed_id, bool visibility) {}
 };
 
 } // namespace OHOS::NWeb
