@@ -15,31 +15,43 @@
 
 #include "player_framework_adapter_impl.h"
 
-#include "foundation/multimedia/player_framework/interfaces/inner_api/native/media_errors.h"
 #include "nweb_log.h"
-#include "surface_adapter_impl.h"
+#include "native_window_adapter_impl.h"
 
 namespace OHOS::NWeb {
 namespace {
+constexpr int32_t INVALID = -1;
+
+int32_t ConverterState(int32_t ndkState) {
+    switch(ndkState) {
+        case AVPlayerState::AV_IDLE:
+            return PlayerAdapter::PlayerStates::PLAYER_IDLE;
+        case AVPlayerState::AV_INITIALIZED:
+            return PlayerAdapter::PlayerStates::PLAYER_INITIALIZED;
+        case AVPlayerState::AV_PREPARED:
+            return PlayerAdapter::PlayerStates::PLAYER_PREPARED;
+        case AVPlayerState::AV_PLAYING:
+            return PlayerAdapter::PlayerStates::PLAYER_STARTED;
+        case AVPlayerState::AV_PAUSED:
+            return PlayerAdapter::PlayerStates::PLAYER_PAUSED;
+        case AVPlayerState::AV_STOPPED:
+            return PlayerAdapter::PlayerStates::PLAYER_STOPPED;
+        case AVPlayerState::AV_COMPLETED:
+            return PlayerAdapter::PlayerStates::PLAYER_PLAYBACK_COMPLETE;
+        case AVPlayerState::AV_RELEASED:
+            return PlayerAdapter::PlayerStates::PLAYER_RELEASED;
+        case AVPlayerState::AV_ERROR:
+            return PlayerAdapter::PlayerStates::PLAYER_STATE_ERROR;
+        default:
+            WVLOG_E("could not find state = %{public}d", ndkState);
+            return ndkState;
+    }
+}
+
 bool IsUnsupportType(int32_t errorCode)
 {
     switch (errorCode) {
-        case Media::MSERR_UNSUPPORT:
-        case Media::MSERR_UNSUPPORT_AUD_SRC_TYPE:
-        case Media::MSERR_UNSUPPORT_AUD_SAMPLE_RATE:
-        case Media::MSERR_UNSUPPORT_AUD_CHANNEL_NUM:
-        case Media::MSERR_UNSUPPORT_AUD_ENC_TYPE:
-        case Media::MSERR_UNSUPPORT_AUD_PARAMS:
-        case Media::MSERR_UNSUPPORT_VID_SRC_TYPE:
-        case Media::MSERR_UNSUPPORT_VID_ENC_TYPE:
-        case Media::MSERR_UNSUPPORT_VID_PARAMS:
-        case Media::MSERR_UNSUPPORT_CONTAINER_TYPE:
-        case Media::MSERR_UNSUPPORT_PROTOCOL_TYPE:
-        case Media::MSERR_UNSUPPORT_VID_DEC_TYPE:
-        case Media::MSERR_UNSUPPORT_AUD_DEC_TYPE:
-        case Media::MSERR_UNSUPPORT_STREAM:
-        case Media::MSERR_UNSUPPORT_FILE:
-        case Media::MSERR_UNSUPPORT_SOURCE:
+        case OH_AVErrCode::AV_ERR_UNSUPPORT:
             return true;
         default:
             return false;
@@ -49,39 +61,43 @@ bool IsUnsupportType(int32_t errorCode)
 bool IsFatalError(int32_t errorCode)
 {
     switch (errorCode) {
-        case Media::MSERR_EXT_NO_MEMORY:
-        case Media::MSERR_EXT_SERVICE_DIED:
-        case Media::MSERR_CREATE_PLAYER_ENGINE_FAILED:
-        case Media::MSERR_CREATE_AVMETADATAHELPER_ENGINE_FAILED:
-        case Media::MSERR_AUD_DEC_FAILED:
-        case Media::MSERR_VID_DEC_FAILED:
-        case Media::MSERR_FILE_ACCESS_FAILED:
+        case OH_AVErrCode::AV_ERR_NO_MEMORY:
+        case OH_AVErrCode::AV_ERR_OPERATE_NOT_PERMIT:
+        case OH_AVErrCode::AV_ERR_IO:
+        case OH_AVErrCode::AV_ERR_TIMEOUT:
+        case OH_AVErrCode::AV_ERR_UNKNOWN:
+        case OH_AVErrCode::AV_ERR_SERVICE_DIED:
+        case OH_AVErrCode::AV_ERR_EXTEND_START:
+        case OH_AVErrCode::AV_ERR_DRM_BASE:
+        case OH_AVErrCode::AV_ERR_DRM_DECRYPT_FAILED:
+        case OH_AVErrCode::AV_ERR_VIDEO_BASE:
+        case OH_AVErrCode::AV_ERR_VIDEO_UNSUPPORTED_COLOR_SPACE_CONVERSION:
             return true;
         default:
             return false;
     }
 }
 
-NWeb::PlayerOnInfoType ConvertInfoType(Media::PlayerOnInfoType infoType)
+NWeb::PlayerOnInfoType ConvertInfoType(AVPlayerOnInfoType infoType)
 {
     NWeb::PlayerOnInfoType ret = NWeb::PlayerOnInfoType::INFO_TYPE_UNSET;
     switch (infoType) {
-        case Media::INFO_TYPE_SEEKDONE:
+        case AVPlayerOnInfoType::AV_INFO_TYPE_SEEKDONE:
             ret = NWeb::PlayerOnInfoType::INFO_TYPE_SEEKDONE;
             break;
-        case Media::INFO_TYPE_EOS:
+        case AVPlayerOnInfoType::AV_INFO_TYPE_EOS:
             ret = NWeb::PlayerOnInfoType::INFO_TYPE_EOS;
             break;
-        case Media::INFO_TYPE_STATE_CHANGE:
+        case AVPlayerOnInfoType::AV_INFO_TYPE_STATE_CHANGE:
             ret = NWeb::PlayerOnInfoType::INFO_TYPE_STATE_CHANGE;
             break;
-        case Media::INFO_TYPE_POSITION_UPDATE:
+        case AVPlayerOnInfoType::AV_INFO_TYPE_POSITION_UPDATE:
             ret = NWeb::PlayerOnInfoType::INFO_TYPE_POSITION_UPDATE;
             break;
-        case Media::INFO_TYPE_MESSAGE:
+        case AVPlayerOnInfoType::AV_INFO_TYPE_MESSAGE:
             ret = NWeb::PlayerOnInfoType::INFO_TYPE_MESSAGE;
             break;
-        case Media::INFO_TYPE_INTERRUPT_EVENT:
+        case AVPlayerOnInfoType::AV_INFO_TYPE_INTERRUPT_EVENT:
             ret = NWeb::PlayerOnInfoType::INFO_TYPE_INTERRUPT_EVENT;
             break;
         default:
@@ -90,21 +106,21 @@ NWeb::PlayerOnInfoType ConvertInfoType(Media::PlayerOnInfoType infoType)
     return ret;
 }
 
-Media::PlayerSeekMode ConvertSeekMode(NWeb::PlayerSeekMode mode)
+AVPlayerSeekMode ConvertSeekMode(NWeb::PlayerSeekMode mode)
 {
-    Media::PlayerSeekMode ret = Media::SEEK_CLOSEST;
+    AVPlayerSeekMode ret = AVPlayerSeekMode::AV_SEEK_CLOSEST;
     switch (mode) {
         case NWeb::PlayerSeekMode::SEEK_NEXT_SYNC:
-            ret = Media::SEEK_NEXT_SYNC;
+            ret = AVPlayerSeekMode::AV_SEEK_NEXT_SYNC;
             break;
         case NWeb::PlayerSeekMode::SEEK_PREVIOUS_SYNC:
-            ret = Media::SEEK_PREVIOUS_SYNC;
+            ret = AVPlayerSeekMode::AV_SEEK_PREVIOUS_SYNC;
             break;
         case NWeb::PlayerSeekMode::SEEK_CLOSEST_SYNC:
-            ret = Media::SEEK_CLOSEST_SYNC;
+            ret = AVPlayerSeekMode::AV_SEEK_CLOSEST;
             break;
         case NWeb::PlayerSeekMode::SEEK_CLOSEST:
-            ret = Media::SEEK_CLOSEST;
+            ret = AVPlayerSeekMode::AV_SEEK_CLOSEST;
             break;
         default:
             break;
@@ -112,72 +128,88 @@ Media::PlayerSeekMode ConvertSeekMode(NWeb::PlayerSeekMode mode)
     return ret;
 }
 
-Media::PlaybackRateMode ConvertRateMode(NWeb::PlaybackRateMode mode)
+AVPlaybackSpeed ConvertRateMode(NWeb::PlaybackRateMode mode)
 {
-    Media::PlaybackRateMode ret = Media::SPEED_FORWARD_1_00_X;
+    AVPlaybackSpeed ret = AVPlaybackSpeed::AV_SPEED_FORWARD_1_00_X;
     switch (mode) {
         case NWeb::PlaybackRateMode::SPEED_FORWARD_0_75_X:
-            ret = Media::SPEED_FORWARD_0_75_X;
+            ret = AVPlaybackSpeed::AV_SPEED_FORWARD_0_75_X;
             break;
         case NWeb::PlaybackRateMode::SPEED_FORWARD_1_00_X:
-            ret = Media::SPEED_FORWARD_1_00_X;
+            ret = AVPlaybackSpeed::AV_SPEED_FORWARD_1_00_X;
             break;
         case NWeb::PlaybackRateMode::SPEED_FORWARD_1_25_X:
-            ret = Media::SPEED_FORWARD_1_25_X;
+            ret = AVPlaybackSpeed::AV_SPEED_FORWARD_1_25_X;
             break;
         case NWeb::PlaybackRateMode::SPEED_FORWARD_1_75_X:
-            ret = Media::SPEED_FORWARD_1_75_X;
+            ret = AVPlaybackSpeed::AV_SPEED_FORWARD_1_75_X;
             break;
         case NWeb::PlaybackRateMode::SPEED_FORWARD_2_00_X:
-            ret = Media::SPEED_FORWARD_2_00_X;
+            ret = AVPlaybackSpeed::AV_SPEED_FORWARD_2_00_X;
             break;
         default:
             break;
     }
     return ret;
+}
+
+int GetErrorCode(OH_AVErrCode errorCode)
+{
+    int32_t code = static_cast<int32_t>(errorCode);
+    if (code == OH_AVErrCode::AV_ERR_OK) {
+        WVLOG_D("return success, code = %{public}d", code);
+    } else {
+        WVLOG_E("return failed, code = %{public}d", code);
+    }
+    return code;
 }
 } // namespace
 
-PlayerCallbackImpl::PlayerCallbackImpl(std::shared_ptr<PlayerCallbackAdapter> callback)
-    : callbackAdapter_(std::move(callback))
-{}
-
-void PlayerCallbackImpl::OnInfo(Media::PlayerOnInfoType type, int32_t extra, const Media::Format& infoBody)
+void PlayerInfoCallback(OH_AVPlayer *player, AVPlayerOnInfoType type, OH_AVFormat* infoBody, void *userData)
 {
-    int32_t hintValue = -1;
-    if (type == Media::INFO_TYPE_INTERRUPT_EVENT) {
-        infoBody.GetIntValue(OHOS::Media::PlayerKeys::AUDIO_INTERRUPT_HINT, hintValue);
+    if (userData == nullptr) {
+        WVLOG_E("userData is null");
+        return;
     }
-    if (callbackAdapter_) {
-        callbackAdapter_->OnInfo(ConvertInfoType(type), extra, hintValue);
+    int32_t state = 0;
+    if (type == AVPlayerOnInfoType::AV_INFO_TYPE_STATE_CHANGE) {
+        OH_AVFormat_GetIntValue(infoBody, OH_PLAYER_STATE, &state);
+        state = ConverterState(state);
     }
+    int32_t hintValue = INVALID;
+    if (type == AVPlayerOnInfoType::AV_INFO_TYPE_INTERRUPT_EVENT) {
+        OH_AVFormat_GetIntValue(infoBody, OH_PLAYER_AUDIO_INTERRUPT_HINT, &hintValue);
+    }
+    PlayerCallbackAdapter* callback = (PlayerCallbackAdapter*)(userData);
+    callback->OnInfo(ConvertInfoType(type), state, hintValue);
 }
 
-void PlayerCallbackImpl::OnError(int32_t errorCode, const std::string& errorMsg)
+void PlayerErrorCallback(OH_AVPlayer *player, int32_t errorCode, const char *errorMsg, void *userData)
 {
-    (void)errorMsg;
-    WVLOG_E("media player error, errorCode=%{public}d", errorCode);
-    if (callbackAdapter_) {
-        auto errorType = PlayerAdapterErrorType::INVALID_CODE;
-        if (IsUnsupportType(errorCode)) {
-            errorType = PlayerAdapterErrorType::UNSUPPORT_TYPE;
-        } else if (IsFatalError(errorCode)) {
-            errorType = PlayerAdapterErrorType::FATAL_ERROR;
-        }
-        callbackAdapter_->OnError(errorType);
+    if (userData == nullptr) {
+        WVLOG_E("PlayerErrorCallback, userData is nullptr");
+        return;
     }
+    auto errorType = PlayerAdapterErrorType::INVALID_CODE;
+    if (IsUnsupportType(errorCode)) {
+        errorType = PlayerAdapterErrorType::UNSUPPORT_TYPE;
+    } else if(IsFatalError(errorCode)) {
+        errorType = PlayerAdapterErrorType::FATAL_ERROR;
+    }
+    PlayerCallbackAdapter* callback = (PlayerCallbackAdapter*)(userData);
+    callback->OnError(errorType);
 }
 
 PlayerAdapterImpl::PlayerAdapterImpl()
 {
-    player_ = Media::PlayerFactory::CreatePlayer();
+    player_ = OH_AVPlayer_Create();
 }
 
 PlayerAdapterImpl::~PlayerAdapterImpl()
 {
     if (player_) {
-        player_->Release();
-        WVLOG_I("player release");
+        int ret = GetErrorCode(OH_AVPlayer_Release(player_));
+        WVLOG_I("player release, ret = %{public}d", ret);
     }
 }
 
@@ -187,8 +219,10 @@ int32_t PlayerAdapterImpl::SetPlayerCallback(std::shared_ptr<PlayerCallbackAdapt
         WVLOG_E("player_ or callbackAdapter is nullptr");
         return -1;
     }
-    auto callback = std::make_shared<PlayerCallbackImpl>(std::move(callbackAdapter));
-    return player_->SetPlayerCallback(callback);
+    callbackAdapter_ = std::move(callbackAdapter);
+    int ret1 = GetErrorCode(OH_AVPlayer_SetOnInfoCallback(player_, PlayerInfoCallback, callbackAdapter_.get()));
+    int ret2 = GetErrorCode(OH_AVPlayer_SetOnErrorCallback(player_, PlayerErrorCallback, callbackAdapter_.get()));
+    return ret1 + ret2;
 }
 
 int32_t PlayerAdapterImpl::SetSource(const std::string& url)
@@ -197,7 +231,7 @@ int32_t PlayerAdapterImpl::SetSource(const std::string& url)
         WVLOG_E("player_ is nullptr");
         return -1;
     }
-    return player_->SetSource(url);
+    return GetErrorCode(OH_AVPlayer_SetURLSource(player_, url.c_str()));
 }
 
 int32_t PlayerAdapterImpl::SetSource(int32_t fd, int64_t offset, int64_t size)
@@ -206,7 +240,7 @@ int32_t PlayerAdapterImpl::SetSource(int32_t fd, int64_t offset, int64_t size)
         WVLOG_E("player_ is nullptr");
         return -1;
     }
-    return player_->SetSource(fd, offset, size);
+    return GetErrorCode(OH_AVPlayer_SetFDSource(player_, fd, offset, size));
 }
 
 int32_t PlayerAdapterImpl::SetVideoSurface(std::shared_ptr<IConsumerSurfaceAdapter> cSurfaceAdapter)
@@ -215,11 +249,10 @@ int32_t PlayerAdapterImpl::SetVideoSurface(std::shared_ptr<IConsumerSurfaceAdapt
         WVLOG_E("player_  or cSurfaceAdapter is nullptr");
         return -1;
     }
-    auto cSurface = std::static_pointer_cast<ConsumerSurfaceAdapterImpl>(cSurfaceAdapter)->GetConsumerSurface();
-    cSurface->SetDefaultUsage(BUFFER_USAGE_CPU_READ);
-    sptr<IBufferProducer> producer = cSurface->GetProducer();
-    sptr<Surface> pSurface = Surface::CreateSurfaceAsProducer(producer);
-    return player_->SetVideoSurface(pSurface);
+    OH_NativeImage* cImage = std::static_pointer_cast<ConsumerNativeAdapterImpl>(cSurfaceAdapter)->GetConsumerSurface();
+    OHNativeWindow* nativeWindow = OH_NativeImage_AcquireNativeWindow(cImage);
+    OH_NativeWindow_NativeWindowHandleOpt(nativeWindow, SET_USAGE, NATIVEBUFFER_USAGE_CPU_READ);
+    return GetErrorCode(OH_AVPlayer_SetVideoSurface(player_, nativeWindow));
 }
 
 int32_t PlayerAdapterImpl::SetVolume(float leftVolume, float rightVolume)
@@ -228,7 +261,7 @@ int32_t PlayerAdapterImpl::SetVolume(float leftVolume, float rightVolume)
         WVLOG_E("player_ is nullptr");
         return -1;
     }
-    return player_->SetVolume(leftVolume, rightVolume);
+    return GetErrorCode(OH_AVPlayer_SetVolume(player_, leftVolume, rightVolume));
 }
 
 int32_t PlayerAdapterImpl::Seek(int32_t mSeconds, PlayerSeekMode mode)
@@ -237,7 +270,7 @@ int32_t PlayerAdapterImpl::Seek(int32_t mSeconds, PlayerSeekMode mode)
         WVLOG_E("player_ is nullptr");
         return -1;
     }
-    return player_->Seek(mSeconds, ConvertSeekMode(mode));
+    return GetErrorCode(OH_AVPlayer_Seek(player_, mSeconds, ConvertSeekMode(mode)));
 }
 
 int32_t PlayerAdapterImpl::Play()
@@ -246,7 +279,7 @@ int32_t PlayerAdapterImpl::Play()
         WVLOG_E("player_ is nullptr");
         return -1;
     }
-    return player_->Play();
+    return GetErrorCode(OH_AVPlayer_Play(player_));
 }
 
 int32_t PlayerAdapterImpl::Pause()
@@ -255,7 +288,7 @@ int32_t PlayerAdapterImpl::Pause()
         WVLOG_E("player_ is nullptr");
         return -1;
     }
-    return player_->Pause();
+    return GetErrorCode(OH_AVPlayer_Pause(player_));
 }
 
 int32_t PlayerAdapterImpl::PrepareAsync()
@@ -264,7 +297,7 @@ int32_t PlayerAdapterImpl::PrepareAsync()
         WVLOG_E("player_ is nullptr");
         return -1;
     }
-    return player_->PrepareAsync();
+    return GetErrorCode(OH_AVPlayer_Prepare(player_));
 }
 
 int32_t PlayerAdapterImpl::GetCurrentTime(int32_t& currentTime)
@@ -273,7 +306,7 @@ int32_t PlayerAdapterImpl::GetCurrentTime(int32_t& currentTime)
         WVLOG_E("player_ is nullptr");
         return -1;
     }
-    return player_->GetCurrentTime(currentTime);
+    return GetErrorCode(OH_AVPlayer_GetCurrentTime(player_, &currentTime));
 }
 
 int32_t PlayerAdapterImpl::GetDuration(int32_t& duration)
@@ -282,7 +315,7 @@ int32_t PlayerAdapterImpl::GetDuration(int32_t& duration)
         WVLOG_E("player_ is nullptr");
         return -1;
     }
-    return player_->GetDuration(duration);
+    return GetErrorCode(OH_AVPlayer_GetDuration(player_, &duration));
 }
 
 int32_t PlayerAdapterImpl::SetPlaybackSpeed(PlaybackRateMode mode)
@@ -291,6 +324,6 @@ int32_t PlayerAdapterImpl::SetPlaybackSpeed(PlaybackRateMode mode)
         WVLOG_E("player_ is nullptr");
         return -1;
     }
-    return player_->SetPlaybackSpeed(ConvertRateMode(mode));
+    return GetErrorCode(OH_AVPlayer_SetPlaybackSpeed(player_, ConvertRateMode(mode)));
 }
 } // namespace OHOS::NWeb

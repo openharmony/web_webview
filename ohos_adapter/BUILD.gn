@@ -41,8 +41,9 @@ shared_library("nweb_ohos_adapter") {
 #    "flowbuffer_adapter/src/flowbuffer_adapter_impl.cpp",
 #    "graphic_adapter/src/ashmem_adapter_impl.cpp",
      "graphic_adapter/src/native_image_adapter_impl.cpp",
-#    "graphic_adapter/src/surface_adapter_impl.cpp",
     "graphic_adapter/src/vsync_adapter_impl.cpp",
+#     "graphic_adapter/src/surface_adapter_impl.cpp",
+     "graphic_adapter/src/native_window_adapter_impl.cpp",
     "graphic_adapter/src/window_adapter_impl.cpp",
     "hiviewdfx_adapter/src/hilog_adapter.cpp",
 #    "hiviewdfx_adapter/src/hisysevent_adapter_impl.cpp",
@@ -217,7 +218,7 @@ shared_library("nweb_ohos_adapter") {
 #  }
 #
 #  if (webview_media_player_enable) {
-#    sources += [ "media_adapter/src/player_framework_adapter_impl.cpp" ]
+sources += [ "media_adapter/src/player_framework_adapter_impl.cpp" ]
 #    external_deps += [ "player_framework:media_client" ]
 #    defines += [ "NWEB_MEDIA_PLAYER_ENABLE" ]
 #  }
