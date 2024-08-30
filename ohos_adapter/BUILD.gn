@@ -39,7 +39,7 @@ shared_library("nweb_ohos_adapter") {
 #    "enterprise_device_management_adapter/src/enterprise_device_management_adapter_impl.cpp",
     "event_handler_adapter/src/event_handler_adapter_impl.cpp",
 #    "flowbuffer_adapter/src/flowbuffer_adapter_impl.cpp",
-#    "graphic_adapter/src/ashmem_adapter_impl.cpp",
+     "graphic_adapter/src/ashmem_adapter_impl.cpp",
      "graphic_adapter/src/native_image_adapter_impl.cpp",
      "graphic_adapter/src/vsync_adapter_impl.cpp",
 #     "graphic_adapter/src/surface_adapter_impl.cpp",
