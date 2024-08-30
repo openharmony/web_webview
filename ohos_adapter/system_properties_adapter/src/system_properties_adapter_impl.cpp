@@ -20,8 +20,10 @@
 #include "parameter.h"
 #include "parameters.h"
 #include "sysversion.h"
-#endif
 #include "nweb_config_helper.h"
+#else
+#include <adapter_base.h>
+#endif
 #include "nweb_log.h"
 #include "hitrace_adapter_impl.h"
 #include <deviceinfo.h>
@@ -70,7 +72,7 @@ SystemPropertiesAdapterImpl::SystemPropertiesAdapterImpl()
         return;
     }
     tmp++;
-    int ret = sscanf_s(tmp, "%d.%d.%d.%d",
+    int ret = sscanf(tmp, "%d.%d.%d.%d",
         &versionPartOne, &versionPartTwo, &versionPartThree, &versionPartFour);
     if (ret <= 0) {
         WVLOG_E("paser os full name failed");
@@ -135,6 +137,7 @@ ProductDeviceType SystemPropertiesAdapterImpl::GetProductDeviceType()
 
 ProductDeviceType SystemPropertiesAdapterImpl::AnalysisFromConfig()
 {
+#ifdef WEBVIEW_ONLY
     std::string factoryLevel = NWebConfigHelper::Instance()
         .ParsePerfConfig(FACTORY_CONFIG_VALUE, FACTORY_LEVEL_VALUE);
     if (factoryLevel.empty()) {
@@ -151,6 +154,9 @@ ProductDeviceType SystemPropertiesAdapterImpl::AnalysisFromConfig()
         return ProductDeviceType::DEVICE_TYPE_2IN1;
     }
     return ProductDeviceType::DEVICE_TYPE_UNKNOWN;
+#else
+    return ProductDeviceType::DEVICE_TYPE_MOBILE;
+#endif
 }
 
 bool SystemPropertiesAdapterImpl::GetWebOptimizationValue()
@@ -368,6 +374,11 @@ bool SystemPropertiesAdapterImpl::GetBoolParameter(const std::string& key, bool 
 
 std::vector<FrameRateSetting> SystemPropertiesAdapterImpl::GetLTPOConfig(const std::string& settingName)
 {
+#ifdef WEBVIEW_ONLY
     return NWebConfigHelper::Instance().GetPerfConfig(settingName);
+#else
+    std::vector<FrameRateSetting> vector;
+    return vector;
+#endif
 }
 } // namespace OHOS::NWeb
