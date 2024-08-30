@@ -36,12 +36,10 @@ public:
 
     void SetIsFlipY(bool value);
 
-#if defined(NWEB_CAMERA_ENABLE)
 private:
     int32_t rotation_ = 0;
     bool is_flip_x_ = false;
     bool is_flip_y_ = false;
-#endif
 };
 
 } // namespace OHOS::NWeb

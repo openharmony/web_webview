@@ -18,29 +18,25 @@
 
 #include <cstdio>
 #include <fcntl.h>
-#include <securec.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <mutex>
 
 #include "camera_manager_adapter.h"
+#include "video_device_descriptor_adapter_impl.h"
 
-#if defined(NWEB_CAMERA_ENABLE)
-#include "camera_manager.h"
-#endif
+#include <native_image/native_image.h>
+#include <ohcamera/camera_manager.h>
+#include <ohcamera/camera.h>
+
 
 namespace OHOS::NWeb {
-#if defined(NWEB_CAMERA_ENABLE)
-using namespace OHOS::CameraStandard;
-
-enum class SurfaceType { INVALID = 0, PREVIEW, SECOND_PREVIEW, PHOTO, VIDEO };
-
-class CameraSurfaceListener;
 
 class CameraSurfaceBufferAdapterImpl : public CameraSurfaceBufferAdapter {
 public:
-    explicit CameraSurfaceBufferAdapterImpl(sptr<SurfaceBuffer> buffer);
+    explicit CameraSurfaceBufferAdapterImpl(OHNativeWindowBuffer* windowBuffer, int32_t fence);
 
-    ~CameraSurfaceBufferAdapterImpl() override = default;
+    ~CameraSurfaceBufferAdapterImpl() override;
 
     int32_t GetFileDescriptor() override;
 
@@ -56,31 +52,31 @@ public:
 
     uint8_t* GetBufferAddr() override;
 
-    sptr<SurfaceBuffer>& GetBuffer();
+    OHNativeWindowBuffer* GetWindowBuffer();
+
+    int32_t GetFenceFd();
+
+    int32_t ClearWindowBuffer();
 
 private:
-    sptr<SurfaceBuffer> buffer_ = nullptr;
+    OHNativeWindowBuffer* windowBuffer_ = nullptr;
+    int32_t fenceFd_;
 };
 
-class CameraManagerAdapterCallback : public CameraManagerCallback {
+class CameraSurfaceAdapterImpl : public CameraSurfaceAdapter {
 public:
-    explicit CameraManagerAdapterCallback(std::shared_ptr<CameraStatusCallbackAdapter> callback);
-    ~CameraManagerAdapterCallback() = default;
-    void OnCameraStatusChanged(const CameraStatusInfo& cameraStatusInfo) const override;
-    void OnFlashlightStatusChanged(const std::string& cameraID, const FlashStatus flashStatus) const override;
+    CameraSurfaceAdapterImpl() = default;
+    ~CameraSurfaceAdapterImpl() = default;
 
-private:
-    CameraStatusAdapter GetAdapterCameraStatus(CameraStatus status) const;
-    std::shared_ptr<CameraStatusCallbackAdapter> statusCallback_;
+    int32_t ReleaseBuffer(std::shared_ptr<CameraSurfaceBufferAdapter> bufferAdapter, int32_t fence) override;
 };
-#endif
 
 class CameraManagerAdapterImpl : public CameraManagerAdapter {
 public:
     static CameraManagerAdapterImpl& GetInstance();
     CameraManagerAdapterImpl() = default;
 
-    ~CameraManagerAdapterImpl() override = default;
+    ~CameraManagerAdapterImpl() override;
 
     int32_t Create(std::shared_ptr<CameraStatusCallbackAdapter> cameraStatusCallback) override;
 
@@ -117,85 +113,57 @@ public:
 
     std::string GetCurrentDeviceId() override;
 
-#if defined(NWEB_CAMERA_ENABLE)
+    OH_NativeImage* GetNativeImage();
+
+    std::shared_ptr<CameraBufferListenerAdapter> GetBufferListener();
+
+    std::shared_ptr<CameraStatusCallbackAdapter> GetStatusCallback();
+
 private:
-    VideoTransportType GetCameraTransportType(ConnectionType connectType);
-    VideoFacingModeAdapter GetCameraFacingMode(CameraPosition position);
-    std::vector<std::shared_ptr<FormatAdapter>> GetCameraSupportFormats(sptr<CameraOutputCapability> outputcapability);
-    VideoPixelFormatAdapter TransToAdapterCameraFormat(CameraFormat format);
-    ExposureModeAdapter GetAdapterExposureMode(ExposureMode exportMode);
-    CameraFormat TransToOriCameraFormat(VideoPixelFormatAdapter format);
+    VideoTransportType GetCameraTransportType(Camera_Connection connectType);
+    VideoFacingModeAdapter GetCameraFacingMode(Camera_Position position);
+    std::vector<std::shared_ptr<FormatAdapter>> GetCameraSupportFormats(Camera_OutputCapability *outputcapability);
+    VideoPixelFormatAdapter TransToAdapterCameraFormat(Camera_Format format);
+    ExposureModeAdapter GetAdapterExposureMode(Camera_ExposureMode exportMode);
+    int32_t GetCameraDeviceFromId(const std::string& deviceId, Camera_Device *camera);
+    Camera_Format TransToOriCameraFormat(VideoPixelFormatAdapter format);
     int32_t TransToAdapterExposureModes(
-        std::vector<ExposureMode>& exposureModes, std::vector<ExposureModeAdapter>& exposureModesAdapter);
+        std::vector<Camera_ExposureMode>& exposureModes, std::vector<ExposureModeAdapter>& exposureModesAdapter);
     std::shared_ptr<VideoCaptureRangeAdapter> GetExposureCompensation();
-    FocusMode GetOriFocusMode(FocusModeAdapter focusMode);
-    FocusModeAdapter GetAdapterFocusMode(FocusMode focusMode);
-    FlashMode GetOriFlashMode(FlashModeAdapter flashMode);
+    Camera_FocusMode GetOriFocusMode(FocusModeAdapter focusMode);
+    FocusModeAdapter GetAdapterFocusMode(Camera_FocusMode focusMode);
+    Camera_FlashMode GetOriFlashMode(FlashModeAdapter flashMode);
     int32_t ReleaseSession();
     int32_t ReleaseSessionResource(const std::string& deviceId);
+    int32_t DestroyNativeImageAndWindow();
     int32_t InitCameraInput(const std::string& deviceId);
     int32_t InitPreviewOutput(const std::shared_ptr<VideoCaptureParamsAdapter> captureParams,
         std::shared_ptr<CameraBufferListenerAdapter> listener);
     int32_t CreateAndStartSession();
     int32_t ErrorTypeToString(CameraErrorType errorType, std::string& errnoTypeString);
     void ReportErrorSysEvent(CameraErrorType errorType);
-    sptr<CameraManager> cameraManager_;
-    sptr<CaptureSession> captureSession_;
-    sptr<CaptureInput> cameraInput_;
-    sptr<IConsumerSurface> previewSurface_;
-    sptr<CameraSurfaceListener> previewSurfaceListener_;
-    sptr<CaptureOutput> previewOutput_;
+    bool HandleDeviceDisc(std::shared_ptr<VideoDeviceDescriptorAdapterImpl> deviceDisc,
+        Camera_Device& camera, Camera_OutputCapability *outputCapability);
+    Camera_Manager *cameraManager_ = nullptr;
+    Camera_CaptureSession *captureSession_ = nullptr;
+    Camera_Input *cameraInput_ = nullptr;
+    Camera_PreviewOutput *previewOutput_ = nullptr;
     std::string deviceId_;
     std::shared_ptr<VideoCaptureParamsAdapter> captureParams_;
-    std::shared_ptr<CameraBufferListenerAdapter> listener_;
     const int32_t DEFAULT_FRAME_RATE = 30;
-    const uint32_t RANGE_MAX_SIZE = 2;
-    const uint32_t RANGE_MIN_INDEX = 0;
-    const uint32_t RANGE_MAX_INDEX = 1;
     CameraStatusAdapter status_ = CameraStatusAdapter::AVAILABLE;
     std::mutex mutex_;
     bool inputInitedFlag_ = false;
     bool isCapturing_ = false;
     bool isForegound_ = false;
     std::mutex restart_mutex_;
-    std::shared_ptr<CameraManagerAdapterCallback> cameraMngrCallback_;
+    CameraManager_Callbacks cameraManagerCallback_;
     std::string wantedDeviceId_;
-#endif
+    OH_NativeImage *nativeImage_ = nullptr;
+    std::shared_ptr<CameraBufferListenerAdapter> bufferListener_ = nullptr;
+    std::shared_ptr<CameraStatusCallbackAdapter> statusCallback_ = nullptr;
 };
 
-#if defined(NWEB_CAMERA_ENABLE)
-class CameraSurfaceListener : public IBufferConsumerListener {
-public:
-    CameraSurfaceListener(
-        SurfaceType surfaceType, sptr<IConsumerSurface> surface, std::shared_ptr<CameraBufferListenerAdapter> listener);
-    virtual ~CameraSurfaceListener() = default;
-    void OnBufferAvailable() override;
 
-private:
-    std::shared_ptr<CameraRotationInfoAdapter> GetRotationInfo(GraphicTransformType transform);
-    std::shared_ptr<CameraRotationInfoAdapter> FillRotationInfo(int roration, bool isFlipX, bool isFlipY);
-    SurfaceType surfaceType_;
-    sptr<IConsumerSurface> surface_;
-    std::shared_ptr<CameraBufferListenerAdapter> listener_ = nullptr;
-    const int32_t ROTATION_0 = 0;
-    const int32_t ROTATION_90 = 90;
-    const int32_t ROTATION_180 = 180;
-    const int32_t ROTATION_270 = 270;
-};
-
-class CameraSurfaceAdapterImpl : public CameraSurfaceAdapter {
-public:
-    CameraSurfaceAdapterImpl();
-
-    CameraSurfaceAdapterImpl(sptr<IConsumerSurface> surface);
-
-    ~CameraSurfaceAdapterImpl() = default;
-
-    int32_t ReleaseBuffer(std::shared_ptr<CameraSurfaceBufferAdapter> bufferAdapter, int32_t fence) override;
-
-private:
-    sptr<IConsumerSurface> cSurface_ = nullptr;
-};
-#endif
 } // namespace OHOS::NWeb
 #endif // CAMERA_MANAGER_ADAPTER_IMPL_H

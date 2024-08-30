@@ -40,13 +40,11 @@ public:
 
     void SetPixelFormat(VideoPixelFormatAdapter format);
 
-#if defined(NWEB_CAMERA_ENABLE)
 private:
     uint32_t width_ = 0;
     uint32_t height_ = 0;
     float frame_rate_ = 0.0;
     VideoPixelFormatAdapter pixel_format_ = VideoPixelFormatAdapter::FORMAT_UNKNOWN;
-#endif
 };
 
 } // namespace OHOS::NWeb
