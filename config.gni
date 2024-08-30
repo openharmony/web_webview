@@ -83,6 +83,6 @@ declare_args() {
   }
   if (defined(global_parts_info) &&
       !defined(global_parts_info.hdf_drivers_interface_display)) {
-    webview_enable_heif_decoder = true
+    webview_enable_heif_decoder = false
   }
 }
