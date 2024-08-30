@@ -204,7 +204,7 @@ shared_library("nweb_ohos_adapter") {
        "media_adapter/src/media_codec_decoder_adapter_impl.cpp",
        "media_adapter/src/media_codec_decoder_adapter_impl_test.cpp",
 #      "media_adapter/src/media_codec_encoder_adapter_impl.cpp",
-#      "media_adapter/src/media_codec_list_adapter_impl.cpp",
+       "media_adapter/src/media_codec_list_adapter_impl.cpp",
 #      "media_adapter/src/ohos_buffer_adapter_impl.cpp",
     ]
 #    external_deps += [

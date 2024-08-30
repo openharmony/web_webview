@@ -18,8 +18,7 @@
 #include <unordered_map>
 
 #include "nweb_log.h"
-#include <media/native_avcapability.h>
-#include <media/native_avmagic.h>
+#include <multimedia/player_framework/native_avcapability.h>
 
 namespace OHOS::NWeb {
 
