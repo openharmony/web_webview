@@ -25,33 +25,28 @@
 
 namespace OHOS::NWeb {
 namespace {
-const std::unordered_map<OHOS::MediaAVCodec::AVCodecErrorType, ErrorType> ERROR_TYPE_MAP = {
-    { OHOS::MediaAVCodec::AVCodecErrorType::AVCODEC_ERROR_INTERNAL, ErrorType::CODEC_ERROR_INTERNAL },
-    { OHOS::MediaAVCodec::AVCodecErrorType::AVCODEC_ERROR_EXTEND_START, ErrorType::CODEC_ERROR_EXTEND_START }
-};
-
-const std::unordered_map<OHOS::MediaAVCodec::AVCodecBufferFlag, BufferFlag> BUFFER_FLAG_MAP = {
-    { OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_NONE, BufferFlag::CODEC_BUFFER_FLAG_NONE },
-    { OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_EOS, BufferFlag::CODEC_BUFFER_FLAG_EOS },
-    { OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_SYNC_FRAME, BufferFlag::CODEC_BUFFER_FLAG_SYNC_FRAME },
-    { OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_PARTIAL_FRAME,
+const std::unordered_map<OH_AVCodecBufferFlags, BufferFlag> BUFFER_FLAG_MAP = {
+    { OH_AVCodecBufferFlags::AVCODEC_BUFFER_FLAGS_NONE, BufferFlag::CODEC_BUFFER_FLAG_NONE },
+    { OH_AVCodecBufferFlags::AVCODEC_BUFFER_FLAGS_EOS, BufferFlag::CODEC_BUFFER_FLAG_EOS },
+    { OH_AVCodecBufferFlags::AVCODEC_BUFFER_FLAGS_SYNC_FRAME, BufferFlag::CODEC_BUFFER_FLAG_SYNC_FRAME },
+    { OH_AVCodecBufferFlags::AVCODEC_BUFFER_FLAGS_INCOMPLETE_FRAME,
         BufferFlag::CODEC_BUFFER_FLAG_PARTIAL_FRAME },
-    { OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_CODEC_DATA, BufferFlag::CODEC_BUFFER_FLAG_CODEC_DATA }
+    { OH_AVCodecBufferFlags::AVCODEC_BUFFER_FLAGS_CODEC_DATA, BufferFlag::CODEC_BUFFER_FLAG_CODEC_DATA }
 };
 
-const std::unordered_map<BufferFlag, OHOS::MediaAVCodec::AVCodecBufferFlag> AV_BUFFER_FLAG_MAP = {
-    { BufferFlag::CODEC_BUFFER_FLAG_NONE, OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_NONE },
-    { BufferFlag::CODEC_BUFFER_FLAG_EOS, OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_EOS },
-    { BufferFlag::CODEC_BUFFER_FLAG_SYNC_FRAME, OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_SYNC_FRAME },
+const std::unordered_map<BufferFlag, OH_AVCodecBufferFlags> AV_BUFFER_FLAG_MAP = {
+    { BufferFlag::CODEC_BUFFER_FLAG_NONE, OH_AVCodecBufferFlags::AVCODEC_BUFFER_FLAGS_NONE },
+    { BufferFlag::CODEC_BUFFER_FLAG_EOS, OH_AVCodecBufferFlags::AVCODEC_BUFFER_FLAGS_EOS },
+    { BufferFlag::CODEC_BUFFER_FLAG_SYNC_FRAME, OH_AVCodecBufferFlags::AVCODEC_BUFFER_FLAGS_SYNC_FRAME },
     { BufferFlag::CODEC_BUFFER_FLAG_PARTIAL_FRAME,
-        OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_PARTIAL_FRAME },
-    { BufferFlag::CODEC_BUFFER_FLAG_CODEC_DATA, OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_CODEC_DATA }
+        OH_AVCodecBufferFlags::AVCODEC_BUFFER_FLAGS_INCOMPLETE_FRAME },
+    { BufferFlag::CODEC_BUFFER_FLAG_CODEC_DATA, OH_AVCodecBufferFlags::AVCODEC_BUFFER_FLAGS_CODEC_DATA }
 };
 } // namespace
 
 CodecCodeAdapter MediaCodecEncoderAdapterImpl::CreateVideoCodecByMime(const std::string mimetype)
 {
-    encoder_ = VideoEncoderFactory::CreateByMime(mimetype);
+    encoder_ = OH_VideoEncoder_CreateByMime(mimetype.c_str());
     if (encoder_ == nullptr) {
         WVLOG_E("MediaCodecEncoder create by mime failed.");
         return CodecCodeAdapter::ERROR;
@@ -62,7 +57,7 @@ CodecCodeAdapter MediaCodecEncoderAdapterImpl::CreateVideoCodecByMime(const std:
 
 CodecCodeAdapter MediaCodecEncoderAdapterImpl::CreateVideoCodecByName(const std::string name)
 {
-    encoder_ = VideoEncoderFactory::CreateByName(name);
+    encoder_ = OH_VideoEncoder_CreateByName(name.c_str());
     if (encoder_ == nullptr) {
         WVLOG_E("MediaCodecEncoder create by name failed.");
         return CodecCodeAdapter::ERROR;
@@ -89,8 +84,26 @@ CodecCodeAdapter MediaCodecEncoderAdapterImpl::SetCodecCallback(const std::share
         return CodecCodeAdapter::ERROR;
     }
 
-    int32_t ret = encoder_->SetCallback(callback_);
-    if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
+    struct OH_AVCodecCallback cb;
+    cb.onError = [] (OH_AVCodec *codec, int32_t errorCode, void *userData) {
+        (void)codec;
+        static_cast<EncoderCallbackImpl*>(userData)->OnError(errorCode);
+    };
+    cb.onStreamChanged = [] (OH_AVCodec *codec, OH_AVFormat *format, void *userData) {
+        (void)codec;
+        static_cast<EncoderCallbackImpl*>(userData)->OnOutputFormatChanged(format);
+    };
+    cb.onNeedInputBuffer = [] (OH_AVCodec *codec, uint32_t index, OH_AVBuffer *buffer, void *userData) {
+        (void)codec;
+        static_cast<EncoderCallbackImpl*>(userData)->OnInputBufferAvailable(index, buffer);
+    };
+    cb.onNewOutputBuffer = [] (OH_AVCodec *codec, uint32_t index, OH_AVBuffer *buffer, void *userData) {
+        (void)codec;
+        static_cast<EncoderCallbackImpl*>(userData)->OnOutputBufferAvailable(index, buffer);
+    };
+
+    OH_AVErrCode ret = OH_VideoEncoder_RegisterCallback(encoder_, cb, callback_.get());
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         WVLOG_E("MediaCodecEncoder set callback failed.");
         return CodecCodeAdapter::ERROR;
     }
@@ -109,20 +122,23 @@ CodecCodeAdapter MediaCodecEncoderAdapterImpl::Configure(const std::shared_ptr<C
         return CodecCodeAdapter::ERROR;
     }
 
-    OHOS::MediaAVCodec::Format avCodecFormat;
+    OH_AVFormat *avCodecFormat = OH_AVFormat_Create();
+    if (avCodecFormat == nullptr) {
+        return CodecCodeAdapter::ERROR;
+    }
 
-    avCodecFormat.PutIntValue(OHOS::MediaAVCodec::MediaDescriptionKey::MD_KEY_WIDTH, config->GetWidth());
-    avCodecFormat.PutIntValue(OHOS::MediaAVCodec::MediaDescriptionKey::MD_KEY_HEIGHT, config->GetHeight());
-    avCodecFormat.PutDoubleValue(OHOS::MediaAVCodec::MediaDescriptionKey::MD_KEY_FRAME_RATE, config->GetFrameRate());
-    avCodecFormat.PutLongValue(OHOS::MediaAVCodec::MediaDescriptionKey::MD_KEY_BITRATE, config->GetBitRate());
-    avCodecFormat.PutIntValue(
-        OHOS::MediaAVCodec::MediaDescriptionKey::MD_KEY_VIDEO_ENCODE_BITRATE_MODE, VideoEncodeBitrateMode::VBR);
-    avCodecFormat.PutIntValue(
-        OHOS::MediaAVCodec::MediaDescriptionKey::MD_KEY_PIXEL_FORMAT, (int32_t)VideoPixelFormat::YUVI420);
+    OH_AVFormat_SetIntValue(avCodecFormat, OH_MD_KEY_WIDTH, config->GetWidth());
+    OH_AVFormat_SetIntValue(avCodecFormat, OH_MD_KEY_HEIGHT, config->GetHeight());
+    OH_AVFormat_SetDoubleValue(avCodecFormat, OH_MD_KEY_FRAME_RATE, config->GetFrameRate());
+    OH_AVFormat_SetLongValue(avCodecFormat, OH_MD_KEY_BITRATE, config->GetBitRate());
+    OH_AVFormat_SetIntValue(avCodecFormat, OH_MD_KEY_VIDEO_ENCODE_BITRATE_MODE, OH_VideoEncodeBitrateMode::VBR);
+    OH_AVFormat_SetIntValue(avCodecFormat, OH_MD_KEY_PIXEL_FORMAT, (int32_t)OH_AVPixelFormat::AV_PIXEL_FORMAT_YUVI420);
     WVLOG_I("Configure width: %{public}d, height: %{public}d, bitRate: %{public}d, framerate: %{public}lf,",
         config->GetWidth(), config->GetHeight(), (int32_t)config->GetBitRate(), config->GetFrameRate());
-    int32_t ret = encoder_->Configure(avCodecFormat);
-    if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
+    OH_AVErrCode ret = OH_VideoEncoder_Configure(encoder_, avCodecFormat);
+    OH_AVFormat_Destroy(avCodecFormat);
+
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         WVLOG_E("encoder config error.");
         return CodecCodeAdapter::ERROR;
     }
@@ -136,8 +152,8 @@ CodecCodeAdapter MediaCodecEncoderAdapterImpl::Prepare()
         return CodecCodeAdapter::ERROR;
     }
 
-    int32_t ret = encoder_->Prepare();
-    if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
+    OH_AVErrCode ret = OH_VideoEncoder_Prepare(encoder_);
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         WVLOG_E("encoder PrepareEncoder error.");
         return CodecCodeAdapter::ERROR;
     }
@@ -151,8 +167,8 @@ CodecCodeAdapter MediaCodecEncoderAdapterImpl::Start()
         return CodecCodeAdapter::ERROR;
     }
 
-    int32_t ret = encoder_->Start();
-    if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
+    OH_AVErrCode ret = OH_VideoEncoder_Start(encoder_);
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         WVLOG_E("encoder Start error.");
         return CodecCodeAdapter::ERROR;
     }
@@ -166,8 +182,8 @@ CodecCodeAdapter MediaCodecEncoderAdapterImpl::Stop()
         return CodecCodeAdapter::ERROR;
     }
 
-    int32_t ret = encoder_->Stop();
-    if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
+    OH_AVErrCode ret = OH_VideoEncoder_Stop(encoder_);
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         WVLOG_E("encoder Stop error.");
         return CodecCodeAdapter::ERROR;
     }
@@ -181,8 +197,8 @@ CodecCodeAdapter MediaCodecEncoderAdapterImpl::Reset()
         return CodecCodeAdapter::ERROR;
     }
 
-    int32_t ret = encoder_->Reset();
-    if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
+    OH_AVErrCode ret = OH_VideoEncoder_Reset(encoder_);
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         WVLOG_E("encoder Reset error.");
         return CodecCodeAdapter::ERROR;
     }
@@ -196,8 +212,8 @@ CodecCodeAdapter MediaCodecEncoderAdapterImpl::Release()
         return CodecCodeAdapter::ERROR;
     }
 
-    int32_t ret = encoder_->Release();
-    if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
+    OH_AVErrCode ret = OH_VideoEncoder_Destroy(encoder_);
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         WVLOG_E("encoder Release error.");
         return CodecCodeAdapter::ERROR;
     }
@@ -211,13 +227,14 @@ std::shared_ptr<ProducerSurfaceAdapter> MediaCodecEncoderAdapterImpl::CreateInpu
         return nullptr;
     }
 
-    auto avCodecEncoderSurface = encoder_->CreateInputSurface();
-    if (avCodecEncoderSurface == nullptr) {
+    OHNativeWindow *window = nullptr;
+    OH_AVErrCode ret = OH_VideoEncoder_GetSurface(encoder_, &window);
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         WVLOG_E("encoder create input surface error.");
         return nullptr;
     }
 
-    return std::make_shared<ProducerSurfaceAdapterImpl>(avCodecEncoderSurface);
+    return std::make_shared<ProducerNativeAdapterImpl>(window);
 }
 
 CodecCodeAdapter MediaCodecEncoderAdapterImpl::ReleaseOutputBuffer(uint32_t index, bool isRender)
@@ -227,8 +244,8 @@ CodecCodeAdapter MediaCodecEncoderAdapterImpl::ReleaseOutputBuffer(uint32_t inde
         return CodecCodeAdapter::ERROR;
     }
 
-    int32_t ret = encoder_->ReleaseOutputBuffer(index);
-    if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
+    OH_AVErrCode ret = OH_VideoEncoder_FreeOutputBuffer(encoder_, index);
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         WVLOG_E("release buffer failed.");
         return CodecCodeAdapter::ERROR;
     }
@@ -242,28 +259,20 @@ CodecCodeAdapter MediaCodecEncoderAdapterImpl::RequestKeyFrameSoon()
         return CodecCodeAdapter::ERROR;
     }
 
-    OHOS::MediaAVCodec::Format avCodecFormat;
-    avCodecFormat.PutIntValue(OHOS::MediaAVCodec::MediaDescriptionKey::MD_KEY_REQUEST_I_FRAME, true);
+    OH_AVFormat *avCodecFormat = OH_AVFormat_Create();
+    OH_AVFormat_SetIntValue(avCodecFormat, OH_MD_KEY_REQUEST_I_FRAME, true);
 
-    int32_t ret = encoder_->SetParameter(avCodecFormat);
-    if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
+    OH_AVErrCode ret = OH_VideoEncoder_SetParameter(encoder_, avCodecFormat);
+    OH_AVFormat_Destroy(avCodecFormat);
+
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
         WVLOG_E("encoder SetParameter error.");
         return CodecCodeAdapter::ERROR;
     }
     return CodecCodeAdapter::OK;
 }
 
-ErrorType MediaCodecEncoderAdapterImpl::GetErrorType(AVCodecErrorType codecErrorType)
-{
-    auto type = ERROR_TYPE_MAP.find(codecErrorType);
-    if (type == ERROR_TYPE_MAP.end()) {
-        WVLOG_E("error type not found.");
-        return ErrorType::CODEC_ERROR_INTERNAL;
-    }
-    return type->second;
-}
-
-BufferFlag MediaCodecEncoderAdapterImpl::GetBufferFlag(AVCodecBufferFlag codecBufferFlag)
+BufferFlag MediaCodecEncoderAdapterImpl::GetBufferFlag(OH_AVCodecBufferFlags codecBufferFlag)
 {
     auto flag = BUFFER_FLAG_MAP.find(codecBufferFlag);
     if (flag == BUFFER_FLAG_MAP.end()) {
@@ -275,19 +284,16 @@ BufferFlag MediaCodecEncoderAdapterImpl::GetBufferFlag(AVCodecBufferFlag codecBu
 
 EncoderCallbackImpl::EncoderCallbackImpl(std::shared_ptr<CodecCallbackAdapter> cb) : cb_(cb) {};
 
-void EncoderCallbackImpl::OnError(AVCodecErrorType errorType, int32_t errorCode)
+void EncoderCallbackImpl::OnError(int32_t errorCode)
 {
     if (!cb_) {
         WVLOG_E("callback is null.");
         return;
     }
-
-    ErrorType errType = MediaCodecEncoderAdapterImpl::GetErrorType(errorType);
-
-    cb_->OnError(errType, errorCode);
+    cb_->OnError(ErrorType::CODEC_ERROR_INTERNAL, errorCode);
 }
 
-void EncoderCallbackImpl::OnOutputFormatChanged(const Format& format)
+void EncoderCallbackImpl::OnOutputFormatChanged(OH_AVFormat *format)
 {
     if (!cb_) {
         WVLOG_E("callback is null.");
@@ -302,21 +308,21 @@ void EncoderCallbackImpl::OnOutputFormatChanged(const Format& format)
 
     int32_t width = 0;
     int32_t height = 0;
-    format.GetIntValue(OHOS::MediaAVCodec::MediaDescriptionKey::MD_KEY_WIDTH, width);
-    format.GetIntValue(OHOS::MediaAVCodec::MediaDescriptionKey::MD_KEY_HEIGHT, height);
+    OH_AVFormat_GetIntValue(format, OH_MD_KEY_WIDTH, &width);
+    OH_AVFormat_GetIntValue(format, OH_MD_KEY_HEIGHT, &height);
     formatAdapter->SetWidth(width);
     formatAdapter->SetHeight(height);
     cb_->OnStreamChanged(formatAdapter);
 }
 
-void EncoderCallbackImpl::OnInputBufferAvailable(uint32_t index, std::shared_ptr<AVSharedMemory> buffer)
+void EncoderCallbackImpl::OnInputBufferAvailable(uint32_t index, OH_AVBuffer *buffer)
 {
     if (!cb_) {
         WVLOG_E("callback is null.");
         return;
     }
 
-    if (buffer == nullptr || buffer->GetBase() == nullptr) {
+    if (buffer == nullptr || OH_AVBuffer_GetAddr(buffer) == nullptr) {
         WVLOG_E("callback input buffer is null");
         return;
     }
@@ -327,20 +333,26 @@ void EncoderCallbackImpl::OnInputBufferAvailable(uint32_t index, std::shared_ptr
         return;
     }
 
-    ohosBuffer->SetAddr(buffer->GetBase());
-    ohosBuffer->SetBufferSize(buffer->GetSize());
+    ohosBuffer->SetAddr(OH_AVBuffer_GetAddr(buffer));
+    ohosBuffer->SetBufferSize(OH_AVBuffer_GetCapacity(buffer));
     cb_->OnNeedInputData(index, ohosBuffer);
 }
 
 void EncoderCallbackImpl::OnOutputBufferAvailable(
-    uint32_t index, AVCodecBufferInfo info, AVCodecBufferFlag flag, std::shared_ptr<AVSharedMemory> buffer)
+    uint32_t index, OH_AVBuffer *buffer)
 {
     if (!cb_) {
         WVLOG_E("callback is null.");
         return;
     }
 
-    if (buffer == nullptr || buffer->GetBase() == nullptr) {
+    OH_AVCodecBufferAttr attr;
+    OH_AVErrCode ret = OH_AVBuffer_GetBufferAttr(buffer, &attr);
+    if (ret != OH_AVErrCode::AV_ERR_OK) {
+        return;
+    }
+
+    if (buffer == nullptr || OH_AVBuffer_GetAddr(buffer) == nullptr) {
         WVLOG_E("callback output buffer is null");
         return;
     }
@@ -357,14 +369,15 @@ void EncoderCallbackImpl::OnOutputBufferAvailable(
         return;
     }
 
-    bufferInfo->SetPresentationTimeUs(info.presentationTimeUs);
-    bufferInfo->SetSize(info.size);
-    bufferInfo->SetOffset(info.offset);
+    bufferInfo->SetPresentationTimeUs(attr.pts);
+    bufferInfo->SetSize(attr.size);
+    bufferInfo->SetOffset(attr.offset);
 
-    BufferFlag flagAdapter = MediaCodecEncoderAdapterImpl::GetBufferFlag(flag);
+    auto attrflags = static_cast<OH_AVCodecBufferFlags>(attr.flags);
+    BufferFlag flagAdapter = MediaCodecEncoderAdapterImpl::GetBufferFlag(attrflags);
 
-    ohosBuffer->SetAddr(buffer->GetBase());
-    ohosBuffer->SetBufferSize(info.size);
+    ohosBuffer->SetAddr(OH_AVBuffer_GetAddr(buffer));
+    ohosBuffer->SetBufferSize(attr.size);
     cb_->OnNeedOutputData(index, bufferInfo, flagAdapter, ohosBuffer);
 }
 } // namespace OHOS::NWeb

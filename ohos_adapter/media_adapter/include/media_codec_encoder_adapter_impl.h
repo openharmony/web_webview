@@ -16,25 +16,23 @@
 #ifndef MEDIA_CODEC_ENCODER_ADAPTER_IMPL_H
 #define MEDIA_CODEC_ENCODER_ADAPTER_IMPL_H
 
-#include "avcodec_errors.h"
-#include "avcodec_list.h"
-#include "avcodec_video_encoder.h"
 #include "media_codec_adapter.h"
-#include "media_description.h"
-#include "surface_adapter_impl.h"
+#include <multimedia/player_framework/native_avcodec_videoencoder.h>
+#include <multimedia/player_framework/native_avcodec_base.h>
+#include <multimedia/player_framework/native_avformat.h>
+#include "native_window_adapter_impl.h"
 
 namespace OHOS::NWeb {
-using namespace OHOS::MediaAVCodec;
+class MediaCodecEncoderAdapterImpl;
 
-class EncoderCallbackImpl : public MediaAVCodec::AVCodecCallback {
+class EncoderCallbackImpl {
 public:
     EncoderCallbackImpl(std::shared_ptr<CodecCallbackAdapter> cb);
-    ~EncoderCallbackImpl() override = default;
-    void OnError(MediaAVCodec::AVCodecErrorType errorType, int32_t errorCode) override;
-    void OnOutputFormatChanged(const MediaAVCodec::Format& format) override;
-    void OnInputBufferAvailable(uint32_t index, std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer) override;
-    void OnOutputBufferAvailable(uint32_t index, MediaAVCodec::AVCodecBufferInfo info,
-        MediaAVCodec::AVCodecBufferFlag flag, std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer) override;
+    ~EncoderCallbackImpl() = default;
+    void OnError(int32_t errorCode);
+    void OnOutputFormatChanged(OH_AVFormat *format);
+    void OnInputBufferAvailable(uint32_t index, OH_AVBuffer *buffer);
+    void OnOutputBufferAvailable(uint32_t index, OH_AVBuffer *buffer);
 
 private:
     std::shared_ptr<CodecCallbackAdapter> cb_ = nullptr;
@@ -58,13 +56,11 @@ public:
     std::shared_ptr<ProducerSurfaceAdapter> CreateInputSurface() override;
     CodecCodeAdapter ReleaseOutputBuffer(uint32_t index, bool isRender) override;
     CodecCodeAdapter RequestKeyFrameSoon() override;
-    static ErrorType GetErrorType(MediaAVCodec::AVCodecErrorType codecErrorType);
-    static BufferFlag GetBufferFlag(MediaAVCodec::AVCodecBufferFlag codecBufferFlag);
+    static BufferFlag GetBufferFlag(OH_AVCodecBufferFlags codecBufferFlag);
 
 private:
-    std::shared_ptr<OHOS::MediaAVCodec::AVCodecVideoEncoder> encoder_ = nullptr;
+    OH_AVCodec* encoder_ = nullptr;
     std::shared_ptr<EncoderCallbackImpl> callback_ = nullptr;
-    sptr<Surface> avCodecEncoderSurface_ = nullptr;
 };
 } // namespace OHOS::NWeb
 #endif // MEDIA_CODEC_ENCODER_ADAPTER_IMPL_H
