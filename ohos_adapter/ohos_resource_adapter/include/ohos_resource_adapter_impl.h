@@ -20,6 +20,11 @@
 #include "file_mapper.h"
 #include "ohos_resource_adapter.h"
 
+#include "napi/native_api.h"
+#include <rawfile/raw_file_manager.h>
+#include <resourcemanager/ohresmgr.h>
+#include <resourcemanager/resmgr_common.h>
+
 namespace OHOS::NWeb {
 class OhosFileMapperImpl : public OhosFileMapper {
 public:
@@ -52,7 +57,7 @@ class OhosResourceAdapterImpl : public OhosResourceAdapter {
 public:
     explicit OhosResourceAdapterImpl(const std::string& hapPath);
 
-    ~OhosResourceAdapterImpl() override = default;
+    ~OhosResourceAdapterImpl() override;
 
     bool GetRawFileData(const std::string& rawFile, size_t& len,
         uint8_t** dest, bool isSys = false) override;
@@ -69,6 +74,8 @@ public:
 
     static bool GetResourceString(const std::string& bundleName, const std::string& moduleName,
         const int32_t resId, std::string& result);
+
+    static void setApplicationResourceManager(napi_env env, napi_value jsResMgr);
 
 private:
     void Init(const std::string& hapPath);
@@ -92,6 +99,8 @@ private:
 
     std::shared_ptr<OHOS::AbilityBase::Extractor> sysExtractor_;
     std::shared_ptr<OHOS::AbilityBase::Extractor> extractor_;
+
+    static NativeResourceManager* mgr_;
 };
 }  // namespace OHOS::NWeb
 

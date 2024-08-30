@@ -16,6 +16,53 @@ declare_args() {
 config("ohos_adapter_public_interface") {
   include_dirs = [ "interfaces" ]
 }
+
+################################### string_utils ########################################
+config("string_utils_config") {
+  include_dirs = [ "utils/extractortool/include" ]
+}
+
+shared_library("adapter_string_utils") {
+  sources = [ "utils/extractortool/src/file_path_utils.cpp" ]
+
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+
+  public_configs = [ ":string_utils_config" ]
+}
+
+################################### extractortool ########################################
+config("ability_extractor_config") {
+  include_dirs = [
+    "utils/extractortool/include",
+    "//third_party/zlib/",
+    "//third_party/zlib/contrib/minizip",
+  ]
+}
+
+shared_library("adapter_extractortool") {
+  sources = [
+    "utils/extractortool/src/extractor.cpp",
+    "utils/extractortool/src/file_mapper.cpp",
+    "utils/extractortool/src/zip_file.cpp",
+    "utils/extractortool/src/zip_file_reader.cpp",
+    "utils/extractortool/src/zip_file_reader_io.cpp",
+  ]
+
+  cflags = []
+  cflags_cc = []
+
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+
+  deps = [ ":adapter_string_utils" ]
+
+  public_configs = [ ":ability_extractor_config" ]
+}
+
 #
 shared_library("nweb_ohos_adapter") {
 #  branch_protector_ret = "pac_ret"
@@ -55,7 +102,7 @@ shared_library("nweb_ohos_adapter") {
 #    "ohos_adapter_helper/src/ohos_adapter_helper_impl.cpp",
 #    "ohos_image_adapter/src/ohos_image_decoder_adapter_impl.cpp",
 #    "ohos_init_web_adapter/src/ohos_init_web_adapter_impl.cpp",
-#    "ohos_resource_adapter/src/ohos_resource_adapter_impl.cpp",
+     "ohos_resource_adapter/src/ohos_resource_adapter_impl.cpp",
 #    "pasteboard_adapter/src/pasteboard_client_adapter_impl.cpp",
 #    "print_manager_adapter/src/print_manager_adapter_impl.cpp",
 #    "res_sched_adapter/src/res_sched_client_adapter_impl.cpp",
@@ -98,7 +145,7 @@ shared_library("nweb_ohos_adapter") {
 #    "ohos_adapter_helper/include",
 #    "ohos_image_adapter/include",
 #    "ohos_init_web_adapter/include",
-#    "ohos_resource_adapter/include",
+     "ohos_resource_adapter/include",
 #    "pasteboard_adapter/include",
 #    "power_mgr_adapter/include",
 #    "print_manager_adapter/include",
@@ -106,7 +153,9 @@ shared_library("nweb_ohos_adapter") {
 #    "soc_perf_adapter/include",
 #    "system_properties_adapter/include",
 #    "sensor_adapter/include",
-    "//third_party/jsoncpp/source/include/"
+     "//third_party/jsoncpp/source/include/",
+     "//third_party/zlib/",
+     "//third_party/zlib/contrib/minizip"
   ]
 #
   public_configs = [ ":ohos_adapter_public_interface" ]
@@ -305,6 +354,7 @@ shared_library("nweb_ohos_adapter") {
 #  subsystem_name = "web"
 #
 #  deps = [ "../ohos_nweb:web_configs" ]
+  deps = [ ":adapter_extractortool" ]
   if(webview_only) {
     defines += ["WEBVIWE_ONLY"]
   }

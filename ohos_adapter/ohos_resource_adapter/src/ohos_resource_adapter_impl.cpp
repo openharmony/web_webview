@@ -16,21 +16,13 @@
 #include "ohos_resource_adapter_impl.h"
 
 #include <ctime>
-#include <securec.h>
 #include <sstream>
 #include <cerrno>
 #include <cstring>
 #include <unistd.h>
 
-#include "application_context.h"
-#include "bundle_mgr_proxy.h"
-#include "if_system_ability_manager.h"
-#include "iservice_registry.h"
 #include "nweb_log.h"
 #include "ohos_adapter_helper.h"
-#include "parameter.h"
-#include "parameters.h"
-#include "system_ability_definition.h"
 
 using namespace OHOS::AbilityBase;
 
@@ -38,6 +30,8 @@ namespace {
 const std::string NWEB_HAP_PATH = "/system/app/com.ohos.nweb/NWeb.hap";
 const std::string NWEB_HAP_PATH_1 = "/system/app/NWeb/NWeb.hap";
 const std::string NWEB_HAP_PATH_MODULE_UPDATE = "/module_update/ArkWebCore/app/com.ohos.nweb/NWeb.hap";
+const std::string PERSIST_ARKWEBCORE_INSTALL_PATH 
+    = "/module_update/ArkWebCore/app/com.huawei.hmos.arkwebcore/ArwWebCore.hap";
 const std::string NWEB_BUNDLE_NAME = "com.ohos.nweb";
 const std::string NWEB_PACKAGE = "entry";
 const std::string RAWFILE_PREFIX = "resources/rawfile/";
@@ -52,43 +46,6 @@ constexpr uint32_t START_YEAR = 1900;
 
 namespace OHOS::NWeb {
 namespace {
-sptr<OHOS::AppExecFwk::BundleMgrProxy> GetBundleMgrProxy()
-{
-    auto systemAbilityMgr = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (!systemAbilityMgr) {
-        WVLOG_E("fail to get system ability mgr.");
-        return nullptr;
-    }
-    auto remoteObject = systemAbilityMgr->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (!remoteObject) {
-        WVLOG_E("fail to get bundle manager proxy.");
-        return nullptr;
-    }
-    WVLOG_D("get bundle manager proxy success.");
-    return iface_cast<OHOS::AppExecFwk::BundleMgrProxy>(remoteObject);
-}
-
-std::shared_ptr<Global::Resource::ResourceManager> GetResourceMgr(
-    const std::string& bundleName, const std::string& moduleName)
-{
-    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
-        AbilityRuntime::ApplicationContext::GetApplicationContext();
-    if (!context) {
-        WVLOG_E("Failed to get application context.");
-        return nullptr;
-    }
-
-    if (bundleName.empty() || moduleName.empty()) {
-        return context->GetResourceManager();
-    }
-    auto moduleContext = context->CreateModuleContext(bundleName, moduleName);
-    if (!moduleContext) {
-        WVLOG_E("Failed to crate module context, bundleName: %{public}s, moduleName: %{public}s.",
-            bundleName.c_str(), moduleName.c_str());
-        return nullptr;
-    }
-    return moduleContext->GetResourceManager();
-}
 
 bool ParseRawFile(const std::string& rawFile,
     std::string& bundleName, std::string& moduleName, std::string& fileName)
@@ -132,17 +89,6 @@ bool ParseRawFile(const std::string& rawFile,
 
 std::string GetNWebHapPath()
 {
-    auto iBundleMgr = GetBundleMgrProxy();
-    if (iBundleMgr) {
-        OHOS::AppExecFwk::AbilityInfo abilityInfo;
-        OHOS::AppExecFwk::HapModuleInfo hapModuleInfo;
-        abilityInfo.bundleName = NWEB_BUNDLE_NAME;
-        abilityInfo.package = NWEB_PACKAGE;
-        if (iBundleMgr->GetHapModuleInfo(abilityInfo, hapModuleInfo)) {
-            WVLOG_D("get hap module info success. %{public}s", hapModuleInfo.hapPath.c_str());
-            return hapModuleInfo.hapPath;
-        }
-    }
     if (access(NWEB_HAP_PATH.c_str(), F_OK) == 0) {
         WVLOG_D("eixt NWEB_HAP_PATH");
         return NWEB_HAP_PATH;
@@ -158,8 +104,7 @@ std::string GetNWebHapPath()
         return NWEB_HAP_PATH_MODULE_UPDATE;
     }
     WVLOG_W("access nweb hap module update path failed, errno(%{public}d): %{public}s", errno, strerror(errno));
-    std::string install_path =
-        OHOS::system::GetParameter("persist.arkwebcore.install_path", NWEB_HAP_PATH_MODULE_UPDATE);
+    std::string install_path = PERSIST_ARKWEBCORE_INSTALL_PATH;
     if (access(install_path.c_str(), F_OK) == 0) {
         WVLOG_D("eixt install_path");
         return install_path;
@@ -222,6 +167,11 @@ OhosResourceAdapterImpl::OhosResourceAdapterImpl(const std::string& hapPath)
     Init(hapPath);
 }
 
+OhosResourceAdapterImpl::~OhosResourceAdapterImpl()
+{
+    OH_ResourceManager_ReleaseNativeResourceManager(mgr_);
+}
+
 void OhosResourceAdapterImpl::Init(const std::string& hapPath)
 {
     bool newCreate = false;
@@ -258,25 +208,20 @@ bool OhosResourceAdapterImpl::GetRawFileData(const std::string& rawFile, size_t&
     std::string moduleName;
     std::string fileName;
     if (ParseRawFile(rawFile, bundleName, moduleName, fileName)) {
-        auto resourceManager = GetResourceMgr(bundleName, moduleName);
-        if (!resourceManager) {
-            result = GetRawFileData(extractor_, rawFile, len, data);
-            if (result) {
-                *dest = data.release();
-            }
-            return result;
-        }
-        auto state = resourceManager->GetRawFileFromHap(fileName, len, data);
-        if (state != Global::Resource::SUCCESS) {
-            WVLOG_E("GetRawFileFromHap failed, state: %{public}d, fileName: %{public}s", state, fileName.c_str());
-            result = GetRawFileData(extractor_, rawFile, len, data);
-            if (result) {
-                *dest = data.release();
-            }
-            return result;
-        }
-        *dest = data.release();
-        return true;
+       RawFile *rawFileTmp = OH_ResourceManager_OpenRawFile(mgr_, fileName.c_str());
+       if (rawFileTmp != nullptr) {
+            WVLOG_D("OH_ResourceManager_OpenRawFile success");
+       }
+       long length = OH_ResourceManager_GetRawFileSize(rawFileTmp);
+       data = std::make_unique<uint8_t[]>(length);
+       if (length == 0L) {
+            WVLOG_E("OH_ResourceManager_OpenRawFile failed");
+            return false;
+       }
+       *dest = data.release();
+       len = static_cast<size_t>(length);
+       OH_ResourceManager_CloseRawFile(rawFileTmp);
+       return true;
     }
 
     result = GetRawFileData(extractor_, rawFile, len, data);
@@ -289,11 +234,11 @@ bool OhosResourceAdapterImpl::GetRawFileData(const std::string& rawFile, size_t&
 bool OhosResourceAdapterImpl::GetResourceString(const std::string& bundleName,
     const std::string& moduleName, const int32_t resId, std::string& result)
 {
-    auto resourceManager = GetResourceMgr(bundleName, moduleName);
-    if (!resourceManager) {
-        return false;
-    }
-    if (resourceManager->GetStringById(resId, result) == Global::Resource::SUCCESS) {
+    WVLOG_D("OhosResourceAdapterImpl::GetResourceString");
+    char *res;
+    ResourceManager_ErrorCode errorCode = OH_ResourceManager_GetString(mgr_, resId, &res);
+    if (errorCode == ResourceManager_ErrorCode::SUCCESS) {
+        result = res;
         return true;
     }
     return false;
@@ -428,6 +373,7 @@ std::shared_ptr<OhosFileMapper> OhosResourceAdapterImpl::GetRawFileMapper(
     const std::shared_ptr<OHOS::AbilityBase::Extractor>& manager,
     const std::string& rawFile)
 {
+    WVLOG_D("OhosResourceAdapterImpl::GetRawFileMapper");
     if (!manager) {
         return nullptr;
     }
