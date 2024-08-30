@@ -66,7 +66,7 @@
 #include "screen_capture_adapter_impl.h"
 #endif
 #include "soc_perf_client_adapter_impl.h"
-#include "surface_adapter_impl.h"
+#include "native_window_adapter_impl.h"
 #include "system_properties_adapter_impl.h"
 #include "vsync_adapter_impl.h"
 #include "window_adapter_impl.h"
@@ -229,7 +229,7 @@ PrintManagerAdapter& OhosAdapterHelperImpl::GetPrintManagerInstance()
 
 std::unique_ptr<IConsumerSurfaceAdapter> OhosAdapterHelperImpl::CreateConsumerSurfaceAdapter()
 {
-    return std::make_unique<ConsumerSurfaceAdapterImpl>();
+    return std::make_unique<ConsumerNativeAdapterImpl>();
 }
 
 std::unique_ptr<PlayerAdapter> OhosAdapterHelperImpl::CreatePlayerAdapter()

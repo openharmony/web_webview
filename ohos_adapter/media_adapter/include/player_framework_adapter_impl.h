@@ -17,22 +17,11 @@
 #define PLAYER_FRAMEWORK_ADAPTER_H
 
 #include "media_adapter.h"
-#include "player.h"
 
-namespace OHOS::NWeb {
-class PlayerCallbackImpl : public Media::PlayerCallback {
-public:
-    explicit PlayerCallbackImpl(std::shared_ptr<PlayerCallbackAdapter> callback);
-
-    ~PlayerCallbackImpl() = default;
-
-    void OnInfo(Media::PlayerOnInfoType type, int32_t extra, const Media::Format& infoBody) override;
-
-    void OnError(int32_t errorCode, const std::string& errorMsg) override;
-
-private:
-    std::shared_ptr<PlayerCallbackAdapter> callbackAdapter_ = nullptr;
-};
+#include <multimedia/player_framework/avplayer.h>
+#include <multimedia/player_framework/avplayer_base.h>
+#include <multimedia/player_framework/native_avformat.h>
+namespace OHOS::NWeb { 
 
 class PlayerAdapterImpl : public PlayerAdapter {
 public:
@@ -65,7 +54,8 @@ public:
     int32_t SetPlaybackSpeed(PlaybackRateMode mode) override;
 
 private:
-    std::shared_ptr<Media::Player> player_ = nullptr;
+    OH_AVPlayer* player_ = nullptr;
+    std::shared_ptr<PlayerCallbackAdapter> callbackAdapter_ = nullptr;
 };
 } // namespace OHOS::NWeb
 
