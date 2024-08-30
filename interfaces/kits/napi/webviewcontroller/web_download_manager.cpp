@@ -152,6 +152,15 @@ void WebDownloadManager::AddDownloadDelegateForWeb(int32_t nwebId, WebDownloadDe
 }
 
 // static
+void WebDownloadManager::RemoveDownloadDelegateRef(int32_t nwebId)
+{
+    auto iter = g_web_download_delegate_map.find(nwebId);
+    if (iter != g_web_download_delegate_map.end()) {
+        iter->second->RemoveSelfRef();
+    }
+}
+
+// static
 void WebDownloadManager::SetDownloadDelegate(WebDownloadDelegate *delegate)
 {
     NWebHelper::Instance().LoadNWebSDK();

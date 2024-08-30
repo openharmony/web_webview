@@ -54,6 +54,14 @@ WebDownloadDelegate::~WebDownloadDelegate()
     WebDownloadManager::RemoveDownloadDelegate(this);
 }
 
+void WebDownloadDelegate::RemoveSelfRef()
+{
+    if (delegate_) {
+        napi_delete_reference(env_, delegate_);
+        delegate_ = nullptr;
+    }
+}
+
 void WebDownloadDelegate::DownloadBeforeStart(WebDownloadItem *webDownloadItem)
 {
     WVLOG_D("[DOWNLOAD] WebDownloadDelegate::DownloadBeforeStart");
