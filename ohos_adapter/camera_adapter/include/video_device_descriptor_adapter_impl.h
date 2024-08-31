@@ -52,7 +52,6 @@ public:
 
     void SetSupportCaptureFormats(std::vector<std::shared_ptr<FormatAdapter>>);
 
-#if defined(NWEB_CAMERA_ENABLE)
 private:
     std::string display_name_ = "";
     std::string device_id_ = "";
@@ -61,7 +60,6 @@ private:
     VideoTransportType transport_type_ = VideoTransportType::VIDEO_TRANS_TYPE_OTHER;
     VideoFacingModeAdapter facing_ = VideoFacingModeAdapter::FACING_NONE;
     std::vector<std::shared_ptr<FormatAdapter>> support_formats_;
-#endif
 };
 
 } // namespace OHOS::NWeb

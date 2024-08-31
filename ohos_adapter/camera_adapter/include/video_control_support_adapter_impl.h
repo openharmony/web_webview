@@ -36,12 +36,10 @@ public:
 
     void SetZoom(bool value);
 
-#if defined(NWEB_CAMERA_ENABLE)
 private:
     bool pan_ = false;
     bool tilt_ = false;
     bool zoom_ = false;
-#endif
 };
 
 } // namespace OHOS::NWeb

@@ -40,13 +40,11 @@ public:
 
     void SetCurrent(double current);
 
-#if defined(NWEB_CAMERA_ENABLE)
 private:
     double min_ = 0.0;
     double max_ = 0.0;
     double step_ = 0.0;
     double current_ = 0.0;
-#endif
 };
 
 } // namespace OHOS::NWeb

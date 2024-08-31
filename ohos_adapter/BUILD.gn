@@ -76,7 +76,7 @@ shared_library("nweb_ohos_adapter") {
      "access_token_adapter/include",
      "audio_adapter/include",
 #    "battery_mgr_adapter/include",
-#    "camera_adapter/include",
+    "camera_adapter/include",
      "cert_mgr_adapter/include",
      "utils/include",
 #    "datashare_adapter/include",
@@ -225,15 +225,15 @@ shared_library("nweb_ohos_adapter") {
 #  }
 #
 #  if (webview_camera_enable) {
-#    sources += [
-#      "camera_adapter/src/camera_manager_adapter_impl.cpp",
+    sources += [
+      "camera_adapter/src/camera_manager_adapter_impl.cpp",
 #      "camera_adapter/src/camera_rotation_info_adapter_impl.cpp",
-#      "camera_adapter/src/format_adapter_impl.cpp",
-#      "camera_adapter/src/video_capture_range_adapter_impl.cpp",
-#      "camera_adapter/src/video_control_support_adapter_impl.cpp",
-#      "camera_adapter/src/video_device_descriptor_adapter_impl.cpp",
+      "camera_adapter/src/format_adapter_impl.cpp",
+      "camera_adapter/src/video_capture_range_adapter_impl.cpp",
+      "camera_adapter/src/video_control_support_adapter_impl.cpp",
+      "camera_adapter/src/video_device_descriptor_adapter_impl.cpp",
 #      "screen_capture_adapter/src/screen_capture_adapter_impl.cpp",
-#    ]
+    ]
 #    external_deps += [ "camera_framework:camera_framework" ]
 #    defines += [ "NWEB_CAMERA_ENABLE" ]
 #  } else {
