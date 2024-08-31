@@ -16,24 +16,21 @@
 #ifndef KEYSTORE_ADAPTER_IMPL_H
 #define KEYSTORE_ADAPTER_IMPL_H
 
+#include <huks/native_huks_type.h>
+
 #include "keystore_adapter.h"
 
 namespace OHOS::NWeb {
 
 class KeystoreAdapterImpl : public KeystoreAdapter {
 public:
-    static KeystoreAdapterImpl& GetInstance() {
-        static KeystoreAdapterImpl instance;
-        return instance;
-    }
+    static KeystoreAdapterImpl& GetInstance();
 
     ~KeystoreAdapterImpl() override = default;
 
-    std::string EncryptKey(const std::string alias, const std::string plainData) override { return ""; }
-    std::string DecryptKey(const std::string alias, const std::string encryptedData) override
-    {
-        return "";
-    }
+    std::string EncryptKey(const std::string alias, const std::string plainData) override;
+    std::string DecryptKey(const std::string alias, const std::string encryptedData) override;
+    int32_t InitParamSet(struct OH_Huks_ParamSet** paramSet, const struct OH_Huks_Param* params, uint32_t paramCount);
 
 private:
     KeystoreAdapterImpl() = default;
@@ -43,6 +40,6 @@ private:
     KeystoreAdapterImpl& operator=(const KeystoreAdapterImpl&) = delete;
 };
 
-}  // namespace OHOS::NWeb
+} // namespace OHOS::NWeb
 
-#endif  // KEYSTORE_ADAPTER_IMPL_H
+#endif // KEYSTORE_ADAPTER_IMPL_H
