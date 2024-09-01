@@ -18,39 +18,9 @@
 
 #include "mmi_adapter.h"
 
-#include "input_manager.h"
-#include "key_event.h"
+#include "nweb_log.h"
 
 namespace OHOS::NWeb {
-class MMIListenerAdapterImpl : public MMI::IInputDeviceListener {
-public:
-    explicit MMIListenerAdapterImpl(std::shared_ptr<MMIListenerAdapter> listener);
-
-    ~MMIListenerAdapterImpl() override;
-
-    void OnDeviceAdded(int32_t deviceId, const std::string &type) override;
-
-    void OnDeviceRemoved(int32_t deviceId, const std::string &type) override;
-
-private:
-    std::shared_ptr<MMIListenerAdapter> listener_ = nullptr;
-};
-
-class MMIInputListenerAdapterImpl : public MMI::IInputEventConsumer {
-public:
-    explicit MMIInputListenerAdapterImpl(std::shared_ptr<MMIInputListenerAdapter> listener);
-
-    ~MMIInputListenerAdapterImpl() override;
-
-    void OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const override;
-
-    void OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const override;
-
-    void OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const override;
-
-private:
-    std::shared_ptr<MMIInputListenerAdapter> listener_ = nullptr;
-};
 
 class MMIAdapterImpl : public MMIAdapter {
 public:
@@ -58,25 +28,31 @@ public:
 
     ~MMIAdapterImpl() override = default;
 
-    char* KeyCodeToString(int32_t keyCode) override;
+    char* KeyCodeToString(int32_t keyCode) override
+    {
+        char* empty = new char('\0');
+        return empty;
+    }
 
-    int32_t RegisterMMIInputListener(std::shared_ptr<MMIInputListenerAdapter> eventCallback) override;
+    int32_t RegisterMMIInputListener(std::shared_ptr<MMIInputListenerAdapter> eventCallback) override
+    {
+        return 0;
+    }
 
-    void UnregisterMMIInputListener(int32_t monitorId) override;
+    void UnregisterMMIInputListener(int32_t monitorId) override {}
 
-    int32_t RegisterDevListener(std::string type, std::shared_ptr<MMIListenerAdapter> listener) override;
+    int32_t RegisterDevListener(std::string type, std::shared_ptr<MMIListenerAdapter> listener) override
+    {
+        return 0;
+    }
 
-    int32_t UnregisterDevListener(std::string type) override;
+    int32_t UnregisterDevListener(std::string type) override { return 0; }
 
-    int32_t GetKeyboardType(int32_t deviceId, int32_t& type) override;
+    int32_t GetKeyboardType(int32_t deviceId, int32_t& type) override { return 0; }
 
-    int32_t GetDeviceIds(std::vector<int32_t>& ids) override;
+    int32_t GetDeviceIds(std::vector<int32_t>& ids) override { return 0; }
 
-    int32_t GetDeviceInfo(int32_t deviceId, std::shared_ptr<MMIDeviceInfoAdapter> info) override;
-
-private:
-    std::shared_ptr<MMI::IInputDeviceListener> devListener_ = nullptr;
-    std::shared_ptr<MMI::IInputEventConsumer> inputListener_ = nullptr;
+    int32_t GetDeviceInfo(int32_t deviceId, std::shared_ptr<MMIDeviceInfoAdapter> info) override { return 0; }
 };
 }  // namespace OHOS::NWeb
 

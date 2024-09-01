@@ -30,6 +30,12 @@
 #define FILE_NAME (__builtin_strrchr("/" __FILE__, '/') + 1)
 #define FUNC_LINE_FMT "[%{public}s:%{public}d] "
 
+#define PRINT_MOCK_LOG() do {                                                   \
+    HiLogAdapter::PrintLog(LogLevelAdapter::ERROR, HILOG_TAG,                   \
+                           "mock_function_called %{public}s : %{public}s",      \
+                           FILE_NAME, __FUNCTION__);                            \
+} while (0)
+
 #define WVLOG_D(fmt, ...)                                                        \
     HiLogAdapter::PrintLog(LogLevelAdapter::DEBUG, HILOG_TAG, FUNC_LINE_FMT fmt, \
                            FILE_NAME, __LINE__, ##__VA_ARGS__)

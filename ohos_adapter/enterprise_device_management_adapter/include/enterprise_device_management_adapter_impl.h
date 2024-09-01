@@ -18,27 +18,7 @@
 
 #include "enterprise_device_management_adapter.h"
 
-#include "common_event_manager.h"
-#include "common_event_support.h"
-#include "matching_skills.h"
-#include "want.h"
-#include "common_event_subscriber.h"
-
 namespace OHOS::NWeb {
-
-#if defined(NWEB_ENTERPRISE_DEVICE_MANAGER_ENABLE)
-class NWebEdmEventSubscriber : public EventFwk::CommonEventSubscriber {
-public:
-    NWebEdmEventSubscriber(EventFwk::CommonEventSubscribeInfo& in,
-                           std::shared_ptr<EdmPolicyChangedEventCallbackAdapter> cb);
-
-    ~NWebEdmEventSubscriber() override = default;
-
-    void OnReceiveEvent(const EventFwk::CommonEventData& data) override;
-private:
-    std::shared_ptr<EdmPolicyChangedEventCallbackAdapter> eventCallback_;
-};
-#endif
 
 class EnterpriseDeviceManagementAdapterImpl : public EnterpriseDeviceManagementAdapter {
 public:
@@ -51,29 +31,26 @@ public:
      *
      * @param eventCallback EDM policy change event callback.
      */
-    void RegistPolicyChangeEventCallback(std::shared_ptr<EdmPolicyChangedEventCallbackAdapter> eventCallback) override;
+    void RegistPolicyChangeEventCallback(std::shared_ptr<EdmPolicyChangedEventCallbackAdapter> eventCallback) override {}
 
     /**
      * Subscribe EDM policy change event from CommonEventSubscriber.
      *
      * @return Returns true if success; false otherwise.
      */
-    bool StartObservePolicyChange() override;
+    bool StartObservePolicyChange() override{ return false; }
 
     /**
      * Unsubscribe EDM policy change event from CommonEventSubscriber.
      *
      * @return Returns true if success; false otherwise.
      */
-    bool StopObservePolicyChange() override;
+    bool StopObservePolicyChange() override{ return false; }
 
 private:
     EnterpriseDeviceManagementAdapterImpl() = default;
     EnterpriseDeviceManagementAdapterImpl(const EnterpriseDeviceManagementAdapterImpl& other) = delete;
     EnterpriseDeviceManagementAdapterImpl& operator=(const EnterpriseDeviceManagementAdapterImpl&) = delete;
-
-    std::shared_ptr<EdmPolicyChangedEventCallbackAdapter> eventCallback_ = nullptr;
-    std::shared_ptr<EventFwk::CommonEventSubscriber> commonEventSubscriber_ = nullptr;
 };
 
 }  // namespace OHOS::NWeb

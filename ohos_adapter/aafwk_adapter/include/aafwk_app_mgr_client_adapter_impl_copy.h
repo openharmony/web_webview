@@ -21,6 +21,7 @@
 #include <sys/types.h>
 #include "aafwk_app_mgr_client_adapter.h"
 #include "aafwk_render_scheduler_host_adapter.h"
+#include "app_mgr_client.h"
 
 namespace OHOS::NWeb {
 class AafwkAppMgrClientAdapterImpl : public AafwkAppMgrClientAdapter {
@@ -41,6 +42,9 @@ public:
         int32_t crashFd, pid_t& renderPid, const std::string& processType) override;
 
     void SaveBrowserConnect(std::shared_ptr<AafwkBrowserHostAdapter> adapter) override;
+
+private:
+    std::unique_ptr<AppExecFwk::AppMgrClient> appMgrClient_;
 };
 }  // namespace OHOS::NWeb
 

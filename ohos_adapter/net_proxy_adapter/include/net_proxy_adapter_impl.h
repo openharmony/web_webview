@@ -18,13 +18,7 @@
 
 #include <string>
 
-#include "common_event_manager.h"
-#include "common_event_subscriber.h"
-#include "common_event_support.h"
-#include "matching_skills.h"
-#include "net_conn_client.h"
 #include "net_proxy_adapter.h"
-#include "want.h"
 
 namespace OHOS::NWeb {
 class NetProxyAdapterImpl final : public NetProxyAdapter {
@@ -32,40 +26,21 @@ public:
     NetProxyAdapterImpl() = default;
     ~NetProxyAdapterImpl() override = default;
 
-    static NetProxyAdapterImpl& GetInstance();
+    static NetProxyAdapterImpl& GetInstance() {
+        static NetProxyAdapterImpl instance;
+        return instance;
+    }
 
-    void RegNetProxyEvent(std::shared_ptr<NetProxyEventCallbackAdapter> eventCallback) override;
+    void RegNetProxyEvent(std::shared_ptr<NetProxyEventCallbackAdapter> eventCallback) override {}
 
-    bool StartListen() override;
+    bool StartListen() override { return false; }
 
-    void StopListen() override;
+    void StopListen() override {}
 
-    void GetProperty(std::string& host, uint16_t& port, std::string& pacUrl, std::string& exclusion) override;
+    void GetProperty(std::string& host, uint16_t& port, std::string& pacUrl, std::string& exclusion) override {}
 
-    void Changed();
-
-private:
-    bool listen_ = false;
-    std::shared_ptr<NetProxyEventCallbackAdapter> cb_ = nullptr;
-    uint32_t appProxyCallbackId_ = 0;
-    void StartListenAppProxy();
-    std::shared_ptr<EventFwk::CommonEventSubscriber> commonEventSubscriber_ = nullptr;
+    void Changed() {}
 };
-
-class NetProxyEventSubscriber : public EventFwk::CommonEventSubscriber {
-public:
-    NetProxyEventSubscriber(EventFwk::CommonEventSubscribeInfo& in, std::shared_ptr<NetProxyEventCallbackAdapter> cb);
-    ~NetProxyEventSubscriber() override = default;
-    void OnReceiveEvent(const EventFwk::CommonEventData& data) override;
-
-private:
-    std::shared_ptr<NetProxyEventCallbackAdapter> eventCallback_ = nullptr;
-};
-
-namespace Base64 {
-std::string Encode(const std::string& source);
-std::string Decode(const std::string& encoded);
-} // namespace Base64
 
 } // namespace OHOS::NWeb
 

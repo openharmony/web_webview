@@ -20,7 +20,10 @@
 #include <string>
 #include <unordered_map>
 
+#include "i_net_conn_callback.h"
 #include "net_connect_adapter.h"
+#include "net_connect_callback_impl.h"
+#include "net_conn_client.h"
 
 namespace OHOS::NWeb {
 using namespace OHOS::NetManagerStandard;
@@ -30,15 +33,20 @@ public:
 
     ~NetConnectAdapterImpl() override = default;
 
-    int32_t RegisterNetConnCallback(std::shared_ptr<NetConnCallback> cb) override{ return 0; }
+    int32_t RegisterNetConnCallback(std::shared_ptr<NetConnCallback> cb) override;
 
-    int32_t UnregisterNetConnCallback(int32_t id) override{ return 0; }
+    int32_t UnregisterNetConnCallback(int32_t id) override;
 
-    int32_t GetDefaultNetConnect(NetConnectType &type, NetConnectSubtype &netConnectSubtype) override{ return 0; }
+    int32_t GetDefaultNetConnect(NetConnectType &type, NetConnectSubtype &netConnectSubtype) override;
 
-    std::vector<std::string> GetDnsServers() override{ return std::vector<std::string>(); }
+    std::vector<std::string> GetDnsServers() override;
 
-    std::vector<std::string> GetDnsServersByNetId(int32_t netId) override{ return std::vector<std::string>(); }
+    std::vector<std::string> GetDnsServersByNetId(int32_t netId) override;
+
+private:
+    std::vector<std::string> GetDnsServersInternal(const NetHandle &netHandle);
+
+    std::unordered_map<int32_t, sptr<NetConnectCallbackImpl>> netConnCallbackMap_;
 };
 }  // namespace OHOS::NWeb
 
