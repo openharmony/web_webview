@@ -108,7 +108,7 @@ public:
     virtual void RemovePasteboardChangedObserver(int32_t callbackId) = 0;
 };
 
-class PasteDataRecordAdapter {
+class __attribute__((visibility("default"))) PasteDataRecordAdapter {
 public:
     PasteDataRecordAdapter() = default;
 

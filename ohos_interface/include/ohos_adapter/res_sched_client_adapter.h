@@ -65,7 +65,7 @@ enum class ResSchedSceneAdapter : int32_t {
     IMAGE_DECODE,
 };
 
-class ResSchedClientAdapter {
+class __attribute__((visibility("default"))) ResSchedClientAdapter {
 public:
     ResSchedClientAdapter() = default;
 

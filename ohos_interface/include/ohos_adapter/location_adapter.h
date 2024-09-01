@@ -111,7 +111,7 @@ public:
     virtual bool IsLocationEnabled() = 0;
 };
 
-class LocationInstance {
+class __attribute__((visibility("default"))) LocationInstance {
 public:
     static LocationInstance& GetInstance();
 

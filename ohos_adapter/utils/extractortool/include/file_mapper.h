@@ -27,7 +27,7 @@ enum class FileMapperType {
     SHARED_MMAP,
     SAFE_ABC
 };
-class FileMapper {
+class __attribute__((visibility("default"))) FileMapper {
 public:
     FileMapper();
     FileMapper(FileMapper &) = delete;

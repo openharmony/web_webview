@@ -35,11 +35,9 @@ public:
   
     void SetDeviceName(std::string name);
 
-#if defined(NWEB_AUDIO_ENABLE)
 private:
     int32_t device_id_ = ADAPTER_AUDIO_UNDEFINED_DEVICE_ID;
     std::string device_name_ = ADAPTER_AUDIO_UNDEFINED_DEVICE_NAME;
-#endif
 };
 
 } // namespace OHOS::NWeb

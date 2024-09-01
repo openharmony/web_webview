@@ -29,7 +29,7 @@ enum class LogLevelAdapter : uint32_t {
     LEVEL_MAX,
 };
 
-class HiLogAdapter {
+class __attribute__((visibility("default"))) HiLogAdapter {
 public:
     static int PrintLog(LogLevelAdapter level, const char* tag, const char* fmt, ...);
 

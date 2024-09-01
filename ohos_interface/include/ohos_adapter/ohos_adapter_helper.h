@@ -57,7 +57,7 @@
 #include "sensor_adapter.h"
 
 namespace OHOS::NWeb {
-class OhosAdapterHelper {
+class __attribute__((visibility("default"))) OhosAdapterHelper {
 public:
     static OhosAdapterHelper& GetInstance();
 

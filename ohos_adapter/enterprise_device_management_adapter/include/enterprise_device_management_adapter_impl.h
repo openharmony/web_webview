@@ -22,9 +22,13 @@ namespace OHOS::NWeb {
 
 class EnterpriseDeviceManagementAdapterImpl : public EnterpriseDeviceManagementAdapter {
 public:
-    static EnterpriseDeviceManagementAdapterImpl& GetInstance();
+    static EnterpriseDeviceManagementAdapterImpl& GetInstance() {
+        static EnterpriseDeviceManagementAdapterImpl instance;
+        return instance;
+    }
+
     ~EnterpriseDeviceManagementAdapterImpl() override = default;
-    int32_t GetPolicies(std::string& policies) override;
+    int32_t GetPolicies(std::string& policies) override { return 0; }
 
     /**
      * Set an EDM policy change event callback.

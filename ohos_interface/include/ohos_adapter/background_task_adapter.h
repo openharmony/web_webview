@@ -32,7 +32,7 @@ enum class BackgroundModeAdapter : int32_t {
     TASK_KEEPING,
 };
 
-class BackgroundTaskAdapter {
+class __attribute__((visibility("default"))) BackgroundTaskAdapter {
 public:
     BackgroundTaskAdapter() = default;
 

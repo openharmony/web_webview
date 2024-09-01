@@ -25,22 +25,22 @@
 namespace OHOS::NWeb {
 class AafwkAppMgrClientAdapterImpl : public AafwkAppMgrClientAdapter {
 public:
-    AafwkAppMgrClientAdapterImpl();
+    AafwkAppMgrClientAdapterImpl() {}
 
-    ~AafwkAppMgrClientAdapterImpl() override = default;
+    ~AafwkAppMgrClientAdapterImpl() override {}
 
     int StartRenderProcess(
-        const std::string& renderParam, int32_t ipcFd, int32_t sharedFd, int32_t crashFd, pid_t& renderPid) override;
+        const std::string& renderParam, int32_t ipcFd, int32_t sharedFd, int32_t crashFd, pid_t& renderPid) override { return 0; }
 
-    void AttachRenderProcess(std::shared_ptr<AafwkRenderSchedulerHostAdapter> adapter) override;
+    void AttachRenderProcess(std::shared_ptr<AafwkRenderSchedulerHostAdapter> adapter) override {}
 
-    int GetRenderProcessTerminationStatus(pid_t renderPid, int &status) override;
+    int GetRenderProcessTerminationStatus(pid_t renderPid, int &status) override { return 0; }
 
     int StartChildProcess(
         const std::string& renderParam, int32_t ipcFd, int32_t sharedFd, 
-        int32_t crashFd, pid_t& renderPid, const std::string& processType) override;
+        int32_t crashFd, pid_t& renderPid, const std::string& processType) override { return 0; }
 
-    void SaveBrowserConnect(std::shared_ptr<AafwkBrowserHostAdapter> adapter) override;
+    void SaveBrowserConnect(std::shared_ptr<AafwkBrowserHostAdapter> adapter) override {}
 };
 }  // namespace OHOS::NWeb
 

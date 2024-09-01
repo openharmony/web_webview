@@ -23,7 +23,7 @@
     struct FrameRateSetting {
         int32_t min_ {0};
         int32_t max_ {0};
-        int32_t preferredFramRate_ {0};
+        int32_t preferredFrameRate_ {0};
     };
 
  } // namespace OHOS::NWeb

@@ -37,7 +37,7 @@ struct FileInfo {
     uint16_t lastModDate = 0;
 };
 
-class Extractor {
+class __attribute__((visibility("default"))) Extractor {
 public:
     explicit Extractor(const std::string &source);
     virtual ~Extractor();
@@ -105,7 +105,7 @@ private:
     std::optional<bool> isStageModel_;
 };
 
-class ExtractorUtil {
+class __attribute__((visibility("default"))) ExtractorUtil {
 public:
     static std::string GetLoadFilePath(const std::string &hapPath);
     static std::shared_ptr<Extractor> GetExtractor(const std::string &hapPath, bool &newCreate, bool cache = false);

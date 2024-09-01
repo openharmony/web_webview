@@ -229,7 +229,7 @@ public:
     virtual void NativeWindowSurfaceCleanCacheWithPara(NWebNativeWindow window, bool cleanAll) = 0;
 };
 
-class AshmemAdapter {
+class __attribute__((visibility("default"))) AshmemAdapter {
 public:
     static int AshmemCreate(const char* name, size_t size);
 };

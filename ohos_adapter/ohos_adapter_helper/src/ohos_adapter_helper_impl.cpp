@@ -50,7 +50,7 @@
 #endif
 #include "net_proxy_adapter_impl.h"
 #include "ohos_image_decoder_adapter_impl.h"
-#include "ohos_init_web_adapter_impl.h"
+// #include "ohos_init_web_adapter_impl.h"
 #include "ohos_resource_adapter_impl.h"
 #include "ohos_web_data_base_adapter_impl.h"
 #include "ohos_web_permission_data_base_adapter_impl.h"
@@ -61,7 +61,7 @@
 // #if defined(NWEB_POWER_MANAGER_ENABLE)
 // #include "power_mgr_client_adapter_impl.h"
 // #endif
-// #include "print_manager_adapter_impl.h"
+#include "print_manager_adapter_impl.h"
 // #if defined(NWEB_CAMERA_ENABLE)
 // #include "screen_capture_adapter_impl.h"
 // #endif
@@ -93,9 +93,9 @@ std::unique_ptr<PowerMgrClientAdapter> OhosAdapterHelperImpl::CreatePowerMgrClie
 //     return std::make_unique<PowerMgrClientAdapterImpl>();
 // #else
 //     return nullptr;
+// #endif
     PRINT_MOCK_LOG();
     return nullptr;
-#endif
 }
 
 std::unique_ptr<DisplayManagerAdapter> OhosAdapterHelperImpl::CreateDisplayMgrAdapter()
@@ -109,9 +109,9 @@ std::unique_ptr<BatteryMgrClientAdapter> OhosAdapterHelperImpl::CreateBatteryCli
 //     return std::make_unique<BatteryMgrClientAdapterImpl>();
 // #else
 //     return nullptr;
+// #endif
     PRINT_MOCK_LOG();
     return nullptr;
-#endif
 }
 
 OhosWebDataBaseAdapter& OhosAdapterHelperImpl::GetOhosWebDataBaseAdapterInstance()
@@ -201,7 +201,8 @@ VSyncAdapter& OhosAdapterHelperImpl::GetVSyncAdapter()
 std::unique_ptr<OhosInitWebAdapter> OhosAdapterHelperImpl::GetInitWebAdapter()
 {
     PRINT_MOCK_LOG();
-    return std::make_unique<OhosInitWebAdapterImpl>();
+    // return std::make_unique<OhosInitWebAdapterImpl>();
+    return nullptr;      
 }
 
 KeystoreAdapter& OhosAdapterHelperImpl::GetKeystoreAdapterInstance()
