@@ -88,13 +88,11 @@ ohos_shared_library("libnweb") {
     ":web_configs",
     "${webview_path}/ohos_glue:ohos_adapter_glue_source",
     "${webview_path}/ohos_glue:ohos_nweb_glue_source",
-    "${webview_path}/sa:app_fwk_update",
   ]
 
   external_deps = [
     "ability_runtime:ability_manager",
     "ability_runtime:app_context",
-    "ability_runtime:app_manager",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
