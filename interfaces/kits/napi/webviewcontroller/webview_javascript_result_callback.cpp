@@ -909,6 +909,9 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptResultS
 {
     std::shared_ptr<NWebValue> ret = std::make_shared<NWebValue>(NWebValue::Type::NONE);
     std::shared_ptr<JavaScriptOb> jsObj = FindObject(objectId);
+    if (!jsObj) {
+        return ret;
+    }
     Ace::ContainerScope containerScope(jsObj->GetContainerScopeId());
     napi_handle_scope scope = nullptr;
     napi_open_handle_scope(jsObj->GetEnv(), &scope);
