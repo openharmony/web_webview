@@ -17,6 +17,7 @@
 #define BACKGROUND_TASK_ADAPTER_H
 
 #include <cstdint>
+#include "adapter_export.h"
 
 namespace OHOS::NWeb {
 
@@ -32,7 +33,7 @@ enum class BackgroundModeAdapter : int32_t {
     TASK_KEEPING,
 };
 
-class __attribute__((visibility("default"))) BackgroundTaskAdapter {
+class  OHOS_ADAPTER_EXPORT BackgroundTaskAdapter {
 public:
     BackgroundTaskAdapter() = default;
 

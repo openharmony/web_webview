@@ -18,6 +18,7 @@
 
 #include <memory>
 #include <string>
+#include "adapter_export.h"
 
 namespace OHOS {
 namespace AbilityBase {

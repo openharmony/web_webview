@@ -19,7 +19,10 @@ config("ohos_adapter_public_interface") {
 
 ################################### string_utils ########################################
 config("string_utils_config") {
-  include_dirs = [ "utils/extractortool/include" ]
+  include_dirs = [
+    "utils/include",
+    "utils/extractortool/include"
+  ]
 }
 
 shared_library("adapter_string_utils") {
@@ -36,6 +39,7 @@ shared_library("adapter_string_utils") {
 ################################### extractortool ########################################
 config("ability_extractor_config") {
   include_dirs = [
+    "utils/include",
     "utils/extractortool/include",
     "//third_party/zlib/",
     "//third_party/zlib/contrib/minizip",

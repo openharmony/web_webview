@@ -55,9 +55,10 @@
 #include "soc_perf_client_adapter.h"
 #include "system_properties_adapter.h"
 #include "sensor_adapter.h"
+#include "adapter_export.h"
 
 namespace OHOS::NWeb {
-class __attribute__((visibility("default"))) OhosAdapterHelper {
+class  OHOS_ADAPTER_EXPORT OhosAdapterHelper {
 public:
     static OhosAdapterHelper& GetInstance();
 

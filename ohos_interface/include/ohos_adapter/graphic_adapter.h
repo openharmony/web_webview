@@ -17,6 +17,7 @@
 #define GRAPHIC_ADAPTER_H
 
 #include <functional>
+#include "adapter_export.h"
 
 namespace OHOS::NWeb {
 
@@ -229,7 +230,7 @@ public:
     virtual void NativeWindowSurfaceCleanCacheWithPara(NWebNativeWindow window, bool cleanAll) = 0;
 };
 
-class __attribute__((visibility("default"))) AshmemAdapter {
+class  OHOS_ADAPTER_EXPORT AshmemAdapter {
 public:
     static int AshmemCreate(const char* name, size_t size);
 };

@@ -18,6 +18,7 @@
 
 #include <cstdint>
 #include <unistd.h>
+#include "adapter_export.h"
 
 namespace OHOS::NWeb {
 
@@ -65,7 +66,7 @@ enum class ResSchedSceneAdapter : int32_t {
     IMAGE_DECODE,
 };
 
-class __attribute__((visibility("default"))) ResSchedClientAdapter {
+class  OHOS_ADAPTER_EXPORT ResSchedClientAdapter {
 public:
     ResSchedClientAdapter() = default;
 

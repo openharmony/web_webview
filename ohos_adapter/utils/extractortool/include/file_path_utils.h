@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_BASE_FILE_PATH_UTILS_H
 
 #include <string>
+#include "adapter_export.h"
 
 namespace OHOS {
 namespace AbilityBase {

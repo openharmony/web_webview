@@ -24,6 +24,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "adapter_export.h"
 #include "file_mapper.h"
 #include "zip_file.h"
 

@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <memory>
 #include <sys/types.h>
+#include "adapter_export.h"
 
 namespace OHOS::NWeb {
 
@@ -111,7 +112,7 @@ public:
     virtual bool IsLocationEnabled() = 0;
 };
 
-class __attribute__((visibility("default"))) LocationInstance {
+class  OHOS_ADAPTER_EXPORT LocationInstance {
 public:
     static LocationInstance& GetInstance();
 
