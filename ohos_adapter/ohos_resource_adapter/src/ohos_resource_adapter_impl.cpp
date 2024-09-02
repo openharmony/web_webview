@@ -208,20 +208,23 @@ bool OhosResourceAdapterImpl::GetRawFileData(const std::string& rawFile, size_t&
     std::string moduleName;
     std::string fileName;
     if (ParseRawFile(rawFile, bundleName, moduleName, fileName)) {
-       RawFile *rawFileTmp = OH_ResourceManager_OpenRawFile(mgr_, fileName.c_str());
-       if (rawFileTmp != nullptr) {
+        WVLOG_D("OhosResourceAdapter::OH_ResourceManager_OpenRawFile");
+        RawFile *rawFileTmp = OH_ResourceManager_OpenRawFile(mgr_, fileName.c_str());
+        if (rawFileTmp != nullptr) {
             WVLOG_D("OH_ResourceManager_OpenRawFile success");
-       }
-       long length = OH_ResourceManager_GetRawFileSize(rawFileTmp);
-       data = std::make_unique<uint8_t[]>(length);
-       if (length == 0L) {
-            WVLOG_E("OH_ResourceManager_OpenRawFile failed");
+        }
+        long length = OH_ResourceManager_GetRawFileSize(rawFileTmp);
+        data = std::make_unique<uint8_t[]>(length);
+        long res = OH_ResourceManager_ReadRawFile(rawFileTmp, data.get(), length);
+        if (res == 0L) {
+            WVLOG_E("OhosResourceAdapter::OH_ResourceManager_ReadRawFile failed");
             return false;
-       }
-       *dest = data.release();
-       len = static_cast<size_t>(length);
-       OH_ResourceManager_CloseRawFile(rawFileTmp);
-       return true;
+        }
+
+        *dest = data.release();
+        len = static_cast<size_t>(length);
+        OH_ResourceManager_CloseRawFile(rawFileTmp);
+        return true;
     }
 
     result = GetRawFileData(extractor_, rawFile, len, data);
@@ -234,7 +237,7 @@ bool OhosResourceAdapterImpl::GetRawFileData(const std::string& rawFile, size_t&
 bool OhosResourceAdapterImpl::GetResourceString(const std::string& bundleName,
     const std::string& moduleName, const int32_t resId, std::string& result)
 {
-    WVLOG_D("OhosResourceAdapterImpl::GetResourceString");
+    WVLOG_D("OhosResourceAdapter::OH_ResourceManager_GetString");
     char *res;
     ResourceManager_ErrorCode errorCode = OH_ResourceManager_GetString(mgr_, resId, &res);
     if (errorCode == ResourceManager_ErrorCode::SUCCESS) {
