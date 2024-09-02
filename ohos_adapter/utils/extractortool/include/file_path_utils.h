@@ -20,9 +20,9 @@
 
 namespace OHOS {
 namespace AbilityBase {
-    bool __attribute__((visibility("default"))) StringStartWith(
+    bool  OHOS_ADAPTER_EXPORT StringStartWith(
         const std::string& str, const char* startStr, size_t startStrLen);
-    bool __attribute__((visibility("default"))) StringEndWith(
+    bool  OHOS_ADAPTER_EXPORT StringEndWith(
         const std::string& str, const char* endStr, size_t endStrLen);
     void SplitString(
         const std::string& str, std::vector<std::string>& out, size_t pos = 0, const char* seps = "\\/");
@@ -41,8 +41,8 @@ namespace AbilityBase {
     std::string NormalizeUri(
         const std::string& bundleName, const std::string& curJsModulePath, const std::string& newJsModuleUri);
     bool MakeFilePath(const std::string& codePath, const std::string& modulePath, std::string& fileName);
-    std::string __attribute__((visibility("default"))) GetLoadPath(const std::string& hapPath);
-    std::string __attribute__((visibility("default"))) GetRelativePath(const std::string& srcPath);
+    std::string  OHOS_ADAPTER_EXPORT GetLoadPath(const std::string& hapPath);
+    std::string  OHOS_ADAPTER_EXPORT GetRelativePath(const std::string& srcPath);
 }  // namespace AbilityBase
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_BASE_FILE_PATH_UTILS_H

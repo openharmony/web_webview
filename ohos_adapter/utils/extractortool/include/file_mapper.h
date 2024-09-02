@@ -27,7 +27,7 @@ enum class FileMapperType {
     SHARED_MMAP,
     SAFE_ABC
 };
-class __attribute__((visibility("default"))) FileMapper {
+class  OHOS_ADAPTER_EXPORT FileMapper {
 public:
     FileMapper();
     FileMapper(FileMapper &) = delete;
