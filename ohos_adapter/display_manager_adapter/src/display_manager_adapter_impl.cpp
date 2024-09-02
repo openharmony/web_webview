@@ -14,6 +14,7 @@
  */
 
 #include "display_manager_adapter_impl.h"
+#include "nweb_log.h"
 
 #include <deviceinfo.h>
 #include <string>
@@ -79,6 +80,7 @@ OHOS::NWeb::DisplayOrientation DisplayAdapterImpl::ConvertDisplayOrientationType
 
 DisplayId DisplayAdapterImpl::GetId()
 {
+    WVLOG_D("DisplayAdapter::OH_NativeDisplayManager_GetDefaultDisplayId");
     uint64_t displayId;
     NativeDisplayManager_ErrorCode errorCode = OH_NativeDisplayManager_GetDefaultDisplayId(&displayId);
     if (NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK != errorCode) {
@@ -89,6 +91,7 @@ DisplayId DisplayAdapterImpl::GetId()
 
 int32_t DisplayAdapterImpl::GetWidth()
 {
+    WVLOG_D("DisplayAdapter::OH_NativeDisplayManager_GetDefaultDisplayWidth");
     int32_t width;
     NativeDisplayManager_ErrorCode errorCode = OH_NativeDisplayManager_GetDefaultDisplayWidth(&width);
     if (NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK != errorCode) {
@@ -99,6 +102,7 @@ int32_t DisplayAdapterImpl::GetWidth()
 
 int32_t DisplayAdapterImpl::GetHeight()
 {
+    WVLOG_D("DisplayAdapter::OH_NativeDisplayManager_GetDefaultDisplayHeight");
     int32_t height;
     NativeDisplayManager_ErrorCode errorCode = OH_NativeDisplayManager_GetDefaultDisplayHeight(&height);
     if (NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK != errorCode) {
@@ -109,6 +113,7 @@ int32_t DisplayAdapterImpl::GetHeight()
 
 float DisplayAdapterImpl::GetVirtualPixelRatio()
 {
+    WVLOG_D("DisplayAdapter::OH_NativeDisplayManager_GetDefaultDisplayVirtualPixelRatio");
     float virtualPixel;
     NativeDisplayManager_ErrorCode errorCode
         = OH_NativeDisplayManager_GetDefaultDisplayVirtualPixelRatio(&virtualPixel);
@@ -120,6 +125,7 @@ float DisplayAdapterImpl::GetVirtualPixelRatio()
 
 RotationType DisplayAdapterImpl::GetRotation()
 {
+    WVLOG_D("DisplayAdapter::OH_NativeDisplayManager_GetDefaultDisplayRotation");
     NativeDisplayManager_Rotation displayRotatio;
     NativeDisplayManager_ErrorCode errorCode
         = OH_NativeDisplayManager_GetDefaultDisplayRotation(&displayRotatio);
@@ -131,11 +137,13 @@ RotationType DisplayAdapterImpl::GetRotation()
 
 OrientationType DisplayAdapterImpl::GetOrientation()
 {
+    WVLOG_E("DisplayAdapter::Unused Interface GetOrientation");
     return OHOS::NWeb::OrientationType::BUTT;
 }
 
 int32_t DisplayAdapterImpl::GetDpi()
 {
+    WVLOG_D("DisplayAdapter::OH_NativeDisplayManager_GetDefaultDisplayDensityDpi");
     int32_t densityDpi;
     NativeDisplayManager_ErrorCode errorCode = OH_NativeDisplayManager_GetDefaultDisplayDensityDpi(&densityDpi);
     if (NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK != errorCode) {
@@ -146,6 +154,7 @@ int32_t DisplayAdapterImpl::GetDpi()
 
 DisplayOrientation DisplayAdapterImpl::GetDisplayOrientation()
 {
+    WVLOG_D("DisplayAdapter::OH_NativeDisplayManager_GetDefaultDisplayOrientation");
     NativeDisplayManager_Orientation displayOrientation;
     NativeDisplayManager_ErrorCode errorCode
         = OH_NativeDisplayManager_GetDefaultDisplayOrientation(&displayOrientation);
@@ -158,6 +167,7 @@ DisplayOrientation DisplayAdapterImpl::GetDisplayOrientation()
 ListenerMap DisplayManagerAdapterImpl::reg_ = {};
 DisplayId DisplayManagerAdapterImpl::GetDefaultDisplayId()
 {
+    WVLOG_D("DisplayAdapter::OH_NativeDisplayManager_GetDefaultDisplayId");
     uint64_t displayId;
     NativeDisplayManager_ErrorCode errorCode = OH_NativeDisplayManager_GetDefaultDisplayId(&displayId);
     if (NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK != errorCode) {
@@ -172,6 +182,7 @@ std::shared_ptr<DisplayAdapter> DisplayManagerAdapterImpl::GetDefaultDisplay()
 }
 
 void DisplayManagerAdapterImpl::DisplayChangeCallback(uint64_t displayId) {
+    WVLOG_D("DisplayAdapter::DisplayChangeCallback");
     for(auto iter = reg_.begin(); iter != reg_.end(); ++iter) {
         iter->second->OnChange(displayId);
     }
@@ -185,7 +196,7 @@ uint32_t DisplayManagerAdapterImpl::RegisterDisplayListener(
     if (reg == nullptr) {
         return 0;
     }
-    
+    WVLOG_D("DisplayAdapter::OH_NativeDisplayManager_RegisterDisplayChangeListener");
     uint32_t listenerIndex;
     if (OH_NativeDisplayManager_RegisterDisplayChangeListener(DisplayChangeCallback, &listenerIndex)
         != NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK) {
@@ -197,6 +208,7 @@ uint32_t DisplayManagerAdapterImpl::RegisterDisplayListener(
 
 bool DisplayManagerAdapterImpl::UnregisterDisplayListener(uint32_t id)
 {
+    WVLOG_D("DisplayAdapter::OH_NativeDisplayManager_UnregisterDisplayChangeListener");
     ListenerMap::iterator iter = reg_.find(id);
     if (iter == reg_.end()) {
         return false;
@@ -211,6 +223,7 @@ bool DisplayManagerAdapterImpl::UnregisterDisplayListener(uint32_t id)
 
 bool DisplayManagerAdapterImpl::IsDefaultPortrait()
 {
+    WVLOG_D("DisplayAdapter::OH_GetDeviceType");
     std::string deviceType = OH_GetDeviceType();
     return deviceType == "phone" || deviceType == "default";
 }
