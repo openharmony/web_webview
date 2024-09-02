@@ -20,9 +20,12 @@
 
 namespace OHOS {
 namespace AbilityBase {
-    bool __attribute__((visibility("default"))) StringStartWith(const std::string& str, const char* startStr, size_t startStrLen);
-    bool __attribute__((visibility("default"))) StringEndWith(const std::string& str, const char* endStr, size_t endStrLen);
-    void SplitString(const std::string& str, std::vector<std::string>& out, size_t pos = 0, const char* seps = "\\/");
+    bool __attribute__((visibility("default"))) StringStartWith(
+        const std::string& str, const char* startStr, size_t startStrLen);
+    bool __attribute__((visibility("default"))) StringEndWith(
+        const std::string& str, const char* endStr, size_t endStrLen);
+    void SplitString(
+        const std::string& str, std::vector<std::string>& out, size_t pos = 0, const char* seps = "\\/");
     std::string JoinString(const std::vector<std::string>& strs, char sep, size_t startIndex = 0);
     std::string StripString(const std::string& str, const char* charSet = " \t\n\r");
 

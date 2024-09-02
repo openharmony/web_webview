@@ -35,7 +35,8 @@ public:
      *
      * @param eventCallback EDM policy change event callback.
      */
-    void RegistPolicyChangeEventCallback(std::shared_ptr<EdmPolicyChangedEventCallbackAdapter> eventCallback) override {}
+    void RegistPolicyChangeEventCallback(
+        std::shared_ptr<EdmPolicyChangedEventCallbackAdapter> eventCallback) override {}
 
     /**
      * Subscribe EDM policy change event from CommonEventSubscriber.

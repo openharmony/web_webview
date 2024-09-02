@@ -30,7 +30,9 @@ public:
     ~PrintManagerAdapterImpl() override = default;
 
     int32_t StartPrint(
-        const std::vector<std::string>& fileList, const std::vector<uint32_t>& fdList, std::string& taskId) override { return 0; }
+        const std::vector<std::string>& fileList,
+        const std::vector<uint32_t>& fdList,
+        std::string& taskId) override { return 0; }
 
     int32_t Print(const std::string& printJobName, const std::shared_ptr<PrintDocumentAdapterAdapter> listener,
         const PrintAttributesAdapter& printAttributes) override { return 0; }
