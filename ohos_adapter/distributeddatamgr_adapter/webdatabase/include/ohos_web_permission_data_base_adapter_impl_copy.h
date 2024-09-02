@@ -20,38 +20,53 @@
 
 #include <string>
 
+#include "rdb_errno.h"
+#include "rdb_helper.h"
+#include "rdb_open_callback.h"
+#include "rdb_store.h"
+#include "rdb_store_config.h"
+#include "rdb_types.h"
+
 namespace OHOS::NWeb {
+class PermissionDataBaseRdbOpenCallBack : public OHOS::NativeRdb::RdbOpenCallback {
+public:
+    int32_t OnCreate(OHOS::NativeRdb::RdbStore& rdbStore) override;
+
+    int32_t OnUpgrade(OHOS::NativeRdb::RdbStore& rdbStore, int32_t currentVersion, int32_t targetVersion) override;
+};
 
 class OhosWebPermissionDataBaseAdapterImpl : public OhosWebPermissionDataBaseAdapter {
 public:
-    static OhosWebPermissionDataBaseAdapterImpl& GetInstance() {
-        static OhosWebPermissionDataBaseAdapterImpl instance;
-        return instance;
-    }
+    static OhosWebPermissionDataBaseAdapterImpl& GetInstance();
 
     ~OhosWebPermissionDataBaseAdapterImpl() override = default;
 
-    bool ExistPermissionByOrigin(const std::string& origin, const WebPermissionType& key) override {
-        return false;
-    }
+    bool ExistPermissionByOrigin(const std::string& origin, const WebPermissionType& key) override;
 
     bool GetPermissionResultByOrigin(const std::string& origin, const WebPermissionType& key,
-        bool &result) override { return false; }
+        bool &result) override;
 
-    void SetPermissionByOrigin(const std::string& origin, const WebPermissionType& key, bool result) override {}
+    void SetPermissionByOrigin(const std::string& origin, const WebPermissionType& key, bool result) override;
 
-    void ClearPermissionByOrigin(const std::string& origin, const WebPermissionType& key) override {}
+    void ClearPermissionByOrigin(const std::string& origin, const WebPermissionType& key) override;
 
-    void ClearAllPermission(const WebPermissionType& key) override {}
+    void ClearAllPermission(const WebPermissionType& key) override;
 
-    void GetOriginsByPermission(const WebPermissionType& key, std::vector<std::string>& origins) override {}
+    void GetOriginsByPermission(const WebPermissionType& key, std::vector<std::string>& origins) override;
 
 private:
-    OhosWebPermissionDataBaseAdapterImpl() {}
+    OhosWebPermissionDataBaseAdapterImpl();
 
     OhosWebPermissionDataBaseAdapterImpl(const OhosWebPermissionDataBaseAdapterImpl& other) = delete;
 
     OhosWebPermissionDataBaseAdapterImpl& operator=(const OhosWebPermissionDataBaseAdapterImpl&) = delete;
+
+    std::shared_ptr<OHOS::NativeRdb::RdbStore> CreateDataBase(const std::string& dataBeseName,
+        OHOS::NativeRdb::RdbOpenCallback& callBack);
+
+    std::string KeyToTableName(const WebPermissionType& key) const;
+
+    std::shared_ptr<OHOS::NativeRdb::RdbStore> rdbStore_;
 };
 } // namespace
 #endif // OHOS_WEB_PERMISSION_DATA_BASE_ADAPTER_IMPL_H

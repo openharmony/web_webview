@@ -19,6 +19,7 @@
 #include <map>
 #include <memory>
 #include <vector>
+#include "adapter_export.h"
 
 namespace OHOS::NWeb {
 
@@ -108,7 +109,7 @@ public:
     virtual void RemovePasteboardChangedObserver(int32_t callbackId) = 0;
 };
 
-class PasteDataRecordAdapter {
+class  OHOS_ADAPTER_EXPORT PasteDataRecordAdapter {
 public:
     PasteDataRecordAdapter() = default;
 

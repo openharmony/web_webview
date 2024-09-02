@@ -17,6 +17,7 @@
 #define HILOG_ADAPTER_H
 
 #include <cstdint>
+#include "adapter_export.h"
 
 namespace OHOS::NWeb {
 
@@ -29,7 +30,7 @@ enum class LogLevelAdapter : uint32_t {
     LEVEL_MAX,
 };
 
-class HiLogAdapter {
+class  OHOS_ADAPTER_EXPORT HiLogAdapter {
 public:
     static int PrintLog(LogLevelAdapter level, const char* tag, const char* fmt, ...);
 

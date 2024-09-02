@@ -29,12 +29,12 @@ public:
     /**
      * @brief Destroy the FlowbufferAdapterImpl object
      */
-    ~FlowbufferAdapterImpl() override {}
+    ~FlowbufferAdapterImpl() override;
 
     /**
      * @brief Start temporary performance boost when some key tasks are running
      */
-    void StartPerformanceBoost() override {}
+    void StartPerformanceBoost() override;
 
     /**
      * @brief Create ashmem
@@ -44,7 +44,7 @@ public:
      * @param fd fd of the ashmem to be created
      * @return the address of the created ashmem
      */
-    void* CreateAshmem(size_t size, int mapType, int& fd) override { return nullptr; }
+    void* CreateAshmem(size_t size, int mapType, int& fd) override;
 
     /**
      * @brief Create ashmem with fd
@@ -54,7 +54,15 @@ public:
      * @param mapType mapType of the ashmem to be created
      * @return the address of the created ashmem
      */
-    void* CreateAshmemWithFd(const int fd, size_t size, int mapType) override { return nullptr; }
+    void* CreateAshmemWithFd(const int fd, size_t size, int mapType) override;
+
+private:
+    bool NeedReportScene();
+
+    static int64_t timeStamp_;
+    static int64_t preTimeStamp_;
+    void* data_ = nullptr;
+    size_t size_;
 };
 } // namespace OHOS::NWeb
 

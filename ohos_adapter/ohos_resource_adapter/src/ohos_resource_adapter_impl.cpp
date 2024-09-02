@@ -45,6 +45,8 @@ constexpr uint32_t START_YEAR = 1900;
 } // namespace
 
 namespace OHOS::NWeb {
+
+NativeResourceManager* OhosResourceAdapterImpl::mgr_ = nullptr;
 namespace {
 
 bool ParseRawFile(const std::string& rawFile,

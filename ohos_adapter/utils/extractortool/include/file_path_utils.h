@@ -17,12 +17,16 @@
 #define OHOS_ABILITY_BASE_FILE_PATH_UTILS_H
 
 #include <string>
+#include "adapter_export.h"
 
 namespace OHOS {
 namespace AbilityBase {
-    bool StringStartWith(const std::string& str, const char* startStr, size_t startStrLen);
-    bool StringEndWith(const std::string& str, const char* endStr, size_t endStrLen);
-    void SplitString(const std::string& str, std::vector<std::string>& out, size_t pos = 0, const char* seps = "\\/");
+    bool  OHOS_ADAPTER_EXPORT StringStartWith(
+        const std::string& str, const char* startStr, size_t startStrLen);
+    bool  OHOS_ADAPTER_EXPORT StringEndWith(
+        const std::string& str, const char* endStr, size_t endStrLen);
+    void SplitString(
+        const std::string& str, std::vector<std::string>& out, size_t pos = 0, const char* seps = "\\/");
     std::string JoinString(const std::vector<std::string>& strs, char sep, size_t startIndex = 0);
     std::string StripString(const std::string& str, const char* charSet = " \t\n\r");
 
@@ -38,8 +42,8 @@ namespace AbilityBase {
     std::string NormalizeUri(
         const std::string& bundleName, const std::string& curJsModulePath, const std::string& newJsModuleUri);
     bool MakeFilePath(const std::string& codePath, const std::string& modulePath, std::string& fileName);
-    std::string GetLoadPath(const std::string& hapPath);
-    std::string GetRelativePath(const std::string& srcPath);
+    std::string  OHOS_ADAPTER_EXPORT GetLoadPath(const std::string& hapPath);
+    std::string  OHOS_ADAPTER_EXPORT GetRelativePath(const std::string& srcPath);
 }  // namespace AbilityBase
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_BASE_FILE_PATH_UTILS_H

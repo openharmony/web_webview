@@ -18,56 +18,27 @@
 
 #include "print_manager_adapter.h"
 
-#if defined(NWEB_PRINT_ENABLE)
-#include "iprint_callback.h"
-#include "print_callback.h"
-#include "print_manager_client.h"
-#endif
-
 namespace OHOS::NWeb {
-
-#if defined(NWEB_PRINT_ENABLE)
-class PrintDocumentAdapterImpl : public OHOS::Print::PrintDocumentAdapter {
-public:
-    PrintDocumentAdapterImpl(const std::shared_ptr<PrintDocumentAdapterAdapter> cb);
-
-    void onStartLayoutWrite(const std::string& jobId, const OHOS::Print::PrintAttributes& oldAttrs,
-        const OHOS::Print::PrintAttributes& newAttrs, uint32_t fd,
-        std::function<void(std::string, uint32_t)> writeResultCallback) override;
-
-    void onJobStateChanged(const std::string& jobId, uint32_t state) override;
-
-private:
-    PrintAttributesAdapter ConvertPrintingParameters(Print::PrintAttributes attrs);
-
-    std::shared_ptr<PrintDocumentAdapterAdapter> cb_;
-};
-#endif
-
-class PrintWriteResultCallbackAdapterImpl : public PrintWriteResultCallbackAdapter {
-public:
-    PrintWriteResultCallbackAdapterImpl(std::function<void(std::string, uint32_t)>& cb);
-
-    void WriteResultCallback(std::string jobId, uint32_t code) override;
-
-private:
-    std::function<void(std::string, uint32_t)> cb_;
-};
 
 class PrintManagerAdapterImpl : public PrintManagerAdapter {
 public:
-    static PrintManagerAdapterImpl& GetInstance();
+    static PrintManagerAdapterImpl& GetInstance() {
+        static PrintManagerAdapterImpl instance;
+        return instance;
+    }
 
     ~PrintManagerAdapterImpl() override = default;
 
     int32_t StartPrint(
-        const std::vector<std::string>& fileList, const std::vector<uint32_t>& fdList, std::string& taskId) override;
+        const std::vector<std::string>& fileList,
+        const std::vector<uint32_t>& fdList,
+        std::string& taskId) override { return 0; }
 
     int32_t Print(const std::string& printJobName, const std::shared_ptr<PrintDocumentAdapterAdapter> listener,
-        const PrintAttributesAdapter& printAttributes) override;
+        const PrintAttributesAdapter& printAttributes) override { return 0; }
 
     int32_t Print(const std::string& printJobName, const std::shared_ptr<PrintDocumentAdapterAdapter> listener,
-        const PrintAttributesAdapter& printAttributes, void* contextToken) override;
+        const PrintAttributesAdapter& printAttributes, void* contextToken) override { return 0; }
 
 private:
     PrintManagerAdapterImpl() = default;

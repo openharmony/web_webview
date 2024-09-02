@@ -18,6 +18,7 @@
 
 #include <memory>
 #include <string>
+#include "adapter_export.h"
 
 namespace OHOS {
 namespace AbilityBase {
@@ -27,7 +28,7 @@ enum class FileMapperType {
     SHARED_MMAP,
     SAFE_ABC
 };
-class FileMapper {
+class  OHOS_ADAPTER_EXPORT FileMapper {
 public:
     FileMapper();
     FileMapper(FileMapper &) = delete;

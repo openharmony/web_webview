@@ -24,6 +24,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "adapter_export.h"
 #include "file_mapper.h"
 #include "zip_file.h"
 
@@ -37,7 +38,7 @@ struct FileInfo {
     uint16_t lastModDate = 0;
 };
 
-class Extractor {
+class  OHOS_ADAPTER_EXPORT Extractor {
 public:
     explicit Extractor(const std::string &source);
     virtual ~Extractor();
@@ -105,7 +106,7 @@ private:
     std::optional<bool> isStageModel_;
 };
 
-class ExtractorUtil {
+class  OHOS_ADAPTER_EXPORT ExtractorUtil {
 public:
     static std::string GetLoadFilePath(const std::string &hapPath);
     static std::shared_ptr<Extractor> GetExtractor(const std::string &hapPath, bool &newCreate, bool cache = false);

@@ -16,7 +16,10 @@
 #ifndef OHOS_IMAGE_DECODER_ADAPTER_IMPL
 #define OHOS_IMAGE_DECODER_ADAPTER_IMPL
 
+#include "foundation/graphic/graphic_surface/interfaces/inner_api/surface/native_buffer.h"
+#include "image_type.h"
 #include "ohos_image_decoder_adapter.h"
+#include "surface_buffer.h"
 
 namespace OHOS {
 
@@ -28,26 +31,31 @@ namespace NWeb {
 
 class OhosImageDecoderAdapterImpl : public OhosImageDecoderAdapter {
 public:
-    OhosImageDecoderAdapterImpl(){}
-    ~OhosImageDecoderAdapterImpl() override{}
+    OhosImageDecoderAdapterImpl();
+    ~OhosImageDecoderAdapterImpl() override;
 
-    bool ParseImageInfo(const uint8_t* data, uint32_t size) override{ return false; }
-    std::string GetEncodedFormat() override{ return ""; }
-    int32_t GetImageWidth() override{ return 0; }
-    int32_t GetImageHeight() override{ return 0; }
-    bool DecodeToPixelMap(const uint8_t* data, uint32_t size) override{ return false; }
+    bool ParseImageInfo(const uint8_t* data, uint32_t size) override;
+    std::string GetEncodedFormat() override;
+    int32_t GetImageWidth() override;
+    int32_t GetImageHeight() override;
+    bool DecodeToPixelMap(const uint8_t* data, uint32_t size) override;
     bool Decode(const uint8_t* data,
                 uint32_t size,
                 AllocatorType type,
-                bool useYuv) override{ return false; }
-    int32_t GetFd() override{ return 0; }
-    int32_t GetStride() override{ return 0; }
-    int32_t GetOffset() override{ return 0; }
-    uint64_t GetSize() override{ return 0; }
-    void* GetNativeWindowBuffer() override{ return nullptr; }
-    int32_t GetPlanesCount() override{ return 0; }
-    void ReleasePixelMap() override{}
-    Media::PixelMap* GetPixelMap() { return nullptr; }
+                bool useYuv) override;
+    int32_t GetFd() override;
+    int32_t GetStride() override;
+    int32_t GetOffset() override;
+    uint64_t GetSize() override;
+    void* GetNativeWindowBuffer() override;
+    int32_t GetPlanesCount() override;
+    void ReleasePixelMap() override;
+    Media::PixelMap* GetPixelMap() { return pixelMap_.get(); }
+
+private:
+    Media::ImageInfo imageInfo_;
+    std::unique_ptr<Media::PixelMap> pixelMap_;
+    OHNativeWindowBuffer* nativeWindowBuffer_ = nullptr;
 };
 
 }  // namespace NWeb

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,18 +13,9 @@
  * limitations under the License.
  */
 
-#include "multimedia/player_framework/native_avcodec_base.h"
-#include "multimedia/player_framework/native_avcodec_videodecoder.h"
-#include <string>
+#ifndef OHOS_ADAPTER_EXPORT_H
+#define OHOS_ADAPTER_EXPORT_H
 
-using namespace std;
+#define OHOS_ADAPTER_EXPORT __attribute__((visibility("default")))
 
-void CreateVideoDecoderByMime(const std::string& mimetype)
-{
-    OH_VideoDecoder_CreateByMime(mimetype.c_str());
-}
-
-void CreateVideoDecoderByName(const std::string& name)
-{
-    OH_VideoDecoder_CreateByName(name.c_str());
-}
+#endif // OHOS_ADAPTER_EXPORT_H

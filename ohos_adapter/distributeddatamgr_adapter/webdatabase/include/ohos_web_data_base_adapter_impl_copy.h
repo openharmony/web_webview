@@ -20,34 +20,45 @@
 
 #include <string>
 
+#include "rdb_errno.h"
+#include "rdb_helper.h"
+#include "rdb_open_callback.h"
+#include "rdb_store.h"
+#include "rdb_store_config.h"
+#include "rdb_types.h"
+
 namespace OHOS::NWeb {
+class DataBaseRdbOpenCallBack : public OHOS::NativeRdb::RdbOpenCallback {
+public:
+    int32_t OnCreate(OHOS::NativeRdb::RdbStore& rdbStore) override;
+
+    int32_t OnUpgrade(OHOS::NativeRdb::RdbStore& rdbStore, int32_t currentVersion, int32_t targetVersion) override;
+};
 
 class OhosWebDataBaseAdapterImpl : public OhosWebDataBaseAdapter {
 public:
-    static OhosWebDataBaseAdapterImpl& GetInstance() {
-        static OhosWebDataBaseAdapterImpl instance;
-        return instance;
-    }
+    static OhosWebDataBaseAdapterImpl& GetInstance();
 
     ~OhosWebDataBaseAdapterImpl() override = default;
 
-    bool ExistHttpAuthCredentials() override { return false; }
+    bool ExistHttpAuthCredentials() override;
 
-    void DeleteHttpAuthCredentials() override {}
+    void DeleteHttpAuthCredentials() override;
 
     void SaveHttpAuthCredentials(const std::string& host, const std::string& realm,
-        const std::string& username, const char* password) override {}
+        const std::string& username, const char* password) override;
 
     void GetHttpAuthCredentials(const std::string& host, const std::string& realm,
-        std::string& username, char* password, uint32_t passwordSize) override {}
+        std::string& username, char* password, uint32_t passwordSize) override;
 
 private:
-    OhosWebDataBaseAdapterImpl() {}
+    OhosWebDataBaseAdapterImpl();
 
     OhosWebDataBaseAdapterImpl(const OhosWebDataBaseAdapterImpl& other) = delete;
 
     OhosWebDataBaseAdapterImpl& operator=(const OhosWebDataBaseAdapterImpl&) = delete;
 
+    std::shared_ptr<OHOS::NativeRdb::RdbStore> rdbStore_;
 };
 } // namespace
 #endif // OHOS_WEB_DATA_BASE_ADAPTER_IMPL_H

@@ -19,7 +19,10 @@ config("ohos_adapter_public_interface") {
 
 ################################### string_utils ########################################
 config("string_utils_config") {
-  include_dirs = [ "utils/extractortool/include" ]
+  include_dirs = [
+    "utils/include",
+    "utils/extractortool/include"
+  ]
 }
 
 shared_library("adapter_string_utils") {
@@ -36,6 +39,7 @@ shared_library("adapter_string_utils") {
 ################################### extractortool ########################################
 config("ability_extractor_config") {
   include_dirs = [
+    "utils/include",
     "utils/extractortool/include",
     "//third_party/zlib/",
     "//third_party/zlib/contrib/minizip",
@@ -58,7 +62,10 @@ shared_library("adapter_extractortool") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
 
-  deps = [ ":adapter_string_utils" ]
+  deps = [
+    ":adapter_string_utils",
+    "//third_party/zlib:zlib",
+  ]
 
   public_configs = [ ":ability_extractor_config" ]
 }
@@ -75,7 +82,7 @@ shared_library("nweb_ohos_adapter") {
 #    "aafwk_adapter/src/aafwk_browser_host_impl.cpp",
 #    "aafwk_adapter/src/aafwk_render_scheduler_impl.cpp",
      "access_token_adapter/src/access_token_adapter_impl.cpp",
-#    "background_task_adapter/src/background_task_impl.cpp",
+    "background_task_adapter/src/background_task_impl.cpp",
      "cert_mgr_adapter/src/cert_mgr_adapter_impl.cpp",
      "utils/src/ashmem.cpp",
 #    "datashare_adapter/src/datashare_adapter_impl.cpp",
@@ -99,13 +106,13 @@ shared_library("nweb_ohos_adapter") {
 #    "keystore_adapter/src/keystore_adapter_impl.cpp",
 #    "multimodalinput_adapter/src/mmi_adapter_impl.cpp",
 #    "net_proxy_adapter/src/net_proxy_adapter_impl.cpp",
-#    "ohos_adapter_helper/src/ohos_adapter_helper_impl.cpp",
+     "ohos_adapter_helper/src/ohos_adapter_helper_impl.cpp",
 #    "ohos_image_adapter/src/ohos_image_decoder_adapter_impl.cpp",
 #    "ohos_init_web_adapter/src/ohos_init_web_adapter_impl.cpp",
      "ohos_resource_adapter/src/ohos_resource_adapter_impl.cpp",
 #    "pasteboard_adapter/src/pasteboard_client_adapter_impl.cpp",
 #    "print_manager_adapter/src/print_manager_adapter_impl.cpp",
-#    "res_sched_adapter/src/res_sched_client_adapter_impl.cpp",
+    "res_sched_adapter/src/res_sched_client_adapter_impl.cpp",
 #    "soc_perf_adapter/src/soc_perf_client_adapter_impl.cpp",
     "system_properties_adapter/src/system_properties_adapter_impl.cpp",
      "audio_adapter/src/audio_system_manager_adapter_impl.cpp",
@@ -118,44 +125,69 @@ shared_library("nweb_ohos_adapter") {
 #  ]
 #
   include_dirs = [
-#    "../ohos_nweb/include",
-#    "aafwk_adapter/include",
-     "access_token_adapter/include",
-     "audio_adapter/include",
-#    "battery_mgr_adapter/include",
+    "aafwk_adapter/include",
+    "access_token_adapter/include",
+    "audio_adapter/include",
+    "battery_mgr_adapter/include",
     "camera_adapter/include",
-     "cert_mgr_adapter/include",
-     "utils/include",
-#    "datashare_adapter/include",
-     "date_time_format_adapter/include",
-     "display_manager_adapter/include",
-#    "distributeddatamgr_adapter/webdatabase/include",
-#    "enterprise_device_management_adapter/include",
+    "cert_mgr_adapter/include",
+    "utils/include",
+    "datashare_adapter/include",
+    "date_time_format_adapter/include",
+    "display_manager_adapter/include",
+    "distributeddatamgr_adapter/webdatabase/include",
+    "enterprise_device_management_adapter/include",
     "event_handler_adapter/include",
-#    "flowbuffer_adapter/include",
+    "flowbuffer_adapter/include",
     "graphic_adapter/include",
     "hiviewdfx_adapter/include",
     "inputmethodframework_adapter/include",
-#    "keystore_adapter/include",
-#    "location_adapter/include",
-     "media_adapter/include",
-#    "multimodalinput_adapter/include",
-#    "net_connect_adapter/include",
-#    "net_proxy_adapter/include",
-#    "ohos_adapter_helper/include",
-#    "ohos_image_adapter/include",
-#    "ohos_init_web_adapter/include",
-     "ohos_resource_adapter/include",
-#    "pasteboard_adapter/include",
-#    "power_mgr_adapter/include",
-#    "print_manager_adapter/include",
-#    "screen_capture_adapter/include",
-#    "soc_perf_adapter/include",
-     "system_properties_adapter/include",
-#    "sensor_adapter/include",
-     "//third_party/jsoncpp/source/include/",
-     "//third_party/zlib/",
-     "//third_party/zlib/contrib/minizip"
+    "keystore_adapter/include",
+    "location_adapter/include",
+    "media_adapter/include",
+    "multimodalinput_adapter/include",
+    "net_connect_adapter/include",
+    "net_proxy_adapter/include",
+    "ohos_adapter_helper/include",
+    "ohos_image_adapter/include",
+    "ohos_init_web_adapter/include",
+    "ohos_resource_adapter/include",
+    "pasteboard_adapter/include",
+    "power_mgr_adapter/include",
+    "print_manager_adapter/include",
+    "screen_capture_adapter/include",
+    "soc_perf_adapter/include",
+    "system_properties_adapter/include",
+    "sensor_adapter/include",
+    "//third_party/jsoncpp/source/include/",
+    "//third_party/zlib/",
+    "//third_party/zlib/contrib/minizip"
+  ]
+
+  libs = [
+    "ability_access_control",
+    "ace_napi.z",
+    "avplayer",
+    "deviceinfo_ndk.z",
+    "ffrt.z",
+    "hilog_ndk.z",
+    "native_buffer",
+    "native_display_manager",
+    "native_image",
+    "native_media_codecbase",
+    "native_media_core",
+    "native_media_vdec",
+    "native_media_venc",
+    "native_vsync",
+    "native_window",
+    "net_ssl",
+    "ohaudio",
+    "ohcamera",
+    "ohcommonevent",
+    "ohinputmethod",
+    "ohresmgr",
+    "rawfile.z",
+    "time_service_ndk",
   ]
 #
   public_configs = [ ":ohos_adapter_public_interface" ]
@@ -213,7 +245,7 @@ shared_library("nweb_ohos_adapter") {
 #  if (webview_audio_enable) {
     sources += [
       "audio_adapter/src/audio_capturer_adapter_impl.cpp",
-#      "audio_adapter/src/audio_device_desc_adapter_impl.cpp",
+      "audio_adapter/src/audio_device_desc_adapter_impl.cpp",
       "audio_adapter/src/audio_renderer_adapter_impl.cpp",
 #      "audio_adapter/src/audio_system_manager_adapter_impl.cpp",
     ]
@@ -233,11 +265,11 @@ shared_library("nweb_ohos_adapter") {
 #  }
 #
 #  if (webview_location_enable) {
-#    sources += [
+    sources += [
 #      "location_adapter/src/location_callback_adapter_impl.cpp",
-#      "location_adapter/src/location_instance_impl.cpp",
+      "location_adapter/src/location_instance_impl.cpp",
 #      "location_adapter/src/location_proxy_adapter_impl.cpp",
-#    ]
+    ]
 #    external_deps += [
 #      "location:lbsservice_common",
 #      "location:locator_sdk",
@@ -250,10 +282,9 @@ shared_library("nweb_ohos_adapter") {
 #  if (webview_avcodec_enable) {
     sources += [
 #      "media_adapter/src/buffer_info_adapter_impl.cpp",
-#      "media_adapter/src/capability_data_adapter_impl.cpp",
+      "media_adapter/src/capability_data_adapter_impl.cpp",
 #      "media_adapter/src/codec_format_adapter_impl.cpp",
        "media_adapter/src/media_codec_decoder_adapter_impl.cpp",
-       "media_adapter/src/media_codec_decoder_adapter_impl_test.cpp",
        "media_adapter/src/media_codec_list_adapter_impl.cpp",
        "media_adapter/src/media_codec_encoder_adapter_impl.cpp",
 #      "media_adapter/src/ohos_buffer_adapter_impl.cpp",
@@ -276,7 +307,7 @@ shared_library("nweb_ohos_adapter") {
 #  if (webview_camera_enable) {
     sources += [
       "camera_adapter/src/camera_manager_adapter_impl.cpp",
-#      "camera_adapter/src/camera_rotation_info_adapter_impl.cpp",
+      "camera_adapter/src/camera_rotation_info_adapter_impl.cpp",
       "camera_adapter/src/format_adapter_impl.cpp",
       "camera_adapter/src/video_capture_range_adapter_impl.cpp",
       "camera_adapter/src/video_control_support_adapter_impl.cpp",
@@ -354,7 +385,11 @@ shared_library("nweb_ohos_adapter") {
 #  subsystem_name = "web"
 #
 #  deps = [ "../ohos_nweb:web_configs" ]
-  deps = [ ":adapter_extractortool" ]
+
+  deps = [
+    ":adapter_extractortool",
+    "//third_party/jsoncpp",
+  ]
   if(webview_only) {
     defines += ["WEBVIWE_ONLY"]
   }
