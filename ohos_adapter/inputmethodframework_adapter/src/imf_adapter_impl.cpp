@@ -175,7 +175,7 @@ InputMethod_ErrorCode GetTextAvoidInfo(InputMethod_TextConfig *dest, InputMethod
     }
     ret = OH_TextAvoidInfo_GetHeight(srcAvoidInfo, &height);
     if (ret != IME_ERR_OK) {
-        WVLOG_E("Inputmethod adapter Get positionY failed ret %{public}d", ret);
+        WVLOG_E("Inputmethod adapter Get height failed ret %{public}d", ret);
         return ret;
     }
     ret = OH_TextConfig_GetTextAvoidInfo(dest, &destAvoidInfo);
@@ -190,7 +190,7 @@ InputMethod_ErrorCode GetTextAvoidInfo(InputMethod_TextConfig *dest, InputMethod
     }
     ret = OH_TextAvoidInfo_SetHeight(destAvoidInfo, height);
     if (ret != IME_ERR_OK) {
-        WVLOG_E("Inputmethod adapter Set positionY failed ret %{public}d", ret);
+        WVLOG_E("Inputmethod adapter Set height failed ret %{public}d", ret);
         return ret;
     }
     return IME_ERR_OK;
@@ -294,7 +294,7 @@ void IMFTextEditorProxyImpl::GetTextConfigFunc(InputMethod_TextEditorProxy *prox
     }
 }
 
-void IMFTextEditorProxyImpl::InsertTextFunc(InputMethod_TextEditorProxy *proxy,  const char16_t *text, size_t length)
+void IMFTextEditorProxyImpl::InsertTextFunc(InputMethod_TextEditorProxy *proxy, const char16_t *text, size_t length)
 {
     std::u16string textString = std::u16string(text);
 
@@ -406,7 +406,7 @@ void IMFTextEditorProxyImpl::GetLeftTextOfCursorFunc(
     std::u16string left;
 
     if (textListener_) {
-        textListener_->GetLeftTextOfCursor(number);
+        left = textListener_->GetLeftTextOfCursor(number);
         *length = left.copy(text, *length);
     }
 }
