@@ -18,10 +18,13 @@
 #include <unordered_map>
 
 #include "camera_rotation_info_adapter_impl.h"
+#include "display.h"
+#include "display_manager.h"
 #include "format_adapter_impl.h"
 #include "hisysevent_adapter.h"
 #include "nweb_log.h"
 #include "ohos_adapter_helper.h"
+#include "syspara/parameters.h"
 #include "video_capture_range_adapter_impl.h"
 #include "video_control_support_adapter_impl.h"
 #include "video_device_descriptor_adapter_impl.h"
@@ -853,8 +856,73 @@ CameraSurfaceListener::CameraSurfaceListener(
     : surfaceType_(type), surface_(surface), listener_(listener)
 {}
 
-std::shared_ptr<CameraRotationInfoAdapter> CameraSurfaceListener::FillRotationInfo(
-    int roration, bool isFlipX, bool isFlipY)
+int32_t CameraSurfaceListener::GetScreenRotation()
+{
+    sptr<OHOS::Rosen::Display> display = OHOS::Rosen::DisplayManager::GetInstance().GetDefaultDisplaySync();
+    if (display == nullptr) {
+        WVLOG_E("Get display manager failed, rotation maybe incorrect.");
+        return 0;
+    }
+    auto displayRotation = display->GetRotation();
+    int32_t screenRotation = 0;
+    switch (displayRotation) {
+        case OHOS::Rosen::Rotation::ROTATION_0:
+            screenRotation = ROTATION_0;
+            break;
+        case OHOS::Rosen::Rotation::ROTATION_90:
+            screenRotation = ROTATION_90;
+            break;
+        case OHOS::Rosen::Rotation::ROTATION_180:
+            screenRotation = ROTATION_180;
+            break;
+        case OHOS::Rosen::Rotation::ROTATION_270:
+            screenRotation = ROTATION_270;
+            break;
+        default:
+            WVLOG_E("Get invalid displayRotation");
+            break;
+    }
+    // current tablet screen rotation is different from of other devices.
+    // when display framework modify this problem, we need to delete this transform
+    std::string deviceType = OHOS::system::GetDeviceType();
+    if (deviceType == "tablet") {
+        screenRotation = (screenRotation + ROTATION_270) % ROTATION_MAX;
+    }
+    return screenRotation;
+}
+
+int32_t CameraSurfaceListener::GetPictureRotation()
+{
+    int32_t screenRotation = GetScreenRotation();
+    std::string currentDeviceId = CameraManagerAdapterImpl::GetInstance().GetCurrentDeviceId();
+    sptr<CameraDevice> cameraObj = CameraManager::GetInstance()->GetCameraDeviceFromId(currentDeviceId);
+    if (cameraObj == nullptr) {
+        WVLOG_E("cameraObj is nullptr");
+        return screenRotation;
+    }
+    uint32_t cameraOrientation = cameraObj->GetCameraOrientation();
+    auto cameraPosition = cameraObj->GetPosition(); // 1: back, 2: front
+
+    int32_t pictureRotation = 0;
+    if (cameraPosition == OHOS::CameraStandard::CameraPosition::CAMERA_POSITION_FRONT) {
+        pictureRotation = (cameraOrientation - screenRotation) % ROTATION_MAX;
+    } else {
+        pictureRotation = (cameraOrientation + screenRotation) % ROTATION_MAX;
+    }
+
+    WVLOG_D("GetPictureRotation, cameraOrientation:%{public}d, screenRotation:%{public}d, pictureRotation:%{public}d",
+        cameraOrientation, screenRotation, pictureRotation);
+    return pictureRotation;
+}
+
+bool CameraSurfaceListener::IsNeedCorrectRotation()
+{
+    std::string deviceType = OHOS::system::GetDeviceType();
+    return (deviceType == "phone" || deviceType == "tablet");
+}
+
+std::shared_ptr<CameraRotationInfoAdapter> CameraSurfaceListener::FillRotationInfo(int32_t rotation,
+    bool isFlipX, bool isFlipY)
 {
     std::shared_ptr<CameraRotationInfoAdapterImpl> rotationInfo = std::make_shared<CameraRotationInfoAdapterImpl>();
     if (!rotationInfo) {
@@ -862,7 +930,10 @@ std::shared_ptr<CameraRotationInfoAdapter> CameraSurfaceListener::FillRotationIn
         return nullptr;
     }
 
-    rotationInfo->SetRotation(roration);
+    if (IsNeedCorrectRotation()) {
+        rotation = GetPictureRotation();
+    }
+    rotationInfo->SetRotation(rotation);
     rotationInfo->SetIsFlipX(isFlipX);
     rotationInfo->SetIsFlipY(isFlipY);
     return rotationInfo;
