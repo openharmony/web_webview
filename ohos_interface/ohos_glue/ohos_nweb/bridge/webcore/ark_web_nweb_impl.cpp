@@ -1142,4 +1142,9 @@ bool ArkWebNWebImpl::ScrollByWithResult(float delta_x, float delta_y)
 {
     return nweb_nweb_->ScrollByWithResult(delta_x, delta_y);
 }
+
+void ArkWebNWebImpl::OnDestroyImageAnalyzerOverlay()
+{
+    nweb_nweb_->OnDestroyImageAnalyzerOverlay();
+}
 } // namespace OHOS::ArkWeb
