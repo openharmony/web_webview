@@ -25,7 +25,7 @@ config("string_utils_config") {
   ]
 }
 
-shared_library("adapter_string_utils") {
+component("adapter_string_utils") {
   sources = [ "utils/extractortool/src/file_path_utils.cpp" ]
 
   cflags = []
@@ -46,7 +46,7 @@ config("ability_extractor_config") {
   ]
 }
 
-shared_library("adapter_extractortool") {
+component("adapter_extractortool") {
   sources = [
     "utils/extractortool/src/extractor.cpp",
     "utils/extractortool/src/file_mapper.cpp",
