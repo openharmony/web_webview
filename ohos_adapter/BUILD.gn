@@ -108,7 +108,7 @@ shared_library("nweb_ohos_adapter") {
 #    "net_proxy_adapter/src/net_proxy_adapter_impl.cpp",
      "ohos_adapter_helper/src/ohos_adapter_helper_impl.cpp",
 #    "ohos_image_adapter/src/ohos_image_decoder_adapter_impl.cpp",
-#    "ohos_init_web_adapter/src/ohos_init_web_adapter_impl.cpp",
+    "ohos_init_web_adapter/src/ohos_init_web_adapter_impl.cpp",
      "ohos_resource_adapter/src/ohos_resource_adapter_impl.cpp",
 #    "pasteboard_adapter/src/pasteboard_client_adapter_impl.cpp",
 #    "print_manager_adapter/src/print_manager_adapter_impl.cpp",
