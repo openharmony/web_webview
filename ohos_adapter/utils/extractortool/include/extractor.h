@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_BASE_EXTRACTOR_H
-#define OHOS_ABILITY_BASE_EXTRACTOR_H
+#ifndef OHOS_ADAPTER_UTILS_EXTRACTOR_H
+#define OHOS_ADAPTER_UTILS_EXTRACTOR_H
 
 #include <memory>
 #include <mutex>
@@ -29,7 +29,7 @@
 #include "zip_file.h"
 
 namespace OHOS {
-namespace AbilityBase {
+namespace AdapterUtils {
 struct FileInfo {
     std::string fileName;
     uint32_t offset = 0;
@@ -116,6 +116,6 @@ private:
     static std::mutex mapMutex_;
     static std::unordered_map<std::string, std::shared_ptr<Extractor>> extractorMap_;
 };
-}  // namespace AbilityBase
+}  // namespace AdapterUtils
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_BASE_EXTRACTOR_H

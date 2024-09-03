@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_BASE_ZIP_FILE_READER_H
-#define OHOS_ABILITY_BASE_ZIP_FILE_READER_H
+#ifndef OHOS_ADAPTER_UTILS_ZIP_FILE_READER_H
+#define OHOS_ADAPTER_UTILS_ZIP_FILE_READER_H
 
 #include <fcntl.h>
 #include <memory>
@@ -22,7 +22,7 @@
 #include <string>
 
 namespace OHOS {
-namespace AbilityBase {
+namespace AdapterUtils {
 class ZipFileReader {
 public:
     static std::shared_ptr<ZipFileReader> CreateZipFileReader(const std::string &filePath);

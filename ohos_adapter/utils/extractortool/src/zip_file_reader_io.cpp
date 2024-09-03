@@ -23,7 +23,7 @@
 #define WVLOG_W(fmt, ...)
 
 namespace OHOS {
-namespace AbilityBase {
+namespace AdapterUtils {
 namespace {
 constexpr size_t BIG_FILE_SIZE = 1u << 31;
 }

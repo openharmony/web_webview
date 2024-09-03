@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_BASE_FILE_PATH_UTILS_H
-#define OHOS_ABILITY_BASE_FILE_PATH_UTILS_H
+#ifndef OHOS_ADAPTER_UTILS_FILE_PATH_UTILS_H
+#define OHOS_ADAPTER_UTILS_FILE_PATH_UTILS_H
 
 #include <string>
 #include "adapter_export.h"
 
 namespace OHOS {
-namespace AbilityBase {
+namespace AdapterUtils {
     bool  OHOS_ADAPTER_EXPORT StringStartWith(
         const std::string& str, const char* startStr, size_t startStrLen);
     bool  OHOS_ADAPTER_EXPORT StringEndWith(
@@ -44,6 +44,6 @@ namespace AbilityBase {
     bool MakeFilePath(const std::string& codePath, const std::string& modulePath, std::string& fileName);
     std::string  OHOS_ADAPTER_EXPORT GetLoadPath(const std::string& hapPath);
     std::string  OHOS_ADAPTER_EXPORT GetRelativePath(const std::string& srcPath);
-}  // namespace AbilityBase
+}  // namespace AdapterUtils
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_BASE_FILE_PATH_UTILS_H
+#endif  // OHOS_ADAPTER_UTILS_FILE_PATH_UTILS_H

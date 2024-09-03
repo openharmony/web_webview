@@ -16,7 +16,7 @@
 #include "extract_resource_manager.h"
 
 namespace OHOS {
-namespace AbilityBase {
+namespace AdapterUtils {
 ExtractResourceManager::ExtractResourceManager()
 {}
 
@@ -42,5 +42,5 @@ std::shared_ptr<Global::Resource::ResourceManager> ExtractResourceManager::GetGl
 {
     return resourceManager_;
 }
-}  // namespace AbilityBase
+}  // namespace AdapterUtils
 }  // namespace OHOS

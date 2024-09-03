@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_BASE_EXTRACT_RESOURCE_MANAGER_H
-#define OHOS_ABILITY_BASE_EXTRACT_RESOURCE_MANAGER_H
+#ifndef OHOS_ADAPTER_UTILS_EXTRACT_RESOURCE_MANAGER_H
+#define OHOS_ADAPTER_UTILS_EXTRACT_RESOURCE_MANAGER_H
 
 #include <memory>
 #include "resource_manager.h"
 
 namespace OHOS {
-namespace AbilityBase {
+namespace AdapterUtils {
 class ExtractResourceManager {
 public:
     ExtractResourceManager(const ExtractResourceManager&) = delete;
@@ -40,6 +40,6 @@ private:
 
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager_;
 };
-}  // namespace AbilityBase
+}  // namespace AdapterUtils
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_BASE_EXTRACT_RESOURCE_MANAGER_H
+#endif  // OHOS_ADAPTER_UTILS_EXTRACT_RESOURCE_MANAGER_H

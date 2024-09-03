@@ -27,7 +27,7 @@
 #define WVLOG_W(fmt, ...)
 
 namespace OHOS {
-namespace AbilityBase {
+namespace AdapterUtils {
 std::shared_ptr<ZipFileReader> ZipFileReader::CreateZipFileReader(const std::string &filePath)
 {
     size_t fileSize = GetFileLen(filePath);

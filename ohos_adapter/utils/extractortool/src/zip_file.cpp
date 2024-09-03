@@ -29,7 +29,7 @@
 #define WVLOG_W(fmt, ...)
 
 namespace OHOS {
-namespace AbilityBase {
+namespace AdapterUtils {
 namespace {
 constexpr uint32_t MAX_FILE_NAME = 4096;
 constexpr uint32_t UNZIP_BUFFER_SIZE = 1024;
@@ -167,7 +167,7 @@ bool ZipFile::ParseOneEntry(uint8_t* &entryPtr)
     }
 
     CentralDirEntry directoryEntry;
-    if (memcpy(&directoryEntry, entryPtr, sizeof(CentralDirEntry)) != NULL) {
+    if (memcpy(&directoryEntry, entryPtr, sizeof(CentralDirEntry)) == NULL) {
         WVLOG_E("Mem copy directory entry failed");
         return false;
     }
@@ -180,7 +180,7 @@ bool ZipFile::ParseOneEntry(uint8_t* &entryPtr)
     entryPtr += sizeof(CentralDirEntry);
     size_t fileLength = (directoryEntry.nameSize >= MAX_FILE_NAME) ? (MAX_FILE_NAME - 1) : directoryEntry.nameSize;
     std::string fileName(fileLength, 0);
-    if (memcpy(&(fileName[0]), entryPtr, fileLength) != NULL) {
+    if (memcpy(&(fileName[0]), entryPtr, fileLength) == NULL) {
         WVLOG_E("Mem copy file name failed");
         return false;
     }
@@ -663,7 +663,7 @@ bool ZipFile::CheckCoherencyLocalHeader(const ZipEntry &zipEntry, uint16_t &extr
     }
 
     LocalHeader localHeader = {0};
-    if (memcpy(&localHeader, buff.data(), sizeof(LocalHeader)) != NULL) {
+    if (memcpy(&localHeader, buff.data(), sizeof(LocalHeader)) == NULL) {
         WVLOG_E("memcpy localheader failed");
         return false;
     }
@@ -838,7 +838,7 @@ bool ZipFile::CopyInflateOut(z_stream &zstream, size_t inflateLen, uint8_t** dst
     BytePtr bufOut, uint8_t &errorTimes) const
 {
     if (inflateLen > 0) {
-        if (memcpy(*dstDataPtr, bufOut, inflateLen) != NULL) {
+        if (memcpy(*dstDataPtr, bufOut, inflateLen) == NULL) {
             WVLOG_E("Mem copy failed");
             return false;
         }
@@ -870,7 +870,7 @@ bool ZipFile::ReadZStreamFromMMap(const BytePtr &buffer, void* &dataPtr,
     if (zstream.avail_in == 0) {
         size_t remainBytes = (remainCompressedSize > UNZIP_BUF_IN_LEN) ? UNZIP_BUF_IN_LEN : remainCompressedSize;
         size_t readBytes = sizeof(Byte) * remainBytes;
-        if (memcpy(buffer, srcDataPtr, readBytes) != NULL) {
+        if (memcpy(buffer, srcDataPtr, readBytes) == NULL) {
             WVLOG_E("Mem copy failed");
             return false;
         }
@@ -953,5 +953,5 @@ bool ZipFile::ExtractToBufByName(const std::string &fileName, std::unique_ptr<ui
 
     return true;
 }
-}  // namespace AbilityBase
+}  // namespace AdapterUtils
 }  // namespace OHOS

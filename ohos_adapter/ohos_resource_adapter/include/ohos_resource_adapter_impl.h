@@ -28,8 +28,8 @@
 namespace OHOS::NWeb {
 class OhosFileMapperImpl : public OhosFileMapper {
 public:
-    OhosFileMapperImpl(std::unique_ptr<OHOS::AbilityBase::FileMapper> fileMap,
-        const std::shared_ptr<OHOS::AbilityBase::Extractor>& extractor);
+    OhosFileMapperImpl(std::unique_ptr<OHOS::AdapterUtils::FileMapper> fileMap,
+        const std::shared_ptr<OHOS::AdapterUtils::Extractor>& extractor);
 
     ~OhosFileMapperImpl() override = default;
 
@@ -48,9 +48,9 @@ public:
     bool UnzipData(uint8_t** dest, size_t& len) override;
 
 private:
-    std::shared_ptr<OHOS::AbilityBase::Extractor> extractor_ = nullptr;
+    std::shared_ptr<OHOS::AdapterUtils::Extractor> extractor_ = nullptr;
 
-    std::unique_ptr<OHOS::AbilityBase::FileMapper> fileMap_ = nullptr;
+    std::unique_ptr<OHOS::AdapterUtils::FileMapper> fileMap_ = nullptr;
 };
 
 class OhosResourceAdapterImpl : public OhosResourceAdapter {
@@ -82,23 +82,23 @@ private:
 
     static std::string GetModuleName(const char *configStr, size_t len);
 
-    static std::string ParseModuleName(const std::shared_ptr<OHOS::AbilityBase::Extractor> &manager);
+    static std::string ParseModuleName(const std::shared_ptr<OHOS::AdapterUtils::Extractor> &manager);
 
-    static bool GetRawFileData(const std::shared_ptr<OHOS::AbilityBase::Extractor>& manager,
+    static bool GetRawFileData(const std::shared_ptr<OHOS::AdapterUtils::Extractor>& manager,
         const std::string& rawFile, size_t& len, std::unique_ptr<uint8_t[]>& dest);
 
-    static bool HasEntry(const std::shared_ptr<OHOS::AbilityBase::Extractor>& manager,
+    static bool HasEntry(const std::shared_ptr<OHOS::AdapterUtils::Extractor>& manager,
         const std::string& rawFile);
 
-    static bool GetFileInfo(const std::shared_ptr<OHOS::AbilityBase::Extractor>& manager,
-        const std::string& rawFile, OHOS::AbilityBase::FileInfo& info);
+    static bool GetFileInfo(const std::shared_ptr<OHOS::AdapterUtils::Extractor>& manager,
+        const std::string& rawFile, OHOS::AdapterUtils::FileInfo& info);
 
     static std::shared_ptr<OhosFileMapper> GetRawFileMapper(
-        const std::shared_ptr<OHOS::AbilityBase::Extractor>& manager,
+        const std::shared_ptr<OHOS::AdapterUtils::Extractor>& manager,
         const std::string& rawFile);
 
-    std::shared_ptr<OHOS::AbilityBase::Extractor> sysExtractor_;
-    std::shared_ptr<OHOS::AbilityBase::Extractor> extractor_;
+    std::shared_ptr<OHOS::AdapterUtils::Extractor> sysExtractor_;
+    std::shared_ptr<OHOS::AdapterUtils::Extractor> extractor_;
 
     static NativeResourceManager* mgr_;
 };
