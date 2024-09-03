@@ -39,7 +39,7 @@ char* realpath(const char* path, char* resolvedPath)
 #endif
 
 namespace OHOS {
-namespace AbilityBase {
+namespace AdapterUtils {
 namespace {
 constexpr char EXT_NAME_ABC[] = ".abc";
 constexpr char EXT_NAME_ETS[] = ".ets";
@@ -460,5 +460,5 @@ std::string GetRelativePath(const std::string& srcPath)
     }
     return relativePath;
 }
-}  // namespace AbilityBase
+}  // namespace AdapterUtils
 }  // namespace OHOS

@@ -27,7 +27,7 @@
 #define WVLOG_W(fmt, ...)
 
 namespace OHOS {
-namespace AbilityBase {
+namespace AdapterUtils {
 namespace {
 constexpr char EXT_NAME_ABC[] = ".abc";
 }
@@ -303,5 +303,5 @@ void ExtractorUtil::DeleteExtractor(const std::string &hapPath)
         extractorMap_.erase(mapIter);
     }
 }
-}  // namespace AbilityBase
+}  // namespace AdapterUtils
 }  // namespace OHOS

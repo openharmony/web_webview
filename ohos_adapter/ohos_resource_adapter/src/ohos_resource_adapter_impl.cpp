@@ -24,7 +24,7 @@
 #include "nweb_log.h"
 #include "ohos_adapter_helper.h"
 
-using namespace OHOS::AbilityBase;
+using namespace OHOS::AdapterUtils;
 
 namespace {
 const std::string NWEB_HAP_PATH = "/system/app/com.ohos.nweb/NWeb.hap";
@@ -116,7 +116,7 @@ std::string GetNWebHapPath()
 }
 } // namespace
 
-OhosFileMapperImpl::OhosFileMapperImpl(std::unique_ptr<OHOS::AbilityBase::FileMapper> fileMap,
+OhosFileMapperImpl::OhosFileMapperImpl(std::unique_ptr<OHOS::AdapterUtils::FileMapper> fileMap,
     const std::shared_ptr<Extractor>& extractor): extractor_(extractor), fileMap_(std::move(fileMap))
 {
 }
@@ -293,7 +293,7 @@ bool OhosResourceAdapterImpl::GetRawFileLastModTime(const std::string& rawFile, 
 }
 
 // static
-bool OhosResourceAdapterImpl::HasEntry(const std::shared_ptr<OHOS::AbilityBase::Extractor>& manager,
+bool OhosResourceAdapterImpl::HasEntry(const std::shared_ptr<OHOS::AdapterUtils::Extractor>& manager,
     const std::string& rawFile)
 {
     if (!manager) {
@@ -302,8 +302,8 @@ bool OhosResourceAdapterImpl::HasEntry(const std::shared_ptr<OHOS::AbilityBase::
     return manager->HasEntry(rawFile);
 }
 
-bool OhosResourceAdapterImpl::GetFileInfo(const std::shared_ptr<OHOS::AbilityBase::Extractor>& manager,
-    const std::string& rawFile, OHOS::AbilityBase::FileInfo& info)
+bool OhosResourceAdapterImpl::GetFileInfo(const std::shared_ptr<OHOS::AdapterUtils::Extractor>& manager,
+    const std::string& rawFile, OHOS::AdapterUtils::FileInfo& info)
 {
     if (!manager) {
         return false;
@@ -375,14 +375,14 @@ bool OhosResourceAdapterImpl::GetRawFileData(const std::shared_ptr<Extractor>& m
 }
 
 std::shared_ptr<OhosFileMapper> OhosResourceAdapterImpl::GetRawFileMapper(
-    const std::shared_ptr<OHOS::AbilityBase::Extractor>& manager,
+    const std::shared_ptr<OHOS::AdapterUtils::Extractor>& manager,
     const std::string& rawFile)
 {
     WVLOG_D("OhosResourceAdapterImpl::GetRawFileMapper");
     if (!manager) {
         return nullptr;
     }
-    std::unique_ptr<OHOS::AbilityBase::FileMapper> fileMap;
+    std::unique_ptr<OHOS::AdapterUtils::FileMapper> fileMap;
     auto& systemPropertiesAdapter = OhosAdapterHelper::GetInstance().GetSystemPropertiesInstance();
     if (systemPropertiesAdapter.GetWebOptimizationValue()) {
         fileMap = manager->GetMmapData(rawFile);

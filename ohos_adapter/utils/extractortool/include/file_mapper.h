@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_BASE_FILE_MAPPER_H
-#define OHOS_ABILITY_BASE_FILE_MAPPER_H
+#ifndef OHOS_ADAPTER_UTILS_FILE_MAPPER_H
+#define OHOS_ADAPTER_UTILS_FILE_MAPPER_H
 
 #include <memory>
 #include <string>
 #include "adapter_export.h"
 
 namespace OHOS {
-namespace AbilityBase {
+namespace AdapterUtils {
 class ZipFileReader;
 enum class FileMapperType {
     NORMAL_MEM,
@@ -59,6 +59,6 @@ private:
     size_t baseLen_ = 0;
     FileMapperType type_ = FileMapperType::NORMAL_MEM;
 };
-}  // namespace AbilityBase
+}  // namespace AdapterUtils
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_BASE_FILE_MAPPER_H

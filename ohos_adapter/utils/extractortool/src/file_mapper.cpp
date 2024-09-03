@@ -25,7 +25,8 @@
 #define WVLOG_W(fmt, ...)
 
 namespace OHOS {
-namespace AbilityBase {
+namespace AdapterUtils {
+
 namespace {
 long g_pageSize = 0;
 const int32_t MAP_XPM = 0x40;
@@ -137,5 +138,5 @@ int32_t FileMapper::GetOffset()
 {
     return offset_;
 }
-}  // namespace AbilityBase
+}  // namespace AdapterUtils
 }  // namespace OHOS

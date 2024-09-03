@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_BASE_CONSTANTS_H
-#define OHOS_ABILITY_BASE_CONSTANTS_H
+#ifndef OHOS_ADAPTER_UTILS_CONSTANTS_H
+#define OHOS_ADAPTER_UTILS_CONSTANTS_H
 
 namespace OHOS {
-namespace AbilityBase {
+namespace AdapterUtils {
 namespace Constants {
 constexpr const char* ABS_CODE_PATH = "/data/app/el1/bundle/public";
 constexpr const char* LOCAL_CODE_PATH = "/data/storage/el1/bundle";
@@ -32,6 +32,6 @@ inline std::string GetProcPrefix()
     return "/proc/";
 }
 }  // namespace Constants
-}  // namespace AbilityBase
+}  // namespace AdapterUtils
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_BASE_CONSTANTS_H
+#endif  // OHOS_ADAPTER_UTILS_CONSTANTS_H

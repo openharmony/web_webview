@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_BASE_ZIP_FILE_H
-#define OHOS_ABILITY_BASE_ZIP_FILE_H
+#ifndef OHOS_ADAPTER_UTILS_ZIP_FILE_H
+#define OHOS_ADAPTER_UTILS_ZIP_FILE_H
 
 #include <memory>
 #include <mutex>
@@ -27,7 +27,7 @@
 #include "unzip.h"
 
 namespace OHOS {
-namespace AbilityBase {
+namespace AdapterUtils {
 class ZipFileReader;
 struct CentralDirEntry;
 struct ZipEntry;
@@ -311,6 +311,6 @@ private:
     bool isOpen_ = false;
     CacheMode cacheMode_ = CacheMode::CACHE_CASE;
 };
-}  // namespace AbilityBase
+}  // namespace AdapterUtils
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_BASE_ZIP_FILE_H
+#endif  // OHOS_ADAPTER_UTILS_ZIP_FILE_H
