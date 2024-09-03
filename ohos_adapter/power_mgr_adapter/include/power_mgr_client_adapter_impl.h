@@ -16,20 +16,17 @@
 #ifndef POWER_MGR_CLIENT_ADAPTER_IMPL_H
 #define POWER_MGR_CLIENT_ADAPTER_IMPL_H
 
-#include "power_mgr_client.h"
 #include "power_mgr_client_adapter.h"
-#include "running_lock.h"
 
+// the interface not used
 namespace OHOS::NWeb {
 class RunningLockAdapterImpl : public RunningLockAdapter {
 public:
-    explicit RunningLockAdapterImpl(std::shared_ptr<OHOS::PowerMgr::RunningLock> lock);
+    explicit RunningLockAdapterImpl() = default;
     ~RunningLockAdapterImpl() override = default;
     bool IsUsed() override;
     int32_t Lock(uint32_t timeOutMs = 0) override;
     int32_t UnLock() override;
-private:
-    std::shared_ptr<OHOS::PowerMgr::RunningLock> lock_;
 };
 
 class PowerMgrClientAdapterImpl : public PowerMgrClientAdapter {
