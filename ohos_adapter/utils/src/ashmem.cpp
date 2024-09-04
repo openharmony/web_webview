@@ -33,11 +33,11 @@
 
 namespace OHOS::NWeb {
 static  pthread_mutex_t g_ashmemLock = PTHREAD_MUTEX_INITIALIZER;
-static const char *ASHMEM_PATH = "/""ASHMEM_NAME_DEF";
 
 static int ShmemAdapterOpenLocked()
 {
-    int fd = open(ASHMEM_PATH, O_RDWR | O_CLOEXEC);
+    std::string ashmem_path = std::string("/") + std::string(ASHMEM_NAME_DEF);
+    int fd = open(ashmem_path.c_str(), O_RDWR | O_CLOEXEC);
     if (fd < 0) {
         WVLOG_E("%{public}s: fd is invalid, fd = %{public}d, errno = %{public}d",
             __func__, fd, errno);
