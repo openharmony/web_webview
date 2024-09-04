@@ -190,6 +190,7 @@ shared_library("nweb_ohos_adapter") {
     "ohresmgr",
     "rawfile.z",
     "time_service_ndk",
+    "bundle_ndk.z",
   ]
 #
   public_configs = [ ":ohos_adapter_public_interface" ]

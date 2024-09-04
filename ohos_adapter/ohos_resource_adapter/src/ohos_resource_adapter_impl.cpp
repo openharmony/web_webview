@@ -23,6 +23,7 @@
 
 #include "nweb_log.h"
 #include "ohos_adapter_helper.h"
+#include <bundle/native_interface_bundle.h>
 
 using namespace OHOS::AbilityBase;
 
@@ -37,6 +38,7 @@ const std::string NWEB_PACKAGE = "entry";
 const std::string RAWFILE_PREFIX = "resources/rawfile/";
 const std::string BUNDLE_NAME_PREFIX = "bundleName:";
 const std::string MODULE_NAME_PREFIX = "moduleName:";
+const std::string DEFAULT_BUNDLE_PATH = "/data/app/el1/bundle/public/";
 constexpr uint32_t TM_YEAR_BITS = 9;
 constexpr uint32_t TM_MON_BITS = 5;
 constexpr uint32_t TM_MIN_BITS = 5;
@@ -166,7 +168,9 @@ bool OhosFileMapperImpl::UnzipData(uint8_t** dest, size_t& len)
 
 OhosResourceAdapterImpl::OhosResourceAdapterImpl(const std::string& hapPath)
 {
-    Init("/data/app/el1/bundle/public/com.tencent.xweb/entry.hap");
+    OH_NativeBundle_ApplicationInfo appinfo = OH_NativeBundle_GetCurrentApplicationInfo();
+    std::string path = std::string(DEFAULT_BUNDLE_PATH) + std::string(appinfo.bundleName) + std::string("/entry.hap");
+    Init(path);
 }
 
 OhosResourceAdapterImpl::~OhosResourceAdapterImpl()
@@ -188,7 +192,6 @@ void OhosResourceAdapterImpl::Init(const std::string& hapPath)
         return;
     }
     std::string loadPath = ExtractorUtil::GetLoadFilePath(hapPath);
-    loadPath = "/data/storage/el1/bundle/entry.hap";
     extractor_ = ExtractorUtil::GetExtractor(loadPath, newCreate);
     if (!extractor_) {
         WVLOG_E("RuntimeExtractor create failed for %{public}s", hapPath.c_str());
@@ -250,8 +253,10 @@ bool OhosResourceAdapterImpl::GetResourceString(const std::string& bundleName,
 std::shared_ptr<OhosFileMapper> OhosResourceAdapterImpl::GetRawFileMapper(const std::string& rawFile,
     bool isSys)
 {
-    isSys = false;
-    return GetRawFileMapper(isSys? sysExtractor_: extractor_, rawFile);
+    if (extractor_ == nullptr) {
+        return nullptr;
+    }
+    return GetRawFileMapper(extractor_, rawFile);
 }
 
 bool OhosResourceAdapterImpl::IsRawFileExist(const std::string& rawFile, bool isSys)
