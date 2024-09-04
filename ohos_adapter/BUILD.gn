@@ -21,11 +21,12 @@ config("ohos_adapter_public_interface") {
 config("string_utils_config") {
   include_dirs = [
     "utils/include",
-    "utils/extractortool/include"
+    "utils/extractortool/include",
+    "interfaces",
   ]
 }
 
-shared_library("adapter_string_utils") {
+component("adapter_string_utils") {
   sources = [ "utils/extractortool/src/file_path_utils.cpp" ]
 
   cflags = []
@@ -43,10 +44,11 @@ config("ability_extractor_config") {
     "utils/extractortool/include",
     "//third_party/zlib/",
     "//third_party/zlib/contrib/minizip",
+    "interfaces",
   ]
 }
 
-shared_library("adapter_extractortool") {
+component("adapter_extractortool") {
   sources = [
     "utils/extractortool/src/extractor.cpp",
     "utils/extractortool/src/file_mapper.cpp",
@@ -108,7 +110,7 @@ shared_library("nweb_ohos_adapter") {
 #    "net_proxy_adapter/src/net_proxy_adapter_impl.cpp",
      "ohos_adapter_helper/src/ohos_adapter_helper_impl.cpp",
 #    "ohos_image_adapter/src/ohos_image_decoder_adapter_impl.cpp",
-#    "ohos_init_web_adapter/src/ohos_init_web_adapter_impl.cpp",
+    "ohos_init_web_adapter/src/ohos_init_web_adapter_impl.cpp",
      "ohos_resource_adapter/src/ohos_resource_adapter_impl.cpp",
 #    "pasteboard_adapter/src/pasteboard_client_adapter_impl.cpp",
 #    "print_manager_adapter/src/print_manager_adapter_impl.cpp",
@@ -189,6 +191,7 @@ shared_library("nweb_ohos_adapter") {
     "rawfile.z",
     "time_service_ndk",
     "huks_ndk.z",
+    "bundle_ndk.z",
   ]
 #
   public_configs = [ ":ohos_adapter_public_interface" ]
