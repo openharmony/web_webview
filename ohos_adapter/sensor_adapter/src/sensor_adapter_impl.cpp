@@ -14,36 +14,53 @@
  */
 
 #include "sensor_adapter_impl.h"
-
-#include <securec.h>
 #include <map>
 
 #include "nweb_log.h"
 
 namespace OHOS::NWeb {
 
-std::unordered_map<int32_t, std::shared_ptr<SensorCallbackImpl>> SensorAdapterImpl::sensorCallbackMap;
+typedef enum Event_DataLen {
+    DATA_LEN_3 = 3,
+    DATA_LEN_4 = 4,
+} Event_DataLen;
+
+typedef enum Data_Index {
+    IDX_0,
+    IDX_1,
+    IDX_2,
+    IDX_3,
+} Data_Index;
+
+typedef struct SensorSubscriber {
+    Sensor_Subscriber *subscriber;
+    Sensor_SubscriptionId *id;
+    Sensor_SubscriptionAttribute *attr;
+} SensorSubscriber;
+std::unordered_map<Sensor_Type, std::shared_ptr<SensorSubscriber>> sensorSubscriberMap;
+std::unordered_map<Sensor_Type, std::shared_ptr<SensorCallbackImpl>> SensorAdapterImpl::sensorCallbackMap;
 constexpr double NANOSECONDS_IN_SECOND = 1000000000.0;
 constexpr double DEFAULT_SAMPLE_PERIOD = 200000000.0;
 
-SensorTypeId SensorTypeToOhosSensorType(int sensorTypeId)
+int32_t SensorTypeToOhosSensorType(int sensorTypeId, Sensor_Type *ohosSensorTypeId)
 {
-    SensorTypeId ohosSensorTypeId = SENSOR_TYPE_ID_NONE;
-    const static std::map<int32_t, SensorTypeId> TO_OHOS_SENSOR_TYPE_MAP = {
-        {2  /* ACCELEROMETER                     */, SENSOR_TYPE_ID_ACCELEROMETER },
-        {3  /* LINEAR_ACCELERATION               */, SENSOR_TYPE_ID_LINEAR_ACCELERATION },
-        {4  /* GRAVITY                           */, SENSOR_TYPE_ID_GRAVITY },
-        {5  /* GYROSCOPE                         */, SENSOR_TYPE_ID_GYROSCOPE },
-        {6  /* MAGNETOMETER                      */, SENSOR_TYPE_ID_MAGNETIC_FIELD },
-        {8  /* ABSOLUTE_ORIENTATION_EULER_ANGLES}*/, SENSOR_TYPE_ID_ORIENTATION },
-        {9  /* ABSOLUTE_ORIENTATION_QUATERNION}  */, SENSOR_TYPE_ID_ROTATION_VECTOR },
-        {11 /* RELATIVE_ORIENTATION_QUATERNION}  */, SENSOR_TYPE_ID_GAME_ROTATION_VECTOR }
+    const static std::map<int32_t, Sensor_Type> TO_OHOS_SENSOR_TYPE_MAP = {
+        {2  /* ACCELEROMETER                     */, SENSOR_TYPE_ACCELEROMETER },
+        {3  /* LINEAR_ACCELERATION               */, SENSOR_TYPE_LINEAR_ACCELERATION },
+        {4  /* GRAVITY                           */, SENSOR_TYPE_GRAVITY },
+        {5  /* GYROSCOPE                         */, SENSOR_TYPE_GYROSCOPE },
+        {6  /* MAGNETOMETER                      */, SENSOR_TYPE_MAGNETIC_FIELD },
+        {8  /* ABSOLUTE_ORIENTATION_EULER_ANGLES}*/, SENSOR_TYPE_ORIENTATION },
+        {9  /* ABSOLUTE_ORIENTATION_QUATERNION}  */, SENSOR_TYPE_ROTATION_VECTOR },
+        {11 /* RELATIVE_ORIENTATION_QUATERNION}  */, SENSOR_TYPE_GAME_ROTATION_VECTOR }
     };
     auto checkIter = TO_OHOS_SENSOR_TYPE_MAP.find(sensorTypeId);
     if (checkIter != TO_OHOS_SENSOR_TYPE_MAP.end()) {
-        ohosSensorTypeId = checkIter->second;
+        *ohosSensorTypeId = checkIter->second;
+        return SENSOR_SUCCESS;
     }
-    return ohosSensorTypeId;
+    WVLOG_E("Sensor type '%{public}d' is not supported", sensorTypeId);
+    return SENSOR_NO_SUPPORT;
 }
 
 std::string SensorTypeToSensorUserName(int sensorTypeId)
@@ -81,22 +98,37 @@ void SensorCallbackImpl::UpdateOhosSensorData(double timestamp,
 
 int32_t SensorAdapterImpl::IsOhosSensorSupported(int32_t sensorTypeId)
 {
-    int32_t ohosSensorTypeId = SensorTypeToOhosSensorType(sensorTypeId);
-    if (ohosSensorTypeId != SENSOR_TYPE_ID_NONE) {
-        SensorInfo* sensorInfo = nullptr;
-        int32_t count;
-        int ret = GetAllSensors(&sensorInfo, &count);
-        if (ret != SENSOR_SUCCESS || sensorInfo == nullptr || count < 0) {
+    Sensor_Type ohosSensorTypeId;
+    int32_t ret = SensorTypeToOhosSensorType(sensorTypeId, &ohosSensorTypeId);
+    if (ret == SENSOR_SUCCESS) {
+        uint32_t count = 0;
+        ret = OH_Sensor_GetInfos(nullptr, &count);
+        if (ret != SENSOR_SUCCESS) {
             WVLOG_E("IsOhosSensorSupported Error, ret = %{public}d, count = %{public}d.", ret, count);
             return SENSOR_ERROR;
         }
-
-        for (int i = 0; i < count; i++) {
-            if (sensorInfo[i].sensorId == ohosSensorTypeId) {
+        Sensor_Info **sensorInfo = OH_Sensor_CreateInfos(count);
+        ret = OH_Sensor_GetInfos(sensorInfo, &count);
+        if (ret != SENSOR_SUCCESS || sensorInfo == nullptr || count < 0) {
+            OH_Sensor_DestroyInfos(sensorInfo, count);
+            WVLOG_E("IsOhosSensorSupported Error, ret = %{public}d, count = %{public}d.", ret, count);
+            return SENSOR_ERROR;
+        }
+        for (uint32_t i = 0; i < count; i++) {
+            Sensor_Type type;
+            ret = OH_SensorInfo_GetType(sensorInfo[i], &type);
+            if (ret != SENSOR_SUCCESS) {
+                OH_Sensor_DestroyInfos(sensorInfo, count);
+                WVLOG_E("IsOhosSensorSupported Error, GetType ret = %{public}d", ret);
+                return SENSOR_ERROR;
+            }
+            if (type == ohosSensorTypeId) {
+                OH_Sensor_DestroyInfos(sensorInfo, count);
                 WVLOG_I("IsOhosSensorSupported SUCCESS, sensorTypeId = %{public}d.", sensorTypeId);
                 return SENSOR_SUCCESS;
             }
         }
+        OH_Sensor_DestroyInfos(sensorInfo, count);
     }
     WVLOG_E("IsOhosSensorSupported Error, sensorTypeId = %{public}d is invalid.", sensorTypeId);
     return SENSOR_ERROR;
@@ -104,17 +136,21 @@ int32_t SensorAdapterImpl::IsOhosSensorSupported(int32_t sensorTypeId)
 
 int32_t SensorAdapterImpl::GetOhosSensorReportingMode(int32_t sensorTypeId)
 {
-    int32_t ohosSensorTypeId = SensorTypeToOhosSensorType(sensorTypeId);
+    Sensor_Type ohosSensorTypeId;
     int32_t reportingMode = -1;
+    int32_t ret = SensorTypeToOhosSensorType(sensorTypeId, &ohosSensorTypeId);
+    if (ret != SENSOR_SUCCESS) {
+        return reportingMode;
+    }
     switch (ohosSensorTypeId) {
-        case SENSOR_TYPE_ID_ACCELEROMETER:
-        case SENSOR_TYPE_ID_GRAVITY:
-        case SENSOR_TYPE_ID_LINEAR_ACCELERATION:
-        case SENSOR_TYPE_ID_GYROSCOPE:
-        case SENSOR_TYPE_ID_MAGNETIC_FIELD:
-        case SENSOR_TYPE_ID_ORIENTATION:
-        case SENSOR_TYPE_ID_ROTATION_VECTOR:
-        case SENSOR_TYPE_ID_GAME_ROTATION_VECTOR:
+        case SENSOR_TYPE_ACCELEROMETER:
+        case SENSOR_TYPE_GRAVITY:
+        case SENSOR_TYPE_LINEAR_ACCELERATION:
+        case SENSOR_TYPE_GYROSCOPE:
+        case SENSOR_TYPE_MAGNETIC_FIELD:
+        case SENSOR_TYPE_ORIENTATION:
+        case SENSOR_TYPE_ROTATION_VECTOR:
+        case SENSOR_TYPE_GAME_ROTATION_VECTOR:
             reportingMode = SENSOR_DATA_REPORT_CONTINUOUS;
             break;
         default:
@@ -125,9 +161,10 @@ int32_t SensorAdapterImpl::GetOhosSensorReportingMode(int32_t sensorTypeId)
 
 double SensorAdapterImpl::GetOhosSensorDefaultSupportedFrequency(int32_t sensorTypeId)
 {
-    int32_t ohosSensorTypeId = SensorTypeToOhosSensorType(sensorTypeId);
+    Sensor_Type ohosSensorTypeId;
     double defaultFrequency = 0.0;
-    if (ohosSensorTypeId != SENSOR_TYPE_ID_NONE) {
+    int32_t ret = SensorTypeToOhosSensorType(sensorTypeId, &ohosSensorTypeId);
+    if (ret == SENSOR_SUCCESS) {
         defaultFrequency = NANOSECONDS_IN_SECOND / DEFAULT_SAMPLE_PERIOD;
     }
     WVLOG_I("GetOhosSensorDefaultSupportedFrequency sensorTypeId: %{public}d, defaultFrequency: %{public}f",
@@ -137,28 +174,49 @@ double SensorAdapterImpl::GetOhosSensorDefaultSupportedFrequency(int32_t sensorT
 
 double SensorAdapterImpl::GetOhosSensorMinSupportedFrequency(int32_t sensorTypeId)
 {
-    int32_t ohosSensorTypeId = SensorTypeToOhosSensorType(sensorTypeId);
+    Sensor_Type ohosSensorTypeId;
     double minFrequency = 0.0;
-    if (ohosSensorTypeId == SENSOR_TYPE_ID_NONE) {
+    int32_t ret = SensorTypeToOhosSensorType(sensorTypeId, &ohosSensorTypeId);
+    if (ret != SENSOR_SUCCESS) {
         WVLOG_E("GetOhosSensorMinSupportedFrequency Error, sensorTypeId = %{public}d is invalid.", sensorTypeId);
         return minFrequency;
     }
-    SensorInfo* sensorInfo = nullptr;
-    int32_t count;
-    int ret = GetAllSensors(&sensorInfo, &count);
+    uint32_t count;
+    ret = OH_Sensor_GetInfos(nullptr, &count);
+    if (ret != SENSOR_SUCCESS) {
+        WVLOG_E("GetOhosSensorMinSupportedFrequency Error, ret = %{public}d, count = %{public}d.", ret, count);
+        return SENSOR_ERROR;
+    }
+    Sensor_Info **sensorInfo = OH_Sensor_CreateInfos(count);
+    ret = OH_Sensor_GetInfos(sensorInfo, &count);
     if (ret != SENSOR_SUCCESS || sensorInfo == nullptr || count < 0) {
+        OH_Sensor_DestroyInfos(sensorInfo, count);
         WVLOG_E("GetOhosSensorMinSupportedFrequency Error, ret = %{public}d, count = %{public}d.", ret, count);
         return minFrequency;
     }
-    for (int i = 0; i < count; i++) {
-        if (sensorInfo[i].sensorId == ohosSensorTypeId) {
-            int64_t maxSamplePeriod = sensorInfo[i].maxSamplePeriod;
+    for (uint32_t i = 0; i < count; i++) {
+        Sensor_Type type;
+        ret = OH_SensorInfo_GetType(sensorInfo[i], &type);
+        if (ret != SENSOR_SUCCESS) {
+            OH_Sensor_DestroyInfos(sensorInfo, count);
+            WVLOG_E("GetOhosSensorMinSupportedFrequency Error, GetType ret = %{public}d", ret);
+            return minFrequency;
+        }
+        if (type == ohosSensorTypeId) {
+            int64_t maxSamplePeriod;
+            ret = OH_SensorInfo_GetMaxSamplingInterval(sensorInfo[i], &maxSamplePeriod);
+            if (ret != SENSOR_SUCCESS) {
+                OH_Sensor_DestroyInfos(sensorInfo, count);
+                WVLOG_E("GetOhosSensorMinSupportedFrequency Error, GetMaxSamplePeriod ret = %{public}d", ret);
+                return minFrequency;
+            }
             if (maxSamplePeriod > 0) {
                 minFrequency = NANOSECONDS_IN_SECOND / static_cast<double>(maxSamplePeriod);
             }
             break;
         }
     }
+    OH_Sensor_DestroyInfos(sensorInfo, count);
     WVLOG_I("GetOhosSensorMinSupportedFrequency sensorTypeId: %{public}d, minFrequency: %{public}f",
                 sensorTypeId, minFrequency);
     return minFrequency;
@@ -166,141 +224,64 @@ double SensorAdapterImpl::GetOhosSensorMinSupportedFrequency(int32_t sensorTypeI
 
 double SensorAdapterImpl::GetOhosSensorMaxSupportedFrequency(int32_t sensorTypeId)
 {
-    int32_t ohosSensorTypeId = SensorTypeToOhosSensorType(sensorTypeId);
+    Sensor_Type ohosSensorTypeId;
     double maxFrequency = 0.0;
-    if (ohosSensorTypeId == SENSOR_TYPE_ID_NONE) {
+    int32_t ret = SensorTypeToOhosSensorType(sensorTypeId, &ohosSensorTypeId);
+    if (ret != SENSOR_SUCCESS) {
         WVLOG_E("GetOhosSensorMaxSupportedFrequency Error, sensorTypeId = %{public}d is invalid.", sensorTypeId);
         return maxFrequency;
     }
-    SensorInfo* sensorInfo = nullptr;
-    int32_t count;
-    int ret = GetAllSensors(&sensorInfo, &count);
+    uint32_t count;
+    ret = OH_Sensor_GetInfos(nullptr, &count);
+    if (ret != SENSOR_SUCCESS) {
+        WVLOG_E("GetOhosSensorMaxSupportedFrequency Error, ret = %{public}d, count = %{public}d.", ret, count);
+        return SENSOR_ERROR;
+    }
+    Sensor_Info **sensorInfo = OH_Sensor_CreateInfos(count);
+    ret = OH_Sensor_GetInfos(sensorInfo, &count);
     if (ret != SENSOR_SUCCESS || sensorInfo == nullptr || count < 0) {
+        OH_Sensor_DestroyInfos(sensorInfo, count);
         WVLOG_E("GetOhosSensorMaxSupportedFrequency Error, ret = %{public}d, count = %{public}d.", ret, count);
         return maxFrequency;
     }
-    for (int i = 0; i < count; i++) {
-        if (sensorInfo[i].sensorId == ohosSensorTypeId) {
-            int64_t minSamplePeriod = sensorInfo[i].minSamplePeriod;
+    for (uint32_t i = 0; i < count; i++) {
+        Sensor_Type type;
+        ret = OH_SensorInfo_GetType(sensorInfo[i], &type);
+        if (ret != SENSOR_SUCCESS) {
+            OH_Sensor_DestroyInfos(sensorInfo, count);
+            WVLOG_E("GetOhosSensorMaxSupportedFrequency Error, GetType ret = %{public}d", ret);
+            return maxFrequency;
+        }
+        if (type == ohosSensorTypeId) {
+            int64_t minSamplePeriod;
+            ret = OH_SensorInfo_GetMinSamplingInterval(sensorInfo[i], &minSamplePeriod);
+            if (ret != SENSOR_SUCCESS) {
+                OH_Sensor_DestroyInfos(sensorInfo, count);
+                WVLOG_E("GetOhosSensorMaxSupportedFrequency Error, GetminSamplePeriod ret = %{public}d", ret);
+                return maxFrequency;
+            }
             if (minSamplePeriod > 0) {
                 maxFrequency = NANOSECONDS_IN_SECOND / static_cast<double>(minSamplePeriod);
             }
             break;
         }
     }
+    OH_Sensor_DestroyInfos(sensorInfo, count);
     WVLOG_I("GetOhosSensorMaxSupportedFrequency sensorTypeId: %{public}d, maxFrequency: %{public}f",
                 sensorTypeId, maxFrequency);
     return maxFrequency;
 }
 
-void SensorAdapterImpl::handleAccelerometerData(std::shared_ptr<OHOS::NWeb::SensorCallbackImpl> callback,
-    SensorEvent* event)
-{
-    if ((event == nullptr) || (callback == nullptr)) {
-        WVLOG_E("handleAccelerometerData Error.");
-        return;
-    }
-    AccelData* data = reinterpret_cast<AccelData*>(event->data);
-    if (data != nullptr) {
-        callback->UpdateOhosSensorData(event->timestamp, data->x, data->y, data->z, 0.0f);
-    }
-}
-
-void SensorAdapterImpl::handleLinearAccelerometerData(std::shared_ptr<OHOS::NWeb::SensorCallbackImpl> callback,
-    SensorEvent* event)
-{
-    if ((event == nullptr) || (callback == nullptr)) {
-        WVLOG_E("handleLinearAccelerometerData Error.");
-        return;
-    }
-    LinearAccelData* data = reinterpret_cast<LinearAccelData*>(event->data);
-    if (data != nullptr) {
-        callback->UpdateOhosSensorData(event->timestamp, data->x, data->y, data->z, 0.0f);
-    }
-}
-
-void SensorAdapterImpl::handleGravityData(std::shared_ptr<OHOS::NWeb::SensorCallbackImpl> callback,
-    SensorEvent* event)
-{
-    if ((event == nullptr) || (callback == nullptr)) {
-        WVLOG_E("handleGravityData Error.");
-        return;
-    }
-    GravityData* data = reinterpret_cast<GravityData*>(event->data);
-    if (data != nullptr) {
-        callback->UpdateOhosSensorData(event->timestamp, data->x, data->y, data->z, 0.0f);
-    }
-}
-
-void SensorAdapterImpl::handleCyroscopeData(std::shared_ptr<OHOS::NWeb::SensorCallbackImpl> callback,
-    SensorEvent* event)
-{
-    if ((event == nullptr) || (callback == nullptr)) {
-        WVLOG_E("handleCyroscopeData Error.");
-        return;
-    }
-    GyroscopeData* data = reinterpret_cast<GyroscopeData*>(event->data);
-    if (data != nullptr) {
-        callback->UpdateOhosSensorData(event->timestamp, data->x, data->y, data->z, 0.0f);
-    }
-}
-
-void SensorAdapterImpl::handleMagnetometerData(std::shared_ptr<OHOS::NWeb::SensorCallbackImpl> callback,
-    SensorEvent* event)
-{
-    if ((event == nullptr) || (callback == nullptr)) {
-        WVLOG_E("handleMagnetometerData Error.");
-        return;
-    }
-    MagneticFieldData* data = reinterpret_cast<MagneticFieldData*>(event->data);
-    if (data != nullptr) {
-        callback->UpdateOhosSensorData(event->timestamp, data->x, data->y, data->z, 0.0f);
-    }
-}
-
-void SensorAdapterImpl::handleOrientationData(std::shared_ptr<OHOS::NWeb::SensorCallbackImpl> callback,
-    SensorEvent* event)
-{
-    if ((event == nullptr) || (callback == nullptr)) {
-        WVLOG_E("handleOrientationData Error.");
-        return;
-    }
-    OrientationData* data = reinterpret_cast<OrientationData*>(event->data);
-    if (data != nullptr) {
-        callback->UpdateOhosSensorData(event->timestamp, data->beta, data->gamma, data->alpha, 0.0f);
-    }
-}
-
-void SensorAdapterImpl::handleRotationVectorData(std::shared_ptr<OHOS::NWeb::SensorCallbackImpl> callback,
-    SensorEvent* event)
-{
-    if ((event == nullptr) || (callback == nullptr)) {
-        WVLOG_E("handleRotationVectorData Error.");
-        return;
-    }
-    RotationVectorData* data = reinterpret_cast<RotationVectorData*>(event->data);
-    if (data != nullptr) {
-        callback->UpdateOhosSensorData(event->timestamp, data->x, data->y, data->z, data->w);
-    }
-}
-
-void SensorAdapterImpl::handleGameRotationVectorData(std::shared_ptr<OHOS::NWeb::SensorCallbackImpl> callback,
-    SensorEvent* event)
-{
-    if ((event == nullptr) || (callback == nullptr)) {
-        WVLOG_E("handleGameRotationVectorData Error.");
-        return;
-    }
-    GameRotationVectorData* data = reinterpret_cast<GameRotationVectorData*>(event->data);
-    if (data != nullptr) {
-        callback->UpdateOhosSensorData(event->timestamp, data->x, data->y, data->z, data->w);
-    }
-}
-
-void SensorAdapterImpl::OhosSensorCallback(SensorEvent* event)
+void SensorAdapterImpl::OhosSensorCallback(Sensor_Event* event)
 {
     std::shared_ptr<OHOS::NWeb::SensorCallbackImpl> callback = nullptr;
-    auto findIter = sensorCallbackMap.find(event->sensorTypeId);
+    Sensor_Type type;
+    int32_t ret = OH_SensorEvent_GetType(event, &type);
+    if (ret != SENSOR_SUCCESS) {
+        WVLOG_E("OhosSensorCallback error, GetType ret = %{public}d.", ret);
+        return;
+    }
+    auto findIter = sensorCallbackMap.find(type);
     if (findIter != sensorCallbackMap.end()) {
         callback = findIter->second;
     }
@@ -308,32 +289,28 @@ void SensorAdapterImpl::OhosSensorCallback(SensorEvent* event)
         WVLOG_E("OhosSensorCallback Error.");
         return;
     }
-    switch (event->sensorTypeId) {
-        case SENSOR_TYPE_ID_ACCELEROMETER:
-            handleAccelerometerData(callback, event);
+    float *data;
+    uint32_t length;
+    ret = OH_SensorEvent_GetData(event, &data, &length);
+    if (ret != SENSOR_SUCCESS) {
+        WVLOG_E("OhosSensorCallback Error, GetData ret=%{public}d.", ret);
+        return;
+    }
+    int64_t timestamp;
+    ret = OH_SensorEvent_GetTimestamp(event, &timestamp);
+    if (ret != SENSOR_SUCCESS) {
+        WVLOG_E("OhosSensorCallback Error, GetTimestamp ret=%{public}d.", ret);
+        return;
+    }
+    switch (length) {
+        case DATA_LEN_3:
+            callback->UpdateOhosSensorData(timestamp, data[IDX_0], data[IDX_1], data[IDX_2], 0.0f);
             break;
-        case SENSOR_TYPE_ID_GRAVITY:
-            handleGravityData(callback, event);
-            break;
-        case SENSOR_TYPE_ID_LINEAR_ACCELERATION:
-            handleLinearAccelerometerData(callback, event);
-            break;
-        case SENSOR_TYPE_ID_GYROSCOPE:
-            handleCyroscopeData(callback, event);
-            break;
-        case SENSOR_TYPE_ID_MAGNETIC_FIELD:
-            handleMagnetometerData(callback, event);
-            break;
-        case SENSOR_TYPE_ID_ORIENTATION:
-            handleOrientationData(callback, event);
-            break;
-        case SENSOR_TYPE_ID_ROTATION_VECTOR:
-            handleRotationVectorData(callback, event);
-            break;
-        case SENSOR_TYPE_ID_GAME_ROTATION_VECTOR:
-            handleGameRotationVectorData(callback, event);
+        case DATA_LEN_4:
+            callback->UpdateOhosSensorData(timestamp, data[IDX_0], data[IDX_1], data[IDX_2], data[IDX_3]);
             break;
         default:
+            WVLOG_W("OhosSensorCallback warning, Unknown Length=%{public}d.", length);
             break;
     }
 }
@@ -345,45 +322,53 @@ int32_t SensorAdapterImpl::SubscribeOhosSensor(int32_t sensorTypeId, int64_t sam
         WVLOG_E("SubscribeOhosSensor error, samplingInterval is invalid.");
         return SENSOR_PARAMETER_ERROR;
     }
-    int32_t ohosSensorTypeId = SensorTypeToOhosSensorType(sensorTypeId);
-    if (ohosSensorTypeId == SENSOR_TYPE_ID_NONE) {
+    Sensor_Type ohosSensorTypeId;
+    int32_t ret = SensorTypeToOhosSensorType(sensorTypeId, &ohosSensorTypeId);
+    if (ret != SENSOR_SUCCESS) {
         WVLOG_E("SubscribeOhosSensor error, sensorTypeId is invalid.");
         return SENSOR_PARAMETER_ERROR;
     }
 
     std::string userName = SensorTypeToSensorUserName(sensorTypeId);
-    (void)strcpy_s(mSensorUser.name, sizeof(mSensorUser.name), userName.c_str());
-    mSensorUser.userData = nullptr;
-    mSensorUser.callback = OhosSensorCallback;
-    int32_t ret = SENSOR_SUCCESS;
-    ret = SubscribeSensor(ohosSensorTypeId, &mSensorUser);
+    Sensor_Subscriber *subscriber = OH_Sensor_CreateSubscriber();
+    ret = OH_SensorSubscriber_SetCallback(subscriber, OhosSensorCallback);
     if (ret != SENSOR_SUCCESS) {
         WVLOG_E("SubscribeOhosSensor error, call SubscribeSensor ret = %{public}d.", ret);
         return ret;
     }
-    ret = SetBatch(ohosSensorTypeId, &mSensorUser, samplingInterval, samplingInterval);
+    Sensor_SubscriptionId *id = OH_Sensor_CreateSubscriptionId();
+    ret = OH_SensorSubscriptionId_SetType(id, ohosSensorTypeId);
     if (ret != SENSOR_SUCCESS) {
-        WVLOG_E("SubscribeOhosSensor error, call SetBatch ret = %{public}d.", ret);
+        WVLOG_E("SubscribeOhosSensor error, call Set type ret = %{public}d.", ret);
         return ret;
     }
-    ret = ActivateSensor(ohosSensorTypeId, &mSensorUser);
+    Sensor_SubscriptionAttribute *attr = OH_Sensor_CreateSubscriptionAttribute();
+    ret = OH_SensorSubscriptionAttribute_SetSamplingInterval(attr, samplingInterval);
     if (ret != SENSOR_SUCCESS) {
-        WVLOG_E("SubscribeOhosSensor error, call ActivateSensor ret = %{public}d.", ret);
+        WVLOG_E("SubscribeOhosSensor error, call set samplingInterval ret = %{public}d.", ret);
         return ret;
     }
-    ret = SetMode(ohosSensorTypeId, &mSensorUser, SENSOR_REALTIME_MODE);
+    Sensor_Result oh_ret = OH_Sensor_Subscribe(id, attr, subscriber);
     if (ret != SENSOR_SUCCESS) {
-        WVLOG_E("SubscribeOhosSensor error, call SetMode ret = %{public}d.", ret);
-        return ret;
+        WVLOG_E("SubscribeOhosSensor error, call Subscribe ret = %{public}d.", oh_ret);
+        return oh_ret;
     }
+    auto sensorSubscriber = std::make_shared<SensorSubscriber>();
+    sensorSubscriber->subscriber = subscriber;
+    sensorSubscriber->id = id;
+    sensorSubscriber->attr = attr;
+    sensorSubscriberMap[ohosSensorTypeId] = sensorSubscriber;
+    WVLOG_I("SubscribeOhosSensor sensorTypeId: %{public}d, sampingInterval:%{public}ld",
+        sensorTypeId, samplingInterval);
     return SENSOR_SUCCESS;
 }
 
 int32_t SensorAdapterImpl::RegistOhosSensorCallback(int32_t sensorTypeId,
     std::shared_ptr<SensorCallbackAdapter> callbackAdapter)
 {
-    int32_t ohosSensorTypeId = SensorTypeToOhosSensorType(sensorTypeId);
-    if (ohosSensorTypeId != SENSOR_TYPE_ID_NONE) {
+    Sensor_Type ohosSensorTypeId;
+    int32_t ret = SensorTypeToOhosSensorType(sensorTypeId, &ohosSensorTypeId);
+    if (ret == SENSOR_SUCCESS) {
         auto callback = std::make_shared<SensorCallbackImpl>(callbackAdapter);
         sensorCallbackMap[ohosSensorTypeId] = callback;
         return SENSOR_SUCCESS;
@@ -395,19 +380,26 @@ int32_t SensorAdapterImpl::RegistOhosSensorCallback(int32_t sensorTypeId,
 int32_t SensorAdapterImpl::UnsubscribeOhosSensor(int32_t sensorTypeId)
 {
     WVLOG_I("UnsubscribeOhosSensor sensorTypeId: %{public}d.", sensorTypeId);
-    int32_t ohosSensorTypeId = SensorTypeToOhosSensorType(sensorTypeId);
-    if (ohosSensorTypeId != SENSOR_TYPE_ID_NONE) {
+    Sensor_Type ohosSensorTypeId;
+    std::shared_ptr<SensorSubscriber>sensorSubscriber = nullptr;
+    int32_t ret = SensorTypeToOhosSensorType(sensorTypeId, &ohosSensorTypeId);
+    if (ret == SENSOR_SUCCESS) {
         sensorCallbackMap.erase(ohosSensorTypeId);
-        int32_t ret = DeactivateSensor(ohosSensorTypeId, &mSensorUser);
-        if (ret != SENSOR_SUCCESS) {
-            WVLOG_E("UnsubscribeOhosSensor error, call DeactivateSensor ret = %{public}d.", ret);
-            return ret;
+        auto findIter = sensorSubscriberMap.find(ohosSensorTypeId);
+        if (findIter == sensorSubscriberMap.end()) {
+            return SENSOR_PARAMETER_ERROR;
         }
-        ret = UnsubscribeSensor(ohosSensorTypeId, &mSensorUser);
-        if (ret != SENSOR_SUCCESS) {
-            WVLOG_E("UnsubscribeOhosSensor error, call UnsubscribeSensor ret = %{public}d.", ret);
-            return ret;
+        sensorSubscriber = findIter->second;
+        Sensor_Result oh_ret = OH_Sensor_Unsubscribe(sensorSubscriber->id, sensorSubscriber->subscriber);
+        if (oh_ret != SENSOR_SUCCESS) {
+            WVLOG_E("UnsubscribeOhosSensor error, call unsubscribe ret = %{public}d.", oh_ret);
+            return oh_ret;
         }
+        OH_Sensor_DestroySubscriber(sensorSubscriber->subscriber);
+        OH_Sensor_DestroySubscriptionId(sensorSubscriber->id);
+        OH_Sensor_DestroySubscriptionAttribute(sensorSubscriber->attr);
+        sensorSubscriberMap.erase(ohosSensorTypeId);
+        WVLOG_I("UnsubscribeOhosSensor sensorTypeId: %{public}d.", sensorTypeId);
         return SENSOR_SUCCESS;
     }
     WVLOG_E("UnsubscribeOhosSensor error, sensorTypeId is invalid.");

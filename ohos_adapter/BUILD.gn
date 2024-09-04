@@ -379,7 +379,7 @@ shared_library("nweb_ohos_adapter") {
 #  }
 #
 #  if (webview_sensors_sensor_enable) {
-#    sources += [ "sensor_adapter/src/sensor_adapter_impl.cpp" ]
+    sources += [ "sensor_adapter/src/sensor_adapter_impl.cpp" ]
 #    external_deps += [ "sensor:sensor_interface_native" ]
 #    defines += [ "NWEB_SENSORS_SENSOR_ENABLE" ]
 #  }
