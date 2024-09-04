@@ -105,7 +105,7 @@ shared_library("nweb_ohos_adapter") {
 #    "hiviewdfx_adapter/src/hisysevent_adapter_impl.cpp",
 #    "hiviewdfx_adapter/src/hitrace_adapter_impl.cpp",
     "inputmethodframework_adapter/src/imf_adapter_impl.cpp",
-#    "keystore_adapter/src/keystore_adapter_impl.cpp",
+     "keystore_adapter/src/keystore_adapter_impl.cpp",
 #    "multimodalinput_adapter/src/mmi_adapter_impl.cpp",
 #    "net_proxy_adapter/src/net_proxy_adapter_impl.cpp",
      "ohos_adapter_helper/src/ohos_adapter_helper_impl.cpp",
@@ -190,6 +190,7 @@ shared_library("nweb_ohos_adapter") {
     "ohresmgr",
     "rawfile.z",
     "time_service_ndk",
+    "huks_ndk.z",
     "bundle_ndk.z",
   ]
 #
