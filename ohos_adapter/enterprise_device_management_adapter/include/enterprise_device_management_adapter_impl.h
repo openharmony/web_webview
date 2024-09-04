@@ -18,44 +18,66 @@
 
 #include "enterprise_device_management_adapter.h"
 
+#ifdef WEBVIWE_ONLY
+#include "common_event_manager.h"
+#include "common_event_support.h"
+#include "matching_skills.h"
+#include "want.h"
+#include "common_event_subscriber.h"
+#endif
+
 namespace OHOS::NWeb {
+
+#if defined(WEBVIWE_ONLY) && defined(NWEB_ENTERPRISE_DEVICE_MANAGER_ENABLE)
+class NWebEdmEventSubscriber : public EventFwk::CommonEventSubscriber {
+public:
+    NWebEdmEventSubscriber(EventFwk::CommonEventSubscribeInfo& in,
+                           std::shared_ptr<EdmPolicyChangedEventCallbackAdapter> cb);
+
+    ~NWebEdmEventSubscriber() override = default;
+
+    void OnReceiveEvent(const EventFwk::CommonEventData& data) override;
+private:
+    std::shared_ptr<EdmPolicyChangedEventCallbackAdapter> eventCallback_;
+};
+#endif
 
 class EnterpriseDeviceManagementAdapterImpl : public EnterpriseDeviceManagementAdapter {
 public:
-    static EnterpriseDeviceManagementAdapterImpl& GetInstance() {
-        static EnterpriseDeviceManagementAdapterImpl instance;
-        return instance;
-    }
-
+    static EnterpriseDeviceManagementAdapterImpl& GetInstance();
     ~EnterpriseDeviceManagementAdapterImpl() override = default;
-    int32_t GetPolicies(std::string& policies) override { return 0; }
+    int32_t GetPolicies(std::string& policies) override;
 
     /**
      * Set an EDM policy change event callback.
      *
      * @param eventCallback EDM policy change event callback.
      */
-    void RegistPolicyChangeEventCallback(
-        std::shared_ptr<EdmPolicyChangedEventCallbackAdapter> eventCallback) override {}
+    void RegistPolicyChangeEventCallback(std::shared_ptr<EdmPolicyChangedEventCallbackAdapter> eventCallback) override;
 
     /**
      * Subscribe EDM policy change event from CommonEventSubscriber.
      *
      * @return Returns true if success; false otherwise.
      */
-    bool StartObservePolicyChange() override{ return false; }
+    bool StartObservePolicyChange() override;
 
     /**
      * Unsubscribe EDM policy change event from CommonEventSubscriber.
      *
      * @return Returns true if success; false otherwise.
      */
-    bool StopObservePolicyChange() override{ return false; }
+    bool StopObservePolicyChange() override;
 
 private:
     EnterpriseDeviceManagementAdapterImpl() = default;
     EnterpriseDeviceManagementAdapterImpl(const EnterpriseDeviceManagementAdapterImpl& other) = delete;
     EnterpriseDeviceManagementAdapterImpl& operator=(const EnterpriseDeviceManagementAdapterImpl&) = delete;
+
+#ifdef WEBVIWE_ONLY
+    std::shared_ptr<EdmPolicyChangedEventCallbackAdapter> eventCallback_ = nullptr;
+    std::shared_ptr<EventFwk::CommonEventSubscriber> commonEventSubscriber_ = nullptr;
+#endif
 };
 
 }  // namespace OHOS::NWeb

@@ -23,13 +23,20 @@
 namespace OHOS::NWeb {
 class SocPerfClientAdapterImpl : public SocPerfClientAdapter {
 public:
-    SocPerfClientAdapterImpl() {}
+    SocPerfClientAdapterImpl();
 
-    ~SocPerfClientAdapterImpl() override {}
+    ~SocPerfClientAdapterImpl() override;
 
-    void ApplySocPerfConfigById(int32_t id) override {}
+    void ApplySocPerfConfigById(int32_t id) override;
 
-    void ApplySocPerfConfigByIdEx(int32_t id, bool onOffTag) override {}
+    void ApplySocPerfConfigByIdEx(int32_t id, bool onOffTag) override;
+
+private:
+    uint32_t ConvertId(int32_t id);
+
+#ifdef WEBVIWE_ONLY
+    std::unordered_map<int32_t, uint32_t> convertMap_;
+#endif
 };
 }  // namespace content
 

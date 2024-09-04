@@ -14,68 +14,30 @@
  */
 
 #include "power_mgr_client_adapter_impl.h"
+#include "nweb_log.h"
 
-using namespace OHOS::PowerMgr;
 using namespace OHOS::NWeb;
 
-namespace {
-OHOS::PowerMgr::RunningLockType ConvertRunningLockType(
-    RunningLockAdapterType type)
-{
-    OHOS::PowerMgr::RunningLockType rawType =
-        OHOS::PowerMgr::RunningLockType::RUNNINGLOCK_BUTT;
-    switch (type) {
-        case RunningLockAdapterType::SCREEN:
-            rawType = OHOS::PowerMgr::RunningLockType::RUNNINGLOCK_SCREEN;
-            break;
-        case RunningLockAdapterType::BACKGROUND:
-            rawType = OHOS::PowerMgr::RunningLockType::RUNNINGLOCK_BACKGROUND;
-            break;
-        case RunningLockAdapterType::PROXIMITY_SCREEN_CONTROL:
-            rawType = OHOS::PowerMgr::RunningLockType::RUNNINGLOCK_PROXIMITY_SCREEN_CONTROL;
-            break;
-        default:
-            break;
-    }
-    return rawType;
-}
-}
-
 namespace OHOS::NWeb {
-RunningLockAdapterImpl::RunningLockAdapterImpl(
-    std::shared_ptr<OHOS::PowerMgr::RunningLock> lock)
-    : lock_(lock) {}
-
 bool RunningLockAdapterImpl::IsUsed()
 {
-    if (lock_ != nullptr) {
-        return lock_->IsUsed();
-    }
-    return false;
+    PRINT_NOT_IMPL_FUNC_LOG();
 }
 
 int32_t RunningLockAdapterImpl::Lock(uint32_t timeOutMs)
 {
-    if (lock_ != nullptr) {
-        return lock_->Lock(timeOutMs);
-    }
-    return -1;
+    PRINT_NOT_IMPL_FUNC_LOG();
 }
 
 int32_t RunningLockAdapterImpl::UnLock()
 {
-    if (lock_ != nullptr) {
-        return lock_->UnLock();
-    }
-    return -1;
+    PRINT_NOT_IMPL_FUNC_LOG();
 }
 
 std::shared_ptr<RunningLockAdapter> PowerMgrClientAdapterImpl::CreateRunningLock(
     const std::string& name, RunningLockAdapterType type)
 {
-    RunningLockType rawType = ConvertRunningLockType(type);
-    std::shared_ptr<RunningLock> lock = PowerMgrClient::GetInstance().CreateRunningLock(
-        name, rawType);
-    return std::make_shared<RunningLockAdapterImpl>(lock);
+    PRINT_NOT_IMPL_FUNC_LOG();
+    return std::make_shared<RunningLockAdapterImpl>();
 }
 }
