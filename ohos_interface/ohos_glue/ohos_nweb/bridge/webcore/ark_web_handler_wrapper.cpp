@@ -994,4 +994,16 @@ void ArkWebHandlerWrapper::HideHandleAndQuickMenuIfNecessary(bool hide)
 {
     ark_web_handler_->HideHandleAndQuickMenuIfNecessary(hide);
 }
+
+void ArkWebHandlerWrapper::ChangeVisibilityOfQuickMenu()
+{
+    ark_web_handler_->ChangeVisibilityOfQuickMenu();
+}
+
+void ArkWebHandlerWrapper::OnNativeEmbedVisibilityChange(const std::string& embed_id, bool visibility) 
+{
+    ArkWebString stEmbedId = ArkWebStringClassToStruct(embed_id);
+    ark_web_handler_->OnNativeEmbedVisibilityChange(stEmbedId, visibility);
+    ArkWebStringStructRelease(stEmbedId);
+}
 } // namespace OHOS::ArkWeb

@@ -770,6 +770,16 @@ public:
      */
     /*--ark web()--*/
     virtual void HideHandleAndQuickMenuIfNecessary(bool hide) = 0;
+
+    /**
+     * @brief Called When you click on the selected area.
+     *
+     */
+    /*--ark web()--*/
+    virtual void ChangeVisibilityOfQuickMenu() = 0;
+
+    /*--ark web()--*/
+    virtual void OnNativeEmbedVisibilityChange(const ArkWebString& embed_id, bool visibility) = 0;
 };
 
 } // namespace OHOS::ArkWeb

@@ -564,6 +564,10 @@ public:
 
     void HideHandleAndQuickMenuIfNecessary(bool hide) override;
 
+    void ChangeVisibilityOfQuickMenu() override;
+
+    void OnNativeEmbedVisibilityChange(const ArkWebString& embed_id, bool visibility) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };
