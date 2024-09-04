@@ -50,7 +50,7 @@
 #endif
 #include "net_proxy_adapter_impl.h"
 #include "ohos_image_decoder_adapter_impl.h"
-// #include "ohos_init_web_adapter_impl.h"
+#include "ohos_init_web_adapter_impl.h"
 #include "ohos_resource_adapter_impl.h"
 #include "ohos_web_data_base_adapter_impl.h"
 #include "ohos_web_permission_data_base_adapter_impl.h"
@@ -201,8 +201,7 @@ VSyncAdapter& OhosAdapterHelperImpl::GetVSyncAdapter()
 std::unique_ptr<OhosInitWebAdapter> OhosAdapterHelperImpl::GetInitWebAdapter()
 {
     PRINT_MOCK_LOG();
-    // return std::make_unique<OhosInitWebAdapterImpl>();
-    return nullptr;      
+    return std::make_unique<OhosInitWebAdapterImpl>();   
 }
 
 KeystoreAdapter& OhosAdapterHelperImpl::GetKeystoreAdapterInstance()
