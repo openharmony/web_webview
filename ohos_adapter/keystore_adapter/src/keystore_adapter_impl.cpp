@@ -15,22 +15,17 @@
 
 #include "keystore_adapter_impl.h"
 
+#include <huks/native_huks_api.h>
+#include <huks/native_huks_param.h>
 #include <string>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <climits>
 
 #include "nweb_log.h"
-#include <algorithm>
 
 namespace {
 const uint32_t AES_COMMON_SIZE = 1024;
 static const uint32_t IV_SIZE = 16;
 static const uint8_t IV[IV_SIZE] = { 0 };
-}
+} // namespace
 
 namespace OHOS::NWeb {
 // static
@@ -41,197 +36,197 @@ KeystoreAdapterImpl& KeystoreAdapterImpl::GetInstance()
 }
 
 int32_t KeystoreAdapterImpl::InitParamSet(
-    struct HksParamSet **paramSet,
-    const struct HksParam *params,
-    uint32_t paramCount)
+    struct OH_Huks_ParamSet** paramSet, const struct OH_Huks_Param* params, uint32_t paramCount)
 {
-    int32_t ret = HksInitParamSet(paramSet);
-    if (ret != HKS_SUCCESS) {
-        return ret;
+    OH_Huks_Result ohResult = OH_Huks_InitParamSet(paramSet);
+    if (ohResult.errorCode != OH_HUKS_SUCCESS) {
+        return ohResult.errorCode;
     }
 
-    ret = HksAddParams(*paramSet, params, paramCount);
-    if (ret != HKS_SUCCESS) {
-        HksFreeParamSet(paramSet);
-        return ret;
+    ohResult = OH_Huks_AddParams(*paramSet, params, paramCount);
+    if (ohResult.errorCode != OH_HUKS_SUCCESS) {
+        OH_Huks_FreeParamSet(paramSet);
+        return ohResult.errorCode;
     }
 
-    ret = HksBuildParamSet(paramSet);
-    if (ret != HKS_SUCCESS) {
-        HksFreeParamSet(paramSet);
-        return ret;
+    ohResult = OH_Huks_BuildParamSet(paramSet);
+    if (ohResult.errorCode != OH_HUKS_SUCCESS) {
+        OH_Huks_FreeParamSet(paramSet);
+        return ohResult.errorCode;
     }
 
-    return ret;
+    return ohResult.errorCode;
 }
 
-struct HksParam g_genEncDecParams[] = {
+struct OH_Huks_Param g_genEncDecParams[] = {
     {
-        .tag = HKS_TAG_ALGORITHM,
-        .uint32Param = HKS_ALG_AES
+        .tag = OH_HUKS_TAG_ALGORITHM,
+        .uint32Param = OH_HUKS_ALG_AES
     }, {
-        .tag = HKS_TAG_PURPOSE,
-        .uint32Param = HKS_KEY_PURPOSE_ENCRYPT | HKS_KEY_PURPOSE_DECRYPT
+        .tag = OH_HUKS_TAG_PURPOSE,
+        .uint32Param = OH_HUKS_KEY_PURPOSE_ENCRYPT | OH_HUKS_KEY_PURPOSE_DECRYPT
     }, {
-        .tag = HKS_TAG_KEY_SIZE,
-        .uint32Param = HKS_AES_KEY_SIZE_256
+        .tag = OH_HUKS_TAG_KEY_SIZE,
+        .uint32Param = OH_HUKS_AES_KEY_SIZE_256
     }, {
-        .tag = HKS_TAG_PADDING,
-        .uint32Param = HKS_PADDING_NONE
+        .tag = OH_HUKS_TAG_PADDING,
+        .uint32Param = OH_HUKS_PADDING_NONE
     }, {
-        .tag = HKS_TAG_BLOCK_MODE,
-        .uint32Param = HKS_MODE_CBC
+        .tag = OH_HUKS_TAG_BLOCK_MODE,
+        .uint32Param = OH_HUKS_MODE_CBC
     }
 };
 
-struct HksParam g_encryptParams[] = {
+struct OH_Huks_Param g_encryptParams[] = {
     {
-        .tag = HKS_TAG_ALGORITHM,
-        .uint32Param = HKS_ALG_AES
+        .tag = OH_HUKS_TAG_ALGORITHM,
+        .uint32Param = OH_HUKS_ALG_AES
     }, {
-        .tag = HKS_TAG_PURPOSE,
-        .uint32Param = HKS_KEY_PURPOSE_ENCRYPT
+        .tag = OH_HUKS_TAG_PURPOSE,
+        .uint32Param = OH_HUKS_KEY_PURPOSE_ENCRYPT
     }, {
-        .tag = HKS_TAG_KEY_SIZE,
-        .uint32Param = HKS_AES_KEY_SIZE_256
+        .tag = OH_HUKS_TAG_KEY_SIZE,
+        .uint32Param = OH_HUKS_AES_KEY_SIZE_256
     }, {
-        .tag = HKS_TAG_PADDING,
-        .uint32Param = HKS_PADDING_NONE
+        .tag = OH_HUKS_TAG_PADDING,
+        .uint32Param = OH_HUKS_PADDING_NONE
     }, {
-        .tag = HKS_TAG_BLOCK_MODE,
-        .uint32Param = HKS_MODE_CBC
+        .tag = OH_HUKS_TAG_BLOCK_MODE,
+        .uint32Param = OH_HUKS_MODE_CBC
     }, {
-        .tag = HKS_TAG_IV,
+        .tag = OH_HUKS_TAG_IV,
         .blob = {
             .size = IV_SIZE,
-            .data = (uint8_t *)IV
+            .data = (uint8_t*)IV
         }
     }
 };
 
-struct HksParam g_decryptParams[] = {
+struct OH_Huks_Param g_decryptParams[] = {
     {
-        .tag = HKS_TAG_ALGORITHM,
-        .uint32Param = HKS_ALG_AES
+        .tag = OH_HUKS_TAG_ALGORITHM,
+        .uint32Param = OH_HUKS_ALG_AES
     }, {
-        .tag = HKS_TAG_PURPOSE,
-        .uint32Param = HKS_KEY_PURPOSE_DECRYPT
+        .tag = OH_HUKS_TAG_PURPOSE,
+        .uint32Param = OH_HUKS_KEY_PURPOSE_DECRYPT
     }, {
-        .tag = HKS_TAG_KEY_SIZE,
-        .uint32Param = HKS_AES_KEY_SIZE_256
+        .tag = OH_HUKS_TAG_KEY_SIZE,
+        .uint32Param = OH_HUKS_AES_KEY_SIZE_256
     }, {
-        .tag = HKS_TAG_PADDING,
-        .uint32Param = HKS_PADDING_NONE
+        .tag = OH_HUKS_TAG_PADDING,
+        .uint32Param = OH_HUKS_PADDING_NONE
     }, {
-        .tag = HKS_TAG_BLOCK_MODE,
-        .uint32Param = HKS_MODE_CBC
+        .tag = OH_HUKS_TAG_BLOCK_MODE,
+        .uint32Param = OH_HUKS_MODE_CBC
     }, {
-        .tag = HKS_TAG_IV,
+        .tag = OH_HUKS_TAG_IV,
         .blob = {
             .size = IV_SIZE,
-            .data = (uint8_t *)IV
+            .data = (uint8_t*)IV
         }
     }
 };
 
 std::string KeystoreAdapterImpl::EncryptKey(const std::string alias, const std::string plainData)
 {
-    struct HksBlob keyAlias = { alias.length(), (uint8_t *)alias.c_str() };
-    struct HksBlob inData =  { plainData.length(), (uint8_t *)plainData.c_str() };
-    struct HksParamSet *genParamSet = nullptr;
-    struct HksParamSet *encryptParamSet = nullptr;
-    uint8_t cipher[AES_COMMON_SIZE] = {0};
-    struct HksBlob cipherText = {AES_COMMON_SIZE, cipher};
-    int32_t ohResult = InitParamSet(&genParamSet, g_genEncDecParams, sizeof(g_genEncDecParams) / sizeof(HksParam));
-    if (ohResult != HKS_SUCCESS) {
+    struct OH_Huks_Blob keyAlias = { alias.length(), (uint8_t*)alias.c_str() };
+    struct OH_Huks_Blob inData = { plainData.length(), (uint8_t*)plainData.c_str() };
+    struct OH_Huks_ParamSet* genParamSet = nullptr;
+    struct OH_Huks_ParamSet* encryptParamSet = nullptr;
+    uint8_t cipher[AES_COMMON_SIZE] = { 0 };
+    struct OH_Huks_Blob cipherText = { AES_COMMON_SIZE, cipher };
+    int32_t ohResult =
+        InitParamSet(&genParamSet, g_genEncDecParams, sizeof(g_genEncDecParams) / sizeof(OH_Huks_Param));
+    if (ohResult != OH_HUKS_SUCCESS) {
         WVLOG_E("init gen param set failed, error code: %d", ohResult);
-        HksFreeParamSet(&genParamSet);
+        OH_Huks_FreeParamSet(&genParamSet);
         return std::string();
     }
-    ohResult = HksKeyExist(&keyAlias, genParamSet);
-    if (ohResult != HKS_SUCCESS) {
-        ohResult = HksGenerateKey(&keyAlias, genParamSet, nullptr);
-        if (ohResult != HKS_SUCCESS) {
-            WVLOG_E("generate key failed, error code: %d", ohResult);
-            HksFreeParamSet(&genParamSet);
+    struct OH_Huks_Result ohHuksResult = OH_Huks_IsKeyItemExist(&keyAlias, genParamSet);
+    if (ohHuksResult.errorCode != OH_HUKS_SUCCESS) {
+        ohHuksResult = OH_Huks_GenerateKeyItem(&keyAlias, genParamSet, nullptr);
+        if (ohHuksResult.errorCode != OH_HUKS_SUCCESS) {
+            WVLOG_E("generate key failed, error code: %d", ohHuksResult.errorCode);
+            OH_Huks_FreeParamSet(&genParamSet);
             return std::string();
         }
     }
-    ohResult = InitParamSet(&encryptParamSet, g_encryptParams, sizeof(g_encryptParams) / sizeof(HksParam));
-    if (ohResult != HKS_SUCCESS) {
+    ohResult = InitParamSet(&encryptParamSet, g_encryptParams, sizeof(g_encryptParams) / sizeof(OH_Huks_Param));
+    if (ohResult != OH_HUKS_SUCCESS) {
         WVLOG_E("init encrypt param set failed, error code: %d", ohResult);
-        HksFreeParamSet(&genParamSet);
-        HksFreeParamSet(&encryptParamSet);
+        OH_Huks_FreeParamSet(&genParamSet);
+        OH_Huks_FreeParamSet(&encryptParamSet);
         return std::string();
     }
-    uint8_t handleE[sizeof(uint64_t)] = {0};
-    struct HksBlob handleEncrypt = {sizeof(uint64_t), handleE};
-    ohResult = HksInit(&keyAlias, encryptParamSet, &handleEncrypt, nullptr);
-    if (ohResult != HKS_SUCCESS) {
-        WVLOG_E("hks init invoke failed, error code: %d", ohResult);
-        HksFreeParamSet(&genParamSet);
-        HksFreeParamSet(&encryptParamSet);
+    uint8_t handleE[sizeof(uint64_t)] = { 0 };
+    struct OH_Huks_Blob handleEncrypt = { sizeof(uint64_t), handleE };
+    ohHuksResult = OH_Huks_InitSession(&keyAlias, encryptParamSet, &handleEncrypt, nullptr);
+    if (ohHuksResult.errorCode != OH_HUKS_SUCCESS) {
+        WVLOG_E("hks init invoke failed, error code: %d", ohHuksResult.errorCode);
+        OH_Huks_FreeParamSet(&genParamSet);
+        OH_Huks_FreeParamSet(&encryptParamSet);
         return std::string();
     }
-    ohResult = HksFinish(&handleEncrypt, encryptParamSet, &inData, &cipherText);
-    if (ohResult != HKS_SUCCESS) {
-        WVLOG_E("hks finish invoke failed, error code: %d", ohResult);
-        HksFreeParamSet(&genParamSet);
-        HksFreeParamSet(&encryptParamSet);
+    ohHuksResult = OH_Huks_FinishSession(&handleEncrypt, encryptParamSet, &inData, &cipherText);
+    if (ohHuksResult.errorCode != OH_HUKS_SUCCESS) {
+        WVLOG_E("hks finish invoke failed, error code: %d", ohHuksResult.errorCode);
+        OH_Huks_FreeParamSet(&genParamSet);
+        OH_Huks_FreeParamSet(&encryptParamSet);
         return std::string();
     }
 
-    HksFreeParamSet(&genParamSet);
-    HksFreeParamSet(&encryptParamSet);
+    OH_Huks_FreeParamSet(&genParamSet);
+    OH_Huks_FreeParamSet(&encryptParamSet);
     return std::string(reinterpret_cast<char*>(cipherText.data), cipherText.size);
 }
 
 std::string KeystoreAdapterImpl::DecryptKey(const std::string alias, const std::string encryptedData)
 {
-    struct HksBlob keyAlias = { alias.length(), (uint8_t *)alias.c_str() };
-    struct HksBlob cipherText =  { encryptedData.length(), (uint8_t *)encryptedData.c_str() };
-    struct HksParamSet *genParamSet = nullptr;
-    struct HksParamSet *decryptParamSet = nullptr;
-    uint8_t plain[AES_COMMON_SIZE] = {0};
-    struct HksBlob plainText = {AES_COMMON_SIZE, plain};
-    int32_t ohResult = InitParamSet(&genParamSet, g_genEncDecParams, sizeof(g_genEncDecParams) / sizeof(HksParam));
-    if (ohResult != HKS_SUCCESS) {
-        HksFreeParamSet(&genParamSet);
+    struct OH_Huks_Blob keyAlias = { alias.length(), (uint8_t*)alias.c_str() };
+    struct OH_Huks_Blob cipherText = { encryptedData.length(), (uint8_t*)encryptedData.c_str() };
+    struct OH_Huks_ParamSet* genParamSet = nullptr;
+    struct OH_Huks_ParamSet* decryptParamSet = nullptr;
+    uint8_t plain[AES_COMMON_SIZE] = { 0 };
+    struct OH_Huks_Blob plainText = { AES_COMMON_SIZE, plain };
+    int32_t ohResult =
+        InitParamSet(&genParamSet, g_genEncDecParams, sizeof(g_genEncDecParams) / sizeof(OH_Huks_Param));
+    if (ohResult != OH_HUKS_SUCCESS) {
+        OH_Huks_FreeParamSet(&genParamSet);
         WVLOG_E("init gen param set failed, error code: %d", ohResult);
         return std::string();
     }
-    ohResult = InitParamSet(&decryptParamSet, g_decryptParams, sizeof(g_decryptParams) / sizeof(HksParam));
-    if (ohResult != HKS_SUCCESS) {
+    ohResult = InitParamSet(&decryptParamSet, g_decryptParams, sizeof(g_decryptParams) / sizeof(OH_Huks_Param));
+    if (ohResult != OH_HUKS_SUCCESS) {
         WVLOG_E("init decrypt param set failed, error code: %d", ohResult);
-        HksFreeParamSet(&genParamSet);
-        HksFreeParamSet(&decryptParamSet);
+        OH_Huks_FreeParamSet(&genParamSet);
+        OH_Huks_FreeParamSet(&decryptParamSet);
         return std::string();
     }
-    ohResult = HksKeyExist(&keyAlias, genParamSet);
-    if (ohResult != HKS_SUCCESS) {
-        HksFreeParamSet(&genParamSet);
-        HksFreeParamSet(&decryptParamSet);
-        WVLOG_E("hks key is not exist, error code: %d", ohResult);
+    struct OH_Huks_Result ohHuksResult = OH_Huks_IsKeyItemExist(&keyAlias, genParamSet);
+    if (ohHuksResult.errorCode != OH_HUKS_SUCCESS) {
+        OH_Huks_FreeParamSet(&genParamSet);
+        OH_Huks_FreeParamSet(&decryptParamSet);
+        WVLOG_E("hks key is not exist, error code: %d", ohHuksResult.errorCode);
         return std::string();
     }
-    uint8_t handleD[sizeof(uint64_t)] = {0};
-    struct HksBlob handleDecrypt = {sizeof(uint64_t), handleD};
-    ohResult = HksInit(&keyAlias, decryptParamSet, &handleDecrypt, nullptr);
-    if (ohResult != HKS_SUCCESS) {
-        HksFreeParamSet(&genParamSet);
-        HksFreeParamSet(&decryptParamSet);
-        WVLOG_E("hks init invoke failed, error code: %d", ohResult);
+    uint8_t handleD[sizeof(uint64_t)] = { 0 };
+    struct OH_Huks_Blob handleDecrypt = { sizeof(uint64_t), handleD };
+    ohHuksResult = OH_Huks_InitSession(&keyAlias, decryptParamSet, &handleDecrypt, nullptr);
+    if (ohHuksResult.errorCode != OH_HUKS_SUCCESS) {
+        OH_Huks_FreeParamSet(&genParamSet);
+        OH_Huks_FreeParamSet(&decryptParamSet);
+        WVLOG_E("hks init invoke failed, error code: %d", ohHuksResult.errorCode);
         return std::string();
     }
-    ohResult = HksFinish(&handleDecrypt, decryptParamSet, &cipherText, &plainText);
-    if (ohResult != HKS_SUCCESS) {
-        HksFreeParamSet(&genParamSet);
-        HksFreeParamSet(&decryptParamSet);
-        WVLOG_E("hks finish invoke failed, error code: %d", ohResult);
+    ohHuksResult = OH_Huks_FinishSession(&handleDecrypt, decryptParamSet, &cipherText, &plainText);
+    if (ohHuksResult.errorCode != OH_HUKS_SUCCESS) {
+        OH_Huks_FreeParamSet(&genParamSet);
+        OH_Huks_FreeParamSet(&decryptParamSet);
+        WVLOG_E("hks finish invoke failed, error code: %d", ohHuksResult.errorCode);
         return std::string();
     }
-    HksFreeParamSet(&genParamSet);
-    HksFreeParamSet(&decryptParamSet);
+    OH_Huks_FreeParamSet(&genParamSet);
+    OH_Huks_FreeParamSet(&decryptParamSet);
     return std::string(reinterpret_cast<char*>(plainText.data), plainText.size);
 }
 } // namespace OHOS::NWeb

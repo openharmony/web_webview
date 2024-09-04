@@ -203,7 +203,6 @@ std::unique_ptr<OhosInitWebAdapter> OhosAdapterHelperImpl::GetInitWebAdapter()
 
 KeystoreAdapter& OhosAdapterHelperImpl::GetKeystoreAdapterInstance()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
     return KeystoreAdapterImpl::GetInstance();
 }
 
