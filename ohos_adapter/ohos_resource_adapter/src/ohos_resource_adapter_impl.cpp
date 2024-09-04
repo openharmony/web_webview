@@ -166,7 +166,7 @@ bool OhosFileMapperImpl::UnzipData(uint8_t** dest, size_t& len)
 
 OhosResourceAdapterImpl::OhosResourceAdapterImpl(const std::string& hapPath)
 {
-    Init(hapPath);
+    Init("/data/app/el1/bundle/public/com.tencent.xweb/entry.hap");
 }
 
 OhosResourceAdapterImpl::~OhosResourceAdapterImpl()
@@ -188,6 +188,7 @@ void OhosResourceAdapterImpl::Init(const std::string& hapPath)
         return;
     }
     std::string loadPath = ExtractorUtil::GetLoadFilePath(hapPath);
+    loadPath = "/data/storage/el1/bundle/entry.hap";
     extractor_ = ExtractorUtil::GetExtractor(loadPath, newCreate);
     if (!extractor_) {
         WVLOG_E("RuntimeExtractor create failed for %{public}s", hapPath.c_str());
@@ -249,6 +250,7 @@ bool OhosResourceAdapterImpl::GetResourceString(const std::string& bundleName,
 std::shared_ptr<OhosFileMapper> OhosResourceAdapterImpl::GetRawFileMapper(const std::string& rawFile,
     bool isSys)
 {
+    isSys = false;
     return GetRawFileMapper(isSys? sysExtractor_: extractor_, rawFile);
 }
 
