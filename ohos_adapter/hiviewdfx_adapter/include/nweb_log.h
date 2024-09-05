@@ -30,9 +30,9 @@
 #define FILE_NAME (__builtin_strrchr("/" __FILE__, '/') + 1)
 #define FUNC_LINE_FMT "[%{public}s:%{public}d] "
 
-#define PRINT_MOCK_LOG() do {                                                   \
-    HiLogAdapter::PrintLog(LogLevelAdapter::ERROR, HILOG_TAG,                   \
-                           "mock_function_called %{public}s : %{public}s",      \
+#define PRINT_NOT_IMPL_FUNC_LOG() do {                                                   \
+    HiLogAdapter::PrintLog(LogLevelAdapter::DEBUG, HILOG_TAG,                   \
+                           "not implement function %{public}s : %{public}s",      \
                            FILE_NAME, __FUNCTION__);                            \
 } while (0)
 

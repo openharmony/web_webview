@@ -28,64 +28,64 @@ namespace OHOS::NWeb {
 bool ResSchedClientAdapter::ReportKeyThread(
     ResSchedStatusAdapter statusAdapter, pid_t pid, pid_t tid, ResSchedRoleAdapter roleAdapter)
 {
-    PRINT_MOCK_LOG();
+    PRINT_NOT_IMPL_FUNC_LOG();
     return true;
 }
 
 bool ResSchedClientAdapter::ReportAudioData(ResSchedStatusAdapter statusAdapter, pid_t pid, pid_t tid)
 {
-    PRINT_MOCK_LOG();
+    PRINT_NOT_IMPL_FUNC_LOG();
     return true;
 }
 
 void ResSchedClientAdapter::ReportProcessInUse(pid_t pid)
 {
-    PRINT_MOCK_LOG();
+    PRINT_NOT_IMPL_FUNC_LOG();
 }
 
 void ResSchedClientAdapter::ReportSiteIsolationMode(bool mode)
 {
-    PRINT_MOCK_LOG();
+    PRINT_NOT_IMPL_FUNC_LOG();
 }
 
 bool ResSchedClientAdapter::ReportWindowStatus(
     ResSchedStatusAdapter statusAdapter, pid_t pid, uint32_t windowId, int32_t nwebId)
 {
-    PRINT_MOCK_LOG();
+    PRINT_NOT_IMPL_FUNC_LOG();
     return true;
 }
 
 bool ResSchedClientAdapter::ReportScene(
     ResSchedStatusAdapter statusAdapter, ResSchedSceneAdapter sceneAdapter, int32_t nwebId)
 {
-    PRINT_MOCK_LOG();
+    PRINT_NOT_IMPL_FUNC_LOG();
     return false;
 }
 
 void ResSchedClientAdapter::ReportWindowId(int32_t windowId, int32_t nwebId)
 {
-    PRINT_MOCK_LOG();
+    PRINT_NOT_IMPL_FUNC_LOG();
 }
 
 void ResSchedClientAdapter::ReportNWebInit(ResSchedStatusAdapter statusAdapter, int32_t nwebId)
 {
-    PRINT_MOCK_LOG();
+    PRINT_NOT_IMPL_FUNC_LOG();
 }
 
 void ResSchedClientAdapter::ReportRenderProcessStatus(ResSchedStatusAdapter statusAdapter, pid_t pid)
 {
-    PRINT_MOCK_LOG();
+    PRINT_NOT_IMPL_FUNC_LOG();
 }
 
 bool ResSchedClientAdapter::ReportScreenCapture(ResSchedStatusAdapter statusAdapter, pid_t pid)
 {
-    PRINT_MOCK_LOG();
+    PRINT_NOT_IMPL_FUNC_LOG();
     return true;
 }
 
 bool ResSchedClientAdapter::ReportVideoPlaying(ResSchedStatusAdapter statusAdapter, pid_t pid)
 {
-    PRINT_MOCK_LOG();
+    PRINT_NOT_IMPL_FUNC_LOG();
     return true;
 }
 } // namespace OHOS::NWeb

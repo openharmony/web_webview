@@ -92,7 +92,7 @@ shared_library("nweb_ohos_adapter") {
      "display_manager_adapter/src/display_manager_adapter_impl.cpp",
 #    "distributeddatamgr_adapter/webdatabase/src/ohos_web_data_base_adapter_impl.cpp",
 #    "distributeddatamgr_adapter/webdatabase/src/ohos_web_permission_data_base_adapter_impl.cpp",
-#    "enterprise_device_management_adapter/src/enterprise_device_management_adapter_impl.cpp",
+    "enterprise_device_management_adapter/src/enterprise_device_management_adapter_impl.cpp",
     "event_handler_adapter/src/event_handler_adapter_impl.cpp",
 #    "flowbuffer_adapter/src/flowbuffer_adapter_impl.cpp",
      "graphic_adapter/src/ashmem_adapter_impl.cpp",
@@ -102,10 +102,10 @@ shared_library("nweb_ohos_adapter") {
      "graphic_adapter/src/native_window_adapter_impl.cpp",
     "graphic_adapter/src/window_adapter_impl.cpp",
     "hiviewdfx_adapter/src/hilog_adapter.cpp",
-#    "hiviewdfx_adapter/src/hisysevent_adapter_impl.cpp",
+    "hiviewdfx_adapter/src/hisysevent_adapter_impl.cpp",
 #    "hiviewdfx_adapter/src/hitrace_adapter_impl.cpp",
     "inputmethodframework_adapter/src/imf_adapter_impl.cpp",
-#    "keystore_adapter/src/keystore_adapter_impl.cpp",
+     "keystore_adapter/src/keystore_adapter_impl.cpp",
 #    "multimodalinput_adapter/src/mmi_adapter_impl.cpp",
 #    "net_proxy_adapter/src/net_proxy_adapter_impl.cpp",
      "ohos_adapter_helper/src/ohos_adapter_helper_impl.cpp",
@@ -115,7 +115,7 @@ shared_library("nweb_ohos_adapter") {
 #    "pasteboard_adapter/src/pasteboard_client_adapter_impl.cpp",
 #    "print_manager_adapter/src/print_manager_adapter_impl.cpp",
     "res_sched_adapter/src/res_sched_client_adapter_impl.cpp",
-#    "soc_perf_adapter/src/soc_perf_client_adapter_impl.cpp",
+    "soc_perf_adapter/src/soc_perf_client_adapter_impl.cpp",
     "system_properties_adapter/src/system_properties_adapter_impl.cpp",
      "audio_adapter/src/audio_system_manager_adapter_impl.cpp",
   ]
@@ -190,6 +190,7 @@ shared_library("nweb_ohos_adapter") {
     "ohresmgr",
     "rawfile.z",
     "time_service_ndk",
+    "huks_ndk.z",
     "bundle_ndk.z",
   ]
 #

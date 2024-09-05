@@ -21,67 +21,42 @@
 namespace OHOS::NWeb {
 class HiSysEventAdapterImpl : public HiSysEventAdapter {
 public:
-    static HiSysEventAdapterImpl& GetInstance()
-    {
-        static HiSysEventAdapterImpl instance;
-        return instance;
-    }
+    static HiSysEventAdapterImpl& GetInstance();
 
     ~HiSysEventAdapterImpl() override = default;
 
     int Write(const std::string& eventName, EventType type,
-        const std::tuple<const std::string, const std::string>& data) override { return 0; }
+        const std::tuple<const std::string, const std::string>& data) override;
 
     int Write(const std::string& eventName, EventType type,
-        const std::tuple<const std::string, const std::string, const std::string, const std::string>& data) override
-    {
-        return 0;
-    }
+        const std::tuple<const std::string, const std::string, const std::string, const std::string>& data) override;
 
     int Write(const std::string& eventName, EventType type,
         const std::tuple<const std::string, const std::string, const std::string, const std::string,
-                         const std::string, const std::string>& data) override
-    {
-        return 0;
-    }
+                         const std::string, const std::string>& data) override;
 
     int Write(const std::string& eventName, EventType type,
         const std::tuple<const std::string, const std::string, const std::string, const std::string,
-                         const std::string, const std::string, const std::string, const std::string>& data) override
-    {
-        return 0;
-    }
+                         const std::string, const std::string, const std::string, const std::string>& data) override;
 
     int Write(const std::string& eventName, EventType type,
         const std::tuple<const std::string, const std::string, const std::string, const std::string,
                          const std::string, const std::string, const std::string, const std::string,
-                         const std::string, const std::string>& data) override
-    {
-        return 0;
-    }
+                         const std::string, const std::string>& data) override;
 
     int Write(const std::string& eventName, EventType type,
         const std::tuple<const std::string, const std::string, const std::string, const std::string,
                          const std::string, const std::string, const std::string, const std::string,
-                         const std::string, const std::string, const std::string, const std::string>& data) override
-    {
-        return 0;
-    }
+                         const std::string, const std::string, const std::string, const std::string>& data) override;
 
     int Write(const std::string& eventName, EventType type,
         const std::tuple<const std::string, const int64_t, const std::string, const int,
-        const std::string, const std::vector<uint16_t>, const std::string, const int>& data) override
-    {
-        return 0;
-    }
+        const std::string, const std::vector<uint16_t>, const std::string, const int>& data) override;
 
     int Write(const std::string& eventName, EventType type,
         const std::tuple<const std::string, const int64_t, const std::string, const int64_t,
         const std::string, const int, const std::string, const int,
-        const std::string, const int64_t, const std::string, const int>& data) override
-    {
-        return 0;
-    }
+        const std::string, const int64_t, const std::string, const int>& data) override;
 
     int Write(const std::string& eventName, EventType type,
         const std::tuple<const std::string, const int64_t,
@@ -95,28 +70,19 @@ public:
         const std::string, const int64_t, const std::string, const int64_t,
         const std::string, const int64_t, const std::string, const int64_t,
         const std::string, const int64_t, const std::string, const int64_t,
-        const std::string, const int64_t, const std::string, const int64_t>& data) override
-    {
-        return 0;
-    }
+        const std::string, const int64_t, const std::string, const int64_t>& data) override;
 
     int Write(const std::string& eventName, EventType type,
         const std::tuple<const std::string, const std::string, const std::string, const std::string,
                          const std::string, const std::string, const std::string, const std::string,
                          const std::string, const std::string, const std::string, const std::string,
-                         const std::string, const std::string>& data) override
-    {
-        return 0;
-    }
+                         const std::string, const std::string>& data) override;
 
     int Write(const std::string& eventName, EventType type,
         const std::tuple<const std::string, const std::string, const std::string, const std::string,
                          const std::string, const std::string, const std::string, const std::string,
                          const std::string, const std::string, const std::string, const std::string,
-                         const std::string, const std::string, const std::string, const std::string>& data) override
-    {
-        return 0;
-    }
+                         const std::string, const std::string, const std::string, const std::string>& data) override;
 };
 } // namespace OHOS::NWeb
 
