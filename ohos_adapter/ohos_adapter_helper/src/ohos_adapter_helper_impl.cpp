@@ -276,7 +276,6 @@ HiSysEventAdapter& OhosAdapterHelperImpl::GetHiSysEventAdapterInstance()
 
 HiTraceAdapter& OhosAdapterHelperImpl::GetHiTraceAdapterInstance()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
     return HiTraceAdapterImpl::GetInstance();
 }
 
