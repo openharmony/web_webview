@@ -22,17 +22,12 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <climits>
+#include <cstdlib>
 
 #include "nweb_log.h"
-#include "foundation/ability/ability_base/interfaces/kits/native/uri/include/uri.h"
-#include "foundation/filemanagement/app_file_service/interfaces/innerkits/native/file_uri/include/file_uri.h"
-#include "foundation/distributeddatamgr/data_share/interfaces/inner_api/consumer/include/datashare_helper.h"
-#include "foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include/system_ability_definition.h"
-#include "foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include/iservice_registry.h"
+#include <filemanagement/file_uri/oh_file_uri.h>
 
 namespace OHOS::NWeb {
-
-constexpr char MEDIALIBRARY_DATA_URI[] = "datashare:///media";
 // static
 DatashareAdapterImpl& DatashareAdapterImpl::GetInstance()
 {
@@ -42,35 +37,49 @@ DatashareAdapterImpl& DatashareAdapterImpl::GetInstance()
 
 std::string DatashareAdapterImpl::GetRealPath(const std::string& uriStr)
 {
-    Uri uri = Uri(uriStr);
-    AppFileService::ModuleFileUri::FileUri fileUri(uriStr);
-    return fileUri.GetRealPath();
+    const char *uri = uriStr.c_str();
+    unsigned int length = uriStr.length();
+    char *uriResult = nullptr;
+
+    FileManagement_ErrCode ret = OH_FileUri_GetPathFromUri(uri, length, &uriResult);
+    if (ret == ERR_OK) {
+        std::string realpath(uriResult);
+        free(uriResult);
+        return realpath;
+    } else {
+        return std::string();
+    }
 }
 
 int DatashareAdapterImpl::OpenDataShareUriForRead(const std::string& uriStr)
 {
-    auto sam = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (sam == nullptr) {
-        WVLOG_E("open datashare uri read, system ability manager is null");
+    const char *uri = uriStr.c_str();
+    unsigned int length = uriStr.length();
+    char *uriResult = nullptr;
+
+    FileManagement_ErrCode ret = OH_FileUri_GetPathFromUri(uri, length, &uriResult);
+    if (ret != ERR_OK) {
         return -1;
+    } else {
+        int fd = open(uriResult, O_RDONLY);
+        free(uriResult);
+        return fd;
     }
-    auto remoteObj = sam->GetSystemAbility(OHOS::STORAGE_MANAGER_MANAGER_ID);
-    if (remoteObj == nullptr) {
-        WVLOG_E("open datashare uri read, remoteObj is null");
-        return -1;
-    }
-    auto dataShareHelper = DataShare::DataShareHelper::Creator(remoteObj, MEDIALIBRARY_DATA_URI);
-    if (dataShareHelper == nullptr) {
-        WVLOG_E("open datashare uri read, dataShareHelper is null");
-        return -1;
-    }
-    Uri uri = Uri(uriStr);
-    return dataShareHelper->OpenFile(uri, "r");
 }
 
 std::string DatashareAdapterImpl::GetFileDisplayName(const std::string& uriStr)
 {
-    AppFileService::ModuleFileUri::FileUri fileUri(uriStr);
-    return fileUri.GetName();
+    const char *uri = uriStr.c_str();
+    unsigned int length = strlen(uri);
+    char *name = nullptr;
+
+    FileManagement_ErrCode ret = OH_FileUri_GetFileName(uri, length, &name);
+    if (ret == ERR_OK) {
+        std::string fileName(name);
+        free(name);
+        return fileName;
+    } else {
+        return std::string();
+    }
 }
 } // namespace OHOS::NWeb
