@@ -281,7 +281,6 @@ HiSysEventAdapter& OhosAdapterHelperImpl::GetHiSysEventAdapterInstance()
 
 HiTraceAdapter& OhosAdapterHelperImpl::GetHiTraceAdapterInstance()
 {
-    PRINT_MOCK_LOG();
     return HiTraceAdapterImpl::GetInstance();
 }
 
