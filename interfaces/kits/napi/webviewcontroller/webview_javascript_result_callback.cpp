@@ -1129,15 +1129,18 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptResultS
     }
     auto flowbufferAdapter = OhosAdapterHelper::GetInstance().CreateFlowbufferAdapter();
     if (!flowbufferAdapter) {
+        napi_close_handle_scope(jsObj->GetEnv(), scope);
         return ret;
     }
     auto ashmem = flowbufferAdapter->CreateAshmemWithFd(fd, MAX_FLOWBUF_DATA_SIZE + HEADER_SIZE, PROT_READ);
     if (!ashmem) {
+        napi_close_handle_scope(jsObj->GetEnv(), scope);
         return ret;
     }
 
     std::vector<napi_value> argv = {};
     if(!ConstructArgv(ashmem, args, argv, jsObj, routingId)) {
+        napi_close_handle_scope(jsObj->GetEnv(), scope);
     	return ret;
     }
     close(fd);
