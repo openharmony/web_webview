@@ -107,7 +107,7 @@ shared_library("nweb_ohos_adapter") {
     "inputmethodframework_adapter/src/imf_adapter_impl.cpp",
      "keystore_adapter/src/keystore_adapter_impl.cpp",
 #    "multimodalinput_adapter/src/mmi_adapter_impl.cpp",
-#    "net_proxy_adapter/src/net_proxy_adapter_impl.cpp",
+     "net_proxy_adapter/src/net_proxy_adapter_impl.cpp",
      "ohos_adapter_helper/src/ohos_adapter_helper_impl.cpp",
 #    "ohos_image_adapter/src/ohos_image_decoder_adapter_impl.cpp",
     "ohos_init_web_adapter/src/ohos_init_web_adapter_impl.cpp",
@@ -192,6 +192,7 @@ shared_library("nweb_ohos_adapter") {
     "time_service_ndk",
     "huks_ndk.z",
     "bundle_ndk.z",
+    "net_connection",
   ]
 #
   public_configs = [ ":ohos_adapter_public_interface" ]
