@@ -167,6 +167,32 @@ public:
      */
     virtual void ConfigCookie(
         const std::string& url, const std::string& value, std::shared_ptr<NWebLongValueCallback> callback) = 0;
+
+    /**
+     * @brief Gets all the cookies for the given URL. This is sync method
+     *
+     * @param url URL to which the cookie to be obtained belongs. A complete URL is recommended.
+     * @param incognito True indicates that the memory cookies of the webview in privacy mode are obtained,
+     *                  and false indicates that cookies in non-privacy mode are obtained.
+     * @param includeHttpOnly If true HTTP-only cookies will also be included in the cookieValue.
+     * @param cookieValue Get the cookie value corresponding to the URL.
+     * @return the cookie value for given URL.
+     */
+    virtual std::string ReturnCookieWithHttpOnly(
+        const std::string& url, bool& is_valid, bool incognito_mode, bool includeHttpOnly) { return ""; }
+ 
+    /**
+     * @brief Sets a single cookie (key-value pair) for the given URL sync.
+     *
+     * @param url Specifies the URL to which the cookie belongs. A complete URL is recommended.
+     * @param cookieValue The value of the cookie to be set.
+     * @param incognito True indicates that cookies of the corresponding URL are set in privacy mode,
+     *                  and false indicates that cookies of the corresponding URL are set in non-privacy mode.
+     * @param includeHttpOnly If true, HTTP-only cookies can also be overwritten.
+     * @return 0 if set cookie success else return error id.
+     */
+    virtual int SetCookieWithHttpOnly(
+        const std::string& url, const std::string& value, bool incognito_mode, bool includeHttpOnly) { return 0; }
 };
 
 } // namespace OHOS::NWeb
