@@ -33,7 +33,6 @@ using namespace testing::ext;
 namespace OHOS::NWeb {
 namespace {
 constexpr uint32_t DEFAULT_SIGNATURE_LEN = 1024;
-constexpr uint32_t MAX_LEN_CREATDATA = 8197;
 uint32_t TEST_FAILURE = -1;
 uint32_t TEST_OK = 0;
 uint32_t g_cerSize = 0;
