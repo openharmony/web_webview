@@ -15,10 +15,9 @@
 
 #include "battery_mgr_client_adapter_impl.h"
 #include "nweb_log.h"
-#include "battery_srv_client.h"
+#include <BasicServicesKit/ohbattery_info.h>
+#include <BasicServicesKit/oh_commonevent_support.h>
 
-using namespace OHOS::NWeb;
-using namespace OHOS::PowerMgr;
 namespace OHOS::NWeb {
 double WebBatteryInfoImpl::GetLevel()
 {
@@ -40,34 +39,60 @@ int WebBatteryInfoImpl::ChargingTime()
     return chargingTime_;
 }
 
-NWebBatteryEventSubscriber::NWebBatteryEventSubscriber(
-    EventFwk::CommonEventSubscribeInfo& in, std::shared_ptr<WebBatteryEventCallback> cb)
-    : EventFwk::CommonEventSubscriber(in), eventCallback_(cb)
-{}
+std::set<std::shared_ptr<WebBatteryEventCallback>> BatteryMgrClientAdapterImpl::callbackSet_;
+CommonEvent_SubscribeInfo* BatteryMgrClientAdapterImpl::commonEventSubscriberInfo_;
+CommonEvent_Subscriber* BatteryMgrClientAdapterImpl::commonEventSubscriber_;
+std::mutex BatteryMgrClientAdapterImpl::mutex_;
 
-void NWebBatteryEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &data)
+
+BatteryMgrClientAdapterImpl::~BatteryMgrClientAdapterImpl()
 {
-    const std::string action = data.GetWant().GetAction();
-    WVLOG_I("receive battery action: %{public}s", action.c_str());
-    if (action != EventFwk::CommonEventSupport::COMMON_EVENT_BATTERY_CHANGED) {
+    StopListen();
+}
+
+void BatteryMgrClientAdapterImpl::OnBatteryEvent(const CommonEvent_RcvData *data)
+{
+    if (data == nullptr ||
+        strcmp(OH_CommonEvent_GetEventFromRcvData(data), COMMON_EVENT_BATTERY_CHANGED)) {
+        WVLOG_E("not battery event");
         return;
     }
-    int32_t defaultInvalid = -1;
-    std::string KEY_CAPACITY = PowerMgr::BatteryInfo::COMMON_EVENT_KEY_CAPACITY;
-    std::string KEY_CHARGE_TYPE = PowerMgr::BatteryInfo::COMMON_EVENT_KEY_PLUGGED_TYPE;
-    auto capacity = data.GetWant().GetIntParam(KEY_CAPACITY, defaultInvalid);
-    auto isChangingType = data.GetWant().GetIntParam(KEY_CHARGE_TYPE, defaultInvalid);
-    bool ischanging = true;
-    if ((isChangingType == static_cast<int>(BatteryPluggedType::PLUGGED_TYPE_NONE)) ||
-        (isChangingType == static_cast<int>(BatteryPluggedType::PLUGGED_TYPE_BUTT))) {
-        ischanging = false;
+
+    const CommonEvent_Parameters* para = OH_CommonEvent_GetParametersFromRcvData(data);
+    if (para == nullptr) {
+        WVLOG_E("failed to get patameters");
+        return;
+    }
+
+    int capacity = 0;
+    if (OH_CommonEvent_HasKeyInParameters(para, COMMON_EVENT_KEY_CAPACITY)) {
+        capacity = OH_CommonEvent_GetIntFromParameters(para, COMMON_EVENT_KEY_CAPACITY, capacity);
+    } else {
+        WVLOG_E("failed to get capacity");
     }
     const double changeFullLevel = 100.f;
     double changeLevel = capacity / changeFullLevel;
-    WVLOG_I("receive capacity %{public}d  isChangingType %{public}d", capacity, isChangingType);
+
+    int plugType = 0;
+    if (OH_CommonEvent_HasKeyInParameters(para, COMMON_EVENT_KEY_PLUGGED_TYPE)) {
+        plugType = OH_CommonEvent_GetIntFromParameters(para, COMMON_EVENT_KEY_PLUGGED_TYPE, plugType);
+    } else {
+        WVLOG_E("failed to get plugType");
+    }
+    bool ischarging = true;
+    if ((plugType == PLUGGED_TYPE_NONE) ||
+        (plugType == PLUGGED_TYPE_BUTT)) {
+        ischarging = false;
+    }
+
     std::shared_ptr<WebBatteryInfoImpl> batterinfo =
-        std::make_shared<WebBatteryInfoImpl>(changeLevel, ischanging, -1, -1);
-    eventCallback_->BatteryInfoChanged(batterinfo);
+        std::make_shared<WebBatteryInfoImpl>(changeLevel, ischarging, -1, -1);
+    WVLOG_I("receive capacity %{public}d  plugType %{public}d", capacity, plugType);
+    
+    std::lock_guard<std::mutex> lock(mutex_);
+    for (const auto &eventCallback : callbackSet_) {
+        eventCallback->BatteryInfoChanged(batterinfo);
+    }
 }
 
 void BatteryMgrClientAdapterImpl::RegBatteryEvent(std::shared_ptr<WebBatteryEventCallback> eventCallback)
@@ -84,45 +109,81 @@ void BatteryMgrClientAdapterImpl::RegBatteryEvent(std::shared_ptr<WebBatteryEven
 bool BatteryMgrClientAdapterImpl::StartListen()
 {
     WVLOG_I("start battery listen");
-    EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
-    skill.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_BATTERY_CHANGED);
-    EventFwk::CommonEventSubscribeInfo info(skill);
-    this->commonEventSubscriber_ = std::make_shared<NWebBatteryEventSubscriber>(info, this->cb_);
-    bool ret = EventFwk::CommonEventManager::SubscribeCommonEvent(this->commonEventSubscriber_);
-    if (ret == false) {
-        WVLOG_E("start battery listen fail");
-        return false;
-    } else {
-        return true;
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (commonEventSubscriber_ == nullptr) {
+        const char* events[] = {
+            COMMON_EVENT_BATTERY_CHANGED,
+        };
+
+        int count = sizeof(events) / sizeof(events[0]);
+        commonEventSubscriberInfo_ = OH_CommonEvent_CreateSubscribeInfo(events, count);
+        if (commonEventSubscriberInfo_ == NULL) {
+            WVLOG_E("Create SubscribeInfo fail.");
+            return false;
+        }
+
+        commonEventSubscriber_ = OH_CommonEvent_CreateSubscriber(commonEventSubscriberInfo_,
+            OnBatteryEvent);
+        if (commonEventSubscriber_ == NULL) {
+            OH_CommonEvent_DestroySubscribeInfo(commonEventSubscriberInfo_);
+            commonEventSubscriberInfo_ = nullptr;
+            WVLOG_E("Create Subscriber fail.");
+            return false;
+        }
+
+        CommonEvent_ErrCode ret = OH_CommonEvent_Subscribe(commonEventSubscriber_);
+        if (ret != COMMONEVENT_ERR_OK) {
+            OH_CommonEvent_DestroySubscribeInfo(commonEventSubscriberInfo_);
+            OH_CommonEvent_DestroySubscriber(commonEventSubscriber_);
+            WVLOG_E("Subscribe fail. ret: %{public}d", ret);
+            return false;
+        }
     }
+    callbackSet_.insert(cb_);
+    return true;
 }
 
 void BatteryMgrClientAdapterImpl::StopListen()
 {
     WVLOG_I("stop battery listen");
-    if (this->commonEventSubscriber_ != nullptr) {
-        bool result = EventFwk::CommonEventManager::UnSubscribeCommonEvent(this->commonEventSubscriber_);
-        if (result) {
-            this->commonEventSubscriber_ = nullptr;
-        } else {
-            WVLOG_E("stop battery listen fail");
-        }
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (callbackSet_.find(cb_) == callbackSet_.end()) {
+        return;
     }
+
+    callbackSet_.erase(cb_);
+    if (!callbackSet_.empty()) {
+        return;
+    }
+
+    if (commonEventSubscriber_ == nullptr) {
+        return;
+    }
+    
+    CommonEvent_ErrCode ret = OH_CommonEvent_UnSubscribe(commonEventSubscriber_);
+    if (ret != COMMONEVENT_ERR_OK) {
+        WVLOG_E("UnSubscribe fail. ret: %{public}d", ret);
+    }
+
+    OH_CommonEvent_DestroySubscriber(commonEventSubscriber_);
+    commonEventSubscriber_ = nullptr;
+
+    OH_CommonEvent_DestroySubscribeInfo(commonEventSubscriberInfo_);
+    commonEventSubscriberInfo_ = nullptr;
 }
 
 std::shared_ptr<WebBatteryInfo> BatteryMgrClientAdapterImpl::RequestBatteryInfo()
 {
     WVLOG_I("request batteryInfo");
-    BatterySrvClient& battClient = BatterySrvClient::GetInstance();
-    auto capacity = battClient.GetCapacity();
-    auto isChangingType = battClient.GetPluggedType();
-    bool ischanging = true;
-    if ((isChangingType == BatteryPluggedType::PLUGGED_TYPE_NONE) ||
-        (isChangingType == BatteryPluggedType::PLUGGED_TYPE_BUTT)) {
-        ischanging = false;
+    int32_t capacity = OH_BatteryInfo_GetCapacity();
+    BatteryInfo_BatteryPluggedType plugType = OH_BatteryInfo_GetPluggedType();
+    bool ischarging = true;
+    if ((plugType == PLUGGED_TYPE_NONE) ||
+        (plugType == PLUGGED_TYPE_BUTT)) {
+        ischarging = false;
     }
     const double changeFullLevel = 100.f;
     double changeLevel = capacity / changeFullLevel;
-    return std::make_shared<WebBatteryInfoImpl>(changeLevel, ischanging, -1, -1);
+    return std::make_shared<WebBatteryInfoImpl>(changeLevel, ischarging, -1, -1);
 }
 }
