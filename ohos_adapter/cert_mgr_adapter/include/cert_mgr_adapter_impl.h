@@ -18,8 +18,6 @@
 
 #include "cert_manager_api.h"
 #include "cert_mgr_adapter.h"
-#include "net_ssl_type.h"
-#include "net_ssl.h"
 
 namespace OHOS::NWeb {
 class CertManagerAdapterImpl final : public CertManagerAdapter {
@@ -45,8 +43,6 @@ public:
         uint8_t* signData, uint32_t signDataLen) override;
 
     int32_t GetCertDataBySubject(const char *subjectName, uint8_t* certData, int32_t certType) override;
-
-    int VerifyCertFromNetSsl(uint8_t* certData, uint32_t certSize) override;
 
     bool GetTrustAnchorsForHostName(const std::string& hostname, std::vector<std::string>& certs) override;
 

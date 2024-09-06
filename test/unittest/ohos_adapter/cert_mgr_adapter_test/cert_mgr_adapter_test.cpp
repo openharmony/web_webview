@@ -397,13 +397,6 @@ HWTEST_F(CertMgrAdapterTest, CertMgrAdapterTest_Sign_006, TestSize.Level1)
     result = adapter.Sign(uriData, nullptr, 0, signData, sizeof(signData));
     EXPECT_EQ(result, -1);
 
-    int sslResult = adapter.VerifyCertFromNetSsl(nullptr, -1);
-    EXPECT_NE(result, 0);
-    sslResult = adapter.VerifyCertFromNetSsl(uriData, -1);
-    EXPECT_NE(sslResult, 0);
-    sslResult = adapter.VerifyCertFromNetSsl(uriData, MAX_LEN_CREATDATA);
-    EXPECT_NE(sslResult, 0);
-    adapter.VerifyCertFromNetSsl(uriData, sizeof(uriData));
     std::string hostname = "";
     std::vector<std::string> certs;
     bool getNameValue = adapter.GetTrustAnchorsForHostName(hostname, certs);

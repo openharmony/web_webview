@@ -45,8 +45,6 @@ public:
 
     int32_t GetCertDataBySubject(const char* subjectName, uint8_t* certData, int32_t certType) override;
 
-    int VerifyCertFromNetSsl(uint8_t* certData, uint32_t certSize) override;
-
     bool GetTrustAnchorsForHostName(const ArkWebString& hostname, ArkWebStringVector& certs) override;
 
     bool GetPinSetForHostName(const ArkWebString& hostname, ArkWebStringVector& pins) override;
