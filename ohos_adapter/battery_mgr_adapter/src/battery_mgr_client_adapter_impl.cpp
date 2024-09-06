@@ -45,7 +45,7 @@ CommonEvent_Subscriber* BatteryMgrClientAdapterImpl::commonEventSubscriber_;
 std::mutex BatteryMgrClientAdapterImpl::mutex_;
 
 
-BatteryMgrClientAdapterImpl::~WebBatteryInfoImpl()
+BatteryMgrClientAdapterImpl::~BatteryMgrClientAdapterImpl()
 {
     StopListen();
 }

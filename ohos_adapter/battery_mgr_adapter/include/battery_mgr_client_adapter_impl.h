@@ -46,7 +46,7 @@ private:
 class BatteryMgrClientAdapterImpl : public BatteryMgrClientAdapter {
 public:
     BatteryMgrClientAdapterImpl() = default;
-    ~BatteryMgrClientAdapterImpl() override = default;
+    ~BatteryMgrClientAdapterImpl() override;
 
     void RegBatteryEvent(std::shared_ptr<WebBatteryEventCallback> eventCallback) override;
   
