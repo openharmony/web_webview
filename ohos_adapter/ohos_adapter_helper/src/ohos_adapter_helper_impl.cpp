@@ -352,7 +352,6 @@ std::unique_ptr<MediaAVSessionAdapter> OhosAdapterHelperImpl::CreateMediaAVSessi
 
 std::unique_ptr<OhosImageDecoderAdapter> OhosAdapterHelperImpl::CreateOhosImageDecoderAdapter()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
     return std::make_unique<OhosImageDecoderAdapterImpl>();
 }
 
