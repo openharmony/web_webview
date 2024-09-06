@@ -21,32 +21,29 @@
 namespace OHOS::NWeb {
 class HiTraceAdapterImpl : public HiTraceAdapter {
 public:
-    static HiTraceAdapterImpl& GetInstance() {
-        static HiTraceAdapterImpl instance;
-        return instance;
-    }
+    static HiTraceAdapterImpl& GetInstance();
 
     ~HiTraceAdapterImpl() override = default;
 
-    void StartTrace(const std::string& value, float limit = -1) override {}
+    void StartTrace(const std::string& value, float limit = -1) override;
 
-    void FinishTrace() override {}
+    void FinishTrace() override;
 
-    void StartAsyncTrace(const std::string& value, int32_t taskId, float limit = -1) override {}
+    void StartAsyncTrace(const std::string& value, int32_t taskId, float limit = -1) override;
 
-    void FinishAsyncTrace(const std::string& value, int32_t taskId) override {}
+    void FinishAsyncTrace(const std::string& value, int32_t taskId) override;
 
-    void CountTrace(const std::string& name, int64_t count) override {}
+    void CountTrace(const std::string& name, int64_t count) override;
 
-    bool IsHiTraceEnable() override { return false; }
+    bool IsHiTraceEnable() override;
 
-    void StartOHOSTrace(const std::string& value, float limit = -1) override {}
+    void StartOHOSTrace(const std::string& value, float limit = -1) override;
 
-    void FinishOHOSTrace() override {}
+    void FinishOHOSTrace() override;
 
-    void CountOHOSTrace(const std::string& name, int64_t count) override {}
+    void CountOHOSTrace(const std::string& name, int64_t count) override;
 
-    bool IsACETraceEnable() override { return false; }
+    bool IsACETraceEnable() override;
 };
 } // namespace OHOS::NWeb
 
