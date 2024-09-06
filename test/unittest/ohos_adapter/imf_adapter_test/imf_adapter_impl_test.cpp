@@ -485,6 +485,10 @@ HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_009, TestSize.Lev
     listenerTest->ReceivePrivateCommand(privateCommand);
     privateCommand = { { "previewTextStyle", "underline" } };
     listenerTest->ReceivePrivateCommand(privateCommand);
+    privateCommand = { { "com.autofill.params.userName", "test" } };
+    listenerTest->ReceivePrivateCommand(privateCommand);
+    privateCommand = { { "com.autofill.params.otherAccount", true } };
+    listenerTest->ReceivePrivateCommand(privateCommand);
 }
 
 /**
@@ -504,6 +508,22 @@ HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_InsertText_010, TestSize.Level1)
     EXPECT_FALSE(result);
     EXPECT_NE(g_imf->textListener_, nullptr);
     g_imf->HideTextInput();
+}
+
+/**
+ * @tc.name: NWebIMFAdapterTest_InsertText_011.
+ * @tc.desc: IMF adapter unittest.
+ * @tc.type: FUNC.
+ * @tc.require:
+ */
+HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_InsertText_011, TestSize.Level1)
+{
+    EXPECT_NE(g_imf, nullptr);
+    std::string commandKey = "autofill.cancel";
+    std::string commandValue = "{\"userName\":\"test\",\"hasAccount\":\"test\"}";
+    g_imf->SendPrivateCommand(commandKey, commandValue);
+    commandKey = "test";
+    g_imf->SendPrivateCommand(commandKey, commandValue);
 }
 
 } // namespace OHOS::NWeb

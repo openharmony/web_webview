@@ -221,15 +221,15 @@ int32_t IMFTextListenerAdapterImpl::ReceivePrivateCommand(
     WVLOG_I("ReceivePrivateCommand");
     auto item = privateCommand.find(PREVIEW_TEXT_STYLE_KEY);
     if (item != privateCommand.end()) {
-        bool is_need_underline = false;
+        bool isNeedUnderline = false;
         MiscServices::PrivateDataValue data = item->second;
         std::string previewStyle = std::get<std::string>(data);
         if (previewStyle == PREVIEW_TEXT_STYLE_UNDERLINE) {
-            is_need_underline = true;
+            isNeedUnderline = true;
         }
 
         if (listener_) {
-            listener_->SetNeedUnderLine(is_need_underline);
+            listener_->SetNeedUnderLine(isNeedUnderline);
         }
     }
 
@@ -238,14 +238,6 @@ int32_t IMFTextListenerAdapterImpl::ReceivePrivateCommand(
         if (listener_) {
             std::string content = std::get<std::string>(item->second);
             listener_->AutoFillWithIMFEvent(true, false, false, content);
-        }
-    }
-
-    item = privateCommand.find(AUTO_FILL_PARAMS_NEWPASSWORD);
-    if (item != privateCommand.end()) {
-        if (listener_) {
-            std::string content = std::get<std::string>(item->second);
-            listener_->AutoFillWithIMFEvent(false, false, true, content);
         }
     }
 
@@ -413,12 +405,6 @@ bool IMFAdapterImpl::ParseFillContentJsonValue(const std::string& commandValue,
         cJSON* userName = cJSON_GetObjectItem(sourceJson, "userName");
         if (userName != nullptr && cJSON_IsString(userName) && userName->valuestring != nullptr) {
             map.insert(std::make_pair("userName", userName->valuestring));
-        }
-    }
-    if (cJSON_HasObjectItem(sourceJson, "newPassword")) {
-        cJSON* newPassword = cJSON_GetObjectItem(sourceJson, "newPassword");
-        if (newPassword != nullptr && cJSON_IsString(newPassword) && newPassword->valuestring != nullptr) {
-            map.insert(std::make_pair("newPassword", newPassword->valuestring));
         }
     }
     if (cJSON_HasObjectItem(sourceJson, "hasAccount")) {
