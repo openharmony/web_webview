@@ -18,7 +18,6 @@
 
 #include <cstdint>
 #include <string>
-
 namespace OHOS::NWeb {
 
 struct FrameRateSetting;

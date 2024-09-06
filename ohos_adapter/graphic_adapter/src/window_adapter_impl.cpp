@@ -17,10 +17,10 @@
 
 #include <cstdarg>
 
-#include "nweb_log.h"
-#include "foundation/graphic/graphic_surface/interfaces/inner_api/surface/surface.h"
 #include "foundation/graphic/graphic_surface/interfaces/inner_api/surface/window.h"
+#include "foundation/graphic/graphic_surface/interfaces/inner_api/surface/surface.h"
 #include "foundation/graphic/graphic_surface/surface/include/native_window.h"
+#include "nweb_log.h"
 
 namespace OHOS::NWeb {
 

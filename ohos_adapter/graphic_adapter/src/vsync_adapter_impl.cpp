@@ -61,8 +61,8 @@ VSyncErrorCode VSyncAdapterImpl::Init()
         }
         auto& rsClient = OHOS::Rosen::RSInterfaces::GetInstance();
         frameRateLinker_ = OHOS::Rosen::RSFrameRateLinker::Create();
-        receiver_ = rsClient.CreateVSyncReceiver(
-            "NWeb_" + std::to_string(::getprocpid()), frameRateLinker_->GetId(), vsyncHandler_);
+        receiver_ = rsClient.CreateVSyncReceiver("NWeb_" + std::to_string(::getprocpid()),
+            frameRateLinker_->GetId(), vsyncHandler_);
         if (!receiver_) {
             WVLOG_E("CreateVSyncReceiver failed");
             return VSyncErrorCode::ERROR;
@@ -195,14 +195,14 @@ void VSyncAdapterImpl::SetOnVsyncCallback(void (*callback)())
     callback_ = callback;
 }
 
+void VSyncAdapterImpl::SetOnVsyncEndCallback(void (*onVsyncEndCallback)())
+{
+    WVLOG_D("onVsyncEndCallback function: %{public}ld", (long)onVsyncEndCallback);
+    onVsyncEndCallback_ = onVsyncEndCallback;
+}
+
 void VSyncAdapterImpl::SetIsGPUProcess(bool isGPU)
 {
     isGPUProcess_ = isGPU;
-}
-
-void VSyncAdapterImpl::SetOnVsyncEndCallback(void (*onVsyncEndCallback)())
-{
-    WVLOG_D("callback function: %{public}ld", (long)onVsyncEndCallback);
-    onVsyncEndCallback_ = onVsyncEndCallback;
 }
 } // namespace OHOS::NWeb
