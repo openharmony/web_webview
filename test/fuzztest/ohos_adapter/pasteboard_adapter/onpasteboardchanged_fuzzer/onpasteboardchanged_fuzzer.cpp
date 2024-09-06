@@ -14,6 +14,7 @@
  */
 
 #include "onpasteboardchanged_fuzzer.h"
+
 #include "pasteboard_client_adapter_impl.h"
 
 using namespace OHOS::NWeb;
@@ -24,17 +25,17 @@ public:
     MockPasteboardObserver() = default;
     void OnPasteboardChanged() override {}
 };
-    bool OnPasteboardChangedFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        std::shared_ptr<PasteboardObserverAdapter> observer = std::make_shared<MockPasteboardObserver>();
-        PasteboardObserverAdapterImpl observerImpl(observer);
-        observerImpl.OnPasteboardChanged();
-        return true;
+bool OnPasteboardChangedFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    std::shared_ptr<PasteboardObserverAdapter> observer = std::make_shared<MockPasteboardObserver>();
+    PasteboardObserverAdapterImpl observerImpl(observer);
+    observerImpl.OnPasteboardChanged();
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

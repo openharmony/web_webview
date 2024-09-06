@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "getrotation_fuzzer"
 #endif /* TEST_FUZZTEST_GET_ROTATION_FUZZER_H */
-

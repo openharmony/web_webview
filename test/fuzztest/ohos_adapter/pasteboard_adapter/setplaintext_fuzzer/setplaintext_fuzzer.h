@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "setplaintext_fuzzer"
 #endif /* TEST_FUZZTEST_SETPLAINTEXT_FUZZER_H */
-

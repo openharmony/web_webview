@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "creategetdatabase_fuzzer"
 #endif /* TEST_FUZZTEST_CREATE_GET_DATA_BASE_FUZZER_H */
-

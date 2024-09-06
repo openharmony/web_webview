@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "selectcertrequest_fuzzer"
 #endif /* TEST_FUZZTEST_SELECTCERTREQUEST_FUZZER_H */
-

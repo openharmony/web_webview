@@ -19,9 +19,9 @@
 #include <securec.h>
 
 #include "nweb.h"
+#include "nweb_adapter_helper.h"
 #include "nweb_handler.h"
 #include "nweb_helper.h"
-#include "nweb_adapter_helper.h"
 #include "nweb_init_params.h"
 
 using namespace OHOS::NWeb;
@@ -32,7 +32,7 @@ bool SetHttpDnsFuzzTest(const uint8_t* data, size_t size)
     if ((data == nullptr) || (size < sizeof(int))) {
         return false;
     }
-    std::string dohConfig((const char *)data, size);
+    std::string dohConfig((const char*)data, size);
     int mode;
     if (memcpy_s(&mode, sizeof(int), data, sizeof(int)) != 0) {
         return false;
@@ -44,7 +44,7 @@ bool SetHttpDnsFuzzTest(const uint8_t* data, size_t size)
     NWebHelper::Instance().SetHttpDns(config);
     return true;
 }
-}
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

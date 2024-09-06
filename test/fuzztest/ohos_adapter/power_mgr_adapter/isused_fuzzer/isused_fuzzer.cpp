@@ -23,17 +23,17 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool IsUsedFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        std::shared_ptr<OHOS::PowerMgr::RunningLock> lock;
-        RunningLockAdapterImpl runningLockAdapter(lock);
-        runningLockAdapter.IsUsed();
-        return true;
+bool IsUsedFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    std::shared_ptr<OHOS::PowerMgr::RunningLock> lock;
+    RunningLockAdapterImpl runningLockAdapter(lock);
+    runningLockAdapter.IsUsed();
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "displaydestroy_fuzzer"
 #endif /* TEST_FUZZTEST_DISPLAY_DESTROY_FUZZER_H */
-

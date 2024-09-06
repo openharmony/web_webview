@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "seturi_fuzzer"
 #endif /* TEST_FUZZTEST_SETURL_FUZZER_H */
-

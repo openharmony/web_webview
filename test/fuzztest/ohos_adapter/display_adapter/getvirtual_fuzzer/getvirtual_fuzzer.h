@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "getvirtual_fuzzer"
 #endif /* TEST_FUZZTEST_GET_VIRTUAL_FUZZER_H */
-

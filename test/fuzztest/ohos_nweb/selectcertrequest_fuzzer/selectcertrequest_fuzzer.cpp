@@ -19,9 +19,9 @@
 #include <securec.h>
 
 #include "nweb.h"
+#include "nweb_adapter_helper.h"
 #include "nweb_handler.h"
 #include "nweb_helper.h"
-#include "nweb_adapter_helper.h"
 #include "nweb_js_ssl_select_cert_result.h"
 
 using namespace OHOS::NWeb;
@@ -34,17 +34,17 @@ bool SelectCertRequestFuzzTest(const uint8_t* data, size_t size)
     }
     OHOS::NWeb::NWebHandler handler;
     std::shared_ptr<NWebJSSslSelectCertResult> result = nullptr;
-    std::string host((const char *)data, size);
+    std::string host((const char*)data, size);
     int port;
     if (memcpy_s(&port, sizeof(int), data, sizeof(int)) != 0) {
         return false;
     }
-    std::vector<std::string> keyTypes = {host};
-    std::vector<std::string> issuers = {host};
+    std::vector<std::string> keyTypes = { host };
+    std::vector<std::string> issuers = { host };
     handler.OnSslSelectCertRequestByJS(result, host, port, keyTypes, issuers);
     return true;
 }
-}
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

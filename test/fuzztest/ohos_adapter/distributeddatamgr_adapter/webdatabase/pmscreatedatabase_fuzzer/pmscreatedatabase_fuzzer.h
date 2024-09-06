@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "pmscreatedatabase_fuzzer"
 #endif /* TEST_FUZZTEST_PMS_CREATE_DATABASE_FUZZER_H */
-

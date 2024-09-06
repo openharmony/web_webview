@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "getheight_fuzzer"
 #endif /* TEST_FUZZTEST_GET_HEIGHT_FUZZER_H */
-

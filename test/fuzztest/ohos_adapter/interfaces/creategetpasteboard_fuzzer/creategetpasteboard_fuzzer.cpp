@@ -22,15 +22,15 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool CreateGetPasteBoardFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        OhosAdapterHelper::GetInstance().GetPasteBoard();
-        return true;
+bool CreateGetPasteBoardFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    OhosAdapterHelper::GetInstance().GetPasteBoard();
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
