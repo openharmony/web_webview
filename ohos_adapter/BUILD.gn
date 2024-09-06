@@ -195,6 +195,7 @@ shared_library("nweb_ohos_adapter") {
     "huks_ndk.z",
     "bundle_ndk.z",
     "net_connection",
+    "ohbattery_info",
   ]
 #
   public_configs = [ ":ohos_adapter_public_interface" ]
@@ -350,7 +351,7 @@ shared_library("nweb_ohos_adapter") {
 #  }
 #
 #  if (webview_battery_manager_enable) {
-#    sources += [ "battery_mgr_adapter/src/battery_mgr_client_adapter_impl.cpp" ]
+     sources += [ "battery_mgr_adapter/src/battery_mgr_client_adapter_impl.cpp" ]
 #    external_deps += [ "battery_manager:batterysrv_client" ]
 #    defines += [ "NWEB_BATTERY_MANAGER_ENABLE" ]
 #  }

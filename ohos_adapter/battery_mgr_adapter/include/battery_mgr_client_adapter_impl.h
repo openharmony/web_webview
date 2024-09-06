@@ -16,13 +16,10 @@
 #ifndef BATTERY_MGR_CLIENT_ADAPTER_IMPL_H
 #define BATTERY_MGR_CLIENT_ADAPTER_IMPL_H
 
+#include <BasicServicesKit/oh_commonevent.h>
+#include <mutex>
+#include <set>
 #include "battery_mgr_client_adapter.h"
-#include "battery_info.h"
-#include "common_event_manager.h"
-#include "common_event_support.h"
-#include "matching_skills.h"
-#include "want.h"
-#include "common_event_subscriber.h"
 
 namespace OHOS::NWeb {
 class WebBatteryInfoImpl final : public WebBatteryInfo {
@@ -46,15 +43,6 @@ private:
     int chargingTime_;
 };
 
-class NWebBatteryEventSubscriber : public EventFwk::CommonEventSubscriber {
-public:
-    NWebBatteryEventSubscriber(EventFwk::CommonEventSubscribeInfo& in,  std::shared_ptr<WebBatteryEventCallback> cb);
-    ~NWebBatteryEventSubscriber() override = default;
-    void OnReceiveEvent(const EventFwk::CommonEventData &data) override;
-private:
-    std::shared_ptr<WebBatteryEventCallback> eventCallback_;
-};
-
 class BatteryMgrClientAdapterImpl : public BatteryMgrClientAdapter {
 public:
     BatteryMgrClientAdapterImpl() = default;
@@ -67,9 +55,14 @@ public:
     void StopListen() override;
 
     std::shared_ptr<WebBatteryInfo> RequestBatteryInfo() override;
+
+    static void OnBatteryEvent(const CommonEvent_RcvData *data);
 private:
     std::shared_ptr<WebBatteryEventCallback> cb_ = nullptr;
-    std::shared_ptr<EventFwk::CommonEventSubscriber> commonEventSubscriber_ = nullptr;
+    static std::set<std::shared_ptr<WebBatteryEventCallback>> callbackSet_;
+    static CommonEvent_SubscribeInfo *commonEventSubscriberInfo_;
+    static CommonEvent_Subscriber *commonEventSubscriber_;
+    static std::mutex mutex_;
 };
 }
 

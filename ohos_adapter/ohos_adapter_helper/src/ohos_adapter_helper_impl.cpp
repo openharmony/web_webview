@@ -20,9 +20,7 @@
 #include "audio_capturer_adapter_impl.h"
 #include "audio_renderer_adapter_impl.h"
 #include "audio_system_manager_adapter_impl.h"
-// #if defined(NWEB_BATTERY_MANAGER_ENABLE)
-// #include "battery_mgr_client_adapter_impl.h"
-// #endif
+#include "battery_mgr_client_adapter_impl.h"
 #include "camera_manager_adapter_impl.h"
 #include "cert_mgr_adapter_impl.h"
 #include "datashare_adapter_impl.h"
@@ -103,13 +101,7 @@ std::unique_ptr<DisplayManagerAdapter> OhosAdapterHelperImpl::CreateDisplayMgrAd
 
 std::unique_ptr<BatteryMgrClientAdapter> OhosAdapterHelperImpl::CreateBatteryClientAdapter()
 {
-// #if defined(NWEB_BATTERY_MANAGER_ENABLE)
-//     return std::make_unique<BatteryMgrClientAdapterImpl>();
-// #else
-//     return nullptr;
-// #endif
-    PRINT_NOT_IMPL_FUNC_LOG();
-    return nullptr;
+    return std::make_unique<BatteryMgrClientAdapterImpl>();
 }
 
 OhosWebDataBaseAdapter& OhosAdapterHelperImpl::GetOhosWebDataBaseAdapterInstance()
