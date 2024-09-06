@@ -17,7 +17,7 @@
 #define SENSOR_ADAPTER_IMPL_H
 
 #include "sensor_adapter.h"
-#include "sensor_agent.h"
+#include <sensors/oh_sensor.h>
 
 namespace OHOS::NWeb {
 
@@ -48,27 +48,8 @@ public:
     int32_t UnsubscribeOhosSensor(int32_t sensorTypeId) override;
 
 private:
-    static void OhosSensorCallback(SensorEvent* event);
-    static std::unordered_map<int32_t, std::shared_ptr<SensorCallbackImpl>> sensorCallbackMap;
-
-    static void handleAccelerometerData(std::shared_ptr<OHOS::NWeb::SensorCallbackImpl> callback,
-        SensorEvent* event);
-    static void handleLinearAccelerometerData(std::shared_ptr<OHOS::NWeb::SensorCallbackImpl> callback,
-        SensorEvent* event);
-    static void handleGravityData(std::shared_ptr<OHOS::NWeb::SensorCallbackImpl> callback,
-        SensorEvent* event);
-    static void handleCyroscopeData(std::shared_ptr<OHOS::NWeb::SensorCallbackImpl> callback,
-        SensorEvent* event);
-    static void handleMagnetometerData(std::shared_ptr<OHOS::NWeb::SensorCallbackImpl> callback,
-        SensorEvent* event);
-    static void handleOrientationData(std::shared_ptr<OHOS::NWeb::SensorCallbackImpl> callback,
-        SensorEvent* event);
-    static void handleRotationVectorData(std::shared_ptr<OHOS::NWeb::SensorCallbackImpl> callback,
-        SensorEvent* event);
-    static void handleGameRotationVectorData(std::shared_ptr<OHOS::NWeb::SensorCallbackImpl> callback,
-        SensorEvent* event);
-
-    SensorUser mSensorUser{};
+    static void OhosSensorCallback(Sensor_Event* event);
+    static std::unordered_map<Sensor_Type, std::shared_ptr<SensorCallbackImpl>> sensorCallbackMap;
 };
 
 }
