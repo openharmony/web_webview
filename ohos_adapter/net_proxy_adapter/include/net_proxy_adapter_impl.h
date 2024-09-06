@@ -17,29 +17,44 @@
 #define NET_PROXY_ADAPTER_IMPL_H
 
 #include <string>
+#include <vector>
 
 #include "net_proxy_adapter.h"
+
+#include <BasicServicesKit/oh_commonevent.h>
+#include <BasicServicesKit/oh_commonevent_support.h>
+#include <BasicServicesKit/oh_commonevent_support.h>
+#include <network/netmanager/net_connection_type.h>
+#include <network/netmanager/net_connection.h>
 
 namespace OHOS::NWeb {
 class NetProxyAdapterImpl final : public NetProxyAdapter {
 public:
     NetProxyAdapterImpl() = default;
-    ~NetProxyAdapterImpl() override = default;
+    ~NetProxyAdapterImpl() override;
 
-    static NetProxyAdapterImpl& GetInstance() {
-        static NetProxyAdapterImpl instance;
-        return instance;
-    }
+    static NetProxyAdapterImpl& GetInstance();
 
-    void RegNetProxyEvent(std::shared_ptr<NetProxyEventCallbackAdapter> eventCallback) override {}
+    void RegNetProxyEvent(std::shared_ptr<NetProxyEventCallbackAdapter> eventCallback) override;
 
-    bool StartListen() override { return false; }
+    bool StartListen() override;
 
-    void StopListen() override {}
+    void StopListen() override;
 
-    void GetProperty(std::string& host, uint16_t& port, std::string& pacUrl, std::string& exclusion) override {}
+    void GetProperty(std::string& host, uint16_t& port, std::string& pacUrl, std::string& exclusion) override;
 
-    void Changed() {}
+    void Changed();
+
+    static void OnReceiveEvent(const CommonEvent_RcvData *data);
+
+    static void AppProxyChange(NetConn_HttpProxy *receiveHttpProxy);
+private:
+    static std::shared_ptr<NetProxyEventCallbackAdapter> cb_;
+    static CommonEvent_SubscribeInfo *commonEventSubscribeInfo_;
+    static CommonEvent_Subscriber *commonEventSubscriber_;
+    bool listen_ = false;
+    uint32_t appProxyCallbackId_ = 0;
+    void StartListenAppProxy();
 };
 
 } // namespace OHOS::NWeb
