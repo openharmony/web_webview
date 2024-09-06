@@ -281,7 +281,6 @@ HiTraceAdapter& OhosAdapterHelperImpl::GetHiTraceAdapterInstance()
 
 NetProxyAdapter& OhosAdapterHelperImpl::GetNetProxyInstance()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
     return NetProxyAdapterImpl::GetInstance();
 }
 
