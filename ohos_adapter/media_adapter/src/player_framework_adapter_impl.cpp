@@ -22,8 +22,9 @@ namespace OHOS::NWeb {
 namespace {
 constexpr int32_t INVALID = -1;
 
-int32_t ConverterState(int32_t ndkState) {
-    switch(ndkState) {
+int32_t ConverterState(int32_t state)
+{
+    switch(state) {
         case AVPlayerState::AV_IDLE:
             return PlayerAdapter::PlayerStates::PLAYER_IDLE;
         case AVPlayerState::AV_INITIALIZED:
@@ -43,8 +44,8 @@ int32_t ConverterState(int32_t ndkState) {
         case AVPlayerState::AV_ERROR:
             return PlayerAdapter::PlayerStates::PLAYER_STATE_ERROR;
         default:
-            WVLOG_E("could not find state = %{public}d", ndkState);
-            return ndkState;
+            WVLOG_E("could not find state = %{public}d", state);
+            return state;
     }
 }
 
@@ -62,16 +63,8 @@ bool IsFatalError(int32_t errorCode)
 {
     switch (errorCode) {
         case OH_AVErrCode::AV_ERR_NO_MEMORY:
-        case OH_AVErrCode::AV_ERR_OPERATE_NOT_PERMIT:
         case OH_AVErrCode::AV_ERR_IO:
-        case OH_AVErrCode::AV_ERR_TIMEOUT:
-        case OH_AVErrCode::AV_ERR_UNKNOWN:
         case OH_AVErrCode::AV_ERR_SERVICE_DIED:
-        case OH_AVErrCode::AV_ERR_EXTEND_START:
-        case OH_AVErrCode::AV_ERR_DRM_BASE:
-        case OH_AVErrCode::AV_ERR_DRM_DECRYPT_FAILED:
-        case OH_AVErrCode::AV_ERR_VIDEO_BASE:
-        case OH_AVErrCode::AV_ERR_VIDEO_UNSUPPORTED_COLOR_SPACE_CONVERSION:
             return true;
         default:
             return false;
@@ -193,7 +186,7 @@ void PlayerErrorCallback(OH_AVPlayer *player, int32_t errorCode, const char *err
     auto errorType = PlayerAdapterErrorType::INVALID_CODE;
     if (IsUnsupportType(errorCode)) {
         errorType = PlayerAdapterErrorType::UNSUPPORT_TYPE;
-    } else if(IsFatalError(errorCode)) {
+    } else if (IsFatalError(errorCode)) {
         errorType = PlayerAdapterErrorType::FATAL_ERROR;
     }
     PlayerCallbackAdapter* callback = (PlayerCallbackAdapter*)(userData);
@@ -250,8 +243,11 @@ int32_t PlayerAdapterImpl::SetVideoSurface(std::shared_ptr<IConsumerSurfaceAdapt
         return -1;
     }
     OH_NativeImage* cImage = std::static_pointer_cast<ConsumerNativeAdapterImpl>(cSurfaceAdapter)->GetConsumerSurface();
+    int32_t ret = OH_ConsumerSurface_SetDefaultUsage(cImage, NATIVEBUFFER_USAGE_CPU_READ);
+    if (ret != 0) {
+        WVLOG_E("OH_ConsumerSurface_SetDefaultUsage failed, ret = %{public}d", ret);
+    }
     OHNativeWindow* nativeWindow = OH_NativeImage_AcquireNativeWindow(cImage);
-    OH_NativeWindow_NativeWindowHandleOpt(nativeWindow, SET_USAGE, NATIVEBUFFER_USAGE_CPU_READ);
     return GetErrorCode(OH_AVPlayer_SetVideoSurface(player_, nativeWindow));
 }
 
