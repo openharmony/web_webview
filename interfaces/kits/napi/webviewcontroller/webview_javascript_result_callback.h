@@ -538,7 +538,7 @@ private:
     std::shared_ptr<NWebValue> GetJavaScriptResultSelfHelper(std::shared_ptr<JavaScriptOb> jsObj,
         const std::string& method, int32_t routingId, napi_handle_scope scope, std::vector<napi_value> argv);
 
-    char* FlowbufStrAtIndex(void* mem, int flowbuf_index, int* arg_index, int* str_len);
+    char* FlowbufStrAtIndex(void* mem, int flowbufIndex, int* argIndex, int* strLen);
 
     std::shared_ptr<NWebValue> GetJavaScriptResultSelfFlowbuf(std::vector<std::shared_ptr<NWebValue>> args,
         const std::string& method, const std::string& objName, int fd, int32_t routingId, int32_t objectId);
