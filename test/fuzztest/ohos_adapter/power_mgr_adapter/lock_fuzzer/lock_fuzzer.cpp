@@ -23,18 +23,18 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool LockFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        uint32_t timeOutMs = static_cast<uint32_t>(size);
-        std::shared_ptr<OHOS::PowerMgr::RunningLock> lock;
-        RunningLockAdapterImpl runningLockAdapter(lock);
-        runningLockAdapter.Lock(timeOutMs);
-        return true;
+bool LockFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    uint32_t timeOutMs = static_cast<uint32_t>(size);
+    std::shared_ptr<OHOS::PowerMgr::RunningLock> lock;
+    RunningLockAdapterImpl runningLockAdapter(lock);
+    runningLockAdapter.Lock(timeOutMs);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

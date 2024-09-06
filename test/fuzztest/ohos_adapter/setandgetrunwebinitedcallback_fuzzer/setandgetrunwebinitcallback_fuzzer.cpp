@@ -13,38 +13,39 @@
  * limitations under the License.
  */
 
-#include "setandgetrunwebinitcallback_fuzzer.h"  
-#include "ohos_init_web_adapter_impl.h"  
+#include "setandgetrunwebinitcallback_fuzzer.h"
 
-using namespace OHOS::NWeb;  
+#include "ohos_init_web_adapter_impl.h"
 
-namespace OHOS::NWeb {  
-    bool SetAndGetCallbackFuzzTest(const uint8_t* data, size_t size)  
-    {  
-        if ((data == nullptr) || (size < sizeof(WebRunInitedCallback*))) {  
-            return false;  
-        }  
+using namespace OHOS::NWeb;
 
-        // Assuming data is a pointer to a valid WebRunInitedCallback if not nullptr  
-        WebRunInitedCallback* callback = reinterpret_cast<WebRunInitedCallback*>(const_cast<uint8_t*>(data));  
+namespace OHOS::NWeb {
+bool SetAndGetCallbackFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size < sizeof(WebRunInitedCallback*))) {
+        return false;
+    }
 
-        // Create instance of OhosInitWebAdapterImpl  
-        std::shared_ptr<OhosInitWebAdapterImpl> webAdapterImpl = std::make_shared<OhosInitWebAdapterImpl>();  
+    // Assuming data is a pointer to a valid WebRunInitedCallback if not nullptr
+    WebRunInitedCallback* callback = reinterpret_cast<WebRunInitedCallback*>(const_cast<uint8_t*>(data));
 
-        // Set and get the callback  
-        webAdapterImpl->SetRunWebInitedCallback(callback);  
-        webAdapterImpl->GetRunWebInitedCallback();  
+    // Create instance of OhosInitWebAdapterImpl
+    std::shared_ptr<OhosInitWebAdapterImpl> webAdapterImpl = std::make_shared<OhosInitWebAdapterImpl>();
 
-        // Optionally if returnedCallback is callable, call its run method.  
+    // Set and get the callback
+    webAdapterImpl->SetRunWebInitedCallback(callback);
+    webAdapterImpl->GetRunWebInitedCallback();
 
-        return true;  
-    }  
-}  
+    // Optionally if returnedCallback is callable, call its run method.
 
-/* Fuzzer entry point */  
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)  
-{  
-    // Run your code on data  
-    OHOS::NWeb::SetAndGetCallbackFuzzTest(data, size);  
-    return 0;  
+    return true;
+}
+} // namespace OHOS::NWeb
+
+/* Fuzzer entry point */
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
+{
+    // Run your code on data
+    OHOS::NWeb::SetAndGetCallbackFuzzTest(data, size);
+    return 0;
 }

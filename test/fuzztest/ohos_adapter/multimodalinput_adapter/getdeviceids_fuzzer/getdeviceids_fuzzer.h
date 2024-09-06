@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "getkeyboardtype_fuzzer"
 #endif /* TEST_FUZZTEST_GETKEYBOARDTYPE_FUZZER_H */
-

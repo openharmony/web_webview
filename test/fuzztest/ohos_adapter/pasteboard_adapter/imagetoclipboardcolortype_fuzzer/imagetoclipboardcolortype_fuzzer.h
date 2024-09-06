@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "imagetoclipboardcolortype_fuzzer"
 #endif /* TEST_FUZZTEST_IMAGETOCLIPBOARDCOLORTYPE_FUZZER_H */
-

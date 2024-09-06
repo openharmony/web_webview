@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "createrunninglock_fuzzer"
 #endif /* TEST_FUZZTEST_CREATE_RUNNIG_LOCK_FUZZER_H */
-

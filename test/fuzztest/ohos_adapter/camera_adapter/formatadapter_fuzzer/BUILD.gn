@@ -1,0 +1,64 @@
+# Copyright (c) 2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#####################hydra-fuzz###################
+import("//base/web/webview/web_aafwk.gni")
+import("//build/config/features.gni")
+import("//build/test.gni")
+
+##############################fuzztest##########################################
+ohos_fuzztest("FormatAdapterFuzzTest") {
+  module_out_path = webview_fuzz_test_path
+  fuzz_config_file = "$webview_path/test/fuzztest/ohos_adapter/camera_adapter/formatadapter_fuzzer"
+  include_dirs = [
+    "$webview_path/ohos_adapter/camera_adapter/include",
+    "$webview_path/ohos_adapter/camera_adapter/src",
+    "$webview_path/test/fuzztest",
+  ]
+  cflags = [
+    "-g",
+    "-O0",
+    "-Wno-unused-variable",
+    "-fno-omit-frame-pointer",
+  ]
+  sources = [ "formatadapter_fuzzer.cpp" ]
+
+  defines = [ "NWEB_CAMERA_ENABLE" ]
+
+  deps = [ "$webview_path/ohos_adapter:nweb_ohos_adapter" ]
+
+  external_deps = [
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "camera_framework:camera_framework",
+    "drivers_interface_camera:metadata",
+    "graphic_2d:librender_service_client",
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "webview:libnweb",
+  ]
+}
+
+###############################################################################
+group("fuzztest") {
+  testonly = true
+  deps = []
+  deps += [
+    # deps file
+    ":FormatAdapterFuzzTest",
+  ]
+}
+###############################################################################

@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "getwebstorage_fuzzer"
 #endif /* TEST_FUZZTEST_GETWEBSTORAGE_FUZZER_H */
-

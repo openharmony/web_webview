@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "requestbuffer_fuzzer"
 #endif /* TEST_FUZZTEST_REQUESTBUFFER_FUZZER_H */
-

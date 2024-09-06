@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "ondeviceremoved_fuzzer"
 #endif /* TEST_FUZZTEST_ONDEVICEREMOVED_FUZZER_H */
-

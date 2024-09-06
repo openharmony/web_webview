@@ -14,27 +14,28 @@
  */
 
 #include "getmimetype_fuzzer.h"
+
 #include "pasteboard_client_adapter_impl.h"
 
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool GetMimeTypeFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        std::string text((const char*) data, size);
-        std::shared_ptr<std::string> plainText = std::make_shared<std::string>(text);
-        std::shared_ptr<std::string> htmlText = std::make_shared<std::string>(text);
-        std::shared_ptr<PasteDataRecordAdapterImpl> dataRecordAdapterImpl =
-        std::make_shared<PasteDataRecordAdapterImpl>(text, htmlText, plainText);
-        dataRecordAdapterImpl->GetMimeType();
-        dataRecordAdapterImpl->GetHtmlText();
-        dataRecordAdapterImpl->GetPlainText();
-        return true;
+bool GetMimeTypeFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    std::string text((const char*)data, size);
+    std::shared_ptr<std::string> plainText = std::make_shared<std::string>(text);
+    std::shared_ptr<std::string> htmlText = std::make_shared<std::string>(text);
+    std::shared_ptr<PasteDataRecordAdapterImpl> dataRecordAdapterImpl =
+        std::make_shared<PasteDataRecordAdapterImpl>(text, htmlText, plainText);
+    dataRecordAdapterImpl->GetMimeType();
+    dataRecordAdapterImpl->GetHtmlText();
+    dataRecordAdapterImpl->GetPlainText();
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

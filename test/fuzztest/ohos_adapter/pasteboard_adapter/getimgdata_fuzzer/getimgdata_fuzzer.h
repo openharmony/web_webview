@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "getimgdata_fuzzer"
 #endif /* TEST_FUZZTEST_GETIMGDATA_FUZZER_H */
-

@@ -20,18 +20,18 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool GetCertMaxSizeFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size <= 0)) {
-            return false;
-        }
-        CertManagerAdapterImpl cerImpl;
-        cerImpl.GetCertMaxSize();
-        cerImpl.GetAppCertMaxSize();
-        cerImpl.GetSytemRootCertData(0, const_cast<uint8_t*>(data));
-        return true;
+bool GetCertMaxSizeFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size <= 0)) {
+        return false;
     }
+    CertManagerAdapterImpl cerImpl;
+    cerImpl.GetCertMaxSize();
+    cerImpl.GetAppCertMaxSize();
+    cerImpl.GetSytemRootCertData(0, const_cast<uint8_t*>(data));
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

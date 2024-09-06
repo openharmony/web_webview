@@ -56,15 +56,15 @@ bool FlushBufferFuzzTest(const uint8_t* data, size_t size)
             return false;
         }
         g_surface = surfaceNode->GetSurface();
-        if (g_surface== nullptr) {
+        if (g_surface == nullptr) {
             return false;
         }
     }
-    std::string result(reinterpret_cast<const char *>(data), size);
+    std::string result(reinterpret_cast<const char*>(data), size);
     surfaceAdapter.FlushBuffer(g_surface, surfaceBuffer, width, height);
     return true;
 }
-}
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

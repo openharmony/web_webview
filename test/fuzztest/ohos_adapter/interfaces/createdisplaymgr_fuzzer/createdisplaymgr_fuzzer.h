@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "createdisplaymgr_fuzzer"
 #endif /* TEST_FUZZTEST_CREATE_DISPLAY_MGR_FUZZER_H */
-

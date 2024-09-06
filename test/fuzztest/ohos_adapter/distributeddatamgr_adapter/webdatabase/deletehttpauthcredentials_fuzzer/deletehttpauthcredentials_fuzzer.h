@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "deletehttpauthcredentials_fuzzer"
 #endif /* TEST_FUZZTEST_DELETE_HTTP_AUTH_CREDENTIALS_FUZZER_H */
-

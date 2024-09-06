@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "createpowerclient_fuzzer"
 #endif /* TEST_FUZZTEST_CREATE_POWER_CLIENT_FUZZER_H */
-

@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "getcookiemanager_fuzzer"
 #endif /* TEST_FUZZTEST_GETCOOKIEMANAGER_FUZZER_H */
-

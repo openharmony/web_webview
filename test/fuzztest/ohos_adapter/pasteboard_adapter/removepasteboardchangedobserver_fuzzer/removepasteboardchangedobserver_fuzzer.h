@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "removepasteboardchangedobserver_fuzzer"
 #endif /* TEST_FUZZTEST_REMOVEPASTEBOARDCHANGEDOBSERVER_FUZZER_H */
-

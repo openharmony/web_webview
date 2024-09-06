@@ -24,16 +24,16 @@ using namespace OHOS::NWeb;
 using namespace OHOS::Rosen;
 
 namespace OHOS {
-    bool UnregisterDisplayFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        DisplayManagerAdapterImpl display;
-        display.UnregisterDisplayListener(0);
-        return true;
+bool UnregisterDisplayFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    DisplayManagerAdapterImpl display;
+    display.UnregisterDisplayListener(0);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
