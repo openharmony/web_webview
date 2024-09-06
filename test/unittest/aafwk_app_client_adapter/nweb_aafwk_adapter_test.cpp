@@ -350,7 +350,7 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_WriteInterfaceToken_011, TestSiz
     MessageParcel data;
     client->WriteInterfaceToken(data);
 }
-
+ 
 /**
  * @tc.name: NWebAafwkAdapter_QueryRenderSurface_012.
  * @tc.desc: test query render surface.
@@ -365,7 +365,7 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_QueryRenderSurface_012, TestSize
     int32_t surface_id = 0;
     client->QueryRenderSurface(surface_id);
 }
-
+ 
 /**
  * @tc.name: NWebAafwkAdapter_ReportThread_013.
  * @tc.desc: test report thread.
@@ -383,7 +383,7 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_ReportThread_013, TestSize.Level
     int32_t role = 0;
     client->ReportThread(status, process_id, thread_id, role);
 }
-
+ 
 /**
  * @tc.name: NWebAafwkAdapter_PassSurface_014.
  * @tc.desc: test pass surface.
@@ -399,7 +399,7 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_PassSurface_014, TestSize.Level1
     int64_t surface_id = 0;
     client->PassSurface(surface, surface_id);
 }
-
+ 
 /**
  * @tc.name: NWebAafwkAdapter_DestroyRenderSurface_015.
  * @tc.desc: test destroy render surface.
@@ -414,7 +414,7 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_DestroyRenderSurface_015, TestSi
     int32_t surface_id = 0;
     client->DestroyRenderSurface(surface_id);
 }
-
+ 
 /**
  * @tc.name: NWebAafwkAdapter_QueryRenderSurface_016.
  * @tc.desc: test query render surface.
@@ -428,7 +428,7 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_QueryRenderSurface_016, TestSize
     int32_t surface_id = 0;
     clientAdapter->QueryRenderSurface(surface_id);
 }
-
+ 
 /**
  * @tc.name: NWebAafwkAdapter_ReportThread_017.
  * @tc.desc: test report thread.
@@ -445,7 +445,7 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_ReportThread_017, TestSize.Level
     ResSchedRoleAdapter role = ResSchedRoleAdapter::USER_INTERACT;
     clientAdapter->ReportThread(status, process_id, thread_id, role);
 }
-
+ 
 /**
  * @tc.name: NWebAafwkAdapter_PassSurface_018.
  * @tc.desc: test pass surface.
@@ -473,7 +473,7 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_DestroyRenderSurface_019, TestSi
     int32_t surface_id = 0;
     clientAdapter->DestroyRenderSurface(surface_id);
 }
-
+ 
 /**
  * @tc.name: NWebAafwkAdapter_browserHost_020.
  * @tc.desc: test browser host.
@@ -493,7 +493,7 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_browserHost_020, TestSize.Level1
     code = 100;
     host->OnRemoteRequest(code, data, reply, option);
 }
-
+ 
 /**
  * @tc.name: NWebAafwkAdapter_browserHost_021.
  * @tc.desc: test browser host.
@@ -509,7 +509,7 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_browserHost_021, TestSize.Level1
     MessageParcel reply;
     host->HandleQueryRenderSurface(data, reply);
 }
-
+ 
 /**
  * @tc.name: NWebAafwkAdapter_browserHost_022.
  * @tc.desc: test browser host.
@@ -525,7 +525,7 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_browserHost_022, TestSize.Level1
     MessageParcel reply;
     host->HandleReportThread(data, reply);
 }
-
+ 
 /**
  * @tc.name: NWebAafwkAdapter_browserHost_023.
  * @tc.desc: test browser host.
@@ -541,7 +541,7 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_browserHost_023, TestSize.Level1
     MessageParcel reply;
     host->HandlePassSurface(data, reply);
 }
-
+ 
 /**
  * @tc.name: NWebAafwkAdapter_browserHost_024.
  * @tc.desc: test browser host.
@@ -557,7 +557,7 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_browserHost_024, TestSize.Level1
     MessageParcel reply;
     host->HandleDestroyRenderSurface(data, reply);
 }
-
+ 
 /**
  * @tc.name: NWebAafwkAdapter_browserHost_025.
  * @tc.desc: test browser host.
@@ -572,7 +572,7 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_browserHost_025, TestSize.Level1
     int32_t surface_id = 0;
     host->QueryRenderSurface(surface_id);
 }
-
+ 
 /**
  * @tc.name: NWebAafwkAdapter_browserHost_026.
  * @tc.desc: test browser host.
@@ -590,7 +590,7 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_browserHost_026, TestSize.Level1
     int32_t role = 0;
     host->ReportThread(status, process_id, thread_id, role);
 }
-
+ 
 /**
  * @tc.name: NWebAafwkAdapter_browserHost_027.
  * @tc.desc: test browser host.
@@ -606,7 +606,7 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_browserHost_027, TestSize.Level1
     int64_t surface_id = 0;
     host->PassSurface(surface, surface_id);
 }
-
+ 
 /**
  * @tc.name: NWebAafwkAdapter_browserHost_028.
  * @tc.desc: test browser host.
