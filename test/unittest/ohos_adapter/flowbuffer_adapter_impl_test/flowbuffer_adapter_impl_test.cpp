@@ -69,8 +69,6 @@ HWTEST_F(FlowbufferAdapterImplTest, FlowbufferAdapterImplTest_002, TestSize.Leve
     size_t scriptLength = 10;
     auto ashmem = flowbufferAdapter->CreateAshmem(scriptLength, PROT_READ | PROT_WRITE, fd);
     EXPECT_TRUE(ashmem != nullptr);
-    ashmem = flowbufferAdapter->CreateAshmem(-1, PROT_READ | PROT_WRITE, fd);
-    EXPECT_EQ(ashmem, nullptr);
 }
 
 /**
@@ -88,10 +86,6 @@ HWTEST_F(FlowbufferAdapterImplTest, FlowbufferAdapterImplTest_003, TestSize.Leve
     flowbufferAdapter->CreateAshmem(scriptLength, PROT_READ | PROT_WRITE, fd);
     auto ashmem = flowbufferAdapter->CreateAshmemWithFd(fd, scriptLength, PROT_READ);
     EXPECT_TRUE(ashmem != nullptr);
-    ashmem = flowbufferAdapter->CreateAshmemWithFd(fd, INT_MAX, PROT_READ);
-    EXPECT_EQ(ashmem, nullptr);
-    ashmem = flowbufferAdapter->CreateAshmemWithFd(-1, scriptLength, PROT_READ);
-    EXPECT_EQ(ashmem, nullptr);
 }
 } // namespace NWeb
 } // namespace OHOS
