@@ -90,7 +90,7 @@ void RenderScheduler::NotifyBrowser(int32_t ipcFd, int32_t sharedFd, int32_t cra
 }
 
 class MockBrowserClient : public BrowserClient {
-    MockBrowserClient(const sptr<IRemoteObject> &impl);
+    explicit MockBrowserClient(const sptr<IRemoteObject> &impl);
 
     sptr<IRemoteObject> QueryRenderSurface(int32_t surface_id);
 
