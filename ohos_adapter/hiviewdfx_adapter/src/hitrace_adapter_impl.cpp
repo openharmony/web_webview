@@ -15,10 +15,9 @@
 
 #include "hitrace_adapter_impl.h"
 
-#include "hitrace_meter.h"
 #include "nweb_log.h"
-#include "parameters.h"
-#include "param/sys_param.h"
+
+#include <hitrace/trace.h>
 
 namespace OHOS::NWeb {
 HiTraceAdapterImpl& HiTraceAdapterImpl::GetInstance()
@@ -34,71 +33,51 @@ int ConvertToInt(const char *originValue, int defaultValue)
 
 void HiTraceAdapterImpl::StartTrace(const std::string& value, float limit)
 {
-    ::StartTrace(HITRACE_TAG_NWEB, value, limit);
+    OH_HiTrace_StartTrace(value.c_str());
 }
 
 void HiTraceAdapterImpl::FinishTrace()
 {
-    ::FinishTrace(HITRACE_TAG_NWEB);
+    OH_HiTrace_FinishTrace();
 }
 
 void HiTraceAdapterImpl::StartAsyncTrace(const std::string& value, int32_t taskId, float limit)
 {
-    ::StartAsyncTrace(HITRACE_TAG_NWEB, value, taskId, limit);
+    OH_HiTrace_StartAsyncTrace(value.c_str(), taskId);
 }
 
 void HiTraceAdapterImpl::FinishAsyncTrace(const std::string& value, int32_t taskId)
 {
-    ::FinishAsyncTrace(HITRACE_TAG_NWEB, value, taskId);
+    OH_HiTrace_FinishAsyncTrace(value.c_str(), taskId);
 }
 
 void HiTraceAdapterImpl::CountTrace(const std::string& name, int64_t count)
 {
-    ::CountTrace(HITRACE_TAG_NWEB, name, count);
+    OH_HiTrace_CountTrace(name.c_str(), count);
 }
 
 bool HiTraceAdapterImpl::IsHiTraceEnable()
 {
-    static CachedHandle g_Handle = CachedParameterCreate("debug.hitrace.tags.enableflags", "0");
-    int changed = 0;
-    const char *enable = CachedParameterGetChanged(g_Handle, &changed);
-    uint64_t tags = static_cast<uint64_t>(ConvertToInt(enable, 0));
-    return (tags & HITRACE_TAG_NWEB);
+    return false;
 }
 
 void HiTraceAdapterImpl::StartOHOSTrace(const std::string& value, float limit)
 {
-    if (IsHiTraceEnable()) {
-        ::StartTrace(HITRACE_TAG_NWEB, value, limit);
-    } else if (IsACETraceEnable()) {
-        ::StartTrace(HITRACE_TAG_ACE, value, limit);
-    }
+    OH_HiTrace_StartTrace(value.c_str());
 }
 
 void HiTraceAdapterImpl::FinishOHOSTrace()
 {
-    if (IsHiTraceEnable()) {
-        ::FinishTrace(HITRACE_TAG_NWEB);
-    } else if (IsACETraceEnable()) {
-        ::FinishTrace(HITRACE_TAG_ACE);
-    }
+    OH_HiTrace_FinishTrace();
 }
 
 void HiTraceAdapterImpl::CountOHOSTrace(const std::string& name, int64_t count)
 {
-    if (IsHiTraceEnable()) {
-        ::CountTrace(HITRACE_TAG_NWEB, name, count);
-    } else if (IsACETraceEnable()) {
-        ::CountTrace(HITRACE_TAG_ACE, name, count);
-    }
+    OH_HiTrace_CountTrace(name.c_str(), count);
 }
 
 bool HiTraceAdapterImpl::IsACETraceEnable()
 {
-    static CachedHandle g_Handle = CachedParameterCreate("debug.hitrace.tags.enableflags", "0");
-    int changed = 0;
-    const char *enable = CachedParameterGetChanged(g_Handle, &changed);
-    uint64_t tags = static_cast<uint64_t>(ConvertToInt(enable, 0));
-    return (tags & HITRACE_TAG_ACE);
+    return false;
 }
 } // namespace OHOS::NWeb
