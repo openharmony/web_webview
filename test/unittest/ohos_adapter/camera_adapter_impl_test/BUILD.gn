@@ -55,10 +55,7 @@ ohos_unittest("camera_adapter_impl_test") {
 
   if (webview_camera_enable) {
     sources += [ "camera_adapter_impl_test.cpp" ]
-    external_deps += [
-      "camera_framework:camera_framework",
-      "window_manager:libwm",
-    ]
+    external_deps += [ "camera_framework:camera_framework" ]
   }
 }
 

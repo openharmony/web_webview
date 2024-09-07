@@ -100,7 +100,6 @@ ohos_shared_library("webview_napi") {
     "napi:ace_napi",
     "protobuf:protobuf_lite",
     "samgr:samgr_proxy",
-    "window_manager:libwm",
   ]
 
   deps = [
