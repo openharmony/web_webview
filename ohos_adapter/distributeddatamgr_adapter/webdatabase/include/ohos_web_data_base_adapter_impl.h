@@ -20,34 +20,42 @@
 
 #include <string>
 
+#include <database/rdb/relational_store.h>
+#include <database/rdb/relational_store_error_code.h>
+#include <AbilityKit/ability_runtime/context_constant.h>
+#include <AbilityKit/ability_runtime/ability_runtime_common.h>
+
 namespace OHOS::NWeb {
 
 class OhosWebDataBaseAdapterImpl : public OhosWebDataBaseAdapter {
 public:
-    static OhosWebDataBaseAdapterImpl& GetInstance() {
-        static OhosWebDataBaseAdapterImpl instance;
-        return instance;
-    }
+    static OhosWebDataBaseAdapterImpl& GetInstance();
 
-    ~OhosWebDataBaseAdapterImpl() override = default;
+    ~OhosWebDataBaseAdapterImpl() override;
 
-    bool ExistHttpAuthCredentials() override { return false; }
+    bool ExistHttpAuthCredentials() override;
 
-    void DeleteHttpAuthCredentials() override {}
+    void DeleteHttpAuthCredentials() override;
 
     void SaveHttpAuthCredentials(const std::string& host, const std::string& realm,
-        const std::string& username, const char* password) override {}
+        const std::string& username, const char* password) override;
 
     void GetHttpAuthCredentials(const std::string& host, const std::string& realm,
-        std::string& username, char* password, uint32_t passwordSize) override {}
+        std::string& username, char* password, uint32_t passwordSize) override;
+
 
 private:
-    OhosWebDataBaseAdapterImpl() {}
+    OhosWebDataBaseAdapterImpl();
 
     OhosWebDataBaseAdapterImpl(const OhosWebDataBaseAdapterImpl& other) = delete;
 
     OhosWebDataBaseAdapterImpl& operator=(const OhosWebDataBaseAdapterImpl&) = delete;
 
+    Rdb_SecurityArea GetAreaMode(AbilityRuntime_AreaMode areaMode);
+
+    void GetOrOpen(const OH_Rdb_Config *config, int *errCode);
+
+    OH_Rdb_Store *rdbStore_;
 };
 } // namespace
 #endif // OHOS_WEB_DATA_BASE_ADAPTER_IMPL_H

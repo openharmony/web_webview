@@ -16,14 +16,11 @@
 #include "ohos_web_data_base_adapter_impl.h"
 
 #include <cinttypes>
-#include <securec.h>
 #include <unistd.h>
 
-#include "application_context.h"
 #include "nweb_log.h"
-#include "rdb_sql_utils.h"
+#include <AbilityKit/ability_runtime/application_context.h>
 
-using namespace OHOS::NativeRdb;
 using namespace OHOS::NWeb;
 
 namespace {
@@ -46,19 +43,14 @@ static const std::string CREATE_TABLE = "CREATE TABLE " + HTTPAUTH_TABLE_NAME
     + ") ON CONFLICT REPLACE);";
 
 const std::string WEB_PATH = "/web";
-}
 
-int32_t DataBaseRdbOpenCallBack::OnCreate(OHOS::NativeRdb::RdbStore& store)
-{
-    WVLOG_I("webdatabase rdb opened, create table: %{public}s", CREATE_TABLE.c_str());
-    return store.ExecuteSql(CREATE_TABLE);
-}
-
-int32_t DataBaseRdbOpenCallBack::OnUpgrade(OHOS::NativeRdb::RdbStore& rdbStore,
-    int32_t currentVersion, int32_t targetVersion)
-{
-    WVLOG_I("webdatabase rdb upgrade");
-    return OHOS::NativeRdb::E_OK;
+const std::unordered_map<AbilityRuntime_AreaMode, Rdb_SecurityArea> AREA_MODE_MAP = {
+    { AbilityRuntime_AreaMode::ABILITY_RUNTIME_AREA_MODE_EL1, Rdb_SecurityArea::RDB_SECURITY_AREA_EL1 },
+    { AbilityRuntime_AreaMode::ABILITY_RUNTIME_AREA_MODE_EL2, Rdb_SecurityArea::RDB_SECURITY_AREA_EL2 },
+    { AbilityRuntime_AreaMode::ABILITY_RUNTIME_AREA_MODE_EL3, Rdb_SecurityArea::RDB_SECURITY_AREA_EL3 },
+    { AbilityRuntime_AreaMode::ABILITY_RUNTIME_AREA_MODE_EL4, Rdb_SecurityArea::RDB_SECURITY_AREA_EL4 },
+    { AbilityRuntime_AreaMode::ABILITY_RUNTIME_AREA_MODE_EL5, Rdb_SecurityArea::RDB_SECURITY_AREA_EL5 }
+};
 }
 
 OhosWebDataBaseAdapterImpl& OhosWebDataBaseAdapterImpl::GetInstance()
@@ -68,42 +60,100 @@ OhosWebDataBaseAdapterImpl& OhosWebDataBaseAdapterImpl::GetInstance()
     return instance;
 }
 
+Rdb_SecurityArea OhosWebDataBaseAdapterImpl::GetAreaMode(AbilityRuntime_AreaMode areaMode)
+{
+    auto mode = AREA_MODE_MAP.find(areaMode);
+    return mode->second;
+}
+
+void OhosWebDataBaseAdapterImpl::GetOrOpen(const OH_Rdb_Config *config, int *errCode)
+{
+    rdbStore_ = OH_Rdb_GetOrOpen(config, errCode);
+    if (rdbStore_ == nullptr) {
+        WVLOG_E("webdatabase get rdb store failed, errCode=%{public}d", *errCode);
+        return;
+    }
+
+    int version = RDB_VERSION;
+    if (OH_Rdb_GetVersion(rdbStore_, &version) != RDB_OK) {
+        WVLOG_E("webdatabase get rdb version failed");
+        return;
+    }
+
+    if (version == 0) {
+        if (OH_Rdb_Execute(rdbStore_, CREATE_TABLE.c_str()) != RDB_OK) {
+            WVLOG_E("webdatabase create table failed");
+            return;
+        }
+        if (OH_Rdb_SetVersion(rdbStore_, RDB_VERSION) != RDB_OK) {
+            WVLOG_E("webdatabase set version failed");
+            return;
+        }
+        WVLOG_I("webdatabase create rdb succeed");
+    } else {
+        WVLOG_I("webdatabase already exists");
+    }
+}
+
 OhosWebDataBaseAdapterImpl::OhosWebDataBaseAdapterImpl()
 {
     WVLOG_I("webdatabase create rdb store");
-    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
-        OHOS::AbilityRuntime::ApplicationContext::GetApplicationContext();
-    if (context == nullptr) {
-        WVLOG_E("webdatabase get context failed");
+
+    AbilityRuntime_ErrorCode code = ABILITY_RUNTIME_ERROR_CODE_PARAM_INVALID;
+    constexpr int32_t NATIVE_BUFFER_SIZE = 1024;
+    char cacheDir[NATIVE_BUFFER_SIZE];
+    int32_t cacheDirLength = 0;
+    code = OH_AbilityRuntime_ApplicationContextGetCacheDir(cacheDir, NATIVE_BUFFER_SIZE, &cacheDirLength);
+    if (code != ABILITY_RUNTIME_ERROR_CODE_NO_ERROR) {
+        WVLOG_E("OH_AbilityRuntime_ApplicationContextGetCacheDir failed:err=%{public}d", code);
         return;
     }
+    std::string stringDir(cacheDir);
+    std::string databaseDir = stringDir + WEB_PATH;
 
-    std::string databaseDir = context->GetCacheDir() + WEB_PATH;
     if (access(databaseDir.c_str(), F_OK) != 0) {
-        WVLOG_I("webdatabase fail to access cache web dir:%{public}s", databaseDir.c_str());
+        WVLOG_E("webdatabase fail to access cache web dir:%{public}s", databaseDir.c_str());
         return;
     }
 
-    std::string bundleName = context->GetBundleName();
-    std::string name = HTTP_AUTH_DATABASE_FILE;
-    int32_t errorCode = E_OK;
-    std::string realPath = RdbSqlUtils::GetDefaultDatabasePath(databaseDir, name, errorCode);
-    RdbStoreConfig config("");
-    config.SetPath(std::move(realPath));
-    config.SetBundleName(bundleName);
-    config.SetName(std::move(name));
-    config.SetArea(context->GetArea());
-    config.SetEncryptStatus(true);
-    WVLOG_I("webdatabase databaseDir=%{public}s", databaseDir.c_str());
-    WVLOG_I("webdatabase bundleName=%{public}s", bundleName.c_str());
-
-    int32_t errCode = NativeRdb::E_OK;
-    DataBaseRdbOpenCallBack callBack;
-    rdbStore_ = RdbHelper::GetRdbStore(config, RDB_VERSION, callBack, errCode);
-    if (rdbStore_ == nullptr) {
-        WVLOG_I("webdatabase get rdb store failed, errCode=%{public}d", errCode);
+    char bundleName[NATIVE_BUFFER_SIZE];
+    int32_t bundleNameLength = 0;
+    code = OH_AbilityRuntime_ApplicationContextGetBundleName(bundleName, NATIVE_BUFFER_SIZE, &bundleNameLength);
+    if (code != ABILITY_RUNTIME_ERROR_CODE_NO_ERROR) {
+        WVLOG_E("OH_AbilityRuntime_ApplicationContextGetBundleName failed:err=%{public}d", code);
+        return;
     }
-    WVLOG_I("webdatabase create rdb store end");
+
+    AbilityRuntime_AreaMode areaMode = ABILITY_RUNTIME_AREA_MODE_EL2;
+    code = OH_AbilityRuntime_ApplicationContextGetAreaMode(&areaMode);
+    if (code != ABILITY_RUNTIME_ERROR_CODE_NO_ERROR) {
+        WVLOG_E("OH_AbilityRuntime_ApplicationContextGetAreaMode failed:err=%{public}d", code);
+        return;
+    }
+
+    std::string name = HTTP_AUTH_DATABASE_FILE;
+    OH_Rdb_Config config = {0};
+    config.selfSize = sizeof(OH_Rdb_Config);
+    config.dataBaseDir = databaseDir.c_str();
+    config.bundleName = bundleName;
+    config.storeName = name.c_str();
+    config.area = GetAreaMode(areaMode);
+    config.isEncrypt = true;
+    WVLOG_I("webdatabase databaseDir=%{public}s", databaseDir.c_str());
+    WVLOG_I("webdatabase bundleName=%{public}s", bundleName);
+
+    int errCode = static_cast<int>(RDB_OK);
+    GetOrOpen(&config, &errCode);
+}
+
+OhosWebDataBaseAdapterImpl::~OhosWebDataBaseAdapterImpl()
+{
+    int errCode = OH_Rdb_CloseStore(rdbStore_);
+    if (errCode == RDB_OK) {
+        WVLOG_I("webdatabase delete rdb succeed");
+    } else {
+        WVLOG_E("webdatabase delete rdb failed");
+    }
 }
 
 void OhosWebDataBaseAdapterImpl::SaveHttpAuthCredentials(const std::string& host, const std::string& realm,
@@ -117,18 +167,19 @@ void OhosWebDataBaseAdapterImpl::SaveHttpAuthCredentials(const std::string& host
         return;
     }
 
-    int32_t errCode;
-    int64_t outRowId;
+    int errCode;
     std::vector<uint8_t> passwordVector(password, password + strlen(password));
-    NativeRdb::ValuesBucket valuesBucket;
-    valuesBucket.Clear();
-    valuesBucket.PutString(HTTPAUTH_HOST_COL, host);
-    valuesBucket.PutString(HTTPAUTH_REALM_COL, realm);
-    valuesBucket.PutString(HTTPAUTH_USERNAME_COL, username);
-    valuesBucket.PutBlob(HTTPAUTH_PASSWORD_COL, passwordVector);
-    (void)memset_s(&passwordVector[0], passwordVector.size(), 0, passwordVector.size());
-    errCode = rdbStore_->Insert(outRowId, HTTPAUTH_TABLE_NAME, valuesBucket);
-    if (errCode != NativeRdb::E_OK) {
+    OH_VBucket *valueBucket = OH_Rdb_CreateValuesBucket();
+    valueBucket->clear(valueBucket);
+    valueBucket->putText(valueBucket, HTTPAUTH_HOST_COL.c_str(), host.c_str());
+    valueBucket->putText(valueBucket, HTTPAUTH_REALM_COL.c_str(), realm.c_str());
+    valueBucket->putText(valueBucket, HTTPAUTH_USERNAME_COL.c_str(), username.c_str());
+    valueBucket->putBlob(valueBucket, HTTPAUTH_PASSWORD_COL.c_str(), passwordVector.data(),
+        static_cast<uint32_t>(passwordVector.size()));
+    (void)memset(&passwordVector[0], 0, passwordVector.size());
+    errCode = OH_Rdb_Insert(rdbStore_, HTTPAUTH_TABLE_NAME.c_str(), valueBucket);
+    valueBucket->destroy(valueBucket);
+    if (errCode == RDB_ERR || errCode == RDB_E_INVALID_ARGS) {
         WVLOG_E("webdatabase rdb store insert failed, errCode=%{public}d", errCode);
         return;
     }
@@ -147,32 +198,46 @@ void OhosWebDataBaseAdapterImpl::GetHttpAuthCredentials(const std::string& host,
     }
 
     std::vector<std::string> columns;
-    NativeRdb::AbsRdbPredicates dirAbsPred(HTTPAUTH_TABLE_NAME);
-    dirAbsPred.EqualTo(HTTPAUTH_HOST_COL, host);
-    dirAbsPred.EqualTo(HTTPAUTH_REALM_COL, realm);
-    auto resultSet = rdbStore_->Query(dirAbsPred, columns);
-    if ((resultSet == nullptr) || (resultSet->GoToFirstRow() != NativeRdb::E_OK)) {
+    OH_Predicates *dirAbsPred = OH_Rdb_CreatePredicates(HTTPAUTH_TABLE_NAME.c_str());
+    OH_VObject *valueObject = OH_Rdb_CreateValueObject();
+    valueObject->putText(valueObject, host.c_str());
+    dirAbsPred->equalTo(dirAbsPred, HTTPAUTH_HOST_COL.c_str(), valueObject);
+    valueObject->putText(valueObject, realm.c_str());
+    dirAbsPred->equalTo(dirAbsPred, HTTPAUTH_REALM_COL.c_str(), valueObject);
+    valueObject->destroy(valueObject);
+    OH_Cursor *cursor = OH_Rdb_Query(rdbStore_, dirAbsPred, NULL, 0);
+    dirAbsPred->destroy(dirAbsPred);
+
+    if ((cursor == nullptr) || (cursor->goToNextRow(cursor) != RDB_OK)) {
         WVLOG_E("webdatabase rdb store query failed");
+        if (cursor != nullptr) {
+            cursor->destroy(cursor);
+        }
         return;
     }
 
-    int32_t columnIndex;
-    std::vector<uint8_t> passwordVector;
-    resultSet->GetColumnIndex(HTTPAUTH_USERNAME_COL, columnIndex);
-    resultSet->GetString(columnIndex, username);
-    resultSet->GetColumnIndex(HTTPAUTH_PASSWORD_COL, columnIndex);
-    resultSet->GetBlob(columnIndex, passwordVector);
+    int columnIndex;
+    cursor->getColumnIndex(cursor, HTTPAUTH_USERNAME_COL.c_str(), &columnIndex);
+    size_t size = 0;
+    cursor->getSize(cursor, columnIndex, &size);
+    char *name = new char[size + 1]();
+    cursor->getText(cursor, columnIndex, name, size + 1);
+    username = name;
+    delete[] name;
 
-    if (passwordVector.size() > passwordSize - 1) {
+    cursor->getColumnIndex(cursor, HTTPAUTH_PASSWORD_COL.c_str(), &columnIndex);
+    cursor->getSize(cursor, columnIndex, &size);
+    if (size > passwordSize - 1) {
         WVLOG_E("webdatabase get credential fail: pwd too long");
+        cursor->destroy(cursor);
         return;
     }
-    if (memcpy_s(password, passwordSize - 1, &passwordVector[0], passwordVector.size()) != EOK) {
-        WVLOG_E("webdatabase get credential fail: memcpy fail");
-        return;
-    }
-    password[passwordVector.size()] = 0;
-    (void)memset_s(&passwordVector[0], passwordVector.size(), 0, passwordVector.size());
+    unsigned char *passwd = new unsigned char[size + 1]();
+    cursor->getBlob(cursor, columnIndex, passwd, size);
+    cursor->destroy(cursor);
+    (void)memcpy(password, passwd, size + 1);
+    (void)memset(passwd, 0, size + 1);
+    delete[] passwd;
 }
 
 bool OhosWebDataBaseAdapterImpl::ExistHttpAuthCredentials()
@@ -183,11 +248,20 @@ bool OhosWebDataBaseAdapterImpl::ExistHttpAuthCredentials()
     }
 
     int64_t outValue = 0;
-    NativeRdb::AbsRdbPredicates dirAbsPred(HTTPAUTH_TABLE_NAME);
-    if (rdbStore_->Count(outValue, dirAbsPred) != NativeRdb::E_OK) {
+    OH_Predicates *dirAbsPred = OH_Rdb_CreatePredicates(HTTPAUTH_TABLE_NAME.c_str());
+    static const std::string SELECT_COUNT = "select count(1) from " + HTTPAUTH_TABLE_NAME;
+    OH_Cursor *cursor = OH_Rdb_ExecuteQuery(rdbStore_, SELECT_COUNT.c_str());
+    if (cursor == nullptr || cursor->goToNextRow(cursor) != RDB_OK ||
+        cursor->getInt64(cursor, 0, &outValue) != RDB_OK) {
+        dirAbsPred->destroy(dirAbsPred);
+        if (cursor != nullptr) {
+            cursor->destroy(cursor);
+        }
         return false;
     }
     WVLOG_I("webdatabase exist http auth info num = %{public}" PRId64, outValue);
+    dirAbsPred->destroy(dirAbsPred);
+    cursor->destroy(cursor);
     if (outValue <= 0) {
         return false;
     }
@@ -200,9 +274,13 @@ void OhosWebDataBaseAdapterImpl::DeleteHttpAuthCredentials()
     if (rdbStore_ == nullptr) {
         return;
     }
-    int32_t deletedRows = 0;
-    NativeRdb::AbsRdbPredicates dirAbsPred(HTTPAUTH_TABLE_NAME);
-    int32_t ret = rdbStore_->Delete(deletedRows, dirAbsPred);
-    WVLOG_I("webdatabase clear all http auth info: ret=%{public}d, deletedRows=%{public}d", ret, deletedRows);
+    OH_Predicates *dirAbsPred = OH_Rdb_CreatePredicates(HTTPAUTH_TABLE_NAME.c_str());
+    int ret = OH_Rdb_Delete(rdbStore_, dirAbsPred);
+    if (ret != RDB_ERR && ret != RDB_E_INVALID_ARGS) {
+        WVLOG_I("webdatabase clear all http auth info succ: deleted rows=%{public}d", ret);
+    } else {
+        WVLOG_E("webdatabase clear all http auth info fail: ret=%{public}d", ret);
+    }
+    dirAbsPred->destroy(dirAbsPred);
     return;
 }
