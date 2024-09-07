@@ -33,19 +33,12 @@
 #include "hitrace_adapter_impl.h"
 #include "imf_adapter_impl.h"
 #include "keystore_adapter_impl.h"
-// #if defined(NWEB_MEDIA_AVSESSION_ENABLE)
 // #include "media_avsession_adapter_impl.h"
-// #endif
 #include "media_codec_list_adapter_impl.h"
-#if defined(NWEB_MEDIA_AVCODEC_ENABLE)
 #include "media_codec_decoder_adapter_impl.h"
 #include "media_codec_encoder_adapter_impl.h"
-#endif
 #include "mmi_adapter_impl.h"
 #include "native_image_adapter_impl.h"
-#if defined(NWEB_TEL_ENABLE)
-#include "net_connect_adapter_impl.h"
-#endif
 #include "net_proxy_adapter_impl.h"
 #include "ohos_image_decoder_adapter_impl.h"
 #include "ohos_init_web_adapter_impl.h"
@@ -53,24 +46,16 @@
 #include "ohos_web_data_base_adapter_impl.h"
 #include "ohos_web_permission_data_base_adapter_impl.h"
 #include "pasteboard_client_adapter_impl.h"
-// #if defined(NWEB_MEDIA_PLAYER_ENABLE)
 #include "player_framework_adapter_impl.h"
-// #endif
-#if defined(NWEB_POWER_MANAGER_ENABLE)
 #include "power_mgr_client_adapter_impl.h"
-#endif
 #include "print_manager_adapter_impl.h"
-// #if defined(NWEB_CAMERA_ENABLE)
 // #include "screen_capture_adapter_impl.h"
-// #endif
 #include "soc_perf_client_adapter_impl.h"
 #include "native_window_adapter_impl.h"
 #include "system_properties_adapter_impl.h"
 #include "vsync_adapter_impl.h"
 #include "window_adapter_impl.h"
-// #if defined(NWEB_SENSORS_SENSOR_ENABLE)
 // #include "sensor_adapter_impl.h"
-// #endif
 
 namespace OHOS::NWeb {
 // static
@@ -87,11 +72,7 @@ std::unique_ptr<AafwkAppMgrClientAdapter> OhosAdapterHelperImpl::CreateAafwkAdap
 
 std::unique_ptr<PowerMgrClientAdapter> OhosAdapterHelperImpl::CreatePowerMgrClientAdapter()
 {
-#if defined(NWEB_POWER_MANAGER_ENABLE)
     return std::make_unique<PowerMgrClientAdapterImpl>();
-#else
-    return nullptr;
-#endif
 }
 
 std::unique_ptr<DisplayManagerAdapter> OhosAdapterHelperImpl::CreateDisplayMgrAdapter()
@@ -113,11 +94,7 @@ OhosWebDataBaseAdapter& OhosAdapterHelperImpl::GetOhosWebDataBaseAdapterInstance
 std::unique_ptr<NetConnectAdapter> OhosAdapterHelperImpl::CreateNetConnectAdapter()
 {
     PRINT_NOT_IMPL_FUNC_LOG();
-#if defined(NWEB_TEL_ENABLE)
-    return std::make_unique<NetConnectAdapterImpl>();
-#else
     return nullptr;
-#endif
 }
 
 PasteBoardClientAdapter& OhosAdapterHelperImpl::GetPasteBoard()
@@ -128,27 +105,16 @@ PasteBoardClientAdapter& OhosAdapterHelperImpl::GetPasteBoard()
 
 std::unique_ptr<AudioRendererAdapter> OhosAdapterHelperImpl::CreateAudioRendererAdapter()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
-#if defined(NWEB_AUDIO_ENABLE)
     return std::make_unique<AudioRendererAdapterImpl>();
-#else
-    return nullptr;
-#endif
 }
 
 std::unique_ptr<AudioCapturerAdapter> OhosAdapterHelperImpl::CreateAudioCapturerAdapter()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
-#if defined(NWEB_AUDIO_ENABLE)
     return std::make_unique<AudioCapturerAdapterImpl>();
-#else
-    return nullptr;
-#endif
 }
 
 AudioSystemManagerAdapter& OhosAdapterHelperImpl::GetAudioSystemManager()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
     return AudioSystemManagerAdapterImpl::GetInstance();
 }
 
@@ -172,19 +138,16 @@ std::unique_ptr<SocPerfClientAdapter> OhosAdapterHelperImpl::CreateSocPerfClient
 
 std::unique_ptr<OhosResourceAdapter> OhosAdapterHelperImpl::GetResourceAdapter(const std::string& hapPath)
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
     return std::make_unique<OhosResourceAdapterImpl>(hapPath);
 }
 
 SystemPropertiesAdapter& OhosAdapterHelperImpl::GetSystemPropertiesInstance()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
     return SystemPropertiesAdapterImpl::GetInstance();
 }
 
 VSyncAdapter& OhosAdapterHelperImpl::GetVSyncAdapter()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
     return VSyncAdapterImpl::GetInstance();
 }
 
@@ -211,7 +174,6 @@ DatashareAdapter& OhosAdapterHelperImpl::GetDatashareInstance()
 
 std::unique_ptr<IMFAdapter> OhosAdapterHelperImpl::CreateIMFAdapter()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
     return std::make_unique<IMFAdapterImpl>();
 }
 
@@ -229,7 +191,6 @@ AccessTokenAdapter& OhosAdapterHelperImpl::GetAccessTokenAdapterInstance()
 
 std::unique_ptr<EventHandlerAdapter> OhosAdapterHelperImpl::GetEventHandlerAdapter()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
     return std::make_unique<EventHandlerAdapterImpl>();
 }
 
@@ -246,23 +207,16 @@ std::unique_ptr<IConsumerSurfaceAdapter> OhosAdapterHelperImpl::CreateConsumerSu
 
 std::unique_ptr<PlayerAdapter> OhosAdapterHelperImpl::CreatePlayerAdapter()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
-#if defined(NWEB_MEDIA_PLAYER_ENABLE)
     return std::make_unique<PlayerAdapterImpl>();
-#else
-    return nullptr;
-#endif
 }
 
 WindowAdapter& OhosAdapterHelperImpl::GetWindowAdapterInstance()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
     return WindowAdapterImpl::GetInstance();
 }
 
 HiSysEventAdapter& OhosAdapterHelperImpl::GetHiSysEventAdapterInstance()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
     return HiSysEventAdapterImpl::GetInstance();
 }
 
@@ -278,7 +232,6 @@ NetProxyAdapter& OhosAdapterHelperImpl::GetNetProxyInstance()
 
 CameraManagerAdapter& OhosAdapterHelperImpl::GetCameraManagerAdapter()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
     return CameraManagerAdapterImpl::GetInstance();
 }
 
@@ -286,11 +239,6 @@ std::unique_ptr<ScreenCaptureAdapter> OhosAdapterHelperImpl::CreateScreenCapture
 {
     PRINT_NOT_IMPL_FUNC_LOG();
     return nullptr;
-// #if defined(NWEB_CAMERA_ENABLE)
-//     return std::make_unique<ScreenCaptureAdapterImpl>();
-// #else
-//     return nullptr;
-// #endif
 }
 
 std::unique_ptr<DateTimeFormatAdapter> OhosAdapterHelperImpl::CreateDateTimeFormatAdapter()
@@ -300,11 +248,7 @@ std::unique_ptr<DateTimeFormatAdapter> OhosAdapterHelperImpl::CreateDateTimeForm
 
 std::unique_ptr<MediaCodecDecoderAdapter> OhosAdapterHelperImpl::CreateMediaCodecDecoderAdapter()
 {
-#if defined(NWEB_MEDIA_AVCODEC_ENABLE)
     return std::make_unique<MediaCodecDecoderAdapterImpl>();
-#else
-    return nullptr;
-#endif
 }
 
 std::unique_ptr<NativeImageAdapter> OhosAdapterHelperImpl::CreateNativeImageAdapter()
@@ -314,11 +258,7 @@ std::unique_ptr<NativeImageAdapter> OhosAdapterHelperImpl::CreateNativeImageAdap
 
 std::unique_ptr<MediaCodecAdapter> OhosAdapterHelperImpl::CreateMediaCodecEncoderAdapter()
 {
-#if defined(NWEB_MEDIA_AVCODEC_ENABLE)
     return std::make_unique<MediaCodecEncoderAdapterImpl>();
-#else
-    return nullptr;
-#endif
 }
 
 MediaCodecListAdapter& OhosAdapterHelperImpl::GetMediaCodecListAdapter()
@@ -335,11 +275,6 @@ std::unique_ptr<MediaAVSessionAdapter> OhosAdapterHelperImpl::CreateMediaAVSessi
 {
     PRINT_NOT_IMPL_FUNC_LOG();
     return nullptr;
-// #if defined(NWEB_MEDIA_AVSESSION_ENABLE)
-//     return std::make_unique<MediaAVSessionAdapterImpl>();
-// #else
-//     return nullptr;
-// #endif
 }
 
 std::unique_ptr<OhosImageDecoderAdapter> OhosAdapterHelperImpl::CreateOhosImageDecoderAdapter()
@@ -351,10 +286,5 @@ std::unique_ptr<SensorAdapter> OhosAdapterHelperImpl::CreateSensorAdapter()
 {
     PRINT_NOT_IMPL_FUNC_LOG();
     return nullptr;
-// #if defined(NWEB_SENSORS_SENSOR_ENABLE)
-//     return std::make_unique<SensorAdapterImpl>();
-// #else
-//     return nullptr;
-// #endif
 }
 } // namespace OHOS::NWeb

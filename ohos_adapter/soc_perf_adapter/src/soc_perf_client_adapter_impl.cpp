@@ -16,7 +16,7 @@
 #include "soc_perf_client_adapter_impl.h"
 
 #include "nweb_log.h"
-#if defined(WEBVIWE_ONLY) && defined(NWEB_SOC_PERF)
+#if defined(WEBVIWE_ONLY)
 #include "res_sched_client.h"
 #include "res_type.h"
 #include "socperf_client.h"
@@ -24,7 +24,7 @@
 
 namespace OHOS::NWeb {
 namespace {
-#if defined(WEBVIWE_ONLY) && defined(NWEB_SOC_PERF)
+#if defined(WEBVIWE_ONLY)
     const int32_t SOC_PERF_WEB_DRAG_RESIZE_ID = 10073;
     const uint32_t SOC_PERF_INVALID = UINT32_MAX;
 #endif
@@ -32,7 +32,7 @@ namespace {
 
 SocPerfClientAdapterImpl::SocPerfClientAdapterImpl()
 {
-#if defined(WEBVIWE_ONLY) && defined(NWEB_SOC_PERF)
+#if defined(WEBVIWE_ONLY)
     convertMap_ = {
         { SOC_PERF_WEB_GESTURE_ID, ResourceSchedule::ResType::RES_TYPE_WEB_GESTURE },
         { SOC_PERF_WEB_GESTURE_MOVE_ID, ResourceSchedule::ResType::RES_TYPE_WEB_GESTURE_MOVE },
@@ -57,7 +57,7 @@ SocPerfClientAdapterImpl::~SocPerfClientAdapterImpl()
 
 void SocPerfClientAdapterImpl::ApplySocPerfConfigById(int32_t id)
 {
-#if defined(WEBVIWE_ONLY) && defined(NWEB_SOC_PERF)
+#if defined(WEBVIWE_ONLY)
     uint32_t resType = ConvertId(id);
     if (resType == SOC_PERF_INVALID) {
         return;
@@ -72,7 +72,7 @@ void SocPerfClientAdapterImpl::ApplySocPerfConfigById(int32_t id)
 
 void SocPerfClientAdapterImpl::ApplySocPerfConfigByIdEx(int32_t id, bool onOffTag)
 {
-#if defined(WEBVIWE_ONLY) && defined(NWEB_SOC_PERF)
+#if defined(WEBVIWE_ONLY)
     uint32_t resType = ConvertId(id);
     if (resType == SOC_PERF_INVALID) {
         return;
@@ -88,7 +88,7 @@ void SocPerfClientAdapterImpl::ApplySocPerfConfigByIdEx(int32_t id, bool onOffTa
 
 uint32_t SocPerfClientAdapterImpl::ConvertId(int32_t id)
 {
-#if defined(WEBVIWE_ONLY) && defined(NWEB_SOC_PERF)
+#if defined(WEBVIWE_ONLY)
     auto mit = convertMap_.find(id);
     if (mit == convertMap_.end()) {
         WVLOG_E("invalid id: %{public}d", id);
