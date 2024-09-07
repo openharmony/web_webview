@@ -19,8 +19,10 @@ config("ohos_adapter_public_interface") {
 }
 
 ohos_shared_library("nweb_ohos_adapter") {
-  branch_protector_ret = "pac_ret"
-  branch_protector_frt = "bti"
+  if (target_cpu == "arm64") {
+    branch_protector_ret = "pac_ret"
+    branch_protector_frt = "bti"
+  }
 
   defines = [ "HILOG_TAG=\"webadapter\"" ]
   sources = [
