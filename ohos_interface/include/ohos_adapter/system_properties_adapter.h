@@ -30,7 +30,7 @@ enum class ProductDeviceType : int32_t {
     DEVICE_TYPE_UNKNOWN
 };
 
-enum class PropertiesKey : int32_t { PROP_RENDER_DUMP, PROP_DEBUG_TRACE };
+enum class PropertiesKey : int32_t { PROP_RENDER_DUMP, PROP_DEBUG_TRACE, PROP_HITRACE_ENABLEFLAGS};
 
 class SystemPropertiesObserver {
 public:
