@@ -16,25 +16,45 @@
 #ifndef SCREEN_CAPTURE_ADAPTER_IMPL_H
 #define SCREEN_CAPTURE_ADAPTER_IMPL_H
 
-#include "screen_capture.h"
-#include "screen_capture_adapter.h"
+#include <graphic_adapter.h>
+#include <screen_capture_adapter.h>
+#include <multimedia/player_framework/native_avscreen_capture.h>
+#include <native_buffer/native_buffer.h>
+#include <queue>
 
 namespace OHOS::NWeb {
-class OHScreenCaptureCallback : public OHOS::Media::ScreenCaptureCallBack {
-public:
-    OHScreenCaptureCallback(const std::shared_ptr<ScreenCaptureCallbackAdapter>& callback) : callback_(callback) {}
-    virtual ~OHScreenCaptureCallback() = default;
+std::queue<OH_AVBuffer*> bufferAvailableQueue_;
 
-    void OnError(OHOS::Media::ScreenCaptureErrorType errorType, int32_t errorCode) override;
+void ScreenCaptureCallbackOnError(OH_AVScreenCapture *capture, int32_t errorCode, void* userData);
 
-    void OnAudioBufferAvailable(bool isReady, OHOS::Media::AudioCaptureSourceType type) override;
+void ScreenCaptureCallbackOnBufferAvailable(OH_AVScreenCapture *capture, OH_AVBuffer *buffer,
+    OH_AVScreenCaptureBufferType bufferType, int64_t timestamp, void* userData);
 
-    void OnVideoBufferAvailable(bool isReady) override;
+void ScreenCaptureCallbackOnStateChange(struct OH_AVScreenCapture *capture,
+    OH_AVScreenCaptureStateCode stateCode, void* userData);
 
-    void OnStateChange(OHOS::Media::AVScreenCaptureStateCode stateCode) override;
-
+class OH_SurfaceBufferAdapterImpl : public SurfaceBufferAdapter
+{
 private:
-    std::shared_ptr<ScreenCaptureCallbackAdapter> callback_;
+    OH_AVBuffer* avBuffer_ = nullptr;
+    OH_NativeBuffer_Config config_;
+
+public:
+    explicit OH_SurfaceBufferAdapterImpl(OH_AVBuffer* avBuffer, OH_NativeBuffer_Config config);
+
+    int32_t GetFileDescriptor() override;
+
+    int32_t GetWidth() override;
+
+    int32_t GetHeight() override;
+
+    int32_t GetStride() override;
+
+    int32_t GetFormat() override;
+
+    uint32_t GetSize() override;
+
+    void* GetVirAddr() override;
 };
 
 class ScreenCaptureAdapterImpl : public ScreenCaptureAdapter {
@@ -60,8 +80,8 @@ private:
     void Release();
 
 private:
-    std::shared_ptr<Media::ScreenCapture> screenCapture_ = nullptr;
-    std::shared_ptr<Media::ScreenCaptureCallBack> screenCaptureCallback_ = nullptr;
+    OH_AVScreenCapture *screenCapture_;
+    std::shared_ptr<ScreenCaptureCallbackAdapter> callback_ = nullptr;
 };
 
 }  // namespace OHOS::NWeb
