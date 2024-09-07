@@ -961,7 +961,7 @@ void IMFAdapterImpl::Close()
 void IMFAdapterImpl::OnCursorUpdate(const std::shared_ptr<IMFCursorInfoAdapter> cursorInfo)
 {
     if (!cursorInfo) {
-        WVLOG_E("inputmethod OnCursorUpdate cursorInfo is null");
+        WVLOG_W("inputmethod OnCursorUpdate cursorInfo is null");
         return;
     }
 
@@ -972,20 +972,20 @@ void IMFAdapterImpl::OnCursorUpdate(const std::shared_ptr<IMFCursorInfoAdapter> 
     }
     InputMethod_ErrorCode ret = OH_TextConfig_GetCursorInfo(IMFTextEditorProxyImpl::textConfig_, &ohCursorInfo);
     if (ret != IME_ERR_OK) {
-        WVLOG_E("Inputmethod get cursor info failed ret=%{public}d", ret);
+        WVLOG_W("Inputmethod get cursor info failed ret=%{public}d", ret);
         return;
     }
 
     ret = OH_CursorInfo_SetRect(ohCursorInfo, cursorInfo->GetLeft(), cursorInfo->GetTop(), cursorInfo->GetWidth(),
         cursorInfo->GetHeight());
     if (ret != IME_ERR_OK) {
-        WVLOG_E("Inputmethod set cursor info failed ret=%{public}d", ret);
+        WVLOG_W("Inputmethod set cursor info failed ret=%{public}d", ret);
         return;
     }
-    if (!inputMethodProxy_) {
+    if (inputMethodProxy_) {
         ret = OH_InputMethodProxy_NotifyCursorUpdate(inputMethodProxy_, ohCursorInfo);
         if (ret != IME_ERR_OK) {
-            WVLOG_E("Inputmethod notify cursor update failed ret=%{public}d", ret);
+            WVLOG_W("Inputmethod notify cursor update failed ret=%{public}d", ret);
             return;
         }
     }
