@@ -16,75 +16,74 @@
 #include "net_connect_utils.h"
 
 namespace OHOS::NWeb {
-NetConnectType NetConnectUtils::ConvertToConnectTypeInner(const RadioTech &subtype)
+NetConnectType NetConnectUtils::ConvertToConnectTypeInner(const Telephony_RadioTechnology &subtype)
 {
     switch (subtype) {
-        case RadioTech::RADIO_TECHNOLOGY_UNKNOWN:
-        case RadioTech::RADIO_TECHNOLOGY_IWLAN:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_UNKNOWN:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_IWLAN:
             return NetConnectType::CONNECTION_UNKNOWN;
-        case RadioTech::RADIO_TECHNOLOGY_GSM:
-        case RadioTech::RADIO_TECHNOLOGY_1XRTT:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_GSM:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_1XRTT:
             return NetConnectType::CONNECTION_2G;
-        case RadioTech::RADIO_TECHNOLOGY_WCDMA:
-        case RadioTech::RADIO_TECHNOLOGY_HSPA:
-        case RadioTech::RADIO_TECHNOLOGY_HSPAP:
-        case RadioTech::RADIO_TECHNOLOGY_TD_SCDMA:
-        case RadioTech::RADIO_TECHNOLOGY_EVDO:
-        case RadioTech::RADIO_TECHNOLOGY_EHRPD:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_WCDMA:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_HSPA:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_HSPAP:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_TD_SCDMA:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_EVDO:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_EHRPD:
             return NetConnectType::CONNECTION_3G;
-        case RadioTech::RADIO_TECHNOLOGY_LTE:
-        case RadioTech::RADIO_TECHNOLOGY_LTE_CA:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_LTE:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_LTE_CA:
             return NetConnectType::CONNECTION_4G;
-        case RadioTech::RADIO_TECHNOLOGY_NR:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_NR:
             return NetConnectType::CONNECTION_5G;
         default:
             return NetConnectType::CONNECTION_UNKNOWN;
     }
 }
 
-NetConnectSubtype NetConnectUtils::ConvertToConnectsubtype(const RadioTech &subtype)
+NetConnectSubtype NetConnectUtils::ConvertToConnectsubtype(const Telephony_RadioTechnology &subtype)
 {
     switch (subtype) {
-        case RadioTech::RADIO_TECHNOLOGY_UNKNOWN:
-        case RadioTech::RADIO_TECHNOLOGY_IWLAN:
-        case RadioTech::RADIO_TECHNOLOGY_WCDMA:
-        case RadioTech::RADIO_TECHNOLOGY_TD_SCDMA:
-        case RadioTech::RADIO_TECHNOLOGY_EVDO:
-        case RadioTech::RADIO_TECHNOLOGY_NR:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_UNKNOWN:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_IWLAN:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_WCDMA:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_TD_SCDMA:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_EVDO:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_NR:
             return NetConnectSubtype::SUBTYPE_UNKNOWN;
-        case RadioTech::RADIO_TECHNOLOGY_GSM:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_GSM:
             return NetConnectSubtype::SUBTYPE_GSM;
-        case RadioTech::RADIO_TECHNOLOGY_1XRTT:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_1XRTT:
             return NetConnectSubtype::SUBTYPE_1XRTT;
-        case RadioTech::RADIO_TECHNOLOGY_HSPA:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_HSPA:
             return NetConnectSubtype::SUBTYPE_HSPA;
-        case RadioTech::RADIO_TECHNOLOGY_HSPAP:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_HSPAP:
             return NetConnectSubtype::SUBTYPE_HSPAP;
-        case RadioTech::RADIO_TECHNOLOGY_EHRPD:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_EHRPD:
             return NetConnectSubtype::SUBTYPE_EHRPD;
-        case RadioTech::RADIO_TECHNOLOGY_LTE:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_LTE:
             return NetConnectSubtype::SUBTYPE_LTE;
-        case RadioTech::RADIO_TECHNOLOGY_LTE_CA:
+        case Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_LTE_CA:
             return NetConnectSubtype::SUBTYPE_LTE_ADVANCED;
         default:
             return NetConnectSubtype::SUBTYPE_UNKNOWN;
     }
 }
 
-NetConnectType NetConnectUtils::ConvertToConnectType(const NetBearType &netBearType, const RadioTech &subtype)
+NetConnectType NetConnectUtils::ConvertToConnectType(const NetConn_NetBearerType &netBearType,
+                                                     const Telephony_RadioTechnology &subtype)
 {
     switch (netBearType) {
-        case BEARER_CELLULAR:
+        case NETCONN_BEARER_CELLULAR:
             return ConvertToConnectTypeInner(subtype);
-        case BEARER_WIFI:
+        case NETCONN_BEARER_WIFI:
             return NetConnectType::CONNECTION_WIFI;
-        case BEARER_BLUETOOTH:
+        case NETCONN_BEARER_BLUETOOTH:
             return NetConnectType::CONNECTION_BLUETOOTH;
-        case BEARER_ETHERNET:
+        case NETCONN_BEARER_ETHERNET:
             return NetConnectType::CONNECTION_ETHERNET;
-        case BEARER_VPN:
-        case BEARER_WIFI_AWARE:
-        case BEARER_DEFAULT:
+        case NETCONN_BEARER_VPN:
             return NetConnectType::CONNECTION_UNKNOWN;
         default:
             return NetConnectType::CONNECTION_UNKNOWN;

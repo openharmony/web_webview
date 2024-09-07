@@ -18,23 +18,20 @@
 
 #include <string>
 
-#include "net_all_capabilities.h"
-#include "net_connect_adapter.h"
-#include "network_search_types.h"
+#include "net_connect_adapter_impl.h"
 
 namespace OHOS::NWeb {
-using namespace OHOS::NetManagerStandard;
-using namespace OHOS::Telephony;
 class NetConnectUtils {
 public:
     NetConnectUtils() = default;
     virtual ~NetConnectUtils() = default;
 
-    static NetConnectSubtype ConvertToConnectsubtype(const RadioTech &subtype);
-    static NetConnectType ConvertToConnectType(const NetBearType &netBearType, const RadioTech &subtype);
+    static NetConnectSubtype ConvertToConnectsubtype(const Telephony_RadioTechnology &subtype);
+    static NetConnectType ConvertToConnectType(
+        const NetConn_NetBearerType &netBearType, const Telephony_RadioTechnology &subtype);
     static std::string ConnectTypeToString(const NetConnectType &type);
 private:
-    static NetConnectType ConvertToConnectTypeInner(const RadioTech &subtype);
+    static NetConnectType ConvertToConnectTypeInner(const Telephony_RadioTechnology &subtype);
 };
 }  // namespace OHOS::NWeb
 

@@ -22,23 +22,44 @@
 
 #include "net_connect_adapter.h"
 
+#include <network/netmanager/net_connection.h>
+#include <network/netmanager/net_connection_type.h>
+#include <telephony/core_service/telephony_radio_type.h>
+
 namespace OHOS::NWeb {
-using namespace OHOS::NetManagerStandard;
 class NetConnectAdapterImpl : public NetConnectAdapter {
 public:
     NetConnectAdapterImpl() = default;
 
     ~NetConnectAdapterImpl() override = default;
 
-    int32_t RegisterNetConnCallback(std::shared_ptr<NetConnCallback> cb) override{ return 0; }
+    int32_t RegisterNetConnCallback(std::shared_ptr<NetConnCallback> cb) override;
 
-    int32_t UnregisterNetConnCallback(int32_t id) override{ return 0; }
+    int32_t UnregisterNetConnCallback(int32_t id) override;
 
-    int32_t GetDefaultNetConnect(NetConnectType &type, NetConnectSubtype &netConnectSubtype) override{ return 0; }
+    int32_t GetDefaultNetConnect(NetConnectType &type, NetConnectSubtype &netConnectSubtype) override;
 
-    std::vector<std::string> GetDnsServers() override{ return std::vector<std::string>(); }
+    std::vector<std::string> GetDnsServers() override;
 
-    std::vector<std::string> GetDnsServersByNetId(int32_t netId) override{ return std::vector<std::string>(); }
+    std::vector<std::string> GetDnsServersByNetId(int32_t netId) override;
+
+private:
+    static std::unordered_map<int32_t, std::shared_ptr<NetConnCallback>> netConnCallbackMap_;
+
+    std::vector<std::string> GetDnsServersInternal(NetConn_NetHandle &netHandle);
+
+    static int32_t NetAvailable(std::shared_ptr<NetConnCallback> cb,
+                                            NetConn_NetHandle *netHandle);
+
+    static int32_t NetCapabilitiesChange(std::shared_ptr<NetConnCallback> cb,
+                                            NetConn_NetHandle *netHandle,
+                                            NetConn_NetCapabilities *netCapabilities);
+
+    static int32_t NetConnectionPropertiesChange(std::shared_ptr<NetConnCallback> cb,
+                                                    NetConn_NetHandle *netHandle,
+                                                    NetConn_ConnectionProperties *connConnetionProperties);
+
+    static void InitNetConnCallback(NetConn_NetConnCallback *netConnCallback);
 };
 }  // namespace OHOS::NWeb
 

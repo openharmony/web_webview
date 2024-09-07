@@ -56,6 +56,7 @@
 #include "vsync_adapter_impl.h"
 #include "window_adapter_impl.h"
 // #include "sensor_adapter_impl.h"
+#include "net_connect_adapter_impl.h"
 
 namespace OHOS::NWeb {
 // static
@@ -93,8 +94,7 @@ OhosWebDataBaseAdapter& OhosAdapterHelperImpl::GetOhosWebDataBaseAdapterInstance
 
 std::unique_ptr<NetConnectAdapter> OhosAdapterHelperImpl::CreateNetConnectAdapter()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
-    return nullptr;
+    return std::make_unique<NetConnectAdapterImpl>();
 }
 
 PasteBoardClientAdapter& OhosAdapterHelperImpl::GetPasteBoard()
