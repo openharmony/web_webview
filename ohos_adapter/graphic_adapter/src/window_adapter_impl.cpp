@@ -54,12 +54,7 @@ int32_t WindowAdapterImpl::NativeWindowSetBufferGeometry(NWebNativeWindow window
 void WindowAdapterImpl::NativeWindowSurfaceCleanCache(NWebNativeWindow window)
 {
     WVLOG_D("WindowAdapterImpl::NativeWindowSurfaceCleanCache");
-    auto nativeWindow = reinterpret_cast<OHNativeWindow*>(window);
-    if (!nativeWindow || !nativeWindow->surface) {
-        WVLOG_D("window or surface is null, no need to clean surface cache");
-        return;
-    }
-    nativeWindow->surface->CleanCache();
+    reinterpret_cast<OHNativeWindow*>(window)->surface->CleanCache();
 }
 
 void WindowAdapterImpl::NativeWindowSurfaceCleanCacheWithPara(NWebNativeWindow window, bool cleanAll)
