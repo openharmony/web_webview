@@ -1059,12 +1059,6 @@ void ArkWebNWebImpl::SetPathAllowingUniversalAccess(const ArkWebStringVector& di
     errorPath = ArkWebStringClassToStruct(errPath);
 }
 
-void ArkWebNWebImpl::PerformAction(int64_t accessibility_id, uint32_t action,
-    const ArkWebStringMap& actionArguments)
-{
-    nweb_nweb_->PerformAction(accessibility_id, action, ArkWebStringMapStructToClass(actionArguments));
-}
-
 void ArkWebNWebImpl::ScrollToWithAnime(float x, float y, int32_t duration)
 {
     nweb_nweb_->ScrollToWithAnime(x, y, duration);
@@ -1093,11 +1087,6 @@ void ArkWebNWebImpl::WebSendTouchpadFlingEvent(double x,
 {
     nweb_nweb_->WebSendTouchpadFlingEvent(x, y, vx, vy,
         ArkWebBasicVectorStructToClass<int32_t, ArkWebInt32Vector>(pressedCodes));
-}
-
-void ArkWebNWebImpl::SendAccessibilityHoverEvent(int32_t x, int32_t y)
-{
-    nweb_nweb_->SendAccessibilityHoverEvent(x, y);
 }
 
 void ArkWebNWebImpl::RegisterArkJSfunction(const ArkWebString& object_name, const ArkWebStringVector& method_list,

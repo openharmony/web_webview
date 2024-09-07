@@ -1350,14 +1350,6 @@ public:
     virtual void SetPathAllowingUniversalAccess(const std::vector<std::string>& dirList,
                                                 const std::vector<std::string>& moduleName,
                                                 std::string& errorPath) {}
-    /**
-     * Execute an accessibility action on an accessibility node in the browser.
-     * @param accessibilityId The id of the accessibility node.
-     * @param action The action to be performed on the accessibility node.
-     * @param actionArguments Data related to the current action.
-     */
-    virtual void PerformAction(int64_t accessibilityId, uint32_t action,
-        const std::map<std::string, std::string>& actionArguments) {}
 
     /**
      * Scroll to the position.
@@ -1410,14 +1402,6 @@ public:
     virtual int SetUrlTrustListWithErrMsg(const std::string& urlTrustList, std::string& detailErrMsg) {
         return 0;
     }
-
-    /**
-     * @brief Send the accessibility hover event coordinate.
-     *
-     * @param x horizontal location of coordinate.
-     * @param y vertical location of coordinate.
-     */
-    virtual void SendAccessibilityHoverEvent(int32_t x, int32_t y) {}
 
     /**
      * RegisterArkJSfunction
