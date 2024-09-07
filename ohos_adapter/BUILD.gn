@@ -79,7 +79,7 @@ shared_library("nweb_ohos_adapter") {
 #
 #  defines = [ "HILOG_TAG=\"webadapter\"" ]
   sources = [
-#    "aafwk_adapter/src/aafwk_app_mgr_client_adapter_impl.cpp",
+    "aafwk_adapter/src/aafwk_app_mgr_client_adapter_impl.cpp",
 #    "aafwk_adapter/src/aafwk_browser_client_adapter_impl.cpp",
 #    "aafwk_adapter/src/aafwk_browser_host_impl.cpp",
 #    "aafwk_adapter/src/aafwk_render_scheduler_impl.cpp",
@@ -195,6 +195,7 @@ shared_library("nweb_ohos_adapter") {
     "time_service_ndk",
     "huks_ndk.z",
     "bundle_ndk.z",
+    "child_process",
     "net_connection",
     "ohbattery_info",
   ]

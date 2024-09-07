@@ -15,99 +15,33 @@
 
 #include "aafwk_app_mgr_client_adapter_impl.h"
 
-#include <chrono>
-#include <thread>
-
-#include "aafwk_browser_host_impl.h"
-#include "aafwk_render_scheduler_impl.h"
+#include <AbilityKit/native_child_process.h>
 #include "nweb_log.h"
 
 namespace {
-constexpr int GET_TERMINATION_STATUS_MAX_CNT = 5;
-constexpr int START_RENDER_PROCESS_MAX_CNT = 10;
-constexpr int SLEEP_FOR_MILLI_SECONDS_CNT = 10;
-constexpr int RET_ALREADY_EXIST_RENDER = 8454244; // copy from ability_runtime
+const char *IPC_FD_NAME = "IPC_FD";
+const char *SHARED_FD_NAME = "SHARED_FD";
+const char *CRASH_FD_NAME = "CRASH_FD";
 } // namespace
 
 namespace OHOS::NWeb {
 const std::string GPU_PROCESS_TYPE = "gpu-process";
-AafwkAppMgrClientAdapterImpl::AafwkAppMgrClientAdapterImpl()
-    : appMgrClient_(std::make_unique<AppExecFwk::AppMgrClient>())
-{}
 
 int AafwkAppMgrClientAdapterImpl::StartRenderProcess(
     const std::string& renderParam, int32_t ipcFd, int32_t sharedFd, int32_t crashFd, pid_t& renderPid)
 {
-    if (appMgrClient_ == nullptr) {
-        WVLOG_E("app mgr client is nullptr.");
-        return -1;
-    }
-
-    int retryCnt = 0;
-    int ret;
-    do {
-        ret = appMgrClient_->StartRenderProcess(renderParam, ipcFd, sharedFd, crashFd, renderPid, false);
-        if (ret == RET_ALREADY_EXIST_RENDER) {
-            WVLOG_E("app mgr client start render process failed, render process already exist.");
-            std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_FOR_MILLI_SECONDS_CNT));
-            continue;
-        }
-        if (ret != 0) {
-            WVLOG_E("app mgr client start render process failed, ret = %{public}d.", ret);
-            return -1;
-        }
-    } while (++retryCnt < START_RENDER_PROCESS_MAX_CNT && ret != 0);
-
-    if (ret != 0) {
-        WVLOG_E("over max retry times, app mgr client start render process failed, ret = %{public}d.", ret);
-        return -1;
-    }
-
+    WVLOG_D("[adapter not used] AafwkAppMgrClientAdapterImpl::StartRenderProcess");
     return 0;
 }
 
 void AafwkAppMgrClientAdapterImpl::AttachRenderProcess(std::shared_ptr<AafwkRenderSchedulerHostAdapter> adapter)
 {
-    if (appMgrClient_ == nullptr) {
-        WVLOG_E("app mgr client is nullptr.");
-        return;
-    }
-
-    if (adapter == nullptr) {
-        WVLOG_E("render scheduler is nullptr.");
-        return;
-    }
-
-    AafwkRenderSchedulerImpl *renderScheduler = new (std::nothrow) AafwkRenderSchedulerImpl(adapter);
-    if (renderScheduler == nullptr) {
-        WVLOG_E("new AafwkRenderSchedulerImpl failed.");
-        return;
-    }
-
-    appMgrClient_->AttachRenderProcess(renderScheduler);
+    WVLOG_D("[adapter not used] AafwkAppMgrClientAdapterImpl::AttachRenderProcess");
 }
 
 int AafwkAppMgrClientAdapterImpl::GetRenderProcessTerminationStatus(pid_t renderPid, int &status)
 {
-    if (appMgrClient_ == nullptr) {
-        WVLOG_E("app mgr client is nullptr.");
-        return -1;
-    }
-
-    int retryCnt = 0;
-    do {
-        int ret = appMgrClient_->GetRenderProcessTerminationStatus(renderPid, status);
-        if (ret != 0) {
-            WVLOG_E("app mgr client get render process termination status failed, ret = %{public}d.", ret);
-            return -1;
-        }
-    } while (status < 0 && ++retryCnt < GET_TERMINATION_STATUS_MAX_CNT);
-
-    if (status < 0) {
-        WVLOG_E("render process termination status invalid, status = %{public}d.", status);
-        return -1;
-    }
-
+    WVLOG_D("[adapter not used] AafwkAppMgrClientAdapterImpl::GetRenderProcessTerminationStatus");
     return 0;
 }
 
@@ -115,56 +49,31 @@ int AafwkAppMgrClientAdapterImpl::StartChildProcess(
     const std::string& renderParam, int32_t ipcFd, int32_t sharedFd,
     int32_t crashFd, pid_t& renderPid, const std::string& processType)
 {
-    if (appMgrClient_ == nullptr) {
-        WVLOG_E("app mgr client is nullptr.");
-        return -1;
-    }
-
-    bool isGPU = false;
     if (processType == GPU_PROCESS_TYPE) {
-        isGPU = true;
+        WVLOG_D("[adapter mock] AafwkAppMgrClientAdapterImpl::StartChildProcess for gpu-process");
+        return 0;
     }
+    WVLOG_D("AafwkAppMgrClientAdapterImpl::StartChildProcess for %{public}s", processType.c_str());
+    const char* entry = "libnweb_render.so:NWebRenderMain";
 
-    int retryCnt = 0;
-    int ret;
-    do {
-        ret = appMgrClient_->StartRenderProcess(renderParam, ipcFd, sharedFd, crashFd, renderPid, isGPU);
-        if (ret == RET_ALREADY_EXIST_RENDER) {
-            WVLOG_E("app mgr client start %{public}s process failed, process already exist.", processType.c_str());
-            std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_FOR_MILLI_SECONDS_CNT));
-            continue;
-        }
-        if (ret != 0) {
-            WVLOG_E("app mgr client start render process failed, ret = %{public}d.", ret);
-            return -1;
-        }
-    } while (++retryCnt < START_RENDER_PROCESS_MAX_CNT && ret != 0);
+    NativeChildProcess_Args args;
+    args.entryParams = const_cast<char*>(renderParam.c_str());
+    NativeChildProcess_Fd ipcFdStruct{const_cast<char*>(IPC_FD_NAME), ipcFd, nullptr};
+    NativeChildProcess_Fd sharedFdStruct{const_cast<char*>(SHARED_FD_NAME), sharedFd, &ipcFdStruct};
+    NativeChildProcess_Fd crashFdStruct{const_cast<char*>(CRASH_FD_NAME), crashFd, &sharedFdStruct};
+    args.fdList.head = &crashFdStruct;
 
-    if (ret != 0) {
-        WVLOG_E("over max retry times, app mgr client start render process failed, ret = %{public}d.", ret);
+    NativeChildProcess_Options option{NCP_ISOLATION_MODE_ISOLATED, 0};
+    auto ret = OH_Ability_StartNativeChildProcess(entry, args, option, &renderPid);
+    if (ret != NCP_NO_ERROR) {
+        WVLOG_E("start native child process failed, ret = %{public}d.", ret);
         return -1;
     }
-
     return 0;
 }
 
 void AafwkAppMgrClientAdapterImpl::SaveBrowserConnect(std::shared_ptr<AafwkBrowserHostAdapter> adapter)
 {
-    if (appMgrClient_ == nullptr) {
-        WVLOG_E("app mgr client is nullptr.");
-        return;
-    }
-
-    if (adapter == nullptr) {
-        WVLOG_E("browser connect is nullptr.");
-        return;
-    }
-
-    AafwkBrowserHostImpl *browser = new (std::nothrow) AafwkBrowserHostImpl(adapter);
-    if (browser == nullptr) {
-        WVLOG_E("create new AafwkBrowserHostImpl failed!");
-    }
-    WVLOG_E("AafwkAppMgrClientAdapterImpl SaveBrowserConnect success!");
-    appMgrClient_->SaveBrowserChannel(browser);
+    WVLOG_D("[adapter not used] AafwkAppMgrClientAdapterImpl::SaveBrowserConnect");
 }
 } // namespace OHOS::NWeb
