@@ -4,6 +4,7 @@
 !nweb_adapter_helper.h
 !nweb_cache_options_impl.h
 !nweb_c_api.h
+!nweb_config_helper.h
 !nweb_enhance_surface_adapter.h
 !nweb_helper.h
 !nweb_hisysevent.h

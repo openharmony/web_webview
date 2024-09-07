@@ -645,7 +645,7 @@ public:
     void SetSurfaceId(const std::string& surfaceId) override;
 
     /**
-     * Set whether the scrollbar is displayed.
+     * @brief Set whether the scrollbar is displayed.
      */
     void PutOverlayScrollbarEnabled(bool enable) override;
 
