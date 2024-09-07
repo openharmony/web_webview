@@ -403,6 +403,7 @@ int32_t CameraManagerAdapterImpl::InitPreviewOutput(const std::shared_ptr<VideoC
         }
         previewSize.width = captureParams->GetWidth();
         previewSize.height = captureParams->GetHeight();
+        previewSurface_->SetDefaultUsage(BUFFER_USAGE_CPU_READ);
         previewSurface_->SetDefaultWidthAndHeight(previewSize.width, previewSize.height);
         previewSurface_->SetUserData(
             CameraManager::surfaceFormat, std::to_string(TransToOriCameraFormat(captureParams->GetPixelFormat())));
@@ -900,7 +901,7 @@ int32_t CameraSurfaceListener::GetPictureRotation()
         WVLOG_E("cameraObj is nullptr");
         return screenRotation;
     }
-    uint32_t cameraOrientation = cameraObj->GetCameraOrientation();
+    int32_t cameraOrientation = static_cast<int32_t>(cameraObj->GetCameraOrientation());
     auto cameraPosition = cameraObj->GetPosition(); // 1: back, 2: front
 
     int32_t pictureRotation = 0;
