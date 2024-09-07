@@ -268,16 +268,6 @@ private:
     static napi_value ClearServiceWorkerWebSchemeHandler(
         napi_env env, napi_callback_info info);
 
-    static napi_value CloseAllMediaPresentations(napi_env env, napi_callback_info info);
-
-    static napi_value StopAllMedia(napi_env env, napi_callback_info info);
-
-    static napi_value ResumeAllMedia(napi_env env, napi_callback_info info);
-
-    static napi_value PauseAllMedia(napi_env env, napi_callback_info info);
-
-    static napi_value GetMediaPlaybackState(napi_env env, napi_callback_info info);
-
     static napi_value EnableIntelligentTrackingPrevention(
         napi_env env, napi_callback_info info);
 
@@ -293,6 +283,8 @@ private:
     static napi_value ClearIntelligentTrackingPreventionBypassingList(
         napi_env env, napi_callback_info info);
 
+    static napi_value GetLastJavascriptProxyCallingFrameUrl(napi_env env, napi_callback_info info);
+
     static napi_value PauseAllTimers(napi_env env, napi_callback_info info);
 
     static napi_value ResumeAllTimers(napi_env env, napi_callback_info info);
@@ -303,9 +295,15 @@ private:
 
     static napi_value CloseCamera(napi_env env, napi_callback_info info);
 
-    static napi_value GetLastJavascriptProxyCallingFrameUrl(napi_env env, napi_callback_info info);
+    static napi_value CloseAllMediaPresentations(napi_env env, napi_callback_info info);
 
-    static napi_value PrefetchResource(napi_env env, napi_callback_info info);
+    static napi_value StopAllMedia(napi_env env, napi_callback_info info);
+
+    static napi_value ResumeAllMedia(napi_env env, napi_callback_info info);
+
+    static napi_value PauseAllMedia(napi_env env, napi_callback_info info);
+
+    static napi_value GetMediaPlaybackState(napi_env env, napi_callback_info info);
 
     static napi_value ClearPrefetchedResource(napi_env env, napi_callback_info info);
 
@@ -316,8 +314,6 @@ private:
     static napi_value GetRenderProcessMode(napi_env env, napi_callback_info info);
 
     static napi_value PrecompileJavaScript(napi_env env, napi_callback_info info);
-
-    static napi_value WarmupServiceWorker(napi_env env, napi_callback_info info);
 
     static napi_value InjectOfflineResource(napi_env env, napi_callback_info info);
 
@@ -333,20 +329,23 @@ private:
 
     static napi_value ClearHostIP(napi_env env, napi_callback_info info);
 
+    static napi_value WarmupServiceWorker(napi_env env, napi_callback_info info);
+
+    static napi_value GetSurfaceId(napi_env env, napi_callback_info info);
+
     static napi_value EnableWholeWebPageDrawing(napi_env env, napi_callback_info info);
+
     static napi_value EnableAdsBlock(napi_env env, napi_callback_info info);
 
     static napi_value IsAdsBlockEnabled(napi_env env, napi_callback_info info);
 
     static napi_value IsAdsBlockEnabledForCurPage(napi_env env, napi_callback_info info);
 
-    static napi_value GetSurfaceId(napi_env env, napi_callback_info info);
-
-    static napi_value UpdateInstanceId(napi_env env, napi_callback_info info);
+    static napi_value WebPageSnapshot(napi_env env, napi_callback_info info);
 
     static napi_value SetUrlTrustList(napi_env env, napi_callback_info info);
 
-    static napi_value WebPageSnapshot(napi_env env, napi_callback_info info);
+    static napi_value UpdateInstanceId(napi_env env, napi_callback_info info);
 
     static napi_value SetPathAllowingUniversalAccess(napi_env env, napi_callback_info info);
 
@@ -354,9 +353,11 @@ private:
 
     static napi_value SetBackForwardCacheOptions(napi_env env, napi_callback_info info);
 
-    static napi_value TrimMemoryByPressureLevel(napi_env env, napi_callback_info info);
-
     static napi_value ScrollByWithResult(napi_env env, napi_callback_info info);
+
+    static napi_value PrefetchResource(napi_env env, napi_callback_info info);
+
+    static napi_value TrimMemoryByPressureLevel(napi_env env, napi_callback_info info);
     static int32_t maxFdNum_;
     static std::atomic<int32_t> usedFd_;
     };
