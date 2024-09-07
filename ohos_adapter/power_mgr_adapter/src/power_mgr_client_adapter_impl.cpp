@@ -22,16 +22,19 @@ namespace OHOS::NWeb {
 bool RunningLockAdapterImpl::IsUsed()
 {
     PRINT_NOT_IMPL_FUNC_LOG();
+    return false;
 }
 
 int32_t RunningLockAdapterImpl::Lock(uint32_t timeOutMs)
 {
     PRINT_NOT_IMPL_FUNC_LOG();
+    return 0;
 }
 
 int32_t RunningLockAdapterImpl::UnLock()
 {
     PRINT_NOT_IMPL_FUNC_LOG();
+    return 0;
 }
 
 std::shared_ptr<RunningLockAdapter> PowerMgrClientAdapterImpl::CreateRunningLock(

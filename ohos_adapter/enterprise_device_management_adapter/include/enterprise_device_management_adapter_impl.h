@@ -28,7 +28,7 @@
 
 namespace OHOS::NWeb {
 
-#if defined(WEBVIWE_ONLY) && defined(NWEB_ENTERPRISE_DEVICE_MANAGER_ENABLE)
+#if defined(WEBVIWE_ONLY)
 class NWebEdmEventSubscriber : public EventFwk::CommonEventSubscriber {
 public:
     NWebEdmEventSubscriber(EventFwk::CommonEventSubscribeInfo& in,

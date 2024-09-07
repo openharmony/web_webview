@@ -15,19 +15,40 @@
 #ifndef PASTEBOARD_CLIENT_ADAPTER_IMPL_H
 #define PASTEBOARD_CLIENT_ADAPTER_IMPL_H
 
+#include <string>
 #include "pasteboard_client_adapter.h"
 
 namespace OHOS::NWeb {
+class PasteDataRecordAdapterImpl : public PasteDataRecordAdapter {
+public:
+    PasteDataRecordAdapterImpl(const std::string& mimeType,
+                               std::shared_ptr<std::string> htmlText,
+                               std::shared_ptr<std::string> plainText){}
+    explicit PasteDataRecordAdapterImpl(const std::string& mimeType){}
+    bool SetHtmlText(std::shared_ptr<std::string> htmlText) override{ return false; }
+    bool SetPlainText(std::shared_ptr<std::string> plainText) override{ return false; }
+    bool SetImgData(std::shared_ptr<ClipBoardImageDataAdapter> imageData) override{ return false; }
+    bool SetUri(const std::string& uriString) override{ return false; }
+    bool SetCustomData(PasteCustomData& data) override{ return false; }
+    std::string GetMimeType() override{ return ""; }
+    std::shared_ptr<std::string> GetHtmlText() override{ return nullptr; }
+    std::shared_ptr<std::string> GetPlainText() override{ return nullptr; }
+    bool GetImgData(std::shared_ptr<ClipBoardImageDataAdapter> imageData) override{ return false; }
+    std::shared_ptr<std::string> GetUri() override{ return nullptr; }
+    std::shared_ptr<PasteCustomData> GetCustomData() override{ return nullptr; }
+    void Clear(){}
+};
+
 std::shared_ptr<PasteDataRecordAdapter> PasteDataRecordAdapter::NewRecord(
     const std::string& mimeType,
     std::shared_ptr<std::string> htmlText,
     std::shared_ptr<std::string> plainText) {
-        return nullptr;
+        return std::make_shared<PasteDataRecordAdapterImpl>(mimeType, htmlText, plainText);
 }
 
 std::shared_ptr<PasteDataRecordAdapter> PasteDataRecordAdapter::NewRecord(
     const std::string& mimeType) {
-        return nullptr;
+        return std::make_shared<PasteDataRecordAdapterImpl>(mimeType);
 }
 
 class PasteBoardClientAdapterImpl : public PasteBoardClientAdapter {

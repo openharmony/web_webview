@@ -290,13 +290,13 @@ shared_library("nweb_ohos_adapter") {
 #
 #  if (webview_avcodec_enable) {
     sources += [
-#      "media_adapter/src/buffer_info_adapter_impl.cpp",
+      "media_adapter/src/buffer_info_adapter_impl.cpp",
       "media_adapter/src/capability_data_adapter_impl.cpp",
-#      "media_adapter/src/codec_format_adapter_impl.cpp",
-       "media_adapter/src/media_codec_decoder_adapter_impl.cpp",
-       "media_adapter/src/media_codec_list_adapter_impl.cpp",
-       "media_adapter/src/media_codec_encoder_adapter_impl.cpp",
-#      "media_adapter/src/ohos_buffer_adapter_impl.cpp",
+      "media_adapter/src/codec_format_adapter_impl.cpp",
+      "media_adapter/src/media_codec_decoder_adapter_impl.cpp",
+      "media_adapter/src/media_codec_list_adapter_impl.cpp",
+      "media_adapter/src/media_codec_encoder_adapter_impl.cpp",
+      "media_adapter/src/ohos_buffer_adapter_impl.cpp",
     ]
 #    external_deps += [
 #      "av_codec:av_codec_client",
@@ -358,7 +358,7 @@ shared_library("nweb_ohos_adapter") {
 #  }
 #
 #  if (webview_power_manager_enable) {
-#    sources += [ "power_mgr_adapter/src/power_mgr_client_adapter_impl.cpp" ]
+     sources += [ "power_mgr_adapter/src/power_mgr_client_adapter_impl.cpp" ]
 #    external_deps += [ "power_manager:powermgr_client" ]
 #    defines += [ "NWEB_POWER_MANAGER_ENABLE" ]
 #  }

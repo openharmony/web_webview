@@ -17,17 +17,17 @@
 
 #include "nweb_log.h"
 
-#if defined(WEBVIWE_ONLY) && defined(NWEB_ENTERPRISE_DEVICE_MANAGER_ENABLE)
+#if defined(WEBVIWE_ONLY)
 #include "browser_proxy.h"
 #endif
 
 namespace OHOS::NWeb {
-#if defined(WEBVIWE_ONLY) && defined(NWEB_ENTERPRISE_DEVICE_MANAGER_ENABLE)
+#if defined(WEBVIWE_ONLY)
 using namespace OHOS::EDM;
 #endif
 
 namespace {
-#if defined(WEBVIWE_ONLY) && defined(NWEB_ENTERPRISE_DEVICE_MANAGER_ENABLE)
+#if defined(WEBVIWE_ONLY)
 const char* const BROWSER_POLICY_CHANGED_EVENT = "com.ohos.edm.browserpolicychanged";
 #endif
 }
@@ -39,7 +39,7 @@ EnterpriseDeviceManagementAdapterImpl& EnterpriseDeviceManagementAdapterImpl::Ge
     return instance;
 }
 
-#if defined(WEBVIWE_ONLY) && defined(NWEB_ENTERPRISE_DEVICE_MANAGER_ENABLE)
+#if defined(WEBVIWE_ONLY)
 NWebEdmEventSubscriber::NWebEdmEventSubscriber(
     EventFwk::CommonEventSubscribeInfo& in,
     std::shared_ptr<EdmPolicyChangedEventCallbackAdapter> eventCallback)
@@ -62,7 +62,7 @@ void NWebEdmEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData& dat
 void EnterpriseDeviceManagementAdapterImpl::RegistPolicyChangeEventCallback(
     std::shared_ptr<EdmPolicyChangedEventCallbackAdapter> eventCallback)
 {
-#if defined(WEBVIWE_ONLY) && defined(NWEB_ENTERPRISE_DEVICE_MANAGER_ENABLE)
+#if defined(WEBVIWE_ONLY)
     WVLOG_I("Regist edm policy change event callback");
     eventCallback_ = std::move(eventCallback);
 #else
@@ -72,7 +72,7 @@ void EnterpriseDeviceManagementAdapterImpl::RegistPolicyChangeEventCallback(
 
 bool EnterpriseDeviceManagementAdapterImpl::StartObservePolicyChange()
 {
-#if defined(WEBVIWE_ONLY) && defined(NWEB_ENTERPRISE_DEVICE_MANAGER_ENABLE)
+#if defined(WEBVIWE_ONLY)
     WVLOG_I("Start observing edm policy change event");
 
     EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
@@ -92,7 +92,7 @@ bool EnterpriseDeviceManagementAdapterImpl::StartObservePolicyChange()
 
 bool EnterpriseDeviceManagementAdapterImpl::StopObservePolicyChange()
 {
-#if defined(WEBVIWE_ONLY) && defined(NWEB_ENTERPRISE_DEVICE_MANAGER_ENABLE)
+#if defined(WEBVIWE_ONLY)
     WVLOG_I("Stop observing edm policy change event");
 
     if (this->commonEventSubscriber_ != nullptr) {
@@ -111,7 +111,7 @@ bool EnterpriseDeviceManagementAdapterImpl::StopObservePolicyChange()
 
 int32_t EnterpriseDeviceManagementAdapterImpl::GetPolicies(std::string& policies)
 {
-#if defined(WEBVIWE_ONLY) && defined(NWEB_ENTERPRISE_DEVICE_MANAGER_ENABLE)
+#if defined(WEBVIWE_ONLY)
     auto proxy = BrowserProxy::GetBrowserProxy();
     if (!proxy) {
         WVLOG_E("EnterpriseDeviceManagementAdapterImpl BrowserProxy is null");
