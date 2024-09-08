@@ -22,16 +22,13 @@ namespace OHOS::NWeb {
 
 class DatashareAdapterImpl : public DatashareAdapter {
 public:
-    static DatashareAdapterImpl& GetInstance() {
-        static DatashareAdapterImpl instance;
-        return instance;
-    }
+    static DatashareAdapterImpl& GetInstance();
 
     ~DatashareAdapterImpl() override = default;
 
-    int OpenDataShareUriForRead(const std::string& uriStr) override { return 0; }
-    std::string GetFileDisplayName(const std::string& uriStr) override { return ""; }
-    std::string GetRealPath(const std::string& uriStr) override { return ""; }
+    int OpenDataShareUriForRead(const std::string& uriStr) override;
+    std::string GetFileDisplayName(const std::string& uriStr) override;
+    std::string GetRealPath(const std::string& uriStr) override;
 
 private:
     DatashareAdapterImpl() = default;

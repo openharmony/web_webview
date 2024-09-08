@@ -153,7 +153,7 @@ VSyncAdapter& OhosAdapterHelperImpl::GetVSyncAdapter()
 
 std::unique_ptr<OhosInitWebAdapter> OhosAdapterHelperImpl::GetInitWebAdapter()
 {
-    return std::make_unique<OhosInitWebAdapterImpl>();   
+    return std::make_unique<OhosInitWebAdapterImpl>();
 }
 
 KeystoreAdapter& OhosAdapterHelperImpl::GetKeystoreAdapterInstance()
@@ -168,7 +168,6 @@ EnterpriseDeviceManagementAdapter& OhosAdapterHelperImpl::GetEnterpriseDeviceMan
 
 DatashareAdapter& OhosAdapterHelperImpl::GetDatashareInstance()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
     return DatashareAdapterImpl::GetInstance();
 }
 
