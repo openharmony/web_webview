@@ -193,7 +193,6 @@ std::unique_ptr<EventHandlerAdapter> OhosAdapterHelperImpl::GetEventHandlerAdapt
 
 PrintManagerAdapter& OhosAdapterHelperImpl::GetPrintManagerInstance()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
     return PrintManagerAdapterImpl::GetInstance();
 }
 
