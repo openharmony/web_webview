@@ -197,6 +197,8 @@ shared_library("nweb_ohos_adapter") {
     "bundle_ndk.z",
     "child_process",
     "net_connection",
+    "telephony_data",
+    "telephony_radio",
     "ohbattery_info",
   ]
 #
@@ -338,13 +340,12 @@ shared_library("nweb_ohos_adapter") {
 #  }
 #
 #  if (webview_telephony_enable) {
-#    sources += [
-#      "net_connect_adapter/src/net_capabilities_adapter_impl.cpp",
-#      "net_connect_adapter/src/net_connect_adapter_impl.cpp",
-#      "net_connect_adapter/src/net_connect_callback_impl.cpp",
-#      "net_connect_adapter/src/net_connect_utils.cpp",
-#      "net_connect_adapter/src/net_connection_properties_adapter_impl.cpp",
-#    ]
+    sources += [
+      "net_connect_adapter/src/net_capabilities_adapter_impl.cpp",
+      "net_connect_adapter/src/net_connect_adapter_impl.cpp",
+      "net_connect_adapter/src/net_connect_utils.cpp",
+      "net_connect_adapter/src/net_connection_properties_adapter_impl.cpp",
+    ]
 #    external_deps += [
 #      "cellular_data:tel_cellular_data_api",
 #      "core_service:tel_core_service_api",

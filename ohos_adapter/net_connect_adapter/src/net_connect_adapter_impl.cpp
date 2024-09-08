@@ -15,39 +15,150 @@
 
 #include "net_connect_adapter_impl.h"
 
-#include "cellular_data_client.h"
-#include "core_service_client.h"
 #include "net_connect_utils.h"
-#include "net_link_info.h"
+#include "net_capabilities_adapter_impl.h"
+#include "net_connection_properties_adapter_impl.h"
+
 #include "nweb_log.h"
 
+#include <network/netmanager/net_connection.h>
+#include <network/netmanager/net_connection_type.h>
+#include <telephony/cellular_data/telephony_data.h>
+#include <telephony/core_service/telephony_radio.h>
+#include <telephony/core_service/telephony_radio_type.h>
+
 namespace OHOS::NWeb {
+std::unordered_map<int32_t, std::shared_ptr<NetConnCallback>> NetConnectAdapterImpl::netConnCallbackMap_ = {};
+
+int32_t NetConnectAdapterImpl::NetAvailable(std::shared_ptr<NetConnCallback> cb, NetConn_NetHandle *netHandle)
+{
+    WVLOG_I("NetConnCallback enter, net available, net id = %{public}d.", netHandle->netId);
+    if (cb != nullptr) {
+        cb->NetAvailable();
+    }
+    return 0;
+}
+
+int32_t NetConnectAdapterImpl::NetCapabilitiesChange(std::shared_ptr<NetConnCallback> cb,
+                                                     NetConn_NetHandle *netHandle,
+                                                     NetConn_NetCapabilities * netCapabilities)
+{
+    WVLOG_I("NetConnCallback enter, NetCapabilitiesChange, net id = %{public}d.", netHandle->netId);
+    NetConnectSubtype subtype = NetConnectSubtype::SUBTYPE_UNKNOWN;
+    Telephony_RadioTechnology radioTech = Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_UNKNOWN;
+    for (auto bearerTypes : netCapabilities->bearerTypes) {
+        if (bearerTypes == NETCONN_BEARER_CELLULAR) {
+            int32_t slotId = OH_Telephony_GetDefaultCellularDataSlotId();
+            if (slotId < 0) {
+                WVLOG_E("get default soltId failed, ret = %{public}d.", slotId);
+                slotId = 0;
+            }
+            Telephony_NetworkState networkState;
+            Telephony_RadioResult radioRet = OH_Telephony_GetNetworkStateForSlot(slotId, &networkState);
+            if (radioRet == TEL_RADIO_SUCCESS) {
+                radioTech = networkState.cfgTech_;
+                WVLOG_I("net radio tech = %{public}d.", static_cast<int32_t>(radioTech));
+                subtype = NetConnectUtils::ConvertToConnectsubtype(radioTech);
+            }
+        }
+        NetConnectType type = NetConnectUtils::ConvertToConnectType(bearerTypes, radioTech);
+        WVLOG_I("net connect type = %{public}s.", NetConnectUtils::ConnectTypeToString(type).c_str());
+        if (cb != nullptr) {
+            auto capabilites = std::make_shared<NetCapabilitiesAdapterImpl>();
+            capabilites->SetNetId(netHandle->netId);
+            capabilites->SetConnectType(type);
+            capabilites->SetConnectSubtype(subtype);
+            return cb->OnNetCapabilitiesChanged(capabilites);
+        }
+    }
+
+    return 0;
+}
+
+int32_t NetConnectAdapterImpl::NetConnectionPropertiesChange(std::shared_ptr<NetConnCallback> cb,
+                                                             NetConn_NetHandle *netHandle,
+                                                             NetConn_ConnectionProperties *connConnetionProperties)
+{
+    WVLOG_I("NetConnCallback enter, NetConnectionPropertiesChange, net id = %{public}d.", netHandle->netId);
+    if (cb != nullptr) {
+        auto properties = std::make_shared<NetConnectionPropertiesAdapterImpl>();
+        properties->SetNetId(netHandle->netId);
+        return cb->OnNetConnectionPropertiesChanged(properties);
+    }
+    return 0;
+}
+
+void NetConnectAdapterImpl::InitNetConnCallback(NetConn_NetConnCallback *netConnCallback)
+{
+    netConnCallback->onNetworkAvailable = [](NetConn_NetHandle *netHandle) {
+        if (netHandle == nullptr) {
+            WVLOG_E("NetConnCallback enter, net available, netHandle is nullptr.");
+            return;
+        }
+        for (auto it = netConnCallbackMap_.begin(); it != netConnCallbackMap_.end(); it++) {
+            NetAvailable(it->second, netHandle);
+        }
+    };
+    netConnCallback->onNetCapabilitiesChange = [](NetConn_NetHandle *netHandle, NetConn_NetCapabilities *netCap) {
+        if (netHandle == nullptr || netCap == nullptr) {
+            WVLOG_E("NetConnCallback enter, NetCapabilitiesChange, netHandle or netAllCap is nullptr.");
+            return;
+        }
+        for (auto it = netConnCallbackMap_.begin(); it != netConnCallbackMap_.end(); it++) {
+            NetCapabilitiesChange(it->second, netHandle, netCap);
+        }
+    };
+    netConnCallback->onConnetionProperties = [](NetConn_NetHandle *netHandle, NetConn_ConnectionProperties *connProp) {
+        if (netHandle == nullptr || connProp == nullptr) {
+            WVLOG_E("NetConnCallback enter, NetConnectionPropertiesChange, netHandle or info is nullptr.");
+            return;
+        }
+        for (auto it = netConnCallbackMap_.begin(); it != netConnCallbackMap_.end(); it++) {
+            NetConnectionPropertiesChange(it->second, netHandle, connProp);
+        }
+    };
+    netConnCallback->onNetLost = [](NetConn_NetHandle *netHandle) {
+        WVLOG_I("NetConnCallback enter, NetLost, net id = %{public}d.", netHandle->netId);
+        for (auto it = netConnCallbackMap_.begin(); it != netConnCallbackMap_.end(); it++) {
+            if (it->second != nullptr) {
+                it->second->NetUnavailable();
+            }
+        }
+    };
+    netConnCallback->onNetUnavailable = [](void) {
+        WVLOG_I("NetConnCallback enter, NetUnavailable.");
+        for (auto it = netConnCallbackMap_.begin(); it != netConnCallbackMap_.end(); it++) {
+            if (it->second != nullptr) {
+                it->second->NetUnavailable();
+            }
+        }
+    };
+    netConnCallback->onNetBlockStatusChange = [](NetConn_NetHandle *netHandle, bool blocked) {
+        WVLOG_I("NetConnCallback enter, NetBlockStatusChange, net id = %{public}d, blocked = %{public}d.",
+            netHandle->netId, blocked);
+    };
+}
+
+
 int32_t NetConnectAdapterImpl::RegisterNetConnCallback(std::shared_ptr<NetConnCallback> cb)
 {
-    static int32_t count = 0;
     if (cb == nullptr) {
         WVLOG_E("register NetConnCallback, cb is nullptr.");
         return -1;
     }
 
-    sptr<NetConnectCallbackImpl> callbackImpl = new (std::nothrow) NetConnectCallbackImpl(cb);
-    if (callbackImpl == nullptr) {
-        WVLOG_E("new NetConnectCallbackImpl failed.");
-        return -1;
-    }
+    uint32_t uid;
+    NetConn_NetConnCallback netConnCallback;
+    InitNetConnCallback(&netConnCallback);
 
-    int32_t ret = NetConnClient::GetInstance().RegisterNetConnCallback(callbackImpl);
-    if (ret != NETMANAGER_SUCCESS) {
+    int32_t ret = OH_NetConn_RegisterDefaultNetConnCallback(&netConnCallback, &uid);
+    if (ret != 0) {
         WVLOG_E("register NetConnCallback failed, ret = %{public}d.", ret);
         return -1;
     }
 
-    int32_t id = count++;
-    if (count < 0) {
-        count = 0;
-    }
-
-    netConnCallbackMap_.insert(std::make_pair(id, callbackImpl));
+    int32_t id = static_cast<int32_t>(uid);
+    netConnCallbackMap_.insert(std::make_pair(id, cb));
     WVLOG_I("register NetConnCallback success.");
     return id;
 }
@@ -60,8 +171,8 @@ int32_t NetConnectAdapterImpl::UnregisterNetConnCallback(int32_t id)
         return -1;
     }
 
-    int32_t ret = NetConnClient::GetInstance().UnregisterNetConnCallback(it->second);
-    if (ret != NETMANAGER_SUCCESS) {
+    int32_t ret = OH_NetConn_UnregisterNetConnCallback(id);
+    if (ret != 0) {
         WVLOG_E("unregister NetConnCallback failed, ret = %{public}d.", ret);
         return -1;
     }
@@ -73,71 +184,67 @@ int32_t NetConnectAdapterImpl::UnregisterNetConnCallback(int32_t id)
 
 int32_t NetConnectAdapterImpl::GetDefaultNetConnect(NetConnectType &type, NetConnectSubtype &subtype)
 {
-    NetHandle netHandle;
-    int32_t ret = NetConnClient::GetInstance().GetDefaultNet(netHandle);
-    if (ret != NETMANAGER_SUCCESS) {
+    NetConn_NetHandle netHandle;
+    int32_t ret = OH_NetConn_GetDefaultNet(&netHandle);
+    if (ret != 0) {
         WVLOG_E("get default net failed, ret = %{public}d.", ret);
         return -1;
     }
-    WVLOG_I("get default net success, net id = %{public}d.", netHandle.GetNetId());
+    WVLOG_I("get default net success, net id = %{public}d.", netHandle.netId);
 
-    NetAllCapabilities netAllCap;
-    ret = NetConnClient::GetInstance().GetNetCapabilities(netHandle, netAllCap);
-    if (ret != NETMANAGER_SUCCESS) {
+    NetConn_NetCapabilities netCapabilities;
+    ret = OH_NetConn_GetNetCapabilities(&netHandle, &netCapabilities);
+    if (ret != 0) {
         WVLOG_E("get default net capbilities failed, ret = %{public}d.", ret);
         return -1;
     }
     WVLOG_I("get default net capbilities success");
 
     subtype = NetConnectSubtype::SUBTYPE_UNKNOWN;
-    RadioTech radioTech = RadioTech::RADIO_TECHNOLOGY_UNKNOWN;
-    for (auto bearerTypes : netAllCap.bearerTypes_) {
-        if (bearerTypes == BEARER_CELLULAR) {
-            int32_t slotId = CellularDataClient::GetInstance().GetDefaultCellularDataSlotId();
-            if (slotId < 0) {
-                WVLOG_E("get default soltId failed, ret = %{public}d.", slotId);
-                slotId = 0;
-            }
-            sptr<NetworkState> networkState = nullptr;
-            CoreServiceClient::GetInstance().GetNetworkState(slotId, networkState);
-            if (networkState != nullptr) {
-                radioTech = networkState->GetPsRadioTech();
-                WVLOG_I("net radio tech = %{public}d.", static_cast<int32_t>(radioTech));
-                subtype = NetConnectUtils::ConvertToConnectsubtype(radioTech);
-            }
+    Telephony_RadioTechnology radioTech = Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_UNKNOWN;
+    auto bearerTypes = netCapabilities.bearerTypes[0];
+    if (bearerTypes == NETCONN_BEARER_CELLULAR) {
+        int32_t slotId = OH_Telephony_GetDefaultCellularDataSlotId();
+        if (slotId < 0) {
+            WVLOG_E("get default soltId failed, ret = %{public}d.", slotId);
+            slotId = 0;
         }
-        type = NetConnectUtils::ConvertToConnectType(bearerTypes, radioTech);
-        WVLOG_I("net connect type = %{public}s.", NetConnectUtils::ConnectTypeToString(type).c_str());
-        break;
+        Telephony_NetworkState networkState;
+        Telephony_RadioResult radioRet = OH_Telephony_GetNetworkStateForSlot(slotId, &networkState);
+        if (radioRet == TEL_RADIO_SUCCESS) {
+            radioTech = networkState.cfgTech_;
+            WVLOG_I("net radio tech = %{public}d.", static_cast<int32_t>(radioTech));
+            subtype = NetConnectUtils::ConvertToConnectsubtype(radioTech);
+        }
     }
-    WVLOG_D("NetAllCapabilities dump, %{public}s.", netAllCap.ToString("").c_str());
+    type = NetConnectUtils::ConvertToConnectType(bearerTypes, radioTech);
+    WVLOG_I("net connect type = %{public}s.", NetConnectUtils::ConnectTypeToString(type).c_str());
     return 0;
 }
 
-std::vector<std::string> NetConnectAdapterImpl::GetDnsServersInternal(const NetHandle &netHandle) {
+std::vector<std::string> NetConnectAdapterImpl::GetDnsServersInternal(NetConn_NetHandle &netHandle) {
     std::vector<std::string> servers;
-    NetLinkInfo info;
-    int32_t ret = NetConnClient::GetInstance().GetConnectionProperties(netHandle, info);
-    if (ret != NETMANAGER_SUCCESS) {
+    NetConn_ConnectionProperties connetionProperties;
+    int32_t ret = OH_NetConn_GetConnectionProperties(&netHandle, &connetionProperties);
+    if (ret != 0) {
         WVLOG_E("get net properties failed, ret = %{public}d.", ret);
         return servers;
     }
-    WVLOG_D("get net properties for dns servers success, net id = %{public}d, "
-        "netinfo = %{public}s.", netHandle.GetNetId(), info.ToString(" ").c_str());
+    WVLOG_D("get net properties for dns servers success, net id = %{public}d, ", netHandle.netId);
 
-    for (const auto &dns : info.dnsList_) {
-        servers.emplace_back(dns.address_);
+    for (const auto &dns : connetionProperties.dnsList) {
+        servers.emplace_back(dns.address);
     }
     WVLOG_I("get dns servers success, net id = %{public}d, servers size = %{public}d.",
-        netHandle.GetNetId(), static_cast<int32_t>(servers.size()));
+        netHandle.netId, static_cast<int32_t>(servers.size()));
     return servers;
 }
 
 std::vector<std::string> NetConnectAdapterImpl::GetDnsServers()
 {
-    NetHandle netHandle;
-    int32_t ret = NetConnClient::GetInstance().GetDefaultNet(netHandle);
-    if (ret != NETMANAGER_SUCCESS) {
+    NetConn_NetHandle netHandle;
+    int32_t ret = OH_NetConn_GetDefaultNet(&netHandle);
+    if (ret != 0) {
         WVLOG_E("get default net for dns servers failed, ret = %{public}d.", ret);
         return std::vector<std::string>();
     }
@@ -152,16 +259,16 @@ std::vector<std::string> NetConnectAdapterImpl::GetDnsServersByNetId(int32_t net
         return GetDnsServers();
     }
 
-    std::list<sptr<NetManagerStandard::NetHandle>> netHandleList;
-    int32_t ret = NetConnClient::GetInstance().GetAllNets(netHandleList);
-    if (ret != NETMANAGER_SUCCESS) {
+    NetConn_NetHandleList netHandleList;
+    int32_t ret = OH_NetConn_GetAllNets(&netHandleList);
+    if (ret != 0) {
         WVLOG_E("get all nets by net id for dns servers failed, ret = %{public}d.", ret);
         return std::vector<std::string>();
     }
 
-    for (sptr<NetManagerStandard::NetHandle> netHandle : netHandleList) {
-        if (netHandle->GetNetId() == netId) {
-            return GetDnsServersInternal(*netHandle);
+    for (int i = 0; i < netHandleList.netHandleListSize; i++) {
+        if (netHandleList.netHandles[i].netId == netId) {
+            return GetDnsServersInternal(netHandleList.netHandles[i]);
         }
     }
     return std::vector<std::string>();
