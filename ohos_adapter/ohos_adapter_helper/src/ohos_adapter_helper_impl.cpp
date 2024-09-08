@@ -88,7 +88,6 @@ std::unique_ptr<BatteryMgrClientAdapter> OhosAdapterHelperImpl::CreateBatteryCli
 
 OhosWebDataBaseAdapter& OhosAdapterHelperImpl::GetOhosWebDataBaseAdapterInstance()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
     return OhosWebDataBaseAdapterImpl::GetInstance();
 }
 
@@ -120,7 +119,6 @@ AudioSystemManagerAdapter& OhosAdapterHelperImpl::GetAudioSystemManager()
 
 OhosWebPermissionDataBaseAdapter& OhosAdapterHelperImpl::GetWebPermissionDataBaseInstance()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
     return OhosWebPermissionDataBaseAdapterImpl::GetInstance();
 }
 

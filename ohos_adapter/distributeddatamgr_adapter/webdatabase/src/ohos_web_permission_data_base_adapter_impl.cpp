@@ -18,11 +18,9 @@
 #include <cinttypes>
 #include <unistd.h>
 
-#include "application_context.h"
 #include "nweb_log.h"
-#include "rdb_sql_utils.h"
+#include <AbilityKit/ability_runtime/application_context.h>
 
-using namespace OHOS::NativeRdb;
 using namespace OHOS::NWeb;
 
 namespace {
@@ -40,19 +38,14 @@ const std::string CREATE_TABLE = "CREATE TABLE " + GEOLOCATION_TABLE_NAME
     + " UNIQUE (" + PERMISSION_ORIGIN_COL + ") ON CONFLICT REPLACE);";
 
 const std::string WEB_PATH = "/web";
-}
 
-int32_t PermissionDataBaseRdbOpenCallBack::OnCreate(OHOS::NativeRdb::RdbStore& store)
-{
-    WVLOG_I("web permission database opened, create table: %{public}s", CREATE_TABLE.c_str());
-    return store.ExecuteSql(CREATE_TABLE);
-}
-
-int32_t PermissionDataBaseRdbOpenCallBack::OnUpgrade(OHOS::NativeRdb::RdbStore& rdbStore,
-    int32_t currentVersion, int32_t targetVersion)
-{
-    WVLOG_I("web permission database upgrade");
-    return OHOS::NativeRdb::E_OK;
+const std::unordered_map<AbilityRuntime_AreaMode, Rdb_SecurityArea> AREA_MODE_MAP = {
+    { AbilityRuntime_AreaMode::ABILITY_RUNTIME_AREA_MODE_EL1, Rdb_SecurityArea::RDB_SECURITY_AREA_EL1 },
+    { AbilityRuntime_AreaMode::ABILITY_RUNTIME_AREA_MODE_EL2, Rdb_SecurityArea::RDB_SECURITY_AREA_EL2 },
+    { AbilityRuntime_AreaMode::ABILITY_RUNTIME_AREA_MODE_EL3, Rdb_SecurityArea::RDB_SECURITY_AREA_EL3 },
+    { AbilityRuntime_AreaMode::ABILITY_RUNTIME_AREA_MODE_EL4, Rdb_SecurityArea::RDB_SECURITY_AREA_EL4 },
+    { AbilityRuntime_AreaMode::ABILITY_RUNTIME_AREA_MODE_EL5, Rdb_SecurityArea::RDB_SECURITY_AREA_EL5 }
+};
 }
 
 OhosWebPermissionDataBaseAdapterImpl& OhosWebPermissionDataBaseAdapterImpl::GetInstance()
@@ -62,46 +55,99 @@ OhosWebPermissionDataBaseAdapterImpl& OhosWebPermissionDataBaseAdapterImpl::GetI
     return instance;
 }
 
-std::shared_ptr<OHOS::NativeRdb::RdbStore> OhosWebPermissionDataBaseAdapterImpl::CreateDataBase(
-    const std::string& dataBeseName, OHOS::NativeRdb::RdbOpenCallback& callBack)
+Rdb_SecurityArea OhosWebPermissionDataBaseAdapterImpl::GetAreaMode(AbilityRuntime_AreaMode areaMode)
 {
-    WVLOG_I("web permission database create rdb store");
-    std::shared_ptr<OHOS::NativeRdb::RdbStore> rdbStore = nullptr;
-    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
-        OHOS::AbilityRuntime::ApplicationContext::GetApplicationContext();
-    if (context == nullptr) {
-        WVLOG_E("web permission database get context failed");
-        return rdbStore;
+    auto mode = AREA_MODE_MAP.find(areaMode);
+    return mode->second;
+}
+
+void OhosWebPermissionDataBaseAdapterImpl::GetOrOpen(const OH_Rdb_Config *config, int *errCode)
+{
+    rdbStore_ = OH_Rdb_GetOrOpen(config, errCode);
+    if (rdbStore_ == nullptr) {
+        WVLOG_E("web permission database get rdb store failed, errCode=%{public}d", *errCode);
+        return;
     }
 
-    std::string databaseDir = context->GetCacheDir() + WEB_PATH;
-    if (access(databaseDir.c_str(), F_OK) != 0) {
-        WVLOG_I("web permission database fail to access cache web dir:%{public}s", databaseDir.c_str());
-        return rdbStore;
+    int version = RDB_VERSION;
+    if (OH_Rdb_GetVersion(rdbStore_, &version) != RDB_OK) {
+        WVLOG_E("web permission database get rdb version failed");
+        return;
     }
 
-    std::string bundleName = context->GetBundleName();
-    std::string name = dataBeseName;
-    int32_t errorCode = E_OK;
-    std::string realPath = RdbSqlUtils::GetDefaultDatabasePath(databaseDir, name, errorCode);
-    RdbStoreConfig config("");
-    config.SetPath(std::move(realPath));
-    config.SetBundleName(bundleName);
-    config.SetName(std::move(name));
-    config.SetArea(context->GetArea());
-    WVLOG_I("web permission database databaseDir=%{public}s", databaseDir.c_str());
-    WVLOG_I("web permission database bundleName=%{public}s", bundleName.c_str());
-
-    int32_t errCode = NativeRdb::E_OK;
-    rdbStore = RdbHelper::GetRdbStore(config, RDB_VERSION, callBack, errCode);
-    WVLOG_I("web permission database create rdb store end, errCode=%{public}d", errCode);
-    return rdbStore;
+    if (version == 0) {
+        if (OH_Rdb_Execute(rdbStore_, CREATE_TABLE.c_str()) != RDB_OK) {
+            WVLOG_E("web permission database create table failed");
+            return;
+        }
+        if (OH_Rdb_SetVersion(rdbStore_, RDB_VERSION) != RDB_OK) {
+            WVLOG_E("web permission database set version failed");
+            return;
+        }
+        WVLOG_I("web permission database create rdb succeed");
+    } else {
+        WVLOG_I("web permission database already exists");
+    }
 }
 
 OhosWebPermissionDataBaseAdapterImpl::OhosWebPermissionDataBaseAdapterImpl()
 {
-    PermissionDataBaseRdbOpenCallBack callBack;
-    rdbStore_ = OhosWebPermissionDataBaseAdapterImpl::CreateDataBase(WEB_PERMISSION_DATABASE_FILE, callBack);
+    WVLOG_I("web permission database create rdb store");
+
+    AbilityRuntime_ErrorCode code = ABILITY_RUNTIME_ERROR_CODE_PARAM_INVALID;
+    constexpr int32_t NATIVE_BUFFER_SIZE = 1024;
+    char cacheDir[NATIVE_BUFFER_SIZE];
+    int32_t cacheDirLength = 0;
+    code = OH_AbilityRuntime_ApplicationContextGetCacheDir(cacheDir, NATIVE_BUFFER_SIZE, &cacheDirLength);
+    if (code != ABILITY_RUNTIME_ERROR_CODE_NO_ERROR) {
+        WVLOG_E("OH_AbilityRuntime_ApplicationContextGetCacheDir failed:err=%{public}d", code);
+        return;
+    }
+    std::string stringDir(cacheDir);
+    std::string databaseDir = stringDir + WEB_PATH;
+
+    if (access(databaseDir.c_str(), F_OK) != 0) {
+        WVLOG_E("web permission fail to access cache web dir:%{public}s", databaseDir.c_str());
+        return;
+    }
+
+    char bundleName[NATIVE_BUFFER_SIZE];
+    int32_t bundleNameLength = 0;
+    code = OH_AbilityRuntime_ApplicationContextGetBundleName(bundleName, NATIVE_BUFFER_SIZE, &bundleNameLength);
+    if (code != ABILITY_RUNTIME_ERROR_CODE_NO_ERROR) {
+        WVLOG_E("OH_AbilityRuntime_ApplicationContextGetBundleName failed:err=%{public}d", code);
+        return;
+    }
+
+    AbilityRuntime_AreaMode areaMode = ABILITY_RUNTIME_AREA_MODE_EL2;
+    code = OH_AbilityRuntime_ApplicationContextGetAreaMode(&areaMode);
+    if (code != ABILITY_RUNTIME_ERROR_CODE_NO_ERROR) {
+        WVLOG_E("OH_AbilityRuntime_ApplicationContextGetAreaMode failed:err=%{public}d", code);
+        return;
+    }
+
+    std::string name = WEB_PERMISSION_DATABASE_FILE;
+    OH_Rdb_Config config = {0};
+    config.selfSize = sizeof(OH_Rdb_Config);
+    config.dataBaseDir = databaseDir.c_str();
+    config.bundleName = bundleName;
+    config.storeName = name.c_str();
+    config.area = GetAreaMode(areaMode);
+    WVLOG_I("web permission database databaseDir=%{public}s", databaseDir.c_str());
+    WVLOG_I("web permission database bundleName=%{public}s", bundleName);
+
+    int errCode = static_cast<int>(RDB_OK);
+    GetOrOpen(&config, &errCode);
+}
+
+OhosWebPermissionDataBaseAdapterImpl::~OhosWebPermissionDataBaseAdapterImpl()
+{
+    int errCode = OH_Rdb_CloseStore(rdbStore_);
+    if (errCode == RDB_OK) {
+        WVLOG_I("web permission database delete rdb succeed");
+    } else {
+        WVLOG_E("web permission database delete rdb failed");
+    }
 }
 
 std::string OhosWebPermissionDataBaseAdapterImpl::KeyToTableName(const WebPermissionType& key) const
@@ -124,14 +170,23 @@ bool OhosWebPermissionDataBaseAdapterImpl::ExistPermissionByOrigin(
         return false;
     }
 
-    std::vector<std::string> columns;
-    NativeRdb::AbsRdbPredicates dirAbsPred(tableName);
-    dirAbsPred.EqualTo(PERMISSION_ORIGIN_COL, origin);
-    auto resultSet = rdbStore_->Query(dirAbsPred, columns);
-    if ((resultSet == nullptr) || (resultSet->GoToFirstRow() != NativeRdb::E_OK)) {
+    OH_Predicates *dirAbsPred = OH_Rdb_CreatePredicates(tableName.c_str());
+    OH_VObject *valueObject = OH_Rdb_CreateValueObject();
+    valueObject->putText(valueObject, origin.c_str());
+    dirAbsPred->equalTo(dirAbsPred, PERMISSION_ORIGIN_COL.c_str(), valueObject);
+    valueObject->destroy(valueObject);
+
+    OH_Cursor *cursor = OH_Rdb_Query(rdbStore_, dirAbsPred, NULL, 0);
+    dirAbsPred->destroy(dirAbsPred);
+
+    if ((cursor == nullptr) || (cursor->goToNextRow(cursor) != RDB_OK)) {
         WVLOG_E("web permissions database rdb store query failed");
+        if (cursor != nullptr) {
+            cursor->destroy(cursor);
+        }
         return false;
     }
+    cursor->destroy(cursor);
     return true;
 }
 
@@ -147,20 +202,29 @@ bool OhosWebPermissionDataBaseAdapterImpl::GetPermissionResultByOrigin(const std
         return false;
     }
 
-    std::vector<std::string> columns;
-    NativeRdb::AbsRdbPredicates dirAbsPred(tableName);
-    dirAbsPred.EqualTo(PERMISSION_ORIGIN_COL, origin);
-    auto resultSet = rdbStore_->Query(dirAbsPred, columns);
-    if ((resultSet == nullptr) || (resultSet->GoToFirstRow() != NativeRdb::E_OK)) {
+    OH_Predicates *dirAbsPred = OH_Rdb_CreatePredicates(tableName.c_str());
+    OH_VObject *valueObject = OH_Rdb_CreateValueObject();
+    valueObject->putText(valueObject, origin.c_str());
+    dirAbsPred->equalTo(dirAbsPred, PERMISSION_ORIGIN_COL.c_str(), valueObject);
+    valueObject->destroy(valueObject);
+
+    OH_Cursor *cursor = OH_Rdb_Query(rdbStore_, dirAbsPred, NULL, 0);
+    dirAbsPred->destroy(dirAbsPred);
+
+    if ((cursor == nullptr) || (cursor->goToNextRow(cursor) != RDB_OK)) {
         WVLOG_E("web permissions database rdb store query failed");
+        if (cursor != nullptr) {
+            cursor->destroy(cursor);
+        }
         return false;
     }
 
-    int32_t columnIndex;
-    int32_t resultVal = 0;
-    resultSet->GetColumnIndex(PERMISSION_RESULT_COL, columnIndex);
-    resultSet->GetInt(columnIndex, resultVal);
+    int columnIndex;
+    int64_t resultVal = 0;
+    cursor->getColumnIndex(cursor, PERMISSION_RESULT_COL.c_str(), &columnIndex);
+    cursor->getInt64(cursor, columnIndex, &resultVal);
     result = resultVal ? true : false;
+    cursor->destroy(cursor);
     return true;
 }
 
@@ -175,13 +239,13 @@ void OhosWebPermissionDataBaseAdapterImpl::SetPermissionByOrigin(const std::stri
     if (tableName.empty()) {
         return;
     }
-    int32_t errCode;
-    int64_t outRowId;
-    NativeRdb::ValuesBucket valuesBucket;
-    valuesBucket.Clear();
-    valuesBucket.PutString(PERMISSION_ORIGIN_COL, origin);
-    valuesBucket.PutInt(PERMISSION_RESULT_COL, (int)result);
-    errCode = rdbStore_->Insert(outRowId, tableName, valuesBucket);
+    int errCode;
+    OH_VBucket *valueBucket = OH_Rdb_CreateValuesBucket();
+    valueBucket->clear(valueBucket);
+    valueBucket->putText(valueBucket, PERMISSION_ORIGIN_COL.c_str(), origin.c_str());
+    valueBucket->putInt64(valueBucket, PERMISSION_RESULT_COL.c_str(), (int64_t)result);
+    errCode = OH_Rdb_Insert(rdbStore_, tableName.c_str(), valueBucket);
+    valueBucket->destroy(valueBucket);
     WVLOG_I("web permission database set info end, errCode=%{public}d", errCode);
 }
 
@@ -196,11 +260,18 @@ void OhosWebPermissionDataBaseAdapterImpl::ClearPermissionByOrigin(const std::st
     if (tableName.empty()) {
         return;
     }
-    int32_t deletedRows = 0;
-    NativeRdb::AbsRdbPredicates dirAbsPred(tableName);
-    dirAbsPred.EqualTo(PERMISSION_ORIGIN_COL, origin);
-    int32_t ret = rdbStore_->Delete(deletedRows, dirAbsPred);
-    WVLOG_I("web permission database clear info: ret=%{public}d, deletedRows=%{public}d", ret, deletedRows);
+    OH_Predicates *dirAbsPred = OH_Rdb_CreatePredicates(tableName.c_str());
+    OH_VObject *valueObject = OH_Rdb_CreateValueObject();
+    valueObject->putText(valueObject, origin.c_str());
+    dirAbsPred->equalTo(dirAbsPred, PERMISSION_ORIGIN_COL.c_str(), valueObject);
+    int ret = OH_Rdb_Delete(rdbStore_, dirAbsPred);
+    if (ret != RDB_ERR && ret != RDB_E_INVALID_ARGS) {
+        WVLOG_I("web permission database clear succ: deleted rows=%{public}d", ret);
+    } else {
+        WVLOG_E("web permission database clear fail: ret=%{public}d", ret);
+    }
+    dirAbsPred->destroy(dirAbsPred);
+    valueObject->destroy(valueObject);
 }
 
 void OhosWebPermissionDataBaseAdapterImpl::ClearAllPermission(const WebPermissionType& key)
@@ -214,10 +285,14 @@ void OhosWebPermissionDataBaseAdapterImpl::ClearAllPermission(const WebPermissio
     }
     WVLOG_I("web permission database clear all permission:%{public}s info", tableName.c_str());
 
-    int32_t deletedRows = 0;
-    NativeRdb::AbsRdbPredicates dirAbsPred(tableName);
-    int32_t ret = rdbStore_->Delete(deletedRows, dirAbsPred);
-    WVLOG_I("web permission database clear all info: ret=%{public}d, deletedRows=%{public}d", ret, deletedRows);
+    OH_Predicates *dirAbsPred = OH_Rdb_CreatePredicates(tableName.c_str());
+    int ret = OH_Rdb_Delete(rdbStore_, dirAbsPred);
+    if (ret != RDB_ERR && ret != RDB_E_INVALID_ARGS) {
+        WVLOG_I("web permission database clear all succ: deleted rows=%{public}d", ret);
+    } else {
+        WVLOG_E("web permission database clear all fail: ret=%{public}d", ret);
+    }
+    dirAbsPred->destroy(dirAbsPred);
 }
 
 void OhosWebPermissionDataBaseAdapterImpl::GetOriginsByPermission(const WebPermissionType& key,
@@ -230,19 +305,25 @@ void OhosWebPermissionDataBaseAdapterImpl::GetOriginsByPermission(const WebPermi
     if (tableName.empty()) {
         return;
     }
-    std::vector<std::string> columns;
-    NativeRdb::AbsRdbPredicates dirAbsPred(tableName);
-    auto resultSet = rdbStore_->Query(dirAbsPred, columns);
-    if ((resultSet == nullptr) || (resultSet->GoToFirstRow() != NativeRdb::E_OK)) {
+    OH_Predicates *dirAbsPred = OH_Rdb_CreatePredicates(tableName.c_str());
+    OH_Cursor *cursor = OH_Rdb_Query(rdbStore_, dirAbsPred, NULL, 0);
+    if ((cursor == nullptr) || (cursor->goToNextRow(cursor) != RDB_OK)) {
         WVLOG_E("web permissions database rdb store query failed");
+        if (cursor != nullptr) {
+            cursor->destroy(cursor);
+        }
         return;
     }
-    int32_t columnIndex;
-    resultSet->GetColumnIndex(PERMISSION_ORIGIN_COL, columnIndex);
+
+    int columnIndex;
+    cursor->getColumnIndex(cursor, PERMISSION_ORIGIN_COL.c_str(), &columnIndex);
     WVLOG_I("web permission database origin columnIndex:%{public}d", columnIndex);
     do {
-        std::string origin;
-        resultSet->GetString(columnIndex, origin);
+        size_t size = 0;
+        cursor->getSize(cursor, columnIndex, &size);
+        char *origin = new char[size + 1]();
+        cursor->getText(cursor, columnIndex, origin, size + 1);
         origins.push_back(origin);
-    } while (resultSet->GoToNextRow() == NativeRdb::E_OK);
+        delete[] origin;
+    } while (cursor->goToNextRow(cursor) == RDB_OK);
 }
