@@ -56,11 +56,11 @@ public:
 
     std::string GetSiteIsolationMode() override;
 
+    int32_t GetFlowBufMaxFd() override;
+    
     bool GetOOPGPUEnable() override;
 
     void SetOOPGPUDisable() override;
-
-    int32_t GetFlowBufMaxFd() override;
 
     void AttachSysPropObserver(PropertiesKey key, SystemPropertiesObserver* observer) override;
 
@@ -80,11 +80,12 @@ private:
 
     SystemPropertiesAdapterImpl& operator=(const SystemPropertiesAdapterImpl&) = delete;
 
+    ProductDeviceType AnalysisFromConfig();
+
     void AddAllSysPropWatchers();
 
     void RemoveAllSysPropWatchers();
 
-    ProductDeviceType AnalysisFromConfig();
     int softwareMajorVersion_ = 4;
     int softwareSeniorVersion_ = 1;
 
