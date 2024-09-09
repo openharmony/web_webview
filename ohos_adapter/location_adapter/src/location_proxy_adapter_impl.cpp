@@ -15,42 +15,34 @@
 
 #include "location_proxy_adapter_impl.h"
 
-#include <dlfcn.h>
+#include <LocationKit/oh_location.h>
 
-#include "common_utils.h"
-#include "constant_definition.h"
+#include "json/json.h"
 #include "location_adapter.h"
-#include "location_callback_adapter_impl.h"
 #include "nweb_log.h"
 
-using namespace OHOS::Location;
 namespace {
-#if defined (__aarch64__) || (__x86_64__)
-const std::string NWEB_WRAPPER_SO_PATH = "/system/lib64/libnweb_ohos_wrapper.z.so";
-#else
-const std::string NWEB_WRAPPER_SO_PATH = "/system/lib/libnweb_ohos_wrapper.z.so";
-#endif
 int32_t ConvertScenario(int32_t scenario)
 {
-    int32_t ret = OHOS::NWeb::LocationRequestConfig::Scenario::UNSET;
+    int32_t ret = LOCATION_USE_SCENE_DAILY_LIFE_SERVICE;
     switch (scenario) {
-        case OHOS::NWeb::LocationRequestConfig::Scenario::UNSET:
-            ret = OHOS::Location::SCENE_UNSET;
-            break;
         case OHOS::NWeb::LocationRequestConfig::Scenario::NAVIGATION:
-            ret = OHOS::Location::SCENE_NAVIGATION;
+            ret = LOCATION_USE_SCENE_NAVIGATION;
             break;
         case OHOS::NWeb::LocationRequestConfig::Scenario::TRAJECTORY_TRACKING:
-            ret = OHOS::Location::SCENE_TRAJECTORY_TRACKING;
+            ret = LOCATION_USE_SCENE_SPORT;
             break;
         case OHOS::NWeb::LocationRequestConfig::Scenario::CAR_HAILING:
-            ret = OHOS::Location::SCENE_CAR_HAILING;
+            ret = LOCATION_USE_SCENE_TRANSPORT;
             break;
         case OHOS::NWeb::LocationRequestConfig::Scenario::DAILY_LIFE_SERVICE:
-            ret = OHOS::Location::SCENE_DAILY_LIFE_SERVICE;
+            ret = LOCATION_USE_SCENE_DAILY_LIFE_SERVICE;
             break;
         case OHOS::NWeb::LocationRequestConfig::Scenario::NO_POWER:
-            ret = OHOS::Location::SCENE_NO_POWER;
+            ret = LOCATION_NO_POWER_CONSUMPTION;
+            break;
+        case OHOS::NWeb::LocationRequestConfig::Scenario::UNSET:
+            ret = scenario;
             break;
         default:
             break;
@@ -58,260 +50,221 @@ int32_t ConvertScenario(int32_t scenario)
     return ret;
 }
 
-int32_t ConvertPriority(int32_t priority)
+Location_PowerConsumptionScene ConvertPriority(int32_t priority)
 {
-    int32_t ret = OHOS::NWeb::LocationRequestConfig::Priority::PRIORITY_UNSET;
+    Location_PowerConsumptionScene ret = LOCATION_LOW_POWER_CONSUMPTION;
     switch (priority) {
-        case OHOS::NWeb::LocationRequestConfig::Priority::PRIORITY_UNSET:
-            ret = OHOS::Location::PRIORITY_UNSET;
-            break;
         case OHOS::NWeb::LocationRequestConfig::Priority::PRIORITY_ACCURACY:
-            ret = OHOS::Location::PRIORITY_ACCURACY;
+            ret = LOCATION_HIGH_POWER_CONSUMPTION;
             break;
         case OHOS::NWeb::LocationRequestConfig::Priority::PRIORITY_LOW_POWER:
-            ret = OHOS::Location::PRIORITY_LOW_POWER;
+            ret = LOCATION_LOW_POWER_CONSUMPTION;
             break;
         case OHOS::NWeb::LocationRequestConfig::Priority::PRIORITY_FAST_FIRST_FIX:
-            ret = OHOS::Location::PRIORITY_FAST_FIRST_FIX;
+            ret = LOCATION_HIGH_POWER_CONSUMPTION;
             break;
         default:
             break;
     }
     return ret;
 }
-}
+} // namespace
 
 namespace OHOS::NWeb {
-LocationRequestConfigImpl::LocationRequestConfigImpl()
+#define MAX_ADDITION_LEN 1024
+static void LocationCallback(Location_Info* location, void* userData)
 {
-    config_ = std::make_unique<OHOS::Location::RequestConfig>();
+    Location_BasicInfo basicInfo = OH_LocationInfo_GetBasicInfo(location);
+    char additions[MAX_ADDITION_LEN] = { 0 };
+    OH_LocationInfo_GetAdditionalInfo(location, additions, MAX_ADDITION_LEN);
+    auto locationInfoImpl = std::make_shared<LocationInfoImpl>();
+    locationInfoImpl->SetBasicInfo(&basicInfo);
+    locationInfoImpl->SetAdditions(additions);
+    std::shared_ptr<LocationInfo> locationInfo = locationInfoImpl;
+    LocationCallbackAdapter* locationCallbackAdapter = (LocationCallbackAdapter*)(userData);
+    locationCallbackAdapter->OnLocationReport(locationInfo);
 }
+
+LocationRequestConfigImpl::LocationRequestConfigImpl()
+    : scenario_(LOCATION_USE_SCENE_DAILY_LIFE_SERVICE), timeInterval_(0), priority_(LOCATION_LOW_POWER_CONSUMPTION)
+{}
 
 void LocationRequestConfigImpl::SetScenario(int32_t scenario)
 {
-    if (config_ == nullptr) {
-        return;
+    scenario_ = ConvertScenario(scenario);
+    if (scenario_ == LOCATION_NO_POWER_CONSUMPTION) {
+        scenario_ = OHOS::NWeb::LocationRequestConfig::Scenario::UNSET;
+        priority_ = LOCATION_NO_POWER_CONSUMPTION;
     }
-    config_->SetScenario(ConvertScenario(scenario));
 }
 
 void LocationRequestConfigImpl::SetFixNumber(int32_t number)
 {
-    if (config_ == nullptr) {
-        return;
-    }
-    config_->SetFixNumber(number);
+    // invalid interface
+    return;
 }
 
 void LocationRequestConfigImpl::SetMaxAccuracy(int32_t maxAccuary)
 {
-    if (config_ == nullptr) {
-        return;
-    }
-    config_->SetMaxAccuracy(maxAccuary);
+    // invalid interface
+    return;
 }
 
 void LocationRequestConfigImpl::SetDistanceInterval(int32_t disInterval)
 {
-    if (config_ == nullptr) {
-        return;
-    }
-    config_->SetDistanceInterval(disInterval);
+    // invalid interface
+    return;
 }
 
 void LocationRequestConfigImpl::SetTimeInterval(int32_t timeInterval)
 {
-    if (config_ == nullptr) {
-        return;
-    }
-    config_->SetTimeInterval(timeInterval);
+    timeInterval_ = timeInterval;
 }
 
 void LocationRequestConfigImpl::SetPriority(int32_t priority)
 {
-    if (config_ == nullptr) {
-        return;
+    if (priority_ != LOCATION_NO_POWER_CONSUMPTION) {
+        priority_ = ConvertPriority(priority);
     }
-    config_->SetPriority(ConvertPriority(priority));
 }
 
-std::unique_ptr<OHOS::Location::RequestConfig>& LocationRequestConfigImpl::GetConfig()
+int32_t LocationRequestConfigImpl::GetScenario()
 {
-    return config_;
+    return scenario_;
 }
 
-LocationInfoImpl::LocationInfoImpl(std::unique_ptr<OHOS::Location::Location>& location)
-    : location_(std::move(location)) {}
+int32_t LocationRequestConfigImpl::GetTimeInterval()
+{
+    return timeInterval_;
+}
+
+Location_PowerConsumptionScene LocationRequestConfigImpl::GetPriority()
+{
+    return priority_;
+}
+
+LocationInfoImpl::LocationInfoImpl() : basicInfo_({ 0 }) {}
 
 double LocationInfoImpl::GetLatitude()
 {
-    if (location_ == nullptr) {
-        return 0;
-    }
-    return location_->GetLatitude();
+    return basicInfo_.latitude;
 }
 
 double LocationInfoImpl::GetLongitude()
 {
-    if (location_ == nullptr) {
-        return 0;
-    }
-    return location_->GetLongitude();
+    return basicInfo_.longitude;
 }
 
 double LocationInfoImpl::GetAltitude()
 {
-    if (location_ == nullptr) {
-        return 0;
-    }
-    return location_->GetAltitude();
+    return basicInfo_.altitude;
 }
 
 float LocationInfoImpl::GetAccuracy()
 {
-    if (location_ == nullptr) {
-        return 0;
-    }
-    return location_->GetAccuracy();
+    return basicInfo_.accuracy;
 }
 
 float LocationInfoImpl::GetSpeed()
 {
-    if (location_ == nullptr) {
-        return 0;
-    }
-    return location_->GetSpeed();
+    return basicInfo_.speed;
 }
 
 double LocationInfoImpl::GetDirection()
 {
-    if (location_ == nullptr) {
-        return 0;
-    }
-    return location_->GetDirection();
+    return basicInfo_.direction;
 }
 
 int64_t LocationInfoImpl::GetTimeStamp()
 {
-    if (location_ == nullptr) {
-        return 0;
-    }
-    return location_->GetTimeStamp();
+    return basicInfo_.timeForFix;
 }
 
 int64_t LocationInfoImpl::GetTimeSinceBoot()
 {
-    if (location_ == nullptr) {
-        return 0;
-    }
-    return location_->GetTimeSinceBoot();
+    return basicInfo_.timeSinceBoot;
 }
 
 std::vector<std::string> LocationInfoImpl::GetAdditions()
 {
-    if (location_ == nullptr) {
-        std::vector<std::string> emptyLoc;
-        return emptyLoc;
-    }
-    return location_->GetAdditions();
+    return additions_;
 }
 
-std::unique_ptr<OHOS::Location::Location>& LocationInfoImpl::GetLocation()
+void LocationInfoImpl::SetBasicInfo(const Location_BasicInfo* basicInfo)
 {
-    return location_;
+    basicInfo_ = *basicInfo;
 }
 
-void* LocationProxyAdapterImpl::wrapperHandle_;
-IsEnableLocationFuncType LocationProxyAdapterImpl::isEnableLocationFunc_;
-EnableAbilityFuncType LocationProxyAdapterImpl::enableAbilityFunc_;
-StartLocatingFuncType LocationProxyAdapterImpl::startLocatingFunc_;
-StopLocatingFuncType LocationProxyAdapterImpl::stopLocatingFunc_;
-
-LocationProxyAdapterImpl::LocationProxyAdapterImpl()
+void LocationInfoImpl::SetAdditions(char* additions)
 {
-    if (!wrapperHandle_) {
-        wrapperHandle_ = dlopen(NWEB_WRAPPER_SO_PATH.c_str(), RTLD_NOW | RTLD_GLOBAL);
+    Json::Value root;
+    Json::Reader reader;
+    std::string additionsStr(additions);
+    bool result = reader.parse(additionsStr, root);
+    if (!result) {
+        WVLOG_I("failed parse additions!");
+        return;
     }
-    if (wrapperHandle_) {
-        if (!isEnableLocationFunc_) {
-            isEnableLocationFunc_ = reinterpret_cast<IsEnableLocationFuncType>(
-                dlsym(wrapperHandle_, "IsLocationEnable"));
-        }
-        if (!enableAbilityFunc_) {
-            enableAbilityFunc_ = reinterpret_cast<EnableAbilityFuncType>(
-                dlsym(wrapperHandle_, "EnableAbility"));
-        }
-        if (!startLocatingFunc_) {
-            startLocatingFunc_ = reinterpret_cast<StartLocatingFuncType>(
-                dlsym(wrapperHandle_, "StartLocating"));
-        }
-        if (!stopLocatingFunc_) {
-            stopLocatingFunc_ = reinterpret_cast<StopLocatingFuncType>(
-                dlsym(wrapperHandle_, "StopLocating"));
-        }
+    for (const auto& member : root.getMemberNames()) {
+        std::string value = root.get(member.c_str(), "").asString();
+        std::string temp = member + ":" + value;
+        WVLOG_I("SetAdditions, addition=%{public}s", temp.c_str());
+        additions_.emplace_back(temp);
     }
 }
+
+LocationProxyAdapterImpl::LocationProxyAdapterImpl() : ohRequestConfig(nullptr), ohCallback_(nullptr) {}
 
 int32_t LocationProxyAdapterImpl::StartLocating(
-    std::shared_ptr<LocationRequestConfig> requestConfig,
-    std::shared_ptr<LocationCallbackAdapter> callback)
+    std::shared_ptr<LocationRequestConfig> requestConfig, std::shared_ptr<LocationCallbackAdapter> callback)
 {
-    static int32_t count = 0;
     int32_t id = -1;
-    if (!startLocatingFunc_ || !callback) {
-        WVLOG_E("get Locator::GetInstance() failed or callback is nullptr");
+    if (!callback) {
+        WVLOG_E("callback is nullptr");
         return id;
     }
-    sptr<OHOS::Location::ILocatorCallback> iCallback =
-        sptr<OHOS::Location::ILocatorCallback>(new LocationCallbackImpl(callback));
-    bool ret = startLocatingFunc_(
-        reinterpret_cast<LocationRequestConfigImpl*>(requestConfig.get())->GetConfig(),
-        iCallback);
-    if (!ret) {
-        WVLOG_E("StartLocating failed, errcode:%{public}d", ret);
+    LocationRequestConfigImpl* requestConfigImpl = static_cast<LocationRequestConfigImpl*>(requestConfig.get());
+    ohRequestConfig = OH_Location_CreateRequestConfig();
+    if (requestConfigImpl->GetScenario() != OHOS::NWeb::LocationRequestConfig::Scenario::UNSET) {
+        OH_LocationRequestConfig_SetUseScene(ohRequestConfig, (Location_UseScene)requestConfigImpl->GetScenario());
+    } else {
+        OH_LocationRequestConfig_SetPowerConsumptionScene(ohRequestConfig, requestConfigImpl->GetPriority());
+    }
+    OH_LocationRequestConfig_SetInterval(ohRequestConfig, requestConfigImpl->GetTimeInterval());
+    ohCallback_ = std::move(callback);
+    OH_LocationRequestConfig_SetCallback(ohRequestConfig, LocationCallback, ohCallback_.get());
+    Location_ResultCode errCode = OH_Location_StartLocating(ohRequestConfig);
+    if (errCode != LOCATION_SUCCESS) {
+        WVLOG_E("StartLocating failed, errcode:%{public}d", errCode);
         return id;
     }
 
-    id = count++;
-    if (count < 0) {
-        count = 0;
-    }
-    reg_.emplace(std::make_pair(id, iCallback));
-    return id;
+    WVLOG_I("LocationProxyAdapterImpl::StartLocating");
+    return 0;
 }
 
 bool LocationProxyAdapterImpl::StopLocating(int32_t callbackId)
 {
-    if (!stopLocatingFunc_ || callbackId < 0) {
-        WVLOG_E("get Locator::GetInstance() failed or callback is null");
+    if (callbackId < 0) {
+        WVLOG_E("callback is null");
         return false;
     }
-    LocatorCallbackMap::iterator iter = reg_.find(callbackId);
-    if (iter == reg_.end()) {
-        WVLOG_E("StopLocating failed due to reg_ not find iCallback");
-        return false;
-    }
-    bool ret = stopLocatingFunc_(iter->second);
-    reg_.erase(iter);
-    return ret;
+    WVLOG_I("LocationProxyAdapterImpl::StopLocating");
+    Location_ResultCode errCode = OH_Location_StopLocating(ohRequestConfig);
+    OH_Location_DestroyRequestConfig(ohRequestConfig);
+    ohRequestConfig = nullptr;
+    return errCode == LOCATION_SUCCESS ? true : false;
 }
 
 bool LocationProxyAdapterImpl::EnableAbility(bool isEnabled)
 {
-    if (!enableAbilityFunc_) {
-        WVLOG_E("get Locator::GetInstance() failed");
-        return false;
-    }
-    return enableAbilityFunc_(isEnabled);
+    // invalid interface
+    return isEnabled;
 }
 
 bool LocationProxyAdapterImpl::IsLocationEnabled()
 {
-    if (!isEnableLocationFunc_) {
-        WVLOG_E("get Locator::GetInstance() failed");
-        return false;
-    }
     bool isEnabled = false;
-    return isEnableLocationFunc_(isEnabled) ? isEnabled : false;
+    return OH_Location_IsLocatingEnabled(&isEnabled) == LOCATION_SUCCESS ? isEnabled : false;
 }
-}
+} // namespace OHOS::NWeb
