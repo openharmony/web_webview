@@ -23,17 +23,17 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool ClearPermissionByOriginFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        std::string origin((const char *)data, size);
-        WebPermissionType key = WebPermissionType::GEOLOCATION;
-        OhosWebPermissionDataBaseAdapterImpl::GetInstance().ClearPermissionByOrigin(origin, key);
-        return true;
+bool ClearPermissionByOriginFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    std::string origin((const char*)data, size);
+    WebPermissionType key = WebPermissionType::GEOLOCATION;
+    OhosWebPermissionDataBaseAdapterImpl::GetInstance().ClearPermissionByOrigin(origin, key);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

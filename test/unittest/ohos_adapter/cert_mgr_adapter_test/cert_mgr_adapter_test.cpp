@@ -33,7 +33,6 @@ using namespace testing::ext;
 namespace OHOS::NWeb {
 namespace {
 constexpr uint32_t DEFAULT_SIGNATURE_LEN = 1024;
-constexpr uint32_t MAX_LEN_CREATDATA = 8197;
 uint32_t TEST_FAILURE = -1;
 uint32_t TEST_OK = 0;
 uint32_t g_cerSize = 0;
@@ -397,13 +396,6 @@ HWTEST_F(CertMgrAdapterTest, CertMgrAdapterTest_Sign_006, TestSize.Level1)
     result = adapter.Sign(uriData, nullptr, 0, signData, sizeof(signData));
     EXPECT_EQ(result, -1);
 
-    int sslResult = adapter.VerifyCertFromNetSsl(nullptr, -1);
-    EXPECT_NE(result, 0);
-    sslResult = adapter.VerifyCertFromNetSsl(uriData, -1);
-    EXPECT_NE(sslResult, 0);
-    sslResult = adapter.VerifyCertFromNetSsl(uriData, MAX_LEN_CREATDATA);
-    EXPECT_NE(sslResult, 0);
-    adapter.VerifyCertFromNetSsl(uriData, sizeof(uriData));
     std::string hostname = "";
     std::vector<std::string> certs;
     bool getNameValue = adapter.GetTrustAnchorsForHostName(hostname, certs);

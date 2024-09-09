@@ -23,21 +23,21 @@ class MMIListenerTest : public MMIListenerAdapter {
 public:
     MMIListenerTest() = default;
     virtual ~MMIListenerTest() = default;
-    void OnDeviceAdded(int32_t deviceId, const std::string &type) override {};
-    void OnDeviceRemoved(int32_t deviceId, const std::string &type) override {};
+    void OnDeviceAdded(int32_t deviceId, const std::string& type) override {};
+    void OnDeviceRemoved(int32_t deviceId, const std::string& type) override {};
 };
-    bool RegisterDevListenerFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        std::shared_ptr<MMIListenerAdapter> listener = std::make_shared<MMIListenerTest>();
-        std::shared_ptr<MMIAdapterImpl> AdapterImpl = std::make_shared<MMIAdapterImpl>();
-        std::string type((const char*) data, size);
-        AdapterImpl->RegisterDevListener(type, listener);
-        return true;
+bool RegisterDevListenerFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    std::shared_ptr<MMIListenerAdapter> listener = std::make_shared<MMIListenerTest>();
+    std::shared_ptr<MMIAdapterImpl> AdapterImpl = std::make_shared<MMIAdapterImpl>();
+    std::string type((const char*)data, size);
+    AdapterImpl->RegisterDevListener(type, listener);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

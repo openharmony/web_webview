@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "pmsdatabaseonupgrade_fuzzer"
 #endif /* TEST_FUZZTEST_PMS_DATABASE_ON_UPGRADE_FUZZER_H */
-

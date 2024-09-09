@@ -333,7 +333,8 @@ napi_value NapiWebSchemeHandlerRequest::JS_GetFrameUrl(napi_env env, napi_callba
     return value;
 }
 
-napi_status NapiWebSchemeHandlerRequest::ExportEnumWebResourceType(napi_env env, napi_value* value) {
+napi_status NapiWebSchemeHandlerRequest::ExportEnumWebResourceType(napi_env env, napi_value* value)
+{
     WVLOG_D("begin to export enum web resource type");
 
     const std::string NPI_WEB_RESOURCE_TYPE_ENUM_NAME = "WebResourceType";
@@ -1210,7 +1211,8 @@ napi_value NapiWebHttpBodyStream::JS_Initialize(napi_env env, napi_callback_info
     return result;
 }
 
-bool checkReadParamsNumber(napi_env env, const size_t argc) {
+bool checkReadParamsNumber(napi_env env, const size_t argc)
+{
     size_t argcPromise = INTEGER_ONE;
     size_t argcCallback = INTEGER_TWO;
     if (argc != argcPromise && argc != argcCallback) {
@@ -1222,7 +1224,8 @@ bool checkReadParamsNumber(napi_env env, const size_t argc) {
     return true;
 }
 
-bool checkReadBufLen(napi_env env, const int32_t bufLen) {
+bool checkReadBufLen(napi_env env, const int32_t bufLen)
+{
     if (bufLen <= 0) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
             "BusinessError 401: Parameter error. The value of size must be a number greater than 0.");

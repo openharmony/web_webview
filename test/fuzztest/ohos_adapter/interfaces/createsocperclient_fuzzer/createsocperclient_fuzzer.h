@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "createsocperclient_fuzzer"
 #endif /* TEST_FUZZTEST_CREATE_SOCPER_CLIENT_FUZZER_H */
-

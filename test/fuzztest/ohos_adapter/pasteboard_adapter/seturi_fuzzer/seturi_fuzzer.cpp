@@ -14,26 +14,27 @@
  */
 
 #include "seturi_fuzzer.h"
+
 #include "pasteboard_client_adapter_impl.h"
 
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool SetUriFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        std::string text((const char*) data, size);
-        std::shared_ptr<std::string> plainText = std::make_shared<std::string>(text);
-        std::shared_ptr<std::string> htmlText = std::make_shared<std::string>(text);
-        std::shared_ptr<PasteDataRecordAdapter> dataRecordAdapterImpl =
-        PasteDataRecordAdapter::NewRecord(text, htmlText, plainText);
-        std::string uriString((const char*) data, size);
-        dataRecordAdapterImpl->SetUri(uriString);
-        return true;
+bool SetUriFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    std::string text((const char*)data, size);
+    std::shared_ptr<std::string> plainText = std::make_shared<std::string>(text);
+    std::shared_ptr<std::string> htmlText = std::make_shared<std::string>(text);
+    std::shared_ptr<PasteDataRecordAdapter> dataRecordAdapterImpl =
+        PasteDataRecordAdapter::NewRecord(text, htmlText, plainText);
+    std::string uriString((const char*)data, size);
+    dataRecordAdapterImpl->SetUri(uriString);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

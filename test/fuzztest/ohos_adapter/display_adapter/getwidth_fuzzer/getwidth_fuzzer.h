@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "getwidth_fuzzer"
 #endif /* TEST_FUZZTEST_GET_WIDTH_FUZZER_H */
-

@@ -16,6 +16,7 @@
 let cert = requireInternal('security.cert');
 let webview = requireInternal('web.webview');
 let picker = requireNapi('file.picker');
+let photoAccessHelper = requireNapi('file.photoAccessHelper');
 let cameraPicker = requireNapi('multimedia.cameraPicker');
 let camera = requireNapi('multimedia.camera');
 let accessControl = requireNapi('abilityAccessCtrl');
@@ -197,21 +198,21 @@ function isContainVideoMimeType(acceptTypes) {
 function selectPicture(param, selectResult) {
   try {
     let photoResultArray = [];
-    let photoSelectOptions = new picker.PhotoSelectOptions();
+    let photoSelectOptions = new photoAccessHelper.PhotoSelectOptions();
     if (param.getMode() === FileSelectorMode.FileOpenMode) {
       console.log('allow select single photo or video');
       photoSelectOptions.maxSelectNumber = 1;
     }
     let acceptTypes = param.getAcceptType();
-    photoSelectOptions.MIMEType = picker.PhotoViewMIMETypes.IMAGE_VIDEO_TYPE;
+    photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.IMAGE_VIDEO_TYPE;
     if (isContainImageMimeType(acceptTypes) && !isContainVideoMimeType(acceptTypes)) {
-      photoSelectOptions.MIMEType = picker.PhotoViewMIMETypes.IMAGE_TYPE;
+      photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.IMAGE_TYPE;
     }
     if (!isContainImageMimeType(acceptTypes) && isContainVideoMimeType(acceptTypes)) {
-      photoSelectOptions.MIMEType = picker.PhotoViewMIMETypes.VIDEO_TYPE;
+      photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.VIDEO_TYPE;
     }
 
-    let photoPicker = new picker.PhotoViewPicker();
+    let photoPicker = new photoAccessHelper.PhotoViewPicker();
     photoPicker.select(photoSelectOptions).then((photoSelectResult) => {
       if (photoSelectResult.photoUris.length <= 0) {
         return;
@@ -229,7 +230,7 @@ function selectPicture(param, selectResult) {
 Object.defineProperty(webview.WebviewController.prototype, 'getCertificate', {
   value: function (callback) {
     if (arguments.length !== 0 && arguments.length !== 1) {
-      throw new BusinessError(PARAM_CHECK_ERROR, 
+      throw new BusinessError(PARAM_CHECK_ERROR,
         'BusinessError 401: Parameter error. The number of params must be zero or one.');
     }
 
@@ -240,7 +241,7 @@ Object.defineProperty(webview.WebviewController.prototype, 'getCertificate', {
     } else {
       console.log('get certificate async callback');
       if (typeof callback !== 'function') {
-        throw new BusinessError(PARAM_CHECK_ERROR, 
+        throw new BusinessError(PARAM_CHECK_ERROR,
           'BusinessError 401: Parameter error. The type of "callback" must be function.' );
       }
       return getCertificatePromise(certChainData).then(x509CertArray => {

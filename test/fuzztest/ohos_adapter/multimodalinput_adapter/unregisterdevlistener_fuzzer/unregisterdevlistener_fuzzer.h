@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "unregisterdevlistener_fuzzer"
 #endif /* TEST_FUZZTEST_UNREGISTERDEVLISTENER_FUZZER_H */
-

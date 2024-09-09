@@ -539,11 +539,6 @@ void ArkWebPreferenceWrapper::SetNativeVideoPlayerConfig(bool enable, bool shoul
     ark_web_preference_->SetNativeVideoPlayerConfig(enable, shouldOverlay);
 }
 
-void ArkWebPreferenceWrapper::PutOverlayScrollbarEnabled(bool enable)
-{
-    ark_web_preference_->PutOverlayScrollbarEnabled(enable);
-}
-
 std::string ArkWebPreferenceWrapper::GetSurfaceId()
 {
     ArkWebString stSurfaceId = ark_web_preference_->GetSurfaceId();
@@ -560,6 +555,16 @@ void ArkWebPreferenceWrapper::SetSurfaceId(const std::string& surfaceId)
     ark_web_preference_->SetSurfaceId(stSurfaceId);
 
     ArkWebStringStructRelease(stSurfaceId);
+}
+
+void ArkWebPreferenceWrapper::PutOverlayScrollbarEnabled(bool enable)
+{
+    ark_web_preference_->PutOverlayScrollbarEnabled(enable);
+}
+
+void ArkWebPreferenceWrapper::SetScrollable(bool enable, int32_t scrollType)
+{
+    ark_web_preference_->SetScrollable(enable, scrollType);
 }
 
 } // namespace OHOS::ArkWeb

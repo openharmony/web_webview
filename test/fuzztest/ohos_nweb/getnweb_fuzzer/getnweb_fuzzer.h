@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "getnweb_fuzzer"
 #endif /* TEST_FUZZTEST_GETNWEB_FUZZER_H */
-

@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
+import("../../../../config.gni")
 
 module_output_path = "web/webview"
 
@@ -42,13 +43,24 @@ ohos_unittest("ohos_image_decoder_adapter_test") {
     "c_utils:utils",
     "graphic_2d:libnative_image",
     "hilog:libhilog",
-    "image_framework:image_native",
-    "image_framework:image_utils",
   ]
-  resource_config_file = "../../../resource/image/ohos_test.xml"
+
+  if (webview_enable_heif_decoder) {
+    external_deps += [
+      "image_framework:image_native",
+      "image_framework:image_utils",
+    ]
+  }
+
+  if (webview_enable_heif_decoder) {
+    resource_config_file = "../../../resource/image/ohos_test.xml"
+  }
 }
 
 group("unittest") {
   testonly = true
-  deps = [ ":ohos_image_decoder_adapter_test" ]
+  deps = []
+  if (webview_enable_heif_decoder) {
+    deps += [ ":ohos_image_decoder_adapter_test" ]
+  }
 }

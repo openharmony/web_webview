@@ -16,26 +16,27 @@
 #include "getkeyboardtype_fuzzer.h"
 
 #include <securec.h>
+
 #include "mmi_adapter_impl.h"
 
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool GetKeyboardTypeFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size < sizeof(int32_t))) {
-            return false;
-        }
-        std::shared_ptr<MMIAdapterImpl> AdapterImpl = std::make_shared<MMIAdapterImpl>();
-        int32_t deviceId;
-        if (memcpy_s(&deviceId, sizeof(int32_t), data, sizeof(int32_t)) != 0) {
-            return false;
-        }
-        int32_t type;
-        AdapterImpl->GetKeyboardType(deviceId, type);
-        return true;
+bool GetKeyboardTypeFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size < sizeof(int32_t))) {
+        return false;
     }
+    std::shared_ptr<MMIAdapterImpl> AdapterImpl = std::make_shared<MMIAdapterImpl>();
+    int32_t deviceId;
+    if (memcpy_s(&deviceId, sizeof(int32_t), data, sizeof(int32_t)) != 0) {
+        return false;
+    }
+    int32_t type;
+    AdapterImpl->GetKeyboardType(deviceId, type);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "aafwkattachrender_fuzzer"
 #endif /* TEST_FUZZTEST_AAFWK_ATTACH_RENDER_FUZZER_H */
-

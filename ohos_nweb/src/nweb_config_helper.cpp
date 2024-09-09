@@ -146,8 +146,7 @@ std::string NWebConfigHelper::GetConfigPath(const std::string &configFileName)
     char buf[PATH_MAX + 1];
     char *configPath = GetOneCfgFile(configFileName.c_str(), buf, PATH_MAX + 1);
     char tmpPath[PATH_MAX + 1] = { 0 };
-    if (!configPath || strlen(configPath) == 0 || strlen(configPath) > PATH_MAX || !realpath(configPath, tmpPath))
-     {
+    if (!configPath || strlen(configPath) == 0 || strlen(configPath) > PATH_MAX || !realpath(configPath, tmpPath)) {
         WVLOG_I("can not get customization config file");
         return "/system/" + configFileName;
     }

@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "imagetoclipboardalphatype_fuzzer"
 #endif /* TEST_FUZZTEST_IMAGETOCLIPBOARDALPHATYPE_FUZZER_H */
-

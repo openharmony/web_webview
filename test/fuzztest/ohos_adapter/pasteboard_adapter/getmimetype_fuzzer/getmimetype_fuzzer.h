@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "getmimetype_fuzzer"
 #endif /* TEST_FUZZTEST_GETMIMETYPE_FUZZER_H */
-

@@ -882,4 +882,9 @@ void ArkWebHandlerImpl::HideHandleAndQuickMenuIfNecessary(bool hide)
 {
     nweb_handler_->HideHandleAndQuickMenuIfNecessary(hide);
 }
+
+void ArkWebHandlerImpl::OnNativeEmbedVisibilityChange(const ArkWebString& embed_id, bool visibility)
+{
+    nweb_handler_->OnNativeEmbedVisibilityChange(ArkWebStringStructToClass(embed_id), visibility);
+}
 } // namespace OHOS::ArkWeb

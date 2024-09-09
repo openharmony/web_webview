@@ -255,7 +255,7 @@ bool ParseHttpHeaders(napi_env env, napi_value headersArray, std::map<std::strin
     return true;
 }
 
-bool CheckCacheKey(napi_env env,const std::string& cacheKey)
+bool CheckCacheKey(napi_env env, const std::string& cacheKey)
 {
     for (char c : cacheKey) {
         if (!isalnum(c)) {
@@ -476,21 +476,16 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setDownloadDelegate", NapiWebviewController::SetDownloadDelegate),
         DECLARE_NAPI_FUNCTION("startDownload", NapiWebviewController::StartDownload),
         DECLARE_NAPI_STATIC_FUNCTION("prepareForPageLoad", NapiWebviewController::PrepareForPageLoad),
-        DECLARE_NAPI_STATIC_FUNCTION("setConnectionTimeout", NapiWebviewController::SetConnectionTimeout),
         DECLARE_NAPI_FUNCTION("createWebPrintDocumentAdapter", NapiWebviewController::CreateWebPrintDocumentAdapter),
-        DECLARE_NAPI_FUNCTION("getSecurityLevel", NapiWebviewController::GetSecurityLevel),
+        DECLARE_NAPI_STATIC_FUNCTION("setConnectionTimeout", NapiWebviewController::SetConnectionTimeout),
         DECLARE_NAPI_FUNCTION("enableSafeBrowsing", NapiWebviewController::EnableSafeBrowsing),
         DECLARE_NAPI_FUNCTION("isSafeBrowsingEnabled", NapiWebviewController::IsSafeBrowsingEnabled),
+        DECLARE_NAPI_FUNCTION("getSecurityLevel", NapiWebviewController::GetSecurityLevel),
         DECLARE_NAPI_FUNCTION("isIncognitoMode", NapiWebviewController::IsIncognitoMode),
         DECLARE_NAPI_FUNCTION("setPrintBackground", NapiWebviewController::SetPrintBackground),
         DECLARE_NAPI_FUNCTION("getPrintBackground", NapiWebviewController::GetPrintBackground),
         DECLARE_NAPI_FUNCTION("setWebSchemeHandler", NapiWebviewController::SetWebSchemeHandler),
         DECLARE_NAPI_FUNCTION("clearWebSchemeHandler", NapiWebviewController::ClearWebSchemeHandler),
-        DECLARE_NAPI_FUNCTION("closeAllMediaPresentations", NapiWebviewController::CloseAllMediaPresentations),
-        DECLARE_NAPI_FUNCTION("stopAllMedia", NapiWebviewController::StopAllMedia),
-        DECLARE_NAPI_FUNCTION("resumeAllMedia", NapiWebviewController::ResumeAllMedia),
-        DECLARE_NAPI_FUNCTION("pauseAllMedia", NapiWebviewController::PauseAllMedia),
-        DECLARE_NAPI_FUNCTION("getMediaPlaybackState", NapiWebviewController::GetMediaPlaybackState),
         DECLARE_NAPI_FUNCTION("enableIntelligentTrackingPrevention",
             NapiWebviewController::EnableIntelligentTrackingPrevention),
         DECLARE_NAPI_FUNCTION("isIntelligentTrackingPreventionEnabled",
@@ -501,35 +496,41 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
             NapiWebviewController::RemoveIntelligentTrackingPreventionBypassingList),
         DECLARE_NAPI_STATIC_FUNCTION("clearIntelligentTrackingPreventionBypassingList",
             NapiWebviewController::ClearIntelligentTrackingPreventionBypassingList),
+        DECLARE_NAPI_FUNCTION("getLastJavascriptProxyCallingFrameUrl",
+            NapiWebviewController::GetLastJavascriptProxyCallingFrameUrl),
         DECLARE_NAPI_STATIC_FUNCTION("pauseAllTimers", NapiWebviewController::PauseAllTimers),
         DECLARE_NAPI_STATIC_FUNCTION("resumeAllTimers", NapiWebviewController::ResumeAllTimers),
         DECLARE_NAPI_FUNCTION("startCamera", NapiWebviewController::StartCamera),
         DECLARE_NAPI_FUNCTION("stopCamera", NapiWebviewController::StopCamera),
         DECLARE_NAPI_FUNCTION("closeCamera", NapiWebviewController::CloseCamera),
-        DECLARE_NAPI_FUNCTION("getLastJavascriptProxyCallingFrameUrl",
-            NapiWebviewController::GetLastJavascriptProxyCallingFrameUrl),
+        DECLARE_NAPI_FUNCTION("closeAllMediaPresentations", NapiWebviewController::CloseAllMediaPresentations),
+        DECLARE_NAPI_FUNCTION("stopAllMedia", NapiWebviewController::StopAllMedia),
+        DECLARE_NAPI_FUNCTION("resumeAllMedia", NapiWebviewController::ResumeAllMedia),
+        DECLARE_NAPI_FUNCTION("pauseAllMedia", NapiWebviewController::PauseAllMedia),
+        DECLARE_NAPI_FUNCTION("getMediaPlaybackState", NapiWebviewController::GetMediaPlaybackState),
         DECLARE_NAPI_FUNCTION("onCreateNativeMediaPlayer", NapiWebviewController::OnCreateNativeMediaPlayer),
         DECLARE_NAPI_STATIC_FUNCTION("prefetchResource", NapiWebviewController::PrefetchResource),
         DECLARE_NAPI_STATIC_FUNCTION("clearPrefetchedResource", NapiWebviewController::ClearPrefetchedResource),
         DECLARE_NAPI_STATIC_FUNCTION("setRenderProcessMode", NapiWebviewController::SetRenderProcessMode),
         DECLARE_NAPI_STATIC_FUNCTION("getRenderProcessMode", NapiWebviewController::GetRenderProcessMode),
         DECLARE_NAPI_FUNCTION("precompileJavaScript", NapiWebviewController::PrecompileJavaScript),
-        DECLARE_NAPI_STATIC_FUNCTION("warmupServiceWorker", NapiWebviewController::WarmupServiceWorker),
         DECLARE_NAPI_FUNCTION("injectOfflineResources", NapiWebviewController::InjectOfflineResource),
         DECLARE_NAPI_STATIC_FUNCTION("setHostIP", NapiWebviewController::SetHostIP),
         DECLARE_NAPI_STATIC_FUNCTION("clearHostIP", NapiWebviewController::ClearHostIP),
+        DECLARE_NAPI_STATIC_FUNCTION("warmupServiceWorker", NapiWebviewController::WarmupServiceWorker),
+        DECLARE_NAPI_FUNCTION("getSurfaceId", NapiWebviewController::GetSurfaceId),
         DECLARE_NAPI_STATIC_FUNCTION("enableWholeWebPageDrawing", NapiWebviewController::EnableWholeWebPageDrawing),
         DECLARE_NAPI_FUNCTION("enableAdsBlock", NapiWebviewController::EnableAdsBlock),
         DECLARE_NAPI_FUNCTION("isAdsBlockEnabled", NapiWebviewController::IsAdsBlockEnabled),
         DECLARE_NAPI_FUNCTION("isAdsBlockEnabledForCurPage", NapiWebviewController::IsAdsBlockEnabledForCurPage),
-        DECLARE_NAPI_FUNCTION("getSurfaceId", NapiWebviewController::GetSurfaceId),
-        DECLARE_NAPI_FUNCTION("updateInstanceId", NapiWebviewController::UpdateInstanceId),
-        DECLARE_NAPI_FUNCTION("setUrlTrustList", NapiWebviewController::SetUrlTrustList),
         DECLARE_NAPI_FUNCTION("webPageSnapshot", NapiWebviewController::WebPageSnapshot),
+        DECLARE_NAPI_FUNCTION("setUrlTrustList", NapiWebviewController::SetUrlTrustList),
         DECLARE_NAPI_FUNCTION("setPathAllowingUniversalAccess",
             NapiWebviewController::SetPathAllowingUniversalAccess),
         DECLARE_NAPI_STATIC_FUNCTION("enableBackForwardCache", NapiWebviewController::EnableBackForwardCache),
         DECLARE_NAPI_FUNCTION("setBackForwardCacheOptions", NapiWebviewController::SetBackForwardCacheOptions),
+        DECLARE_NAPI_FUNCTION("scrollByWithResult", NapiWebviewController::ScrollByWithResult),
+        DECLARE_NAPI_FUNCTION("updateInstanceId", NapiWebviewController::UpdateInstanceId),
         DECLARE_NAPI_STATIC_FUNCTION("trimMemoryByPressureLevel",
             NapiWebviewController::TrimMemoryByPressureLevel),
     };
@@ -727,6 +728,16 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         sizeof(pressureLevelProperties[0]), pressureLevelProperties, &pressureLevelEnum);
     napi_set_named_property(env, exports, WEB_PRESSURE_LEVEL_ENUM_NAME.c_str(), pressureLevelEnum);
 
+    napi_value scrollTypeEnum = nullptr;
+    napi_property_descriptor scrollTypeProperties[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("EVENT", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(ScrollType::EVENT))),
+    };
+    napi_define_class(env, WEB_SCROLL_TYPE_ENUM_NAME.c_str(), WEB_SCROLL_TYPE_ENUM_NAME.length(),
+        NapiParseUtils::CreateEnumConstructor, nullptr, sizeof(scrollTypeProperties) /
+        sizeof(scrollTypeProperties[0]), scrollTypeProperties, &scrollTypeEnum);
+    napi_set_named_property(env, exports, WEB_SCROLL_TYPE_ENUM_NAME.c_str(), scrollTypeEnum);
+
     WebviewJavaScriptExecuteCallback::InitJSExcute(env, exports);
     return exports;
 }
@@ -812,32 +823,32 @@ napi_value NapiWebviewController::SetHttpDns(napi_env env, napi_callback_info in
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
     if (argc != INTEGER_TWO) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "two"));
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "two"));
         return result;
     }
 
     if (!NapiParseUtils::ParseInt32(env, argv[INTEGER_ZERO], dohMode)) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "secureDnsMode", "SecureDnsMode"));
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "secureDnsMode", "SecureDnsMode"));
         return result;
     }
 
     if (dohMode < static_cast<int>(SecureDnsModeType::OFF) ||
         dohMode > static_cast<int>(SecureDnsModeType::SECURE_ONLY)) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "secureDnsMode"));
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "secureDnsMode"));
         return result;
     }
 
     if (!NapiParseUtils::ParseString(env, argv[INTEGER_ONE], dohConfig)) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "secureDnsConfig", "string"));
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "secureDnsConfig", "string"));
         return result;
     }
 
     if (dohConfig.rfind("https", 0) != 0 && dohConfig.rfind("HTTPS", 0) != 0) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-                "BusinessError 401: Parameter error. Parameter secureDnsConfig must start with 'http' or 'https'.");
+            "BusinessError 401: Parameter error. Parameter secureDnsConfig must start with 'http' or 'https'.");
         return result;
     }
 
@@ -894,14 +905,14 @@ napi_value NapiWebviewController::EnableSafeBrowsing(napi_env env, napi_callback
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
     if (argc != INTEGER_ONE) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
         return result;
     }
 
-    bool safe_browsing_enable = false;
-    if (!NapiParseUtils::ParseBoolean(env, argv[0], safe_browsing_enable)) {
+    bool safeBrowsingEnable = false;
+    if (!NapiParseUtils::ParseBoolean(env, argv[0], safeBrowsingEnable)) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "enable", "boolean"));
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "enable", "boolean"));
         return result;
     }
 
@@ -911,7 +922,7 @@ napi_value NapiWebviewController::EnableSafeBrowsing(napi_env env, napi_callback
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return result;
     }
-    controller->EnableSafeBrowsing(safe_browsing_enable);
+    controller->EnableSafeBrowsing(safeBrowsingEnable);
     return result;
 }
 
@@ -924,8 +935,8 @@ napi_value NapiWebviewController::IsSafeBrowsingEnabled(napi_env env, napi_callb
         return nullptr;
     }
 
-    bool is_safe_browsing_enabled = webviewController->IsSafeBrowsingEnabled();
-    NAPI_CALL(env, napi_get_boolean(env, is_safe_browsing_enabled, &result));
+    bool isSafeBrowsingEnabled = webviewController->IsSafeBrowsingEnabled();
+    NAPI_CALL(env, napi_get_boolean(env, isSafeBrowsingEnabled, &result));
     return result;
 }
 
@@ -1985,7 +1996,7 @@ napi_value NapiWebMessagePort::PostMessageEvent(napi_env env, napi_callback_info
     NAPI_CALL(env, napi_is_arraybuffer(env, argv[INTEGER_ZERO], &isArrayBuffer));
     if (valueType != napi_string && !isArrayBuffer) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-          NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "message"));
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "message"));
         return result;
     }
 
@@ -2050,7 +2061,7 @@ napi_value NapiWebMessagePort::PostMessageEventExt(napi_env env, napi_callback_i
 
     if (!msgPort->IsExtentionType()) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-             NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "message"));
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "message"));
         return result;
     }
 
@@ -2082,7 +2093,7 @@ napi_value NapiWebMessagePort::OnMessageEventExt(napi_env env, napi_callback_inf
     napi_typeof(env, argv[INTEGER_ZERO], &valueType);
     if (valueType != napi_function) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "callback","function"));
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "callback", "function"));
         return result;
     }
 
@@ -2329,7 +2340,7 @@ napi_value NapiWebMessagePort::OnMessageEvent(napi_env env, napi_callback_info i
     napi_typeof(env, argv[INTEGER_ZERO], &valueType);
     if (valueType != napi_function) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "callback","function"));
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "callback", "function"));
         return result;
     }
 
@@ -2559,19 +2570,19 @@ napi_value NapiWebviewController::StoreWebArchive(napi_env env, napi_callback_in
 
     if (argc != argcPromise && argc != argcCallback) {
         BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_TWO, "two", "three"));
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_TWO, "two", "three"));
         return result;
     }
     std::string baseName;
     if (!NapiParseUtils::ParseString(env, argv[INTEGER_ZERO], baseName)) {
         BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "baseName", "string"));
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "baseName", "string"));
         return result;
     }
 
     if (baseName.empty()) {
         BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NOT_NULL, "baseName"));
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NOT_NULL, "baseName"));
         return result;
     }
 
@@ -2579,7 +2590,7 @@ napi_value NapiWebviewController::StoreWebArchive(napi_env env, napi_callback_in
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
     if (!NapiParseUtils::ParseBoolean(env, argv[INTEGER_ONE], autoName)) {
         BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "autoName", "boolean"));
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "autoName", "boolean"));
         return result;
     }
 
@@ -2589,7 +2600,7 @@ napi_value NapiWebviewController::StoreWebArchive(napi_env env, napi_callback_in
         napi_typeof(env, argv[argcCallback - 1], &valueType);
         if (valueType != napi_function) {
             BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
-                    NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "callback", "function"));
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "callback", "function"));
             return result;
         }
     }
@@ -3111,7 +3122,7 @@ napi_value NapiWebviewController::RegisterJavaScriptProxy(napi_env env, napi_cal
     }
     RegisterJavaScriptProxyParam param;
     if (!ParseRegisterJavaScriptProxyParam(env, argc, argv, &param)) {
-      return result;
+        return result;
     }
     WebviewController* controller = nullptr;
     napi_unwrap(env, thisVar, (void **)&controller);
@@ -3195,7 +3206,7 @@ napi_value NapiWebviewController::RunJS(napi_env env, napi_callback_info info, b
         napi_typeof(env, argv[argcCallback - 1], &valueType);
         if (valueType != napi_function) {
             BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "callback","function"));
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "callback", "function"));
             return result;
         }
     }
@@ -4168,7 +4179,7 @@ napi_value NapiWebviewController::ScrollBy(napi_env env, napi_callback_info info
 
     if (!NapiParseUtils::ParseFloat(env, argv[INTEGER_ONE], deltaY)) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "deltaY", "number"));
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "deltaY", "number"));
         return result;
     }
 
@@ -4236,30 +4247,40 @@ napi_value NapiWebviewController::SetScrollable(napi_env env, napi_callback_info
 {
     napi_value thisVar = nullptr;
     napi_value result = nullptr;
-    size_t argc = INTEGER_ONE;
-    napi_value argv[INTEGER_ONE] = { 0 };
-    bool isEnableScroll;
+    size_t argc = INTEGER_TWO;
+    size_t argcForOld = INTEGER_ONE;
+    napi_value argv[INTEGER_TWO] = { 0 };
 
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
-    if (argc != INTEGER_ONE) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
+    if (argc != INTEGER_TWO && argc != argcForOld) {
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_TWO, "one", "two"));
         return result;
     }
-
+    bool isEnableScroll;
     if (!NapiParseUtils::ParseBoolean(env, argv[0], isEnableScroll)) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "enable", "boolean"));
         return result;
     }
 
-    WebviewController *webviewController = nullptr;
-    napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
+    int32_t scrollType = -1;
+    if (argc == INTEGER_TWO) {
+        if (!NapiParseUtils::ParseInt32(env, argv[INTEGER_ONE], scrollType) || scrollType < 0 ||
+            scrollType >= INTEGER_ONE) {
+            WVLOG_E("BusinessError: 401. The character of 'scrollType' must be int32.");
+            BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+            return result;
+        }
+    }
+
+    WebviewController* webviewController = nullptr;
+    napi_status status = napi_unwrap(env, thisVar, (void**)&webviewController);
     if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
-    webviewController->SetScrollable(isEnableScroll);
+    webviewController->SetScrollable(isEnableScroll, scrollType);
     return result;
 }
 
@@ -4331,14 +4352,14 @@ napi_value NapiWebviewController::SetAudioMuted(napi_env env, napi_callback_info
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
     if (argc != INTEGER_ONE) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
         return result;
     }
 
     bool muted = false;
     if (!NapiParseUtils::ParseBoolean(env, argv[0], muted)) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "mute", "boolean"));
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "mute", "boolean"));
         return result;
     }
 
@@ -5610,7 +5631,7 @@ napi_value NapiWebviewController::SetBackForwardCacheOptions(napi_env env, napi_
             size = BFCACHE_DEFAULT_SIZE;
         }
     }
-    
+
     if (napi_get_named_property(env, argv[INTEGER_ZERO], "timeToLive", &timeToLiveObj) == napi_ok) {
         if (!NapiParseUtils::ParseInt32(env, timeToLiveObj, timeToLive)) {
             timeToLive = BFCACHE_DEFAULT_TIMETOLIVE;
@@ -5781,7 +5802,7 @@ napi_value NapiWebviewController::SetHostIP(napi_env env, napi_callback_info inf
         !NapiParseUtils::ParseString(env, argv[INTEGER_ONE], address) ||
         !NapiParseUtils::ParseInt32(env, argv[INTEGER_TWO], aliveTime) ||
         aliveTime <= 0) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,ParamCheckErrorMsgTemplate::PARAM_TYEPS_ERROR);
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR, ParamCheckErrorMsgTemplate::PARAM_TYEPS_ERROR);
         return result;
     }
 
@@ -6258,6 +6279,44 @@ napi_value NapiWebviewController::TrimMemoryByPressureLevel(napi_env env,
     NWebHelper::Instance().TrimMemoryByPressureLevel(memoryLevel);
     NAPI_CALL(env, napi_get_undefined(env, &result));
     return result;
+}
+
+napi_value NapiWebviewController::ScrollByWithResult(napi_env env, napi_callback_info info)
+{
+   napi_value thisVar = nullptr;
+   napi_value result = nullptr;
+   size_t argc = INTEGER_TWO;
+   napi_value argv[INTEGER_TWO] = { 0 };
+   float deltaX;
+   float deltaY;
+
+   napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+   if (argc != INTEGER_TWO) {
+       BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+           NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "two"));
+       return result;
+   }
+
+   if (!NapiParseUtils::ParseFloat(env, argv[INTEGER_ZERO], deltaX)) {
+       BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+           NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "deltaX", "number"));
+       return result;
+   }
+
+   if (!NapiParseUtils::ParseFloat(env, argv[INTEGER_ONE], deltaY)) {
+       BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+           NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "deltaY", "number"));
+       return result;
+   }
+
+   WebviewController *webviewController = GetWebviewController(env, info);
+   if (!webviewController) {
+       return nullptr;
+   }
+
+   bool scrollByWithResult = webviewController->ScrollByWithResult(deltaX, deltaY);
+   NAPI_CALL(env, napi_get_boolean(env, scrollByWithResult, &result));
+   return result;
 }
 } // namespace NWeb
 } // namespace OHOS

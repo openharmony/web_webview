@@ -1306,6 +1306,22 @@ public:
      */
     /*--ark web()--*/
     void OnAutofillCancel(const ArkWebString& fillContent) override;
+
+    /**
+     * Scroll by the delta distance if web is not foucsed.
+     *
+     * @param delta_x horizontal offset.
+     * @param delta_y vertical offset.
+     * @return false if web is focused.
+    */
+    /*--ark web()--*/
+    bool ScrollByWithResult(float delta_x, float delta_y) override;
+
+    /**
+     * @brief Called when image analyzer is destory.
+     */
+    /*--ark web()--*/
+    void OnDestroyImageAnalyzerOverlay() override;
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

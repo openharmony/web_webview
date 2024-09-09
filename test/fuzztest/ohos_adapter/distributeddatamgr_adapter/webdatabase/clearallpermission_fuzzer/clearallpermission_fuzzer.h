@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "clearallpermission_fuzzer"
 #endif /* TEST_FUZZTEST_CLEAR_ALL_PERMISSION_FUZZER_H */
-

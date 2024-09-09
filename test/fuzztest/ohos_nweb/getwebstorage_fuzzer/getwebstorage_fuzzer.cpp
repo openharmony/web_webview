@@ -31,7 +31,7 @@ bool GetWebStorageFuzzTest(const uint8_t* data, size_t size)
     NWebHelper::Instance().GetWebStorage();
     return true;
 }
-}
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

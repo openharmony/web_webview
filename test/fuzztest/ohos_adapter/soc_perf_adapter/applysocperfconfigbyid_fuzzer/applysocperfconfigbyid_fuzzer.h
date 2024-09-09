@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "applysocperfconfigbyid_fuzzer"
 #endif /* TEST_FUZZTEST_APPLYSOCPERFCONFIGBYID_FUZZER_H */
-

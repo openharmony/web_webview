@@ -23,15 +23,15 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool ExistHttpAuthCredentialsFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        OhosWebDataBaseAdapterImpl::GetInstance().ExistHttpAuthCredentials();
-        return true;
+bool ExistHttpAuthCredentialsFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    OhosWebDataBaseAdapterImpl::GetInstance().ExistHttpAuthCredentials();
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

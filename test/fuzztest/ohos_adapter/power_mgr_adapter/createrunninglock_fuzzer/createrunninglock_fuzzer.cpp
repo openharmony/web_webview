@@ -23,17 +23,17 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool CreateRunningLockFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        std::string name((const char *)data, size);
-        PowerMgrClientAdapterImpl powerMgrClientAdapter;
-        powerMgrClientAdapter.CreateRunningLock(name, RunningLockAdapterType::SCREEN);
-        return true;
+bool CreateRunningLockFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    std::string name((const char*)data, size);
+    PowerMgrClientAdapterImpl powerMgrClientAdapter;
+    powerMgrClientAdapter.CreateRunningLock(name, RunningLockAdapterType::SCREEN);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "creategetpasteboard_fuzzer"
 #endif /* TEST_FUZZTEST_CREATE_GET_PASTE_BOARD_FUZZER_H */
-

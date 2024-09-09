@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "sethtmltext_fuzzer"
 #endif /* TEST_FUZZTEST_SETHTMLTEXT_FUZZER_H */
-

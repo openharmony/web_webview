@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "addhtmlrecord_fuzzer"
 #endif /* TEST_FUZZTEST_ADDHTMLRECORD_FUZZER_H */
-

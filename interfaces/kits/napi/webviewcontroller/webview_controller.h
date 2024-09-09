@@ -122,6 +122,10 @@ enum class PressureLevel : int {
     MEMORY_PRESSURE_LEVEL_CRITICAL = 2,
 };
 
+enum class ScrollType : int {
+    EVENT = 0,
+};
+
 class WebPrintDocument;
 class WebviewController {
 public:
@@ -265,6 +269,8 @@ public:
 
     void SetScrollable(bool enable);
 
+    void SetScrollable(bool enable, int32_t scrollType);
+
     bool GetScrollable();
 
     void InnerSetHapPath(const std::string &hapPath);
@@ -381,6 +387,8 @@ public:
     void ScrollByWithAnime(float deltaX, float deltaY, int32_t duration) ;
 
     void SetBackForwardCacheOptions(int32_t size, int32_t timeToLive);
+
+    bool ScrollByWithResult(float deltaX, float deltaY);
 private:
     int ConverToWebHitTestType(int hitType);
 

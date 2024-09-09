@@ -173,7 +173,10 @@ public:
 
 private:
     std::shared_ptr<CameraRotationInfoAdapter> GetRotationInfo(GraphicTransformType transform);
-    std::shared_ptr<CameraRotationInfoAdapter> FillRotationInfo(int roration, bool isFlipX, bool isFlipY);
+    std::shared_ptr<CameraRotationInfoAdapter> FillRotationInfo(int32_t rotation, bool isFlipX, bool isFlipY);
+    int32_t GetScreenRotation();
+    int32_t GetPictureRotation();
+    bool IsNeedCorrectRotation();
     SurfaceType surfaceType_;
     sptr<IConsumerSurface> surface_;
     std::shared_ptr<CameraBufferListenerAdapter> listener_ = nullptr;
@@ -181,6 +184,7 @@ private:
     const int32_t ROTATION_90 = 90;
     const int32_t ROTATION_180 = 180;
     const int32_t ROTATION_270 = 270;
+    const int32_t ROTATION_MAX = 360;
 };
 
 class CameraSurfaceAdapterImpl : public CameraSurfaceAdapter {

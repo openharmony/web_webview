@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "savehttpauthcredentials_fuzzer"
 #endif /* TEST_FUZZTEST_SAVE_HTTP_AUTH_CREDENTIALS_FUZZER_H */
-

@@ -24,6 +24,7 @@
  * @file arkweb_interface.h
  *
  * @brief Provides a unified entry for the native ArkWeb.
+ * @kit ArkWeb
  * @library libohweb.so
  * @syscap SystemCapability.Web.Webview.Core
  * @since 12
@@ -58,12 +59,18 @@ typedef enum {
     ARKWEB_NATIVE_COMPONENT,
     /** API type related to ArkWeb controller. */
     ARKWEB_NATIVE_CONTROLLER,
+    /** API type related to ArkWeb WebMessagePort. */
+    ARKWEB_NATIVE_WEB_MESSAGE_PORT,
+    /** API type related to ArkWeb WebMessage. */
+    ARKWEB_NATIVE_WEB_MESSAGE,
+    /** API type related to ArkWeb cookie manager. */
+    ARKWEB_NATIVE_COOKIE_MANAGER,
 } ArkWeb_NativeAPIVariantKind;
 
 /*
  * @brief Obtains the native API set of a specified type.
  * @param type Indicates the type of the native API set provided by ArkWeb.
- * @return Returns the pointer to the native API abstract object that carries the size.
+ * @return Return the pointer to the native API abstract object that carries the size.
  *
  * @syscap SystemCapability.Web.Webview.Core
  * @since 12

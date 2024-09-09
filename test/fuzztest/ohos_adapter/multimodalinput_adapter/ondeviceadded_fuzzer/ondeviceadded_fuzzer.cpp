@@ -16,6 +16,7 @@
 #include "ondeviceadded_fuzzer.h"
 
 #include <securec.h>
+
 #include "mmi_adapter_impl.h"
 
 using namespace OHOS::NWeb;
@@ -25,25 +26,25 @@ class MMIListenerTest : public MMIListenerAdapter {
 public:
     MMIListenerTest() = default;
     virtual ~MMIListenerTest() = default;
-    void OnDeviceAdded(int32_t deviceId, const std::string &type) override {};
-    void OnDeviceRemoved(int32_t deviceId, const std::string &type) override {};
+    void OnDeviceAdded(int32_t deviceId, const std::string& type) override {};
+    void OnDeviceRemoved(int32_t deviceId, const std::string& type) override {};
 };
-    bool OnDeviceAddedFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size < sizeof(int32_t))) {
-            return false;
-        }
-        std::shared_ptr<MMIListenerAdapter> listener = std::make_shared<MMIListenerTest>();
-        auto listenerAdapterImpl = std::make_shared<MMIListenerAdapterImpl>(listener);
-        int32_t deviceId;
-        if (memcpy_s(&deviceId, sizeof(int32_t), data, sizeof(int32_t)) != 0) {
-            return false;
-        }
-        std::string type((const char*) data, size);
-        listenerAdapterImpl->OnDeviceAdded(deviceId, type);
-        return true;
+bool OnDeviceAddedFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size < sizeof(int32_t))) {
+        return false;
     }
+    std::shared_ptr<MMIListenerAdapter> listener = std::make_shared<MMIListenerTest>();
+    auto listenerAdapterImpl = std::make_shared<MMIListenerAdapterImpl>(listener);
+    int32_t deviceId;
+    if (memcpy_s(&deviceId, sizeof(int32_t), data, sizeof(int32_t)) != 0) {
+        return false;
+    }
+    std::string type((const char*)data, size);
+    listenerAdapterImpl->OnDeviceAdded(deviceId, type);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
