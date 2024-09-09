@@ -17,23 +17,28 @@
 #include "base/bridge/ark_web_bridge_macros.h"
 
 namespace OHOS::ArkWeb {
-void ArkWebCustomKeyboardHandlerImpl::InsertText(const ArkWebString &text) {
+void ArkWebCustomKeyboardHandlerImpl::InsertText(const ArkWebString &text)
+{
     nweb_custom_keyboard_handler_->InsertText(ArkWebStringStructToClass(text));
 }
 
-void ArkWebCustomKeyboardHandlerImpl::DeleteForward(int32_t length) {
+void ArkWebCustomKeyboardHandlerImpl::DeleteForward(int32_t length)
+{
     nweb_custom_keyboard_handler_->DeleteForward(length);
 }
 
-void ArkWebCustomKeyboardHandlerImpl::DeleteBackward(int32_t length) {
+void ArkWebCustomKeyboardHandlerImpl::DeleteBackward(int32_t length)
+{
     nweb_custom_keyboard_handler_->DeleteBackward(length);
 }
 
-void ArkWebCustomKeyboardHandlerImpl::SendFunctionKey(int32_t key) {
+void ArkWebCustomKeyboardHandlerImpl::SendFunctionKey(int32_t key)
+{
     nweb_custom_keyboard_handler_->SendFunctionKey(key);
 }
 
-void ArkWebCustomKeyboardHandlerImpl::Close() {
+void ArkWebCustomKeyboardHandlerImpl::Close()
+{
     nweb_custom_keyboard_handler_->Close();
 }
 

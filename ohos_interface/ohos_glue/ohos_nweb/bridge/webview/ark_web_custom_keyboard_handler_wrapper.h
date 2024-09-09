@@ -26,8 +26,9 @@ namespace OHOS::ArkWeb {
 
 class ArkWebCustomKeyboardHandlerWrapper : public OHOS::NWeb::NWebCustomKeyboardHandler {
 public:
-    ArkWebCustomKeyboardHandlerWrapper(ArkWebRefPtr<ArkWebCustomKeyboardHandler> ark_web_custom_keyboard_handler) :
-        ark_web_custom_keyboard_handler_(ark_web_custom_keyboard_handler) {}
+    ArkWebCustomKeyboardHandlerWrapper(ArkWebRefPtr<ArkWebCustomKeyboardHandler> ark_web_custom_keyboard_handler)
+        : ark_web_custom_keyboard_handler_(ark_web_custom_keyboard_handler) {}
+
     ~ArkWebCustomKeyboardHandlerWrapper() = default;
 
     void InsertText(const std::string &text) override;

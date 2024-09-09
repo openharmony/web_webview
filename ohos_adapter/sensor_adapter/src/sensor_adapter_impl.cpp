@@ -131,7 +131,7 @@ double SensorAdapterImpl::GetOhosSensorDefaultSupportedFrequency(int32_t sensorT
         defaultFrequency = NANOSECONDS_IN_SECOND / DEFAULT_SAMPLE_PERIOD;
     }
     WVLOG_I("GetOhosSensorDefaultSupportedFrequency sensorTypeId: %{public}d, defaultFrequency: %{public}f",
-                sensorTypeId, defaultFrequency);
+        sensorTypeId, defaultFrequency);
     return defaultFrequency;
 }
 
@@ -160,7 +160,7 @@ double SensorAdapterImpl::GetOhosSensorMinSupportedFrequency(int32_t sensorTypeI
         }
     }
     WVLOG_I("GetOhosSensorMinSupportedFrequency sensorTypeId: %{public}d, minFrequency: %{public}f",
-                sensorTypeId, minFrequency);
+        sensorTypeId, minFrequency);
     return minFrequency;
 }
 
@@ -189,7 +189,7 @@ double SensorAdapterImpl::GetOhosSensorMaxSupportedFrequency(int32_t sensorTypeI
         }
     }
     WVLOG_I("GetOhosSensorMaxSupportedFrequency sensorTypeId: %{public}d, maxFrequency: %{public}f",
-                sensorTypeId, maxFrequency);
+        sensorTypeId, maxFrequency);
     return maxFrequency;
 }
 
@@ -361,7 +361,10 @@ int32_t SensorAdapterImpl::SubscribeOhosSensor(int32_t sensorTypeId, int64_t sam
     }
 
     std::string userName = SensorTypeToSensorUserName(sensorTypeId);
-    (void)strcpy_s(mSensorUser.name, sizeof(mSensorUser.name), userName.c_str());
+    int cpyret = strcpy_s(mSensorUser.name, sizeof(mSensorUser.name), userName.c_str());
+    if (cpyret != 0) {
+        WVLOG_E("SubscribeOhosSensor error, call strcpy_s ret = %{public}d.", cpyret);
+    }
     mSensorUser.userData = nullptr;
     mSensorUser.callback = OhosSensorCallback;
     int32_t ret = SENSOR_SUCCESS;
