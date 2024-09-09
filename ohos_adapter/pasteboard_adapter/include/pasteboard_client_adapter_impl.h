@@ -15,62 +15,88 @@
 #ifndef PASTEBOARD_CLIENT_ADAPTER_IMPL_H
 #define PASTEBOARD_CLIENT_ADAPTER_IMPL_H
 
-#include <string>
 #include "pasteboard_client_adapter.h"
+
+#include <mutex>
+#include <database/udmf/udmf.h>
+#include <database/pasteboard/oh_pasteboard.h>
 
 namespace OHOS::NWeb {
 class PasteDataRecordAdapterImpl : public PasteDataRecordAdapter {
 public:
+    explicit PasteDataRecordAdapterImpl(
+        OH_UdmfRecord* record);
     PasteDataRecordAdapterImpl(const std::string& mimeType,
                                std::shared_ptr<std::string> htmlText,
-                               std::shared_ptr<std::string> plainText){}
-    explicit PasteDataRecordAdapterImpl(const std::string& mimeType){}
-    bool SetHtmlText(std::shared_ptr<std::string> htmlText) override{ return false; }
-    bool SetPlainText(std::shared_ptr<std::string> plainText) override{ return false; }
-    bool SetImgData(std::shared_ptr<ClipBoardImageDataAdapter> imageData) override{ return false; }
-    bool SetUri(const std::string& uriString) override{ return false; }
-    bool SetCustomData(PasteCustomData& data) override{ return false; }
-    std::string GetMimeType() override{ return ""; }
-    std::shared_ptr<std::string> GetHtmlText() override{ return nullptr; }
-    std::shared_ptr<std::string> GetPlainText() override{ return nullptr; }
-    bool GetImgData(std::shared_ptr<ClipBoardImageDataAdapter> imageData) override{ return false; }
-    std::shared_ptr<std::string> GetUri() override{ return nullptr; }
-    std::shared_ptr<PasteCustomData> GetCustomData() override{ return nullptr; }
-    void Clear(){}
+                               std::shared_ptr<std::string> plainText);
+    ~PasteDataRecordAdapterImpl() override;
+    explicit PasteDataRecordAdapterImpl(const std::string& mimeType);
+    bool SetHtmlText(std::shared_ptr<std::string> htmlText) override;
+    bool SetPlainText(std::shared_ptr<std::string> plainText) override;
+    bool SetImgData(std::shared_ptr<ClipBoardImageDataAdapter> imageData) override;
+    bool SetUri(const std::string& uriString) override;
+    bool SetCustomData(PasteCustomData& data) override;
+    std::string GetMimeType() override;
+    std::shared_ptr<std::string> GetHtmlText() override;
+    std::shared_ptr<std::string> GetPlainText() override;
+    OH_UdmfRecord* GetRecord();
+    bool GetImgData(std::shared_ptr<ClipBoardImageDataAdapter> imageData) override;
+    std::shared_ptr<std::string> GetUri() override;
+    std::shared_ptr<PasteCustomData> GetCustomData() override;
+    void Clear();
+private:
+    OH_UdmfRecord* record_ = nullptr;
+    uint8_t *imgBuffer_ = nullptr;
+    uint32_t bufferSize_ = 0;
+    void ClearImgBuffer();
 };
 
-std::shared_ptr<PasteDataRecordAdapter> PasteDataRecordAdapter::NewRecord(
-    const std::string& mimeType,
-    std::shared_ptr<std::string> htmlText,
-    std::shared_ptr<std::string> plainText) {
-        return std::make_shared<PasteDataRecordAdapterImpl>(mimeType, htmlText, plainText);
-}
+class PasteDataAdapterImpl : public PasteDataAdapter {
+public:
+    PasteDataAdapterImpl();
+    ~PasteDataAdapterImpl() override;
+    explicit PasteDataAdapterImpl(OH_UdmfData* data);
+    void AddHtmlRecord(const std::string &html) override;
+    void AddTextRecord(const std::string &text) override;
+    std::vector<std::string> GetMimeTypes() override;
+    std::shared_ptr<std::string> GetPrimaryHtml() override;
+    std::shared_ptr<std::string> GetPrimaryText() override;
+    std::shared_ptr<std::string> GetPrimaryMimeType() override;
+    std::shared_ptr<PasteDataRecordAdapter> GetRecordAt(std::size_t index) override;
+    std::size_t GetRecordCount() override;
+    PasteRecordVector AllRecords() override;
+private:
+    OH_UdmfData* data_ = nullptr;
+};
 
-std::shared_ptr<PasteDataRecordAdapter> PasteDataRecordAdapter::NewRecord(
-    const std::string& mimeType) {
-        return std::make_shared<PasteDataRecordAdapterImpl>(mimeType);
-}
-
+using ObserverMap =
+    std::map<int32_t, OH_PasteboardObserver*>;
 class PasteBoardClientAdapterImpl : public PasteBoardClientAdapter {
 public:
-    static PasteBoardClientAdapterImpl& GetInstance() {
-        static PasteBoardClientAdapterImpl instance;
-        return instance;
-    }
-    bool GetPasteData(PasteRecordVector& data) override { return false; }
+    static PasteBoardClientAdapterImpl& GetInstance();
+    ~PasteBoardClientAdapterImpl() override;
+    bool GetPasteData(PasteRecordVector& data) override;
     void SetPasteData(const PasteRecordVector& data,
-                      CopyOptionMode copyOption = CopyOptionMode::CROSS_DEVICE) override{}
-    bool HasPasteData() override{ return false; }
-    void Clear() override{}
-    int32_t OpenRemoteUri(const std::string& path) override{ return 0; }
-    bool IsLocalPaste() override{ return false; }
-    uint32_t GetTokenId() override{ return 0; }
-    int32_t AddPasteboardChangedObserver(std::shared_ptr<PasteboardObserverAdapter> callback) override{ return 0; }
-    void RemovePasteboardChangedObserver(int32_t callbackId) override{}
+                      CopyOptionMode copyOption = CopyOptionMode::CROSS_DEVICE) override;
+    bool HasPasteData() override;
+    void Clear() override;
+    int32_t OpenRemoteUri(const std::string& path) override;
+    bool IsLocalPaste() override;
+    uint32_t GetTokenId() override;
+    int32_t AddPasteboardChangedObserver(std::shared_ptr<PasteboardObserverAdapter> callback) override;
+    void RemovePasteboardChangedObserver(int32_t callbackId) override;
 private:
-    PasteBoardClientAdapterImpl() = default;
+    PasteBoardClientAdapterImpl();
     PasteBoardClientAdapterImpl(const PasteBoardClientAdapterImpl&) = delete;
     PasteBoardClientAdapterImpl& operator=(const PasteBoardClientAdapterImpl&) = delete;
+    uint32_t tokenId_ = 0;
+    bool isLocalPaste_ = false;
+    ObserverMap reg_;
+    std::mutex mutex_;
+    std::string webviewPasteDataTag_ = "WebviewPasteDataTag";
+    Udmf_ShareOption TransitionCopyOption(CopyOptionMode copyOption);
+    OH_Pasteboard* pasteboard_ = nullptr;
+    std::shared_ptr<PasteboardObserverAdapter> observer_;
 };
 } // namespace OHOS::NWeb
 

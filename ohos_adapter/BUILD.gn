@@ -112,7 +112,7 @@ shared_library("nweb_ohos_adapter") {
     "ohos_image_adapter/src/ohos_image_decoder_adapter_impl.cpp",
     "ohos_init_web_adapter/src/ohos_init_web_adapter_impl.cpp",
      "ohos_resource_adapter/src/ohos_resource_adapter_impl.cpp",
-#    "pasteboard_adapter/src/pasteboard_client_adapter_impl.cpp",
+    "pasteboard_adapter/src/pasteboard_client_adapter_impl.cpp",
 #    "print_manager_adapter/src/print_manager_adapter_impl.cpp",
     "res_sched_adapter/src/res_sched_client_adapter_impl.cpp",
     "soc_perf_adapter/src/soc_perf_client_adapter_impl.cpp",
@@ -205,6 +205,9 @@ shared_library("nweb_ohos_adapter") {
     "telephony_radio",
     "ohbattery_info",
     "ohavsession",
+    "pasteboard",
+    "pixelmap",
+    "udmf",
   ]
 #
   public_configs = [ ":ohos_adapter_public_interface" ]
