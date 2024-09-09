@@ -37,6 +37,8 @@ const std::string NWEB_AUTOFILL_EVENT_TYPE = "event";
 const std::string NWEB_AUTOFILL_PAGE_URL = "pageUrl";
 const std::string NWEB_AUTOFILL_IS_USER_SELECTED = "isUserSelected";
 const std::string NWEB_AUTOFILL_IS_OTHER_ACCOUNT = "isOtherAccount";
+const std::string NWEB_AUTOFILL_EVENT_SOURCE = "source";
+const std::string NWEB_AUTOFILL_FOR_LOGIN = "login";
 
 const std::string NWEB_AUTOFILL_STREET_ADDRESS = "street-address";
 const std::string NWEB_AUTOFILL_ADDRESS_LEVEL_3 = "address-level3";
