@@ -203,6 +203,7 @@ shared_library("nweb_ohos_adapter") {
     "telephony_data",
     "telephony_radio",
     "ohbattery_info",
+    "ohavsession",
   ]
 #
   public_configs = [ ":ohos_adapter_public_interface" ]
@@ -383,7 +384,7 @@ shared_library("nweb_ohos_adapter") {
 #  }
 #
 #  if (webview_media_avsession_enable) {
-#    sources += [ "media_adapter/src/media_avsession_adapter_impl.cpp" ]
+     sources += [ "media_adapter/src/media_avsession_adapter_impl.cpp" ]
 #    external_deps += [ "av_session:avsession_client" ]
 #    defines += [ "NWEB_MEDIA_AVSESSION_ENABLE" ]
 #  }
