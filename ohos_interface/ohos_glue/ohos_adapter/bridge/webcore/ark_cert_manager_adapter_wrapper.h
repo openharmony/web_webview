@@ -45,7 +45,7 @@ public:
 
     int32_t GetCertDataBySubject(const char* subjectName, uint8_t* certData, int32_t certType) override;
 
-    int VerifyCertFromNetSsl(uint8_t* certData, uint32_t certSize);
+    int VerifyCertFromNetSsl(uint8_t* certData, uint32_t certSize) override;
 
     bool GetTrustAnchorsForHostName(const std::string& hostname, std::vector<std::string>& certs) override;
 
