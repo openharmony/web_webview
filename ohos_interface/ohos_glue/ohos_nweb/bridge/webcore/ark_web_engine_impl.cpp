@@ -15,6 +15,7 @@
 
 #include "ohos_nweb/bridge/ark_web_engine_impl.h"
 
+#include "ohos_nweb/bridge/ark_web_adsblock_manager_impl.h"
 #include "ohos_nweb/bridge/ark_web_cookie_manager_impl.h"
 #include "ohos_nweb/bridge/ark_web_data_base_impl.h"
 #include "ohos_nweb/bridge/ark_web_download_manager_impl.h"
@@ -23,11 +24,11 @@
 #include "ohos_nweb/bridge/ark_web_nweb_create_info_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_nweb_impl.h"
 #include "ohos_nweb/bridge/ark_web_web_storage_impl.h"
-#include "ohos_nweb/bridge/ark_web_adsblock_manager_impl.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
 
 namespace OHOS::ArkWeb {
+
 using ArkWebRenderProcessMode = OHOS::NWeb::RenderProcessMode;
 
 ArkWebEngineImpl::ArkWebEngineImpl(std::shared_ptr<OHOS::NWeb::NWebEngine> nweb_engine) : nweb_engine_(nweb_engine) {}
@@ -205,12 +206,11 @@ void ArkWebEngineImpl::EnableWholeWebPageDrawing()
 
 ArkWebRefPtr<ArkWebAdsBlockManager> ArkWebEngineImpl::GetAdsBlockManager()
 {
-  std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> nweb_adsBlock_manager =
-      nweb_engine_->GetAdsBlockManager();
-  if (CHECK_SHARED_PTR_IS_NULL(nweb_adsBlock_manager)) {
-    return nullptr;
-  }
-  return new ArkWebAdsBlockManagerImpl(nweb_adsBlock_manager);
+    std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> nweb_adsBlock_manager = nweb_engine_->GetAdsBlockManager();
+    if (CHECK_SHARED_PTR_IS_NULL(nweb_adsBlock_manager)) {
+        return nullptr;
+    }
+    return new ArkWebAdsBlockManagerImpl(nweb_adsBlock_manager);
 }
 
 void ArkWebEngineImpl::TrimMemoryByPressureLevel(int32_t memoryLevel)

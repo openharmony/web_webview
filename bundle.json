@@ -322,7 +322,6 @@
                 "//base/web/webview/test/unittest/ohos_adapter/imf_adapter_test:unittest",
                 "//base/web/webview/test/unittest/ohos_adapter/media_adapter_test:unittest",
                 "//base/web/webview/test/unittest/ohos_adapter/flowbuffer_adapter_impl_test:unittest",
-                "//base/web/webview/test/unittest/ohos_adapter/sensor_adapter_impl_test:unittest",
                 "//base/web/webview/test/unittest/inner_api_test/clipboard_controller_test:unittest"
             ]
         }

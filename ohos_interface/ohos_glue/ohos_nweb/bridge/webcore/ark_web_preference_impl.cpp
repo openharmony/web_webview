@@ -459,36 +459,33 @@ bool ArkWebPreferenceImpl::GetScrollable()
 
 void ArkWebPreferenceImpl::PutTextAutosizingEnabled(bool flag)
 {
-    if (nweb_preference_)
-        nweb_preference_->PutTextAutosizingEnabled(flag);
+    nweb_preference_->PutTextAutosizingEnabled(flag);
 }
 
 void ArkWebPreferenceImpl::SetViewportEnable(bool enable)
 {
-    if (nweb_preference_)
-        nweb_preference_->SetViewportEnable(enable);
+    nweb_preference_->SetViewportEnable(enable);
 }
 
 void ArkWebPreferenceImpl::SetNativeVideoPlayerConfig(bool enable, bool shouldOverlay)
 {
-    if (nweb_preference_) {
-        nweb_preference_->SetNativeVideoPlayerConfig(enable, shouldOverlay);
-    }
-}
-
-void ArkWebPreferenceImpl::PutOverlayScrollbarEnabled(bool flag)
-{
-    nweb_preference_->PutOverlayScrollbarEnabled(flag);
+    nweb_preference_->SetNativeVideoPlayerConfig(enable, shouldOverlay);
 }
 
 ArkWebString ArkWebPreferenceImpl::GetSurfaceId()
 {
-    return ArkWebStringClassToStruct(nweb_preference_->GetSurfaceId());
+    std::string surfaceId = nweb_preference_->GetSurfaceId();
+    return ArkWebStringClassToStruct(surfaceId);
 }
 
-void ArkWebPreferenceImpl::SetSurfaceId(const ArkWebString& ua)
+void ArkWebPreferenceImpl::SetSurfaceId(const ArkWebString& surfaceId)
 {
-    nweb_preference_->SetSurfaceId(ArkWebStringStructToClass(ua));
+    nweb_preference_->SetSurfaceId(ArkWebStringStructToClass(surfaceId));
+}
+
+void ArkWebPreferenceImpl::PutOverlayScrollbarEnabled(bool enable)
+{
+    nweb_preference_->PutOverlayScrollbarEnabled(enable);
 }
 
 void ArkWebPreferenceImpl::SetScrollable(bool enable, int32_t scrollType)

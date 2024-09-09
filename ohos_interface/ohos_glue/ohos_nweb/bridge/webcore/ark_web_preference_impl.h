@@ -636,19 +636,17 @@ public:
     void SetNativeVideoPlayerConfig(bool enable, bool shouldOverlay) override;
 
     /**
-     * @brief Get surfaceId.
+     * @brief Get the id of the surface.
      */
-    /*--ark web()--*/
     ArkWebString GetSurfaceId() override;
 
     /**
-     * @brief Set surfaceId.
+     * @brief Set the id of the surface.
      */
-    /*--ark web()--*/
     void SetSurfaceId(const ArkWebString& surfaceId) override;
 
     /**
-     * Set whether the scrollbar is displayed.
+     * @brief Set whether the scrollbar is displayed, default value is false.
      */
     void PutOverlayScrollbarEnabled(bool enable) override;
 

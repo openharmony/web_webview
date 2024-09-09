@@ -94,8 +94,8 @@ enum class SecurityLevel : int {
 enum class CoreSecurityLevel : int {
     NONE = 0,
     SECURE = 3,
-    DANGEROUS = 5,
-    WARNING = 6
+    WARNING = 6,
+    DANGEROUS = 5
 };
 
 enum class OfflineResourceType : int {
@@ -285,19 +285,17 @@ public:
 
     ErrCode PostUrl(std::string& url, std::vector<char>& postData);
 
-    int GetSecurityLevel();
-
     void EnableSafeBrowsing(bool enable);
 
     bool IsSafeBrowsingEnabled();
+
+    int GetSecurityLevel();
 
     bool IsIncognitoMode();
 
     void SetPrintBackground(bool enable);
 
     bool GetPrintBackground();
-
-    std::string GetLastJavascriptProxyCallingFrameUrl();
 
     static std::string GenerateWebTag();
 
@@ -310,15 +308,7 @@ public:
 
     static int32_t ClearWebServiceWorkerSchemeHandler();
 
-    void CloseAllMediaPresentations();
-
-    void StopAllMedia();
-
-    void ResumeAllMedia();
-
-    void PauseAllMedia();
-
-    int GetMediaPlaybackState();
+    std::string GetLastJavascriptProxyCallingFrameUrl();
 
     void EnableIntelligentTrackingPrevention(bool enable);
 
@@ -329,6 +319,16 @@ public:
     ErrCode StopCamera();
 
     ErrCode CloseCamera();
+
+    void CloseAllMediaPresentations();
+
+    void StopAllMedia();
+
+    void ResumeAllMedia();
+
+    void PauseAllMedia();
+
+    int GetMediaPlaybackState();
 
     void OnCreateNativeMediaPlayer(napi_env env, napi_ref callback);
 
@@ -358,15 +358,12 @@ public:
 
     ErrCode SetUrlTrustList(const std::string& urlTrustList, std::string& detailErrMsg);
 
+    std::string GetSurfaceId();
     void EnableAdsBlock(bool enable);
 
     bool IsAdsBlockEnabled();
 
     bool IsAdsBlockEnabledForCurPage();
-
-    std::string GetSurfaceId();
-
-    void UpdateInstanceId(int32_t newId);
 
     bool ParseJsLengthToInt(napi_env env,
                             napi_value jsLength,
@@ -379,6 +376,10 @@ public:
                             int32_t height,
                             const WebSnapshotCallback callback);
 
+    void UpdateInstanceId(int32_t newId);
+
+    void SetBackForwardCacheOptions(int32_t size, int32_t timeToLive);
+
     void SetPathAllowingUniversalAccess(const std::vector<std::string>& pathList,
                                         std::string& errorPath);
 
@@ -386,9 +387,8 @@ public:
 
     void ScrollByWithAnime(float deltaX, float deltaY, int32_t duration) ;
 
-    void SetBackForwardCacheOptions(int32_t size, int32_t timeToLive);
-
     bool ScrollByWithResult(float deltaX, float deltaY);
+
 private:
     int ConverToWebHitTestType(int hitType);
 
