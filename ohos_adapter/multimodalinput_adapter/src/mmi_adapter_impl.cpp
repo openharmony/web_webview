@@ -14,82 +14,59 @@
  */
 
 #include "mmi_adapter_impl.h"
-
 #include "nweb_log.h"
-
 namespace OHOS::NWeb {
-using namespace MMI;
 
-const int32_t KEY_DOWN = 0;
-const int32_t KEY_UP = 1;
-
-MMIListenerAdapterImpl::MMIListenerAdapterImpl(std::shared_ptr<MMIListenerAdapter> listener) : listener_(listener) {};
-
-MMIListenerAdapterImpl::~MMIListenerAdapterImpl()
+void OnDeviceAdded(int32_t deviceId)
 {
-    listener_ = nullptr;
-};
-
-void MMIListenerAdapterImpl::OnDeviceAdded(int32_t deviceId, const std::string& type)
-{
-    if (listener_) {
-        listener_->OnDeviceAdded(deviceId, type);
+    std::shared_ptr<MMIListenerAdapter> deviceListener = MMIAdapterImpl::GetInstance().GetDeviceAdapterListener();
+    std::string type = MMIAdapterImpl::GetInstance().GetType();
+    if (deviceListener) {
+        deviceListener->OnDeviceAdded(deviceId, type);
     }
-};
+}
 
-void MMIListenerAdapterImpl::OnDeviceRemoved(int32_t deviceId, const std::string& type)
+void OnDeviceRemoved(int32_t deviceId)
 {
-    if (listener_) {
-        listener_->OnDeviceRemoved(deviceId, type);
+    std::shared_ptr<MMIListenerAdapter> deviceListener = MMIAdapterImpl::GetInstance().GetDeviceAdapterListener();
+    std::string type = MMIAdapterImpl::GetInstance().GetType();
+    if (deviceListener) {
+        deviceListener->OnDeviceRemoved(deviceId, type);
     }
-};
+}
 
-MMIInputListenerAdapterImpl::MMIInputListenerAdapterImpl(std::shared_ptr<MMIInputListenerAdapter> listener)
-    : listener_(listener) {};
-
-MMIInputListenerAdapterImpl::~MMIInputListenerAdapterImpl()
+MMIAdapterImpl& MMIAdapterImpl::GetInstance()
 {
-    listener_ = nullptr;
-};
+    static MMIAdapterImpl instance;
+    return instance;
+}
 
-void MMIInputListenerAdapterImpl::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const
+std::shared_ptr<MMIListenerAdapter> MMIAdapterImpl::GetDeviceAdapterListener()
 {
-    if (!listener_) {
-        return;
-    }
-    if (keyEvent->GetKeyAction() != MMI::KeyEvent::KEY_ACTION_DOWN &&
-        keyEvent->GetKeyAction() != MMI::KeyEvent::KEY_ACTION_UP) {
-        return;
-    }
-    int32_t keyAction = (keyEvent->GetKeyAction() == MMI::KeyEvent::KEY_ACTION_DOWN) ? KEY_DOWN : KEY_UP;
-    listener_->OnInputEvent(keyEvent->GetKeyCode(), keyAction);
-};
+    return inputDeviceAdapterListener_;
+}
 
-void MMIInputListenerAdapterImpl::OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const {};
-
-void MMIInputListenerAdapterImpl::OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const {};
+std::string MMIAdapterImpl::GetType()
+{
+    return type_;
+}
 
 char* MMIAdapterImpl::KeyCodeToString(int32_t keyCode)
 {
-    return const_cast<char*>(MMI::KeyEvent::KeyCodeToString(keyCode));
+    WVLOG_W("deprecated key code to string");
+    return NULL;
 }
 
 int32_t MMIAdapterImpl::RegisterMMIInputListener(std::shared_ptr<MMIInputListenerAdapter> eventCallback)
 {
-    if (!eventCallback) {
-        WVLOG_E("register input listener is nullptr");
-        return -1;
-    }
-    inputListener_ = std::make_shared<MMIInputListenerAdapterImpl>(eventCallback);
-    int32_t id = InputManager::GetInstance()->AddMonitor(inputListener_);
-    WVLOG_D("RegisterMMIInputListener id = %{public}d", id);
-    return id;
-};
+    WVLOG_W("deprecated register MMI input listener");
+    return 0;
+}
 
 void MMIAdapterImpl::UnregisterMMIInputListener(int32_t monitorId)
 {
-    InputManager::GetInstance()->RemoveMonitor(monitorId);
-};
+    WVLOG_W("deprecated unregister MMI input listener");
+}
 
 int32_t MMIAdapterImpl::RegisterDevListener(std::string type, std::shared_ptr<MMIListenerAdapter> listener)
 {
@@ -97,26 +74,53 @@ int32_t MMIAdapterImpl::RegisterDevListener(std::string type, std::shared_ptr<MM
         WVLOG_E("register device listener is nullptr");
         return -1;
     }
-    devListener_ = std::make_shared<MMIListenerAdapterImpl>(listener);
-    return InputManager::GetInstance()->RegisterDevListener(type, devListener_);
-};
+    inputDeviceAdapterListener_ = listener;
+    type_ = type;
+    inputDeviceListener_ = {
+        .deviceAddedCallback = OnDeviceAdded,
+        .deviceRemovedCallback = OnDeviceRemoved,
+    };
+
+    return OH_Input_RegisterDeviceListener(&inputDeviceListener_);
+}
 
 int32_t MMIAdapterImpl::UnregisterDevListener(std::string type)
 {
-    return InputManager::GetInstance()->UnregisterDevListener(type, devListener_);
-};
+    if (type == type_) {
+        return OH_Input_UnregisterDeviceListener(&inputDeviceListener_);
+    }
+    return -1;
+}
 
 int32_t MMIAdapterImpl::GetKeyboardType(int32_t deviceId, int32_t& type)
 {
-    std::function<void(int32_t)> callback = [&type](int32_t param) { type = param; };
-    return InputManager::GetInstance()->GetKeyboardType(deviceId, callback);
-};
+    return OH_Input_GetKeyboardType(deviceId, &type);
+}
 
 int32_t MMIAdapterImpl::GetDeviceIds(std::vector<int32_t>& ids)
 {
-    std::function<void(std::vector<int32_t>&)> callback = [&ids](std::vector<int32_t>& param) { ids = param; };
-    return InputManager::GetInstance()->GetDeviceIds(callback);
-};
+    const size_t size = ids.size();
+    if (size == 0) {
+        return -1;
+    }
+    int32_t idsArr[size];
+    for (size_t i = 0; i < size; ++i) {
+        idsArr[i] = ids[i];
+    }
+    int32_t outSize = 0;
+    Input_Result result = OH_Input_GetDeviceIds(idsArr, size, &outSize);
+    if (result != INPUT_SUCCESS) {
+        return -1;
+    }
+    if (outSize <= 0) {
+        return outSize;
+    }
+    ids.clear();
+    for (int32_t i = 0; i < outSize; ++i) {
+        ids.push_back(idsArr[i]);
+    }
+    return 0;
+}
 
 int32_t MMIAdapterImpl::GetDeviceInfo(int32_t deviceId, std::shared_ptr<MMIDeviceInfoAdapter> info)
 {
@@ -124,27 +128,37 @@ int32_t MMIAdapterImpl::GetDeviceInfo(int32_t deviceId, std::shared_ptr<MMIDevic
         WVLOG_E("GetDeviceInfo info is nullptr");
         return -1;
     }
-
-    std::function<void(std::shared_ptr<MMI::InputDevice>)> callback = [&info](
-                                                                          std::shared_ptr<MMI::InputDevice> device) {
-        if (device) {
-            info->SetId(device->GetId());
-            info->SetType(device->GetType());
-            info->SetBus(device->GetBus());
-            info->SetVersion(device->GetVersion());
-            info->SetProduct(device->GetProduct());
-            info->SetVendor(device->GetVendor());
-            info->SetName(device->GetName());
-            info->SetPhys(device->GetPhys());
-            info->SetUniq(device->GetUniq());
-        }
-    };
-
-    int32_t ret = InputManager::GetInstance()->GetDevice(
-        deviceId, [&callback](std::shared_ptr<MMI::InputDevice> device) { callback(device); });
-    if (ret != 0) {
-        WVLOG_E("InputManager GetDevice failed, ret: %{public}d", ret);
+    Input_DeviceInfo *deviceInfo = OH_Input_CreateDeviceInfo();
+    if (deviceInfo == nullptr) {
+        WVLOG_E("create device info error");
+        return -1;
     }
-    return ret;
+    OH_Input_GetDevice(deviceId, &deviceInfo);
+    int32_t id = -1;
+    int32_t version = -1;
+    int32_t product = -1;
+    int32_t vendor = -1;
+    char *name = nullptr;
+    char *address = nullptr;
+    int32_t capabilities = -1;
+
+    OH_Input_GetDeviceId(deviceInfo, &id);
+    OH_Input_GetDeviceVersion(deviceInfo, &version);
+    OH_Input_GetDeviceProduct(deviceInfo, &product);
+    OH_Input_GetDeviceVendor(deviceInfo, &vendor);
+    OH_Input_GetDeviceName(deviceInfo, &name);
+    OH_Input_GetDeviceAddress(deviceInfo, &address);
+    OH_Input_GetCapabilities(deviceInfo, &capabilities);
+
+    info->SetId(id);
+    info->SetType(capabilities);
+    info->SetVersion(version);
+    info->SetProduct(product);
+    info->SetVendor(vendor);
+    info->SetName(name);
+    info->SetPhys(address);
+
+    OH_Input_DestroyDeviceInfo(&deviceInfo);
+    return 0;
 }
 } // namespace OHOS::NWeb
