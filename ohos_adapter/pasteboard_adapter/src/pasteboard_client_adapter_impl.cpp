@@ -16,49 +16,27 @@
 #include "pasteboard_client_adapter_impl.h"
 
 #include <mutex>
-#include <securec.h>
+#include <database/udmf/udmf_err_code.h>
+#include <database/pasteboard/oh_pasteboard_err_code.h>
+#include <multimedia/image_framework/image/pixelmap_native.h>
+#include <multimedia/image_framework/image/image_common.h>
 
-#include "hisysevent_adapter.h"
-#include "media_errors.h"
 #include "nweb_log.h"
 #include "ohos_adapter_helper.h"
-#include "remote_uri.h"
 
 #define SET_PASTE_DATA_SUCCESS 77987840
-
-using namespace OHOS::MiscServices;
-using namespace OHOS::DistributedFS::ModuleRemoteUri;
+#define FIRST_ELEMENT 0
 
 namespace OHOS::NWeb {
-constexpr char PASTE_BOARD_ERROR[] = "PASTE_BOARD_ERROR";
-constexpr char ERROR_CODE[] = "ERROR_CODE";
-constexpr char RECORD_SIZE[] = "RECORD_SIZE";
-constexpr char DATA_TYPE[] = "DATA_TYPE";
-constexpr char MIMETYPE_HYBRID[] = "hybrid";
-constexpr char MIMETYPE_NULL[] = "null";
-
-PasteboardObserverAdapterImpl::PasteboardObserverAdapterImpl(
-    std::shared_ptr<PasteboardObserverAdapter> observer)
-    : observer_(observer) {}
-
-void PasteboardObserverAdapterImpl::OnPasteboardChanged()
-{
-    if (observer_) {
-        observer_->OnPasteboardChanged();
-    }
-}
 
 PasteDataRecordAdapterImpl::PasteDataRecordAdapterImpl(
-    std::shared_ptr<PasteDataRecord> record)
+    OH_UdmfRecord* record)
     : record_(record) {}
 
 PasteDataRecordAdapterImpl::PasteDataRecordAdapterImpl(
     const std::string& mimeType)
 {
-    builder_ = std::make_shared<PasteDataRecord::Builder>(mimeType);
-    if (builder_) {
-        record_ = builder_->Build();
-    }
+    record_ = OH_UdmfRecord_Create();
 }
 
 PasteDataRecordAdapterImpl::PasteDataRecordAdapterImpl(
@@ -66,11 +44,13 @@ PasteDataRecordAdapterImpl::PasteDataRecordAdapterImpl(
     std::shared_ptr<std::string> htmlText,
     std::shared_ptr<std::string> plainText)
 {
-    record_ = std::make_shared<PasteDataRecord>(mimeType,
-                                                htmlText,
-                                                nullptr,
-                                                plainText,
-                                                nullptr);
+    record_ = OH_UdmfRecord_Create();
+}
+
+
+PasteDataRecordAdapterImpl::~PasteDataRecordAdapterImpl()
+{
+    OH_UdmfRecord_Destroy(record_);
 }
 
 std::shared_ptr<PasteDataRecordAdapter> PasteDataRecordAdapter::NewRecord(
@@ -91,104 +71,82 @@ std::shared_ptr<PasteDataRecordAdapter> PasteDataRecordAdapter::NewRecord(
 
 bool PasteDataRecordAdapterImpl::SetHtmlText(std::shared_ptr<std::string> htmlText)
 {
-    if (builder_) {
-        record_ = builder_->SetHtmlText(htmlText).Build();
-        return true;
+    OH_UdsHtml* udsHtml = OH_UdsHtml_Create();
+    const char* text = htmlText->c_str();
+    int setContent_res = OH_UdsHtml_SetContent(udsHtml, text);
+    if (setContent_res != UDMF_E_OK) {
+        WVLOG_E("AddUdsHtml failed. error code is : %{public}d", setContent_res);
+        OH_UdsHtml_Destroy(udsHtml);
+        return false;
     }
-    WVLOG_E("record_ is null");
-    return false;
+    int setRecord_res = OH_UdmfRecord_AddHtml(record_, udsHtml);
+    if (setRecord_res != UDMF_E_OK) {
+        WVLOG_E("AddHtml failed. error code is : %{public}d", setRecord_res);
+        OH_UdsHtml_Destroy(udsHtml);
+        return false;
+    }
+    OH_UdsHtml_Destroy(udsHtml);
+    return true;
 }
 
 bool PasteDataRecordAdapterImpl::SetPlainText(std::shared_ptr<std::string> plainText)
 {
-    if (builder_) {
-        record_ = builder_->SetPlainText(plainText).Build();
-        return true;
+    OH_UdsPlainText* udsPlainText = OH_UdsPlainText_Create();
+    const char* text = plainText->c_str();
+    int setContent_res = OH_UdsPlainText_SetContent(udsPlainText, text);
+    if (setContent_res != UDMF_E_OK) {
+        WVLOG_E("AddUdsPlainText failed. error code is : %{public}d", setContent_res);
+        OH_UdsPlainText_Destroy(udsPlainText);
+        return false;
     }
-    WVLOG_E("record_ is null");
-    return false;
+    int addText_res = OH_UdmfRecord_AddPlainText(record_, udsPlainText);
+    if (addText_res != UDMF_E_OK) {
+        WVLOG_E("AddPlainText failed. error code is : %{public}d", addText_res);
+        OH_UdsPlainText_Destroy(udsPlainText);
+        return false;
+    }
+    OH_UdsPlainText_Destroy(udsPlainText);
+    return true;
 }
 
 bool PasteDataRecordAdapterImpl::SetUri(const std::string& uriString)
 {
-    if (uriString.empty() || !builder_) {
-        WVLOG_E("record_ or uriString is null");
+    OH_UdsFileUri* udsFileUri = OH_UdsFileUri_Create();
+    const char* uri = uriString.c_str();
+    int setFileUri_res = OH_UdsFileUri_SetFileUri(udsFileUri, uri);
+    if (setFileUri_res != UDMF_E_OK) {
+        WVLOG_E("AddUdsFileUri failed. error code is : %{public}d", setFileUri_res);
+        OH_UdsFileUri_Destroy(udsFileUri);
         return false;
     }
-    std::shared_ptr<OHOS::Uri> uri = std::make_shared<OHOS::Uri>(uriString);
-    record_ = builder_->SetUri(uri).Build();
+    int addFileUri_res = OH_UdmfRecord_AddFileUri(record_, udsFileUri);
+    if (addFileUri_res != UDMF_E_OK) {
+        WVLOG_E("AddFileUri failed. error code is : %{public}d", addFileUri_res);
+        OH_UdsFileUri_Destroy(udsFileUri);
+        return false;
+    }
+    OH_UdsFileUri_Destroy(udsFileUri);
     return true;
 }
 
 bool PasteDataRecordAdapterImpl::SetCustomData(PasteCustomData& data)
 {
-    if (data.empty() || !builder_) {
-        WVLOG_E("custom data is empty or builder_ is null");
+    if (data.empty()) {
+        WVLOG_E("custom data is empty");
         return false;
     }
-    std::shared_ptr<MineCustomData> customData =
-        std::make_shared<MineCustomData>();
-    for (PasteCustomData::iterator iter = data.begin(); iter != data.end(); ++iter) {
-        customData->AddItemData(iter->first, iter->second);
+    for (auto& pData : data) {
+        const char* typeId = pData.first.c_str();
+        std::vector<uint8_t> value = pData.second;
+        unsigned int count = value.size();
+        unsigned char* entry = reinterpret_cast<unsigned char*>(value.data());
+        int addGeneralEntry_res = OH_UdmfRecord_AddGeneralEntry(record_, typeId, entry, count);
+        if (addGeneralEntry_res != UDMF_E_OK) {
+            WVLOG_E("AddGeneralEntry failed. error code is : %{public}d", addGeneralEntry_res);
+            return false;
+        }
     }
-    record_ = builder_->SetCustomData(customData).Build();
     return true;
-}
-
-ClipBoardImageAlphaType PasteDataRecordAdapterImpl::ImageToClipboardAlphaType
-    (const Media::ImageInfo &imgInfo)
-{
-    switch (imgInfo.alphaType) {
-        case Media::AlphaType::IMAGE_ALPHA_TYPE_UNKNOWN :
-            return ClipBoardImageAlphaType::ALPHA_TYPE_UNKNOWN;
-        case Media::AlphaType::IMAGE_ALPHA_TYPE_OPAQUE :
-            return ClipBoardImageAlphaType::ALPHA_TYPE_OPAQUE;
-        case Media::AlphaType::IMAGE_ALPHA_TYPE_PREMUL :
-            return ClipBoardImageAlphaType::ALPHA_TYPE_PREMULTIPLIED;
-        default :
-            return ClipBoardImageAlphaType::ALPHA_TYPE_UNKNOWN;
-    }
-}
-
-ClipBoardImageColorType PasteDataRecordAdapterImpl::ImageToClipboardColorType
-    (const Media::ImageInfo &imgInfo)
-{
-    switch (imgInfo.pixelFormat) {
-        case Media::PixelFormat::RGBA_8888 :
-            return ClipBoardImageColorType::COLOR_TYPE_RGBA_8888;
-        case Media::PixelFormat::BGRA_8888 :
-            return ClipBoardImageColorType::COLOR_TYPE_BGRA_8888;
-        default :
-            return ClipBoardImageColorType::COLOR_TYPE_UNKNOWN;
-    }
-}
-
-Media::AlphaType PasteDataRecordAdapterImpl::ClipboardToImageAlphaType
-    (ClipBoardImageAlphaType alphaType)
-{
-    switch (alphaType) {
-        case ClipBoardImageAlphaType::ALPHA_TYPE_UNKNOWN :
-            return Media::AlphaType::IMAGE_ALPHA_TYPE_UNKNOWN;
-        case ClipBoardImageAlphaType::ALPHA_TYPE_OPAQUE :
-            return Media::AlphaType::IMAGE_ALPHA_TYPE_OPAQUE;
-        case ClipBoardImageAlphaType::ALPHA_TYPE_PREMULTIPLIED :
-            return Media::AlphaType::IMAGE_ALPHA_TYPE_PREMUL;
-        default :
-            return Media::AlphaType::IMAGE_ALPHA_TYPE_UNKNOWN;
-    }
-}
-
-Media::PixelFormat PasteDataRecordAdapterImpl::ClipboardToImageColorType
-    (ClipBoardImageColorType colorType)
-{
-    switch (colorType) {
-        case ClipBoardImageColorType::COLOR_TYPE_RGBA_8888 :
-            return Media::PixelFormat::RGBA_8888;
-        case ClipBoardImageColorType::COLOR_TYPE_BGRA_8888 :
-            return Media::PixelFormat::BGRA_8888;
-        default :
-            return Media::PixelFormat::UNKNOWN;
-    }
 }
 
 bool PasteDataRecordAdapterImpl::SetImgData(std::shared_ptr<ClipBoardImageDataAdapter> imageData)
@@ -197,48 +155,165 @@ bool PasteDataRecordAdapterImpl::SetImgData(std::shared_ptr<ClipBoardImageDataAd
         WVLOG_E("imageData is null");
         return false;
     }
-    Media::InitializationOptions opt;
-    opt.size.width = imageData->GetWidth();
-    opt.size.height = imageData->GetHeight();
-    opt.pixelFormat = ClipboardToImageColorType(imageData->GetColorType());
-    opt.alphaType = ClipboardToImageAlphaType(imageData->GetAlphaType());
-    opt.editable = true;
-    std::unique_ptr<Media::PixelMap> pixelMap = Media::PixelMap::Create(opt);
-    if (pixelMap == nullptr) {
-        WVLOG_E("create pixel map failed");
+    OH_Pixelmap_InitializationOptions *options = nullptr;
+    int createOptions_res = OH_PixelmapInitializationOptions_Create(&options);
+    if (createOptions_res != IMAGE_SUCCESS) {
+        WVLOG_E("create OH_Pixelmap_InitializationOptions failed. error code is : %{public}d", createOptions_res);
         return false;
     }
+    uint32_t width = static_cast<uint32_t>(imageData->GetWidth());
+    int setWidth_res = OH_PixelmapInitializationOptions_SetWidth(options, width);
+    if (setWidth_res != IMAGE_SUCCESS) {
+        WVLOG_E("Pixelmap SetWidth failed. error code is : %{public}d", setWidth_res);
+        int optionsDestroy_res = OH_PixelmapInitializationOptions_Release(options);
+        if (optionsDestroy_res != IMAGE_SUCCESS) {
+            WVLOG_E("Options Destroy failed. error code is : %{public}d", optionsDestroy_res);
+        }
+        return false;
+    }
+    uint32_t height = static_cast<uint32_t>(imageData->GetHeight());
+    int setHeight_res = OH_PixelmapInitializationOptions_SetHeight(options, height);
+    if (setHeight_res != IMAGE_SUCCESS) {
+        WVLOG_E("Pixelmap SetHeight failed. error code is : %{public}d", setHeight_res);
+        int optionsDestroy_res = OH_PixelmapInitializationOptions_Release(options);
+        if (optionsDestroy_res != IMAGE_SUCCESS) {
+            WVLOG_E("Options Destroy failed. error code is : %{public}d", optionsDestroy_res);
+        }
+        return false;
+    }
+    int32_t alphaType = static_cast<int32_t>(imageData->GetAlphaType());
+    int setAlphaType_res = OH_PixelmapInitializationOptions_SetAlphaType(options, alphaType);
+    if (setAlphaType_res != IMAGE_SUCCESS) {
+        WVLOG_E("Pixelmap SetAlphaType failed. error code is : %{public}d", setAlphaType_res);
+        int optionsDestroy_res = OH_PixelmapInitializationOptions_Release(options);
+        if (optionsDestroy_res != IMAGE_SUCCESS) {
+            WVLOG_E("Options Destroy failed. error code is : %{public}d", optionsDestroy_res);
+        }
+        return false;
+    }
+    int32_t srcpixelFormat = static_cast<int32_t>(imageData->GetColorType());
+    int setSrcPixelFormat_res = OH_PixelmapInitializationOptions_SetSrcPixelFormat(options, srcpixelFormat);
+    if (setSrcPixelFormat_res != IMAGE_SUCCESS) {
+        WVLOG_E("Pixelmap SetSrcPixelFormat failed. error code is : %{public}d", setSrcPixelFormat_res);
+        int optionsDestroy_res = OH_PixelmapInitializationOptions_Release(options);
+        if (optionsDestroy_res != IMAGE_SUCCESS) {
+            WVLOG_E("Options Destroy failed. error code is : %{public}d", optionsDestroy_res);
+        }
+        return false;
+    }
+    OH_PixelmapNative *pixelmapNative = nullptr;
+    uint8_t* data = reinterpret_cast<uint8_t*>(imageData->GetData());
     uint64_t stride = static_cast<uint64_t>(imageData->GetWidth()) << 2;
-    uint64_t bufferSize = stride * static_cast<uint64_t>(imageData->GetHeight());
-    uint32_t ret = pixelMap->WritePixels(reinterpret_cast<const uint8_t *>(imageData->GetData()), bufferSize);
-    if (ret != Media::SUCCESS) {
-        WVLOG_E("write pixel map failed %{public}u", ret);
+    size_t bufferSize = static_cast<size_t>(stride * static_cast<uint64_t>(imageData->GetHeight()));
+    int createPixelmap_res = OH_PixelmapNative_CreatePixelmap(data, bufferSize, options, &pixelmapNative);
+    if (createPixelmap_res != IMAGE_SUCCESS) {
+        WVLOG_E("CreatePixelmap failed. error code is : %{public}d", createPixelmap_res);
+        int optionsDestroy_res = OH_PixelmapInitializationOptions_Release(options);
+        if (optionsDestroy_res != IMAGE_SUCCESS) {
+            WVLOG_E("Options Destroy failed. error code is : %{public}d", optionsDestroy_res);
+        }
         return false;
     }
-
-    std::shared_ptr<Media::PixelMap> pixelMapIn = move(pixelMap);
-
-    if (!builder_) {
-        WVLOG_E("record_ is null");
+    OH_UdsPixelMap* udsPixelMap = OH_UdsPixelMap_Create();
+    if (udsPixelMap == nullptr) {
+        WVLOG_E("Create UdsPixelMap failed.");
+        int optionsDestroy_res = OH_PixelmapInitializationOptions_Release(options);
+        if (optionsDestroy_res != IMAGE_SUCCESS) {
+            WVLOG_E("Options Destroy failed. error code is : %{public}d", optionsDestroy_res);
+        }
+        int pixelmapNativeDestroy_res = OH_PixelmapNative_Release(pixelmapNative);
+        if (pixelmapNativeDestroy_res != IMAGE_SUCCESS) {
+            WVLOG_E("PixelmapNative Destroy failed. error code is : %{public}d", pixelmapNativeDestroy_res);
+        }
         return false;
     }
-    record_ = builder_->SetPixelMap(pixelMapIn).Build();
+    int setPixelMap_res = OH_UdsPixelMap_SetPixelMap(udsPixelMap, pixelmapNative);
+    if (setPixelMap_res != IMAGE_SUCCESS) {
+        WVLOG_E("SetPixelMapNative failed. error code is : %{public}d", setPixelMap_res);
+        int optionsDestroy_res = OH_PixelmapInitializationOptions_Release(options);
+        if (optionsDestroy_res != IMAGE_SUCCESS) {
+            WVLOG_E("Options Destroy failed. error code is : %{public}d", optionsDestroy_res);
+        }
+        int pixelmapNativeDestroy_res = OH_PixelmapNative_Release(pixelmapNative);
+        if (pixelmapNativeDestroy_res != IMAGE_SUCCESS) {
+            WVLOG_E("PixelmapNative Destroy failed. error code is : %{public}d", pixelmapNativeDestroy_res);
+        }
+        return false;
+    }
+    int addPixelMap_res = OH_UdmfRecord_AddPixelMap(record_, udsPixelMap);
+    if (addPixelMap_res != IMAGE_SUCCESS) {
+        WVLOG_E("AddPixelMap failed. error code is : %{public}d", addPixelMap_res);
+        int optionsDestroy_res = OH_PixelmapInitializationOptions_Release(options);
+        if (optionsDestroy_res != IMAGE_SUCCESS) {
+            WVLOG_E("Options Destroy failed. error code is : %{public}d", optionsDestroy_res);
+        }
+        int pixelmapNativeDestroy_res = OH_PixelmapNative_Release(pixelmapNative);
+        if (pixelmapNativeDestroy_res != IMAGE_SUCCESS) {
+            WVLOG_E("PixelmapNative Destroy failed. error code is : %{public}d", pixelmapNativeDestroy_res);
+        }
+        OH_UdsPixelMap_Destroy(udsPixelMap);
+        return false;
+    }
+    int optionsDestroy_res = OH_PixelmapInitializationOptions_Release(options);
+    if (optionsDestroy_res != IMAGE_SUCCESS) {
+        WVLOG_E("Options Destroy failed. error code is : %{public}d", optionsDestroy_res);
+    }
+    int pixelmapNativeDestroy_res = OH_PixelmapNative_Release(pixelmapNative);
+    if (pixelmapNativeDestroy_res != IMAGE_SUCCESS) {
+        WVLOG_E("PixelmapNative Destroy failed. error code is : %{public}d", pixelmapNativeDestroy_res);
+    }
+    OH_UdsPixelMap_Destroy(udsPixelMap);
     return true;
 }
 
 std::string PasteDataRecordAdapterImpl::GetMimeType()
 {
-    return (record_ != nullptr) ? record_->GetMimeType() : "";
+    if (record_ == nullptr) {
+        return "";
+    }
+    unsigned int count;
+    char** types = OH_UdmfRecord_GetTypes(record_, &count);
+    if (types == nullptr || count == 0) {
+        return "";
+    }
+    std::string type = types[FIRST_ELEMENT];
+    return type;
 }
 
 std::shared_ptr<std::string> PasteDataRecordAdapterImpl::GetHtmlText()
 {
-    return (record_ != nullptr) ? record_->GetHtmlText() : nullptr;
+    if (record_ == nullptr) {
+        return nullptr;
+    }
+    OH_UdsHtml* udsHtml = OH_UdsHtml_Create();
+    int getHtml_res = OH_UdmfRecord_GetHtml(record_, udsHtml);
+    if (getHtml_res != UDMF_E_OK) {
+        WVLOG_E("GetHtml failed. error code is : %{public}d", getHtml_res);
+        OH_UdsHtml_Destroy(udsHtml);
+        return nullptr;
+    }
+    const char* html = OH_UdsHtml_GetContent(udsHtml);
+    std::shared_ptr<std::string> htmlText = std::make_shared<std::string>(html);
+    OH_UdsHtml_Destroy(udsHtml);
+    return htmlText;
 }
 
 std::shared_ptr<std::string> PasteDataRecordAdapterImpl::GetPlainText()
 {
-    return (record_ != nullptr) ? record_->GetPlainText() : nullptr;
+    if (record_ == nullptr) {
+        return nullptr;
+    }
+    OH_UdsPlainText* udsPlainText = OH_UdsPlainText_Create();
+    int getPlainText_res = OH_UdmfRecord_GetPlainText(record_, udsPlainText);
+    if (getPlainText_res != UDMF_E_OK) {
+        WVLOG_E("GetPlainText failed. error code is : %{public}d", getPlainText_res);
+        OH_UdsPlainText_Destroy(udsPlainText);
+        return nullptr;
+    }
+    const char* text = OH_UdsPlainText_GetContent(udsPlainText);
+    std::shared_ptr<std::string> plainText = std::make_shared<std::string>(text);
+    OH_UdsPlainText_Destroy(udsPlainText);
+    return plainText;
 }
 
 bool PasteDataRecordAdapterImpl::GetImgData(std::shared_ptr<ClipBoardImageDataAdapter> imageData)
@@ -252,45 +327,85 @@ bool PasteDataRecordAdapterImpl::GetImgData(std::shared_ptr<ClipBoardImageDataAd
         WVLOG_E("imageData is null");
         return false;
     }
-
-    std::shared_ptr<Media::PixelMap> pixelMap = record_->GetPixelMap();
-    if (pixelMap == nullptr) {
-        WVLOG_E("pixelMap is null");
+    OH_UdsPixelMap* udsPixelMap = OH_UdsPixelMap_Create();
+    if (udsPixelMap == nullptr) {
+        WVLOG_E("Create UdsPixelMap fail.");
+    }
+    int getPixelMap_res = OH_UdmfRecord_GetPixelMap(record_, udsPixelMap);
+    if (getPixelMap_res != UDMF_E_OK) {
+        WVLOG_E("GetPixelmap failed. error code is : %{public}d", getPixelMap_res);
+        OH_UdsPixelMap_Destroy(udsPixelMap);
         return false;
     }
-
-    Media::ImageInfo imgInfo;
-    ClearImgBuffer();
-    bufferSize_ = pixelMap->GetCapacity();
-    if ((bufferSize_ == 0) || (pixelMap->GetPixels() == nullptr)) {
-        WVLOG_E("data in pixel map is empty");
+    OH_PixelmapNative* pixelmapNative = nullptr;
+    OH_UdsPixelMap_GetPixelMap(udsPixelMap, pixelmapNative);
+    if (pixelmapNative == nullptr) {
+        WVLOG_E("GetPixelMapNative is null");
+        OH_UdsPixelMap_Destroy(udsPixelMap);
         return false;
     }
-
-    imgBuffer_ = static_cast<uint8_t *>(calloc(static_cast<size_t>(bufferSize_), sizeof(uint8_t)));
-    if (imgBuffer_ == nullptr) {
-        WVLOG_E("calloc imgbuffer failed");
+    uint8_t* data = nullptr;
+    size_t dataSize = 0;
+    uint32_t* iData = nullptr;
+    int readPixels_res = OH_PixelmapNative_ReadPixels(pixelmapNative, data, &dataSize);
+    if (readPixels_res != IMAGE_SUCCESS) {
+        WVLOG_E("ReadPixels failed. error code is : %{public}d", readPixels_res);
+    } else {
+        iData = reinterpret_cast<uint32_t*>(data);
+    }
+    OH_Pixelmap_ImageInfo* imageInfo = nullptr;
+    int createImageInfo_res = OH_PixelmapImageInfo_Create(&imageInfo);
+    if (createImageInfo_res != IMAGE_SUCCESS) {
+        WVLOG_E("CreateImageInfo failed. error code is : %{public}d", createImageInfo_res);
+        OH_UdsPixelMap_Destroy(udsPixelMap);
+        OH_UdsPixelMap_Destroy(udsPixelMap);
         return false;
     }
-
-    if (memcpy_s(imgBuffer_, bufferSize_, pixelMap->GetPixels(), bufferSize_)) {
-        WVLOG_E("memcpy imgbuffer failed");
-        ClearImgBuffer();
+    int GetImageInfo_res = OH_PixelmapNative_GetImageInfo(pixelmapNative, imageInfo);
+    if (GetImageInfo_res != IMAGE_SUCCESS) {
+        WVLOG_E("GetImageInfo failed. error code is : %{public}d", createImageInfo_res);
+        OH_UdsPixelMap_Destroy(udsPixelMap);
+        OH_UdsPixelMap_Destroy(udsPixelMap);
         return false;
     }
-
-    int32_t width = pixelMap->GetWidth();
-    int32_t height = pixelMap->GetHeight();
-    pixelMap->GetImageInfo(imgInfo);
-    int32_t rowBytes = pixelMap->GetRowBytes();
-
-    imageData->SetColorType(ImageToClipboardColorType(imgInfo));
-    imageData->SetAlphaType(ImageToClipboardAlphaType(imgInfo));
-    imageData->SetData((uint32_t *)(imgBuffer_));
-    imageData->SetDataSize(static_cast<size_t>(bufferSize_));
+    uint32_t width = 0;
+    int getWidth_res = OH_PixelmapImageInfo_GetWidth(imageInfo, &width);
+    if (getWidth_res != IMAGE_SUCCESS) {
+        WVLOG_E("GetWidth failed. error code is : %{public}d", getWidth_res);
+    }
+    uint32_t height = 0;
+    int getHeight_res = OH_PixelmapImageInfo_GetHeight(imageInfo, &height);
+    if (getHeight_res != IMAGE_SUCCESS) {
+        WVLOG_E("GetHeight failed. error code is : %{public}d", getHeight_res);
+    }
+    uint32_t rowStride = 0;
+    int getRowStride_res = OH_PixelmapImageInfo_GetRowStride(imageInfo, &rowStride);
+    if (getRowStride_res != IMAGE_SUCCESS) {
+        WVLOG_E("GetRowStride failed. error code is : %{public}d", getRowStride_res);
+    }
+    int32_t alphaType = 0;
+    int getAlphaType_res = OH_PixelmapImageInfo_GetAlphaType(imageInfo, &alphaType);
+    if (getAlphaType_res != IMAGE_SUCCESS) {
+        WVLOG_E("GetAlphaType failed. error code is : %{public}d", getAlphaType_res);
+    }
+    int32_t pixelFormat = 0;
+    int getPixelFormat_res = OH_PixelmapImageInfo_GetPixelFormat(imageInfo, &pixelFormat);
+    if (getPixelFormat_res != IMAGE_SUCCESS) {
+        WVLOG_E("GetPixelFormat failed. error code is : %{public}d", getPixelFormat_res);
+    }
+    imageData->SetData(iData);
+    imageData->SetDataSize(dataSize);
     imageData->SetWidth(width);
     imageData->SetHeight(height);
-    imageData->SetRowBytes(static_cast<size_t>(rowBytes));
+    imageData->SetRowBytes(rowStride);
+    imageData->SetAlphaType(static_cast<ClipBoardImageAlphaType>(alphaType));
+    imageData->SetColorType(static_cast<ClipBoardImageColorType>(pixelFormat));
+    OH_UdsPixelMap_Destroy(udsPixelMap);
+    OH_UdsPixelMap_Destroy(udsPixelMap);
+    int pixelmapImageInfoDestroy_res = OH_PixelmapImageInfo_Release(imageInfo);
+    if (pixelmapImageInfoDestroy_res != UDMF_E_OK) {
+        WVLOG_E("imageInfo destroy failed. error code is : %{public}d", pixelmapImageInfoDestroy_res);
+    }
     return true;
 }
 
@@ -299,23 +414,43 @@ std::shared_ptr<std::string> PasteDataRecordAdapterImpl::GetUri()
     if (record_ == nullptr) {
         return nullptr;
     }
-    auto uri = record_->GetUri();
-    if (uri == nullptr) {
+    OH_UdsFileUri* udsFileUri = OH_UdsFileUri_Create();
+    int getFileUri_res = OH_UdmfRecord_GetFileUri(record_, udsFileUri);
+    if (getFileUri_res != UDMF_E_OK) {
+        WVLOG_E("GetUdsFileUri failed.  error code is : %{public}d", getFileUri_res);
+        OH_UdsFileUri_Destroy(udsFileUri);
         return nullptr;
     }
-    return std::make_shared<std::string>(uri->ToString());
+    const char* fileUri = OH_UdsFileUri_GetFileUri(udsFileUri);
+    if (fileUri == nullptr) {
+        WVLOG_E("Get FileUri failed.");
+        OH_UdsFileUri_Destroy(udsFileUri);
+        return nullptr;
+    }
+    std::shared_ptr<std::string> uri = std::make_shared<std::string>(fileUri);
+    return uri;
 }
 
 std::shared_ptr<PasteCustomData> PasteDataRecordAdapterImpl::GetCustomData()
 {
+    auto pasteCustomData = std::make_shared<PasteCustomData>();
+
     if (record_ == nullptr) {
         return nullptr;
     }
-    auto customData = record_->GetCustomData();
-    if (customData == nullptr) {
+    const char* typeId = nullptr;
+    unsigned char* entrys;
+    unsigned int count;
+    int getGeneralEntry_res = OH_UdmfRecord_GetGeneralEntry(record_, typeId, &entrys, &count);
+    if (getGeneralEntry_res != UDMF_E_OK) {
+        WVLOG_E("GetGeneralEntry failed. error code is : %{public}d", getGeneralEntry_res);
         return nullptr;
     }
-    return std::make_shared<PasteCustomData>(customData->GetItemData());
+    std::string key(typeId);
+    std::vector<uint8_t> value(entrys, entrys + count);
+    pasteCustomData->emplace(key, value);
+
+    return pasteCustomData;
 }
 
 void PasteDataRecordAdapterImpl::ClearImgBuffer()
@@ -332,64 +467,188 @@ void PasteDataRecordAdapterImpl::Clear()
     ClearImgBuffer();
 }
 
-std::shared_ptr<PasteDataRecord> PasteDataRecordAdapterImpl::GetRecord()
+OH_UdmfRecord* PasteDataRecordAdapterImpl::GetRecord()
 {
     return record_;
 }
 
 PasteDataAdapterImpl::PasteDataAdapterImpl()
-    : data_(std::make_shared<PasteData>()) {}
+{
+    data_ = OH_UdmfData_Create();
+}
 
 PasteDataAdapterImpl::PasteDataAdapterImpl(
-    std::shared_ptr<PasteData> data) : data_(data) {}
+    OH_UdmfData* data) : data_(data) {}
+
+PasteDataAdapterImpl::~PasteDataAdapterImpl()
+{
+    OH_UdmfData_Destroy(data_);
+}
 
 void PasteDataAdapterImpl::AddHtmlRecord(const std::string& html)
 {
-    if (data_ != nullptr) {
-        data_->AddHtmlRecord(html);
+    if (data_ == nullptr) {
+        return;
     }
+    OH_UdsHtml* udsHtml = OH_UdsHtml_Create();
+    if (udsHtml == nullptr) {
+        WVLOG_E("Create UdsHtml failed.");
+        return;
+    }
+    const char* content = html.c_str();
+    int setContent_res = OH_UdsHtml_SetContent(udsHtml, content);
+    if (setContent_res != UDMF_E_OK) {
+        WVLOG_E("UdsHtml SetContent failed. error code is : %{public}d", setContent_res);
+        OH_UdsHtml_Destroy(udsHtml);
+        return;
+    }
+    OH_UdmfRecord* record = OH_UdmfRecord_Create();
+    if (record == nullptr) {
+        WVLOG_E("Create UdmfRecord failed.");
+        return;
+    }
+    int addHtml_res = OH_UdmfRecord_AddHtml(record, udsHtml);
+    if (addHtml_res != UDMF_E_OK) {
+        WVLOG_E("AddHtml failed. error code is : %{public}d", addHtml_res);
+        OH_UdsHtml_Destroy(udsHtml);
+        OH_UdmfRecord_Destroy(record);
+        return;
+    }
+    int addRecord_res = OH_UdmfData_AddRecord(data_, record);
+    if (addRecord_res != UDMF_E_OK) {
+        WVLOG_E("AddRecord failed. error code is : %{public}d", addRecord_res);
+    }
+    OH_UdsHtml_Destroy(udsHtml);
+    OH_UdmfRecord_Destroy(record);
 }
 
 void PasteDataAdapterImpl::AddTextRecord(const std::string& text)
 {
-    if (data_ != nullptr) {
-        data_->AddTextRecord(text);
+    if (data_ == nullptr) {
+        return;
     }
+    OH_UdsPlainText* udsPlainText = OH_UdsPlainText_Create();
+    if (udsPlainText == nullptr) {
+        WVLOG_E("Create UdsPlainText failed.");
+        return;
+    }
+    const char* content = text.c_str();
+    int setContent_res = OH_UdsPlainText_SetContent(udsPlainText, content);
+    if (setContent_res != UDMF_E_OK) {
+        WVLOG_E("AddUdsPlainText failed. error code is : %{public}d", setContent_res);
+        OH_UdsPlainText_Destroy(udsPlainText);
+        return;
+    }
+    OH_UdmfRecord* record = OH_UdmfRecord_Create();
+    if (record == nullptr) {
+        WVLOG_E("Create UdmfRecord failed.");
+        return;
+    }
+    int addText_res = OH_UdmfRecord_AddPlainText(record, udsPlainText);
+    if (addText_res != UDMF_E_OK) {
+        WVLOG_E("AddPlainText failed. error code is : %{public}d", addText_res);
+        OH_UdsPlainText_Destroy(udsPlainText);
+        OH_UdmfRecord_Destroy(record);
+        return;
+    }
+    int addRecord_res = OH_UdmfData_AddRecord(data_, record);
+    if (addRecord_res != UDMF_E_OK) {
+        WVLOG_E("AddRecord failed. error code is : %{public}d", addRecord_res);
+    }
+    OH_UdsPlainText_Destroy(udsPlainText);
+    OH_UdmfRecord_Destroy(record);
 }
 
 std::vector<std::string> PasteDataAdapterImpl::GetMimeTypes()
 {
-    return (data_ != nullptr) ? data_->GetMimeTypes() :
-                                std::vector<std::string>();
+    if (data_ == nullptr) {
+        return std::vector<std::string>();
+    }
+    unsigned int count;
+    char** types = OH_UdmfData_GetTypes(data_, &count);
+    std::vector<std::string> stringVector;
+    for (unsigned int i = 0; i < count; i++) {
+        stringVector.push_back(std::string(types[i]));
+    }
+    return stringVector;
 }
 
 std::shared_ptr<std::string> PasteDataAdapterImpl::GetPrimaryHtml()
 {
-    return (data_ != nullptr) ? data_->GetPrimaryHtml() : nullptr;
+    if (data_ == nullptr) {
+        return nullptr;
+    }
+    OH_UdsHtml* udsHtml = OH_UdsHtml_Create();
+    if (udsHtml == nullptr) {
+        WVLOG_E("Create UdsHtml failed.");
+        return nullptr;
+    }
+    int getPrimaryHtml_res = OH_UdmfData_GetPrimaryHtml(data_, udsHtml);
+    if (getPrimaryHtml_res != UDMF_E_OK) {
+        WVLOG_E("GetPrimaryHtml failed. error code is : %{public}d", getPrimaryHtml_res);
+        OH_UdsHtml_Destroy(udsHtml);
+        return nullptr;
+    }
+    const char* html = OH_UdsHtml_GetContent(udsHtml);
+    std::shared_ptr<std::string> primaryHtml = std::make_shared<std::string>(html);
+    OH_UdsHtml_Destroy(udsHtml);
+    return primaryHtml;
 }
 
 std::shared_ptr<std::string> PasteDataAdapterImpl::GetPrimaryText()
 {
-    return (data_ != nullptr) ? data_->GetPrimaryText() : nullptr;
+    if (data_ == nullptr) {
+        return nullptr;
+    }
+    OH_UdsPlainText* udsPlainText = OH_UdsPlainText_Create();
+    if (udsPlainText == nullptr) {
+        WVLOG_E("Create UdsPlainText failed.");
+        return nullptr;
+    }
+    int getPrimaryPlainText_res = OH_UdmfData_GetPrimaryPlainText(data_, udsPlainText);
+    if (getPrimaryPlainText_res != UDMF_E_OK) {
+        WVLOG_E("GetPrimaryPlainText failed. error code is : %{public}d", getPrimaryPlainText_res);
+        OH_UdsPlainText_Destroy(udsPlainText);
+        return nullptr;
+    }
+    const char* plainText = OH_UdsPlainText_GetContent(udsPlainText);
+    std::shared_ptr<std::string> primaryText = std::make_shared<std::string>(plainText);
+    OH_UdsPlainText_Destroy(udsPlainText);
+    return primaryText;
 }
 
 std::shared_ptr<std::string> PasteDataAdapterImpl::GetPrimaryMimeType()
 {
-    return (data_ != nullptr) ? data_->GetPrimaryMimeType() : nullptr;
+    if (data_ == nullptr) {
+        return nullptr;
+    }
+    std::shared_ptr<PasteDataRecordAdapter> pasteDataRecordAdapter = GetRecordAt(FIRST_ELEMENT);
+    if (pasteDataRecordAdapter == nullptr) {
+        WVLOG_E("Get Record failed.");
+        return nullptr;
+    }
+    std::string mimeType = pasteDataRecordAdapter->GetMimeType();
+    return std::make_shared<std::string>(mimeType);
 }
 
 std::shared_ptr<PasteDataRecordAdapter> PasteDataAdapterImpl::GetRecordAt(
     std::size_t index)
 {
-    if (data_ == nullptr || data_->GetRecordCount() <= index) {
+    if (data_ == nullptr || GetRecordCount() <= index) {
+        WVLOG_E("data is nullptr or out of index.");
         return nullptr;
     }
-    return std::make_shared<PasteDataRecordAdapterImpl>(data_->GetRecordAt(index));
+    OH_UdmfRecord* record = OH_UdmfData_GetRecord(data_, index);
+    if (record == nullptr) {
+        WVLOG_E("GetRecord failed.");
+        return nullptr;
+    }
+    return std::make_shared<PasteDataRecordAdapterImpl>(record);
 }
 
 std::size_t PasteDataAdapterImpl::GetRecordCount()
 {
-    return (data_ != nullptr) ? data_->GetRecordCount() : 0;
+    return (data_ != nullptr) ? OH_UdmfData_GetRecordCount(data_) : 0;
 }
 
 PasteRecordVector PasteDataAdapterImpl::AllRecords()
@@ -398,8 +657,10 @@ PasteRecordVector PasteDataAdapterImpl::AllRecords()
         return PasteRecordVector();
     }
     PasteRecordVector result;
-    for (auto& record: data_->AllRecords()) {
-        result.push_back(std::make_shared<PasteDataRecordAdapterImpl>(record));
+    unsigned int count;
+    OH_UdmfRecord** records = OH_UdmfData_GetRecords(data_, &count);
+    for (unsigned int i = 0; i < count; i++) {
+        result.push_back(std::make_shared<PasteDataRecordAdapterImpl>(records[i]));
     }
     return result;
 }
@@ -410,18 +671,25 @@ PasteBoardClientAdapterImpl& PasteBoardClientAdapterImpl::GetInstance()
     return instance;
 }
 
-MiscServices::ShareOption PasteBoardClientAdapterImpl::TransitionCopyOption(CopyOptionMode copyOption)
+PasteBoardClientAdapterImpl::PasteBoardClientAdapterImpl()
 {
-    auto shareOption = MiscServices::ShareOption::CrossDevice;
+    pasteboard_ = OH_Pasteboard_Create();
+}
+
+PasteBoardClientAdapterImpl :: ~PasteBoardClientAdapterImpl()
+{
+    OH_Pasteboard_Destroy(pasteboard_);
+}
+
+Udmf_ShareOption PasteBoardClientAdapterImpl::TransitionCopyOption(CopyOptionMode copyOption)
+{
+    auto shareOption = Udmf_ShareOption::SHARE_OPTIONS_INVALID;
     switch (copyOption) {
         case CopyOptionMode::IN_APP:
-            shareOption = MiscServices::ShareOption::InApp;
+            shareOption = Udmf_ShareOption::SHARE_OPTIONS_IN_APP;
             break;
         case CopyOptionMode::LOCAL_DEVICE:
-            shareOption = MiscServices::ShareOption::LocalDevice;
-            break;
-        case CopyOptionMode::CROSS_DEVICE:
-            shareOption = MiscServices::ShareOption::CrossDevice;
+            shareOption = Udmf_ShareOption::SHARE_OPTIONS_CROSS_APP;
             break;
         default:
             break;
@@ -429,87 +697,80 @@ MiscServices::ShareOption PasteBoardClientAdapterImpl::TransitionCopyOption(Copy
     return shareOption;
 }
 
-void ReportPasteboardErrorEvent(int32_t errorCode, int32_t recordSize, const std::string &dataType)
-{
-    OhosAdapterHelper::GetInstance().GetHiSysEventAdapterInstance().Write(PASTE_BOARD_ERROR,
-        HiSysEventAdapter::EventType::FAULT, { ERROR_CODE, std::to_string(errorCode),
-            RECORD_SIZE, std::to_string(recordSize), DATA_TYPE, dataType });
-}
-
-std::string GetPasteMimeTypeExtention(const PasteRecordVector& data)
-{
-    if (data.empty()) {
-        return MIMETYPE_NULL;
-    }
-    bool isHybrid = false;
-    std::string primaryMimeType = data.front()->GetMimeType();
-    for (auto &item : data) {
-        if (primaryMimeType != item->GetMimeType()) {
-            isHybrid = true;
-            break;
-        }
-    }
-    if (isHybrid) {
-        return MIMETYPE_HYBRID;
-    }
-    return primaryMimeType;
-}
-
 bool PasteBoardClientAdapterImpl::GetPasteData(PasteRecordVector& data)
 {
-    PasteData pData;
-    if (!PasteboardClient::GetInstance()->HasPasteData() ||
-        !PasteboardClient::GetInstance()->GetPasteData(pData)) {
-        ReportPasteboardErrorEvent(PasteboardClient::GetInstance()->GetPasteData(pData),
-            pData.AllRecords().size(), GetPasteMimeTypeExtention(data));
+    int status = -1;
+    OH_UdmfData* getData = OH_Pasteboard_GetData(pasteboard_, &status);
+    if (!OH_Pasteboard_HasData(pasteboard_) || status != ERR_OK) {
+        WVLOG_E("get paste data failed. error code is : %{public}d", status);
         isLocalPaste_ = false;
         tokenId_ = 0;
         return false;
     }
-    for (auto& record: pData.AllRecords()) {
-        data.push_back(std::make_shared<PasteDataRecordAdapterImpl>(record));
+    unsigned int count;
+    OH_UdmfRecord** records = OH_UdmfData_GetRecords(getData, &count);
+    if (records == nullptr) {
+        WVLOG_E("GetRecord failed.");
+        return false;
     }
-    tokenId_ = pData.GetTokenId();
-    isLocalPaste_ = pData.IsLocalPaste();
+    for (unsigned int i = 0; i < count; i++) {
+        data.push_back(std::make_shared<PasteDataRecordAdapterImpl>(records[i]));
+    }
+    isLocalPaste_ = OH_UdmfData_IsLocal(getData);
     return true;
 }
 
 void PasteBoardClientAdapterImpl::SetPasteData(const PasteRecordVector& data, CopyOptionMode copyOption)
 {
+    OH_UdmfData* uData = OH_UdmfData_Create();
+
     if (copyOption == CopyOptionMode::NONE) {
         WVLOG_E("SetPasteData failed, copy option mode is 'NONE'");
         return;
     }
-    std::vector<std::shared_ptr<PasteDataRecord>> recordList;
-    for (auto& record: data) {
-        PasteDataRecordAdapterImpl* rawRecord =
+    for (auto& record : data) {
+        PasteDataRecordAdapterImpl* rawRecord = 
             reinterpret_cast<PasteDataRecordAdapterImpl*>(record.get());
         if (rawRecord == nullptr) {
             continue;
         }
-        recordList.push_back(rawRecord->GetRecord());
+        int addRecord_res = OH_UdmfData_AddRecord(uData, rawRecord->GetRecord());
+        if (addRecord_res != ERR_OK) {
+            WVLOG_E("add record failed. error code is : %{public}d", addRecord_res);
+            continue;
+        }
     }
-    PasteData pData(recordList);
-    pData.SetTag(webviewPasteDataTag_);
+
+    OH_UdmfProperty* uProp = OH_UdmfProperty_Create(uData);
+    auto ret = OH_UdmfProperty_SetTag(uProp, webviewPasteDataTag_.c_str());
+    if (ret != ERR_OK) {
+        WVLOG_E("property set tag failed. error code is : %{public}d", ret);
+    }
     auto shareOption = TransitionCopyOption(copyOption);
-    pData.SetShareOption(shareOption);
-    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(pData);
+    ret = OH_UdmfProperty_SetShareOption(uProp, shareOption);
+    ret = OH_Pasteboard_SetData(pasteboard_, uData);
     if (ret != SET_PASTE_DATA_SUCCESS) {
-        ReportPasteboardErrorEvent(ret, pData.AllRecords().size(), GetPasteMimeTypeExtention(data));
+        WVLOG_E("set paste data failed. error code is : %{public}d", ret);
     }
+    OH_UdmfData_Destroy(uData);
+    OH_UdmfProperty_Destroy(uProp);
 }
 
 bool PasteBoardClientAdapterImpl::HasPasteData()
 {
-    return PasteboardClient::GetInstance()->HasPasteData();
+    return OH_Pasteboard_HasData(pasteboard_);
 }
 
 void PasteBoardClientAdapterImpl::Clear()
 {
     PasteRecordVector recordVector;
+    int ret;
     if (!GetPasteData(recordVector)) {
         WVLOG_E("get paste data failed while clear");
-        PasteboardClient::GetInstance()->Clear();
+        ret = OH_Pasteboard_ClearData(pasteboard_);
+        if (ret != ERR_OK) {
+            WVLOG_E("not get paste data and paste board clear data failed. error code is : %{public}d", ret);
+        }
         return;
     }
     for (auto& record: recordVector) {
@@ -520,12 +781,15 @@ void PasteBoardClientAdapterImpl::Clear()
         }
         rawRecord->Clear();
     }
-    PasteboardClient::GetInstance()->Clear();
+    ret = OH_Pasteboard_ClearData(pasteboard_);
+    if (ret != ERR_OK) {
+        WVLOG_E("paste board clear data failed. error code is : %{public}d", ret);
+    }
 }
 
 int32_t PasteBoardClientAdapterImpl::OpenRemoteUri(const std::string& path)
 {
-    return RemoteUri::OpenRemoteUri(path);
+    return -1;
 }
 
 bool PasteBoardClientAdapterImpl::IsLocalPaste()
@@ -535,7 +799,14 @@ bool PasteBoardClientAdapterImpl::IsLocalPaste()
 
 uint32_t PasteBoardClientAdapterImpl::GetTokenId()
 {
+    //not used
     return tokenId_;
+}
+
+void PasteBoardNotify(void* context, Pasteboard_NotifyType type)
+{
+    std::shared_ptr<PasteboardObserverAdapter> observer(static_cast<PasteboardObserverAdapter*>(context));
+    observer->OnPasteboardChanged();
 }
 
 int32_t PasteBoardClientAdapterImpl::AddPasteboardChangedObserver(
@@ -544,11 +815,15 @@ int32_t PasteBoardClientAdapterImpl::AddPasteboardChangedObserver(
     static int32_t count = 0;
     int32_t id = -1;
     if (callback) {
-        sptr<PasteboardObserver> observer;
+        OH_PasteboardObserver* observer = nullptr;
         {
             std::lock_guard<std::mutex> lock(mutex_);
-            observer = new (std::nothrow) PasteboardObserverAdapterImpl(callback);
+            observer = OH_PasteboardObserver_Create();
             if (!observer) {
+                return -1;
+            }
+            auto ret = OH_PasteboardObserver_SetData(observer, callback.get(), PasteBoardNotify, nullptr);
+            if (ret != ERR_OK) {
                 return -1;
             }
 
@@ -558,7 +833,15 @@ int32_t PasteBoardClientAdapterImpl::AddPasteboardChangedObserver(
             }
             reg_.emplace(std::make_pair(id, observer));
         }
-        PasteboardClient::GetInstance()->AddPasteboardChangedObserver(observer);
+        auto ret = OH_Pasteboard_Subscribe(pasteboard_, NOTIFY_LOCAL_DATA_CHANGE, observer);
+        //if subscribe failed, should remove and destroy observer
+        if (ret != ERR_OK) {
+            ObserverMap::iterator iter = reg_.find(id);
+            if (iter != reg_.end()) {
+                (void)OH_PasteboardObserver_Destroy(iter->second);
+                reg_.erase(iter);
+            }
+        }
     }
     return id;
 }
@@ -566,7 +849,7 @@ int32_t PasteBoardClientAdapterImpl::AddPasteboardChangedObserver(
 void PasteBoardClientAdapterImpl::RemovePasteboardChangedObserver(
     int32_t callbackId)
 {
-    sptr<PasteboardObserver> observer;
+    OH_PasteboardObserver* observer = nullptr;
     {
         std::lock_guard<std::mutex> lock(mutex_);
         ObserverMap::iterator iter = reg_.find(callbackId);
@@ -576,6 +859,14 @@ void PasteBoardClientAdapterImpl::RemovePasteboardChangedObserver(
         observer = iter->second;
         reg_.erase(iter);
     }
-    PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(observer);
+    auto ret = OH_Pasteboard_Unsubscribe(pasteboard_, NOTIFY_LOCAL_DATA_CHANGE, observer);
+    if (ret != ERR_OK) {
+        WVLOG_E("unsubscribe observer failed. error code is : %{public}d", ret);
+        return;
+    }
+    ret = OH_PasteboardObserver_Destroy(observer);
+    if (ret != ERR_OK) {
+        WVLOG_E("destroy observer failed. error code is : %{public}d", ret);
+    }
 }
 } // namespace OHOS::NWeb
