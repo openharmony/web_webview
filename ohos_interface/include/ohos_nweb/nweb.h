@@ -137,7 +137,9 @@ public:
 enum class BlurReason : int32_t {
     FOCUS_SWITCH = 0,
     WINDOW_BLUR = 1,
-    FRAME_DESTROY = 2,
+    FRAME_DESTROY = 2, // frame node detached from main tree
+    VIEW_SWITCH = 3,
+    CLEAR_FOCUS = 4, // User api clearFocus triggered
 };
 
 enum class FocusReason : int32_t {
