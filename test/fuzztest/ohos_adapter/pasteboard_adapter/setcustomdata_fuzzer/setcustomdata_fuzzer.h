@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "setcustomdata_fuzzer"
 #endif /* TEST_FUZZTEST_SETCUSTOMDATA_FUZZER_H */
-

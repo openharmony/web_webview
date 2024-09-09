@@ -14,23 +14,24 @@
  */
 
 #include "openremoteuri_fuzzer.h"
+
 #include "pasteboard_client_adapter_impl.h"
 
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool OpenRemoteUriFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        std::string path((const char*) data, size);
-        PasteBoardClientAdapterImpl::GetInstance().OpenRemoteUri(path);
-        PasteBoardClientAdapterImpl::GetInstance().IsLocalPaste();
-        PasteBoardClientAdapterImpl::GetInstance().GetTokenId();
-        return true;
+bool OpenRemoteUriFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    std::string path((const char*)data, size);
+    PasteBoardClientAdapterImpl::GetInstance().OpenRemoteUri(path);
+    PasteBoardClientAdapterImpl::GetInstance().IsLocalPaste();
+    PasteBoardClientAdapterImpl::GetInstance().GetTokenId();
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

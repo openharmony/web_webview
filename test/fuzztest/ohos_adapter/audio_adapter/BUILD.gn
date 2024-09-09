@@ -43,7 +43,6 @@ group("fuzztest") {
       "audiointerrupt_fuzzer:AudioInterruptFuzzTest",
       "audiooutputdevices_fuzzer:AudioOutputDevicesFuzzTest",
       "audioreleaserender_fuzzer:AudioReleaseRenderFuzzTest",
-      "audiorenderadapter_fuzzer:AudioRendererAdapterFuzzTest",
       "audiorequest_fuzzer:AudioRequestFuzzTest",
       "audiosetcallback_fuzzer:AudioSetCallbackFuzzTest",
       "audiosetstreamtype_fuzzer:AudioSetStreamtypeFuzzTest",

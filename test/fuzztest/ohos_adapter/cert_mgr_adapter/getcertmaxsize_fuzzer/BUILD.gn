@@ -33,10 +33,7 @@ ohos_fuzztest("GetCertMaxSizeFuzzTest") {
   sources = [ "getcertmaxsize_fuzzer.cpp" ]
   deps = [ "$webview_path/ohos_adapter:nweb_ohos_adapter" ]
 
-  external_deps = [
-    "certificate_manager:cert_manager_sdk",
-    "netstack:net_ssl",
-  ]
+  external_deps = [ "certificate_manager:cert_manager_sdk" ]
 }
 
 ###############################################################################

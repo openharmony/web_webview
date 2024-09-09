@@ -21,18 +21,18 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool ClipboardToImageColorTypeFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        std::shared_ptr<PasteDataRecordAdapterImpl> dataRecordAdapterImpl =
-        std::make_shared<PasteDataRecordAdapterImpl>("pixelMap");
-        ClipBoardImageColorType colorType = ClipBoardImageColorType::COLOR_TYPE_RGBA_8888;
-        dataRecordAdapterImpl->ClipboardToImageColorType(colorType);
-        return true;
+bool ClipboardToImageColorTypeFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    std::shared_ptr<PasteDataRecordAdapterImpl> dataRecordAdapterImpl =
+        std::make_shared<PasteDataRecordAdapterImpl>("pixelMap");
+    ClipBoardImageColorType colorType = ClipBoardImageColorType::COLOR_TYPE_RGBA_8888;
+    dataRecordAdapterImpl->ClipboardToImageColorType(colorType);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

@@ -17,22 +17,34 @@
 
 #include <cstring>
 #include <securec.h>
+#include <array>
 
 #include "audio_renderer_adapter_impl.h"
 
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool AudioGetContentFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        AudioRendererAdapterImpl adapter;
-        adapter.GetAudioContentType(AudioAdapterContentType::CONTENT_TYPE_SPEECH);
-        return true;
+bool AudioGetContentFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    constexpr int typenums = 6;
+    std::array<AudioAdapterContentType, typenums> contentArray = {
+        AudioAdapterContentType::CONTENT_TYPE_UNKNOWN,
+        AudioAdapterContentType::CONTENT_TYPE_SPEECH,
+        AudioAdapterContentType::CONTENT_TYPE_MUSIC,
+        AudioAdapterContentType::CONTENT_TYPE_MOVIE,
+        AudioAdapterContentType::CONTENT_TYPE_SONIFICATION,
+        AudioAdapterContentType::CONTENT_TYPE_RINGTONE,
+    };
+    for (auto& content : contentArray)
+        AudioRendererAdapterImpl::GetAudioContentType(content);
+
+    AudioRendererAdapterImpl::GetAudioContentType(static_cast<AudioAdapterContentType>(-1));
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

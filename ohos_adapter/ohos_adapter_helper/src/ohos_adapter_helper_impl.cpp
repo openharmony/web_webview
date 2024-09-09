@@ -38,10 +38,10 @@
 #if defined(NWEB_MEDIA_AVSESSION_ENABLE)
 #include "media_avsession_adapter_impl.h"
 #endif
-#include "media_codec_list_adapter_impl.h"
 #if defined(NWEB_MEDIA_AVCODEC_ENABLE)
 #include "media_codec_decoder_adapter_impl.h"
 #include "media_codec_encoder_adapter_impl.h"
+#include "media_codec_list_adapter_impl.h"
 #endif
 #include "mmi_adapter_impl.h"
 #include "native_image_adapter_impl.h"

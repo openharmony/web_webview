@@ -178,4 +178,16 @@ void ArkWebCookieManagerWrapper::PutAcceptFileURLSchemeCookiesEnabled(bool allow
     ark_web_cookie_manager_->PutAcceptFileURLSchemeCookiesEnabled(allow);
 }
 
+std::string ArkWebCookieManagerWrapper::ReturnCookieWithHttpOnly(
+    const std::string& url, bool& is_valid, bool incognito_mode, bool includeHttpOnly)
+{
+    return "";
+}
+ 
+int ArkWebCookieManagerWrapper::SetCookieWithHttpOnly(
+    const std::string& url, const std::string& value, bool incognito_mode, bool includeHttpOnly)
+{
+    return 0;
+}
+
 } // namespace OHOS::ArkWeb

@@ -1,0 +1,54 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#####################hydra-fuzz###################
+import("//base/web/webview/web_aafwk.gni")
+import("//build/config/features.gni")
+import("//build/test.gni")
+
+##############################fuzztest##########################################
+ohos_fuzztest("AafwkBrowserHostFuzzTest") {
+  module_out_path = webview_fuzz_test_path
+  fuzz_config_file = "$webview_path/test/fuzztest/ohos_adapter/aafwk_adapter/aafwkbrowserhost_fuzzer"
+
+  include_dirs = [ "$webview_path/ohos_adapter/aafwk_adapter/include" ]
+  cflags = [
+    "-g",
+    "-O0",
+    "-Wno-unused-variable",
+    "-fno-omit-frame-pointer",
+  ]
+  sources = [ "aafwkbrowserhost_fuzzer.cpp" ]
+  deps = [ "$webview_path/ohos_adapter:nweb_ohos_adapter" ]
+  external_deps = [
+    "ability_runtime:app_manager",
+    "c_utils:utils",
+    "graphic_2d:libcomposer",
+    "graphic_2d:libgraphic_utils",
+    "graphic_2d:libnative_image",
+    "graphic_2d:librender_service_client",
+    "graphic_surface:surface",
+    "ipc:ipc_core",
+  ]
+}
+
+###############################################################################
+group("fuzztest") {
+  testonly = true
+  deps = []
+  deps += [
+    # deps file
+    ":AafwkBrowserHostFuzzTest",
+  ]
+}
+###############################################################################

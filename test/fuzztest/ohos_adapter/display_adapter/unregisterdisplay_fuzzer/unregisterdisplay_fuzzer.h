@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "unregisterdisplay_fuzzer"
 #endif /* TEST_FUZZTEST_UNREGISTER_DISPLAY_FUZZER_H */
-

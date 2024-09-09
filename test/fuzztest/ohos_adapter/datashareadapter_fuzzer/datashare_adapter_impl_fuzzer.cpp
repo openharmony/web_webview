@@ -13,41 +13,34 @@
  * limitations under the License.
  */
 
-#include "datashare_adapter_impl_fuzzer.h"  
-#include "base/web/webview/ohos_adapter/datashare_adapter/include/datashare_adapter_impl.h"  
-#include <memory>  
+#include "datashare_adapter_impl_fuzzer.h"
 
-using namespace OHOS::NWeb;  
+#include <cstdint>
+#include <memory>
+#include <string>
 
-namespace OHOS {  
-    bool DatashareAdapterFuzzTest(const uint8_t* data, size_t size)  
-    {  
-        if ((data == nullptr) || (size < sizeof(uint8_t))) {  
-            return false;  
-        }  
+#include "base/web/webview/ohos_adapter/datashare_adapter/include/datashare_adapter_impl.h"
 
-        std::string uriStr(reinterpret_cast<const char*>(data));  
+namespace OHOS::NWeb {
 
-        // Test GetRealPath  
-        std::string realPath = DatashareAdapterImpl::GetInstance().GetRealPath(uriStr);  
+bool DatashareAdapterFuzzTest(const uint8_t* data, size_t size)
+{
+    std::string uriString(reinterpret_cast<const char*>(data), size);
 
-        // Test OpenDataShareUriForRead  
-        int fileDescriptor = DatashareAdapterImpl::GetInstance().OpenDataShareUriForRead(uriStr);  
+    DatashareAdapterImpl& adapter = DatashareAdapterImpl::GetInstance();
 
-        // 使用 fileDescriptor 防止未使用变量警告  
-        (void)fileDescriptor;  
+    adapter.GetRealPath(uriString);
 
-        // Test GetFileDisplayName  
-        std::string fileDisplayName = DatashareAdapterImpl::GetInstance().GetFileDisplayName(uriStr);  
+    adapter.OpenDataShareUriForRead(uriString);
 
-        return true;  
-    }  
-}  
+    adapter.GetFileDisplayName(uriString);
 
-/* Fuzzer entry point */  
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)  
-{  
-    /* Run your code on data */  
-    OHOS::DatashareAdapterFuzzTest(data, size);  
-    return 0;  
+    return true;
 }
+
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
+{
+    OHOS::NWeb::DatashareAdapterFuzzTest(data, size);
+    return 0;
+}
+} // namespace OHOS::NWeb

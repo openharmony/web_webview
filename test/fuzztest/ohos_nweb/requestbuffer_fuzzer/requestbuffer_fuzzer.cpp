@@ -56,14 +56,14 @@ bool RequestBufferFuzzTest(const uint8_t* data, size_t size)
             return false;
         }
         g_surface = surfaceNode->GetSurface();
-        if (g_surface== nullptr) {
+        if (g_surface == nullptr) {
             return false;
         }
     }
     surfaceAdapter.RequestBuffer(g_surface, width, height);
     return true;
 }
-}
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

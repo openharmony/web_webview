@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "displaychange_fuzzer"
 #endif /* TEST_FUZZTEST_DISPLAY_CHANGE_FUZZER_H */
-

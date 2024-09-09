@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "openremoteuri_fuzzer"
 #endif /* TEST_FUZZTEST_OPENREMOTEURI_FUZZER_H */
-

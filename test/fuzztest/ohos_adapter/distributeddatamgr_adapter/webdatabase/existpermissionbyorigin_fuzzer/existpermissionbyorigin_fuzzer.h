@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "existpermissionbyorigin_fuzzer"
 #endif /* TEST_FUZZTEST_EXIST_PERMISSION_BY_ORIGIN_FUZZER_H */
-

@@ -48,7 +48,7 @@ bool CopyFrameFuzzTest(const uint8_t* data, size_t size)
     if (width == 0 || height == 0) {
         return false;
     }
-    char *src = new char[BITS_PER_PIXEL] {0};
+    char* src = new char[BITS_PER_PIXEL] { 0 };
     if (src == nullptr) {
         return false;
     }
@@ -56,7 +56,7 @@ bool CopyFrameFuzzTest(const uint8_t* data, size_t size)
     delete[] src;
     return true;
 }
-}
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

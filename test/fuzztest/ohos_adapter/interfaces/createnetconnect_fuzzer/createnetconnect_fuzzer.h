@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "createnetconnect_fuzzer"
 #endif /* TEST_FUZZTEST_CREATE_NET_CONNECT_FUZZER_H */
-

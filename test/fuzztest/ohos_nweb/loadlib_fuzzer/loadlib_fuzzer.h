@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "loadlib_fuzzer"
 #endif /* TEST_FUZZTEST_LOADLIB_FUZZER_H */
-

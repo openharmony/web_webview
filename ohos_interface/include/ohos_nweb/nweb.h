@@ -201,18 +201,6 @@ public:
     virtual std::map<std::string, std::string> GetResponseHeaders() = 0;
 };
 
-enum class SystemThemeFlags : uint8_t {
-    NONE = 0,
-    THEME_FONT = 1 << 0,
-};
-
-class NWebSystemConfiguration {
-    public:
-    virtual ~NWebSystemConfiguration() = default;
-
-    virtual uint8_t GetThemeFlags() = 0;
-};
-
 enum class PixelUnit {
     PX = 0,
     VP = 1,
@@ -225,6 +213,19 @@ typedef void (*NativeArkWebOnValidCallback)(const char*);
 typedef void (*NativeArkWebOnDestroyCallback)(const char*);
 using ScriptItems = std::map<std::string, std::vector<std::string>>;
 using WebSnapshotCallback = std::function<void(const char*, bool, float, void*, int, int)>;
+
+enum class SystemThemeFlags : uint8_t {
+    NONE = 0,
+    THEME_FONT = 1 << 0,
+};
+
+class NWebSystemConfiguration {
+    public:
+    virtual ~NWebSystemConfiguration() = default;
+
+    virtual uint8_t GetThemeFlags() = 0;
+};
+
 class OHOS_NWEB_EXPORT NWeb : public std::enable_shared_from_this<NWeb> {
 public:
     NWeb() = default;
@@ -881,21 +882,6 @@ public:
     virtual void SetNestedScrollMode(const NestedScrollMode& nestedScrollMode) = 0;
 
     /**
-     * Set enable lower the frame rate.
-     */
-    virtual void SetEnableLowerFrameRate(bool enabled) = 0;
-
-    /**
-     * Set the property values for width, height, and keyboard height.
-     */
-    virtual void SetVirtualKeyBoardArg(int32_t width, int32_t height, double keyboard) = 0;
-
-    /**
-     * Set the virtual keyboard to override the web status.
-     */
-    virtual bool ShouldVirtualKeyboardOverlay() = 0;
-
-    /**
      * Set draw rect.
      *
      */
@@ -926,9 +912,24 @@ public:
     virtual int PostUrl(const std::string& url, const std::vector<char>& postData) = 0;
 
     /**
+     * Set the property values for width, height, and keyboard height.
+     */
+    virtual void SetVirtualKeyBoardArg(int32_t width, int32_t height, double keyboard) = 0;
+
+    /**
+     * Set the virtual keyboard to override the web status.
+     */
+    virtual bool ShouldVirtualKeyboardOverlay() = 0;
+
+    /**
      * Inject the JavaScript before WebView load the DOM tree.
      */
     virtual void JavaScriptOnDocumentStart(const ScriptItems& scriptItems) = 0;
+
+    /**
+     * Set enable lower the frame rate.
+     */
+    virtual void SetEnableLowerFrameRate(bool enabled) = 0;
 
     /**
      * Execute an accessibility action on an accessibility node in the browser.
@@ -977,24 +978,6 @@ public:
     virtual bool NeedSoftKeyboard() = 0;
 
     /**
-     * Discard the webview window.
-     * @return true if the discarding success, otherwise false.
-     */
-    virtual bool Discard() = 0;
-
-    /**
-     * Reload the webview window that has been discarded before.
-     * @return true if the discarded window reload success, otherwise false.
-     */
-    virtual bool Restore() = 0;
-
-    /**
-     * Get the security level of current page.
-     * @return security level for current page.
-     */
-    virtual int GetSecurityLevel() = 0;
-
-    /**
      * CallH5Function
      *
      * @param routing_id       int32_t: the h5 frmae routing id
@@ -1039,6 +1022,18 @@ public:
     virtual void JavaScriptOnDocumentEnd(const ScriptItems& scriptItems) = 0;
 
     /**
+     * Discard the webview window.
+     * @return true if the discarding success, otherwise false.
+     */
+    virtual bool Discard() = 0;
+
+    /**
+     * Reload the webview window that has been discarded before.
+     * @return true if the discarded window reload success, otherwise false.
+     */
+    virtual bool Restore() = 0;
+
+    /**
      * Enable the ability to check website security risks.
      * Illegal and fraudulent websites are mandatory enabled and cann't be disabled by this function.
      */
@@ -1049,6 +1044,12 @@ public:
      * @return true if enable the ability to check website security risks else false.
      */
     virtual bool IsSafeBrowsingEnabled() = 0;
+
+    /**
+     * Get the security level of current page.
+     * @return security level for current page.
+     */
+    virtual int GetSecurityLevel() = 0;
 
     /**
      * Set the ability to print web page background.
@@ -1089,17 +1090,6 @@ public:
     virtual int GetMediaPlaybackState() = 0;
 
     /**
-     * Enable the ability to intelligent tracking prevention, default disabled.
-     */
-    virtual void EnableIntelligentTrackingPrevention(bool enable) = 0;
-
-    /**
-     * Get whether intelligent tracking prevention is enabled.
-     * @return true if enable the ability intelligent tracking prevention; else false.
-     */
-    virtual bool IsIntelligentTrackingPreventionEnabled() const = 0;
-
-    /**
      * Start current camera.
      */
     virtual void StartCamera() = 0;
@@ -1113,6 +1103,17 @@ public:
      * Close current camera.
      */
     virtual void CloseCamera() = 0;
+
+    /**
+     * Enable the ability to intelligent tracking prevention, default disabled.
+     */
+    virtual void EnableIntelligentTrackingPrevention(bool enable) = 0;
+
+    /**
+     * Get whether intelligent tracking prevention is enabled.
+     * @return true if enable the ability intelligent tracking prevention; else false.
+     */
+    virtual bool IsIntelligentTrackingPreventionEnabled() const = 0;
 
     /**
      * @brief Obtains the last javascript proxy calling frame url.
@@ -1174,21 +1175,7 @@ public:
     virtual void OnTouchCancelById(int32_t id, double x, double y, bool from_overlay) = 0;
 
     /**
-     * @brief Set the params when the scale of WebView changed by pinch gestrue.
-     *
-     * @param scale: the scale factor to apply. The scale will be
-     *        clamped to the pinch limits. This value must be in the range
-     *        0.01 to 8.0 inclusive.
-     * @param centerX: X-coordinate of the pinch center
-     * @param centerX: Y-coordinate of the pinch center
-     *
-     * @return the error id.
-     */
-    /*--ark web()--*/
-    virtual int ScaleGestureChange(double scale, double centerX, double centerY) = 0;
-
-    /**
-     * @brief Inject offline resource into MemoryCache.
+     * Inject Offline Resource into Memory Cache.
      *
      * @param url url of resource.
      * @param origin origin of resource.
@@ -1210,10 +1197,18 @@ public:
     virtual bool TerminateRenderProcess() = 0;
 
     /**
-     * Get value of Autofill index.
-     * @param index index value.
+     * @brief Set the params when the scale of WebView changed by pinch gestrue.
+     *
+     * @param scale: the scale factor to apply. The scale will be
+     *        clamped to the pinch limits. This value must be in the range
+     *        0.01 to 8.0 inclusive.
+     * @param centerX: X-coordinate of the pinch center
+     * @param centerX: Y-coordinate of the pinch center
+     *
+     * @return the error id.
      */
-    virtual void SuggestionSelected(int32_t index) = 0;
+    /*--ark web()--*/
+    virtual int ScaleGestureChange(double scale, double centerX, double centerY) = 0;
 
     /**
      * RegisterArkJSfunction
@@ -1225,6 +1220,12 @@ public:
      */
     virtual void RegisterArkJSfunction(const std::string& object_name, const std::vector<std::string>& method_list,
         const std::vector<std::string>& async_method_list, const int32_t object_id) = 0;
+
+    /**
+     * Get value of Autofill index.
+     * @param index index value.
+     */
+    virtual void SuggestionSelected(int32_t index) = 0;
 
     /**
      * @brief Send touchpad fling event.
@@ -1249,16 +1250,16 @@ public:
     virtual std::string GetSelectInfo() = 0;
 
     /**
-     * @brief None offline Render process switch to foreground.
-     */
-    /*--ark web()--*/
-    virtual void OnOnlineRenderToForeground() = 0;
-
-    /**
      * @brief Notify that safe insets change.
      *
      */
     virtual void OnSafeInsetsChange(int left, int top, int right, int bottom) = 0;
+
+    /**
+     * @brief Render process switch to foreground.
+     */
+    /*--ark web()--*/
+    virtual void OnOnlineRenderToForeground() = 0;
 
     /**
      * @brief Called when text is selected in image.
@@ -1267,11 +1268,48 @@ public:
     virtual void OnTextSelected() = 0;
 
     /**
-     * @brief web send key event.
+     * @brief Notify for next touch move event.
+     *
      */
     /*--ark web()--*/
-    virtual bool WebSendKeyEvent(int32_t keyCode, int32_t keyAction,
-                                 const std::vector<int32_t>& pressedCodes) {
+    virtual void NotifyForNextTouchEvent() {}
+
+    /**
+     * @brief Enable the ability to block Ads, default disabled.
+     */
+    virtual void EnableAdsBlock(bool enable) {}
+
+    /**
+     * @brief Get whether Ads block is enabled.
+     */
+    virtual bool IsAdsBlockEnabled()
+    {
+        return false;
+    }
+
+    /**
+     * @brief Get whether Ads block is enabled for current Webpage.
+     */
+    virtual bool IsAdsBlockEnabledForCurPage()
+    {
+        return false;
+    }
+
+    /**
+     * @brief Get Web page snapshot
+     *
+     * @param id Request id.
+     * @param width Request SnapShot width.
+     * @param height Request SnapShot height.
+     * @param callback SnapShot result callback.
+     * @return ture if succuess request snapshot to renderer.
+     */
+    /*--ark web()--*/
+    virtual bool WebPageSnapshot(const char* id,
+                                 PixelUnit type,
+                                 int width,
+                                 int height,
+                                 const WebSnapshotCallback callback) {
         return false;
     }
 
@@ -1282,32 +1320,6 @@ public:
     */
     /*--ark web()--*/
     virtual void OnConfigurationUpdated(std::shared_ptr<NWebSystemConfiguration> configuration) {}
-
-    /**
-     * @brief Enable the ability to block Ads, default disabled.
-     */
-    virtual void EnableAdsBlock(bool enable) {}
-
-    /**
-     * @brief Get whether Ads block is enabled.
-     */
-    virtual bool IsAdsBlockEnabled() {
-        return false;
-    }
-
-    /**
-     * @brief Get whether Ads block is enabled for current Webpage.
-     */
-    virtual bool IsAdsBlockEnabledForCurPage() {
-        return false;
-    }
-
-    /**
-     * @brief Notify for next touch move event.
-     *
-     */
-    /*--ark web()--*/
-    virtual void NotifyForNextTouchEvent() {}
 
     /**
      * @brief Set url trust list.
@@ -1327,20 +1339,13 @@ public:
         std::shared_ptr<NWebSpanstringConvertHtmlCallback> callback) {}
 
     /**
-     * @brief Get Web page snapshot
-     *
-     * @param id Request id.
-     * @param width Request SnapShot width.
-     * @param height Request SnapShot height.
-     * @param callback SnapShot result callback.
-     * @return ture if succuess request snapshot to renderer.
+     * Web send key event.
+     * @param key_code code value.
+     * @param key_action action value.
+     * @param pressedCodes pressedCodes value.
      */
     /*--ark web()--*/
-    virtual bool WebPageSnapshot(const char* id,
-                                 PixelUnit type,
-                                 int width,
-                                 int height,
-                                 const WebSnapshotCallback callback) {
+    virtual bool WebSendKeyEvent(int32_t keyCode, int32_t keyAction, const std::vector<int32_t>& pressedCodes) {
         return false;
     }
 
@@ -1461,21 +1466,26 @@ public:
     virtual void FillAutofillData(std::shared_ptr<NWebMessage> data) {}
 
     /**
+     * Scroll by the delta distance if web is not foucsed.
+     *
+     * @param delta_x horizontal offset.
+     * @param delta_y vertical offset.
+     * @return false if web is focused.
+     */
+    virtual bool ScrollByWithResult(float delta_x, float delta_y) {
+       return false;
+    }
+
+    /**
      * @brief on autofill cancel.
      * @param fillContent fillContent
      */
     virtual void OnAutofillCancel(const std::string& fillContent) {}
 
     /**
-     * Scroll by the delta distance if web is not foucsed.
-     *
-     * @param delta_x horizontal offset.
-     * @param delta_y vertical offset.
-     * @return false if web is focused.
-    */
-    virtual bool ScrollByWithResult(float delta_x, float delta_y) {
-        return false;
-    }
+     * @brief Called when image analyzer is destory.
+     */
+    virtual void OnDestroyImageAnalyzerOverlay() {}
 };
 
 } // namespace OHOS::NWeb

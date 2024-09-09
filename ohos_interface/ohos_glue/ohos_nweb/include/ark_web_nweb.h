@@ -1475,6 +1475,12 @@ public:
      */
     /*--ark web()--*/
     virtual bool ScrollByWithResult(float delta_x, float delta_y) = 0;
+
+    /**
+     * @brief Called when image analyzer is destory.
+     */
+    /*--ark web()--*/
+    virtual void OnDestroyImageAnalyzerOverlay() = 0;
 };
 
 } // namespace OHOS::ArkWeb

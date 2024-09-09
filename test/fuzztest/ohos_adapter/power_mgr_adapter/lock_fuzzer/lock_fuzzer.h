@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "lock_fuzzer"
 #endif /* TEST_FUZZTEST_LOCK_FUZZER_H */
-
