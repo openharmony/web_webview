@@ -402,4 +402,11 @@ std::shared_ptr<OhosFileMapper> OhosResourceAdapterImpl::GetRawFileMapper(
     bool isCompressed = fileMap->IsCompressed();
     return std::make_shared<OhosFileMapperImpl>(std::move(fileMap), isCompressed ? manager: nullptr);
 }
+
+void OhosResourceAdapterImpl::SetApplicationResourceManager(void* resMgr) {
+    if (resMgr == nullptr) {
+        WVLOG_E("OhosResourceAdapterImpl::SetApplicationResourceManager fail");
+    }
+    mgr_ = (NativeResourceManager*)resMgr;
+}
 }  // namespace OHOS::NWeb

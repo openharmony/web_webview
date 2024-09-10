@@ -72,6 +72,26 @@ component("adapter_extractortool") {
   public_configs = [ ":ability_extractor_config" ]
 }
 
+shared_library("ohos_adapter_napi") {
+  sources = [
+    "ohos_adapter_napi/ohos_adapter_napi.cpp"
+  ]
+
+  include_dirs = [
+    "interfaces"
+  ]
+
+  deps = [
+    ":nweb_ohos_adapter"
+  ]
+
+  libs = [
+    "ace_napi",
+    "rawfile.z",
+    "hilog_ndk.z"
+  ]
+}
+
 #
 shared_library("nweb_ohos_adapter") {
 #  branch_protector_ret = "pac_ret"

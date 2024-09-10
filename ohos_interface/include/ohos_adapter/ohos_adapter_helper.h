@@ -147,6 +147,8 @@ public:
     virtual std::unique_ptr<OhosImageDecoderAdapter> CreateOhosImageDecoderAdapter() = 0;
 
     virtual std::unique_ptr<SensorAdapter> CreateSensorAdapter() = 0;
+
+    virtual void SetApplicationResourceManager(void* mgr) = 0;
 };
 } // namespace OHOS::NWeb
 
