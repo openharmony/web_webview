@@ -203,6 +203,7 @@ shared_library("nweb_ohos_adapter") {
     "net_connection",
     "telephony_data",
     "telephony_radio",
+    "location_ndk",
     "ohbattery_info",
     "ohavsession",
     "pasteboard",
@@ -287,9 +288,8 @@ shared_library("nweb_ohos_adapter") {
 #
 #  if (webview_location_enable) {
     sources += [
-#      "location_adapter/src/location_callback_adapter_impl.cpp",
       "location_adapter/src/location_instance_impl.cpp",
-#      "location_adapter/src/location_proxy_adapter_impl.cpp",
+      "location_adapter/src/location_proxy_adapter_impl.cpp",
     ]
 #    external_deps += [
 #      "location:lbsservice_common",
