@@ -1055,11 +1055,6 @@ void ArkWebNWebWrapper::OnCreateNativeMediaPlayer(
     ark_web_nweb_->OnCreateNativeMediaPlayer(new ArkWebCreateNativeMediaPlayerCallbackImpl(callback));
 }
 
-void ArkWebNWebWrapper::DragResize(uint32_t width, uint32_t height, uint32_t pre_height, uint32_t pre_width)
-{
-    ark_web_nweb_->DragResize(width, height, pre_height, pre_width);
-}
-
 void ArkWebNWebWrapper::OnTouchCancelById(int32_t id, double x, double y, bool from_overlay)
 {
     ark_web_nweb_->OnTouchCancelById(id, x, y, from_overlay);
