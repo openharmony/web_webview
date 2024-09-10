@@ -210,6 +210,8 @@ shared_library("nweb_ohos_adapter") {
     "pixelmap",
     "udmf",
     "ohprint",
+    "ohsensor",
+    "native_avscreen_capture",
   ]
 #
   public_configs = [ ":ohos_adapter_public_interface" ]
@@ -333,7 +335,7 @@ shared_library("nweb_ohos_adapter") {
       "camera_adapter/src/video_capture_range_adapter_impl.cpp",
       "camera_adapter/src/video_control_support_adapter_impl.cpp",
       "camera_adapter/src/video_device_descriptor_adapter_impl.cpp",
-#      "screen_capture_adapter/src/screen_capture_adapter_impl.cpp",
+      "screen_capture_adapter/src/screen_capture_adapter_impl.cpp",
     ]
 #    external_deps += [ "camera_framework:camera_framework" ]
 #    defines += [ "NWEB_CAMERA_ENABLE" ]

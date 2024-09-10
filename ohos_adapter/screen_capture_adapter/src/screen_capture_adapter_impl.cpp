@@ -15,13 +15,12 @@
 
 #include "screen_capture_adapter_impl.h"
 
-#include "foundation/multimedia/player_framework/interfaces/inner_api/native/media_errors.h"
 #include "nweb_log.h"
-#include "surface_adapter_impl.h"
 #include <multimedia/player_framework/native_avscreen_capture.h>
 #include <native_buffer/native_buffer.h>
 
 namespace OHOS::NWeb {
+std::queue<OH_AVBuffer*> bufferAvailableQueue_;
 namespace {
 OH_CaptureMode GetOHCaptureMode(const CaptureModeAdapter& mode)
 {
@@ -33,7 +32,7 @@ OH_CaptureMode GetOHCaptureMode(const CaptureModeAdapter& mode)
         case CaptureModeAdapter::CAPTURE_SPECIFIED_WINDOW:
             return OH_CaptureMode::OH_CAPTURE_SPECIFIED_WINDOW;
         default:
-            return OH_CaptureMode::OH_CAPTURE_INVAILD;
+            break;
     }
     return OH_CaptureMode::OH_CAPTURE_INVAILD;
 }
@@ -48,7 +47,7 @@ OH_DataType GetOHDataType(const DataTypeAdapter& type)
         case DataTypeAdapter::CAPTURE_FILE_DATA_TYPE:
             return OH_DataType::OH_CAPTURE_FILE;
         default:
-            return OH_DataType::OH_INVAILD;
+            break;
     }
     return OH_DataType::OH_INVAILD;
 }
@@ -65,7 +64,7 @@ OH_AudioCaptureSourceType GetOHAudioCaptureSourceType(const AudioCaptureSourceTy
         case AudioCaptureSourceTypeAdapter::APP_PLAYBACK:
             return OH_AudioCaptureSourceType::OH_APP_PLAYBACK;
         default:
-            return OH_AudioCaptureSourceType::OH_SOURCE_INVALID;
+            break;
     }
     return OH_AudioCaptureSourceType::OH_SOURCE_INVALID;
 }
@@ -78,7 +77,7 @@ OH_AudioCodecFormat GetOHAudioCodecFormat(const AudioCodecFormatAdapter& format)
         case AudioCodecFormatAdapter::AAC_LC:
             return OH_AudioCodecFormat::OH_AAC_LC;
         default:
-            return OH_AudioCodecFormat::OH_AUDIO_CODEC_FORMAT_BUTT;
+            break;
     }
     return OH_AudioCodecFormat::OH_AUDIO_CODEC_FORMAT_BUTT;
 }
@@ -93,7 +92,7 @@ OH_VideoSourceType GetOHVideoSourceType(const VideoSourceTypeAdapter& type)
         case VideoSourceTypeAdapter::VIDEO_SOURCE_SURFACE_RGBA:
             return OH_VideoSourceType::OH_VIDEO_SOURCE_SURFACE_RGBA;
         default:
-            return OH_VideoSourceType::OH_VIDEO_SOURCE_BUTT;
+            break;
     }
     return OH_VideoSourceType::OH_VIDEO_SOURCE_BUTT;
 }
@@ -108,7 +107,7 @@ OH_VideoCodecFormat GetOHVideoCodecFormat(const VideoCodecFormatAdapter& format)
         case VideoCodecFormatAdapter::MPEG4:
             return OH_VideoCodecFormat::OH_MPEG4;
         default:
-            return OH_VideoCodecFormat::OH_VIDEO_CODEC_FORMAT_BUTT;
+            break;
     }
     return OH_VideoCodecFormat::OH_VIDEO_CODEC_FORMAT_BUTT;
 }
@@ -119,7 +118,7 @@ OH_ContainerFormatType GetOHContainerFormatType(const ContainerFormatTypeAdapter
         case ContainerFormatTypeAdapter::CFT_MPEG_4A_TYPE:
             return OH_ContainerFormatType::CFT_MPEG_4A;
         default:
-            return OH_ContainerFormatType::CFT_MPEG_4;
+            break;
     }
     return OH_ContainerFormatType::CFT_MPEG_4;
 }
@@ -206,7 +205,7 @@ ScreenCaptureStateCodeAdapter GetScreenCaptureStateCodeAdapter(const OH_AVScreen
         case OH_AVScreenCaptureStateCode::OH_SCREEN_CAPTURE_STATE_EXIT_PRIVATE_SCENE:
             return ScreenCaptureStateCodeAdapter::SCREEN_CAPTURE_STATE_EXIT_PRIVATE_SCENE;
         default:
-            return ScreenCaptureStateCodeAdapter::SCREEN_CAPTURE_STATE_INVLID;
+            break;
     }
     return ScreenCaptureStateCodeAdapter::SCREEN_CAPTURE_STATE_INVLID;
 }
@@ -267,7 +266,7 @@ int32_t ScreenCaptureAdapterImpl::Init(const std::shared_ptr<ScreenCaptureConfig
     }
 
     int32_t ret = OH_AVScreenCapture_Init(screenCapture_, ConvertScreenCaptureConfig(config));
-    if (ret != Media::MSERR_OK) {
+    if (ret != OH_AVSCREEN_CAPTURE_ErrCode::AV_SCREEN_CAPTURE_ERR_OK) {
         WVLOG_E("OH_AVScreenCapture init failed, ret = %{public}d", ret);
         Release();
         return -1;
@@ -281,7 +280,7 @@ void ScreenCaptureAdapterImpl::Release()
         return;
     }
     int32_t ret = OH_AVScreenCapture_Release(screenCapture_);
-    if (ret != Media::MSERR_OK) {
+    if (ret != OH_AVSCREEN_CAPTURE_ErrCode::AV_SCREEN_CAPTURE_ERR_OK) {
         WVLOG_E("OH_AVScreenCapture release failed, ret = %{public}d", ret);
     }
     screenCapture_ = nullptr;
@@ -294,7 +293,7 @@ int32_t ScreenCaptureAdapterImpl::SetMicrophoneEnable(bool enable)
         return -1;
     }
     int32_t ret = OH_AVScreenCapture_SetMicrophoneEnabled(screenCapture_, enable);
-    if (ret != Media::MSERR_OK) {
+    if (ret != OH_AVSCREEN_CAPTURE_ErrCode::AV_SCREEN_CAPTURE_ERR_OK) {
         WVLOG_E("set microphone enabled failed, ret = %{public}d", ret);
         return -1;
     }
@@ -308,7 +307,7 @@ int32_t ScreenCaptureAdapterImpl::StartCapture()
         return -1;
     }
     int32_t ret = OH_AVScreenCapture_StartScreenCapture(screenCapture_);
-    if (ret != Media::MSERR_OK) {
+    if (ret != OH_AVSCREEN_CAPTURE_ErrCode::AV_SCREEN_CAPTURE_ERR_OK) {
         WVLOG_E("start capture failed, ret = %{public}d", ret);
         return -1;
     }
@@ -322,7 +321,7 @@ int32_t ScreenCaptureAdapterImpl::StopCapture()
         return -1;
     }
     int32_t ret = OH_AVScreenCapture_StopScreenCapture(screenCapture_);
-    if (ret != Media::MSERR_OK) {
+    if (ret != OH_AVSCREEN_CAPTURE_ErrCode::AV_SCREEN_CAPTURE_ERR_OK) {
         WVLOG_E("stop capture failed, ret = %{public}d", ret);
         return -1;
     }
@@ -337,21 +336,21 @@ int32_t ScreenCaptureAdapterImpl::SetCaptureCallback(const std::shared_ptr<Scree
         return -1;
     }
     int32_t errorRet = OH_AVScreenCapture_SetErrorCallback(screenCapture_, ScreenCaptureCallbackOnError, &callback_);
-    if (errorRet != Media::MSERR_OK) {
+    if (errorRet != OH_AVSCREEN_CAPTURE_ErrCode::AV_SCREEN_CAPTURE_ERR_OK) {
         WVLOG_E("set callback failed, errorRet = %{public}d", errorRet);
         callback_ = nullptr;
         return -1;
     }
     int32_t dataRet = OH_AVScreenCapture_SetDataCallback(screenCapture_, 
         ScreenCaptureCallbackOnBufferAvailable, &callback_);
-    if (dataRet != Media::MSERR_OK) {
+    if (dataRet != OH_AVSCREEN_CAPTURE_ErrCode::AV_SCREEN_CAPTURE_ERR_OK) {
         WVLOG_E("set callback failed, dataRet = %{public}d", dataRet);
         callback_ = nullptr;
         return -1;
     }
     int32_t stateRet = OH_AVScreenCapture_SetStateCallback(screenCapture_, 
         ScreenCaptureCallbackOnStateChange, &callback_);
-    if (stateRet != Media::MSERR_OK) {
+    if (stateRet != OH_AVSCREEN_CAPTURE_ErrCode::AV_SCREEN_CAPTURE_ERR_OK) {
         WVLOG_E("set callback failed, stateRet = %{public}d", stateRet);
         callback_ = nullptr;
         return -1;
@@ -390,7 +389,7 @@ int32_t ScreenCaptureAdapterImpl::ReleaseVideoBuffer()
         return -1;
     }
     int32_t ret = OH_AVScreenCapture_ReleaseVideoBuffer(screenCapture_);
-    if (ret != Media::MSERR_OK) {
+    if (ret != OH_AVSCREEN_CAPTURE_ErrCode::AV_SCREEN_CAPTURE_ERR_OK) {
         WVLOG_E("release video buffer failed, ret = %{public}d", ret);
         return -1;
     }
