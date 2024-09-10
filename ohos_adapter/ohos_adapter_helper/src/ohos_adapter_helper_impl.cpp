@@ -275,4 +275,9 @@ std::unique_ptr<SensorAdapter> OhosAdapterHelperImpl::CreateSensorAdapter()
 {
     return std::make_unique<SensorAdapterImpl>();
 }
+
+void OhosAdapterHelperImpl::SetApplicationResourceManager(void* mgr)
+{
+    OhosResourceAdapterImpl::SetApplicationResourceManager(mgr);
+}
 } // namespace OHOS::NWeb

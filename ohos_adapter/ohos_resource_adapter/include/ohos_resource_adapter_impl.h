@@ -75,7 +75,7 @@ public:
     static bool GetResourceString(const std::string& bundleName, const std::string& moduleName,
         const int32_t resId, std::string& result);
 
-    static void setApplicationResourceManager(napi_env env, napi_value jsResMgr);
+    static void SetApplicationResourceManager(void* resMgr);
 
 private:
     void Init(const std::string& hapPath);

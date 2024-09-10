@@ -112,6 +112,8 @@ public:
     std::unique_ptr<OhosImageDecoderAdapter> CreateOhosImageDecoderAdapter() override;
 
     std::unique_ptr<SensorAdapter> CreateSensorAdapter() override;
+
+    void SetApplicationResourceManager(void* mgr) override;
 };
 } // namespace OHOS::NWeb
 
