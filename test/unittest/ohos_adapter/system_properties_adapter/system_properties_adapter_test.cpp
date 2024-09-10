@@ -17,7 +17,6 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#define private public
 #include "nweb_log.h"
 #include "system_properties_adapter_impl.h"
 
@@ -53,9 +52,9 @@ class SystemPropertiesObserverTest : public SystemPropertiesObserver {
     void PropertiesUpdate(const char* value) override
     {
         if (strcmp(value, "true") == 0) {
-            update_value_ = true;
+            updateValue = true;
         } else if (strcmp(value, "false") == 0) {
-            update_value_ = false;
+            updateValue = false;
         } else {
             WVLOG_E("SystemPropertiesObserverTest return value is invalid");
         }
@@ -63,10 +62,10 @@ class SystemPropertiesObserverTest : public SystemPropertiesObserver {
 
    bool UpdateValue()
    {
-     return update_value_;
+     return updateValue;
    }
  private:
-    bool update_value_ = false;
+    bool updateValue = false;
 };
 
 /**
@@ -85,7 +84,6 @@ HWTEST_F(SystemPropertiesAdapterTest, SystemPropertiesAdapterTest_GetDeviceInfoB
     EXPECT_NE(result, -1);
     SystemPropertiesAdapterImpl::GetInstance().GetResourceUseHapPathEnable();
     SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType();
-    SystemPropertiesAdapterImpl::GetInstance().AnalysisFromConfig();
     bool value = SystemPropertiesAdapterImpl::GetInstance().GetWebOptimizationValue();
     EXPECT_TRUE(value);
     system("param set web.optimization false");
@@ -115,17 +113,17 @@ HWTEST_F(SystemPropertiesAdapterTest, SystemPropertiesAdapterTest_OptSystemPrope
     auto observer = std::make_shared<SystemPropertiesObserverTest>();
     system_properties_adapter.AttachSysPropObserver(PropertiesKey::PROP_RENDER_DUMP, observer.get());
     system("param set web.render.dump true");
-    bool result_first = observer->UpdateValue();
-    EXPECT_TRUE(result_first);
+    bool resultFirst = observer->UpdateValue();
+    EXPECT_TRUE(resultFirst);
     system("param set web.render.dump false");
-    bool result_second = observer->UpdateValue();
-    EXPECT_FALSE(result_second);
+    bool resultSecond = observer->UpdateValue();
+    EXPECT_FALSE(resultSecond);
 
     system_properties_adapter.DetachSysPropObserver(PropertiesKey::PROP_RENDER_DUMP, nullptr);
     system_properties_adapter.DetachSysPropObserver(PropertiesKey::PROP_RENDER_DUMP, observer.get());
     system("param set web.render.dump true");
-    bool result_third = observer->UpdateValue();
-    EXPECT_FALSE(result_third);
+    bool resultThird = observer->UpdateValue();
+    EXPECT_FALSE(resultThird);
 }
 
 /**
