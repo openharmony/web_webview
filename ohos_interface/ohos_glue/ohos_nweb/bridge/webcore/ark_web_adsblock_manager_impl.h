@@ -26,14 +26,14 @@ class ArkWebAdsBlockManagerImpl : public ArkWebAdsBlockManager {
   IMPLEMENT_REFCOUNTING(ArkWebAdsBlockManagerImpl);
 
 public:
-  ArkWebAdsBlockManagerImpl(
-      std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> nweb_adsblock_manager);
+  ArkWebAdsBlockManagerImpl(std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> nweb_adsblock_manager);
   ~ArkWebAdsBlockManagerImpl() = default;
 
   /**
    * @brief Set Ads Block ruleset file, containing easylist rules.
    *
-   * @param rulesFile absolute easylist file path contains app customized ads block rules.
+   * @param rulesFile absolute easylist file path contains app customized ads
+   * block rules.
    * @param replace replace internal rules or not;
    */
   void SetAdsBlockRules(const ArkWebString &url, bool replace) override;
@@ -41,15 +41,16 @@ public:
   /**
    * @brief Add items to Ads Block Disallowed list.
    *
-   * @param domainSuffix list of domains suffix. if web page url matches someone in the list,
-   * Ads Block will be disallowed for the web page.
+   * @param domainSuffix list of domains suffix. if web page url matches someone
+   * in the list, Ads Block will be disallowed for the web page.
    */
   void AddAdsBlockDisallowedList(const ArkWebStringVector &domainSuffixes) override;
 
   /**
    * @brief Remove items from Ads Block disallowed list.
    *
-   * @param domainSuffix : list of domains suffix needed be removed from disallow list
+   * @param domainSuffix : list of domains suffix needed be removed from
+   * disallow list
    */
   void RemoveAdsBlockDisallowedList(const ArkWebStringVector &domainSuffixes) override;
 
@@ -62,18 +63,19 @@ public:
   /**
    * @brief Add items to Ads Block Allowed list.
    * By default, ads block is allowed for all pages unless they are added to the
-   * disallow list. The priority of allowlist is higher than the disallowlist. It is
-   * used to re-enable ads block on the page that matches disallow list.
+   * disallow list. The priority of allowlist is higher than the disallowlist.
+   * It is used to re-enable ads block on the page that matches disallow list.
    *
-   * @param domainSuffix list of domains suffix, if web page url matches someone in the list,
-   * Ads Block will be allowed for the web page.
+   * @param domainSuffix list of domains suffix, if web page url matches someone
+   * in the list, Ads Block will be allowed for the web page.
    */
   void AddAdsBlockAllowedList(const ArkWebStringVector &domainSuffixes) override;
 
   /**
    * @brief Remove items from Ads Block allowed list.
    *
-   * @param domainSuffix : list of domains suffix needed be removed from allow list
+   * @param domainSuffix : list of domains suffix needed be removed from allow
+   * list
    */
   void RemoveAdsBlockAllowedList(const ArkWebStringVector &domainSuffixes) override;
 
