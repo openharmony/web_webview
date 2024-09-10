@@ -205,7 +205,6 @@ shared_library("nweb_ohos_adapter") {
     "telephony_radio",
     "location_ndk",
     "ohbattery_info",
-    "ohavsession",
     "pasteboard",
     "pixelmap",
     "udmf",
@@ -391,7 +390,7 @@ shared_library("nweb_ohos_adapter") {
 #  }
 #
 #  if (webview_media_avsession_enable) {
-     sources += [ "media_adapter/src/media_avsession_adapter_impl.cpp" ]
+#    sources += [ "media_adapter/src/media_avsession_adapter_impl.cpp" ]
 #    external_deps += [ "av_session:avsession_client" ]
 #    defines += [ "NWEB_MEDIA_AVSESSION_ENABLE" ]
 #  }
