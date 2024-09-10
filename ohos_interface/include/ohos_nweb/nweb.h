@@ -137,7 +137,9 @@ public:
 enum class BlurReason : int32_t {
     FOCUS_SWITCH = 0,
     WINDOW_BLUR = 1,
-    FRAME_DESTROY = 2,
+    FRAME_DESTROY = 2, // frame node detached from main tree
+    VIEW_SWITCH = 3,
+    CLEAR_FOCUS = 4, // User api clearFocus triggered
 };
 
 enum class FocusReason : int32_t {
@@ -1165,12 +1167,6 @@ public:
         std::shared_ptr<CacheOptions>& cacheOptions, std::shared_ptr<NWebMessageValueCallback> callback) = 0;
 
     virtual void OnCreateNativeMediaPlayer(std::shared_ptr<NWebCreateNativeMediaPlayerCallback> callback) = 0;
-
-    /**
-     * @brief Web drag resize optimize.
-     */
-    /*--ark web()--*/
-    virtual void DragResize(uint32_t width, uint32_t height, uint32_t pre_height, uint32_t pre_width) = 0;
 
     virtual void OnTouchCancelById(int32_t id, double x, double y, bool from_overlay) = 0;
 

@@ -20,30 +20,36 @@ namespace OHOS::ArkWeb {
 
 ArkWebAdsBlockManagerImpl::ArkWebAdsBlockManagerImpl(
     std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> nweb_adsblock_manager)
-    : nweb_adsblock_manager_(nweb_adsblock_manager) {
-}
+    : nweb_adsblock_manager_(nweb_adsblock_manager)
+{}
 
-void ArkWebAdsBlockManagerImpl::SetAdsBlockRules(const ArkWebString &url, bool replace) {
+void ArkWebAdsBlockManagerImpl::SetAdsBlockRules(const ArkWebString &url, bool replace)
+{
   nweb_adsblock_manager_->SetAdsBlockRules(ArkWebStringStructToClass(url), replace);
 }
 
-void ArkWebAdsBlockManagerImpl::AddAdsBlockDisallowedList(const ArkWebStringVector &domainSuffixes) {
+void ArkWebAdsBlockManagerImpl::AddAdsBlockDisallowedList(const ArkWebStringVector &domainSuffixes)
+{
   nweb_adsblock_manager_->AddAdsBlockDisallowedList(ArkWebStringVectorStructToClass(domainSuffixes));
 }
 
-void ArkWebAdsBlockManagerImpl::RemoveAdsBlockDisallowedList(const ArkWebStringVector &domainSuffixes) {
+void ArkWebAdsBlockManagerImpl::RemoveAdsBlockDisallowedList(const ArkWebStringVector &domainSuffixes)
+{
   nweb_adsblock_manager_->RemoveAdsBlockDisallowedList(ArkWebStringVectorStructToClass(domainSuffixes));
 }
 
-void ArkWebAdsBlockManagerImpl::ClearAdsBlockDisallowedList() {
+void ArkWebAdsBlockManagerImpl::ClearAdsBlockDisallowedList()
+{
   nweb_adsblock_manager_->ClearAdsBlockDisallowedList();
 }
 
-void ArkWebAdsBlockManagerImpl::AddAdsBlockAllowedList(const ArkWebStringVector &domainSuffixes) {
+void ArkWebAdsBlockManagerImpl::AddAdsBlockAllowedList(const ArkWebStringVector &domainSuffixes)
+{
   nweb_adsblock_manager_->AddAdsBlockAllowedList(ArkWebStringVectorStructToClass(domainSuffixes));
 }
 
-void ArkWebAdsBlockManagerImpl::RemoveAdsBlockAllowedList(const ArkWebStringVector &domainSuffixes) {
+void ArkWebAdsBlockManagerImpl::RemoveAdsBlockAllowedList(const ArkWebStringVector &domainSuffixes)
+{
   nweb_adsblock_manager_->RemoveAdsBlockAllowedList(ArkWebStringVectorStructToClass(domainSuffixes));
 }
 

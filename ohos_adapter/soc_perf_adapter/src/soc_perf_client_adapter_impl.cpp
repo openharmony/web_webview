@@ -25,7 +25,6 @@
 namespace OHOS::NWeb {
 namespace {
 #if defined(NWEB_SOC_PERF)
-    const int32_t SOC_PERF_WEB_DRAG_RESIZE_ID = 10073;
     const uint32_t SOC_PERF_INVALID = UINT32_MAX;
 #endif
 }
@@ -39,7 +38,6 @@ SocPerfClientAdapterImpl::SocPerfClientAdapterImpl()
         { SOC_PERF_SLIDE_NORMAL_ID, ResourceSchedule::ResType::RES_TYPE_WEB_SLIDE_NORMAL },
         { SOC_PERF_LOAD_URL_ID, ResourceSchedule::ResType::RES_TYPE_LOAD_URL },
         { SOC_PERF_MOUSEWHEEL_ID, ResourceSchedule::ResType::RES_TYPE_MOUSEWHEEL },
-        { SOC_PERF_WEB_DRAG_RESIZE_ID, ResourceSchedule::ResType::RES_TYPE_WEB_DRAG_RESIZE },
     };
 #endif
 }

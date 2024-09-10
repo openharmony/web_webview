@@ -23,6 +23,9 @@
 #include "foundation/graphic/graphic_surface/interfaces/inner_api/surface/window.h"
 #include "native_window.h"
 
+using namespace testing;
+using namespace testing::ext;
+using namespace std;
 using testing::ext::TestSize;
 using namespace OHOS::MediaAVCodec;
 
@@ -106,18 +109,23 @@ HWTEST_F(DecoderCallbackImplTest, DecoderCallbackImpl_NormalTest_001, TestSize.L
 }
 
 class MediaCodecDecoderAdapterImplTest : public testing::Test {
+public:
+    static void SetUpTestCase(void);
+    static void TearDownTestCase(void);
+    void SetUp();
+    void TearDown();
+
 protected:
-    void SetUp() override;
     std::shared_ptr<DecoderFormatAdapterMock> format_ = nullptr;
     std::shared_ptr<MediaCodecDecoderAdapterImpl> mediaCodecDecoderAdapterImpl_ = nullptr;
 };
 
+void MediaCodecDecoderAdapterImplTest::SetUpTestCase(void) {}
+
+void MediaCodecDecoderAdapterImplTest::TearDownTestCase(void) {}
+
 void MediaCodecDecoderAdapterImplTest::SetUp()
 {
-    constexpr int32_t testWidth = 200;
-    constexpr int32_t testHeight = 300;
-    constexpr int32_t testFrameRate = 20;
-
     EXPECT_EQ(mediaCodecDecoderAdapterImpl_, nullptr);
     mediaCodecDecoderAdapterImpl_ = std::make_unique<MediaCodecDecoderAdapterImpl>();
     EXPECT_NE(mediaCodecDecoderAdapterImpl_, nullptr);
@@ -125,10 +133,12 @@ void MediaCodecDecoderAdapterImplTest::SetUp()
     EXPECT_EQ(format_, nullptr);
     format_ = std::make_unique<DecoderFormatAdapterMock>();
     EXPECT_NE(format_, nullptr);
-    format_->width = testWidth;
-    format_->height = testHeight;
-    format_->frameRate = testFrameRate;
+    format_->width = 200;
+    format_->height = 300;
+    format_->frameRate = 20;
 }
+
+void MediaCodecDecoderAdapterImplTest::TearDown(void) {}
 
 /**
  * @tc.name: MediaCodecDecoderAdapterImpl_CreateVideoDecoderByName_001.
@@ -138,10 +148,13 @@ void MediaCodecDecoderAdapterImplTest::SetUp()
  */
 HWTEST_F(MediaCodecDecoderAdapterImplTest, MediaCodecDecoderAdapterImpl_CreateVideoDecoderByName_001, TestSize.Level1)
 {
-    const std::string mimetype_ = "testmimeType";
+    std::string mimetype_ = "testmimeType";
     EXPECT_EQ(mediaCodecDecoderAdapterImpl_->CreateVideoDecoderByMime(mimetype_), DecoderAdapterCode::DECODER_ERROR);
-    const std::string name_ = "testname";
+    std::string name_ = "testname";
     EXPECT_EQ(mediaCodecDecoderAdapterImpl_->CreateVideoDecoderByName(name_), DecoderAdapterCode::DECODER_ERROR);
+    mimetype_ = "video/avc";
+    DecoderAdapterCode ret = mediaCodecDecoderAdapterImpl_->CreateVideoDecoderByMime(mimetype_);
+    EXPECT_EQ(ret, DecoderAdapterCode::DECODER_OK);
 }
 
 /**
@@ -189,7 +202,7 @@ HWTEST_F(MediaCodecDecoderAdapterImplTest, MediaCodecDecoderAdapterImpl_NormalTe
     EXPECT_EQ(mediaCodecDecoderAdapterImpl_->SetOutputSurface(nullptr), DecoderAdapterCode::DECODER_ERROR);
     std::shared_ptr<DecoderCallbackAdapter> callback = std::make_shared<DecoderCallbackAdapterMock>();
     EXPECT_EQ(mediaCodecDecoderAdapterImpl_->SetCallbackDec(callback), DecoderAdapterCode::DECODER_ERROR);
-    EXPECT_EQ(mediaCodecDecoderAdapterImpl_->PrepareDecoder(), DecoderAdapterCode::DECODER_ERROR);
+    EXPECT_EQ(mediaCodecDecoderAdapterImpl_->PrepareDecoder(), DecoderAdapterCode::DECODER_OK);
     EXPECT_EQ(mediaCodecDecoderAdapterImpl_->StartDecoder(), DecoderAdapterCode::DECODER_ERROR);
     EXPECT_EQ(mediaCodecDecoderAdapterImpl_->StopDecoder(), DecoderAdapterCode::DECODER_ERROR);
     EXPECT_EQ(mediaCodecDecoderAdapterImpl_->FlushDecoder(), DecoderAdapterCode::DECODER_ERROR);
@@ -233,8 +246,8 @@ HWTEST_F(MediaCodecDecoderAdapterImplTest, MediaCodecDecoderAdapterImpl_GetTypeO
     AVCodecBufferFlag testAVCodecBufferFlag = static_cast<AVCodecBufferFlag>(100);
     EXPECT_EQ(mediaCodecDecoderAdapterImpl_->GetBufferFlag(testAVCodecBufferFlag), BufferFlag::CODEC_BUFFER_FLAG_NONE);
     BufferFlag testBufferFlag = static_cast<BufferFlag>(100);
-    EXPECT_EQ(
-        mediaCodecDecoderAdapterImpl_->GetAVBufferFlag(testBufferFlag), AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_NONE);
+    EXPECT_EQ(mediaCodecDecoderAdapterImpl_->GetAVBufferFlag(testBufferFlag),
+        AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_NONE);
     std::string codecName = "OH.Media.Codec.Decoder.Video.AVC";
     EXPECT_EQ(mediaCodecDecoderAdapterImpl_->CreateVideoDecoderByName(codecName), DecoderAdapterCode::DECODER_OK);
     EXPECT_EQ(mediaCodecDecoderAdapterImpl_->ConfigureDecoder(format_), DecoderAdapterCode::DECODER_OK);

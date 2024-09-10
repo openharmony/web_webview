@@ -17,7 +17,6 @@
 #include "hilog_adapter.h"
 #include "ohos_adapter_helper.h"
 #include "hitrace_adapter_impl.h"
-#include "nweb_hisysevent.h"
 
 #include "parameters.h"
 using namespace OHOS;
@@ -102,6 +101,5 @@ HWTEST(HiViewDFXAdapterTest, NormalScene_01, TestSize.Level1)
     OhosAdapterHelper::GetInstance().GetHiTraceAdapterInstance().CountOHOSTrace("test", 1);
     OhosAdapterHelper::GetInstance().GetHiTraceAdapterInstance().FinishOHOSTrace();
     HiTraceAdapterImpl::GetInstance().IsACETraceEnable();
-    EventReport::ReportCreateWebInstanceTime(1, 1);
 }
 } // namespace OHOS::NWeb
