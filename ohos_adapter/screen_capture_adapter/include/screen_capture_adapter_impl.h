@@ -23,8 +23,6 @@
 #include <queue>
 
 namespace OHOS::NWeb {
-std::queue<OH_AVBuffer*> bufferAvailableQueue_;
-
 void ScreenCaptureCallbackOnError(OH_AVScreenCapture *capture, int32_t errorCode, void* userData);
 
 void ScreenCaptureCallbackOnBufferAvailable(OH_AVScreenCapture *capture, OH_AVBuffer *buffer,
@@ -33,8 +31,7 @@ void ScreenCaptureCallbackOnBufferAvailable(OH_AVScreenCapture *capture, OH_AVBu
 void ScreenCaptureCallbackOnStateChange(struct OH_AVScreenCapture *capture,
     OH_AVScreenCaptureStateCode stateCode, void* userData);
 
-class OH_SurfaceBufferAdapterImpl : public SurfaceBufferAdapter
-{
+class OH_SurfaceBufferAdapterImpl : public SurfaceBufferAdapter {
 private:
     OH_AVBuffer* avBuffer_ = nullptr;
     OH_NativeBuffer_Config config_;

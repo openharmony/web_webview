@@ -49,13 +49,13 @@
 #include "player_framework_adapter_impl.h"
 #include "power_mgr_client_adapter_impl.h"
 #include "print_manager_adapter_impl.h"
-// #include "screen_capture_adapter_impl.h"
+#include "screen_capture_adapter_impl.h"
 #include "soc_perf_client_adapter_impl.h"
 #include "native_window_adapter_impl.h"
 #include "system_properties_adapter_impl.h"
 #include "vsync_adapter_impl.h"
 #include "window_adapter_impl.h"
-// #include "sensor_adapter_impl.h"
+#include "sensor_adapter_impl.h"
 #include "net_connect_adapter_impl.h"
 
 namespace OHOS::NWeb {
@@ -98,7 +98,6 @@ std::unique_ptr<NetConnectAdapter> OhosAdapterHelperImpl::CreateNetConnectAdapte
 
 PasteBoardClientAdapter& OhosAdapterHelperImpl::GetPasteBoard()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
     return PasteBoardClientAdapterImpl::GetInstance();
 }
 
@@ -124,13 +123,11 @@ OhosWebPermissionDataBaseAdapter& OhosAdapterHelperImpl::GetWebPermissionDataBas
 
 std::unique_ptr<MMIAdapter> OhosAdapterHelperImpl::CreateMMIAdapter()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
     return std::make_unique<MMIAdapterImpl>();
 }
 
 std::unique_ptr<SocPerfClientAdapter> OhosAdapterHelperImpl::CreateSocPerfClientAdapter()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
     return std::make_unique<SocPerfClientAdapterImpl>();
 }
 
@@ -176,13 +173,11 @@ std::unique_ptr<IMFAdapter> OhosAdapterHelperImpl::CreateIMFAdapter()
 
 std::unique_ptr<CertManagerAdapter> OhosAdapterHelperImpl::GetRootCertDataAdapter()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
     return std::make_unique<CertManagerAdapterImpl>();
 }
 
 AccessTokenAdapter& OhosAdapterHelperImpl::GetAccessTokenAdapterInstance()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
     return AccessTokenAdapterImpl::GetInstance();
 }
 
@@ -233,8 +228,7 @@ CameraManagerAdapter& OhosAdapterHelperImpl::GetCameraManagerAdapter()
 
 std::unique_ptr<ScreenCaptureAdapter> OhosAdapterHelperImpl::CreateScreenCaptureAdapter()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
-    return nullptr;
+    return std::make_unique<ScreenCaptureAdapterImpl>();
 }
 
 std::unique_ptr<DateTimeFormatAdapter> OhosAdapterHelperImpl::CreateDateTimeFormatAdapter()
@@ -279,7 +273,6 @@ std::unique_ptr<OhosImageDecoderAdapter> OhosAdapterHelperImpl::CreateOhosImageD
 
 std::unique_ptr<SensorAdapter> OhosAdapterHelperImpl::CreateSensorAdapter()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
-    return nullptr;
+    return std::make_unique<SensorAdapterImpl>();
 }
 } // namespace OHOS::NWeb
