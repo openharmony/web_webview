@@ -405,8 +405,8 @@ void OhosResourceAdapterImpl::SetApplicationResourceManager(void* resMgr) {
             WVLOG_D("OH_ResourceManager_ReleaseNativeResourceManager");
             OH_ResourceManager_ReleaseNativeResourceManager(mgr_);
             mgr_ = nullptr;
-            return;
         }
+        return;
     }
     mgr_ = (NativeResourceManager*)resMgr;
 }
