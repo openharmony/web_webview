@@ -86,7 +86,7 @@ shared_library("ohos_adapter_napi") {
   ]
 
   libs = [
-    "ace_napi",
+    "ace_napi.z",
     "rawfile.z",
     "hilog_ndk.z"
   ]
