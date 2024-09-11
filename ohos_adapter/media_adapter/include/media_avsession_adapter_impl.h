@@ -18,41 +18,14 @@
 
 #include <unordered_map>
 
+#include <multimedia/av_session/native_avmetadata.h>
+#include <multimedia/av_session/native_avsession.h>
+#include <multimedia/av_session/native_avsession_errors.h>
+
 #include "media_avsession_adapter.h"
-#include "av_session.h"
+
 
 namespace OHOS::NWeb {
-
-class MediaAVSessionCallbackImpl : public AVSession::AVSessionCallback {
-public:
-    MediaAVSessionCallbackImpl(std::shared_ptr<MediaAVSessionCallbackAdapter> callbackAdapter);
-    ~MediaAVSessionCallbackImpl() = default;
-
-    void OnPlay() override;
-    void OnPause() override;
-    void OnStop() override;
-    void OnPlayNext() override;
-    void OnPlayPrevious() override;
-    void OnFastForward(int64_t time) override;
-    void OnRewind(int64_t time) override;
-    void OnSeek(int64_t time) override;
-    void OnSetSpeed(double speed) override;
-    void OnSetLoopMode(int32_t loopMode) override;
-    void OnToggleFavorite(const std::string& assertId) override;
-    void OnMediaKeyEvent(const MMI::KeyEvent& keyEvent) override;
-    void OnOutputDeviceChange(const int32_t connectionState,
-             const AVSession::OutputDeviceInfo& outputDeviceInfo) override;
-    void OnCommonCommand(const std::string& commonCommand, const AAFwk::WantParams& commandArgs) override;
-    void OnSkipToQueueItem(int32_t itemId) override;
-    void OnAVCallAnswer() override;
-    void OnAVCallHangUp() override;
-    void OnAVCallToggleCallMute() override;
-    void OnPlayFromAssetId(int64_t assetId) override;
-    void OnCastDisplayChange(const AVSession::CastDisplayInfo& castDisplayInfo) override;
-
-private:
-    std::shared_ptr<MediaAVSessionCallbackAdapter> callbackAdapter_;
-};
 
 class MediaAVSessionKey {
 public:
@@ -61,14 +34,16 @@ public:
 
     void Init();
     int32_t GetPID();
-    AppExecFwk::ElementName GetElement();
+    std::string &GetBundleName();
+    std::string &GetAbilityName();
     void SetType(MediaAVSessionType type);
     MediaAVSessionType GetType();
     std::string ToString();
 
 private:
     int32_t pid_;
-    AppExecFwk::ElementName element_;
+    std::string bundleName_;
+    std::string abilityName_;
     MediaAVSessionType type_;
 };
 
@@ -88,6 +63,24 @@ public:
     void SetPlaybackPosition(const std::shared_ptr<MediaAVSessionPositionAdapter> position) override;
 
 private:
+    static AVSessionCallback_Result AVSessionOnCommandCallback(OH_AVSession *session,
+        AVSession_ControlCommand command, void *userData);
+    static AVSessionCallback_Result AVSessionOnFastForwardCallback(OH_AVSession *session,
+        uint32_t seekTime, void *userData);
+    static AVSessionCallback_Result AVSessionOnRewindCallback(OH_AVSession *session,
+        uint32_t seekTime, void *userData);
+    static AVSessionCallback_Result AVSessionOnSeekCallback(OH_AVSession *session,
+        uint64_t seekTime, void *userData);
+    static AVSessionCallback_Result AVSessionOnSetSpeedCallback(OH_AVSession *session,
+        uint32_t speed, void *userData);
+    static AVSessionCallback_Result AVSessionOnSetLoopModeCallback(OH_AVSession *session,
+        AVSession_LoopMode curLoopMode, void *userData);
+    static AVSessionCallback_Result AVSessionOnToggleFavoriteCallback(OH_AVSession *session,
+        const char *assertId, void *userData);
+    static AVSessionCallback_Result AVSessionOnPlayFromAssertIdCallback(OH_AVSession *session,
+        const char *assertId, void *userData);
+
+    AVMetadata_Result UpdateAVMetadata(void);
     bool UpdateMetaDataCache(const std::shared_ptr<MediaAVSessionMetadataAdapter> metadata);
     bool UpdateMetaDataCache(const std::shared_ptr<MediaAVSessionPositionAdapter> position);
     bool UpdatePlaybackStateCache(MediaAVSessionPlayState state);
@@ -95,12 +88,15 @@ private:
     void DestroyAndEraseSession();
     bool CreateNewSession(const MediaAVSessionType& type);
 
-    std::shared_ptr<MediaAVSessionKey> avSessionKey_;
-    std::shared_ptr<AVSession::AVMetaData> avMetadata_;
-    std::shared_ptr<AVSession::AVPlaybackState> avPlaybackState_;
-    std::shared_ptr<AVSession::AVSession> avSession_;
+    std::shared_ptr<MediaAVSessionKey> avSessionKey_ = nullptr;
+    AVSession_PlaybackState avPlaybackState_;
+    OH_AVMetadataBuilder *builder_ = nullptr;
+    OH_AVMetadata *avMetadata_ = nullptr;
+    OH_AVSession *avSession_ = nullptr;
+    bool isActived_;
 
-    static std::unordered_map<std::string, std::shared_ptr<AVSession::AVSession>> avSessionMap;
+    std::shared_ptr<MediaAVSessionCallbackAdapter> callbackAdapter_;
+    static std::unordered_map<std::string, OH_AVSession *> avSessionMap;
 };
 } // namespace OHOS::NWeb
 

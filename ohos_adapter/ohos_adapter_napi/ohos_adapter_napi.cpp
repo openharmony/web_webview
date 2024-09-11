@@ -24,24 +24,24 @@
 
 napi_value SetResourceManager(napi_env env, napi_callback_info info)
 {
-    size_t argc = 2；
+    size_t argc = 2;
     napi_value args[2] = {nullptr};
     napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
 
     NativeResourceManager* mgr = OH_ResourceManager_InitNativeResourceManager(env, args[0]);
     if (mgr == nullptr) {
-        OH_LOG_PRINT(LOG_APP, LOG_ERROR, LOG_DOMAIN, "ohos_adapter_napi", "mgr is null");
-        return nullptr;
+        OH_LOG_Print(LOG_APP, LOG_ERROR, LOG_DOMAIN, "ohos_adapter_napi",
+            "OH_ResourceManager_InitNativeResourceManager failed");
     }
-    OHOS:NWEB::OhosAdapterHelper::GetInstance().SetApplicationResourceManager(mgr);
+    OHOS::NWeb::OhosAdapterHelper::GetInstance().SetApplicationResourceManager(mgr);
     return nullptr;
 }
 
 static napi_value Init(napi_env env, napi_value exports)
 {
-    napi_property_descripter desc[] = {
-        {"setResourceManager", nullptr, SetResourceManager, nullptr, nullptr, nullptr, napi_default, nullptr};
-    }
+    napi_property_descriptor desc[] = {
+        {"setResourceManager", nullptr, SetResourceManager, nullptr, nullptr, nullptr, napi_default, nullptr}
+    };
     napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc);
     return exports;
 }
