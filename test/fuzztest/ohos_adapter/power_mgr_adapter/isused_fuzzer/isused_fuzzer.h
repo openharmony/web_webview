@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "isused_fuzzer"
 #endif /* TEST_FUZZTEST_IS_USED_FUZZER_H */
-

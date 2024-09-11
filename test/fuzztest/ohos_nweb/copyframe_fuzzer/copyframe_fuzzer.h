@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "copyframe_fuzzer"
 #endif /* TEST_FUZZTEST_COPYFRAME_FUZZER_H */
-

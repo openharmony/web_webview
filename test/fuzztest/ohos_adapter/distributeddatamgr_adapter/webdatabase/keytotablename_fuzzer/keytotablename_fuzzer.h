@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "keytotablename_fuzzer"
 #endif /* TEST_FUZZTEST_KEY_TO_TABLE_NAME_FUZZER_H */
-

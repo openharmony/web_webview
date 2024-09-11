@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Copyright (c) 2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -15,15 +15,13 @@
 import("//base/web/webview/web_aafwk.gni")
 import("//build/config/features.gni")
 import("//build/test.gni")
-import("$webview_path/config.gni")
 
 ##############################fuzztest##########################################
-ohos_fuzztest("SystemPropertiesAdapterImplFuzzTest") {
+ohos_fuzztest("SystemPropertiesFuzzTest") {
   module_out_path = webview_fuzz_test_path
   fuzz_config_file =
       "$webview_path/test/fuzztest/ohos_adapter/systemproperties_fuzzer"
   include_dirs = [
-    "$webview_path/ohos_adapter/interfaces",
     "$webview_path/ohos_adapter/system_properties_adapter/include",
     "$webview_path/test/fuzztest",
   ]
@@ -34,17 +32,15 @@ ohos_fuzztest("SystemPropertiesAdapterImplFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
   sources = [ "system_properties_adapter_impl_fuzzer.cpp" ]
-  deps = [
-    "$webview_path/ohos_adapter:nweb_ohos_adapter",
-    "$webview_path/ohos_nweb:libnweb",
+  deps = [ "$webview_path/ohos_adapter:nweb_ohos_adapter" ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "c_utils:utils",
+    "image_framework:image_native",
+    "pasteboard:pasteboard_client",
   ]
-
-  external_deps = [ "c_utils:utils" ]
-
-  if (webview_soc_perf_enable) {
-    external_deps += [ "soc_perf:socperf_client" ]
-    defines = [ "NWEB_SOC_PERF" ]
-  }
 }
 
 ###############################################################################
@@ -53,7 +49,6 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":SystemPropertiesAdapterImplFuzzTest",
+    ":SystemPropertiesFuzzTest",
   ]
 }
-###############################################################################

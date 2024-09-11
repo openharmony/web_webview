@@ -29,10 +29,17 @@ bool LoadLibFuzzTest(const uint8_t* data, size_t size)
     if ((data == nullptr) || (size == 0)) {
         return false;
     }
+
+    const std::string path("/data/app/el1/bundle/public/com.ohos.nweb");
+    NWebHelper::Instance().SetBundlePath(path);
+
     NWebAdapterHelper::Instance().Init(true);
+
+    NWebAdapterHelper::Instance().Init(false);
+
     return true;
 }
-}
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

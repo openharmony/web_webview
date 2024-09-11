@@ -312,15 +312,19 @@ void SensorAdapterImpl::OhosSensorCallback(SensorEvent* event)
         case SENSOR_TYPE_ID_ACCELEROMETER:
             handleAccelerometerData(callback, event);
             break;
+
         case SENSOR_TYPE_ID_GRAVITY:
             handleGravityData(callback, event);
             break;
+
         case SENSOR_TYPE_ID_LINEAR_ACCELERATION:
             handleLinearAccelerometerData(callback, event);
             break;
+
         case SENSOR_TYPE_ID_GYROSCOPE:
             handleCyroscopeData(callback, event);
             break;
+
         case SENSOR_TYPE_ID_MAGNETIC_FIELD:
             handleMagnetometerData(callback, event);
             break;
@@ -333,6 +337,7 @@ void SensorAdapterImpl::OhosSensorCallback(SensorEvent* event)
         case SENSOR_TYPE_ID_GAME_ROTATION_VECTOR:
             handleGameRotationVectorData(callback, event);
             break;
+
         default:
             break;
     }

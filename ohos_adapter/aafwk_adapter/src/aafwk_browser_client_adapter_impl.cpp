@@ -139,9 +139,9 @@ void BrowserClient::DestroyRenderSurface(int32_t surface_id)
     return;
 }
 
-AafwkBrowserClientAdapterImpl::AafwkBrowserClientAdapterImpl(){}
-AafwkBrowserClientAdapterImpl&
-AafwkBrowserClientAdapterImpl::GetInstance()
+AafwkBrowserClientAdapterImpl::AafwkBrowserClientAdapterImpl() {}
+
+AafwkBrowserClientAdapterImpl& AafwkBrowserClientAdapterImpl::GetInstance()
 {
     static AafwkBrowserClientAdapterImpl instance;
     return instance;

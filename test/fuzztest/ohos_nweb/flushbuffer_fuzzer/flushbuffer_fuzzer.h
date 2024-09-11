@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "flushbuffer_fuzzer"
 #endif /* TEST_FUZZTEST_FLUSHBUFFER_FUZZER_H */
-

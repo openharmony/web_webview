@@ -24,16 +24,16 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool KeyToTableNameFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        OhosWebPermissionDataBaseAdapterImpl dataBase;
-        dataBase.KeyToTableName(WebPermissionType::GEOLOCATION);
-        return true;
+bool KeyToTableNameFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    OhosWebPermissionDataBaseAdapterImpl dataBase;
+    dataBase.KeyToTableName(WebPermissionType::GEOLOCATION);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

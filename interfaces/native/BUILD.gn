@@ -32,8 +32,10 @@ ohos_ndk_library("libohweb") {
 }
 
 ohos_shared_library("ohweb") {
-  branch_protector_ret = "pac_ret"
-  branch_protector_frt = "bti"
+  if (target_cpu == "arm64") {
+    branch_protector_ret = "pac_ret"
+    branch_protector_frt = "bti"
+  }
 
   output_extension = "so"
   include_dirs = [ "../../ohos_nweb/include" ]

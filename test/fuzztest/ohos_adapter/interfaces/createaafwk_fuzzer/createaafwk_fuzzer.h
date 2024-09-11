@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "createaafwk_fuzzer"
 #endif /* TEST_FUZZTEST_CREATE_AAFWK_FUZZER_H */
-

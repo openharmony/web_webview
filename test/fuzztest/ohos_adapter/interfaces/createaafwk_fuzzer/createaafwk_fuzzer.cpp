@@ -22,16 +22,16 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool CreateAafwkFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        auto &helper = OhosAdapterHelper::GetInstance();
-        helper.CreateAafwkAdapter();
-        return true;
+bool CreateAafwkFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    auto& helper = OhosAdapterHelper::GetInstance();
+    helper.CreateAafwkAdapter();
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

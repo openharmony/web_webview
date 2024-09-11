@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "createmmiadapter_fuzzer"
 #endif /* TEST_FUZZTEST_CREATE_MMI_ADAPTER_FUZZER_H */
-

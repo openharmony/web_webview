@@ -23,16 +23,16 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool ClearAllPermissionFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        WebPermissionType key = WebPermissionType::GEOLOCATION;
-        OhosWebPermissionDataBaseAdapterImpl::GetInstance().ClearAllPermission(key);
-        return true;
+bool ClearAllPermissionFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    WebPermissionType key = WebPermissionType::GEOLOCATION;
+    OhosWebPermissionDataBaseAdapterImpl::GetInstance().ClearAllPermission(key);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

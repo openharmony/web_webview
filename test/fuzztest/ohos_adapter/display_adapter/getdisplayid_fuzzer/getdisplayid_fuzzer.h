@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "getdisplayid_fuzzer"
 #endif /* TEST_FUZZTEST_GET_DISPLAY_ID_FUZZER_H */
-

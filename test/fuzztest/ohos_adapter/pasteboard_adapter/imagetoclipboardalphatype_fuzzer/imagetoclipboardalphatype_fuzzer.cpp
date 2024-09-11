@@ -19,20 +19,28 @@
 #undef private
 
 using namespace OHOS::NWeb;
+using namespace OHOS::Media;
 
 namespace OHOS {
-    bool ImageToClipboardAlphaTypeFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        std::shared_ptr<PasteDataRecordAdapterImpl> dataRecordAdapterImpl =
-        std::make_shared<PasteDataRecordAdapterImpl>("pixelMap");
-        Media::ImageInfo imgInfo;
-        dataRecordAdapterImpl->ImageToClipboardAlphaType(imgInfo);
-        return true;
+bool ImageToClipboardAlphaTypeFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    std::shared_ptr<PasteDataRecordAdapterImpl> dataRecordAdapterImpl =
+        std::make_shared<PasteDataRecordAdapterImpl>("pixelMap");
+    Media::ImageInfo imgInfo;
+    imgInfo.alphaType = Media::AlphaType::IMAGE_ALPHA_TYPE_UNKNOWN;
+    dataRecordAdapterImpl->ImageToClipboardAlphaType(imgInfo);
+    imgInfo.alphaType = Media::AlphaType::IMAGE_ALPHA_TYPE_OPAQUE;
+    dataRecordAdapterImpl->ImageToClipboardAlphaType(imgInfo);
+    imgInfo.alphaType = Media::AlphaType::IMAGE_ALPHA_TYPE_PREMUL;
+    dataRecordAdapterImpl->ImageToClipboardAlphaType(imgInfo);
+    imgInfo.alphaType = Media::AlphaType::IMAGE_ALPHA_TYPE_UNPREMUL;
+    dataRecordAdapterImpl->ImageToClipboardAlphaType(imgInfo);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

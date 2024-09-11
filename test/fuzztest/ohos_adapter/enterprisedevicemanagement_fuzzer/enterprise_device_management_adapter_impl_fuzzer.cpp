@@ -13,49 +13,37 @@
  * limitations under the License.
  */
 
-#include "enterprise_device_management_adapter_impl_fuzzer.h"  
-#include "enterprise_device_management_adapter_impl.h"  
+#include "enterprise_device_management_adapter_impl_fuzzer.h"
 
-using namespace OHOS::NWeb;  
+#include "enterprise_device_management_adapter_impl.h"
 
-namespace OHOS {  
-    bool EnterpriseDeviceManagementAdapterFuzzTest(const uint8_t* data, size_t size)  
-    {  
-        if ((data == nullptr) || (size < sizeof(uint8_t))) {  
-            return false;  
-        }  
+using namespace OHOS::NWeb;
 
-        std::string policies(reinterpret_cast<const char*>(data));  
+namespace OHOS {
+bool EnterpriseDeviceManagementAdapterFuzzTest(const uint8_t* data, size_t size)
+{
+    std::string policies(reinterpret_cast<const char*>(data), size);
 
-        // Test RegistPolicyChangeEventCallback  
-        EnterpriseDeviceManagementAdapterImpl::GetInstance().RegistPolicyChangeEventCallback(nullptr);  
+    EnterpriseDeviceManagementAdapterImpl::GetInstance().RegistPolicyChangeEventCallback(nullptr);
 
-        // Test StartObservePolicyChange  
-        bool startObserveResult = EnterpriseDeviceManagementAdapterImpl::GetInstance().StartObservePolicyChange();  
+    bool startObserveResult = EnterpriseDeviceManagementAdapterImpl::GetInstance().StartObservePolicyChange();
 
-        // 使用变量，防止未使用变量警告  
-        (void)startObserveResult;  
+    (void)startObserveResult;
 
-        // Test StopObservePolicyChange  
-        bool stopObserveResult = EnterpriseDeviceManagementAdapterImpl::GetInstance().StopObservePolicyChange();  
+    bool stopObserveResult = EnterpriseDeviceManagementAdapterImpl::GetInstance().StopObservePolicyChange();
 
-        // 使用变量，防止未使用变量警告  
-        (void)stopObserveResult;  
+    (void)stopObserveResult;
 
-        // Test GetPolicies  
-        int32_t getPoliciesResult = EnterpriseDeviceManagementAdapterImpl::GetInstance().GetPolicies(policies);  
+    int32_t getPoliciesResult = EnterpriseDeviceManagementAdapterImpl::GetInstance().GetPolicies(policies);
 
-        // 使用变量，防止未使用变量警告  
-        (void)getPoliciesResult;  
+    (void)getPoliciesResult;
 
-        return true;  
-    }  
+    return true;
 }
+} // namespace OHOS
 
-/* Fuzzer entry point */  
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)  
-{  
-    /* Run your code on data */  
-    OHOS::EnterpriseDeviceManagementAdapterFuzzTest(data, size);  
-    return 0;  
-}  
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
+{
+    OHOS::EnterpriseDeviceManagementAdapterFuzzTest(data, size);
+    return 0;
+}

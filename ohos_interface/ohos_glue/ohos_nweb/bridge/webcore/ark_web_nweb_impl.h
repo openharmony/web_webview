@@ -1316,6 +1316,12 @@ public:
     */
     /*--ark web()--*/
     bool ScrollByWithResult(float delta_x, float delta_y) override;
+
+    /**
+     * @brief Called when image analyzer is destory.
+     */
+    /*--ark web()--*/
+    void OnDestroyImageAnalyzerOverlay() override;
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

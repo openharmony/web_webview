@@ -31,8 +31,10 @@ config("web_public_config") {
 }
 
 ohos_shared_library("webview_napi") {
-  branch_protector_ret = "pac_ret"
-  branch_protector_frt = "bti"
+  if (target_cpu == "arm64") {
+    branch_protector_ret = "pac_ret"
+    branch_protector_frt = "bti"
+  }
 
   public_configs = [ ":web_public_config" ]
 
@@ -85,7 +87,6 @@ ohos_shared_library("webview_napi") {
   external_deps = [
     "ability_base:extractortool",
     "ability_runtime:app_context",
-    "ace_engine:ace_container_scope",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
@@ -95,6 +96,7 @@ ohos_shared_library("webview_napi") {
     "image_framework:image_native",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "napi:ace_container_scope",
     "napi:ace_napi",
     "protobuf:protobuf_lite",
     "samgr:samgr_proxy",
@@ -116,8 +118,10 @@ ohos_shared_library("webview_napi") {
 }
 
 ohos_shared_library("neterrorlist_napi") {
-  branch_protector_ret = "pac_ret"
-  branch_protector_frt = "bti"
+  if (target_cpu == "arm64") {
+    branch_protector_ret = "pac_ret"
+    branch_protector_frt = "bti"
+  }
 
   public_configs = [ ":web_public_config" ]
 

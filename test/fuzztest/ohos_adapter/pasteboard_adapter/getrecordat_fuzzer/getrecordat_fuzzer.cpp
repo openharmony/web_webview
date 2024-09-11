@@ -14,28 +14,30 @@
  */
 
 #include "getrecordat_fuzzer.h"
-#include "pasteboard_client_adapter_impl.h"
+
 #include <securec.h>
+
+#include "pasteboard_client_adapter_impl.h"
 using namespace OHOS::NWeb;
 using namespace OHOS::MiscServices;
 namespace OHOS {
-    bool GetRecordAtFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size < sizeof(size_t))) {
-            return false;
-        }
-        std::size_t index = 0;
-        if (memcpy_s(&index, sizeof(size_t), data, sizeof(size_t)) != 0) {
-            return false;
-        }
-        std::shared_ptr<PasteData> dataName = std::make_shared<PasteData>();
-        std::shared_ptr<PasteDataAdapterImpl> dataAdapterImpl = std::make_shared<PasteDataAdapterImpl>(dataName);
-        dataAdapterImpl->GetRecordAt(index);
-        dataAdapterImpl->GetRecordCount();
-        dataAdapterImpl->AllRecords();
-        return true;
+bool GetRecordAtFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size < sizeof(size_t))) {
+        return false;
     }
+    std::size_t index = 0;
+    if (memcpy_s(&index, sizeof(size_t), data, sizeof(size_t)) != 0) {
+        return false;
+    }
+    std::shared_ptr<PasteData> dataName = std::make_shared<PasteData>();
+    std::shared_ptr<PasteDataAdapterImpl> dataAdapterImpl = std::make_shared<PasteDataAdapterImpl>(dataName);
+    dataAdapterImpl->GetRecordAt(index);
+    dataAdapterImpl->GetRecordCount();
+    dataAdapterImpl->AllRecords();
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

@@ -24,18 +24,25 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool AudioInterruptFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        std::shared_ptr<AudioManagerCallbackAdapter> cb = nullptr;
-        AudioManagerCallbackAdapterImpl adapter(cb);
-        InterruptAction interruptAction;
-        adapter.OnInterrupt(interruptAction);
-        return true;
+bool AudioInterruptFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    std::shared_ptr<AudioManagerCallbackAdapter> cb = nullptr;
+    AudioManagerCallbackAdapterImpl adapter(cb);
+    InterruptAction interruptAction;
+    interruptAction.interruptHint = InterruptHint::INTERRUPT_HINT_PAUSE;
+    adapter.OnInterrupt(interruptAction);
+    interruptAction.interruptHint = InterruptHint::INTERRUPT_HINT_STOP;
+    adapter.OnInterrupt(interruptAction);
+    interruptAction.interruptHint = InterruptHint::INTERRUPT_HINT_RESUME;
+    adapter.OnInterrupt(interruptAction);
+    interruptAction.interruptHint = static_cast<InterruptHint>(-1);
+    adapter.OnInterrupt(interruptAction);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

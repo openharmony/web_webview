@@ -64,8 +64,10 @@ ohos_shared_library("web_configs") {
 }
 
 ohos_shared_library("libnweb") {
-  branch_protector_ret = "pac_ret"
-  branch_protector_frt = "bti"
+  if (target_cpu == "arm64") {
+    branch_protector_ret = "pac_ret"
+    branch_protector_frt = "bti"
+  }
 
   configs = [
     ":nweb_config",
@@ -88,13 +90,11 @@ ohos_shared_library("libnweb") {
     ":web_configs",
     "${webview_path}/ohos_glue:ohos_adapter_glue_source",
     "${webview_path}/ohos_glue:ohos_nweb_glue_source",
-    "${webview_path}/sa:app_fwk_update",
   ]
 
   external_deps = [
     "ability_runtime:ability_manager",
     "ability_runtime:app_context",
-    "ability_runtime:app_manager",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
@@ -171,6 +171,8 @@ ohos_executable("chrome_crashpad_handler") {
 
   defines = []
   if (target_cpu == "arm64") {
+    branch_protector_ret = "pac_ret"
+    branch_protector_frt = "bti"
     defines += [ "webview_arm64" ]
   } else if (target_cpu == "arm") {
     defines += [ "webview_arm" ]

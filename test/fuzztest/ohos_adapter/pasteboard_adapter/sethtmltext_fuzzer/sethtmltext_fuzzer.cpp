@@ -22,22 +22,22 @@ using namespace OHOS::NWeb;
 using namespace OHOS::MiscServices;
 
 namespace OHOS {
-    bool SetHtmlTextFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
-        std::shared_ptr<PasteDataRecordAdapterImpl> dataRecordAdapterImpl =
-        std::make_shared<PasteDataRecordAdapterImpl>(record);
-        dataRecordAdapterImpl->record_=nullptr;
-        std::string text((const char*) data, size);
-        std::shared_ptr<PasteDataRecordAdapter> dataRecordAdapter = PasteDataRecordAdapter::NewRecord(text);
-        std::shared_ptr<std::string> htmlText = std::make_shared<std::string>(text);
-        dataRecordAdapter->SetHtmlText(htmlText);
-        return true;
+bool SetHtmlTextFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
+    std::shared_ptr<PasteDataRecordAdapterImpl> dataRecordAdapterImpl =
+        std::make_shared<PasteDataRecordAdapterImpl>(record);
+    dataRecordAdapterImpl->record_ = nullptr;
+    std::string text((const char*)data, size);
+    std::shared_ptr<PasteDataRecordAdapter> dataRecordAdapter = PasteDataRecordAdapter::NewRecord(text);
+    std::shared_ptr<std::string> htmlText = std::make_shared<std::string>(text);
+    dataRecordAdapter->SetHtmlText(htmlText);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

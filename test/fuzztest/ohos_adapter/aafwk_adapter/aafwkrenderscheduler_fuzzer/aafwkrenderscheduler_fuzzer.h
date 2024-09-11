@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "aafwkrenderscheduler_fuzzer"
 #endif /* TEST_FUZZTEST_AAFWK_RENDER_SCHEDULER_FUZZER_H */
-

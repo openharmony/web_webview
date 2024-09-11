@@ -23,17 +23,17 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool AudioGetLatencyFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        AudioRendererAdapterImpl adapter;
-        uint64_t latency = 0;
-        adapter.GetLatency(latency);
-        return true;
+bool AudioGetLatencyFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    std::shared_ptr<NWeb::AudioRendererAdapterImpl> adapter = std::make_shared<AudioRendererAdapterImpl>();
+    uint64_t latency = 0;
+    adapter->GetLatency(latency);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

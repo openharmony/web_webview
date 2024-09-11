@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "getoriginbypermission_fuzzer"
 #endif /* TEST_FUZZTEST_GET_ORIGIN_BY_PERMISSION_FUZZER_H */
-
