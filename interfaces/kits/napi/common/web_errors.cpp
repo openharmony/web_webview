@@ -94,7 +94,7 @@ std::string FormatString(const char *errorMsgTemplate, ...)
     char sbuf[256];
     va_list args;
     va_start(args, errorMsgTemplate);
-    if (vsnprintf_s(sbuf, sizeof(sbuf), sizeof(sbuf) - 1, errorMsgTemplate, args) <0) {
+    if (vsnprintf_s(sbuf, sizeof(sbuf), sizeof(sbuf) - 1, errorMsgTemplate, args) < 0) {
         va_end(args);
         return "";
     }
