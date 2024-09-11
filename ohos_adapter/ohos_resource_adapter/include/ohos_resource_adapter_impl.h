@@ -57,7 +57,7 @@ class OhosResourceAdapterImpl : public OhosResourceAdapter {
 public:
     explicit OhosResourceAdapterImpl(const std::string& hapPath);
 
-    ~OhosResourceAdapterImpl() override;
+    ~OhosResourceAdapterImpl() override = default;
 
     bool GetRawFileData(const std::string& rawFile, size_t& len,
         uint8_t** dest, bool isSys = false) override;

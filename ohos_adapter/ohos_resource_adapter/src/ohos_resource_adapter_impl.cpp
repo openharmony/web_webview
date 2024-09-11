@@ -173,11 +173,6 @@ OhosResourceAdapterImpl::OhosResourceAdapterImpl(const std::string& hapPath)
     Init(path);
 }
 
-OhosResourceAdapterImpl::~OhosResourceAdapterImpl()
-{
-    OH_ResourceManager_ReleaseNativeResourceManager(mgr_);
-}
-
 void OhosResourceAdapterImpl::Init(const std::string& hapPath)
 {
     bool newCreate = false;
@@ -405,7 +400,13 @@ std::shared_ptr<OhosFileMapper> OhosResourceAdapterImpl::GetRawFileMapper(
 
 void OhosResourceAdapterImpl::SetApplicationResourceManager(void* resMgr) {
     if (resMgr == nullptr) {
-        WVLOG_E("OhosResourceAdapterImpl::SetApplicationResourceManager fail");
+        WVLOG_D("SetApplicationResourceManager, resMgr is null.");
+        if (mgr_ != nullptr) {
+            WVLOG_D("OH_ResourceManager_ReleaseNativeResourceManager");
+            OH_ResourceManager_ReleaseNativeResourceManager(mgr_);
+            mgr_ = nullptr;
+            return;
+        }
     }
     mgr_ = (NativeResourceManager*)resMgr;
 }
