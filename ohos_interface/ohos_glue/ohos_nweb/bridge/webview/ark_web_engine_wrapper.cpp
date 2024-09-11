@@ -240,9 +240,4 @@ ArkWebEngineWrapper::GetAdsBlockManager() {
 
   return std::make_shared<ArkWebAdsBlockManagerWrapper>(ark_web_adsblock_manager);
 }
-
-void ArkWebEngineWrapper::TrimMemoryByPressureLevel(int32_t memoryLevel)
-{
-    ark_web_engine_->TrimMemoryByPressureLevel(memoryLevel);
-}
 } // namespace OHOS::ArkWeb

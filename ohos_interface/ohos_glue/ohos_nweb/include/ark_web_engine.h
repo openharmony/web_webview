@@ -108,9 +108,6 @@ public:
 
     /*--ark web()--*/
     virtual ArkWebRefPtr<ArkWebAdsBlockManager> GetAdsBlockManager() = 0;
-
-    /*--ark web()--*/
-    virtual void TrimMemoryByPressureLevel(int32_t memoryLevel) = 0;
 };
 
 } // namespace OHOS::ArkWeb
