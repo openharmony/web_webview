@@ -299,12 +299,16 @@ void SensorAdapterImpl::handleGameRotationVectorData(std::shared_ptr<OHOS::NWeb:
 
 void SensorAdapterImpl::OhosSensorCallback(SensorEvent* event)
 {
+    if (event == nullptr) {
+        WVLOG_E("SensorEvent Error.");
+        return;
+    }
     std::shared_ptr<OHOS::NWeb::SensorCallbackImpl> callback = nullptr;
     auto findIter = sensorCallbackMap.find(event->sensorTypeId);
     if (findIter != sensorCallbackMap.end()) {
         callback = findIter->second;
     }
-    if ((event == nullptr) || (callback == nullptr)) {
+    if (callback == nullptr) {
         WVLOG_E("OhosSensorCallback Error.");
         return;
     }
