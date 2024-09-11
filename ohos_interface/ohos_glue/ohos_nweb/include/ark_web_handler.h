@@ -645,7 +645,7 @@ public:
     /**
      * @brief Called when the render process not responding.
      *
-     * @param js_stack Javascript stack info of webpage when render process not
+     * @param js_stack JavaScript stack info of webpage when render process not
      * responding.
      * @param pid Process id of the render process not responding.
      * @param reason Reason of the render process not responding.
@@ -747,7 +747,7 @@ public:
 
     /**
      * @brief called when the cursor info is updated.
-     * 
+     *
      * @param x, y relative coordinates within web components of the cursor
      * @param width, height width and height of the cursor
      */
