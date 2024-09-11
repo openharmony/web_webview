@@ -139,6 +139,7 @@ OhosWebDataBaseAdapterImpl::OhosWebDataBaseAdapterImpl()
     config.storeName = name.c_str();
     config.area = GetAreaMode(areaMode);
     config.isEncrypt = true;
+    config.securityLevel = OH_Rdb_SecurityLevel::S3;
     WVLOG_I("webdatabase databaseDir=%{public}s", databaseDir.c_str());
     WVLOG_I("webdatabase bundleName=%{public}s", bundleName);
 

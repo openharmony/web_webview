@@ -133,6 +133,7 @@ OhosWebPermissionDataBaseAdapterImpl::OhosWebPermissionDataBaseAdapterImpl()
     config.bundleName = bundleName;
     config.storeName = name.c_str();
     config.area = GetAreaMode(areaMode);
+    config.securityLevel = OH_Rdb_SecurityLevel::S3;
     WVLOG_I("web permission database databaseDir=%{public}s", databaseDir.c_str());
     WVLOG_I("web permission database bundleName=%{public}s", bundleName);
 
@@ -246,7 +247,11 @@ void OhosWebPermissionDataBaseAdapterImpl::SetPermissionByOrigin(const std::stri
     valueBucket->putInt64(valueBucket, PERMISSION_RESULT_COL.c_str(), (int64_t)result);
     errCode = OH_Rdb_Insert(rdbStore_, tableName.c_str(), valueBucket);
     valueBucket->destroy(valueBucket);
-    WVLOG_I("web permission database set info end, errCode=%{public}d", errCode);
+    if (errCode == RDB_ERR || errCode == RDB_E_INVALID_ARGS) {
+        WVLOG_E("web permission database set info failed, errCode=%{public}d", errCode);
+        return;
+    }
+    WVLOG_I("web permission database set info end");
 }
 
 void OhosWebPermissionDataBaseAdapterImpl::ClearPermissionByOrigin(const std::string& origin,
