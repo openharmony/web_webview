@@ -990,13 +990,13 @@ public:
      */
     virtual void HideHandleAndQuickMenuIfNecessary(bool hide) {}
 
+    virtual void OnNativeEmbedVisibilityChange(const std::string& embed_id, bool visibility) {}
+
     /**
      * @brief Called When you click on the selected area.
      *
      */
     virtual void ChangeVisibilityOfQuickMenu() {}
-
-    virtual void OnNativeEmbedVisibilityChange(const std::string& embed_id, bool visibility) {}
 };
 
 } // namespace OHOS::NWeb
