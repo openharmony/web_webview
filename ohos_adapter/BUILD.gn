@@ -231,6 +231,7 @@ shared_library("nweb_ohos_adapter") {
     "ohprint",
     "ohsensor",
     "native_avscreen_capture",
+    "ohpreferences",
   ]
 #
   public_configs = [ ":ohos_adapter_public_interface" ]
