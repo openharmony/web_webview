@@ -33,7 +33,7 @@
 #include "hitrace_adapter_impl.h"
 #include "imf_adapter_impl.h"
 #include "keystore_adapter_impl.h"
-// #include "media_avsession_adapter_impl.h"
+#include "media_avsession_adapter_impl.h"
 #include "media_codec_list_adapter_impl.h"
 #include "media_codec_decoder_adapter_impl.h"
 #include "media_codec_encoder_adapter_impl.h"
@@ -263,8 +263,7 @@ std::unique_ptr<FlowbufferAdapter> OhosAdapterHelperImpl::CreateFlowbufferAdapte
 
 std::unique_ptr<MediaAVSessionAdapter> OhosAdapterHelperImpl::CreateMediaAVSessionAdapter()
 {
-    PRINT_NOT_IMPL_FUNC_LOG();
-    return nullptr;
+    return std::make_unique<MediaAVSessionAdapterImpl>();
 }
 
 std::unique_ptr<OhosImageDecoderAdapter> OhosAdapterHelperImpl::CreateOhosImageDecoderAdapter()
