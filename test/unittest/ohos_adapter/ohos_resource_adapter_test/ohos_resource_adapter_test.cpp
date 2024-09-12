@@ -37,8 +37,6 @@ namespace {
 constexpr uint32_t MODULE_NAME_SIZE = 32;
 const std::string NWEB_HAP_PATH = "/system/app/com.ohos.nweb/NWeb.hap";
 const std::string NWEB_HAP_PATH_1 = "/system/app/NWeb/NWeb.hap";
-const std::string NWEB_HAP_PATH_MODULE_UPDATE = "/module_update/ArkWebCore/app/com.ohos.nweb/NWeb.hap";
-
 std::shared_ptr<AbilityRuntime::ApplicationContext> g_applicationContext = nullptr;
 }
 
@@ -170,11 +168,6 @@ HWTEST_F(OhosResourceAdapterTest, OhosResourceAdapterTest_OhosFileMapperImpl_003
     if (access(NWEB_HAP_PATH_1.c_str(), F_OK) == 0) {
         hapPath = NWEB_HAP_PATH_1;
     }
-
-    if (access(NWEB_HAP_PATH_MODULE_UPDATE.c_str(), F_OK) == 0) {
-        hapPath = NWEB_HAP_PATH_MODULE_UPDATE;
-    }
-
     std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(hapPath);
     EXPECT_NE(extractor, nullptr);
     std::shared_ptr<OHOS::AbilityBase::ZipFileReader> fileReader =
@@ -218,9 +211,6 @@ HWTEST_F(OhosResourceAdapterTest, OhosResourceAdapterTest_ParseModuleName_004, T
     }
     if (access(NWEB_HAP_PATH_1.c_str(), F_OK) == 0) {
         hapPath = NWEB_HAP_PATH_1;
-    }
-    if (access(NWEB_HAP_PATH_MODULE_UPDATE.c_str(), F_OK) == 0) {
-        hapPath = NWEB_HAP_PATH_MODULE_UPDATE;
     }
     OhosResourceAdapterImpl adapterImpl(hapPath);
     bool newCreate = false;
@@ -277,9 +267,6 @@ HWTEST_F(OhosResourceAdapterTest, OhosResourceAdapterTest_GetResourceMgr_005, Te
     if (access(NWEB_HAP_PATH_1.c_str(), F_OK) == 0) {
         hapPath = NWEB_HAP_PATH_1;
     }
-    if (access(NWEB_HAP_PATH_MODULE_UPDATE.c_str(), F_OK) == 0) {
-        hapPath = NWEB_HAP_PATH_MODULE_UPDATE;
-    }
     OhosResourceAdapterImpl adapterImpl(hapPath);
     uint8_t* dest;
     std::string rawFile = "test";
@@ -334,10 +321,6 @@ HWTEST_F(OhosResourceAdapterTest, OhosResourceAdapterTest_GetResourceString_006,
     if (access(NWEB_HAP_PATH_1.c_str(), F_OK) == 0) {
         hapPath = NWEB_HAP_PATH_1;
     }
-    if (access(NWEB_HAP_PATH_MODULE_UPDATE.c_str(), F_OK) == 0) {
-        hapPath = NWEB_HAP_PATH_MODULE_UPDATE;
-    }
-
     OhosResourceAdapterImpl adapterImpl(hapPath);
     std::string res;
 
