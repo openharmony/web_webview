@@ -52,7 +52,7 @@ void SystemPropertiesChangeCallback(void *context, const OH_PreferencesPair *pai
         }
         Preference_ValueType type = OH_PreferencesValue_GetValueType(object);
         WVLOG_D("sys prop change, key: %{public}s, type: %{public}d ", key,  type);
-        if (type == TYPE_STRING) {
+        if (type == PREFERENCE_TYPE_STRING) {
             char* value = nullptr;
             uint32_t valueLen;
             int ret = OH_PreferencesValue_GetString(object, &value, &valueLen);
@@ -301,7 +301,7 @@ void SystemPropertiesAdapterImpl::AddAllSysPropWatchers()
         WVLOG_E("The size of the map is abnormal");
         return;
     }
-    const char* const* keys = const_cast<char* const*>(new char*[num]);
+    const char** keys = const_cast<const char**>(new char*[num]);
     int i = 0;
     for (auto &item : PROP_KEY_MAP) {
         keys[i] = item.first.c_str();
@@ -333,7 +333,7 @@ void SystemPropertiesAdapterImpl::RemoveAllSysPropWatchers()
         WVLOG_E("The size of the map is abnormal");
         return;
     }
-    const char* const* keys = const_cast<char* const*>(new char*[num]);
+    const char** keys = const_cast<const char**>(new char*[num]);
     int i = 0;
     for (auto &item : PROP_KEY_MAP) {
         keys[i] = item.first.c_str();
