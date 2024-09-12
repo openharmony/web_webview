@@ -32,6 +32,7 @@ const std::string FACTORY_LEVEL_DEFAULT = "1";
 
 const std::string PROP_RENDER_DUMP = "web.render.dump";
 const std::string PROP_DEBUG_TRACE = "web.debug.trace";
+const int MAX_SIZE_OF_MAP = 2; // Currently, only 2 instructions need to be registered
 const std::unordered_map<std::string, PropertiesKey> PROP_KEY_MAP = {
     {PROP_RENDER_DUMP, PropertiesKey::PROP_RENDER_DUMP},
     {PROP_DEBUG_TRACE, PropertiesKey::PROP_DEBUG_TRACE}};
@@ -296,7 +297,11 @@ void SystemPropertiesAdapterImpl::AddAllSysPropWatchers()
     }
     
     int num = PROP_KEY_MAP.size();
-    const char** keys = const_cast<const char**>(new char*[num]);
+    if (num > MAX_SIZE_OF_MAP) {
+        WVLOG_E("The size of the map is abnormal");
+        return;
+    }
+    const char* const* keys = const_cast<char* const*>(new char*[num]);
     int i = 0;
     for (auto &item : PROP_KEY_MAP) {
         keys[i] = item.first.c_str();
@@ -324,7 +329,11 @@ void SystemPropertiesAdapterImpl::RemoveAllSysPropWatchers()
     }
     
     int num = PROP_KEY_MAP.size();
-    const char** keys = const_cast<const char**>(new char*[num]);
+    if (num > MAX_SIZE_OF_MAP) {
+        WVLOG_E("The size of the map is abnormal");
+        return;
+    }
+    const char* const* keys = const_cast<char* const*>(new char*[num]);
     int i = 0;
     for (auto &item : PROP_KEY_MAP) {
         keys[i] = item.first.c_str();
