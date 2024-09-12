@@ -48,6 +48,8 @@ public:
 
     std::shared_ptr<OHOS::NWeb::NWebTouchHandleState> GetTouchHandleState(ArkWebTouchHandleType type) override;
 
+    bool GetIsLongPressActived() override;
+
 private:
     ArkWebRefPtr<ArkWebQuickMenuParams> ark_web_quick_menu_params_;
 };

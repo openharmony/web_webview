@@ -55,6 +55,9 @@ public:
 
     /*--ark web()--*/
     virtual ArkWebRefPtr<ArkWebTouchHandleState> GetTouchHandleState(int type) = 0;
+
+    /*--ark web()--*/
+    virtual bool GetIsLongPressActived() = 0;
 };
 
 } // namespace OHOS::ArkWeb
