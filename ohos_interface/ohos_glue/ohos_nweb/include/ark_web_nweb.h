@@ -1153,12 +1153,6 @@ public:
     /*--ark web()--*/
     virtual void OnCreateNativeMediaPlayer(ArkWebRefPtr<ArkWebCreateNativeMediaPlayerCallback> callback) = 0;
 
-    /**
-     * @brief Web drag resize optimize.
-     */
-    /*--ark web()--*/
-    virtual void DragResize(uint32_t width, uint32_t height, uint32_t pre_height, uint32_t pre_width) = 0;
-
     /*--ark web()--*/
     virtual void OnTouchCancelById(int32_t id, double x, double y, bool from_overlay) = 0;
 
@@ -1394,6 +1388,15 @@ public:
      */
     /*--ark web()--*/
     virtual int SetUrlTrustListWithErrMsg(const ArkWebString& urlTrustList, ArkWebString& detailErrMsg) = 0;
+
+    /**
+     * @brief Send the accessibility hover event coordinate.
+     *
+     * @param x horizontal location of coordinate.
+     * @param y vertical location of coordinate.
+     */
+    /*--ark web()--*/
+    virtual void SendAccessibilityHoverEvent(int32_t x, int32_t y) = 0;
 
     /**
      * @brief RegisterArkJSfunction

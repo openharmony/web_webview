@@ -40,8 +40,7 @@ void ArkScreenCaptureCallbackAdapterWrapper::OnVideoBufferAvailable(bool isReady
     return ctocpp_->OnVideoBufferAvailable(isReady);
 }
 
-void ArkScreenCaptureCallbackAdapterWrapper::OnStateChange(
-    OHOS::NWeb::ScreenCaptureStateCodeAdapter stateCode)
+void ArkScreenCaptureCallbackAdapterWrapper::OnStateChange(OHOS::NWeb::ScreenCaptureStateCodeAdapter stateCode)
 {
     ctocpp_->OnStateChange((int32_t)stateCode);
 }

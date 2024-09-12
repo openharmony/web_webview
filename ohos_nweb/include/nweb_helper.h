@@ -77,11 +77,11 @@ public:
     void SetRenderProcessMode(RenderProcessMode mode);
     RenderProcessMode GetRenderProcessMode();
 
-    void WarmupServiceWorker(const std::string &url);
-
     void SetHostIP(
         const std::string& hostName, const std::string& address, int32_t aliveTime);
     void ClearHostIP(const std::string& hostName);
+
+    void WarmupServiceWorker(const std::string &url);
 
     void EnableWholeWebPageDrawing();
     std::shared_ptr<NWebAdsBlockManager> GetAdsBlockManager();
@@ -99,8 +99,8 @@ private:
 private:
     void *libHandleWebEngine_ = nullptr;
     std::string bundlePath_;
-    std::shared_ptr<NWebEngine> nwebEngine_ = nullptr;
     std::string customSchemeCmdLine_;
+    std::shared_ptr<NWebEngine> nwebEngine_ = nullptr;
     std::vector<std::string> backForwardCacheCmdLine_;
 };
 } // namespace OHOS::NWeb

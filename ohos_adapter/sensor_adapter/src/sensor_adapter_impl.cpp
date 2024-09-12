@@ -299,12 +299,16 @@ void SensorAdapterImpl::handleGameRotationVectorData(std::shared_ptr<OHOS::NWeb:
 
 void SensorAdapterImpl::OhosSensorCallback(SensorEvent* event)
 {
+    if (event == nullptr) {
+        WVLOG_E("SensorEvent Error.");
+        return;
+    }
     std::shared_ptr<OHOS::NWeb::SensorCallbackImpl> callback = nullptr;
     auto findIter = sensorCallbackMap.find(event->sensorTypeId);
     if (findIter != sensorCallbackMap.end()) {
         callback = findIter->second;
     }
-    if ((event == nullptr) || (callback == nullptr)) {
+    if (callback == nullptr) {
         WVLOG_E("OhosSensorCallback Error.");
         return;
     }
@@ -312,15 +316,19 @@ void SensorAdapterImpl::OhosSensorCallback(SensorEvent* event)
         case SENSOR_TYPE_ID_ACCELEROMETER:
             handleAccelerometerData(callback, event);
             break;
+
         case SENSOR_TYPE_ID_GRAVITY:
             handleGravityData(callback, event);
             break;
+
         case SENSOR_TYPE_ID_LINEAR_ACCELERATION:
             handleLinearAccelerometerData(callback, event);
             break;
+
         case SENSOR_TYPE_ID_GYROSCOPE:
             handleCyroscopeData(callback, event);
             break;
+
         case SENSOR_TYPE_ID_MAGNETIC_FIELD:
             handleMagnetometerData(callback, event);
             break;
@@ -333,6 +341,7 @@ void SensorAdapterImpl::OhosSensorCallback(SensorEvent* event)
         case SENSOR_TYPE_ID_GAME_ROTATION_VECTOR:
             handleGameRotationVectorData(callback, event);
             break;
+
         default:
             break;
     }
