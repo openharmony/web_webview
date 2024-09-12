@@ -531,8 +531,6 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setBackForwardCacheOptions", NapiWebviewController::SetBackForwardCacheOptions),
         DECLARE_NAPI_FUNCTION("scrollByWithResult", NapiWebviewController::ScrollByWithResult),
         DECLARE_NAPI_FUNCTION("updateInstanceId", NapiWebviewController::UpdateInstanceId),
-        DECLARE_NAPI_STATIC_FUNCTION("trimMemoryByPressureLevel",
-            NapiWebviewController::TrimMemoryByPressureLevel),
     };
     napi_value constructor = nullptr;
     napi_define_class(env, WEBVIEW_CONTROLLER_CLASS_NAME.c_str(), WEBVIEW_CONTROLLER_CLASS_NAME.length(),
@@ -715,18 +713,6 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         NapiParseUtils::CreateEnumConstructor, nullptr, sizeof(offlineResourceTypeProperties) /
         sizeof(offlineResourceTypeProperties[0]), offlineResourceTypeProperties, &offlineResourceTypeEnum);
     napi_set_named_property(env, exports, OFFLINE_RESOURCE_TYPE_ENUM_NAME.c_str(), offlineResourceTypeEnum);
-
-    napi_value pressureLevelEnum = nullptr;
-    napi_property_descriptor pressureLevelProperties[] = {
-        DECLARE_NAPI_STATIC_PROPERTY("MEMORY_PRESSURE_LEVEL_MODERATE", NapiParseUtils::ToInt32Value(env,
-            static_cast<int32_t>(PressureLevel::MEMORY_PRESSURE_LEVEL_MODERATE))),
-        DECLARE_NAPI_STATIC_PROPERTY("MEMORY_PRESSURE_LEVEL_CRITICAL", NapiParseUtils::ToInt32Value(env,
-            static_cast<int32_t>(PressureLevel::MEMORY_PRESSURE_LEVEL_CRITICAL))),
-    };
-    napi_define_class(env, WEB_PRESSURE_LEVEL_ENUM_NAME.c_str(), WEB_PRESSURE_LEVEL_ENUM_NAME.length(),
-        NapiParseUtils::CreateEnumConstructor, nullptr, sizeof(pressureLevelProperties) /
-        sizeof(pressureLevelProperties[0]), pressureLevelProperties, &pressureLevelEnum);
-    napi_set_named_property(env, exports, WEB_PRESSURE_LEVEL_ENUM_NAME.c_str(), pressureLevelEnum);
 
     napi_value scrollTypeEnum = nullptr;
     napi_property_descriptor scrollTypeProperties[] = {
@@ -6249,35 +6235,6 @@ napi_value NapiWebviewController::SetPathAllowingUniversalAccess(
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
             NWebError::FormatString("BusinessError 401: Parameter error. Path: '%s' is invalid", errorPath.c_str()));
     }
-    return result;
-}
-
-napi_value NapiWebviewController::TrimMemoryByPressureLevel(napi_env env,
-    napi_callback_info info)
-{
-    napi_value thisVar = nullptr;
-    napi_value result = nullptr;
-    size_t argc = INTEGER_ONE;
-    napi_value argv[INTEGER_ONE] = { 0 };
-    int32_t memoryLevel;
-    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
-    if (argc != INTEGER_ONE) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-            NWebError::FormatString(
-                ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
-        return result;
-    }
-
-    if (!NapiParseUtils::ParseInt32(env, argv[INTEGER_ZERO], memoryLevel)) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR,
-                                    "PressureLevel", "number"));
-        return result;
-    }
-
-    memoryLevel = memoryLevel == 1 ? 0 : memoryLevel;
-    NWebHelper::Instance().TrimMemoryByPressureLevel(memoryLevel);
-    NAPI_CALL(env, napi_get_undefined(env, &result));
     return result;
 }
 

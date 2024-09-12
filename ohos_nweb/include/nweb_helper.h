@@ -88,8 +88,6 @@ public:
 
     void EnableBackForwardCache(bool enableNativeEmbed, bool enableMediaTakeOver);
 
-    void TrimMemoryByPressureLevel(int32_t memoryLevel);
-
 private:
     NWebHelper() = default;
     bool LoadLib(bool from_ark);

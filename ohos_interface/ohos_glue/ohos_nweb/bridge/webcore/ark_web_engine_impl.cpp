@@ -212,9 +212,4 @@ ArkWebRefPtr<ArkWebAdsBlockManager> ArkWebEngineImpl::GetAdsBlockManager()
   }
   return new ArkWebAdsBlockManagerImpl(nweb_adsBlock_manager);
 }
-
-void ArkWebEngineImpl::TrimMemoryByPressureLevel(int32_t memoryLevel)
-{
-    nweb_engine_->TrimMemoryByPressureLevel(memoryLevel);
-}
 } // namespace OHOS::ArkWeb
