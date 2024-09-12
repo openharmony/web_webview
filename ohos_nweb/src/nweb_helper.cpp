@@ -526,13 +526,13 @@ extern "C" void WebDownloadItem_SetUrl(NWebDownloadItem *downloadItem, const cha
     g_nwebCApi->impl_WebDownloadItem_SetUrl(downloadItem, url);
 }
 
-extern "C" void WebDownloadItem_SetFullPath(NWebDownloadItem *downloadItem, const char *fullPath)
+extern "C" void WebDownloadItem_SetFullPath(NWebDownloadItem *downloadItem, const char *full_path)
 {
     if (!g_nwebCApi->impl_WebDownloadItem_SetFullPath) {
         WVLOG_E("WebDownloadItem_SetFullPath not found.");
         return;
     }
-    g_nwebCApi->impl_WebDownloadItem_SetFullPath(downloadItem, fullPath);
+    g_nwebCApi->impl_WebDownloadItem_SetFullPath(downloadItem, full_path);
 }
 
 extern "C" void WebDownloadItem_SetETag(NWebDownloadItem *downloadItem, const char *etag)
@@ -682,7 +682,7 @@ void* NWebHelper::GetWebEngineHandler(bool shouldRun)
             return nullptr;
         }
     }
-
+    
     return libHandleWebEngine_;
 }
 
@@ -1051,8 +1051,7 @@ void NWebHelper::ClearPrefetchedResource(const std::vector<std::string>& cache_k
     nwebEngine_->ClearPrefetchedResource(cache_key_list);
 }
 
-void NWebHelper::SetRenderProcessMode(RenderProcessMode mode)
-{
+void NWebHelper::SetRenderProcessMode(RenderProcessMode mode) {
     if (nwebEngine_ == nullptr) {
         WVLOG_E("nweb engine is nullptr");
         return;
@@ -1061,14 +1060,23 @@ void NWebHelper::SetRenderProcessMode(RenderProcessMode mode)
     nwebEngine_->SetRenderProcessMode(mode);
 }
 
-RenderProcessMode NWebHelper::GetRenderProcessMode()
-{
+RenderProcessMode NWebHelper::GetRenderProcessMode() {
     if (nwebEngine_ == nullptr) {
         WVLOG_E("nweb engine is nullptr");
         return RenderProcessMode::SINGLE_MODE;
     }
 
     return nwebEngine_->GetRenderProcessMode();
+}
+
+void NWebHelper::WarmupServiceWorker(const std::string &url)
+{
+    if (nwebEngine_ == nullptr) {
+        WVLOG_E("nweb engine is nullptr");
+        return;
+    }
+
+    nwebEngine_->WarmupServiceWorker(url);
 }
 
 void NWebHelper::SetHostIP(const std::string& hostName, const std::string& address, int32_t aliveTime)
@@ -1081,18 +1089,6 @@ void NWebHelper::SetHostIP(const std::string& hostName, const std::string& addre
     nwebEngine_->SetHostIP(hostName, address, aliveTime);
 }
 
-void NWebHelper::EnableBackForwardCache(bool enableNativeEmbed, bool enableMediaTakeOver)
-{
-    this->backForwardCacheCmdLine_.emplace_back("--enable-bfcache");
-    if (enableNativeEmbed) {
-        this->backForwardCacheCmdLine_.emplace_back("--enable-cache-native-embed");
-    }
-
-    if (enableMediaTakeOver) {
-        this->backForwardCacheCmdLine_.emplace_back("--enable-cache-media-take-over");
-    }
-}
-
 void NWebHelper::ClearHostIP(const std::string& hostName)
 {
     if (nwebEngine_ == nullptr) {
@@ -1103,14 +1099,16 @@ void NWebHelper::ClearHostIP(const std::string& hostName)
     nwebEngine_->ClearHostIP(hostName);
 }
 
-void NWebHelper::WarmupServiceWorker(const std::string &url)
+void NWebHelper::EnableBackForwardCache(bool enableNativeEmbed, bool enableMediaTakeOver)
 {
-    if (nwebEngine_ == nullptr) {
-        WVLOG_E("nweb engine is nullptr");
-        return;
+    this->backForwardCacheCmdLine_.emplace_back("--enable-bfcache");
+    if (enableNativeEmbed) {
+        this->backForwardCacheCmdLine_.emplace_back("--enable-cache-native-embed");
     }
 
-    nwebEngine_->WarmupServiceWorker(url);
+    if (enableMediaTakeOver) {
+        this->backForwardCacheCmdLine_.emplace_back("--enable-cache-media-take-over");
+    }
 }
 
 void NWebHelper::EnableWholeWebPageDrawing()

@@ -1011,67 +1011,7 @@ public:
 
     void OnCreateNativeMediaPlayer(std::shared_ptr<OHOS::NWeb::NWebCreateNativeMediaPlayerCallback> callback) override;
 
-    /**
-     * @brief Send touchpad fling event.
-     *
-     * @param x location of x.
-     * @param y location of y.
-     * @param vx velocity of x.
-     * @param vy velocity of y.
-     */
-    /*--ark web()--*/
-    void SendTouchpadFlingEvent(double x, double y, double vx, double vy) override;
-
     void OnTouchCancelById(int32_t id, double x, double y, bool from_overlay) override;
-
-    /**
-     * @brief Inject offline resource into MemoryCache.
-     *
-     * @param url url of resource.
-     * @param origin origin of resource.
-     * @param resource data of resource.
-     * @param response_headers response headers of resource.
-     * @param type resource type.
-     */
-    /*--ark web()--*/
-    void InjectOfflineResource(const std::string& url, const std::string& origin, const std::vector<uint8_t>& resource,
-        const std::map<std::string, std::string>& responseHeaders, const int type) override;
-    /**
-     * @brief RegisterArkJSfunction
-     *
-     * @param object_name  String: objector name
-     * @param method_list vector<String>: vector list, sync method list
-     * @param async_method_list vector<String>: vector list, async method list
-     * @param object_id int32_t: object id
-     */
-    /*--ark web()--*/
-    void RegisterArkJSfunction(const std::string& object_name, const std::vector<std::string>& method_list,
-        const std::vector<std::string>& async_method_list, const int32_t object_id) override;
-
-    /**
-     * @brief Set fit content mode.
-     */
-    void SetFitContentMode(int32_t mode) override;
-
-    /**
-     * @brief Terminate render process
-     *
-     * @return true if it was possible to terminate this render process, false
-     * otherwise.
-     */
-    /*--ark web()--*/
-    bool TerminateRenderProcess() override;
-
-    /**
-     * @brief Get select info.
-     */
-    std::string GetSelectInfo() override;
-
-    /**
-     * @brief Render process switch to foreground.
-     */
-    /*--ark web()--*/
-    void OnOnlineRenderToForeground() override;
 
     /**
      * @brief Set the params when the scale of WebView changed by pinch gestrue.
@@ -1088,11 +1028,72 @@ public:
     int ScaleGestureChange(double scale, double centerX, double centerY) override;
 
     /**
+     * @brief Inject offline resource into MemoryCache.
+     *
+     * @param url url of resource.
+     * @param origin origin of resource.
+     * @param resource data of resource.
+     * @param response_headers response headers of resource.
+     * @param type resource type.
+     */
+    /*--ark web()--*/
+    void InjectOfflineResource(const std::string& url, const std::string& origin, const std::vector<uint8_t>& resource,
+        const std::map<std::string, std::string>& responseHeaders, const int type) override;
+
+    /*
+     * @brief Terminate render process
+     *
+     * @return true if it was possible to terminate this render process, false
+     * otherwise.
+     */
+    /*--ark web()--*/
+    bool TerminateRenderProcess() override;
+
+    /**
      * Get value of Autofill index.
      * @param index index value.
      */
     /*--ark web()--*/
     void SuggestionSelected(int32_t index) override;
+
+    /**
+     * @brief RegisterArkJSfunction
+     *
+     * @param object_name  String: objector name
+     * @param method_list vector<String>: vector list, sync method list
+     * @param async_method_list vector<String>: vector list, async method list
+     * @param object_id int32_t: object id
+     */
+    /*--ark web()--*/
+    void RegisterArkJSfunction(const std::string& object_name, const std::vector<std::string>& method_list,
+        const std::vector<std::string>& async_method_list, const int32_t object_id) override;
+
+    /**
+     * @brief Send touchpad fling event.
+     *
+     * @param x location of x.
+     * @param y location of y.
+     * @param vx velocity of x.
+     * @param vy velocity of y.
+     */
+    /*--ark web()--*/
+    void SendTouchpadFlingEvent(double x, double y, double vx, double vy) override;
+
+    /**
+     * @brief Set draw mode.
+     */
+    void SetFitContentMode(int32_t mode) override;
+
+    /**
+     * @brief Get select info.
+     */
+    std::string GetSelectInfo() override;
+
+    /**
+     * @brief Render process switch to foreground.
+     */
+    /*--ark web()--*/
+    void OnOnlineRenderToForeground() override;
 
     /**
      * @brief Notify that safe insets changed.
@@ -1103,14 +1104,22 @@ public:
     /**
      * @brief Called when text is selected in image.
      */
-    /*--ark web()--*/
     void OnTextSelected() override;
 
     /**
-     * @brief Notify for next touch move event.
+     * @brief web send key event.
      */
     /*--ark web()--*/
-    void NotifyForNextTouchEvent() override;
+    bool WebSendKeyEvent(int32_t keyCode, int32_t keyAction,
+                         const std::vector<int32_t>& pressedCodes) override;
+
+    /**
+     * @brief Notify that system configuration changed.
+     *
+     * @param configuration system configuration.
+     */
+    /*--ark web()--*/
+    void OnConfigurationUpdated(std::shared_ptr<OHOS::NWeb::NWebSystemConfiguration> configuration) override;
 
     /**
      * @brief Enable the ability to block Ads, default disabled.
@@ -1131,29 +1140,10 @@ public:
     bool IsAdsBlockEnabledForCurPage() override;
 
     /**
-     * @brief Get Web page snapshot
-     *
-     * @param id Request id.
-     * @param type Request snapshot pixel unit.
-     * @param width Request SnapShot width.
-     * @param height Request SnapShot height.
-     * @param callback SnapShot result callback.
-     * @return ture if succuess request snapshot to renderer.
+     * @brief Notify for next touch move event.
      */
     /*--ark web()--*/
-    bool WebPageSnapshot(const char* id,
-                         ArkPixelUnit type,
-                         int width,
-                         int height,
-                         const WebSnapshotCallback callback) override;
-
-    /**
-     * @brief Notify that system configuration changed.
-     *
-     * @param configuration system configuration.
-     */
-    /*--ark web()--*/
-    void OnConfigurationUpdated(std::shared_ptr<OHOS::NWeb::NWebSystemConfiguration> configuration) override;
+    void NotifyForNextTouchEvent() override;
 
     /**
      * @brief Set url trust list.
@@ -1171,14 +1161,21 @@ public:
         std::shared_ptr<OHOS::NWeb::NWebSpanstringConvertHtmlCallback> callback) override;
 
     /**
-     * Web send key event.
-     * @param key_code code value.
-     * @param key_action action value.
-     * @param pressedCodes pressedCodes value.
+     * @brief Get Web page snapshot
+     *
+     * @param id Request id.
+     * @param type Request snapshot pixel unit.
+     * @param width Request SnapShot width.
+     * @param height Request SnapShot height.
+     * @param callback SnapShot result callback.
+     * @return ture if succuess request snapshot to renderer.
      */
     /*--ark web()--*/
-    bool WebSendKeyEvent(int32_t key_code, int32_t key_action,
-        const std::vector<int32_t>& pressedCodes) override;
+    bool WebPageSnapshot(const char* id,
+                         ArkPixelUnit type,
+                         int width,
+                         int height,
+                         const WebSnapshotCallback callback) override;
 
     /**
      * @brief Set grant file access dirs.
@@ -1186,6 +1183,36 @@ public:
     /*--ark web()--*/
     void SetPathAllowingUniversalAccess(const std::vector<std::string>& dirs,
         const std::vector<std::string>& moduleName, std::string& errorPath) override;
+
+    /**
+     * Execute an accessibility action on an accessibility node in the browser.
+     * @param accessibilityId The id of the accessibility node.
+     * @param action The action to be performed on the accessibility node.
+     * @param actionArguments Data related to the current action.
+     */
+    /*--ark web()--*/
+    void PerformAction(int64_t accessibilityId, uint32_t action,
+        const std::map<std::string, std::string>& actionArguments) override;
+
+    /**
+     * Scroll to the position.
+     *
+     * @param x horizontal coordinate.
+     * @param y vertical coordinate.
+     * @param duration: anime duration.
+     */
+    /*--ark web()--*/
+    void ScrollToWithAnime(float x, float y, int32_t duration) override;
+
+    /**
+     * Scroll by the delta distance.
+     *
+     * @param delta_x: horizontal offset.
+     * @param delta_y: vertical offset.
+     * @param duration: anime duration.
+     */
+    /*--ark web()--*/
+    void ScrollByWithAnime(float delta_x, float delta_y, int32_t duration) override;
 
     /**
      * @brief Send mouse wheel event.
@@ -1220,22 +1247,13 @@ public:
     int SetUrlTrustListWithErrMsg(const std::string& urlTrustList, std::string& detailErrMsg) override;
 
     /**
-     * @brief resize visual viewport.
+     * @brief Send the accessibility hover event coordinate.
      *
-     * @param width width.
-     * @param height height.
-     * @param iskeyboard from keybord.
+     * @param x horizontal location of coordinate.
+     * @param y vertical location of coordinate.
      */
     /*--ark web()--*/
-    void ResizeVisibleViewport(uint32_t width, uint32_t height, bool isKeyboard) override;
-
-    /**
-     * @brief set backforward cache options.
-     * @param size The size of the back forward cache could saved.
-     * @param timeToLive The time of the back forward cache page could stay.
-     */
-    /*--ark web()--*/
-    void SetBackForwardCacheOptions(int32_t size, int32_t timeToLive) override;
+    void SendAccessibilityHoverEvent(int32_t x, int32_t y) override;
 
     /**
      * @brief RegisterArkJSfunction
@@ -1254,6 +1272,24 @@ public:
                                const std::string& permission) override;
 
     /**
+     * @brief resize visual viewport.
+     *
+     * @param width width.
+     * @param height height.
+     * @param iskeyboard from keybord.
+     */
+    /*--ark web()--*/
+    void ResizeVisibleViewport(uint32_t width, uint32_t height, bool isKeyboard) override;
+
+    /**
+     * @brief set backforward cache options.
+     * @param size The size of the back forward cache could saved.
+     * @param timeToLive The time of the back forward cache page could stay.
+     */
+    /*--ark web()--*/
+    void SetBackForwardCacheOptions(int32_t size, int32_t timeToLive) override;
+
+    /**
      * @brief set the callback of the autofill event.
      * @param callback callback.
      */
@@ -1268,43 +1304,11 @@ public:
     void FillAutofillData(std::shared_ptr<OHOS::NWeb::NWebMessage> data) override;
 
     /**
-     * Execute an accessibility action on an accessibility node in the browser.
-     * @param accessibilityId The id of the accessibility node.
-     * @param action The action to be performed on the accessibility node.
-     * @param actionArguments Data related to the current action.
+     * @brief on autofill cancel.
+     * @param fillContent fillContent.
      */
     /*--ark web()--*/
-    void PerformAction(int64_t accessibilityId, uint32_t action,
-        const std::map<std::string, std::string>& actionArguments) override;
-
-    /**
-     * Scroll to the position.
-     *
-     * @param x horizontal coordinate.
-     * @param y vertical coordinate.
-     * @param duration: anime duration.
-     */
-    /*--ark web()--*/
-    void ScrollToWithAnime(float x, float y, int32_t duration) override;
-
-    /**
-     * Scroll by the delta distance.
-     *
-     * @param delta_x: horizontal offset.
-     * @param delta_y: vertical offset.
-     * @param duration: anime duration.
-     */
-    /*--ark web()--*/
-    void ScrollByWithAnime(float delta_x, float delta_y, int32_t duration) override;
-
-    /**
-     * @brief Send the accessibility hover event coordinate.
-     *
-     * @param x horizontal location of coordinate.
-     * @param y vertical location of coordinate.
-     */
-    /*--ark web()--*/
-    void SendAccessibilityHoverEvent(int32_t x, int32_t y) override;
+    void OnAutofillCancel(const std::string& fillContent) override;
 
     /**
      * @brief Scroll by the delta distance.
@@ -1314,13 +1318,6 @@ public:
      */
     /*--ark web()--*/
     bool ScrollByWithResult(float delta_x, float delta_y) override;
-
-    /**
-    * @brief on autofill cancel.
-    * @param fillContent fillContent.
-    */
-    /*--ark web()--*/
-    void OnAutofillCancel(const std::string& fillContent) override;
 
     /**
      * @brief Called when image analyzer is destory.
