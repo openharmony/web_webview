@@ -47,6 +47,8 @@ public:
     void SetNWebId(int32_t nwebId);
     napi_env GetEnv();
 
+    void RemoveSelfRef();
+
     //  create this reference to make web download delegate not be deleted by gc.
     napi_ref delegate_;
 

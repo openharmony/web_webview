@@ -386,6 +386,20 @@ bool ParseRegisterJavaScriptProxyParam(napi_env env, size_t argc, napi_value* ar
     param->permission = permission;
     return true;
 }
+
+napi_value RemoveDownloadDelegateRef(napi_env env, napi_value thisVar)
+{
+    WebviewController* webviewController = nullptr;
+    NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&webviewController));
+    if (webviewController == nullptr || !webviewController->IsInit()) {
+        WVLOG_E("create message port failed, napi unwrap webviewController failed");
+        return nullptr;
+    }
+
+    WebDownloadManager::RemoveDownloadDelegateRef(webviewController->GetWebId());
+    return nullptr;
+}
+
 } // namespace
 
 int32_t NapiWebviewController::maxFdNum_ = -1;
@@ -4597,6 +4611,7 @@ napi_value NapiWebviewController::SetDownloadDelegate(napi_env env, napi_callbac
     napi_unwrap(env, obj, (void**)&delegate);
     if (!delegate) {
         WVLOG_E("[DOWNLOAD] WebDownloader::JS_SetDownloadDelegate delegate is null");
+        (void)RemoveDownloadDelegateRef(env, thisVar);
         return nullptr;
     }
     napi_create_reference(env, obj, 1, &delegate->delegate_);
