@@ -1001,4 +1001,9 @@ void ArkWebHandlerWrapper::OnNativeEmbedVisibilityChange(const std::string& embe
     ark_web_handler_->OnNativeEmbedVisibilityChange(stEmbedId, visibility);
     ArkWebStringStructRelease(stEmbedId);
 }
+
+void ArkWebHandlerWrapper::ChangeVisibilityOfQuickMenu()
+{
+    ark_web_handler_->ChangeVisibilityOfQuickMenu();
+}
 } // namespace OHOS::ArkWeb

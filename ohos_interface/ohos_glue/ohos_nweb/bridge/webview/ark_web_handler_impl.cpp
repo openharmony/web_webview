@@ -887,4 +887,9 @@ void ArkWebHandlerImpl::OnNativeEmbedVisibilityChange(const ArkWebString& embed_
 {
     nweb_handler_->OnNativeEmbedVisibilityChange(ArkWebStringStructToClass(embed_id), visibility);
 }
+
+void ArkWebHandlerImpl::ChangeVisibilityOfQuickMenu()
+{
+    nweb_handler_->ChangeVisibilityOfQuickMenu();
+}
 } // namespace OHOS::ArkWeb

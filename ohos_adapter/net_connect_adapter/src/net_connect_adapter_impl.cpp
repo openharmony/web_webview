@@ -114,7 +114,8 @@ int32_t NetConnectAdapterImpl::GetDefaultNetConnect(NetConnectType &type, NetCon
     return 0;
 }
 
-std::vector<std::string> NetConnectAdapterImpl::GetDnsServersInternal(const NetHandle &netHandle) {
+std::vector<std::string> NetConnectAdapterImpl::GetDnsServersInternal(const NetHandle &netHandle)
+{
     std::vector<std::string> servers;
     NetLinkInfo info;
     int32_t ret = NetConnClient::GetInstance().GetConnectionProperties(netHandle, info);

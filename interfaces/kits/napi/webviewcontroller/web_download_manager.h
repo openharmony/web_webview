@@ -36,6 +36,7 @@ public:
 
     static void AddDownloadDelegateForWeb(int32_t nwebId, WebDownloadDelegate *delegate);
     static void RemoveDownloadDelegate(WebDownloadDelegate *delegate);
+    static void RemoveDownloadDelegateRef(int32_t nwebId);
 
     static bool HasValidDelegate();
 

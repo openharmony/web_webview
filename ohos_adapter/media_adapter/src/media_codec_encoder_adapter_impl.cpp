@@ -116,7 +116,7 @@ CodecCodeAdapter MediaCodecEncoderAdapterImpl::Configure(const std::shared_ptr<C
     avCodecFormat.PutDoubleValue(OHOS::MediaAVCodec::MediaDescriptionKey::MD_KEY_FRAME_RATE, config->GetFrameRate());
     avCodecFormat.PutLongValue(OHOS::MediaAVCodec::MediaDescriptionKey::MD_KEY_BITRATE, config->GetBitRate());
     avCodecFormat.PutIntValue(
-        OHOS::MediaAVCodec::MediaDescriptionKey::MD_KEY_VIDEO_ENCODE_BITRATE_MODE, VideoEncodeBitrateMode::VBR);
+        OHOS::MediaAVCodec::MediaDescriptionKey::MD_KEY_VIDEO_ENCODE_BITRATE_MODE, VideoEncodeBitrateMode::CBR);
     avCodecFormat.PutIntValue(
         OHOS::MediaAVCodec::MediaDescriptionKey::MD_KEY_PIXEL_FORMAT, (int32_t)VideoPixelFormat::YUVI420);
     WVLOG_I("Configure width: %{public}d, height: %{public}d, bitRate: %{public}d, framerate: %{public}lf,",

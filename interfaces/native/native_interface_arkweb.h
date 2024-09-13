@@ -91,7 +91,7 @@ void OH_NativeArkWeb_RunJavaScript(const char* webTag, const char* jsCode, Nativ
  * @since 11
  */
 void OH_NativeArkWeb_RegisterJavaScriptProxy(const char* webTag, const char* objName, const char** methodList,
-    NativeArkWeb_OnJavaScriptProxyCallback* callback, int32_t size, bool needRefresh);
+    NativeArkWeb_OnJavaScriptProxyCallback* callback, int32_t size, bool isNeedRefresh);
 
 /*
  * @brief Deletes the registered object which th given name.

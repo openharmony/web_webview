@@ -40,7 +40,8 @@ const std::unordered_map<std::string, PropertiesKey> PROP_KEY_MAP = {
     {PROP_RENDER_DUMP, PropertiesKey::PROP_RENDER_DUMP},
     {PROP_DEBUG_TRACE, PropertiesKey::PROP_DEBUG_TRACE}};
 
-void SystemPropertiesChangeCallback(const char* key, const char* value, void* context) {
+void SystemPropertiesChangeCallback(const char* key, const char* value, void* context)
+{
     WVLOG_D("sys prop change key: %{public}s ,value : %{public}s ", key,  value);
     SystemPropertiesAdapterImpl::GetInstance().DispatchAllWatcherInfo(key, value);
 }
@@ -190,6 +191,11 @@ std::string SystemPropertiesAdapterImpl::GetSiteIsolationMode()
     return OHOS::system::GetParameter("web.debug.strictsiteIsolation.enable", "");
 }
 
+int32_t SystemPropertiesAdapterImpl::GetFlowBufMaxFd()
+{
+    return OHOS::system::GetIntParameter("web.flowbuffer.maxfd", -1);
+}
+
 bool SystemPropertiesAdapterImpl::GetOOPGPUEnable()
 {
     if (GetDeviceInfoProductModel() == "emulator") {
@@ -198,15 +204,8 @@ bool SystemPropertiesAdapterImpl::GetOOPGPUEnable()
     if (OHOS::system::GetParameter("web.oop.gpu", "") == "true") {
         return true;
     }
-    return false;
-}
 
-std::string SystemPropertiesAdapterImpl::GetOOPGPUStatus()
-{
-    if (GetDeviceInfoProductModel() == "emulator") {
-        return "false";
-    }
-    return OHOS::system::GetParameter("web.oop.gpu", "");
+    return false;
 }
 
 void SystemPropertiesAdapterImpl::SetOOPGPUDisable()
@@ -215,11 +214,6 @@ void SystemPropertiesAdapterImpl::SetOOPGPUDisable()
         OHOS::system::SetParameter("web.oop.gpu", "false");
     }
     return;
-}
-
-int32_t SystemPropertiesAdapterImpl::GetFlowBufMaxFd()
-{
-    return OHOS::system::GetIntParameter("web.flowbuffer.maxfd", -1);
 }
 
 void SystemPropertiesAdapterImpl::AddAllSysPropWatchers()
@@ -315,5 +309,13 @@ bool SystemPropertiesAdapterImpl::GetBoolParameter(const std::string& key, bool 
 std::vector<FrameRateSetting> SystemPropertiesAdapterImpl::GetLTPOConfig(const std::string& settingName)
 {
     return NWebConfigHelper::Instance().GetPerfConfig(settingName);
+}
+
+std::string SystemPropertiesAdapterImpl::GetOOPGPUStatus()
+{
+    if (GetDeviceInfoProductModel() == "emulator") {
+        return "false";
+    }
+    return OHOS::system::GetParameter("web.oop.gpu", "");
 }
 } // namespace OHOS::NWeb

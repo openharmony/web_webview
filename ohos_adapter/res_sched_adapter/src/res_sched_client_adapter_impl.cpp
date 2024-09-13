@@ -162,7 +162,7 @@ bool NeedReportScene(ResSchedSceneAdapter sceneAdapter)
 bool ReportSceneInternal(ResSchedStatusAdapter statusAdapter, ResSchedSceneAdapter sceneAdapter)
 {
     // To limit the frequency of events reported in some scenarios
-    if(!NeedReportScene(sceneAdapter)) {
+    if (!NeedReportScene(sceneAdapter)) {
         return false;
     }
 
@@ -237,7 +237,7 @@ void ReportStatusData(ResSchedStatusAdapter statusAdapter, pid_t pid, uint32_t w
     ResSchedClient::GetInstance().ReportData(
         ResType::RES_TYPE_REPORT_WINDOW_STATE, ResType::ReportChangeStatus::CREATE, mapPayload);
 
-    WVLOG_D("ReportWindowStatus status: %{public}d, uid: %{public}s, pid: %{public}d, windowId: %{public}d, "
+    WVLOG_I("ReportWindowStatus status: %{public}d, uid: %{public}s, pid: %{public}d, windowId: %{public}d, "
             "nwebId: %{public}d, sn: %{public}d",
             static_cast<int32_t>(status), GetUidString().c_str(), pid, windowId, nwebId, serialNum);
     serialNum = (serialNum + 1) % serialNumMax;

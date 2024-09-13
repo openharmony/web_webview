@@ -193,7 +193,6 @@ HWTEST_F(NwebHelperTest, NWebHelper_SetBundlePath_001, TestSize.Level1)
     NWebHelper::Instance().WarmupServiceWorker("web_test");
     NWebHelper::Instance().PrefetchResource(nullptr, {}, "web_test", 0);
     NWebHelper::Instance().ClearPrefetchedResource({"web_test"});
-    NWebAdapterHelper::Instance().ReadConfigIfNeeded();
     NWebHelper::Instance().EnableBackForwardCache(true, true);
     result = NWebHelper::Instance().InitAndRun(false);
     EXPECT_FALSE(result);
@@ -619,31 +618,6 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetAdsBlockManager_001, TestSize.Level1)
     EXPECT_EQ(nweb, nullptr);
     auto manager = NWebHelper::Instance().GetAdsBlockManager();
     EXPECT_EQ(manager, nullptr);
-}
-
-/**
- * @tc.name: NWebHelper_TrimMemoryByPressureLevel_001
- * @tc.desc: TrimMemoryByPressureLevel.
- * @tc.type: FUNC
- * @tc.require:
- */
-HWTEST_F(NwebHelperTest, NWebHelper_TrimMemoryByPressureLevel_001, TestSize.Level1)
-{
-    int32_t nweb_id = 1;
-    auto nwebHelper = NWebHelper::Instance().GetNWeb(nweb_id);
-    EXPECT_EQ(nwebHelper, nullptr);
-
-    int32_t memoryLevel = 1;
-    NWebHelper::Instance().nwebEngine_ = nullptr;
-    NWebHelper::Instance().TrimMemoryByPressureLevel(memoryLevel);
-    EXPECT_EQ(NWebHelper::Instance().nwebEngine_, nullptr);
-
-    auto nwebengineMock = std::make_shared<MockNWebEngine>();
-    NWebHelper::Instance().nwebEngine_ = nwebengineMock;
-    NWebHelper::Instance().TrimMemoryByPressureLevel(memoryLevel);
-    EXPECT_NE(NWebHelper::Instance().nwebEngine_, nullptr);
-
-    NWebHelper::Instance().nwebEngine_ = nullptr;
 }
 } // namespace OHOS::NWeb
 }

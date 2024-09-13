@@ -68,6 +68,11 @@ int32_t ArkCertManagerAdapterImpl::GetCertDataBySubject(const char* subjectName,
     return real_->GetCertDataBySubject(subjectName, certData, certType);
 }
 
+int ArkCertManagerAdapterImpl::VerifyCertFromNetSsl(uint8_t* certData, uint32_t certSize)
+{
+    return 0;
+}
+
 bool ArkCertManagerAdapterImpl::GetTrustAnchorsForHostName(const ArkWebString& hostname, ArkWebStringVector& certs)
 {
     std::vector<std::string> vec;

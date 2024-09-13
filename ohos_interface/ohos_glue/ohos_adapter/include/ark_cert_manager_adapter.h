@@ -54,6 +54,9 @@ public:
     virtual int32_t GetCertDataBySubject(const char* subjectName, uint8_t* certData, int32_t certType) = 0;
 
     /*--ark web()--*/
+    virtual int VerifyCertFromNetSsl(uint8_t* certData, uint32_t certSize) = 0;
+
+    /*--ark web()--*/
     virtual bool GetTrustAnchorsForHostName(const ArkWebString& hostname, ArkWebStringVector& certs) = 0;
 
     /*--ark web()--*/

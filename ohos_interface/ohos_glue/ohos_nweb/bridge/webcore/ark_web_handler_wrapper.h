@@ -603,6 +603,8 @@ public:
 
     void OnNativeEmbedVisibilityChange(const std::string& embed_id, bool visibility) override;
 
+    void ChangeVisibilityOfQuickMenu() override;
+
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };

@@ -162,11 +162,6 @@ public:
     MOCK_METHOD0(GetUpdateTime, int64_t());
 };
 
-class stratMock : public OHOS::AVSession::AVPlaybackState {
-public:
-    MOCK_CONST_METHOD0(GetState, int32_t());
-};
-
 class MediaAVSessionKeyMock : public MediaAVSessionKey {
 public:
     MediaAVSessionKeyMock() = default;
@@ -430,6 +425,13 @@ HWTEST_F(MediaAVSessionAdapterImplTest, NWebMediaAdapterTest_MediaAVSessionAdapt
     EXPECT_EQ(ret, false);
 
     type = MediaAVSessionType::MEDIA_TYPE_AUDIO;
+    g_adapter->avSessionKey_->SetType(type);
+    ret = g_adapter->CreateAVSession(type);
+    EXPECT_EQ(ret, false);
+
+    g_adapter->avSessionKey_->SetType(MediaAVSessionType::MEDIA_TYPE_INVALID);
+    ret = g_adapter->CreateAVSession(type);
+    EXPECT_EQ(ret, true);
     g_adapter->avSessionKey_->SetType(MediaAVSessionType::MEDIA_TYPE_VIDEO);
     ret = g_adapter->CreateAVSession(type);
 
