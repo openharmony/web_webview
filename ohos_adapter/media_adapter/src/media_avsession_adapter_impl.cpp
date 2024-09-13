@@ -94,6 +94,8 @@ MediaAVSessionAdapterImpl::~MediaAVSessionAdapterImpl() {
         }
     }
 
+    avMetadata_ = nullptr;
+    builder_ = nullptr;
     DestroyAVSession();
 }
 
@@ -135,6 +137,7 @@ void MediaAVSessionAdapterImpl::DestroyAVSession() {
         } else {
             WVLOG_I("DestroyAVSession Destroy() success, ret: %{public}d", ret);
         }
+        avSession_ = nullptr;
     }
     auto iter = avSessionMap.find(avSessionKey_->ToString());
     if (iter != avSessionMap.end()) {
@@ -301,6 +304,7 @@ AVMetadata_Result MediaAVSessionAdapterImpl::UpdateAVMetadata(void) {
         }
     }
 
+    avMetadata_ = nullptr;
     ret = OH_AVMetadataBuilder_GenerateAVMetadata(builder_, &avMetadata_);
     if (ret != AVMETADATA_SUCCESS) {
         WVLOG_E("generate avmetadata failed, ret=%{public}d", ret);
@@ -419,6 +423,7 @@ void MediaAVSessionAdapterImpl::DestroyAndEraseSession() {
     } else {
         WVLOG_I("DestroyAndEraseSession Destroy success");
     }
+    avSession_ = nullptr;
     avSessionMap.erase(iter);
     WVLOG_I("DestroyAndEraseSession out");
 }
