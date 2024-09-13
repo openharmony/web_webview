@@ -22,10 +22,10 @@
 namespace OHOS::NWeb {
 
 enum class IMFAdapterExtendAction : int32_t {
-    SELECT_ALL,
-    CUT,
-    COPY,
-    PASTE,
+    SELECT_ALL = 0,
+    CUT = 3,
+    COPY = 4,
+    PASTE = 5,
 };
 
 class IMFAdapterFunctionKeyAdapterImpl : public IMFAdapterFunctionKeyAdapter {
@@ -122,8 +122,7 @@ public:
     static int32_t SetPreviewTextFunc(
         InputMethod_TextEditorProxy *proxy, const char16_t *text, size_t length, int32_t start, int32_t end);
     static void FinishTextPreviewFunc(InputMethod_TextEditorProxy *proxy);
-    static InputMethod_TextEditorProxy *TextEditorProxyCreate(
-        std::shared_ptr<IMFTextListenerAdapter>listener, const std::shared_ptr<IMFTextConfigAdapter>config);
+    static InputMethod_TextEditorProxy *TextEditorProxyCreate(std::shared_ptr<IMFTextListenerAdapter>listener);
     static void TextEditorProxyDestroy(InputMethod_TextEditorProxy *textEditorProxy);
     static InputMethod_ErrorCode ConstructTextConfig(const std::shared_ptr<IMFTextConfigAdapter>config);
     static void DestroyTextConfig(void);

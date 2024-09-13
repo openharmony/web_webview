@@ -556,25 +556,18 @@ InputMethod_ErrorCode IMFTextEditorProxyImpl::TextEditorProxy_SetFunc(InputMetho
 }
 
 InputMethod_TextEditorProxy* IMFTextEditorProxyImpl::TextEditorProxyCreate(
-    std::shared_ptr<IMFTextListenerAdapter> listener, const std::shared_ptr<IMFTextConfigAdapter> config)
+    std::shared_ptr<IMFTextListenerAdapter> listener)
 {
-    InputMethod_ErrorCode ret;
     InputMethod_TextEditorProxy *textEditorProxy = OH_TextEditorProxy_Create();
     textListener_ = std::make_shared<IMFTextListenerAdapterImpl>(listener);
 
-    if (config) {
-        ret = ConstructTextConfig(config);
-        if (ret != IME_ERR_OK) {
-            return nullptr;
-        }
-        ret = TextEditorProxy_SetTextFunc(textEditorProxy);
-        if (ret != IME_ERR_OK) {
-            return nullptr;
-        }
-        ret = TextEditorProxy_SetFunc(textEditorProxy);
-        if (ret != IME_ERR_OK) {
-            return nullptr;
-        }
+    InputMethod_ErrorCode ret = TextEditorProxy_SetTextFunc(textEditorProxy);
+    if (ret != IME_ERR_OK) {
+        return nullptr;
+    }
+    ret = TextEditorProxy_SetFunc(textEditorProxy);
+    if (ret != IME_ERR_OK) {
+        return nullptr;
     }
     return textEditorProxy;
 }
@@ -837,7 +830,7 @@ bool IMFAdapterImpl::Attach(std::shared_ptr<IMFTextListenerAdapter> listener, bo
         return false;
     }
     if (!IMFTextEditorProxyImpl::textListener_) {
-        textEditorProxy_ = IMFTextEditorProxyImpl::TextEditorProxyCreate(listener, nullptr);
+        textEditorProxy_ = IMFTextEditorProxyImpl::TextEditorProxyCreate(listener);
         if (!textEditorProxy_) {
             WVLOG_E("new textListener failed");
             return false;
@@ -874,20 +867,29 @@ bool IMFAdapterImpl::Attach(std::shared_ptr<IMFTextListenerAdapter> listener, bo
         return false;
     }
 
-    if (textEditorProxy_) {
+    if (textEditorProxy_ != nullptr && isResetListener) {
         IMFTextEditorProxyImpl::TextEditorProxyDestroy(textEditorProxy_);
+        textEditorProxy_ = nullptr;
     }
-    textEditorProxy_ = IMFTextEditorProxyImpl::TextEditorProxyCreate(listener, config);
-    if (!textEditorProxy_) {
-        WVLOG_E("new textListener failed");
-        ReportImfErrorEvent(IMF_LISTENER_NULL_POINT, isShowKeyboard);
+    if (textEditorProxy_ == nullptr) {
+        textEditorProxy_ = IMFTextEditorProxyImpl::TextEditorProxyCreate(listener);
+        if (textEditorProxy_ == nullptr) {
+            WVLOG_E("new textListener failed");
+            ReportImfErrorEvent(IMF_LISTENER_NULL_POINT, isShowKeyboard);
+            return false;
+        }
+    }
+    InputMethod_ErrorCode ret = IMFTextEditorProxyImpl::ConstructTextConfig(config);
+    if (ret != IME_ERR_OK) {
         return false;
     }
     InputMethod_AttachOptions *options = OH_AttachOptions_Create(isShowKeyboard);
-    InputMethod_ErrorCode ret = OH_InputMethodController_Attach(textEditorProxy_, options, &inputMethodProxy_);
+    ret = OH_InputMethodController_Attach(textEditorProxy_, options, &inputMethodProxy_);
     if (ret != IME_ERR_OK) {
         WVLOG_E("Inputmethod attach failed, ret=%{public}d", isShowKeyboard);
     }
+    WVLOG_I("Inputmethod attach, isResetListener: %{public}s, isShowKeyboard: %{public}s",
+        isResetListener ? "yes" : "no", isShowKeyboard ? "yes" : "no");
     return true;
 }
 
