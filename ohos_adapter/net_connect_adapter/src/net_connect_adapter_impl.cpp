@@ -29,9 +29,14 @@
 
 namespace OHOS::NWeb {
 std::unordered_map<int32_t, std::shared_ptr<NetConnCallback>> NetConnectAdapterImpl::netConnCallbackMap_ = {};
+std::mutex NetConnectAdapterImpl::mutex_;
 
 int32_t NetConnectAdapterImpl::NetAvailable(std::shared_ptr<NetConnCallback> cb, NetConn_NetHandle *netHandle)
 {
+    if (netHandle == nullptr) {
+        WVLOG_E("NetConnCallback enter, net available, netHandle is nullptr.");
+        return 0;
+    }
     WVLOG_I("NetConnCallback enter, net available, net id = %{public}d.", netHandle->netId);
     if (cb != nullptr) {
         cb->NetAvailable();
@@ -43,6 +48,10 @@ int32_t NetConnectAdapterImpl::NetCapabilitiesChange(std::shared_ptr<NetConnCall
                                                      NetConn_NetHandle *netHandle,
                                                      NetConn_NetCapabilities * netCapabilities)
 {
+    if (netHandle == nullptr || netCapabilities == nullptr) {
+        WVLOG_E("NetConnCallback enter, NetCapabilitiesChange, netHandle or netAllCap is nullptr.");
+        return 0;
+    }
     WVLOG_I("NetConnCallback enter, NetCapabilitiesChange, net id = %{public}d.", netHandle->netId);
     NetConnectSubtype subtype = NetConnectSubtype::SUBTYPE_UNKNOWN;
     Telephony_RadioTechnology radioTech = Telephony_RadioTechnology::TEL_RADIO_TECHNOLOGY_UNKNOWN;
@@ -79,6 +88,10 @@ int32_t NetConnectAdapterImpl::NetConnectionPropertiesChange(std::shared_ptr<Net
                                                              NetConn_NetHandle *netHandle,
                                                              NetConn_ConnectionProperties *connConnetionProperties)
 {
+    if (netHandle == nullptr || connConnetionProperties == nullptr) {
+        WVLOG_E("NetConnCallback enter, NetConnectionPropertiesChange, netHandle or info is nullptr.");
+        return 0;
+    }
     WVLOG_I("NetConnCallback enter, NetConnectionPropertiesChange, net id = %{public}d.", netHandle->netId);
     if (cb != nullptr) {
         auto properties = std::make_shared<NetConnectionPropertiesAdapterImpl>();
@@ -88,49 +101,58 @@ int32_t NetConnectAdapterImpl::NetConnectionPropertiesChange(std::shared_ptr<Net
     return 0;
 }
 
+int32_t NetConnectAdapterImpl::NetLost(std::shared_ptr<NetConnCallback> cb, NetConn_NetHandle *netHandle)
+{
+    if (netHandle == nullptr) {
+        WVLOG_E("NetConnCallback enter, NetLost, netHandle is nullptr.");
+        return 0;
+    }
+    WVLOG_I("NetConnCallback enter, NetLost, net id = %{public}d.", netHandle->netId);
+    if (cb != nullptr) {
+        cb->NetUnavailable();
+    }
+    return 0;
+}
+
+int32_t NetConnectAdapterImpl::NetUnavailable(std::shared_ptr<NetConnCallback> cb)
+{
+    WVLOG_I("NetConnCallback enter, NetUnavailable.");
+    if (cb != nullptr) {
+        cb->NetUnavailable();
+    }
+    return 0;
+}
+
 void NetConnectAdapterImpl::InitNetConnCallback(NetConn_NetConnCallback *netConnCallback)
 {
     netConnCallback->onNetworkAvailable = [](NetConn_NetHandle *netHandle) {
-        if (netHandle == nullptr) {
-            WVLOG_E("NetConnCallback enter, net available, netHandle is nullptr.");
-            return;
-        }
+        std::lock_guard<std::mutex> lock(mutex_);
         for (auto it = netConnCallbackMap_.begin(); it != netConnCallbackMap_.end(); it++) {
             NetAvailable(it->second, netHandle);
         }
     };
     netConnCallback->onNetCapabilitiesChange = [](NetConn_NetHandle *netHandle, NetConn_NetCapabilities *netCap) {
-        if (netHandle == nullptr || netCap == nullptr) {
-            WVLOG_E("NetConnCallback enter, NetCapabilitiesChange, netHandle or netAllCap is nullptr.");
-            return;
-        }
+        std::lock_guard<std::mutex> lock(mutex_);
         for (auto it = netConnCallbackMap_.begin(); it != netConnCallbackMap_.end(); it++) {
             NetCapabilitiesChange(it->second, netHandle, netCap);
         }
     };
     netConnCallback->onConnetionProperties = [](NetConn_NetHandle *netHandle, NetConn_ConnectionProperties *connProp) {
-        if (netHandle == nullptr || connProp == nullptr) {
-            WVLOG_E("NetConnCallback enter, NetConnectionPropertiesChange, netHandle or info is nullptr.");
-            return;
-        }
+        std::lock_guard<std::mutex> lock(mutex_);
         for (auto it = netConnCallbackMap_.begin(); it != netConnCallbackMap_.end(); it++) {
             NetConnectionPropertiesChange(it->second, netHandle, connProp);
         }
     };
     netConnCallback->onNetLost = [](NetConn_NetHandle *netHandle) {
-        WVLOG_I("NetConnCallback enter, NetLost, net id = %{public}d.", netHandle->netId);
+        std::lock_guard<std::mutex> lock(mutex_);
         for (auto it = netConnCallbackMap_.begin(); it != netConnCallbackMap_.end(); it++) {
-            if (it->second != nullptr) {
-                it->second->NetUnavailable();
-            }
+            NetLost(it->second, netHandle);
         }
     };
     netConnCallback->onNetUnavailable = [](void) {
-        WVLOG_I("NetConnCallback enter, NetUnavailable.");
+        std::lock_guard<std::mutex> lock(mutex_);
         for (auto it = netConnCallbackMap_.begin(); it != netConnCallbackMap_.end(); it++) {
-            if (it->second != nullptr) {
-                it->second->NetUnavailable();
-            }
+            NetUnavailable(it->second);
         }
     };
     netConnCallback->onNetBlockStatusChange = [](NetConn_NetHandle *netHandle, bool blocked) {
@@ -138,7 +160,6 @@ void NetConnectAdapterImpl::InitNetConnCallback(NetConn_NetConnCallback *netConn
             netHandle->netId, blocked);
     };
 }
-
 
 int32_t NetConnectAdapterImpl::RegisterNetConnCallback(std::shared_ptr<NetConnCallback> cb)
 {
