@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <string>
 #include <unordered_map>
+#include <mutex>
 
 #include "net_connect_adapter.h"
 
@@ -59,7 +60,14 @@ private:
                                                     NetConn_NetHandle *netHandle,
                                                     NetConn_ConnectionProperties *connConnetionProperties);
 
+    static int32_t NetLost(std::shared_ptr<NetConnCallback> cb,
+                             NetConn_NetHandle *netHandle);
+
+    static int32_t NetUnavailable(std::shared_ptr<NetConnCallback> cb);
+
     static void InitNetConnCallback(NetConn_NetConnCallback *netConnCallback);
+
+    static std::mutex mutex_;
 };
 }  // namespace OHOS::NWeb
 
