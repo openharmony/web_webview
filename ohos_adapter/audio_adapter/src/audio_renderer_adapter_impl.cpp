@@ -391,9 +391,15 @@ int32_t AudioRendererAdapterImpl::GetLatency(uint64_t& latency)
         return AUDIO_ERROR;
     }
 
-    if (existingFramePts == 0) {
+    if (existingFrameIndex == 0 && existingFramePts == 0) {
+        // Has not started playing yet
         latency = frames * nsPerFrame_;
         return AUDIO_OK;
+    }
+
+    if (existingFrameIndex == 0 || existingFramePts == 0 || frames == 0) {
+        WVLOG_E("Failed to get latency");
+        return AUDIO_ERROR;
     }
 
     int64_t frameIndexDelta = frames - existingFrameIndex;
