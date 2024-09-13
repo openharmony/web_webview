@@ -21,6 +21,10 @@
 #include <unordered_map>
 #include <vector>
 #include "system_properties_adapter.h"
+#include <database/preferences/oh_preferences_err_code.h>
+#include <database/preferences/oh_preferences.h>
+#include <database/preferences/oh_preferences_option.h>
+#include <database/preferences/oh_preferences_value.h>
 
 namespace OHOS::NWeb {
 
@@ -80,6 +84,12 @@ private:
 
     SystemPropertiesAdapterImpl& operator=(const SystemPropertiesAdapterImpl&) = delete;
 
+    void InitPreferences();
+    bool GetBoolParameter(const char *key, bool defaultValue);
+    int GetIntParameter(const char *key, int defaultValue);
+    std::string GetStringParameter(const char *key, std::string defaultValue);
+    void SetStringParameter(const char *key, const char *value);
+
     void AddAllSysPropWatchers();
 
     void RemoveAllSysPropWatchers();
@@ -90,6 +100,9 @@ private:
 
     std::unordered_map<PropertiesKey, std::vector<SystemPropertiesObserver*>> sysPropObserver_;
     std::unordered_map<PropertiesKey, std::shared_mutex> sysPropMutex_;
+
+    OH_PreferencesOption* preferencesOption_ = nullptr;
+    OH_Preferences* preferences_ = nullptr;
 };
 
 }  // namespace OHOS::NWeb

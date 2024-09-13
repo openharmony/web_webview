@@ -14,19 +14,12 @@
  */
 
 #include "system_properties_adapter_impl.h"
-#ifdef WEBVIEW_ONLY
-#include <securec.h>
-#include "init_param.h"
-#include "parameter.h"
-#include "parameters.h"
-#include "sysversion.h"
-#include "nweb_config_helper.h"
-#else
 #include <adapter_base.h>
-#endif
+
 #include "nweb_log.h"
 #include "hitrace_adapter_impl.h"
 #include <deviceinfo.h>
+#include <AbilityKit/ability_runtime/application_context.h>
 
 namespace OHOS::NWeb {
 const std::string FACTORY_CONFIG_VALUE = "factoryConfig";
@@ -39,14 +32,38 @@ const std::string FACTORY_LEVEL_DEFAULT = "1";
 
 const std::string PROP_RENDER_DUMP = "web.render.dump";
 const std::string PROP_DEBUG_TRACE = "web.debug.trace";
+const int MAX_SIZE_OF_MAP = 2; // Currently, only 2 instructions need to be registered
 const std::unordered_map<std::string, PropertiesKey> PROP_KEY_MAP = {
     {PROP_RENDER_DUMP, PropertiesKey::PROP_RENDER_DUMP},
     {PROP_DEBUG_TRACE, PropertiesKey::PROP_DEBUG_TRACE}};
 
-void SystemPropertiesChangeCallback(const char* key, const char* value, void* context) 
+void SystemPropertiesChangeCallback(void *context, const OH_PreferencesPair *pairs, uint32_t count)
 {
-    WVLOG_D("sys prop change key: %{public}s ,value : %{public}s ", key,  value);
-    SystemPropertiesAdapterImpl::GetInstance().DispatchAllWatcherInfo(key, value);
+    for (int i = 0; i < count; i++) {
+        const char* key = OH_PreferencesPair_GetKey(pairs, i);
+        if (key == nullptr) {
+            WVLOG_E("sys prop change, key is nullptr");
+            continue;
+        }
+        const OH_PreferencesValue *object = OH_PreferencesPair_GetPreferencesValue(pairs, i);
+        if (object == nullptr) {
+            WVLOG_E("sys prop change, failed to get preferences value");
+            continue;
+        }
+        Preference_ValueType type = OH_PreferencesValue_GetValueType(object);
+        WVLOG_D("sys prop change, key: %{public}s, type: %{public}d ", key,  type);
+        if (type == PREFERENCE_TYPE_STRING) {
+            char* value = nullptr;
+            uint32_t valueLen;
+            int ret = OH_PreferencesValue_GetString(object, &value, &valueLen);
+            if (ret != PREFERENCES_OK) {
+                WVLOG_E("failed to get preferences string");
+                continue;
+            }
+            WVLOG_D("sys prop change key: %{public}s ,value : %{public}s ", key,  value);
+            SystemPropertiesAdapterImpl::GetInstance().DispatchAllWatcherInfo(key, value);
+        }
+    }
 }
 
 // static
@@ -80,21 +97,64 @@ SystemPropertiesAdapterImpl::SystemPropertiesAdapterImpl()
     }
     softwareMajorVersion_ = versionPartOne;
     softwareSeniorVersion_ = versionPartTwo;
+    InitPreferences();
     AddAllSysPropWatchers();
 }
 
 SystemPropertiesAdapterImpl::~SystemPropertiesAdapterImpl()
 {
     RemoveAllSysPropWatchers();
+    if (preferences_ != nullptr) {
+        OH_Preferences_Close(preferences_);
+    }
+    
+    if (preferencesOption_ != nullptr) {
+        OH_PreferencesOption_Destroy(preferencesOption_);
+    }
+}
+
+void SystemPropertiesAdapterImpl::InitPreferences()
+{
+    constexpr int bundleSize = 129; // bundle Name max size 128, + 1 = 129 
+    char bundleNmae[bundleSize] = { 0 };
+    int32_t bundeleLength = 0;
+    AbilityRuntime_ErrorCode code =
+        OH_AbilityRuntime_ApplicationContextGetBundleName(bundleNmae, bundleSize, &bundeleLength);
+    if (code != ABILITY_RUNTIME_ERROR_CODE_NO_ERROR) {
+        WVLOG_E("failed to get BundleName");
+        return;
+    }
+
+    preferencesOption_ = OH_PreferencesOption_Create();
+    if (preferencesOption_ == nullptr) {
+        WVLOG_E("failed to create preferences option");
+        return;
+    }
+    int ret = OH_PreferencesOption_SetFileName(preferencesOption_, "perferences");
+    if (ret != PREFERENCES_OK) {
+        WVLOG_E("failed to set file path");
+        return;
+    }
+    ret = OH_PreferencesOption_SetBundleName(preferencesOption_, bundleNmae);
+    if (ret != PREFERENCES_OK) {
+        WVLOG_E("failed to set bundle name");
+        return;
+    }
+
+    int errCode;
+    preferences_ = OH_Preferences_Open(preferencesOption_, &errCode);
+    if (errCode != PREFERENCES_OK) {
+        preferences_ = nullptr;
+        WVLOG_E("failed to open preferences");
+        return;
+    }
+    WVLOG_D("open preferences, bundle name %{public}s", bundleNmae);
+    // If necessary, initialize the configuration here.
 }
 
 bool SystemPropertiesAdapterImpl::GetResourceUseHapPathEnable()
 {
-#ifdef WEBVIEW_ONLY
-    return OHOS::system::GetBoolParameter("compress", false);
-#else
-    return false;
-#endif
+    return GetBoolParameter("compress", false);
 }
 
 std::string SystemPropertiesAdapterImpl::GetDeviceInfoProductModel()
@@ -109,11 +169,7 @@ std::string SystemPropertiesAdapterImpl::GetDeviceInfoBrand()
 
 int32_t SystemPropertiesAdapterImpl::GetDeviceInfoMajorVersion()
 {
-#ifdef WEBVIEW_ONLY
-    return GetMajorVersion();
-#else
-    return 0;
-#endif
+    return softwareMajorVersion_;
 }
 
 ProductDeviceType SystemPropertiesAdapterImpl::GetProductDeviceType()
@@ -161,26 +217,13 @@ ProductDeviceType SystemPropertiesAdapterImpl::AnalysisFromConfig()
 
 bool SystemPropertiesAdapterImpl::GetWebOptimizationValue()
 {
-#ifdef WEBVIEW_ONLY
-    return OHOS::system::GetBoolParameter("web.optimization", true);
-#else
-    return true;
-#endif
+    return GetBoolParameter("web.optimization", true);
 }
 
 bool SystemPropertiesAdapterImpl::IsAdvancedSecurityMode()
 {
-#ifdef WEBVIEW_ONLY
-    char buffer[32] = { 0 };
-    uint32_t buffSize = sizeof(buffer);
-
-    if (SystemGetParameter("ohos.boot.advsecmode.state", buffer, &buffSize) == 0 && strcmp(buffer, "0") != 0) {
-        return true;
-    }
+    // Only open to system applications, return false
     return false;
-#else
-    return false;
-#endif
 }
 
 std::string SystemPropertiesAdapterImpl::GetUserAgentOSName()
@@ -200,38 +243,22 @@ int32_t SystemPropertiesAdapterImpl::GetSoftwareSeniorVersion()
 
 std::string SystemPropertiesAdapterImpl::GetNetlogMode()
 {
-#ifdef WEBVIEW_ONLY
-    return OHOS::system::GetParameter("web.debug.netlog", "");
-#else
-    return "";
-#endif
+    return GetStringParameter("web.debug.netlog", "");
 }
 
 bool SystemPropertiesAdapterImpl::GetTraceDebugEnable()
 {
-#ifdef WEBVIEW_ONLY
-    return OHOS::system::GetBoolParameter("web.debug.trace", false);
-#else
-    return false;
-#endif
+    return GetBoolParameter("web.debug.trace", false);
 }
 
 std::string SystemPropertiesAdapterImpl::GetSiteIsolationMode()
 {
-#ifdef WEBVIEW_ONLY
-    return OHOS::system::GetParameter("web.debug.strictsiteIsolation.enable", "");
-#else
-    return "";
-#endif
+    return GetStringParameter("web.debug.strictsiteIsolation.enable", "");
 }
 
 int32_t SystemPropertiesAdapterImpl::GetFlowBufMaxFd()
 {
-#ifdef WEBVIEW_ONLY
-    return OHOS::system::GetIntParameter("web.flowbuffer.maxfd", -1);
-#else
-    return -1;
-#endif
+    return GetIntParameter("web.flowbuffer.maxfd", -1);
 }
 
 bool SystemPropertiesAdapterImpl::GetOOPGPUEnable()
@@ -239,15 +266,11 @@ bool SystemPropertiesAdapterImpl::GetOOPGPUEnable()
     if (GetDeviceInfoProductModel() == "emulator") {
         return false;
     }
-#ifdef WEBVIEW_ONLY
-    if (OHOS::system::GetParameter("web.oop.gpu", "") == "true") {
+    if (GetStringParameter("web.oop.gpu", "") == "true") {
         return true;
     }
-    
+
     return false;
-#else
-    return true;
-#endif
 }
 
 std::string SystemPropertiesAdapterImpl::GetOOPGPUStatus()
@@ -255,50 +278,79 @@ std::string SystemPropertiesAdapterImpl::GetOOPGPUStatus()
     if (GetDeviceInfoProductModel() == "emulator") {
         return "false";
     }
-#ifdef WEBVIEW_ONLY
-    return OHOS::system::GetParameter("web.oop.gpu", "");
-#else
-    return "";
-#endif
+    return GetStringParameter("web.oop.gpu", "");
 }
 
 void SystemPropertiesAdapterImpl::SetOOPGPUDisable()
 {
-#ifdef WEBVIEW_ONLY
-    if (OHOS::system::GetParameter("web.oop.gpu", "") == "None") {
-        OHOS::system::SetParameter("web.oop.gpu", "false");
+    if (GetStringParameter("web.oop.gpu", "") == "None") {
+        SetStringParameter("web.oop.gpu", "false");
     }
-#else
-    WVLOG_E("could not set any parameter");
-#endif
     return;
 }
 
 void SystemPropertiesAdapterImpl::AddAllSysPropWatchers()
 {
-#ifdef WEBVIEW_ONLY
-    for (auto &item : PROP_KEY_MAP) {
-        auto errNo =  WatchParameter(item.first.c_str(), SystemPropertiesChangeCallback, nullptr);
-        if (errNo == 0) {
-            sysPropObserver_[item.second];
-            sysPropMutex_[item.second];
-        } else {
-            WVLOG_E("add watch error result: %{public}d", errNo);
-        }
+    if (preferences_ == nullptr) {
+        WVLOG_E("preferences is null");
+        return;
     }
-#endif
+    
+    int num = PROP_KEY_MAP.size();
+    if (num > MAX_SIZE_OF_MAP) {
+        WVLOG_E("The size of the map is abnormal");
+        return;
+    }
+    const char** keys = const_cast<const char**>(new char*[num]);
+    int i = 0;
+    for (auto &item : PROP_KEY_MAP) {
+        keys[i] = item.first.c_str();
+        i++;
+    }
+    int ret = OH_Preferences_RegisterDataObserver(preferences_, nullptr,
+        SystemPropertiesChangeCallback, keys, num);
+    delete[] keys;
+    if (ret != PREFERENCES_OK) {
+        WVLOG_E("add watch error result: %{public}d", ret);
+        return;
+    }
+    
+    for (auto &item : PROP_KEY_MAP) {
+        sysPropObserver_[item.second];
+        sysPropMutex_[item.second];
+    }
 }
 
 void SystemPropertiesAdapterImpl::RemoveAllSysPropWatchers()
 {
-#ifdef WEBVIEW_ONLY
-    for (auto &item : PROP_KEY_MAP) {
-        auto errNo = RemoveParameterWatcher(item.first.c_str(), nullptr, nullptr);
-        if (errNo != 0) {
-            WVLOG_E("remove watch error result: %{public}d", errNo);
-        }
+    if (preferences_ == nullptr) {
+        WVLOG_E("preferences is null");
+        return;
     }
-#endif
+    
+    int num = PROP_KEY_MAP.size();
+    if (num > MAX_SIZE_OF_MAP) {
+        WVLOG_E("The size of the map is abnormal");
+        return;
+    }
+    const char** keys = const_cast<const char**>(new char*[num]);
+    int i = 0;
+    for (auto &item : PROP_KEY_MAP) {
+        keys[i] = item.first.c_str();
+        i++;
+    }
+    int ret = OH_Preferences_UnregisterDataObserver(preferences_, nullptr,
+        SystemPropertiesChangeCallback, keys, num);
+    delete[] keys;
+    if (ret != PREFERENCES_OK) {
+        WVLOG_E("remove watch error result: %{public}d", ret);
+        return;
+    }
+    
+    for (auto &item : PROP_KEY_MAP) {
+        sysPropObserver_[item.second];
+        sysPropMutex_[item.second];
+    }
 }
 
 void SystemPropertiesAdapterImpl::DispatchAllWatcherInfo(const char* key, const char* value)
@@ -365,11 +417,109 @@ void SystemPropertiesAdapterImpl::DetachSysPropObserver(PropertiesKey key, Syste
 
 bool SystemPropertiesAdapterImpl::GetBoolParameter(const std::string& key, bool defaultValue)
 {
-#ifdef WEBVIEW_ONLY
-    return OHOS::system::GetBoolParameter(key, defaultValue);
-#else
-    return defaultValue;
-#endif
+    return GetBoolParameter(key.c_str(), defaultValue);
+}
+
+bool SystemPropertiesAdapterImpl::GetBoolParameter(const char *key, bool defaultValue)
+{
+    if (preferences_ == nullptr) {
+        WVLOG_E("preferences is null");
+        return defaultValue;
+    }
+
+    if (key == nullptr) {
+        WVLOG_E("key is nullptr");
+        return defaultValue;
+    }
+
+    bool value = defaultValue;
+    int ret = OH_Preferences_GetBool(preferences_, key, &value);
+    if (ret == PREFERENCES_ERROR_KEY_NOT_FOUND) {
+        WVLOG_I("the key does not exist, key %{public}s", key);
+    } else if (ret != PREFERENCES_OK) {
+        WVLOG_E("failed to get bool, ret %{public}d", ret);
+    }
+    
+    WVLOG_D("get bool param, key:%{public}s, value:%{public}d", key, value);
+    return value;
+}
+
+int SystemPropertiesAdapterImpl::GetIntParameter(const char *key, int defaultValue)
+{
+    if (preferences_ == nullptr) {
+        WVLOG_E("preferences is null");
+        return defaultValue;
+    }
+
+    if (key == nullptr) {
+        WVLOG_E("key is nullptr");
+        return defaultValue;
+    }
+
+    int value = defaultValue;
+    int ret = OH_Preferences_GetInt(preferences_, key, &value);
+    if (ret == PREFERENCES_ERROR_KEY_NOT_FOUND) {
+        WVLOG_I("the key does not exist");
+    } else if (ret != PREFERENCES_OK) {
+        WVLOG_E("failed to get int, ret %{public}d", ret);
+    }
+    
+    WVLOG_D("get bool param, key:%{public}s, value:%{public}d", key, value);
+    return value;
+}
+
+std::string SystemPropertiesAdapterImpl::GetStringParameter(const char *key, std::string defaultValue)
+{
+    if (preferences_ == nullptr) {
+        WVLOG_E("preferences is null");
+        return defaultValue;
+    }
+
+    if (key == nullptr) {
+        WVLOG_E("key is nullptr");
+        return defaultValue;
+    }
+
+    char* value = nullptr;
+    uint32_t size = 0;
+    int ret = OH_Preferences_GetString(preferences_, key, &value, &size);
+    if (ret == PREFERENCES_ERROR_KEY_NOT_FOUND) {
+        WVLOG_I("the key does not exist");
+        return defaultValue;
+    } else if (ret != PREFERENCES_OK) {
+        WVLOG_E("failed to get string, ret %{public}d", ret);
+        return defaultValue;
+    }
+
+    if (value == nullptr) {
+        WVLOG_E("failed to get string, value is nullptr");
+        return defaultValue;
+    }
+
+    WVLOG_D("get bool param, key:%{public}s, value:%{public}s", key, value);
+    std::string str = value;
+    OH_Preferences_FreeString(value);
+    return str;
+}
+
+void SystemPropertiesAdapterImpl::SetStringParameter(const char *key, const char *value)
+{
+    if (preferences_ == nullptr) {
+        WVLOG_E("preferences is null");
+        return;
+    }
+
+    if (key == nullptr || value == nullptr) {
+        WVLOG_E("param is nullptr");
+        return;
+    }
+
+    int ret = OH_Preferences_SetString(preferences_, key, value);
+    if (ret != PREFERENCES_OK) {
+        WVLOG_E("failed to set string, ret %{public}d", ret);
+        return;
+    }
+    WVLOG_D("set string param, key:%{public}s, value:%{public}s", key, value);
 }
 
 std::vector<FrameRateSetting> SystemPropertiesAdapterImpl::GetLTPOConfig(const std::string& settingName)
