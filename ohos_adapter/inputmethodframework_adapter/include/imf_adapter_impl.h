@@ -87,7 +87,6 @@ private:
     const std::string PREVIEW_TEXT_STYLE_KEY = "previewTextStyle";
     const std::string PREVIEW_TEXT_STYLE_UNDERLINE = "underline";
     const std::string AUTO_FILL_PARAMS_USERNAME = "com.autofill.params.userName";
-    const std::string AUTO_FILL_PARAMS_NEWPASSWORD = "com.autofill.params.newPassword";
     const std::string AUTO_FILL_PARAMS_OTHERACCOUNT = "com.autofill.params.otherAccount";
 };
 
