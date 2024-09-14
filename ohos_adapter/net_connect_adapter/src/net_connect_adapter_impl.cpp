@@ -172,6 +172,7 @@ int32_t NetConnectAdapterImpl::RegisterNetConnCallback(std::shared_ptr<NetConnCa
     NetConn_NetConnCallback netConnCallback;
     InitNetConnCallback(&netConnCallback);
 
+    std::lock_guard<std::mutex> lock(mutex_);
     int32_t ret = OH_NetConn_RegisterDefaultNetConnCallback(&netConnCallback, &uid);
     if (ret != 0) {
         WVLOG_E("register NetConnCallback failed, ret = %{public}d.", ret);
