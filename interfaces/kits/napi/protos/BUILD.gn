@@ -23,7 +23,7 @@ action("proto_gen") {
 
   args = sources
   args += [
-    "--protoc=clang_${host_cpu}/thirdparty/protobuf/protoc",
+    "--protoc=clang_x64/thirdparty/protobuf/protoc",
     "--cpp-out=$output_dir",
     "--protos-dir=$proto_in_dir",
   ]
