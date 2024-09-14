@@ -43,6 +43,7 @@ bool ArkWebBridgeHelper::LoadLibFile(int mode, const std::string& libFilePath, b
     return true;
 }
 
+#if !defined(OHOS_WEBCORE_GLUE)
 bool ArkWebBridgeHelper::LoadLibFile(int mode, const std::string& libNsName, const std::string& libDirPath,
     const std::string& libFileName, bool isPrintLog)
 {
@@ -69,6 +70,7 @@ bool ArkWebBridgeHelper::LoadLibFile(int mode, const std::string& libNsName, con
     libFileHandler_ = libFileHandler;
     return true;
 }
+#endif
 
 void ArkWebBridgeHelper::UnloadLibFile()
 {
