@@ -186,7 +186,7 @@ bool MediaAVSessionAdapterImpl::RegistCallback(
         AVSession_ErrCode ret;
         callbackAdapter_ = callbackAdapter;
         for (AVSession_ControlCommand command = CONTROL_CMD_PLAY;
-            command <= CONTROL_CMD_PLAY_PREVIOUS;
+            command <= CONTROL_CMD_STOP;
             command = (AVSession_ControlCommand)(command + 1)) {
             ret = OH_AVSession_RegisterCommandCallback(avSession_,
                 command, &MediaAVSessionAdapterImpl::AVSessionOnCommandCallback,
