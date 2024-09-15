@@ -529,6 +529,20 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetPerfConfig_001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: NWebHelper_ParseNWebLTPOConfig_001
+ * @tc.desc: ParseNWebLTPOConfig.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_ParseNWebLTPOConfig_001, TestSize.Level1)
+{
+    EXPECT_TRUE(NWebConfigHelper::Instance().ltpoConfig_.empty());
+    std::shared_ptr<NWebEngineInitArgsImpl> initArgs = std::make_shared<NWebEngineInitArgsImpl>();
+    NWebAdapterHelper::Instance().ParseConfig(initArgs);
+    EXPECT_FALSE(NWebConfigHelper::Instance().ltpoConfig_.empty());
+}
+
+/**
  * @tc.name: NWebHelper_SetHostIP_001
  * @tc.desc: SetHostIP.
  * @tc.type: FUNC
