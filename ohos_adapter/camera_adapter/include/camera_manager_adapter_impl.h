@@ -119,6 +119,7 @@ public:
 
     std::shared_ptr<CameraStatusCallbackAdapter> GetStatusCallback();
 
+    std::shared_ptr<CameraRotationInfoAdapter> GetRotationInfo();
 private:
     VideoTransportType GetCameraTransportType(Camera_Connection connectType);
     VideoFacingModeAdapter GetCameraFacingMode(Camera_Position position);
@@ -162,6 +163,8 @@ private:
     OH_NativeImage *nativeImage_ = nullptr;
     std::shared_ptr<CameraBufferListenerAdapter> bufferListener_ = nullptr;
     std::shared_ptr<CameraStatusCallbackAdapter> statusCallback_ = nullptr;
+    uint32_t cameraOrientation_ = 0;
+    Camera_Position cameraPosition_ = CAMERA_POSITION_UNSPECIFIED;
 };
 
 
