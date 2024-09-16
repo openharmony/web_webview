@@ -1012,12 +1012,6 @@ public:
     void OnCreateNativeMediaPlayer(std::shared_ptr<OHOS::NWeb::NWebCreateNativeMediaPlayerCallback> callback) override;
 
     /**
-     * @brief Web drag resize optimize.
-     */
-    /*--ark web()--*/
-    void DragResize(uint32_t width, uint32_t height, uint32_t pre_height, uint32_t pre_width) override;
-
-    /**
      * @brief Send touchpad fling event.
      *
      * @param x location of x.
