@@ -999,6 +999,11 @@ public:
 
     void OnCreateNativeMediaPlayer(ArkWebRefPtr<ArkWebCreateNativeMediaPlayerCallback> callback) override;
 
+    /**
+     * @brief Web drag resize optimize.
+     */
+    virtual void DragResize(uint32_t width, uint32_t height, uint32_t pre_height, uint32_t pre_width) override;
+
     void OnTouchCancelById(int32_t id, double x, double y, bool from_overlay) override;
 
     /**
