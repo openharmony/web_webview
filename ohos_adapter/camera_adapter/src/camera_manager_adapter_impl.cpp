@@ -155,7 +155,6 @@ void OnFrameAvailable(void *context)
     cameraManagerAdapterImpl->GetBufferListener()->OnBufferAvailable(
         surfaceAdapter, std::move(bufferAdapter), std::move(rotationInfo));
 }
-} // namespace
 
 int32_t GetDisplayRotation()
 {
@@ -186,6 +185,7 @@ int32_t GetDisplayRotation()
         }
     }
 }
+} // namespace
 
 std::shared_ptr<CameraRotationInfoAdapter> CameraManagerAdapterImpl::GetRotationInfo()
 {
