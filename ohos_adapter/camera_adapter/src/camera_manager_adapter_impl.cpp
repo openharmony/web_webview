@@ -623,12 +623,10 @@ int32_t CameraManagerAdapterImpl::InitPreviewOutput(const std::shared_ptr<VideoC
 {
     if (!inputInitedFlag_) {
         WVLOG_E("input is not inited");
-        ReportErrorSysEvent(CameraErrorType::INPUT_NOT_INIT);
         return CAMERA_ERROR;
     }
     if (cameraManager_ == nullptr) {
         WVLOG_E("camera manager is null");
-        ReportErrorSysEvent(CameraErrorType::CAMERA_MANAGER_IS_NULL);
         return CAMERA_ERROR;
     }
     if (previewOutput_ == nullptr) {
@@ -638,6 +636,7 @@ int32_t CameraManagerAdapterImpl::InitPreviewOutput(const std::shared_ptr<VideoC
             WVLOG_E("NativeImage create failed");
             return CAMERA_ERROR;
         }
+        OH_ConsumerSurface_SetDefaultUsage(nativeImage_, NATIVEBUFFER_USAGE_CPU_READ);
         OHNativeWindow *window = OH_NativeImage_AcquireNativeWindow(nativeImage_);
         if (window == nullptr) {
             WVLOG_E("NativeImage acquire window failed");
