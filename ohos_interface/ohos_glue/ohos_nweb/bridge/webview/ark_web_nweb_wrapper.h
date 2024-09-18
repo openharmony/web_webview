@@ -1268,16 +1268,6 @@ public:
     void FillAutofillData(std::shared_ptr<OHOS::NWeb::NWebMessage> data) override;
 
     /**
-     * Execute an accessibility action on an accessibility node in the browser.
-     * @param accessibilityId The id of the accessibility node.
-     * @param action The action to be performed on the accessibility node.
-     * @param actionArguments Data related to the current action.
-     */
-    /*--ark web()--*/
-    void PerformAction(int64_t accessibilityId, uint32_t action,
-        const std::map<std::string, std::string>& actionArguments) override;
-
-    /**
      * Scroll to the position.
      *
      * @param x horizontal coordinate.

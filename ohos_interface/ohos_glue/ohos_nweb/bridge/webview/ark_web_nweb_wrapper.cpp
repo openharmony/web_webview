@@ -1236,15 +1236,6 @@ void ArkWebNWebWrapper::SetPathAllowingUniversalAccess(
     ArkWebStringStructRelease(stErrorPath);
 }
 
-void ArkWebNWebWrapper::PerformAction(int64_t accessibility_id, uint32_t action,
-    const std::map<std::string, std::string>& actionArguments)
-{
-    ArkWebStringMap stArguments = ArkWebStringMapClassToStruct(actionArguments);
-    ark_web_nweb_->PerformAction(accessibility_id, action, stArguments);
-
-    ArkWebStringMapStructRelease(stArguments);
-}
-
 void ArkWebNWebWrapper::ScrollToWithAnime(float x, float y, int32_t duration)
 {
     ark_web_nweb_->ScrollToWithAnime(x, y, duration);
