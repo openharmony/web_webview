@@ -653,6 +653,9 @@ public:
                int frame_routing_id,
                int width,
                int height) override;
+
+    bool OnColorChooserShow(uint32_t initialColor,
+        std::shared_ptr<OHOS::NWeb::NWebColorChooserCallback> callback) override;
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };

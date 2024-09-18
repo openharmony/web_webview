@@ -17,6 +17,7 @@
 
 #include "ohos_nweb/bridge/ark_web_access_request_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_app_link_callback_wrapper.h"
+#include "ohos_nweb/bridge/ark_web_color_chooser_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_console_log_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_context_menu_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_context_menu_params_wrapper.h"
@@ -1011,5 +1012,15 @@ void ArkWebHandlerImpl::OnPip(int status,
 {
     nweb_handler_->OnPip(status, delegate_id, child_id,
                          frame_routing_id, width, height);
+}
+
+bool ArkWebHandlerImpl::OnColorChooserShow(uint32_t initialColor, ArkWebRefPtr<ArkWebColorChooserCallback> callback)
+{
+    if (CHECK_REF_PTR_IS_NULL(callback)) {
+        return nweb_handler_->OnColorChooserShow(initialColor, nullptr);
+    }
+
+    return nweb_handler_->OnColorChooserShow(
+        initialColor, std::make_shared<ArkWebColorChooserCallbackWrapper>(callback));
 }
 } // namespace OHOS::ArkWeb
