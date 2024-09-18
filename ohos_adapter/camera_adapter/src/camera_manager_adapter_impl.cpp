@@ -15,6 +15,8 @@
 
 #include "camera_manager_adapter_impl.h"
 #include <unordered_map>
+#include <ohcamera/camera_device.h>
+#include <window_manager/oh_display_manager.h>
 
 #include "camera_rotation_info_adapter_impl.h"
 #include "format_adapter_impl.h"
@@ -110,6 +112,7 @@ const int32_t ROTATION_0 = 0;
 const int32_t ROTATION_90 = 90;
 const int32_t ROTATION_180 = 180;
 const int32_t ROTATION_270 = 270;
+const int32_t ROTATION_FULL = 360;
 
 std::shared_ptr<CameraRotationInfoAdapter> FillRotationInfo(
     int roration, bool isFlipX, bool isFlipY)
@@ -123,51 +126,6 @@ std::shared_ptr<CameraRotationInfoAdapter> FillRotationInfo(
     rotationInfo->SetIsFlipX(isFlipX);
     rotationInfo->SetIsFlipY(isFlipY);
     return rotationInfo;
-}
-
-std::shared_ptr<CameraRotationInfoAdapter> GetRotationInfo(int32_t transform)
-{
-    switch (transform) {
-        case NATIVEBUFFER_ROTATE_NONE: {
-            return FillRotationInfo(ROTATION_0, false, false);
-        }
-        case NATIVEBUFFER_ROTATE_90: {
-            return FillRotationInfo(ROTATION_90, false, false);
-        }
-        case NATIVEBUFFER_ROTATE_180: {
-            return FillRotationInfo(ROTATION_180, false, false);
-        }
-        case NATIVEBUFFER_ROTATE_270: {
-            return FillRotationInfo(ROTATION_270, false, false);
-        }
-        case NATIVEBUFFER_FLIP_H: {
-            return FillRotationInfo(ROTATION_0, false, true);
-        }
-        case NATIVEBUFFER_FLIP_V: {
-            return FillRotationInfo(ROTATION_0, true, false);
-        }
-        case NATIVEBUFFER_FLIP_H_ROT90: {
-            return FillRotationInfo(ROTATION_90, false, true);
-        }
-        case NATIVEBUFFER_FLIP_V_ROT90: {
-            return FillRotationInfo(ROTATION_90, true, false);
-        }
-        case NATIVEBUFFER_FLIP_H_ROT180: {
-            return FillRotationInfo(ROTATION_180, false, true);
-        }
-        case NATIVEBUFFER_FLIP_V_ROT180: {
-            return FillRotationInfo(ROTATION_180, true, false);
-        }
-        case NATIVEBUFFER_FLIP_H_ROT270: {
-            return FillRotationInfo(ROTATION_270, false, true);
-        }
-        case NATIVEBUFFER_FLIP_V_ROT270: {
-            return FillRotationInfo(ROTATION_270, true, false);
-        }
-        default: {
-            return FillRotationInfo(ROTATION_0, false, false);
-        }
-    }
 }
 
 void OnFrameAvailable(void *context)
@@ -187,13 +145,7 @@ void OnFrameAvailable(void *context)
         return;
     }
     WVLOG_D("acquire buffer ret = %{public}d, buffer = %{public}p, fenceFd=%{public}d", result, windowBuffer, fenceFd);
-    int32_t transform = 0;
-    OHNativeWindow *window = OH_NativeImage_AcquireNativeWindow(cameraManagerAdapterImpl->GetNativeImage());
-    result = OH_NativeWindow_NativeWindowHandleOpt(window, GET_TRANSFORM, &transform);
-    if (result != 0) {
-        WVLOG_E("get transform failed");
-    }
-    std::shared_ptr<CameraRotationInfoAdapter> rotationInfo = GetRotationInfo(transform);
+    std::shared_ptr<CameraRotationInfoAdapter> rotationInfo = cameraManagerAdapterImpl->GetRotationInfo();
     auto bufferAdapter = std::make_shared<CameraSurfaceBufferAdapterImpl>(windowBuffer, fenceFd);
     auto surfaceAdapter = std::make_shared<CameraSurfaceAdapterImpl>();
     if (cameraManagerAdapterImpl->GetBufferListener() == nullptr) {
@@ -203,7 +155,68 @@ void OnFrameAvailable(void *context)
     cameraManagerAdapterImpl->GetBufferListener()->OnBufferAvailable(
         surfaceAdapter, std::move(bufferAdapter), std::move(rotationInfo));
 }
+
+int32_t GetDisplayRotation()
+{
+    NativeDisplayManager_Rotation displayRotation;
+    NativeDisplayManager_ErrorCode errCode =
+        OH_NativeDisplayManager_GetDefaultDisplayRotation(&displayRotation);
+    if (errCode != DISPLAY_MANAGER_OK) {
+        WVLOG_E("failed to get DisplayRotation errCode=%{public}d", errCode);
+        return 0;
+    }
+
+    // Camera rotation angle: counterclockwise, screen rotation angle: clockwise
+    switch (displayRotation) {
+        case DISPLAY_MANAGER_ROTATION_0: {
+            return ROTATION_0;
+        }
+        case DISPLAY_MANAGER_ROTATION_90: {
+            return ROTATION_270;
+        }
+        case DISPLAY_MANAGER_ROTATION_180: {
+            return ROTATION_180;
+        }
+        case DISPLAY_MANAGER_ROTATION_270: {
+            return ROTATION_90;
+        }
+        default: {
+            return ROTATION_0;
+        }
+    }
+}
 } // namespace
+
+std::shared_ptr<CameraRotationInfoAdapter> CameraManagerAdapterImpl::GetRotationInfo()
+{
+    int32_t displayRotation = GetDisplayRotation();
+    int32_t rotation = 0;
+    if (cameraPosition_ == CAMERA_POSITION_BACK) {
+        // Image correction angle = Camera installation angle - Screen rotation angle
+        rotation = (cameraOrientation_ + ROTATION_FULL - displayRotation) % ROTATION_FULL;
+    }
+
+    if (cameraPosition_ == CAMERA_POSITION_FRONT) {
+        // Image correction angle = Camera installation angle + Screen rotation angle
+        rotation = (cameraOrientation_ + displayRotation) % ROTATION_FULL;
+    }
+
+    // The camera has been flipped. No flipping is required here.
+    return FillRotationInfo(rotation, false, false);
+}
+
+int32_t CameraManagerAdapterImpl::RecordCameraInfo(Camera_Device &camera)
+{
+    Camera_ErrorCode errCode = OH_CameraDevice_GetCameraOrientation(&camera, &cameraOrientation_);
+    if (errCode != Camera_ErrorCode::CAMERA_OK) {
+        WVLOG_E("Failed to get Camera Orientation");
+        ReportErrorSysEvent(CameraErrorType::CREATE_INPUT_FAILED);
+        return CAMERA_ERROR;
+    }
+    cameraPosition_ = camera.cameraPosition;
+    WVLOG_I("camera info orientation=%{public}d  position=%{public}d", cameraOrientation_, cameraPosition_);
+    return CAMERA_OK;
+}
 
 VideoTransportType CameraManagerAdapterImpl::GetCameraTransportType(Camera_Connection connectType)
 {
@@ -579,6 +592,10 @@ int32_t CameraManagerAdapterImpl::InitCameraInput(const std::string& deviceId)
             WVLOG_E("No cameras are available!!!");
             ReportErrorSysEvent(CameraErrorType::GET_CAMERA_OBJ_FAILED);
             return CAMERA_NULL_ERROR;
+        }
+
+        if (RecordCameraInfo(camera) != CAMERA_OK) {
+            return CAMERA_ERROR;
         }
 
         Camera_ErrorCode errCode = OH_CameraManager_CreateCameraInput(cameraManager_, &camera, &cameraInput_);
