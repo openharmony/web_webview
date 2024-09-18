@@ -205,6 +205,19 @@ std::shared_ptr<CameraRotationInfoAdapter> CameraManagerAdapterImpl::GetRotation
     return FillRotationInfo(rotation, false, false);
 }
 
+int32_t CameraManagerAdapterImpl::RecordCameraInfo(Camera_Device &camera)
+{
+    Camera_ErrorCode errCode = OH_CameraDevice_GetCameraOrientation(&camera, &cameraOrientation_);
+    if (errCode != Camera_ErrorCode::CAMERA_OK) {
+        WVLOG_E("Failed to get Camera Orientation");
+        ReportErrorSysEvent(CameraErrorType::CREATE_INPUT_FAILED);
+        return CAMERA_ERROR;
+    }
+    cameraPosition_ = camera.cameraPosition;
+    WVLOG_I("camera info orientation=%{public}d  position=%{public}d", cameraOrientation_, cameraPosition_);
+    return CAMERA_OK;
+}
+
 VideoTransportType CameraManagerAdapterImpl::GetCameraTransportType(Camera_Connection connectType)
 {
     auto item = TRANS_TYPE_MAP.find(connectType);
@@ -581,16 +594,11 @@ int32_t CameraManagerAdapterImpl::InitCameraInput(const std::string& deviceId)
             return CAMERA_NULL_ERROR;
         }
 
-        Camera_ErrorCode errCode = OH_CameraDevice_GetCameraOrientation(&camera, &cameraOrientation_);
-        if (errCode != Camera_ErrorCode::CAMERA_OK) {
-            WVLOG_E("Failed to get Camera Orientation");
-            ReportErrorSysEvent(CameraErrorType::CREATE_INPUT_FAILED);
+        if (RecordCameraInfo(camera) != CAMERA_OK) {
             return CAMERA_ERROR;
         }
-        cameraPosition_ = camera.cameraPosition;
-        WVLOG_I("camera info orientation=%{public}d  position=%{public}d", cameraOrientation_, cameraPosition_);
 
-        errCode = OH_CameraManager_CreateCameraInput(cameraManager_, &camera, &cameraInput_);
+        Camera_ErrorCode errCode = OH_CameraManager_CreateCameraInput(cameraManager_, &camera, &cameraInput_);
         if (errCode != Camera_ErrorCode::CAMERA_OK || cameraInput_ == nullptr) {
             WVLOG_E("Failed to create CameraInput");
             ReportErrorSysEvent(CameraErrorType::CREATE_INPUT_FAILED);

@@ -145,6 +145,7 @@ private:
     void ReportErrorSysEvent(CameraErrorType errorType);
     bool HandleDeviceDisc(std::shared_ptr<VideoDeviceDescriptorAdapterImpl> deviceDisc,
         Camera_Device& camera, Camera_OutputCapability *outputCapability);
+    int32_t RecordCameraInfo(Camera_Device &camera);
     Camera_Manager *cameraManager_ = nullptr;
     Camera_CaptureSession *captureSession_ = nullptr;
     Camera_Input *cameraInput_ = nullptr;
