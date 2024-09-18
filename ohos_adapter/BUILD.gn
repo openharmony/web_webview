@@ -92,8 +92,55 @@ shared_library("ohos_adapter_napi") {
   ]
 }
 
-#
 shared_library("nweb_ohos_adapter") {
+  public_deps = [
+    ":adapter_source"
+  ]
+}
+
+config("adapter_source_include_dirs") {
+  include_dirs = [
+    "aafwk_adapter/include",
+    "access_token_adapter/include",
+    "audio_adapter/include",
+    "battery_mgr_adapter/include",
+    "camera_adapter/include",
+    "cert_mgr_adapter/include",
+    "utils/include",
+    "datashare_adapter/include",
+    "date_time_format_adapter/include",
+    "display_manager_adapter/include",
+    "distributeddatamgr_adapter/webdatabase/include",
+    "enterprise_device_management_adapter/include",
+    "event_handler_adapter/include",
+    "flowbuffer_adapter/include",
+    "graphic_adapter/include",
+    "hiviewdfx_adapter/include",
+    "inputmethodframework_adapter/include",
+    "keystore_adapter/include",
+    "location_adapter/include",
+    "media_adapter/include",
+    "multimodalinput_adapter/include",
+    "net_connect_adapter/include",
+    "net_proxy_adapter/include",
+    "ohos_adapter_helper/include",
+    "ohos_image_adapter/include",
+    "ohos_init_web_adapter/include",
+    "ohos_resource_adapter/include",
+    "pasteboard_adapter/include",
+    "power_mgr_adapter/include",
+    "print_manager_adapter/include",
+    "screen_capture_adapter/include",
+    "soc_perf_adapter/include",
+    "system_properties_adapter/include",
+    "sensor_adapter/include",
+    "//third_party/jsoncpp/source/include/",
+    "//third_party/zlib/",
+    "//third_party/zlib/contrib/minizip"
+  ]
+}
+
+component("adapter_source") {
 #  branch_protector_ret = "pac_ret"
 #  branch_protector_frt = "bti"
 #
@@ -146,45 +193,6 @@ shared_library("nweb_ohos_adapter") {
 #    "-g3",
 #  ]
 #
-  include_dirs = [
-    "aafwk_adapter/include",
-    "access_token_adapter/include",
-    "audio_adapter/include",
-    "battery_mgr_adapter/include",
-    "camera_adapter/include",
-    "cert_mgr_adapter/include",
-    "utils/include",
-    "datashare_adapter/include",
-    "date_time_format_adapter/include",
-    "display_manager_adapter/include",
-    "distributeddatamgr_adapter/webdatabase/include",
-    "enterprise_device_management_adapter/include",
-    "event_handler_adapter/include",
-    "flowbuffer_adapter/include",
-    "graphic_adapter/include",
-    "hiviewdfx_adapter/include",
-    "inputmethodframework_adapter/include",
-    "keystore_adapter/include",
-    "location_adapter/include",
-    "media_adapter/include",
-    "multimodalinput_adapter/include",
-    "net_connect_adapter/include",
-    "net_proxy_adapter/include",
-    "ohos_adapter_helper/include",
-    "ohos_image_adapter/include",
-    "ohos_init_web_adapter/include",
-    "ohos_resource_adapter/include",
-    "pasteboard_adapter/include",
-    "power_mgr_adapter/include",
-    "print_manager_adapter/include",
-    "screen_capture_adapter/include",
-    "soc_perf_adapter/include",
-    "system_properties_adapter/include",
-    "sensor_adapter/include",
-    "//third_party/jsoncpp/source/include/",
-    "//third_party/zlib/",
-    "//third_party/zlib/contrib/minizip"
-  ]
 
   libs = [
     "image_source",
@@ -235,7 +243,10 @@ shared_library("nweb_ohos_adapter") {
     "ohpreferences",
   ]
 #
-  public_configs = [ ":ohos_adapter_public_interface" ]
+  public_configs = [
+    ":ohos_adapter_public_interface",
+    ":adapter_source_include_dirs"
+  ]
 #
 #  external_deps = [
 #    "ability_base:extractortool",
@@ -436,4 +447,26 @@ shared_library("nweb_ohos_adapter") {
   if(webview_only) {
     defines += ["WEBVIWE_ONLY"]
   }
+}
+
+#################################################
+
+source_set("unittests") {
+  testonly = true
+
+  sources = [
+    "hiviewdfx_adapter/src/hiviewdfx_adapter_unittest.cpp",
+    "media_adapter/src/player_framework_adapter_unittest.cpp",
+    "ohos_image_adapter/src/ohos_image_decoder_adapter_unittest.cpp",
+  ]
+
+  deps = [
+    ":adapter_source",
+    "//testing/gmock",
+    "//testing/gtest",
+  ]
+
+  public_configs = [
+    ":adapter_source_include_dirs"
+  ]
 }

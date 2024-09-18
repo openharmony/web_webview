@@ -92,7 +92,11 @@ group("gn_all") {
     } else {
     }
   } else {
-
+    if (is_ohos) {
+      deps += [
+        "//ohos_adapter/test:ohos_adapter_unittests"
+      ]
+    }
     #ifdef OHOS_NWEB_EX
     if (defined(ohos_nweb_ex) && ohos_nweb_ex) {
     }  # endif // OHOS_NWEB_EX
