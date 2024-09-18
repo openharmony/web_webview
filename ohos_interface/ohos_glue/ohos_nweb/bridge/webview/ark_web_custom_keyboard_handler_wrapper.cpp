@@ -19,23 +19,28 @@
 
 namespace OHOS::ArkWeb {
 
-void ArkWebCustomKeyboardHandlerWrapper::InsertText(const std::string &text) {
+void ArkWebCustomKeyboardHandlerWrapper::InsertText(const std::string& text)
+{
     ark_web_custom_keyboard_handler_->InsertText(ArkWebStringClassToStruct(text));
 }
 
-void ArkWebCustomKeyboardHandlerWrapper::DeleteForward(int32_t length) {
+void ArkWebCustomKeyboardHandlerWrapper::DeleteForward(int32_t length)
+{
     ark_web_custom_keyboard_handler_->DeleteForward(length);
 }
 
-void ArkWebCustomKeyboardHandlerWrapper::DeleteBackward(int32_t length) {
+void ArkWebCustomKeyboardHandlerWrapper::DeleteBackward(int32_t length)
+{
     ark_web_custom_keyboard_handler_->DeleteBackward(length);
 }
 
-void ArkWebCustomKeyboardHandlerWrapper::SendFunctionKey(int32_t key) {
+void ArkWebCustomKeyboardHandlerWrapper::SendFunctionKey(int32_t key)
+{
     ark_web_custom_keyboard_handler_->SendFunctionKey(key);
 }
 
-void ArkWebCustomKeyboardHandlerWrapper::Close() {
+void ArkWebCustomKeyboardHandlerWrapper::Close()
+{
     ark_web_custom_keyboard_handler_->Close();
 }
 
