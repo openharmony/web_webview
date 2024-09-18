@@ -24,7 +24,6 @@
 #include "nweb_log.h"
 #include "ohos_adapter_helper.h"
 
-#define SET_PASTE_DATA_SUCCESS 77987840
 #define FIRST_ELEMENT 0
 
 namespace OHOS::NWeb {
@@ -749,7 +748,7 @@ void PasteBoardClientAdapterImpl::SetPasteData(const PasteRecordVector& data, Co
     auto shareOption = TransitionCopyOption(copyOption);
     ret = OH_UdmfProperty_SetShareOption(uProp, shareOption);
     ret = OH_Pasteboard_SetData(pasteboard_, uData);
-    if (ret != SET_PASTE_DATA_SUCCESS) {
+    if (ret != ERR_OK) {
         WVLOG_E("set paste data failed. error code is : %{public}d", ret);
     }
     OH_UdmfData_Destroy(uData);
