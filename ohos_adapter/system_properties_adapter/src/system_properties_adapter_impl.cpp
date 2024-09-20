@@ -20,6 +20,7 @@
 #include "hitrace_adapter_impl.h"
 #include <deviceinfo.h>
 #include <AbilityKit/ability_runtime/application_context.h>
+#include <dlfcn.h>
 
 namespace OHOS::NWeb {
 const std::string FACTORY_CONFIG_VALUE = "factoryConfig";
@@ -36,6 +37,46 @@ const int MAX_SIZE_OF_MAP = 2; // Currently, only 2 instructions need to be regi
 const std::unordered_map<std::string, PropertiesKey> PROP_KEY_MAP = {
     {PROP_RENDER_DUMP, PropertiesKey::PROP_RENDER_DUMP},
     {PROP_DEBUG_TRACE, PropertiesKey::PROP_DEBUG_TRACE}};
+
+namespace {
+int32_t (*AdvancedSecurityModeGetStateByFeature)(const char *feature, uint32_t featureLen,
+    const char *param, uint32_t paramLen, uint32_t *state) = nullptr;
+
+typedef int32_t (*AdvSecModeGetPtr)(const char *feature, uint32_t featureLen,
+    const char *param, uint32_t paramLen, uint32_t *state);
+
+bool CheckAdvSecMode()
+{
+    constexpr uint32_t invalidMode = 0xffffffff; // invalidMode:0xffffffff
+    static uint32_t mode = invalidMode;
+    if (mode != invalidMode) {
+        WVLOG_I("AdvancedSecurityMode: %{public}d", !!mode);
+        return !!mode;
+    }
+
+    void *hdl = dlopen("/system/lib64/platformsdk/libdsmm_innersdk.z.so", RTLD_LAZY);
+    if (hdl == nullptr) {
+        WVLOG_I("failed to dlopen libdsmm_innersdk");
+        return false;
+    }
+
+    AdvancedSecurityModeGetStateByFeature = (AdvSecModeGetPtr)dlsym(hdl, "AdvancedSecurityModeGetStateByFeature");
+    if (AdvancedSecurityModeGetStateByFeature == nullptr) {
+        WVLOG_I("failed to dlsym AdvancedSecurityModeGetStateByFeature");
+        return false;
+    }
+
+    // returns 0 if success or errcode
+    int32_t ret = AdvancedSecurityModeGetStateByFeature("default", 7, "default", 7, &mode); // len:7
+    if (ret != 0) {
+        WVLOG_I("failed to get  AdvancedSecurityMode");
+        mode = invalidMode;
+        return false;
+    }
+    WVLOG_I("Succeeded in obtaining the AdvancedSecurityMode: %{public}d", !!mode);
+    return !!mode;
+}
+}
 
 void SystemPropertiesChangeCallback(void *context, const OH_PreferencesPair *pairs, uint32_t count)
 {
@@ -222,8 +263,7 @@ bool SystemPropertiesAdapterImpl::GetWebOptimizationValue()
 
 bool SystemPropertiesAdapterImpl::IsAdvancedSecurityMode()
 {
-    // Only open to system applications, return false
-    return false;
+    return CheckAdvSecMode();
 }
 
 std::string SystemPropertiesAdapterImpl::GetUserAgentOSName()
