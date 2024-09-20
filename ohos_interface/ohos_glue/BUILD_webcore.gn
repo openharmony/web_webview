@@ -548,7 +548,7 @@ component("ohos_adapter_glue_source") {
     "ohos_adapter/bridge/ark_imf_adapter_function_key_adapter_wrapper.cpp",
     "ohos_adapter/bridge/ark_imf_adapter_function_key_adapter_wrapper.h",
     "ohos_adapter/bridge/ark_imfadapter_wrapper.cpp",
-    "ohos_adapter/bridge/ark_imfadapter_wrapper.h"
+    "ohos_adapter/bridge/ark_imfadapter_wrapper.h",
     "ohos_adapter/bridge/ark_imf_cursor_info_adapter_impl.cpp",
     "ohos_adapter/bridge/ark_imf_cursor_info_adapter_impl.h",
     "ohos_adapter/bridge/ark_imf_input_attribute_adapter_impl.cpp",
