@@ -1281,11 +1281,6 @@ void ArkWebNWebWrapper::WebSendTouchpadFlingEvent(double x,
     ArkWebBasicVectorStructRelease<ArkWebInt32Vector>(pCodes);
 }
 
-void ArkWebNWebWrapper::SendAccessibilityHoverEvent(int32_t x, int32_t y)
-{
-    ark_web_nweb_->SendAccessibilityHoverEvent(x, y);
-}
-
 void ArkWebNWebWrapper::ResizeVisibleViewport(uint32_t width, uint32_t height, bool isKeyboard)
 {
     ark_web_nweb_->ResizeVisibleViewport(width, height, isKeyboard);
