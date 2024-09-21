@@ -564,6 +564,9 @@ public:
 
     void HideHandleAndQuickMenuIfNecessary(bool hide) override;
 
+    bool OnColorChooserShow(uint32_t initialColor, ArkWebRefPtr<ArkWebColorChooserCallback> callback) override;
+
+    bool OnColorChooserShow(uint32_t initialColor, ArkWebRefPtr<ArkWebColorChooserCallback> callback) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };

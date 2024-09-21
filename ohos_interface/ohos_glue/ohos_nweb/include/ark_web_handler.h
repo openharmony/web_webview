@@ -23,6 +23,7 @@
 #include "ohos_nweb/include/ark_web_context_menu_callback.h"
 #include "ohos_nweb/include/ark_web_context_menu_params.h"
 #include "ohos_nweb/include/ark_web_controller_handler.h"
+#include "ohos_nweb/include/ark_web_color_chooser_callback.h"
 #include "ohos_nweb/include/ark_web_cursor_info.h"
 #include "ohos_nweb/include/ark_web_custom_keyboard_handler.h"
 #include "ohos_nweb/include/ark_web_data_resubmission_callback.h"
@@ -770,6 +771,9 @@ public:
      */
     /*--ark web()--*/
     virtual void HideHandleAndQuickMenuIfNecessary(bool hide) = 0;
+
+    /*--ark web()--*/
+    virtual bool OnColorChooserShow(uint32_t initialColor, ArkWebRefPtr<ArkWebColorChooserCallback> callback) = 0;
 };
 
 } // namespace OHOS::ArkWeb
