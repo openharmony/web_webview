@@ -458,6 +458,8 @@ source_set("unittests") {
     "hiviewdfx_adapter/src/hiviewdfx_adapter_unittest.cpp",
     "media_adapter/src/player_framework_adapter_unittest.cpp",
     "ohos_image_adapter/src/ohos_image_decoder_adapter_unittest.cpp",
+    "event_handler_adapter/src/event_handler_adapter_impl_unittest.cpp",
+    "graphic_adapter/src/graphic_adapter_unittest.cpp",
   ]
 
   deps = [
