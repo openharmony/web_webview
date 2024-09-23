@@ -298,7 +298,6 @@ void OhosImageDecoderAdapterImpl::ReleasePixelMap()
         }
     }
     if (bufferHandle_) {
-        delete bufferHandle_;
         bufferHandle_ = nullptr;
     }
 }
