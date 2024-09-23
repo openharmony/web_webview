@@ -59,7 +59,6 @@ private:
  * @tc.name: EventHandlerAdapterImplTest_EventHandlerAdapterImpl_001.
  * @tc.desc: EventHandlerAdapter adapter unittest.
  * @tc.type: FUNC.
- * @tc.require:
  */
 TEST_F(EventHandlerAdapterImplTest, EventHandlerAdapterImplTest_EventHandlerAdapterImpl_001)
 {
@@ -82,7 +81,6 @@ TEST_F(EventHandlerAdapterImplTest, EventHandlerAdapterImplTest_EventHandlerAdap
  * @tc.name: EventHandlerAdapterImplTest_EventHandlerAdapterImpl_002.
  * @tc.desc: EventHandlerAdapter adapter unittest.
  * @tc.type: FUNC.
- * @tc.require:
  */
 TEST_F(EventHandlerAdapterImplTest, EventHandlerAdapterImplTest_EventHandlerAdapterImpl_002)
 {

@@ -23,6 +23,8 @@
 
 using namespace OHOS;
 
+#define FRAME_TEST 60
+
 namespace OHOS::NWeb {
 static void OnVsyncCallback()
 {}
@@ -45,7 +47,6 @@ void MockNWebVSyncCb(int64_t, void*)
  * @tc.name: GraphicAdapterTest_RequestVsync_001
  * @tc.desc: RequestVsync.
  * @tc.type: FUNC
- * @tc.require:
  */
 TEST_F(GraphicAdapterTest, GraphicAdapterTest_RequestVsync_001)
 {
@@ -62,13 +63,13 @@ TEST_F(GraphicAdapterTest, GraphicAdapterTest_RequestVsync_001)
     int64_t period = adapter.GetVSyncPeriod();
     EXPECT_EQ(period, 0);
     adapter.SetFrameRateLinkerEnable(true);
-    adapter.SetFramePreferredRate(60);
+    adapter.SetFramePreferredRate(FRAME_TEST);
     adapter.SetFrameRateLinkerEnable(true);
     adapter.SetFrameRateLinkerEnable(false);
     adapter.SetFramePreferredRate(0);
     adapter.SetFrameRateLinkerEnable(true);
     adapter.SetFrameRateLinkerEnable(true);
-    adapter.SetFramePreferredRate(60);
+    adapter.SetFramePreferredRate(FRAME_TEST);
     adapter.SetOnVsyncCallback(OnVsyncCallback);
     adapter.SetOnVsyncEndCallback(OnVsyncCallback);
     adapter.OnVsync(1, client);
