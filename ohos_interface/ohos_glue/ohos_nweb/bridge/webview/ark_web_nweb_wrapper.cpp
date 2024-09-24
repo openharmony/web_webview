@@ -1055,6 +1055,11 @@ void ArkWebNWebWrapper::OnCreateNativeMediaPlayer(
     ark_web_nweb_->OnCreateNativeMediaPlayer(new ArkWebCreateNativeMediaPlayerCallbackImpl(callback));
 }
 
+void ArkWebNWebWrapper::DragResize(uint32_t width, uint32_t height, uint32_t pre_height, uint32_t pre_width)
+{
+    ark_web_nweb_->DragResize(width, height, pre_height, pre_width);
+}
+
 void ArkWebNWebWrapper::SendTouchpadFlingEvent(double x, double y, double vx, double vy)
 {
     ark_web_nweb_->SendTouchpadFlingEvent(x, y, vx, vy);
