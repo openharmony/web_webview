@@ -14,6 +14,7 @@
  */
 
 #include "extractor.h"
+#include "nweb_log.h"
 
 #include <fstream>
 #include <sstream>
@@ -21,11 +22,7 @@
 #include "file_path_utils.h"
 #include <algorithm>
 
-#define WVLOG_I(fmt, ...)
-#define WVLOG_E(fmt, ...)
-#define WVLOG_D(fmt, ...)
-#define WVLOG_W(fmt, ...)
-
+using namespace OHOS::NWeb;
 namespace OHOS {
 namespace AdapterUtils {
 namespace {

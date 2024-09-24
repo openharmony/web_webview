@@ -57,6 +57,10 @@ component("adapter_extractortool") {
     "utils/extractortool/src/zip_file_reader_io.cpp",
   ]
 
+  include_dirs = [
+    "hiviewdfx_adapter/include",
+  ]
+
   cflags = []
   cflags_cc = []
 
