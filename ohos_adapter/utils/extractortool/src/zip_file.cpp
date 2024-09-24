@@ -22,12 +22,9 @@
 #include "file_path_utils.h"
 #include "zip_file_reader.h"
 #include "zlib.h"
+#include "nweb_log.h"
 
-#define WVLOG_I(fmt, ...)
-#define WVLOG_E(fmt, ...)
-#define WVLOG_D(fmt, ...)
-#define WVLOG_W(fmt, ...)
-
+using namespace OHOS::NWeb;
 namespace OHOS {
 namespace AdapterUtils {
 namespace {
@@ -705,7 +702,7 @@ size_t ZipFile::GetEntryStart(const ZipEntry &zipEntry, const uint16_t extraSize
 bool ZipFile::InitZStream(z_stream &zstream) const
 {
     // init zlib stream
-    if (memset(&zstream, 0, sizeof(z_stream))) {
+    if (memset(&zstream, 0, sizeof(z_stream)) == NULL) {
         WVLOG_E("stream buffer init failed");
         return false;
     }

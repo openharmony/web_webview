@@ -20,12 +20,9 @@
 
 #include "constants.h"
 #include "zip_file_reader_io.h"
+#include "nweb_log.h"
 
-#define WVLOG_I(fmt, ...)
-#define WVLOG_E(fmt, ...)
-#define WVLOG_D(fmt, ...)
-#define WVLOG_W(fmt, ...)
-
+using namespace OHOS::NWeb;
 namespace OHOS {
 namespace AdapterUtils {
 std::shared_ptr<ZipFileReader> ZipFileReader::CreateZipFileReader(const std::string &filePath)
