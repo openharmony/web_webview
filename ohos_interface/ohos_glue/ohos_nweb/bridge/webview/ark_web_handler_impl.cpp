@@ -887,4 +887,9 @@ void ArkWebHandlerImpl::OnNativeEmbedVisibilityChange(const ArkWebString& embed_
 {
     nweb_handler_->OnNativeEmbedVisibilityChange(ArkWebStringStructToClass(embed_id), visibility);
 }
+
+void ArkWebHandlerImpl::StartVibraFeedback(const ArkWebString& vibratorType)
+{
+    nweb_handler_->StartVibraFeedback(ArkWebStringStructToClass(vibratorType));
+}
 } // namespace OHOS::ArkWeb
