@@ -262,7 +262,7 @@ OH_NativeBuffer_ColorGamut ProducerNativeAdapterImpl::TransToGraphicColorGamut(c
 }
 
 void ProducerNativeAdapterImpl::TransToBufferConfig(
-    const std::shared_ptr<BufferRequestConfigAdapter> configAdapter, BufferHandle *bufferHandle)
+    const std::shared_ptr<BufferRequestConfigAdapter> configAdapter)
 {
     if (!configAdapter) {
         WVLOG_E("TransToBufferConfig configAdapter is null");
@@ -295,9 +295,8 @@ std::shared_ptr<SurfaceBufferAdapter> ProducerNativeAdapterImpl::RequestBuffer(
         WVLOG_E("configAdapter is nullptr when request");
         return nullptr;
     }
+    TransToBufferConfig(configAdapter);
     OHNativeWindowBuffer* buffer = nullptr;
-    BufferHandle *bufferHandle = OH_NativeWindow_GetBufferHandleFromNative(buffer);
-    TransToBufferConfig(configAdapter, bufferHandle);
     if (OH_NativeWindow_NativeWindowRequestBuffer(window_, &buffer, &fence) != 0) {
         WVLOG_E("native window request buffer failed");
         return nullptr;
@@ -316,7 +315,6 @@ int32_t ProducerNativeAdapterImpl::FlushBuffer(std::shared_ptr<SurfaceBufferAdap
     Region::Rect rect = { flushConfigAdapter->GetX(), flushConfigAdapter->GetY(),
         flushConfigAdapter->GetW(), flushConfigAdapter->GetH() };
     Region region = {.rects = &rect, .rectNumber = 0};
-    region.rects = &rect;
     OH_NativeWindow_NativeWindowHandleOpt(window_, SET_UI_TIMESTAMP, flushConfigAdapter->GetTimestamp());
     return OH_NativeWindow_NativeWindowFlushBuffer(window_, bufferImpl->GetBuffer(), fence, region);
 }

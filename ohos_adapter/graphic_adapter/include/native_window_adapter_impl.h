@@ -99,7 +99,7 @@ public:
 
 private:
     void TransToBufferConfig(
-        const std::shared_ptr<BufferRequestConfigAdapter> configAdapter, BufferHandle *bufferHandle);
+        const std::shared_ptr<BufferRequestConfigAdapter> configAdapter);
     OH_NativeBuffer_ColorGamut TransToGraphicColorGamut(const ColorGamutAdapter& colorGamut);
     OH_NativeBuffer_TransformType TransToTransformType(const TransformTypeAdapter& type);
     OHNativeWindow *window_ = nullptr;
