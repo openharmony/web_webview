@@ -297,4 +297,36 @@ bool ArkWebAccessibilityNodeInfoWrapper::GetIsPluralLineSupported()
     return ark_web_accessibility_node_info_->GetIsPluralLineSupported();
 }
 
+bool ArkWebAccessibilityNodeInfoWrapper::GetIsAccessibilityGroup()
+{
+    return ark_web_accessibility_node_info_->GetIsAccessibilityGroup();
+}
+
+std::string ArkWebAccessibilityNodeInfoWrapper::GetAccessibilityLevel()
+{
+    ArkWebString stAccessibilityLevel = ark_web_accessibility_node_info_->GetAccessibilityLevel();
+
+    std::string objAccessibilityLevel = ArkWebStringStructToClass(stAccessibilityLevel);
+    ArkWebStringStructRelease(stAccessibilityLevel);
+    return objAccessibilityLevel;
+}
+
+std::string ArkWebAccessibilityNodeInfoWrapper::GetAccessibilityDescription()
+{
+    ArkWebString stAccessibilityDescription = ark_web_accessibility_node_info_->GetAccessibilityDescription();
+
+    std::string objAccessibilityDescription = ArkWebStringStructToClass(stAccessibilityDescription);
+    ArkWebStringStructRelease(stAccessibilityDescription);
+    return objAccessibilityDescription;
+}
+
+std::string ArkWebAccessibilityNodeInfoWrapper::GetAccessibilityText()
+{
+    ArkWebString stAccessibilityText = ark_web_accessibility_node_info_->GetAccessibilityText();
+
+    std::string objAccessibilityText = ArkWebStringStructToClass(stAccessibilityText);
+    ArkWebStringStructRelease(stAccessibilityText);
+    return objAccessibilityText;
+}
+
 } // namespace OHOS::ArkWeb

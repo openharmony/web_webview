@@ -125,6 +125,14 @@ public:
 
     bool GetIsPluralLineSupported() override;
 
+    bool GetIsAccessibilityGroup() override;
+
+    std::string GetAccessibilityLevel() override;
+
+    std::string GetAccessibilityDescription() override;
+
+    std::string GetAccessibilityText() override;
+
 private:
     ArkWebRefPtr<ArkWebAccessibilityNodeInfo> ark_web_accessibility_node_info_;
 };
