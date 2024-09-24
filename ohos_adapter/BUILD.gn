@@ -460,6 +460,7 @@ source_set("unittests") {
     "ohos_image_adapter/src/ohos_image_decoder_adapter_unittest.cpp",
     "event_handler_adapter/src/event_handler_adapter_impl_unittest.cpp",
     "graphic_adapter/src/graphic_adapter_unittest.cpp",
+    "audio_adapter/src/audio_adapter_impl_unittest.cpp",
   ]
 
   deps = [
