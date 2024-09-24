@@ -457,6 +457,8 @@ source_set("unittests") {
   sources = [
     "hiviewdfx_adapter/src/hiviewdfx_adapter_unittest.cpp",
     "media_adapter/src/player_framework_adapter_unittest.cpp",
+    "date_time_format_adapter/src/date_time_format_adapter_unittest.cpp",
+    "camera_adapter/src/camera_adapter_unittest.cpp",
     "ohos_image_adapter/src/ohos_image_decoder_adapter_unittest.cpp",
   ]
 
