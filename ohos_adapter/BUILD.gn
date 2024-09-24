@@ -455,6 +455,7 @@ source_set("unittests") {
   testonly = true
 
   sources = [
+    "print_manager_adapter/src/print_manager_adapter_unittest.cpp",
     "hiviewdfx_adapter/src/hiviewdfx_adapter_unittest.cpp",
     "media_adapter/src/player_framework_adapter_unittest.cpp",
     "ohos_image_adapter/src/ohos_image_decoder_adapter_unittest.cpp",
