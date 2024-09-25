@@ -165,7 +165,7 @@ component("adapter_source") {
     "distributeddatamgr_adapter/webdatabase/src/ohos_web_permission_data_base_adapter_impl.cpp",
     "enterprise_device_management_adapter/src/enterprise_device_management_adapter_impl.cpp",
     "event_handler_adapter/src/event_handler_adapter_impl.cpp",
-#    "flowbuffer_adapter/src/flowbuffer_adapter_impl.cpp",
+    "flowbuffer_adapter/src/flowbuffer_adapter_impl.cpp",
      "graphic_adapter/src/ashmem_adapter_impl.cpp",
      "graphic_adapter/src/native_image_adapter_impl.cpp",
      "graphic_adapter/src/vsync_adapter_impl.cpp",
@@ -480,6 +480,7 @@ source_set("unittests") {
     "ohos_resource_adapter/src/ohos_resource_adapter_unittest.cpp",
     "screen_capture_adapter/src/screen_capture_adapter_impl_unittest.cpp",
     "graphic_adapter/src/window_adapter_impl_unittest.cpp",
+    "flowbuffer_adapter/src/flowbuffer_adapter_impl_unittest.cpp",
   ]
 
   deps = [
