@@ -995,10 +995,19 @@ void ArkWebHandlerWrapper::HideHandleAndQuickMenuIfNecessary(bool hide)
     ark_web_handler_->HideHandleAndQuickMenuIfNecessary(hide);
 }
 
-void ArkWebHandlerWrapper::OnNativeEmbedVisibilityChange(const std::string& embed_id, bool visibility) 
+void ArkWebHandlerWrapper::OnNativeEmbedVisibilityChange(const std::string& embed_id, bool visibility)
 {
     ArkWebString stEmbedId = ArkWebStringClassToStruct(embed_id);
     ark_web_handler_->OnNativeEmbedVisibilityChange(stEmbedId, visibility);
     ArkWebStringStructRelease(stEmbedId);
+}
+
+void ArkWebHandlerWrapper::StartVibraFeedback(const std::string& vibratorType)
+{
+    ArkWebString stVibratorType = ArkWebStringClassToStruct(vibratorType);
+
+    ark_web_handler_->StartVibraFeedback(stVibratorType);
+
+    ArkWebStringStructRelease(stVibratorType);
 }
 } // namespace OHOS::ArkWeb

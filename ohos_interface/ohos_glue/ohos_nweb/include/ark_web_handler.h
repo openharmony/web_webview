@@ -773,6 +773,12 @@ public:
 
     /*--ark web()--*/
     virtual void OnNativeEmbedVisibilityChange(const ArkWebString& embed_id, bool visibility) = 0;
+
+    /**
+     * @brief Called when you need to start vibrator.
+     */
+    /*--ark web()--*/
+    virtual void StartVibraFeedback(const ArkWebString& vibratorType) = 0;
 };
 
 } // namespace OHOS::ArkWeb
