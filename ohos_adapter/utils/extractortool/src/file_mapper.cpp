@@ -18,12 +18,9 @@
 #include <sys/mman.h>
 
 #include "zip_file_reader.h"
+#include "nweb_log.h"
 
-#define WVLOG_I(fmt, ...)
-#define WVLOG_E(fmt, ...)
-#define WVLOG_D(fmt, ...)
-#define WVLOG_W(fmt, ...)
-
+using namespace OHOS::NWeb;
 namespace OHOS {
 namespace AdapterUtils {
 
