@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -139,14 +139,14 @@ TEST_F(LocationProxyAdapterTest, LocationProxyAdapterTest_LocationInfoImpl_005)
 {
     auto locationInfoImpl = std::make_shared<LocationInfoImpl>();
     EXPECT_NE(locationInfoImpl, nullptr);
-    const double latitudeTolerance = 0.01d;
+    const double latitudeTolerance = 0.01L;
     double latitude = locationInfoImpl->GetLatitude();
     EXPECT_NEAR(latitude, 0.0, latitudeTolerance);
     latitude = locationInfoImpl->GetLongitude();
     EXPECT_NEAR(latitude, 0.0, latitudeTolerance);
     latitude = locationInfoImpl->GetAltitude();
     EXPECT_NEAR(latitude, 0.0, latitudeTolerance);
-    const double accuracyTolerance = 0.01f;
+    const float accuracyTolerance = 0.01F;
     float accuracy = locationInfoImpl->GetAccuracy();
     EXPECT_NEAR(accuracy, 0.0, accuracyTolerance);
     accuracy = locationInfoImpl->GetSpeed();
