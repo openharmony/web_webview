@@ -54,7 +54,7 @@ int AafwkAppMgrClientAdapterImpl::StartChildProcess(
         return 0;
     }
     WVLOG_D("AafwkAppMgrClientAdapterImpl::StartChildProcess for %{public}s", processType.c_str());
-    const char* entry = "libnweb_render.so:NWebRenderMain";
+    const char* entry = "libweb_engine.so:NWebRenderMain";
 
     NativeChildProcess_Args args;
     args.entryParams = const_cast<char*>(renderParam.c_str());
