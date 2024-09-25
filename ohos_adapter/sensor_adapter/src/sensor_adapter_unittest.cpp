@@ -29,6 +29,8 @@ std::shared_ptr<OHOS::NWeb::SensorAdapterImpl> g_sensorAdapter;
 }
 constexpr double NANOSECONDS_IN_SECOND = 1000000000.0;
 constexpr double DEFAULT_SAMPLE_PERIOD = 200000000.0;
+constexpr int32_t SENSOR_TYPE_ID_NOT_EXSIT = 1;
+constexpr int32_t SENSOR_TYPE_ID_EXSIT = 2;
 
 class SensorCallbackImplTest : public testing::Test {
 public:
@@ -88,7 +90,6 @@ void SensorAdapterImplTest::TearDown(void)
  * @tc.name: SensorAdapterImplTest_SensorCallbackImpl_001.
  * @tc.desc: test of SensorCallbackImpl :: UpdateOhosSensorData()
  * @tc.type: FUNC.
- * @tc.require:
  */
 TEST_F(SensorCallbackImplTest, SensorAdapterImplTest_SensorCallbackImplTest_001)
 {
@@ -107,16 +108,15 @@ TEST_F(SensorCallbackImplTest, SensorAdapterImplTest_SensorCallbackImplTest_001)
  * @tc.name: SensorAdapterImplTest_SensorAdapterImpl_001.
  * @tc.desc: test of SensorAdapterImpl :: IsOhosSensorSupported()
  * @tc.type: FUNC.
- * @tc.require:
  */
 TEST_F(SensorAdapterImplTest, SensorAdapterImplTest_SensorAdapterImpl_001)
 {
-    int32_t temp = 1;
-    auto number = g_sensorAdapter->IsOhosSensorSupported(temp);
+    int32_t sensorTypeId = SENSOR_TYPE_ID_NOT_EXSIT;
+    auto number = g_sensorAdapter->IsOhosSensorSupported(sensorTypeId);
     EXPECT_EQ(number, SENSOR_ERROR);
 
-    temp = 9;
-    number = g_sensorAdapter->IsOhosSensorSupported(temp);
+    sensorTypeId = SENSOR_TYPE_ID_EXSIT;
+    number = g_sensorAdapter->IsOhosSensorSupported(sensorTypeId);
     EXPECT_EQ(number, SENSOR_SUCCESS);
 }
 
@@ -124,18 +124,17 @@ TEST_F(SensorAdapterImplTest, SensorAdapterImplTest_SensorAdapterImpl_001)
  * @tc.name: SensorAdapterImplTest_SensorAdapterImpl_002.
  * @tc.desc: test of SensorAdapterImpl :: GetOhosSensorReportingMode()
  * @tc.type: FUNC.
- * @tc.require:
  */
 TEST_F(SensorAdapterImplTest, SensorAdapterImplTest_SensorAdapterImpl_002)
 {
-    int32_t temp = 11;
+    int32_t sensorTypeId = SENSOR_TYPE_ID_EXSIT;
     int32_t temp1 = SENSOR_DATA_REPORT_CONTINUOUS;
-    auto mode = g_sensorAdapter->GetOhosSensorReportingMode(temp);
+    auto mode = g_sensorAdapter->GetOhosSensorReportingMode(sensorTypeId);
     EXPECT_EQ(mode, temp1);
 
-    temp = 1;
+    sensorTypeId = SENSOR_TYPE_ID_NOT_EXSIT;
     temp1 = -1;
-    mode = g_sensorAdapter->GetOhosSensorReportingMode(temp);
+    mode = g_sensorAdapter->GetOhosSensorReportingMode(sensorTypeId);
     EXPECT_EQ(mode, temp1);
 }
 
@@ -143,18 +142,17 @@ TEST_F(SensorAdapterImplTest, SensorAdapterImplTest_SensorAdapterImpl_002)
  * @tc.name: SensorAdapterImplTest_SensorAdapterImpl_003.
  * @tc.desc: test of SensorAdapterImpl :: GetOhosSensorDefaultSupportedFrequency()
  * @tc.type: FUNC.
- * @tc.require:
  */
 TEST_F(SensorAdapterImplTest, SensorAdapterImplTest_SensorAdapterImpl_003)
 {
-    int32_t temp = 1;
+    int32_t sensorTypeId = SENSOR_TYPE_ID_NOT_EXSIT;
     double temp1 = 0.0;
-    auto mode = g_sensorAdapter->GetOhosSensorDefaultSupportedFrequency(temp);
+    auto mode = g_sensorAdapter->GetOhosSensorDefaultSupportedFrequency(sensorTypeId);
     EXPECT_EQ(mode, temp1);
 
-    temp = 2;
+    sensorTypeId = SENSOR_TYPE_ID_EXSIT;
     temp1 = NANOSECONDS_IN_SECOND / DEFAULT_SAMPLE_PERIOD;
-    mode = g_sensorAdapter->GetOhosSensorDefaultSupportedFrequency(temp);
+    mode = g_sensorAdapter->GetOhosSensorDefaultSupportedFrequency(sensorTypeId);
     EXPECT_EQ(mode, temp1);
 }
 
@@ -162,17 +160,16 @@ TEST_F(SensorAdapterImplTest, SensorAdapterImplTest_SensorAdapterImpl_003)
  * @tc.name: SensorAdapterImplTest_SensorAdapterImpl_004.
  * @tc.desc: test of SensorAdapterImpl :: GetOhosSensorMinSupportedFrequency()
  * @tc.type: FUNC.
- * @tc.require:
  */
 TEST_F(SensorAdapterImplTest, SensorAdapterImplTest_SensorAdapterImpl_004)
 {
-    int32_t temp = 1;
+    int32_t sensorTypeId = SENSOR_TYPE_ID_NOT_EXSIT;
     double temp1 = 0.0;
-    auto mode = g_sensorAdapter->GetOhosSensorMinSupportedFrequency(temp);
+    auto mode = g_sensorAdapter->GetOhosSensorMinSupportedFrequency(sensorTypeId);
     EXPECT_EQ(mode, temp1);
 
-    temp = 2;
-    mode = g_sensorAdapter->GetOhosSensorMinSupportedFrequency(temp);
+    sensorTypeId = SENSOR_TYPE_ID_EXSIT;
+    mode = g_sensorAdapter->GetOhosSensorMinSupportedFrequency(sensorTypeId);
     EXPECT_NE(mode, temp1);    
 }
 
@@ -180,17 +177,16 @@ TEST_F(SensorAdapterImplTest, SensorAdapterImplTest_SensorAdapterImpl_004)
  * @tc.name: SensorAdapterImplTest_SensorAdapterImpl_005.
  * @tc.desc: test of SensorAdapterImpl :: GetOhosSensorMaxSupportedFrequency()
  * @tc.type: FUNC.
- * @tc.require:
  */
 TEST_F(SensorAdapterImplTest, SensorAdapterImplTest_SensorAdapterImpl_005)
 {
-    int32_t temp = 1;
+    int32_t sensorTypeId = SENSOR_TYPE_ID_NOT_EXSIT;
     double temp1 = 0.0;
-    auto mode = g_sensorAdapter->GetOhosSensorMaxSupportedFrequency(temp);
+    auto mode = g_sensorAdapter->GetOhosSensorMaxSupportedFrequency(sensorTypeId);
     EXPECT_EQ(mode, temp1);
 
-    temp = 2;
-    mode = g_sensorAdapter->GetOhosSensorMaxSupportedFrequency(temp);
+    sensorTypeId = SENSOR_TYPE_ID_EXSIT;
+    mode = g_sensorAdapter->GetOhosSensorMaxSupportedFrequency(sensorTypeId);
     EXPECT_NE(mode, temp1);    
 }
 
@@ -198,21 +194,20 @@ TEST_F(SensorAdapterImplTest, SensorAdapterImplTest_SensorAdapterImpl_005)
  * @tc.name: SensorAdapterImplTest_SensorAdapterImpl_006.
  * @tc.desc: test of SensorAdapterImpl :: SubscribeOhosSensor()
  * @tc.type: FUNC.
- * @tc.require:
  */
 TEST_F(SensorAdapterImplTest, SensorAdapterImplTest_SensorAdapterImpl_006)
 {
-    int32_t id = 1;
-    int64_t temp = 0;
-    auto status = g_sensorAdapter->SubscribeOhosSensor(id, temp);
+    int32_t sensorTypeId = SENSOR_TYPE_ID_NOT_EXSIT;
+    int64_t samplingInterval = 0;
+    auto status = g_sensorAdapter->SubscribeOhosSensor(sensorTypeId, samplingInterval);
     EXPECT_EQ(status, SENSOR_PARAMETER_ERROR);
 
-    temp = 1;
-    status = g_sensorAdapter->SubscribeOhosSensor(id, temp);
+    samplingInterval = 1;
+    status = g_sensorAdapter->SubscribeOhosSensor(sensorTypeId, samplingInterval);
     EXPECT_EQ(status, SENSOR_PARAMETER_ERROR);
 
-    id = 2;
-    status = g_sensorAdapter->SubscribeOhosSensor(id, temp);
+    sensorTypeId = SENSOR_TYPE_ID_EXSIT;
+    status = g_sensorAdapter->SubscribeOhosSensor(sensorTypeId, samplingInterval);
     EXPECT_EQ(status, SENSOR_SUCCESS);
 }
 
@@ -220,17 +215,16 @@ TEST_F(SensorAdapterImplTest, SensorAdapterImplTest_SensorAdapterImpl_006)
  * @tc.name: SensorAdapterImplTest_SensorAdapterImpl_007.
  * @tc.desc: test of SensorAdapterImpl :: RegistOhosSensorCallback()
  * @tc.type: FUNC.
- * @tc.require:
  */
 TEST_F(SensorAdapterImplTest, SensorAdapterImplTest_SensorAdapterImpl_007)
 {
-    int32_t id = 1;
+    int32_t sensorTypeId = SENSOR_TYPE_ID_NOT_EXSIT;
     auto callbackAdapter = std::make_shared<SensorCallbackAdapterMock>();
-    auto status = g_sensorAdapter->RegistOhosSensorCallback(id, callbackAdapter);
+    auto status = g_sensorAdapter->RegistOhosSensorCallback(sensorTypeId, callbackAdapter);
     EXPECT_EQ(status, SENSOR_PARAMETER_ERROR);
 
-    id = 2;
-    status = g_sensorAdapter->RegistOhosSensorCallback(id, callbackAdapter);
+    sensorTypeId = SENSOR_TYPE_ID_EXSIT;
+    status = g_sensorAdapter->RegistOhosSensorCallback(sensorTypeId, callbackAdapter);
     EXPECT_EQ(status, SENSOR_SUCCESS);
 }
 
@@ -238,16 +232,15 @@ TEST_F(SensorAdapterImplTest, SensorAdapterImplTest_SensorAdapterImpl_007)
  * @tc.name: SensorAdapterImplTest_SensorAdapterImpl_008.
  * @tc.desc: test of SensorAdapterImpl :: UnsubscribeOhosSensor()
  * @tc.type: FUNC.
- * @tc.require:
  */
 TEST_F(SensorAdapterImplTest, SensorAdapterImplTest_SensorAdapterImpl_008)
 {
-    int32_t id = 1;
-    auto status = g_sensorAdapter->UnsubscribeOhosSensor(id);
+    int32_t sensorTypeId = SENSOR_TYPE_ID_NOT_EXSIT;
+    auto status = g_sensorAdapter->UnsubscribeOhosSensor(sensorTypeId);
     EXPECT_EQ(status, SENSOR_PARAMETER_ERROR);
 
-    id = 2;
-    status = g_sensorAdapter->UnsubscribeOhosSensor(id);
+    sensorTypeId = SENSOR_TYPE_ID_EXSIT;
+    status = g_sensorAdapter->UnsubscribeOhosSensor(sensorTypeId);
     EXPECT_EQ(status, SENSOR_SUCCESS);
 }
 } // namespace OHOS::NWeb
