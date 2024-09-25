@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -99,23 +99,17 @@ int32_t MMIAdapterImpl::GetKeyboardType(int32_t deviceId, int32_t& type)
 
 int32_t MMIAdapterImpl::GetDeviceIds(std::vector<int32_t>& ids)
 {
-    const size_t size = ids.size();
-    if (size == 0) {
-        return -1;
-    }
-    int32_t idsArr[size];
-    for (size_t i = 0; i < size; ++i) {
-        idsArr[i] = ids[i];
-    }
+    const int32_t MAX_DEVICES = 256;
+    int32_t idsArr[MAX_DEVICES] = {0};
     int32_t outSize = 0;
-    Input_Result result = OH_Input_GetDeviceIds(idsArr, size, &outSize);
+    Input_Result result = OH_Input_GetDeviceIds(idsArr, MAX_DEVICES, &outSize);
     if (result != INPUT_SUCCESS) {
         return -1;
     }
+    ids.clear();
     if (outSize <= 0) {
         return outSize;
     }
-    ids.clear();
     for (int32_t i = 0; i < outSize; ++i) {
         ids.push_back(idsArr[i]);
     }

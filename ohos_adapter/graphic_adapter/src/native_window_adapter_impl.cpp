@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -296,12 +296,12 @@ std::shared_ptr<SurfaceBufferAdapter> ProducerNativeAdapterImpl::RequestBuffer(
         return nullptr;
     }
     OHNativeWindowBuffer* buffer = nullptr;
+    BufferHandle *bufferHandle = OH_NativeWindow_GetBufferHandleFromNative(buffer);
+    TransToBufferConfig(configAdapter, bufferHandle);
     if (OH_NativeWindow_NativeWindowRequestBuffer(window_, &buffer, &fence) != 0) {
         WVLOG_E("native window request buffer failed");
         return nullptr;
     }
-    BufferHandle *bufferHandle = OH_NativeWindow_GetBufferHandleFromNative(buffer);
-    TransToBufferConfig(configAdapter, bufferHandle);
     return std::make_shared<NativeBufferAdapterImpl>(buffer);
 }
 
