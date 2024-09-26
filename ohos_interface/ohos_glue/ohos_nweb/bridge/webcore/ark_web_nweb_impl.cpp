@@ -1059,6 +1059,12 @@ void ArkWebNWebImpl::SetPathAllowingUniversalAccess(const ArkWebStringVector& di
     errorPath = ArkWebStringClassToStruct(errPath);
 }
 
+void ArkWebNWebImpl::PerformAction(int64_t accessibility_id, uint32_t action,
+    const ArkWebStringMap& actionArguments)
+{
+    nweb_nweb_->PerformAction(accessibility_id, action, ArkWebStringMapStructToClass(actionArguments));
+}
+
 void ArkWebNWebImpl::ScrollToWithAnime(float x, float y, int32_t duration)
 {
     nweb_nweb_->ScrollToWithAnime(x, y, duration);
