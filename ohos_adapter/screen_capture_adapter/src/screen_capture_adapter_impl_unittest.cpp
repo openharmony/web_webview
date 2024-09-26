@@ -21,7 +21,6 @@
 
 #define private public
 #include "screen_capture_adapter_impl.h"
-#include <accesstoken/ability_access_control.h>
 #undef private
 
 namespace OHOS {
@@ -283,12 +282,6 @@ public:
 
 void ScreenCaptureAdapterImplTest::SetUpTestCase(void)
 {
-    // authorize
-    std::string capturePerm = "ohos.permission.CAPTURE_SCREEN";
-    std::string microphonePerm = "ohos.permission.MICROPHONE";
-    OH_AT_CheckSelfPermission(capturePerm.c_str());
-    OH_AT_CheckSelfPermission(microphonePerm.c_str());
-
     g_screenCapture = std::make_shared<ScreenCaptureAdapterImpl>();
     g_micCapInfo = std::make_shared<MockAudioCaptureInfoAdapter>();
     g_innerCapInfo = std::make_shared<MockAudioCaptureInfoAdapter>();
