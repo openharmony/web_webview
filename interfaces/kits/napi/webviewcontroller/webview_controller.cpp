@@ -1487,6 +1487,16 @@ int32_t WebviewController::ClearWebServiceWorkerSchemeHandler()
     return OH_ArkWebServiceWorker_ClearSchemeHandlers();
 }
 
+std::string WebviewController::GetLastJavascriptProxyCallingFrameUrl()
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return "";
+    }
+
+    return nweb_ptr->GetLastJavascriptProxyCallingFrameUrl();
+}
+
 ErrCode WebviewController::StartCamera()
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
@@ -1518,16 +1528,6 @@ ErrCode WebviewController::CloseCamera()
 
     nweb_ptr->CloseCamera();
     return NWebError::NO_ERROR;
-}
-
-std::string WebviewController::GetLastJavascriptProxyCallingFrameUrl()
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (!nweb_ptr) {
-        return "";
-    }
-
-    return nweb_ptr->GetLastJavascriptProxyCallingFrameUrl();
 }
 
 void WebviewController::OnCreateNativeMediaPlayer(napi_env env, napi_ref callback)
@@ -1567,7 +1567,8 @@ bool WebviewController::ParseScriptContent(napi_env env, napi_value value, std::
     return true;
 }
 
-std::shared_ptr<CacheOptions> WebviewController::ParseCacheOptions(napi_env env, napi_value value) {
+std::shared_ptr<CacheOptions> WebviewController::ParseCacheOptions(napi_env env, napi_value value)
+{
     std::map<std::string, std::string> responseHeaders;
     auto defaultCacheOptions = std::make_shared<NWebCacheOptionsImpl>(responseHeaders);
 
@@ -1735,6 +1736,19 @@ void WebviewController::InjectOfflineResource(const std::vector<std::string>& ur
     }
 }
 
+std::string WebviewController::GetSurfaceId()
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return "";
+    }
+    std::shared_ptr<OHOS::NWeb::NWebPreference> setting = nweb_ptr->GetPreference();
+    if (!setting) {
+        return "";
+    }
+    return setting->GetSurfaceId();
+}
+
 void WebviewController::EnableAdsBlock(bool enable)
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
@@ -1763,50 +1777,6 @@ bool WebviewController::IsAdsBlockEnabledForCurPage()
     return enabled;
 }
 
-std::string WebviewController::GetSurfaceId()
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (!nweb_ptr) {
-        return "";
-    }
-    std::shared_ptr<OHOS::NWeb::NWebPreference> setting = nweb_ptr->GetPreference();
-    if (!setting) {
-        return "";
-    }
-    return setting->GetSurfaceId();
-}
-
-void WebviewController::UpdateInstanceId(int32_t newId)
-{
-    if (javaScriptResultCb_) {
-        javaScriptResultCb_->UpdateInstanceId(newId);
-    }
-}
-
-ErrCode WebviewController::SetUrlTrustList(const std::string& urlTrustList, std::string& detailErrMsg)
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (!nweb_ptr) {
-        return NWebError::INIT_ERROR;
-    }
-
-    int ret = NWebError::NO_ERROR;
-    switch (nweb_ptr->SetUrlTrustListWithErrMsg(urlTrustList, detailErrMsg)) {
-        case static_cast<int>(UrlListSetResult::INIT_ERROR):
-            ret = NWebError::INIT_ERROR;
-            break;
-        case static_cast<int>(UrlListSetResult::PARAM_ERROR):
-            ret = NWebError::PARAM_CHECK_ERROR;
-            break;
-        case static_cast<int>(UrlListSetResult::SET_OK):
-            ret = NWebError::NO_ERROR;
-            break;
-        default:
-            ret = NWebError::PARAM_CHECK_ERROR;
-            break;
-    }
-    return ret;
-}
 bool WebviewController::ParseJsLengthResourceToInt(
     napi_env env, napi_value jsLength, PixelUnit &type, int32_t &result)
 {
@@ -1908,6 +1878,48 @@ ErrCode WebviewController::WebPageSnapshot(
     return NWebError::NO_ERROR;
 }
 
+ErrCode WebviewController::SetUrlTrustList(const std::string& urlTrustList, std::string& detailErrMsg)
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return NWebError::INIT_ERROR;
+    }
+
+    int ret = NWebError::NO_ERROR;
+    switch (nweb_ptr->SetUrlTrustListWithErrMsg(urlTrustList, detailErrMsg)) {
+        case static_cast<int>(UrlListSetResult::INIT_ERROR):
+            ret = NWebError::INIT_ERROR;
+            break;
+        case static_cast<int>(UrlListSetResult::PARAM_ERROR):
+            ret = NWebError::PARAM_CHECK_ERROR;
+            break;
+        case static_cast<int>(UrlListSetResult::SET_OK):
+            ret = NWebError::NO_ERROR;
+            break;
+        default:
+            ret = NWebError::PARAM_CHECK_ERROR;
+            break;
+    }
+    return ret;
+}
+
+void WebviewController::UpdateInstanceId(int32_t newId)
+{
+    if (javaScriptResultCb_) {
+        javaScriptResultCb_->UpdateInstanceId(newId);
+    }
+}
+
+void WebviewController::SetBackForwardCacheOptions(int32_t size, int32_t timeToLive)
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return;
+    }
+
+    nweb_ptr->SetBackForwardCacheOptions(size, timeToLive);
+}
+
 bool WebviewController::GetHapModuleInfo()
 {
     sptr<ISystemAbilityManager> systemAbilityManager =
@@ -1972,16 +1984,6 @@ void WebviewController::ScrollByWithAnime(float deltaX, float deltaY, int32_t du
         nweb_ptr->ScrollByWithAnime(deltaX, deltaY, duration);
     }
     return;
-}
-
-void WebviewController::SetBackForwardCacheOptions(int32_t size, int32_t timeToLive)
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (!nweb_ptr) {
-        return;
-    }
-
-    nweb_ptr->SetBackForwardCacheOptions(size, timeToLive);
 }
 
 bool WebviewController::ScrollByWithResult(float deltaX, float deltaY)
