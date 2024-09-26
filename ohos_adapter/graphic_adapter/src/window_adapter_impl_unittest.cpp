@@ -65,7 +65,7 @@ TEST_F(WindowAdapterImplTest, WindowAdapterImplTest_NormalTest_001)
 {
     std::unique_ptr<ConsumerNativeAdapterImpl> nativeAdapter = std::make_unique<ConsumerNativeAdapterImpl>();
     std::unique_ptr<IBufferConsumerListenerAdapter> listenerTest = std::make_unique<BufferConsumerListenerTest>();
-    EXPECT_EQ(nativeAdapter->RegisterConsumerListener(std::move(listenerTest_)), 0);
+    EXPECT_EQ(nativeAdapter->RegisterConsumerListener(std::move(listenerTest)), 0);
     EXPECT_EQ(nativeAdapter->SetUserData("testkey", "testval"), 0);
     EXPECT_EQ(nativeAdapter->SetQueueSize(1), 0);
     OH_NativeImage* image = nativeAdapter->GetConsumerSurface();
