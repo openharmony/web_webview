@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -213,7 +213,16 @@ void LocationInfoImpl::SetAdditions(char* additions)
     }
 }
 
-LocationProxyAdapterImpl::LocationProxyAdapterImpl() : ohRequestConfig(nullptr), ohCallback_(nullptr) {}
+LocationProxyAdapterImpl::LocationProxyAdapterImpl() : ohRequestConfig_(nullptr), ohCallback_(nullptr) {}
+
+LocationProxyAdapterImpl::~LocationProxyAdapterImpl()
+{
+    if (ohRequestConfig_ != nullptr) {
+        OH_Location_StopLocating(ohRequestConfig_);
+        OH_Location_DestroyRequestConfig(ohRequestConfig_);
+        ohRequestConfig_ = nullptr;
+    }
+}
 
 int32_t LocationProxyAdapterImpl::StartLocating(
     std::shared_ptr<LocationRequestConfig> requestConfig, std::shared_ptr<LocationCallbackAdapter> callback)
@@ -224,16 +233,16 @@ int32_t LocationProxyAdapterImpl::StartLocating(
         return id;
     }
     LocationRequestConfigImpl* requestConfigImpl = static_cast<LocationRequestConfigImpl*>(requestConfig.get());
-    ohRequestConfig = OH_Location_CreateRequestConfig();
+    ohRequestConfig_ = OH_Location_CreateRequestConfig();
     if (requestConfigImpl->GetScenario() != OHOS::NWeb::LocationRequestConfig::Scenario::UNSET) {
-        OH_LocationRequestConfig_SetUseScene(ohRequestConfig, (Location_UseScene)requestConfigImpl->GetScenario());
+        OH_LocationRequestConfig_SetUseScene(ohRequestConfig_, (Location_UseScene)requestConfigImpl->GetScenario());
     } else {
-        OH_LocationRequestConfig_SetPowerConsumptionScene(ohRequestConfig, requestConfigImpl->GetPriority());
+        OH_LocationRequestConfig_SetPowerConsumptionScene(ohRequestConfig_, requestConfigImpl->GetPriority());
     }
-    OH_LocationRequestConfig_SetInterval(ohRequestConfig, requestConfigImpl->GetTimeInterval());
+    OH_LocationRequestConfig_SetInterval(ohRequestConfig_, requestConfigImpl->GetTimeInterval());
     ohCallback_ = std::move(callback);
-    OH_LocationRequestConfig_SetCallback(ohRequestConfig, LocationCallback, ohCallback_.get());
-    Location_ResultCode errCode = OH_Location_StartLocating(ohRequestConfig);
+    OH_LocationRequestConfig_SetCallback(ohRequestConfig_, LocationCallback, ohCallback_.get());
+    Location_ResultCode errCode = OH_Location_StartLocating(ohRequestConfig_);
     if (errCode != LOCATION_SUCCESS) {
         WVLOG_E("StartLocating failed, errcode:%{public}d", errCode);
         return id;
@@ -245,14 +254,14 @@ int32_t LocationProxyAdapterImpl::StartLocating(
 
 bool LocationProxyAdapterImpl::StopLocating(int32_t callbackId)
 {
-    if (callbackId < 0) {
+    if (callbackId < 0 || ohRequestConfig_ == nullptr) {
         WVLOG_E("callback is null");
         return false;
     }
     WVLOG_I("LocationProxyAdapterImpl::StopLocating");
-    Location_ResultCode errCode = OH_Location_StopLocating(ohRequestConfig);
-    OH_Location_DestroyRequestConfig(ohRequestConfig);
-    ohRequestConfig = nullptr;
+    Location_ResultCode errCode = OH_Location_StopLocating(ohRequestConfig_);
+    OH_Location_DestroyRequestConfig(ohRequestConfig_);
+    ohRequestConfig_ = nullptr;
     return errCode == LOCATION_SUCCESS ? true : false;
 }
 

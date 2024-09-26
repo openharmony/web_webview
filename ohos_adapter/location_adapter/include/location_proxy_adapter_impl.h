@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -69,7 +69,7 @@ private:
 class LocationProxyAdapterImpl : public LocationProxyAdapter {
 public:
     LocationProxyAdapterImpl();
-    virtual ~LocationProxyAdapterImpl() = default;
+    virtual ~LocationProxyAdapterImpl();
 
     int32_t StartLocating(
         std::shared_ptr<LocationRequestConfig> requestConfig,
@@ -79,7 +79,7 @@ public:
     bool IsLocationEnabled() override;
 
 private:
-    Location_RequestConfig* ohRequestConfig;
+    Location_RequestConfig* ohRequestConfig_;
     std::shared_ptr<LocationCallbackAdapter> ohCallback_;
 };
 }
