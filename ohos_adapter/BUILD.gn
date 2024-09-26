@@ -469,6 +469,8 @@ source_set("unittests") {
     "graphic_adapter/src/native_image_adapter_impl_unittest.cpp",
     "access_token_adapter/src/access_token_adapter_impl_unittest.cpp",
     "keystore_adapter/src/keystore_adapter_impl_unittest.cpp",
+    "screen_capture_adapter/src/screen_capture_adapter_impl_unittest.cpp",
+    "graphic_adapter/src/window_adapter_impl_unittest.cpp",
   ]
 
   deps = [
