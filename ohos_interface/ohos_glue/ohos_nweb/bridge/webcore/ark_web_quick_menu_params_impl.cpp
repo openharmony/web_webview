@@ -84,4 +84,8 @@ ArkWebRefPtr<ArkWebTouchHandleState> ArkWebQuickMenuParamsImpl::GetTouchHandleSt
     return new ArkWebTouchHandleStateImpl(nweb_touch_handle_state);
 }
 
+bool ArkWebQuickMenuParamsImpl::GetIsLongPressActived()
+{
+    return nweb_quick_menu_params_->GetIsLongPressActived();
+}
 } // namespace OHOS::ArkWeb

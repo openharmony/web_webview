@@ -81,4 +81,8 @@ std::shared_ptr<OHOS::NWeb::NWebTouchHandleState> ArkWebQuickMenuParamsWrapper::
     return std::make_shared<ArkWebTouchHandleStateWrapper>(ark_web_touch_handle_state);
 }
 
+bool ArkWebQuickMenuParamsWrapper::GetIsLongPressActived()
+{
+    return ark_web_quick_menu_params_->GetIsLongPressActived();
+}
 } // namespace OHOS::ArkWeb

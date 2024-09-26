@@ -129,6 +129,10 @@ public:
     virtual int32_t GetSelectXHeight() = 0;
 
     virtual std::shared_ptr<NWebTouchHandleState> GetTouchHandleState(NWebTouchHandleState::TouchHandleType type) = 0;
+
+    virtual bool GetIsLongPressActived() {
+        return false;
+    }
 };
 
 enum MenuEventFlags {
