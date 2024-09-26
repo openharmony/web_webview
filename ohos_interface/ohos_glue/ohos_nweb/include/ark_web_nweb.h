@@ -1343,6 +1343,16 @@ public:
                                                 ArkWebString& errorPath) = 0;
 
     /**
+     * Execute an accessibility action on an accessibility node in the browser.
+     * @param accessibilityId The id of the accessibility node.
+     * @param action The action to be performed on the accessibility node.
+     * @param actionArguments Data related to the current action.
+     */
+    /*--ark web()--*/
+    virtual void PerformAction(int64_t accessibilityId, uint32_t action,
+        const ArkWebStringMap& actionArguments) = 0;
+
+    /**
      * Scroll to the position.
      *
      * @param x horizontal coordinate.

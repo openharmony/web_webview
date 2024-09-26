@@ -1181,6 +1181,18 @@ public:
         const ArkWebStringVector& moduleName, ArkWebString& errorPath) override;
 
     /**
+     * @brief Execute an accessibility action on an accessibility node in the
+     *        browser.
+     *
+     * @param accessibility_id: The id of the accessibility node.
+     * @param action: The action to be performed on the accessibility node.
+     * @param actionArguments Data related to the current action.
+     */
+    /*--ark web()--*/
+    void PerformAction(int64_t accessibility_id, uint32_t action,
+        const ArkWebStringMap& actionArguments) override;
+
+    /**
      * Scroll to the position.
      *
      * @param x horizontal coordinate.
