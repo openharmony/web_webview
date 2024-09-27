@@ -887,6 +887,7 @@ bool IMFAdapterImpl::Attach(std::shared_ptr<IMFTextListenerAdapter> listener, bo
     ret = OH_InputMethodController_Attach(textEditorProxy_, options, &inputMethodProxy_);
     if (ret != IME_ERR_OK) {
         WVLOG_E("Inputmethod attach failed, ret=%{public}d", isShowKeyboard);
+        return false;
     }
     WVLOG_I("Inputmethod attach, isResetListener: %{public}s, isShowKeyboard: %{public}s",
         isResetListener ? "yes" : "no", isShowKeyboard ? "yes" : "no");
