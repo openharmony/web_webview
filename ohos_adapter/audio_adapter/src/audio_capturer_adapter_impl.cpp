@@ -88,6 +88,13 @@ int32_t OnReadData(OH_AudioCapturer* capturer, void* userData, void* buffer, int
 }
 } // namespace
 
+AudioCapturerAdapterImpl::~AudioCapturerAdapterImpl()
+{
+    WVLOG_D("~AudioCapturerAdapterImpl: Release capturer");
+    Stop();
+    Release();
+}
+
 bool AudioCapturerAdapterImpl::AudioStreamBuilderSet(
     OH_AudioStreamBuilder* builder,
     const std::shared_ptr<AudioCapturerOptionsAdapter> capturerOptions)
