@@ -201,7 +201,7 @@ TEST_F(LocationProxyAdapterTest, LocationProxyAdapterTest_EnableAbility_007)
 {
     auto proxyAdapterImpl = std::make_shared<LocationProxyAdapterImpl>();
     EXPECT_NE(proxyAdapterImpl, nullptr);
-    proxyAdapterImpl->ohRequestConfig = nullptr;
+    proxyAdapterImpl->ohRequestConfig_ = nullptr;
     bool result = proxyAdapterImpl->IsLocationEnabled();
     if (result) {
         EXPECT_TRUE(result);
