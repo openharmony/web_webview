@@ -1480,6 +1480,13 @@ public:
      * @brief Called when image analyzer is destory.
      */
     virtual void OnDestroyImageAnalyzerOverlay() {}
+
+    /**
+     * @brief Get the current scroll offset of the webpage.
+     * @param offset_x The current horizontal scroll offset of the webpage.
+     * @param offset_y The current vertical scroll offset of the webpage.
+     */
+    virtual void GetScrollOffset(float* offset_x, float* offset_y) {}
 };
 
 } // namespace OHOS::NWeb

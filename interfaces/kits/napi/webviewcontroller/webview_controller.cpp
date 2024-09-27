@@ -2008,5 +2008,13 @@ void WebviewController::SetScrollable(bool enable, int32_t scrollType)
     }
     return setting->SetScrollable(enable, scrollType);
 }
+
+void WebviewController::GetScrollOffset(float* offset_x, float* offset_y)
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (nweb_ptr) {
+        nweb_ptr->GetScrollOffset(offset_x, offset_y);
+    }
+}
 } // namespace NWeb
 } // namespace OHOS

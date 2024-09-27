@@ -1313,6 +1313,14 @@ public:
      */
     /*--ark web()--*/
     void OnDestroyImageAnalyzerOverlay() override;
+
+    /**
+     * @brief Get the current scroll offset of the webpage.
+     * @param offset_x The current horizontal scroll offset of the webpage.
+     * @param offset_y The current vertical scroll offset of the webpage.
+     */
+    /*--ark web()--*/
+    void GetScrollOffset(float* offset_x, float* offset_y) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };
