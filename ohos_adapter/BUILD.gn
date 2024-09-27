@@ -477,6 +477,7 @@ source_set("unittests") {
     "sensor_adapter/src/sensor_adapter_unittest.cpp",
     "access_token_adapter/src/access_token_adapter_impl_unittest.cpp",
     "keystore_adapter/src/keystore_adapter_impl_unittest.cpp",
+    "ohos_resource_adapter/src/ohos_resource_adapter_unittest.cpp",
     "screen_capture_adapter/src/screen_capture_adapter_impl_unittest.cpp",
     "graphic_adapter/src/window_adapter_impl_unittest.cpp",
   ]
@@ -488,6 +489,7 @@ source_set("unittests") {
   ]
 
   public_configs = [
-    ":adapter_source_include_dirs"
+    ":adapter_source_include_dirs",
+    ":ability_extractor_config",
   ]
 }
