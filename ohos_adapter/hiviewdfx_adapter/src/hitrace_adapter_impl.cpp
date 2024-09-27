@@ -15,7 +15,8 @@
 
 #include "hitrace_adapter_impl.h"
 
-#include "nweb_log.h"
+#include <nweb_log.h>
+#include <system_properties_adapter_impl.h>
 
 #include <hitrace/trace.h>
 
@@ -58,26 +59,34 @@ void HiTraceAdapterImpl::CountTrace(const std::string& name, int64_t count)
 
 bool HiTraceAdapterImpl::IsHiTraceEnable()
 {
-    return false;
+    SystemPropertiesAdapter& prop = SystemPropertiesAdapterImpl::GetInstance();
+    return prop.GetTraceDebugEnable();
 }
 
 void HiTraceAdapterImpl::StartOHOSTrace(const std::string& value, float limit)
 {
-    OH_HiTrace_StartTrace(value.c_str());
+    if (IsHiTraceEnable()) {
+        OH_HiTrace_StartTrace(value.c_str());
+    }
 }
 
 void HiTraceAdapterImpl::FinishOHOSTrace()
 {
-    OH_HiTrace_FinishTrace();
+    if (IsHiTraceEnable()) {
+        OH_HiTrace_FinishTrace();
+    }
 }
 
 void HiTraceAdapterImpl::CountOHOSTrace(const std::string& name, int64_t count)
 {
-    OH_HiTrace_CountTrace(name.c_str(), count);
+    if (IsHiTraceEnable()) {
+        OH_HiTrace_CountTrace(name.c_str(), count);
+    }
 }
 
 bool HiTraceAdapterImpl::IsACETraceEnable()
 {
-    return false;
+    SystemPropertiesAdapter& prop = SystemPropertiesAdapterImpl::GetInstance();
+    return prop.GetTraceDebugEnable();
 }
 } // namespace OHOS::NWeb

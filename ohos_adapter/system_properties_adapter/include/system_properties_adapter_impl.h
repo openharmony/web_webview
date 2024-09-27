@@ -58,6 +58,8 @@ public:
 
     bool GetTraceDebugEnable() override;
 
+    void SetTraceDebugEnable(bool isEnable);
+
     std::string GetSiteIsolationMode() override;
 
     bool GetOOPGPUEnable() override;
@@ -86,6 +88,7 @@ private:
 
     void InitPreferences();
     bool GetBoolParameter(const char *key, bool defaultValue);
+    void SetBoolParameter(const char *key, const bool value);
     int GetIntParameter(const char *key, int defaultValue);
     std::string GetStringParameter(const char *key, std::string defaultValue);
     void SetStringParameter(const char *key, const char *value);
@@ -103,6 +106,8 @@ private:
 
     OH_PreferencesOption* preferencesOption_ = nullptr;
     OH_Preferences* preferences_ = nullptr;
+
+    bool isTraceDebugEnable;
 };
 
 }  // namespace OHOS::NWeb
