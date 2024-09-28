@@ -65,20 +65,8 @@ public:
 private:
     static AVSessionCallback_Result AVSessionOnCommandCallback(OH_AVSession *session,
         AVSession_ControlCommand command, void *userData);
-    static AVSessionCallback_Result AVSessionOnFastForwardCallback(OH_AVSession *session,
-        uint32_t seekTime, void *userData);
-    static AVSessionCallback_Result AVSessionOnRewindCallback(OH_AVSession *session,
-        uint32_t seekTime, void *userData);
     static AVSessionCallback_Result AVSessionOnSeekCallback(OH_AVSession *session,
         uint64_t seekTime, void *userData);
-    static AVSessionCallback_Result AVSessionOnSetSpeedCallback(OH_AVSession *session,
-        uint32_t speed, void *userData);
-    static AVSessionCallback_Result AVSessionOnSetLoopModeCallback(OH_AVSession *session,
-        AVSession_LoopMode curLoopMode, void *userData);
-    static AVSessionCallback_Result AVSessionOnToggleFavoriteCallback(OH_AVSession *session,
-        const char *assertId, void *userData);
-    static AVSessionCallback_Result AVSessionOnPlayFromAssertIdCallback(OH_AVSession *session,
-        const char *assertId, void *userData);
 
     AVMetadata_Result UpdateAVMetadata(void);
     bool UpdateMetaDataCache(const std::shared_ptr<MediaAVSessionMetadataAdapter> metadata);
@@ -93,7 +81,7 @@ private:
     OH_AVMetadataBuilder *builder_ = nullptr;
     OH_AVMetadata *avMetadata_ = nullptr;
     OH_AVSession *avSession_ = nullptr;
-    bool isActived_;
+    bool isActived_ = false;
 
     std::shared_ptr<MediaAVSessionCallbackAdapter> callbackAdapter_;
     static std::unordered_map<std::string, OH_AVSession *> avSessionMap;

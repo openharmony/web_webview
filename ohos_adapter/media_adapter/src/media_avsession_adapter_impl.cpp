@@ -26,9 +26,19 @@ std::unordered_map<std::string, OH_AVSession *> MediaAVSessionAdapterImpl::avSes
 void MediaAVSessionKey::Init() {
     pid_ = getpid();
     OH_NativeBundle_ElementName bundleInfo = OH_NativeBundle_GetMainElementName();
-    bundleName_ = std::string(bundleInfo.bundleName);
+    if (bundleInfo.bundleName) {
+        bundleName_ = std::string(bundleInfo.bundleName);
+    } else {
+        bundleName_ = std::string("dummy");
+    }
+
     type_ = MediaAVSessionType::MEDIA_TYPE_INVALID;
-    abilityName_ = std::string(bundleInfo.abilityName);
+    if (bundleInfo.abilityName) {
+        abilityName_ = std::string(bundleInfo.abilityName);
+    } else {
+        abilityName_ = std::string("dummy");
+    }
+
     return;
 }
 
@@ -129,7 +139,7 @@ bool MediaAVSessionAdapterImpl::CreateAVSession(MediaAVSessionType type) {
 }
 
 void MediaAVSessionAdapterImpl::DestroyAVSession() {
-    WVLOG_I("DestroyAVSession in");
+    WVLOG_I("DestroyAVSession in actived: %d", isActived_);
     if (avSession_) {
         AVSession_ErrCode ret = OH_AVSession_Destroy(avSession_);
         if (ret != AV_SESSION_ERR_SUCCESS) {
@@ -149,7 +159,11 @@ void MediaAVSessionAdapterImpl::DestroyAVSession() {
 AVSessionCallback_Result MediaAVSessionAdapterImpl::AVSessionOnCommandCallback(OH_AVSession *session,
     AVSession_ControlCommand command, void *userData) {
     MediaAVSessionCallbackAdapter *media = reinterpret_cast<MediaAVSessionCallbackAdapter *>(userData);
-    
+
+    if (!media) {
+        return AVSESSION_CALLBACK_RESULT_FAILURE;
+    }
+
     switch (command) {
         case CONTROL_CMD_PLAY:
             media->Play();
@@ -174,6 +188,9 @@ AVSessionCallback_Result MediaAVSessionAdapterImpl::AVSessionOnSeekCallback(OH_A
     uint64_t seekTime, void *userData) {
     WVLOG_I("SeekCallback seekTime: %{public}lu", seekTime);
     MediaAVSessionCallbackAdapter *media = reinterpret_cast<MediaAVSessionCallbackAdapter *>(userData);
+    if (!media) {
+        return AVSESSION_CALLBACK_RESULT_FAILURE;
+    }
 
     media->SeekTo(seekTime);
     return AVSESSION_CALLBACK_RESULT_SUCCESS;
@@ -356,6 +373,10 @@ bool MediaAVSessionAdapterImpl::UpdateMetaDataCache(const std::shared_ptr<MediaA
 }
 
 bool MediaAVSessionAdapterImpl::UpdatePlaybackStateCache(MediaAVSessionPlayState state) {
+    if (!avSession_) {
+        return false;
+    }
+
     switch (state) {
         case MediaAVSessionPlayState::STATE_PLAY:
             avPlaybackState_ = PLAYBACK_STATE_PLAYING;
@@ -382,6 +403,11 @@ bool MediaAVSessionAdapterImpl::UpdatePlaybackStateCache(
     const std::shared_ptr<MediaAVSessionPositionAdapter> position) {
     bool updated = false;
     auto duration = static_cast<int32_t>(position->GetDuration());
+
+    if (!avSession_) {
+        return false;
+    }
+
     AVMetadata_Result ret = OH_AVMetadataBuilder_SetDuration(builder_, duration);
     if (ret == AVMETADATA_SUCCESS) {
         ret = UpdateAVMetadata();
@@ -405,7 +431,7 @@ bool MediaAVSessionAdapterImpl::UpdatePlaybackStateCache(
 }
 
 void MediaAVSessionAdapterImpl::DestroyAndEraseSession() {
-    WVLOG_I("DestroyAndEraseSession in");
+    WVLOG_I("DestroyAndEraseSession in actived: %d", isActived_);
     auto iter = avSessionMap.find(avSessionKey_->ToString());
     if (iter == avSessionMap.end()) {
         WVLOG_E("DestroyAndEraseSession invalid iterator return");
@@ -429,7 +455,7 @@ void MediaAVSessionAdapterImpl::DestroyAndEraseSession() {
 }
 
 bool MediaAVSessionAdapterImpl::CreateNewSession(const MediaAVSessionType& type) {
-    WVLOG_I("CreateNewSession in type: %{public}d", type);
+    WVLOG_I("CreateNewSession in type: %{public}d actived: %d", type, isActived_);
     AVSession_Type sessionType;
 
     switch (type) {
