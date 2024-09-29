@@ -1236,6 +1236,15 @@ public:
     int SetUrlTrustListWithErrMsg(const ArkWebString& urlTrustList, ArkWebString& detailErrMsg) override;
 
     /**
+     * @brief Send the accessibility hover event coordinate.
+     *
+     * @param x horizontal location of coordinate.
+     * @param y vertical location of coordinate.
+     */
+    /*--ark web()--*/
+    void SendAccessibilityHoverEvent(int32_t x, int32_t y) override;
+
+    /**
      * @brief RegisterArkJSfunction
      *
      * @param object_name  String: object name
