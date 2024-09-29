@@ -1065,16 +1065,6 @@ void ArkWebNWebImpl::PerformAction(int64_t accessibility_id, uint32_t action,
     nweb_nweb_->PerformAction(accessibility_id, action, ArkWebStringMapStructToClass(actionArguments));
 }
 
-void ArkWebNWebImpl::ScrollToWithAnime(float x, float y, int32_t duration)
-{
-    nweb_nweb_->ScrollToWithAnime(x, y, duration);
-}
-
-void ArkWebNWebImpl::ScrollByWithAnime(float delta_x, float delta_y, int32_t duration)
-{
-    nweb_nweb_->ScrollByWithAnime(delta_x, delta_y, duration);
-}
-
 void ArkWebNWebImpl::WebSendMouseWheelEvent(double x,
                                             double y,
                                             double delta_x,
