@@ -873,11 +873,6 @@ void ArkWebHandlerImpl::OnCursorUpdate(double x, double y, double width, double 
     nweb_handler_->OnCursorUpdate(x, y, width, height);
 }
 
-void ArkWebHandlerImpl::ReportDynamicFrameLossEvent(const ArkWebString& sceneId, bool isStart)
-{
-    nweb_handler_->ReportDynamicFrameLossEvent(ArkWebStringStructToClass(sceneId), isStart);
-}
-
 void ArkWebHandlerImpl::HideHandleAndQuickMenuIfNecessary(bool hide)
 {
     nweb_handler_->HideHandleAndQuickMenuIfNecessary(hide);

@@ -597,8 +597,6 @@ public:
 
     void OnCursorUpdate(double x, double y, double width, double height) override;
 
-    void ReportDynamicFrameLossEvent(const std::string& sceneId, bool isStart) override;
-
     void HideHandleAndQuickMenuIfNecessary(bool hide) override;
 
     void OnNativeEmbedVisibilityChange(const std::string& embed_id, bool visibility) override;

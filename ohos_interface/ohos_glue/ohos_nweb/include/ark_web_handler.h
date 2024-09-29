@@ -755,15 +755,6 @@ public:
     virtual void OnCursorUpdate(double x, double y, double width, double height) = 0;
 
     /**
-     * @brief Called when web occurs frame loss event.
-     *
-     * @param sceneId The id of event scene.
-     * @param isStart True if is start.
-     */
-    /*--ark web()--*/
-    virtual void ReportDynamicFrameLossEvent(const ArkWebString& sceneId, bool isStart) = 0;
-
-    /**
      * @brief Called when you need to temporarily hide/restore the handle menu.
      *
      * @param hide hide.
