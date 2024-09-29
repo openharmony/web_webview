@@ -1294,6 +1294,15 @@ public:
     void ScrollByWithAnime(float delta_x, float delta_y, int32_t duration) override;
 
     /**
+     * @brief Send the accessibility hover event coordinate.
+     *
+     * @param x horizontal location of coordinate.
+     * @param y vertical location of coordinate.
+     */
+    /*--ark web()--*/
+    void SendAccessibilityHoverEvent(int32_t x, int32_t y) override;
+
+    /**
      * @brief Scroll by the delta distance.
      * @param delta_x: horizontal offset.
      * @param delta_y: vertical offset.
