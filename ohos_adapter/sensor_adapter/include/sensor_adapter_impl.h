@@ -19,6 +19,8 @@
 #include "sensor_adapter.h"
 #include "sensor_agent.h"
 
+#include <mutex>
+
 namespace OHOS::NWeb {
 
 class SensorCallbackImpl {
@@ -50,6 +52,7 @@ public:
 private:
     static void OhosSensorCallback(SensorEvent* event);
     static std::unordered_map<int32_t, std::shared_ptr<SensorCallbackImpl>> sensorCallbackMap;
+    static std::mutex sensorCallbackMapMutex_;
 
     static void handleAccelerometerData(std::shared_ptr<OHOS::NWeb::SensorCallbackImpl> callback,
         SensorEvent* event);
