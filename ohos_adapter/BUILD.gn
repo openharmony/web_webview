@@ -480,6 +480,7 @@ source_set("unittests") {
     "ohos_resource_adapter/src/ohos_resource_adapter_unittest.cpp",
     "screen_capture_adapter/src/screen_capture_adapter_impl_unittest.cpp",
     "graphic_adapter/src/window_adapter_impl_unittest.cpp",
+    "utils/src/ashmem_unittest.cpp",
   ]
 
   deps = [
