@@ -560,6 +560,8 @@ public:
 
     void OnCursorUpdate(double x, double y, double width, double height) override;
 
+    void ReportDynamicFrameLossEvent(const ArkWebString& sceneId, bool isStart) override;
+
     void HideHandleAndQuickMenuIfNecessary(bool hide) override;
 
     void OnNativeEmbedVisibilityChange(const ArkWebString& embed_id, bool visibility) override;
