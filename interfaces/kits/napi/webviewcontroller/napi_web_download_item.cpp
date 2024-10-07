@@ -179,7 +179,11 @@ namespace {
 napi_value ToInt32Value(napi_env env, int32_t number)
 {
     napi_value result = nullptr;
-    napi_create_int32(env, number, &result);
+    napi_status status = napi_create_int32(env, number, &result);
+    if (status != napi_ok) {
+        WVLOG_E("napi_create_int32 failed.");
+        return nullptr;
+    }
     return result;
 }
 
@@ -410,7 +414,11 @@ napi_value NapiWebDownloadItem::JS_GetState(napi_env env, napi_callback_info cbi
     }
 
     napi_value state;
-    napi_create_int32(env, static_cast<int32_t>(webDownloadItem->state), &state);
+    napi_status status = napi_create_int32(env, static_cast<int32_t>(webDownloadItem->state), &state);
+    if (status != napi_ok) {
+        WVLOG_E("napi_create_int32 failed.");
+        return nullptr;
+    }
     return state;
 }
 
@@ -432,7 +440,11 @@ napi_value NapiWebDownloadItem::JS_GetLastErrorCode(napi_env env, napi_callback_
     }
 
     napi_value errorCode;
-    napi_create_int32(env, static_cast<int32_t>(webDownloadItem->lastErrorCode), &errorCode);
+    napi_status status = napi_create_int32(env, static_cast<int32_t>(webDownloadItem->lastErrorCode), &errorCode);
+    if (status != napi_ok) {
+        WVLOG_E("napi_create_int32 failed.");
+        return nullptr;
+    }
     return errorCode;
 }
 
