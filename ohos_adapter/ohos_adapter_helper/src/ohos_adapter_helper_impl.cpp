@@ -86,9 +86,9 @@ std::unique_ptr<BatteryMgrClientAdapter> OhosAdapterHelperImpl::CreateBatteryCli
     return std::make_unique<BatteryMgrClientAdapterImpl>();
 }
 
-OhosWebDataBaseAdapter& OhosAdapterHelperImpl::GetOhosWebDataBaseAdapterInstance()
+OhosWebDataBaseAdapter& OhosAdapterHelperImpl::GetOhosWebDataBaseAdapterInstance(const std::string& cachePath)
 {
-    return OhosWebDataBaseAdapterImpl::GetInstance();
+    return OhosWebDataBaseAdapterImpl::GetInstance(cachePath);
 }
 
 std::unique_ptr<NetConnectAdapter> OhosAdapterHelperImpl::CreateNetConnectAdapter()
@@ -116,9 +116,9 @@ AudioSystemManagerAdapter& OhosAdapterHelperImpl::GetAudioSystemManager()
     return AudioSystemManagerAdapterImpl::GetInstance();
 }
 
-OhosWebPermissionDataBaseAdapter& OhosAdapterHelperImpl::GetWebPermissionDataBaseInstance()
+OhosWebPermissionDataBaseAdapter& OhosAdapterHelperImpl::GetWebPermissionDataBaseInstance(const std::string& cachePath)
 {
-    return OhosWebPermissionDataBaseAdapterImpl::GetInstance();
+    return OhosWebPermissionDataBaseAdapterImpl::GetInstance(cachePath);
 }
 
 std::unique_ptr<MMIAdapter> OhosAdapterHelperImpl::CreateMMIAdapter()

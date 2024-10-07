@@ -29,7 +29,7 @@ namespace OHOS::NWeb {
 
 class OhosWebDataBaseAdapterImpl : public OhosWebDataBaseAdapter {
 public:
-    static OhosWebDataBaseAdapterImpl& GetInstance();
+    static OhosWebDataBaseAdapterImpl& GetInstance(const std::string& cachePath = "");
 
     ~OhosWebDataBaseAdapterImpl() override;
 
@@ -45,7 +45,7 @@ public:
 
 
 private:
-    OhosWebDataBaseAdapterImpl();
+    OhosWebDataBaseAdapterImpl(const std::string& cachePath);
 
     OhosWebDataBaseAdapterImpl(const OhosWebDataBaseAdapterImpl& other) = delete;
 

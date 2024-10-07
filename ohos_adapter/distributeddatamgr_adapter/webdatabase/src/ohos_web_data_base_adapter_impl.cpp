@@ -42,7 +42,6 @@ static const std::string CREATE_TABLE = "CREATE TABLE " + HTTPAUTH_TABLE_NAME
     + HTTPAUTH_HOST_COL + ", " + HTTPAUTH_REALM_COL
     + ") ON CONFLICT REPLACE);";
 
-const std::string WEB_PATH = "/web";
 
 const std::unordered_map<AbilityRuntime_AreaMode, Rdb_SecurityArea> AREA_MODE_MAP = {
     { AbilityRuntime_AreaMode::ABILITY_RUNTIME_AREA_MODE_EL1, Rdb_SecurityArea::RDB_SECURITY_AREA_EL1 },
@@ -53,10 +52,10 @@ const std::unordered_map<AbilityRuntime_AreaMode, Rdb_SecurityArea> AREA_MODE_MA
 };
 }
 
-OhosWebDataBaseAdapterImpl& OhosWebDataBaseAdapterImpl::GetInstance()
+OhosWebDataBaseAdapterImpl& OhosWebDataBaseAdapterImpl::GetInstance(const std::string& cachePath)
 {
     WVLOG_I("webdatabase get data base instance");
-    static OhosWebDataBaseAdapterImpl instance;
+    static OhosWebDataBaseAdapterImpl instance(cachePath);
     return instance;
 }
 
@@ -95,24 +94,15 @@ void OhosWebDataBaseAdapterImpl::GetOrOpen(const OH_Rdb_Config *config, int *err
     }
 }
 
-OhosWebDataBaseAdapterImpl::OhosWebDataBaseAdapterImpl()
+OhosWebDataBaseAdapterImpl::OhosWebDataBaseAdapterImpl(const std::string& cachePath)
 {
     WVLOG_I("webdatabase create rdb store");
 
     AbilityRuntime_ErrorCode code = ABILITY_RUNTIME_ERROR_CODE_PARAM_INVALID;
     constexpr int32_t NATIVE_BUFFER_SIZE = 1024;
-    char cacheDir[NATIVE_BUFFER_SIZE];
-    int32_t cacheDirLength = 0;
-    code = OH_AbilityRuntime_ApplicationContextGetCacheDir(cacheDir, NATIVE_BUFFER_SIZE, &cacheDirLength);
-    if (code != ABILITY_RUNTIME_ERROR_CODE_NO_ERROR) {
-        WVLOG_E("OH_AbilityRuntime_ApplicationContextGetCacheDir failed:err=%{public}d", code);
-        return;
-    }
-    std::string stringDir(cacheDir);
-    std::string databaseDir = stringDir + WEB_PATH;
 
-    if (access(databaseDir.c_str(), F_OK) != 0) {
-        WVLOG_E("webdatabase fail to access cache web dir:%{public}s", databaseDir.c_str());
+    if (access(cachePath.c_str(), F_OK) != 0) {
+        WVLOG_E("webdatabase fail to access cache web dir:%{public}s", cachePath.c_str());
         return;
     }
 
@@ -134,13 +124,13 @@ OhosWebDataBaseAdapterImpl::OhosWebDataBaseAdapterImpl()
     std::string name = HTTP_AUTH_DATABASE_FILE;
     OH_Rdb_Config config = {0};
     config.selfSize = sizeof(OH_Rdb_Config);
-    config.dataBaseDir = databaseDir.c_str();
+    config.dataBaseDir = cachePath.c_str();
     config.bundleName = bundleName;
     config.storeName = name.c_str();
     config.area = GetAreaMode(areaMode);
     config.isEncrypt = true;
     config.securityLevel = OH_Rdb_SecurityLevel::S3;
-    WVLOG_I("webdatabase databaseDir=%{public}s", databaseDir.c_str());
+    WVLOG_I("webdatabase databaseDir=%{public}s", cachePath.c_str());
     WVLOG_I("webdatabase bundleName=%{public}s", bundleName);
 
     int errCode = static_cast<int>(RDB_OK);

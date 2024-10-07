@@ -39,7 +39,7 @@ public:
 
     std::unique_ptr<NetConnectAdapter> CreateNetConnectAdapter() override;
 
-    OhosWebDataBaseAdapter& GetOhosWebDataBaseAdapterInstance() override;
+    OhosWebDataBaseAdapter& GetOhosWebDataBaseAdapterInstance(const std::string& cachePath = "") override;
 
     PasteBoardClientAdapter& GetPasteBoard() override;
 
@@ -49,7 +49,7 @@ public:
 
     AudioSystemManagerAdapter& GetAudioSystemManager() override;
 
-    OhosWebPermissionDataBaseAdapter& GetWebPermissionDataBaseInstance() override;
+    OhosWebPermissionDataBaseAdapter& GetWebPermissionDataBaseInstance(const std::string& cachePath = "") override;
 
     std::unique_ptr<MMIAdapter> CreateMMIAdapter() override;
 

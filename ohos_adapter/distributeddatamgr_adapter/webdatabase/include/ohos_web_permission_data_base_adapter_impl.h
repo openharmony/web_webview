@@ -29,7 +29,7 @@ namespace OHOS::NWeb {
 
 class OhosWebPermissionDataBaseAdapterImpl : public OhosWebPermissionDataBaseAdapter {
 public:
-    static OhosWebPermissionDataBaseAdapterImpl& GetInstance();
+    static OhosWebPermissionDataBaseAdapterImpl& GetInstance(const std::string& cachePath = "");
 
     ~OhosWebPermissionDataBaseAdapterImpl() override;
 
@@ -47,7 +47,7 @@ public:
     void GetOriginsByPermission(const WebPermissionType& key, std::vector<std::string>& origins) override;
 
 private:
-    OhosWebPermissionDataBaseAdapterImpl();
+    OhosWebPermissionDataBaseAdapterImpl(const std::string& cachePath);
 
     OhosWebPermissionDataBaseAdapterImpl(const OhosWebPermissionDataBaseAdapterImpl& other) = delete;
 
