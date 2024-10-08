@@ -34,7 +34,7 @@ class AudioCapturerAdapterImpl : public AudioCapturerAdapter {
 public:
     AudioCapturerAdapterImpl() = default;
 
-    ~AudioCapturerAdapterImpl() override = default;
+    ~AudioCapturerAdapterImpl() override;
 
     int32_t Create(const std::shared_ptr<AudioCapturerOptionsAdapter> capturerOptions,
         std::string cachePath = std::string()) override;

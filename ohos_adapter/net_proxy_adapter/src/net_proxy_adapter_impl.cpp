@@ -295,7 +295,8 @@ void NetProxyAdapterImpl::AppProxyChange(NetConn_HttpProxy *receiveHttpProxy)
         NetConn_HttpProxy tempHttpProxy;
         int32_t ret = OH_NetConn_GetDefaultHttpProxy(&tempHttpProxy);
         if (ret != 0) {
-            WVLOG_E("NetProxyAdapter::OH_NetConn_GetDefaultHttpProxy failed.");
+            WVLOG_E("NetProxyAdapter::OH_NetConn_GetDefaultHttpProxy failed, errorCode = %{public}d", ret);
+            return;
         }
         httpProxy = &tempHttpProxy;
         host.assign(httpProxy->host);
@@ -336,13 +337,17 @@ void NetProxyAdapterImpl::StopListen()
     WVLOG_I("stop netproxy listen");
     if (commonEventSubscriber_) {
         CommonEvent_ErrCode errorCode = OH_CommonEvent_UnSubscribe(commonEventSubscriber_);
-        OH_CommonEvent_DestroySubscriber(commonEventSubscriber_);
-        OH_CommonEvent_DestroySubscribeInfo(commonEventSubscribeInfo_);
-        if (errorCode == COMMONEVENT_ERR_OK) {
-            commonEventSubscriber_ = nullptr;
-        } else {
+        if (errorCode != COMMONEVENT_ERR_OK) {
             WVLOG_E("stop netproxy listen, unsubscribe common event failed");
         }
+        if (commonEventSubscriber_ != nullptr) {
+           OH_CommonEvent_DestroySubscriber(commonEventSubscriber_);
+        }
+        if (commonEventSubscribeInfo_ != nullptr) {
+            OH_CommonEvent_DestroySubscribeInfo(commonEventSubscribeInfo_);
+        }
+        commonEventSubscribeInfo_ = nullptr;
+        commonEventSubscriber_ = nullptr;
     }
 
     WVLOG_D("App netproxy,UnregisterAppHttpProxyCallback, appId is %{public}d.", appProxyCallbackId_);
@@ -358,7 +363,8 @@ void NetProxyAdapterImpl::OnReceiveEvent(const CommonEvent_RcvData *data)
     NetConn_HttpProxy httpProxy;
     int32_t ret = OH_NetConn_GetDefaultHttpProxy(&httpProxy);
     if (ret != 0) {
-        WVLOG_E("NetProxyAdapter::OH_NetConn_GetDefaultHttpProxy failed");
+        WVLOG_E("NetProxyAdapter::OH_NetConn_GetDefaultHttpProxy failed, errorCode = %{public}d", ret);
+        return;
     }
 
     std::string host;
@@ -379,6 +385,7 @@ void NetProxyAdapterImpl::GetProperty(std::string& host, uint16_t& port, std::st
     int32_t ret = OH_NetConn_GetDefaultHttpProxy(&httpProxy);
     if (ret != 0) {
         WVLOG_E("NetProxyAdapter::OH_NetConn_GetDefaultHttpProxy failed, errorCode = %{public}d", ret);
+        return;
     }
 
     host = httpProxy.host;
