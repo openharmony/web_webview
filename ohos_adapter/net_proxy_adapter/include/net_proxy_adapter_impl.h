@@ -57,6 +57,10 @@ private:
     void StartListenAppProxy();
 };
 
+namespace Base64 {
+    std::string Encode(const std::string& source);
+    std::string Decode(const std::string& encoded);
+} // namespace Base64
 } // namespace OHOS::NWeb
 
 #endif // NET_PROXY_ADAPTER_IMPL_H

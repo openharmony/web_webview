@@ -481,6 +481,8 @@ source_set("unittests") {
     "screen_capture_adapter/src/screen_capture_adapter_impl_unittest.cpp",
     "graphic_adapter/src/window_adapter_impl_unittest.cpp",
     "utils/src/ashmem_unittest.cpp",
+    "display_manager_adapter/src/display_manager_adapter_impl_unittest.cpp",
+    "net_proxy_adapter/src/net_proxy_adapter_unittest.cpp",
   ]
 
   deps = [
