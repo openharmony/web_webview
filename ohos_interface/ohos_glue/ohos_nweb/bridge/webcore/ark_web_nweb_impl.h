@@ -1322,6 +1322,13 @@ public:
      */
     /*--ark web()--*/
     void OnDestroyImageAnalyzerOverlay() override;
+
+    /**
+     * @brief set DPI when DPI changes.
+     * @param density The new density value.
+     */
+    /*--ark web()--*/
+    void SetSurfaceDensity(const double& density) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

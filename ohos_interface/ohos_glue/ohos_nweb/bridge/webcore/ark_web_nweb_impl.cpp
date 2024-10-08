@@ -1147,4 +1147,9 @@ void ArkWebNWebImpl::OnDestroyImageAnalyzerOverlay()
 {
     nweb_nweb_->OnDestroyImageAnalyzerOverlay();
 }
+
+void ArkWebNWebImpl::SetSurfaceDensity(const double& density)
+{
+    nweb_nweb_->SetSurfaceDensity(density);
+}
 } // namespace OHOS::ArkWeb
