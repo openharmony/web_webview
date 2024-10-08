@@ -15,3 +15,5 @@ web.optimization = root:root:0644
 web.debug. = root:root:0775
 web.debug.trace = root:shell:0775
 web.PRPPreload.enable = root:root:0644
+persist.arkwebcore.install_path = root:root:0776
+persist.arkwebcore.package_name = root:root:0776
