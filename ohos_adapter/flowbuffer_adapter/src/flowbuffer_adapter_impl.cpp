@@ -63,13 +63,13 @@ void FlowbufferAdapterImpl::StartPerformanceBoost()
 
 void* FlowbufferAdapterImpl::CreateAshmem(size_t size, int mapType, int& fd)
 {
-    fd = OHOS::NWEB::ShmemAdapterCreate(nullptr, size);
+    fd = OHOS::NWeb::ShmemAdapterCreate(nullptr, size);
     if (fd < 0) {
         WVLOG_E("Create ashmem failed, fd: %{public}d", fd);
         return nullptr;
     }
 
-    int result = OHOS::NWEB::ShmemAdapterSetProt(fd, PROT_READ | PROT_WRITE);
+    int result = OHOS::NWeb::ShmemAdapterSetProt(fd, PROT_READ | PROT_WRITE);
     if (result < 0) {
         close(fd);
         WVLOG_E("Ashmem set port failed, result: %{public}d", result);
@@ -94,7 +94,7 @@ void* FlowbufferAdapterImpl::CreateAshmemWithFd(const int fd, size_t size, int m
         return nullptr;
     }
 
-    int ashmemSize = OHOS::NWEB::ShmemAdapterGetSize(fd);
+    int ashmemSize = OHOS::NWeb::ShmemAdapterGetSize(fd);
     if (ashmemSize < 0 || size_t(ashmemSize) < size) {
         WVLOG_E("CreateAshmemWithFd failed, ashmemSize: %{public}d, size: %{public}zu", ashmemSize, size);
         return nullptr;
