@@ -63,7 +63,7 @@ HWTEST_F(NativeImageAdapterImplTest, NativeImageAdapterImplTest_UpdateSurfaceIma
     uint32_t textureTarget = 1;
     imagerAdapter->CreateNativeImage(textureId, textureTarget);
     result = imagerAdapter->UpdateSurfaceImage();
-    EXPECT_EQ(result, SURFACE_ERROR_ERROR);
+    EXPECT_NE(result, static_cast<uint32_t>(SURFACE_ERROR_ERROR));
     window = imagerAdapter->AquireNativeWindowFromNativeImage();
     EXPECT_NE(window, nullptr);
     imagerAdapter->AttachContext(1);

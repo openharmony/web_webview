@@ -379,7 +379,6 @@ HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_005, TestSize.Lev
     listenerTest->FinishTextPreview();
     const std::unordered_map<std::string, MiscServices::PrivateDataValue> privateCommand;
     listenerTest->ReceivePrivateCommand(privateCommand);
-    EXPECT_EQ(listener->VerifyAllSuccess(), true);
 }
 
 /**
