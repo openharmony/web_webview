@@ -1,0 +1,18 @@
+{
+    "process": "app_fwk_update_service",
+    "systemability": [
+        {
+            "name": 8350,
+            "libpath": "libapp_fwk_update_service.z.so",
+            "run-on-create": false,
+            "auto-restart": true,
+            "distributed": false,
+            "dump-level": 1,
+            "start-on-demand": {
+                "commonevent": [
+                    { "name": "usual.event.PACKAGE_CHANGED" }
+                ]
+            }
+        }
+    ]
+}

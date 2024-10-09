@@ -18,27 +18,27 @@
 #include <cstdint>
 #include <dirent.h>
 #include <dlfcn.h>
+#include <fcntl.h>
 #include <memory>
 #include <refbase.h>
 #include <surface.h>
 #include <sys/stat.h>
 #include <thread>
 #include <unistd.h>
-#include <fcntl.h>
 
+#include "app_mgr_client.h"
 #include "application_context.h"
 #include "ark_web_nweb_bridge_helper.h"
 #include "config_policy_utils.h"
 #include "locale_config.h"
 #include "nweb_adapter_helper.h"
+#include "nweb_c_api.h"
 #include "nweb_enhance_surface_adapter.h"
+#include "nweb_hisysevent.h"
 #include "nweb_log.h"
 #include "nweb_surface_adapter.h"
 #include "parameter.h"
 #include "parameters.h"
-
-#include "nweb_hisysevent.h"
-#include "nweb_c_api.h"
 
 namespace {
 const int32_t NS_TO_S = 1000000000;
@@ -625,6 +625,12 @@ bool NWebHelper::LoadLib(bool from_ark)
         return false;
     }
     libHandleWebEngine_ = libHandleWebEngine;
+    auto appMgrClient = std::make_unique<OHOS::AppExecFwk::AppMgrClient>();
+    auto result = appMgrClient->ConnectAppMgrService();
+    if (result == OHOS::AppExecFwk::AppMgrResultCode::RESULT_OK) {
+        auto ret = appMgrClient->NotifyProcessDependedOnWeb();
+        WVLOG_I("NotifyProcessDependedOnWeb. %{public}d", ret);
+    }
     return true;
 }
 #else
