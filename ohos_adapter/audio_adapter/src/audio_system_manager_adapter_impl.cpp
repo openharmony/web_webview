@@ -388,7 +388,7 @@ std::shared_ptr<AudioDeviceDescAdapter> AudioSystemManagerAdapterImpl::GetDefaul
 
     desc->SetDeviceId(defaultDevice->deviceId_);
     if (defaultDevice->deviceName_.empty()) {
-       desc->SetDeviceName(GetDeviceName(defaultDevice->deviceType_));
+        desc->SetDeviceName(GetDeviceName(defaultDevice->deviceType_));
     } else {
         desc->SetDeviceName(defaultDevice->deviceName_);
     }

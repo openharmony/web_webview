@@ -56,5 +56,7 @@ HWTEST_F(DatashareAdapterImplTest, DatashareAdapterImplTest_GetInstance_001, Tes
     EXPECT_EQ(result, -1);
     std::string displayName = DatashareAdapterImpl::GetInstance().GetFileDisplayName(uri);
     EXPECT_EQ(displayName, "test.txt");
+    std::string real_path = DatashareAdapterImpl::GetInstance().GetRealPath(uri);
+    EXPECT_TRUE(real_path.find("test") != std::string::npos);
 }
 } // namespace OHOS

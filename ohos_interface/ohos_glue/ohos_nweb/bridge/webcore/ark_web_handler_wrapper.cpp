@@ -857,18 +857,6 @@ void ArkWebHandlerWrapper::ReleaseResizeHold()
     ark_web_handler_->ReleaseResizeHold();
 }
 
-void ArkWebHandlerWrapper::OnShowAutofillPopup(
-    const float offsetX, const float offsetY, const std::vector<std::string>& menu_items)
-{
-    ArkWebStringVector stMenuItems = ArkWebStringVectorClassToStruct(menu_items);
-    ark_web_handler_->OnShowAutofillPopup(offsetX, offsetY, stMenuItems);
-}
-
-void ArkWebHandlerWrapper::OnHideAutofillPopup()
-{
-    ark_web_handler_->OnHideAutofillPopup();
-}
-
 std::vector<int8_t> ArkWebHandlerWrapper::GetWordSelection(const std::string& text, int8_t offset)
 {
     ArkWebString ark_text = ArkWebStringClassToStruct(text);
@@ -885,16 +873,6 @@ void ArkWebHandlerWrapper::UpdateClippedSelectionBounds(int x, int y, int w, int
     ark_web_handler_->UpdateClippedSelectionBounds(x, y, w, h);
 }
 
-bool ArkWebHandlerWrapper::OnOpenAppLink(
-    const std::string& url, std::shared_ptr<OHOS::NWeb::NWebAppLinkCallback> callback)
-{
-    if (CHECK_SHARED_PTR_IS_NULL(callback)) {
-        return false;
-    }
-
-    return ark_web_handler_->OnOpenAppLink(ArkWebStringClassToStruct(url), new ArkWebAppLinkCallbackImpl(callback));
-}
-
 void ArkWebHandlerWrapper::OnRenderProcessNotResponding(
     const std::string& js_stack, int pid, ArkWebRenderProcessNotRespondingReason reason)
 {
@@ -907,21 +885,26 @@ void ArkWebHandlerWrapper::OnRenderProcessResponding()
     ark_web_handler_->OnRenderProcessResponding();
 }
 
-void ArkWebHandlerWrapper::OnViewportFitChange(ArkWebViewportFit viewportFit)
+bool ArkWebHandlerWrapper::OnOpenAppLink(
+    const std::string& url, std::shared_ptr<OHOS::NWeb::NWebAppLinkCallback> callback)
 {
-    ark_web_handler_->OnViewportFitChange(static_cast<int>(viewportFit));
+    if (CHECK_SHARED_PTR_IS_NULL(callback)) {
+        return false;
+    }
+
+    return ark_web_handler_->OnOpenAppLink(ArkWebStringClassToStruct(url), new ArkWebAppLinkCallbackImpl(callback));
 }
 
-void ArkWebHandlerWrapper::CreateOverlay(void* data, size_t len, int width, int height, int offset_x, int offset_y,
-    int rect_width, int rect_height, int point_x, int point_y)
+void ArkWebHandlerWrapper::OnShowAutofillPopup(
+    const float offsetX, const float offsetY, const std::vector<std::string>& menu_items)
 {
-    ark_web_handler_->CreateOverlay(
-        data, len, width, height, offset_x, offset_x, rect_width, rect_height, point_x, point_y);
+    ArkWebStringVector stMenuItems = ArkWebStringVectorClassToStruct(menu_items);
+    ark_web_handler_->OnShowAutofillPopup(offsetX, offsetY, stMenuItems);
 }
 
-void ArkWebHandlerWrapper::OnOverlayStateChanged(int offset_x, int offset_y, int rect_width, int rect_height)
+void ArkWebHandlerWrapper::OnHideAutofillPopup()
 {
-    ark_web_handler_->OnOverlayStateChanged(offset_x, offset_y, rect_width, rect_height);
+    ark_web_handler_->OnHideAutofillPopup();
 }
 
 bool ArkWebHandlerWrapper::OnFocus(ArkWebFocusSource source)
@@ -934,14 +917,32 @@ bool ArkWebHandlerWrapper::OnOverScroll(float xOffset, float yOffset, float xVel
     return ark_web_handler_->OnOverScroll(xOffset, yOffset, xVelocity, yVelocity);
 }
 
-void ArkWebHandlerWrapper::KeyboardReDispatch(std::shared_ptr<OHOS::NWeb::NWebKeyEvent> event, bool isUsed)
+void ArkWebHandlerWrapper::CreateOverlay(void* data, size_t len, int width, int height, int offset_x, int offset_y,
+    int rect_width, int rect_height, int point_x, int point_y)
 {
-    if (CHECK_SHARED_PTR_IS_NULL(event)) {
-        ark_web_handler_->KeyboardReDispatch(nullptr, isUsed);
-        return;
-    }
+    ark_web_handler_->CreateOverlay(
+        data, len, width, height, offset_x, offset_y, rect_width, rect_height, point_x, point_y);
+}
 
-    ark_web_handler_->KeyboardReDispatch(new ArkWebKeyEventImpl(event), isUsed);
+void ArkWebHandlerWrapper::OnOverlayStateChanged(int offset_x, int offset_y, int rect_width, int rect_height)
+{
+    ark_web_handler_->OnOverlayStateChanged(offset_x, offset_y, rect_width, rect_height);
+}
+
+void ArkWebHandlerWrapper::OnViewportFitChange(ArkWebViewportFit viewportFit)
+{
+    ark_web_handler_->OnViewportFitChange(static_cast<int>(viewportFit));
+}
+
+void ArkWebHandlerWrapper::OnAdsBlocked(const std::string& url, const std::vector<std::string>& adsBlocked)
+{
+    ArkWebString stUrl = ArkWebStringClassToStruct(url);
+    ArkWebStringVector stAdsBlocked = ArkWebStringVectorClassToStruct(adsBlocked);
+
+    ark_web_handler_->OnAdsBlocked(stUrl, stAdsBlocked);
+
+    ArkWebStringVectorStructRelease(stAdsBlocked);
+    ArkWebStringStructRelease(stUrl);
 }
 
 void ArkWebHandlerWrapper::OnInterceptKeyboardAttach(
@@ -966,21 +967,14 @@ void ArkWebHandlerWrapper::OnCustomKeyboardClose()
     ark_web_handler_->OnCustomKeyboardClose();
 }
 
-void ArkWebHandlerWrapper::OnAdsBlocked(
-    const std::string& url,
-    const std::vector<std::string>& adsBlocked) {
-  ArkWebString stUrl = ArkWebStringClassToStruct(url);
-  ArkWebStringVector stAdsBlocked = ArkWebStringVectorClassToStruct(adsBlocked);
-
-  ark_web_handler_->OnAdsBlocked(stUrl, stAdsBlocked);
-
-  ArkWebStringVectorStructRelease(stAdsBlocked);
-  ArkWebStringStructRelease(stUrl);
-}
-
-void ArkWebHandlerWrapper::OnCursorUpdate(double x, double y, double width, double height)
+void ArkWebHandlerWrapper::KeyboardReDispatch(std::shared_ptr<OHOS::NWeb::NWebKeyEvent> event, bool isUsed)
 {
-    ark_web_handler_->OnCursorUpdate(x, y, width, height);
+    if (CHECK_SHARED_PTR_IS_NULL(event)) {
+        ark_web_handler_->KeyboardReDispatch(nullptr, isUsed);
+        return;
+    }
+
+    ark_web_handler_->KeyboardReDispatch(new ArkWebKeyEventImpl(event), isUsed);
 }
 
 void ArkWebHandlerWrapper::HideHandleAndQuickMenuIfNecessary(bool hide)
@@ -988,19 +982,35 @@ void ArkWebHandlerWrapper::HideHandleAndQuickMenuIfNecessary(bool hide)
     ark_web_handler_->HideHandleAndQuickMenuIfNecessary(hide);
 }
 
-void ArkWebHandlerWrapper::OnNativeEmbedVisibilityChange(const std::string& embed_id, bool visibility)
+void ArkWebHandlerWrapper::OnCursorUpdate(double x, double y, double width, double height)
 {
-    ArkWebString stEmbedId = ArkWebStringClassToStruct(embed_id);
-    ark_web_handler_->OnNativeEmbedVisibilityChange(stEmbedId, visibility);
-    ArkWebStringStructRelease(stEmbedId);
+    ark_web_handler_->OnCursorUpdate(x, y, width, height);
 }
 
-void ArkWebHandlerWrapper::StartVibraFeedback(const std::string& vibratorType)
-{
-    ArkWebString stVibratorType = ArkWebStringClassToStruct(vibratorType);
 
-    ark_web_handler_->StartVibraFeedback(stVibratorType);
+ void ArkWebHandlerWrapper::ChangeVisibilityOfQuickMenu()
+ {
+     ark_web_handler_->ChangeVisibilityOfQuickMenu();
+ }
+ 
+ void ArkWebHandlerWrapper::StartVibraFeedback(const std::string& vibratorType)
+ {
+     ArkWebString stVibratorType = ArkWebStringClassToStruct(vibratorType);
 
-    ArkWebStringStructRelease(stVibratorType);
-}
+     ark_web_handler_->StartVibraFeedback(stVibratorType);
+
+     ArkWebStringStructRelease(stVibratorType);
+ }
+ 
+ void ArkWebHandlerWrapper::OnNativeEmbedVisibilityChange(const std::string& embed_id, bool visibility)
+ {
+     ArkWebString stEmbedId = ArkWebStringClassToStruct(embed_id);
+
+     ark_web_handler_->OnNativeEmbedVisibilityChange(stEmbedId, visibility);
+ }
+
+ bool ArkWebHandlerWrapper::CloseImageOverlaySelection()
+ {
+    return ark_web_handler_->CloseImageOverlaySelection();
+ }
 } // namespace OHOS::ArkWeb

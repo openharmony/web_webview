@@ -44,7 +44,7 @@ int32_t PrintManagerAdapterImpl::Print(const std::string& printJobName,
     const std::shared_ptr<PrintDocumentAdapterAdapter> listener, const PrintAttributesAdapter& printAttributes)
 {
 #if defined(NWEB_PRINT_ENABLE)
-    OHOS::Print::PrintDocumentAdapter* adapter = new PrintDocumentAdapterImpl(listener);
+    OHOS::Print::PrintDocumentAdapter* adapter = new (std::nothrow) PrintDocumentAdapterImpl(listener);
     if (!adapter) {
         WVLOG_E("adapter get failed");
         return -1;
@@ -75,7 +75,7 @@ int32_t PrintManagerAdapterImpl::Print(const std::string& printJobName,
     void* contextToken)
 {
 #if defined(NWEB_PRINT_ENABLE)
-    OHOS::Print::PrintDocumentAdapter* adapter = new PrintDocumentAdapterImpl(listener);
+    OHOS::Print::PrintDocumentAdapter* adapter = new (std::nothrow) PrintDocumentAdapterImpl(listener);
     if (!adapter) {
         WVLOG_E("adapter get failed");
         return -1;

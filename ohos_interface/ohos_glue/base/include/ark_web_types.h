@@ -203,6 +203,12 @@ R ArkWebBasicMapClassToStruct(const std::map<T1, T2>& class_value)
     if (struct_value.size > 0) {
         struct_value.key = (T1*)ArkWebMemMalloc(sizeof(T1) * struct_value.size);
         struct_value.value = (T2*)ArkWebMemMalloc(sizeof(T2) * struct_value.size);
+        if (struct_value.key == nullptr || struct_value.value == nullptr) {
+            ArkWebMemFree(struct_value.key);
+            ArkWebMemFree(struct_value.value);
+            struct_value.size = 0;
+            return struct_value;
+        }
 
         int count = 0;
         for (auto it = class_value.begin(); it != class_value.end(); it++) {
@@ -242,6 +248,10 @@ R ArkWebBasicListClassToStruct(const std::list<T>& class_value)
     R struct_value = { .size = class_value.size(), .ark_web_mem_free_func = ArkWebMemFree };
     if (struct_value.size > 0) {
         struct_value.value = (T*)ArkWebMemMalloc(sizeof(T) * struct_value.size);
+        if (struct_value.value == nullptr) {
+            struct_value.size = 0;
+            return struct_value;
+        }
 
         int count = 0;
         for (auto it = class_value.begin(); it != class_value.end(); it++) {
@@ -279,6 +289,10 @@ R ArkWebBasicVectorClassToStruct(const std::vector<T>& class_value)
     R struct_value = { .size = class_value.size(), .ark_web_mem_free_func = ArkWebMemFree };
     if (struct_value.size > 0) {
         struct_value.value = (T*)ArkWebMemMalloc(sizeof(T) * struct_value.size);
+        if (struct_value.value == nullptr) {
+            struct_value.size = 0;
+            return struct_value;
+        }
 
         int count = 0;
         for (auto it = class_value.begin(); it != class_value.end(); it++) {

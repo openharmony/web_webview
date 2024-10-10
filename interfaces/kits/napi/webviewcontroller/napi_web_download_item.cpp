@@ -202,6 +202,10 @@ napi_value NapiWebDownloadItem::JS_GetMethod(napi_env env, napi_callback_info cb
     napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, &data);
 
     napi_unwrap(env, thisVar, (void **)&webDownloadItem);
+    if (!webDownloadItem) {
+        WVLOG_E("[DOWNLOAD] NapiWebDownloadItem::JS_GetMethod webDownloadItem is null");
+        return nullptr;
+    }
 
     napi_value methodValue;
     napi_status status = napi_create_string_utf8(env, webDownloadItem->method.c_str(), NAPI_AUTO_LENGTH, &methodValue);
@@ -223,6 +227,10 @@ napi_value NapiWebDownloadItem::JS_GetMimeType(napi_env env, napi_callback_info 
     napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, &data);
 
     napi_unwrap(env, thisVar, (void **)&webDownloadItem);
+    if (!webDownloadItem) {
+        WVLOG_E("[DOWNLOAD] NapiWebDownloadItem::JS_GetMimeType webDownloadItem is null");
+        return nullptr;
+    }
 
     napi_value mimeTypeValue;
     napi_status status =
@@ -634,7 +642,7 @@ napi_value NapiWebDownloadItem::JS_Start(napi_env env, napi_callback_info cbinfo
     napi_get_value_string_utf8(env, argv[0], stringValue, pathLen + 1, &jsStringLength);
     if (jsStringLength != pathLen) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-                "BusinessError: 401. Parameter error. The type of 'downloadPath' must be a valid path string.");
+            "BusinessError: 401. Parameter error. The type of 'downloadPath' must be a valid path string.");
         return nullptr;
     }
     webDownloadItem->downloadPath = std::string(stringValue);
@@ -674,7 +682,7 @@ napi_value NapiWebDownloadItem::JS_Serialize(napi_env env, napi_callback_info cb
 
     WebDownloadItem *webDownloadItem = nullptr;
     napi_unwrap(env, thisVar, (void **)&webDownloadItem);
-    if(!webDownloadItem) {
+    if (!webDownloadItem) {
         WVLOG_E("[DOWNLOAD] NapiWebDownloadItem::JS_Serialize webDownloadItem is null");
         return nullptr;
     }
@@ -725,7 +733,7 @@ napi_value NapiWebDownloadItem::JS_Deserialize(napi_env env, napi_callback_info 
     napi_status status = napi_get_typedarray_info(env, argv[0], nullptr, &bufLen, &buf, &arraybuffer, nullptr);
     if (status != napi_ok) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-                "BusinessError: 401. Parameter error. The type of 'serializedData' must be array.");
+            "BusinessError: 401. Parameter error. The type of 'serializedData' must be array.");
         return nullptr;
     }
 

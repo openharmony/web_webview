@@ -206,7 +206,7 @@ int32_t WebSchemeHandlerResponse::SetUrl(const char* url)
     return OH_ArkWebResponse_SetUrl(response_, url);
 }
 
-int32_t WebSchemeHandlerResponse::GetStatus()
+int32_t WebSchemeHandlerResponse::GetStatus() const
 {
     return OH_ArkWebResponse_GetStatus(response_);
 }
@@ -248,7 +248,7 @@ int32_t WebSchemeHandlerResponse::SetMimeType(const char* mimeType)
     return OH_ArkWebResponse_SetMimeType(response_, mimeType);
 }
 
-char* WebSchemeHandlerResponse::GetEncoding()
+char* WebSchemeHandlerResponse::GetEncoding() const
 {
     if (!response_) {
         WVLOG_E("WebSchemeHandlerResponse is nullptr");
@@ -780,7 +780,7 @@ void WebHttpBodyStream::ExecuteReadComplete(napi_env env, napi_status status, vo
     ReadParam* param = static_cast<ReadParam*>(data);
     if (!param) {
         return;
-    } 
+    }
     napi_handle_scope scope = nullptr;
     napi_open_handle_scope(env, &scope);
     if (!scope) {
@@ -831,21 +831,21 @@ void WebHttpBodyStream::ExecuteRead(uint8_t* buffer, int bytesRead)
     NAPI_CALL_RETURN_VOID(env_, napi_create_async_work(env_, nullptr, resourceName,
         [](napi_env env, void *data) {},
         ExecuteReadComplete, static_cast<void *>(param), &param->asyncWork));
-    NAPI_CALL_RETURN_VOID(env_, 
+    NAPI_CALL_RETURN_VOID(env_,
         napi_queue_async_work_with_qos(env_, param->asyncWork, napi_qos_user_initiated));
 }
 
-uint64_t WebHttpBodyStream::GetPostion()
+uint64_t WebHttpBodyStream::GetPostion() const
 {
     return OH_ArkWebHttpBodyStream_GetPosition(stream_);
 }
 
-uint64_t WebHttpBodyStream::GetSize()
+uint64_t WebHttpBodyStream::GetSize() const
 {
     return OH_ArkWebHttpBodyStream_GetSize(stream_);
 }
 
-bool WebHttpBodyStream::IsChunked()
+bool WebHttpBodyStream::IsChunked() const
 {
     return OH_ArkWebHttpBodyStream_IsChunked(stream_);
 }

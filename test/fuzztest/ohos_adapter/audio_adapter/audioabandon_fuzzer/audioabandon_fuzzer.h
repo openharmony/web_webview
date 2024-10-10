@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "audioabandon_fuzzer"
 #endif /* TEST_FUZZTEST_AUDIO_ABANDON_FUZZER_H */
-

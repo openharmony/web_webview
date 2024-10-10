@@ -344,13 +344,13 @@ napi_value NapiGeolocationPermission::JsGetAccessibleGeolocation(napi_env env, n
     napi_value argv[PARAMTHREE] = { 0 };
     napi_get_cb_info(env, info, &argc, argv, &retValue, nullptr);
     if (argc != argcPromise && argc != argcCallback && argc != argcPromiseForOld) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_THREE, "one", "two", "three"));
         return nullptr;
     }
     std::string origin;
     if (!GetStringPara(env, argv[PARAMZERO], origin)) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "origin", "string"));
         return nullptr;
     }
@@ -360,12 +360,12 @@ napi_value NapiGeolocationPermission::JsGetAccessibleGeolocation(napi_env env, n
         napi_valuetype valueType = napi_undefined;
         napi_typeof(env, argv[PARAMONE], &valueType);
         if (valueType != napi_function) {
-            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
                 NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "callback", "function"));
             return nullptr;
         }
         if (!GetBooleanPara(env, argv[PARAMTWO], incognitoMode)) {
-            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
                 NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
             return nullptr;
         }
@@ -378,7 +378,7 @@ napi_value NapiGeolocationPermission::JsGetAccessibleGeolocation(napi_env env, n
         napi_typeof(env, argv[PARAMONE], &valueType);
         if (valueType != napi_function) {
             if (!GetBooleanPara(env, argv[PARAMONE], incognitoMode)) {
-                NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+                NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
                     NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
                 return nullptr;
             }

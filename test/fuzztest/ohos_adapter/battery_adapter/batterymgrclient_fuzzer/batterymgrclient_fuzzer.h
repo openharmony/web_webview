@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "batterymgrclient_fuzzer"
 #endif /* TEST_FUZZTEST_BATTERY_MGR_CLIENT_FUZZER_H */
-

@@ -527,10 +527,10 @@ public:
 
     void UpdateClippedSelectionBounds(int x, int y, int w, int h) override;
 
-    bool OnOpenAppLink(const ArkWebString& url, ArkWebRefPtr<ArkWebAppLinkCallback> callback) override;
-
     void OnRenderProcessNotResponding(const ArkWebString& js_stack, int pid, int reason) override;
     void OnRenderProcessResponding() override;
+
+    bool OnOpenAppLink(const ArkWebString& url, ArkWebRefPtr<ArkWebAppLinkCallback> callback) override;
 
     void OnShowAutofillPopup(const float offsetX, const float offsetY, const ArkWebStringVector& menu_items) override;
 
@@ -538,16 +538,16 @@ public:
 
     void OnViewportFitChange(int viewportFit) override;
 
+    bool OnFocus(int source) override;
+
+    bool OnOverScroll(float xOffset, float yOffset, float xVelocity, float yVelocity) override;
+
     void CreateOverlay(void* data, size_t len, int width, int height, int offset_x, int offset_y, int rect_width,
         int rect_height, int point_x, int point_y) override;
 
     void OnOverlayStateChanged(int offset_x, int offset_y, int rect_width, int rect_height) override;
 
-    bool OnFocus(int source) override;
-
-    bool OnOverScroll(float xOffset, float yOffset, float xVelocity, float yVelocity) override;
-
-    void KeyboardReDispatch(ArkWebRefPtr<ArkWebKeyEvent> event, bool isUsed) override;
+    void OnAdsBlocked(const ArkWebString& url, const ArkWebStringVector& adsBlocked) override;
 
     void OnInterceptKeyboardAttach(ArkWebRefPtr<ArkWebCustomKeyboardHandler> keyboardHandler,
         const ArkWebStringMap &attributes, bool &useSystemKeyboard, int32_t &enterKeyType) override;
@@ -556,15 +556,19 @@ public:
 
     void OnCustomKeyboardClose() override;
 
-    void OnAdsBlocked(const ArkWebString &url, const ArkWebStringVector &adsBlocked) override;
-
-    void OnCursorUpdate(double x, double y, double width, double height) override;
+    void KeyboardReDispatch(ArkWebRefPtr<ArkWebKeyEvent> event, bool isUsed) override;
 
     void HideHandleAndQuickMenuIfNecessary(bool hide) override;
+ 
+    void OnCursorUpdate(double x, double y, double width, double height) override;
+ 
+    void ChangeVisibilityOfQuickMenu() override;
+
+    void StartVibraFeedback(const ArkWebString& vibratorType) override;
 
     void OnNativeEmbedVisibilityChange(const ArkWebString& embed_id, bool visibility) override;
 
-    void StartVibraFeedback(const ArkWebString& vibratorType) override;
+    bool CloseImageOverlaySelection() override;
 
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;

@@ -67,7 +67,7 @@ typedef enum ArkWeb_WebMessageType {
     /** The data carried in the ArkWeb_WebMessage is buffer(uint8_t). */
     ARKWEB_BUFFER
 } ArkWeb_WebMessageType;
- 
+
 /**
  * @brief Defines the ArkWeb_WebMessage.
  *
@@ -104,7 +104,7 @@ typedef void (*ArkWeb_OnComponentCallback)(const char* webTag, void* userData);
  * @since 12
  */
 typedef struct ArkWeb_WebMessagePort* ArkWeb_WebMessagePortPtr;
- 
+
 /**
  * @brief Defines the callback to receive message from HTML.
  *
@@ -415,6 +415,6 @@ typedef struct {
 #define ARKWEB_MEMBER_MISSING(s, f) (!ARKWEB_MEMBER_EXISTS(s, f) || !((s)->f))
 
 #ifdef __cplusplus
-};
+}
 #endif
 #endif // ARKWEB_TYPE_H

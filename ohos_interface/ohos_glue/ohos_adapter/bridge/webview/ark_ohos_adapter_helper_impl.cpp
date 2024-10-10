@@ -377,4 +377,10 @@ ArkWebRefPtr<ArkSensorAdapter> ArkOhosAdapterHelperImpl::CreateSensorAdapter()
     std::shared_ptr<NWeb::SensorAdapter> shared = std::move(adapter);
     return new ArkSensorAdapterImpl(shared);
 }
+
+void ArkOhosAdapterHelperImpl::SetArkWebCoreHapPathOverride(const ArkWebString& hapPath)
+{
+    real_.SetArkWebCoreHapPathOverride(ArkWebStringStructToClass(hapPath));
+}
+
 } // namespace OHOS::ArkWeb

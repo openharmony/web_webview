@@ -23,7 +23,7 @@ ArkWebAdsBlockManagerWrapper::ArkWebAdsBlockManagerWrapper(ArkWebRefPtr<ArkWebAd
     : ark_web_adsblock_manager_(ark_web_adsblock_manager)
 {}
 
-void ArkWebAdsBlockManagerWrapper::SetAdsBlockRules(const std::string &rulesFile, bool replace)
+void ArkWebAdsBlockManagerWrapper::SetAdsBlockRules(const std::string& rulesFile, bool replace)
 {
     ArkWebString stRulesFile = ArkWebStringClassToStruct(rulesFile);
 

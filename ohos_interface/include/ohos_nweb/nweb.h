@@ -1169,14 +1169,6 @@ public:
     virtual void OnCreateNativeMediaPlayer(std::shared_ptr<NWebCreateNativeMediaPlayerCallback> callback) = 0;
 
     /**
-     * @brief Web drag resize optimize.
-     */
-    /*--ark web()--*/
-    virtual void DragResize(uint32_t width, uint32_t height, uint32_t pre_height, uint32_t pre_width) = 0;
-
-    virtual void OnTouchCancelById(int32_t id, double x, double y, bool from_overlay) = 0;
-
-    /**
      * Inject Offline Resource into Memory Cache.
      *
      * @param url url of resource.
@@ -1235,7 +1227,7 @@ public:
      * @param x location of x.
      * @param y location of y.
      * @param vx velocity of x.
-     * @param vy velocity of y.
+     * @param vy velocity of x.
      */
     virtual void SendTouchpadFlingEvent(double x, double y, double vx, double vy) = 0;
 
@@ -1357,14 +1349,6 @@ public:
     virtual void SetPathAllowingUniversalAccess(const std::vector<std::string>& dirList,
                                                 const std::vector<std::string>& moduleName,
                                                 std::string& errorPath) {}
-    /**
-     * Execute an accessibility action on an accessibility node in the browser.
-     * @param accessibilityId The id of the accessibility node.
-     * @param action The action to be performed on the accessibility node.
-     * @param actionArguments Data related to the current action.
-     */
-    virtual void PerformAction(int64_t accessibilityId, uint32_t action,
-        const std::map<std::string, std::string>& actionArguments) {}
 
     /**
      * @brief Send mouse wheel event.
@@ -1430,6 +1414,18 @@ public:
     virtual void SetBackForwardCacheOptions(int32_t size, int32_t timeToLive) { return; }
 
     /**
+     * RegisterArkJSfunctionV2
+     *
+     * @param object_name  String: object name
+     * @param method_list vector<String>: vector list, async method list
+     * @param method_list vector<String>: vector list, sync method list
+     * @param object_id int32_t: object id
+     * @param permission String: allow list
+     */
+    virtual void RegisterArkJSfunctionV2(const std::string& object_name, const std::vector<std::string>& method_list,
+        const std::vector<std::string>& async_method_list, const int32_t object_id, const std::string& permission) {}
+
+    /**
      * @brief set the callback of the autofill event.
      * @param callback callback.
      */
@@ -1442,21 +1438,38 @@ public:
     virtual void FillAutofillData(std::shared_ptr<NWebMessage> data) {}
 
     /**
+     * @brief on autofill cancel.
+     * @param fillContent fillContent
+     */
+    virtual void OnAutofillCancel(const std::string& fillContent) {}
+
+    /**
+     * Execute an accessibility action on an accessibility node in the browser.
+     * @param accessibilityId The id of the accessibility node.
+     * @param action The action to be performed on the accessibility node.
+     * @param actionArguments Data related to the current action.
+     */
+    virtual void PerformAction(int64_t accessibilityId, uint32_t action,
+        const std::map<std::string, std::string>& actionArguments) {}
+
+    /**
+     * @brief Send the accessibility hover event coordinate.
+     *
+     * @param x horizontal location of coordinate.
+     * @param y vertical location of coordinate.
+     */
+    virtual void SendAccessibilityHoverEvent(int32_t x, int32_t y) {}
+
+    /**
      * Scroll by the delta distance if web is not foucsed.
      *
      * @param delta_x horizontal offset.
      * @param delta_y vertical offset.
      * @return false if web is focused.
-     */
+    */
     virtual bool ScrollByWithResult(float delta_x, float delta_y) {
-       return false;
+        return false;
     }
-
-    /**
-     * @brief on autofill cancel.
-     * @param fillContent fillContent
-     */
-    virtual void OnAutofillCancel(const std::string& fillContent) {}
 
     /**
      * @brief Called when image analyzer is destory.

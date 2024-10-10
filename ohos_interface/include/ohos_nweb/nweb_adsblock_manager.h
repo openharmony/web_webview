@@ -34,7 +34,7 @@ public:
      * @param rulesFile absolute easylist file path contains app customized ads block rules.
      * @param replace replace internal rules or not;
      */
-    virtual void SetAdsBlockRules(const std::string &rulesFile, bool replace) = 0;
+    virtual void SetAdsBlockRules(const std::string& rulesFile, bool replace) = 0;
 
     /**
      * @brief Add items to Ads Block Disallowed list.
@@ -42,14 +42,14 @@ public:
      * @param domainSuffix list of domains suffix. if web page url matches someone in the list,
      * Ads Block will be disallowed for the web page.
      */
-    virtual void AddAdsBlockDisallowedList(const std::vector<std::string> &domainSuffixes) = 0;
+    virtual void AddAdsBlockDisallowedList(const std::vector<std::string>& domainSuffixes) = 0;
 
     /**
      * @brief Remove items from Ads Block disallowed list.
      *
      * @param domainSuffix : list of domains suffix needed be removed from disallow list
      */
-    virtual void RemoveAdsBlockDisallowedList(const std::vector<std::string> &domainSuffixes) = 0;
+    virtual void RemoveAdsBlockDisallowedList(const std::vector<std::string>& domainSuffixes) = 0;
 
     /**
      * @brief Clear Ads Block disallowed list.
@@ -66,14 +66,14 @@ public:
      * @param domainSuffix list of domains suffix, if web page url matches someone in the list,
      * Ads Block will be allowed for the web page.
      */
-    virtual void AddAdsBlockAllowedList(const std::vector<std::string> &domainSuffixes) = 0;
+    virtual void AddAdsBlockAllowedList(const std::vector<std::string>& domainSuffixes) = 0;
 
     /**
      * @brief Remove items from Ads Block allowed list.
      *
      * @param domainSuffix : list of domains suffix needed be removed from allow list
      */
-    virtual void RemoveAdsBlockAllowedList(const std::vector<std::string> &domainSuffixes) = 0;
+    virtual void RemoveAdsBlockAllowedList(const std::vector<std::string>& domainSuffixes) = 0;
 
     /**
      * @brief Clear Ads Block allow list.
@@ -84,4 +84,4 @@ public:
 
 } // namespace OHOS::NWeb
 
-#endif  // NWEB_ADSBLOCK_MANAGER_H
+#endif // NWEB_ADSBLOCK_MANAGER_H

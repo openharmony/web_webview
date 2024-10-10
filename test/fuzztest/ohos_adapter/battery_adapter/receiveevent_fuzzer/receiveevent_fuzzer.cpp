@@ -24,28 +24,28 @@ using namespace OHOS::NWeb;
 using namespace OHOS::EventFwk;
 
 namespace OHOS {
-    namespace {
-        class EmptyCallback : public WebBatteryEventCallback {
-            public:
-                EmptyCallback() = default;
-            private:
-                void BatteryInfoChanged(std::shared_ptr<WebBatteryInfo>) {}
-        };
+namespace {
+class EmptyCallback : public WebBatteryEventCallback {
+public:
+    EmptyCallback() = default;
+
+private:
+    void BatteryInfoChanged(std::shared_ptr<WebBatteryInfo>) {}
+};
+} // namespace
+bool ReceiveEventFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
-    bool ReceiveEventFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        CommonEventSubscribeInfo subscribe;
-        std::shared_ptr<WebBatteryEventCallback> eventCallback =
-            std::make_shared<EmptyCallback>();
-        NWebBatteryEventSubscriber batter(subscribe, eventCallback);
-        CommonEventData receive;
-        batter.OnReceiveEvent(receive);
-        return true;
-    }
+    CommonEventSubscribeInfo subscribe;
+    std::shared_ptr<WebBatteryEventCallback> eventCallback = std::make_shared<EmptyCallback>();
+    NWebBatteryEventSubscriber batter(subscribe, eventCallback);
+    CommonEventData receive;
+    batter.OnReceiveEvent(receive);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

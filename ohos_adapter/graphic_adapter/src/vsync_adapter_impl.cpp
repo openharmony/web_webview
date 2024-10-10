@@ -91,10 +91,10 @@ VSyncErrorCode VSyncAdapterImpl::RequestVsync(void* data, NWebVSyncCb cb)
         if (runner && runner->GetKernelThreadId() != 0) {
             if (!isGPUProcess_) {
                 ResSchedClientAdapter::ReportKeyThread(ResSchedStatusAdapter::THREAD_CREATED,
-                getprocpid(), runner->GetKernelThreadId(), ResSchedRoleAdapter::USER_INTERACT);
+                    getprocpid(), runner->GetKernelThreadId(), ResSchedRoleAdapter::USER_INTERACT);
             } else {
                 AafwkBrowserClientAdapterImpl::GetInstance().ReportThread(ResSchedStatusAdapter::THREAD_CREATED,
-                getprocpid(), runner->GetKernelThreadId(), ResSchedRoleAdapter::USER_INTERACT);
+                    getprocpid(), runner->GetKernelThreadId(), ResSchedRoleAdapter::USER_INTERACT);
             }
             hasReportedKeyThread_ = true;
         }

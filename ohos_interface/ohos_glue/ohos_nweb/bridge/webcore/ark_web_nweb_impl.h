@@ -1000,13 +1000,6 @@ public:
     void OnCreateNativeMediaPlayer(ArkWebRefPtr<ArkWebCreateNativeMediaPlayerCallback> callback) override;
 
     /**
-     * @brief Web drag resize optimize.
-     */
-    virtual void DragResize(uint32_t width, uint32_t height, uint32_t pre_height, uint32_t pre_width) override;
-
-    void OnTouchCancelById(int32_t id, double x, double y, bool from_overlay) override;
-
-    /**
      * @brief Set the params when the scale of WebView changed by pinch gestrue.
      *
      * @param scale: the scale factor to apply. The scale will be
@@ -1100,22 +1093,6 @@ public:
     void OnTextSelected() override;
 
     /**
-     * @brief web send key event.
-     */
-    /*--ark web()--*/
-    bool WebSendKeyEvent(int32_t keyCode, int32_t keyAction,
-                         const ArkWebInt32Vector& pressedCodes) override;
-
-    /**
-     * @brief Notify that system configuration changed.
-     *
-     * @param configuration system configuration.
-     */
-    /*--ark web()--*/
-    void OnConfigurationUpdated(
-        ArkWebRefPtr<ArkWebSystemConfiguration> configuration) override;
-
-    /**
      * @brief Enable the ability to block Ads, default disabled.
      */
     /*--ark web()--*/
@@ -1140,23 +1117,6 @@ public:
     void NotifyForNextTouchEvent() override;
 
     /**
-     * @brief Set url trust list.
-     *
-     * @param urlTrustList The url trust list.
-     */
-    /*--ark web()--*/
-    int SetUrlTrustList(const ArkWebString& urlTrustList) override;
-
-    /**
-     * @brief Put the callback for convert spanstring to html.
-     *
-     * @param callback will convert spanstring to html.
-     */
-    /*--ark web()--*/
-    void PutSpanstringConvertHtmlCallback(
-        ArkWebRefPtr<ArkWebSpanstringConvertHtmlCallback> callback) override;
-
-    /**
      * @brief Get Web page snapshot
      *
      * @param id Request id.
@@ -1173,24 +1133,47 @@ public:
                          int height,
                          const WebSnapshotCallback callback) override;
 
-    /**
-     * @brief Set grant file access dirs.
-     */
-    /*--ark web()--*/
-    void SetPathAllowingUniversalAccess(const ArkWebStringVector& dirs,
-        const ArkWebStringVector& moduleName, ArkWebString& errorPath) override;
+     /**
+      * @brief Notify that system configuration changed.
+      *
+      * @param configuration system configuration.
+      */
+     /*--ark web()--*/
+     void OnConfigurationUpdated(
+         ArkWebRefPtr<ArkWebSystemConfiguration> configuration) override;
+ 
+     /**
+      * @brief Set url trust list.
+      *
+      * @param urlTrustList The url trust list.
+      */
+     /*--ark web()--*/
+     int SetUrlTrustList(const ArkWebString& urlTrustList) override;
+ 
+     /**
+      * @brief Put the callback for convert spanstring to html.
+      *
+      * @param callback will convert spanstring to html.
+      */
+     /*--ark web()--*/
+     void PutSpanstringConvertHtmlCallback(
+         ArkWebRefPtr<ArkWebSpanstringConvertHtmlCallback> callback) override;
+ 
+     /**
+      * Web send key event.
+      * @param key_code code value.
+      * @param key_action action value.
+      * @param pressedCodes pressedCodes value.
+      */
+     /*--ark web()--*/
+     bool WebSendKeyEvent(int32_t key_code, int32_t key_action, const ArkWebInt32Vector& pressedCodes) override;
 
-    /**
-     * @brief Execute an accessibility action on an accessibility node in the
-     *        browser.
-     *
-     * @param accessibility_id: The id of the accessibility node.
-     * @param action: The action to be performed on the accessibility node.
-     * @param actionArguments Data related to the current action.
-     */
-    /*--ark web()--*/
-    void PerformAction(int64_t accessibility_id, uint32_t action,
-        const ArkWebStringMap& actionArguments) override;
+     /**
+      * @brief Set grant file access dirs.
+      */
+     /*--ark web()--*/
+     void SetPathAllowingUniversalAccess(const ArkWebStringVector& dirs,
+         const ArkWebStringVector& moduleName, ArkWebString& errorPath) override;
 
     /**
      * @brief Send mouse wheel event.
@@ -1258,6 +1241,18 @@ public:
     void SetBackForwardCacheOptions(int32_t size, int32_t timeToLive) override;
 
     /**
+     * @brief RegisterArkJSfunctionV2
+     *
+     * @param object_name  String: object name
+     * @param method_list vector<String>: vector list, method list
+     * @param async_method_list vector<String>: vector list, async method list
+     * @param object_id int32_t: object id
+     * @param permission String: allowlist
+     */
+    void RegisterArkJSfunctionV2(const ArkWebString& object_name, const ArkWebStringVector& method_list,
+        const ArkWebStringVector& async_method_list, const int32_t object_id, const ArkWebString& permission) override;
+
+    /**
      * @brief set the callback of the autofill event.
      * @param callback callback.
      */
@@ -1277,6 +1272,27 @@ public:
      */
     /*--ark web()--*/
     void OnAutofillCancel(const ArkWebString& fillContent) override;
+
+    /**
+     * @brief Execute an accessibility action on an accessibility node in the
+     *        browser.
+     *
+     * @param accessibility_id: The id of the accessibility node.
+     * @param action: The action to be performed on the accessibility node.
+     * @param actionArguments Data related to the current action.
+     */
+    /*--ark web()--*/
+    void PerformAction(int64_t accessibility_id, uint32_t action,
+        const ArkWebStringMap& actionArguments) override;
+
+     /**
+      * @brief Send the accessibility hover event coordinate.
+      *
+      * @param x horizontal location of coordinate.
+      * @param y vertical location of coordinate.
+      */
+     /*--ark web()--*/
+     void SendAccessibilityHoverEvent(int32_t x, int32_t y) override;
 
     /**
      * Scroll by the delta distance if web is not foucsed.

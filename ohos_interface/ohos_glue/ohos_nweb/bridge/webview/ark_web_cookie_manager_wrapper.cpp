@@ -183,7 +183,7 @@ std::string ArkWebCookieManagerWrapper::ReturnCookieWithHttpOnly(
 {
     return "";
 }
- 
+
 int ArkWebCookieManagerWrapper::SetCookieWithHttpOnly(
     const std::string& url, const std::string& value, bool incognito_mode, bool includeHttpOnly)
 {

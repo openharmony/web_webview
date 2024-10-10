@@ -540,11 +540,6 @@ public:
      */
     void ReleaseResizeHold() override;
 
-    void OnShowAutofillPopup(
-        const float offsetX, const float offsetY, const std::vector<std::string>& menu_items) override;
-
-    void OnHideAutofillPopup() override;
-
     /**
      * @brief Called when select a word.
      *
@@ -554,8 +549,6 @@ public:
     std::vector<int8_t> GetWordSelection(const std::string& text, int8_t offset) override;
 
     void UpdateClippedSelectionBounds(int x, int y, int w, int h) override;
-
-    bool OnOpenAppLink(const std::string& url, std::shared_ptr<OHOS::NWeb::NWebAppLinkCallback> callback) override;
 
     /**
      * @brief called when the render process  not responding.
@@ -573,18 +566,25 @@ public:
      */
     void OnRenderProcessResponding() override;
 
-    void OnViewportFitChange(ArkWebViewportFit viewport_fit) override;
+    bool OnOpenAppLink(const std::string& url, std::shared_ptr<OHOS::NWeb::NWebAppLinkCallback> callback) override;
+
+    void OnShowAutofillPopup(
+        const float offsetX, const float offsetY, const std::vector<std::string>& menu_items) override;
+
+    void OnHideAutofillPopup() override;
+
+    void OnViewportFitChange(ArkWebViewportFit viewportFit) override;
+
+    bool OnFocus(ArkWebFocusSource source) override;
+
+    bool OnOverScroll(float xOffset, float yOffset, float xVelocity, float yVelocity) override;
 
     void CreateOverlay(void* data, size_t len, int width, int height, int offset_x, int offset_y, int rect_width,
         int rect_height, int point_x, int point_y) override;
 
     void OnOverlayStateChanged(int offset_x, int offset_y, int rect_width, int rect_height) override;
 
-    bool OnFocus(ArkWebFocusSource source) override;
-
-    bool OnOverScroll(float xOffset, float yOffset, float xVelocity, float yVelocity) override;
-
-    void KeyboardReDispatch(std::shared_ptr<OHOS::NWeb::NWebKeyEvent> event, bool isUsed) override;
+    void OnAdsBlocked(const std::string& url, const std::vector<std::string>& adsBlocked) override;
 
     void OnInterceptKeyboardAttach(const std::shared_ptr<OHOS::NWeb::NWebCustomKeyboardHandler> keyboardHandler,
         const std::map<std::string, std::string> &attributes, bool &useSystemKeyboard, int32_t &enterKeyType) override;
@@ -593,15 +593,19 @@ public:
 
     void OnCustomKeyboardClose() override;
 
-    void OnAdsBlocked(const std::string &url, const std::vector<std::string> &adsBlocked) override;
-
-    void OnCursorUpdate(double x, double y, double width, double height) override;
+    void KeyboardReDispatch(std::shared_ptr<OHOS::NWeb::NWebKeyEvent> event, bool isUsed) override;
 
     void HideHandleAndQuickMenuIfNecessary(bool hide) override;
 
-    void OnNativeEmbedVisibilityChange(const std::string& embed_id, bool visibility) override;
+    void OnCursorUpdate(double x, double y, double width, double height) override;
+
+    void ChangeVisibilityOfQuickMenu() override;
 
     void StartVibraFeedback(const std::string& vibratorType) override;
+
+    void OnNativeEmbedVisibilityChange(const std::string& embed_id, bool visibility) override;
+
+    bool CloseImageOverlaySelection() override;
 
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;

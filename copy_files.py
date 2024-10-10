@@ -31,6 +31,7 @@ INTERFACE_DIR = os.path.join(WORK_SPACE, 'ohos_interface')
 INTERFACE_INCLUDE_DIR = os.path.join(INTERFACE_DIR, 'include')
 INTERFACE_OHOS_GLUE_DIR = os.path.join(INTERFACE_DIR, 'ohos_glue')
 
+
 def copy_dir(src_dir: str, dst_dir: str):
     log_util.LogUtil.hb_info("begin to copy dir from '{}' to '{}'".format(src_dir, dst_dir))
     if os.path.isdir(dst_dir):
@@ -45,6 +46,7 @@ def copy_dir(src_dir: str, dst_dir: str):
             source_files.append(os.path.join(root, name))
     return source_files
 
+
 def copy_files(src_dir: str, dst_dir: str):
     log_util.LogUtil.hb_info("begin to copy files from '{}' to '{}'".format(src_dir, dst_dir))
     source_files = []
@@ -55,6 +57,7 @@ def copy_files(src_dir: str, dst_dir: str):
             source_files.append(src_file)
             shutil.copy2(src_file, dst_file)
     return source_files
+
 
 def copy_include():
     log_util.LogUtil.hb_info("begin to copy include dir")
@@ -67,6 +70,7 @@ def copy_include():
             os.path.join(WORK_SPACE, adapter_include))
     return include_source_files
 
+
 def copy_glue_base(glue_dir: str):
     log_util.LogUtil.hb_info("begin to copy glue base dir")
     base_dir = os.path.join(glue_dir, 'base')
@@ -75,6 +79,7 @@ def copy_glue_base(glue_dir: str):
     script_dir = os.path.join(glue_dir, 'scripts')
     base_source_files += copy_dir(os.path.join(INTERFACE_OHOS_GLUE_DIR, 'scripts'), script_dir)
     return base_source_files
+
 
 def copy_glue_module(glue_dir: str, module_name: str):
     dir_name = 'ohos_' + module_name;
@@ -92,6 +97,7 @@ def copy_glue_module(glue_dir: str, module_name: str):
     module_source_files += copy_dir(os.path.join(os.path.join(src_dir, 'ctocpp'), 'webview'),
             os.path.join(dst_dir, 'ctocpp'))
     return module_source_files
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -118,6 +124,7 @@ def main():
                                   args.outfile,
                                   _dep_files,
                                   add_pydeps=False)
+
 
 if __name__ == '__main__':
     sys.exit(main())

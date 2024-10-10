@@ -83,17 +83,47 @@ HWTEST_F(KeystoreAdapterImplTest, KeystoreAdapterImplTest_InitParamSet_001, Test
     int32_t result = KeystoreAdapterImpl::GetInstance().InitParamSet(nullptr, decryptParams,
         sizeof(decryptParams) / sizeof(HksParam));
     EXPECT_NE(result, 0);
+    result =
+        KeystoreAdapterImpl::GetInstance().InitParamSet(nullptr, nullptr, sizeof(decryptParams) / sizeof(HksParam));
+    EXPECT_NE(result, 0);
     result = KeystoreAdapterImpl::GetInstance().InitParamSet(&paramSet, nullptr,
         sizeof(decryptParams) / sizeof(HksParam));
     EXPECT_NE(result, 0);
     result = KeystoreAdapterImpl::GetInstance().InitParamSet(&paramSet, decryptParams,
         sizeof(decryptParams) / sizeof(HksParam));
     EXPECT_EQ(result, 0);
+}
+
+/**
+ * @tc.name: KeystoreAdapterImplTest_EncryptKey_002
+ * @tc.desc: Encrypt and Decrypt
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(KeystoreAdapterImplTest, KeystoreAdapterImplTest_EncryptKey_002, TestSize.Level1)
+{
     std::string alias = "test";
     std::string plainData = "web_test";
     std::string encryptString = KeystoreAdapterImpl::GetInstance().EncryptKey(alias, plainData);
     EXPECT_TRUE(encryptString.empty());
     std::string DecryptString = KeystoreAdapterImpl::GetInstance().DecryptKey(alias, encryptString);
+    EXPECT_TRUE(DecryptString.empty());
+    encryptString = KeystoreAdapterImpl::GetInstance().EncryptKey(alias, "");
+    EXPECT_TRUE(encryptString.empty());
+    DecryptString = KeystoreAdapterImpl::GetInstance().DecryptKey(alias, "test");
+    EXPECT_TRUE(DecryptString.empty());
+
+    std::string nullAlias = "";
+    std::string nullPlainData = "";
+    std::string nullEncrypt = KeystoreAdapterImpl::GetInstance().EncryptKey(nullAlias, nullPlainData);
+    EXPECT_TRUE(nullEncrypt.empty());
+    std::string nullDecrypt = KeystoreAdapterImpl::GetInstance().DecryptKey(nullAlias, nullPlainData);
+    EXPECT_TRUE(DecryptString.empty());
+
+    std::string long_str_alias(2048, 'a');
+    nullEncrypt = KeystoreAdapterImpl::GetInstance().EncryptKey(long_str_alias, "test");
+    EXPECT_TRUE(nullEncrypt.empty());
+    nullDecrypt = KeystoreAdapterImpl::GetInstance().DecryptKey(long_str_alias, "test");
     EXPECT_TRUE(DecryptString.empty());
 }
 }

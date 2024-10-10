@@ -773,15 +773,6 @@ void ArkWebHandlerImpl::UpdateClippedSelectionBounds(int x, int y, int w, int h)
     nweb_handler_->UpdateClippedSelectionBounds(x, y, w, h);
 }
 
-bool ArkWebHandlerImpl::OnOpenAppLink(const ArkWebString& url, ArkWebRefPtr<ArkWebAppLinkCallback> callback)
-{
-    if (CHECK_REF_PTR_IS_NULL(callback)) {
-        return nweb_handler_->OnOpenAppLink(ArkWebStringStructToClass(url), nullptr);
-    }
-
-    return nweb_handler_->OnOpenAppLink(
-        ArkWebStringStructToClass(url), std::make_shared<ArkWebAppLinkCallbackWrapper>(callback));
-}
 void ArkWebHandlerImpl::OnRenderProcessNotResponding(const ArkWebString& js_stack, int pid, int reason)
 {
     nweb_handler_->OnRenderProcessNotResponding(
@@ -791,6 +782,16 @@ void ArkWebHandlerImpl::OnRenderProcessNotResponding(const ArkWebString& js_stac
 void ArkWebHandlerImpl::OnRenderProcessResponding()
 {
     nweb_handler_->OnRenderProcessResponding();
+}
+
+bool ArkWebHandlerImpl::OnOpenAppLink(const ArkWebString& url, ArkWebRefPtr<ArkWebAppLinkCallback> callback)
+{
+    if (CHECK_REF_PTR_IS_NULL(callback)) {
+        return nweb_handler_->OnOpenAppLink(ArkWebStringStructToClass(url), nullptr);
+    }
+
+    return nweb_handler_->OnOpenAppLink(
+        ArkWebStringStructToClass(url), std::make_shared<ArkWebAppLinkCallbackWrapper>(callback));
 }
 
 void ArkWebHandlerImpl::OnShowAutofillPopup(
@@ -809,6 +810,16 @@ void ArkWebHandlerImpl::OnViewportFitChange(int viewportFit)
     nweb_handler_->OnViewportFitChange(static_cast<ArkWebViewportFit>(viewportFit));
 }
 
+bool ArkWebHandlerImpl::OnFocus(int source)
+{
+    return nweb_handler_->OnFocus(static_cast<ArkWebFocusSource>(source));
+}
+
+bool ArkWebHandlerImpl::OnOverScroll(float xOffset, float yOffset, float xVelocity, float yVelocity)
+{
+    return nweb_handler_->OnOverScroll(xOffset, yOffset, xVelocity, yVelocity);
+}
+
 void ArkWebHandlerImpl::CreateOverlay(void* data, size_t len, int width, int height, int offset_x, int offset_y,
     int rect_width, int rect_height, int point_x, int point_y)
 {
@@ -821,23 +832,9 @@ void ArkWebHandlerImpl::OnOverlayStateChanged(int offset_x, int offset_y, int re
     nweb_handler_->OnOverlayStateChanged(offset_x, offset_y, rect_width, rect_height);
 }
 
-bool ArkWebHandlerImpl::OnFocus(int source)
+void ArkWebHandlerImpl::OnAdsBlocked(const ArkWebString& url, const ArkWebStringVector& adsBlocked)
 {
-    return nweb_handler_->OnFocus(static_cast<ArkWebFocusSource>(source));
-}
-
-bool ArkWebHandlerImpl::OnOverScroll(float xOffset, float yOffset, float xVelocity, float yVelocity)
-{
-    return nweb_handler_->OnOverScroll(xOffset, yOffset, xVelocity, yVelocity);
-}
-
-void ArkWebHandlerImpl::KeyboardReDispatch(ArkWebRefPtr<ArkWebKeyEvent> event, bool isUsed)
-{
-    if (CHECK_REF_PTR_IS_NULL(event)) {
-        nweb_handler_->KeyboardReDispatch(nullptr, isUsed);
-    }
-
-    nweb_handler_->KeyboardReDispatch(std::make_shared<ArkWebKeyEventWrapper>(event), isUsed);
+    nweb_handler_->OnAdsBlocked(ArkWebStringStructToClass(url), ArkWebStringVectorStructToClass(adsBlocked));
 }
 
 void ArkWebHandlerImpl::OnInterceptKeyboardAttach(ArkWebRefPtr<ArkWebCustomKeyboardHandler> keyboardHandler,
@@ -863,14 +860,14 @@ void ArkWebHandlerImpl::OnCustomKeyboardClose()
     nweb_handler_->OnCustomKeyboardClose();
 }
 
-void ArkWebHandlerImpl::OnAdsBlocked(const ArkWebString &url, const ArkWebStringVector &adsBlocked) {
-  nweb_handler_->OnAdsBlocked(ArkWebStringStructToClass(url),
-                              ArkWebStringVectorStructToClass(adsBlocked));
-}
-
-void ArkWebHandlerImpl::OnCursorUpdate(double x, double y, double width, double height)
+void ArkWebHandlerImpl::KeyboardReDispatch(ArkWebRefPtr<ArkWebKeyEvent> event, bool isUsed)
 {
-    nweb_handler_->OnCursorUpdate(x, y, width, height);
+    if (CHECK_REF_PTR_IS_NULL(event)) {
+        nweb_handler_->KeyboardReDispatch(nullptr, isUsed);
+        return;
+    }
+
+    nweb_handler_->KeyboardReDispatch(std::make_shared<ArkWebKeyEventWrapper>(event), isUsed);
 }
 
 void ArkWebHandlerImpl::HideHandleAndQuickMenuIfNecessary(bool hide)
@@ -878,13 +875,28 @@ void ArkWebHandlerImpl::HideHandleAndQuickMenuIfNecessary(bool hide)
     nweb_handler_->HideHandleAndQuickMenuIfNecessary(hide);
 }
 
+void ArkWebHandlerImpl::OnCursorUpdate(double x, double y, double width, double height)
+{
+    nweb_handler_->OnCursorUpdate(x, y, width, height);
+}
+
+void ArkWebHandlerImpl::ChangeVisibilityOfQuickMenu()
+{
+    nweb_handler_->ChangeVisibilityOfQuickMenu();
+}
+ 
+void ArkWebHandlerImpl::StartVibraFeedback(const ArkWebString& vibratorType)
+{
+    nweb_handler_->StartVibraFeedback(ArkWebStringStructToClass(vibratorType));
+}
+
 void ArkWebHandlerImpl::OnNativeEmbedVisibilityChange(const ArkWebString& embed_id, bool visibility)
 {
     nweb_handler_->OnNativeEmbedVisibilityChange(ArkWebStringStructToClass(embed_id), visibility);
 }
 
-void ArkWebHandlerImpl::StartVibraFeedback(const ArkWebString& vibratorType)
+bool ArkWebHandlerImpl::CloseImageOverlaySelection()
 {
-    nweb_handler_->StartVibraFeedback(ArkWebStringStructToClass(vibratorType));
+    return nweb_handler_->CloseImageOverlaySelection();
 }
 } // namespace OHOS::ArkWeb

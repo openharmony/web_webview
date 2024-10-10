@@ -28,6 +28,11 @@ ArkAudioDeviceDescAdapterVector ArkAudioDeviceDescAdapterVectorClassToStruct(
     if (struct_value.size > 0) {
         struct_value.value = (_ark_audio_device_desc_adapter_t**)ArkWebMemMalloc(
             sizeof(_ark_audio_device_desc_adapter_t*) * struct_value.size);
+        if (struct_value.value == nullptr) {
+            struct_value.size = 0;
+            return struct_value;
+        }
+
         int count = 0;
         for (auto it = class_value.begin(); it != class_value.end(); it++) {
             if (!(*it)) {

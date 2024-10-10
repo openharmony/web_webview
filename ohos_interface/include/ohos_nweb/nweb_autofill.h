@@ -37,6 +37,8 @@ const std::string NWEB_AUTOFILL_EVENT_TYPE = "event";
 const std::string NWEB_AUTOFILL_PAGE_URL = "pageUrl";
 const std::string NWEB_AUTOFILL_IS_USER_SELECTED = "isUserSelected";
 const std::string NWEB_AUTOFILL_IS_OTHER_ACCOUNT = "isOtherAccount";
+const std::string NWEB_AUTOFILL_EVENT_SOURCE = "source";
+const std::string NWEB_AUTOFILL_FOR_LOGIN = "login";
 
 const std::string NWEB_AUTOFILL_STREET_ADDRESS = "street-address";
 const std::string NWEB_AUTOFILL_ADDRESS_LEVEL_3 = "address-level3";
@@ -56,6 +58,8 @@ const std::string NWEB_AUTOFILL_NICKNAME = "nickname";
 const std::string NWEB_AUTOFILL_USERNAME = "username";
 const std::string NWEB_AUTOFILL_PASSWORD = "password";
 const std::string NWEB_AUTOFILL_NEW_PASSWORD = "new-password";
+const std::string NWEB_AUTOFILL_DETAIL_INFO_WITHOUT_STREET = "detail-info-without-street";
+const std::string NWEB_AUTOFILL_FORMAT_ADDRESS = "format-address";
 
 enum NWebAutofillEvent {
     UNKNOWN = 0,

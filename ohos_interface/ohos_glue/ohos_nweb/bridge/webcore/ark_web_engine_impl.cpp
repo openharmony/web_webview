@@ -199,9 +199,9 @@ void ArkWebEngineImpl::ClearHostIP(const ArkWebString& hostName)
     nweb_engine_->ClearHostIP(ArkWebStringStructToClass(hostName));
 }
 
-void ArkWebEngineImpl::EnableWholeWebPageDrawing()
+void ArkWebEngineImpl::SetWholeWebDrawing()
 {
-    nweb_engine_->EnableWholeWebPageDrawing();
+    nweb_engine_->SetWholeWebDrawing();
 }
 
 ArkWebRefPtr<ArkWebAdsBlockManager> ArkWebEngineImpl::GetAdsBlockManager()

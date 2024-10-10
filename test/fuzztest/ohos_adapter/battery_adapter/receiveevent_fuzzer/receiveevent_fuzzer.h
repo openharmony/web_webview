@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "receiveevent_fuzzer"
 #endif /* TEST_FUZZTEST_RECEIVE_EVENT_FUZZER_H */
-

@@ -21,17 +21,17 @@
 namespace OHOS::NWeb {
 class OHOS_NWEB_EXPORT NWebCustomKeyboardHandler {
 public:
-  virtual ~NWebCustomKeyboardHandler() = default;
+    virtual ~NWebCustomKeyboardHandler() = default;
 
-  virtual void InsertText(const std::string &text) {}
+    virtual void InsertText(const std::string &text) {}
 
-  virtual void DeleteForward(int32_t length) {}
+    virtual void DeleteForward(int32_t length) {}
 
-  virtual void DeleteBackward(int32_t length) {}
+    virtual void DeleteBackward(int32_t length) {}
 
-  virtual void SendFunctionKey(int32_t key) {}
+    virtual void SendFunctionKey(int32_t key) {}
 
-  virtual void Close() {}
+    virtual void Close() {}
 };
 } // namespace OHOS::NWeb
 

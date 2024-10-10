@@ -143,43 +143,43 @@ napi_value NapiWebDataBase::JsSaveHttpAuthCredentials(napi_env env, napi_callbac
     napi_value argv[4] = { 0 };
     napi_get_cb_info(env, info, &argc, argv, &retValue, nullptr);
     if (argc != PARAMFOUR) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "four"));
         return nullptr;
     }
     std::string host;
     if (!GetStringPara(env, argv[PARAMZERO], host)) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "host", "string"));
         return nullptr;
     }
     std::string realm;
     if (!GetStringPara(env, argv[PARAMONE], realm)) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "realm", "string"));
         return nullptr;
     }
     std::string username;
     if (!GetStringPara(env, argv[PARAMTWO], username)) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "username", "string"));
         return nullptr;
     }
     if (host.empty() || username.empty()) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NOT_NULL_TWO, "username", "string"));
         return nullptr;
     }
     size_t bufferSize = 0;
     if (!GetSize(env, argv[PARAMTHREE], bufferSize) || bufferSize > MAX_PWD_LENGTH) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
             "BusinessError 401: Parameter error. The length of 'password' must be between 0 and 256.");
         return nullptr;
     }
     if (bufferSize > 0) {
         char password[bufferSize + 1];
         if (!GetCharPara(env, argv[PARAMTHREE], password, bufferSize)) {
-            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
                 "BusinessError 401: Parameter error. The length of 'password' obtained twice are different");
             return nullptr;
         }

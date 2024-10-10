@@ -627,20 +627,10 @@ public:
     virtual void ReleaseResizeHold() = 0;
 
     /*--ark web()--*/
-    virtual void OnShowAutofillPopup(
-        const float offsetX, const float offsetY, const ArkWebStringVector& menu_items) = 0;
-
-    /*--ark web()--*/
-    virtual void OnHideAutofillPopup() = 0;
-
-    /*--ark web()--*/
     virtual ArkWebCharVector GetWordSelection(const ArkWebString& text, int8_t offset) = 0;
 
     /*--ark web()--*/
     virtual void UpdateClippedSelectionBounds(int x, int y, int w, int h) = 0;
-
-    /*--ark web()--*/
-    virtual bool OnOpenAppLink(const ArkWebString& url, ArkWebRefPtr<ArkWebAppLinkCallback> callback) = 0;
 
     /**
      * @brief Called when the render process not responding.
@@ -660,6 +650,16 @@ public:
     /*--ark web()--*/
     virtual void OnRenderProcessResponding() = 0;
 
+    /*--ark web()--*/
+    virtual bool OnOpenAppLink(const ArkWebString& url, ArkWebRefPtr<ArkWebAppLinkCallback> callback) = 0;
+
+    /*--ark web()--*/
+    virtual void OnShowAutofillPopup(
+        const float offsetX, const float offsetY, const ArkWebStringVector& menu_items) = 0;
+
+    /*--ark web()--*/
+    virtual void OnHideAutofillPopup() = 0;
+
     /**
      * @brief Called when the viewport-fit meta is detected for web page.
      *
@@ -667,6 +667,27 @@ public:
      */
     /*--ark web()--*/
     virtual void OnViewportFitChange(int viewportFit) = 0;
+
+    /**
+     * @brief Request display and focus for a new nweb.
+     *
+     * @param source The Focus Source.
+     * @return Return true if request focus success, false if request focus fail.
+     */
+    /*--ark web()--*/
+    virtual bool OnFocus(int source) = 0;
+
+    /**
+     * @brief Called when the page is over scroll.
+     *
+     * @param xOffset The offset of x axis.
+     * @param yOffset The offset of y axis.
+     * @param xVelocity The velocity of x axis.
+     * @param yVelocity The velocity of y axis.
+     * @return Return true if value is consumed, false if value is unconsumed.
+     */
+    /*--ark web()--*/
+    virtual bool OnOverScroll(float xOffset, float yOffset, float xVelocity, float yVelocity) = 0;
 
     /**
      * @brief Called when creating overlay.
@@ -698,34 +719,13 @@ public:
     virtual void OnOverlayStateChanged(int offset_x, int offset_y, int rect_width, int rect_height) = 0;
 
     /**
-     * @brief Request display and focus for a new nweb.
+     * @brief Called when ads blocked.
      *
-     * @param source The Focus Source.
-     * @return Return true if request focus success, false if request focus fail.
+     * @param url the url of main frame.
+     * @param adsBlocked the url of ads.
      */
     /*--ark web()--*/
-    virtual bool OnFocus(int source) = 0;
-
-    /**
-     * @brief Called when the page is over scroll.
-     *
-     * @param xOffset The offset of x axis.
-     * @param yOffset The offset of y axis.
-     * @param xVelocity The velocity of x axis.
-     * @param yVelocity The velocity of y axis.
-     * @return Return true if value is consumed, false if value is unconsumed.
-     */
-    /*--ark web()--*/
-    virtual bool OnOverScroll(float xOffset, float yOffset, float xVelocity, float yVelocity) = 0;
-
-    /**
-     * @brief Called when the key board redispatch.
-     *
-     * @param event Key information.
-     * @param isUsed Whether the key is used by the kernel.
-     */
-    /*--ark web()--*/
-    virtual void KeyboardReDispatch(ArkWebRefPtr<ArkWebKeyEvent> event, bool isUsed) = 0;
+    virtual void OnAdsBlocked(const ArkWebString& url, const ArkWebStringVector& adsBlocked) = 0;
 
     /*--ark web()--*/
     virtual void OnInterceptKeyboardAttach(ArkWebRefPtr<ArkWebCustomKeyboardHandler> keyboardHandler,
@@ -736,14 +736,17 @@ public:
 
     /*--ark web()--*/
     virtual void OnCustomKeyboardClose() = 0;
+
+    /*--ark web()--*/
+    virtual void KeyboardReDispatch(ArkWebRefPtr<ArkWebKeyEvent> event, bool isUsed) = 0;
+
     /**
-     * @brief Called when ads blocked.
+     * @brief Called when you need to temporarily hide/restore the handle menu.
      *
-     * @param url the url of main frame.
-     * @param adsBlocked the url of ads.
+     * @param hide hide.
      */
     /*--ark web()--*/
-    virtual void OnAdsBlocked(const ArkWebString &url, const ArkWebStringVector &adsBlocked) = 0;
+    virtual void HideHandleAndQuickMenuIfNecessary(bool hide) = 0;
 
     /**
      * @brief called when the cursor info is updated.
@@ -755,21 +758,23 @@ public:
     virtual void OnCursorUpdate(double x, double y, double width, double height) = 0;
 
     /**
-     * @brief Called when you need to temporarily hide/restore the handle menu.
+     * @brief Called When you click on the selected area.
      *
-     * @param hide hide.
      */
     /*--ark web()--*/
-    virtual void HideHandleAndQuickMenuIfNecessary(bool hide) = 0;
-
-    /*--ark web()--*/
-    virtual void OnNativeEmbedVisibilityChange(const ArkWebString& embed_id, bool visibility) = 0;
-
+    virtual void ChangeVisibilityOfQuickMenu() = 0;
+ 
     /**
      * @brief Called when you need to start vibrator.
      */
     /*--ark web()--*/
     virtual void StartVibraFeedback(const ArkWebString& vibratorType) = 0;
+ 
+    /*--ark web()--*/
+    virtual void OnNativeEmbedVisibilityChange(const ArkWebString& embed_id, bool visibility) = 0;
+
+    /*--ark web()--*/
+    virtual bool CloseImageOverlaySelection() = 0;
 };
 
 } // namespace OHOS::ArkWeb

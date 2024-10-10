@@ -164,7 +164,7 @@ void AafwkAppMgrClientAdapterImpl::SaveBrowserConnect(std::shared_ptr<AafwkBrows
     if (browser == nullptr) {
         WVLOG_E("create new AafwkBrowserHostImpl failed!");
     }
-    WVLOG_E("AafwkAppMgrClientAdapterImpl SaveBrowserConnect success!");
+    WVLOG_I("AafwkAppMgrClientAdapterImpl SaveBrowserConnect success!");
     appMgrClient_->SaveBrowserChannel(browser);
 }
 } // namespace OHOS::NWeb

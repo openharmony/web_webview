@@ -53,8 +53,6 @@ ohos_shared_library("webview_napi") {
     "webfunction/napi_webview_function.cpp",
     "webfunction/webview_web_inited_callback.cpp",
     "webstorage/napi_web_storage.cpp",
-    "webviewcontroller/back_forward_cache_options.cpp",
-    "webviewcontroller/back_forward_cache_options.h",
     "webviewcontroller/napi_back_forward_cache_options.cpp",
     "webviewcontroller/napi_back_forward_cache_options.h",
     "webviewcontroller/napi_native_media_player.cpp",

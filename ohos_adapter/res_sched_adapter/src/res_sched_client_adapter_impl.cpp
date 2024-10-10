@@ -195,6 +195,8 @@ bool IsSameSourceWebSiteActive(ResSchedStatusAdapter statusAdapter, pid_t pid, i
         auto nwebMap = g_pidNwebMap[pid];
         for (auto it : nwebMap) {
             if (it.second == ResSchedStatusAdapter::WEB_ACTIVE) {
+                WVLOG_D("IsSameSourceWebSiteActive, current nwebId: %{public}d, active nwebId: %{public}d, "
+                        "pid: %{public}d", nwebId, it.first, pid);
                 return true;
             }
         }
@@ -203,7 +205,8 @@ bool IsSameSourceWebSiteActive(ResSchedStatusAdapter statusAdapter, pid_t pid, i
     return false;
 }
 
-void ReportStatusData(ResSchedStatusAdapter statusAdapter, pid_t pid, uint32_t windowId, int32_t nwebId)
+void ReportStatusData(ResSchedStatusAdapter statusAdapter,
+                      pid_t pid, uint32_t windowId, int32_t nwebId, bool isSiteManage)
 {
     static uint32_t serialNum = 0;
     static constexpr uint32_t serialNumMax = 10000;
@@ -220,7 +223,7 @@ void ReportStatusData(ResSchedStatusAdapter statusAdapter, pid_t pid, uint32_t w
     }
 
     if (g_processInUse.count(pid)) {
-        if (IsSameSourceWebSiteActive(statusAdapter, pid, nwebId)) {
+        if (isSiteManage && IsSameSourceWebSiteActive(statusAdapter, pid, nwebId)) {
             return;
         }
     }
@@ -280,7 +283,7 @@ bool ResSchedClientAdapter::ReportKeyThread(
 
     if (pid == tid && g_windowId != INVALID_NUMBER && g_nwebId != INVALID_NUMBER) {
         std::lock_guard<std::mutex> lock(g_windowIdMutex);
-        ReportStatusData(ResSchedStatusAdapter::WEB_ACTIVE, pid, g_windowId, g_nwebId);
+        ReportStatusData(ResSchedStatusAdapter::WEB_ACTIVE, pid, g_windowId, g_nwebId, false);
     }
 
     if (pid == tid && statusAdapter == ResSchedStatusAdapter::THREAD_DESTROYED) {
@@ -328,7 +331,7 @@ void ResSchedClientAdapter::ReportProcessInUse(pid_t pid)
         WVLOG_D("ReportProcessInUse nwebId: %{public}d, pid: %{public}d", nwebId, pid);
 
         if (g_siteIsolationMode) {
-            ReportStatusData(ResSchedStatusAdapter::WEB_ACTIVE, pid, g_windowId, nwebId);
+            ReportStatusData(ResSchedStatusAdapter::WEB_ACTIVE, pid, g_windowId, nwebId, true);
         }
     }
 }
@@ -355,12 +358,12 @@ bool ResSchedClientAdapter::ReportWindowStatus(
         ReportWindowId(windowId, nwebId);
     }
 
-    ReportStatusData(statusAdapter, pid, windowId, nwebId);
+    ReportStatusData(statusAdapter, pid, windowId, nwebId, true);
     for (auto pidInNweb : g_nwebProcessMap[nwebId]) {
         if (pidInNweb == pid) {
             continue;
         }
-        ReportStatusData(statusAdapter, pidInNweb, windowId, nwebId);
+        ReportStatusData(statusAdapter, pidInNweb, windowId, nwebId, true);
     }
 
     return true;

@@ -139,7 +139,7 @@ void LoadNWebCApi(void *handle, NWebCApi *api)
 bool LoadNWebSDK(void *handle)
 {
     if (g_nwebCApi) {
-        WVLOG_E("LoadNWebSDK had loaded.");
+        WVLOG_I("LoadNWebSDK had loaded.");
         return true;
     }
 
@@ -608,6 +608,7 @@ bool NWebHelper::LoadLib(bool from_ark)
         return true;
     }
     if (bundlePath_.empty()) {
+        WVLOG_E("load lib failed, because bundle path is empty");
         return false;
     }
     std::string loadLibPath;
@@ -721,14 +722,14 @@ static void DoPreReadLib(const std::string &bundlePath)
 
     char tempPath[PATH_MAX] = {0};
     if (realpath(libPathWebEngine.c_str(), tempPath) == nullptr) {
-        WVLOG_E("path to realpath error");
+        WVLOG_E("path to realpath error, errno(%{public}d):%{public}s", errno, strerror(errno));
         return;
     }
 
     struct stat stats;
     int ret = stat(tempPath, &stats);
     if (ret < 0) {
-        WVLOG_E("stat web engine library failed, ret = %{public}d", ret);
+        WVLOG_E("stat web engine library failed, errno(%{public}d):%{public}s", errno, strerror(errno));
         return;
     }
 
@@ -741,7 +742,7 @@ static void DoPreReadLib(const std::string &bundlePath)
 
     int fd = open(tempPath, O_RDONLY);
     if (fd <= 0) {
-        WVLOG_E("open web engine library failed");
+        WVLOG_E("open web engine library failed, errno(%{public}d):%{public}s", errno, strerror(errno));
         delete[] buf;
         return;
     }
@@ -1119,14 +1120,15 @@ void NWebHelper::WarmupServiceWorker(const std::string &url)
     nwebEngine_->WarmupServiceWorker(url);
 }
 
-void NWebHelper::EnableWholeWebPageDrawing()
+void NWebHelper::SetWholeWebDrawing()
 {
+    WVLOG_I("===== Engine set whole =====");
     if (nwebEngine_ == nullptr) {
         WVLOG_E("nweb engine is nullptr");
         return;
     }
-
-    nwebEngine_->EnableWholeWebPageDrawing();
+    WVLOG_I("===== go webview engine =====");
+    nwebEngine_->SetWholeWebDrawing();
 }
 
 std::shared_ptr<NWebAdsBlockManager> NWebHelper::GetAdsBlockManager()

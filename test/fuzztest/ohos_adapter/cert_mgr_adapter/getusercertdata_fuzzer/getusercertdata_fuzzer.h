@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "getusercertdata_fuzzer"
 #endif /* TEST_FUZZTEST_GETUSERCERTDATA_FUZZER_H */
-

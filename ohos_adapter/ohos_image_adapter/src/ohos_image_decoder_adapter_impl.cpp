@@ -165,7 +165,7 @@ int32_t OhosImageDecoderAdapterImpl::GetOffset()
         surfaceBuffer->GetPlanesInfo((void**)&native_buffer_planes_);
         if (!native_buffer_planes_) {
             WVLOG_E(
-               "[HeifSupport] OhosImageDecoderAdapterImpl::GetOffset. Fail to get native buffer Planes.");
+                "[HeifSupport] OhosImageDecoderAdapterImpl::GetOffset. Fail to get native buffer Planes.");
             return 0;
         }
         return native_buffer_planes_->planes[0].offset;
@@ -199,7 +199,6 @@ void* OhosImageDecoderAdapterImpl::GetNativeWindowBuffer()
             "[HeifSupport] OhosImageDecoderAdapterImpl::GetNativeWindowBuffer. PixelMap is null.");
         return nullptr;
     }
-
     if (!nativeWindowBuffer_) {
         if (auto* surfaceBuffer = SurfaceBufferFromPixelMap(pixelMap_.get())) {
             nativeWindowBuffer_ =

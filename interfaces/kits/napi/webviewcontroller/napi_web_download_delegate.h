@@ -24,7 +24,6 @@
 
 namespace OHOS {
 namespace NWeb {
-const std::string WEB_DOWNLOAD_DELEGATE = "WebDownloadDelegate";
 
 class NapiWebDownloadDelegate {
 public:

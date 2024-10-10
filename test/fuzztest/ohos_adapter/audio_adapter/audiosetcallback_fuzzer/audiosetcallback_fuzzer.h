@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "audiosetcallback_fuzzer"
 #endif /* TEST_FUZZTEST_AUDIO_SET_CALLBACK_FUZZER_H */
-

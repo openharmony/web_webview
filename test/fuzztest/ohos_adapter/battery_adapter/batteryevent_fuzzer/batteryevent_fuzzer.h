@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "batteryevent_fuzzer"
 #endif /* TEST_FUZZTEST_BATTERY_EVENT_FUZZER_H */
-

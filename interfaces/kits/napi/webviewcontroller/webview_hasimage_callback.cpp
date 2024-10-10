@@ -40,6 +40,7 @@ void WebviewHasImageCallback::OnReceiveValue(bool result)
     HasImageParam *param = new (std::nothrow) HasImageParam();
     if (param == nullptr) {
         delete work;
+        work = nullptr;
         return;
     }
     param->env_ = env_;

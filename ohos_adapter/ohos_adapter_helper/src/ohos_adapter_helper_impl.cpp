@@ -335,4 +335,10 @@ std::unique_ptr<SensorAdapter> OhosAdapterHelperImpl::CreateSensorAdapter()
     return nullptr;
 #endif
 }
+
+void OhosAdapterHelperImpl::SetArkWebCoreHapPathOverride(const std::string& hapPath)
+{
+    OhosResourceAdapterImpl::SetArkWebCoreHapPathOverride(hapPath);
+}
+
 } // namespace OHOS::NWeb

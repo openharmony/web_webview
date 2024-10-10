@@ -347,7 +347,7 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBackImpl::GetJavaScriptRes
     if (!jsObj || jsObj->HasMethod(method) == -1) {
         return ret;
     }
-    return GetJavaScriptResultSelfFlowbuf(args, method, objName,fd, routingId, objectId);
+    return GetJavaScriptResultSelfFlowbuf(args, method, objName, fd, routingId, objectId);
 }
 
 std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBackImpl::GetJavaScriptObjectMethods(int32_t objectId)

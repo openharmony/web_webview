@@ -224,7 +224,7 @@ void SystemPropertiesAdapterImpl::AddAllSysPropWatchers()
             sysPropObserver_[item.second];
             sysPropMutex_[item.second];
         } else {
-            WVLOG_E("add watch error result: %{public}d", errNo);
+            WVLOG_I("add watch error result: %{public}d", errNo);
         }
     }
 }
@@ -234,7 +234,7 @@ void SystemPropertiesAdapterImpl::RemoveAllSysPropWatchers()
     for (auto &item : PROP_KEY_MAP) {
         auto errNo = RemoveParameterWatcher(item.first.c_str(), nullptr, nullptr);
         if (errNo != 0) {
-            WVLOG_E("remove watch error result: %{public}d", errNo);
+            WVLOG_I("remove watch error result: %{public}d", errNo);
         }
     }
 }
@@ -243,7 +243,7 @@ void SystemPropertiesAdapterImpl::DispatchAllWatcherInfo(const char* key, const 
 {
     auto propKeyIt = PROP_KEY_MAP.find(key);
     if (propKeyIt == PROP_KEY_MAP.end()) {
-        WVLOG_E("sys prop change key is invalid: %{public}s", key);
+        WVLOG_I("sys prop change key is invalid: %{public}s", key);
         return;
     }
 
@@ -251,7 +251,7 @@ void SystemPropertiesAdapterImpl::DispatchAllWatcherInfo(const char* key, const 
     auto& keyObservers = sysPropObserver_[propkey];
 
     if (keyObservers.size() == 0) {
-        WVLOG_E("no observers in this key: %{public}s", key);
+        WVLOG_I("no observers in this key: %{public}s", key);
         return;
     }
 
@@ -265,12 +265,12 @@ void SystemPropertiesAdapterImpl::AttachSysPropObserver(PropertiesKey key, Syste
 {
     auto observerIt = sysPropObserver_.find(key);
     if (observerIt == sysPropObserver_.end()) {
-        WVLOG_E("properties key invalid in attach");
+        WVLOG_I("properties key invalid in attach");
         return;
     }
 
     if (observer == nullptr) {
-        WVLOG_E("properties key observer invalid in attach");
+        WVLOG_I("properties key observer invalid in attach");
         return;
     }
 
@@ -283,12 +283,12 @@ void SystemPropertiesAdapterImpl::DetachSysPropObserver(PropertiesKey key, Syste
 {
     auto observerIt = sysPropObserver_.find(key);
     if (observerIt == sysPropObserver_.end()) {
-        WVLOG_E("properties key invalid in detach");
+        WVLOG_I("properties key invalid in detach");
         return;
     }
 
     if (observer == nullptr) {
-        WVLOG_E("properties key observer invalid in detach");
+        WVLOG_I("properties key observer invalid in detach");
         return;
     }
 

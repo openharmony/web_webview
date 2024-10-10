@@ -33,7 +33,7 @@ enum {
 
 enum {
     SENSOR_DATA_REPORT_ON_CHANGE = 0,
-    SENSOR_DATA_REPORT_CONTINUOUS = 1    
+    SENSOR_DATA_REPORT_CONTINUOUS = 1
 };
 
 class SensorCallbackAdapter {

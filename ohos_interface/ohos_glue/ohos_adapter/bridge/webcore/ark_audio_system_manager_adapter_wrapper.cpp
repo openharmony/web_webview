@@ -176,12 +176,7 @@ bool ArkAudioSystemManagerAdapterWrapper::SetLanguage(const std::string& languag
         return false;
     }
 
-    ArkWebString stLanguage = ArkWebStringClassToStruct(language);
-
-    bool result = ctocpp_->SetLanguage(stLanguage);
-
-    ArkWebStringStructRelease(stLanguage);
-    return result;
+    return ctocpp_->SetLanguage(ArkWebStringClassToStruct(language));
 }
 
 } // namespace OHOS::ArkWeb

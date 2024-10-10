@@ -60,4 +60,5 @@ uint32_t ArkDisplayAdapterImpl::GetDisplayOrientation()
 {
     return (uint32_t)real_->GetDisplayOrientation();
 }
+
 } // namespace OHOS::ArkWeb

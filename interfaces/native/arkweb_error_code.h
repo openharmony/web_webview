@@ -40,7 +40,7 @@ typedef enum ArkWeb_ErrorCode {
  * @since 12
  */
 ARKWEB_SUCCESS = 0,
- 
+
 /*
  * @brief Init error. The WebviewController must be associated with a Web component.
  *

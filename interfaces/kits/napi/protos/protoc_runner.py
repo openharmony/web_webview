@@ -22,35 +22,34 @@ import os.path
 import subprocess
 import sys
 
+
 def main(argv):
-  parser = argparse.ArgumentParser()
-  parser.add_argument("--protoc", required=True,
-                      help="Relative path to compiler.")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--protoc", required=True,
+                        help="Relative path to compiler.")
+    parser.add_argument("--protos-dir", required=True,
+                        help="protos in dir.")
+    parser.add_argument("--cpp-out",
+                        help="Output directory for standard C++ generator.")
+    parser.add_argument("protos", nargs="+",
+                        help="Input protobuf definition file(s).")
+    options = parser.parse_args(argv)
 
-  parser.add_argument("--protos-dir", required=True,
-                      help="protos in dir.")
-  parser.add_argument("--cpp-out",
-                      help="Output directory for standard C++ generator.")
-  parser.add_argument("protos", nargs="+",
-                      help="Input protobuf definition file(s).")
+    protos_dir = os.path.relpath(options.protos_dir)
+    proto_files = options.protos
 
-  options = parser.parse_args(argv)
+    # Generate protoc cmd.
+    protoc_cmd = [os.path.realpath(options.protoc)]
+    if options.cpp_out:
+        cpp_out = options.cpp_out
+        protoc_cmd += ["--cpp_out", cpp_out]
 
-  protos_dir = os.path.relpath(options.protos_dir)
-  proto_files = options.protos
+    protoc_cmd += ["--proto_path", protos_dir]
+    protoc_cmd += [os.path.join(protos_dir, name) for name in proto_files]
 
-  # Generate protoc cmd.
-  protoc_cmd = [os.path.realpath(options.protoc)]
-  if options.cpp_out:
-    cpp_out = options.cpp_out
-    protoc_cmd += ["--cpp_out", cpp_out]
-
-  protoc_cmd += ["--proto_path", protos_dir]
-  protoc_cmd += [os.path.join(protos_dir, name) for name in proto_files]
-
-  ret = subprocess.call(protoc_cmd)
-  if ret != 0:
-    raise RuntimeError("Protoc failed.")
+    ret = subprocess.call(protoc_cmd)
+    if ret != 0:
+        raise RuntimeError("Protoc failed.")
 
 if __name__ == "__main__":
     main(sys.argv[1:])

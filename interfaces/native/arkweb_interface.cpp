@@ -28,7 +28,7 @@ namespace {
     DO(onPageBegin, OH_ArkWeb_OnPageBegin);                   \
     DO(onPageEnd, OH_ArkWeb_OnPageEnd);                       \
     DO(onDestroy, OH_ArkWeb_OnDestroy)
- 
+
 #define ARKWEB_NATIVE_FOR_EACH_CONTROLLER_API_FN(DO)                          \
     DO(runJavaScript, OH_ArkWeb_RunJavaScript);                               \
     DO(registerJavaScriptProxy, OH_ArkWeb_RegisterJavaScriptProxy);           \
@@ -38,12 +38,12 @@ namespace {
     DO(createWebMessagePorts, OH_ArkWeb_CreateWebMessagePorts);               \
     DO(destroyWebMessagePorts, OH_ArkWeb_DestroyWebMessagePorts);             \
     DO(postWebMessage, OH_ArkWeb_PostWebMessage)
- 
+
 #define ARKWEB_NATIVE_FOR_EACH_WEBMESSAGEPORT_API_FN(DO) \
     DO(postMessage, OH_WebMessage_PostMessage);          \
     DO(close, OH_WebMessage_Close);                      \
     DO(setMessageEventHandler, OH_WebMessage_SetMessageEventHandler)
- 
+
 #define ARKWEB_NATIVE_FOR_EACH_WEBMESSAGE_API_FN(DO)        \
     DO(createWebMessage, OH_WebMessage_CreateWebMessage);   \
     DO(destroyWebMessage, OH_WebMessage_DestroyWebMessage); \
@@ -86,7 +86,7 @@ static bool LoadComponentAPI()
         WVLOG_I("NativeArkWeb component api already loaded");
         return true;
     }
-    g_ComponentImpl = new ArkWeb_ComponentAPI();
+    g_ComponentImpl = new (std::nothrow) ArkWeb_ComponentAPI();
     if (!g_ComponentImpl) {
         WVLOG_E("NativeArkWeb component api is nullptr");
         return false;
@@ -112,7 +112,7 @@ static bool LoadControllerAPI()
         WVLOG_I("NativeArkWeb controller api already loaded");
         return true;
     }
-    g_ControllerImpl = new ArkWeb_ControllerAPI();
+    g_ControllerImpl = new (std::nothrow) ArkWeb_ControllerAPI();
     if (!g_ControllerImpl) {
         WVLOG_E("NativeArkWeb controller api is nullptr");
         return false;
@@ -124,28 +124,27 @@ static bool LoadControllerAPI()
         WVLOG_E("NativeArkWeb webEngineHandle is nullptr");
         return false;
     }
-
     g_webEngineHandle = webEngineHandle;
 #define ARKWEB_NATIVE_LOAD_FN_PTR(fn, ndkFn) LoadFunction(g_webEngineHandle, #ndkFn, &(g_ControllerImpl->fn))
     ARKWEB_NATIVE_FOR_EACH_CONTROLLER_API_FN(ARKWEB_NATIVE_LOAD_FN_PTR);
 #undef ARKWEB_NATIVE_LOAD_FN_PTR
- 
+
     return true;
 }
- 
+
 static bool LoadWebMessagePortAPI()
 {
     if (g_WebMessagePortImpl) {
         WVLOG_I("NativeArkWeb web message port api already loaded");
         return true;
     }
-    g_WebMessagePortImpl = new ArkWeb_WebMessagePortAPI();
+    g_WebMessagePortImpl = new (std::nothrow) ArkWeb_WebMessagePortAPI();
     if (!g_WebMessagePortImpl) {
         WVLOG_E("NativeArkWeb web message port api is nullptr");
         return false;
     }
     g_WebMessagePortImpl->size = sizeof(ArkWeb_WebMessagePortAPI);
- 
+
     void* webEngineHandle = OHOS::NWeb::NWebHelper::Instance().GetWebEngineHandler();
     if (!webEngineHandle) {
         WVLOG_E("NativeArkWeb webEngineHandle is nullptr");
@@ -155,17 +154,17 @@ static bool LoadWebMessagePortAPI()
 #define ARKWEB_NATIVE_LOAD_FN_PTR(fn, ndkFn) LoadFunction(g_webEngineHandle, #ndkFn, &(g_WebMessagePortImpl->fn))
     ARKWEB_NATIVE_FOR_EACH_WEBMESSAGEPORT_API_FN(ARKWEB_NATIVE_LOAD_FN_PTR);
 #undef ARKWEB_NATIVE_LOAD_FN_PTR
- 
+
     return true;
 }
- 
+
 static bool LoadWebMessageAPI()
 {
     if (g_WebMessageImpl) {
         WVLOG_I("NativeArkWeb web message api already loaded");
         return true;
     }
-    g_WebMessageImpl = new ArkWeb_WebMessageAPI();
+    g_WebMessageImpl = new (std::nothrow) ArkWeb_WebMessageAPI();
     if (!g_WebMessageImpl) {
         WVLOG_E("NativeArkWeb web message api is nullptr");
         return false;

@@ -56,6 +56,11 @@ int32_t ArkCameraManagerAdapterImpl::GetExposureModes(ArkWebInt32Vector& exposur
     exposureModesAdapter.ark_web_mem_free_func = ArkWebMemFree;
     if (exposureModesAdapter.size > 0) {
         exposureModesAdapter.value = (int32_t*)ArkWebMemMalloc(sizeof(int32_t) * exposureModesAdapter.size);
+        if (exposureModesAdapter.value == nullptr) {
+            exposureModesAdapter.size = 0;
+            return -1;
+        }
+
         int count = 0;
         for (auto it = vec.begin(); it != vec.end(); it++) {
             exposureModesAdapter.value[count] = (int32_t)(*it);

@@ -83,7 +83,8 @@ public:
 
     void WarmupServiceWorker(const std::string &url);
 
-    void EnableWholeWebPageDrawing();
+    void SetWholeWebDrawing();
+
     std::shared_ptr<NWebAdsBlockManager> GetAdsBlockManager();
 
     void EnableBackForwardCache(bool enableNativeEmbed, bool enableMediaTakeOver);

@@ -13,27 +13,27 @@
  * limitations under the License.
  */
 
-#include "accesstoken_fuzzer.h"  
-#include "access_token_adapter_impl.h"  
+#include "accesstoken_fuzzer.h"
+#include "access_token_adapter_impl.h"
 
-using namespace OHOS::NWeb;  
+using namespace OHOS::NWeb;
 
-namespace OHOS {  
-    bool AccessTokenAdapterFuzzTest(const uint8_t* data, size_t size)  
-    {  
-        std::string permissionName(reinterpret_cast<const char*>(data), size);  
+namespace OHOS {
+bool AccessTokenAdapterFuzzTest(const uint8_t* data, size_t size)
+{
+    std::string permissionName(reinterpret_cast<const char*>(data), size);
 
-        auto& instance = AccessTokenAdapterImpl::GetInstance();  
-        bool result = instance.VerifyAccessToken(permissionName);  
+    auto& instance = AccessTokenAdapterImpl::GetInstance();
+    bool result = instance.VerifyAccessToken(permissionName);
 
-        return result;  
-    }  
-}  
+    return result;
+}
+} // namespace OHOS
 
-/* Fuzzer entry point */  
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)  
-{  
-    /* Run your code on data */  
-    OHOS::AccessTokenAdapterFuzzTest(data, size);  
-    return 0;  
+/* Fuzzer entry point */
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
+{
+    /* Run your code on data */
+    OHOS::AccessTokenAdapterFuzzTest(data, size);
+    return 0;
 }

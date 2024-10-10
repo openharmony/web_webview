@@ -28,6 +28,7 @@ class Surface;
 }
 
 namespace OHOS::NWeb {
+
 class OHOS_NWEB_EXPORT NWebAdapterHelper {
 public:
     static NWebAdapterHelper &Instance();

@@ -137,6 +137,8 @@ public:
 
     void ClearHostIP(const std::string& hostName) {}
 
+    void SetWholeWebDrawing() {}
+
     std::shared_ptr<NWebAdsBlockManager> GetAdsBlockManager()
     {
         return nullptr;

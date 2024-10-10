@@ -131,7 +131,7 @@ bool EnsureSdkLoaded(void* handle)
         return false;
     }
 
-    auto* schemeHandlerApi = new SchemeHandlerApi();
+    auto* schemeHandlerApi = new (std::nothrow) SchemeHandlerApi();
     if (schemeHandlerApi == nullptr) {
         WVLOG_I("schemeHandlerApi is nullptr.");
         return false;

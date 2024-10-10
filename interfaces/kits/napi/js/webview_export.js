@@ -32,7 +32,7 @@ class BusinessError extends Error {
   constructor(code, errorMsg = 'undefined') {
     if (errorMsg === 'undefined') {
       let msg = errMsgMap.get(code);
-      super(msg);
+      super(msg);      
     } else {
       super(errorMsg);
     }
@@ -242,9 +242,9 @@ Object.defineProperty(webview.WebviewController.prototype, 'getCertificate', {
       console.log('get certificate async callback');
       if (typeof callback !== 'function') {
         throw new BusinessError(PARAM_CHECK_ERROR,
-          'BusinessError 401: Parameter error. The type of "callback" must be function.' );
+          'BusinessError 401: Parameter error. The type of 'callback' must be function.' );
       }
-      return getCertificatePromise(certChainData).then(x509CertArray => {
+      getCertificatePromise(certChainData).then(x509CertArray => {
         callback(undefined, x509CertArray);
       }).catch(error => {
         callback(error, undefined);

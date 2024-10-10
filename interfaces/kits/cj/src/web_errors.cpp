@@ -41,6 +41,8 @@ const std::string DOWNLOAD_NOT_START_MSG = "The download task is not started yet
 const std::string REGISTER_CUSTOM_SCHEME_FAILED_MSG = "Failed to register custom schemes.";
 const std::string HTTP_BODY_STREAN_INIT_FAILED_MSG = "Failed to initialize the HTTP body stream.";
 const std::string RESOURCE_HANDLER_INVALID_MSG = "The resource handler is invalid.";
+const std::string HTTP_AUTH_MALLOC_FAILED_MSG = "Failed to malloc string memory to get HttpAuth.";
+const std::string UNKNOWN_ERROR_MSG = "Unknown error message.";
 }
 
 namespace OHOS {
@@ -71,7 +73,11 @@ std::unordered_map<ErrCode, std::string> g_errCodeMsgMap = {
 
 std::string GetErrMsgByErrCode(ErrCode code)
 {
-    return g_errCodeMsgMap[code];
+    auto it = g_errCodeMsgMap.find(code);
+    if (it != g_errCodeMsgMap.end()) {
+        return it->second;
+    }
+    return UNKNOWN_ERROR_MSG;
 }
 } // namespace NWebError
 } // namespace OHOS

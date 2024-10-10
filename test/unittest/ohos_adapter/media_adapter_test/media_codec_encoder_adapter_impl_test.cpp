@@ -373,7 +373,7 @@ HWTEST_F(MediaCodecEncoderAdapterImplTest, MediaCodecEncoderAdapterImpl_Surface_
     int32_t fence = -1;
     auto configAdapter = std::make_shared<BufferRequestConfigAdapterMock>();
     EXPECT_NE(configAdapter, nullptr);
-    std::shared_ptr<SurfaceBufferAdapter> SurfaceBufferAdapter = 
+    std::shared_ptr<SurfaceBufferAdapter> SurfaceBufferAdapter =
         surfaceAdapter->RequestBuffer(fence, configAdapter);
     EXPECT_NE(SurfaceBufferAdapter, nullptr);
 

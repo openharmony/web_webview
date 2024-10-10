@@ -23,17 +23,17 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool AudioSetVolumeFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        AudioRendererAdapterImpl adapter;
-        float volume = 0;
-        adapter.SetVolume(volume);
-        return true;
+bool AudioSetVolumeFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    AudioRendererAdapterImpl adapter;
+    float volume = 0;
+    adapter.SetVolume(volume);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

@@ -110,6 +110,8 @@ public:
 
     std::unique_ptr<NWeb::SensorAdapter> CreateSensorAdapter() override;
 
+    void SetArkWebCoreHapPathOverride(const std::string& hapPath) override;
+
 private:
     ArkWebRefPtr<ArkOhosAdapterHelper> ctocpp_;
 };

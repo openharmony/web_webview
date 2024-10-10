@@ -195,7 +195,7 @@ public:
      */
     std::string ReturnCookieWithHttpOnly(
         const std::string& url, bool& is_valid, bool incognito_mode, bool includeHttpOnly) override;
- 
+
     /**
      * @brief Sets a single cookie (key-value pair) for the given URL sync.
      *

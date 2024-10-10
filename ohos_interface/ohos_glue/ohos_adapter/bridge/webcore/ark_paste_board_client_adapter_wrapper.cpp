@@ -30,6 +30,11 @@ static ArkPasteRecordVector ArkPasteRecordVectorClassToStruct(const NWeb::PasteR
     if (struct_value.size > 0) {
         struct_value.value = (ark_paste_data_record_adapter_t**)ArkWebMemMalloc(
             sizeof(ark_paste_data_record_adapter_t*) * struct_value.size);
+        if (struct_value.value == nullptr) {
+            struct_value.size = 0;
+            return struct_value;
+        }
+        
         int count = 0;
         for (auto it = class_value.begin(); it != class_value.end(); it++) {
             std::shared_ptr<ArkPasteDataRecordAdapterWrapper> data =

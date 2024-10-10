@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "discharging_fuzzer"
 #endif /* TEST_FUZZTEST_DIS_CHARGING_FUZZER_H */
-
