@@ -866,11 +866,11 @@ bool IMFAdapterImpl::Attach(std::shared_ptr<IMFTextListenerAdapter> listener, bo
         ReportImfErrorEvent(IMF_TEXT_CONFIG_NULL_POINT, isShowKeyboard);
         return false;
     }
-
+    auto tmpProxy = textEditorProxy_;
     if (textEditorProxy_ != nullptr && isResetListener) {
-        IMFTextEditorProxyImpl::TextEditorProxyDestroy(textEditorProxy_);
         textEditorProxy_ = nullptr;
     }
+    
     if (textEditorProxy_ == nullptr) {
         textEditorProxy_ = IMFTextEditorProxyImpl::TextEditorProxyCreate(listener);
         if (textEditorProxy_ == nullptr) {
@@ -881,16 +881,26 @@ bool IMFAdapterImpl::Attach(std::shared_ptr<IMFTextListenerAdapter> listener, bo
     }
     InputMethod_ErrorCode ret = IMFTextEditorProxyImpl::ConstructTextConfig(config);
     if (ret != IME_ERR_OK) {
+        if (isResetListener) {
+            IMFTextEditorProxyImpl::TextEditorProxyDestroy(tmpProxy);
+        }
         return false;
     }
     InputMethod_AttachOptions *options = OH_AttachOptions_Create(isShowKeyboard);
     ret = OH_InputMethodController_Attach(textEditorProxy_, options, &inputMethodProxy_);
     if (ret != IME_ERR_OK) {
         WVLOG_E("Inputmethod attach failed, ret=%{public}d", isShowKeyboard);
+        if (isResetListener) {
+            IMFTextEditorProxyImpl::TextEditorProxyDestroy(tmpProxy);
+        }
+        OH_AttachOptions_Destroy(options);
         return false;
     }
     WVLOG_I("Inputmethod attach, isResetListener: %{public}s, isShowKeyboard: %{public}s",
         isResetListener ? "yes" : "no", isShowKeyboard ? "yes" : "no");
+    if (isResetListener) {
+        IMFTextEditorProxyImpl::TextEditorProxyDestroy(tmpProxy);
+    }
     return true;
 }
 
