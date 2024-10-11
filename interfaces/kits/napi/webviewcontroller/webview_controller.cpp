@@ -1983,5 +1983,13 @@ void WebviewController::SetBackForwardCacheOptions(int32_t size, int32_t timeToL
 
     nweb_ptr->SetBackForwardCacheOptions(size, timeToLive);
 }
+
+void WebviewController::GetScrollOffset(float* offset_x, float* offset_y)
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (nweb_ptr) {
+        nweb_ptr->GetScrollOffset(offset_x, offset_y);
+    }
+}
 } // namespace NWeb
 } // namespace OHOS
