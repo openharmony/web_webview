@@ -56,6 +56,7 @@
 #include "system_properties_adapter.h"
 #include "sensor_adapter.h"
 #include "adapter_export.h"
+#include "qos_manager_adapter.h"
 
 namespace OHOS::NWeb {
 class  OHOS_ADAPTER_EXPORT OhosAdapterHelper {
@@ -149,6 +150,8 @@ public:
     virtual std::unique_ptr<SensorAdapter> CreateSensorAdapter() = 0;
 
     virtual void SetApplicationResourceManager(void* mgr) = 0;
+
+    virtual QosManagerAdapter& GetQosManagerInstance() = 0;
 };
 } // namespace OHOS::NWeb
 

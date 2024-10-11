@@ -114,6 +114,8 @@ public:
     std::unique_ptr<SensorAdapter> CreateSensorAdapter() override;
 
     void SetApplicationResourceManager(void* mgr) override;
+
+    QosManagerAdapter& GetQosManagerInstance() override;
 };
 } // namespace OHOS::NWeb
 
