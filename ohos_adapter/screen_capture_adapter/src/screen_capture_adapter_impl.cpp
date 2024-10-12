@@ -324,6 +324,11 @@ int32_t ScreenCaptureAdapterImpl::StartCapture()
     int32_t ret = screenCapture_->SetPrivacyAuthorityEnabled();
     if (ret != Media::MSERR_OK) {
         WVLOG_E("start capture SetPrivacyAuthorityEnabled failed, ret = %{public}d", ret);
+        return -1;
+    }
+    ret = screenCapture_->SetCanvasRotation(true);
+    if (ret != Media::MSERR_OK) {
+        WVLOG_E("start capture SetCanvasRotation failed, ret = %{public}d", ret);
     }
     ret = screenCapture_->StartScreenCapture();
     if (ret != Media::MSERR_OK) {
