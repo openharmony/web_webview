@@ -14,30 +14,38 @@
  */
 
 #include "qos_manager_adapter_impl.h"
+#include <map>
 #include "qos/qos.h"
-
 #include "nweb_log.h"
 
 namespace OHOS::NWeb {
 
-QoS_Level ConvertQosLevel(QosLevelAdapter level)
+std::map<QosLevelAdapter, QoS_Level> kQosLevelAdapterToQoS_LevelMap =
 {
-    switch (level) {
-        case QosLevelAdapter::NWEB_QOS_BACKGROUND:
-            return QoS_Level::QOS_BACKGROUND;
-        case QosLevelAdapter::NWEB_QOS_UTILITY:
-            return QoS_Level::QOS_UTILITY;
-        case QosLevelAdapter::NWEB_QOS_DEFAULT:
-            return QoS_Level::QOS_DEFAULT;
-        case QosLevelAdapter::NWEB_QOS_USER_INITIATED:
-            return QoS_Level::QOS_USER_INITIATED;
-        case QosLevelAdapter::NWEB_QOS_DEADLINE_REQUEST:
-            return QoS_Level::QOS_DEADLINE_REQUEST;
-        case QosLevelAdapter::NWEB_QOS_USER_INTERACTIVE:
-            return QoS_Level::QOS_USER_INTERACTIVE;
-        default:
-            return QoS_Level::QOS_DEFAULT;
+    {QosLevelAdapter::NWEB_QOS_BACKGROUND, QoS_Level::QOS_BACKGROUND},
+    {QosLevelAdapter::NWEB_QOS_UTILITY, QoS_Level::QOS_UTILITY},
+    {QosLevelAdapter::NWEB_QOS_DEFAULT, QoS_Level::QOS_DEFAULT},
+    {QosLevelAdapter::NWEB_QOS_USER_INITIATED, QoS_Level::QOS_USER_INITIATED},
+    {QosLevelAdapter::NWEB_QOS_DEADLINE_REQUEST, QoS_Level::QOS_DEADLINE_REQUEST},
+    {QosLevelAdapter::NWEB_QOS_USER_INTERACTIVE, QoS_Level::QOS_USER_INTERACTIVE},
+};
+
+QoS_Level QosLevelAdapterToQosLevel(QosLevelAdapter nwebLevelAdapter)
+{
+    if (kQosLevelAdapterToQoS_LevelMap.count(nwebLevelAdapter) > 0) {
+        return kQosLevelAdapterToQoS_LevelMap[nwebLevelAdapter];
     }
+    return QoS_Level::QOS_DEFAULT;
+}
+
+QosLevelAdapter QosLevelToQosLevelAdapter(QoS_Level qosLevel)
+{
+    for (const auto& pair : kQosLevelAdapterToQoS_LevelMap) {
+        if (pair.second == qosLevel) {
+            return pair.first;
+        }
+    }
+    return QosLevelAdapter::NWEB_QOS_DEFAULT;
 }
 
 // static
@@ -49,7 +57,7 @@ QosManagerAdapterImpl& QosManagerAdapterImpl::GetInstance()
 
 int32_t QosManagerAdapterImpl::SetThreadQoS(QosLevelAdapter level)
 {
-    QoS_Level qosLevel = ConvertQosLevel(level);
+    QoS_Level qosLevel = QosLevelAdapterToQosLevel(level);
     int32_t ret = OH_QoS_SetThreadQoS(qosLevel);
     if (ret < 0) {
         WVLOG_D("Set thread qos failed, ret: %{public}d", ret);
@@ -59,10 +67,12 @@ int32_t QosManagerAdapterImpl::SetThreadQoS(QosLevelAdapter level)
 
 int32_t QosManagerAdapterImpl::GetThreadQoS(QosLevelAdapter *level)
 {
-    int32_t ret = OH_QoS_GetThreadQoS(level);
+    QoS_Level qosLevel = QoS_Level::QOS_DEFAULT;
+    int32_t ret = OH_QoS_GetThreadQoS(&qosLevel);
     if (ret < 0) {
         WVLOG_D("Get thread qos failed, ret: %{public}d", ret);
     }
+    *level = QosLevelToQosLevelAdapter(qosLevel);
     return ret;
 }
 } // namespace OHOS::NWeb

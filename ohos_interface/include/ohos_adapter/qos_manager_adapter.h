@@ -16,6 +16,8 @@
 #ifndef QOS_MANAGER_ADAPTER_H
 #define QOS_MANAGER_ADAPTER_H
 
+#include <cstdint>
+
 namespace OHOS::NWeb {
 enum class QosLevelAdapter : int {
     /**
