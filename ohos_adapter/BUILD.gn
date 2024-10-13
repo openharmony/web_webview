@@ -465,6 +465,7 @@ source_set("unittests") {
     "media_adapter/src/media_codec_decoder_adapter_impl_unittest.cpp",
     "media_adapter/src/media_codec_encoder_adapter_impl_unittest.cpp",
     "media_adapter/src/player_framework_adapter_unittest.cpp",
+    "media_adapter/src/media_avsession_adapter_impl_unittest.cpp",
     "date_time_format_adapter/src/date_time_format_adapter_unittest.cpp",
     "camera_adapter/src/camera_adapter_unittest.cpp",
     "multimodalinput_adapter/src/mmi_adapter_impl_unittest.cpp",

@@ -226,9 +226,9 @@ public:
 
     virtual ~AudioCallbackTest() = default;
 
-    void OnSuspend() override {};
+    void OnSuspend() override {}
 
-    void OnResume() override {};
+    void OnResume() override {}
 };
 
 class AudioRendererCallbackMock : public AudioRendererCallbackAdapter {
@@ -237,9 +237,9 @@ public:
 
     virtual ~AudioRendererCallbackMock() = default;
 
-    void OnSuspend() override {};
+    void OnSuspend() override {}
 
-    void OnResume() override {};
+    void OnResume() override {}
 
     int32_t OnWriteDataCallback(void* buffer, int32_t length) override
     {
@@ -253,7 +253,7 @@ public:
 
     virtual ~AudioOutputChangeCallbackMock() = default;
 
-    void OnOutputDeviceChange(int32_t reason) override {};
+    void OnOutputDeviceChange(int32_t reason) override {}
 };
 
 class AudioCapturerCallbackMock : public AudioCapturerReadCallbackAdapter {
@@ -262,7 +262,7 @@ public:
 
     virtual ~AudioCapturerCallbackMock() = default;
 
-    void OnReadData(size_t length) override {};
+    void OnReadData(size_t length) override {}
 };
 
 class AudioManagerDeviceChangeCallbackAdapterMock : public AudioManagerDeviceChangeCallbackAdapter {
@@ -271,7 +271,7 @@ public:
 
     virtual ~AudioManagerDeviceChangeCallbackAdapterMock() = default;
 
-    void OnDeviceChange() override {};
+    void OnDeviceChange() override {}
 };
 
 void NWebAudioAdapterTest::SetUpTestCase(void)
