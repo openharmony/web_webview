@@ -13,5 +13,5 @@
  * limitations under the License.
  */
 interface OHOS.NWeb.IAppFwkUpdateService {
-    void RequestUpdateService([in] String bundleName);
+    void VerifyPackageInstall([in] String bundleName, [in] String hapPath, [out]int success);
 }
