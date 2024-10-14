@@ -250,7 +250,7 @@ TEST_F(MediaAVSessionKeyTest, NWebMediaAdapterTest_MediaAVSessionKey_003)
 {
     g_key->Init();
     auto ret = g_key->GetBundleName();
-    EXPECT_EQ(ret, "unittest");
+    EXPECT_EQ(ret, "dummy");
 }
 
 /**
@@ -262,7 +262,7 @@ TEST_F(MediaAVSessionKeyTest, NWebMediaAdapterTest_MediaAVSessionKey_004)
 {
     g_key->Init();
     auto ret = g_key->GetAbilityName();
-    EXPECT_EQ(ret, "unittest");
+    EXPECT_EQ(ret, "dummy");
 }
 /**
  * @tc.name: MediaAVSessionAdapterImplTest_MediaAVSessionKey_005.
