@@ -134,6 +134,7 @@ config("adapter_source_include_dirs") {
     "pasteboard_adapter/include",
     "power_mgr_adapter/include",
     "print_manager_adapter/include",
+    "qos_manager_adapter/include",
     "screen_capture_adapter/include",
     "soc_perf_adapter/include",
     "system_properties_adapter/include",
@@ -188,6 +189,7 @@ component("adapter_source") {
     "soc_perf_adapter/src/soc_perf_client_adapter_impl.cpp",
     "system_properties_adapter/src/system_properties_adapter_impl.cpp",
      "audio_adapter/src/audio_system_manager_adapter_impl.cpp",
+     "qos_manager_adapter/src/qos_manager_adapter_impl.cpp",
   ]
 #
 #  cflags = [
@@ -244,6 +246,7 @@ component("adapter_source") {
     "ohsensor",
     "native_avscreen_capture",
     "ohpreferences",
+    "qos",
   ]
 #
   public_configs = [

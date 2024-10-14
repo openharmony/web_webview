@@ -57,6 +57,7 @@
 #include "window_adapter_impl.h"
 #include "sensor_adapter_impl.h"
 #include "net_connect_adapter_impl.h"
+#include "qos_manager_adapter_impl.h"
 
 namespace OHOS::NWeb {
 // static
@@ -279,5 +280,10 @@ std::unique_ptr<SensorAdapter> OhosAdapterHelperImpl::CreateSensorAdapter()
 void OhosAdapterHelperImpl::SetApplicationResourceManager(void* mgr)
 {
     OhosResourceAdapterImpl::SetApplicationResourceManager(mgr);
+}
+
+QosManagerAdapter& OhosAdapterHelperImpl::GetQosManagerInstance()
+{
+    return QosManagerAdapterImpl::GetInstance();
 }
 } // namespace OHOS::NWeb

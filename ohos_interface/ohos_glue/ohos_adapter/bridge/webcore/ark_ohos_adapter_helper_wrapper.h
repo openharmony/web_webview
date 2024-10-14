@@ -110,6 +110,8 @@ public:
 
     std::unique_ptr<NWeb::SensorAdapter> CreateSensorAdapter() override;
 
+    NWeb::QosManagerAdapter& GetQosManagerInstance() override;
+
 private:
     ArkWebRefPtr<ArkOhosAdapterHelper> ctocpp_;
 };
