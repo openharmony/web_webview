@@ -60,6 +60,7 @@
 #include "ohos_adapter/bridge/ark_player_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_power_mgr_client_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_print_manager_adapter_impl.h"
+#include "ohos_adapter/bridge/ark_qos_manager_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_running_lock_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_screen_capture_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_soc_perf_client_adapter_impl.h"
@@ -376,5 +377,12 @@ ArkWebRefPtr<ArkSensorAdapter> ArkOhosAdapterHelperImpl::CreateSensorAdapter()
     std::unique_ptr<NWeb::SensorAdapter> adapter = real_.CreateSensorAdapter();
     std::shared_ptr<NWeb::SensorAdapter> shared = std::move(adapter);
     return new ArkSensorAdapterImpl(shared);
+}
+
+ArkWebRefPtr<ArkQosManagerAdapter> ArkOhosAdapterHelperImpl::GetQosManagerInstance() 
+{
+    static NWeb::QosManagerAdapter& instance = real_.GetQosManagerInstance();
+    static ArkWebRefPtr<ArkQosManagerAdapter> impl = new ArkQosManagerAdapterImpl(instance);
+    return impl;
 }
 } // namespace OHOS::ArkWeb

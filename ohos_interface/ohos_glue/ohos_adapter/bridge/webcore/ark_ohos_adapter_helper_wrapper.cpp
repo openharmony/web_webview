@@ -55,6 +55,7 @@
 #include "ohos_adapter/bridge/ark_player_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_power_mgr_client_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_print_manager_adapter_wrapper.h"
+#include "ohos_adapter/bridge/ark_qos_manager_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_running_lock_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_screen_capture_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_sensor_adapter_wrapper.h"
@@ -458,5 +459,11 @@ std::unique_ptr<NWeb::SensorAdapter> ArkOhosAdapterHelperWrapper::CreateSensorAd
     }
 
     return std::make_unique<ArkSensorAdapterWrapper>(adapter);
+}
+
+NWeb::QosManagerAdapter& ArkOhosAdapterHelperWrapper::GetQosManagerInstance()
+{
+    static ArkQosManagerAdapterWrapper instance(ctocpp_->GetQosManagerInstance());
+    return instance;
 }
 } // namespace OHOS::ArkWeb

@@ -50,6 +50,7 @@
 #include "ohos_adapter/include/ark_pasteboard_client_adapter.h"
 #include "ohos_adapter/include/ark_power_mgr_client_adapter.h"
 #include "ohos_adapter/include/ark_print_manager_adapter.h"
+#include "ohos_adapter/include/ark_qos_manager_adapter.h"
 #include "ohos_adapter/include/ark_screen_capture_adapter.h"
 #include "ohos_adapter/include/ark_soc_perf_client_adapter.h"
 #include "ohos_adapter/include/ark_system_properties_adapter.h"
@@ -188,6 +189,9 @@ public:
 
     /*--ark web()--*/
     virtual ArkWebRefPtr<ArkSensorAdapter> CreateSensorAdapter() = 0;
+
+    /*--ark web()--*/
+    virtual ArkWebRefPtr<ArkQosManagerAdapter> GetQosManagerInstance() = 0;
 };
 
 } // namespace OHOS::ArkWeb

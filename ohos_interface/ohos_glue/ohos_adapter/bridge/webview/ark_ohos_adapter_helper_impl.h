@@ -110,6 +110,8 @@ public:
 
     ArkWebRefPtr<ArkSensorAdapter> CreateSensorAdapter() override;
 
+    ArkWebRefPtr<ArkQosManagerAdapter> GetQosManagerInstance() override;
+
 private:
     NWeb::OhosAdapterHelper& real_;
 
