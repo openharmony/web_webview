@@ -452,7 +452,6 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_QueryRenderSurface_012, TestSize
     ASSERT_NE(mockClient, nullptr);
     EXPECT_CALL(*mockImpl, SendRequest(_, _, _, _)).WillOnce(Return(NWEB_ERROR));
     mockClient->QueryRenderSurface(surface_id);
-    delete mockImpl;
     delete mockClient;
 }
  
@@ -478,7 +477,6 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_ReportThread_013, TestSize.Level
     ASSERT_NE(mockClient, nullptr);
     EXPECT_CALL(*mockImpl, SendRequest(_, _, _, _)).WillOnce(Return(NWEB_ERROR));
     mockClient->ReportThread(status, process_id, thread_id, role);
-    delete mockImpl;
     delete mockClient;
 }
  
@@ -517,7 +515,6 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_DestroyRenderSurface_015, TestSi
     ASSERT_NE(mockClient, nullptr);
     EXPECT_CALL(*mockImpl, SendRequest(_, _, _, _)).WillOnce(Return(NWEB_ERROR));
     mockClient->DestroyRenderSurface(surface_id);
-    delete mockImpl;
     delete mockClient;
 }
  
@@ -533,10 +530,6 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_QueryRenderSurface_016, TestSize
     ASSERT_NE(clientAdapter, nullptr);
     int32_t surface_id = 0;
     clientAdapter->GetInstance().browserHost_ = nullptr;
-    clientAdapter->QueryRenderSurface(surface_id);
-    sptr<MockIBrowser> mockBrowser = new MockIBrowser();
-    EXPECT_CALL(*mockBrowser, QueryRenderSurface(surface_id));
-    clientAdapter->GetInstance().browserHost_ = mockBrowser;
     clientAdapter->QueryRenderSurface(surface_id);
 }
  

@@ -22,7 +22,6 @@ import os.path
 import subprocess
 import sys
 
-
 def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("--protoc", required=True,
