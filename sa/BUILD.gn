@@ -21,9 +21,13 @@ group("app_fwk_update") {
   ]
 }
 
+config("web_sa_interface") {
+  include_dirs = [ "include" ]
+}
+
 idl_interface_sources = [
-  "${target_gen_dir}/app_fwk_update_servic_proxy.cpp",
-  "${target_gen_dir}/app_fwk_update_servic_stub.cpp",
+  "${target_gen_dir}/app_fwk_update_service_proxy.cpp",
+  "${target_gen_dir}/app_fwk_update_service_stub.cpp",
 ]
 
 idl_gen_interface("app_fwk_update_service_interface") {
@@ -44,15 +48,19 @@ ohos_prebuilt_etc("app_fwk_update_service_cfg") {
 }
 
 ohos_shared_library("app_fwk_update_service") {
-  shlib_type = "sa"
   defines = [ "HILOG_TAG=\"app_fwk_update_service\"" ]
+  shlib_type = "sa"
+  version_script = "libapp_fwk_update_service.map"
   output_values = get_target_outputs(":app_fwk_update_service_interface")
   sources = [
     "../sa/include/app_fwk_update_service.h",
+    "../sa/src/app_fwk_update_client.cpp",
+    "../sa/src/app_fwk_update_load_callback.cpp",
     "../sa/src/app_fwk_update_service.cpp",
   ]
   sources += filter_include(output_values, [ "*.cpp" ])
   deps = [ ":app_fwk_update_service_interface" ]
+  public_configs = [ ":web_sa_interface" ]
   include_dirs = [
     "../sa/include",
     "../ohos_nweb/include",

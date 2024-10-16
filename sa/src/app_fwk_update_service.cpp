@@ -22,6 +22,7 @@
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "event_handler.h"
+#include "ipc_skeleton.h"
 #include "iremote_object.h"
 #include "iservice_registry.h"
 #include "nweb_log.h"
@@ -32,9 +33,9 @@
 
 namespace OHOS::NWeb {
 
-const std::string PACKAGE_CHANGE_EVENT = "usual.event.PACKAGE_CHANGED";
 const std::string ARK_WEB_DEFAULT_BUNDLE_NAME = "com.ohos.nweb";
 const int RETRY_COUNT = 2;
+const int FOUNDATION_UID = 5523;
 REGISTER_SYSTEM_ABILITY_BY_ID(AppFwkUpdateService, SUBSYS_WEBVIEW_SYS_UPDATE_SERVICE_ID, false);
 
 constexpr int32_t TASK_DELAY_TIME = 60000; // 1min = 1*60*1000
@@ -46,7 +47,6 @@ PackageChangedReceiver::PackageChangedReceiver(
 
 void PackageChangedReceiver::OnReceiveEvent(const EventFwk::CommonEventData& data)
 {
-    WVLOG_I("PackageChangedReceiver invoked.");
     std::string action = data.GetWant().GetAction();
     if (action.empty()) {
         WVLOG_I("action is empty");
@@ -64,7 +64,6 @@ void PackageChangedReceiver::OnReceiveEvent(const EventFwk::CommonEventData& dat
         std::string hapPath;
         OHOS::AppExecFwk::BundleInfo bundleInfo;
         OHOS::AppExecFwk::BundleMgrClient client;
-        WVLOG_I("packagechangeReceiver GetBundleInfo, ret = %{public}s.", bundleName.c_str());
 
         bool result = client.GetBundleInfo(bundleName, OHOS::AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo,
             AppExecFwk::Constants::ALL_USERID);
@@ -84,9 +83,39 @@ AppFwkUpdateService::AppFwkUpdateService(int32_t saId, bool runOnCreate) : Syste
 
 AppFwkUpdateService::~AppFwkUpdateService() {}
 
-ErrCode AppFwkUpdateService::RequestUpdateService(const std::string& bundleName)
+ErrCode AppFwkUpdateService::VerifyPackageInstall(
+    const std::string& bundleName, const std::string& hapPath, int32_t& isSuccess)
 {
-    WVLOG_I("request update service invoked.");
+    if (IPCSkeleton::GetCallingUid() != FOUNDATION_UID) {
+        return ERR_INVALID_VALUE;
+    }
+    int ret = 0;
+    isSuccess = 0;
+    if (OHOS::system::GetParameter("persist.arkwebcore.install_path", "") == hapPath) {
+        WVLOG_I("OnPackageChangedEvent install path not changed.");
+        return ERR_OK;
+    }
+
+    ret = SetWebInstallPath(hapPath);
+    if (ret != 1) {
+        isSuccess = -1;
+        WVLOG_I("SetWebInstallPath happend error: %{public}d", isSuccess);
+        return ERR_INVALID_VALUE;
+    }
+
+    ret = SetWebCorePackageName(bundleName);
+    if (ret != 1) {
+        isSuccess = -1;
+        WVLOG_I("SetWebInstallPath happend error: %{public}d", isSuccess);
+        return ERR_INVALID_VALUE;
+    }
+
+    ret = SendAppSpawnMessage(bundleName);
+    if (ret != 0) {
+        isSuccess = -1;
+        WVLOG_I("SendAppSpawnMessage happend error: %{public}d", isSuccess);
+        return ERR_INVALID_VALUE;
+    }
     return ERR_OK;
 }
 
@@ -97,7 +126,6 @@ void AppFwkUpdateService::OnStart(const SystemAbilityOnDemandReason& startReason
         WVLOG_I("App fwk update service is running.");
     }
     if (!Init(startReason)) {
-        WVLOG_I("failed to init app_fwk_update_service.");
         return;
     }
 }
@@ -134,29 +162,12 @@ bool AppFwkUpdateService::Init(const SystemAbilityOnDemandReason& startReason)
         WVLOG_I("Bundle name is not nweb.");
         return false;
     }
-    if (reasonName == PACKAGE_CHANGE_EVENT) {
-        OHOS::AppExecFwk::BundleInfo bundleInfo;
-        std::string hapPath;
-        OHOS::AppExecFwk::BundleMgrClient client;
-
-        bool result = client.GetBundleInfo(bundleName, OHOS::AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo,
-            AppExecFwk::Constants::ALL_USERID);
-        if (result) {
-            if (bundleInfo.hapModuleInfos.size() > 0) {
-                hapPath = bundleInfo.hapModuleInfos[0].hapPath;
-                WVLOG_I("Hap path is %{public}s.", hapPath.c_str());
-            }
-        } else {
-            WVLOG_W("Failed to get bundle info.");
-        }
-        OnPackageChangedEvent(bundleName, hapPath);
-    }
     registerToService_ = true;
     WVLOG_I("Service init success.");
     return true;
 }
 
-void AppFwkUpdateService::SendAppSpawnMessage(const std::string& bundleName)
+int AppFwkUpdateService::SendAppSpawnMessage(const std::string& bundleName)
 {
     WVLOG_I("Send appspawn message start,uid = %{public}d.", getuid());
     int ret = 0;
@@ -179,9 +190,10 @@ void AppFwkUpdateService::SendAppSpawnMessage(const std::string& bundleName)
     } while (++retryCount < RETRY_COUNT && ret != 0);
     AppSpawnClientDestroy(clientHandle);
     WVLOG_I("Send appspawn message success.");
+    return ret;
 }
 
-void AppFwkUpdateService::SendNWebSpawnMesage(const std::string& bundleName)
+int AppFwkUpdateService::SendNWebSpawnMesage(const std::string& bundleName)
 {
     WVLOG_I("Send nweb spawn messagestart,uid = %{public}d.", getuid());
     int ret = 0;
@@ -203,18 +215,21 @@ void AppFwkUpdateService::SendNWebSpawnMesage(const std::string& bundleName)
         ret = AppSpawnClientSendMsg(clientHandle, reqHandle, &result);
     } while (++retryCount < RETRY_COUNT && ret != 0);
     AppSpawnClientDestroy(clientHandle);
-    WVLOG_I("Send nweb spawn message success.");
+    WVLOG_I("SendNWebSpawnMesage  res = %{public}d.", ret);
+    return ret;
 }
 
-void AppFwkUpdateService::SetWebInstallPath(const std::string& path)
+int AppFwkUpdateService::SetWebInstallPath(const std::string& path)
 {
-    OHOS::system::SetParameter("persist.arkwebcore.install_path", path);
-    return;
+    int res = OHOS::system::SetParameter("persist.arkwebcore.install_path", path);
+    WVLOG_I("SetWebInstallPath  res = %{public}d.", res);
+    return res;
 }
-void AppFwkUpdateService::SetWebCorePackageName(const std::string& packageName)
+int AppFwkUpdateService::SetWebCorePackageName(const std::string& packageName)
 {
-    OHOS::system::SetParameter("persist.arkwebcore.package_name", packageName);
-    return;
+    int res = OHOS::system::SetParameter("persist.arkwebcore.package_name", packageName);
+    WVLOG_I("SetWebCorePackageName  res = %{public}d.", res);
+    return res;
 }
 
 void AppFwkUpdateService::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
@@ -245,14 +260,7 @@ void AppFwkUpdateService::SubscribePackageChangedEvent()
 
 void AppFwkUpdateService::OnPackageChangedEvent(const std::string& bunldeName, const std::string& hapPath)
 {
-    if (OHOS::system::GetParameter("persist.arkwebcore.install_path", "") == hapPath) {
-        WVLOG_I("OnPackageChangedEvent install path not changed.");
-        return;
-    }
-    SetWebInstallPath(hapPath);
-    SetWebCorePackageName(bunldeName);
     SendNWebSpawnMesage(bunldeName);
-    SendAppSpawnMessage(bunldeName);
 }
 void AppFwkUpdateService::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
 {
