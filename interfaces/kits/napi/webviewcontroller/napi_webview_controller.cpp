@@ -5446,6 +5446,7 @@ napi_value NapiWebviewController::OnCreateNativeMediaPlayer(napi_env env, napi_c
     WebviewController* webviewController = GetWebviewController(env, info);
     if (!webviewController || !webviewController->IsInit()) {
         WVLOG_E("webview controller is null or not init");
+        napi_delete_reference(env, callback);
         return nullptr;
     }
 
