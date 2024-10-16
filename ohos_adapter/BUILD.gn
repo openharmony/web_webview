@@ -76,7 +76,7 @@ component("adapter_extractortool") {
   public_configs = [ ":ability_extractor_config" ]
 }
 
-shared_library("ohos_adapter_napi") {
+source_set("ohos_adapter_napi") {
   sources = [
     "ohos_adapter_napi/ohos_adapter_napi.cpp"
   ]
