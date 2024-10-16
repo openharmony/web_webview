@@ -1,0 +1,9 @@
+{
+  global:
+    extern "C++" {
+      OHOS::NWeb::AppFwkUpdateClient::GetInstance*;
+      OHOS::NWeb::AppFwkUpdateClient::VerifyPackageInstall*;
+    };
+  local:
+    *;
+};

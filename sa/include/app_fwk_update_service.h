@@ -48,8 +48,7 @@ public:
     AppFwkUpdateService(int32_t saId, bool runOnCreate);
     ~AppFwkUpdateService();
 
-    // add an unused funcation to verify adapting sa IDL template.
-    ErrCode RequestUpdateService(const std::string& bundleName) override;
+    ErrCode VerifyPackageInstall(const std::string& bundleName, const std::string& hapPath, int32_t& success) override;
     void SubscribePackageChangedEvent();
     void OnPackageChangedEvent(const std::string& bunldeName, const std::string& hapPath);
 
@@ -62,10 +61,10 @@ protected:
 
 private:
     bool Init(const SystemAbilityOnDemandReason& startReason);
-    void SetWebInstallPath(const std::string& path);
-    void SetWebCorePackageName(const std::string& packageName);
-    void SendAppSpawnMessage(const std::string& packageName);
-    void SendNWebSpawnMesage(const std::string& packageName);
+    int SetWebInstallPath(const std::string& path);
+    int SetWebCorePackageName(const std::string& packageName);
+    int SendAppSpawnMessage(const std::string& packageName);
+    int SendNWebSpawnMesage(const std::string& packageName);
     std::shared_ptr<AppExecFwk::EventHandler> unloadHandler_;
     std::shared_ptr<AppExecFwk::EventRunner> runner_;
     bool registerToService_ = false;

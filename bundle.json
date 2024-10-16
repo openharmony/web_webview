@@ -95,7 +95,8 @@
                 "//base/web/webview/ohos_nweb:libnweb",
                 "//base/web/webview/ohos_nweb:nweb_hap",
                 "//base/web/webview/ohos_adapter:nweb_ohos_adapter",
-                "//base/web/webview/ohos_wrapper:nweb_ohos_wrapper"
+                "//base/web/webview/ohos_wrapper:nweb_ohos_wrapper",
+                "//base/web/webview/sa:app_fwk_update_service"
             ],
             "inner_kits": [
                 {
@@ -127,6 +128,15 @@
                         "header_base": "//base/web/webview/ohos_adapter"
                     },
                     "name": "//base/web/webview/ohos_adapter:nweb_ohos_adapter"
+                },
+                {
+                    "header": {
+                        "header_files": [
+                            "app_fwk_update_client.h"
+                        ],
+                        "header_base": "//base/web/webview/sa/include"
+                    },
+                    "name": "//base/web/webview/sa:app_fwk_update_service"
                 },
                 {
                     "header": {
