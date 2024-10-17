@@ -15,6 +15,7 @@
 
 #include "ohos_nweb/bridge/ark_web_engine_wrapper.h"
 
+#include "ohos_nweb/bridge/ark_web_adsblock_manager_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_cookie_manager_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_data_base_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_download_manager_wrapper.h"
@@ -23,7 +24,6 @@
 #include "ohos_nweb/bridge/ark_web_nweb_create_info_impl.h"
 #include "ohos_nweb/bridge/ark_web_nweb_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_web_storage_wrapper.h"
-#include "ohos_nweb/bridge/ark_web_adsblock_manager_wrapper.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
 
@@ -206,15 +206,6 @@ void ArkWebEngineWrapper::ClearPrefetchedResource(const std::vector<std::string>
     ArkWebStringVectorStructRelease(stCacheKeyList);
 }
 
-void ArkWebEngineWrapper::WarmupServiceWorker(const std::string& url)
-{
-    ArkWebString stUrl = ArkWebStringClassToStruct(url);
-
-    ark_web_engine_->WarmupServiceWorker(stUrl);
-
-    ArkWebStringStructRelease(stUrl);
-}
-
 void ArkWebEngineWrapper::SetHostIP(const std::string& hostName, const std::string& address, int32_t aliveTime)
 {
     ark_web_engine_->SetHostIP(ArkWebStringClassToStruct(hostName), ArkWebStringClassToStruct(address), aliveTime);
@@ -225,19 +216,28 @@ void ArkWebEngineWrapper::ClearHostIP(const std::string& hostName)
     ark_web_engine_->ClearHostIP(ArkWebStringClassToStruct(hostName));
 }
 
-void ArkWebEngineWrapper::EnableWholeWebPageDrawing()
+void ArkWebEngineWrapper::WarmupServiceWorker(const std::string& url)
 {
-    ark_web_engine_->EnableWholeWebPageDrawing();
+    ArkWebString stUrl = ArkWebStringClassToStruct(url);
+
+    ark_web_engine_->WarmupServiceWorker(stUrl);
+
+    ArkWebStringStructRelease(stUrl);
 }
 
-std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager>
-ArkWebEngineWrapper::GetAdsBlockManager() {
-  ArkWebRefPtr<ArkWebAdsBlockManager> ark_web_adsblock_manager =
-      ark_web_engine_->GetAdsBlockManager();
-  if (CHECK_REF_PTR_IS_NULL(ark_web_adsblock_manager)) {
-    return nullptr;
-  }
-
-  return std::make_shared<ArkWebAdsBlockManagerWrapper>(ark_web_adsblock_manager);
+void ArkWebEngineWrapper::SetWholeWebDrawing()
+{
+    ark_web_engine_->SetWholeWebDrawing();
 }
+
+std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> ArkWebEngineWrapper::GetAdsBlockManager()
+{
+    ArkWebRefPtr<ArkWebAdsBlockManager> ark_web_adsblock_manager = ark_web_engine_->GetAdsBlockManager();
+    if (CHECK_REF_PTR_IS_NULL(ark_web_adsblock_manager)) {
+        return nullptr;
+    }
+
+    return std::make_shared<ArkWebAdsBlockManagerWrapper>(ark_web_adsblock_manager);
+}
+
 } // namespace OHOS::ArkWeb

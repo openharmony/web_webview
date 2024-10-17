@@ -23,16 +23,16 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool AudioStopRenderFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        AudioRendererAdapterImpl adapter;
-        adapter.Stop();
-        return true;
+bool AudioStopRenderFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    AudioRendererAdapterImpl adapter;
+    adapter.Stop();
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

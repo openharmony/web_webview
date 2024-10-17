@@ -126,7 +126,7 @@ void WebDownloadManager::RegisterDownloadCallback()
         WebDownloader_SetDownloadDidUpdate(g_download_callback, &DownloadDidUpdate);
         WebDownloadManager_PutDownloadCallback(g_download_callback);
     } else {
-        WVLOG_E("[DOWNLOAD] had RegisterDownloadCallback.");
+        WVLOG_I("[DOWNLOAD] had RegisterDownloadCallback.");
     }
 }
 

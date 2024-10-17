@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "stoplisten_fuzzer"
 #endif /* TEST_FUZZTEST_STOP_LISTEN_FUZZER_H */
-

@@ -605,7 +605,7 @@ HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_CameraStatus_012, TestSize
     auto callback = std::make_shared<CameraStatusCallbackAdapterMock>();
     CameraManagerAdapterImpl& adapter = CameraManagerAdapterImpl::GetInstance();
     CameraStatusAdapter status = adapter.GetCameraStatus();
-
+    EXPECT_EQ(status, CameraStatusAdapter::AVAILABLE);
     adapter.SetCameraStatus(status);
 }
 

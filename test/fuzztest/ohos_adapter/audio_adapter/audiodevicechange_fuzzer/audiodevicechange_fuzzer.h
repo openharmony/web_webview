@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "audiodevicechange_fuzzer"
 #endif /* TEST_FUZZTEST_AUDIO_DEVICE_CHANGE_FUZZER_H */
-

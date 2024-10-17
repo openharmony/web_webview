@@ -28,7 +28,7 @@ public:
     SensorCallbackImpl(std::shared_ptr<SensorCallbackAdapter> callbackAdapter);
     ~SensorCallbackImpl() = default;
 
-    void UpdateOhosSensorData(double timestamp, 
+    void UpdateOhosSensorData(double timestamp,
         double value1, double value2, double value3, double value4);
 private:
     std::shared_ptr<SensorCallbackAdapter> callbackAdapter_;

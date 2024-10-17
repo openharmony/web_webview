@@ -784,6 +784,12 @@ public:
     }
 
     /**
+     * @brief Called when received website security risk check result.
+     * @param threat_type The threat type of website.
+     */
+    virtual void OnSafeBrowsingCheckResult(int threat_type) {}
+
+    /**
      * @brief called when the navigation entry has been committed.
      * @param details represents the details of a committed navigation entry.
      */
@@ -792,20 +798,6 @@ public:
     virtual void OnNativeEmbedLifecycleChange(std::shared_ptr<NWebNativeEmbedDataInfo> dataInfo) {}
 
     virtual void OnNativeEmbedGestureEvent(std::shared_ptr<NWebNativeEmbedTouchEvent> event) {}
-
-    /**
-     * @brief Called when received website security risk check result.
-     * @param threat_type The threat_type of website.
-     */
-    virtual void OnSafeBrowsingCheckResult(int threat_type) {}
-
-    /**
-     * @brief Called when tracker's cookie is prevented.
-     * @param website_host The host of website url.
-     * @param tracker_host The host of tracker url.
-     */
-    virtual void OnIntelligentTrackingPreventionResult(const std::string& website_host, const std::string& tracker_host)
-    {}
 
     /**
      * @brief called when the page enter the full-screen mode.
@@ -818,6 +810,14 @@ public:
      */
     virtual void OnFullScreenEnterWithVideoSize(
         std::shared_ptr<NWebFullScreenExitHandler> handler, int video_natural_width, int video_natural_height)
+    {}
+
+    /**
+     * @brief Called when tracker's cookie is prevented.
+     * @param website_host The host of website url.
+     * @param tracker_host The host of tracker url.
+     */
+    virtual void OnIntelligentTrackingPreventionResult(const std::string& websiteHost, const std::string& trackerHost)
     {}
 
     /**
@@ -852,12 +852,6 @@ public:
      */
     virtual void ReleaseResizeHold() {}
 
-    virtual void OnShowAutofillPopup(
-        const float offsetX, const float offsetY, const std::vector<std::string>& menu_items)
-    {}
-
-    virtual void OnHideAutofillPopup() {}
-
     /**
      * @brief Called when select a word.
      *
@@ -884,7 +878,6 @@ public:
      * @param pid Process id of the render process not responding.
      * @param reason Reason of the render process not responding.
      */
-
     virtual void OnRenderProcessNotResponding(
         const std::string& js_stack, int pid, RenderProcessNotRespondingReason reason)
     {}
@@ -893,8 +886,13 @@ public:
      * @brief Called when the unresponding render process becomes responsive.
      *
      */
-
     virtual void OnRenderProcessResponding() {}
+
+    virtual void OnShowAutofillPopup(
+        const float offsetX, const float offsetY, const std::vector<std::string>& menu_items)
+    {}
+
+    virtual void OnHideAutofillPopup() {}
 
     /**
      * @brief Called when the viewport-fit meta is detected for web page.
@@ -902,18 +900,6 @@ public:
      * @param viewportFit The type of the viewport-fit.
      */
     virtual void OnViewportFitChange(ViewportFit viewportFit) {}
-
-    /**
-     * @brief called when creating overlay.
-     */
-    virtual void CreateOverlay(void* data, size_t len, int width, int height, int offsetX, int offsetY, int rectWidth,
-        int rectHeight, int pointX, int pointY)
-    {}
-
-    /**
-     * @brief called when state changed.
-     */
-    virtual void OnOverlayStateChanged(int offsetX, int offsetY, int rectWidth, int rectHeight) {}
 
     /**
      * @brief Request display and focus for a new nweb.
@@ -941,12 +927,25 @@ public:
     }
 
     /**
-     * @brief Called when the key board redispatch.
-     *
-     * @param event Key information.
-     * @param isUsed Whether the key is used by the kernel.
+     * @brief called when creating overlay.
      */
-    virtual void KeyboardReDispatch(std::shared_ptr<NWebKeyEvent> event, bool isUsed) {}
+    virtual void CreateOverlay(void* data, size_t len, int width, int height, int offsetX, int offsetY, int rectWidth,
+        int rectHeight, int pointX, int pointY)
+    {}
+
+    /**
+     * @brief called when state changed.
+     */
+    virtual void OnOverlayStateChanged(int offsetX, int offsetY, int rectWidth, int rectHeight) {}
+
+    /**
+     * @brief Called when received Ads blocked results.
+     *
+     * @param url The url of webpage.
+     * @param adsBlocked The ads' blocked urls.
+     *
+     */
+    virtual void OnAdsBlocked(const std::string& url, const std::vector<std::string>& adsBlocked) {}
 
     virtual void OnInterceptKeyboardAttach(
         const std::shared_ptr<NWebCustomKeyboardHandler> keyboardHandler,
@@ -958,14 +957,13 @@ public:
     virtual void OnCustomKeyboardAttach() {}
 
     virtual void OnCustomKeyboardClose() {}
+
     /**
-     * @brief Called when received Ads blocked results.
+     * @brief Called when you need to temporarily hide/restore the handle menu.
      *
-     * @param url The url of webpage.
-     * @param adsBlocked The ads' blocked urls.
-     *
+     * @param hide hide.
      */
-    virtual void OnAdsBlocked(const std::string& url, const std::vector<std::string>& adsBlocked) {}
+    virtual void HideHandleAndQuickMenuIfNecessary(bool hide) {}
 
     /**
      * @brief called when the cursor info is updated.
@@ -976,18 +974,21 @@ public:
     virtual void OnCursorUpdate(double x, double y, double width, double height) {}
 
     /**
-     * @brief Called when you need to temporarily hide/restore the handle menu.
-     *
-     * @param hide hide.
-     */
-    virtual void HideHandleAndQuickMenuIfNecessary(bool hide) {}
-
-    virtual void OnNativeEmbedVisibilityChange(const std::string& embed_id, bool visibility) {}
+    * @brief Called When you click on the selected area.
+    *
+    */
+    virtual void ChangeVisibilityOfQuickMenu() {}
 
     /**
      * @brief Called when you need to start vibrator.
      */
     virtual void StartVibraFeedback(const std::string& vibratorType) {}
+
+    virtual void OnNativeEmbedVisibilityChange(const std::string& embed_id, bool visibility) {}
+
+    virtual void KeyboardReDispatch(std::shared_ptr<NWebKeyEvent> event, bool isUsed) {}
+
+    virtual bool CloseImageOverlaySelection() { return false; }
 };
 
 } // namespace OHOS::NWeb

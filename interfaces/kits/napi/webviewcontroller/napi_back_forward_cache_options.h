@@ -23,9 +23,6 @@
 namespace OHOS {
 namespace NWeb {
 
-const std::string BACK_FORWARD_CACHE_OPTIONS = "BackForwardCacheOptions";
-const std::string BACK_FORWARD_CACHE_SUPPORTED_FEATURES = "BackForwardCacheSupportedFeatures";
-
 class NapiBackForwardCacheOptions {
 public:
     NapiBackForwardCacheOptions() = default;

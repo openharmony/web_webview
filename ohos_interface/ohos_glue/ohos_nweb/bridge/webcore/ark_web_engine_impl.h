@@ -75,7 +75,7 @@ public:
 
     void ClearHostIP(const ArkWebString& hostName) override;
 
-    void EnableWholeWebPageDrawing() override;
+    void SetWholeWebDrawing() override;
 
     ArkWebRefPtr<ArkWebAdsBlockManager> GetAdsBlockManager() override;
 

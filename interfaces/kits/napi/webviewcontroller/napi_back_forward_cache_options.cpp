@@ -19,9 +19,7 @@
 #include <js_native_api_types.h>
 #include <napi/native_api.h>
 #include <securec.h>
-#include <cstring>
 
-#include "back_forward_cache_options.h"
 #include "business_error.h"
 #include "nweb_log.h"
 #include "napi_parse_utils.h"
@@ -32,48 +30,24 @@ using namespace OHOS::NWebError;
 
 namespace OHOS {
 namespace NWeb {
+
+const std::string BACK_FORWARD_CACHE_OPTIONS = "BackForwardCacheOptions";
+const std::string BACK_FORWARD_CACHE_SUPPORTED_FEATURES = "BackForwardCacheSupportedFeatures";
+
 napi_value NapiBackForwardCacheOptions::JS_Constructor(napi_env env, napi_callback_info info)
 {
-    WVLOG_I("NapiBackForwardCacheOptions::JS_Constructor is called");
     napi_value thisVar = nullptr;
     void *data = nullptr;
-    size_t argc = 2;
-    napi_value argv[2] = {0};
-    napi_get_cb_info(env, info, &argc, argv, &thisVar, &data);
-
-    BackForwardCacheOptions *options = new BackForwardCacheOptions();
-
-    napi_wrap(
-        env, thisVar, options,
-        [](napi_env /* env */, void *data, void * /* hint */) {
-            BackForwardCacheOptions *options = (BackForwardCacheOptions *)data;
-            delete options;
-            options = nullptr;
-        },
-        nullptr, nullptr);
+    napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, &data);
 
     return thisVar;
 }
 
 napi_value NapiBackForwardCacheSupportedFeatures::JS_Constructor(napi_env env, napi_callback_info info)
 {
-    WVLOG_I("NapiBackForwardCacheSupportedFeatures::JS_Constructor is called");
     napi_value thisVar = nullptr;
     void *data = nullptr;
-    size_t argc = 2;
-    napi_value argv[2] = {0};
-    napi_get_cb_info(env, info, &argc, argv, &thisVar, &data);
-
-    BackForwardCacheSupportedFeatures *features = new BackForwardCacheSupportedFeatures();
-
-    napi_wrap(
-        env, thisVar, features,
-        [](napi_env /* env */, void *data, void * /* hint */) {
-            BackForwardCacheSupportedFeatures *features = (BackForwardCacheSupportedFeatures *)data;
-            delete features;
-            features = nullptr;
-        },
-        nullptr, nullptr);
+    napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, &data);
 
     return thisVar;
 }

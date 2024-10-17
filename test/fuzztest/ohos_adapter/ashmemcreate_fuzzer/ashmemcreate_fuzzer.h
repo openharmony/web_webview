@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "ashmemcreate_fuzzer"
 #endif /* TEST_FUZZTEST_ASHMEMCREATE_FUZZER_H */
-

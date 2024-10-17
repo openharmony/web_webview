@@ -25,14 +25,15 @@
 #include "nweb_log.h"
 #include "ohos_adapter_helper.h"
 
-#define MAX_FLOWBUF_DATA_SIZE 52428800 /* 50MB*/
-#define MAX_ENTRIES 10
-#define HEADER_SIZE (MAX_ENTRIES * 8)  /* 10 * (int position + int length) */
-#define INDEX_SIZE 2
-
 namespace OHOS::NWeb {
 namespace {
 #define JS_BRIDGE_BINARY_ARGS_COUNT 2
+
+const int MAX_FLOWBUF_DATA_SIZE = 52428800; /* 50MB*/
+const int MAX_ENTRIES = 10;
+const int HEADER_SIZE = (MAX_ENTRIES * 8);  /* 10 * (int position + int length) */
+const int INDEX_SIZE = 2;
+
 // For the sake of the storage API, make this quite large.
 const uint32_t MAX_RECURSION_DEPTH = 11;
 const uint32_t MAX_DATA_LENGTH = 10000;
@@ -52,11 +53,15 @@ public:
     public:
         explicit Level(ValueConvertState* state) : state_(state)
         {
-            state_->maxRecursionDepth_--;
+            if (state_) {
+                state_->maxRecursionDepth_--;
+            }
         }
         ~Level()
         {
-            state_->maxRecursionDepth_++;
+            if (state_) {
+                state_->maxRecursionDepth_++;
+            }
         }
 
     private:
@@ -797,6 +802,39 @@ std::vector<std::string> ParseNapiValue2NwebValue(napi_env env, napi_value* valu
 }
 } // namespace
 
+std::shared_ptr<JavaScriptOb> JavaScriptOb::CreateNamed(
+    napi_env env, int32_t containerScopeId, napi_value value, size_t refCount)
+{
+    return std::make_shared<JavaScriptOb>(env, containerScopeId, value, refCount);
+}
+std::shared_ptr<JavaScriptOb> JavaScriptOb::CreateTransient(
+    napi_env env, int32_t containerScopeId, napi_value value, int32_t holder, size_t refCount)
+{
+    std::set<int32_t> holders;
+    holders.insert(holder);
+    return std::make_shared<JavaScriptOb>(env, containerScopeId, value, holders, refCount);
+}
+
+JavaScriptOb::JavaScriptOb(napi_env env, int32_t containerScopeId, napi_value value, size_t refCount)
+    : env_(env), containerScopeId_(containerScopeId), isStrongRef_(refCount != 0), namesCount_(1)
+{
+    napi_status s = napi_create_reference(env, value, refCount, &objRef_);
+    if (s != napi_ok) {
+        WVLOG_E("create javascript obj fail");
+    }
+}
+
+JavaScriptOb::JavaScriptOb(
+    napi_env env, int32_t containerScopeId, napi_value value, std::set<int32_t> holders, size_t refCount)
+    : env_(env), containerScopeId_(containerScopeId), isStrongRef_(refCount != 0), namesCount_(0), holders_(holders)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    napi_status s = napi_create_reference(env, value, refCount, &objRef_);
+    if (s != napi_ok) {
+        WVLOG_E("create javascript obj fail");
+    }
+}
+
 WebviewJavaScriptResultCallBack::WebviewJavaScriptResultCallBack(int32_t nwebId)
     : nwebId_(nwebId)
 {
@@ -1101,7 +1139,7 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptResultS
         return ret;
     }
     JavaScriptOb::ObjectID returnedObjectId;
-    if (FindObjectIdInJsTd(jsObj->GetEnv(), callResult, &returnedObjectId)) {
+    if (FindObjectIdInJsTd(jsObj->GetEnv(), callResult, &returnedObjectId) && FindObject(returnedObjectId)) {
         FindObject(returnedObjectId)->AddHolder(routingId);
     } else {
         returnedObjectId = AddObject(jsObj->GetEnv(), callResult, false, routingId);
@@ -1125,6 +1163,9 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptResultS
 {
     std::shared_ptr<NWebValue> ret = std::make_shared<NWebValue>(NWebValue::Type::NONE);
     std::shared_ptr<JavaScriptOb> jsObj = FindObject(objectId);
+    if (!jsObj) {
+        return ret;
+    }
     napi_handle_scope scope = nullptr;
     napi_open_handle_scope(jsObj->GetEnv(), &scope);
     if (scope == nullptr) {

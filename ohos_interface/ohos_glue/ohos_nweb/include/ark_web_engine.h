@@ -104,7 +104,7 @@ public:
     virtual void ClearHostIP(const ArkWebString& hostName) = 0;
 
     /*--ark web()--*/
-    virtual void EnableWholeWebPageDrawing() = 0;
+    virtual void SetWholeWebDrawing() = 0;
 
     /*--ark web()--*/
     virtual ArkWebRefPtr<ArkWebAdsBlockManager> GetAdsBlockManager() = 0;

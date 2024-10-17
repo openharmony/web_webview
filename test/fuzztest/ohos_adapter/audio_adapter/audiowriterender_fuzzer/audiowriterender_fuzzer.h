@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "audiowriterender_fuzzer"
 #endif /* TEST_FUZZTEST_AUDIO_WRITE_RENDER_FUZZER_H */
-

@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "audiogetstream_fuzzer"
 #endif /* TEST_FUZZTEST_AUDIO_GET_STREAM_FUZZER_H */
-

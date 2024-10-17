@@ -76,7 +76,7 @@ public:
     MOCK_METHOD2(CreateModuleContext, std::shared_ptr<Context>(const std::string &, const std::string &));
 };
 
-class ExtractorMock : public Extractor{
+class ExtractorMock : public Extractor {
 public:
     explicit ExtractorMock() : Extractor("web_test") {}
     ~ExtractorMock() override = default;

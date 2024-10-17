@@ -17,6 +17,8 @@
 #include "application_context.h"
 #include "hisysevent_adapter_impl.h"
 #include "hisysevent.h"
+#include "ohos_resource_adapter_impl.h"
+
 
 namespace OHOS::NWeb {
 namespace {
@@ -29,6 +31,7 @@ const HiviewDFX::HiSysEvent::EventType EVENT_TYPES[] = {
 }
 
 static std::string g_currentBundleName = "";
+static std::string g_versionCode = "";
 HiSysEventAdapterImpl& HiSysEventAdapterImpl::GetInstance()
 {
     static HiSysEventAdapterImpl instance;
@@ -45,7 +48,14 @@ static int ForwardToHiSysEvent(const std::string& eventName, HiSysEventAdapter::
             g_currentBundleName = appInfo->bundleName.c_str();
         }
     }
-    std::tuple<const std::string, const std::string> sysData("BUNDLE_NAME", g_currentBundleName.c_str());
+
+    if (g_versionCode.empty()) {
+        g_versionCode = OhosResourceAdapterImpl::GetArkWebVersion();
+    }
+    std::tuple<const std::string, const std::string, const std::string, const std::string> sysData(
+        "BUNDLE_NAME", g_currentBundleName.c_str(),
+        "VERSION_CODE", g_versionCode.c_str()
+    );
     auto mergeData = std::tuple_cat(sysData, tp);
 
     return std::apply(
@@ -179,10 +189,15 @@ int HiSysEventAdapterImpl::Write(const std::string& eventName, EventType type,
                      const std::string, const std::string, const std::string, const std::string,
                      const std::string, const std::string, const std::string, const std::string>& data)
 {
+    std::string versionCode = OhosResourceAdapterImpl::GetArkWebVersion();
+    auto extendedData = std::tuple_cat(
+        std::make_tuple("VERSION_CODE", versionCode),
+        data);
+
     return std::apply(
         [&](auto&&... args) {
             return HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::WEBVIEW, eventName, EVENT_TYPES[type], args...);
         },
-        data);
+        extendedData);
 }
 } // namespace OHOS::NWeb

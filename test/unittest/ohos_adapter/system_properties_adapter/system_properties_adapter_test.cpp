@@ -60,10 +60,10 @@ class SystemPropertiesObserverTest : public SystemPropertiesObserver {
         }
     }
 
-   bool UpdateValue()
-   {
-     return updateValue;
-   }
+    bool UpdateValue()
+    {
+        return updateValue;
+    }
  private:
     bool updateValue = false;
 };

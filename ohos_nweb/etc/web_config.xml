@@ -51,25 +51,16 @@
             <userAgentValue>Phone</userAgentValue>
         </userAgentConfig>
     </initConfig>
-    <deleteArgsConfig>
-        <outOfProcessGPUConfig>
-            <enableOopGpu>false</enableOopGpu>
-        </outOfProcessGPUConfig>
-    </deleteArgsConfig>
     <performanceConfig>
         <LowerFrameRateConfig>
             <visibleAreaRatio>0.1</visibleAreaRatio>
         </LowerFrameRateConfig>
-        <flowBufferConfig>
-            <maxFdNumber>0</maxFdNumber>
-        </flowBufferConfig>
     </performanceConfig>
     <baseWebConfig>
         <factoryConfig>
             <factoryLevel>1</factoryLevel>
         </factoryConfig>
     </baseWebConfig>
-
     <property_animation_dynamic_settings>
         <DynamicSettings name="scroll">
             <SpeedThresholds name="1" min="77" max="-1" preferred_fps="120"/>
@@ -80,19 +71,6 @@
             <SpeedThresholds name="1" min="77" max="-1" preferred_fps="120"/>
             <SpeedThresholds name="2" min="25" max="77" preferred_fps="90"/>
             <SpeedThresholds name="3" min="0" max="25" preferred_fps="60"/>
-        </DynamicSettings>
-        <DynamicSettings name="translate">
-            <SpeedThresholds name="1" min="77" max="-1" preferred_fps="120"/>
-            <SpeedThresholds name="2" min="25" max="77" preferred_fps="90"/>
-            <SpeedThresholds name="3" min="0" max="25" preferred_fps="60"/>
-        </DynamicSettings>
-        <DynamicSettings name="scale">
-            <SpeedThresholds name="1" min="154" max="-1" preferred_fps="120"/>
-            <SpeedThresholds name="2" min="50" max="154" preferred_fps="90"/>
-            <SpeedThresholds name="3" min="0" max="50" preferred_fps="60"/>
-        </DynamicSettings>
-        <DynamicSettings name="rotation">
-            <SpeedThresholds name="1" min="0" max="-1" preferred_fps="120"/>
         </DynamicSettings>
     </property_animation_dynamic_settings>
 </WEB>

@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "getlevel_fuzzer"
 #endif /* TEST_FUZZTEST_GET_LEVEL_FUZZER_H */
-

@@ -110,6 +110,8 @@ public:
 
     ArkWebRefPtr<ArkSensorAdapter> CreateSensorAdapter() override;
 
+    void SetArkWebCoreHapPathOverride(const ArkWebString& hapPath) override;
+
 private:
     NWeb::OhosAdapterHelper& real_;
 

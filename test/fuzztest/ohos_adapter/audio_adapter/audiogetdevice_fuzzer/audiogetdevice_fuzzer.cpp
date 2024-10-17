@@ -24,27 +24,27 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool AudioGetDeviceFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        int32_t deviceId = 0;
-        bool isInput = 0;
-        std::string language((const char*) data, size);
-        AudioSystemManagerAdapterImpl::GetInstance().GetDeviceName(DeviceType::DEVICE_TYPE_INVALID);
-        AudioSystemManagerAdapterImpl::GetInstance().GetDevices(AdapterDeviceFlag::OUTPUT_DEVICES_FLAG);
-        AudioSystemManagerAdapterImpl::GetInstance().SelectAudioDeviceById(deviceId, isInput);
-        AudioSystemManagerAdapterImpl::GetInstance().GetDefaultOutputDevice();
-        AudioSystemManagerAdapterImpl::GetInstance().GetDefaultInputDevice();
-        AudioSystemManagerAdapterImpl::GetInstance().UnsetDeviceChangeCallback();
-        AudioSystemManagerAdapterImpl::GetInstance().SetLanguage(language);
-        std::shared_ptr<AudioManagerCallbackAdapter> callback = nullptr;
-        AudioSystemManagerAdapterImpl::GetInstance().SetAudioManagerInterruptCallback(callback);
-        AudioSystemManagerAdapterImpl::GetInstance().UnsetDeviceChangeCallback();
-        return true;
+bool AudioGetDeviceFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    int32_t deviceId = 0;
+    bool isInput = 0;
+    std::string language((const char*)data, size);
+    AudioSystemManagerAdapterImpl::GetInstance().GetDeviceName(DeviceType::DEVICE_TYPE_INVALID);
+    AudioSystemManagerAdapterImpl::GetInstance().GetDevices(AdapterDeviceFlag::OUTPUT_DEVICES_FLAG);
+    AudioSystemManagerAdapterImpl::GetInstance().SelectAudioDeviceById(deviceId, isInput);
+    AudioSystemManagerAdapterImpl::GetInstance().GetDefaultOutputDevice();
+    AudioSystemManagerAdapterImpl::GetInstance().GetDefaultInputDevice();
+    AudioSystemManagerAdapterImpl::GetInstance().UnsetDeviceChangeCallback();
+    AudioSystemManagerAdapterImpl::GetInstance().SetLanguage(language);
+    std::shared_ptr<AudioManagerCallbackAdapter> callback = nullptr;
+    AudioSystemManagerAdapterImpl::GetInstance().SetAudioManagerInterruptCallback(callback);
+    AudioSystemManagerAdapterImpl::GetInstance().UnsetDeviceChangeCallback();
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

@@ -23,21 +23,21 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool AudioDeviceDescFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        int32_t id = 0;
-        std::string name((const char*) data, size);
-        std::shared_ptr<AudioDeviceDescAdapterImpl> deviceAdapterImpl = std::make_shared<AudioDeviceDescAdapterImpl>();
-        deviceAdapterImpl->GetDeviceId();
-        deviceAdapterImpl->GetDeviceName();
-        deviceAdapterImpl->SetDeviceId(id);
-        deviceAdapterImpl->SetDeviceName(name);
-        return true;
+bool AudioDeviceDescFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    int32_t id = 0;
+    std::string name((const char*)data, size);
+    std::shared_ptr<AudioDeviceDescAdapterImpl> deviceAdapterImpl = std::make_shared<AudioDeviceDescAdapterImpl>();
+    deviceAdapterImpl->GetDeviceId();
+    deviceAdapterImpl->GetDeviceName();
+    deviceAdapterImpl->SetDeviceId(id);
+    deviceAdapterImpl->SetDeviceName(name);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

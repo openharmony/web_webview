@@ -86,6 +86,7 @@ bool GetAppBundleNameAndModuleName(std::string& bundleName, std::string& moduleN
 }
 }
 using namespace NWebError;
+std::mutex g_objectMtx;
 std::unordered_map<int32_t, WebviewController*> g_webview_controller_map;
 std::string WebviewController::customeSchemeCmdLine_ = "";
 bool WebviewController::existNweb_ = false;
@@ -96,7 +97,7 @@ int32_t WebviewController::webTagStrId_ = 0;
 WebviewController::WebviewController(int32_t nwebId) : nwebId_(nwebId)
 {
     if (IsInit()) {
-        std::unique_lock<std::mutex> lk(webMtx_);
+        std::unique_lock<std::mutex> lk(g_objectMtx);
         g_webview_controller_map.emplace(nwebId, this);
     }
 }
@@ -108,14 +109,14 @@ WebviewController::WebviewController(const std::string& webTag) : webTag_(webTag
 
 WebviewController::~WebviewController()
 {
-    std::unique_lock<std::mutex> lk(webMtx_);
+    std::unique_lock<std::mutex> lk(g_objectMtx);
     g_webview_controller_map.erase(nwebId_);
 }
 
 void WebviewController::SetWebId(int32_t nwebId)
 {
     nwebId_ = nwebId;
-    std::unique_lock<std::mutex> lk(webMtx_);
+    std::unique_lock<std::mutex> lk(g_objectMtx);
     g_webview_controller_map.emplace(nwebId, this);
 
     if (webTag_.empty()) {
@@ -140,7 +141,7 @@ void WebviewController::SetWebId(int32_t nwebId)
 
 WebviewController* WebviewController::FromID(int32_t nwebId)
 {
-    std::unique_lock<std::mutex> lk(webMtx_);
+    std::unique_lock<std::mutex> lk(g_objectMtx);
     if (auto it = g_webview_controller_map.find(nwebId); it != g_webview_controller_map.end()) {
         auto control = it->second;
         return control;
@@ -616,7 +617,7 @@ bool WebviewController::GetRawFileUrl(const std::string &fileName,
         }
         result += fileName;
     }
-    WVLOG_D("The parsed url is: %{private}s", result.c_str());
+    WVLOG_D("The parsed url is: ***");
     return true;
 }
 
@@ -630,7 +631,7 @@ bool WebviewController::ParseUrl(napi_env env, napi_value urlObj, std::string& r
     }
     if (valueType == napi_string) {
         NapiParseUtils::ParseString(env, urlObj, result);
-        WVLOG_D("The parsed url is: %{private}s", result.c_str());
+        WVLOG_D("The parsed url is: ***");
         return true;
     }
     napi_value type = nullptr;
@@ -943,17 +944,17 @@ void WebviewController::RegisterJavaScriptProxy(RegisterJavaScriptProxyParam& pa
                param.asyncMethodList.begin(), param.asyncMethodList.end(),
                std::back_inserter(allMethodList));
 
-    RegisterJavaScriptProxyParam param_tmp;
-    param_tmp.env = param.env;
-    param_tmp.obj = param.obj;
-    param_tmp.objName = param.objName;
-    param_tmp.syncMethodList = allMethodList;
-    param_tmp.asyncMethodList = param.asyncMethodList;
-    param_tmp.permission = param.permission;
-    objId = javaScriptResultCb_->RegisterJavaScriptProxy(param_tmp);
+    RegisterJavaScriptProxyParam tmp;
+    tmp.env = param.env;
+    tmp.obj = param.obj;
+    tmp.objName = param.objName;
+    tmp.syncMethodList = allMethodList;
+    tmp.asyncMethodList = param.asyncMethodList;
+    tmp.permission = param.permission;
+    objId = javaScriptResultCb_->RegisterJavaScriptProxy(tmp);
 
-    nweb_ptr->RegisterArkJSfunction(param_tmp.objName, param_tmp.syncMethodList,
-                                    std::vector<std::string>(), objId, param_tmp.permission);
+    nweb_ptr->RegisterArkJSfunctionV2(tmp.objName, tmp.syncMethodList,
+                                      tmp.asyncMethodList, objId, tmp.permission);
 }
 
 void WebviewController::RunJavaScriptCallback(
@@ -1810,6 +1811,7 @@ bool WebviewController::ParseJsLengthResourceToInt(
     if (resourceType == napi_number) {
         int32_t resourceTypeNum;
         NapiParseUtils::ParseInt32(env, jsResourceType, resourceTypeNum);
+        std::string resourceString;
         switch (resourceTypeNum) {
             case static_cast<int>(ResourceType::INTEGER):
                 if (resourceManager->GetIntegerById(resId, result) == Global::Resource::SUCCESS) {
@@ -1818,13 +1820,14 @@ bool WebviewController::ParseJsLengthResourceToInt(
                 }
                 break;
             case static_cast<int>(ResourceType::STRING):
-                std::string resourceString;
                 if (resourceManager->GetStringById(resId, resourceString) == Global::Resource::SUCCESS) {
                     return NapiParseUtils::ParseJsLengthStringToInt(resourceString, type, result);
                 }
                 break;
+            default:
+                WVLOG_E("WebPageSnapshot resource type not support");
+                break;
         }
-        WVLOG_E("WebPageSnapshot resource type not support");
         return false;
     }
     WVLOG_E("WebPageSnapshot resource type error");
@@ -1989,6 +1992,86 @@ void WebviewController::SetScrollable(bool enable, int32_t scrollType)
         return;
     }
     return setting->SetScrollable(enable, scrollType);
+}
+
+void WebMessageExt::SetType(int type)
+{
+    type_ = type;
+    WebMessageType jsType = static_cast<WebMessageType>(type);
+    NWebValue::Type nwebType = NWebValue::Type::NONE;
+    switch (jsType) {
+        case WebMessageType::STRING: {
+            nwebType = NWebValue::Type::STRING;
+            break;
+        }
+        case WebMessageType::NUMBER: {
+            nwebType = NWebValue::Type::DOUBLE;
+            break;
+        }
+        case WebMessageType::BOOLEAN: {
+            nwebType = NWebValue::Type::BOOLEAN;
+            break;
+        }
+        case WebMessageType::ARRAYBUFFER: {
+            nwebType = NWebValue::Type::BINARY;
+            break;
+        }
+        case WebMessageType::ARRAY: {
+            nwebType = NWebValue::Type::STRINGARRAY;
+            break;
+        }
+        case WebMessageType::ERROR: {
+            nwebType = NWebValue::Type::ERROR;
+            break;
+        }
+        default: {
+            nwebType = NWebValue::Type::NONE;
+            break;
+        }
+    }
+    if (data_) {
+        data_->SetType(nwebType);
+    }
+}
+
+int WebMessageExt::ConvertNwebType2JsType(NWebValue::Type type)
+{
+    WebMessageType jsType = WebMessageType::NOTSUPPORT;
+    switch (type) {
+        case NWebValue::Type::STRING: {
+            jsType = WebMessageType::STRING;
+            break;
+        }
+        case NWebValue::Type::DOUBLE:
+        case NWebValue::Type::INTEGER: {
+            jsType = WebMessageType::NUMBER;
+            break;
+        }
+        case NWebValue::Type::BOOLEAN: {
+            jsType = WebMessageType::BOOLEAN;
+            break;
+        }
+        case NWebValue::Type::STRINGARRAY:
+        case NWebValue::Type::DOUBLEARRAY:
+        case NWebValue::Type::INT64ARRAY:
+        case NWebValue::Type::BOOLEANARRAY: {
+            jsType = WebMessageType::ARRAY;
+            break;
+        }
+        case NWebValue::Type::BINARY: {
+            jsType = WebMessageType::ARRAYBUFFER;
+            break;
+        }
+        case NWebValue::Type::ERROR: {
+            jsType = WebMessageType::ERROR;
+            break;
+        }
+        default: {
+            jsType = WebMessageType::NOTSUPPORT;
+            break;
+        }
+    }
+    return static_cast<int>(jsType);
 }
 
 void WebviewController::GetScrollOffset(float* offset_x, float* offset_y)

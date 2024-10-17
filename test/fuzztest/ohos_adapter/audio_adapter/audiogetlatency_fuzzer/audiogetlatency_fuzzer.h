@@ -18,4 +18,3 @@
 
 #define FUZZ_PROJECT_NAME "audiogetlatency_fuzzer"
 #endif /* TEST_FUZZTEST_AUDIO_GET_LATENCY_FUZZER_H */
-

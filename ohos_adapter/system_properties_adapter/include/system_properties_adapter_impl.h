@@ -55,7 +55,7 @@ public:
     bool GetTraceDebugEnable() override;
 
     std::string GetSiteIsolationMode() override;
-
+    
     int32_t GetFlowBufMaxFd() override;
     
     bool GetOOPGPUEnable() override;

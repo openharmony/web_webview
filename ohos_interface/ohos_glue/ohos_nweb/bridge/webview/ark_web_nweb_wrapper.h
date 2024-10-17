@@ -1012,12 +1012,6 @@ public:
     void OnCreateNativeMediaPlayer(std::shared_ptr<OHOS::NWeb::NWebCreateNativeMediaPlayerCallback> callback) override;
 
     /**
-     * @brief Web drag resize optimize.
-     */
-    /*--ark web()--*/
-    void DragResize(uint32_t width, uint32_t height, uint32_t pre_height, uint32_t pre_width) override;
-
-    /**
      * @brief Send touchpad fling event.
      *
      * @param x location of x.
@@ -1027,8 +1021,6 @@ public:
      */
     /*--ark web()--*/
     void SendTouchpadFlingEvent(double x, double y, double vx, double vy) override;
-
-    void OnTouchCancelById(int32_t id, double x, double y, bool from_overlay) override;
 
     /**
      * @brief Inject offline resource into MemoryCache.
@@ -1244,7 +1236,7 @@ public:
     void SetBackForwardCacheOptions(int32_t size, int32_t timeToLive) override;
 
     /**
-     * @brief RegisterArkJSfunction
+     * @brief RegisterArkJSfunctionV2
      *
      * @param object_name String: objector name
      * @param method_list vector<String>: vector list, sync method list
@@ -1253,11 +1245,11 @@ public:
      * @param permission String: allow list
      */
     /*--ark web()--*/
-    void RegisterArkJSfunction(const std::string& object_name,
-                               const std::vector<std::string>& method_list,
-                               const std::vector<std::string>& async_method_list,
-                               const int32_t object_id,
-                               const std::string& permission) override;
+    void RegisterArkJSfunctionV2(const std::string& object_name,
+                                 const std::vector<std::string>& method_list,
+                                 const std::vector<std::string>& async_method_list,
+                                 const int32_t object_id,
+                                 const std::string& permission) override;
 
     /**
      * @brief set the callback of the autofill event.
@@ -1274,6 +1266,13 @@ public:
     void FillAutofillData(std::shared_ptr<OHOS::NWeb::NWebMessage> data) override;
 
     /**
+     * @brief on autofill cancel.
+     * @param fillContent fillContent.
+     */
+    /*--ark web()--*/
+    void OnAutofillCancel(const std::string& fillContent) override;
+
+    /**
      * Execute an accessibility action on an accessibility node in the browser.
      * @param accessibilityId The id of the accessibility node.
      * @param action The action to be performed on the accessibility node.
@@ -1284,6 +1283,14 @@ public:
         const std::map<std::string, std::string>& actionArguments) override;
 
     /**
+     * @brief Send the accessibility hover event coordinate.
+     *
+     * @param x horizontal location of coordinate.
+     * @param y vertical location of coordinate.
+    */
+    void SendAccessibilityHoverEvent(int32_t x, int32_t y) override;
+    
+    /**
      * @brief Scroll by the delta distance.
      * @param delta_x: horizontal offset.
      * @param delta_y: vertical offset.
@@ -1291,13 +1298,6 @@ public:
      */
     /*--ark web()--*/
     bool ScrollByWithResult(float delta_x, float delta_y) override;
-
-    /**
-    * @brief on autofill cancel.
-    * @param fillContent fillContent.
-    */
-    /*--ark web()--*/
-    void OnAutofillCancel(const std::string& fillContent) override;
 
     /**
      * @brief Called when image analyzer is destory.

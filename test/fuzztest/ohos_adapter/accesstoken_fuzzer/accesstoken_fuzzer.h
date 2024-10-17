@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#ifndef TEST_FUZZTEST_ACCESSTOKEN_FUZZER_H  
-#define TEST_FUZZTEST_ACCESSTOKEN_FUZZER_H  
+#ifndef TEST_FUZZTEST_ACCESSTOKEN_FUZZER_H
+#define TEST_FUZZTEST_ACCESSTOKEN_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "accesstoken_fuzzer"  
+#define FUZZ_PROJECT_NAME "accesstoken_fuzzer"
 
 #endif /* TEST_FUZZTEST_ACCESSTOKEN_FUZZER_H   */

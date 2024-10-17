@@ -25,22 +25,21 @@ namespace OHOS::ArkWeb {
 /*--ark web(source=webcore)--*/
 class ArkWebCustomKeyboardHandler : public virtual ArkWebBaseRefCounted {
 public:
-  /*--ark web()--*/
-  virtual void InsertText(const ArkWebString &text) = 0;
+    /*--ark web()--*/
+    virtual void InsertText(const ArkWebString &text) = 0;
 
-  /*--ark web()--*/
-  virtual void DeleteForward(int32_t length) = 0;
+    /*--ark web()--*/
+    virtual void DeleteForward(int32_t length) = 0;
 
-  /*--ark web()--*/
-  virtual void DeleteBackward(int32_t length) = 0;
+    /*--ark web()--*/
+    virtual void DeleteBackward(int32_t length) = 0;
 
-  /*--ark web()--*/
-  virtual void SendFunctionKey(int32_t key) = 0;
+    /*--ark web()--*/
+    virtual void SendFunctionKey(int32_t key) = 0;
 
-  /*--ark web()--*/
-  virtual void Close() = 0;
+    /*--ark web()--*/
+    virtual void Close() = 0;
 };
-
 } // namespace OHOS::ArkWeb
 
 #endif // ARK_WEB_CUSTOM_KEYBOARD_HANDLER_H_

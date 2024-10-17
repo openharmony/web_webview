@@ -137,7 +137,7 @@ public:
 
     void ClearHostIP(const std::string& hostName) {}
 
-    void EnableWholeWebPageDrawing() {}
+    void SetWholeWebDrawing() {}
 
     std::shared_ptr<NWebAdsBlockManager> GetAdsBlockManager()
     {
@@ -529,6 +529,20 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetPerfConfig_001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: NWebHelper_ParseNWebLTPOConfig_001
+ * @tc.desc: ParseNWebLTPOConfig.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_ParseNWebLTPOConfig_001, TestSize.Level1)
+{
+    EXPECT_TRUE(NWebConfigHelper::Instance().ltpoConfig_.empty());
+    std::shared_ptr<NWebEngineInitArgsImpl> initArgs = std::make_shared<NWebEngineInitArgsImpl>();
+    NWebAdapterHelper::Instance().ParseConfig(initArgs);
+    EXPECT_FALSE(NWebConfigHelper::Instance().ltpoConfig_.empty());
+}
+
+/**
  * @tc.name: NWebHelper_SetHostIP_001
  * @tc.desc: SetHostIP.
  * @tc.type: FUNC
@@ -589,14 +603,9 @@ HWTEST_F(NwebHelperTest, NWebHelper_EnableWholeWebPageDrawing_001, TestSize.Leve
     auto nwebHelper = NWebHelper::Instance().GetNWeb(nweb_id);
     EXPECT_EQ(nwebHelper, nullptr);
 
-    std::string hostName = "name";
-    NWebHelper::Instance().nwebEngine_ = nullptr;
-    NWebHelper::Instance().ClearHostIP(hostName);
-    EXPECT_EQ(NWebHelper::Instance().nwebEngine_, nullptr);
-
     auto nwebengineMock = std::make_shared<MockNWebEngine>();
     NWebHelper::Instance().nwebEngine_ = nwebengineMock;
-    NWebHelper::Instance().ClearHostIP(hostName);
+    NWebHelper::Instance().SetWholeWebDrawing();
     EXPECT_NE(NWebHelper::Instance().nwebEngine_, nullptr);
 
     NWebHelper::Instance().nwebEngine_ = nullptr;

@@ -459,4 +459,12 @@ std::unique_ptr<NWeb::SensorAdapter> ArkOhosAdapterHelperWrapper::CreateSensorAd
 
     return std::make_unique<ArkSensorAdapterWrapper>(adapter);
 }
+
+void ArkOhosAdapterHelperWrapper::SetArkWebCoreHapPathOverride(const std::string& hapPath)
+{
+    ArkWebString str = ArkWebStringClassToStruct(hapPath);
+    ctocpp_->SetArkWebCoreHapPathOverride(str);
+    ArkWebStringStructRelease(str);
+}
+
 } // namespace OHOS::ArkWeb

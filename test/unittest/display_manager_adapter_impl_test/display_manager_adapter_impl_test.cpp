@@ -97,8 +97,8 @@ HWTEST_F(DisplayManagerAdapterImplTest, DisplayManagerAdapterImplTest_001, TestS
     EXPECT_EQ(displayAdapterImpl->GetVirtualPixelRatio(), -1);
     EXPECT_EQ(displayAdapterImpl->GetRotation(), RotationType::ROTATION_BUTT);
     EXPECT_EQ(displayAdapterImpl->GetOrientation(), OrientationType::BUTT);
-    EXPECT_EQ(displayAdapterImpl->GetDisplayOrientation(), DisplayOrientation::UNKNOWN);
     EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+    EXPECT_EQ(displayAdapterImpl->GetDisplayOrientation(), DisplayOrientation::UNKNOWN);
 }
 
 /**
@@ -245,8 +245,9 @@ HWTEST_F(DisplayManagerAdapterImplTest, DisplayManagerAdapterImplTest_006, TestS
     EXPECT_NE(displayAdapterImpl->GetHeight(), -1);
     EXPECT_NE(displayAdapterImpl->GetVirtualPixelRatio(), -1);
     EXPECT_NE(displayAdapterImpl->GetRotation(), RotationType::ROTATION_BUTT);
-    EXPECT_NE(displayAdapterImpl->GetDpi(), -1);
+    EXPECT_NE(displayAdapterImpl->GetOrientation(), OrientationType::BUTT);
     EXPECT_NE(displayAdapterImpl->GetDisplayOrientation(), DisplayOrientation::UNKNOWN);
+    EXPECT_NE(displayAdapterImpl->GetDpi(), -1);
 }
 
 /**

@@ -21,13 +21,15 @@
 
 namespace OHOS {
 struct NApiScope {
-    NApiScope(napi_env env) : env_(env) {
+    NApiScope(napi_env env) : env_(env)
+    {
         // Enable the napi_handle_scope to manage the life cycle of the napi_value.
         // Otherwise, memory leakage occurs.
         napi_open_handle_scope(env_, &scope_);
     }
 
-    ~NApiScope() {
+    ~NApiScope()
+    {
         if (scope_) {
             napi_close_handle_scope(env_, scope_);
         }

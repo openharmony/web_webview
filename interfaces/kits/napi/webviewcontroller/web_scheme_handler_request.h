@@ -67,13 +67,13 @@ public:
 
     char* GetUrl();
     int32_t SetUrl(const char* url);
-    int32_t GetStatus();
+    int32_t GetStatus() const;
     int32_t SetStatus(int32_t status);
     char* GetStatusText();
     int32_t SetStatusText(const char* statusText);
     char* GetMimeType();
     int32_t SetMimeType(const char* mimeType);
-    char* GetEncoding();
+    char* GetEncoding() const;
     int32_t SetEncoding(const char* encoding);
     char* GetHeaderByName(const char* name);
     int32_t SetHeaderByName(const char* name, const char* value, bool overwrite);
@@ -159,9 +159,9 @@ public:
     ~WebHttpBodyStream();
     void Init(napi_ref jsCallback, napi_deferred deferred);
     void Read(int bufLen, napi_ref jsCallback, napi_deferred deferred);
-    uint64_t GetPostion();
-    uint64_t GetSize();
-    bool IsChunked();
+    uint64_t GetPostion() const;
+    uint64_t GetSize() const;
+    bool IsChunked() const;
     bool IsEof();
     bool IsInMemory();
 

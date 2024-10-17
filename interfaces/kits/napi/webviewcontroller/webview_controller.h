@@ -21,7 +21,6 @@
 #include <string>
 #include <unordered_map>
 
-#include "back_forward_cache_options.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
@@ -443,85 +442,9 @@ public:
     explicit WebMessageExt(std::shared_ptr<NWebMessage> data) : data_(data) {};
     ~WebMessageExt() = default;
 
-    void SetType(int type)
-    {
-        type_ = type;
-        WebMessageType jsType = static_cast<WebMessageType>(type);
-        NWebValue::Type nwebType = NWebValue::Type::NONE;
-        switch (jsType) {
-            case WebMessageType::STRING: {
-                nwebType = NWebValue::Type::STRING;
-                break;
-            }
-            case WebMessageType::NUMBER: {
-                nwebType = NWebValue::Type::DOUBLE;
-                break;
-            }
-            case WebMessageType::BOOLEAN: {
-                nwebType = NWebValue::Type::BOOLEAN;
-                break;
-            }
-            case WebMessageType::ARRAYBUFFER: {
-                nwebType = NWebValue::Type::BINARY;
-                break;
-            }
-            case WebMessageType::ARRAY: {
-                nwebType = NWebValue::Type::STRINGARRAY;
-                break;
-            }
-            case WebMessageType::ERROR: {
-                nwebType = NWebValue::Type::ERROR;
-                break;
-            }
-            default: {
-                nwebType = NWebValue::Type::NONE;
-                break;
-            }
-        }
-        if (data_) {
-            data_->SetType(nwebType);
-        }
-    }
+    void SetType(int type);
 
-    int ConvertNwebType2JsType(NWebValue::Type type)
-    {
-        WebMessageType jsType = WebMessageType::NOTSUPPORT;
-        switch (type) {
-            case NWebValue::Type::STRING: {
-                jsType = WebMessageType::STRING;
-                break;
-            }
-            case NWebValue::Type::DOUBLE:
-            case NWebValue::Type::INTEGER: {
-                jsType = WebMessageType::NUMBER;
-                break;
-            }
-            case NWebValue::Type::BOOLEAN: {
-                jsType = WebMessageType::BOOLEAN;
-                break;
-            }
-            case NWebValue::Type::STRINGARRAY:
-            case NWebValue::Type::DOUBLEARRAY:
-            case NWebValue::Type::INT64ARRAY:
-            case NWebValue::Type::BOOLEANARRAY: {
-                jsType = WebMessageType::ARRAY;
-                break;
-            }
-            case NWebValue::Type::BINARY: {
-                jsType = WebMessageType::ARRAYBUFFER;
-                break;
-            }
-            case NWebValue::Type::ERROR: {
-                jsType = WebMessageType::ERROR;
-                break;
-            }
-            default: {
-                jsType = WebMessageType::NOTSUPPORT;
-                break;
-            }
-        }
-        return static_cast<int>(jsType);
-    }
+    int ConvertNwebType2JsType(NWebValue::Type type);
 
     int GetType()
     {
@@ -604,7 +527,7 @@ public:
         }
     }
 
-    std::shared_ptr<NWebMessage> GetData()
+    std::shared_ptr<NWebMessage> GetData() const
     {
         return data_;
     }

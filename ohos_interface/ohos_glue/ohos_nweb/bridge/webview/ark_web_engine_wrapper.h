@@ -68,14 +68,16 @@ public:
 
     void ClearPrefetchedResource(const std::vector<std::string>& cache_key_list) override;
 
-    void WarmupServiceWorker(const std::string& url) override;
-
     void SetHostIP(const std::string& hostName, const std::string& address, int32_t aliveTime) override;
 
     void ClearHostIP(const std::string& hostName) override;
 
-    void EnableWholeWebPageDrawing() override;
+    void WarmupServiceWorker(const std::string& url) override;
+
+    void SetWholeWebDrawing() override;
+
     std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> GetAdsBlockManager() override;
+
 private:
     ArkWebRefPtr<ArkWebEngine> ark_web_engine_;
 };

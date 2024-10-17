@@ -23,22 +23,24 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool AudioRendererAdapterFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
+bool AudioRendererAdapterFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
+    }
     AudioRendererAdapterImpl audioRendererAdapterImpl;
     uint8_t buffer[100];
     size_t bufferSize = sizeof(buffer);
     float volume = 0.5;
+    std::shared_ptr<AudioRendererOptionsAdapter> rendererOptions;
+
     AudioAdapterSamplingRate samplingRate = AudioAdapterSamplingRate::SAMPLE_RATE_44100;
     AudioAdapterEncodingType encodingType = AudioAdapterEncodingType::ENCODING_PCM;
     AudioAdapterSampleFormat sampleFormat = AudioAdapterSampleFormat::SAMPLE_S16LE;
     AudioAdapterChannel channel = AudioAdapterChannel::STEREO;
     AudioAdapterContentType contentType = AudioAdapterContentType::CONTENT_TYPE_MUSIC;
     AudioAdapterStreamUsage streamUsage = AudioAdapterStreamUsage::STREAM_USAGE_MEDIA;
-    audioRendererAdapterImpl.Create(nullptr, "");
+    audioRendererAdapterImpl.Create(rendererOptions, "");
     audioRendererAdapterImpl.Start();
     audioRendererAdapterImpl.Pause();
     audioRendererAdapterImpl.Stop();
@@ -59,8 +61,8 @@ namespace OHOS {
     audioRendererAdapterImpl.GetAudioContentType(contentType);
     audioRendererAdapterImpl.GetAudioStreamUsage(streamUsage);
     return true;
-    }
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

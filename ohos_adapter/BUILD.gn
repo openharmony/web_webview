@@ -111,6 +111,7 @@ ohos_shared_library("nweb_ohos_adapter") {
 
   external_deps = [
     "ability_base:extractortool",
+    "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
@@ -144,7 +145,6 @@ ohos_shared_library("nweb_ohos_adapter") {
     "ipc:ipc_core",
     "napi:ace_napi",
     "netmanager_base:net_conn_manager_if",
-    "openssl:libssl_shared",
     "pasteboard:pasteboard_client",
     "relational_store:native_rdb",
     "resource_schedule_service:ressched_client",
@@ -152,7 +152,6 @@ ohos_shared_library("nweb_ohos_adapter") {
     "time_service:time_client",
     "window_manager:libdm",
   ]
-  public_external_deps = [ "ability_base:want" ]
 
   if (webview_soc_perf_enable) {
     external_deps += [ "soc_perf:socperf_client" ]

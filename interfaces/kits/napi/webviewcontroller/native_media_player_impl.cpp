@@ -359,21 +359,21 @@ void NWebCreateNativeMediaPlayerCallbackImpl::ConstructRect(
 {
     NAPI_CALL_RETURN_VOID(env_, napi_create_object(env_, value));
 
-    napi_value x;
-    napi_create_double(env_, surfaceInfo->GetX(), &x);
-    napi_set_named_property(env_, *value, "x", x);
+    napi_value x = nullptr;
+    NAPI_CALL_RETURN_VOID(env_, napi_create_double(env_, surfaceInfo->GetX(), &x));
+    NAPI_CALL_RETURN_VOID(env_, napi_set_named_property(env_, *value, "x", x));
 
-    napi_value y;
-    napi_create_double(env_, surfaceInfo->GetY(), &y);
-    napi_set_named_property(env_, *value, "y", y);
+    napi_value y = nullptr;
+    NAPI_CALL_RETURN_VOID(env_, napi_create_double(env_, surfaceInfo->GetY(), &y));
+    NAPI_CALL_RETURN_VOID(env_, napi_set_named_property(env_, *value, "y", y));
 
-    napi_value width;
-    napi_create_double(env_, surfaceInfo->GetWidth(), &width);
-    napi_set_named_property(env_, *value, "width", width);
+    napi_value width = nullptr;
+    NAPI_CALL_RETURN_VOID(env_, napi_create_double(env_, surfaceInfo->GetWidth(), &width));
+    NAPI_CALL_RETURN_VOID(env_, napi_set_named_property(env_, *value, "width", width));
 
-    napi_value height;
-    napi_create_double(env_, surfaceInfo->GetHeight(), &height);
-    napi_set_named_property(env_, *value, "height", height);
+    napi_value height = nullptr;
+    NAPI_CALL_RETURN_VOID(env_, napi_create_double(env_, surfaceInfo->GetHeight(), &height));
+    NAPI_CALL_RETURN_VOID(env_, napi_set_named_property(env_, *value, "height", height));
 }
 
 void NWebCreateNativeMediaPlayerCallbackImpl::ConstructHandler(
@@ -397,9 +397,10 @@ void NWebCreateNativeMediaPlayerCallbackImpl::ConstructControls(
     NAPI_CALL_RETURN_VOID(env_, napi_create_array_with_length(env_, controls.size(), value));
 
     for (unsigned int i = 0; i < controls.size(); i++) {
-        napi_value control;
-        napi_create_string_utf8(env_, controls[i].c_str(), controls[i].length(), &control);
-        napi_set_element(env_, *value, i, control);
+        napi_value control = nullptr;
+        NAPI_CALL_RETURN_VOID(env_, napi_create_string_utf8(
+            env_, controls[i].c_str(), controls[i].length(), &control));
+        NAPI_CALL_RETURN_VOID(env_, napi_set_element(env_, *value, i, control));
     }
 }
 
@@ -409,9 +410,10 @@ void NWebCreateNativeMediaPlayerCallbackImpl::ConstructHeaders(
     NAPI_CALL_RETURN_VOID(env_, napi_create_object(env_, value));
 
     for (const auto& header : headers) {
-        napi_value argv;
-        napi_create_string_utf8(env_, header.second.c_str(), header.second.length(), &argv);
-        napi_set_named_property(env_, *value, header.first.c_str(), argv);
+        napi_value argv = nullptr;
+        NAPI_CALL_RETURN_VOID(env_, napi_create_string_utf8(
+            env_, header.second.c_str(), header.second.length(), &argv));
+        NAPI_CALL_RETURN_VOID(env_, napi_set_named_property(env_, *value, header.first.c_str(), argv));
     }
 }
 
@@ -421,9 +423,10 @@ void NWebCreateNativeMediaPlayerCallbackImpl::ConstructAttributes(
     NAPI_CALL_RETURN_VOID(env_, napi_create_object(env_, value));
 
     for (const auto& attribute : attributes) {
-        napi_value argv;
-        napi_create_string_utf8(env_, attribute.second.c_str(), attribute.second.length(), &argv);
-        napi_set_named_property(env_, *value, attribute.first.c_str(), argv);
+        napi_value argv = nullptr;
+        NAPI_CALL_RETURN_VOID(env_, napi_create_string_utf8(
+            env_, attribute.second.c_str(), attribute.second.length(), &argv));
+        NAPI_CALL_RETURN_VOID(env_, napi_set_named_property(env_, *value, attribute.first.c_str(), argv));
     }
 }
 
@@ -432,51 +435,51 @@ void NWebCreateNativeMediaPlayerCallbackImpl::ConstructMediaInfo(
 {
     NAPI_CALL_RETURN_VOID(env_, napi_create_object(env_, value));
 
-    napi_value embedId;
+    napi_value embedId = nullptr;
     std::string id = mediaInfo->GetEmbedId();
-    napi_create_string_utf8(env_, id.c_str(), id.length(), &embedId);
-    napi_set_named_property(env_, *value, "embedID", embedId);
+    NAPI_CALL_RETURN_VOID(env_, napi_create_string_utf8(env_, id.c_str(), id.length(), &embedId));
+    NAPI_CALL_RETURN_VOID(env_, napi_set_named_property(env_, *value, "embedID", embedId));
 
-    napi_value mediaType;
-    napi_create_int32(env_, static_cast<int>(mediaInfo->GetMediaType()), &mediaType);
-    napi_set_named_property(env_, *value, "mediaType", mediaType);
+    napi_value mediaType = nullptr;
+    NAPI_CALL_RETURN_VOID(env_, napi_create_int32(env_, static_cast<int>(mediaInfo->GetMediaType()), &mediaType));
+    NAPI_CALL_RETURN_VOID(env_, napi_set_named_property(env_, *value, "mediaType", mediaType));
 
-    napi_value mediaSrcList;
+    napi_value mediaSrcList = nullptr;
     ConstructSourceInfos(&mediaSrcList, mediaInfo->GetSourceInfos());
-    napi_set_named_property(env_, *value, "mediaSrcList", mediaSrcList);
+    NAPI_CALL_RETURN_VOID(env_, napi_set_named_property(env_, *value, "mediaSrcList", mediaSrcList));
 
-    napi_value surfaceInfo;
+    napi_value surfaceInfo = nullptr;
     ConstructSurfaceInfo(&surfaceInfo, mediaInfo->GetSurfaceInfo());
-    napi_set_named_property(env_, *value, "surfaceInfo", surfaceInfo);
+    NAPI_CALL_RETURN_VOID(env_, napi_set_named_property(env_, *value, "surfaceInfo", surfaceInfo));
 
-    napi_value isControlsShown;
-    napi_get_boolean(env_, mediaInfo->GetIsControlsShown(), &isControlsShown);
-    napi_set_named_property(env_, *value, "controlsShown", isControlsShown);
+    napi_value isControlsShown = nullptr;
+    NAPI_CALL_RETURN_VOID(env_, napi_get_boolean(env_, mediaInfo->GetIsControlsShown(), &isControlsShown));
+    NAPI_CALL_RETURN_VOID(env_, napi_set_named_property(env_, *value, "controlsShown", isControlsShown));
 
-    napi_value controlList;
+    napi_value controlList = nullptr;
     ConstructControls(&controlList, mediaInfo->GetControls());
-    napi_set_named_property(env_, *value, "controlList", controlList);
+    NAPI_CALL_RETURN_VOID(env_, napi_set_named_property(env_, *value, "controlList", controlList));
 
-    napi_value headers;
+    napi_value headers = nullptr;
     ConstructHeaders(&headers, mediaInfo->GetHeaders());
-    napi_set_named_property(env_, *value, "headers", headers);
+    NAPI_CALL_RETURN_VOID(env_, napi_set_named_property(env_, *value, "headers", headers));
 
-    napi_value attributes;
+    napi_value attributes = nullptr;
     ConstructAttributes(&attributes, mediaInfo->GetAttributes());
-    napi_set_named_property(env_, *value, "attributes", attributes);
+    NAPI_CALL_RETURN_VOID(env_, napi_set_named_property(env_, *value, "attributes", attributes));
 
-    napi_value isMuted;
-    napi_get_boolean(env_, mediaInfo->GetIsMuted(), &isMuted);
-    napi_set_named_property(env_, *value, "muted", isMuted);
+    napi_value isMuted = nullptr;
+    NAPI_CALL_RETURN_VOID(env_, napi_get_boolean(env_, mediaInfo->GetIsMuted(), &isMuted));
+    NAPI_CALL_RETURN_VOID(env_, napi_set_named_property(env_, *value, "muted", isMuted));
 
-    napi_value posterUrl;
+    napi_value posterUrl = nullptr;
     std::string url = mediaInfo->GetPosterUrl();
-    napi_create_string_utf8(env_, url.c_str(), url.length(), &posterUrl);
-    napi_set_named_property(env_, *value, "posterUrl", posterUrl);
+    NAPI_CALL_RETURN_VOID(env_, napi_create_string_utf8(env_, url.c_str(), url.length(), &posterUrl));
+    NAPI_CALL_RETURN_VOID(env_, napi_set_named_property(env_, *value, "posterUrl", posterUrl));
 
-    napi_value preload;
-    napi_create_int32(env_, static_cast<int>(mediaInfo->GetPreload()), &preload);
-    napi_set_named_property(env_, *value, "preload", preload);
+    napi_value preload = nullptr;
+    NAPI_CALL_RETURN_VOID(env_, napi_create_int32(env_, static_cast<int>(mediaInfo->GetPreload()), &preload));
+    NAPI_CALL_RETURN_VOID(env_, napi_set_named_property(env_, *value, "preload", preload));
 }
 
 void NWebCreateNativeMediaPlayerCallbackImpl::ConstructSourceInfos(
@@ -489,24 +492,24 @@ void NWebCreateNativeMediaPlayerCallbackImpl::ConstructSourceInfos(
             continue;
         }
 
-        napi_value sourceInfo;
-        napi_create_object(env_, &sourceInfo);
+        napi_value sourceInfo = nullptr;
+        NAPI_CALL_RETURN_VOID(env_, napi_create_object(env_, &sourceInfo));
 
-        napi_value type;
-        napi_create_int32(env_, static_cast<int>(sourceInfos[i]->GetType()), &type);
-        napi_set_named_property(env_, sourceInfo, "type", type);
+        napi_value type = nullptr;
+        NAPI_CALL_RETURN_VOID(env_, napi_create_int32(env_, static_cast<int>(sourceInfos[i]->GetType()), &type));
+        NAPI_CALL_RETURN_VOID(env_, napi_set_named_property(env_, sourceInfo, "type", type));
 
-        napi_value source;
+        napi_value source = nullptr;
         std::string mediaSource = sourceInfos[i]->GetSource();
-        napi_create_string_utf8(env_, mediaSource.c_str(), mediaSource.length(), &source);
-        napi_set_named_property(env_, sourceInfo, "source", source);
+        NAPI_CALL_RETURN_VOID(env_, napi_create_string_utf8(env_, mediaSource.c_str(), mediaSource.length(), &source));
+        NAPI_CALL_RETURN_VOID(env_, napi_set_named_property(env_, sourceInfo, "source", source));
 
-        napi_value format;
+        napi_value format = nullptr;
         std::string mediaFormat = sourceInfos[i]->GetFormat();
-        napi_create_string_utf8(env_, mediaFormat.c_str(), mediaFormat.length(), &format);
-        napi_set_named_property(env_, sourceInfo, "format", format);
+        NAPI_CALL_RETURN_VOID(env_, napi_create_string_utf8(env_, mediaFormat.c_str(), mediaFormat.length(), &format));
+        NAPI_CALL_RETURN_VOID(env_, napi_set_named_property(env_, sourceInfo, "format", format));
 
-        napi_set_element(env_, *value, i, sourceInfo);
+        NAPI_CALL_RETURN_VOID(env_, napi_set_element(env_, *value, i, sourceInfo));
     }
 }
 
@@ -519,14 +522,14 @@ void NWebCreateNativeMediaPlayerCallbackImpl::ConstructSurfaceInfo(
         return;
     }
 
-    napi_value surfaceId;
+    napi_value surfaceId = nullptr;
     std::string id = surfaceInfo->GetId();
-    napi_create_string_utf8(env_, id.c_str(), id.length(), &surfaceId);
-    napi_set_named_property(env_, *value, "id", surfaceId);
+    NAPI_CALL_RETURN_VOID(env_, napi_create_string_utf8(env_, id.c_str(), id.length(), &surfaceId));
+    NAPI_CALL_RETURN_VOID(env_, napi_set_named_property(env_, *value, "id", surfaceId));
 
-    napi_value rect;
+    napi_value rect = nullptr;
     ConstructRect(&rect, surfaceInfo);
-    napi_set_named_property(env_, *value, "rect", rect);
+    NAPI_CALL_RETURN_VOID(env_, napi_set_named_property(env_, *value, "rect", rect));
 }
 
 } // namespace OHOS::NWeb

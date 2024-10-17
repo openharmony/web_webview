@@ -35,7 +35,9 @@ int64_t FlowbufferAdapterImpl::preTimeStamp_ = 0;
 FlowbufferAdapterImpl::~FlowbufferAdapterImpl()
 {
     if (data_ != nullptr) {
-        ::munmap(data_, size_);
+        if (::munmap(data_, size_) != 0) {
+            WVLOG_E("Failed to unmap ashmem region");
+        }
         data_ = nullptr;
         size_ = 0;
     }
@@ -72,6 +74,7 @@ void* FlowbufferAdapterImpl::CreateAshmem(size_t size, int mapType, int& fd)
     int result = AshmemSetProt(fd, PROT_READ | PROT_WRITE);
     if (result < 0) {
         close(fd);
+        fd = -1;
         WVLOG_E("Ashmem set port failed, result: %{public}d", result);
         return nullptr;
     }
@@ -79,6 +82,7 @@ void* FlowbufferAdapterImpl::CreateAshmem(size_t size, int mapType, int& fd)
     void *startAddr = ::mmap(nullptr, size, mapType, MAP_SHARED, fd, 0);
     if (startAddr == MAP_FAILED) {
         close(fd);
+        fd = -1;
         WVLOG_E("Map ashmem failed");
         return nullptr;
     }

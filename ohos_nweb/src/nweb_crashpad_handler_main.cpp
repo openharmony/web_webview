@@ -45,6 +45,10 @@ int main(int argc, char* argv[])
     FuncType crashpadHandlerFunc = reinterpret_cast<FuncType>(dlsym(handle, "CrashpadHandlerMain"));
     if (crashpadHandlerFunc == nullptr) {
         WVLOG_E("crashpad, fail to dlsym CrashpadHandlerMain, errmsg=%{public}s", dlerror());
+        int ret = dlclose(handle);
+        if (ret != 0) {
+            WVLOG_E("crashped, fail to dlclose, errmsg=%{public}s", dlerror());
+        }
         return -1;
     }
 

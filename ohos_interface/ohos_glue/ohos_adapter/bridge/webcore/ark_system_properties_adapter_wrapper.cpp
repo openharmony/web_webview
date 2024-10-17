@@ -203,9 +203,6 @@ std::vector<FrameRateSetting> ArkSystemPropertiesAdapterWrapper::GetLTPOConfig(c
 
 std::string ArkSystemPropertiesAdapterWrapper::GetOOPGPUStatus()
 {
-    if (!ctocpp_) {
-        return "";
-    }
     ArkWebString str = ctocpp_->GetOOPGPUStatus();
     std::string result = ArkWebStringStructToClass(str);
     ArkWebStringStructRelease(str);

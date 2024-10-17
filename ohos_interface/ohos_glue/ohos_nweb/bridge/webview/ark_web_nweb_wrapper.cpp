@@ -1055,19 +1055,9 @@ void ArkWebNWebWrapper::OnCreateNativeMediaPlayer(
     ark_web_nweb_->OnCreateNativeMediaPlayer(new ArkWebCreateNativeMediaPlayerCallbackImpl(callback));
 }
 
-void ArkWebNWebWrapper::DragResize(uint32_t width, uint32_t height, uint32_t pre_height, uint32_t pre_width)
-{
-    ark_web_nweb_->DragResize(width, height, pre_height, pre_width);
-}
-
 void ArkWebNWebWrapper::SendTouchpadFlingEvent(double x, double y, double vx, double vy)
 {
     ark_web_nweb_->SendTouchpadFlingEvent(x, y, vx, vy);
-}
-
-void ArkWebNWebWrapper::OnTouchCancelById(int32_t id, double x, double y, bool from_overlay)
-{
-    ark_web_nweb_->OnTouchCancelById(id, x, y, from_overlay);
 }
 
 void ArkWebNWebWrapper::InjectOfflineResource(const std::string& url, const std::string& origin,
@@ -1241,15 +1231,6 @@ void ArkWebNWebWrapper::SetPathAllowingUniversalAccess(
     ArkWebStringStructRelease(stErrorPath);
 }
 
-void ArkWebNWebWrapper::PerformAction(int64_t accessibility_id, uint32_t action,
-    const std::map<std::string, std::string>& actionArguments)
-{
-    ArkWebStringMap stArguments = ArkWebStringMapClassToStruct(actionArguments);
-    ark_web_nweb_->PerformAction(accessibility_id, action, stArguments);
-
-    ArkWebStringMapStructRelease(stArguments);
-}
-
 void ArkWebNWebWrapper::WebSendMouseWheelEvent(double x,
                                                double y,
                                                double delta_x,
@@ -1286,7 +1267,7 @@ void ArkWebNWebWrapper::SetBackForwardCacheOptions(int32_t size, int32_t timeToL
     ark_web_nweb_->SetBackForwardCacheOptions(size, timeToLive);
 }
 
-void ArkWebNWebWrapper::RegisterArkJSfunction(const std::string& object_name,
+void ArkWebNWebWrapper::RegisterArkJSfunctionV2(const std::string& object_name,
     const std::vector<std::string>& method_list, const std::vector<std::string>& async_method_list,
     const int32_t object_id,
     const std::string& permission)
@@ -1296,7 +1277,7 @@ void ArkWebNWebWrapper::RegisterArkJSfunction(const std::string& object_name,
     ArkWebStringVector stAsyncMethods = ArkWebStringVectorClassToStruct(async_method_list);
     ArkWebString stPermission = ArkWebStringClassToStruct(permission);
 
-    ark_web_nweb_->RegisterArkJSfunction(stName, stMethods, stAsyncMethods, object_id, stPermission);
+    ark_web_nweb_->RegisterArkJSfunctionV2(stName, stMethods, stAsyncMethods, object_id, stPermission);
 
     ArkWebStringStructRelease(stName);
     ArkWebStringVectorStructRelease(stMethods);
@@ -1320,11 +1301,6 @@ void ArkWebNWebWrapper::FillAutofillData(std::shared_ptr<OHOS::NWeb::NWebMessage
     ark_web_nweb_->FillAutofillData(ark_web_message);
 }
 
-bool ArkWebNWebWrapper::ScrollByWithResult(float delta_x, float delta_y)
-{
-    return ark_web_nweb_->ScrollByWithResult(delta_x, delta_y);
-}
-
 void ArkWebNWebWrapper::OnAutofillCancel(const std::string& fillContent)
 {
     ArkWebString stFillContent = ArkWebStringClassToStruct(fillContent);
@@ -1332,6 +1308,25 @@ void ArkWebNWebWrapper::OnAutofillCancel(const std::string& fillContent)
     ark_web_nweb_->OnAutofillCancel(stFillContent);
 
     ArkWebStringStructRelease(stFillContent);
+}
+
+void ArkWebNWebWrapper::PerformAction(int64_t accessibility_id, uint32_t action,
+    const std::map<std::string, std::string>& actionArguments)
+{
+    ArkWebStringMap stArguments = ArkWebStringMapClassToStruct(actionArguments);
+    ark_web_nweb_->PerformAction(accessibility_id, action, stArguments);
+
+    ArkWebStringMapStructRelease(stArguments);
+}
+
+void ArkWebNWebWrapper::SendAccessibilityHoverEvent(int32_t x, int32_t y)
+{
+    ark_web_nweb_->SendAccessibilityHoverEvent(x, y);
+}
+
+bool ArkWebNWebWrapper::ScrollByWithResult(float delta_x, float delta_y)
+{
+    return ark_web_nweb_->ScrollByWithResult(delta_x, delta_y);
 }
 
 void ArkWebNWebWrapper::OnDestroyImageAnalyzerOverlay()

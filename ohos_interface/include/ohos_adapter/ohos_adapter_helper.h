@@ -57,6 +57,7 @@
 #include "sensor_adapter.h"
 
 namespace OHOS::NWeb {
+
 class OhosAdapterHelper {
 public:
     static OhosAdapterHelper& GetInstance();
@@ -146,7 +147,10 @@ public:
     virtual std::unique_ptr<OhosImageDecoderAdapter> CreateOhosImageDecoderAdapter() = 0;
 
     virtual std::unique_ptr<SensorAdapter> CreateSensorAdapter() = 0;
+
+    virtual void SetArkWebCoreHapPathOverride(const std::string& hapPath) = 0;
 };
+
 } // namespace OHOS::NWeb
 
 #endif // OHOS_ADAPTER_HELPER_H

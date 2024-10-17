@@ -79,4 +79,4 @@ private:
 
 } // namespace OHOS::NWeb
 
-#endif // NAPI_WEBVIEW_NATIVE_MEDIA_PLAYER_H
+#endif // NAPI_NATIVE_MEDIA_PLAYER_H

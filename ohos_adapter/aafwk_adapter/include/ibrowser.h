@@ -20,8 +20,8 @@
 #include "irender_scheduler.h"
 #include "surface.h"
 
-namespace OHOS{
-namespace NWeb{
+namespace OHOS {
+namespace NWeb {
 /**
  * @class IBrowser
  * Ipc interface of render process to app mgr service

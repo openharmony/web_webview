@@ -67,4 +67,5 @@ void ArkVSyncAdapterWrapper::SetOnVsyncEndCallback(OnVsyncCallback onVsyncEndCal
     }
     return ctocpp_->SetOnVsyncEndCallback(onVsyncEndCallback);
 }
+
 } // namespace OHOS::ArkWeb

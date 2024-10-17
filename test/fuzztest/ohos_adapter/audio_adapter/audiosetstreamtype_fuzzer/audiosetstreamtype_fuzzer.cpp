@@ -24,15 +24,15 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool AudioSetStreamtypeFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        AudioSystemManagerAdapterImpl::GetInstance().GetStreamType(AudioAdapterStreamType::STREAM_TTS);
-        return true;
+bool AudioSetStreamtypeFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    AudioSystemManagerAdapterImpl::GetInstance().GetStreamType(AudioAdapterStreamType::STREAM_TTS);
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

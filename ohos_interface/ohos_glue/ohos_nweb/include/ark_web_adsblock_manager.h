@@ -25,66 +25,65 @@ namespace OHOS::ArkWeb {
 /*--ark web(source=webcore)--*/
 class ArkWebAdsBlockManager : public virtual ArkWebBaseRefCounted {
 public:
+    /**
+     * @brief Set Ads Block ruleset file, containing easylist rules.
+     *
+     * @param rulesFile absolute easylist file path contains app customized ads block rules.
+     * @param replace replace internal rules or not;
+     */
+    /*--ark web()--*/
+    virtual void SetAdsBlockRules(const ArkWebString& url, bool replace) = 0;
 
-  /**
-   * @brief Set Ads Block ruleset file, containing easylist rules.
-   *
-   * @param rulesFile absolute easylist file path contains app customized ads block rules.
-   * @param replace replace internal rules or not;
-   */
-  /*--ark web()--*/
-  virtual void SetAdsBlockRules(const ArkWebString &url, bool replace) = 0;
+    /**
+     * @brief Add items to Ads Block Disallowed list.
+     *
+     * @param domainSuffix list of domains suffix. if web page url matches someone in the list,
+     * Ads Block will be disallowed for the web page.
+     */
+    /*--ark web()--*/
+    virtual void AddAdsBlockDisallowedList(const ArkWebStringVector& domainSuffixes) = 0;
 
-  /**
-   * @brief Add items to Ads Block Disallowed list.
-   *
-   * @param domainSuffix list of domains suffix. if web page url matches someone in the list,
-   * Ads Block will be disallowed for the web page.
-   */
-  /*--ark web()--*/
-  virtual void AddAdsBlockDisallowedList(const ArkWebStringVector &domainSuffixes) = 0;
+    /**
+     * @brief Remove items from Ads Block disallowed list.
+     *
+     * @param domainSuffix : list of domains suffix needed be removed from disallow list
+     */
+    /*--ark web()--*/
+    virtual void RemoveAdsBlockDisallowedList(const ArkWebStringVector& domainSuffixes) = 0;
 
-  /**
-   * @brief Remove items from Ads Block disallowed list.
-   *
-   * @param domainSuffix : list of domains suffix needed be removed from disallow list
-   */
-  /*--ark web()--*/
-  virtual void RemoveAdsBlockDisallowedList(const ArkWebStringVector &domainSuffixes) = 0;
+    /**
+     * @brief Clear Ads Block disallowed list.
+     *
+     */
+    /*--ark web()--*/
+    virtual void ClearAdsBlockDisallowedList() = 0;
 
-  /**
-   * @brief Clear Ads Block disallowed list.
-   *
-   */
-  /*--ark web()--*/
-  virtual void ClearAdsBlockDisallowedList() = 0;
+    /**
+     * @brief Add items to Ads Block Allowed list.
+     * By default, ads block is allowed for all pages unless they are added to the
+     * disallow list. The priority of allowlist is higher than the disallowlist. It is
+     * used to re-enable ads block on the page that matches disallow list.
+     *
+     * @param domainSuffix list of domains suffix, if web page url matches someone in the list,
+     * Ads Block will be allowed for the web page.
+     */
+    /*--ark web()--*/
+    virtual void AddAdsBlockAllowedList(const ArkWebStringVector& domainSuffixes) = 0;
 
-  /**
-   * @brief Add items to Ads Block Allowed list.
-   * By default, ads block is allowed for all pages unless they are added to the
-   * disallow list. The priority of allowlist is higher than the disallowlist. It is
-   * used to re-enable ads block on the page that matches disallow list.
-   *
-   * @param domainSuffix list of domains suffix, if web page url matches someone in the list,
-   * Ads Block will be allowed for the web page.
-   */
-  /*--ark web()--*/
-  virtual void AddAdsBlockAllowedList(const ArkWebStringVector &domainSuffixes) = 0;
+    /**
+     * @brief Remove items from Ads Block allowed list.
+     *
+     * @param domainSuffix : list of domains suffix needed be removed from allow list
+     */
+    /*--ark web()--*/
+    virtual void RemoveAdsBlockAllowedList(const ArkWebStringVector& domainSuffixes) = 0;
 
-  /**
-   * @brief Remove items from Ads Block allowed list.
-   *
-   * @param domainSuffix : list of domains suffix needed be removed from allow list
-   */
-  /*--ark web()--*/
-  virtual void RemoveAdsBlockAllowedList(const ArkWebStringVector &domainSuffixes) = 0;
-
-  /**
-   * @brief Clear Ads Block allow list.
-   *
-   */
-  /*--ark web()--*/
-  virtual void ClearAdsBlockAllowedList() = 0;
+    /**
+     * @brief Clear Ads Block allow list.
+     *
+     */
+    /*--ark web()--*/
+    virtual void ClearAdsBlockAllowedList() = 0;
 };
 
 } // namespace OHOS::ArkWeb

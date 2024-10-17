@@ -110,7 +110,7 @@ public:
     virtual ArkWebRefPtr<ArkAudioDeviceDescAdapter> GetDefaultInputDevice() = 0;
 
     /*--ark web()--*/
-    virtual bool SetLanguage(const ArkWebString& language) = 0;
+    virtual bool SetLanguage(ArkWebString language) = 0;
 };
 
 } // namespace OHOS::ArkWeb

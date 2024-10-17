@@ -33,7 +33,7 @@ if [ "$os_type" == "Darwin" ]; then
     CLANG_FORMAT_DIR=${WORK_SPACE}/../../../prebuilts/clang/ohos/darwin-arm64/llvm/bin
   fi
 else
-  CLANG_FORMAT_DIR=${WORK_SPACE}/../../../prebuilts/clang/ohos/linux-${arch_type}/llvm/bin
+  CLANG_FORMAT_DIR=${WORK_SPACE}/../../../prebuilts/clang/ohos/linux-x86_64/llvm/bin
 fi
 
 handle_copy_dir() {

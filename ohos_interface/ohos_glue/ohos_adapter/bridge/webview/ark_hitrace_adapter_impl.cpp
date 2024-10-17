@@ -70,4 +70,5 @@ bool ArkHiTraceAdapterImpl::IsACETraceEnable()
 {
     return real_.IsACETraceEnable();
 }
+
 } // namespace OHOS::ArkWeb

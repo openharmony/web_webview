@@ -23,16 +23,16 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-    bool StopListenFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size == 0)) {
-            return false;
-        }
-        BatteryMgrClientAdapterImpl battery;
-        battery.StopListen();
-        return true;
+bool StopListenFuzzTest(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
     }
+    BatteryMgrClientAdapterImpl battery;
+    battery.StopListen();
+    return true;
 }
+} // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

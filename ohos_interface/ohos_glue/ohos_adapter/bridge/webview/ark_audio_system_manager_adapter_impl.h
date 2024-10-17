@@ -50,7 +50,7 @@ public:
 
     ArkWebRefPtr<ArkAudioDeviceDescAdapter> GetDefaultInputDevice() override;
 
-    bool SetLanguage(const ArkWebString& language) override;
+    bool SetLanguage(ArkWebString language) override;
 
 private:
     NWeb::AudioSystemManagerAdapter& real_;

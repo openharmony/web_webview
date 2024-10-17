@@ -87,12 +87,15 @@ napi_value NapiWebSchemeHandlerRequest::JS_Constructor(napi_env env, napi_callba
     void *data = nullptr;
     napi_get_cb_info(env, cbinfo, nullptr, nullptr, &thisVar, &data);
 
-    WebSchemeHandlerRequest *request = new WebSchemeHandlerRequest(env);
+    WebSchemeHandlerRequest *request = new (std::nothrow) WebSchemeHandlerRequest(env);
+    if (request == nullptr) {
+        return nullptr;
+    }
 
     napi_wrap(
         env, thisVar, request,
         [](napi_env /* env */, void *data, void * /* hint */) {
-            WebSchemeHandlerRequest *request = (WebSchemeHandlerRequest *)data;
+            WebSchemeHandlerRequest *request = reinterpret_cast<WebSchemeHandlerRequest *>(data);
             delete request;
         },
         nullptr, nullptr);
@@ -118,6 +121,11 @@ napi_value NapiWebSchemeHandlerRequest::JS_GetHeader(napi_env env, napi_callback
     napi_create_array(env, &result);
     size_t headerSize = list.size();
     for (size_t index = 0; index < headerSize; index++) {
+        napi_handle_scope scope;
+        napi_status status = napi_open_handle_scope(env, &scope);
+        if (status != napi_ok) {
+            break;
+        }
         napi_value webHeaderObj = nullptr;
         napi_value headerKey = nullptr;
         napi_value headerValue = nullptr;
@@ -127,6 +135,10 @@ napi_value NapiWebSchemeHandlerRequest::JS_GetHeader(napi_env env, napi_callback
         napi_set_named_property(env, webHeaderObj, "headerKey", headerKey);
         napi_set_named_property(env, webHeaderObj, "headerValue", headerValue);
         napi_set_element(env, result, index, webHeaderObj);
+        status = napi_close_handle_scope(env, scope);
+        if (status != napi_ok) {
+            break;
+        }
     }
     return result;
 }
@@ -284,7 +296,7 @@ napi_value NapiWebSchemeHandlerRequest::JS_HttpBodyStream(napi_env env, napi_cal
     napi_wrap(
         env, httpBodyStreamObject, stream,
         [](napi_env /* env */, void *data, void * /* hint */) {
-            WebHttpBodyStream *stream = (WebHttpBodyStream *)data;
+            WebHttpBodyStream *stream = reinterpret_cast<WebHttpBodyStream *>(data);
             delete stream;
         },
         nullptr, nullptr);
@@ -1211,7 +1223,7 @@ napi_value NapiWebHttpBodyStream::JS_Initialize(napi_env env, napi_callback_info
     return result;
 }
 
-bool checkReadParamsNumber(napi_env env, const size_t argc)
+bool CheckReadParamsNumber(napi_env env, const size_t argc)
 {
     size_t argcPromise = INTEGER_ONE;
     size_t argcCallback = INTEGER_TWO;
@@ -1252,7 +1264,7 @@ napi_value NapiWebHttpBodyStream::JS_Read(napi_env env, napi_callback_info info)
         WVLOG_E("NapiWebHttpBodyStream::JS_Initialize stream is nullptr");
         return nullptr;
     }
-    if (!checkReadParamsNumber(env, argc)) {
+    if (!CheckReadParamsNumber(env, argc)) {
         return nullptr;
     }
 

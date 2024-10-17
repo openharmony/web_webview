@@ -188,6 +188,9 @@ public:
 
     /*--ark web()--*/
     virtual ArkWebRefPtr<ArkSensorAdapter> CreateSensorAdapter() = 0;
+
+    /*--ark web()--*/
+    virtual void SetArkWebCoreHapPathOverride(const ArkWebString& hapPath) = 0;
 };
 
 } // namespace OHOS::ArkWeb

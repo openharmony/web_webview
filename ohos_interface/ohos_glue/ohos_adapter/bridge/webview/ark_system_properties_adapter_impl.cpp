@@ -131,6 +131,10 @@ ArkFrameRateSettingAdapterVector ArkSystemPropertiesAdapterImpl::GetLTPOConfig(c
         .ark_web_mem_free_func = ArkWebMemFree };
     if (result.size > 0) {
         result.value = (ArkFrameRateSettingAdapter*)ArkWebMemMalloc(sizeof(ArkFrameRateSettingAdapter) * result.size);
+        if (result.value == nullptr) {
+            result.size = 0;
+            return result;
+        }
 
         int count = 0;
         for (auto it = frameRateSettingVector.begin(); it != frameRateSettingVector.end(); it++) {

@@ -31,9 +31,14 @@ void* ArkWebMemMalloc(int size)
     void* mem = nullptr;
     if (size > 0) {
         mem = malloc(size);
+        if (mem == nullptr) {
+            ARK_WEB_BASE_DV_LOG("Memory allocation failed for size: %{public}d", size);
+        } else {
+            ARK_WEB_BASE_DV_LOG("address is %{public}ld, size is %{public}d", reinterpret_cast<long>(mem), size);
+        }
+    } else {
+        ARK_WEB_BASE_DV_LOG("Invalid size: %{public}d", size);
     }
-
-    ARK_WEB_BASE_DV_LOG("address is %{public}ld,size is %{public}d", reinterpret_cast<long>(mem), size);
 
     return mem;
 }
