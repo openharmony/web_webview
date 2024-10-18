@@ -36,6 +36,8 @@ public:
 
     bool GetRawFileLastModTime(const ArkWebString& rawFile, time_t& time, bool isSys) override;
 
+    ArkWebString GetSystemLanguage() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::OhosResourceAdapter> real_;
 

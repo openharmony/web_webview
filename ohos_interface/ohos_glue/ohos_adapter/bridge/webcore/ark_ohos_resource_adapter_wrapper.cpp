@@ -68,4 +68,15 @@ bool ArkOhosResourceAdapterWrapper::GetRawFileLastModTime(const std::string& raw
     return result;
 }
 
+std::string ArkOhosResourceAdapterWrapper::GetSystemLanguage()
+{
+    if (!ctocpp_) {
+        return "";
+    }
+
+    ArkWebString ark_result = ctocpp_->GetSystemLanguage();
+    std::string result = ArkWebStringStructToClass(ark_result);
+    ArkWebStringStructRelease(ark_result);
+    return result;
+}
 } // namespace OHOS::ArkWeb

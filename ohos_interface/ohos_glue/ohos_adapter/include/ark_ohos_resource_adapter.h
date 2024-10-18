@@ -64,6 +64,9 @@ public:
 
     /*--ark web()--*/
     virtual bool GetRawFileLastModTime(const ArkWebString& rawFile, time_t& time, bool isSys) = 0;
+
+    /*--ark web()--*/
+    virtual ArkWebString GetSystemLanguage() = 0;
 };
 
 } // namespace OHOS::ArkWeb
