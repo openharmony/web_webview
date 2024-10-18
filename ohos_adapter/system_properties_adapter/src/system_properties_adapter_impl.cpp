@@ -175,7 +175,9 @@ std::string SystemPropertiesAdapterImpl::GetUserAgentOSName()
 
 std::string SystemPropertiesAdapterImpl::GetUserAgentOSVersion()
 {
-    return OHOS::system::GetParameter("const.product.os.dist.version", "");
+    return OHOS::system::GetParameter("const.product.os.dist.apiname", "").empty() ?
+        OHOS::system::GetParameter("const.product.os.dist.version", "") :
+        OHOS::system::GetParameter("const.product.os.dist.apiname", "");
 }
 
 std::string SystemPropertiesAdapterImpl::GetUserAgentBaseOSName()
