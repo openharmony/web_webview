@@ -1338,4 +1338,9 @@ void ArkWebNWebWrapper::GetScrollOffset(float* offset_x, float* offset_y)
 {
     ark_web_nweb_->GetScrollOffset(offset_x, offset_y);
 }
+
+void ArkWebNWebWrapper::SetSurfaceDensity(const double& density)
+{
+    ark_web_nweb_->SetSurfaceDensity(density);
+}
 } // namespace OHOS::ArkWeb

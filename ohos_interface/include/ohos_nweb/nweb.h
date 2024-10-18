@@ -1482,6 +1482,12 @@ public:
      * @param offset_y The current vertical scroll offset of the webpage.
      */
     virtual void GetScrollOffset(float* offset_x, float* offset_y) {}
+
+    /**
+     * @brief set DPI when DPI changes.
+     * @param density The new density value.
+     */
+    virtual void SetSurfaceDensity(const double& density) {}
 };
 
 } // namespace OHOS::NWeb

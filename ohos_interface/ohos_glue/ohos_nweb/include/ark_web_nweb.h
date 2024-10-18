@@ -1579,6 +1579,13 @@ class ArkWebNWeb : public virtual ArkWebBaseRefCounted {
    */
   /*--ark web()--*/
   virtual void GetScrollOffset(float* offset_x, float* offset_y) = 0;
+
+  /**
+   * @brief set DPI when DPI changes.
+   * @param density The new density value.
+   */
+  /*--ark web()--*/
+  virtual void SetSurfaceDensity(const double& density) = 0;
 };
 
 }  // namespace OHOS::ArkWeb
