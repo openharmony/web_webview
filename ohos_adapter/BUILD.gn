@@ -492,6 +492,7 @@ source_set("unittests") {
     "utils/src/ashmem_unittest.cpp",
     "display_manager_adapter/src/display_manager_adapter_impl_unittest.cpp",
     "net_proxy_adapter/src/net_proxy_adapter_unittest.cpp",
+    "pasteboard_adapter/src/pasteboard_client_adapter_unittest.cpp",
   ]
 
   deps = [

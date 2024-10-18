@@ -90,10 +90,9 @@ bool WriteToAshmem(struct CheckParams *param) {
     }
 
     char *dst = reinterpret_cast<char *>(param->ptr) + param->offset;
-    char *src = reinterpret_cast<const char *>(param->data);
-    int32_t size = param->size;
+    const char *src = reinterpret_cast<const char *>(param->data);
     for (int i = 0; i < param->size; i++) {
-        dst[i] = src[i]
+        dst[i] = src[i];
     }
 
     return true;

@@ -110,6 +110,10 @@ bool PasteDataRecordAdapterImpl::SetPlainText(std::shared_ptr<std::string> plain
 
 bool PasteDataRecordAdapterImpl::SetUri(const std::string& uriString)
 {
+    if (uriString.empty()) {
+        WVLOG_E("uriString is empty");
+        return false;
+    }
     OH_UdsFileUri* udsFileUri = OH_UdsFileUri_Create();
     const char* uri = uriString.c_str();
     int setFileUri_res = OH_UdsFileUri_SetFileUri(udsFileUri, uri);
@@ -504,6 +508,7 @@ void PasteDataAdapterImpl::AddHtmlRecord(const std::string& html)
     OH_UdmfRecord* record = OH_UdmfRecord_Create();
     if (record == nullptr) {
         WVLOG_E("Create UdmfRecord failed.");
+        OH_UdsHtml_Destroy(udsHtml);
         return;
     }
     int addHtml_res = OH_UdmfRecord_AddHtml(record, udsHtml);
@@ -721,12 +726,11 @@ bool PasteBoardClientAdapterImpl::GetPasteData(PasteRecordVector& data)
 
 void PasteBoardClientAdapterImpl::SetPasteData(const PasteRecordVector& data, CopyOptionMode copyOption)
 {
-    OH_UdmfData* uData = OH_UdmfData_Create();
-
     if (copyOption == CopyOptionMode::NONE) {
         WVLOG_E("SetPasteData failed, copy option mode is 'NONE'");
         return;
     }
+    OH_UdmfData* uData = OH_UdmfData_Create();
     for (auto& record : data) {
         PasteDataRecordAdapterImpl* rawRecord = 
             reinterpret_cast<PasteDataRecordAdapterImpl*>(record.get());
@@ -788,6 +792,7 @@ void PasteBoardClientAdapterImpl::Clear()
 
 int32_t PasteBoardClientAdapterImpl::OpenRemoteUri(const std::string& path)
 {
+    // not used
     return -1;
 }
 
@@ -823,6 +828,10 @@ int32_t PasteBoardClientAdapterImpl::AddPasteboardChangedObserver(
             }
             auto ret = OH_PasteboardObserver_SetData(observer, callback.get(), PasteBoardNotify, nullptr);
             if (ret != ERR_OK) {
+                int des_ret = OH_PasteboardObserver_Destroy(observer);
+                if (des_ret != ERR_OK) {
+                    WVLOG_E("PasteboardObserver destroy failed. error code is : %{public}d", des_ret);
+                }
                 return -1;
             }
 
@@ -840,6 +849,10 @@ int32_t PasteBoardClientAdapterImpl::AddPasteboardChangedObserver(
                 (void)OH_PasteboardObserver_Destroy(iter->second);
                 reg_.erase(iter);
             }
+        }
+        int des_ret = OH_PasteboardObserver_Destroy(observer);
+        if (des_ret != ERR_OK) {
+            WVLOG_E("PasteboardObserver destroy failed. error code is : %{public}d", des_ret);
         }
     }
     return id;
@@ -861,7 +874,6 @@ void PasteBoardClientAdapterImpl::RemovePasteboardChangedObserver(
     auto ret = OH_Pasteboard_Unsubscribe(pasteboard_, NOTIFY_LOCAL_DATA_CHANGE, observer);
     if (ret != ERR_OK) {
         WVLOG_E("unsubscribe observer failed. error code is : %{public}d", ret);
-        return;
     }
     ret = OH_PasteboardObserver_Destroy(observer);
     if (ret != ERR_OK) {
