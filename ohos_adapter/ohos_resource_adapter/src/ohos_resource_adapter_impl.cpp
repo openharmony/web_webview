@@ -30,6 +30,7 @@
 #include "extractor.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
+#include "locale_config.h"
 #include "nweb_log.h"
 #include "ohos_adapter_helper.h"
 #include "parameter.h"
@@ -510,6 +511,11 @@ std::string OhosResourceAdapterImpl::GetArkWebVersion()
 void OhosResourceAdapterImpl::SetArkWebCoreHapPathOverride(const std::string& hapPath)
 {
     arkWebCoreHapPathOverride_ = hapPath;
+}
+
+std::string OhosResourceAdapterImpl::GetSystemLanguage()
+{
+    return OHOS::Global::I18n::LocaleConfig::GetSystemLanguage();
 }
 
 }  // namespace OHOS::NWeb

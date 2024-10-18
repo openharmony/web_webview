@@ -56,6 +56,8 @@ public:
         const std::string& rawFile, uint16_t& date, uint16_t& time, bool isSys = false) = 0;
 
     virtual bool GetRawFileLastModTime(const std::string& rawFile, time_t& time, bool isSys = false) = 0;
+
+    virtual std::string GetSystemLanguage() = 0;
 };
 
 } // namespace OHOS::NWeb

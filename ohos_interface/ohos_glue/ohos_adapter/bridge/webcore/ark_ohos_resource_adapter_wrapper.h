@@ -36,6 +36,8 @@ public:
 
     bool GetRawFileLastModTime(const std::string& rawFile, time_t& time, bool isSys = false) override;
 
+    std::string GetSystemLanguage() override;
+
 private:
     ArkWebRefPtr<ArkOhosResourceAdapter> ctocpp_;
 };

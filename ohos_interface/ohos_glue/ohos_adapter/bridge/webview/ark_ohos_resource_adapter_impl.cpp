@@ -57,4 +57,10 @@ bool ArkOhosResourceAdapterImpl::GetRawFileLastModTime(const ArkWebString& rawFi
     return real_->GetRawFileLastModTime(ArkWebStringStructToClass(rawFile), time, isSys);
 }
 
+ArkWebString ArkOhosResourceAdapterImpl::GetSystemLanguage()
+{
+    std::string result = real_->GetSystemLanguage();
+    return ArkWebStringClassToStruct(result);
+}
+
 } // namespace OHOS::ArkWeb

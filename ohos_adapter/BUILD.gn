@@ -137,6 +137,7 @@ ohos_shared_library("nweb_ohos_adapter") {
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
     "huks:libhukssdk",
+    "i18n:intl_util",
     "image_framework:image_native",
     "imf:inputmethod_client",
     "init:libbeget_proxy",
