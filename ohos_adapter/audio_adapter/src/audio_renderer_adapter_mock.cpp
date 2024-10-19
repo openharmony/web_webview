@@ -72,8 +72,6 @@ int32_t AudioRendererAdapterImpl::SetAudioRendererCallback(
 
 void AudioRendererAdapterImpl::SetInterruptMode(bool audioExclusive) {}
 
-void AudioRendererAdapterImpl::SetAudioSilentMode(bool isSilentMode) {}
-
 bool AudioRendererAdapterImpl::IsRendererStateRunning()
 {
     return false;

@@ -51,7 +51,6 @@ namespace OHOS {
     audioRendererAdapterImpl.SetAudioRendererCallback(nullptr);
     audioRendererAdapterImpl.SetAudioOutputChangeCallback(nullptr);
     audioRendererAdapterImpl.SetInterruptMode(true);
-    audioRendererAdapterImpl.SetAudioSilentMode(false);
     audioRendererAdapterImpl.IsRendererStateRunning();
     audioRendererAdapterImpl.GetAudioSamplingRate(samplingRate);
     audioRendererAdapterImpl.GetAudioEncodingType(encodingType);

@@ -93,12 +93,7 @@ int32_t ArkAudioRendererAdapterWrapper::SetAudioRendererCallback(
 
 void ArkAudioRendererAdapterWrapper::SetInterruptMode(bool audioExclusive)
 {
-    ctocpp_->SetInterruptMode(audioExclusive);
-}
-
-void ArkAudioRendererAdapterWrapper::SetAudioSilentMode(bool isSilentMode)
-{
-    ctocpp_->SetAudioSilentMode(isSilentMode);
+    return ctocpp_->SetInterruptMode(audioExclusive);
 }
 
 bool ArkAudioRendererAdapterWrapper::IsRendererStateRunning()
