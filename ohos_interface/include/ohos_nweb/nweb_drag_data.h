@@ -87,6 +87,11 @@ public:
 
     // clear the exist iamge file names.
     virtual void ClearImageFileNames() = 0;
+
+    // is drag new style.
+    virtual bool IsDragNewStyle() {
+        return false;
+    }
 };
 
 } // namespace OHOS::NWeb

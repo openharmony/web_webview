@@ -99,4 +99,9 @@ int32_t ArkWebContextMenuParamsImpl::GetContextMenuTypeFlags()
     return nweb_context_menu_params_->GetContextMenuTypeFlags();
 }
 
+void ArkWebContextMenuParamsImpl::GetImageRect(int& x, int& y, int& w, int& h)
+{
+    nweb_context_menu_params_->GetImageRect(x, y, w, h);
+}
+
 } // namespace OHOS::ArkWeb
