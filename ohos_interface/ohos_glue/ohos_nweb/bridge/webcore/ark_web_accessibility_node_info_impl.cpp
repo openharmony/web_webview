@@ -269,4 +269,24 @@ bool ArkWebAccessibilityNodeInfoImpl::GetIsPluralLineSupported()
     return nweb_accessibility_node_info_->GetIsPluralLineSupported();
 }
 
+bool ArkWebAccessibilityNodeInfoImpl::GetIsAccessibilityGroup()
+{
+    return nweb_accessibility_node_info_->GetIsAccessibilityGroup();
+}
+
+ArkWebString ArkWebAccessibilityNodeInfoImpl::GetAccessibilityLevel()
+{
+    return ArkWebStringClassToStruct(nweb_accessibility_node_info_->GetAccessibilityLevel());
+}
+
+ArkWebString ArkWebAccessibilityNodeInfoImpl::GetAccessibilityDescription()
+{
+    return ArkWebStringClassToStruct(nweb_accessibility_node_info_->GetAccessibilityDescription());
+}
+
+ArkWebString ArkWebAccessibilityNodeInfoImpl::GetAccessibilityText()
+{
+    return ArkWebStringClassToStruct(nweb_accessibility_node_info_->GetAccessibilityText());
+}
+
 } // namespace OHOS::ArkWeb

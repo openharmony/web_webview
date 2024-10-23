@@ -123,6 +123,26 @@ public:
     virtual bool GetIsAccessibilityFocus() = 0;
 
     virtual bool GetIsPluralLineSupported() = 0;
+
+    virtual bool GetIsAccessibilityGroup()
+    {
+        return false;
+    }
+
+    virtual std::string GetAccessibilityLevel()
+    {
+        return std::string();
+    }
+
+    virtual std::string GetAccessibilityDescription()
+    {
+        return std::string();
+    }
+
+    virtual std::string GetAccessibilityText()
+    {
+        return std::string();
+    }
 };
 
 } // namespace OHOS::NWeb

@@ -128,6 +128,14 @@ public:
 
     bool GetIsPluralLineSupported() override;
 
+    bool GetIsAccessibilityGroup() override;
+
+    ArkWebString GetAccessibilityLevel() override;
+
+    ArkWebString GetAccessibilityDescription() override;
+
+    ArkWebString GetAccessibilityText() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebAccessibilityNodeInfo> nweb_accessibility_node_info_;
 };
