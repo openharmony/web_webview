@@ -3748,11 +3748,6 @@ napi_value NapiWebviewController::getBackForwardEntries(napi_env env, napi_callb
         return result;
     }
 
-    WebHistoryList *webHistoryList = new (std::nothrow) WebHistoryList(list);
-    if (webHistoryList == nullptr) {
-        return result;
-    }
-
     int32_t currentIndex = list->GetCurrentIndex();
     int32_t size = list->GetListSize();
 
@@ -3767,6 +3762,12 @@ napi_value NapiWebviewController::getBackForwardEntries(napi_env env, napi_callb
     napi_value js_size;
     napi_create_int32(env, size, &js_size);
     napi_set_named_property(env, result, "size", js_size);
+
+    WebHistoryList *webHistoryList = new (std::nothrow) WebHistoryList(list);
+    if (webHistoryList == nullptr) {
+        return result;
+    }
+
     NAPI_CALL(env, napi_wrap(env, result, webHistoryList,
         [](napi_env env, void *data, void *hint) {
             WebHistoryList *webHistoryList = static_cast<WebHistoryList *>(data);
