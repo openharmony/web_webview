@@ -6215,6 +6215,7 @@ napi_value NapiWebviewController::SetPathAllowingUniversalAccess(
     WebviewController *webviewController = GetWebviewController(env, info);
     if (!webviewController) {
         WVLOG_E("SetPathAllowingUniversalAccess init webview controller error.");
+        BusinessError::ThrowErrorByErrcode(env, ARKWEB_INIT_ERROR);
         return result;
     }
     bool isArray = false;
