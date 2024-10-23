@@ -53,10 +53,12 @@ bool ReadFileToBuffer(const std::string &filePath, uint8_t *buffer, size_t buffe
         return false;
     }
     if (fseek(fp, 0, SEEK_END) != 0) {
+        free(fp);
         return false;
     }
     size_t fileSize = ftell(fp);
     if (fseek(fp, 0, SEEK_SET) != 0) {
+        free(fp);
         return false;
     }
     if (bufferSize < fileSize) {
@@ -269,6 +271,8 @@ HWTEST_F(OhosImageAdapterTest, OhosImageAdapterTest_DecodeToPixelMap_005, TestSi
     EXPECT_TRUE(ret);
 
     free(buffer);
+
+    imageDecoderAdapterImpl.ReleasePixelMap();
 }
 
 /**
