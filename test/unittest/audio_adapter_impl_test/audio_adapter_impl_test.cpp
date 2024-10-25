@@ -359,6 +359,8 @@ HWTEST_F(NWebAudioAdapterTest, NWebAudioAdapterTest_AudioAdapterImpl_001, TestSi
     EXPECT_EQ(retNum, 0);
     g_audioRender->SetInterruptMode(true);
     g_audioRender->SetInterruptMode(false);
+    g_audioRender->SetAudioSilentMode(true);
+    g_audioRender->SetAudioSilentMode(false);
     ret = g_audioRender->IsRendererStateRunning();
     EXPECT_EQ(ret, TRUE_OK);
     ret = g_audioRender->Pause();
@@ -754,6 +756,7 @@ HWTEST_F(NWebAudioAdapterTest, NWebAudioAdapterTest_AudioAdapterImpl_014, TestSi
     EXPECT_EQ(retNum, AudioAdapterCode::AUDIO_ERROR);
     EXPECT_EQ(audioRenderImpl->audio_renderer_, nullptr);
     audioRenderImpl->SetInterruptMode(false);
+    audioRenderImpl->SetAudioSilentMode(false);
     retNum = audioRenderImpl->Create(nullptr);
 }
 

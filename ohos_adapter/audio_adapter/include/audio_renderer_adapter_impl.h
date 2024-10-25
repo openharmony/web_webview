@@ -85,6 +85,9 @@ public:
     bool IsRendererStateRunning() override;
 
     int32_t SetAudioOutputChangeCallback(const std::shared_ptr<AudioOutputChangeCallbackAdapter>& callback) override;
+
+    void SetAudioSilentMode(bool isSilentMode) override;
+
 #if defined(NWEB_AUDIO_ENABLE)
     static AudioSamplingRate GetAudioSamplingRate(AudioAdapterSamplingRate samplingRate);
 
