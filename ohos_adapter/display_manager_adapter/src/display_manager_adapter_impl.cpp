@@ -18,6 +18,8 @@
 #include "display_info.h"
 #include "nweb_log.h"
 #include "syspara/parameters.h"
+#include "oh_display_manager.h"
+#include "oh_display_info.h"
 
 using namespace OHOS::Rosen;
 using namespace OHOS::NWeb;
@@ -218,11 +220,11 @@ DisplayOrientation DisplayAdapterImpl::GetDisplayOrientation()
 
 FoldStatus DisplayAdapterImpl::GetFoldStatus()
 {
-    NativeDisplayManager_FoldDisplayMode displayMode = 
-        NativeDisplayManager_FoldDisplayMode::DISPLAY_MANAGER_FOLD_DISPLAY_MODE_UNKNOWN; 
+    NativeDisplayManager_FoldDisplayMode displayMode =
+        NativeDisplayManager_FoldDisplayMode::DISPLAY_MANAGER_FOLD_DISPLAY_MODE_UNKNOWN;
     OH_NativeDisplayManager_GetFoldDisplayMode(&displayMode);
     return ConvertFoldStatus(displayMode);
-} 
+}
 
 bool DisplayAdapterImpl::IsFoldable()
 {
@@ -291,15 +293,17 @@ void FoldChangeCallBack(NativeDisplayManager_FoldDisplayMode displayMode)
     }
 }
 
-uint32_t DisplayManagerAdapterImpl::RegisterFoldStatusListener(std::shared_ptr<FoldStatusListenerAdapter> listener)
+uint32_t DisplayManagerAdapterImpl::RegisterFoldStatusListener(
+    std::shared_ptr<FoldStatusListenerAdapter> listener)
 {
-    sptr<FoldStatusListenerAdapterImpl> reg = new (std::nothrow) FoldStatusListenerAdapterImpl(listener);
+    sptr<FoldStatusListenerAdapterImpl> reg =
+        new (std::nothrow) FoldStatusListenerAdapterImpl(listener);
     if (reg == nullptr) {
         return false;
     }
     uint32_t id = 1;
-    if (OH_NativeDisplayManager_RegisterFoldDisplayModeChangeListener(FoldChangeCallBack, &id) ==
-        NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK) {
+    if (OH_NativeDisplayManager_RegisterFoldDisplayModeChangeListener(
+        FoldChangeCallBack, &id) == NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK) {
         foldStatusReg_.emplace(std::make_pair(id, reg));
         return id;
     } else {

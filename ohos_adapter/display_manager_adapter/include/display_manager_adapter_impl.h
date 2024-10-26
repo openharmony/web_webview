@@ -17,12 +17,13 @@
 #define DISPLAY_MANAGER_ADAPTER_IMPL_H
 
 #include <map>
-
 #include "display_manager_adapter.h"
 
 #include "display.h"
 #include "display_manager.h"
 #include "dm_common.h"
+#include "oh_display_manager.h"
+#include "oh_display_info.h"
 
 namespace OHOS::NWeb {
 class DisplayListenerAdapterImpl
@@ -39,7 +40,7 @@ private:
 
 class FoldStatusListenerAdapterImpl
     : public virtual RefBase {
-public: 
+public:
     explicit FoldStatusListenerAdapterImpl(std::shared_ptr<FoldStatusListenerAdapter> listener);
     ~FoldStatusListenerAdapterImpl() = default;
     void OnFoldStatusChanged(NativeDisplayManager_FoldDisplayMode displayMode) ;

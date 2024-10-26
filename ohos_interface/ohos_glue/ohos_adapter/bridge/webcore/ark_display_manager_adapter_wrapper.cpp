@@ -76,5 +76,4 @@ bool ArkDisplayManagerAdapterWrapper::UnregisterFoldStatusListener(uint32_t id)
 {
     return ctocpp_->UnregisterFoldStatusListener(id);
 }
-
 } // namespace OHOS::ArkWeb

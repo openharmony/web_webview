@@ -45,6 +45,7 @@ public:
     OHOS::NWeb::FoldStatus GetFoldStatus() override;
 
     bool IsFoldable() override;
+    
 private:
     ArkWebRefPtr<ArkDisplayAdapter> ctocpp_;
 };

@@ -39,6 +39,7 @@ ohos_fuzztest("GetVirtualFuzzTest") {
     "c_utils:utils",
     "image_framework:image_native",
     "window_manager:libdm",
+    "window_manager:libdm_ndk",
   ]
 }
 

@@ -40,7 +40,7 @@ class ArkFoldStatusListenerAdapter : public virtual ArkWebBaseRefCounted {
 public:
     /**
      * @Description: Folding state change.
-     * @Input: foldstatus:folding status,value range id 0-5
+     * @Input: foldstatus:folding status,value range id 0-4
      * 0 represents an unknown screen state,
      * 1 represents fully expanded,
      * 2 stands for using the home screen,
@@ -81,7 +81,7 @@ public:
 
     /**
      * @Description: Get folding status.
-     * @Return: folding status,value range id 0-5
+     * @Return: folding status,value range id 0-4
      * 0 represents an unknown screen state,
      * 1 represents fully expanded,
      * 2 stands for using the home screen,
@@ -122,7 +122,7 @@ public:
     /**
      * @Description: Regist Fold Status Listener.
      * @Input: ArkFoldStatusListenerAdapter object.
-     * @Return:folding status,value range id 0-5
+     * @Return:folding status,value range id 0-4
      * 0 represents an unknown screen state,
      * 1 represents fully expanded,
      * 2 stands for using the home screen,

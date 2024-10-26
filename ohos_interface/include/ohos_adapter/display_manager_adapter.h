@@ -132,7 +132,7 @@ public:
 
     virtual uint32_t RegisterFoldStatusListener(std::shared_ptr<FoldStatusListenerAdapter> listener)
     {
-        return 0;
+        return -1;
     }
 
     virtual bool UnregisterFoldStatusListener(uint32_t id)
