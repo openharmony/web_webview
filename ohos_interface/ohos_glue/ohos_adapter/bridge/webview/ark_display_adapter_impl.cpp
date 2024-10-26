@@ -61,4 +61,14 @@ uint32_t ArkDisplayAdapterImpl::GetDisplayOrientation()
     return (uint32_t)real_->GetDisplayOrientation();
 }
 
+uint32_t OHOS::ArkWeb::ArkDisplayAdapterImpl::GetFoldStatus()
+{
+    return static_cast<uint32_t>(real_->GetFoldStatus());
+}
+
+bool ArkDisplayAdapterImpl::IsFoldable()
+{
+    return real_->IsFoldable();
+}
+
 } // namespace OHOS::ArkWeb
