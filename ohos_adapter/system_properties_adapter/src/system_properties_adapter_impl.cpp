@@ -104,6 +104,19 @@ void SystemPropertiesChangeCallback(void *context, const OH_PreferencesPair *pai
             WVLOG_D("sys prop change key: %{public}s ,value : %{public}s ", key,  value);
             SystemPropertiesAdapterImpl::GetInstance().DispatchAllWatcherInfo(key, value);
         }
+        if (type == PREFERENCE_TYPE_BOOL) {
+            if (key != PROP_DEBUG_TRACE) {
+                continue;
+            }
+            bool value;
+            int ret = OH_PreferencesValue_GetBool(object, &value);
+            if (ret != PREFERENCES_OK) {
+                WVLOG_E("failed to get preferences string");
+                continue;
+            }
+            WVLOG_D("sys prop change key: %{public}s ,value : %{public}d ", key,  value);
+            SystemPropertiesAdapterImpl::GetInstance().SetTraceDebugEnable(value);
+        }
     }
 }
 
@@ -191,6 +204,7 @@ void SystemPropertiesAdapterImpl::InitPreferences()
     }
     WVLOG_D("open preferences, bundle name %{public}s", bundleNmae);
     // If necessary, initialize the configuration here.
+    SetTraceDebugEnable(GetBoolParameter(PROP_DEBUG_TRACE, false));
 }
 
 bool SystemPropertiesAdapterImpl::GetResourceUseHapPathEnable()
@@ -286,9 +300,14 @@ std::string SystemPropertiesAdapterImpl::GetNetlogMode()
     return GetStringParameter("web.debug.netlog", "");
 }
 
+void SystemPropertiesAdapterImpl::SetTraceDebugEnable(bool isEnable)
+{
+    isTraceDebugEnable = isEnable;
+}
+
 bool SystemPropertiesAdapterImpl::GetTraceDebugEnable()
 {
-    return GetBoolParameter("web.debug.trace", false);
+    return isTraceDebugEnable;
 }
 
 std::string SystemPropertiesAdapterImpl::GetSiteIsolationMode()
@@ -482,6 +501,26 @@ bool SystemPropertiesAdapterImpl::GetBoolParameter(const char *key, bool default
     
     WVLOG_D("get bool param, key:%{public}s, value:%{public}d", key, value);
     return value;
+}
+
+void SystemPropertiesAdapterImpl::SetBoolParameter(const char *key, const bool value)
+{
+    if (preferences_ == nullptr) {
+        WVLOG_E("preferences is null");
+        return;
+    }
+
+    if (key == nullptr) {
+        WVLOG_E("param is nullptr");
+        return;
+    }
+
+    int ret = OH_Preferences_SetBool(preferences_, key, value);
+    if (ret != PREFERENCES_OK) {
+        WVLOG_E("failed to set bool, ret %{public}d", ret);
+        return;
+    }
+    WVLOG_D("set bool param, key:%{public}s, value:%{public}d", key, value);
 }
 
 int SystemPropertiesAdapterImpl::GetIntParameter(const char *key, int defaultValue)
