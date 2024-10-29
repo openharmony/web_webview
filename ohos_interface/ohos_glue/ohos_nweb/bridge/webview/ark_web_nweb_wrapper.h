@@ -1287,7 +1287,8 @@ public:
      *
      * @param x horizontal location of coordinate.
      * @param y vertical location of coordinate.
-    */
+     */
+    /*--ark web()--*/
     void SendAccessibilityHoverEvent(int32_t x, int32_t y) override;
     
     /**
