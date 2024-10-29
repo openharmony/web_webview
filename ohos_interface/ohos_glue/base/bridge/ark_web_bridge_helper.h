@@ -33,8 +33,10 @@ protected:
 
     bool LoadLibFile(int mode, const std::string& libFilePath, bool isPrintLog = true);
 
+#if !defined(OHOS_WEBCORE_GLUE)
     bool LoadLibFile(int mode, const std::string& libNsName, const std::string& libDirPath,
         const std::string& libFileName, bool isPrintLog = true);
+#endif
 
 private:
     void UnloadLibFile();
