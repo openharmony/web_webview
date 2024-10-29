@@ -302,5 +302,20 @@ HWTEST_F(DisplayManagerAdapterImplTest, DisplayManagerAdapterImplTest_008, TestS
     retType = displayAdapterImpl->ConvertDisplayOrientationType(type);
     EXPECT_EQ(retType, OHOS::NWeb::DisplayOrientation::LANDSCAPE_INVERTED);
 }
+
+/**
+ * @tc.name: GetDpi_001.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_001, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
 }
 }
