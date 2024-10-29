@@ -18,5 +18,5 @@ web.debug.trace = false
 web.debug.strictsiteIsolation.enable = none
 web.oop.gpu = None
 web.PRPPreload.enable = true
-persist.arkwebcore.install_path = /module_update/ArkWebCore/app/com.ohos.nweb/NWeb.hap
-persist.arkwebcore.package_name = com.ohos.nweb
+persist.arkwebcore.install_path = /system/app/com.ohos.arkwebcore/ArkWebCore.hap
+persist.arkwebcore.package_name = com.ohos.arkwebcore

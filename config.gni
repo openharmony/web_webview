@@ -86,3 +86,15 @@ declare_args() {
     webview_enable_heif_decoder = false
   }
 }
+
+webview_package_name = "com.ohos.arkwebcore"
+webview_hap_path =
+    "/module_update/ArkWebCore/app/${webview_package_name}/ArkWebCore.hap"
+webview_sandbox_path = "/data/storage/el1/bundle/arkwebcore/"
+webview_sandbox_hap_path = "${webview_sandbox_path}entry.hap"
+webview_sandbox_lib_path = "${webview_sandbox_path}libs/${target_cpu}"
+webview_sandbox_relative_lib_path = "arkwebcore/libs/${target_cpu}"
+webview_crashpad_handler_so = "libarkweb_crashpad_handler.so"
+webview_engine_so = "libarkweb_engine.so"
+webview_app_hap_path = "/system/app/ArkWeb/ArkWebCore.hap"
+webview_app_hap_path2 = "/system/app/${webview_package_name}/ArkWebCore.hap"

@@ -61,6 +61,7 @@ protected:
 
 private:
     bool Init(const SystemAbilityOnDemandReason& startReason);
+
     int SetWebInstallPath(const std::string& path);
     int SetWebCorePackageName(const std::string& packageName);
     int SendAppSpawnMessage(const std::string& packageName);

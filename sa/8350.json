@@ -9,9 +9,12 @@
             "distributed": false,
             "dump-level": 1,
             "start-on-demand": {
-                "commonevent": [
-                    { "name": "usual.event.PACKAGE_CHANGED" }
-                ]
+                "commonevent": [{
+                    "name": "usual.event.PACKAGE_CHANGED"
+                },
+                {
+                    "name": "usual.event.PACKAGE_ADDED"
+                }]
             }
         }
     ]

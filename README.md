@@ -13,7 +13,7 @@ Below is the software architecture.
 .
 ├── ohos_nweb            # OpenHarmony adaptation code
 │   ├── include
-│   ├── prebuilts        # NWeb.hap, built based on the third_party_chromium source code repository
+│   ├── prebuilts        # ArkWebCore.hap, built based on the third_party_chromium source code repository
 │   └── src
 └── test                 # nwebview test code
 ```

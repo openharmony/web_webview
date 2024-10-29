@@ -27,6 +27,8 @@ public:
 
     static ArkWebNWebBridgeHelper& GetInstance();
 
+    bool InitArkWeb(bool runMode, const std::string& baseDir,
+        const std::string& relativeLibPath, const std::string& arkWebEngineSo);
     bool Init(bool runMode, const std::string& baseDir);
 
 private:

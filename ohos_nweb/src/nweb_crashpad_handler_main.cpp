@@ -34,11 +34,16 @@ const std::string LIB_CRASHPAD_HANDLER = "libchrome_crashpad_handler.so";
 
 int main(int argc, char* argv[])
 {
-    const std::string libCrashpadHandler = CRASHPAD_HANDLER_PATH + "/" + LIB_CRASHPAD_HANDLER;
+    const std::string libCrashpadHandler = std::string(WEBVIEW_SANDBOX_LIB_PATH) + "/"
+                                            + std::string(WEBVIEW_CRASHPAD_HANDLER_SO);
     void *handle = dlopen(libCrashpadHandler.c_str(), RTLD_NOW | RTLD_GLOBAL);
     if (handle == nullptr) {
-        WVLOG_E("crashpad, fail to dlopen %{public}s, errmsg=%{public}s", libCrashpadHandler.c_str(), dlerror());
-        return -1;
+        const std::string libCrashpadHandler2 = CRASHPAD_HANDLER_PATH + "/" + LIB_CRASHPAD_HANDLER;
+        handle = dlopen(libCrashpadHandler2.c_str(), RTLD_NOW | RTLD_GLOBAL);
+        if (handle == nullptr) {
+            WVLOG_E("crashpad, fail to dlopen %{public}s, errmsg=%{public}s", libCrashpadHandler2.c_str(), dlerror());
+            return -1;
+        }
     }
 
     using FuncType = int (*)(int argc, char* argv[]);
