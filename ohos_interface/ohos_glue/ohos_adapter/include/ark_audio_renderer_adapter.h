@@ -105,6 +105,12 @@ public:
 
     /*--ark web()--*/
     virtual int32_t SetAudioOutputChangeCallback(const ArkWebRefPtr<ArkAudioOutputChangeCallbackAdapter> callback) = 0;
+
+    /**
+    * @brief SetAudioSilentMode, when isSilentMode is true, audio_render will not interrupt other andio output
+    */
+    /*--ark web()--*/
+    virtual void SetAudioSilentMode(bool isSilentMode) = 0;
 };
 
 } // namespace OHOS::ArkWeb
