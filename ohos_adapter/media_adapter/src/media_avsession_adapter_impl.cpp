@@ -30,6 +30,8 @@ namespace OHOS::NWeb {
 
 std::unordered_map<std::string, std::shared_ptr<AVSession::AVSession>> MediaAVSessionAdapterImpl::avSessionMap;
 
+constexpr int64_t LIVE_STREAM_INFINITE_DURATION = -1;
+
 MediaAVSessionCallbackImpl::MediaAVSessionCallbackImpl(
     std::shared_ptr<MediaAVSessionCallbackAdapter> callbackAdapter)
     : callbackAdapter_(callbackAdapter)
@@ -391,10 +393,20 @@ bool MediaAVSessionAdapterImpl::UpdateMetaDataCache(const std::shared_ptr<MediaA
 
 bool MediaAVSessionAdapterImpl::UpdateMetaDataCache(const std::shared_ptr<MediaAVSessionPositionAdapter> position)
 {
-    if (avMetadata_->GetDuration() != position->GetDuration()) {
-        avMetadata_->SetDuration(position->GetDuration());
+    if (!position) {
+        WVLOG_E("position is nullptr, media avsession adapter UpdateMetaDataCache return false");
+        return false;
+    }
+    int64_t getDuration = position->GetDuration();
+    if (avMetadata_->GetDuration() != getDuration) {
+        if (getDuration < INT64_MAX) {
+            avMetadata_->SetDuration(getDuration);
+        } else {
+            avMetadata_->SetDuration(LIVE_STREAM_INFINITE_DURATION);
+        }
         return true;
     }
+    WVLOG_E("media avsession adapter UpdateMetaDataCache return false");
     return false;
 }
 
