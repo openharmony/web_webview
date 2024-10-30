@@ -70,6 +70,9 @@ ohos_fuzztest("OhosImageDecoderAdapterImplFuzzTest") {
     "system_properties_adapter/include",
   ]
 
+  include_dirs +=
+      [ "//foundation/multimedia/image_framework/interfaces/innerkits/include" ]
+
   sources = [ "ohosimagedecoderadapterimpl_fuzzer.cpp" ]
   deps = [
     "$webview_path/ohos_adapter:nweb_ohos_adapter",
