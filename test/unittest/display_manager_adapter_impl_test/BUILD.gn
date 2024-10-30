@@ -38,6 +38,7 @@ ohos_unittest("display_manager_adapter_impl_test") {
     "image_framework:image_native",
     "init:libbegetutil",
     "window_manager:libdm",
+    "window_manager:libdm_ndk",
   ]
 }
 

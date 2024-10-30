@@ -18,6 +18,8 @@
 #include "display_info.h"
 #include "nweb_log.h"
 #include "syspara/parameters.h"
+#include "oh_display_manager.h"
+#include "oh_display_info.h"
 
 using namespace OHOS::Rosen;
 using namespace OHOS::NWeb;
@@ -42,6 +44,34 @@ void DisplayListenerAdapterImpl::OnChange(DisplayId id)
 {
     if (listener_ != nullptr) {
         listener_->OnChange(id);
+    }
+}
+
+FoldStatusListenerAdapterImpl::FoldStatusListenerAdapterImpl(
+    std::shared_ptr<FoldStatusListenerAdapter> listener) : listener_(listener) {}
+
+OHOS::NWeb::FoldStatus FoldStatusListenerAdapterImpl::ConvertFoldStatus(
+    NativeDisplayManager_FoldDisplayMode displayMode)
+{
+    switch (displayMode) {
+        case DISPLAY_MANAGER_FOLD_DISPLAY_MODE_FULL:
+            return OHOS::NWeb::FoldStatus::FULL;
+        case DISPLAY_MANAGER_FOLD_DISPLAY_MODE_MAIN:
+            return OHOS::NWeb::FoldStatus::MAIN;
+        case DISPLAY_MANAGER_FOLD_DISPLAY_MODE_SUB:
+            return OHOS::NWeb::FoldStatus::SUB;
+        case DISPLAY_MANAGER_FOLD_DISPLAY_MODE_COORDINATION:
+            return OHOS::NWeb::FoldStatus::COORDINATION;
+        default:
+            return OHOS::NWeb::FoldStatus::UNKNOWN;
+    }
+}
+
+
+void FoldStatusListenerAdapterImpl::OnFoldStatusChanged(NativeDisplayManager_FoldDisplayMode displayMode)
+{
+    if (listener_ != nullptr) {
+        listener_->OnFoldStatusChanged(ConvertFoldStatus(displayMode));
     }
 }
 
@@ -101,6 +131,23 @@ OHOS::NWeb::DisplayOrientation DisplayAdapterImpl::ConvertDisplayOrientationType
             return OHOS::NWeb::DisplayOrientation::LANDSCAPE_INVERTED;
         default:
             return OHOS::NWeb::DisplayOrientation::UNKNOWN;
+    }
+}
+
+
+OHOS::NWeb::FoldStatus DisplayAdapterImpl::ConvertFoldStatus(NativeDisplayManager_FoldDisplayMode displayMode)
+{
+    switch (displayMode) {
+        case DISPLAY_MANAGER_FOLD_DISPLAY_MODE_FULL:
+            return OHOS::NWeb::FoldStatus::FULL;
+        case DISPLAY_MANAGER_FOLD_DISPLAY_MODE_MAIN:
+            return OHOS::NWeb::FoldStatus::MAIN;
+        case DISPLAY_MANAGER_FOLD_DISPLAY_MODE_SUB:
+            return OHOS::NWeb::FoldStatus::SUB;
+        case DISPLAY_MANAGER_FOLD_DISPLAY_MODE_COORDINATION:
+            return OHOS::NWeb::FoldStatus::COORDINATION;
+        default:
+            return OHOS::NWeb::FoldStatus::UNKNOWN;
     }
 }
 
@@ -171,6 +218,19 @@ DisplayOrientation DisplayAdapterImpl::GetDisplayOrientation()
     return DisplayOrientation::UNKNOWN;
 }
 
+FoldStatus DisplayAdapterImpl::GetFoldStatus()
+{
+    NativeDisplayManager_FoldDisplayMode displayMode =
+        NativeDisplayManager_FoldDisplayMode::DISPLAY_MANAGER_FOLD_DISPLAY_MODE_UNKNOWN;
+    OH_NativeDisplayManager_GetFoldDisplayMode(&displayMode);
+    return ConvertFoldStatus(displayMode);
+}
+
+bool DisplayAdapterImpl::IsFoldable()
+{
+    return OH_NativeDisplayManager_IsFoldable();
+}
+
 DisplayId DisplayManagerAdapterImpl::GetDefaultDisplayId()
 {
     return DisplayManager::GetInstance().GetDefaultDisplayId();
@@ -222,5 +282,46 @@ bool DisplayManagerAdapterImpl::IsDefaultPortrait()
 {
     std::string deviceType = OHOS::system::GetDeviceType();
     return deviceType == "phone" || deviceType == "default";
+}
+
+FoldStatusListenerMap DisplayManagerAdapterImpl::foldStatusReg_;
+
+void FoldChangeCallBack(NativeDisplayManager_FoldDisplayMode displayMode)
+{
+    for (auto& iter : DisplayManagerAdapterImpl::foldStatusReg_) {
+        iter.second->OnFoldStatusChanged(displayMode);
+    }
+}
+
+uint32_t DisplayManagerAdapterImpl::RegisterFoldStatusListener(
+    std::shared_ptr<FoldStatusListenerAdapter> listener)
+{
+    sptr<FoldStatusListenerAdapterImpl> reg =
+        new (std::nothrow) FoldStatusListenerAdapterImpl(listener);
+    if (reg == nullptr) {
+        return false;
+    }
+    uint32_t id = 1;
+    if (OH_NativeDisplayManager_RegisterFoldDisplayModeChangeListener(
+        FoldChangeCallBack, &id) == NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK) {
+        foldStatusReg_.emplace(std::make_pair(id, reg));
+        return id;
+    } else {
+        return 0;
+    }
+}
+
+bool DisplayManagerAdapterImpl::UnregisterFoldStatusListener(uint32_t id)
+{
+    FoldStatusListenerMap::iterator iter = foldStatusReg_.find(id);
+    if (iter == foldStatusReg_.end()) {
+        return false;
+    }
+    if (OH_NativeDisplayManager_UnregisterFoldDisplayModeChangeListener(id) ==
+        NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK) {
+        foldStatusReg_.erase(iter);
+        return true;
+    }
+    return false;
 }
 }
