@@ -34,6 +34,11 @@ public:
      */
     void SetGestureEventResult(bool result) override;
 
+    /**
+     * @brief Handle the result if the user used.
+     */
+    void SetGestureEventResultV2(bool result, bool stopPropagation) override;
+
 private:
     ArkWebRefPtr<ArkWebGestureEventResult> ark_web_gesture_event_result_;
 };

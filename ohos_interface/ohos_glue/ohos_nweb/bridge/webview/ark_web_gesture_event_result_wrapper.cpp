@@ -27,4 +27,9 @@ void ArkWebGestureEventResultWrapper::SetGestureEventResult(bool result)
     ark_web_gesture_event_result_->SetGestureEventResult(result);
 }
 
+void ArkWebGestureEventResultWrapper::SetGestureEventResultV2(bool result, bool stopPropagation)
+{
+    ark_web_gesture_event_result_->SetGestureEventResultV2(result, stopPropagation);
+}
+
 } // namespace OHOS::ArkWeb
