@@ -48,6 +48,23 @@ public:
 
     void DestroyNativeImage() override;
 
+    void NewNativeImage() override;
+
+    int32_t AcquireNativeWindowBuffer(
+        void** windowBuffer,
+        int* acquireFenceFd) override;
+
+    int32_t GetNativeBuffer(
+        void* windowBuffer,
+        void** nativeBuffer) override;
+
+    int32_t ReleaseNativeWindowBuffer(void* windowBuffer, int fenceFd) override;
+
+    void GetNativeWindowBufferSize(
+        void* windowBuffer,
+        uint32_t* width,
+        uint32_t* height) override;
+
 private:
     OH_NativeImage* ohNativeImage_ = nullptr;
 };

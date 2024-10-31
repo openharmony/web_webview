@@ -112,6 +112,8 @@ public:
 
     void SetArkWebCoreHapPathOverride(const ArkWebString& hapPath) override;
 
+    ArkWebRefPtr<ArkOhosNativeBufferAdapter> GetOhosNativeBufferAdapter() override;
+
 private:
     NWeb::OhosAdapterHelper& real_;
 

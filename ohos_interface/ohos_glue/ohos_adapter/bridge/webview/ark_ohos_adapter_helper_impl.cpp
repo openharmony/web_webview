@@ -52,6 +52,7 @@
 #include "ohos_adapter/bridge/ark_ohos_file_mapper_impl.h"
 #include "ohos_adapter/bridge/ark_ohos_image_decoder_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_ohos_init_web_adapter_impl.h"
+#include "ohos_adapter/bridge/ark_ohos_native_buffer_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_ohos_resource_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_ohos_web_data_base_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_paste_board_client_adapter_impl.h"
@@ -381,6 +382,13 @@ ArkWebRefPtr<ArkSensorAdapter> ArkOhosAdapterHelperImpl::CreateSensorAdapter()
 void ArkOhosAdapterHelperImpl::SetArkWebCoreHapPathOverride(const ArkWebString& hapPath)
 {
     real_.SetArkWebCoreHapPathOverride(ArkWebStringStructToClass(hapPath));
+}
+
+ArkWebRefPtr<ArkOhosNativeBufferAdapter> ArkOhosAdapterHelperImpl::GetOhosNativeBufferAdapter()
+{
+    static NWeb::OhosNativeBufferAdapter& instance = real_.GetOhosNativeBufferAdapter();
+    static ArkWebRefPtr<ArkOhosNativeBufferAdapter> impl = new ArkOhosNativeBufferAdapterImpl(instance);
+    return impl;
 }
 
 } // namespace OHOS::ArkWeb

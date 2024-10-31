@@ -17,6 +17,7 @@
 
 #include "graphic_common_c.h"
 #include "iconsumer_surface.h"
+#include "nweb_log.h"
 
 namespace OHOS::NWeb {
 
@@ -112,5 +113,66 @@ void NativeImageAdapterImpl::DestroyNativeImage()
     }
     OH_NativeImage_Destroy(&ohNativeImage_);
     ohNativeImage_ = nullptr;
+}
+
+
+void NativeImageAdapterImpl::NewNativeImage()
+{
+    ohNativeImage_ = OH_ConsumerSurface_Create();
+}
+
+int32_t NativeImageAdapterImpl::AcquireNativeWindowBuffer(
+    void** windowBuffer,
+    int* acquireFenceFd)
+{
+    if (ohNativeImage_ == nullptr) {
+        WVLOG_E("native image is null.");
+        return SURFACE_ERROR_ERROR;
+    }
+
+    OHNativeWindowBuffer* buffer = nullptr;
+    int32_t ret = OH_NativeImage_AcquireNativeWindowBuffer(ohNativeImage_, &buffer, acquireFenceFd);
+    if (ret != SURFACE_ERROR_OK || !buffer) {
+        WVLOG_E("acquireNativeWindowBuffer fail. ret = %{public}d or buffer is nullptr", ret);
+        return ret;
+    }
+    *windowBuffer = buffer;
+    return SURFACE_ERROR_OK;
+}
+
+int32_t NativeImageAdapterImpl::GetNativeBuffer(
+    void* windowBuffer,
+    void** nativeBuffer)
+{
+    OH_NativeBuffer* buffer = nullptr;
+    int32_t ret = OH_NativeBuffer_FromNativeWindowBuffer(static_cast<OHNativeWindowBuffer*>(windowBuffer), &buffer);
+    if (ret != SURFACE_ERROR_OK || !buffer) {
+        WVLOG_E("getNativeBuffer fail. ret = %{public}d or buffer is nullptr", ret);
+        return ret;
+    }
+
+    *nativeBuffer = buffer;
+    return SURFACE_ERROR_OK;
+}
+
+int32_t NativeImageAdapterImpl::ReleaseNativeWindowBuffer(void* windowBuffer, int fenceFd)
+{
+    if (ohNativeImage_ == nullptr) {
+        return SURFACE_ERROR_ERROR;
+    }
+    return OH_NativeImage_ReleaseNativeWindowBuffer(ohNativeImage_,
+        static_cast<OHNativeWindowBuffer*>(windowBuffer), fenceFd);
+}
+
+void NativeImageAdapterImpl::GetNativeWindowBufferSize(void* windowBuffer, uint32_t* width, uint32_t* height)
+{
+    if (windowBuffer == nullptr || width == nullptr || height == nullptr) {
+        return;
+    }
+    BufferHandle *handle = OH_NativeWindow_GetBufferHandleFromNative(static_cast<OHNativeWindowBuffer*>(windowBuffer));
+    if (handle) {
+        *height = handle->height;
+        *width = handle->width;
+    }
 }
 }

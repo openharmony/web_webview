@@ -49,6 +49,7 @@
 #include "ohos_adapter/bridge/ark_ohos_file_mapper_wrapper.h"
 #include "ohos_adapter/bridge/ark_ohos_image_decoder_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_ohos_init_web_adapter_wrapper.h"
+#include "ohos_adapter/bridge/ark_ohos_native_buffer_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_ohos_resource_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_ohos_web_data_base_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_paste_board_client_adapter_wrapper.h"
@@ -465,6 +466,12 @@ void ArkOhosAdapterHelperWrapper::SetArkWebCoreHapPathOverride(const std::string
     ArkWebString str = ArkWebStringClassToStruct(hapPath);
     ctocpp_->SetArkWebCoreHapPathOverride(str);
     ArkWebStringStructRelease(str);
+}
+
+NWeb::OhosNativeBufferAdapter& ArkOhosAdapterHelperWrapper::GetOhosNativeBufferAdapter()
+{
+    static ArkOhosNativeBufferAdapterWrapper instance(ctocpp_->GetOhosNativeBufferAdapter());
+    return instance;
 }
 
 } // namespace OHOS::ArkWeb

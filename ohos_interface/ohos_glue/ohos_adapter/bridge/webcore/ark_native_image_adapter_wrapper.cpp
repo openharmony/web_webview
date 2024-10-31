@@ -82,4 +82,36 @@ void ArkNativeImageAdapterWrapper::DestroyNativeImage()
     return ctocpp_->DestroyNativeImage();
 }
 
+void ArkNativeImageAdapterWrapper::NewNativeImage()
+{
+    return ctocpp_->NewNativeImage();
+}
+
+int32_t ArkNativeImageAdapterWrapper::AcquireNativeWindowBuffer(
+    void** windowBuffer,
+    int* acquireFenceFd)
+{
+    return ctocpp_->AcquireNativeWindowBuffer(windowBuffer, acquireFenceFd);
+}
+
+int32_t ArkNativeImageAdapterWrapper::GetNativeBuffer(
+    void* windowBuffer,
+    void** nativeBuffer)
+{
+    return ctocpp_->GetNativeBuffer(windowBuffer, nativeBuffer);
+}
+
+int32_t ArkNativeImageAdapterWrapper::ReleaseNativeWindowBuffer(void* windowBuffer, int fenceFd)
+{
+    return ctocpp_->ReleaseNativeWindowBuffer(windowBuffer, fenceFd);
+}
+
+void ArkNativeImageAdapterWrapper::GetNativeWindowBufferSize(
+    void* windowBuffer,
+    uint32_t* width,
+    uint32_t* height)
+{
+    return ctocpp_->GetNativeWindowBufferSize(windowBuffer, width, height);
+}
+
 } // namespace OHOS::ArkWeb

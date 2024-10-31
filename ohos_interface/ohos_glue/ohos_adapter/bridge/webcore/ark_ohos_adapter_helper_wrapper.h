@@ -112,6 +112,8 @@ public:
 
     void SetArkWebCoreHapPathOverride(const std::string& hapPath) override;
 
+    NWeb::OhosNativeBufferAdapter& GetOhosNativeBufferAdapter() override;
+
 private:
     ArkWebRefPtr<ArkOhosAdapterHelper> ctocpp_;
 };
