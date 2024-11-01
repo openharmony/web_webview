@@ -114,6 +114,8 @@ public:
     std::unique_ptr<SensorAdapter> CreateSensorAdapter() override;
 
     void SetArkWebCoreHapPathOverride(const std::string& hapPath) override;
+
+    OhosNativeBufferAdapter& GetOhosNativeBufferAdapter() override;
 };
 } // namespace OHOS::NWeb
 

@@ -45,6 +45,7 @@
 #include "ohos_adapter/include/ark_net_proxy_adapter.h"
 #include "ohos_adapter/include/ark_ohos_image_decoder_adapter.h"
 #include "ohos_adapter/include/ark_ohos_init_web_adapter.h"
+#include "ohos_adapter/include/ark_ohos_native_buffer_adapter.h"
 #include "ohos_adapter/include/ark_ohos_resource_adapter.h"
 #include "ohos_adapter/include/ark_ohos_web_data_base_adapter.h"
 #include "ohos_adapter/include/ark_pasteboard_client_adapter.h"
@@ -191,6 +192,14 @@ public:
 
     /*--ark web()--*/
     virtual void SetArkWebCoreHapPathOverride(const ArkWebString& hapPath) = 0;
+
+    /**
+     * @Description: Get OhosNativeBufferAdapter.
+     * @Return：Returns the pointer to a ArkOhosNativeBufferAdapter instance.
+     * @Since 12005
+     */
+    /*--ark web()--*/
+    virtual ArkWebRefPtr<ArkOhosNativeBufferAdapter> GetOhosNativeBufferAdapter() = 0;
 };
 
 } // namespace OHOS::ArkWeb

@@ -212,6 +212,60 @@ public:
 
     /*--ark web()--*/
     virtual void DestroyNativeImage() = 0;
+
+    /**
+     * @Description: Create a <b>OH_NativeImage</b> as surface consumer.
+     * @Since 12005
+     */
+    /*--ark web()--*/
+    virtual void NewNativeImage() = 0;
+
+    /**
+     * @Description: Acquire an <b>OHNativeWindowBuffer</b> for content consumer.
+     * @Output windowBuffer: Indicates the pointer to an <b>OHNativeWindowBuffer</b> point.
+	 * @Output acquireFenceFd: Indicates the pointer to a file descriptor handle.
+     * @Return：Returns an error code, 0 is sucess, otherwise, failed.
+     * @Since 12005
+     */
+    /*--ark web()--*/
+    virtual int32_t AcquireNativeWindowBuffer(
+        void** windowBuffer,
+        int* acquireFenceFd) = 0;
+
+    /**
+     * @Description: Converts an <b>OHNativeWindowBuffer</b> instance to an <b>OH_NativeBuffer</b>.
+     * @Input windowBuffer: Indicates the pointer to a <b>OHNativeWindowBuffer</b> instance.
+     * @Output nativeBuffer: Indicates the pointer to a <b>OH_NativeBuffer</b> pointer.
+     * @Return：Returns an error code, 0 is sucess, otherwise, failed.
+     * @Since 12005
+     */
+    /*--ark web()--*/
+    virtual int32_t GetNativeBuffer(
+        void* windowBuffer,
+        void** nativeBuffer) = 0;
+
+    /**
+     * @Description: Release the <b>OHNativeWindowBuffer</b> to the buffer queue for reuse.
+     * @Input windowBuffer: Indicates the pointer to an <b>OHNativeWindowBuffer</b> instance.
+     * @Input fenceFd: Indicates a file descriptor handle, which is used for timing synchronization.
+     * @Return：Returns an error code, 0 is sucess, otherwise, failed.
+     * @Since 12005
+     */
+    /*--ark web()--*/
+    virtual int32_t ReleaseNativeWindowBuffer(void* windowBuffer, int fenceFd) = 0;
+
+    /**
+     * @Description: Get the size of the <b>OHNativeWindowBuffer</b>.
+     * @Input windowBuffer: Indicates the pointer to an <b>OHNativeWindowBuffer</b> instance.
+     * @Output width: Indicates the width of the window buffer size.
+     * @Output height: Indicates the height of the window buffer size.
+     * @Since 12005
+     */
+    /*--ark web()--*/
+    virtual void GetNativeWindowBufferSize(
+        void* windowBuffer,
+        uint32_t* width,
+        uint32_t* height) = 0;
 };
 
 /*--ark web(source=webview)--*/

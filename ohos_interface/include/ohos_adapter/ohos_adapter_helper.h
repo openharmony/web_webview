@@ -46,6 +46,7 @@
 #include "net_proxy_adapter.h"
 #include "ohos_image_decoder_adapter.h"
 #include "ohos_init_web_adapter.h"
+#include "ohos_native_buffer_adapter.h"
 #include "ohos_resource_adapter.h"
 #include "ohos_web_data_base_adapter.h"
 #include "pasteboard_client_adapter.h"
@@ -149,6 +150,8 @@ public:
     virtual std::unique_ptr<SensorAdapter> CreateSensorAdapter() = 0;
 
     virtual void SetArkWebCoreHapPathOverride(const std::string& hapPath) = 0;
+
+    virtual OhosNativeBufferAdapter& GetOhosNativeBufferAdapter() = 0;
 };
 
 } // namespace OHOS::NWeb

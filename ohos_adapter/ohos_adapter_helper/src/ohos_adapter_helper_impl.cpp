@@ -51,6 +51,7 @@
 #include "net_proxy_adapter_impl.h"
 #include "ohos_image_decoder_adapter_impl.h"
 #include "ohos_init_web_adapter_impl.h"
+#include "ohos_native_buffer_adapter_impl.h"
 #include "ohos_resource_adapter_impl.h"
 #include "ohos_web_data_base_adapter_impl.h"
 #include "ohos_web_permission_data_base_adapter_impl.h"
@@ -339,6 +340,11 @@ std::unique_ptr<SensorAdapter> OhosAdapterHelperImpl::CreateSensorAdapter()
 void OhosAdapterHelperImpl::SetArkWebCoreHapPathOverride(const std::string& hapPath)
 {
     OhosResourceAdapterImpl::SetArkWebCoreHapPathOverride(hapPath);
+}
+
+OhosNativeBufferAdapter& OhosAdapterHelperImpl::GetOhosNativeBufferAdapter()
+{
+    return OhosNativeBufferAdapterImpl::GetInstance();
 }
 
 } // namespace OHOS::NWeb
