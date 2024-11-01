@@ -243,10 +243,6 @@ public:
 
     napi_value FindMethod(const std::string& methodName)
     {
-        if (!isMethodsSetup_) {
-            SetUpMethods();
-        }
-
         if (HasMethod(methodName)) {
             bool hasFunc = false;
             napi_value result = nullptr;
@@ -283,6 +279,10 @@ public:
 
     void SetUpMethods()
     {
+        std::unique_lock<std::mutex> lock(mutex_);
+        if (isMethodsSetup_) {
+            return;
+        }
         napi_value propertyNames;
         napi_value obj = GetValue();
         napi_status s = napi_get_all_property_names(env_, obj, napi_key_include_prototypes, napi_key_all_properties,
@@ -317,11 +317,9 @@ public:
             }
             std::string methodName;
             if (NapiParseUtils::ParseString(env_, napiKeyTmp, methodName)) {
-                std::unique_lock<std::mutex> lock(mutex_);
                 methods_.push_back(methodName);
             }
         }
-        std::unique_lock<std::mutex> lock(mutex_);
         isMethodsSetup_ = true;
     }
 

@@ -20,7 +20,7 @@ namespace OHOS::NWeb {
 void NativeJavaScriptExecuteCallback::OnReceiveValue(std::shared_ptr<NWebMessage> result)
 {
     if (callbackNative_) {
-        if (result->IsString()) {
+        if (result && result->IsString()) {
             callbackNative_(result->GetString().c_str());
         } else {
             WVLOG_E("native RunJavaScript result is not string");
