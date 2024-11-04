@@ -165,6 +165,7 @@ DisplayOrientation DisplayAdapterImpl::GetDisplayOrientation()
 }
 
 ListenerMap DisplayManagerAdapterImpl::reg_ = {};
+std::mutex DisplayManagerAdapterImpl::regMutex_;
 DisplayId DisplayManagerAdapterImpl::GetDefaultDisplayId()
 {
     WVLOG_D("DisplayAdapter::OH_NativeDisplayManager_GetDefaultDisplayId");
@@ -183,8 +184,15 @@ std::shared_ptr<DisplayAdapter> DisplayManagerAdapterImpl::GetDefaultDisplay()
 
 void DisplayManagerAdapterImpl::DisplayChangeCallback(uint64_t displayId) {
     WVLOG_D("DisplayAdapter::DisplayChangeCallback");
-    for(auto iter = reg_.begin(); iter != reg_.end(); ++iter) {
-        iter->second->OnChange(displayId);
+    std::vector<std::shared_ptr<DisplayListenerAdapterImpl>> listenerList;
+    {
+        std::lock_guard<std::mutex> lock(regMutex_);
+        for (auto iter = reg_.begin(); iter != reg_.end(); ++iter) {
+            listenerList.push_back(iter->second);
+        }
+    }
+    for (auto& listener : listenerList) {
+        listener->OnChange(displayId);
     }
 }
 
@@ -202,6 +210,7 @@ uint32_t DisplayManagerAdapterImpl::RegisterDisplayListener(
         != NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK) {
         return 0;
     }
+    std::lock_guard<std::mutex> lock(regMutex_);
     reg_.emplace(std::make_pair(listenerIndex, reg));
     return listenerIndex;
 }
@@ -209,15 +218,19 @@ uint32_t DisplayManagerAdapterImpl::RegisterDisplayListener(
 bool DisplayManagerAdapterImpl::UnregisterDisplayListener(uint32_t id)
 {
     WVLOG_D("DisplayAdapter::OH_NativeDisplayManager_UnregisterDisplayChangeListener");
-    ListenerMap::iterator iter = reg_.find(id);
-    if (iter == reg_.end()) {
-        return false;
+    {
+        std::lock_guard<std::mutex> lock(regMutex_);
+        ListenerMap::iterator iter = reg_.find(id);
+        if (iter == reg_.end()) {
+            return false;
+        }
+        reg_.erase(iter);
     }
+
     if (OH_NativeDisplayManager_UnregisterDisplayChangeListener(id)
         != NativeDisplayManager_ErrorCode::DISPLAY_MANAGER_OK) {
-        return false;
+        WVLOG_E("Failed to unregister display change listener");
     }
-    reg_.erase(iter);
     return true;
 }
 
