@@ -1343,4 +1343,9 @@ void ArkWebNWebWrapper::SetSurfaceDensity(const double& density)
 {
     ark_web_nweb_->SetSurfaceDensity(density);
 }
+
+bool ArkWebNWebWrapper::GetAccessibilityVisible(int64_t accessibility_id)
+{
+    return ark_web_nweb_->GetAccessibilityVisible(accessibility_id);
+}
 } // namespace OHOS::ArkWeb

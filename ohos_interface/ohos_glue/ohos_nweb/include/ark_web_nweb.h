@@ -1586,6 +1586,14 @@ class ArkWebNWeb : public virtual ArkWebBaseRefCounted {
    */
   /*--ark web()--*/
   virtual void SetSurfaceDensity(const double& density) = 0;
+
+  /**
+   * @Description: Get the accessibility visibility of the accessibility node by its accessibility id in the browser.
+   * @Input accessibility_id: The accessibility id of the accessibility node.
+   * @Return: The accessibility visibility of the accessibility node.
+   */
+  /*--ark web()--*/
+  virtual bool GetAccessibilityVisible(int64_t accessibility_id) = 0;
 };
 
 }  // namespace OHOS::ArkWeb
