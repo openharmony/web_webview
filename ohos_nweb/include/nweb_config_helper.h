@@ -31,6 +31,7 @@ public:
     void ReadConfigIfNeeded();
     std::string ParsePerfConfig(const std::string &configNodeName, const std::string &argsNodeName);
     std::vector<FrameRateSetting> GetPerfConfig(const std::string& settingName);
+    int safeGetPropAsInt(xmlNode* node, const xmlChar* propName, int defaultValue);
 
 private:
     NWebConfigHelper() = default;

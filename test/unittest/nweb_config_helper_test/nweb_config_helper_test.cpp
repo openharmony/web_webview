@@ -35,9 +35,11 @@ public:
 protected:
     std::shared_ptr<NWebEngineInitArgsImpl> initArgs;
     NWebConfigHelper nWebConfigHelper;
+    xmlNodePtr root_element;
     void SetUp() override
     {
         initArgs = std::make_shared<NWebEngineInitArgsImpl>();
+        root_element = xmlNewNode(NULL, BAD_CAST "root");
     }
 };
 
@@ -356,6 +358,46 @@ HWTEST_F(NWebConfigHelperTest, ParseDeleteConfig_EmptyParam, TestSize.Level0)
     xmlNodeSetContent(childNodePtr, content);
     xmlFree(content);
     NWebConfigHelper::Instance().ParseDeleteConfig(rootPtr, initArgs);
+}
+
+/**
+ * @tc.name  : safeGetPropAsInt_ShouldReturnDefaultValue_WhenPropNotExist
+ * @tc.number: OHOS_NWEB_001
+ * @tc.desc  : Test safeGetPropAsInt function when the property does not exist.
+ */
+HWTEST_F(NWebConfigHelperTest, safeGetPropAsInt_ShouldReturnDefaultValue_WhenPropNotExist,
+    testing::ext::TestSize.Level0)
+{
+    int defaultValue = 10;
+    int result = NWebConfigHelper::Instance().safeGetPropAsInt(root_element,
+      BAD_CAST "non_existent_prop", defaultValue);
+    EXPECT_EQ(result, defaultValue);
+}
+
+/**
+ * @tc.name  : safeGetPropAsInt_ShouldReturnPropValue_WhenPropExist
+ * @tc.number: OHOS_NWEB_002
+ * @tc.desc  : Test safeGetPropAsInt function when the property exists.
+ */
+HWTEST_F(NWebConfigHelperTest, safeGetPropAsInt_ShouldReturnPropValue_WhenPropExist, testing::ext::TestSize.Level0)
+{
+    xmlNewProp(root_element, BAD_CAST "test_prop", BAD_CAST "20");
+    int result = NWebConfigHelper::Instance().safeGetPropAsInt(root_element, BAD_CAST "test_prop", 10);
+    EXPECT_EQ(result, 20);
+}
+
+/**
+ * @tc.name  : safeGetPropAsInt_ShouldReturnDefaultValue_WhenPropValueNotInt
+ * @tc.number: OHOS_NWEB_003
+ * @tc.desc  : Test safeGetPropAsInt function when the property value is not an integer.
+ */
+HWTEST_F(NWebConfigHelperTest, safeGetPropAsInt_ShouldReturnDefaultValue_WhenPropValueNotInt,
+    testing::ext::TestSize.Level0)
+{
+    xmlNewProp(root_element, BAD_CAST "test_prop", BAD_CAST "not_an_integer");
+    int defaultValue = 10;
+    int result = NWebConfigHelper::Instance().safeGetPropAsInt(root_element, BAD_CAST "test_prop", defaultValue);
+    EXPECT_EQ(result, defaultValue);
 }
 
 } // NWebConfig
