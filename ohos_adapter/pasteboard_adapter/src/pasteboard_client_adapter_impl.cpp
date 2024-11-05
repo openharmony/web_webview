@@ -16,7 +16,9 @@
 #include "pasteboard_client_adapter_impl.h"
 
 #include <mutex>
+#include <set>
 #include <database/udmf/udmf_err_code.h>
+#include <database/udmf/udmf_meta.h>
 #include <database/pasteboard/oh_pasteboard_err_code.h>
 #include <multimedia/image_framework/image/pixelmap_native.h>
 #include <multimedia/image_framework/image/image_common.h>
@@ -296,9 +298,52 @@ std::shared_ptr<std::string> PasteDataRecordAdapterImpl::GetHtmlText()
         return nullptr;
     }
     const char* html = OH_UdsHtml_GetContent(udsHtml);
+    if (html == nullptr) {
+        WVLOG_E("GetContent is nullptr");
+        return nullptr;
+    }
     std::shared_ptr<std::string> htmlText = std::make_shared<std::string>(html);
     OH_UdsHtml_Destroy(udsHtml);
     return htmlText;
+}
+
+std::string HtmlToPlainText(const std::string& html) {
+    std::string text;
+    size_t start = 0;
+    size_t end = 0;
+    size_t tagStart = 0;
+    bool firstBlockProcessed = false;
+    std::set<std::string> blockTags = {"p", "div", "h1", "h2", "h3", "h4", "h5", "h6", "li", "ul", "ol"};
+    while (start < html.size()) {
+        tagStart = html.find('<', end);
+        if (tagStart == std::string::npos) {
+            break;
+        }
+        start = html.find('>', tagStart);
+        if (start == std::string::npos) {
+            break;
+        }
+        start += 1;
+        end = html.find('<', start);
+        size_t spacePos = html.find(' ', tagStart + 1);
+        size_t tagEnd = (spacePos != std::string::npos && spacePos < start) ? spacePos : start - 1;
+        std::string tagName = html.substr(tagStart + 1, tagEnd - tagStart - 1);
+        if (blockTags.find(tagName) != blockTags.end()) {
+            if (firstBlockProcessed) {
+                text += "\r\n";
+            } else {
+                firstBlockProcessed = true;
+            }
+        }
+        if (end == std::string::npos) {
+            text += html.substr(start);
+            break;
+        }
+        if (end > start) {
+            text += html.substr(start, end - start);
+        }
+    }
+    return text;
 }
 
 std::shared_ptr<std::string> PasteDataRecordAdapterImpl::GetPlainText()
@@ -306,6 +351,28 @@ std::shared_ptr<std::string> PasteDataRecordAdapterImpl::GetPlainText()
     if (record_ == nullptr) {
         return nullptr;
     }
+
+    //temporary solution
+    std::string type = GetMimeType();
+    if (type == UDMF_META_HTML) {
+        OH_UdsHtml* udsHtml = OH_UdsHtml_Create();
+        int getHtml_res = OH_UdmfRecord_GetHtml(record_, udsHtml);
+        if (getHtml_res != UDMF_E_OK) {
+            WVLOG_E("GetHtml failed. error code is : %{public}d", getHtml_res);
+            OH_UdsHtml_Destroy(udsHtml);
+            return nullptr;
+        }
+        const char* html = OH_UdsHtml_GetContent(udsHtml);
+        if (html == nullptr) {
+            WVLOG_E("GetContent is nullptr");
+            OH_UdsHtml_Destroy(udsHtml);
+            return nullptr;
+        }
+        std::shared_ptr<std::string> htmlPlainText = std::make_shared<std::string>(HtmlToPlainText(html));
+        OH_UdsHtml_Destroy(udsHtml);
+        return htmlPlainText;
+    }
+
     OH_UdsPlainText* udsPlainText = OH_UdsPlainText_Create();
     int getPlainText_res = OH_UdmfRecord_GetPlainText(record_, udsPlainText);
     if (getPlainText_res != UDMF_E_OK) {
