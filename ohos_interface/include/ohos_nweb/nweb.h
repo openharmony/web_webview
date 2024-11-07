@@ -1488,6 +1488,16 @@ public:
      * @param density The new density value.
      */
     virtual void SetSurfaceDensity(const double& density) {}
+
+    /**
+     * @Description: Get the accessibility visibility of the accessibility node by its accessibility id in the browser.
+     * @Input accessibility_id: The accessibility id of the accessibility node.
+     * @Return: The accessibility visibility of the accessibility node.
+     */
+    /*--ark web()--*/
+    virtual bool GetAccessibilityVisible(int64_t accessibility_id) {
+        return true;
+    }
 };
 
 } // namespace OHOS::NWeb
