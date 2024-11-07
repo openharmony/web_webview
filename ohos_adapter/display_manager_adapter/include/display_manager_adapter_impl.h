@@ -17,6 +17,7 @@
 #define DISPLAY_MANAGER_ADAPTER_IMPL_H
 
 #include <map>
+#include <mutex>
 #include "display_manager_adapter.h"
 
 #include "display.h"
@@ -26,6 +27,30 @@
 #include "oh_display_info.h"
 
 namespace OHOS::NWeb {
+struct DisplayInfo {
+    int32_t width_ {0};
+    int32_t height_ {0};
+    uint32_t refreshRate_ {0};
+    float virtualPixelRatio_ {0.0f};
+    float xDpi_ {0.0f};
+    float yDpi_ {0.0f};
+    OHOS::Rosen::Rotation rotationType_ {Rosen::Rotation::ROTATION_0};
+    OHOS::Rosen::Orientation orientationType_ {Rosen::Orientation::UNSPECIFIED};
+    OHOS::Rosen::DisplayOrientation displayOrientation_ {Rosen::DisplayOrientation::UNKNOWN};
+
+    DisplayInfo() = default;
+    bool operator == (const OHOS::NWeb::DisplayInfo& rhs)
+    {
+        return width_ == rhs.width_ && height_ == rhs.height_  &&
+            std::abs(virtualPixelRatio_ - rhs.virtualPixelRatio_) < EPS &&
+            std::abs(xDpi_ - rhs.xDpi_) < EPS && std::abs(yDpi_ - rhs.yDpi_) < EPS &&
+            rotationType_ == rhs.rotationType_ && orientationType_ == rhs.orientationType_ &&
+            displayOrientation_ == rhs.displayOrientation_;
+    }
+private:
+    static constexpr double EPS = 0.0000001;
+};
+
 class DisplayListenerAdapterImpl
     : public OHOS::Rosen::DisplayManager::IDisplayListener {
 public:
@@ -35,7 +60,12 @@ public:
     void OnDestroy(DisplayId id) override;
     void OnChange(DisplayId id) override;
 private:
+    bool CheckOnlyRefreshRateDecreased(DisplayId id);
+    OHOS::NWeb::DisplayInfo ConvertDisplayInfo(const OHOS::Rosen::DisplayInfo& info);
+
     std::shared_ptr<DisplayListenerAdapter> listener_;
+    std::mutex mutex_;
+    DisplayInfo cachedDisplayedInfo_ {};
 };
 
 class FoldStatusListenerAdapterImpl
