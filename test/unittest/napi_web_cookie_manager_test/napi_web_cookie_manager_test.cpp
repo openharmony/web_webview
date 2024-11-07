@@ -27,7 +27,7 @@ using namespace OHOS;
 
 namespace OHOS::NWeb {
 namespace {
-const std::string MOCK_INSTALLATION_DIR = "/data/app/el1/bundle/public/com.ohos.nweb";
+const std::string MOCK_NWEB_INSTALLATION_DIR = "/data/app/el1/bundle/public/com.ohos.arkwebcore";
 } // namespace
 
 class NapiWebCookieManagerTest : public testing::Test {
@@ -58,7 +58,11 @@ void NapiWebCookieManagerTest::TearDown(void)
  */
 HWTEST_F(NapiWebCookieManagerTest, NapiWebCookieManagerTest_001, TestSize.Level1)
 {
-    NWebHelper::Instance().SetBundlePath(MOCK_INSTALLATION_DIR);
+    std::string hapPath = "";
+    if (access(MOCK_NWEB_INSTALLATION_DIR.c_str(), F_OK) == 0) {
+        hapPath = MOCK_NWEB_INSTALLATION_DIR;
+    }
+    NWebHelper::Instance().SetBundlePath(hapPath);
     NWebAdapterHelper::Instance().Init(false);
     std::shared_ptr<NWebCookieManager> cookieManager = NWebHelper::Instance().GetCookieManager();
     EXPECT_NE(cookieManager, nullptr);

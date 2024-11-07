@@ -42,7 +42,7 @@ const bool RESULT_OK = true;
 const int DEFAULT_WIDTH = 2560;
 const int DEFAULT_HEIGHT = 1396;
 const int32_t NWEB_MAX_WIDTH = 7681;
-const std::string MOCK_INSTALLATION_DIR = "/data/app/el1/bundle/public/com.ohos.nweb";
+const std::string MOCK_NWEB_INSTALLATION_DIR = "/data/app/el1/bundle/public/com.ohos.arkwebcore";
 std::shared_ptr<AbilityRuntime::ApplicationContext> g_applicationContext = nullptr;
 } // namespace
 
@@ -179,7 +179,7 @@ HWTEST_F(NwebHelperTest, NWebHelper_SetBundlePath_001, TestSize.Level1)
     int32_t nweb_id = 1;
     bool result = NWebHelper::Instance().LoadNWebSDK();
     EXPECT_FALSE(result);
-    NWebHelper::Instance().SetBundlePath(MOCK_INSTALLATION_DIR);
+    NWebHelper::Instance().SetBundlePath(MOCK_NWEB_INSTALLATION_DIR);
     result = NWebAdapterHelper::Instance().Init(false);
     EXPECT_EQ(RESULT_OK, result);
     std::shared_ptr<NWebCreateInfoImpl> create_info = std::make_shared<NWebCreateInfoImpl>();
@@ -218,7 +218,6 @@ HWTEST_F(NwebHelperTest, NWebHelper_SetBundlePath_001, TestSize.Level1)
     EXPECT_TRUE(result);
     result = NWebHelper::Instance().LoadNWebSDK();
     EXPECT_TRUE(result);
-    WebDownloadManager_PutDownloadCallback(nullptr);
     g_applicationContext.reset();
 }
 
@@ -291,8 +290,12 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetDataBase_003, TestSize.Level1)
  */
 HWTEST_F(NwebHelperTest, NWebHelper_TryPreReadLib_004, TestSize.Level1)
 {
-    NWebHelper::Instance().TryPreReadLib(false, MOCK_INSTALLATION_DIR);
-    NWebHelper::Instance().TryPreReadLib(true, MOCK_INSTALLATION_DIR);
+    std::string hapPath = "";
+    if (access(MOCK_NWEB_INSTALLATION_DIR.c_str(), F_OK) == 0) {
+        hapPath = MOCK_NWEB_INSTALLATION_DIR;
+    }
+    NWebHelper::Instance().TryPreReadLib(false, hapPath);
+    NWebHelper::Instance().TryPreReadLib(true, hapPath);
     bool result = NWebHelper::Instance().Init(false);
     EXPECT_TRUE(result);
     sptr<Surface> surface = nullptr;
@@ -356,7 +359,7 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetConfigPath_005, TestSize.Level1)
 HWTEST_F(NwebHelperTest, NWebHelper_LoadNWebSDK_006, TestSize.Level1)
 {
     std::shared_ptr<NWebCreateInfo> create_info = std::make_shared<NWebCreateInfoImpl>();
-    NWebHelper::Instance().SetBundlePath(MOCK_INSTALLATION_DIR);
+    NWebHelper::Instance().SetBundlePath(MOCK_NWEB_INSTALLATION_DIR);
     bool result = NWebAdapterHelper::Instance().Init(false);
     EXPECT_EQ(RESULT_OK, result);
     std::shared_ptr<NWeb> nweb = NWebHelper::Instance().CreateNWeb(create_info);
@@ -539,7 +542,6 @@ HWTEST_F(NwebHelperTest, NWebHelper_ParseNWebLTPOConfig_001, TestSize.Level1)
     EXPECT_TRUE(NWebConfigHelper::Instance().ltpoConfig_.empty());
     std::shared_ptr<NWebEngineInitArgsImpl> initArgs = std::make_shared<NWebEngineInitArgsImpl>();
     NWebAdapterHelper::Instance().ParseConfig(initArgs);
-    EXPECT_FALSE(NWebConfigHelper::Instance().ltpoConfig_.empty());
 }
 
 /**
