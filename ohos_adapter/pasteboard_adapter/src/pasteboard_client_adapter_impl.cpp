@@ -811,19 +811,12 @@ void PasteBoardClientAdapterImpl::SetPasteData(const PasteRecordVector& data, Co
         }
     }
 
-    OH_UdmfProperty* uProp = OH_UdmfProperty_Create(uData);
-    auto ret = OH_UdmfProperty_SetTag(uProp, webviewPasteDataTag_.c_str());
-    if (ret != ERR_OK) {
-        WVLOG_E("property set tag failed. error code is : %{public}d", ret);
-    }
-    auto shareOption = TransitionCopyOption(copyOption);
-    ret = OH_UdmfProperty_SetShareOption(uProp, shareOption);
-    ret = OH_Pasteboard_SetData(pasteboard_, uData);
+
+    auto ret = OH_Pasteboard_SetData(pasteboard_, uData);
     if (ret != ERR_OK) {
         WVLOG_E("set paste data failed. error code is : %{public}d", ret);
     }
     OH_UdmfData_Destroy(uData);
-    OH_UdmfProperty_Destroy(uProp);
 }
 
 bool PasteBoardClientAdapterImpl::HasPasteData()
@@ -874,10 +867,17 @@ uint32_t PasteBoardClientAdapterImpl::GetTokenId()
     return tokenId_;
 }
 
+namespace {
+    std::shared_ptr<PasteboardObserverAdapter> g_callback;
+}
+
 void PasteBoardNotify(void* context, Pasteboard_NotifyType type)
 {
-    std::shared_ptr<PasteboardObserverAdapter> observer(static_cast<PasteboardObserverAdapter*>(context));
-    observer->OnPasteboardChanged();
+    if (g_callback == nullptr) {
+        WVLOG_E("PasteBoardNotify failed, g_callback is NULL");
+        return;
+    }
+    g_callback->OnPasteboardChanged();
 }
 
 int32_t PasteBoardClientAdapterImpl::AddPasteboardChangedObserver(
@@ -886,6 +886,7 @@ int32_t PasteBoardClientAdapterImpl::AddPasteboardChangedObserver(
     static int32_t count = 0;
     int32_t id = -1;
     if (callback) {
+        g_callback = callback;
         OH_PasteboardObserver* observer = nullptr;
         {
             std::lock_guard<std::mutex> lock(mutex_);
@@ -893,7 +894,7 @@ int32_t PasteBoardClientAdapterImpl::AddPasteboardChangedObserver(
             if (!observer) {
                 return -1;
             }
-            auto ret = OH_PasteboardObserver_SetData(observer, callback.get(), PasteBoardNotify, nullptr);
+            auto ret = OH_PasteboardObserver_SetData(observer, nullptr, PasteBoardNotify, nullptr);
             if (ret != ERR_OK) {
                 int des_ret = OH_PasteboardObserver_Destroy(observer);
                 if (des_ret != ERR_OK) {
@@ -917,10 +918,6 @@ int32_t PasteBoardClientAdapterImpl::AddPasteboardChangedObserver(
                 reg_.erase(iter);
             }
         }
-        int des_ret = OH_PasteboardObserver_Destroy(observer);
-        if (des_ret != ERR_OK) {
-            WVLOG_E("PasteboardObserver destroy failed. error code is : %{public}d", des_ret);
-        }
     }
     return id;
 }
@@ -941,6 +938,7 @@ void PasteBoardClientAdapterImpl::RemovePasteboardChangedObserver(
     auto ret = OH_Pasteboard_Unsubscribe(pasteboard_, NOTIFY_LOCAL_DATA_CHANGE, observer);
     if (ret != ERR_OK) {
         WVLOG_E("unsubscribe observer failed. error code is : %{public}d", ret);
+        return;
     }
     ret = OH_PasteboardObserver_Destroy(observer);
     if (ret != ERR_OK) {
