@@ -69,7 +69,6 @@ bool DisplayListenerAdapterImpl::CheckOnlyRefreshRateDecreased(DisplayId id)
         return false;
     }
     auto nwebDisplayInfo =  ConvertDisplayInfo(*displayInfo);
-    std::unique_lock<std::mutex> lock(mutex_);
     if (nwebDisplayInfo == cachedDisplayedInfo_ &&
         nwebDisplayInfo.refreshRate_ != cachedDisplayedInfo_.refreshRate_) {
         WVLOG_D("refresh rate change is intercepted, previous refresh rate: %{public}u, after: %{public}u",
@@ -273,7 +272,7 @@ int32_t DisplayAdapterImpl::GetDpi()
     ppi = screenLength / phyScreenLength;
     WVLOG_D("dpi: %{public}d, xdpi: %{public}f,ydpi: %{public}f, width: %{public}d, height: %{public}d, "\
         "phyScreenLength: %{public}f", ppi, displayInfo->GetXDpi(), displayInfo->GetYDpi(),
-    displayInfo->GetWidth(), displayInfo->GetHeight(), phyScreenLength);
+        displayInfo->GetWidth(), displayInfo->GetHeight(), phyScreenLength);
 
     return ppi;
 }
