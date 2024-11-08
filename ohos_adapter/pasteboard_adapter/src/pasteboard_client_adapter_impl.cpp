@@ -72,8 +72,15 @@ std::shared_ptr<PasteDataRecordAdapter> PasteDataRecordAdapter::NewRecord(
 
 bool PasteDataRecordAdapterImpl::SetHtmlText(std::shared_ptr<std::string> htmlText)
 {
-    OH_UdsHtml* udsHtml = OH_UdsHtml_Create();
     const char* text = htmlText->c_str();
+    OH_UdsHtml* udsHtml = OH_UdsHtml_Create();
+
+    if (udsHtml == nullptr) {
+        WVLOG_E("Create UdsHtml failed when set htmltext");
+        return false;
+    }
+    (void) OH_UdmfRecord_GetHtml(record_, udsHtml);
+
     int setContent_res = OH_UdsHtml_SetContent(udsHtml, text);
     if (setContent_res != UDMF_E_OK) {
         WVLOG_E("AddUdsHtml failed. error code is : %{public}d", setContent_res);
@@ -92,21 +99,37 @@ bool PasteDataRecordAdapterImpl::SetHtmlText(std::shared_ptr<std::string> htmlTe
 
 bool PasteDataRecordAdapterImpl::SetPlainText(std::shared_ptr<std::string> plainText)
 {
-    OH_UdsPlainText* udsPlainText = OH_UdsPlainText_Create();
-    const char* text = plainText->c_str();
-    int setContent_res = OH_UdsPlainText_SetContent(udsPlainText, text);
-    if (setContent_res != UDMF_E_OK) {
-        WVLOG_E("AddUdsPlainText failed. error code is : %{public}d", setContent_res);
-        OH_UdsPlainText_Destroy(udsPlainText);
+    bool isSucc = false;
+    int ret;
+    std::string type = GetMimeType();
+    OH_UdsHtml* udsHtml = OH_UdsHtml_Create();
+
+    if (udsHtml == nullptr) {
+        WVLOG_E("Create UdsHtml failed when set plaintext");
         return false;
     }
-    int addText_res = OH_UdmfRecord_AddPlainText(record_, udsPlainText);
-    if (addText_res != UDMF_E_OK) {
-        WVLOG_E("AddPlainText failed. error code is : %{public}d", addText_res);
-        OH_UdsPlainText_Destroy(udsPlainText);
+    (void) OH_UdmfRecord_GetHtml(record_, udsHtml);
+    if (type == UDMF_META_HTML) {
+        ret = OH_UdsHtml_SetPlainContent(udsHtml, plainText->c_str());
+    } else {
+        std::string htmlPlainText = "<span>" + *plainText + "</span>";
+        ret = OH_UdsHtml_SetContent(udsHtml, htmlPlainText.c_str());
+    }
+
+    isSucc = (ret == UDMF_E_OK ? true : false);
+    if (!isSucc) {
+        WVLOG_E("SetPlainText failed, err_code=%{public}d, type=%{public}s", ret, type.c_str());
+        OH_UdsHtml_Destroy(udsHtml);
         return false;
     }
-    OH_UdsPlainText_Destroy(udsPlainText);
+
+    ret = OH_UdmfRecord_AddHtml(record_, udsHtml);
+    if (ret != UDMF_E_OK) {
+        WVLOG_E("AddHtml failed when set plaintext, err_code=%{public}d, type=%{public}s", ret, type.c_str());
+        OH_UdsHtml_Destroy(udsHtml);
+        return false;
+    }
+    OH_UdsHtml_Destroy(udsHtml);
     return true;
 }
 
