@@ -56,6 +56,7 @@ bool IsFatalError(int32_t errorCode)
         case Media::MSERR_AUD_DEC_FAILED:
         case Media::MSERR_VID_DEC_FAILED:
         case Media::MSERR_FILE_ACCESS_FAILED:
+        case Media::MSERR_DATA_SOURCE_IO_ERROR:
             return true;
         default:
             return false;
