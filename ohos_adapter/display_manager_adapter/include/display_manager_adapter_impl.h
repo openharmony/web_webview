@@ -17,6 +17,7 @@
 #define DISPLAY_MANAGER_ADAPTER_IMPL_H
 
 #include <map>
+#include <mutex>
 
 #include "display_manager_adapter.h"
 
@@ -67,6 +68,7 @@ public:
     static void DisplayChangeCallback(uint64_t displayId);
 private:
     static ListenerMap reg_;
+    static std::mutex regMutex_;
 };
 }
 
