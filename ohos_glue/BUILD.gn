@@ -1035,8 +1035,6 @@ ohos_shared_library("ohos_nweb_glue_source") {
 }
 
 ohos_shared_library("ohos_adapter_glue_source") {
-  #output_name = "arkweb_os_adapter_glue"
-
   branch_protector_frt = "bti"
   branch_protector_ret = "pac_ret"
 

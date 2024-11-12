@@ -20,7 +20,6 @@
 
 namespace OHOS::ArkWeb {
 
-const std::string LIB_ARKWEB_FILE_NAME = "libarkweb_os_adapter_glue.z.so";
 const std::string LIB_FILE_NAME = "libohos_adapter_glue_source.z.so";
 
 ArkWebAdapterBridgeHelper& ArkWebAdapterBridgeHelper::GetInstance(bool isPrintLog)
@@ -33,11 +32,7 @@ ArkWebAdapterBridgeHelper& ArkWebAdapterBridgeHelper::GetInstance(bool isPrintLo
 
 bool ArkWebAdapterBridgeHelper::Init(bool isPrintLog)
 {
-    bool success = LoadLibFile(RTLD_LAZY, LIB_ARKWEB_FILE_NAME, isPrintLog);
-    if (!success) {
-        success = LoadLibFile(RTLD_LAZY, LIB_FILE_NAME, isPrintLog);
-    }
-    return success;
+  return LoadLibFile(RTLD_LAZY, LIB_FILE_NAME, isPrintLog);
 }
 
 } // namespace OHOS::ArkWeb
