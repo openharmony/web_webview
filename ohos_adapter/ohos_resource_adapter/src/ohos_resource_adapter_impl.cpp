@@ -44,9 +44,9 @@ const std::string NWEB_HAP_PATH = "/system/app/com.ohos.nweb/NWeb.hap";
 const std::string NWEB_HAP_PATH_1 = "/system/app/NWeb/NWeb.hap";
 const std::string ARKWEBCORE_HAP_SANDBOX_PATH = "/data/storage/el1/bundle/nweb/entry.hap";
 const std::string PERSIST_ARKWEBCORE_INSTALL_PATH = "persist.arkwebcore.install_path";
+const std::string NWEB_HAP_PATH_MODULE_UPDATE = "/module_update/ArkWebCore/app/com.ohos.nweb/NWeb.hap";
 const std::string HAP_REAL_PATH_PREFIX = "/data/app/el1/bundle/public/";
 const std::string HAP_SANDBOX_PATH_PREFIX = "/data/storage/el1/bundle/nweb/";
-const std::string NWEB_HAP_PATH_MODULE_UPDATE = "/module_update/ArkWebCore/app/com.ohos.nweb/NWeb.hap";
 const std::string NWEB_BUNDLE_NAME = "com.ohos.nweb";
 const std::string NWEB_PACKAGE = "entry";
 const std::string RAWFILE_PREFIX = "resources/rawfile/";
@@ -192,6 +192,7 @@ std::string GetNWebHapPath(const std::string& arkWebCoreHapPathOverride)
 
     std::string prefixPath = HAP_SANDBOX_PATH_PREFIX;
     if (access(arkWebCoreHapPathOverride.c_str(), F_OK) == 0) {
+        WVLOG_D("eixt HAP_arkWebCoreHapPathOverride");
         std::string sandboxPath = convertToSandboxPath(arkWebCoreHapPathOverride, prefixPath);
         WVLOG_D("sandboxPath,%{public}s", sandboxPath.c_str());
         if (access(sandboxPath.c_str(), F_OK) == 0) {
@@ -226,13 +227,6 @@ std::string GetNWebHapPath(const std::string& arkWebCoreHapPathOverride)
         WVLOG_D("eixt NWEB_HAP_PATH_MODULE_UPDATE");
         return NWEB_HAP_PATH_MODULE_UPDATE;
     }
-    std::string install_path =
-        OHOS::system::GetParameter("persist.arkwebcore.install_path", NWEB_HAP_PATH_MODULE_UPDATE);
-    if (access(install_path.c_str(), F_OK) == 0) {
-        WVLOG_D("eixt install_path");
-        return install_path;
-    }
-    WVLOG_E("access nweb install path failed, errno(%{public}d): %{public}s", errno, strerror(errno));
     return "";
 }
 } // namespace
