@@ -69,6 +69,9 @@ private:
     OH_UdmfData* data_ = nullptr;
 };
 
+typedef struct {
+    std::shared_ptr<PasteboardObserverAdapter> callback;
+} PasteBoardCallback;
 using ObserverMap =
     std::map<int32_t, OH_PasteboardObserver*>;
 class PasteBoardClientAdapterImpl : public PasteBoardClientAdapter {
@@ -96,7 +99,7 @@ private:
     std::string webviewPasteDataTag_ = "WebviewPasteDataTag";
     Udmf_ShareOption TransitionCopyOption(CopyOptionMode copyOption);
     OH_Pasteboard* pasteboard_ = nullptr;
-    std::shared_ptr<PasteboardObserverAdapter> observer_;
+    std::shared_ptr<PasteBoardCallback> pasteCallback_;
 };
 } // namespace OHOS::NWeb
 

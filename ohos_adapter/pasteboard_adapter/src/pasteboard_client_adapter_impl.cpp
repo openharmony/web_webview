@@ -99,8 +99,6 @@ bool PasteDataRecordAdapterImpl::SetHtmlText(std::shared_ptr<std::string> htmlTe
 
 bool PasteDataRecordAdapterImpl::SetPlainText(std::shared_ptr<std::string> plainText)
 {
-    bool isSucc = false;
-    int ret;
     std::string type = GetMimeType();
     OH_UdsHtml* udsHtml = OH_UdsHtml_Create();
 
@@ -109,15 +107,13 @@ bool PasteDataRecordAdapterImpl::SetPlainText(std::shared_ptr<std::string> plain
         return false;
     }
     (void) OH_UdmfRecord_GetHtml(record_, udsHtml);
-    if (type == UDMF_META_HTML) {
-        ret = OH_UdsHtml_SetPlainContent(udsHtml, plainText->c_str());
-    } else {
-        std::string htmlPlainText = "<span>" + *plainText + "</span>";
-        ret = OH_UdsHtml_SetContent(udsHtml, htmlPlainText.c_str());
+    auto ret = OH_UdsHtml_SetPlainContent(udsHtml, plainText->c_str());
+    if (type != UDMF_META_HTML) {
+        std::string htmlText = "<span>" + *plainText + "</span>";
+        ret = OH_UdsHtml_SetContent(udsHtml, htmlText.c_str());
     }
 
-    isSucc = (ret == UDMF_E_OK ? true : false);
-    if (!isSucc) {
+    if (ret != UDMF_E_OK) {
         WVLOG_E("SetPlainText failed, err_code=%{public}d, type=%{public}s", ret, type.c_str());
         OH_UdsHtml_Destroy(udsHtml);
         return false;
@@ -834,7 +830,6 @@ void PasteBoardClientAdapterImpl::SetPasteData(const PasteRecordVector& data, Co
         }
     }
 
-
     auto ret = OH_Pasteboard_SetData(pasteboard_, uData);
     if (ret != ERR_OK) {
         WVLOG_E("set paste data failed. error code is : %{public}d", ret);
@@ -890,17 +885,20 @@ uint32_t PasteBoardClientAdapterImpl::GetTokenId()
     return tokenId_;
 }
 
-namespace {
-    std::shared_ptr<PasteboardObserverAdapter> g_callback;
-}
-
 void PasteBoardNotify(void* context, Pasteboard_NotifyType type)
 {
-    if (g_callback == nullptr) {
-        WVLOG_E("PasteBoardNotify failed, g_callback is NULL");
+    if (context == nullptr) {
+        WVLOG_E("PasteBoardNotify failed, context is NULL");
         return;
     }
-    g_callback->OnPasteboardChanged();
+    std::shared_ptr<PasteBoardCallback> pasteBoardCallback =
+                *(static_cast<std::shared_ptr<PasteBoardCallback>*>(context));
+    pasteBoardCallback->callback->OnPasteboardChanged();
+}
+
+void PasteBoardFinalize(void* context)
+{
+    WVLOG_I("PasteBoardFinalize start");
 }
 
 int32_t PasteBoardClientAdapterImpl::AddPasteboardChangedObserver(
@@ -909,7 +907,8 @@ int32_t PasteBoardClientAdapterImpl::AddPasteboardChangedObserver(
     static int32_t count = 0;
     int32_t id = -1;
     if (callback) {
-        g_callback = callback;
+        pasteCallback_ = std::make_shared<PasteBoardCallback>();
+        pasteCallback_->callback = callback;
         OH_PasteboardObserver* observer = nullptr;
         {
             std::lock_guard<std::mutex> lock(mutex_);
@@ -917,7 +916,8 @@ int32_t PasteBoardClientAdapterImpl::AddPasteboardChangedObserver(
             if (!observer) {
                 return -1;
             }
-            auto ret = OH_PasteboardObserver_SetData(observer, nullptr, PasteBoardNotify, nullptr);
+            auto ret = OH_PasteboardObserver_SetData(observer, static_cast<void*>(&pasteCallback_),
+                                                     PasteBoardNotify, PasteBoardFinalize);
             if (ret != ERR_OK) {
                 int des_ret = OH_PasteboardObserver_Destroy(observer);
                 if (des_ret != ERR_OK) {
