@@ -22,9 +22,8 @@
 #include "media_errors.h"
 #include "nweb_log.h"
 #include "ohos_adapter_helper.h"
+#include "pasteboard_error.h"
 #include "remote_uri.h"
-
-#define SET_PASTE_DATA_SUCCESS 77987840
 
 using namespace OHOS::MiscServices;
 using namespace OHOS::DistributedFS::ModuleRemoteUri;
@@ -459,7 +458,8 @@ bool PasteBoardClientAdapterImpl::GetPasteData(PasteRecordVector& data)
 {
     PasteData pData;
     if (!PasteboardClient::GetInstance()->HasPasteData() ||
-        !PasteboardClient::GetInstance()->GetPasteData(pData)) {
+        PasteboardClient::GetInstance()->GetPasteData(pData) != static_cast<int32_t>(PasteboardError::E_OK)) {
+        WVLOG_E("no data to paste or get data from clipboard failed");
         ReportPasteboardErrorEvent(PasteboardClient::GetInstance()->GetPasteData(pData),
             pData.AllRecords().size(), GetPasteMimeTypeExtention(data));
         isLocalPaste_ = false;
@@ -494,7 +494,8 @@ void PasteBoardClientAdapterImpl::SetPasteData(const PasteRecordVector& data, Co
     auto shareOption = TransitionCopyOption(copyOption);
     pData.SetShareOption(shareOption);
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(pData);
-    if (ret != SET_PASTE_DATA_SUCCESS) {
+    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+        WVLOG_E("set paste data to clipboard failed");
         ReportPasteboardErrorEvent(ret, pData.AllRecords().size(), GetPasteMimeTypeExtention(data));
     }
 }
