@@ -139,6 +139,9 @@ private:
     int32_t CreateAndStartSession();
     int32_t ErrorTypeToString(CameraErrorType errorType, std::string& errnoTypeString);
     void ReportErrorSysEvent(CameraErrorType errorType);
+    int32_t StartStreamInner(const std::string& deviceId,
+        const std::shared_ptr<VideoCaptureParamsAdapter> captureParams,
+        std::shared_ptr<CameraBufferListenerAdapter> listener);
     sptr<CameraManager> cameraManager_;
     sptr<CaptureSession> captureSession_;
     sptr<CaptureInput> cameraInput_;
@@ -157,7 +160,6 @@ private:
     bool inputInitedFlag_ = false;
     bool isCapturing_ = false;
     bool isForegound_ = false;
-    std::mutex restart_mutex_;
     std::shared_ptr<CameraManagerAdapterCallback> cameraMngrCallback_;
     std::string wantedDeviceId_;
 #endif
