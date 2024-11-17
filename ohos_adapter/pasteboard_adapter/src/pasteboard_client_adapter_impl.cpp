@@ -336,7 +336,7 @@ bool PasteDataRecordAdapterImpl::GetImgData(std::shared_ptr<ClipBoardImageDataAd
 
     std::shared_ptr<Media::PixelMap> pixelMap = GetPixelMap();
     if (pixelMap == nullptr) {
-        WVLOG_E("pixelMap is null");
+        WVLOG_D("no pixelMap in record");
         return false;
     }
 
@@ -566,11 +566,16 @@ std::string GetPasteMimeTypeExtention(const PasteRecordVector& data)
 bool PasteBoardClientAdapterImpl::GetPasteData(PasteRecordVector& data)
 {
     PasteData pData;
-    if (!PasteboardClient::GetInstance()->HasPasteData() ||
-        PasteboardClient::GetInstance()->GetPasteData(pData) != static_cast<int32_t>(PasteboardError::E_OK)) {
-        WVLOG_E("no data to paste or get data from clipboard failed");
-        ReportPasteboardErrorEvent(PasteboardClient::GetInstance()->GetPasteData(pData),
-            pData.AllRecords().size(), GetPasteMimeTypeExtention(data));
+    if (!PasteboardClient::GetInstance()->HasPasteData()) {
+        WVLOG_I("there is no data in clipboard");
+        isLocalPaste_ = false;
+        tokenId_ = 0;
+        return false;
+    }
+    if (int32_t result = PasteboardClient::GetInstance()->GetPasteData(pData);
+        result != static_cast<int32_t>(PasteboardError::E_OK)) {
+        WVLOG_E("get data from clipboard failed, errcode=%{public}d", result);
+        ReportPasteboardErrorEvent(result, pData.AllRecords().size(), GetPasteMimeTypeExtention(data));
         isLocalPaste_ = false;
         tokenId_ = 0;
         return false;
@@ -601,6 +606,7 @@ void PasteBoardClientAdapterImpl::SetPasteData(const PasteRecordVector& data, Co
     PasteData pData(recordList);
     auto shareOption = TransitionCopyOption(copyOption);
     pData.SetShareOption(shareOption);
+    
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(pData);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         WVLOG_E("set paste data to clipboard failed");
