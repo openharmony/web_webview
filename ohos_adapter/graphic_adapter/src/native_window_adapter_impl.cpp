@@ -53,8 +53,9 @@ NativeBufferAdapterImpl::NativeBufferAdapterImpl(OHNativeWindowBuffer *buffer) {
 
 NativeBufferAdapterImpl::~NativeBufferAdapterImpl() {
     if (mappedAddr_ != nullptr && windowHandle_ != nullptr) {
-        if (munmap(mappedAddr_, windowHandle_->size) != 0) {
-            WVLOG_E("Unmap ashmem failed");
+        int32_t ret = munmap(mappedAddr_, windowHandle_->size);
+        if (ret != 0) {
+            WVLOG_E("Unmap ashmem failed, ret = %{public}d", ret);
         }
         mappedAddr_ = nullptr;
     }
@@ -125,9 +126,14 @@ void* NativeBufferAdapterImpl::GetVirAddr()
         return nullptr;
     }
 
+    if (windowHandle_->size <= 0) {
+        WVLOG_E("Invalid size %{public}d", windowHandle_->size);
+        return nullptr;
+    }
+
     mappedAddr_ = mmap(nullptr, windowHandle_->size, PROT_READ | PROT_WRITE, MAP_SHARED, windowHandle_->fd, 0);
     if ((mappedAddr_ == MAP_FAILED) || (mappedAddr_ == nullptr)) {
-        WVLOG_E("Map ashmem failed");
+        WVLOG_E("Map ashmem failed, ret = 0x{public}lx", mappedAddr_);
         return nullptr;
     }
 
