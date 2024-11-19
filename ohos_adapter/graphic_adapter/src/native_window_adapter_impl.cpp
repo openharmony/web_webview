@@ -16,6 +16,7 @@
 #include "native_window_adapter_impl.h"
 
 #include <native_window/external_window.h>
+#include <sys/mman.h>
 #include <unordered_map>
 
 #include "nweb_log.h"
@@ -51,8 +52,13 @@ NativeBufferAdapterImpl::NativeBufferAdapterImpl(OHNativeWindowBuffer *buffer) {
 }
 
 NativeBufferAdapterImpl::~NativeBufferAdapterImpl() {
-    OH_NativeWindow_DestroyNativeWindowBuffer(buffer_);
-    buffer_ = nullptr;
+    if (mappedAddr_ != nullptr && windowHandle_ != nullptr) {
+        int32_t ret = munmap(mappedAddr_, windowHandle_->size);
+        if (ret != 0) {
+            WVLOG_E("Unmap ashmem failed, ret = %{public}d", ret);
+        }
+        mappedAddr_ = nullptr;
+    }
 }
 
 int32_t NativeBufferAdapterImpl::GetFileDescriptor()
@@ -111,11 +117,27 @@ uint32_t NativeBufferAdapterImpl::GetSize()
 
 void* NativeBufferAdapterImpl::GetVirAddr()
 {
+    if (mappedAddr_ != nullptr) {
+        return mappedAddr_;
+    }
+
     if (windowHandle_ == nullptr) {
         WVLOG_E("windowHandle_ is nullptr");
         return nullptr;
     }
-    return windowHandle_->virAddr;
+
+    if (windowHandle_->size <= 0) {
+        WVLOG_E("Invalid size %{public}d", windowHandle_->size);
+        return nullptr;
+    }
+
+    mappedAddr_ = mmap(nullptr, windowHandle_->size, PROT_READ | PROT_WRITE, MAP_SHARED, windowHandle_->fd, 0);
+    if ((mappedAddr_ == MAP_FAILED) || (mappedAddr_ == nullptr)) {
+        WVLOG_E("Map ashmem failed, ret = 0x{public}lx", mappedAddr_);
+        return nullptr;
+    }
+
+    return mappedAddr_;
 }
 
 OHNativeWindowBuffer* NativeBufferAdapterImpl::GetBuffer()
@@ -235,7 +257,7 @@ const std::unordered_map<ColorGamutAdapter, OH_NativeBuffer_ColorGamut> TO_GRAPH
 
 ProducerNativeAdapterImpl::ProducerNativeAdapterImpl(OHNativeWindow* window) : window_(window) {}
 ProducerNativeAdapterImpl::~ProducerNativeAdapterImpl() {
-    if (!window_) {
+    if (window_ != nullptr) {
         OH_NativeWindow_DestroyNativeWindow(window_);
         window_ = nullptr;
     }

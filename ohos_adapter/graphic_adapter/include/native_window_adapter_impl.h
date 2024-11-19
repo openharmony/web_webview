@@ -47,6 +47,7 @@ public:
     OHNativeWindowBuffer *GetBuffer();
 
 private:
+    void *mappedAddr_ = nullptr;
     OHNativeWindowBuffer *buffer_ = nullptr;
     BufferHandle *windowHandle_ = nullptr;
 };
