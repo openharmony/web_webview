@@ -781,6 +781,8 @@ napi_value NapiWebviewController::JsConstructor(napi_env env, napi_callback_info
         nullptr, nullptr);
     if (status != napi_ok) {
         WVLOG_E("Wrap native webviewController failed.");
+        delete webviewController;
+        webviewController = nullptr;
         return nullptr;
     }
     return thisVar;
