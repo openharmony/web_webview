@@ -91,6 +91,8 @@ public:
     virtual std::string GetUserAgentBaseOSName() = 0;
 
     virtual std::string GetUserAgentOSVersion() = 0;
+
+    virtual std::string GetCompatibleDeviceType() = 0;
 };
 
 } // namespace OHOS::NWeb

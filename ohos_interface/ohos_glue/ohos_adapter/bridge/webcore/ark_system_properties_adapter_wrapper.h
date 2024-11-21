@@ -73,6 +73,8 @@ public:
 
     std::string GetOOPGPUStatus() override;
 
+
+    std::string GetCompatibleDeviceType() override;
 private:
     ArkWebRefPtr<ArkSystemPropertiesAdapter> ctocpp_;
 };

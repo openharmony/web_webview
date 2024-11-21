@@ -164,4 +164,10 @@ ArkWebString ArkSystemPropertiesAdapterImpl::GetOOPGPUStatus()
     return ArkWebStringClassToStruct(str);
 }
 
+
+ArkWebString ArkSystemPropertiesAdapterImpl::GetCompatibleDeviceType()
+{
+    std::string str = real_.GetCompatibleDeviceType();
+    return ArkWebStringClassToStruct(str);
+}
 } // namespace OHOS::ArkWeb
