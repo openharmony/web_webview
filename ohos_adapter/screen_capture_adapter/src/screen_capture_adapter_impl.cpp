@@ -20,7 +20,7 @@
 #include <native_buffer/native_buffer.h>
 
 namespace OHOS::NWeb {
-std::queue<OH_AVBuffer*> bufferAvailableQueue_;
+std::queue<std::shared_ptr<SurfaceBufferAdapter>> bufferAvailableQueue_;
 namespace {
 OH_CaptureMode GetOHCaptureMode(const CaptureModeAdapter& mode)
 {
@@ -229,7 +229,30 @@ void ScreenCaptureCallbackOnBufferAvailable(OH_AVScreenCapture *capture, OH_AVBu
         WVLOG_E("userData is null");
         return;
     }
-    bufferAvailableQueue_.push(buffer);
+    ScreenCaptureCallbackAdapter* callback = (ScreenCaptureCallbackAdapter*)userData;
+    if (callback == nullptr) {
+        WVLOG_E("callback is null");
+        return;
+    }
+    // chromium do not use audio buffer, just use video buffer
+    if (bufferType == OH_SCREEN_CAPTURE_BUFFERTYPE_VIDEO) {
+        OH_NativeBuffer* nativeBuffer = OH_AVBuffer_GetNativeBuffer(buffer);
+        OH_NativeBuffer_Config config;
+        OH_NativeBuffer_GetConfig(nativeBuffer, &config);
+        int32_t ret = OH_NativeBuffer_Unreference(nativeBuffer);
+        if (ret != 0) {
+            WVLOG_E("release native buffer failed, ret = %{public}d", ret);
+        }
+        auto surfaceBufferImpl = std::make_shared<OH_SurfaceBufferAdapterImpl>(buffer, config);
+        bufferAvailableQueue_.push(std::move(surfaceBufferImpl));
+        WVLOG_D("OnBufferAvailable is called, buffer type = %{public}d", bufferType);
+        callback->OnVideoBufferAvailable(true);
+    } else if (bufferType == OH_SCREEN_CAPTURE_BUFFERTYPE_AUDIO_INNER ||
+        bufferType == OH_SCREEN_CAPTURE_BUFFERTYPE_AUDIO_MIC) {
+        WVLOG_D("OnBufferAvailable is called, buffer type = %{public}d will be ignored", bufferType);
+    } else {
+        WVLOG_E("OnBufferAvailable is called, buffer type = %{public}d is unknown", bufferType);
+    }
 }
 
 void ScreenCaptureCallbackOnStateChange(struct OH_AVScreenCapture *capture,
@@ -241,6 +264,10 @@ void ScreenCaptureCallbackOnStateChange(struct OH_AVScreenCapture *capture,
     }
     WVLOG_I("OnStateChange is called, stateCode %{public}d", stateCode);
     ScreenCaptureCallbackAdapter* callback = (ScreenCaptureCallbackAdapter*)userData;
+    if (callback == nullptr) {
+        WVLOG_E("callback is null");
+        return;
+    }
     callback->OnStateChange(GetScreenCaptureStateCodeAdapter(stateCode));
 }
 
@@ -335,21 +362,22 @@ int32_t ScreenCaptureAdapterImpl::SetCaptureCallback(const std::shared_ptr<Scree
         WVLOG_E("not init or param error");
         return -1;
     }
-    int32_t errorRet = OH_AVScreenCapture_SetErrorCallback(screenCapture_, ScreenCaptureCallbackOnError, &callback_);
+    int32_t errorRet = OH_AVScreenCapture_SetErrorCallback(screenCapture_,
+        ScreenCaptureCallbackOnError, callback_.get());
     if (errorRet != OH_AVSCREEN_CAPTURE_ErrCode::AV_SCREEN_CAPTURE_ERR_OK) {
         WVLOG_E("set callback failed, errorRet = %{public}d", errorRet);
         callback_ = nullptr;
         return -1;
     }
     int32_t dataRet = OH_AVScreenCapture_SetDataCallback(screenCapture_, 
-        ScreenCaptureCallbackOnBufferAvailable, &callback_);
+        ScreenCaptureCallbackOnBufferAvailable, callback_.get());
     if (dataRet != OH_AVSCREEN_CAPTURE_ErrCode::AV_SCREEN_CAPTURE_ERR_OK) {
         WVLOG_E("set callback failed, dataRet = %{public}d", dataRet);
         callback_ = nullptr;
         return -1;
     }
     int32_t stateRet = OH_AVScreenCapture_SetStateCallback(screenCapture_, 
-        ScreenCaptureCallbackOnStateChange, &callback_);
+        ScreenCaptureCallbackOnStateChange, callback_.get());
     if (stateRet != OH_AVSCREEN_CAPTURE_ErrCode::AV_SCREEN_CAPTURE_ERR_OK) {
         WVLOG_E("set callback failed, stateRet = %{public}d", stateRet);
         callback_ = nullptr;
@@ -364,40 +392,54 @@ std::shared_ptr<SurfaceBufferAdapter> ScreenCaptureAdapterImpl::AcquireVideoBuff
         WVLOG_E("not init");
         return nullptr;
     }
-    OH_AVBuffer *avBuffer = bufferAvailableQueue_.front();
-    if (avBuffer == nullptr) {
-        WVLOG_E("acquire video buffer failed");
+    if (bufferAvailableQueue_.empty()) {
+        WVLOG_E("bufferAvailableQueue is empty");
         return nullptr;
     }
-    OH_NativeBuffer* surfaceBuffer = OH_AVBuffer_GetNativeBuffer(avBuffer);
-    OH_NativeBuffer_Config config;
-    OH_NativeBuffer_GetConfig(surfaceBuffer, &config);
-    auto surfaceBufferImpl = std::make_shared<OH_SurfaceBufferAdapterImpl>(avBuffer, config);
+    auto surfaceBufferImpl = std::move(bufferAvailableQueue_.front());
     if (!surfaceBufferImpl) {
-        WVLOG_E("make_unique failed");
-        (void)ReleaseVideoBuffer();
+        WVLOG_E("buffer is nullptr");
         return nullptr;
     }
     bufferAvailableQueue_.pop();
-    return std::move(surfaceBufferImpl);
+    return surfaceBufferImpl;
 }
 
 int32_t ScreenCaptureAdapterImpl::ReleaseVideoBuffer()
 {
-    if (!screenCapture_) {
-        WVLOG_E("not init");
-        return -1;
-    }
-    int32_t ret = OH_AVScreenCapture_ReleaseVideoBuffer(screenCapture_);
-    if (ret != OH_AVSCREEN_CAPTURE_ErrCode::AV_SCREEN_CAPTURE_ERR_OK) {
-        WVLOG_E("release video buffer failed, ret = %{public}d", ret);
-        return -1;
-    }
+    // do not need manual release buffer, move to ~OH_SurfaceBufferAdapterImpl()
     return 0;
 }
 
-OH_SurfaceBufferAdapterImpl::OH_SurfaceBufferAdapterImpl(OH_AVBuffer* avBuffer, OH_NativeBuffer_Config config)
-    : avBuffer_(avBuffer), config_(config) {}
+OH_SurfaceBufferAdapterImpl::OH_SurfaceBufferAdapterImpl(OH_AVBuffer* avBuffer,
+    OH_NativeBuffer_Config config) : config_(config)
+{
+    // avBuffer will be released soon, we must copy in local
+    size_ = static_cast<uint32_t>(OH_AVBuffer_GetCapacity(avBuffer));
+    if (size_ <= 0) {
+        WVLOG_E("buffer size = %{public}d is illegal", size_);
+        return;
+    }
+    avBuffer_ = malloc(size_);
+    if (avBuffer_ == nullptr) {
+        WVLOG_E("buffer malloc failed, size = %{public}d", size_);
+        return;
+    }
+    void* bufferAddr = OH_AVBuffer_GetAddr(avBuffer);
+    if (!bufferAddr) {
+        WVLOG_E("buffer address not exists");
+        return;
+    }
+    memcpy(avBuffer_, bufferAddr, size_);
+}
+
+OH_SurfaceBufferAdapterImpl::~OH_SurfaceBufferAdapterImpl()
+{
+    if (avBuffer_) {
+        free(avBuffer_);
+        avBuffer_ = nullptr;
+    }
+}
 
 int32_t OH_SurfaceBufferAdapterImpl::GetFileDescriptor()
 {
@@ -426,22 +468,12 @@ int32_t OH_SurfaceBufferAdapterImpl::GetFormat()
 
 uint32_t OH_SurfaceBufferAdapterImpl::GetSize()
 {
-    if (avBuffer_ == nullptr)
-    {
-        WVLOG_E("buffer is empty");
-        return -1;
-    }
-    return static_cast<uint32_t>(OH_AVBuffer_GetCapacity(avBuffer_));
+    return size_;
 }
 
 void* OH_SurfaceBufferAdapterImpl::GetVirAddr()
 {
-    if (avBuffer_ == nullptr)
-    {
-        WVLOG_E("buffer is empty");
-        return nullptr;
-    }
-    return OH_AVBuffer_GetAddr(avBuffer_);
+    return avBuffer_;
 }
 
 } // namespace OHOS::NWeb
