@@ -1380,6 +1380,17 @@ class obj_argument:
     if not name in list:
       list[name] = self.type
 
+  def get_raw_type(self):
+    result = ''
+    if self.type.is_const():
+      result += 'const '
+    result += self.type.get_type()
+    if self.type.is_byref():
+      result += '&'
+    elif self.type.is_byaddr():
+      result += '*'
+    return result
+
   def needs_attrib_count_func(self):
     """ Returns true if this argument requires a 'count_func' attribute. """
     # A 'count_func' attribute is required for non-const non-string vector

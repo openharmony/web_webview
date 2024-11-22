@@ -98,6 +98,7 @@ ohos_shared_library("libnweb") {
     ":web_config",
     ":web_configs",
     "${webview_path}/ohos_glue:ohos_adapter_glue_source",
+    "${webview_path}/ohos_glue:ohos_base_glue_source",
     "${webview_path}/ohos_glue:ohos_nweb_glue_source",
     "${webview_path}/sa:app_fwk_update",
   ]

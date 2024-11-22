@@ -167,10 +167,10 @@ action("ohos_glue_nweb_prepare") {
     "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_native_media_player_handler_wrapper.h",
     "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_native_media_player_surface_info_wrapper.cpp",
     "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_native_media_player_surface_info_wrapper.h",
-    "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_nweb_bridge_helper.cpp",
-    "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_nweb_bridge_helper.h",
     "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_nweb_create_info_impl.cpp",
     "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_nweb_create_info_impl.h",
+    "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_nweb_webview_bridge_helper.cpp",
+    "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_nweb_webview_bridge_helper.h",
     "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_nweb_wrapper.cpp",
     "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_nweb_wrapper.h",
     "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_output_frame_callback_impl.cpp",
@@ -691,6 +691,8 @@ action("ohos_glue_adapter_prepare") {
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_video_info_adapter_wrapper.h",
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_vsync_adapter_impl.cpp",
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_vsync_adapter_impl.h",
+    "${glue_build_gen_dir}/ohos_adapter/bridge/ark_web_adapter_webview_bridge_helper.cpp",
+    "${glue_build_gen_dir}/ohos_adapter/bridge/ark_web_adapter_webview_bridge_helper.h",
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_web_date_timezone_info_impl.cpp",
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_web_date_timezone_info_impl.h",
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_window_adapter_impl.cpp",
@@ -981,6 +983,14 @@ action("ohos_glue_adapter_prepare") {
 config("ohos_glue_config") {
   defines = [ "OHOS_WEBVIEW_GLUE" ]
 
+  if (target_cpu == "arm64") {
+    defines += [ "webview_arm64" ]
+  } else if (target_cpu == "arm") {
+    defines += [ "webview_arm" ]
+  } else if (target_cpu == "x86_64") {
+    defines += [ "webview_x86_64" ]
+  }
+
   include_dirs = [
     "../ohos_nweb",
     "${target_gen_dir}",
@@ -992,14 +1002,6 @@ ohos_shared_library("ohos_base_glue_source") {
 
   branch_protector_frt = "bti"
   branch_protector_ret = "pac_ret"
-
-  if (target_cpu == "arm64") {
-    defines = [ "webview_arm64" ]
-  } else if (target_cpu == "arm") {
-    defines = [ "webview_arm" ]
-  } else if (target_cpu == "x86_64") {
-    defines = [ "webview_x86_64" ]
-  }
 
   configs = [ ":ohos_glue_config" ]
 

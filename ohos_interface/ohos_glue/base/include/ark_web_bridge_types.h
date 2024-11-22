@@ -17,11 +17,10 @@
 #define ARK_WEB_BRIDGE_TYPES_H_
 #pragma once
 
-///
-/// Note: Only add an enum value before ARK_WEB_BRIDGE_BUTT.
-///
 enum ArkWebBridgeType {
     /*Note: NWeb interface bridge type*/
+    ARK_WEB_NWEB_INTERFACE_INIT = 0,
+
     ARK_WEB_ACCESSIBILITY_EVENT_CALLBACK = 0,
     ARK_WEB_ACCESSIBILITY_NODE_INFO = 1,
     ARK_WEB_ACCESS_REQUEST = 2,
@@ -112,7 +111,12 @@ enum ArkWebBridgeType {
     ARK_WEB_ADS_BLOCK_MANAGER = 87,
     ARK_WEB_SPANSTRING_CONVERT_HTML_CALLBACK = 88,
 
+    /*Note: The end of nweb interface bridge type*/
+    ARK_WEB_NWEB_INTERFACE_BUTT,
+
     /*Note: Adapter interface bridge type*/
+    ARK_WEB_ADAPTER_INTERFACE_INIT = 10000,
+
     ARK_AAFWK_APP_MGR_CLIENT_ADAPTER = 10000,
     ARK_AAFWK_RENDER_SCHEDULER_HOST_ADAPTER = 10001,
     ARK_ACCESS_TOKEN_ADAPTER = 10002,
@@ -250,8 +254,8 @@ enum ArkWebBridgeType {
     ARK_FOLD_STATUS_LISTENER_ADAPTER = 10134,
     ARK_OHOS_NATIVE_BUFFER_ADAPTER = 10135,
 
-    /*Note: Only add an enum value before ARK_WEB_BRIDGE_BUTT*/
-    ARK_WEB_BRIDGE_BUTT
+    /*Note: The end of adapter interface bridge type*/
+    ARK_WEB_ADAPTER_INTERFACE_BUTT,
 };
 
 #endif // ARK_WEB_BRIDGE_TYPES_H_

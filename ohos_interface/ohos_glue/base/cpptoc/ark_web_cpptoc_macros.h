@@ -28,7 +28,7 @@
 
 #define ARK_WEB_CPPTOC_INFO_LOG(fmt, ...) ARK_WEB_BASE_INFO_LOG(fmt, ##__VA_ARGS__)
 
-#define ARK_WEB_CPPTOC_WRAN_LOG(fmt, ...) ARK_WEB_BASE_WARN_LOG(fmt, ##__VA_ARGS__)
+#define ARK_WEB_CPPTOC_WARN_LOG(fmt, ...) ARK_WEB_BASE_WARN_LOG(fmt, ##__VA_ARGS__)
 
 #define ARK_WEB_CPPTOC_ERROR_LOG(fmt, ...) ARK_WEB_BASE_ERROR_LOG(fmt, ##__VA_ARGS__)
 
@@ -37,7 +37,7 @@
         ArkWebSetErrno(RESULT_OK);                    \
         if (!(param)) {                               \
             ArkWebSetErrno(RESULT_CPPTOC_ERROR);      \
-            ARK_WEB_CPPTOC_WRAN_LOG("param is null"); \
+            ARK_WEB_CPPTOC_WARN_LOG("param is null"); \
             return result;                            \
         }                                             \
     }

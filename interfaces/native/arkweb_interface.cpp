@@ -15,8 +15,6 @@
 
 #include "arkweb_interface.h"
 
-#include <dlfcn.h>
-
 #include "arkweb_type.h"
 #include "nweb_helper.h"
 #include "nweb_log.h"
@@ -65,14 +63,12 @@ ArkWeb_WebMessagePortAPI* g_WebMessagePortImpl = nullptr;
 ArkWeb_WebMessageAPI* g_WebMessageImpl = nullptr;
 ArkWeb_CookieManagerAPI* g_CookieManagerImpl = nullptr;
 
-void* g_webEngineHandle = nullptr;
-
 } // namespace
 
 template<typename Fn>
-static void LoadFunction(void* handle, const char* functionName, Fn* fnOut)
+static void LoadFunction(const char* functionName, Fn* fnOut)
 {
-    void* fn = dlsym(handle, functionName);
+    void* fn = OHOS::NWeb::NWebHelper::Instance().LoadFuncSymbol(functionName);
     if (!fn) {
         WVLOG_E("%{public}s not found.", functionName);
         return;
@@ -93,13 +89,11 @@ static bool LoadComponentAPI()
     }
     g_ComponentImpl->size = sizeof(ArkWeb_ComponentAPI);
 
-    void* webEngineHandle = OHOS::NWeb::NWebHelper::Instance().GetWebEngineHandler();
-    if (!webEngineHandle) {
+    if (!OHOS::NWeb::NWebHelper::Instance().LoadWebEngine(true, false)) {
         WVLOG_E("NativeArkWeb webEngineHandle is nullptr");
         return false;
     }
-    g_webEngineHandle = webEngineHandle;
-#define ARKWEB_NATIVE_LOAD_FN_PTR(fn, ndkFn) LoadFunction(g_webEngineHandle, #ndkFn, &(g_ComponentImpl->fn))
+#define ARKWEB_NATIVE_LOAD_FN_PTR(fn, ndkFn) LoadFunction(#ndkFn, &(g_ComponentImpl->fn))
     ARKWEB_NATIVE_FOR_EACH_COMPONENT_API_FN(ARKWEB_NATIVE_LOAD_FN_PTR);
 #undef ARKWEB_NATIVE_LOAD_FN_PTR
 
@@ -119,13 +113,11 @@ static bool LoadControllerAPI()
     }
     g_ControllerImpl->size = sizeof(ArkWeb_ControllerAPI);
 
-    void* webEngineHandle = OHOS::NWeb::NWebHelper::Instance().GetWebEngineHandler();
-    if (!webEngineHandle) {
+    if (!OHOS::NWeb::NWebHelper::Instance().LoadWebEngine(true, false)) {
         WVLOG_E("NativeArkWeb webEngineHandle is nullptr");
         return false;
     }
-    g_webEngineHandle = webEngineHandle;
-#define ARKWEB_NATIVE_LOAD_FN_PTR(fn, ndkFn) LoadFunction(g_webEngineHandle, #ndkFn, &(g_ControllerImpl->fn))
+#define ARKWEB_NATIVE_LOAD_FN_PTR(fn, ndkFn) LoadFunction(#ndkFn, &(g_ControllerImpl->fn))
     ARKWEB_NATIVE_FOR_EACH_CONTROLLER_API_FN(ARKWEB_NATIVE_LOAD_FN_PTR);
 #undef ARKWEB_NATIVE_LOAD_FN_PTR
 
@@ -145,13 +137,11 @@ static bool LoadWebMessagePortAPI()
     }
     g_WebMessagePortImpl->size = sizeof(ArkWeb_WebMessagePortAPI);
 
-    void* webEngineHandle = OHOS::NWeb::NWebHelper::Instance().GetWebEngineHandler();
-    if (!webEngineHandle) {
+    if (!OHOS::NWeb::NWebHelper::Instance().LoadWebEngine(true, false)) {
         WVLOG_E("NativeArkWeb webEngineHandle is nullptr");
         return false;
     }
-    g_webEngineHandle = webEngineHandle;
-#define ARKWEB_NATIVE_LOAD_FN_PTR(fn, ndkFn) LoadFunction(g_webEngineHandle, #ndkFn, &(g_WebMessagePortImpl->fn))
+#define ARKWEB_NATIVE_LOAD_FN_PTR(fn, ndkFn) LoadFunction(#ndkFn, &(g_WebMessagePortImpl->fn))
     ARKWEB_NATIVE_FOR_EACH_WEBMESSAGEPORT_API_FN(ARKWEB_NATIVE_LOAD_FN_PTR);
 #undef ARKWEB_NATIVE_LOAD_FN_PTR
 
@@ -170,13 +160,12 @@ static bool LoadWebMessageAPI()
         return false;
     }
     g_WebMessageImpl->size = sizeof(ArkWeb_WebMessageAPI);
-    void* webEngineHandle = OHOS::NWeb::NWebHelper::Instance().GetWebEngineHandler();
-    if (!webEngineHandle) {
+
+    if (!OHOS::NWeb::NWebHelper::Instance().LoadWebEngine(true, false)) {
         WVLOG_E("NativeArkWeb webEngineHandle is nullptr");
         return false;
     }
-    g_webEngineHandle = webEngineHandle;
-#define ARKWEB_NATIVE_LOAD_FN_PTR(fn, ndkFn) LoadFunction(g_webEngineHandle, #ndkFn, &(g_WebMessageImpl->fn))
+#define ARKWEB_NATIVE_LOAD_FN_PTR(fn, ndkFn) LoadFunction(#ndkFn, &(g_WebMessageImpl->fn))
     ARKWEB_NATIVE_FOR_EACH_WEBMESSAGE_API_FN(ARKWEB_NATIVE_LOAD_FN_PTR);
 #undef ARKWEB_NATIVE_LOAD_FN_PTR
 
@@ -195,18 +184,13 @@ static bool LoadCookieManagerAPI()
         WVLOG_E("NativeArkWeb cookie manager api is nullptr");
         return false;
     }
-
     g_CookieManagerImpl->size = sizeof(ArkWeb_CookieManagerAPI);
 
-    if (g_webEngineHandle == nullptr) {
-        g_webEngineHandle = OHOS::NWeb::NWebHelper::Instance().GetWebEngineHandler(true);
-        if (!g_webEngineHandle) {
-            WVLOG_E("NativeArkWeb webEngineHandle is nullptr");
-            return false;
-        }
+    if (!OHOS::NWeb::NWebHelper::Instance().LoadWebEngine(true, true)) {
+        WVLOG_E("NativeArkWeb webEngineHandle is nullptr");
+        return false;
     }
-
-#define ARKWEB_NATIVE_LOAD_FN_PTR(fn, ndkFn) LoadFunction(g_webEngineHandle, #ndkFn, &(g_CookieManagerImpl->fn))
+#define ARKWEB_NATIVE_LOAD_FN_PTR(fn, ndkFn) LoadFunction(#ndkFn, &(g_CookieManagerImpl->fn))
     ARKWEB_NATIVE_FOR_EACH_WEBCOOKIEMANAGER_API_FN(ARKWEB_NATIVE_LOAD_FN_PTR);
 #undef ARKWEB_NATIVE_LOAD_FN_PTR
 

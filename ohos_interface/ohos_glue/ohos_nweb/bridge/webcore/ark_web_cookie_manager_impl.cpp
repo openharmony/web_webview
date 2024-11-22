@@ -155,4 +155,36 @@ void ArkWebCookieManagerImpl::PutAcceptFileURLSchemeCookiesEnabled(bool allow)
     nweb_cookie_manager_->PutAcceptFileURLSchemeCookiesEnabled(allow);
 }
 
+void ArkWebCookieManagerImpl::GetCookieAsync(
+    const ArkWebString& url, bool incognitoMode, ArkWebRefPtr<ArkWebStringValueCallback> callback)
+{
+    if (CHECK_REF_PTR_IS_NULL(callback)) {
+        nweb_cookie_manager_->GetCookieAsync(ArkWebStringStructToClass(url), incognitoMode, nullptr);
+        return;
+    }
+
+    nweb_cookie_manager_->GetCookieAsync(
+        ArkWebStringStructToClass(url), incognitoMode, std::make_shared<ArkWebStringValueCallbackWrapper>(callback));
+}
+
+int ArkWebCookieManagerImpl::SetCookieSync(
+    const ArkWebString& url, const ArkWebString& value, bool incognitoMode, bool includeHttpOnly)
+{
+    return nweb_cookie_manager_->SetCookieSync(
+        ArkWebStringStructToClass(url), ArkWebStringStructToClass(value), incognitoMode, includeHttpOnly);
+}
+
+void ArkWebCookieManagerImpl::SetCookieAsync(const ArkWebString& url, const ArkWebString& value, bool incognitoMode,
+    bool includeHttpOnly, ArkWebRefPtr<ArkWebLongValueCallback> callback)
+{
+    if (CHECK_REF_PTR_IS_NULL(callback)) {
+        nweb_cookie_manager_->SetCookieAsync(
+            ArkWebStringStructToClass(url), ArkWebStringStructToClass(value), incognitoMode, includeHttpOnly, nullptr);
+        return;
+    }
+
+    nweb_cookie_manager_->SetCookieAsync(ArkWebStringStructToClass(url), ArkWebStringStructToClass(value),
+        incognitoMode, includeHttpOnly, std::make_shared<ArkWebLongValueCallbackWrapper>(callback));
+}
+
 } // namespace OHOS::ArkWeb

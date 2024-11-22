@@ -72,6 +72,10 @@ ArkWebRefPtr<BaseName> ArkWebCToCppRefCounted<ClassName, BaseName, StructName>::
     }
 
     BridgeStruct* bridgeStruct = new BridgeStruct;
+    if (!bridgeStruct) {
+        ARK_WEB_CTOCPP_WARN_LOG("failed to new struct,bridge type is %{public}d", kBridgeType);
+        return nullptr;
+    }
 
     ARK_WEB_CTOCPP_DV_LOG("bridge type is %{public}d,this is %{public}ld,capi "
                           "struct is %{public}ld",

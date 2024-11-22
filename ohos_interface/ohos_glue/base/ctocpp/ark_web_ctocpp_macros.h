@@ -28,7 +28,7 @@
 
 #define ARK_WEB_CTOCPP_INFO_LOG(fmt, ...) ARK_WEB_BASE_INFO_LOG(fmt, ##__VA_ARGS__)
 
-#define ARK_WEB_CTOCPP_WRAN_LOG(fmt, ...) ARK_WEB_BASE_WARN_LOG(fmt, ##__VA_ARGS__)
+#define ARK_WEB_CTOCPP_WARN_LOG(fmt, ...) ARK_WEB_BASE_WARN_LOG(fmt, ##__VA_ARGS__)
 
 #define ARK_WEB_CTOCPP_ERROR_LOG(fmt, ...) ARK_WEB_BASE_ERROR_LOG(fmt, ##__VA_ARGS__)
 
@@ -37,15 +37,15 @@
         ArkWebSetErrno(RESULT_OK);                    \
         if (!(param)) {                               \
             ArkWebSetErrno(RESULT_CTOCPP_ERROR);      \
-            ARK_WEB_CTOCPP_WRAN_LOG("param is null"); \
+            ARK_WEB_CTOCPP_WARN_LOG("param is null"); \
             return result;                            \
         }                                             \
     }
 
-#define ARK_WEB_CTOCPP_CHECK_FUNC_MEMBER(struct, function, result)                       \
+#define ARK_WEB_CTOCPP_CHECK_FUNC_POINTER(pointer, result)                               \
     {                                                                                    \
         ArkWebSetErrno(RESULT_OK);                                                       \
-        if (ARK_WEB_FUNC_MEMBER_MISSING(struct, function)) {                             \
+        if (!(pointer)) {                                                                \
             ArkWebSetErrno(RESULT_NOT_IMPL);                                             \
             ARK_WEB_CTOCPP_INFO_LOG("function %{public}s isn't existing", __FUNCTION__); \
             return result;                                                               \

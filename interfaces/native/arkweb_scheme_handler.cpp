@@ -15,7 +15,6 @@
 
 #include "arkweb_scheme_handler.h"
 
-#include <dlfcn.h>
 #include <memory>
 #include <mutex>
 #include <unordered_map>
@@ -28,80 +27,80 @@
 namespace {
 
 // Run DO macro for every function defined in the API.
-#define FOR_EACH_API_FN(DO)                            \
-    DO(OH_ArkWebRequestHeaderList_Destroy)             \
-    DO(OH_ArkWebRequestHeaderList_GetSize)             \
-    DO(OH_ArkWebRequestHeaderList_GetHeader)           \
-    DO(OH_ArkWebResourceRequest_GetMethod)             \
-    DO(OH_ArkWebResourceRequest_GetUrl)                \
-    DO(OH_ArkWebResourceRequest_GetHttpBodyStream)     \
-    DO(OH_ArkWebResourceRequest_DestroyHttpBodyStream) \
-    DO(OH_ArkWebResourceRequest_GetResourceType)       \
-    DO(OH_ArkWebResourceRequest_GetFrameUrl)           \
-    DO(OH_ArkWebHttpBodyStream_SetReadCallback)        \
-    DO(OH_ArkWebHttpBodyStream_SetUserData)            \
-    DO(OH_ArkWebHttpBodyStream_GetUserData)            \
-    DO(OH_ArkWebHttpBodyStream_Init)                   \
-    DO(OH_ArkWebHttpBodyStream_Read)                   \
-    DO(OH_ArkWebHttpBodyStream_GetSize)                \
-    DO(OH_ArkWebHttpBodyStream_GetPosition)            \
-    DO(OH_ArkWebHttpBodyStream_IsChunked)              \
-    DO(OH_ArkWebHttpBodyStream_IsEof)                  \
-    DO(OH_ArkWebHttpBodyStream_IsInMemory)             \
-    DO(OH_ArkWebResourceRequest_Destroy)               \
-    DO(OH_ArkWebResourceRequest_SetUserData)           \
-    DO(OH_ArkWebResourceRequest_GetUserData)           \
-    DO(OH_ArkWebResourceRequest_GetReferrer)           \
-    DO(OH_ArkWebResourceRequest_GetRequestHeaders)     \
-    DO(OH_ArkWebResourceRequest_IsRedirect)            \
-    DO(OH_ArkWebResourceRequest_IsMainFrame)           \
-    DO(OH_ArkWebResourceRequest_HasGesture)            \
-    DO(OH_ArkWeb_RegisterCustomSchemes)                \
-    DO(OH_ArkWeb_SetSchemeHandler)                     \
-    DO(OH_ArkWebServiceWorker_SetSchemeHandler)        \
-    DO(OH_ArkWebServiceWorker_ClearSchemeHandlers)     \
-    DO(OH_ArkWeb_ClearSchemeHandlers)                  \
-    DO(OH_ArkWeb_CreateSchemeHandler)                  \
-    DO(OH_ArkWeb_DestroySchemeHandler)                 \
-    DO(OH_ArkWebSchemeHandler_SetOnRequestStart)       \
-    DO(OH_ArkWebSchemeHandler_SetOnRequestStop)        \
-    DO(OH_ArkWebSchemeHandler_SetUserData)             \
-    DO(OH_ArkWebSchemeHandler_GetUserData)             \
-    DO(OH_ArkWeb_CreateResponse)                       \
-    DO(OH_ArkWeb_DestroyResponse)                      \
-    DO(OH_ArkWebResponse_GetUrl)                       \
-    DO(OH_ArkWebResponse_SetUrl)                       \
-    DO(OH_ArkWebResponse_SetError)                     \
-    DO(OH_ArkWebResponse_GetError)                     \
-    DO(OH_ArkWebResponse_SetStatus)                    \
-    DO(OH_ArkWebResponse_GetStatus)                    \
-    DO(OH_ArkWebResponse_SetStatusText)                \
-    DO(OH_ArkWebResponse_GetStatusText)                \
-    DO(OH_ArkWebResponse_SetMimeType)                  \
-    DO(OH_ArkWebResponse_GetMimeType)                  \
-    DO(OH_ArkWebResponse_SetCharset)                   \
-    DO(OH_ArkWebResponse_GetCharset)                   \
-    DO(OH_ArkWebResponse_SetHeaderByName)              \
-    DO(OH_ArkWebResponse_GetHeaderByName)              \
-    DO(OH_ArkWebResourceHandler_Destroy)               \
-    DO(OH_ArkWebResourceHandler_DidReceiveResponse)    \
-    DO(OH_ArkWebResourceHandler_DidReceiveData)        \
-    DO(OH_ArkWebResourceHandler_DidFinish)             \
-    DO(OH_ArkWebResourceHandler_DidFailWithError)      \
-    DO(OH_ArkWeb_ReleaseString)                        \
-    DO(OH_ArkWeb_ReleaseByteArray)                     \
+#define FOR_EACH_API_FN(DO)                             \
+    DO(OH_ArkWebRequestHeaderList_Destroy);             \
+    DO(OH_ArkWebRequestHeaderList_GetSize);             \
+    DO(OH_ArkWebRequestHeaderList_GetHeader);           \
+    DO(OH_ArkWebResourceRequest_GetMethod);             \
+    DO(OH_ArkWebResourceRequest_GetUrl);                \
+    DO(OH_ArkWebResourceRequest_GetHttpBodyStream);     \
+    DO(OH_ArkWebResourceRequest_DestroyHttpBodyStream); \
+    DO(OH_ArkWebResourceRequest_GetResourceType);       \
+    DO(OH_ArkWebResourceRequest_GetFrameUrl);           \
+    DO(OH_ArkWebHttpBodyStream_SetReadCallback);        \
+    DO(OH_ArkWebHttpBodyStream_SetUserData);            \
+    DO(OH_ArkWebHttpBodyStream_GetUserData);            \
+    DO(OH_ArkWebHttpBodyStream_Init);                   \
+    DO(OH_ArkWebHttpBodyStream_Read);                   \
+    DO(OH_ArkWebHttpBodyStream_GetSize);                \
+    DO(OH_ArkWebHttpBodyStream_GetPosition);            \
+    DO(OH_ArkWebHttpBodyStream_IsChunked);              \
+    DO(OH_ArkWebHttpBodyStream_IsEof);                  \
+    DO(OH_ArkWebHttpBodyStream_IsInMemory);             \
+    DO(OH_ArkWebResourceRequest_Destroy);               \
+    DO(OH_ArkWebResourceRequest_SetUserData);           \
+    DO(OH_ArkWebResourceRequest_GetUserData);           \
+    DO(OH_ArkWebResourceRequest_GetReferrer);           \
+    DO(OH_ArkWebResourceRequest_GetRequestHeaders);     \
+    DO(OH_ArkWebResourceRequest_IsRedirect);            \
+    DO(OH_ArkWebResourceRequest_IsMainFrame);           \
+    DO(OH_ArkWebResourceRequest_HasGesture);            \
+    DO(OH_ArkWeb_RegisterCustomSchemes);                \
+    DO(OH_ArkWeb_SetSchemeHandler);                     \
+    DO(OH_ArkWebServiceWorker_SetSchemeHandler);        \
+    DO(OH_ArkWebServiceWorker_ClearSchemeHandlers);     \
+    DO(OH_ArkWeb_ClearSchemeHandlers);                  \
+    DO(OH_ArkWeb_CreateSchemeHandler);                  \
+    DO(OH_ArkWeb_DestroySchemeHandler);                 \
+    DO(OH_ArkWebSchemeHandler_SetOnRequestStart);       \
+    DO(OH_ArkWebSchemeHandler_SetOnRequestStop);        \
+    DO(OH_ArkWebSchemeHandler_SetUserData);             \
+    DO(OH_ArkWebSchemeHandler_GetUserData);             \
+    DO(OH_ArkWeb_CreateResponse);                       \
+    DO(OH_ArkWeb_DestroyResponse);                      \
+    DO(OH_ArkWebResponse_GetUrl);                       \
+    DO(OH_ArkWebResponse_SetUrl);                       \
+    DO(OH_ArkWebResponse_SetError);                     \
+    DO(OH_ArkWebResponse_GetError);                     \
+    DO(OH_ArkWebResponse_SetStatus);                    \
+    DO(OH_ArkWebResponse_GetStatus);                    \
+    DO(OH_ArkWebResponse_SetStatusText);                \
+    DO(OH_ArkWebResponse_GetStatusText);                \
+    DO(OH_ArkWebResponse_SetMimeType);                  \
+    DO(OH_ArkWebResponse_GetMimeType);                  \
+    DO(OH_ArkWebResponse_SetCharset);                   \
+    DO(OH_ArkWebResponse_GetCharset);                   \
+    DO(OH_ArkWebResponse_SetHeaderByName);              \
+    DO(OH_ArkWebResponse_GetHeaderByName);              \
+    DO(OH_ArkWebResourceHandler_Destroy);               \
+    DO(OH_ArkWebResourceHandler_DidReceiveResponse);    \
+    DO(OH_ArkWebResourceHandler_DidReceiveData);        \
+    DO(OH_ArkWebResourceHandler_DidFinish);             \
+    DO(OH_ArkWebResourceHandler_DidFailWithError);      \
+    DO(OH_ArkWeb_ReleaseString);                        \
+    DO(OH_ArkWeb_ReleaseByteArray);                     \
     DO(OH_ArkWebSchemeHandler_SetFromEts)
 
 struct SchemeHandlerApi {
-#define GEN_FN_PTR(fn) decltype(&fn) impl_##fn = nullptr;
-    FOR_EACH_API_FN(GEN_FN_PTR)
+#define GEN_FN_PTR(fn) decltype(&(fn)) impl_##fn = nullptr
+    FOR_EACH_API_FN(GEN_FN_PTR);
 #undef GEN_FN_PTR
 };
 
 template<typename Fn>
-void LoadFunction(void* handle, const char* functionName, Fn* fnOut)
+void LoadFunction(const char* functionName, Fn* fnOut)
 {
-    void* fn = dlsym(handle, functionName);
+    void* fn = OHOS::NWeb::NWebHelper::Instance().LoadFuncSymbol(functionName);
     if (!fn) {
         WVLOG_E("%{public}s not found.", functionName);
         return;
@@ -111,24 +110,19 @@ void LoadFunction(void* handle, const char* functionName, Fn* fnOut)
 
 SchemeHandlerApi* g_SchemeHandlerApi = nullptr;
 
-void LoadSchemeHandlerApi(void* handle, SchemeHandlerApi* api)
+void LoadSchemeHandlerApi(SchemeHandlerApi* api)
 {
     // Initialize each function pointer field from the so.
-#define LOAD_FN_PTR(fn) LoadFunction(handle, #fn, &api->impl_##fn);
-    FOR_EACH_API_FN(LOAD_FN_PTR)
+#define LOAD_FN_PTR(fn) LoadFunction(#fn, &api->impl_##fn)
+    FOR_EACH_API_FN(LOAD_FN_PTR);
 #undef LOAD_FN_PTR
 }
 
-bool EnsureSdkLoaded(void* handle)
+bool EnsureSdkLoaded()
 {
     if (g_SchemeHandlerApi) {
         WVLOG_I("SchemeHandlerApi had loaded.");
         return true;
-    }
-
-    if (handle == nullptr) {
-        WVLOG_I("EnsureSdkLoaded handle is nullptr.");
-        return false;
     }
 
     auto* schemeHandlerApi = new (std::nothrow) SchemeHandlerApi();
@@ -136,7 +130,7 @@ bool EnsureSdkLoaded(void* handle)
         WVLOG_I("schemeHandlerApi is nullptr.");
         return false;
     }
-    LoadSchemeHandlerApi(handle, schemeHandlerApi);
+    LoadSchemeHandlerApi(schemeHandlerApi);
     g_SchemeHandlerApi = schemeHandlerApi;
     return true;
 }
@@ -419,9 +413,8 @@ bool OH_ArkWebResourceRequest_HasGesture(const ArkWeb_ResourceRequest* resourceR
 
 int32_t OH_ArkWeb_RegisterCustomSchemes(const char* scheme, int32_t option)
 {
-    void* webEngineHandle = OHOS::NWeb::NWebHelper::Instance().GetWebEngineHandler();
-    if (webEngineHandle) {
-        if (!EnsureSdkLoaded(webEngineHandle)) {
+    if (OHOS::NWeb::NWebHelper::Instance().LoadWebEngine(true, false)) {
+        if (!EnsureSdkLoaded()) {
             WVLOG_E("OH_ArkWeb_RegisterCustomSchemes sdk not loaded.");
         }
     } else {
@@ -438,9 +431,8 @@ int32_t OH_ArkWeb_RegisterCustomSchemes(const char* scheme, int32_t option)
 
 bool OH_ArkWeb_SetSchemeHandler(const char* scheme, const char* webTag, ArkWeb_SchemeHandler* schemeHandler)
 {
-    void* webEngineHandle = OHOS::NWeb::NWebHelper::Instance().GetWebEngineHandler();
-    if (webEngineHandle) {
-        if (!EnsureSdkLoaded(webEngineHandle)) {
+    if (OHOS::NWeb::NWebHelper::Instance().LoadWebEngine(true, false)) {
+        if (!EnsureSdkLoaded()) {
             WVLOG_E("scheme_handler sdk not loaded.");
         }
     } else {
@@ -456,9 +448,8 @@ bool OH_ArkWeb_SetSchemeHandler(const char* scheme, const char* webTag, ArkWeb_S
 
 bool OH_ArkWebServiceWorker_SetSchemeHandler(const char* scheme, ArkWeb_SchemeHandler* schemeHandler)
 {
-    void* webEngineHandle = OHOS::NWeb::NWebHelper::Instance().GetWebEngineHandler();
-    if (webEngineHandle) {
-        if (!EnsureSdkLoaded(webEngineHandle)) {
+    if (OHOS::NWeb::NWebHelper::Instance().LoadWebEngine(true, false)) {
+        if (!EnsureSdkLoaded()) {
             WVLOG_E("scheme_handler sdk not loaded.");
         }
     } else {
@@ -494,9 +485,8 @@ int32_t OH_ArkWebServiceWorker_ClearSchemeHandlers()
 
 void OH_ArkWeb_CreateSchemeHandler(ArkWeb_SchemeHandler** schemeHandler)
 {
-    void* webEngineHandle = OHOS::NWeb::NWebHelper::Instance().GetWebEngineHandler();
-    if (webEngineHandle) {
-        if (!EnsureSdkLoaded(webEngineHandle)) {
+    if (OHOS::NWeb::NWebHelper::Instance().LoadWebEngine(true, false)) {
+        if (!EnsureSdkLoaded()) {
             WVLOG_E("scheme_handler sdk not loaded.");
         }
     } else {
@@ -562,9 +552,8 @@ int32_t OH_ArkWebSchemeHandler_SetOnRequestStop(
 
 void OH_ArkWeb_CreateResponse(ArkWeb_Response** response)
 {
-    void* webEngineHandle = OHOS::NWeb::NWebHelper::Instance().GetWebEngineHandler();
-    if (webEngineHandle) {
-        if (!EnsureSdkLoaded(webEngineHandle)) {
+    if (OHOS::NWeb::NWebHelper::Instance().LoadWebEngine(true, false)) {
+        if (!EnsureSdkLoaded()) {
             WVLOG_E("scheme_handler sdk not loaded.");
         }
     } else {

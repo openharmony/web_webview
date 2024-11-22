@@ -23,24 +23,14 @@
 
 #define CHECK_SHARED_PTR_IS_NULL(ptr) !((ptr).get())
 
-#define ARK_WEB_IMPL_DV_LOG(fmt, ...) ARK_WEB_BASE_DV_LOG(fmt, ##__VA_ARGS__)
+#define ARK_WEB_BRIDGE_DV_LOG(fmt, ...) ARK_WEB_BASE_DV_LOG(fmt, ##__VA_ARGS__)
 
-#define ARK_WEB_IMPL_DEBUG_LOG(fmt, ...) ARK_WEB_BASE_DEBUG_LOG(fmt, ##__VA_ARGS__)
+#define ARK_WEB_BRIDGE_DEBUG_LOG(fmt, ...) ARK_WEB_BASE_DEBUG_LOG(fmt, ##__VA_ARGS__)
 
-#define ARK_WEB_IMPL_INFO_LOG(fmt, ...) ARK_WEB_BASE_INFO_LOG(fmt, ##__VA_ARGS__)
+#define ARK_WEB_BRIDGE_INFO_LOG(fmt, ...) ARK_WEB_BASE_INFO_LOG(fmt, ##__VA_ARGS__)
 
-#define ARK_WEB_IMPL_WRAN_LOG(fmt, ...) ARK_WEB_BASE_WARN_LOG(fmt, ##__VA_ARGS__)
+#define ARK_WEB_BRIDGE_WARN_LOG(fmt, ...) ARK_WEB_BASE_WARN_LOG(fmt, ##__VA_ARGS__)
 
-#define ARK_WEB_IMPL_ERROR_LOG(fmt, ...) ARK_WEB_BASE_ERROR_LOG(fmt, ##__VA_ARGS__)
-
-#define ARK_WEB_WRAPPER_DV_LOG(fmt, ...) ARK_WEB_BASE_DV_LOG(fmt, ##__VA_ARGS__)
-
-#define ARK_WEB_WRAPPER_DEBUG_LOG(fmt, ...) ARK_WEB_BASE_DEBUG_LOG(fmt, ##__VA_ARGS__)
-
-#define ARK_WEB_WRAPPER_INFO_LOG(fmt, ...) ARK_WEB_BASE_INFO_LOG(fmt, ##__VA_ARGS__)
-
-#define ARK_WEB_WRAPPER_WRAN_LOG(fmt, ...) ARK_WEB_BASE_WARN_LOG(fmt, ##__VA_ARGS__)
-
-#define ARK_WEB_WRAPPER_ERROR_LOG(fmt, ...) ARK_WEB_BASE_ERROR_LOG(fmt, ##__VA_ARGS__)
+#define ARK_WEB_BRIDGE_ERROR_LOG(fmt, ...) ARK_WEB_BASE_ERROR_LOG(fmt, ##__VA_ARGS__)
 
 #endif // ARK_WEB_BRIDGE_MACROS_H_
