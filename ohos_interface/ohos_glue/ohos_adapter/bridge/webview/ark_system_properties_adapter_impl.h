@@ -41,6 +41,10 @@ public:
     bool IsAdvancedSecurityMode() override;
 
     ArkWebString GetUserAgentOSName() override;
+    
+    ArkWebString GetUserAgentOSVersion() override;
+    
+    ArkWebString GetUserAgentBaseOSName() override;
 
     int32_t GetSoftwareMajorVersion() override;
 
