@@ -15,6 +15,7 @@
 
 #include "display_manager_adapter_impl.h"
 
+#include <cmath>
 #include "display_info.h"
 #include "nweb_log.h"
 #include "syspara/parameters.h"
@@ -25,6 +26,8 @@ using namespace OHOS::Rosen;
 using namespace OHOS::NWeb;
 
 namespace OHOS::NWeb {
+constexpr float EPS = 0.0001f;
+
 DisplayListenerAdapterImpl::DisplayListenerAdapterImpl(
     std::shared_ptr<DisplayListenerAdapter> listener) : listener_(listener) {}
 
@@ -247,10 +250,32 @@ OrientationType DisplayAdapterImpl::GetOrientation()
 
 int32_t DisplayAdapterImpl::GetDpi()
 {
-    if (display_ != nullptr) {
-        return display_->GetDpi();
+    int32_t ppi = -1;
+    if (!display_) {
+        return ppi;
     }
-    return -1;
+    auto displayInfo = display_->GetDisplayInfo();
+    if (!displayInfo) {
+        return ppi;
+    }
+    float xDpi = displayInfo->GetXDpi();
+    float yDpi = displayInfo->GetYDpi();
+    if (xDpi < EPS || yDpi < EPS) {
+        return ppi;
+    }
+
+    auto screenLength = sqrt(pow(displayInfo->GetWidth(), 2) + pow(displayInfo->GetHeight(), 2));
+    auto phyScreenLength = sqrt(pow(displayInfo->GetWidth() / xDpi, 2) +
+        pow(displayInfo->GetHeight() / yDpi, 2));
+    if (phyScreenLength < EPS) {
+        return ppi;
+    }
+    ppi = screenLength / phyScreenLength;
+    WVLOG_D("dpi: %{public}d, xdpi: %{public}f,ydpi: %{public}f, width: %{public}d, height: %{public}d, "\
+        "phyScreenLength: %{public}f", ppi, displayInfo->GetXDpi(), displayInfo->GetYDpi(),
+    displayInfo->GetWidth(), displayInfo->GetHeight(), phyScreenLength);
+
+    return ppi;
 }
 
 DisplayOrientation DisplayAdapterImpl::GetDisplayOrientation()
