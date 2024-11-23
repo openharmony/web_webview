@@ -34,17 +34,64 @@ void DisplayListenerAdapterImpl::OnCreate(DisplayId id)
         listener_->OnCreate(id);
     }
 }
+
 void DisplayListenerAdapterImpl::OnDestroy(DisplayId id)
 {
     if (listener_ != nullptr) {
         listener_->OnDestroy(id);
     }
 }
+
 void DisplayListenerAdapterImpl::OnChange(DisplayId id)
 {
+    if (CheckOnlyRefreshRateDecreased(id)) {
+        return;
+    }
     if (listener_ != nullptr) {
         listener_->OnChange(id);
     }
+}
+
+bool DisplayListenerAdapterImpl::CheckOnlyRefreshRateDecreased(DisplayId id)
+{
+    if (id != DisplayManager::GetInstance().GetDefaultDisplayId()) {
+        return false;
+    }
+    auto displayPtr = DisplayManager::GetInstance().GetDefaultDisplay();
+    if (!displayPtr) {
+        return false;
+    }
+    auto displayInfo = displayPtr->GetDisplayInfo();
+    if (!displayInfo) {
+        return false;
+    }
+    auto nwebDisplayInfo =  ConvertDisplayInfo(*displayInfo);
+    std::unique_lock<std::mutex> lock(mutex_);
+    if (nwebDisplayInfo == cachedDisplayedInfo_ &&
+        nwebDisplayInfo.refreshRate_ != cachedDisplayedInfo_.refreshRate_) {
+        WVLOG_D("refresh rate change is intercepted, previous refresh rate: %{public}u, after: %{public}u",
+            cachedDisplayedInfo_.refreshRate_, nwebDisplayInfo.refreshRate_);
+        cachedDisplayedInfo_ = nwebDisplayInfo;
+        return true;
+    }
+    cachedDisplayedInfo_ = nwebDisplayInfo;
+    return false;
+}
+
+OHOS::NWeb::DisplayInfo DisplayListenerAdapterImpl::ConvertDisplayInfo(
+    const OHOS::Rosen::DisplayInfo& info)
+{
+    OHOS::NWeb::DisplayInfo displayInfo = OHOS::NWeb::DisplayInfo{};
+    displayInfo.width_ = info.GetWidth();
+    displayInfo.height_ = info.GetHeight();
+    displayInfo.refreshRate_ = info.GetRefreshRate();
+    displayInfo.virtualPixelRatio_ = info.GetVirtualPixelRatio();
+    displayInfo.xDpi_ = info.GetXDpi();
+    displayInfo.yDpi_ = info.GetYDpi();
+    displayInfo.rotationType_ = info.GetRotation();
+    displayInfo.orientationType_ = info.GetOrientation();
+    displayInfo.displayOrientation_ = info.GetDisplayOrientation();
+    return displayInfo;
 }
 
 FoldStatusListenerAdapterImpl::FoldStatusListenerAdapterImpl(
@@ -66,7 +113,6 @@ OHOS::NWeb::FoldStatus FoldStatusListenerAdapterImpl::ConvertFoldStatus(
             return OHOS::NWeb::FoldStatus::UNKNOWN;
     }
 }
-
 
 void FoldStatusListenerAdapterImpl::OnFoldStatusChanged(NativeDisplayManager_FoldDisplayMode displayMode)
 {
