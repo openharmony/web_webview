@@ -72,7 +72,6 @@ public:
 
     ArkWebString GetOOPGPUStatus() override;
 
-
     ArkWebString GetCompatibleDeviceType() override;
 private:
     NWeb::SystemPropertiesAdapter& real_;
