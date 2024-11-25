@@ -1555,6 +1555,14 @@ public:
     virtual bool GetAccessibilityVisible(int64_t accessibility_id) {
         return true;
     }
+
+    /**
+     * @Description: Set the rotation to psurface.
+     * @Input rotation: The rotation of buffer.
+     * @Since: 12005
+     */
+    /*--ark web()--*/
+    virtual void SetTransformHint(uint32_t rotation) {}
 };
 
 } // namespace OHOS::NWeb

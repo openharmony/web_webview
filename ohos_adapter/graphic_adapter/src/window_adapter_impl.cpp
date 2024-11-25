@@ -23,6 +23,32 @@
 #include "foundation/graphic/graphic_surface/surface/include/native_window.h"
 
 namespace OHOS::NWeb {
+constexpr uint32_t ROTATE_NONE = 0;
+constexpr uint32_t ROTATE_90 = 90;
+constexpr uint32_t ROTATE_180 = 180;
+constexpr uint32_t ROTATE_270 = 270;
+GraphicTransformType ConvertRotation(uint32_t rotation)
+{
+    GraphicTransformType transform = GraphicTransformType::GRAPHIC_ROTATE_BUTT;
+    switch (rotation) {
+        case ROTATE_NONE:
+            transform = GraphicTransformType::GRAPHIC_ROTATE_NONE;
+            break;
+        case ROTATE_90:
+            transform = GraphicTransformType::GRAPHIC_ROTATE_90;
+            break;
+        case ROTATE_180:
+            transform = GraphicTransformType::GRAPHIC_ROTATE_180;
+            break;
+        case ROTATE_270:
+            transform = GraphicTransformType::GRAPHIC_ROTATE_270;
+            break;
+        default:
+            transform = GraphicTransformType::GRAPHIC_ROTATE_NONE;
+            break;
+    }
+    return transform;
+}
 
 WindowAdapterImpl& WindowAdapterImpl::GetInstance()
 {
@@ -77,5 +103,17 @@ void WindowAdapterImpl::NativeWindowSurfaceCleanCacheWithPara(NWebNativeWindow w
         nativeWindow->surface->CleanCache(cleanAll);
         nativeWindow->surface->Disconnect();
     }
+}
+
+void WindowAdapterImpl::SetTransformHint(uint32_t rotation, NWebNativeWindow window)
+{
+    auto nativeWindow = reinterpret_cast<OHNativeWindow*>(window);
+    if (!nativeWindow || !nativeWindow->surface) {
+        WVLOG_E("window or buffer is null, fail to set buffer rotation");
+        return;
+    }
+
+    auto transform = ConvertRotation(rotation);
+    nativeWindow->surface->SetTransformHint(transform);
 }
 } // namespace OHOS::NWeb

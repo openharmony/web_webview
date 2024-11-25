@@ -58,4 +58,12 @@ void ArkWindowAdapterWrapper::NativeWindowSurfaceCleanCacheWithPara(ArkWebNative
     }
     ctocpp_->NativeWindowSurfaceCleanCacheWithPara(window, cleanAll);
 }
+
+void ArkWindowAdapterWrapper::SetTransformHint(uint32_t rotation, ArkWebNativeWindow window)
+{
+    if (!ctocpp_) {
+        return;
+    }
+    ctocpp_->SetTransformHint(rotation, window);
+}
 } // namespace OHOS::ArkWeb

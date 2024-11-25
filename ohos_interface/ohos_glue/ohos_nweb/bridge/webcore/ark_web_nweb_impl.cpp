@@ -1190,4 +1190,9 @@ bool ArkWebNWebImpl::GetAccessibilityVisible(int64_t accessibility_id)
 {
     return nweb_nweb_->GetAccessibilityVisible(accessibility_id);
 }
+
+void ArkWebNWebImpl::SetTransformHint(uint32_t rotation)
+{
+    nweb_nweb_->SetTransformHint(rotation);
+}
 } // namespace OHOS::ArkWeb
