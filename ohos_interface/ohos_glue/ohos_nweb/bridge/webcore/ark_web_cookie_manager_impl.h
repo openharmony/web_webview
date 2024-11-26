@@ -184,6 +184,15 @@ public:
      */
     void PutAcceptFileURLSchemeCookiesEnabled(bool allow) override;
 
+    void GetCookieAsync(
+        const ArkWebString& url, bool incognitoMode, ArkWebRefPtr<ArkWebStringValueCallback> callback) override;
+
+    int SetCookieSync(
+        const ArkWebString& url, const ArkWebString& value, bool incognitoMode, bool includeHttpOnly) override;
+
+    void SetCookieAsync(const ArkWebString& url, const ArkWebString& value, bool incognitoMode, bool includeHttpOnly,
+        ArkWebRefPtr<ArkWebLongValueCallback> callback) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebCookieManager> nweb_cookie_manager_;
 };

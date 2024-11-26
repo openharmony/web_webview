@@ -172,15 +172,6 @@ HWTEST_F(OhosAdapterHelperTest, OhosAdapterHelper_GetDataBase_003, TestSize.Leve
     int32_t nweb_id = 1;
     NWebHelper& helper = NWebHelper::Instance();
     std::shared_ptr<NWebCreateInfoImpl> create_info = std::make_shared<NWebCreateInfoImpl>();
-    helper.LoadLib(true);
-    helper.libHandleWebEngine_ = nullptr;
-    helper.LoadLib(true);
-    helper.bundlePath_ = "";
-    helper.LoadLib(true);
-    helper.libHandleWebEngine_ = nullptr;
-    helper.LoadLib(true);
-    helper.LoadLib(true);
-    helper.libHandleWebEngine_ = nullptr;
     std::shared_ptr<NWebDOHConfigImpl> config = std::make_shared<NWebDOHConfigImpl>();
     NWebHelper::Instance().SetHttpDns(config);
     auto webview = helper.CreateNWeb(create_info);
@@ -193,7 +184,6 @@ HWTEST_F(OhosAdapterHelperTest, OhosAdapterHelper_GetDataBase_003, TestSize.Leve
     EXPECT_NE(storage, nullptr);
     auto nweb = helper.GetNWeb(nweb_id);
     EXPECT_EQ(nweb, nullptr);
-    helper.UnloadLib();
 }
 
 /**

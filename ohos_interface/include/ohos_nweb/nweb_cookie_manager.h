@@ -179,7 +179,10 @@ public:
      * @return the cookie value for given URL.
      */
     virtual std::string ReturnCookieWithHttpOnly(
-        const std::string& url, bool& is_valid, bool incognito_mode, bool includeHttpOnly) { return ""; }
+        const std::string& url, bool& is_valid, bool incognito_mode, bool includeHttpOnly)
+    {
+        return "";
+    }
 
     /**
      * @brief Sets a single cookie (key-value pair) for the given URL sync.
@@ -192,7 +195,49 @@ public:
      * @return 0 if set cookie success else return error id.
      */
     virtual int SetCookieWithHttpOnly(
-        const std::string& url, const std::string& value, bool incognito_mode, bool includeHttpOnly) { return 0; }
+        const std::string& url, const std::string& value, bool incognito_mode, bool includeHttpOnly)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Gets all the cookies for the given URL async.
+     *
+     * @param url the URL for which the cookies are requested.
+     * @param incognitoMode true if web is in the incognito mode, false otherwise.
+     * @param callback a callback which is executed when the cookies have been gotten.
+     */
+    virtual void GetCookieAsync(
+        const std::string& url, bool incognitoMode, std::shared_ptr<NWebStringValueCallback> callback)
+    {}
+
+    /**
+     * @brief Sets a single cookie (key-value pair) for the given URL sync.
+     *
+     * @param url the URL for which the cookie is to be set.
+     * @param value the cookie as a string, using the format of the 'Set-Cookie' HTTP response header.
+     * @param incognitoMode true if web is in the incognito mode, false otherwise.
+     * @param includeHttpOnly If true, HTTP-only cookies can also be overwritten.
+     * @return 0 if set cookie success else return error id.
+     */
+    virtual int SetCookieSync(
+        const std::string& url, const std::string& value, bool incognitoMode, bool includeHttpOnly)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Sets a single cookie (key-value pair) for the given URL async.
+     *
+     * @param url the URL for which the cookie is to be set.
+     * @param value the cookie as a string, using the format of the 'Set-Cookie' HTTP response header.
+     * @param incognitoMode true if web is in the incognito mode, false otherwise.
+     * @param includeHttpOnly If true, HTTP-only cookies can also be overwritten.
+     * @param callback a callback to be executed when the cookie has been set.
+     */
+    virtual void SetCookieAsync(const std::string& url, const std::string& value, bool incognitoMode,
+        bool includeHttpOnly, std::shared_ptr<NWebLongValueCallback> callback)
+    {}
 };
 
 } // namespace OHOS::NWeb

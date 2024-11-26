@@ -257,7 +257,6 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetDataBase_003, TestSize.Level1)
     }
     EXPECT_EQ(RESULT_OK, result);
 
-    NWebHelper::Instance().libHandleWebEngine_ = nullptr;
     std::shared_ptr<NWebCookieManager> cook = NWebHelper::Instance().GetCookieManager();
     EXPECT_EQ(cook, nullptr);
 
@@ -324,7 +323,6 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetConfigPath_005, TestSize.Level1)
     EXPECT_FALSE(figPath.empty());
     std::shared_ptr<NWebEngineInitArgsImpl> initArgs = std::make_shared<NWebEngineInitArgsImpl>();
     NWebAdapterHelper::Instance().ParseConfig(initArgs);
-    NWebHelper::Instance().libHandleWebEngine_ = nullptr;
     NWebHelper::Instance().PrepareForPageLoad("web_test", true, 0);
     NWebHelper::Instance().WarmupServiceWorker("web_test");
     NWebHelper::Instance().PrefetchResource(nullptr, {}, "web_test", 0);
@@ -334,7 +332,7 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetConfigPath_005, TestSize.Level1)
     bool result = NWebHelper::Instance().InitAndRun(false);
     EXPECT_FALSE(result);
     NWebHelper::Instance().SetConnectionTimeout(1);
-    NWebHelper::Instance().GetWebEngineHandler();
+    NWebHelper::Instance().LoadWebEngine(true, false);
 
     // To test SetRenderProcessMode and GetRenderProcessMode.
     NWebHelper::Instance().SetRenderProcessMode(RenderProcessMode::SINGLE_MODE);
@@ -465,12 +463,12 @@ HWTEST_F(NwebHelperTest, NWebHelper_WebDownloadItem_IsPaused_007, TestSize.Level
 }
 
 /**
- * @tc.name: NWebHelper_GetWebEngineHandler_008
- * @tc.desc: GetWebEngineHandler.
+ * @tc.name: NWebHelper_LoadWebEngine_008
+ * @tc.desc: LoadWebEngine.
  * @tc.type: FUNC
  * @tc.require: AR000GGHJ8
  */
-HWTEST_F(NwebHelperTest, NWebHelper_GetWebEngineHandler_008, TestSize.Level1)
+HWTEST_F(NwebHelperTest, NWebHelper_LoadWebEngine_008, TestSize.Level1)
 {
     NWebHelper::Instance().nwebEngine_ = nullptr;
     std::shared_ptr<NWebCreateInfoImpl> create_info = std::make_shared<NWebCreateInfoImpl>();
@@ -496,11 +494,11 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetWebEngineHandler_008, TestSize.Level1)
     NWebHelper::Instance().ClearIntelligentTrackingPreventionBypassingList();
     NWebHelper::Instance().PauseAllTimers();
     NWebHelper::Instance().ResumeAllTimers();
-    EXPECT_NE(NWebHelper::Instance().libHandleWebEngine_, nullptr);
-    NWebHelper::Instance().GetWebEngineHandler();
-    bool result = NWebHelper::Instance().LoadEngine();
+    EXPECT_NE(NWebHelper::Instance().nwebEngine_, nullptr);
+    NWebHelper::Instance().LoadWebEngine(true, false);
+    bool result = NWebHelper::Instance().GetWebEngine(true);
     EXPECT_TRUE(result);
-    result = NWebHelper::Instance().LoadEngine();
+    result = NWebHelper::Instance().GetWebEngine(true);
     EXPECT_TRUE(result);
     cook = NWebHelper::Instance().GetCookieManager();
     EXPECT_NE(cook, nullptr);
@@ -508,7 +506,6 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetWebEngineHandler_008, TestSize.Level1)
     EXPECT_NE(manager, nullptr);
     NWebHelper::Instance().SetWebTag(1, "webtag");
 
-    NWebHelper::Instance().libHandleWebEngine_ = nullptr;
     NWebHelper::Instance().SetWebTag(1, "webtag");
     NWebHelper::Instance().AddIntelligentTrackingPreventionBypassingList(hosts);
     NWebHelper::Instance().RemoveIntelligentTrackingPreventionBypassingList(hosts);

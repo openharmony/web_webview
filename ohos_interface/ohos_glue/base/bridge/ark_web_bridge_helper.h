@@ -18,29 +18,64 @@
 #pragma once
 
 #include <dlfcn.h>
-#include <string>
+
+#include "base/include/ark_web_bridge_types.h"
+#include "base/include/ark_web_types.h"
 
 namespace OHOS::ArkWeb {
+
+extern int g_ark_web_init_addr;
+#define ARK_WEB_INIT_ADDR &g_ark_web_init_addr
+
+#if defined(OHOS_WEBVIEW_GLUE)
+#if defined(webview_arm64)
+const std::string WEBVIEW_RELATIVE_PATH_FOR_MOCK = "libs/arm64";
+const std::string WEBVIEW_RELATIVE_PATH_FOR_BUNDLE = "arkwebcore/libs/arm64";
+#elif defined(webview_x86_64)
+const std::string WEBVIEW_RELATIVE_PATH_FOR_MOCK = "libs/x86_64";
+const std::string WEBVIEW_RELATIVE_PATH_FOR_BUNDLE = "arkwebcore/libs/x86_64";
+#else
+const std::string WEBVIEW_RELATIVE_PATH_FOR_MOCK = "libs/arm";
+const std::string WEBVIEW_RELATIVE_PATH_FOR_BUNDLE = "arkwebcore/libs/arm";
+#endif
+#endif
+
+using ArkWebMemberCheckFunc = void* (*)(ArkWebBridgeType, const ArkWebString*);
 
 class ArkWebBridgeHelper {
 public:
     virtual ~ArkWebBridgeHelper();
 
-    void* LoadFuncSymbol(const std::string& funcName, bool isPrintLog = true);
+    void* LoadFuncSymbol(const char* funcName, bool isPrintLog = true);
+
+    void RegisterFuncMember(ArkWebBridgeType bridgeType, const std::map<std::string, void*>& funcMemberMap);
+
+    void* CheckFuncMemberForCalled(ArkWebBridgeType bridgeType, const std::string& funcName);
+
+    void* CheckFuncMemberForCaller(ArkWebBridgeType bridgeType, const std::string& funcName);
 
 protected:
     ArkWebBridgeHelper() = default;
 
-    bool LoadLibFile(int mode, const std::string& libFilePath, bool isPrintLog = true);
+    bool LoadLibFile(int openMode, const std::string& libFilePath, bool isPrintLog = true);
 
-#if !defined(OHOS_WEBCORE_GLUE)
-    bool LoadLibFile(int mode, const std::string& libNsName, const std::string& libDirPath,
+#if defined(OHOS_WEBVIEW_GLUE)
+    bool LoadLibFile(int openMode, const std::string& libNsName, const std::string& libDirPath,
         const std::string& libFileName, bool isPrintLog = true);
 #endif
+
+    static void PrereadLibFile(const std::string& libFilePath, bool isPrintLog = true);
+
+    void InitFuncMemberMaps(ArkWebBridgeType init, ArkWebBridgeType butt, bool isPrintLog = true);
 
 private:
     void UnloadLibFile();
 
+protected:
+    ArkWebMemberCheckFunc memberCheckFunc_ = nullptr;
+    std::map<int, std::map<std::string, void*>> funcMemberMaps_;
+
+private:
     void* libFileHandler_ = nullptr;
 };
 

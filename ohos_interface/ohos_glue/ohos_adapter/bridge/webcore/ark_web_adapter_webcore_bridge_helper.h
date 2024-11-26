@@ -13,26 +13,26 @@
  * limitations under the License.
  */
 
-#ifndef ARK_WEB_ADAPTER_BRIDGE_HELPER_H_
-#define ARK_WEB_ADAPTER_BRIDGE_HELPER_H_
+#ifndef ARK_WEB_ADAPTER_WEBCORE_BRIDGE_HELPER_H_
+#define ARK_WEB_ADAPTER_WEBCORE_BRIDGE_HELPER_H_
 #pragma once
 
 #include "base/bridge/ark_web_bridge_helper.h"
 
 namespace OHOS::ArkWeb {
 
-class ArkWebAdapterBridgeHelper : public ArkWebBridgeHelper {
+class ArkWebAdapterWebcoreBridgeHelper : public ArkWebBridgeHelper {
 public:
-    ~ArkWebAdapterBridgeHelper() = default;
+    ~ArkWebAdapterWebcoreBridgeHelper() = default;
 
-    static ArkWebAdapterBridgeHelper& GetInstance(bool isPrintLog = true);
-
-    bool Init(bool isPrintLog);
+    static ArkWebAdapterWebcoreBridgeHelper& GetInstance();
 
 private:
-    ArkWebAdapterBridgeHelper() = default;
+    ArkWebAdapterWebcoreBridgeHelper();
+
+    void Init();
 };
 
 } // namespace OHOS::ArkWeb
 
-#endif // ARK_WEB_ADAPTER_BRIDGE_HELPER_H_
+#endif // ARK_WEB_ADAPTER_WEBCORE_BRIDGE_HELPER_H_

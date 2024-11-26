@@ -197,6 +197,43 @@ public:
      */
     /*--ark web()--*/
     virtual void PutAcceptFileURLSchemeCookiesEnabled(bool allow) = 0;
+
+    /**
+     * @Description: Gets all the cookies for the given URL async.
+     *
+     * @Input url: the URL for which the cookies are requested.
+     * @Input incognitoMode: true if web is in the incognito mode, false otherwise.
+     * @Input callback: a callback which is executed when the cookies have been gotten.
+     */
+    /*--ark web()--*/
+    virtual void GetCookieAsync(
+        const ArkWebString& url, bool incognitoMode, ArkWebRefPtr<ArkWebStringValueCallback> callback) = 0;
+
+    /**
+     * @Description: Sets a single cookie (key-value pair) for the given URL sync.
+     *
+     * @Input url: the URL for which the cookie is to be set.
+     * @Input value: the cookie as a string, using the format of the 'Set-Cookie' HTTP response header.
+     * @Input incognitoMode: true if web is in the incognito mode, false otherwise.
+     * @Input includeHttpOnly: If true, HTTP-only cookies can also be overwritten.
+     * @return: 0 if set cookie success else return error id.
+     */
+    /*--ark web()--*/
+    virtual int SetCookieSync(
+        const ArkWebString& url, const ArkWebString& value, bool incognitoMode, bool includeHttpOnly) = 0;
+
+    /**
+     * @Description: Sets a single cookie (key-value pair) for the given URL async.
+     *
+     * @Input url: the URL for which the cookie is to be set.
+     * @Input value: the cookie as a string, using the format of the 'Set-Cookie' HTTP response header.
+     * @Input incognitoMode: true if web is in the incognito mode, false otherwise.
+     * @Input includeHttpOnly: If true, HTTP-only cookies can also be overwritten.
+     * @Input callback: a callback to be executed when the cookie has been set.
+     */
+    /*--ark web()--*/
+    virtual void SetCookieAsync(const ArkWebString& url, const ArkWebString& value, bool incognitoMode,
+        bool includeHttpOnly, ArkWebRefPtr<ArkWebLongValueCallback> callback) = 0;
 };
 
 } // namespace OHOS::ArkWeb

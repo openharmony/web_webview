@@ -209,6 +209,15 @@ public:
     int SetCookieWithHttpOnly(
         const std::string& url, const std::string& value, bool incognito_mode, bool includeHttpOnly) override;
 
+    void GetCookieAsync(const std::string& url, bool incognitoMode,
+        std::shared_ptr<OHOS::NWeb::NWebStringValueCallback> callback) override;
+
+    int SetCookieSync(
+        const std::string& url, const std::string& value, bool incognitoMode, bool includeHttpOnly) override;
+
+    void SetCookieAsync(const std::string& url, const std::string& value, bool incognitoMode, bool includeHttpOnly,
+        std::shared_ptr<OHOS::NWeb::NWebLongValueCallback> callback) override;
+
 private:
     ArkWebRefPtr<ArkWebCookieManager> ark_web_cookie_manager_;
 };

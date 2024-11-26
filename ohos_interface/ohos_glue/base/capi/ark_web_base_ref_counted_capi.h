@@ -17,6 +17,7 @@
 #define ARK_WEB_BASE_REF_COUNTED_CAPI_H_
 #pragma once
 
+#include <mutex>
 #include <stddef.h>
 #include <stdint.h>
 #include <unistd.h>

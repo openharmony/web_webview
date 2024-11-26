@@ -103,6 +103,10 @@ StructName* ArkWebCppToCRefCounted<ClassName, BaseName, StructName>::Invert(ArkW
     }
 
     ClassName* bridge = new ClassName();
+    if (!bridge) {
+        ARK_WEB_CPPTOC_WARN_LOG("failed to new class,bridge type is %{public}d", kBridgeType);
+        return nullptr;
+    }
     StructName* capi_struct = bridge->GetStruct();
 
     ARK_WEB_CPPTOC_DV_LOG("bridge type is %{public}d,this is %{public}ld,capi "

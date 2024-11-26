@@ -13,26 +13,26 @@
  * limitations under the License.
  */
 
-#include "ohos_adapter/bridge/ark_web_adapter_bridge_helper.h"
+#ifndef ARK_WEB_NWEB_WEBCORE_BRIDGE_HELPER_H_
+#define ARK_WEB_NWEB_WEBCORE_BRIDGE_HELPER_H_
+#pragma once
 
-#include "base/bridge/ark_web_bridge_macros.h"
-#include "base/check.h"
+#include "base/bridge/ark_web_bridge_helper.h"
 
 namespace OHOS::ArkWeb {
 
-const std::string LIB_FILE_NAME = "libohos_adapter_glue_source.z.so";
+class ArkWebNWebWebcoreBridgeHelper : public ArkWebBridgeHelper {
+public:
+    ~ArkWebNWebWebcoreBridgeHelper() = default;
 
-ArkWebAdapterBridgeHelper& ArkWebAdapterBridgeHelper::GetInstance(bool isPrintLog)
-{
-    static ArkWebAdapterBridgeHelper helper;
-    CHECK(helper.Init(isPrintLog));
+    static ArkWebNWebWebcoreBridgeHelper& GetInstance();
 
-    return helper;
-}
+private:
+    ArkWebNWebWebcoreBridgeHelper();
 
-bool ArkWebAdapterBridgeHelper::Init(bool isPrintLog)
-{
-  return LoadLibFile(RTLD_LAZY, LIB_FILE_NAME, isPrintLog);
-}
+    void Init();
+};
 
 } // namespace OHOS::ArkWeb
+
+#endif // ARK_WEB_NWEB_WEBCORE_BRIDGE_HELPER_H_

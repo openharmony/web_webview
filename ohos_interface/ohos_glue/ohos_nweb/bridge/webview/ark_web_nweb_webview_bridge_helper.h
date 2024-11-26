@@ -13,30 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef ARK_WEB_NWEB_BRIDGE_HELPER_H_
-#define ARK_WEB_NWEB_BRIDGE_HELPER_H_
+#ifndef ARK_WEB_NWEB_WEBVIEW_BRIDGE_HELPER_H_
+#define ARK_WEB_NWEB_WEBVIEW_BRIDGE_HELPER_H_
 #pragma once
 
 #include "base/bridge/ark_web_bridge_helper.h"
 
 namespace OHOS::ArkWeb {
 
-class ArkWebNWebBridgeHelper : public ArkWebBridgeHelper {
+class ArkWebNWebWebviewBridgeHelper : public ArkWebBridgeHelper {
 public:
-    ~ArkWebNWebBridgeHelper() = default;
+    ~ArkWebNWebWebviewBridgeHelper() = default;
 
-    static ArkWebNWebBridgeHelper& GetInstance();
+    static ArkWebNWebWebviewBridgeHelper& GetInstance();
 
-    bool InitArkWeb(bool runMode, const std::string& baseDir,
-        const std::string& relativeLibPath, const std::string& arkWebEngineSo);
-    bool Init(bool runMode, const std::string& baseDir);
+    bool Init(bool runMode, const std::string& bundlePath);
+
+    static void PreloadLibFile(bool runMode, const std::string& bundlePath);
 
 private:
-    std::string GetDirPath(bool runMode, const std::string& baseDir);
-
-    ArkWebNWebBridgeHelper() = default;
+    ArkWebNWebWebviewBridgeHelper();
 };
 
 } // namespace OHOS::ArkWeb
 
-#endif // ARK_WEB_NWEB_BRIDGE_HELPER_H_
+#endif // ARK_WEB_NWEB_WEBVIEW_BRIDGE_HELPER_H_
