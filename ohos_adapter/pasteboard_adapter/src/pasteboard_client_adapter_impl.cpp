@@ -490,7 +490,6 @@ void PasteBoardClientAdapterImpl::SetPasteData(const PasteRecordVector& data, Co
         recordList.push_back(rawRecord->GetRecord());
     }
     PasteData pData(recordList);
-    pData.SetTag(webviewPasteDataTag_);
     auto shareOption = TransitionCopyOption(copyOption);
     pData.SetShareOption(shareOption);
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(pData);
