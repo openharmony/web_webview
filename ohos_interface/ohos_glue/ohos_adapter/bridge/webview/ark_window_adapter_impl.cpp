@@ -46,4 +46,8 @@ void ArkWindowAdapterImpl::NativeWindowSurfaceCleanCacheWithPara(void* window, b
     return real_.NativeWindowSurfaceCleanCacheWithPara(window, cleanAll);
 }
 
+void ArkWindowAdapterImpl::SetTransformHint(uint32_t rotation, void* window)
+{
+    return real_.SetTransformHint(rotation, window);
+}
 } // namespace OHOS::ArkWeb

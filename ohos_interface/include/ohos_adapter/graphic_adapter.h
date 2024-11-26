@@ -229,6 +229,8 @@ public:
     virtual void NativeWindowSurfaceCleanCache(NWebNativeWindow window) = 0;
 
     virtual void NativeWindowSurfaceCleanCacheWithPara(NWebNativeWindow window, bool cleanAll) = 0;
+
+    virtual void SetTransformHint(uint32_t rotation, NWebNativeWindow window) = 0;
 };
 
 class AshmemAdapter {

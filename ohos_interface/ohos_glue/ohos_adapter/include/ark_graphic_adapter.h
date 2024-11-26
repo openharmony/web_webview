@@ -161,6 +161,9 @@ public:
 
     /*--ark web()--*/
     virtual void NativeWindowSurfaceCleanCacheWithPara(void* window, bool cleanAll) = 0;
+
+    /*--ark web()--*/
+    virtual void SetTransformHint(uint32_t rotation, void* window) = 0;
 };
 
 /*--ark web(source=webview)--*/

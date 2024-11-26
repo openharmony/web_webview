@@ -1364,6 +1364,14 @@ public:
      */
     /*--ark web()--*/
     bool GetAccessibilityVisible(int64_t accessibility_id) override;
+
+    /**
+     * @Description: Set the rotation to psurface.
+     * @Input rotation: The rotation of buffer.
+     * @Since: 12005
+     */
+    /*--ark web()--*/
+    void SetTransformHint(uint32_t rotation) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };
