@@ -1385,18 +1385,6 @@ public:
     }
 
     /**
-     * RegisterArkJSfunction
-     *
-     * @param object_name  String: object name
-     * @param method_list vector<String>: vector list, async method list
-     * @param method_list vector<String>: vector list, sync method list
-     * @param object_id int32_t: object id
-     * @param permission String: allow list
-     */
-    virtual void RegisterArkJSfunction(const std::string& object_name, const std::vector<std::string>& method_list,
-        const std::vector<std::string>& async_method_list, const int32_t object_id, const std::string& permission) {}
-
-    /**
      * @brief resize visual viewport.
      *
      * @param width width.

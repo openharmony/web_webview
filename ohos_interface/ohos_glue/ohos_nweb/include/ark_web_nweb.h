@@ -1461,23 +1461,6 @@ class ArkWebNWeb : public virtual ArkWebBaseRefCounted {
                                         ArkWebString& detailErrMsg) = 0;
 
   /**
-   * @brief RegisterArkJSfunction
-   *
-   * @param object_name  String: objector name
-   * @param method_list vector<String>: vector list, sync method list
-   * @param async_method_list vector<String>: vector list, async method list
-   * @param object_id int32_t: object id
-   * @param permission String: allow list
-   */
-  /*--ark web()--*/
-  virtual void RegisterArkJSfunction(
-      const ArkWebString& object_name,
-      const ArkWebStringVector& method_list,
-      const ArkWebStringVector& async_method_list,
-      const int32_t object_id,
-      const ArkWebString& permission) = 0;
-
-  /**
    * @brief resize visual viewport.
    *
    * @param width width.
