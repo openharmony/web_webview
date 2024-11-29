@@ -255,6 +255,7 @@ Object.defineProperty(webview.WebviewController.prototype, 'getCertificate', {
 
 Object.defineProperty(webview.WebviewController.prototype, 'fileSelectorShowFromUserWeb', {
   value:  function (callback) {
+    let currentDevice = deviceinfo.deviceType.toLowerCase();
     if (needShowDialog(callback.fileparam)) {
       ActionSheet.show({
         title: '选择上传',
@@ -296,7 +297,7 @@ Object.defineProperty(webview.WebviewController.prototype, 'fileSelectorShowFrom
           }
         ]
       });
-    } else if (callback.fileparam.isCapture()) {
+    } else if (currentDevice === 'phone' && callback.fileparam.isCapture()) {
       console.log('take photo will be directly invoked due to the capture property');
       takePhoto(callback.fileparam, callback.fileresult);
     } else {
