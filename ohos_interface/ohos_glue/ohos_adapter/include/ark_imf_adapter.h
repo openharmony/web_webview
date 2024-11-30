@@ -144,6 +144,9 @@ public:
     /*--ark web()--*/
     virtual void AutoFillWithIMFEvent(bool isUsername, bool isOtherAccount, bool isNewPassword,
         const ArkWebString& content) = 0;
+        
+    /*--ark web()--*/
+    virtual void KeyboardUpperRightCornerHide() = 0;
 };
 
 /*--ark web(source=webview)--*/

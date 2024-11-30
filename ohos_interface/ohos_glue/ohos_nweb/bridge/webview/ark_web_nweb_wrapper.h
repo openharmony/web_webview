@@ -1328,6 +1328,12 @@ public:
      */
     /*--ark web()--*/
     bool GetAccessibilityVisible(int64_t accessibility_id) override;
+
+    /**
+     * @brief Web components blur when the keyboard is hidden by gesture back.
+     */
+    /*--ark web()--*/
+    void WebComponentsBlur() override;
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };

@@ -1486,6 +1486,11 @@ public:
     virtual bool GetAccessibilityVisible(int64_t accessibility_id) {
         return true;
     }
+
+    /**
+     * @brief Web components blur when the keyboard is hidden by gesture back.
+     */
+    virtual void WebComponentsBlur() {} 
 };
 
 } // namespace OHOS::NWeb

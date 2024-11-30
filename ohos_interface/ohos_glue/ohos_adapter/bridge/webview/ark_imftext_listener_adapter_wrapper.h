@@ -63,6 +63,8 @@ public:
     void AutoFillWithIMFEvent(bool isUsername, bool isOtherAccount, bool isNewPassword,
         const std::string& content) override;
 
+    void KeyboardUpperRightCornerHide() override;
+
 private:
     ArkWebRefPtr<ArkIMFTextListenerAdapter> ctocpp_;
 };

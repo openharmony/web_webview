@@ -234,13 +234,18 @@ public:
         WVLOG_I("test SetNeedUnderLine");
         isSetNeedUnderLine_ = true;
     }
+    void KeyboardUpperRightCornerHide() override
+    {
+        WVLOG_I("test KeyboardUpperRightCornerHide");
+        isKeyboardUpperRightCornerHide_ = true;
+    }
     bool VerifyAllSuccess()
     {
         return isInsertText_ && isDeleteForward_ && isDeleteBackward_ && isSendKeyEventFromInputMethod_ &&
                isSendKeyboardStatus_ && isSendFunctionKey_ && isSetKeyboardStatus_ && isMoveCursor_ &&
                isHandleSetSelection_ && isHandleExtendAction_ && isHandleSelect_ && isGetTextIndexAtCursor_ &&
                isGetLeftTextOfCursor_ && isGetRightTextOfCursor_ && isSetPreviewText_ && isFinishTextPreview_ &&
-               isSetNeedUnderLine_;
+               isSetNeedUnderLine_ && isKeyboardUpperRightCornerHide_;
     }
     bool VerifyFunctionKeySuccess()
     {
@@ -264,6 +269,7 @@ private:
     bool isSetPreviewText_ = false;
     bool isFinishTextPreview_ = false;
     bool isSetNeedUnderLine_ = false;
+    bool isKeyboardUpperRightCornerHide_ = false;
 };
 
 void NWebIMFAdapterTest::SetUpTestCase(void)

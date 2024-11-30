@@ -138,4 +138,9 @@ void ArkIMFTextListenerAdapterWrapper::AutoFillWithIMFEvent(bool isUsername, boo
     ArkWebStringStructRelease(str);
 }
 
+void ArkIMFTextListenerAdapterWrapper::KeyboardUpperRightCornerHide()
+{
+    ctocpp_->KeyboardUpperRightCornerHide();
+}
+
 } // namespace OHOS::ArkWeb

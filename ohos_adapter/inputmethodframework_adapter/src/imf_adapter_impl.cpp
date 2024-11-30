@@ -416,4 +416,13 @@ bool IMFAdapterImpl::ParseFillContentJsonValue(const std::string& commandValue,
     cJSON_Delete(sourceJson);
     return true;
 }
+
+void IMFTextListenerAdapterImpl::NotifyPanelStatusInfo(const MiscServices::PanelStatusInfo& info)
+{
+    MiscServices::Trigger triggerFrom = info.trigger;
+    if (listener_ && (triggerFrom == MiscServices::Trigger::IME_APP)) {
+        WVLOG_I("IMFTextListenerAdapterImpl::NotifyPanelStatusInfo, info.IME_APP");
+        listener_->KeyboardUpperRightCornerHide();
+    }
+}
 } // namespace OHOS::NWeb

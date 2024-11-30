@@ -1577,6 +1577,12 @@ class ArkWebNWeb : public virtual ArkWebBaseRefCounted {
    */
   /*--ark web()--*/
   virtual bool GetAccessibilityVisible(int64_t accessibility_id) = 0;
+
+  /**
+  * @brief Web components blur when the keyboard is hidden by gesture back.
+  */
+  /*--ark web()--*/
+  virtual void WebComponentsBlur() = 0;
 };
 
 }  // namespace OHOS::ArkWeb
