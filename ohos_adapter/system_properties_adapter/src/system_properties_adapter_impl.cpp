@@ -134,6 +134,12 @@ SystemPropertiesAdapterImpl::SystemPropertiesAdapterImpl()
         WVLOG_E("get os full name failed");
         return;
     }
+    size_t index = osFullName.find('-');
+    if (index == std::string::npos) {
+        return;
+    }
+    std::string baseOsNameTmp = osFullName.substr(0, index);
+
     int versionPartOne;
     int versionPartTwo;
     int versionPartThree;
@@ -151,6 +157,7 @@ SystemPropertiesAdapterImpl::SystemPropertiesAdapterImpl()
     }
     softwareMajorVersion_ = versionPartOne;
     softwareSeniorVersion_ = versionPartTwo;
+    baseOsName_ = baseOsNameTmp;
     InitPreferences();
     AddAllSysPropWatchers();
 }
@@ -283,6 +290,28 @@ bool SystemPropertiesAdapterImpl::IsAdvancedSecurityMode()
 std::string SystemPropertiesAdapterImpl::GetUserAgentOSName()
 {
     return OH_GetDistributionOSName();
+}
+
+std::string SystemPropertiesAdapterImpl::GetUserAgentOSVersion()
+{
+    int apiVersion = OH_GetDistributionOSApiVersion();
+    int tempNum = 10000;
+    std::string apiVersionStr;
+    if (apiVersion >= tempNum) {
+        int apiVersionPartThree = apiVersion % 100;
+        int apiVersionPartTwo = apiVersion / 100 % 100;
+        int apiVersionPartOne = apiVersion /10000;
+        std::string apiVersionPartThreeStr = std::to_string(apiVersionPartThree);
+        std::string apiVersionPartTwoStr = std::to_string(apiVersionPartTwo);
+        std::string apiVersionPartOneStr = std::to_string(apiVersionPartOne);
+        apiVersionStr = apiVersionPartOneStr + "." + apiVersionPartTwoStr + "." + apiVersionPartThreeStr;
+    }
+    return apiVersionStr.empty() ? OH_GetDistributionOSVersion() : apiVersionStr.c_str();
+}
+
+std::string SystemPropertiesAdapterImpl::GetUserAgentBaseOSName()
+{
+    return baseOsName_;
 }
 
 int32_t SystemPropertiesAdapterImpl::GetSoftwareMajorVersion()
