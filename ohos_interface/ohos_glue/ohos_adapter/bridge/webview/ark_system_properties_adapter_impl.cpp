@@ -66,6 +66,18 @@ ArkWebString ArkSystemPropertiesAdapterImpl::GetUserAgentOSName()
     return ArkWebStringClassToStruct(str);
 }
 
+ArkWebString ArkSystemPropertiesAdapterImpl::GetUserAgentOSVersion()
+{
+    std::string str = real_.GetUserAgentOSVersion();
+    return ArkWebStringClassToStruct(str);
+}
+
+ArkWebString ArkSystemPropertiesAdapterImpl::GetUserAgentBaseOSName()
+{
+    std::string str = real_.GetUserAgentBaseOSName();
+    return ArkWebStringClassToStruct(str);
+}
+
 int32_t ArkSystemPropertiesAdapterImpl::GetSoftwareMajorVersion()
 {
     return real_.GetSoftwareMajorVersion();

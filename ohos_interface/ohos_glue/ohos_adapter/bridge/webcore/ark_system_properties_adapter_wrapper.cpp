@@ -95,6 +95,28 @@ std::string ArkSystemPropertiesAdapterWrapper::GetUserAgentOSName()
     return result;
 }
 
+std::string ArkSystemPropertiesAdapterWrapper::GetUserAgentOSVersion()
+{
+    if (!ctocpp_) {
+        return "";
+    }
+    ArkWebString str = ctocpp_->GetUserAgentOSVersion();
+    std::string result = ArkWebStringStructToClass(str);
+    ArkWebStringStructRelease(str);
+    return result;
+}
+
+std::string ArkSystemPropertiesAdapterWrapper::GetUserAgentBaseOSName()
+{
+    if (!ctocpp_) {
+        return "";
+    }
+    ArkWebString str = ctocpp_->GetUserAgentBaseOSName();
+    std::string result = ArkWebStringStructToClass(str);
+    ArkWebStringStructRelease(str);
+    return result;
+}
+
 int32_t ArkSystemPropertiesAdapterWrapper::GetSoftwareMajorVersion()
 {
     if (!ctocpp_) {

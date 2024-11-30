@@ -43,6 +43,10 @@ public:
 
     std::string GetUserAgentOSName() override;
 
+    std::string GetUserAgentOSVersion() override;
+
+    std::string GetUserAgentBaseOSName() override;
+
     int32_t GetSoftwareMajorVersion() override;
 
     int32_t GetSoftwareSeniorVersion() override;

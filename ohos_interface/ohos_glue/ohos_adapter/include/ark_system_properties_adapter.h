@@ -89,6 +89,12 @@ public:
 
     /*--ark web()--*/
     virtual ArkWebString GetOOPGPUStatus() = 0;
+
+    /*--ark web()--*/
+    virtual ArkWebString GetUserAgentOSVersion() = 0;
+    
+    /*--ark web()--*/
+    virtual ArkWebString GetUserAgentBaseOSName() = 0;
 };
 
 } // namespace OHOS::ArkWeb
