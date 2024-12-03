@@ -17,6 +17,7 @@
 
 #include "ohos_adapter/bridge/ark_paste_data_record_adapter_wrapper.h"
 #include "ohos_adapter/ctocpp/ark_paste_data_record_adapter_ctocpp.h"
+#include "base/include/ark_web_macros.h"
 
 namespace OHOS::ArkWeb {
 
@@ -34,7 +35,7 @@ NWeb::PasteRecordVector ArkPasteRecordVectorStructToClass(const ArkPasteRecordVe
     return class_value;
 }
 
-void ArkPasteRecordVectorStructRelease(ArkPasteRecordVector& struct_value)
+ARK_WEB_NO_SANITIZE void ArkPasteRecordVectorStructRelease(ArkPasteRecordVector& struct_value)
 {
     struct_value.size = 0;
     SAFE_FREE(struct_value.value, struct_value.ark_web_mem_free_func);
