@@ -27,6 +27,7 @@
 #include "ohos_adapter_helper.h"
 
 #define FIRST_ELEMENT 0
+#define PLAINTEXT "text/plain"
 
 namespace OHOS::NWeb {
 
@@ -38,6 +39,7 @@ PasteDataRecordAdapterImpl::PasteDataRecordAdapterImpl(
     const std::string& mimeType)
 {
     record_ = OH_UdmfRecord_Create();
+    mimeType_ = mimeType;
 }
 
 PasteDataRecordAdapterImpl::PasteDataRecordAdapterImpl(
@@ -46,8 +48,8 @@ PasteDataRecordAdapterImpl::PasteDataRecordAdapterImpl(
     std::shared_ptr<std::string> plainText)
 {
     record_ = OH_UdmfRecord_Create();
+    mimeType_ = mimeType;
 }
-
 
 PasteDataRecordAdapterImpl::~PasteDataRecordAdapterImpl()
 {
@@ -99,7 +101,6 @@ bool PasteDataRecordAdapterImpl::SetHtmlText(std::shared_ptr<std::string> htmlTe
 
 bool PasteDataRecordAdapterImpl::SetPlainText(std::shared_ptr<std::string> plainText)
 {
-    std::string type = GetMimeType();
     OH_UdsHtml* udsHtml = OH_UdsHtml_Create();
 
     if (udsHtml == nullptr) {
@@ -108,20 +109,20 @@ bool PasteDataRecordAdapterImpl::SetPlainText(std::shared_ptr<std::string> plain
     }
     (void) OH_UdmfRecord_GetHtml(record_, udsHtml);
     auto ret = OH_UdsHtml_SetPlainContent(udsHtml, plainText->c_str());
-    if (type != UDMF_META_HTML) {
+    if (mimeType_ == PLAINTEXT) {
         std::string htmlText = "<span>" + *plainText + "</span>";
         ret = OH_UdsHtml_SetContent(udsHtml, htmlText.c_str());
     }
 
     if (ret != UDMF_E_OK) {
-        WVLOG_E("SetPlainText failed, err_code=%{public}d, type=%{public}s", ret, type.c_str());
+        WVLOG_E("SetPlainText failed, err_code=%{public}d, type=%{public}s", ret, mimeType_.c_str());
         OH_UdsHtml_Destroy(udsHtml);
         return false;
     }
 
     ret = OH_UdmfRecord_AddHtml(record_, udsHtml);
     if (ret != UDMF_E_OK) {
-        WVLOG_E("AddHtml failed when set plaintext, err_code=%{public}d, type=%{public}s", ret, type.c_str());
+        WVLOG_E("AddHtml failed when set plaintext, err_code=%{public}d, type=%{public}s", ret, mimeType_.c_str());
         OH_UdsHtml_Destroy(udsHtml);
         return false;
     }

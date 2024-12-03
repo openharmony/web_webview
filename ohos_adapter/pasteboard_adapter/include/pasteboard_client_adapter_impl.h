@@ -46,6 +46,7 @@ public:
     void Clear();
 private:
     OH_UdmfRecord* record_ = nullptr;
+    std::string mimeType_ = "";
     uint8_t *imgBuffer_ = nullptr;
     uint32_t bufferSize_ = 0;
     void ClearImgBuffer();
