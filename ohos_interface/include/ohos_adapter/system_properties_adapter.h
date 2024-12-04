@@ -98,6 +98,8 @@ public:
     virtual std::string GetUserAgentOSVersion() = 0;
 
     virtual std::string GetVulkanStatus() = 0;
+
+    virtual std::string GetPRPPreloadMode() = 0;
 };
 
 } // namespace OHOS::NWeb
