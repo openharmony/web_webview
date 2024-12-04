@@ -179,4 +179,10 @@ ArkWebString ArkSystemPropertiesAdapterImpl::GetVulkanStatus()
     std::string str = real_.GetVulkanStatus();
     return ArkWebStringClassToStruct(str);
 }
+
+ArkWebString ArkSystemPropertiesAdapterImpl::GetPRPPreloadMode()
+{
+    std::string str = real_.GetPRPPreloadMode();
+    return ArkWebStringClassToStruct(str);
+}
 } // namespace OHOS::ArkWeb
