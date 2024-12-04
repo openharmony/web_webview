@@ -77,6 +77,8 @@ public:
     int32_t GetLTPOStrategy() override;
 
     ArkWebString GetVulkanStatus() override;
+
+    ArkWebString GetPRPPreloadMode() override;
 private:
     NWeb::SystemPropertiesAdapter& real_;
 
