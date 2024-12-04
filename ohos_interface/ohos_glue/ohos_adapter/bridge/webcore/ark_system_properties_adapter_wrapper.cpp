@@ -259,4 +259,15 @@ std::string ArkSystemPropertiesAdapterWrapper::GetVulkanStatus()
     ArkWebStringStructRelease(str);
     return result;
 }
+
+std::string ArkSystemPropertiesAdapterWrapper::GetPRPPreloadMode()
+{
+    if (!ctocpp_) {
+        return "";
+    }
+    ArkWebString str = ctocpp_->GetPRPPreloadMode();
+    std::string result = ArkWebStringStructToClass(str);
+    ArkWebStringStructRelease(str);
+    return result;
+}
 } // namespace OHOS::ArkWeb
