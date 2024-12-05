@@ -101,33 +101,26 @@ bool PasteDataRecordAdapterImpl::SetHtmlText(std::shared_ptr<std::string> htmlTe
 
 bool PasteDataRecordAdapterImpl::SetPlainText(std::shared_ptr<std::string> plainText)
 {
-    OH_UdsHtml* udsHtml = OH_UdsHtml_Create();
-
-    if (udsHtml == nullptr) {
-        WVLOG_E("Create UdsHtml failed when set plaintext");
-        return false;
-    }
-    (void) OH_UdmfRecord_GetHtml(record_, udsHtml);
-    auto ret = OH_UdsHtml_SetPlainContent(udsHtml, plainText->c_str());
-    if (mimeType_ == PLAINTEXT) {
-        std::string htmlText = "<span>" + *plainText + "</span>";
-        ret = OH_UdsHtml_SetContent(udsHtml, htmlText.c_str());
-    }
-
-    if (ret != UDMF_E_OK) {
-        WVLOG_E("SetPlainText failed, err_code=%{public}d, type=%{public}s", ret, mimeType_.c_str());
-        OH_UdsHtml_Destroy(udsHtml);
+    bool ret = true;
+    OH_UdsPlainText *udsPlain = OH_UdsPlainText_Create();
+    if (udsPlain == nullptr) {
+        WVLOG_E("Create Udsplaintext failed when set plaintext");
         return false;
     }
 
-    ret = OH_UdmfRecord_AddHtml(record_, udsHtml);
-    if (ret != UDMF_E_OK) {
-        WVLOG_E("AddHtml failed when set plaintext, err_code=%{public}d, type=%{public}s", ret, mimeType_.c_str());
-        OH_UdsHtml_Destroy(udsHtml);
+    auto err = OH_UdsPlainText_SetContent(udsPlain, plainText->c_str());
+    if (err != UDMF_E_OK) {
+        WVLOG_E("set plaintext failed, err_code=%{public}d", err);
+        OH_UdsPlainText_Destroy(udsPlain);
         return false;
     }
-    OH_UdsHtml_Destroy(udsHtml);
-    return true;
+    err = OH_UdmfRecord_AddPlainText(record_, udsPlain);
+    if (err != UDMF_E_OK) {
+        WVLOG_E("add plaintext to recorf failed, err_code=%{public}d", err);
+        ret = false;
+    }
+    OH_UdsPlainText_Destroy(udsPlain);
+    return ret;
 }
 
 bool PasteDataRecordAdapterImpl::SetUri(const std::string& uriString)
