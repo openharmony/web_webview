@@ -2081,5 +2081,23 @@ void WebviewController::GetScrollOffset(float* offset_x, float* offset_y)
         nweb_ptr->GetScrollOffset(offset_x, offset_y);
     }
 }
+
+void WebviewController::ScrollToWithAnime(float x, float y, int32_t duration)
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (nweb_ptr) {
+        nweb_ptr->ScrollToWithAnime(x, y, duration);
+    }
+    return;
+}
+
+void WebviewController::ScrollByWithAnime(float deltaX, float deltaY, int32_t duration)
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (nweb_ptr) {
+        nweb_ptr->ScrollByWithAnime(deltaX, deltaY, duration);
+    }
+    return;
+}
 } // namespace NWeb
 } // namespace OHOS

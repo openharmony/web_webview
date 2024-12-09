@@ -83,6 +83,8 @@ public:
     {
         return nullptr;
     }
+
+    virtual void TrimMemoryByPressureLevel(int32_t memoryLevel) {};
 };
 
 } // namespace OHOS::NWeb

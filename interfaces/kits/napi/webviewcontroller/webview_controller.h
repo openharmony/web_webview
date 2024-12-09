@@ -120,6 +120,11 @@ enum class ScrollType : int {
     EVENT = 0,
 };
 
+enum class PressureLevel : int {
+    MEMORY_PRESSURE_LEVEL_MODERATE = 1,
+    MEMORY_PRESSURE_LEVEL_CRITICAL = 2,
+};
+
 class WebPrintDocument;
 class WebviewController {
 public:
@@ -380,6 +385,10 @@ public:
     bool ScrollByWithResult(float deltaX, float deltaY);
 
     void GetScrollOffset(float* offset_x, float* offset_y);
+
+    void ScrollToWithAnime(float x, float y, int32_t duration) ;
+  
+    void ScrollByWithAnime(float deltaX, float deltaY, int32_t duration) ;
 private:
     int ConverToWebHitTestType(int hitType);
 

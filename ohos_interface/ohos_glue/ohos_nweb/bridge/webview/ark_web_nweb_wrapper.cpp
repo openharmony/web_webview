@@ -1353,4 +1353,14 @@ void ArkWebNWebWrapper::WebComponentsBlur()
 {
     ark_web_nweb_->WebComponentsBlur();
 }
+
+void ArkWebNWebWrapper::ScrollToWithAnime(float x, float y, int32_t duration)
+{
+    ark_web_nweb_->ScrollToWithAnime(x, y, duration);
+}
+
+void ArkWebNWebWrapper::ScrollByWithAnime(float delta_x, float delta_y, int32_t duration)
+{
+    ark_web_nweb_->ScrollByWithAnime(delta_x, delta_y, duration);
+}
 } // namespace OHOS::ArkWeb
