@@ -1348,4 +1348,9 @@ bool ArkWebNWebWrapper::GetAccessibilityVisible(int64_t accessibility_id)
 {
     return ark_web_nweb_->GetAccessibilityVisible(accessibility_id);
 }
+
+void ArkWebNWebWrapper::WebComponentsBlur()
+{
+    ark_web_nweb_->WebComponentsBlur();
+}
 } // namespace OHOS::ArkWeb

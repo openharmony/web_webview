@@ -493,4 +493,9 @@ void ArkWebPreferenceImpl::SetScrollable(bool enable, int32_t scrollType)
     nweb_preference_->SetScrollable(enable, scrollType);
 }
 
+void ArkWebPreferenceImpl::SetBlurOnKeyboardHideMode(int enable)
+{
+    nweb_preference_->SetBlurOnKeyboardHideMode(enable);
+}
+
 } // namespace OHOS::ArkWeb

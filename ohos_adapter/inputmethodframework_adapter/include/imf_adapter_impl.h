@@ -82,6 +82,8 @@ public:
     int32_t ReceivePrivateCommand(
         const std::unordered_map<std::string, MiscServices::PrivateDataValue>& privateCommand) override;
 
+    void NotifyPanelStatusInfo(const MiscServices::PanelStatusInfo& info) override;
+
 private:
     std::shared_ptr<IMFTextListenerAdapter> listener_ = nullptr;
     const std::string PREVIEW_TEXT_STYLE_KEY = "previewTextStyle";

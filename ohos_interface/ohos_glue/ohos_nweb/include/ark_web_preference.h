@@ -740,6 +740,13 @@ public:
      */
     /*--ark web()--*/
     virtual void SetScrollable(bool enable, int32_t scrollType) = 0;
+
+    /**
+     * @brief Set whether to support the blur when the keyboard is hidden by manual.
+     * @param enable set whether blur is allowed.
+     */
+    /*--ark web()--*/
+    virtual void SetBlurOnKeyboardHideMode(int enable) = 0;
 };
 
 } // namespace OHOS::ArkWeb

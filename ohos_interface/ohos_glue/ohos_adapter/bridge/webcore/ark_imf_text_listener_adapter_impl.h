@@ -63,6 +63,8 @@ public:
     void AutoFillWithIMFEvent(bool isUsername, bool isOtherAccount, bool isNewPassword,
         const ArkWebString& content) override;
 
+    void KeyboardUpperRightCornerHide() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::IMFTextListenerAdapter> real_;
 

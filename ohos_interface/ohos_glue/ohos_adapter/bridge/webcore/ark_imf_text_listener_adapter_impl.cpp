@@ -123,4 +123,9 @@ void ArkIMFTextListenerAdapterImpl::AutoFillWithIMFEvent(bool isUsername, bool i
 {
     real_->AutoFillWithIMFEvent(isUsername, isOtherAccount, isNewPassword, ArkWebStringStructToClass(content));
 }
+
+void ArkIMFTextListenerAdapterImpl::KeyboardUpperRightCornerHide()
+{
+    real_->KeyboardUpperRightCornerHide();
+}
 } // namespace OHOS::ArkWeb

@@ -1320,6 +1320,11 @@ public:
      */
     /*--ark web()--*/
     bool GetAccessibilityVisible(int64_t accessibility_id) override;
+
+    /**
+     * @brief Web components blur when the keyboard is hidden by gesture back.
+     */
+    void WebComponentsBlur() override;
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

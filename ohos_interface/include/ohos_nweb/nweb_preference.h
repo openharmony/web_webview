@@ -655,6 +655,12 @@ public:
      * Set whether the scroll is enabled.
      */
     virtual void SetScrollable(bool enable, int32_t scrollType) {}
+
+    /**
+     * Set whether to support the blur when the keyboard is hidden by manual.
+     * @param enable set whether blur is allowed.
+     */
+    virtual void SetBlurOnKeyboardHideMode(int enable) {};
 };
 
 } // namespace OHOS::NWeb

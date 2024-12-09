@@ -655,6 +655,11 @@ public:
      */
     void SetScrollable(bool enable, int32_t scrollType) override;
 
+    /**
+     * @brief Set whether to support the blur when the keyboard is hidden by manual.
+     */
+    void SetBlurOnKeyboardHideMode(int enable) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebPreference> nweb_preference_;
 };
