@@ -35,7 +35,8 @@ namespace {
     DO(registerAsyncJavaScriptProxy, OH_ArkWeb_RegisterAsyncJavaScriptProxy); \
     DO(createWebMessagePorts, OH_ArkWeb_CreateWebMessagePorts);               \
     DO(destroyWebMessagePorts, OH_ArkWeb_DestroyWebMessagePorts);             \
-    DO(postWebMessage, OH_ArkWeb_PostWebMessage)
+    DO(postWebMessage, OH_ArkWeb_PostWebMessage);                             \
+    DO(getLastJavascriptProxyCallingFrameUrl, OH_ArkWeb_GetLastJavascriptProxyCallingFrameUrl)
 
 #define ARKWEB_NATIVE_FOR_EACH_WEBMESSAGEPORT_API_FN(DO) \
     DO(postMessage, OH_WebMessage_PostMessage);          \
