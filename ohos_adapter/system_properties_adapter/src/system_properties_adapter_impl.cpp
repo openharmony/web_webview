@@ -355,4 +355,9 @@ std::string SystemPropertiesAdapterImpl::GetVulkanStatus()
         return "false";
     }
 }
+
+std::string SystemPropertiesAdapterImpl::GetPRPPreloadMode()
+{
+    return OHOS::system::GetParameter("web.prppreload.mode", "none");
+}
 } // namespace OHOS::NWeb

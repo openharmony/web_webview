@@ -109,6 +109,9 @@ public:
      */
     /*--ark web()--*/
     virtual ArkWebString GetVulkanStatus() = 0;
+
+    /*--ark web()--*/
+    virtual ArkWebString GetPRPPreloadMode() = 0;
 };
 
 } // namespace OHOS::ArkWeb
