@@ -85,6 +85,10 @@ public:
     }
 
     virtual void TrimMemoryByPressureLevel(int32_t memoryLevel) {};
+
+    virtual std::string GetDefaultUserAgent() {
+        return "";
+    }
 };
 
 } // namespace OHOS::NWeb

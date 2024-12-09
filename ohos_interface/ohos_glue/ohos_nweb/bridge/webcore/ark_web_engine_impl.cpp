@@ -150,6 +150,11 @@ void ArkWebEngineImpl::ClearIntelligentTrackingPreventionBypassingList()
     nweb_engine_->ClearIntelligentTrackingPreventionBypassingList();
 }
 
+ArkWebString ArkWebEngineImpl::GetDefaultUserAgent()
+{
+    return ArkWebStringClassToStruct(nweb_engine_->GetDefaultUserAgent());
+}
+
 void ArkWebEngineImpl::PauseAllTimers()
 {
     nweb_engine_->PauseAllTimers();

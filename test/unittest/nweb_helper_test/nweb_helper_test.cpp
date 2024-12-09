@@ -113,6 +113,11 @@ public:
     void RemoveIntelligentTrackingPreventionBypassingList(const std::vector<std::string>& hosts) {}
     void ClearIntelligentTrackingPreventionBypassingList() {}
 
+    std::string GetDefaultUserAgent()
+    {
+        return "";
+    }
+
     void PauseAllTimers() {}
 
     void ResumeAllTimers() {}
@@ -492,6 +497,7 @@ HWTEST_F(NwebHelperTest, NWebHelper_LoadWebEngine_008, TestSize.Level1)
     NWebHelper::Instance().AddIntelligentTrackingPreventionBypassingList(hosts);
     NWebHelper::Instance().RemoveIntelligentTrackingPreventionBypassingList(hosts);
     NWebHelper::Instance().ClearIntelligentTrackingPreventionBypassingList();
+    NWebHelper::Instance().GetDefaultUserAgent();
     NWebHelper::Instance().PauseAllTimers();
     NWebHelper::Instance().ResumeAllTimers();
     EXPECT_NE(NWebHelper::Instance().nwebEngine_, nullptr);
@@ -510,6 +516,7 @@ HWTEST_F(NwebHelperTest, NWebHelper_LoadWebEngine_008, TestSize.Level1)
     NWebHelper::Instance().AddIntelligentTrackingPreventionBypassingList(hosts);
     NWebHelper::Instance().RemoveIntelligentTrackingPreventionBypassingList(hosts);
     NWebHelper::Instance().ClearIntelligentTrackingPreventionBypassingList();
+    NWebHelper::Instance().GetDefaultUserAgent();
     NWebHelper::Instance().PauseAllTimers();
     NWebHelper::Instance().ResumeAllTimers();
 }

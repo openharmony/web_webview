@@ -55,6 +55,8 @@ public:
 
     void ClearIntelligentTrackingPreventionBypassingList() override;
 
+    ArkWebString GetDefaultUserAgent() override;
+
     void PauseAllTimers() override;
 
     void ResumeAllTimers() override;

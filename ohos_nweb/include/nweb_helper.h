@@ -66,6 +66,7 @@ public:
     void AddIntelligentTrackingPreventionBypassingList(const std::vector<std::string>& hosts);
     void RemoveIntelligentTrackingPreventionBypassingList(const std::vector<std::string>& hosts);
     void ClearIntelligentTrackingPreventionBypassingList();
+    std::string GetDefaultUserAgent();
 
     void PrefetchResource(const std::shared_ptr<NWebEnginePrefetchArgs>& pre_args,
         const std::map<std::string, std::string>& additional_http_headers, const std::string& cache_key,
