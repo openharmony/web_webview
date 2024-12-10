@@ -61,7 +61,8 @@ public:
         return rendererFlags;
     }
 
-    AudioAdapterConcurrencyMode GetConcurrencyMode() {
+    AudioAdapterConcurrencyMode GetConcurrencyMode() override 
+    {
         return concurrency_mode;
     }
 
