@@ -40,6 +40,8 @@ public:
 
     int32_t GetRenderFlags() override;
 
+    NWeb::AudioAdapterConcurrencyMode GetConcurrencyMode() override;
+    
 private:
     ArkWebRefPtr<ArkAudioRendererOptionsAdapter> ctocpp_;
 };

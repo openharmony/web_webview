@@ -45,6 +45,9 @@ public:
 
     /*--ark web()--*/
     virtual int32_t GetRenderFlags() = 0;
+
+    /*--ark web()--*/
+    virtual int32_t GetConcurrencyMode() = 0;
 };
 
 /*--ark web(source=webcore)--*/
