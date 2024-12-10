@@ -659,6 +659,11 @@ public:
      */
     void SetBlurOnKeyboardHideMode(int enable) override;
 
+    /**
+     * @brief Set the scale of the font-weight.The default is 1.0f.
+     */
+    void SetFontWeightScale(float size) override;
+
 private:
     ArkWebRefPtr<ArkWebPreference> ark_web_preference_;
 };

@@ -501,4 +501,9 @@ void ArkWebPreferenceImpl::SetBlurOnKeyboardHideMode(int enable)
     nweb_preference_->SetBlurOnKeyboardHideMode(enable);
 }
 
+void ArkWebPreferenceImpl::SetFontWeightScale(float size)
+{
+    nweb_preference_->SetFontWeightScale(size);
+}
+
 } // namespace OHOS::ArkWeb

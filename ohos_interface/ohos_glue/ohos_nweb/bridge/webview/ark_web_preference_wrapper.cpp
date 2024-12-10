@@ -574,4 +574,11 @@ void ArkWebPreferenceWrapper::SetBlurOnKeyboardHideMode(int enable)
     }
 }
 
+void ArkWebPreferenceWrapper::SetFontWeightScale(float size)
+{
+    if (ark_web_preference_) {
+        ark_web_preference_->SetFontWeightScale(size);
+    }
+}
+
 } // namespace OHOS::ArkWeb
