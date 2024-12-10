@@ -102,6 +102,11 @@ public:
         return rendererFlags;
     }
 
+    AudioAdapterConcurrencyMode GetConcurrencyMode() override 
+    {
+        return concurrency_mode;
+    }
+
     AudioAdapterSamplingRate samplingRate;
     AudioAdapterEncodingType encoding;
     AudioAdapterSampleFormat format;
@@ -109,6 +114,7 @@ public:
     AudioAdapterContentType contentType;
     AudioAdapterStreamUsage streamUsage;
     int32_t rendererFlags;
+    AudioAdapterConcurrencyMode concurrency_mode;
 };
 
 class AudioInterruptAdapterMock : public AudioInterruptAdapter {
