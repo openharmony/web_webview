@@ -58,6 +58,7 @@ public:
     WebDownloadItemCallbackWrapper *download_item_callback;
 
     int32_t nwebId;
+    bool hasStarted{false};
 
 private:
     napi_env env_;
