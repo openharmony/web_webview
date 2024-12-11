@@ -103,7 +103,7 @@ public:
 
     virtual int32_t GetRenderFlags() = 0;
 
-    virtual AudioAdapterConcurrencyMode GetConcurrencyMode() = 0;
+    virtual AudioAdapterConcurrencyMode GetConcurrencyMode() { return AudioAdapterConcurrencyMode::INVALID; }
 };
 
 enum AudioAdapterCode : int32_t {
