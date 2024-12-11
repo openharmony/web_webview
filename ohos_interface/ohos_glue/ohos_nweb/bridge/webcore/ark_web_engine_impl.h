@@ -79,6 +79,8 @@ public:
 
     ArkWebRefPtr<ArkWebAdsBlockManager> GetAdsBlockManager() override;
 
+    void TrimMemoryByPressureLevel(int32_t memoryLevel) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebEngine> nweb_engine_;
 };

@@ -546,6 +546,8 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("updateInstanceId", NapiWebviewController::UpdateInstanceId),
         DECLARE_NAPI_FUNCTION("getScrollOffset",
             NapiWebviewController::GetScrollOffset),
+        DECLARE_NAPI_STATIC_FUNCTION("trimMemoryByPressureLevel",
+            NapiWebviewController::TrimMemoryByPressureLevel),
     };
     napi_value constructor = nullptr;
     napi_define_class(env, WEBVIEW_CONTROLLER_CLASS_NAME.c_str(), WEBVIEW_CONTROLLER_CLASS_NAME.length(),
@@ -738,6 +740,18 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         NapiParseUtils::CreateEnumConstructor, nullptr, sizeof(scrollTypeProperties) /
         sizeof(scrollTypeProperties[0]), scrollTypeProperties, &scrollTypeEnum);
     napi_set_named_property(env, exports, WEB_SCROLL_TYPE_ENUM_NAME.c_str(), scrollTypeEnum);
+
+    napi_value pressureLevelEnum = nullptr;
+    napi_property_descriptor pressureLevelProperties[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("MEMORY_PRESSURE_LEVEL_MODERATE", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(PressureLevel::MEMORY_PRESSURE_LEVEL_MODERATE))),
+        DECLARE_NAPI_STATIC_PROPERTY("MEMORY_PRESSURE_LEVEL_CRITICAL", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(PressureLevel::MEMORY_PRESSURE_LEVEL_CRITICAL))),
+    };
+    napi_define_class(env, WEB_PRESSURE_LEVEL_ENUM_NAME.c_str(), WEB_PRESSURE_LEVEL_ENUM_NAME.length(),
+        NapiParseUtils::CreateEnumConstructor, nullptr, sizeof(pressureLevelProperties) /
+        sizeof(pressureLevelProperties[0]), pressureLevelProperties, &pressureLevelEnum);
+    napi_set_named_property(env, exports, WEB_PRESSURE_LEVEL_ENUM_NAME.c_str(), pressureLevelEnum);
 
     WebviewJavaScriptExecuteCallback::InitJSExcute(env, exports);
     return exports;
@@ -4113,15 +4127,16 @@ napi_value NapiWebviewController::ScrollTo(napi_env env, napi_callback_info info
 {
     napi_value thisVar = nullptr;
     napi_value result = nullptr;
-    size_t argc = INTEGER_TWO;
-    napi_value argv[INTEGER_TWO] = { 0 };
+    size_t argc = INTEGER_THREE;
+    napi_value argv[INTEGER_THREE] = { 0 };
     float x;
     float y;
+    int32_t duration;
 
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
-    if (argc != INTEGER_TWO) {
+    if (argc != INTEGER_TWO && argc != INTEGER_THREE) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "two"));
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_TWO, "two", "three"));
         return result;
     }
 
@@ -4137,13 +4152,25 @@ napi_value NapiWebviewController::ScrollTo(napi_env env, napi_callback_info info
         return result;
     }
 
+    if (argc == INTEGER_THREE) {
+        if(!NapiParseUtils::ParseInt32(env, argv[INTEGER_TWO], duration)) {
+            BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "duration", "number"));
+            return result;
+        }   
+    }
+
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
     if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
-    webviewController->ScrollTo(x, y);
+    if(argc == INTEGER_THREE) {
+        webviewController->ScrollToWithAnime(x, y, duration);
+    } else {
+        webviewController->ScrollTo(x, y);
+    }   
     return result;
 }
 
@@ -4151,15 +4178,16 @@ napi_value NapiWebviewController::ScrollBy(napi_env env, napi_callback_info info
 {
     napi_value thisVar = nullptr;
     napi_value result = nullptr;
-    size_t argc = INTEGER_TWO;
-    napi_value argv[INTEGER_TWO] = { 0 };
+    size_t argc = INTEGER_THREE;
+    napi_value argv[INTEGER_THREE] = { 0 };
     float deltaX;
     float deltaY;
+    int32_t duration = 0;
 
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
-    if (argc != INTEGER_TWO) {
+    if (argc != INTEGER_TWO && argc != INTEGER_THREE) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "two"));
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_TWO, "two", "three"));
         return result;
     }
 
@@ -4175,13 +4203,25 @@ napi_value NapiWebviewController::ScrollBy(napi_env env, napi_callback_info info
         return result;
     }
 
+    if (argc == INTEGER_THREE) {
+        if(!NapiParseUtils::ParseInt32(env, argv[INTEGER_TWO], duration)) {
+            BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "duration", "number"));
+            return result;
+        }   
+    }
+
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
     if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
-    webviewController->ScrollBy(deltaX, deltaY);
+    if(argc == INTEGER_THREE) {
+        webviewController->ScrollByWithAnime(deltaX, deltaY, duration);
+    } else {
+        webviewController->ScrollBy(deltaX, deltaY);
+    }
     return result;
 }
 
@@ -6294,6 +6334,35 @@ napi_value NapiWebviewController::GetScrollOffset(napi_env env,
     napi_create_double(env, static_cast<double>(offsetY), &vertical);
     napi_set_named_property(env, result, "x", horizontal);
     napi_set_named_property(env, result, "y", vertical);
+    return result;
+}
+
+napi_value NapiWebviewController::TrimMemoryByPressureLevel(napi_env env,
+    napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+    int32_t memoryLevel;
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(
+                ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
+        return result;
+    }
+
+    if (!NapiParseUtils::ParseInt32(env, argv[INTEGER_ZERO], memoryLevel)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR,
+                                    "PressureLevel", "number"));
+        return result;
+    }
+
+    memoryLevel = memoryLevel == 1 ? 0 : memoryLevel;
+    NWebHelper::Instance().TrimMemoryByPressureLevel(memoryLevel);
+    NAPI_CALL(env, napi_get_undefined(env, &result));
     return result;
 }
 } // namespace NWeb
