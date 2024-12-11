@@ -74,7 +74,7 @@ enum class AudioAdapterStreamUsage : int32_t {
     STREAM_USAGE_NOTIFICATION_RINGTONE = 6
 };
 
-enum class AudioAdapterConcurrencyMode : int32_t{
+enum class AudioAdapterConcurrencyMode : int32_t {
     INVALID = -1,
     DEFAULT = 0,
     MIX_WITH_OTHERS = 1,
