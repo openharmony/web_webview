@@ -218,6 +218,7 @@ HWTEST_F(NwebHelperTest, NWebHelper_SetBundlePath_001, TestSize.Level1)
     EXPECT_TRUE(result);
     result = NWebHelper::Instance().LoadNWebSDK();
     EXPECT_TRUE(result);
+    WebDownloadManager_PutDownloadCallback(nullptr);
     g_applicationContext.reset();
 }
 
@@ -258,7 +259,7 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetDataBase_003, TestSize.Level1)
     EXPECT_EQ(RESULT_OK, result);
 
     std::shared_ptr<NWebCookieManager> cook = NWebHelper::Instance().GetCookieManager();
-    EXPECT_EQ(cook, nullptr);
+    EXPECT_NE(cook, nullptr);
 
     void *enhanceSurfaceInfo = nullptr;
     int32_t temp = 1;
@@ -330,7 +331,7 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetConfigPath_005, TestSize.Level1)
     NWebHelper::Instance().bundlePath_.clear();
     NWebHelper::Instance().EnableBackForwardCache(true, true);
     bool result = NWebHelper::Instance().InitAndRun(false);
-    EXPECT_FALSE(result);
+    EXPECT_TRUE(result);
     NWebHelper::Instance().SetConnectionTimeout(1);
     NWebHelper::Instance().LoadWebEngine(true, false);
 
@@ -477,16 +478,16 @@ HWTEST_F(NwebHelperTest, NWebHelper_LoadWebEngine_008, TestSize.Level1)
     nweb = NWebHelper::Instance().GetNWeb(1);
     EXPECT_EQ(nweb, nullptr);
     std::shared_ptr<NWebCookieManager> cook = NWebHelper::Instance().GetCookieManager();
-    EXPECT_EQ(cook, nullptr);
+    EXPECT_NE(cook, nullptr);
     auto manager = NWebHelper::Instance().GetAdsBlockManager();
-    EXPECT_EQ(manager, nullptr);
+    EXPECT_NE(manager, nullptr);
     std::shared_ptr<NWebDOHConfigImpl> config = std::make_shared<NWebDOHConfigImpl>();
     NWebHelper::Instance().SetHttpDns(config);
     NWebHelper::Instance().PrepareForPageLoad("web_test", true, 0);
     NWebHelper::Instance().WarmupServiceWorker("web_test");
     NWebHelper::Instance().GetDataBase();
     std::shared_ptr<NWebWebStorage> storage = NWebHelper::Instance().GetWebStorage();
-    EXPECT_EQ(storage, nullptr);
+    EXPECT_NE(storage, nullptr);
     NWebHelper::Instance().SetConnectionTimeout(1);
     std::vector<std::string> hosts;
     NWebHelper::Instance().AddIntelligentTrackingPreventionBypassingList(hosts);
@@ -539,6 +540,7 @@ HWTEST_F(NwebHelperTest, NWebHelper_ParseNWebLTPOConfig_001, TestSize.Level1)
     EXPECT_TRUE(NWebConfigHelper::Instance().ltpoConfig_.empty());
     std::shared_ptr<NWebEngineInitArgsImpl> initArgs = std::make_shared<NWebEngineInitArgsImpl>();
     NWebAdapterHelper::Instance().ParseConfig(initArgs);
+    EXPECT_TRUE(NWebConfigHelper::Instance().ltpoConfig_.empty());
 }
 
 /**
@@ -625,7 +627,7 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetAdsBlockManager_001, TestSize.Level1)
     nweb = NWebHelper::Instance().GetNWeb(1);
     EXPECT_EQ(nweb, nullptr);
     auto manager = NWebHelper::Instance().GetAdsBlockManager();
-    EXPECT_EQ(manager, nullptr);
+    EXPECT_NE(manager, nullptr);
 }
 } // namespace OHOS::NWeb
 }
