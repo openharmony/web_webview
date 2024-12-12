@@ -15,6 +15,7 @@
 
 #include "sensor_adapter_impl.h"
 #include <map>
+#include <mutex>
 
 #include "nweb_log.h"
 
@@ -39,6 +40,7 @@ typedef struct SensorSubscriber {
 } SensorSubscriber;
 std::unordered_map<Sensor_Type, std::shared_ptr<SensorSubscriber>> sensorSubscriberMap;
 std::unordered_map<Sensor_Type, std::shared_ptr<SensorCallbackImpl>> SensorAdapterImpl::sensorCallbackMap;
+std::mutex callbackMutex;
 constexpr double NANOSECONDS_IN_SECOND = 1000000000.0;
 constexpr double DEFAULT_SAMPLE_PERIOD = 200000000.0;
 
@@ -281,9 +283,12 @@ void SensorAdapterImpl::OhosSensorCallback(Sensor_Event* event)
         WVLOG_E("OhosSensorCallback error, GetType ret = %{public}d.", ret);
         return;
     }
-    auto findIter = sensorCallbackMap.find(type);
-    if (findIter != sensorCallbackMap.end()) {
-        callback = findIter->second;
+    {
+        std::lock_guard<std::mutex> lock(callbackMutex);
+        auto findIter = sensorCallbackMap.find(type);
+        if (findIter != sensorCallbackMap.end()) {
+            callback = findIter->second;
+        }
     }
     if ((event == nullptr) || (callback == nullptr)) {
         WVLOG_E("OhosSensorCallback Error.");
@@ -370,37 +375,49 @@ int32_t SensorAdapterImpl::RegistOhosSensorCallback(int32_t sensorTypeId,
     int32_t ret = SensorTypeToOhosSensorType(sensorTypeId, &ohosSensorTypeId);
     if (ret == SENSOR_SUCCESS) {
         auto callback = std::make_shared<SensorCallbackImpl>(callbackAdapter);
-        sensorCallbackMap[ohosSensorTypeId] = callback;
+        {
+            std::lock_guard<std::mutex> lock(callbackMutex);
+            sensorCallbackMap[ohosSensorTypeId] = callback;
+        }
         return SENSOR_SUCCESS;
     }
     WVLOG_E("RegistOhosSensorCallback error, sensorTypeId is invalid.");
     return SENSOR_PARAMETER_ERROR;
 }
 
+int32_t UnsubscribeOhosSensorInternal(Sensor_Type ohosSensorTypeId)
+{
+    auto findIter = sensorSubscriberMap.find(ohosSensorTypeId);
+    if (findIter == sensorSubscriberMap.end()) {
+        WVLOG_E("UnsubscribeOhosSensor error, map not contain type %{public}d.", ohosSensorTypeId);
+        return SENSOR_PARAMETER_ERROR;
+    }
+    auto sensorSubscriber = findIter->second;
+    Sensor_Result oh_ret = OH_Sensor_Unsubscribe(sensorSubscriber->id, sensorSubscriber->subscriber);
+    if (oh_ret != SENSOR_SUCCESS) {
+        WVLOG_E("UnsubscribeOhosSensor error, call unsubscribe ret = %{public}d.", oh_ret);
+        return oh_ret;
+    }
+    OH_Sensor_DestroySubscriber(sensorSubscriber->subscriber);
+    OH_Sensor_DestroySubscriptionId(sensorSubscriber->id);
+    OH_Sensor_DestroySubscriptionAttribute(sensorSubscriber->attr);
+    sensorSubscriberMap.erase(ohosSensorTypeId);
+    return SENSOR_SUCCESS;
+}
+
 int32_t SensorAdapterImpl::UnsubscribeOhosSensor(int32_t sensorTypeId)
 {
     WVLOG_I("UnsubscribeOhosSensor sensorTypeId: %{public}d.", sensorTypeId);
     Sensor_Type ohosSensorTypeId;
-    std::shared_ptr<SensorSubscriber>sensorSubscriber = nullptr;
     int32_t ret = SensorTypeToOhosSensorType(sensorTypeId, &ohosSensorTypeId);
     if (ret == SENSOR_SUCCESS) {
-        sensorCallbackMap.erase(ohosSensorTypeId);
-        auto findIter = sensorSubscriberMap.find(ohosSensorTypeId);
-        if (findIter == sensorSubscriberMap.end()) {
-            return SENSOR_PARAMETER_ERROR;
+        auto oh_ret = UnsubscribeOhosSensorInternal(ohosSensorTypeId);
+        WVLOG_I("UnsubscribeOhosSensor sensorTypeId: %{public}d, result: %{public}d", sensorTypeId, oh_ret);
+        {
+            std::lock_guard<std::mutex> lock(callbackMutex);
+            sensorCallbackMap.erase(ohosSensorTypeId);
         }
-        sensorSubscriber = findIter->second;
-        Sensor_Result oh_ret = OH_Sensor_Unsubscribe(sensorSubscriber->id, sensorSubscriber->subscriber);
-        if (oh_ret != SENSOR_SUCCESS) {
-            WVLOG_E("UnsubscribeOhosSensor error, call unsubscribe ret = %{public}d.", oh_ret);
-            return oh_ret;
-        }
-        OH_Sensor_DestroySubscriber(sensorSubscriber->subscriber);
-        OH_Sensor_DestroySubscriptionId(sensorSubscriber->id);
-        OH_Sensor_DestroySubscriptionAttribute(sensorSubscriber->attr);
-        sensorSubscriberMap.erase(ohosSensorTypeId);
-        WVLOG_I("UnsubscribeOhosSensor sensorTypeId: %{public}d.", sensorTypeId);
-        return SENSOR_SUCCESS;
+        return oh_ret;
     }
     WVLOG_E("UnsubscribeOhosSensor error, sensorTypeId is invalid.");
     return SENSOR_PARAMETER_ERROR;
