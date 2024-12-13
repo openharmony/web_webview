@@ -224,10 +224,28 @@ enum class PixelUnit {
     NONE = 3,
 };
 
+class OHOS_NWEB_EXPORT NWebMouseEvent {
+public:
+    virtual ~NWebMouseEvent() = default;
+
+    virtual int32_t GetX() = 0;
+
+    virtual int32_t GetY() = 0;
+
+    virtual int32_t GetButton() = 0;
+
+    virtual int32_t GetAction() = 0;
+
+    virtual int32_t GetClickNum() = 0;
+
+    virtual std::vector<int32_t> GetPressKeyCodes() = 0;
+};
+
 typedef int64_t (*AccessibilityIdGenerateFunc)();
 typedef void (*NativeArkWebOnValidCallback)(const char*);
 typedef void (*NativeArkWebOnDestroyCallback)(const char*);
 using ScriptItems = std::map<std::string, std::vector<std::string>>;
+using ScriptItemsByOrder = std::vector<std::string>;
 using WebSnapshotCallback = std::function<void(const char*, bool, float, void*, int, int)>;
 
 enum class SystemThemeFlags : uint8_t {
@@ -1504,7 +1522,7 @@ public:
     /**
      * @brief Web components blur when the keyboard is hidden by gesture back.
      */
-    virtual void WebComponentsBlur() {} 
+    virtual void WebComponentsBlur() {}
 
     /**
      * Scroll to the position.
@@ -1557,6 +1575,26 @@ public:
      * @Input enable: Set whether to use optimized parser budget.
      */
     virtual void PutOptimizeParserBudgetEnabled(bool enable) {};
+
+    /**
+     * Inject the JavaScript before WebView load the DOM tree.
+     */
+    virtual void JavaScriptOnDocumentStartByOrder(const ScriptItems& scriptItems,
+        const ScriptItemsByOrder& scriptItemsByOrder) {}
+
+    /**
+     * Inject the JavaScript after WebView load the DOM tree.
+     */
+    virtual void JavaScriptOnDocumentEndByOrder(const ScriptItems& scriptItems,
+        const ScriptItemsByOrder& scriptItemsByOrder) {}
+
+    /**
+     * @Description: Inject the JavaScript when the head element has been created.
+     * @Input scriptItems: The injected JavaScript code is stored in lexicographical order.
+     * @Input scriptItemsByOrder: The injected JavaScript code is stored in the order of the injection array.
+     */
+    virtual void JavaScriptOnHeadReadyByOrder(const ScriptItems& scriptItems,
+        const ScriptItemsByOrder& scriptItemsByOrder) {}
 };
 
 } // namespace OHOS::NWeb
