@@ -27,6 +27,14 @@ public:
 
     /*--ark web()--*/
     virtual void SetGestureEventResult(bool result) = 0;
+
+    /**
+     * @Description: Set event consumption results.
+     * @Input result: True if the event is consumed.
+     * @Input stopPropagation: Stops the propagation of events farther along.
+     */
+    /*--ark web()--*/
+    virtual void SetGestureEventResultV2(bool result, bool stopPropagation) = 0;
 };
 } // namespace OHOS::ArkWeb
 
