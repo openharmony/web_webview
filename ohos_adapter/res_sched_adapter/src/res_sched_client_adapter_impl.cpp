@@ -31,6 +31,7 @@
 #include "res_type.h"
 #include "singleton.h"
 #include "system_ability_definition.h"
+#include "system_properties_adapter_impl.h"
 
 namespace OHOS::NWeb {
 using namespace OHOS::ResourceSchedule;
@@ -222,7 +223,8 @@ void ReportStatusData(ResSchedStatusAdapter statusAdapter,
         return;
     }
 
-    if (g_processInUse.count(pid)) {
+    ProductDeviceType deviceType = SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType();
+    if (deviceType == ProductDeviceType::DEVICE_TYPE_MOBILE || g_processInUse.count(pid)) {
         if (isSiteManage && IsSameSourceWebSiteActive(statusAdapter, pid, nwebId)) {
             return;
         }
@@ -359,11 +361,15 @@ bool ResSchedClientAdapter::ReportWindowStatus(
     }
 
     ReportStatusData(statusAdapter, pid, windowId, nwebId, true);
-    for (auto pidInNweb : g_nwebProcessMap[nwebId]) {
-        if (pidInNweb == pid) {
-            continue;
+    
+    ProductDeviceType deviceType = SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType();
+    if (deviceType == ProductDeviceType::DEVICE_TYPE_TABLET || deviceType == ProductDeviceType::DEVICE_TYPE_2IN1) {
+        for (auto pidInNweb : g_nwebProcessMap[nwebId]) {
+            if (pidInNweb == pid) {
+                continue;
+            }
+            ReportStatusData(statusAdapter, pidInNweb, windowId, nwebId, true);
         }
-        ReportStatusData(statusAdapter, pidInNweb, windowId, nwebId, true);
     }
 
     return true;
