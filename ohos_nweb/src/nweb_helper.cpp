@@ -868,6 +868,16 @@ void NWebHelper::ClearIntelligentTrackingPreventionBypassingList()
     nwebEngine_->ClearIntelligentTrackingPreventionBypassingList();
 }
 
+std::string NWebHelper::GetDefaultUserAgent()
+{
+    if (!LoadWebEngine(true, true)) {
+        WVLOG_E("failed to load web engine");
+        return "";
+    }
+    
+    return nwebEngine_->GetDefaultUserAgent();
+}
+
 void NWebHelper::PauseAllTimers()
 {
     if (nwebEngine_ == nullptr) {

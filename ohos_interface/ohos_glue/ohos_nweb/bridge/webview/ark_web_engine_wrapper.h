@@ -54,6 +54,8 @@ public:
 
     void ClearIntelligentTrackingPreventionBypassingList() override;
 
+    std::string GetDefaultUserAgent() override;
+
     void PauseAllTimers() override;
 
     void ResumeAllTimers() override;

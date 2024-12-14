@@ -164,6 +164,15 @@ void ArkWebEngineWrapper::ClearIntelligentTrackingPreventionBypassingList()
     ark_web_engine_->ClearIntelligentTrackingPreventionBypassingList();
 }
 
+std::string ArkWebEngineWrapper::GetDefaultUserAgent()
+{
+    ArkWebString stUA = ark_web_engine_->GetDefaultUserAgent();
+
+    std::string objUA = ArkWebStringStructToClass(stUA);
+    ArkWebStringStructRelease(stUA);
+    return objUA;
+}
+
 void ArkWebEngineWrapper::PauseAllTimers()
 {
     ark_web_engine_->PauseAllTimers();

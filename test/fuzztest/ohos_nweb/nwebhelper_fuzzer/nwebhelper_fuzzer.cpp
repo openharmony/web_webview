@@ -113,6 +113,11 @@ public:
     void RemoveIntelligentTrackingPreventionBypassingList(const std::vector<std::string>& hosts) {}
     void ClearIntelligentTrackingPreventionBypassingList() {}
 
+    std::string GetDefaultUserAgent()
+    {
+        return "";
+    }
+
     void PauseAllTimers() {}
 
     void ResumeAllTimers() {}

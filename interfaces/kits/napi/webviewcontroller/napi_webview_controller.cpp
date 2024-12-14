@@ -511,6 +511,7 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
             NapiWebviewController::ClearIntelligentTrackingPreventionBypassingList),
         DECLARE_NAPI_FUNCTION("getLastJavascriptProxyCallingFrameUrl",
             NapiWebviewController::GetLastJavascriptProxyCallingFrameUrl),
+        DECLARE_NAPI_STATIC_FUNCTION("getDefaultUserAgent", NapiWebviewController::GetDefaultUserAgent),
         DECLARE_NAPI_STATIC_FUNCTION("pauseAllTimers", NapiWebviewController::PauseAllTimers),
         DECLARE_NAPI_STATIC_FUNCTION("resumeAllTimers", NapiWebviewController::ResumeAllTimers),
         DECLARE_NAPI_FUNCTION("startCamera", NapiWebviewController::StartCamera),
@@ -5402,6 +5403,16 @@ napi_value NapiWebviewController::ClearIntelligentTrackingPreventionBypassingLis
     WVLOG_I("Clear intelligent tracking prevention bypassing list.");
     NWebHelper::Instance().ClearIntelligentTrackingPreventionBypassingList();
     NAPI_CALL(env, napi_get_undefined(env, &result));
+    return result;
+}
+
+napi_value NapiWebviewController::GetDefaultUserAgent(napi_env env, napi_callback_info info)
+{
+    WVLOG_I("Get the default user agent.");
+    napi_value result = nullptr;
+
+    std::string userAgent = NWebHelper::Instance().GetDefaultUserAgent();
+    NAPI_CALL(env, napi_create_string_utf8(env, userAgent.c_str(), userAgent.length(), &result));
     return result;
 }
 
