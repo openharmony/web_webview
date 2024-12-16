@@ -658,6 +658,11 @@ public:
      * @param enable set whether blur is allowed.
      */
     virtual void SetBlurOnKeyboardHideMode(int enable) {};
+
+    /**
+     * Set the scale of the font-weight.The default is 1.0f.
+     */
+    virtual void SetFontWeightScale(float size) {};
 };
 
 } // namespace OHOS::NWeb

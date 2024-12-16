@@ -747,6 +747,12 @@ public:
      */
     /*--ark web()--*/
     virtual void SetBlurOnKeyboardHideMode(int enable) = 0;
+
+    /**
+     * @brief Set the scale of the font-weight.The default is 1.0f.
+     */
+    /*--ark web()--*/
+    virtual void SetFontWeightScale(float size) = 0;
 };
 
 } // namespace OHOS::ArkWeb
