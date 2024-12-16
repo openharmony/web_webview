@@ -84,6 +84,16 @@ const std::unordered_map<AudioStreamDeviceChangeReason, AudioAdapterDeviceChange
     { AudioStreamDeviceChangeReason::OLD_DEVICE_UNAVALIABLE, AudioAdapterDeviceChangeReason::OLD_DEVICE_UNAVALIABLE },
     { AudioStreamDeviceChangeReason::OVERRODE, AudioAdapterDeviceChangeReason::OVERRODE },
 };
+
+const std::unordered_map<AudioAdapterConcurrencyMode, AudioConcurrencyMode> AUDIO_CONCURRENCY_MAP = {
+    { AudioAdapterConcurrencyMode::INVALID, AudioConcurrencyMode::INVALID },
+    { AudioAdapterConcurrencyMode::DEFAULT, AudioConcurrencyMode::DEFAULT },
+    { AudioAdapterConcurrencyMode::MIX_WITH_OTHERS, AudioConcurrencyMode::MIX_WITH_OTHERS },
+    { AudioAdapterConcurrencyMode::DUCK_OTHERS, AudioConcurrencyMode::DUCK_OTHERS },
+    { AudioAdapterConcurrencyMode::PAUSE_OTHERS, AudioConcurrencyMode::PAUSE_OTHERS },
+    { AudioAdapterConcurrencyMode::SLIENT, AudioConcurrencyMode::SLIENT },
+};
+
 AudioRendererCallbackImpl::AudioRendererCallbackImpl(std::shared_ptr<AudioRendererCallbackAdapter> cb) : cb_(cb) {};
 
 void AudioRendererCallbackImpl::OnInterrupt(const InterruptEvent& interruptEvent)
@@ -368,6 +378,19 @@ StreamUsage AudioRendererAdapterImpl::GetAudioStreamUsage(AudioAdapterStreamUsag
     return item->second;
 }
 
+AudioSessionStrategy AudioRendererAdapterImpl::GetAudioAudioStrategy(AudioAdapterConcurrencyMode concurrencyMode)
+{
+    struct AudioSessionStrategy strategy;
+    auto item = AUDIO_CONCURRENCY_MAP.find(concurrencyMode);
+    if (item == AUDIO_CONCURRENCY_MAP.end()) {
+        WVLOG_E("audio concurrency mode not found");
+        strategy.concurrencyMode = AudioConcurrencyMode::INVALID;
+        return strategy;
+    }
+    strategy.concurrencyMode = item->second;
+    return strategy;
+}
+
 void AudioRendererAdapterImpl::TransformToAudioRendererOptions(
     AudioRendererOptions& out, const std::shared_ptr<AudioRendererOptionsAdapter>& in)
 {
@@ -378,6 +401,7 @@ void AudioRendererAdapterImpl::TransformToAudioRendererOptions(
     out.rendererInfo.contentType = GetAudioContentType(in->GetContentType());
     out.rendererInfo.streamUsage = GetAudioStreamUsage(in->GetStreamUsage());
     out.rendererInfo.rendererFlags = in->GetRenderFlags();
+    out.strategy = GetAudioAudioStrategy(in->GetConcurrencyMode());
 }
 
 } // namespace OHOS::NWeb

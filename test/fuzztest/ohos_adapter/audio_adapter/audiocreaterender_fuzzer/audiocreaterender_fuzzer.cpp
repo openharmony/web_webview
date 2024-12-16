@@ -61,6 +61,11 @@ public:
         return rendererFlags;
     }
 
+    AudioAdapterConcurrencyMode GetConcurrencyMode() override 
+    {
+        return concurrency_mode;
+    }
+
     AudioAdapterSamplingRate samplingRate;
     AudioAdapterEncodingType encoding;
     AudioAdapterSampleFormat format;
@@ -68,6 +73,7 @@ public:
     AudioAdapterContentType contentType;
     AudioAdapterStreamUsage streamUsage;
     int32_t rendererFlags;
+    AudioAdapterConcurrencyMode concurrency_mode;
 };
 
 namespace OHOS {
@@ -86,6 +92,7 @@ bool AudioCreateRenderFuzzTest(const uint8_t* data, size_t size)
     rendererOptions->contentType = AudioAdapterContentType::CONTENT_TYPE_MUSIC;
     rendererOptions->streamUsage = AudioAdapterStreamUsage::STREAM_USAGE_MEDIA;
     rendererOptions->rendererFlags = 0;
+    rendererOptions->concurrency_mode = AudioAdapterConcurrencyMode::INVALID;
     std::string cachePath(reinterpret_cast<const char*>(data), size);
     AudioRendererAdapterImpl adapter;
     adapter.Create(rendererOptions, cachePath);

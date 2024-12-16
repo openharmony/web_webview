@@ -59,4 +59,9 @@ int32_t ArkAudioRendererOptionsAdapterWrapper::GetRenderFlags()
     return ctocpp_->GetRenderFlags();
 }
 
+NWeb::AudioAdapterConcurrencyMode ArkAudioRendererOptionsAdapterWrapper::GetConcurrencyMode()
+{
+    return (NWeb::AudioAdapterConcurrencyMode)ctocpp_->GetConcurrencyMode();
+}
+
 } // namespace OHOS::ArkWeb

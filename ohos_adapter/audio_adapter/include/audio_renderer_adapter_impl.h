@@ -104,6 +104,8 @@ public:
     static void TransformToAudioRendererOptions(
         AudioRendererOptions& out, const std::shared_ptr<AudioRendererOptionsAdapter>& in);
 
+    static AudioSessionStrategy GetAudioAudioStrategy(AudioAdapterConcurrencyMode concurrencyMode);
+
 private:
     std::unique_ptr<AudioRenderer> audio_renderer_;
     std::shared_ptr<AudioRendererCallbackImpl> callback_;

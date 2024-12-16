@@ -40,6 +40,8 @@ public:
 
     int32_t GetRenderFlags() override;
 
+    int32_t GetConcurrencyMode() override;
+    
 private:
     std::shared_ptr<OHOS::NWeb::AudioRendererOptionsAdapter> real_;
 

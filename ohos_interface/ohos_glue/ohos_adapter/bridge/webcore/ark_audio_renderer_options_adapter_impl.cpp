@@ -57,4 +57,9 @@ int32_t ArkAudioRendererOptionsAdapterImpl::GetRenderFlags()
     return (int32_t)(real_->GetRenderFlags());
 }
 
+int32_t ArkAudioRendererOptionsAdapterImpl::GetConcurrencyMode()
+{
+    return (int32_t)(real_->GetConcurrencyMode());
+}
+
 } // namespace OHOS::ArkWeb
