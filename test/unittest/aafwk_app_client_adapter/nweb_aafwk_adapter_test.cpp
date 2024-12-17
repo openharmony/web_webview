@@ -531,6 +531,10 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_QueryRenderSurface_016, TestSize
     int32_t surface_id = 0;
     clientAdapter->GetInstance().browserHost_ = nullptr;
     clientAdapter->QueryRenderSurface(surface_id);
+    sptr mockBrowser = new MockIBrowser();
+    EXPECT_CALL(*mockBrowser, QueryRenderSurface(surface_id));
+    clientAdapter->GetInstance().browserHost_ = mockBrowser;
+    clientAdapter->QueryRenderSurface(surface_id);
 }
  
 /**

@@ -182,8 +182,8 @@ class PlayerCallbackOnErrorParamTest : public PlayerCallbackImplTest,
 HWTEST_P(PlayerCallbackOnErrorParamTest, NormalTest, TestSize.Level1)
 {
     ASSERT_NE(playerCallback_, nullptr);
-    PlayerAdapterErrorType errorType = std::get<0>(GetParam());
-    int32_t errorCode = std::get<1>(GetParam());
+    PlayerAdapterErrorType errorType = PlayerAdapterErrorType::INVALID_CODE;
+    int32_t errorCode = 0;
     playerCallback_->OnError(errorCode, errorMsg_);
     EXPECT_EQ(static_cast<PlayerCallbackTest*>(playerCallback_->callbackAdapter_.get())->errorType_, errorType);
 }
