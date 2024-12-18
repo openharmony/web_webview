@@ -35,6 +35,8 @@ ohos_unittest("napi_common_test") {
     "../../../ohos_adapter/ohos_resource_adapter/include",
   ]
 
+  use_exceptions = true
+
   deps = [
     "$webview_path/interfaces/native:ohweb",
     "../../../ohos_adapter:nweb_ohos_adapter",
