@@ -1012,5 +1012,40 @@ void ArkWebHandlerWrapper::OnCursorUpdate(double x, double y, double width, doub
  bool ArkWebHandlerWrapper::CloseImageOverlaySelection()
  {
     return ark_web_handler_->CloseImageOverlaySelection();
+<<<<<<< HEAD
  }
+=======
+}
+
+bool ArkWebHandlerWrapper::OnSslErrorRequestByJSV2(
+    std::shared_ptr<OHOS::NWeb::NWebJSSslErrorResult> result, ArkWebSslError error,
+    const std::vector<std::string>& certChainData)
+{
+    ArkWebStringVector stCertChainData = ArkWebStringVectorClassToStruct(certChainData);
+    
+    bool flag = false;
+    if (CHECK_SHARED_PTR_IS_NULL(result)) {
+        flag = ark_web_handler_->OnSslErrorRequestByJSV2(nullptr, static_cast<int>(error), stCertChainData);
+    } else {
+        flag = ark_web_handler_->OnSslErrorRequestByJSV2(
+            new ArkWebJsSslErrorResultImpl(result), static_cast<int>(error), stCertChainData);
+    }
+
+    ArkWebStringVectorStructRelease(stCertChainData);
+    return flag;
+}
+
+void ArkWebHandlerWrapper::OnAccessibilityEvent(int64_t accessibilityId, int32_t eventType) {
+    ark_web_handler_->OnAccessibilityEvent(accessibilityId, eventType);
+}
+
+bool ArkWebHandlerWrapper::IsCurrentFocus() {
+    return ark_web_handler_->IsCurrentFocus();
+}
+
+void ArkWebHandlerWrapper::GetVisibleRectToWeb(int& visibleX, int& visibleY, int& visibleWidth, int& visibleHeight)
+{
+    ark_web_handler_->GetVisibleRectToWeb(visibleX, visibleY, visibleWidth, visibleHeight);
+}
+>>>>>>> 5c1dfc28 (fix drag long content freeeze)
 } // namespace OHOS::ArkWeb

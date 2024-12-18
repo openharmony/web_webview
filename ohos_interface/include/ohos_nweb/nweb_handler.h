@@ -989,6 +989,24 @@ public:
     virtual void OnNativeEmbedVisibilityChange(const std::string& embed_id, bool visibility) {}
 
     virtual bool CloseImageOverlaySelection() { return false; }
+<<<<<<< HEAD
+=======
+    
+    virtual bool OnSslErrorRequestByJSV2(std::shared_ptr<NWebJSSslErrorResult> result, SslError error,
+        const std::vector<std::string>& certChainData)
+    {
+        return false;
+    }
+
+    virtual void OnAccessibilityEvent(int64_t accessibilityId, int32_t eventType) {}
+
+    virtual bool IsCurrentFocus() { return false; }
+
+    /**
+     * @brief Get the visible area relative to the web.
+     */
+    virtual void GetVisibleRectToWeb(int& visibleX, int& visibleY, int& visibleWidth, int& visibleHeight) {}
+>>>>>>> 5c1dfc28 (fix drag long content freeeze)
 };
 
 } // namespace OHOS::NWeb

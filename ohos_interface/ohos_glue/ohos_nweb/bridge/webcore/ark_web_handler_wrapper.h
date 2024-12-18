@@ -607,6 +607,14 @@ public:
 
     bool CloseImageOverlaySelection() override;
 
+    bool OnSslErrorRequestByJSV2(std::shared_ptr<OHOS::NWeb::NWebJSSslErrorResult> result, ArkWebSslError error,
+        const std::vector<std::string>& certChainData) override;
+
+    void OnAccessibilityEvent(int64_t accessibilityId, int32_t eventType) override;
+
+    bool IsCurrentFocus() override;
+
+    void GetVisibleRectToWeb(int& visibleX, int& visibleY, int& visibleWidth, int& visibleHeight) override;
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };

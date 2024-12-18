@@ -570,6 +570,17 @@ public:
 
     bool CloseImageOverlaySelection() override;
 
+<<<<<<< HEAD
+=======
+    bool OnSslErrorRequestByJSV2(ArkWebRefPtr<ArkWebJsSslErrorResult> result, int error,
+        const ArkWebStringVector& certChainData) override;
+    
+    void OnAccessibilityEvent(int64_t accessibilityId, int32_t eventType) override;
+
+    bool IsCurrentFocus() override;
+
+    void GetVisibleRectToWeb(int& visibleX, int& visibleY, int& visibleWidth, int& visibleHeight) override;
+>>>>>>> 5c1dfc28 (fix drag long content freeeze)
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };
