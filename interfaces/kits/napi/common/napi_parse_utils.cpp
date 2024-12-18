@@ -472,14 +472,24 @@ bool NapiParseUtils::ParseJsLengthStringToInt(const std::string &input, PixelUni
         return false;
     }
     if (IsNumberOfLength(input)) {
-        value = std::stoi(input);
+        try {
+            value = std::stoi(input);
+        } catch (std::out_of_range&) {
+            WVLOG_E("input trans failed: out of range");
+            value = 0;
+        }
         type = PixelUnit::VP;
         return true;
     }
     if (input.back() == '%') {
         std::string trans = input.substr(0, input.length() - 1);
         if (IsNumberOfLength(trans)) {
-            value = std::stoi(trans);
+            try {
+                value = std::stoi(trans);
+            } catch (std::out_of_range&) {
+                WVLOG_E("input trans failed: out of range");
+                value = 0;
+            }
             type = PixelUnit::PERCENTAGE;
             return true;
         }
@@ -494,11 +504,21 @@ bool NapiParseUtils::ParseJsLengthStringToInt(const std::string &input, PixelUni
         return false;
     }
     if (lastTwo == "px") {
-        value = std::stoi(trans);
+        try {
+            value = std::stoi(trans);
+        } catch (std::out_of_range&) {
+            WVLOG_E("input trans failed: out of range");
+            value = 0;
+        }
         type = PixelUnit::PX;
         return true;
     } else if (lastTwo == "vp") {
-        value = std::stoi(trans);
+        try {
+            value = std::stoi(trans);
+        } catch (std::out_of_range&) {
+            WVLOG_E("input trans failed: out of range");
+            value = 0;
+        }
         type = PixelUnit::VP;
         return true;
     }
