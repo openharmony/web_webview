@@ -17,6 +17,8 @@
 
 #include "ohos_nweb/bridge/ark_web_accessibility_event_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_accessibility_node_info_impl.h"
+#include "ohos_nweb/bridge/ark_web_array_buffer_value_callback_wrapper.h"
+#include "ohos_nweb/bridge/ark_web_pdfconfig_args_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_bool_value_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_cache_options_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_core_struct_utils.h"
@@ -1161,5 +1163,20 @@ void ArkWebNWebImpl::ScrollToWithAnime(float x, float y, int32_t duration)
 void ArkWebNWebImpl::ScrollByWithAnime(float delta_x, float delta_y, int32_t duration)
 {
     nweb_nweb_->ScrollByWithAnime(delta_x, delta_y, duration);
+}
+
+void ArkWebNWebImpl::ExecuteCreatePDFExt(
+    ArkWebRefPtr<ArkWebPDFConfigArgs> pdfConfig, ArkWebRefPtr<ArkWebArrayBufferValueCallback> callback)
+{
+    if (CHECK_REF_PTR_IS_NULL(callback)) {
+        nweb_nweb_->ExecuteCreatePDFExt(
+            std::make_shared<ArkWebPDFConfigArgsWrapper>(CHECK_REF_PTR_IS_NULL(pdfConfig) ? nullptr : pdfConfig),
+            nullptr);
+        return;
+    }
+
+    nweb_nweb_->ExecuteCreatePDFExt(
+        std::make_shared<ArkWebPDFConfigArgsWrapper>(CHECK_REF_PTR_IS_NULL(pdfConfig) ? nullptr : pdfConfig),
+        std::make_shared<ArkWebArrayBufferValueCallbackWrapper>(callback));
 }
 } // namespace OHOS::ArkWeb

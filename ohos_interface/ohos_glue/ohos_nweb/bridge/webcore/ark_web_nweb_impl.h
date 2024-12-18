@@ -1345,6 +1345,16 @@ public:
      */
     /*--ark web()--*/
     void ScrollByWithAnime(float delta_x, float delta_y, int32_t duration) override;
+
+    /**
+     * @brief ExecuteCreatePDF
+     *
+     * @param pdfConfig The current configuration when creating pdf.
+     * @param callback NWebArrayBufferValueCallback: CreatePDF running result.
+     */
+    /*--ark web()--*/
+    void ExecuteCreatePDFExt(
+        ArkWebRefPtr<ArkWebPDFConfigArgs> pdfConfig, ArkWebRefPtr<ArkWebArrayBufferValueCallback> callback) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

@@ -17,6 +17,7 @@
 
 #include "ohos_nweb/bridge/ark_web_accessibility_event_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_accessibility_node_info_wrapper.h"
+#include "ohos_nweb/bridge/ark_web_array_buffer_value_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_bool_value_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_cache_options_impl.h"
 #include "ohos_nweb/bridge/ark_web_create_native_media_player_callback_impl.h"
@@ -29,6 +30,7 @@
 #include "ohos_nweb/bridge/ark_web_hit_test_result_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_js_result_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_message_value_callback_impl.h"
+#include "ohos_nweb/bridge/ark_web_pdfconfig_args_impl.h"
 #include "ohos_nweb/bridge/ark_web_preference_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_release_surface_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_screen_lock_callback_impl.h"
@@ -1362,5 +1364,18 @@ void ArkWebNWebWrapper::ScrollToWithAnime(float x, float y, int32_t duration)
 void ArkWebNWebWrapper::ScrollByWithAnime(float delta_x, float delta_y, int32_t duration)
 {
     ark_web_nweb_->ScrollByWithAnime(delta_x, delta_y, duration);
+}
+
+void ArkWebNWebWrapper::ExecuteCreatePDFExt(std::shared_ptr<OHOS::NWeb::NWebPDFConfigArgs> pdfConfig,
+    std::shared_ptr<OHOS::NWeb::NWebArrayBufferValueCallback> callback)
+{
+    if (CHECK_SHARED_PTR_IS_NULL(callback)) {
+        ark_web_nweb_->ExecuteCreatePDFExt(
+            new ArkWebPDFConfigArgsImpl(CHECK_SHARED_PTR_IS_NULL(pdfConfig) ? nullptr : pdfConfig), nullptr);
+    } else {
+        ark_web_nweb_->ExecuteCreatePDFExt(
+            new ArkWebPDFConfigArgsImpl(CHECK_SHARED_PTR_IS_NULL(pdfConfig) ? nullptr : pdfConfig),
+            new ArkWebArrayBufferValueCallbackImpl(callback));
+    }
 }
 } // namespace OHOS::ArkWeb
