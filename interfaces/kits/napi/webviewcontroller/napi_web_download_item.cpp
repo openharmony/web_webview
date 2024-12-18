@@ -657,6 +657,7 @@ napi_value NapiWebDownloadItem::JS_Start(napi_env env, napi_callback_info cbinfo
             "BusinessError: 401. Parameter error. The type of 'downloadPath' must be a valid path string.");
         return nullptr;
     }
+    webDownloadItem->hasStarted = true;
     webDownloadItem->downloadPath = std::string(stringValue);
     WVLOG_D("NapiWebDownloadItem::JS_Start, download_path: %s", webDownloadItem->downloadPath.c_str());
     WebDownload_Continue(webDownloadItem->before_download_callback, webDownloadItem->downloadPath.c_str());

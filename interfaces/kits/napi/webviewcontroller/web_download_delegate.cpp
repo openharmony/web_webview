@@ -93,6 +93,13 @@ void WebDownloadDelegate::DownloadBeforeStart(WebDownloadItem *webDownloadItem)
         [](napi_env                             /* env */, void *data, void * /* hint */) {
             if (data) {
                 WebDownloadItem *downloadItem = (WebDownloadItem *)data;
+                if (!downloadItem->download_item_callback &&
+                    !downloadItem->hasStarted &&
+                    downloadItem->before_download_callback) {
+                        WVLOG_I("[DOWNLOAD] downloadBeforeStart cancel guid: %s.",
+                                downloadItem->guid.c_str());
+                        WebDownload_CancelBeforeDownload(downloadItem->before_download_callback);
+                    }
                 delete downloadItem;
             }
         },
