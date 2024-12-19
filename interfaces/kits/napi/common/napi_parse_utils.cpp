@@ -465,7 +465,7 @@ bool IsNumberOfLength(const std::string &value)
 
 bool NapiParseUtils::ParseJsLengthStringToInt(const std::string &input, PixelUnit &type, int32_t &value)
 {
-    if (input.empty()) {
+    if (input.empty() || input.size() >= MAX_STRING_TO_INT32_LENGTH) {
         return false;
     }
     if (!IsFormatStringOfLength(input)) {
