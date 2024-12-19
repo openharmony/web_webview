@@ -35,6 +35,7 @@ constexpr int INTEGER_FOUR = 4;
 constexpr int INTEGER_FIVE = 5;
 constexpr int MAX_CUSTOM_SCHEME_NAME_LENGTH = 32;
 constexpr int MAX_CUSTOM_SCHEME_SIZE = 10;
+constexpr int MAX_STRING_TO_INT32_LENGTH = 10;
 
 class NapiParseUtils {
 public:
