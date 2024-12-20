@@ -958,6 +958,8 @@ public:
 
     virtual void OnCustomKeyboardClose() {}
 
+    virtual void KeyboardReDispatch(std::shared_ptr<NWebKeyEvent> event, bool isUsed) {}
+
     /**
      * @brief Called when you need to temporarily hide/restore the handle menu.
      *
@@ -985,8 +987,6 @@ public:
     virtual void StartVibraFeedback(const std::string& vibratorType) {}
 
     virtual void OnNativeEmbedVisibilityChange(const std::string& embed_id, bool visibility) {}
-
-    virtual void KeyboardReDispatch(std::shared_ptr<NWebKeyEvent> event, bool isUsed) {}
 
     virtual bool CloseImageOverlaySelection() { return false; }
 };

@@ -64,7 +64,7 @@
                 "media_foundation",
                 "napi",
                 "netmanager_base",
-                "netstack",
+		        "netstack",
                 "pasteboard",
                 "player_framework",
                 "power_manager",
