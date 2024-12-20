@@ -19,10 +19,9 @@
 
 namespace OHOS::ArkWeb {
 
-ArkEventHandlerFDListenerAdapterWrapper::ArkEventHandlerFDListenerAdapterWrapper(
-    ArkWebRefPtr<ArkEventHandlerFDListenerAdapter> ref)
-    : ctocpp_(ref)
-{}
+ArkEventHandlerFDListenerAdapterWrapper
+    ::ArkEventHandlerFDListenerAdapterWrapper(ArkWebRefPtr<ArkEventHandlerFDListenerAdapter> ref) : ctocpp_(ref)
+    {}
 
 void ArkEventHandlerFDListenerAdapterWrapper::OnReadable(int32_t fileDescriptor)
 {
