@@ -47,6 +47,7 @@ const std::string PERSIST_ARKWEBCORE_INSTALL_PATH = "persist.arkwebcore.install_
 const std::string NWEB_HAP_PATH_MODULE_UPDATE = "/module_update/ArkWebCore/app/com.ohos.nweb/NWeb.hap";
 const std::string HAP_REAL_PATH_PREFIX = "/data/app/el1/bundle/public/";
 const std::string HAP_SANDBOX_PATH_PREFIX = "/data/storage/el1/bundle/nweb/";
+
 const std::string NWEB_BUNDLE_NAME = "com.ohos.nweb";
 const std::string NWEB_PACKAGE = "entry";
 const std::string RAWFILE_PREFIX = "resources/rawfile/";
@@ -219,13 +220,21 @@ std::string GetNWebHapPath(const std::string& arkWebCoreHapPathOverride)
         WVLOG_D("eixt NWEB_HAP_PATH");
         return NWEB_HAP_PATH;
     }
+    errorMessage.emplace_back("access ohos nweb hap path failed", errno);
+
     if (access(NWEB_HAP_PATH_1.c_str(), F_OK) == 0) {
         WVLOG_D("eixt NWEB_HAP_PATH_1");
         return NWEB_HAP_PATH_1;
     }
+    errorMessage.emplace_back("access nweb hap path failed", errno);
+
     if (access(NWEB_HAP_PATH_MODULE_UPDATE.c_str(), F_OK) == 0) {
         WVLOG_D("eixt NWEB_HAP_PATH_MODULE_UPDATE");
         return NWEB_HAP_PATH_MODULE_UPDATE;
+    }
+    errorMessage.emplace_back("access nweb hap module update path failed", errno);
+    for (const auto& err : errorMessage) {
+        WVLOG_E("%{public}s, errno(%{public}d): %{public}s", err.first.c_str(), err.second, strerror(err.second));
     }
     return "";
 }
