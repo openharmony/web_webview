@@ -247,6 +247,7 @@ component("adapter_source") {
     "native_avscreen_capture",
     "ohpreferences",
     "qos",
+    "ipc_capi",
   ]
 #
   public_configs = [
