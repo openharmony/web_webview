@@ -155,6 +155,7 @@ function createDocumentSelectionOptions(param) {
     if (suffix) {
       documentSelectOptions.fileSuffixFilters.push(suffix);
     }
+    documentSelectOptions.fileSuffixFilters.push('.*');
  } catch (error) {
     console.log('selectFile error: ' + + JSON.stringify(error));
     return documentSelectOptions;
