@@ -1003,16 +1003,6 @@ std::shared_ptr<NWebAdsBlockManager> NWebHelper::GetAdsBlockManager()
     return nwebEngine_->GetAdsBlockManager();
 }
 
-void NWebHelper::TrimMemoryByPressureLevel(int32_t memoryLevel)
-{
-    if (nwebEngine_ == nullptr) {
-        WVLOG_E("nweb engine is nullptr");
-        return;
-    }
-
-    nwebEngine_->TrimMemoryByPressureLevel(memoryLevel);
-}
-
 NWebAdapterHelper& NWebAdapterHelper::Instance()
 {
     static NWebAdapterHelper helper;
@@ -1105,5 +1095,15 @@ std::string NWebAdapterHelper::ParsePerfConfig(const std::string& configNodeName
 {
     std::string config = NWebConfigHelper::Instance().ParsePerfConfig(configNodeName, argsNodeName);
     return config;
+}
+
+void NWebHelper::TrimMemoryByPressureLevel(int32_t memoryLevel)
+{
+    if (nwebEngine_ == nullptr) {
+        WVLOG_E("nweb engine is nullptr");
+        return;
+    }
+
+    nwebEngine_->TrimMemoryByPressureLevel(memoryLevel);
 }
 } // namespace OHOS::NWeb
