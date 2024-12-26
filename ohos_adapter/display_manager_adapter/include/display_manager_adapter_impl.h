@@ -17,7 +17,6 @@
 #define DISPLAY_MANAGER_ADAPTER_IMPL_H
 
 #include <map>
-#include <mutex>
 #include "display_manager_adapter.h"
 
 #include "display.h"
@@ -64,7 +63,6 @@ private:
     OHOS::NWeb::DisplayInfo ConvertDisplayInfo(const OHOS::Rosen::DisplayInfo& info);
 
     std::shared_ptr<DisplayListenerAdapter> listener_;
-    std::mutex mutex_;
     DisplayInfo cachedDisplayedInfo_ {};
 };
 
