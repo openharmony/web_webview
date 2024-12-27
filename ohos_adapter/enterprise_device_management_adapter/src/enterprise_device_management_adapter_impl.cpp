@@ -74,6 +74,8 @@ bool EnterpriseDeviceManagementAdapterImpl::StartObservePolicyChange()
     EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
     skill.AddEvent(BROWSER_POLICY_CHANGED_EVENT);
     EventFwk::CommonEventSubscribeInfo info(skill);
+    int32_t systemEdmUid = 3057;
+    info.SetPublisherUid(systemEdmUid);
     this->commonEventSubscriber_ = std::make_shared<NWebEdmEventSubscriber>(info, this->eventCallback_);
     bool ret = EventFwk::CommonEventManager::SubscribeCommonEvent(this->commonEventSubscriber_);
     if (ret == false) {
