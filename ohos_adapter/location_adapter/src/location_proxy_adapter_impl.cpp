@@ -72,8 +72,37 @@ Location_PowerConsumptionScene ConvertPriority(int32_t priority)
 
 namespace OHOS::NWeb {
 #define MAX_ADDITION_LEN 1024
+
+static std::vector<std::weak_ptr<LocationCallbackAdapter>> g_enableUserVec;
+std::mutex g_mutexEnableUserVec;
+
+void AddUserData(std::shared_ptr<LocationCallbackAdapter> callbackPtr)
+{
+    std::lock_guard<std::mutex> lock(g_mutexEnableUserVec);
+    g_enableUserVec.push_back(std::weak_ptr<LocationCallbackAdapter>(callbackPtr));
+}
+
+std::shared_ptr<LocationCallbackAdapter> getSharedPtrByUserData(void* userData)
+{
+    std::lock_guard<std::mutex> lock(g_mutexEnableUserVec);
+    auto it = g_enableUserVec.cbegin();
+    while (it != g_enableUserVec.cend()) {
+        if (auto lockedPtr = it->lock()) {
+            if (lockedPtr.get() == userData) {
+                return lockedPtr;
+            }
+        } else {
+            it = g_enableUserVec.erase(it);
+            continue;
+        }
+        ++it;
+    }
+    return nullptr;
+}
+
 static void LocationCallback(Location_Info* location, void* userData)
 {
+    WVLOG_I("LocationCallback");
     Location_BasicInfo basicInfo = OH_LocationInfo_GetBasicInfo(location);
     char additions[MAX_ADDITION_LEN] = { 0 };
     OH_LocationInfo_GetAdditionalInfo(location, additions, MAX_ADDITION_LEN);
@@ -81,7 +110,12 @@ static void LocationCallback(Location_Info* location, void* userData)
     locationInfoImpl->SetBasicInfo(&basicInfo);
     locationInfoImpl->SetAdditions(additions);
     std::shared_ptr<LocationInfo> locationInfo = locationInfoImpl;
-    LocationCallbackAdapter* locationCallbackAdapter = (LocationCallbackAdapter*)(userData);
+
+    auto locationCallbackAdapter = getSharedPtrByUserData(userData);
+    if (locationCallbackAdapter == nullptr) {
+        WVLOG_E("user data is invalid");
+        return;
+    }
     locationCallbackAdapter->OnLocationReport(locationInfo);
 }
 
@@ -241,6 +275,7 @@ int32_t LocationProxyAdapterImpl::StartLocating(
     }
     OH_LocationRequestConfig_SetInterval(ohRequestConfig_, requestConfigImpl->GetTimeInterval());
     ohCallback_ = std::move(callback);
+    AddUserData(ohCallback_);
     OH_LocationRequestConfig_SetCallback(ohRequestConfig_, LocationCallback, ohCallback_.get());
     Location_ResultCode errCode = OH_Location_StartLocating(ohRequestConfig_);
     if (errCode != LOCATION_SUCCESS) {
