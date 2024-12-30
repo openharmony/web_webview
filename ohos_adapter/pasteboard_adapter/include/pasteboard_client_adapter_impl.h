@@ -50,6 +50,7 @@ private:
     uint8_t *imgBuffer_ = nullptr;
     uint32_t bufferSize_ = 0;
     void ClearImgBuffer();
+    std::vector<std::string> GetMimeTypes();
 };
 
 class PasteDataAdapterImpl : public PasteDataAdapter {
