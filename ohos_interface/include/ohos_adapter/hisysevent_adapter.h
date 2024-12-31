@@ -83,6 +83,9 @@ public:
             const std::string, const std::string, const std::string, const std::string, const std::string,
             const std::string>& data);
 
+    virtual int Write(const std::string& eventName, EventType type,
+        const std::tuple<const std::string, const uint32_t, const std::string, const uint64_t>& data) = 0;
+
 protected:
     HiSysEventAdapter() = default;
 

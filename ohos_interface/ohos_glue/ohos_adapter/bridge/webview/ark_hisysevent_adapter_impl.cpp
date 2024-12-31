@@ -255,4 +255,15 @@ int ArkHiSysEventAdapterImpl::Write(const ArkWebString& eventName, uint32_t type
     return real_.Write(s_eventName, (OHOS::NWeb::HiSysEventAdapter::EventType)type, data);
 }
 
+int ArkHiSysEventAdapterImpl::Write(const ArkWebString& eventName, uint32_t type, const ArkWebString key1,
+    const uint32_t value1, const ArkWebString key2, const uint64_t value2)
+{
+    std::string s_eventName = ArkWebStringStructToClass(eventName);
+    std::string s_key1 = ArkWebStringStructToClass(key1);
+    std::string s_key2 = ArkWebStringStructToClass(key2);
+    std::tuple data = std::make_tuple(s_key1, value1, s_key2, value2);
+
+    return real_.Write(s_eventName, (OHOS::NWeb::HiSysEventAdapter::EventType)type, data);
+}
+
 } // namespace OHOS::ArkWeb
