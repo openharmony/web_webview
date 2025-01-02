@@ -775,33 +775,6 @@ public:
 
     /*--ark web()--*/
     virtual bool CloseImageOverlaySelection() = 0;
-    
-    /**
-     * @Description: Called when web occurs ssl error event.
-     * @Input result: handler of result.
-     * @Input error: error code.
-     * @Input certChainData: cert chain data.
-     * @Return: true/false
-     * @Since 14001
-     */
-    /*--ark web()--*/
-    virtual bool OnSslErrorRequestByJSV2(ArkWebRefPtr<ArkWebJsSslErrorResult> result, int error,
-        const ArkWebStringVector& certChainData) = 0;
-    
-    /**
-     * @Description: Called when an accessibility event occurs.
-     * @Input accessibilityId: the accessibility id of the accessibility node of the accessibility event.
-     * @Input eventType: the event type of the accessibility event.
-     */
-    /*--ark web()--*/
-    virtual void OnAccessibilityEvent(int64_t accessibilityId, int32_t eventType) = 0;
-
-    /**
-     * @Description: Web gets focus on the framework.
-     * @Return: true/false
-     */
-    /*--ark web()--*/
-    virtual bool IsCurrentFocus() = 0;
 
     /**
      * @brief Get the visible area relative to the web.
