@@ -775,6 +775,12 @@ public:
 
     /*--ark web()--*/
     virtual bool CloseImageOverlaySelection() = 0;
+
+    /**
+     * @brief Get the visible area relative to the web.
+     */
+    /*--ark web()--*/
+    virtual void GetVisibleRectToWeb(int& visibleX, int& visibleY, int& visibleWidth, int& visibleHeight) = 0;
 };
 
 } // namespace OHOS::ArkWeb

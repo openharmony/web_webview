@@ -570,6 +570,7 @@ public:
 
     bool CloseImageOverlaySelection() override;
 
+    void GetVisibleRectToWeb(int& visibleX, int& visibleY, int& visibleWidth, int& visibleHeight) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };

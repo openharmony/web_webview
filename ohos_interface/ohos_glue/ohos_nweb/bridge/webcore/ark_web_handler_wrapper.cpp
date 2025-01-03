@@ -1013,4 +1013,9 @@ void ArkWebHandlerWrapper::OnCursorUpdate(double x, double y, double width, doub
  {
     return ark_web_handler_->CloseImageOverlaySelection();
  }
+
+void ArkWebHandlerWrapper::GetVisibleRectToWeb(int& visibleX, int& visibleY, int& visibleWidth, int& visibleHeight)
+{
+    ark_web_handler_->GetVisibleRectToWeb(visibleX, visibleY, visibleWidth, visibleHeight);
+}
 } // namespace OHOS::ArkWeb

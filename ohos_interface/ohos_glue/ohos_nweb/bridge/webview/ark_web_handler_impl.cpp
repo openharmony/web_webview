@@ -896,4 +896,9 @@ bool ArkWebHandlerImpl::CloseImageOverlaySelection()
 {
     return nweb_handler_->CloseImageOverlaySelection();
 }
+
+void ArkWebHandlerImpl::GetVisibleRectToWeb(int& visibleX, int& visibleY, int& visibleWidth, int& visibleHeight)
+{
+    nweb_handler_->GetVisibleRectToWeb(visibleX, visibleY, visibleWidth, visibleHeight);
+}
 } // namespace OHOS::ArkWeb

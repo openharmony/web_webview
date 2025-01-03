@@ -607,6 +607,7 @@ public:
 
     bool CloseImageOverlaySelection() override;
 
+    void GetVisibleRectToWeb(int& visibleX, int& visibleY, int& visibleWidth, int& visibleHeight) override;
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };

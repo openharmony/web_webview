@@ -989,6 +989,11 @@ public:
     virtual void OnNativeEmbedVisibilityChange(const std::string& embed_id, bool visibility) {}
 
     virtual bool CloseImageOverlaySelection() { return false; }
+
+    /**
+     * @brief Get the visible area relative to the web.
+     */
+    virtual void GetVisibleRectToWeb(int& visibleX, int& visibleY, int& visibleWidth, int& visibleHeight) {}
 };
 
 } // namespace OHOS::NWeb
