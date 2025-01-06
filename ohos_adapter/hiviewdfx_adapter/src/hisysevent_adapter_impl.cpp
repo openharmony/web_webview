@@ -200,4 +200,10 @@ int HiSysEventAdapterImpl::Write(const std::string& eventName, EventType type,
         },
         extendedData);
 }
+
+int HiSysEventAdapterImpl::Write(const std::string& eventName, EventType type,
+    const std::tuple<const std::string, const uint32_t, const std::string, const uint64_t>& data)
+{
+    return ForwardToHiSysEvent(eventName, type, data);
+}
 } // namespace OHOS::NWeb
