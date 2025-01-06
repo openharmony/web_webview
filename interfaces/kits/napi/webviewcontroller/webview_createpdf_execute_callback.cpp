@@ -58,6 +58,10 @@ void WebviewCreatePDFExecuteCallback::ReleaseArrayBufferExecuteParamAndUvWork(
 
 void WebviewCreatePDFExecuteCallback::OnReceiveValue(const char* value, const long size)
 {
+    if (value == nullptr || size <= 0) {
+        WVLOG_E("[CreatePDF] value is null or size is invalid");
+        return;
+    }
     uv_loop_s* loop = nullptr;
     uv_work_t* work = nullptr;
 
@@ -248,12 +252,20 @@ napi_value NapiArrayBufferExt::GetArrayBuffer(napi_env env, napi_callback_info i
 
     const char* pdfResult = webArrayBufferExt->GetPDFResult();
     const long size = webArrayBufferExt->GetPDFSize();
+    if (pdfResult == nullptr || size <= 0) {
+        WVLOG_E("[CreatePDF] invalid PDF result or size");
+        return nullptr;
+    }
     napi_value arraybuffer = nullptr;
     void* bufferData = nullptr;
 
     napi_status status = napi_create_arraybuffer(env, size, &bufferData, &arraybuffer);
     if (status != napi_ok) {
         WVLOG_E("[CreatePDF] create array buffer failed, status: %{public}d", status);
+        return nullptr;
+    }
+    if (bufferData == nullptr) {
+        WVLOG_E("[CreatePDF] bufferData is null after array buffer creation");
         return nullptr;
     }
     if (memcpy_s(bufferData, size, pdfResult, size) != 0) {
@@ -265,9 +277,6 @@ napi_value NapiArrayBufferExt::GetArrayBuffer(napi_env env, napi_callback_info i
         WVLOG_E("[CreatePDF] create typed array failed, status: %{public}d", status);
         return nullptr;
     }
-    napi_ref arraybufferRef;
-    napi_create_reference(env, arraybuffer, 1, &arraybufferRef);
-
     return result;
 }
 

@@ -25,8 +25,6 @@
 #include "nweb_web_message.h"
 
 namespace OHOS::NWeb {
-enum class JsCreatePDFType : int { ARRAYBUFFER = 0 };
-
 class NapiArrayBufferExt {
 public:
     NapiArrayBufferExt() = default;
@@ -39,8 +37,28 @@ public:
 
 class WebJsArrayBufferExt {
 public:
-    explicit WebJsArrayBufferExt(const char* value, const long size) : value_(value), size_(size) {};
-    ~WebJsArrayBufferExt() = default;
+    explicit WebJsArrayBufferExt(const char* value, const long size) : size_(size)
+    {
+        if (value != nullptr && size > 0) {
+            value_ = new (std::nothrow) char[size];
+            if (value_ != nullptr) {
+                if (memcpy_s(value_, size, value, size) != 0) {
+                    WVLOG_E("[CreatePDF] memcpy failed");
+                    delete[] value_;
+                    value_ = nullptr;
+                    size_ = 0;
+                }
+            }
+        }
+    };
+    ~WebJsArrayBufferExt()
+    {
+        size_ = 0;
+        if (value_ != nullptr) {
+            delete[] value_;
+            value_ = nullptr;
+        }
+    }
 
     const char* GetPDFResult() const
     {
@@ -53,7 +71,7 @@ public:
     }
 
 private:
-    const char* value_ = nullptr;
+    char* value_ = nullptr;
     long size_ = 0;
 };
 
