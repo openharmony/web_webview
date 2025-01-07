@@ -298,6 +298,20 @@ std::string PasteDataRecordAdapterImpl::GetMimeType()
     return type;
 }
 
+std::vector<std::string> PasteDataRecordAdapterImpl::GetMimeTypes()
+{
+    if (record_ == nullptr) {
+        return std::vector<std::string>();
+    }
+    unsigned int count;
+    char** types = OH_UdmfRecord_GetTypes(record_, &count);
+    std::vector<std::string> stringVector;
+    for (unsigned int i = 0; i < count; i++) {
+        stringVector.push_back(std::string(types[i]));
+    }
+    return stringVector;
+}
+
 std::shared_ptr<std::string> PasteDataRecordAdapterImpl::GetHtmlText()
 {
     if (record_ == nullptr) {
@@ -365,9 +379,27 @@ std::shared_ptr<std::string> PasteDataRecordAdapterImpl::GetPlainText()
         return nullptr;
     }
 
+    std::vector<std::string> types = GetMimeTypes();
+    bool hasPlainText = std::find(types.cbegin(), types.cend(), UDMF_META_PLAIN_TEXT) != types.cend();
+    WVLOG_D("GetPlainText, hasPlainText = %{public}d", hasPlainText);
+    if (hasPlainText) {
+        OH_UdsPlainText* udsPlainText = OH_UdsPlainText_Create();
+        int getPlainText_res = OH_UdmfRecord_GetPlainText(record_, udsPlainText);
+        if (getPlainText_res != UDMF_E_OK) {
+            WVLOG_E("GetPlainText failed. error code is : %{public}d", getPlainText_res);
+            OH_UdsPlainText_Destroy(udsPlainText);
+            return nullptr;
+        }
+        const char* text = OH_UdsPlainText_GetContent(udsPlainText);
+        std::shared_ptr<std::string> plainText = std::make_shared<std::string>(text);
+        OH_UdsPlainText_Destroy(udsPlainText);
+        return plainText;
+    }
+
     //temporary solution
-    std::string type = GetMimeType();
-    if (type == UDMF_META_HTML) {
+    bool hasHtml = std::find(types.cbegin(), types.cend(), UDMF_META_HTML) != types.cend();
+    WVLOG_D("GetPlainText, hasPlainText = %{public}d", hasHtml);
+    if (hasHtml) {
         OH_UdsHtml* udsHtml = OH_UdsHtml_Create();
         int getHtml_res = OH_UdmfRecord_GetHtml(record_, udsHtml);
         if (getHtml_res != UDMF_E_OK) {
@@ -386,17 +418,7 @@ std::shared_ptr<std::string> PasteDataRecordAdapterImpl::GetPlainText()
         return htmlPlainText;
     }
 
-    OH_UdsPlainText* udsPlainText = OH_UdsPlainText_Create();
-    int getPlainText_res = OH_UdmfRecord_GetPlainText(record_, udsPlainText);
-    if (getPlainText_res != UDMF_E_OK) {
-        WVLOG_E("GetPlainText failed. error code is : %{public}d", getPlainText_res);
-        OH_UdsPlainText_Destroy(udsPlainText);
-        return nullptr;
-    }
-    const char* text = OH_UdsPlainText_GetContent(udsPlainText);
-    std::shared_ptr<std::string> plainText = std::make_shared<std::string>(text);
-    OH_UdsPlainText_Destroy(udsPlainText);
-    return plainText;
+    return nullptr;
 }
 
 bool PasteDataRecordAdapterImpl::GetImgData(std::shared_ptr<ClipBoardImageDataAdapter> imageData)
