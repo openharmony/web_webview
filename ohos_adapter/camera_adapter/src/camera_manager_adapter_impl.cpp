@@ -974,10 +974,6 @@ int32_t CameraManagerAdapterImpl::ReleaseSessionResource(const std::string& devi
 int32_t CameraManagerAdapterImpl::DestroyNativeImageAndWindow()
 {
     if (nativeImage_ != nullptr) {
-        OHNativeWindow *window = OH_NativeImage_AcquireNativeWindow(nativeImage_);
-        if (window != nullptr) {
-            OH_NativeWindow_DestroyNativeWindow(window);
-        }
         OH_NativeImage_Destroy(&nativeImage_);
         nativeImage_ = nullptr;
     }
