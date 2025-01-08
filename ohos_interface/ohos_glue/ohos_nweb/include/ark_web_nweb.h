@@ -1615,13 +1615,6 @@ public:
     /*--ark web()--*/
     virtual void JavaScriptOnHeadReadyByOrder(const ArkWebStringVectorMap& script_items,
         const ArkWebStringVector& script_items_by_order) = 0;
-
-    /**
-     * @Description: Optimize HTML parser budget to reduce FCP time.
-     * @Input enable: Set whether to use optimized parser budget.
-     */
-    /*--ark web()--*/
-    virtual void PutOptimizeParserBudgetEnabled(bool enable) = 0;
 };
 
 } // namespace OHOS::ArkWeb

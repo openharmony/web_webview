@@ -1253,9 +1253,4 @@ bool ArkWebNWebImpl::IsActivePolicyDisable()
 {
     return nweb_nweb_->IsActivePolicyDisable();
 }
-
-void ArkWebNWebImpl::PutOptimizeParserBudgetEnabled(bool enable)
-{
-    nweb_nweb_->PutOptimizeParserBudgetEnabled(enable);
-}
 } // namespace OHOS::ArkWeb

@@ -1460,12 +1460,6 @@ public:
     /*--ark web()--*/
     void JavaScriptOnHeadReadyByOrder(const std::map<std::string, std::vector<std::string>>& script_items,
         const std::vector<std::string>& script_items_by_order) override;
-
-    /**
-     * @Description: Optimize HTML parser budget to reduce FCP time.
-     * @Input enable: Set whether to use optimized parser budget.
-     */
-    void PutOptimizeParserBudgetEnabled(bool enable) override;
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };
