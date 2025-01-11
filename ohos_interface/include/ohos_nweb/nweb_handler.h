@@ -994,6 +994,8 @@ public:
      * @brief Get the visible area relative to the web.
      */
     virtual void GetVisibleRectToWeb(int& visibleX, int& visibleY, int& visibleWidth, int& visibleHeight) {}
+
+    virtual void OnScrollStart(const float x, const float y) {}
 };
 
 } // namespace OHOS::NWeb

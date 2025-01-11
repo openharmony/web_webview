@@ -781,6 +781,9 @@ public:
      */
     /*--ark web()--*/
     virtual void GetVisibleRectToWeb(int& visibleX, int& visibleY, int& visibleWidth, int& visibleHeight) = 0;
+
+    /*--ark web()--*/
+    virtual void OnScrollStart(const float x, const float y) = 0;
 };
 
 } // namespace OHOS::ArkWeb
