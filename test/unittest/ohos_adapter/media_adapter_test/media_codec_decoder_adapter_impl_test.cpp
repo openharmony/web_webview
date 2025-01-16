@@ -261,7 +261,7 @@ HWTEST_F(MediaCodecDecoderAdapterImplTest, MediaCodecDecoderAdapterImpl_GetTypeO
     BufferFlag testBufferFlag = static_cast<BufferFlag>(100);
     EXPECT_EQ(mediaCodecDecoderAdapterImpl_->GetAVBufferFlag(testBufferFlag),
         AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_NONE);
-    std::string codecName = "OH.Media.Codec.Decoder.Video.AVC";
+    std::string codecName = "video/avc";
     EXPECT_EQ(mediaCodecDecoderAdapterImpl_->CreateVideoDecoderByName(codecName), DecoderAdapterCode::DECODER_OK);
     EXPECT_EQ(mediaCodecDecoderAdapterImpl_->ConfigureDecoder(format_), DecoderAdapterCode::DECODER_OK);
 }
