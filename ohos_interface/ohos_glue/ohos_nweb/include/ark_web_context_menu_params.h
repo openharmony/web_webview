@@ -71,12 +71,11 @@ public:
     virtual int32_t GetContextMenuTypeFlags() = 0;
 
     /**
-     * @Description: Obtains the position  rectangle of the image.
+     * @Description: Obtains the position rectangle of the image.
      * @Output x: X-coordinate of the image rectangle.
      * @Output y: Y-coordinate of the image rectangle.
      * @Output w: Width of the image rectangle.
      * @Output h: Height of the image rectangle.
-     * @Since: 12005
      */
     /*--ark web()--*/
     virtual void GetImageRect(int& x, int& y, int& w, int& h) = 0;
