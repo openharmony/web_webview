@@ -91,4 +91,9 @@ void ArkOhosImageDecoderAdapterImpl::ReleasePixelMap()
     return real_->ReleasePixelMap();
 }
 
+void* ArkOhosImageDecoderAdapterImpl::GetDecodeData()
+{
+    return real_->GetDecodeData();
+}
+
 } // namespace OHOS::ArkWeb

@@ -51,6 +51,7 @@ public:
     int32_t GetPlanesCount() override;
     void ReleasePixelMap() override;
     Media::PixelMap* GetPixelMap() { return pixelMap_.get(); }
+    void* GetDecodeData() override;
 
 private:
     Media::ImageInfo imageInfo_;
