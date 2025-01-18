@@ -24,7 +24,6 @@ namespace OHOS::NWeb {
 
 std::unordered_map<int32_t, std::shared_ptr<SensorCallbackImpl>> SensorAdapterImpl::sensorCallbackMap;
 std::mutex SensorAdapterImpl::sensorCallbackMapMutex_;
-
 constexpr double NANOSECONDS_IN_SECOND = 1000000000.0;
 constexpr double DEFAULT_SAMPLE_PERIOD = 200000000.0;
 
@@ -321,15 +320,19 @@ void SensorAdapterImpl::OhosSensorCallback(SensorEvent* event)
         case SENSOR_TYPE_ID_ACCELEROMETER:
             handleAccelerometerData(callback, event);
             break;
+
         case SENSOR_TYPE_ID_GRAVITY:
             handleGravityData(callback, event);
             break;
+
         case SENSOR_TYPE_ID_LINEAR_ACCELERATION:
             handleLinearAccelerometerData(callback, event);
             break;
+
         case SENSOR_TYPE_ID_GYROSCOPE:
             handleCyroscopeData(callback, event);
             break;
+
         case SENSOR_TYPE_ID_MAGNETIC_FIELD:
             handleMagnetometerData(callback, event);
             break;
@@ -342,6 +345,7 @@ void SensorAdapterImpl::OhosSensorCallback(SensorEvent* event)
         case SENSOR_TYPE_ID_GAME_ROTATION_VECTOR:
             handleGameRotationVectorData(callback, event);
             break;
+
         default:
             break;
     }
@@ -349,6 +353,8 @@ void SensorAdapterImpl::OhosSensorCallback(SensorEvent* event)
 
 int32_t SensorAdapterImpl::SubscribeOhosSensor(int32_t sensorTypeId, int64_t samplingInterval)
 {
+    WVLOG_I("SubscribeOhosSensor sensorTypeId: %{public}d, samplingInterval: %{public}ld",
+        sensorTypeId, samplingInterval);
     WVLOG_I("SubscribeOhosSensor sensorTypeId: %{public}d", sensorTypeId);
     if (samplingInterval <= 0) {
         WVLOG_E("SubscribeOhosSensor error, samplingInterval is invalid.");
