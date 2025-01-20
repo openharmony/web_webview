@@ -242,6 +242,7 @@ OhosResourceAdapterImpl::OhosResourceAdapterImpl(const std::string& hapPath)
 
 void OhosResourceAdapterImpl::Init(const std::string& hapPath)
 {
+    bool newCreate = false;
     std::vector<std::pair<std::string, int>> errorMessage;
     std::string arkWebHapPath = GetArkWebHapPath(arkWebCoreHapPathOverride_, errorMessage);
     if (!arkWebHapPath.empty()) {
