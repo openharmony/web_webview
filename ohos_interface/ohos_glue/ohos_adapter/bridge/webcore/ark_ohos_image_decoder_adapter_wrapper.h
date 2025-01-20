@@ -41,6 +41,7 @@ public:
     void* GetNativeWindowBuffer() override;
     int32_t GetPlanesCount() override;
     void ReleasePixelMap() override;
+    void* GetDecodeData() override;
 
 private:
     ArkWebRefPtr<ArkOhosImageDecoderAdapter> ctocpp_;

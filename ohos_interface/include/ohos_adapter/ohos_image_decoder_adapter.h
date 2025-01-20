@@ -62,6 +62,8 @@ public:
                               uint32_t size,
                               AllocatorType type,
                               bool useYuv) = 0;
+
+    virtual void* GetDecodeData() = 0;
 };
 
 }  // namespace OHOS::NWeb

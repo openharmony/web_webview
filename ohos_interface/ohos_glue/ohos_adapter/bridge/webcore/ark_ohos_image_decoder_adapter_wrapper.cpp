@@ -93,4 +93,9 @@ void ArkOhosImageDecoderAdapterWrapper::ReleasePixelMap()
     return ctocpp_->ReleasePixelMap();
 }
 
+void* ArkOhosImageDecoderAdapterWrapper::GetDecodeData()
+{
+    return ctocpp_->GetDecodeData();
+}
+
 } // namespace OHOS::ArkWeb

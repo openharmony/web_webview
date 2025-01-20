@@ -104,7 +104,7 @@ bool TestInitImage(OhosImageDecoderAdapterImpl &imageDecoderAdapterImpl, uint8_t
     return true;
 }
 
-bool TestDecodeImage(OhosImageDecoderAdapterImpl &imageDecoderAdapterImpl, uint8_t *buffer)
+bool TestDecodeImage(OhosImageDecoderAdapterImpl &imageDecoderAdapterImpl, uint8_t *buffer, AllocatorType type)
 {
     size_t bufferSize = 0;
     bool boolRes = Media::ImageUtils::GetFileSize(IMAGE_FILE_PATH, bufferSize);
@@ -123,7 +123,7 @@ bool TestDecodeImage(OhosImageDecoderAdapterImpl &imageDecoderAdapterImpl, uint8
         return false;
     }
 
-    boolRes = imageDecoderAdapterImpl.DecodeToPixelMap(buffer, bufferSize);
+    boolRes = imageDecoderAdapterImpl.Decode(buffer, bufferSize, type, false);
     if (!boolRes) {
         free(buffer);
         return false;
@@ -289,7 +289,7 @@ HWTEST_F(OhosImageAdapterTest, OhosImageAdapterTest_GetFd_006, TestSize.Level1)
     int32_t fd = imageDecoderAdapterImpl.GetFd();
     EXPECT_EQ(fd, -1);
 
-    bool ret = TestDecodeImage(imageDecoderAdapterImpl, buffer);
+    bool ret = TestDecodeImage(imageDecoderAdapterImpl, buffer, AllocatorType::kDmaAlloc);
     EXPECT_TRUE(ret);
 
     fd = imageDecoderAdapterImpl.GetFd();
@@ -319,7 +319,7 @@ HWTEST_F(OhosImageAdapterTest, OhosImageAdapterTest_GetStride_007, TestSize.Leve
     int32_t stride = imageDecoderAdapterImpl.GetStride();
     EXPECT_EQ(stride, 0);
 
-    bool ret = TestDecodeImage(imageDecoderAdapterImpl, buffer);
+    bool ret = TestDecodeImage(imageDecoderAdapterImpl, buffer, AllocatorType::kDmaAlloc);
     EXPECT_TRUE(ret);
 
     stride = imageDecoderAdapterImpl.GetStride();
@@ -329,6 +329,20 @@ HWTEST_F(OhosImageAdapterTest, OhosImageAdapterTest_GetStride_007, TestSize.Leve
     pixelMap->FreePixelMap();
     stride = imageDecoderAdapterImpl.GetStride();
     EXPECT_EQ(stride, 0);
+
+    free(buffer);
+    buffer = nullptr;
+
+    imageDecoderAdapterImpl.ReleasePixelMap();
+
+    ret = TestDecodeImage(imageDecoderAdapterImpl, buffer, AllocatorType::kShareMemAlloc);
+    EXPECT_TRUE(ret);
+
+    stride = imageDecoderAdapterImpl.GetStride();
+    EXPECT_NE(stride, 0);
+
+    pixelMap = imageDecoderAdapterImpl.GetPixelMap();
+    pixelMap->FreePixelMap();
 
     free(buffer);
 
@@ -349,7 +363,7 @@ HWTEST_F(OhosImageAdapterTest, OhosImageAdapterTest_GetOffset_008, TestSize.Leve
     int32_t offset = imageDecoderAdapterImpl.GetOffset();
     EXPECT_EQ(offset, 0);
 
-    bool ret = TestDecodeImage(imageDecoderAdapterImpl, buffer);
+    bool ret = TestDecodeImage(imageDecoderAdapterImpl, buffer, AllocatorType::kDmaAlloc);
     EXPECT_TRUE(ret);
 
     offset = imageDecoderAdapterImpl.GetOffset();
@@ -379,7 +393,7 @@ HWTEST_F(OhosImageAdapterTest, OhosImageAdapterTest_GetSize_009, TestSize.Level1
     uint64_t size = imageDecoderAdapterImpl.GetSize();
     EXPECT_EQ(size, 0);
 
-    bool ret = TestDecodeImage(imageDecoderAdapterImpl, buffer);
+    bool ret = TestDecodeImage(imageDecoderAdapterImpl, buffer, AllocatorType::kDmaAlloc);
     EXPECT_TRUE(ret);
 
     size = imageDecoderAdapterImpl.GetSize();
@@ -409,7 +423,7 @@ HWTEST_F(OhosImageAdapterTest, OhosImageAdapterTest_GetNativeWindowBuffer_010, T
     void* windowBuffer = imageDecoderAdapterImpl.GetNativeWindowBuffer();
     EXPECT_EQ(windowBuffer, nullptr);
 
-    bool ret = TestDecodeImage(imageDecoderAdapterImpl, buffer);
+    bool ret = TestDecodeImage(imageDecoderAdapterImpl, buffer, AllocatorType::kDmaAlloc);
     EXPECT_TRUE(ret);
 
     windowBuffer = imageDecoderAdapterImpl.GetNativeWindowBuffer();
@@ -440,7 +454,7 @@ HWTEST_F(OhosImageAdapterTest, OhosImageAdapterTest_GetPlanesCount_011, TestSize
     int32_t planesCount = imageDecoderAdapterImpl.GetPlanesCount();
     EXPECT_EQ(planesCount, 0);
 
-    bool ret = TestDecodeImage(imageDecoderAdapterImpl, buffer);
+    bool ret = TestDecodeImage(imageDecoderAdapterImpl, buffer, AllocatorType::kDmaAlloc);
     EXPECT_TRUE(ret);
 
     planesCount = imageDecoderAdapterImpl.GetPlanesCount();
@@ -487,6 +501,36 @@ HWTEST_F(OhosImageAdapterTest, OhosImageAdapterTest_Decode_012, TestSize.Level1)
 
     ret = imageDecoderAdapterImpl.Decode(buffer, bufferSize, AllocatorType::kDmaAlloc, false);
     EXPECT_TRUE(ret);
+
+    free(buffer);
+
+    imageDecoderAdapterImpl.ReleasePixelMap();
+}
+
+/**
+ * @tc.name: OhosImageAdapterTest_GetDecodeData_013
+ * @tc.desc: GetDecodeData.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(OhosImageAdapterTest, OhosImageAdapterTest_GetDecodeData_013, TestSize.Level1)
+{
+    uint8_t *buffer = nullptr;
+    OhosImageDecoderAdapterImpl imageDecoderAdapterImpl;
+
+    void* data = imageDecoderAdapterImpl.GetDecodeData();
+    EXPECT_EQ(data, nullptr);
+
+    bool ret = TestDecodeImage(imageDecoderAdapterImpl, buffer, AllocatorType::kShareMemAlloc);
+    EXPECT_TRUE(ret);
+
+    data = imageDecoderAdapterImpl.GetDecodeData();
+    EXPECT_NE(data, nullptr);
+
+    auto* pixelMap = imageDecoderAdapterImpl.GetPixelMap();
+    pixelMap->FreePixelMap();
+    data = imageDecoderAdapterImpl.GetDecodeData();
+    EXPECT_EQ(data, nullptr);
 
     free(buffer);
 

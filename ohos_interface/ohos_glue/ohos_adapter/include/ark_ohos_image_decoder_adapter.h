@@ -66,6 +66,9 @@ public:
                         uint32_t size,
                         uint32_t type,
                         bool useYuv) = 0;
+
+    /*--ark web()--*/
+    virtual void* GetDecodeData() = 0;
 };
 
 } // namespace OHOS::ArkWeb
