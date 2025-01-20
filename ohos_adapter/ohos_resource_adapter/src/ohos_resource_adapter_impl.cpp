@@ -124,27 +124,13 @@ bool ParseRawFile(const std::string& rawFile,
     return true;
 }
 
-std::string convertToSandboxPath(const std::string& installPath, const std::string& prefixPath)
-{
-    if (installPath.empty()) {
-        return "";
-    }
-    size_t result = installPath.find(HAP_REAL_PATH_PREFIX);
-    if (result != std::string::npos) {
-        size_t pos = installPath.find_last_of('/');
-        if (pos != std::string::npos && pos != installPath.size() - 1) {
-            return prefixPath + installPath.substr(pos + 1);
-        }
-    }
-    return installPath;
-}
 
 std::string GetArkWebHapPath(const std::string& arkWebCoreHapPathOverride,
                              std::vector<std::pair<std::string, int>>& errorMessage)
 {
     std::string prefixPath = WEBVIEW_SANDBOX_PATH;
     if (access(arkWebCoreHapPathOverride.c_str(), F_OK) == 0) {
-        std::string sandboxPath = convertToSandboxPath(arkWebCoreHapPathOverride, prefixPath);
+        std::string sandboxPath = OhosResourceAdapterImpl::ConvertToSandboxPath(arkWebCoreHapPathOverride, prefixPath);
         if (access(sandboxPath.c_str(), F_OK) == 0) {
             WVLOG_D("eixt HAP_arkWebCoreHapPathOverride");
             return sandboxPath;
@@ -152,7 +138,7 @@ std::string GetArkWebHapPath(const std::string& arkWebCoreHapPathOverride,
     }
     errorMessage.emplace_back("access arkWebCoreHapPathOverride path failed", errno);
 
-    std::string installPath = convertToSandboxPath(
+    std::string installPath = OhosResourceAdapterImpl::ConvertToSandboxPath(
         OHOS::system::GetParameter(PERSIST_ARKWEBCORE_INSTALL_PATH, ""), prefixPath);
     if (access(installPath.c_str(), F_OK) == 0) {
         WVLOG_D("exit install_path,%{public}s", installPath.c_str());
@@ -183,61 +169,6 @@ std::string GetArkWebHapPath(const std::string& arkWebCoreHapPathOverride,
     return "";
 }
 
-std::string GetNWebHapPath(const std::string& arkWebCoreHapPathOverride)
-{
-    std::vector<std::pair<std::string, int>> errorMessage;
-    std::string arkWebHapPath = GetArkWebHapPath(arkWebCoreHapPathOverride, errorMessage);
-    if (!arkWebHapPath.empty()) {
-        return arkWebHapPath;
-    }
-
-    std::string prefixPath = HAP_SANDBOX_PATH_PREFIX;
-    if (access(arkWebCoreHapPathOverride.c_str(), F_OK) == 0) {
-        WVLOG_D("eixt HAP_arkWebCoreHapPathOverride");
-        std::string sandboxPath = convertToSandboxPath(arkWebCoreHapPathOverride, prefixPath);
-        WVLOG_D("sandboxPath,%{public}s", sandboxPath.c_str());
-        if (access(sandboxPath.c_str(), F_OK) == 0) {
-            return sandboxPath;
-        }
-    }
-    errorMessage.emplace_back("access arkWebCoreHapPathOverride path failed", errno);
-
-    std::string installPath = convertToSandboxPath(
-        OHOS::system::GetParameter(PERSIST_ARKWEBCORE_INSTALL_PATH, ""), prefixPath);
-    WVLOG_D("install_path,%{public}s", installPath.c_str());
-    if (access(installPath.c_str(), F_OK) == 0) {
-        return installPath;
-    }
-    errorMessage.emplace_back("access nweb install path failed", errno);
-
-    if (access(ARKWEBCORE_HAP_SANDBOX_PATH.c_str(), F_OK) == 0) {
-        WVLOG_D("eixt ARKWEBCORE_HAP_SANDBOX_PATH");
-        return ARKWEBCORE_HAP_SANDBOX_PATH;
-    }
-    errorMessage.emplace_back("access arkwebcore hap sandbox path failed", errno);
-
-    if (access(NWEB_HAP_PATH.c_str(), F_OK) == 0) {
-        WVLOG_D("eixt NWEB_HAP_PATH");
-        return NWEB_HAP_PATH;
-    }
-    errorMessage.emplace_back("access ohos nweb hap path failed", errno);
-
-    if (access(NWEB_HAP_PATH_1.c_str(), F_OK) == 0) {
-        WVLOG_D("eixt NWEB_HAP_PATH_1");
-        return NWEB_HAP_PATH_1;
-    }
-    errorMessage.emplace_back("access nweb hap path failed", errno);
-
-    if (access(NWEB_HAP_PATH_MODULE_UPDATE.c_str(), F_OK) == 0) {
-        WVLOG_D("eixt NWEB_HAP_PATH_MODULE_UPDATE");
-        return NWEB_HAP_PATH_MODULE_UPDATE;
-    }
-    errorMessage.emplace_back("access nweb hap module update path failed", errno);
-    for (const auto& err : errorMessage) {
-        WVLOG_E("%{public}s, errno(%{public}d): %{public}s", err.first.c_str(), err.second, strerror(err.second));
-    }
-    return "";
-}
 } // namespace
 
 OhosFileMapperImpl::OhosFileMapperImpl(std::unique_ptr<OHOS::AbilityBase::FileMapper> fileMap,
@@ -289,6 +220,21 @@ bool OhosFileMapperImpl::UnzipData(uint8_t** dest, size_t& len)
 }
 
 std::string OhosResourceAdapterImpl::arkWebCoreHapPathOverride_ = "";
+std::string OhosResourceAdapterImpl::ConvertToSandboxPath(const std::string& installPath, const std::string& prefixPath)
+{
+    if (installPath.empty()) {
+        return "";
+    }
+    size_t result = installPath.find(HAP_REAL_PATH_PREFIX);
+    if (result != std::string::npos) {
+        size_t pos = installPath.find_last_of('/');
+        if (pos != std::string::npos && pos != installPath.size() - 1) {
+            return prefixPath + installPath.substr(pos + 1);
+        }
+    }
+    return installPath;
+}
+
 OhosResourceAdapterImpl::OhosResourceAdapterImpl(const std::string& hapPath)
 {
     Init(hapPath);
@@ -296,13 +242,16 @@ OhosResourceAdapterImpl::OhosResourceAdapterImpl(const std::string& hapPath)
 
 void OhosResourceAdapterImpl::Init(const std::string& hapPath)
 {
-    bool newCreate = false;
-    std::string nwebHapPath = GetNWebHapPath(arkWebCoreHapPathOverride_);
-    if (!nwebHapPath.empty()) {
-        sysExtractor_ = ExtractorUtil::GetExtractor(nwebHapPath, newCreate);
+    std::vector<std::pair<std::string, int>> errorMessage;
+    std::string arkWebHapPath = GetArkWebHapPath(arkWebCoreHapPathOverride_, errorMessage);
+    if (!arkWebHapPath.empty()) {
+        sysExtractor_ = ExtractorUtil::GetExtractor(arkWebHapPath, newCreate);
         if (!sysExtractor_) {
-            WVLOG_E("RuntimeExtractor create failed for %{public}s", nwebHapPath.c_str());
+            WVLOG_E("RuntimeExtractor create failed for %{public}s", arkWebHapPath.c_str());
         }
+    }
+    for (const auto& err : errorMessage) {
+        WVLOG_E("%{public}s, errno(%{public}d): %{public}s", err.first.c_str(), err.second, strerror(err.second));
     }
     if (hapPath.empty()) {
         return;
