@@ -681,6 +681,10 @@ bool NWebHelper::InitWebEngine()
 
     initArgs->AddArg(std::string("--user-data-dir=").append(ctx->GetBaseDir()));
     initArgs->AddArg(std::string("--bundle-installation-dir=").append(bundlePath_));
+    std::string arkWebInstallPath = OHOS::system::GetParameter("persist.arkwebcore.install_path", "");
+    if (!arkWebInstallPath.empty()) {
+        initArgs->AddArg(std::string("--arkwebcore-install-path=").append(arkWebInstallPath));
+    }
     if (!customSchemeCmdLine_.empty()) {
         initArgs->AddArg(std::string("--ohos-custom-scheme=").append(customSchemeCmdLine_));
     }
