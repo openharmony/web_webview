@@ -36,7 +36,7 @@ namespace OHOS::NWeb {
 namespace {
 const int RESULT_OK = 0;
 const bool TRUE_OK = true;
-const std::string g_mimeType = "data";
+const std::string g_mimeType = "text/html";
 std::shared_ptr<std::string> g_htmlText;
 std::shared_ptr<std::string> g_plainText;
 std::shared_ptr<PasteDataRecordAdapterImpl> g_paster;
@@ -693,6 +693,8 @@ HWTEST_F(NWebPasteboardAdapterTest, NWebPasteboardAdapter_SetHtmlText_025, TestS
     EXPECT_EQ(RESULT_OK, result);
     bool reset = g_datarecordnull->SetHtmlText(htmlText);
     EXPECT_NE(TRUE_OK, reset);
+    reset = g_datarecord->SetHtmlText(nullptr);
+    EXPECT_NE(TRUE_OK, reset);
     reset = g_datarecord->SetHtmlText(htmlText);
     EXPECT_EQ(TRUE_OK, reset);
 }
@@ -858,6 +860,8 @@ HWTEST_F(NWebPasteboardAdapterTest, NWebPasteboardAdapter_GetImgData_032, TestSi
     std::shared_ptr<MockClipBoardImageDataAdapter> image = std::make_shared<MockClipBoardImageDataAdapter>();
     bool reset = g_datarecordnull->GetImgData(image);
     EXPECT_NE(TRUE_OK, reset);
+    reset = g_datarecordnull->GetPixelMap() == nullptr;
+    EXPECT_EQ(TRUE_OK, reset);
     reset = g_paster->GetImgData(image);
     EXPECT_NE(TRUE_OK, reset);
 }
@@ -965,6 +969,7 @@ HWTEST_F(NWebPasteboardAdapterTest, NWebPasteboardAdapter_GetUri_038, TestSize.L
         result = -1;
     }
     EXPECT_EQ(RESULT_OK, result);
+    g_datarecord = std::make_shared<PasteDataRecordAdapterImpl>(g_mimeType);
     g_datarecord->record_ = g_datarecord->builder_->SetUri(nullptr).Build();
     uri = g_datarecord->GetUri();
     if (uri == nullptr) {
@@ -987,15 +992,16 @@ HWTEST_F(NWebPasteboardAdapterTest, NWebPasteboardAdapter_GetUri_038, TestSize.L
 HWTEST_F(NWebPasteboardAdapterTest, NWebPasteboardAdapter_GetCustomData_039, TestSize.Level1)
 {
     int result = 0;
-    std::string format = "format";
+    std::string format = "openharmony.arkweb.custom-data";
     vector<uint8_t> data = { 0, 1, 2 };
-    PasteCustomData testData;
+    PasteCustomData testData = { { format, data } };
     g_datarecord->SetCustomData(testData);
     std::shared_ptr<PasteCustomData> customData = g_datarecord->GetCustomData();
     if (customData == nullptr) {
         result = -1;
     }
     EXPECT_EQ(RESULT_OK, result);
+    g_datarecord = std::make_shared<PasteDataRecordAdapterImpl>(format);
     g_datarecord->record_ = g_datarecord->builder_->SetCustomData(nullptr).Build();
     customData = g_datarecord->GetCustomData();
     if (customData == nullptr) {
@@ -1092,5 +1098,28 @@ HWTEST_F(NWebPasteboardAdapterTest, PasteBoardClientAdapterImpl_AddPasteboardCha
     EXPECT_EQ(option, MiscServices::ShareOption::CrossDevice);
     option = PasteBoardClientAdapterImpl::GetInstance().TransitionCopyOption(CopyOptionMode::NONE);
     EXPECT_EQ(option, MiscServices::ShareOption::CrossDevice);
+}
+
+/**
+ * @tc.name: NWebPasteboardAdapter_SetPlainText_045.
+ * @tc.desc: Test the SetPlainText.
+ * @tc.type: FUNC
+ * @tc.require:issueI5O4B5
+ */
+HWTEST_F(NWebPasteboardAdapterTest, NWebPasteboardAdapter_SetPlainText_045, TestSize.Level1)
+{
+    auto plainText = std::make_shared<std::string>("test");
+    EXPECT_NE(nullptr, plainText);
+    auto textRecord = std::make_shared<PasteDataRecordAdapterImpl>();
+    EXPECT_NE(nullptr, textRecord);
+    auto plainTextPtr = textRecord->GetPlainText();
+    EXPECT_EQ(nullptr, plainTextPtr);
+    auto result = textRecord->SetPlainText(nullptr);
+    EXPECT_FALSE(result);
+    result = textRecord->SetPlainText(plainText);
+    EXPECT_TRUE(result);
+    plainTextPtr = textRecord->GetPlainText();
+    EXPECT_NE(nullptr, plainTextPtr);
+    EXPECT_FALSE(plainTextPtr->empty());
 }
 } // namespace OHOS::NWeb

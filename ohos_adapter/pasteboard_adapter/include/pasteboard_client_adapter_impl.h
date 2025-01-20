@@ -34,6 +34,7 @@ private:
 
 class PasteDataRecordAdapterImpl : public PasteDataRecordAdapter {
 public:
+    PasteDataRecordAdapterImpl();
     explicit PasteDataRecordAdapterImpl(
         std::shared_ptr<MiscServices::PasteDataRecord> record);
     PasteDataRecordAdapterImpl(const std::string& mimeType,
@@ -41,6 +42,7 @@ public:
                                std::shared_ptr<std::string> plainText);
     explicit PasteDataRecordAdapterImpl(const std::string& mimeType);
     bool SetHtmlText(std::shared_ptr<std::string> htmlText) override;
+    bool SetHtmlText(std::shared_ptr<std::string> htmlText, std::shared_ptr<std::string> plainText);
     bool SetPlainText(std::shared_ptr<std::string> plainText) override;
     bool SetImgData(std::shared_ptr<ClipBoardImageDataAdapter> imageData) override;
     bool SetUri(const std::string& uriString) override;
@@ -49,6 +51,7 @@ public:
     std::shared_ptr<std::string> GetHtmlText() override;
     std::shared_ptr<std::string> GetPlainText() override;
     std::shared_ptr<MiscServices::PasteDataRecord> GetRecord();
+    std::shared_ptr<Media::PixelMap> GetPixelMap();
     bool GetImgData(std::shared_ptr<ClipBoardImageDataAdapter> imageData) override;
     std::shared_ptr<std::string> GetUri() override;
     std::shared_ptr<PasteCustomData> GetCustomData() override;
