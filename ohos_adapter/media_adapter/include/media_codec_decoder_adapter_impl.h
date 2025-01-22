@@ -97,6 +97,8 @@ public:
 private:
     std::shared_ptr<OHOS::MediaAVCodec::AVCodecVideoDecoder> decoder_ = nullptr;
     std::shared_ptr<DecoderCallbackImpl> callback_ = nullptr;
+    OHOS::MediaAVCodec::CapabilityData* capabilityData_ = nullptr;
+    bool isHardwareDecode_ = true;
 };
 } // namespace OHOS::NWeb
 

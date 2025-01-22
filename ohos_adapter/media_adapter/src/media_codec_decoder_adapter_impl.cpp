@@ -26,6 +26,7 @@
 #include "native_window.h"
 #include "nweb_log.h"
 #include "ohos_buffer_adapter_impl.h"
+#include "avcodec_list.h"
 
 using namespace OHOS::NWeb;
 using namespace std;
@@ -69,13 +70,34 @@ DecoderAdapterCode MediaCodecDecoderAdapterImpl::CreateVideoDecoderByMime(const 
 
 DecoderAdapterCode MediaCodecDecoderAdapterImpl::CreateVideoDecoderByName(const std::string& name)
 {
-    decoder_ = VideoDecoderFactory::CreateByName(name);
-    if (decoder_ == nullptr) {
-        WVLOG_E("MediaCodecDecoder create failed.");
+    std::shared_ptr<OHOS::MediaAVCodec::AVCodecList> codecCapability = AVCodecListFactory::CreateAVCodecList();
+    if (codecCapability == nullptr) {
+        WVLOG_E("MediaCodecDecoder CreateAVCodecList failed.");
         return DecoderAdapterCode::DECODER_ERROR;
     }
 
-    return DecoderAdapterCode::DECODER_OK;
+    capabilityData_ = codecCapability->GetCapability(name, false, AVCodecCategory::AVCODEC_HARDWARE);
+    if (capabilityData_ != nullptr) {
+        decoder_ = VideoDecoderFactory::CreateByName(capabilityData_->codecName);
+        if (decoder_ != nullptr) {
+            isHardwareDecode_ = true;
+            WVLOG_I("MediaCodecDecoder create hardware decoder.");
+            return DecoderAdapterCode::DECODER_OK;
+        }
+    }
+
+    capabilityData_ = codecCapability->GetCapability(name, false, AVCodecCategory::AVCODEC_SOFTWARE);
+    if (capabilityData_ != nullptr) {
+        decoder_ = VideoDecoderFactory::CreateByName(capabilityData_->codecName);
+        if (decoder_ != nullptr) {
+            isHardwareDecode_ = false;
+            WVLOG_I("MediaCodecDecoder create software decoder.");
+            return DecoderAdapterCode::DECODER_OK;
+        }
+    }
+
+    WVLOG_E("MediaCodecDecoder create decoder failed.");
+    return DecoderAdapterCode::DECODER_ERROR;
 }
 
 DecoderAdapterCode MediaCodecDecoderAdapterImpl::ConfigureDecoder(const std::shared_ptr<DecoderFormatAdapter> format)
@@ -88,6 +110,14 @@ DecoderAdapterCode MediaCodecDecoderAdapterImpl::ConfigureDecoder(const std::sha
     if (format == nullptr) {
         WVLOG_E("format is nullptr.");
         return DecoderAdapterCode::DECODER_ERROR;
+    }
+
+    if (capabilityData_ != nullptr) {
+        OHOS::MediaAVCodec::VideoCaps videoCaps(capabilityData_);
+        if (!videoCaps.IsSizeSupported(format->GetWidth(), format->GetHeight())) {
+            WVLOG_E("MediaCodecDecoder video size is not supported.");
+            return DecoderAdapterCode::DECODER_ERROR;
+        }
     }
 
     OHOS::Media::Format codecFormat;
@@ -138,9 +168,12 @@ DecoderAdapterCode MediaCodecDecoderAdapterImpl::SetOutputSurface(void* window)
         WVLOG_E("Window is nullptr.");
         return DecoderAdapterCode::DECODER_ERROR;
     }
-    int32_t usage = BUFFER_USAGE_MEM_DMA;
-    NativeWindowHandleOpt(window_, SET_USAGE, usage);
-    WVLOG_I("MediaCodecDecoder default to opening Hebc.");
+
+    if (isHardwareDecode_) {
+        uint64_t usage = BUFFER_USAGE_MEM_DMA;
+        NativeWindowHandleOpt(window_, SET_USAGE, usage);
+        WVLOG_I("MediaCodecDecoder default to opening Hebc.");
+    }
 
     int32_t ret = decoder_->SetOutputSurface(window_->surface);
     if (ret != AVCodecServiceErrCode::AVCS_ERR_OK) {
@@ -272,8 +305,8 @@ DecoderAdapterCode MediaCodecDecoderAdapterImpl::GetOutputFormatDec(std::shared_
 
     int32_t width = 0;
     int32_t height = 0;
-    codecFormat.GetIntValue(OHOS::Media::Tag::VIDEO_DISPLAY_WIDTH, width);
-    codecFormat.GetIntValue(OHOS::Media::Tag::VIDEO_DISPLAY_HEIGHT, height);
+    codecFormat.GetIntValue(OHOS::Media::Tag::VIDEO_PIC_WIDTH, width);
+    codecFormat.GetIntValue(OHOS::Media::Tag::VIDEO_PIC_HEIGHT, height);
     format->SetWidth(width);
     format->SetHeight(height);
 
