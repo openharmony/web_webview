@@ -131,7 +131,7 @@ AudioAdapterDeviceChangeReason AudioOutputChangeCallbackImpl::GetChangeReason(Au
 AudioOutputChangeCallbackImpl::AudioOutputChangeCallbackImpl(std::shared_ptr<AudioOutputChangeCallbackAdapter> cb)
     : cb_(cb) {};
 void AudioOutputChangeCallbackImpl::OnOutputDeviceChange(
-    const DeviceInfo& deviceInfo, const AudioStreamDeviceChangeReason reason)
+    const AudioDeviceDescriptor& deviceInfo, const AudioStreamDeviceChangeReason reason)
 {
     if (!cb_) {
         return;

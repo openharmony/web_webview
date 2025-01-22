@@ -45,7 +45,8 @@ public:
 
     ~AudioOutputChangeCallbackImpl() override = default;
 
-    void OnOutputDeviceChange(const DeviceInfo& deviceInfo, const AudioStreamDeviceChangeReason reason) override;
+    void OnOutputDeviceChange(const AudioDeviceDescriptor& deviceInfo,
+        const AudioStreamDeviceChangeReason reason) override;
 
 private:
     AudioAdapterDeviceChangeReason GetChangeReason(AudioStreamDeviceChangeReason reason);
