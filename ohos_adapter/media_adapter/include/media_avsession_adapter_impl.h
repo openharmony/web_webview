@@ -84,7 +84,7 @@ private:
     bool isActived_ = false;
 
     std::shared_ptr<MediaAVSessionCallbackAdapter> callbackAdapter_;
-    static std::unordered_map<std::string, OH_AVSession *> avSessionMap;
+    static std::unordered_map<std::string, MediaAVSessionAdapterImpl*> avSessionMap;
 };
 } // namespace OHOS::NWeb
 

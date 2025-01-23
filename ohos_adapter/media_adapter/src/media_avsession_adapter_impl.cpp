@@ -21,7 +21,7 @@
 
 namespace OHOS::NWeb {
 
-std::unordered_map<std::string, OH_AVSession *> MediaAVSessionAdapterImpl::avSessionMap;
+std::unordered_map<std::string, MediaAVSessionAdapterImpl*> MediaAVSessionAdapterImpl::avSessionMap;
 
 void MediaAVSessionKey::Init() {
     pid_ = getpid();
@@ -126,7 +126,7 @@ bool MediaAVSessionAdapterImpl::CreateAVSession(MediaAVSessionType type) {
         return CreateNewSession(type);
     } else {
         if (findIter != avSessionMap.end()) {
-            if (findIter->second != avSession_) {
+            if (findIter->second != this) {
                 DestroyAndEraseSession();
                 DestroyAVSession();
             } else {
@@ -150,7 +150,7 @@ void MediaAVSessionAdapterImpl::DestroyAVSession() {
         avSession_ = nullptr;
     }
     auto iter = avSessionMap.find(avSessionKey_->ToString());
-    if (iter != avSessionMap.end()) {
+    if (iter != avSessionMap.end() && iter->second == this) {
         avSessionMap.erase(iter);
     }
     WVLOG_I("DestroyAVSession out");
@@ -443,13 +443,15 @@ void MediaAVSessionAdapterImpl::DestroyAndEraseSession() {
         return;
     }
 
-    AVSession_ErrCode ret = OH_AVSession_Destroy(iter->second);
-    if (ret != AV_SESSION_ERR_SUCCESS) {
-        WVLOG_E("DestroyAndEraseSession Destroy failed, ret: %{public}d", ret);
-    } else {
-        WVLOG_I("DestroyAndEraseSession Destroy success");
+    if (iter->second->avSession_ != nullptr) {
+        AVSession_ErrCode ret = OH_AVSession_Destroy(iter->second->avSession_);
+        if (ret != AV_SESSION_ERR_SUCCESS) {
+            WVLOG_E("DestroyAndEraseSession Destroy failed, ret: %{public}d", ret);
+        } else {
+            WVLOG_I("DestroyAndEraseSession Destroy success");
+        }
     }
-    avSession_ = nullptr;
+    iter->second->avSession_ = nullptr;
     avSessionMap.erase(iter);
     WVLOG_I("DestroyAndEraseSession out");
 }
@@ -480,8 +482,7 @@ bool MediaAVSessionAdapterImpl::CreateNewSession(const MediaAVSessionType& type)
     }
 
     avSessionKey_->SetType(type);
-    avSessionMap.insert(std::pair<std::string, OH_AVSession *>((avSessionKey_->ToString()),
-        avSession_));
+    avSessionMap.insert(std::pair<std::string, MediaAVSessionAdapterImpl*>((avSessionKey_->ToString()), this));
     return true;
 }
 
