@@ -128,6 +128,7 @@ function selectFile(param, result) {
 
 function createDocumentSelectionOptions(param) {
   let documentSelectOptions = new picker.DocumentSelectOptions();
+  let currentDevice = deviceinfo.deviceType.toLowerCase();
   try {
     let defaultSelectNumber = 500;
     let defaultSelectMode = picker.DocumentSelectMode.MIXED;
@@ -155,7 +156,9 @@ function createDocumentSelectionOptions(param) {
     if (suffix) {
       documentSelectOptions.fileSuffixFilters.push(suffix);
     }
+    if (currentDevice !== 'phone') {
     documentSelectOptions.fileSuffixFilters.push('.*');
+    }
  } catch (error) {
     console.log('selectFile error: ' + + JSON.stringify(error));
     return documentSelectOptions;
