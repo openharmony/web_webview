@@ -124,7 +124,7 @@ napi_value NapiWebDownloadDelegate::JS_Constructor(napi_env env, napi_callback_i
     napi_wrap(
         env, thisVar, delegate,
         [](napi_env /* env */, void *data, void * /* hint */) {
-            WebDownloadDelegate *delegate = (WebDownloadDelegate *)data;
+            WebDownloadDelegate *delegate = static_cast<WebDownloadDelegate *>(data);
             delete delegate;
         },
         nullptr, nullptr);
