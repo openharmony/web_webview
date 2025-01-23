@@ -1179,4 +1179,9 @@ void ArkWebNWebImpl::ExecuteCreatePDFExt(
         std::make_shared<ArkWebPDFConfigArgsWrapper>(CHECK_REF_PTR_IS_NULL(pdfConfig) ? nullptr : pdfConfig),
         std::make_shared<ArkWebArrayBufferValueCallbackWrapper>(callback));
 }
+
+int ArkWebNWebImpl::ScaleGestureChangeV2(int type, double scale, double originScale, double centerX, double centerY)
+{
+    return nweb_nweb_->ScaleGestureChangeV2(type, scale, originScale, centerX, centerY);
+}
 } // namespace OHOS::ArkWeb
