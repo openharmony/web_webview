@@ -91,4 +91,15 @@ int32_t ArkPlayerAdapterWrapper::SetPlaybackSpeed(OHOS::NWeb::PlaybackRateMode m
     return ctocpp_->SetPlaybackSpeed((int32_t)mode);
 }
 
+int32_t ArkPlayerAdapterWrapper::SetMediaSourceHeader(const std::string& url,
+    const std::map<std::string, std::string>& header)
+{
+    ArkWebString surl = ArkWebStringClassToStruct(url);
+    ArkWebStringMap sheader = ArkWebStringMapClassToStruct(header);
+    int32_t result = ctocpp_->SetMediaSourceHeader(surl, sheader);
+    ArkWebStringStructRelease(surl);
+    ArkWebStringMapStructRelease(sheader);
+    return result;
+}
+
 } // namespace OHOS::ArkWeb

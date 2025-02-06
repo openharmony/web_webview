@@ -63,6 +63,8 @@ bool PlayerFrameworkAdapterImpl_fuzzerFuzzTest(const uint8_t* data, size_t size)
     playerAdapter.GetCurrentTime(currentTime);
     playerAdapter.GetDuration(duration);
     playerAdapter.SetPlaybackSpeed(PlaybackRateMode::SPEED_FORWARD_1_00_X);
+    std::map<std::string, std::string> header;
+    playerAdapter.SetMediaSourceHeader("", header);
 
     auto callbackTest = std::make_unique<PlayerCallbackTest>();
     std::shared_ptr<PlayerCallbackImpl> playerCallbackMock =
@@ -82,6 +84,7 @@ bool PlayerFrameworkAdapterImpl_fuzzerFuzzTest(const uint8_t* data, size_t size)
     playerAdapterNormal->GetCurrentTime(currentTime);
     playerAdapterNormal->GetDuration(duration);
     playerAdapter.SetPlaybackSpeed(PlaybackRateMode::SPEED_FORWARD_1_00_X);
+    playerAdapter.SetMediaSourceHeader("", header);
     return true;
 }
 } // namespace OHOS

@@ -17,6 +17,7 @@
 #define MEDIA_ADAPTER_H
 
 #include <string>
+#include <map>
 
 #include "graphic_adapter.h"
 
@@ -104,6 +105,11 @@ public:
     virtual int32_t GetDuration(int32_t& duration) = 0;
 
     virtual int32_t SetPlaybackSpeed(PlaybackRateMode mode) = 0;
+
+    virtual int32_t SetMediaSourceHeader(const std::string& url, const std::map<std::string, std::string>& header)
+    {
+        return -1;
+    }
 };
 
 } // namespace OHOS::NWeb
