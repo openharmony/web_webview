@@ -72,6 +72,8 @@ public:
 
     static std::string GetArkWebVersion();
 
+    static std::string ConvertToSandboxPath(const std::string& installPath, const std::string& prefixPath);
+
     static void SetArkWebCoreHapPathOverride(const std::string& hapPath);
 
     std::string GetSystemLanguage() override;
