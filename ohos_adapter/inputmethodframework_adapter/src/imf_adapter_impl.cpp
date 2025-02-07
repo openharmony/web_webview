@@ -31,10 +31,7 @@ const std::string AUTO_FILL_CANCEL_PRIVATE_COMMAND = "autofill.cancel";
 IMFTextListenerAdapterImpl::IMFTextListenerAdapterImpl(const std::shared_ptr<IMFTextListenerAdapter>& listener)
     : listener_(listener) {};
 
-IMFTextListenerAdapterImpl::~IMFTextListenerAdapterImpl()
-{
-    listener_ = nullptr;
-}
+IMFTextListenerAdapterImpl::~IMFTextListenerAdapterImpl() = default;
 
 void IMFTextListenerAdapterImpl::InsertText(const std::u16string& text)
 {

@@ -33,7 +33,6 @@ OHOS::Media::CaptureMode GetOHCaptureMode(const CaptureModeAdapter& mode)
         default:
             return OHOS::Media::CaptureMode::CAPTURE_INVAILD;
     }
-    return OHOS::Media::CaptureMode::CAPTURE_INVAILD;
 }
 
 OHOS::Media::DataType GetOHDataType(const DataTypeAdapter& type)
@@ -48,7 +47,6 @@ OHOS::Media::DataType GetOHDataType(const DataTypeAdapter& type)
         default:
             return OHOS::Media::DataType::INVAILD;
     }
-    return OHOS::Media::DataType::INVAILD;
 }
 
 OHOS::Media::AudioCaptureSourceType GetOHAudioCaptureSourceType(const AudioCaptureSourceTypeAdapter& type)
@@ -65,7 +63,6 @@ OHOS::Media::AudioCaptureSourceType GetOHAudioCaptureSourceType(const AudioCaptu
         default:
             return OHOS::Media::AudioCaptureSourceType::SOURCE_INVALID;
     }
-    return OHOS::Media::AudioCaptureSourceType::SOURCE_INVALID;
 }
 
 AudioCaptureSourceTypeAdapter GetAudioCaptureSourceTypeAdapter(const OHOS::Media::AudioCaptureSourceType& type)
@@ -82,7 +79,6 @@ AudioCaptureSourceTypeAdapter GetAudioCaptureSourceTypeAdapter(const OHOS::Media
         default:
             return AudioCaptureSourceTypeAdapter::SOURCE_INVALID;
     }
-    return AudioCaptureSourceTypeAdapter::SOURCE_INVALID;
 }
 
 OHOS::Media::AudioCodecFormat GetOHAudioCodecFormat(const AudioCodecFormatAdapter& format)
@@ -95,7 +91,6 @@ OHOS::Media::AudioCodecFormat GetOHAudioCodecFormat(const AudioCodecFormatAdapte
         default:
             return OHOS::Media::AudioCodecFormat::AUDIO_CODEC_FORMAT_BUTT;
     }
-    return OHOS::Media::AudioCodecFormat::AUDIO_CODEC_FORMAT_BUTT;
 }
 
 OHOS::Media::VideoSourceType GetOHVideoSourceType(const VideoSourceTypeAdapter& type)
@@ -110,7 +105,6 @@ OHOS::Media::VideoSourceType GetOHVideoSourceType(const VideoSourceTypeAdapter& 
         default:
             return OHOS::Media::VideoSourceType::VIDEO_SOURCE_BUTT;
     }
-    return OHOS::Media::VideoSourceType::VIDEO_SOURCE_BUTT;
 }
 
 OHOS::Media::VideoCodecFormat GetOHVideoCodecFormat(const VideoCodecFormatAdapter& format)
@@ -125,7 +119,6 @@ OHOS::Media::VideoCodecFormat GetOHVideoCodecFormat(const VideoCodecFormatAdapte
         default:
             return OHOS::Media::VideoCodecFormat::VIDEO_CODEC_FORMAT_BUTT;
     }
-    return OHOS::Media::VideoCodecFormat::VIDEO_CODEC_FORMAT_BUTT;
 }
 
 std::string GetOHContainerFormatType(const ContainerFormatTypeAdapter& type)
@@ -136,7 +129,6 @@ std::string GetOHContainerFormatType(const ContainerFormatTypeAdapter& type)
         default:
             return std::string(OHOS::Media::ContainerFormatType::CFT_MPEG_4);
     }
-    return std::string(OHOS::Media::ContainerFormatType::CFT_MPEG_4);
 }
 
 OHOS::Media::AVScreenCaptureConfig ConvertScreenCaptureConfig(const std::shared_ptr<ScreenCaptureConfigAdapter> config)
@@ -224,7 +216,6 @@ ScreenCaptureStateCodeAdapter GetScreenCaptureStateCodeAdapter(const OHOS::Media
         default:
             return ScreenCaptureStateCodeAdapter::SCREEN_CAPTURE_STATE_INVLID;
     }
-    return ScreenCaptureStateCodeAdapter::SCREEN_CAPTURE_STATE_INVLID;
 }
 } // namespace
 
