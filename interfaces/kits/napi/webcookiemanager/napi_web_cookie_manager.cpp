@@ -54,7 +54,6 @@ napi_value NapiWebCookieManager::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_FUNCTION("clearSessionCookie", NapiWebCookieManager::JsClearSessionCookieAsync),
         DECLARE_NAPI_STATIC_FUNCTION("saveCookieAsync", NapiWebCookieManager::JsSaveCookieAsync),
         DECLARE_NAPI_STATIC_FUNCTION("saveCookieSync", NapiWebCookieManager::JsSaveCookieSync),
-
     };
     napi_value constructor = nullptr;
 
