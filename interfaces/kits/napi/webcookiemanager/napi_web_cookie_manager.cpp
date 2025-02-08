@@ -53,6 +53,8 @@ napi_value NapiWebCookieManager::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_FUNCTION("clearSessionCookieSync", NapiWebCookieManager::JsDeleteSessionCookie),
         DECLARE_NAPI_STATIC_FUNCTION("clearSessionCookie", NapiWebCookieManager::JsClearSessionCookieAsync),
         DECLARE_NAPI_STATIC_FUNCTION("saveCookieAsync", NapiWebCookieManager::JsSaveCookieAsync),
+        DECLARE_NAPI_STATIC_FUNCTION("saveCookieSync", NapiWebCookieManager::JsSaveCookieSync),
+
     };
     napi_value constructor = nullptr;
 
@@ -706,6 +708,22 @@ napi_value NapiWebCookieManager::JsDeleteSessionCookie(napi_env env, napi_callba
         cookieManager->DeleteSessionCookies(nullptr);
     }
     napi_get_undefined(env, &result);
+    return result;
+}
+
+napi_value NapiWebCookieManager::JsSaveCookieSync(napi_env env, napi_callback_info info)
+{
+    std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
+        OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
+    if (cookieManager == nullptr) {
+        WVLOG_E("cookieManager is nullptr)");
+        napi_value result = nullptr;
+        napi_get_undefined(env, &result);
+        return result;
+    }
+
+    cookieManager->Store();
+    napi_value result = nullptr;
     return result;
 }
 
