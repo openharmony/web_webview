@@ -20,9 +20,12 @@
 #include <unordered_map>
 #include <vector>
 
+#include "arkweb_error_code.h"
+#include "arkweb_type.h"
 #include "native_arkweb_utils.h"
 #include "native_javascript_execute_callback.h"
 #include "nweb.h"
+#include "nweb_helper.h"
 #include "nweb_log.h"
 
 namespace {
@@ -151,4 +154,46 @@ NativeArkWeb_OnValidCallback OH_NativeArkWeb_GetJavaScriptProxyValidCallback(con
         return iter->second;
     }
     return nullptr;
+}
+
+template<typename Fn>
+static bool LoadFunction(const char* functionName, Fn* fnOut)
+{
+    void* fn = OHOS::NWeb::NWebHelper::Instance().LoadFuncSymbol(functionName);
+    if (!fn) {
+        WVLOG_E("%{public}s not found.", functionName);
+        return false;
+    }
+    *fnOut = reinterpret_cast<Fn>(fn);
+    return true;
+}
+
+ArkWeb_ErrorCode OH_NativeArkWeb_LoadData(const char* webTag,
+                                          const char* data,
+                                          const char* mimeType,
+                                          const char* encoding,
+                                          const char* baseUrl,
+                                          const char* historyUrl)
+{
+    WVLOG_I("native OH_NativeArkWeb_LoadData, webTag: %{public}s", webTag);
+    if (!OHOS::NWeb::NWebHelper::Instance().LoadWebEngine(true, false)) {
+        WVLOG_E("NativeArkWeb webEngineHandle is nullptr");
+        return ArkWeb_ErrorCode::ARKWEB_LIBRARY_OPEN_FAILURE;
+    }
+
+    ArkWeb_ErrorCode (*loadData)(const char* webTag,
+                                 const char* data,
+                                 const char* mimeType,
+                                 const char* encoding,
+                                 const char* baseUrl,
+                                 const char* historyUrl) = nullptr;
+
+#define ARKWEB_NATIVE_LOAD_FN_PTR(apiMember, funcImpl) LoadFunction(#funcImpl, &(apiMember))
+    ARKWEB_NATIVE_LOAD_FN_PTR(loadData, OH_NativeArkWeb_LoadData);
+#undef ARKWEB_NATIVE_LOAD_FN_PTR
+    if (!loadData) {
+        WVLOG_E("OH_NativeArkWeb_LoadData failed to load function loadData");
+        return ArkWeb_ErrorCode::ARKWEB_LIBRARY_SYMBOL_NOT_FOUND;
+    }
+    return loadData(webTag, data, mimeType, encoding, baseUrl, historyUrl);
 }
