@@ -142,6 +142,7 @@ private:
     int32_t StartStreamInner(const std::string& deviceId,
         const std::shared_ptr<VideoCaptureParamsAdapter> captureParams,
         std::shared_ptr<CameraBufferListenerAdapter> listener);
+    std::string GetCameraDisplayName(const std::string& cameraId, const CameraPosition& position);
     sptr<CameraManager> cameraManager_;
     sptr<CaptureSession> captureSession_;
     sptr<CaptureInput> cameraInput_;
