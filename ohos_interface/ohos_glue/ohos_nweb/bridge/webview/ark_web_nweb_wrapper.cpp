@@ -1387,4 +1387,9 @@ int ArkWebNWebWrapper::ScaleGestureChangeV2(int type,
 {
     return ark_web_nweb_->ScaleGestureChangeV2(type, scale, originScale, centerX, centerY);
 }
+
+void ArkWebNWebWrapper::PutOptimizeParserBudgetEnabled(bool enable)
+{
+    ark_web_nweb_->PutOptimizeParserBudgetEnabled(enable);
+}
 } // namespace OHOS::ArkWeb

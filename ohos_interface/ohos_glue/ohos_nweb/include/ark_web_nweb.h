@@ -1633,6 +1633,13 @@ class ArkWebNWeb : public virtual ArkWebBaseRefCounted {
      */
     /*--ark web()--*/
     virtual int ScaleGestureChangeV2(int type, double scale, double originScale, double centerX, double centerY) = 0;
+
+    /**
+     * @Description: Optimize HTML parser budget to reduce FCP time.
+     * @Input enable: Set whether to use optimized parser budget.
+     */
+    /*--ark web()--*/
+    virtual void PutOptimizeParserBudgetEnabled(bool enable) = 0;
 };
 
 }  // namespace OHOS::ArkWeb

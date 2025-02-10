@@ -1551,6 +1551,12 @@ public:
     virtual int ScaleGestureChangeV2(int type, double scale, double originScale, double centerX, double centerY) {
         return 0;
     }
+
+    /**
+     * @Description: Optimize HTML parser budget to reduce FCP time.
+     * @Input enable: Set whether to use optimized parser budget.
+     */
+    virtual void PutOptimizeParserBudgetEnabled(bool enable) {};
 };
 
 } // namespace OHOS::NWeb

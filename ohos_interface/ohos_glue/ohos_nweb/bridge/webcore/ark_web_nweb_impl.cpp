@@ -1184,4 +1184,9 @@ int ArkWebNWebImpl::ScaleGestureChangeV2(int type, double scale, double originSc
 {
     return nweb_nweb_->ScaleGestureChangeV2(type, scale, originScale, centerX, centerY);
 }
+
+void ArkWebNWebImpl::PutOptimizeParserBudgetEnabled(bool enable)
+{
+    nweb_nweb_->PutOptimizeParserBudgetEnabled(enable);
+}
 } // namespace OHOS::ArkWeb
