@@ -26,6 +26,14 @@ ohos_shared_library("nweb_ohos_adapter") {
     branch_protector_frt = "bti"
   }
 
+  if (target_cpu == "arm") {
+    libs = [ "//prebuilts/ohos-sdk/linux/14/native/sysroot/usr/lib/arm-linux-ohos/libbundle_ndk.z.so" ]
+  } else if (target_cpu == "arm64") {
+    libs = [ "//prebuilts/ohos-sdk/linux/14/native/sysroot/usr/lib/aarch64-linux-ohos/libbundle_ndk.z.so" ]
+  } else if (target_cpu == "x86_64") {
+    libs = [ "//prebuilts/ohos-sdk/linux/14/native/sysroot/usr/lib/x86_64-linux-ohos/libbundle_ndk.z.so" ]
+  }
+
   defines = [
     "HILOG_TAG=\"webadapter\"",
     "WEBVIEW_PACKAGE_NAME=\"${webview_package_name}\"",
@@ -123,6 +131,11 @@ ohos_shared_library("nweb_ohos_adapter") {
     "system_properties_adapter/include",
     "sensor_adapter/include",
   ]
+
+  if (target_cpu == "arm" || target_cpu == "arm64" || target_cpu == "x86_64") {
+    include_dirs +=
+        [ "//prebuilts/ohos-sdk/linux/14/native/sysroot/usr/include/bundle" ]
+  }
 
   public_configs = [ ":ohos_adapter_public_interface" ]
 

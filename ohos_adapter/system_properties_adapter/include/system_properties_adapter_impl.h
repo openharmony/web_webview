@@ -77,6 +77,8 @@ public:
     std::vector<FrameRateSetting> GetLTPOConfig(const std::string& settingName) override;
 
     std::string GetOOPGPUStatus() override;
+
+    std::string GetCompatibleDeviceType() override;
 private:
     SystemPropertiesAdapterImpl();
 

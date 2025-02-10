@@ -230,4 +230,15 @@ std::string ArkSystemPropertiesAdapterWrapper::GetOOPGPUStatus()
     ArkWebStringStructRelease(str);
     return result;
 }
+
+std::string ArkSystemPropertiesAdapterWrapper::GetCompatibleDeviceType()
+{
+    if (!ctocpp_) {
+        return "";
+    }
+    ArkWebString str = ctocpp_->GetCompatibleDeviceType();
+    std::string result = ArkWebStringStructToClass(str);
+    ArkWebStringStructRelease(str);
+    return result;
+}
 } // namespace OHOS::ArkWeb
