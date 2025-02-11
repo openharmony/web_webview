@@ -294,4 +294,17 @@ int32_t PlayerAdapterImpl::SetPlaybackSpeed(PlaybackRateMode mode)
     }
     return player_->SetPlaybackSpeed(ConvertRateMode(mode));
 }
+
+int32_t PlayerAdapterImpl::SetMediaSourceHeader(const std::string& url,
+    const std::map<std::string, std::string>& header)
+{
+    if (!player_) {
+        WVLOG_E("player_ is nullptr");
+        return -1;
+    }
+    std::shared_ptr<Media::AVMediaSource> mediaSource = std::make_shared<Media::AVMediaSource>(url, header);
+    Media::AVPlayStrategy strategy;
+    return player_->SetMediaSource(mediaSource, strategy);
+}
+
 } // namespace OHOS::NWeb

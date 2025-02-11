@@ -50,6 +50,8 @@ public:
 
     int32_t SetPlaybackSpeed(int32_t mode) override;
 
+    int32_t SetMediaSourceHeader(const ArkWebString& url, const ArkWebStringMap& header) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::PlayerAdapter> real_;
 
