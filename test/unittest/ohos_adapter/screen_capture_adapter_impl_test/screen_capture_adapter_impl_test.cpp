@@ -45,6 +45,7 @@ public:
     MOCK_METHOD1(Init, int32_t(AVScreenCaptureConfig));
     MOCK_METHOD1(SetMicrophoneEnabled, int32_t(bool));
     MOCK_METHOD1(SetCanvasRotation, int32_t(bool));
+    MOCK_METHOD1(ShowCursor, int32_t(bool));
     MOCK_METHOD2(ResizeCanvas, int32_t(int32_t, int32_t));
     MOCK_METHOD1(SkipPrivacyMode, int32_t(std::vector<uint64_t>&));
     MOCK_METHOD1(SetMaxVideoFrameRate, int32_t(int32_t));
