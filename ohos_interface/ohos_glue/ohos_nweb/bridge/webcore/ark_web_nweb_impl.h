@@ -1372,6 +1372,12 @@ public:
      * @return the error id.
      */
     int ScaleGestureChangeV2(int type, double scale, double originScale, double centerX, double centerY) override;
+
+    /**
+     * @Description: Optimize HTML parser budget to reduce FCP time.
+     * @Input enable: Set whether to use optimized parser budget.
+     */
+    void PutOptimizeParserBudgetEnabled(bool enable) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

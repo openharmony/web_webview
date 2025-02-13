@@ -1382,6 +1382,12 @@ public:
      */
     /*--ark web()--*/
     int ScaleGestureChangeV2(int type, double scale, double originScale, double centerX, double centerY) override;
+
+    /**
+     * @Description: Optimize HTML parser budget to reduce FCP time.
+     * @Input enable: Set whether to use optimized parser budget.
+     */
+    void PutOptimizeParserBudgetEnabled(bool enable) override;
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };
