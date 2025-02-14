@@ -33,6 +33,8 @@
 
 #include <cstdint>
 
+#include "arkweb_error_code.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -147,6 +149,36 @@ void OH_NativeArkWeb_SetDestroyCallback(const char* webTag, NativeArkWeb_OnDestr
  * @since 11
  */
 NativeArkWeb_OnDestroyCallback OH_NativeArkWeb_GetDestroyCallback(const char* webTag);
+
+/**
+ * @brief Loads the data or URL.
+ *        This function should be called on main thread.
+ *
+ * @param webTag The name of the web component.
+ * @param data A string encoded according to "Base64" or "URL", should not be NULL.
+ * @param mimeType Media type. For example: "text/html", should not be NULL.
+ * @param encoding Encoding type. For example: "UTF-8", should not be NULL.
+ * @param baseUrl A specified URL path ("http"/"https"/"data" protocol),
+ *                which is assigned to window.origin by the Web component.
+ * @param historyUrl History URL. When it is not empty, it can be managed by
+ *                   history records to realize the back and forth function.
+ * @return LoadData result code.
+ *         {@link ARKWEB_SUCCESS} load data success.
+ *         {@link ARKWEB_INVALID_PARAM} Mandatory parameters are left unspecified or
+ *                                      Incorrect parameter types or Parameter verification failed.
+ *         {@link ARKWEB_INIT_ERROR} Initialization error, can't get a valid Web for the webTag.
+ *         {@link ARKWEB_LIBRARY_OPEN_FAILURE} Failed to open the library.
+ *         {@link ARKWEB_LIBRARY_SYMBOL_NOT_FOUND} The required symbol was not found in the library.
+ *
+ * @syscap SystemCapability.Web.Webview.Core
+ * @since 15
+ */
+ArkWeb_ErrorCode OH_NativeArkWeb_LoadData(const char* webTag,
+                                          const char* data,
+                                          const char* mimeType,
+                                          const char* encoding,
+                                          const char* baseUrl,
+                                          const char* historyUrl);
 
 #ifdef __cplusplus
 };
