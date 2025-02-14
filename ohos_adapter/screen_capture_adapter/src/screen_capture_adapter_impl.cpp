@@ -416,17 +416,25 @@ int32_t ScreenCaptureAdapterImpl::AcquireAudioBuffer(
         return -1;
     }
 
-    std::shared_ptr<OHOS::Media::AudioBuffer> avBuffer;
+    std::shared_ptr<OHOS::Media::AudioBuffer> avBuffer =
+        std::make_shared<OHOS::Media::AudioBuffer>(nullptr, 0, 0, OHOS::Media::AudioCaptureSourceType::SOURCE_INVALID);
+
     int32_t ret = screenCapture_->AcquireAudioBuffer(avBuffer, ConvertAudioCaptureSourceType(type));
     if (ret != Media::MSERR_OK) {
         WVLOG_E("acquire audio buffer failed");
         return -1;
     }
     
-    audiobuffer->SetBuffer(avBuffer->buffer);
+    if (avBuffer == nullptr || avBuffer->buffer == nullptr) {
+       WVLOG_E("avBuffer is nullptr or buffer is nullptr");
+       return -1;
+    }
+
+    audiobuffer->SetBuffer(std::move(avBuffer->buffer));
     audiobuffer->SetLength(avBuffer->length);
     audiobuffer->SetTimestamp(avBuffer->timestamp);
     audiobuffer->SetSourcetype(GetAudioCaptureSourceTypeAdapter(avBuffer->sourcetype));
+    avBuffer->buffer = nullptr;
     
     return 0;
 }
