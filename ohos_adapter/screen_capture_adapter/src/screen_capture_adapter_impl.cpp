@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -217,6 +217,23 @@ ScreenCaptureStateCodeAdapter GetScreenCaptureStateCodeAdapter(const OHOS::Media
             return ScreenCaptureStateCodeAdapter::SCREEN_CAPTURE_STATE_INVLID;
     }
 }
+
+OHOS::Media::AudioCaptureSourceType ConvertAudioCaptureSourceType(const AudioCaptureSourceTypeAdapter& type)
+{
+    switch (type) {
+        case AudioCaptureSourceTypeAdapter::SOURCE_DEFAULT:
+            return OHOS::Media::AudioCaptureSourceType::SOURCE_DEFAULT;
+        case AudioCaptureSourceTypeAdapter::MIC:
+            return OHOS::Media::AudioCaptureSourceType::MIC;
+        case AudioCaptureSourceTypeAdapter::ALL_PLAYBACK:
+            return OHOS::Media::AudioCaptureSourceType::ALL_PLAYBACK;
+        case AudioCaptureSourceTypeAdapter::APP_PLAYBACK:
+            return OHOS::Media::AudioCaptureSourceType::APP_PLAYBACK;
+        default:
+            return OHOS::Media::AudioCaptureSourceType::SOURCE_INVALID;
+    }
+}
+
 } // namespace
 
 void OHScreenCaptureCallback::OnError(OHOS::Media::ScreenCaptureErrorType errorType, int32_t errorCode)
@@ -386,6 +403,34 @@ std::shared_ptr<SurfaceBufferAdapter> ScreenCaptureAdapterImpl::AcquireVideoBuff
     return std::move(surfaceBufferImpl);
 }
 
+int32_t ScreenCaptureAdapterImpl::AcquireAudioBuffer(
+    std::shared_ptr<AudioBufferAdapter> audiobuffer, AudioCaptureSourceTypeAdapter type)
+{
+    if (screenCapture_ == nullptr) {
+        WVLOG_E("not init");
+        return -1;
+    }
+
+    if (!audiobuffer) {
+        WVLOG_E("audiobuffer is nullptr");
+        return -1;
+    }
+
+    std::shared_ptr<OHOS::Media::AudioBuffer> avBuffer;
+    int32_t ret = screenCapture_->AcquireAudioBuffer(avBuffer, ConvertAudioCaptureSourceType(type));
+    if (ret != Media::MSERR_OK) {
+        WVLOG_E("acquire audio buffer failed");
+        return -1;
+    }
+    
+    audiobuffer->SetBuffer(avBuffer->buffer);
+    audiobuffer->SetLength(avBuffer->length);
+    audiobuffer->SetTimestamp(avBuffer->timestamp);
+    audiobuffer->SetSourcetype(GetAudioCaptureSourceTypeAdapter(avBuffer->sourcetype));
+    
+    return 0;
+}
+
 int32_t ScreenCaptureAdapterImpl::ReleaseVideoBuffer()
 {
     if (!screenCapture_) {
@@ -399,4 +444,19 @@ int32_t ScreenCaptureAdapterImpl::ReleaseVideoBuffer()
     }
     return 0;
 }
+
+int32_t ScreenCaptureAdapterImpl::ReleaseAudioBuffer(AudioCaptureSourceTypeAdapter type)
+{
+    if (!screenCapture_) {
+        WVLOG_E("screen capture not init");
+        return -1;
+    }
+    int32_t ret = screenCapture_->ReleaseAudioBuffer(ConvertAudioCaptureSourceType(type));
+    if (ret != Media::MSERR_OK) {
+        WVLOG_E("release audio buffer failed, ret = %{public}d", ret);
+        return -1;
+    }
+    return 0;
+}
+
 } // namespace OHOS::NWeb
