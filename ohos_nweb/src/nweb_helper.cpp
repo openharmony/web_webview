@@ -874,8 +874,8 @@ void NWebHelper::ClearIntelligentTrackingPreventionBypassingList()
 
 std::string NWebHelper::GetDefaultUserAgent()
 {
-    if (!LoadWebEngine(true, true)) {
-        WVLOG_E("failed to load web engine");
+    if (nwebEngine_ == nullptr) {
+        WVLOG_E("web engine is nullptr");
         return "";
     }
     
