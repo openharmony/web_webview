@@ -1486,8 +1486,8 @@ public:
     virtual void GetScrollOffset(float* offset_x, float* offset_y) {}
 
     /**
-     * @brief set DPI when DPI changes.
-     * @param density The new density value.
+     * @brief set surface density when DPI is changed
+     * @param density density.
      */
     virtual void SetSurfaceDensity(const double& density) {}
 
