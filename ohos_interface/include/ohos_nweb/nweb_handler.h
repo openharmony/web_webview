@@ -996,6 +996,12 @@ public:
     virtual void GetVisibleRectToWeb(int& visibleX, int& visibleY, int& visibleWidth, int& visibleHeight) {}
 
     virtual void OnScrollStart(const float x, const float y) {}
+
+    virtual bool OnSslErrorRequestByJSV2(std::shared_ptr<NWebJSSslErrorResult> result, SslError error,
+        const std::vector<std::string>& certChainData)
+    {
+        return false;
+    }
 };
 
 } // namespace OHOS::NWeb

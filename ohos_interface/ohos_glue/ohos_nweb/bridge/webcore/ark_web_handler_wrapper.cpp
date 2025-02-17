@@ -1023,4 +1023,22 @@ void ArkWebHandlerWrapper::OnScrollStart(const float x, const float y)
 {
     ark_web_handler_->OnScrollStart(x, y);
 }
+
+bool ArkWebHandlerWrapper::OnSslErrorRequestByJSV2(
+    std::shared_ptr<OHOS::NWeb::NWebJSSslErrorResult> result, ArkWebSslError error,
+    const std::vector<std::string>& certChainData)
+{
+    ArkWebStringVector stCertChainData = ArkWebStringVectorClassToStruct(certChainData);
+    
+    bool flag = false;
+    if (CHECK_SHARED_PTR_IS_NULL(result)) {
+        flag = ark_web_handler_->OnSslErrorRequestByJSV2(nullptr, static_cast<int>(error), stCertChainData);
+    } else {
+        flag = ark_web_handler_->OnSslErrorRequestByJSV2(
+            new ArkWebJsSslErrorResultImpl(result), static_cast<int>(error), stCertChainData);
+    }
+
+    ArkWebStringVectorStructRelease(stCertChainData);
+    return flag;
+}
 } // namespace OHOS::ArkWeb
