@@ -24,6 +24,7 @@
 #include "ohos_nweb/bridge/ark_web_nweb_create_info_impl.h"
 #include "ohos_nweb/bridge/ark_web_nweb_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_web_storage_wrapper.h"
+#include "ohos_nweb/bridge/ark_web_proxy_changed_callback_wrapper.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
 
@@ -252,6 +253,32 @@ std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> ArkWebEngineWrapper::GetAdsBloc
 void ArkWebEngineWrapper::TrimMemoryByPressureLevel(int32_t memoryLevel)
 {
     ark_web_engine_->TrimMemoryByPressureLevel(memoryLevel);
+}
+
+void ArkWebEngineWrapper::SetProxyOverride(
+    const std::vector<std::string>& proxyUrls,
+    const std::vector<std::string>& proxySchemeFilters,
+    const std::vector<std::string>& bypassRules,
+    const bool& reverseBypass,
+    std::shared_ptr<OHOS::NWeb::NWebProxyChangedCallback> callback)
+{
+    ArkWebStringVector stProxyRules = ArkWebStringVectorClassToStruct(proxyUrls);
+    ArkWebStringVector stProxySchemeFilters = ArkWebStringVectorClassToStruct(proxySchemeFilters);
+    ArkWebStringVector stBypassRules = ArkWebStringVectorClassToStruct(bypassRules);
+    ArkWebRefPtr<ArkWebProxyChangedCallback> ark_web_proxy_callback = new ArkWebProxyChangedCallbackWrapper(callback);
+
+    ark_web_engine_->SetProxyOverride(stProxyRules, stProxySchemeFilters, stBypassRules,
+                                      reverseBypass, ark_web_proxy_callback);
+
+    ArkWebStringVectorStructRelease(stProxyRules);
+    ArkWebStringVectorStructRelease(stProxySchemeFilters);
+    ArkWebStringVectorStructRelease(stBypassRules);
+}
+
+void ArkWebEngineWrapper::RemoveProxyOverride(std::shared_ptr<OHOS::NWeb::NWebProxyChangedCallback> callback)
+{
+    ArkWebRefPtr<ArkWebProxyChangedCallback> ark_web_proxy_callback = new ArkWebProxyChangedCallbackWrapper(callback);
+    ark_web_engine_->RemoveProxyOverride(ark_web_proxy_callback);
 }
 
 } // namespace OHOS::ArkWeb

@@ -230,6 +230,8 @@ component("ohos_nweb_glue_source") {
     "ohos_nweb/bridge/ark_web_web_storage_origin_impl.h",
     "ohos_nweb/bridge/ark_web_web_storage_origin_vector_value_callback_wrapper.cpp",
     "ohos_nweb/bridge/ark_web_web_storage_origin_vector_value_callback_wrapper.h",
+    "ohos_nweb/bridge/ark_web_proxy_changed_callback_impl.cpp",
+    "ohos_nweb/bridge/ark_web_proxy_changed_callback_impl.h",
     "ohos_nweb/cpptoc/ark_web_access_request_cpptoc.cpp",
     "ohos_nweb/cpptoc/ark_web_access_request_cpptoc.h",
     "ohos_nweb/cpptoc/ark_web_accessibility_node_info_cpptoc.cpp",
@@ -424,6 +426,8 @@ component("ohos_nweb_glue_source") {
     "ohos_nweb/ctocpp/ark_web_value_vector_ctocpp.h",
     "ohos_nweb/ctocpp/ark_web_web_storage_origin_vector_value_callback_ctocpp.cpp",
     "ohos_nweb/ctocpp/ark_web_web_storage_origin_vector_value_callback_ctocpp.h",
+    "ohos_nweb/ctocpp/ark_web_proxy_changed_callback_ctocpp.h",
+    "ohos_nweb/ctocpp/ark_web_proxy_changed_callback_ctocpp.cpp",
   ]
 
   deps = [ "//ohos_glue:ohos_base_glue_source" ]
