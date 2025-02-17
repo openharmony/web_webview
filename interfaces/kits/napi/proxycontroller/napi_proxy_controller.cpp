@@ -91,7 +91,6 @@ void NapiProxyController::InnerApplyProxyOverride(ProxyConfig *proxyConfig, napi
         bypassRules.push_back(bypassRule);
     }
 
-
     auto resultCallback = std::make_shared<ProxyChangedCallbackImpl>(env, jsCallback);
     NWebHelper::Instance().SetProxyOverride(proxyUrls, proxySchemeFilters, bypassRules,
                                             reverseBypass, resultCallback);
