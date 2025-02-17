@@ -882,7 +882,7 @@ int32_t CameraManagerAdapterImpl::CreateAndStartSession()
 
 int32_t CameraManagerAdapterImpl::RestartSession()
 {
-    std::lock_guard<std::mutex> lock(restart_mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     WVLOG_I("RestartSession %{public}s", deviceId_.c_str());
     if (!isCapturing_) {
         WVLOG_E("this web tab is not capturing");
@@ -910,7 +910,7 @@ int32_t CameraManagerAdapterImpl::RestartSession()
     captureSession_ = nullptr;
     status_ = CameraStatusAdapter::AVAILABLE;
 
-    if (StartStream(deviceId_, captureParams_, bufferListener_) != CAMERA_OK) {
+    if (StartStreamInner(deviceId_, captureParams_, bufferListener_) != CAMERA_OK) {
         WVLOG_E("restart stream failed");
         ReleaseSessionResource(deviceId_);
         ReleaseSession();
@@ -1048,6 +1048,13 @@ int32_t CameraManagerAdapterImpl::StartStream(const std::string& deviceId,
     std::shared_ptr<CameraBufferListenerAdapter> listener)
 {
     std::lock_guard<std::mutex> lock(mutex_);
+    return StartStreamInner(deviceId, captureParams, listener);
+}
+
+int32_t CameraManagerAdapterImpl::StartStreamInner(const std::string& deviceId,
+    const std::shared_ptr<VideoCaptureParamsAdapter> captureParams,
+    std::shared_ptr<CameraBufferListenerAdapter> listener)
+{
     wantedDeviceId_ = deviceId;
     if ((cameraManager_ == nullptr) || (listener == nullptr)) {
         WVLOG_E("cameraManager or listener is null when start session");

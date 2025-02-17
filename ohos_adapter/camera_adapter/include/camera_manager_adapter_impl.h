@@ -146,6 +146,9 @@ private:
     bool HandleDeviceDisc(std::shared_ptr<VideoDeviceDescriptorAdapterImpl> deviceDisc,
         Camera_Device& camera, Camera_OutputCapability *outputCapability);
     int32_t RecordCameraInfo(Camera_Device &camera);
+    int32_t StartStreamInner(const std::string& deviceId,
+        const std::shared_ptr<VideoCaptureParamsAdapter> captureParams,
+        std::shared_ptr<CameraBufferListenerAdapter> listener);
     Camera_Manager *cameraManager_ = nullptr;
     Camera_CaptureSession *captureSession_ = nullptr;
     Camera_Input *cameraInput_ = nullptr;
@@ -158,7 +161,6 @@ private:
     bool inputInitedFlag_ = false;
     bool isCapturing_ = false;
     bool isForegound_ = false;
-    std::mutex restart_mutex_;
     CameraManager_Callbacks cameraManagerCallback_;
     std::string wantedDeviceId_;
     OH_NativeImage *nativeImage_ = nullptr;
