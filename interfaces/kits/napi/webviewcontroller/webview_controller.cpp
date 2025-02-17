@@ -2116,6 +2116,14 @@ int WebMessageExt::ConvertNwebType2JsType(NWebValue::Type type)
     return static_cast<int>(jsType);
 }
 
+void WebviewController::GetScrollOffset(float* offset_x, float* offset_y)
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (nweb_ptr) {
+        nweb_ptr->GetScrollOffset(offset_x, offset_y);
+    }
+}
+
 void WebviewController::ScrollToWithAnime(float x, float y, int32_t duration)
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
@@ -2132,14 +2140,6 @@ void WebviewController::ScrollByWithAnime(float deltaX, float deltaY, int32_t du
         nweb_ptr->ScrollByWithAnime(deltaX, deltaY, duration);
     }
     return;
-}
-
-void WebviewController::GetScrollOffset(float* offset_x, float* offset_y)
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (nweb_ptr) {
-        nweb_ptr->GetScrollOffset(offset_x, offset_y);
-    }
 }
 } // namespace NWeb
 } // namespace OHOS
