@@ -84,6 +84,8 @@ private:
 
     static napi_value JsSaveCookieAsync(napi_env env, napi_callback_info info);
 
+    static napi_value JsSaveCookieSync(napi_env env, napi_callback_info info);
+
     static napi_value JsFetchCookieAsync(napi_env env, napi_callback_info info);
 
     static napi_value JsConfigCookieAsync(napi_env env, napi_callback_info info);
