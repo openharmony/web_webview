@@ -292,7 +292,8 @@ std::vector<std::shared_ptr<VideoDeviceDescriptorAdapter>> CameraManagerAdapterI
             return devicesDiscriptor;
         }
 
-        deviceDisc->SetDisplayName(cameraObj->GetID());
+        std::string displayName = GetCameraDisplayName(cameraObj->GetID(), cameraObj->GetPosition());
+        deviceDisc->SetDisplayName(displayName);
         deviceDisc->SetDeviceId(cameraObj->GetID());
         deviceDisc->SetModelId(cameraObj->GetID());
 
@@ -787,6 +788,25 @@ int32_t CameraManagerAdapterImpl::StartStreamInner(const std::string& deviceId,
     }
 
     return CAMERA_OK;
+}
+
+std::string CameraManagerAdapterImpl::GetCameraDisplayName(const std::string& cameraId, const CameraPosition& position)
+{
+    std::string displayName;
+    switch (position) {
+        case CAMERA_POSITION_FRONT:
+            displayName = cameraId + ", facing front";
+            return displayName;
+        case CAMERA_POSITION_BACK:
+            displayName = cameraId + ", facing back";
+            return displayName;
+        case CAMERA_POSITION_FOLD_INNER:
+            displayName = cameraId + ", facing fold inner";
+            return displayName;
+        default:
+            displayName = cameraId;
+            return displayName;
+    }
 }
 
 CameraSurfaceBufferAdapterImpl::CameraSurfaceBufferAdapterImpl(sptr<SurfaceBuffer> buffer) : buffer_(buffer) {}
