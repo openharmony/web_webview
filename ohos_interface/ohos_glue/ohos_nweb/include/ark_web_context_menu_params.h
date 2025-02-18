@@ -76,6 +76,7 @@ public:
      * @Output y: Y-coordinate of the image rectangle.
      * @Output w: Width of the image rectangle.
      * @Output h: Height of the image rectangle.
+     * @Since 12005
      */
     /*--ark web()--*/
     virtual void GetImageRect(int& x, int& y, int& w, int& h) = 0;
