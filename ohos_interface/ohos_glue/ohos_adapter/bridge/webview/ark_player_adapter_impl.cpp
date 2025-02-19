@@ -98,4 +98,9 @@ int32_t ArkPlayerAdapterImpl::SetMediaSourceHeader(const ArkWebString& url,
     return real_->SetMediaSourceHeader(surl, sheader);
 }
 
+int32_t ArkPlayerAdapterImpl::SetVideoSurfaceNew(void* native_window)
+{
+    return real_->SetVideoSurfaceNew(native_window);
+}
+
 } // namespace OHOS::ArkWeb

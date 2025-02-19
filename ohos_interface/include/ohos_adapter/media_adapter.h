@@ -110,6 +110,8 @@ public:
     {
         return -1;
     }
+
+    virtual int32_t SetVideoSurfaceNew(void* native_window) { return -1; }
 };
 
 } // namespace OHOS::NWeb

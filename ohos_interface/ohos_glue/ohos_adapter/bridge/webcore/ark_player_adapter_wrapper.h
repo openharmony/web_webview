@@ -52,6 +52,8 @@ public:
 
     int32_t SetMediaSourceHeader(const std::string& url, const std::map<std::string, std::string>& header) override;
 
+    int32_t SetVideoSurfaceNew(void* native_window) override;
+
 private:
     ArkWebRefPtr<ArkPlayerAdapter> ctocpp_;
 };

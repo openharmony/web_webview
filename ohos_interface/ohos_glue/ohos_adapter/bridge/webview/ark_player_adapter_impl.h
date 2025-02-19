@@ -52,6 +52,8 @@ public:
 
     int32_t SetMediaSourceHeader(const ArkWebString& url, const ArkWebStringMap& header) override;
 
+    int32_t SetVideoSurfaceNew(void* native_window) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::PlayerAdapter> real_;
 
