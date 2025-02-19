@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -255,6 +255,29 @@ public:
     virtual std::shared_ptr<RecorderInfoAdapter> GetRecorderInfo() = 0;
 };
 
+class AudioBufferAdapter {
+public:
+    AudioBufferAdapter() = default;
+
+    virtual ~AudioBufferAdapter() = default;
+
+    virtual uint8_t* GetBuffer() = 0;
+
+    virtual int32_t GetLength() = 0;
+
+    virtual int64_t GetTimestamp() = 0;
+
+    virtual AudioCaptureSourceTypeAdapter GetSourcetype() = 0;
+
+    virtual void SetBuffer(uint8_t* buffer) = 0;
+
+    virtual void SetLength(int32_t length) = 0;
+
+    virtual void SetTimestamp(int64_t timestamp) = 0;
+
+    virtual void SetSourcetype(AudioCaptureSourceTypeAdapter sourcetype) = 0;
+};
+
 class ScreenCaptureCallbackAdapter {
 public:
     ScreenCaptureCallbackAdapter() = default;
@@ -289,6 +312,11 @@ public:
     virtual std::shared_ptr<SurfaceBufferAdapter> AcquireVideoBuffer() = 0;
 
     virtual int32_t ReleaseVideoBuffer() = 0;
+
+    virtual int32_t AcquireAudioBuffer(
+        std::shared_ptr<AudioBufferAdapter> audiobuffer, AudioCaptureSourceTypeAdapter type) = 0;
+
+    virtual int32_t ReleaseAudioBuffer(AudioCaptureSourceTypeAdapter type) = 0;
 };
 
 } // namespace OHOS::NWeb

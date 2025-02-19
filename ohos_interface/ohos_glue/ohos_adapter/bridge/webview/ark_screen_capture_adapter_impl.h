@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -39,6 +39,11 @@ public:
     ArkWebRefPtr<ArkSurfaceBufferAdapter> AcquireVideoBuffer() override;
 
     int32_t ReleaseVideoBuffer() override;
+
+    int32_t AcquireAudioBuffer(
+        ArkWebRefPtr<ArkAudioBufferAdapter> audiobuffer, int32_t type) override;
+    
+    int32_t ReleaseAudioBuffer(int32_t type) override;
 
 private:
     std::shared_ptr<OHOS::NWeb::ScreenCaptureAdapter> real_;

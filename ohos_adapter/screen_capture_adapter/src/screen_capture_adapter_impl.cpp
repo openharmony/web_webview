@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,6 +33,7 @@ OHOS::Media::CaptureMode GetOHCaptureMode(const CaptureModeAdapter& mode)
         default:
             return OHOS::Media::CaptureMode::CAPTURE_INVAILD;
     }
+    return OHOS::Media::CaptureMode::CAPTURE_INVAILD;
 }
 
 OHOS::Media::DataType GetOHDataType(const DataTypeAdapter& type)
@@ -47,6 +48,7 @@ OHOS::Media::DataType GetOHDataType(const DataTypeAdapter& type)
         default:
             return OHOS::Media::DataType::INVAILD;
     }
+    return OHOS::Media::DataType::INVAILD;
 }
 
 OHOS::Media::AudioCaptureSourceType GetOHAudioCaptureSourceType(const AudioCaptureSourceTypeAdapter& type)
@@ -63,6 +65,7 @@ OHOS::Media::AudioCaptureSourceType GetOHAudioCaptureSourceType(const AudioCaptu
         default:
             return OHOS::Media::AudioCaptureSourceType::SOURCE_INVALID;
     }
+    return OHOS::Media::AudioCaptureSourceType::SOURCE_INVALID;
 }
 
 AudioCaptureSourceTypeAdapter GetAudioCaptureSourceTypeAdapter(const OHOS::Media::AudioCaptureSourceType& type)
@@ -79,6 +82,7 @@ AudioCaptureSourceTypeAdapter GetAudioCaptureSourceTypeAdapter(const OHOS::Media
         default:
             return AudioCaptureSourceTypeAdapter::SOURCE_INVALID;
     }
+    return AudioCaptureSourceTypeAdapter::SOURCE_INVALID;
 }
 
 OHOS::Media::AudioCodecFormat GetOHAudioCodecFormat(const AudioCodecFormatAdapter& format)
@@ -91,6 +95,7 @@ OHOS::Media::AudioCodecFormat GetOHAudioCodecFormat(const AudioCodecFormatAdapte
         default:
             return OHOS::Media::AudioCodecFormat::AUDIO_CODEC_FORMAT_BUTT;
     }
+    return OHOS::Media::AudioCodecFormat::AUDIO_CODEC_FORMAT_BUTT;
 }
 
 OHOS::Media::VideoSourceType GetOHVideoSourceType(const VideoSourceTypeAdapter& type)
@@ -105,6 +110,7 @@ OHOS::Media::VideoSourceType GetOHVideoSourceType(const VideoSourceTypeAdapter& 
         default:
             return OHOS::Media::VideoSourceType::VIDEO_SOURCE_BUTT;
     }
+    return OHOS::Media::VideoSourceType::VIDEO_SOURCE_BUTT;
 }
 
 OHOS::Media::VideoCodecFormat GetOHVideoCodecFormat(const VideoCodecFormatAdapter& format)
@@ -119,6 +125,7 @@ OHOS::Media::VideoCodecFormat GetOHVideoCodecFormat(const VideoCodecFormatAdapte
         default:
             return OHOS::Media::VideoCodecFormat::VIDEO_CODEC_FORMAT_BUTT;
     }
+    return OHOS::Media::VideoCodecFormat::VIDEO_CODEC_FORMAT_BUTT;
 }
 
 std::string GetOHContainerFormatType(const ContainerFormatTypeAdapter& type)
@@ -129,6 +136,7 @@ std::string GetOHContainerFormatType(const ContainerFormatTypeAdapter& type)
         default:
             return std::string(OHOS::Media::ContainerFormatType::CFT_MPEG_4);
     }
+    return std::string(OHOS::Media::ContainerFormatType::CFT_MPEG_4);
 }
 
 OHOS::Media::AVScreenCaptureConfig ConvertScreenCaptureConfig(const std::shared_ptr<ScreenCaptureConfigAdapter> config)
@@ -216,7 +224,25 @@ ScreenCaptureStateCodeAdapter GetScreenCaptureStateCodeAdapter(const OHOS::Media
         default:
             return ScreenCaptureStateCodeAdapter::SCREEN_CAPTURE_STATE_INVLID;
     }
+    return ScreenCaptureStateCodeAdapter::SCREEN_CAPTURE_STATE_INVLID;
 }
+
+OHOS::Media::AudioCaptureSourceType ConvertAudioCaptureSourceType(const AudioCaptureSourceTypeAdapter& type)
+{
+    switch (type) {
+        case AudioCaptureSourceTypeAdapter::SOURCE_DEFAULT:
+            return OHOS::Media::AudioCaptureSourceType::SOURCE_DEFAULT;
+        case AudioCaptureSourceTypeAdapter::MIC:
+            return OHOS::Media::AudioCaptureSourceType::MIC;
+        case AudioCaptureSourceTypeAdapter::ALL_PLAYBACK:
+            return OHOS::Media::AudioCaptureSourceType::ALL_PLAYBACK;
+        case AudioCaptureSourceTypeAdapter::APP_PLAYBACK:
+            return OHOS::Media::AudioCaptureSourceType::APP_PLAYBACK;
+        default:
+            return OHOS::Media::AudioCaptureSourceType::SOURCE_INVALID;
+    }
+}
+
 } // namespace
 
 void OHScreenCaptureCallback::OnError(OHOS::Media::ScreenCaptureErrorType errorType, int32_t errorCode)
@@ -386,6 +412,42 @@ std::shared_ptr<SurfaceBufferAdapter> ScreenCaptureAdapterImpl::AcquireVideoBuff
     return std::move(surfaceBufferImpl);
 }
 
+int32_t ScreenCaptureAdapterImpl::AcquireAudioBuffer(
+    std::shared_ptr<AudioBufferAdapter> audiobuffer, AudioCaptureSourceTypeAdapter type)
+{
+    if (screenCapture_ == nullptr) {
+        WVLOG_E("not init");
+        return -1;
+    }
+
+    if (!audiobuffer) {
+        WVLOG_E("audiobuffer is nullptr");
+        return -1;
+    }
+
+    std::shared_ptr<OHOS::Media::AudioBuffer> avBuffer =
+        std::make_shared<OHOS::Media::AudioBuffer>(nullptr, 0, 0, OHOS::Media::AudioCaptureSourceType::SOURCE_INVALID);
+
+    int32_t ret = screenCapture_->AcquireAudioBuffer(avBuffer, ConvertAudioCaptureSourceType(type));
+    if (ret != Media::MSERR_OK) {
+        WVLOG_E("acquire audio buffer failed");
+        return -1;
+    }
+    
+    if (avBuffer == nullptr || avBuffer->buffer == nullptr) {
+       WVLOG_E("avBuffer is nullptr or buffer is nullptr");
+       return -1;
+    }
+
+    audiobuffer->SetBuffer(std::move(avBuffer->buffer));
+    audiobuffer->SetLength(avBuffer->length);
+    audiobuffer->SetTimestamp(avBuffer->timestamp);
+    audiobuffer->SetSourcetype(GetAudioCaptureSourceTypeAdapter(avBuffer->sourcetype));
+    avBuffer->buffer = nullptr;
+    
+    return 0;
+}
+
 int32_t ScreenCaptureAdapterImpl::ReleaseVideoBuffer()
 {
     if (!screenCapture_) {
@@ -399,4 +461,19 @@ int32_t ScreenCaptureAdapterImpl::ReleaseVideoBuffer()
     }
     return 0;
 }
+
+int32_t ScreenCaptureAdapterImpl::ReleaseAudioBuffer(AudioCaptureSourceTypeAdapter type)
+{
+    if (!screenCapture_) {
+        WVLOG_E("screen capture not init");
+        return -1;
+    }
+    int32_t ret = screenCapture_->ReleaseAudioBuffer(ConvertAudioCaptureSourceType(type));
+    if (ret != Media::MSERR_OK) {
+        WVLOG_E("release audio buffer failed, ret = %{public}d", ret);
+        return -1;
+    }
+    return 0;
+}
+
 } // namespace OHOS::NWeb

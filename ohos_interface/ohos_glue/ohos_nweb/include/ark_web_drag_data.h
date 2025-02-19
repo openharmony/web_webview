@@ -118,6 +118,7 @@ public:
     /**
      * @Description: Obtains whether the drag style is new.
      * @Return: Returns an drag style, true is drag a new style, otherwise, drag a old style.
+     * @Since 12005
      */
     /*--ark web()--*/
     virtual bool IsDragNewStyle() = 0;
