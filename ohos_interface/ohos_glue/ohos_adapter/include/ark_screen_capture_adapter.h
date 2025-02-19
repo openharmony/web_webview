@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -128,34 +128,6 @@ public:
 };
 
 /*--ark web(source=webcore)--*/
-class ArkAudioBufferAdapter : public virtual ArkWebBaseRefCounted {
-public:
-    /*--ark web()--*/
-    virtual uint8_t* GetBuffer() = 0;
-
-    /*--ark web()--*/
-    virtual int32_t GetLength() = 0;
-
-    /*--ark web()--*/
-    virtual int64_t GetTimestamp() = 0;
-
-    /*--ark web()--*/
-    virtual int32_t GetSourcetype() = 0;
-
-    /*--ark web()--*/
-    virtual void SetBuffer(uint8_t* buffer) = 0;
-
-    /*--ark web()--*/
-    virtual void SetLength(int32_t length) = 0;
-
-    /*--ark web()--*/
-    virtual void SetTimestamp(int64_t timestamp) = 0;
-
-    /*--ark web()--*/
-    virtual void SetSourcetype(int32_t sourcetype) = 0;
-};
-
-/*--ark web(source=webcore)--*/
 class ArkScreenCaptureCallbackAdapter : public virtual ArkWebBaseRefCounted {
 public:
     /*--ark web()--*/
@@ -194,13 +166,6 @@ public:
 
     /*--ark web()--*/
     virtual int32_t ReleaseVideoBuffer() = 0;
-
-    /*--ark web()--*/
-    virtual int32_t AcquireAudioBuffer(
-        ArkWebRefPtr<ArkAudioBufferAdapter> audiobuffer, int32_t type) = 0;
-    
-    /*--ark web()--*/
-    virtual int32_t ReleaseAudioBuffer(int32_t type) = 0;
 };
 
 } // namespace OHOS::ArkWeb
