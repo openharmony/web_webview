@@ -242,6 +242,7 @@ OHOS::Media::AudioCaptureSourceType ConvertAudioCaptureSourceType(const AudioCap
             return OHOS::Media::AudioCaptureSourceType::SOURCE_INVALID;
     }
 }
+
 } // namespace
 
 void OHScreenCaptureCallback::OnError(OHOS::Media::ScreenCaptureErrorType errorType, int32_t errorCode)
@@ -474,4 +475,5 @@ int32_t ScreenCaptureAdapterImpl::ReleaseAudioBuffer(AudioCaptureSourceTypeAdapt
     }
     return 0;
 }
+
 } // namespace OHOS::NWeb
