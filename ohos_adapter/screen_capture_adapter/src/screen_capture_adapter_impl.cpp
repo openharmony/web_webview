@@ -460,4 +460,18 @@ int32_t ScreenCaptureAdapterImpl::ReleaseVideoBuffer()
     }
     return 0;
 }
+
+int32_t ScreenCaptureAdapterImpl::ReleaseAudioBuffer(AudioCaptureSourceTypeAdapter type)
+{
+    if (!screenCapture_) {
+        WVLOG_E("screen capture not init");
+        return -1;
+    }
+    int32_t ret = screenCapture_->ReleaseAudioBuffer(ConvertAudioCaptureSourceType(type));
+    if (ret != Media::MSERR_OK) {
+        WVLOG_E("release audio buffer failed, ret = %{public}d", ret);
+        return -1;
+    }
+    return 0;
+}
 } // namespace OHOS::NWeb
