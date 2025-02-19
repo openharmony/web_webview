@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include "ohos_adapter/bridge/ark_screen_capture_callback_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_screen_capture_config_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_surface_buffer_adapter_wrapper.h"
+#include "ohos_adapter/bridge/ark_audio_buffer_adapter_impl.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
 
@@ -72,6 +73,21 @@ std::shared_ptr<OHOS::NWeb::SurfaceBufferAdapter> ArkScreenCaptureAdapterWrapper
 int32_t ArkScreenCaptureAdapterWrapper::ReleaseVideoBuffer()
 {
     return ctocpp_->ReleaseVideoBuffer();
+}
+
+int32_t ArkScreenCaptureAdapterWrapper::AcquireAudioBuffer(
+    std::shared_ptr<OHOS::NWeb::AudioBufferAdapter> audiobuffer, NWeb::AudioCaptureSourceTypeAdapter type)
+{
+    if (CHECK_SHARED_PTR_IS_NULL(audiobuffer)) {
+        return ctocpp_->AcquireAudioBuffer(nullptr, (int32_t)type);
+    }
+
+    return ctocpp_->AcquireAudioBuffer(new ArkAudioBufferAdapterImpl(audiobuffer), (int32_t)type);
+}
+
+int32_t ArkScreenCaptureAdapterWrapper::ReleaseAudioBuffer(NWeb::AudioCaptureSourceTypeAdapter type)
+{
+    return ctocpp_->ReleaseAudioBuffer((int32_t)type);
 }
 
 } // namespace OHOS::ArkWeb
