@@ -23,6 +23,12 @@
 #include <IPCKit/ipc_kit.h>
 #include "nweb_log.h"
 
+namespace {
+bool IsFdValid(int32_t fd) {
+    return fd >= 0;
+}
+}
+
 namespace OHOS::NWeb {
 namespace {
 const char *IPC_FD_NAME = "IPC_FD";
@@ -130,9 +136,13 @@ int WriteFdsToParcel(OHIPCParcel* data, int32_t ipcFd, int32_t sharedFd, int32_t
         WVLOG_E("failed to write shared fd");
         return -1;
     }
-    if (OH_IPCParcel_WriteFileDescriptor(data, crashFd) != 0) {
-        WVLOG_E("failed to write crash fd");
-        return -1;
+    if (IsFdValid(crashFd)) {
+        if (OH_IPCParcel_WriteFileDescriptor(data, crashFd) != 0) {
+            WVLOG_E("failed to write crash fd");
+            return -1;
+        }
+    } else {
+        WVLOG_E("crashfd invalid");
     }
     return 0;
 }
@@ -236,7 +246,7 @@ int AafwkAppMgrClientAdapterImpl::StartChildProcess(
     NativeChildProcess_Fd ipcFdStruct{const_cast<char*>(IPC_FD_NAME), ipcFd, nullptr};
     NativeChildProcess_Fd sharedFdStruct{const_cast<char*>(SHARED_FD_NAME), sharedFd, &ipcFdStruct};
     NativeChildProcess_Fd crashFdStruct{const_cast<char*>(CRASH_FD_NAME), crashFd, &sharedFdStruct};
-    args.fdList.head = &crashFdStruct;
+    args.fdList.head = IsFdValid(crashFd) ? &crashFdStruct : &sharedFdStruct;
 
     NativeChildProcess_Options option{NCP_ISOLATION_MODE_ISOLATED, 0};
     auto ret = OH_Ability_StartNativeChildProcess(entry, args, option, &renderPid);
