@@ -26,6 +26,7 @@
 #include "ohos_nweb/include/ark_web_nweb.h"
 #include "ohos_nweb/include/ark_web_nweb_create_info.h"
 #include "ohos_nweb/include/ark_web_web_storage.h"
+#include "ohos_nweb/include/ark_web_proxy_changed_callback.h"
 
 namespace OHOS::ArkWeb {
 
@@ -119,6 +120,28 @@ public:
      */
     /*--ark web()--*/
     virtual ArkWebString GetDefaultUserAgent() = 0;
+
+    /**
+     * @Description: Set the proxy config used by arkweb.
+     * @Input proxy_urls: The proxy urls for construct proxy rule.
+     * @Input proxy_scheme_filters: The proxy scheme filters for construct proxy rule.
+     * @Input proxy_bypass_rules: The bypass rules.
+     * @Input reverse_bypass: Indicates whether reverse the bypass rules.
+     * @Since: 16001
+     */
+    /*--ark web()--*/
+    virtual void SetProxyOverride(const ArkWebStringVector& proxy_urls,
+                                  const ArkWebStringVector& proxy_scheme_filters,
+                                  const ArkWebStringVector& proxy_bypass_rules,
+                                  const bool& reverse_bypass,
+                                  ArkWebRefPtr<ArkWebProxyChangedCallback> callback) = 0;
+
+    /**
+     * @Description: Clear the proxy config used by arkweb.
+     * @Since: 16001
+     */
+    /*--ark web()--*/
+    virtual void RemoveProxyOverride(ArkWebRefPtr<ArkWebProxyChangedCallback> callback) = 0;
 };
 
 } // namespace OHOS::ArkWeb

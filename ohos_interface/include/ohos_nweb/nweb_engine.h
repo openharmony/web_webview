@@ -23,6 +23,8 @@
 #include "nweb_download_manager.h"
 #include "nweb_web_storage.h"
 
+#include "nweb_proxy_changed_callback.h"
+
 namespace OHOS::NWeb {
 
 class OHOS_NWEB_EXPORT NWebEngine {
@@ -89,6 +91,14 @@ public:
     virtual std::string GetDefaultUserAgent() {
         return "";
     }
+
+    virtual void SetProxyOverride(const std::vector<std::string>& proxyUrls,
+                                  const std::vector<std::string>& proxySchemeFilters,
+                                  const std::vector<std::string>& bypassRules,
+                                  const bool& reverseBypass,
+                                  std::shared_ptr<NWebProxyChangedCallback> callback) {}
+    
+    virtual void RemoveProxyOverride(std::shared_ptr<NWebProxyChangedCallback> callback) {}
 };
 
 } // namespace OHOS::NWeb

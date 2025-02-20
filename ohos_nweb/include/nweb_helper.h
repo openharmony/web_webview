@@ -27,6 +27,7 @@
 #include "nweb_engine.h"
 #include "nweb_export.h"
 #include "nweb_web_storage.h"
+#include "nweb_proxy_changed_callback.h"
 
 namespace OHOS::NWeb {
 struct FrameRateSetting {
@@ -89,6 +90,14 @@ public:
     void EnableBackForwardCache(bool enableNativeEmbed, bool enableMediaTakeOver);
 
     void TrimMemoryByPressureLevel(int32_t memoryLevel);
+
+    void SetProxyOverride(const std::vector<std::string>& proxyUrls,
+                          const std::vector<std::string>& proxySchemeFilters,
+                          const std::vector<std::string>& bypassRules,
+                          const bool& reverseBypass,
+                          std::shared_ptr<NWebProxyChangedCallback> callback);
+
+    void RemoveProxyOverride(std::shared_ptr<NWebProxyChangedCallback> callback);
 
 private:
     NWebHelper() = default;

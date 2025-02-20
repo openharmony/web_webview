@@ -32,6 +32,10 @@
 #include "napi_web_scheme_handler_request.h"
 #include "napi_back_forward_cache_options.h"
 
+#include "napi_proxy_controller.h"
+#include "napi_proxy_config.h"
+#include "napi_proxy_rule.h"
+
 namespace OHOS {
 namespace NWeb {
 EXTERN_C_START
@@ -54,6 +58,9 @@ static napi_value WebViewExport(napi_env env, napi_value exports)
     NapiNativeMediaPlayerHandler::Init(env, exports);
     NapiBackForwardCacheOptions::Init(env, exports);
     NapiBackForwardCacheSupportedFeatures::Init(env, exports);
+    NapiProxyController::Init(env, exports);
+    NapiProxyConfig::Init(env, exports);
+    NapiProxyRule::Init(env, exports);
     return exports;
 }
 EXTERN_C_END

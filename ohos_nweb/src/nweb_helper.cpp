@@ -795,6 +795,30 @@ void NWebHelper::SetHttpDns(std::shared_ptr<NWebDOHConfig> config)
     downloadManager->SetHttpDns(config);
 }
 
+void NWebHelper::SetProxyOverride(const std::vector<std::string>& proxyUrls,
+                                  const std::vector<std::string>& proxySchemeFilters,
+                                  const std::vector<std::string>& bypassRules,
+                                  const bool& reverseBypass,
+                                  std::shared_ptr<NWebProxyChangedCallback> callback)
+{
+    if (!LoadWebEngine(true, true)) {
+        WVLOG_E("failed to load web engine");
+        return;
+    }
+
+    nwebEngine_->SetProxyOverride(proxyUrls, proxySchemeFilters, bypassRules, reverseBypass, callback);
+}
+
+void NWebHelper::RemoveProxyOverride(std::shared_ptr<NWebProxyChangedCallback> callback)
+{
+    if (!LoadWebEngine(true, true)) {
+        WVLOG_E("failed to load web engine");
+        return;
+    }
+
+    nwebEngine_->RemoveProxyOverride(callback);
+}
+
 void NWebHelper::PrepareForPageLoad(std::string url, bool preconnectable, int32_t numSockets)
 {
     if (nwebEngine_ == nullptr) {

@@ -19,6 +19,7 @@
 
 #include "include/nweb_engine.h"
 #include "ohos_nweb/include/ark_web_engine.h"
+#include "ohos_nweb/include/ark_web_proxy_changed_callback.h"
 
 namespace OHOS::ArkWeb {
 using ArkWebRenderProcessMode = OHOS::NWeb::RenderProcessMode;
@@ -81,6 +82,14 @@ public:
     std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> GetAdsBlockManager() override;
 
     void TrimMemoryByPressureLevel(int32_t memoryLevel) override;
+
+    void SetProxyOverride(const std::vector<std::string>& proxyUrls,
+                          const std::vector<std::string>& proxySchemeFilters,
+                          const std::vector<std::string>& bypassRules,
+                          const bool& reverseBypass,
+                          std::shared_ptr<OHOS::NWeb::NWebProxyChangedCallback> callback) override;
+
+    void RemoveProxyOverride(std::shared_ptr<OHOS::NWeb::NWebProxyChangedCallback> callback) override;
 
 private:
     ArkWebRefPtr<ArkWebEngine> ark_web_engine_;
