@@ -1596,7 +1596,7 @@ class ArkWebNWeb : public virtual ArkWebBaseRefCounted {
    */
   /*--ark web()--*/
   virtual void ScrollToWithAnime(float x, float y, int32_t duration) = 0;
- 
+
   /**
    * Scroll by the delta distance.
    *
@@ -1648,6 +1648,30 @@ class ArkWebNWeb : public virtual ArkWebBaseRefCounted {
      */
     /*--ark web()--*/
     virtual void PutOptimizeParserBudgetEnabled(bool enable) = 0;
+
+    /**
+     * @brief Inject the JavaScript before WebView load the DOM tree.
+     */
+    /*--ark web()--*/
+    virtual void JavaScriptOnDocumentStartByOrder(const ArkWebStringVectorMap& script_items,
+        const ArkWebStringVector& script_items_by_order) = 0;
+
+    /**
+     * @brief Inject the JavaScript after WebView loads the DOM tree and run
+     *        JavaScripts.
+     */
+    /*--ark web()--*/
+    virtual void JavaScriptOnDocumentEndByOrder(const ArkWebStringVectorMap& script_items,
+        const ArkWebStringVector& script_items_by_order) = 0;
+
+    /**
+     * @Description: Inject the JavaScript when the head element has been created.
+     * @Input scriptItems: The injected JavaScript code is stored in lexicographical order.
+     * @Input scriptItemsByOrder: The injected JavaScript code is stored in the order of the injection array.
+     */
+    /*--ark web()--*/
+    virtual void JavaScriptOnHeadReadyByOrder(const ArkWebStringVectorMap& script_items,
+        const ArkWebStringVector& script_items_by_order) = 0;
 };
 
 }  // namespace OHOS::ArkWeb

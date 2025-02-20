@@ -1290,7 +1290,7 @@ public:
      */
     /*--ark web()--*/
     void SendAccessibilityHoverEvent(int32_t x, int32_t y) override;
-    
+
     /**
      * @brief Scroll by the delta distance.
      * @param delta_x: horizontal offset.
@@ -1395,6 +1395,28 @@ public:
      * @Input enable: Set whether to use optimized parser budget.
      */
     void PutOptimizeParserBudgetEnabled(bool enable) override;
+
+    /**
+     * @brief Inject the JavaScript before WebView load the DOM tree.
+     */
+    void JavaScriptOnDocumentStartByOrder(const std::map<std::string, std::vector<std::string>>& script_items,
+        const std::vector<std::string>& script_items_by_order) override;
+
+    /**
+     * @brief Inject the JavaScript after WebView loads the DOM tree and run
+     *        JavaScripts.
+     */
+    void JavaScriptOnDocumentEndByOrder(const std::map<std::string, std::vector<std::string>>& script_items,
+        const std::vector<std::string>& script_items_by_order) override;
+
+    /**
+     * @Description: Inject the JavaScript when the head element has been created.
+     * @Input scriptItems: The injected JavaScript code is stored in lexicographical order.
+     * @Input scriptItemsByOrder: The injected JavaScript code is stored in the order of the injection array.
+     */
+    /*--ark web()--*/
+    void JavaScriptOnHeadReadyByOrder(const std::map<std::string, std::vector<std::string>>& script_items,
+        const std::vector<std::string>& script_items_by_order) override;
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };

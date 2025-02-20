@@ -1141,7 +1141,7 @@ public:
      /*--ark web()--*/
      void OnConfigurationUpdated(
          ArkWebRefPtr<ArkWebSystemConfiguration> configuration) override;
- 
+
      /**
       * @brief Set url trust list.
       *
@@ -1149,7 +1149,7 @@ public:
       */
      /*--ark web()--*/
      int SetUrlTrustList(const ArkWebString& urlTrustList) override;
- 
+
      /**
       * @brief Put the callback for convert spanstring to html.
       *
@@ -1158,7 +1158,7 @@ public:
      /*--ark web()--*/
      void PutSpanstringConvertHtmlCallback(
          ArkWebRefPtr<ArkWebSpanstringConvertHtmlCallback> callback) override;
- 
+
      /**
       * Web send key event.
       * @param key_code code value.
@@ -1385,6 +1385,27 @@ public:
      * @Input enable: Set whether to use optimized parser budget.
      */
     void PutOptimizeParserBudgetEnabled(bool enable) override;
+
+    /**
+     * @brief Inject the JavaScript before WebView load the DOM tree.
+     */
+    void JavaScriptOnDocumentStartByOrder(const ArkWebStringVectorMap& script_items,
+        const ArkWebStringVector& script_items_by_order) override;
+
+    /**
+     * @brief Inject the JavaScript after WebView loads the DOM tree and run
+     *        JavaScripts.
+     */
+    void JavaScriptOnDocumentEndByOrder(const ArkWebStringVectorMap& script_items,
+        const ArkWebStringVector& script_items_by_order) override;
+
+    /**
+     * @Description: Inject the JavaScript when the head element has been created.
+     * @Input scriptItems: The injected JavaScript code is stored in lexicographical order.
+     * @Input scriptItemsByOrder: The injected JavaScript code is stored in the order of the injection array..
+     */
+    void JavaScriptOnHeadReadyByOrder(const ArkWebStringVectorMap& script_items,
+        const ArkWebStringVector& script_items_by_order) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

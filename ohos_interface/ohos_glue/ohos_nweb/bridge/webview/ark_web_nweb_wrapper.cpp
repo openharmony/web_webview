@@ -814,6 +814,45 @@ void ArkWebNWebWrapper::JavaScriptOnDocumentStart(const std::map<std::string, st
     ArkWebStringVectorMapStructRelease(stScriptItems);
 }
 
+void ArkWebNWebWrapper::JavaScriptOnDocumentStartByOrder(
+    const std::map<std::string, std::vector<std::string>>& script_items,
+    const std::vector<std::string>& script_items_by_order)
+{
+    ArkWebStringVectorMap stScriptItems = ArkWebStringVectorMapClassToStruct(script_items);
+    ArkWebStringVector stscript_items_by_order = ArkWebStringVectorClassToStruct(script_items_by_order);
+
+    ark_web_nweb_->JavaScriptOnDocumentStartByOrder(stScriptItems, stscript_items_by_order);
+
+    ArkWebStringVectorMapStructRelease(stScriptItems);
+    ArkWebStringVectorStructRelease(stscript_items_by_order);
+}
+
+void ArkWebNWebWrapper::JavaScriptOnDocumentEndByOrder(
+    const std::map<std::string, std::vector<std::string>>& script_items,
+    const std::vector<std::string>& script_items_by_order)
+{
+    ArkWebStringVectorMap stScriptItems = ArkWebStringVectorMapClassToStruct(script_items);
+    ArkWebStringVector stscript_items_by_order = ArkWebStringVectorClassToStruct(script_items_by_order);
+
+    ark_web_nweb_->JavaScriptOnDocumentEndByOrder(stScriptItems, stscript_items_by_order);
+
+    ArkWebStringVectorMapStructRelease(stScriptItems);
+    ArkWebStringVectorStructRelease(stscript_items_by_order);
+}
+
+void ArkWebNWebWrapper::JavaScriptOnHeadReadyByOrder(
+    const std::map<std::string, std::vector<std::string>>& script_items,
+    const std::vector<std::string>& script_items_by_order)
+{
+    ArkWebStringVectorMap stScriptItems = ArkWebStringVectorMapClassToStruct(script_items);
+    ArkWebStringVector stscript_items_by_order = ArkWebStringVectorClassToStruct(script_items_by_order);
+
+    ark_web_nweb_->JavaScriptOnHeadReadyByOrder(stScriptItems, stscript_items_by_order);
+
+    ArkWebStringVectorMapStructRelease(stScriptItems);
+    ArkWebStringVectorStructRelease(stscript_items_by_order);
+}
+
 void ArkWebNWebWrapper::ExecuteAction(int64_t accessibility_id, uint32_t action)
 {
     ark_web_nweb_->ExecuteAction(accessibility_id, action);
