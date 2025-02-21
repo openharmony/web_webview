@@ -138,12 +138,9 @@ void MediaAVSessionKey::Init()
 {
     pid_ = getprocpid();
     element_ = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
-    WVLOG_I("media avsession adapter Init AAFwk BundleName=%{public}s, AbilityName=%{public}s",
-            element_.GetBundleName().c_str(), element_.GetAbilityName().c_str());
     auto context = AbilityRuntime::ApplicationContext::GetApplicationContext();
     if (context) {
         element_.SetBundleName(context->GetBundleName());
-    WVLOG_I("media avsession adapter Init context BundleName=%{public}s", context->GetBundleName().c_str());
     }
     type_ = MediaAVSessionType::MEDIA_TYPE_INVALID;
 
@@ -187,6 +184,7 @@ void MediaAVSessionKey::Init()
         return;
     }
     element_.SetAbilityName(abilityInfos[0].name);
+    return;
 }
 
 int32_t MediaAVSessionKey::GetPID()
