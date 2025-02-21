@@ -906,4 +906,17 @@ void ArkWebHandlerImpl::OnScrollStart(const float x, const float y)
 {
     nweb_handler_->OnScrollStart(x, y);
 }
+
+bool ArkWebHandlerImpl::OnSslErrorRequestByJSV2(ArkWebRefPtr<ArkWebJsSslErrorResult> result, int error,
+    const ArkWebStringVector& certChainData)
+{
+    if (CHECK_REF_PTR_IS_NULL(result)) {
+        return nweb_handler_->OnSslErrorRequestByJSV2(nullptr, static_cast<ArkWebSslError>(error),
+            ArkWebStringVectorStructToClass(certChainData));
+    }
+
+    return nweb_handler_->OnSslErrorRequestByJSV2(
+        std::make_shared<ArkWebJsSslErrorResultWrapper>(result), static_cast<ArkWebSslError>(error),
+            ArkWebStringVectorStructToClass(certChainData));
+}
 } // namespace OHOS::ArkWeb

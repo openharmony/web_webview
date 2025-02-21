@@ -573,6 +573,9 @@ public:
     void GetVisibleRectToWeb(int& visibleX, int& visibleY, int& visibleWidth, int& visibleHeight) override;
 
     void OnScrollStart(const float x, const float y) override;
+
+    bool OnSslErrorRequestByJSV2(ArkWebRefPtr<ArkWebJsSslErrorResult> result, int error,
+        const ArkWebStringVector& certChainData) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };

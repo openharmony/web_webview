@@ -784,6 +784,18 @@ public:
 
     /*--ark web()--*/
     virtual void OnScrollStart(const float x, const float y) = 0;
+
+    /**
+     * @Description: Called when web occurs ssl error event.
+     * @Input result: handler of result.
+     * @Input error: error code.
+     * @Input certChainData: cert chain data.
+     * @Return: true/false
+     * @Since 15001
+     */
+    /*--ark web()--*/
+    virtual bool OnSslErrorRequestByJSV2(ArkWebRefPtr<ArkWebJsSslErrorResult> result, int error,
+        const ArkWebStringVector& certChainData) = 0;
 };
 
 } // namespace OHOS::ArkWeb
