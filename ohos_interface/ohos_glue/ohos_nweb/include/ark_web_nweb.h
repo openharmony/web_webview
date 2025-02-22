@@ -31,7 +31,6 @@
 #include "ohos_nweb/include/ark_web_hit_test_result.h"
 #include "ohos_nweb/include/ark_web_js_proxy_callback_vector.h"
 #include "ohos_nweb/include/ark_web_js_result_callback.h"
-#include "ohos_nweb/include/ark_web_keyboard_event.h"
 #include "ohos_nweb/include/ark_web_message_value_callback.h"
 #include "ohos_nweb/include/ark_web_pdfconfig_args.h"
 #include "ohos_nweb/include/ark_web_preference.h"
@@ -1634,13 +1633,6 @@ class ArkWebNWeb : public virtual ArkWebBaseRefCounted {
      */
     /*--ark web()--*/
     virtual int ScaleGestureChangeV2(int type, double scale, double originScale, double centerX, double centerY) = 0;
-
-    /**
-     * @Description: Sends key events to the web kernel.
-     * @Input mouseEvent: Basic information about key events.
-     */
-    /*--ark web()--*/
-    virtual bool SendKeyboardEvent(ArkWebRefPtr<ArkWebKeyboardEvent> keyboardEvent) = 0;
 
     /**
      * @Description: Optimize HTML parser budget to reduce FCP time.

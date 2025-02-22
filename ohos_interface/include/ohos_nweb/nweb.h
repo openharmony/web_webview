@@ -217,21 +217,6 @@ public:
     virtual std::map<std::string, std::string> GetResponseHeaders() = 0;
 };
 
-class OHOS_NWEB_EXPORT NWebKeyboardEvent {
-public:
-    virtual ~NWebKeyboardEvent() = default;
-
-    virtual int32_t GetKeyCode() = 0;
-
-    virtual int32_t GetAction() = 0;
-
-    virtual int32_t GetUnicode() = 0;
-
-    virtual bool IsEnableCapsLock() = 0;
-
-    virtual std::vector<int32_t> GetPressKeyCodes() = 0;
-};
-
 enum class PixelUnit {
     PX = 0,
     VP = 1,
@@ -1583,16 +1568,6 @@ public:
      */
     virtual int ScaleGestureChangeV2(int type, double scale, double originScale, double centerX, double centerY) {
         return 0;
-    }
-
-    /**
-     * @Description: Sends key events to the web kernel.
-     * @Input keyEvent: Basic information about key events.
-     * @Return: Whether the keyboard event is successful sent.
-     */
-    /*--ark web()--*/
-    virtual bool SendKeyboardEvent(const std::shared_ptr<OHOS::NWeb::NWebKeyboardEvent>& keyboardEvent) {
-        return false;
     }
 
     /**
