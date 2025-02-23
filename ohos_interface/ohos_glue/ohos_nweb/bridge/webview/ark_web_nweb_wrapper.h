@@ -1422,12 +1422,8 @@ public:
      * @brief Send mouse wheel event with sourceTool info.
      */
     /*--ark web()--*/
-    void WebSendMouseWheelEventV2(double x,
-                                  double y,
-                                  double delta_x,
-                                  double delta_y,
-                                  const std::vector<int32_t>& pressedCodes,
-                                  int32_t source) override;
+    bool WebSendMouseWheelEventV2(double x, double y, double delta_x, double delta_y,
+        const std::vector<int32_t> &pressedCodes, int32_t source) override;
 
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;

@@ -1222,14 +1222,10 @@ void ArkWebNWebImpl::PutOptimizeParserBudgetEnabled(bool enable)
     nweb_nweb_->PutOptimizeParserBudgetEnabled(enable);
 }
 
-void ArkWebNWebImpl::WebSendMouseWheelEventV2(double x,
-                                              double y,
-                                              double delta_x,
-                                              double delta_y,
-                                              const ArkWebInt32Vector& pressedCodes,
-                                              int32_t source)
+bool ArkWebNWebImpl::WebSendMouseWheelEventV2(
+        double x, double y, double delta_x, double delta_y, const ArkWebInt32Vector &pressedCodes, int32_t source)
 {
-    nweb_nweb_->WebSendMouseWheelEventV2(x, y, delta_x, delta_y,
-    ArkWebBasicVectorStructToClass<int32_t, ArkWebInt32Vector>(pressedCodes), source);
+    return nweb_nweb_->WebSendMouseWheelEventV2(
+        x, y, delta_x, delta_y, ArkWebBasicVectorStructToClass<int32_t, ArkWebInt32Vector>(pressedCodes), source);
 }
 } // namespace OHOS::ArkWeb
