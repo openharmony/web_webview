@@ -31,7 +31,6 @@
 #include "ohos_nweb/bridge/ark_web_history_list_impl.h"
 #include "ohos_nweb/bridge/ark_web_hit_test_result_impl.h"
 #include "ohos_nweb/bridge/ark_web_js_result_callback_wrapper.h"
-#include "ohos_nweb/bridge/ark_web_keyboard_event_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_message_value_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_preference_impl.h"
 #include "ohos_nweb/bridge/ark_web_release_surface_callback_wrapper.h"
@@ -1205,16 +1204,6 @@ void ArkWebNWebImpl::ExecuteCreatePDFExt(
 int ArkWebNWebImpl::ScaleGestureChangeV2(int type, double scale, double originScale, double centerX, double centerY)
 {
     return nweb_nweb_->ScaleGestureChangeV2(type, scale, originScale, centerX, centerY);
-}
-
-bool ArkWebNWebImpl::SendKeyboardEvent(ArkWebRefPtr<ArkWebKeyboardEvent> keyboardEvent)
-{
-    if (CHECK_REF_PTR_IS_NULL(keyboardEvent)) {
-        nweb_nweb_->SendKeyboardEvent(nullptr);
-        return false;
-    }
-
-    return nweb_nweb_->SendKeyboardEvent(std::make_shared<ArkWebKeyboardEventWrapper>(keyboardEvent));
 }
 
 void ArkWebNWebImpl::PutOptimizeParserBudgetEnabled(bool enable)
