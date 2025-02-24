@@ -350,7 +350,7 @@ bool DisplayManagerAdapterImpl::UnregisterDisplayListener(uint32_t id)
 bool DisplayManagerAdapterImpl::IsDefaultPortrait()
 {
     std::string deviceType = OHOS::system::GetDeviceType();
-    return deviceType == "phone" || deviceType == "default";
+    return deviceType == "phone" || deviceType == "tablet" || deviceType == "default";
 }
 
 FoldStatusListenerMap DisplayManagerAdapterImpl::foldStatusReg_;
