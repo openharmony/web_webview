@@ -18,6 +18,8 @@
 #include "foundation/multimedia/player_framework/interfaces/inner_api/native/media_errors.h"
 #include "nweb_log.h"
 #include "surface_adapter_impl.h"
+#include "foundation/graphic/graphic_surface/interfaces/inner_api/surface/window.h"
+#include "foundation/graphic/graphic_surface/surface/include/native_window.h"
 
 namespace OHOS::NWeb {
 namespace {
@@ -305,6 +307,17 @@ int32_t PlayerAdapterImpl::SetMediaSourceHeader(const std::string& url,
     std::shared_ptr<Media::AVMediaSource> mediaSource = std::make_shared<Media::AVMediaSource>(url, header);
     Media::AVPlayStrategy strategy;
     return player_->SetMediaSource(mediaSource, strategy);
+}
+
+int32_t PlayerAdapterImpl::SetVideoSurfaceNew(void* native_window)
+{
+    WVLOG_I("PlayerAdapterImpl::SetVideoSurfaceNew(%{public}p)", native_window);
+    if (!player_) {
+        WVLOG_E("player_ is nullptr");
+        return -1;
+    }
+    OHNativeWindow* ohNativeWindow = reinterpret_cast<OHNativeWindow*>(native_window);
+    return player_->SetVideoSurface(ohNativeWindow->surface);
 }
 
 } // namespace OHOS::NWeb
