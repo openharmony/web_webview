@@ -293,9 +293,9 @@ private:
     static napi_value ClearIntelligentTrackingPreventionBypassingList(
         napi_env env, napi_callback_info info);
 
-    static napi_value GetLastJavascriptProxyCallingFrameUrl(napi_env env, napi_callback_info info);
-
     static napi_value GetDefaultUserAgent(napi_env env, napi_callback_info info);
+
+    static napi_value GetLastJavascriptProxyCallingFrameUrl(napi_env env, napi_callback_info info);
 
     static napi_value PauseAllTimers(napi_env env, napi_callback_info info);
 
