@@ -1399,6 +1399,11 @@ public:
      */
     void JavaScriptOnHeadReadyByOrder(const ArkWebStringVectorMap& script_items,
         const ArkWebStringVector& script_items_by_order) override;
+    
+    /** 
+     * @brief Try to attach web inputmethod after drag.
+     */
+    void OnDragAttach() override;
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

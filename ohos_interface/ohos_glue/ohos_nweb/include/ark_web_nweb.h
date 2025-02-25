@@ -1664,6 +1664,12 @@ class ArkWebNWeb : public virtual ArkWebBaseRefCounted {
     /*--ark web()--*/
     virtual void JavaScriptOnHeadReadyByOrder(const ArkWebStringVectorMap& script_items,
         const ArkWebStringVector& script_items_by_order) = 0;
+    
+    /**
+     * @brief Try to attach web inputmethod after drag.
+     */
+    /*--ark web()--*/
+    virtual void OnDragAttach()  = 0;
 };
 
 }  // namespace OHOS::ArkWeb

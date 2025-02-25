@@ -1595,6 +1595,11 @@ public:
      */
     virtual void JavaScriptOnHeadReadyByOrder(const ScriptItems& scriptItems,
         const ScriptItemsByOrder& scriptItemsByOrder) {}
+    
+    /**
+     * @brief Try to attach web inputmethod after drag.
+     */
+    virtual void OnDragAttach() {}
 };
 
 } // namespace OHOS::NWeb

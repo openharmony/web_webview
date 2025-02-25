@@ -1431,4 +1431,9 @@ void ArkWebNWebWrapper::PutOptimizeParserBudgetEnabled(bool enable)
 {
     ark_web_nweb_->PutOptimizeParserBudgetEnabled(enable);
 }
+
+void ArkWebNWebWrapper::OnDragAttach()
+{
+    ark_web_nweb_->OnDragAttach();
+}
 } // namespace OHOS::ArkWeb

@@ -1410,6 +1410,11 @@ public:
     /*--ark web()--*/
     void JavaScriptOnHeadReadyByOrder(const std::map<std::string, std::vector<std::string>>& script_items,
         const std::vector<std::string>& script_items_by_order) override;
+
+    /**
+     * @brief Try to attach web inputmethod after drag.
+     */
+    void OnDragAttach() override;
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };
