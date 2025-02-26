@@ -49,6 +49,25 @@ bool ArkIMFAdapterWrapper::Attach(std::shared_ptr<OHOS::NWeb::IMFTextListenerAda
     }
 }
 
+bool ArkIMFAdapterWrapper::AttachWithRequestKeyboardReason(std::shared_ptr<OHOS::NWeb::IMFTextListenerAdapter> listener,
+    bool isShowKeyboard, const std::shared_ptr<OHOS::NWeb::IMFTextConfigAdapter> config, bool isResetListener,
+    int32_t requestKeyboardReason)
+{
+    if (!CHECK_SHARED_PTR_IS_NULL(listener) && !CHECK_SHARED_PTR_IS_NULL(config)) {
+        return ctocpp_->AttachWithRequestKeyboardReason(new ArkIMFTextListenerAdapterImpl(listener), isShowKeyboard,
+            new ArkIMFTextConfigAdapterImpl(config), isResetListener, requestKeyboardReason);
+    } else if (CHECK_SHARED_PTR_IS_NULL(listener) && CHECK_SHARED_PTR_IS_NULL(config)) {
+        return ctocpp_->AttachWithRequestKeyboardReason(
+            nullptr, isShowKeyboard, nullptr, isResetListener, requestKeyboardReason);
+    } else if (CHECK_SHARED_PTR_IS_NULL(listener)) {
+        return ctocpp_->AttachWithRequestKeyboardReason(
+            nullptr, isShowKeyboard, new ArkIMFTextConfigAdapterImpl(config), isResetListener, requestKeyboardReason);
+    } else {
+        return ctocpp_->AttachWithRequestKeyboardReason(new ArkIMFTextListenerAdapterImpl(listener), isShowKeyboard,
+            nullptr, isResetListener, requestKeyboardReason);
+    }
+}
+
 void ArkIMFAdapterWrapper::ShowCurrentInput(const OHOS::NWeb::IMFAdapterTextInputType& inputType)
 {
     return ctocpp_->ShowCurrentInput((int32_t)inputType);

@@ -532,4 +532,23 @@ HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_InsertText_011, TestSize.Level1)
     g_imf->SendPrivateCommand(commandKey, commandValue);
 }
 
+/**
+ * @tc.name: NWebIMFAdapterTest_InsertText_012.
+ * @tc.desc: IMF adapter unittest.
+ * @tc.type: FUNC.
+ * @tc.require:
+ */
+HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_InsertText_012, TestSize.Level1)
+{
+    int32_t requestKeyboardReasonNone = 0;
+    bool result = g_imf->AttachWithRequestKeyboardReason(nullptr, true, nullptr, false, requestKeyboardReasonNone);
+    EXPECT_FALSE(result);
+    auto listener = std::make_shared<IMFTextListenerTest>();
+    EXPECT_NE(listener, nullptr);
+    result = g_imf->AttachWithRequestKeyboardReason(nullptr, true, nullptr, false, requestKeyboardReasonNone);
+    EXPECT_FALSE(result);
+    result = g_imf->AttachWithRequestKeyboardReason(nullptr, true, nullptr, false, requestKeyboardReasonNone);
+    EXPECT_FALSE(result);
+}
+
 } // namespace OHOS::NWeb

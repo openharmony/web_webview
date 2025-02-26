@@ -334,6 +334,45 @@ bool IMFAdapterImpl::Attach(std::shared_ptr<IMFTextListenerAdapter> listener, bo
     return true;
 }
 
+bool IMFAdapterImpl::AttachWithRequestKeyboardReason(std::shared_ptr<IMFTextListenerAdapter> listener,
+    bool isShowKeyboard, const std::shared_ptr<IMFTextConfigAdapter> config, bool isResetListener,
+    int32_t requestKeyboardReason)
+{
+    if (!AttachParamsCheck(listener, isShowKeyboard, config, isResetListener)) {
+        return false;
+    }
+
+    MiscServices::InputAttribute inputAttribute = { .inputPattern = config->GetInputAttribute()->GetInputPattern(),
+        .enterKeyType = config->GetInputAttribute()->GetEnterKeyType(),
+        .isTextPreviewSupported = true };
+
+    MiscServices::CursorInfo imfInfo = { .left = config->GetCursorInfo()->GetLeft(),
+        .top = config->GetCursorInfo()->GetTop(),
+        .width = config->GetCursorInfo()->GetWidth(),
+        .height = config->GetCursorInfo()->GetHeight() };
+
+    MiscServices::TextConfig textConfig = { .inputAttribute = inputAttribute,
+        .cursorInfo = imfInfo,
+        .windowId = config->GetWindowId(),
+        .positionY = config->GetPositionY(),
+        .height = config->GetHeight() };
+    OHOS::MiscServices::AttachOptions attachOptions;
+    attachOptions.isShowKeyboard = isShowKeyboard;
+    attachOptions.requestKeyboardReason = static_cast<OHOS::MiscServices::RequestKeyboardReason>(requestKeyboardReason);
+    WVLOG_I(
+        "web inputmethod attach, isShowKeyboard=%{public}d, requestKeyboardReason=%{public}d, textConfig=%{public}s",
+        isShowKeyboard,
+        requestKeyboardReason,
+        textConfig.ToString().c_str());
+    int32_t ret = MiscServices::InputMethodController::GetInstance()->Attach(textListener_, attachOptions, textConfig);
+    if (ret != 0) {
+        WVLOG_E("inputmethod attach failed, errcode=%{public}d", ret);
+        ReportImfErrorEvent(ret, isShowKeyboard);
+        return false;
+    }
+    return true;
+}
+
 void IMFAdapterImpl::ShowCurrentInput(const IMFAdapterTextInputType& inputType)
 {
     MiscServices::Configuration config;
@@ -414,6 +453,36 @@ bool IMFAdapterImpl::ParseFillContentJsonValue(const std::string& commandValue,
         }
     }
     cJSON_Delete(sourceJson);
+    return true;
+}
+
+bool IMFAdapterImpl::AttachParamsCheck(std::shared_ptr<IMFTextListenerAdapter> listener, bool isShowKeyboard,
+    const std::shared_ptr<IMFTextConfigAdapter> config, bool isResetListener)
+{
+    if (!listener) {
+        WVLOG_E("the listener is nullptr");
+        ReportImfErrorEvent(IMF_LISTENER_NULL_POINT, isShowKeyboard);
+        return false;
+    }
+    if (!config || !(config->GetInputAttribute()) || !(config->GetCursorInfo())) {
+        WVLOG_E("the config is nullptr");
+        ReportImfErrorEvent(IMF_TEXT_CONFIG_NULL_POINT, isShowKeyboard);
+        return false;
+    }
+
+    if ((textListener_ != nullptr) && isResetListener) {
+        textListener_ = nullptr;
+        WVLOG_I("attach node is changed, need reset listener");
+    }
+
+    if (!textListener_) {
+        textListener_ = new (std::nothrow) IMFTextListenerAdapterImpl(listener);
+        if (!textListener_) {
+            WVLOG_E("new textListener failed");
+            ReportImfErrorEvent(IMF_LISTENER_NULL_POINT, isShowKeyboard);
+            return false;
+        }
+    }
     return true;
 }
 

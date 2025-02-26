@@ -160,6 +160,10 @@ public:
         ArkWebRefPtr<ArkIMFTextConfigAdapter> config, bool isResetListener) = 0;
 
     /*--ark web()--*/
+    virtual bool AttachWithRequestKeyboardReason(ArkWebRefPtr<ArkIMFTextListenerAdapter> listener, bool isShowKeyboard,
+        ArkWebRefPtr<ArkIMFTextConfigAdapter> config, bool isResetListener, int32_t requestKeyboardReason) = 0;
+
+    /*--ark web()--*/
     virtual void ShowCurrentInput(const int32_t& inputType) = 0;
 
     /*--ark web()--*/
