@@ -1399,6 +1399,14 @@ public:
      */
     void JavaScriptOnHeadReadyByOrder(const ArkWebStringVectorMap& script_items,
         const ArkWebStringVector& script_items_by_order) override;
+
+    /*
+     * @brief Send mouse wheel event with sourceTool info.
+     */
+    /*--ark web()--*/
+    bool WebSendMouseWheelEventV2(double x, double y, double delta_x, double delta_y,
+        const ArkWebInt32Vector &pressedCodes, int32_t source) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };
