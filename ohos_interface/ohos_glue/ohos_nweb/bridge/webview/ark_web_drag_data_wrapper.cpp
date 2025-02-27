@@ -143,4 +143,9 @@ void ArkWebDragDataWrapper::GetDragStartPosition(int& x, int& y)
     ark_web_drag_data_->GetDragStartPosition(x, y);
 }
 
+bool ArkWebDragDataWrapper::IsDragNewStyle()
+{
+    return ark_web_drag_data_->IsDragNewStyle();
+}
+
 } // namespace OHOS::ArkWeb

@@ -59,6 +59,8 @@ public:
 
     int32_t GetContextMenuTypeFlags() override;
 
+    void GetImageRect(int& x, int& y, int& w, int& h) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebContextMenuParams> nweb_context_menu_params_;
 };

@@ -104,6 +104,11 @@ public:
      */
     void GetDragStartPosition(int& x, int& y) override;
 
+    /**
+     * @brief is drag new style.
+     */
+    bool IsDragNewStyle() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebDragData> nweb_drag_data_;
 };

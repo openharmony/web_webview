@@ -61,6 +61,8 @@ public:
 
     int32_t GetContextMenuTypeFlags() override;
 
+    void GetImageRect(int& x, int& y, int& w, int& h) override;
+
 private:
     ArkWebRefPtr<ArkWebContextMenuParams> ark_web_context_menu_params_;
 };
