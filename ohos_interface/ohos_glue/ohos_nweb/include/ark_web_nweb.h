@@ -1671,6 +1671,12 @@ class ArkWebNWeb : public virtual ArkWebBaseRefCounted {
     /*--ark web()--*/
     virtual bool WebSendMouseWheelEventV2(
         double x, double y, double delta_x, double delta_y, const ArkWebInt32Vector &pressedCodes, int32_t source) = 0;
+
+    /**
+     * @brief Web maximize resize optimize.
+     */
+    /*--ark web()--*/
+    virtual void MaximizeResize() = 0;
 };
 
 }  // namespace OHOS::ArkWeb

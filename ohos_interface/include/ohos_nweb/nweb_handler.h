@@ -1002,6 +1002,11 @@ public:
     {
         return false;
     }
+
+    /**
+     * @brief Restore web component renderfit.
+     */
+    virtual void RestoreRenderFit() {}
 };
 
 } // namespace OHOS::NWeb

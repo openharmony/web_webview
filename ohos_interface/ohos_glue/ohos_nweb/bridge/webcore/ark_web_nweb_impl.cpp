@@ -1217,4 +1217,9 @@ bool ArkWebNWebImpl::WebSendMouseWheelEventV2(
     return nweb_nweb_->WebSendMouseWheelEventV2(
         x, y, delta_x, delta_y, ArkWebBasicVectorStructToClass<int32_t, ArkWebInt32Vector>(pressedCodes), source);
 }
+
+void ArkWebNWebImpl::MaximizeResize()
+{
+    nweb_nweb_->MaximizeResize();
+}
 } // namespace OHOS::ArkWeb
