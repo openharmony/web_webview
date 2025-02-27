@@ -1418,6 +1418,12 @@ public:
     bool WebSendMouseWheelEventV2(double x, double y, double delta_x, double delta_y,
         const std::vector<int32_t> &pressedCodes, int32_t source) override;
 
+    /**
+     * @brief Web maximize resize optimize.
+     */
+    /*--ark web()--*/
+    void MaximizeResize() override;
+
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };

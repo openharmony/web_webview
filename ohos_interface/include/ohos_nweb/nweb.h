@@ -1601,6 +1601,12 @@ public:
     {
         return false;
     }
+
+    /**
+     * @brief Web maximize resize optimize.
+     */
+    /*--ark web()--*/
+    virtual void MaximizeResize() {}
 };
 
 } // namespace OHOS::NWeb

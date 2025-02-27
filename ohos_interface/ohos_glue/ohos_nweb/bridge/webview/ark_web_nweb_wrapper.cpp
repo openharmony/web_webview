@@ -1442,4 +1442,9 @@ bool ArkWebNWebWrapper::WebSendMouseWheelEventV2(
     ArkWebBasicVectorStructRelease<ArkWebInt32Vector>(pCodes);
     return result;
 }
+
+void ArkWebNWebWrapper::MaximizeResize()
+{
+    ark_web_nweb_->MaximizeResize();
+}
 } // namespace OHOS::ArkWeb

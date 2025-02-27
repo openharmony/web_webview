@@ -1041,4 +1041,9 @@ bool ArkWebHandlerWrapper::OnSslErrorRequestByJSV2(
     ArkWebStringVectorStructRelease(stCertChainData);
     return flag;
 }
+
+void ArkWebHandlerWrapper::RestoreRenderFit()
+{
+    ark_web_handler_->RestoreRenderFit();
+}
 } // namespace OHOS::ArkWeb
