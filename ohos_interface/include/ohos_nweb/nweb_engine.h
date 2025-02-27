@@ -22,7 +22,6 @@
 #include "nweb_data_base.h"
 #include "nweb_download_manager.h"
 #include "nweb_web_storage.h"
-
 #include "nweb_proxy_changed_callback.h"
 
 namespace OHOS::NWeb {
@@ -86,11 +85,11 @@ public:
         return nullptr;
     }
 
-    virtual void TrimMemoryByPressureLevel(int32_t memoryLevel) {};
-
     virtual std::string GetDefaultUserAgent() {
         return "";
     }
+
+    virtual void TrimMemoryByPressureLevel(int32_t memoryLevel) {};
 
     virtual void SetProxyOverride(const std::vector<std::string>& proxyUrls,
                                   const std::vector<std::string>& proxySchemeFilters,
