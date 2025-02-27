@@ -1407,6 +1407,12 @@ public:
     bool WebSendMouseWheelEventV2(double x, double y, double delta_x, double delta_y,
         const ArkWebInt32Vector &pressedCodes, int32_t source) override;
 
+    /**
+     * @brief Web maximize resize optimize.
+     */
+    /*--ark web()--*/
+    void MaximizeResize() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

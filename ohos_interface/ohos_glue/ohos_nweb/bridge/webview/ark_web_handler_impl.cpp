@@ -919,4 +919,9 @@ bool ArkWebHandlerImpl::OnSslErrorRequestByJSV2(ArkWebRefPtr<ArkWebJsSslErrorRes
         std::make_shared<ArkWebJsSslErrorResultWrapper>(result), static_cast<ArkWebSslError>(error),
             ArkWebStringVectorStructToClass(certChainData));
 }
+
+void ArkWebHandlerImpl::RestoreRenderFit()
+{
+    nweb_handler_->RestoreRenderFit();
+}
 } // namespace OHOS::ArkWeb

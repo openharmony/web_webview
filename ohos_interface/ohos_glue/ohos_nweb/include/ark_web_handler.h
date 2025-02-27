@@ -796,6 +796,12 @@ public:
     /*--ark web()--*/
     virtual bool OnSslErrorRequestByJSV2(ArkWebRefPtr<ArkWebJsSslErrorResult> result, int error,
         const ArkWebStringVector& certChainData) = 0;
+
+    /**
+     * @brief Restore web component renderfit.
+     */
+    /*--ark web()--*/
+    virtual void RestoreRenderFit() = 0;
 };
 
 } // namespace OHOS::ArkWeb
