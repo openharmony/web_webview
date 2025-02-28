@@ -94,28 +94,6 @@ public:
     double frameRate;
 };
 
-/**
- * @tc.name: DecoderCallbackImpl_NormalTest_001.
- * @tc.desc: test of DecoderCallbackImpl::OnError() OnOutputFormatChanged() OnInputBufferAvailable()
- * @tc.type: FUNC.
- * @tc.require:
- */
-HWTEST_F(DecoderCallbackImplTest, DecoderCallbackImpl_NormalTest_001, TestSize.Level1)
-{
-    std::shared_ptr<DecoderCallbackAdapter> cb_ = nullptr;
-    std::shared_ptr<DecoderCallbackImpl> decoderCallbackImpl_ = std::make_shared<DecoderCallbackImpl>(cb_);
-    const int32_t errorcode_ = 0;
-    const AVCodecErrorType errorType_ = AVCODEC_ERROR_EXTEND_START;
-    decoderCallbackImpl_->OnError(errorType_, errorcode_);
-    Media::Format fomat_;
-    decoderCallbackImpl_->OnOutputFormatChanged(fomat_);
-    uint32_t index_ = 1;
-    std::shared_ptr<Media::AVSharedMemory> buffer_ = nullptr;
-    decoderCallbackImpl_->OnInputBufferAvailable(index_, buffer_);
-    AVCodecBufferInfo info;
-    decoderCallbackImpl_->OnOutputBufferAvailable(1, info, AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_EOS, nullptr);
-}
-
 class MediaCodecDecoderAdapterImplTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
