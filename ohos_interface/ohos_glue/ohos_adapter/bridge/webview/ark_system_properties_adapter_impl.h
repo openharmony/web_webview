@@ -73,6 +73,11 @@ public:
     ArkWebString GetOOPGPUStatus() override;
 
     ArkWebString GetCompatibleDeviceType() override;
+
+    ArkWebString GetScrollVelocityScale() override;
+
+    ArkWebString GetScrollFriction() override;
+
 private:
     NWeb::SystemPropertiesAdapter& real_;
 

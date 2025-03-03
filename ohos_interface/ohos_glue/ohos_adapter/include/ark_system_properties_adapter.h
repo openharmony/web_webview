@@ -102,6 +102,12 @@ public:
      */
     /*--ark web()--*/
     virtual ArkWebString GetCompatibleDeviceType() = 0;
+
+    /*--ark web()--*/
+    virtual ArkWebString GetScrollVelocityScale() = 0;
+
+    /*--ark web()--*/
+    virtual ArkWebString GetScrollFriction() = 0;
 };
 
 } // namespace OHOS::ArkWeb
