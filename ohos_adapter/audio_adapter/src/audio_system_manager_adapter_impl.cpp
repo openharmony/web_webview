@@ -155,7 +155,6 @@ bool AudioSystemManagerAdapterImpl::GetDeviceIdByDescriptor(
     }
     WVLOG_I("GetDeviceIdByDescriptor: deviceId: %{public}d", deviceId);
     WVLOG_I("GetDeviceIdByDescriptor: deviceType: %{public}d", audioDeviceDescriptor->deviceType_);
-    WVLOG_I("GetDeviceIdByDescriptor: macAddress_: %{public}s", audioDeviceDescriptor->macAddress_.c_str());
     if (audioOutputDeviceInfo_.empty()) {
         deviceId = 1;
         AudioDeviceDescriptor newDevice(*audioDeviceDescriptor);
