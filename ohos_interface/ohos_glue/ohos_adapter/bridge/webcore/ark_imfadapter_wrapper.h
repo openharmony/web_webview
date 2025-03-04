@@ -31,6 +31,10 @@ public:
     bool Attach(std::shared_ptr<OHOS::NWeb::IMFTextListenerAdapter> listener, bool isShowKeyboard,
         const std::shared_ptr<OHOS::NWeb::IMFTextConfigAdapter> config, bool isResetListener) override;
 
+    bool AttachWithRequestKeyboardReason(std::shared_ptr<OHOS::NWeb::IMFTextListenerAdapter> listener,
+        bool isShowKeyboard, const std::shared_ptr<OHOS::NWeb::IMFTextConfigAdapter> config, bool isResetListener,
+        int32_t requestKeyboardReason) override;
+
     void ShowCurrentInput(const OHOS::NWeb::IMFAdapterTextInputType& inputType) override;
 
     void HideTextInput() override;

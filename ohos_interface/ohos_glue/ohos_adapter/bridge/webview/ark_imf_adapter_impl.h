@@ -31,6 +31,9 @@ public:
     bool Attach(ArkWebRefPtr<ArkIMFTextListenerAdapter> listener, bool isShowKeyboard,
         ArkWebRefPtr<ArkIMFTextConfigAdapter> config, bool isResetListener) override;
 
+    bool AttachWithRequestKeyboardReason(ArkWebRefPtr<ArkIMFTextListenerAdapter> listener, bool isShowKeyboard,
+        ArkWebRefPtr<ArkIMFTextConfigAdapter> config, bool isResetListener, int32_t requestKeyboardReason) override;
+
     void ShowCurrentInput(const int32_t& inputType) override;
 
     void HideTextInput() override;

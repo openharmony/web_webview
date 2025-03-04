@@ -186,6 +186,9 @@ public:
     virtual bool Attach(std::shared_ptr<IMFTextListenerAdapter> listener, bool isShowKeyboard,
         const std::shared_ptr<IMFTextConfigAdapter> config, bool isResetListener) = 0;
 
+    virtual bool AttachWithRequestKeyboardReason(std::shared_ptr<IMFTextListenerAdapter> listener, bool isShowKeyboard,
+        const std::shared_ptr<IMFTextConfigAdapter> config, bool isResetListener, int32_t requestKeyboardReason) = 0;
+
     virtual void ShowCurrentInput(const IMFAdapterTextInputType& inputType) = 0;
 
     virtual void HideTextInput() = 0;

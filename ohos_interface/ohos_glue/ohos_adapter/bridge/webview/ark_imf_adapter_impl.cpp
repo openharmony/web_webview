@@ -51,6 +51,26 @@ bool ArkIMFAdapterImpl::Attach(ArkWebRefPtr<ArkIMFTextListenerAdapter> listener,
     }
 }
 
+bool ArkIMFAdapterImpl::AttachWithRequestKeyboardReason(ArkWebRefPtr<ArkIMFTextListenerAdapter> listener,
+    bool isShowKeyboard, ArkWebRefPtr<ArkIMFTextConfigAdapter> config, bool isResetListener,
+    int32_t requestKeyboardReason)
+{
+    if (CHECK_REF_PTR_IS_NULL(listener) && CHECK_REF_PTR_IS_NULL(config)) {
+        return real_->AttachWithRequestKeyboardReason(
+            nullptr, isShowKeyboard, nullptr, isResetListener, requestKeyboardReason);
+    } else if (!CHECK_REF_PTR_IS_NULL(listener) && !CHECK_REF_PTR_IS_NULL(config)) {
+        return real_->AttachWithRequestKeyboardReason(std::make_shared<ArkIMFTextListenerAdapterWrapper>(listener),
+            isShowKeyboard, std::make_shared<ArkIMFTextConfigAdapterWrapper>(config), isResetListener,
+            requestKeyboardReason);
+    } else if (CHECK_REF_PTR_IS_NULL(listener)) {
+        return real_->AttachWithRequestKeyboardReason(nullptr, isShowKeyboard,
+            std::make_shared<ArkIMFTextConfigAdapterWrapper>(config), isResetListener, requestKeyboardReason);
+    } else {
+        return real_->AttachWithRequestKeyboardReason(std::make_shared<ArkIMFTextListenerAdapterWrapper>(listener),
+            isShowKeyboard, nullptr, isResetListener, requestKeyboardReason);
+    }
+}
+
 void ArkIMFAdapterImpl::ShowCurrentInput(const int32_t& inputType)
 {
     real_->ShowCurrentInput((OHOS::NWeb::IMFAdapterTextInputType)inputType);

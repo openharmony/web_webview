@@ -103,6 +103,10 @@ public:
     bool Attach(std::shared_ptr<IMFTextListenerAdapter> listener, bool isShowKeyboard,
         const std::shared_ptr<IMFTextConfigAdapter> config, bool isResetListener) override;
 
+    bool AttachWithRequestKeyboardReason(std::shared_ptr<IMFTextListenerAdapter> listener, bool isShowKeyboard,
+        const std::shared_ptr<IMFTextConfigAdapter> config, bool isResetListener,
+        int32_t requestKeyboardReason) override;
+
     void ShowCurrentInput(const IMFAdapterTextInputType& inputType) override;
 
     void HideTextInput() override;
@@ -120,6 +124,9 @@ private:
 
     bool ParseFillContentJsonValue(const std::string& jsonStr,
         std::unordered_map<std::string, std::variant<std::string, bool, int32_t>>& map);
+
+    bool AttachParamsCheck(std::shared_ptr<IMFTextListenerAdapter> listener, bool isShowKeyboard,
+        const std::shared_ptr<IMFTextConfigAdapter> config, bool isResetListener);
 };
 } // namespace OHOS::NWeb
 
