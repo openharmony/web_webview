@@ -93,6 +93,10 @@ public:
     virtual std::string GetUserAgentOSVersion() = 0;
 
     virtual std::string GetCompatibleDeviceType() = 0;
+
+    virtual std::string GetScrollVelocityScale() = 0;
+
+    virtual std::string GetScrollFriction() = 0;
 };
 
 } // namespace OHOS::NWeb

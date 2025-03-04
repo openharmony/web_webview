@@ -74,6 +74,11 @@ public:
     std::string GetOOPGPUStatus() override;
 
     std::string GetCompatibleDeviceType() override;
+
+    std::string GetScrollVelocityScale() override;
+
+    std::string GetScrollFriction() override;
+
 private:
     ArkWebRefPtr<ArkSystemPropertiesAdapter> ctocpp_;
 };
