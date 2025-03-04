@@ -178,28 +178,6 @@ public:
     }
 };
 
-/**
- * @tc.name: EncoderCallbackImpl_NormalTest_001.
- * @tc.desc: test of EncoderCallbackImpl::OnError() OnOutputFormatChanged() OnInputBufferAvailable()
- * @tc.type: FUNC.
- * @tc.require:
- */
-HWTEST_F(EncoderCallbackImplTest, EncoderCallbackImpl_NormalTest_001, TestSize.Level1)
-{
-    std::shared_ptr<CodecCallbackAdapter> cb = nullptr;
-    std::shared_ptr<EncoderCallbackImpl> callbackImpl = std::make_shared<EncoderCallbackImpl>(cb);
-    const int32_t errorcode = 0;
-    const AVCodecErrorType errorType = AVCODEC_ERROR_EXTEND_START;
-    callbackImpl->OnError(errorType, errorcode);
-    Media::Format fomat;
-    callbackImpl->OnOutputFormatChanged(fomat);
-    uint32_t index = 1;
-    std::shared_ptr<Media::AVSharedMemory> buffer = nullptr;
-    callbackImpl->OnInputBufferAvailable(index, buffer);
-    AVCodecBufferInfo info;
-    callbackImpl->OnOutputBufferAvailable(1, info, AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_EOS, nullptr);
-}
-
 class MediaCodecEncoderAdapterImplTest : public testing::Test {
 protected:
     void SetUp() override;

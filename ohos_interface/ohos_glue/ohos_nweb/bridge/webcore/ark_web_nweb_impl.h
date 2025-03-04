@@ -1374,6 +1374,13 @@ public:
     int ScaleGestureChangeV2(int type, double scale, double originScale, double centerX, double centerY) override;
 
     /**
+     * @Description: Sends key events to the web kernel.
+     * @Input mouseEvent: Basic information about key events.
+     */
+    /*--ark web()--*/
+    bool SendKeyboardEvent(ArkWebRefPtr<ArkWebKeyboardEvent> keyboardEvent) override;
+
+    /**
      * @Description: Optimize HTML parser budget to reduce FCP time.
      * @Input enable: Set whether to use optimized parser budget.
      */
@@ -1399,11 +1406,25 @@ public:
      */
     void JavaScriptOnHeadReadyByOrder(const ArkWebStringVectorMap& script_items,
         const ArkWebStringVector& script_items_by_order) override;
-    
-    /** 
+
+    /*
+     * @brief Send mouse wheel event with sourceTool info.
+     */
+    /*--ark web()--*/
+    bool WebSendMouseWheelEventV2(double x, double y, double delta_x, double delta_y,
+        const ArkWebInt32Vector &pressedCodes, int32_t source) override;
+
+    /**
+     * @brief Web maximize resize optimize.
+     */
+    /*--ark web()--*/
+    void MaximizeResize() override;
+
+    /**
      * @brief Try to attach web inputmethod after drag.
      */
     void OnDragAttach() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

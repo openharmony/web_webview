@@ -113,6 +113,7 @@ enum ArkWebBridgeType {
     ARK_WEB_ARRAY_BUFFER_VALUE_CALLBACK = 89,
     ARK_WEB_PDFCONFIG_ARGS = 90,
     ARK_WEB_PROXY_CHANGED_CALLBACK = 91,
+    ARK_WEB_KEYBOARD_EVENT = 92,
 
     /*Note: The end of nweb interface bridge type*/
     ARK_WEB_NWEB_INTERFACE_BUTT,

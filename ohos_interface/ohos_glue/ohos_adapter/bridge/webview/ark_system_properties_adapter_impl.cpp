@@ -170,4 +170,16 @@ ArkWebString ArkSystemPropertiesAdapterImpl::GetCompatibleDeviceType()
     std::string str = real_.GetCompatibleDeviceType();
     return ArkWebStringClassToStruct(str);
 }
+
+ArkWebString ArkSystemPropertiesAdapterImpl::GetScrollVelocityScale()
+{
+    std::string str = real_.GetScrollVelocityScale();
+    return ArkWebStringClassToStruct(str);
+}
+
+ArkWebString ArkSystemPropertiesAdapterImpl::GetScrollFriction()
+{
+    std::string str = real_.GetScrollFriction();
+    return ArkWebStringClassToStruct(str);
+}
 } // namespace OHOS::ArkWeb

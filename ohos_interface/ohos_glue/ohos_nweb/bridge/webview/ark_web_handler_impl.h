@@ -576,6 +576,8 @@ public:
 
     bool OnSslErrorRequestByJSV2(ArkWebRefPtr<ArkWebJsSslErrorResult> result, int error,
         const ArkWebStringVector& certChainData) override;
+
+    void RestoreRenderFit() override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };

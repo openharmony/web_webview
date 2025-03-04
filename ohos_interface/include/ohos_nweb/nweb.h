@@ -217,6 +217,21 @@ public:
     virtual std::map<std::string, std::string> GetResponseHeaders() = 0;
 };
 
+class OHOS_NWEB_EXPORT NWebKeyboardEvent {
+public:
+    virtual ~NWebKeyboardEvent() = default;
+
+    virtual int32_t GetKeyCode() = 0;
+
+    virtual int32_t GetAction() = 0;
+
+    virtual int32_t GetUnicode() = 0;
+
+    virtual bool IsEnableCapsLock() = 0;
+
+    virtual std::vector<int32_t> GetPressKeyCodes() = 0;
+};
+
 enum class PixelUnit {
     PX = 0,
     VP = 1,
@@ -1571,6 +1586,16 @@ public:
     }
 
     /**
+     * @Description: Sends key events to the web kernel.
+     * @Input keyEvent: Basic information about key events.
+     * @Return: Whether the keyboard event is successful sent.
+     */
+    /*--ark web()--*/
+    virtual bool SendKeyboardEvent(const std::shared_ptr<OHOS::NWeb::NWebKeyboardEvent>& keyboardEvent) {
+        return false;
+    }
+
+    /**
      * @Description: Optimize HTML parser budget to reduce FCP time.
      * @Input enable: Set whether to use optimized parser budget.
      */
@@ -1595,7 +1620,19 @@ public:
      */
     virtual void JavaScriptOnHeadReadyByOrder(const ScriptItems& scriptItems,
         const ScriptItemsByOrder& scriptItemsByOrder) {}
-    
+
+    virtual bool WebSendMouseWheelEventV2(
+        double x, double y, double delta_x, double delta_y, const std::vector<int32_t> &pressedCodes, int32_t source)
+    {
+        return false;
+    }
+
+    /**
+     * @brief Web maximize resize optimize.
+     */
+    /*--ark web()--*/
+    virtual void MaximizeResize() {}
+
     /**
      * @brief Try to attach web inputmethod after drag.
      */
