@@ -704,6 +704,14 @@ bool NWebHelper::InitWebEngine()
         WVLOG_I("add command line when init web engine: %{public}s", backForwardCacheCmdLine.c_str());
     }
 
+    // Append API version.
+    std::shared_ptr<AppExecFwk::ApplicationInfo> appInfo = ctx->GetApplicationInfo();
+    if (appInfo) {
+      std::string apiVersion = std::to_string(appInfo->apiTargetVersion);
+      initArgs->AddArg(std::string("--user-api-version=").append(apiVersion));
+      WVLOG_D("apiTargetVersion: %{public}s", apiVersion.c_str());
+    }
+
     nwebEngine_->InitializeWebEngine(initArgs);
     initFlag_ = true;
 
