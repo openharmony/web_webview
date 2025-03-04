@@ -1685,6 +1685,30 @@ class ArkWebNWeb : public virtual ArkWebBaseRefCounted {
      */
     /*--ark web()--*/
     virtual void MaximizeResize() = 0;
+
+    /**
+     * @Description: Execute an accessibility action on an accessibility node in the browser.
+     * @Input accessibilityId: The id of the accessibility node.
+     * @Input action: The action to be performed on the accessibility node.
+     * @Input actionArguments: Data related to the current action.
+     * @Return: Whether the action is performed successfully.
+     */
+    /*--ark web()--*/
+    virtual bool PerformActionV2(int64_t accessibilityId, uint32_t action,
+        const ArkWebStringMap& actionArguments) = 0;
+
+    /**
+     * @Description: Get the bounding rectangle of the accessibility node of the given id.
+     * @Input accessibilityId: The id of the accessibility node.
+     * @Output width: The width of the rectangle.
+     * @Output height: The height of the rectangle.
+     * @Output offsetX: The X-coordinate offset of the rectangle.
+     * @Output offsetY: The Y-coordinate offset of the rectangle.
+     * @Return: Whether the bounding rectangle is obtained successfully.
+     */
+    /*--ark web()--*/
+    virtual bool GetAccessibilityNodeRectById(
+        int64_t accessibilityId, int32_t* width, int32_t* height, int32_t* offsetX, int32_t* offsetY) = 0;
 };
 
 }  // namespace OHOS::ArkWeb

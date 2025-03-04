@@ -1458,4 +1458,20 @@ void ArkWebNWebWrapper::MaximizeResize()
 {
     ark_web_nweb_->MaximizeResize();
 }
+
+bool ArkWebNWebWrapper::PerformActionV2(int64_t accessibility_id, uint32_t action,
+    const std::map<std::string, std::string>& actionArguments)
+{
+    ArkWebStringMap stArguments = ArkWebStringMapClassToStruct(actionArguments);
+    bool res = ark_web_nweb_->PerformActionV2(accessibility_id, action, stArguments);
+
+    ArkWebStringMapStructRelease(stArguments);
+    return res;
+}
+
+bool ArkWebNWebWrapper::GetAccessibilityNodeRectById(
+    int64_t accessibilityId, int32_t* width, int32_t* height, int32_t* offsetX, int32_t* offsetY)
+{
+    return ark_web_nweb_->GetAccessibilityNodeRectById(accessibilityId, width, height, offsetX, offsetY);
+}
 } // namespace OHOS::ArkWeb

@@ -802,6 +802,14 @@ public:
      */
     /*--ark web()--*/
     virtual void RestoreRenderFit() = 0;
+
+    /**
+     * @Description: Called when an accessibility event occurs.
+     * @Input accessibilityId: the accessibility id of the accessibility node of the accessibility event.
+     * @Input eventType: the event type of the accessibility event.
+     */
+    /*--ark web()--*/
+    virtual void OnAccessibilityEvent(int64_t accessibilityId, int32_t eventType) = 0;
 };
 
 } // namespace OHOS::ArkWeb
