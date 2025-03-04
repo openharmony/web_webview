@@ -1142,4 +1142,21 @@ void ArkWebNWebImpl::GetScrollOffset(float* offset_x, float* offset_y)
 {
     nweb_nweb_->GetScrollOffset(offset_x, offset_y);
 }
+
+bool ArkWebNWebImpl::GetAccessibilityVisible(int64_t accessibility_id)
+{
+    return nweb_nweb_->GetAccessibilityVisible(accessibility_id);
+}
+
+bool ArkWebNWebImpl::PerformActionV2(int64_t accessibility_id, uint32_t action,
+    const ArkWebStringMap& actionArguments)
+{
+    return nweb_nweb_->PerformActionV2(accessibility_id, action, ArkWebStringMapStructToClass(actionArguments));
+}
+
+bool ArkWebNWebImpl::GetAccessibilityNodeRectById(
+    int64_t accessibilityId, int32_t* width, int32_t* height, int32_t* offsetX, int32_t* offsetY)
+{
+    return nweb_nweb_->GetAccessibilityNodeRectById(accessibilityId, width, height, offsetX, offsetY);
+}
 } // namespace OHOS::ArkWeb

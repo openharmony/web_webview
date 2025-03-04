@@ -893,4 +893,9 @@ bool ArkWebHandlerImpl::OnColorChooserShow(uint32_t initialColor, ArkWebRefPtr<A
     return nweb_handler_->OnColorChooserShow(
         initialColor, std::make_shared<ArkWebColorChooserCallbackWrapper>(callback));
 }
+
+void ArkWebHandlerImpl::OnAccessibilityEvent(int64_t accessibilityId, int32_t eventType)
+{
+    nweb_handler_->OnAccessibilityEvent(accessibilityId, eventType);
+}
 } // namespace OHOS::ArkWeb

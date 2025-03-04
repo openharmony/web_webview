@@ -297,4 +297,12 @@ bool ArkWebAccessibilityNodeInfoWrapper::GetIsPluralLineSupported()
     return ark_web_accessibility_node_info_->GetIsPluralLineSupported();
 }
 
+std::string ArkWebAccessibilityNodeInfoWrapper::GetAccessibilityLevel()
+{
+    ArkWebString stAccessibilityLevel = ark_web_accessibility_node_info_->GetAccessibilityLevel();
+
+    std::string objAccessibilityLevel = ArkWebStringStructToClass(stAccessibilityLevel);
+    ArkWebStringStructRelease(stAccessibilityLevel);
+    return objAccessibilityLevel;
+}
 } // namespace OHOS::ArkWeb

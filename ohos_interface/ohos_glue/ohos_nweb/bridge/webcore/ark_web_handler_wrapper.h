@@ -603,6 +603,8 @@ public:
 
     bool OnColorChooserShow(uint32_t initialColor,
         std::shared_ptr<OHOS::NWeb::NWebColorChooserCallback> callback) override;
+
+    void OnAccessibilityEvent(int64_t accessibilityId, int32_t eventType) override;
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };

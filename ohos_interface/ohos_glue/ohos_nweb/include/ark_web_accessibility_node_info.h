@@ -171,6 +171,14 @@ public:
 
     /*--ark web()--*/
     virtual bool GetIsPluralLineSupported() = 0;
+    
+    /**
+     * @Description: Get the acccessibility level of the accessibility node.
+     * @Return: The acccessibility level of the accessibility node.
+     * @Since: 12005
+     */
+    /*--ark web()--*/
+    virtual ArkWebString GetAccessibilityLevel() = 0;
 };
 
 } // namespace OHOS::ArkWeb
