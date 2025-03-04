@@ -1474,4 +1474,9 @@ bool ArkWebNWebWrapper::GetAccessibilityNodeRectById(
 {
     return ark_web_nweb_->GetAccessibilityNodeRectById(accessibilityId, width, height, offsetX, offsetY);
 }
+
+void ArkWebNWebWrapper::OnDragAttach()
+{
+    ark_web_nweb_->OnDragAttach();
+}
 } // namespace OHOS::ArkWeb

@@ -1443,6 +1443,11 @@ public:
     /*--ark web()--*/
     bool GetAccessibilityNodeRectById(
         int64_t accessibilityId, int32_t* width, int32_t* height, int32_t* offsetX, int32_t* offsetY) override;
+    
+    /**
+     * @brief Try to attach web inputmethod after drag.
+     */
+    void OnDragAttach() override;
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

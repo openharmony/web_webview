@@ -1659,6 +1659,11 @@ public:
     {
         return false;
     }
+
+    /**
+     * @brief Try to attach web inputmethod after drag.
+     */
+    virtual void OnDragAttach() {}
 };
 
 } // namespace OHOS::NWeb

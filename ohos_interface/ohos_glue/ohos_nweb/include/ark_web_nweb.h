@@ -1709,6 +1709,12 @@ class ArkWebNWeb : public virtual ArkWebBaseRefCounted {
     /*--ark web()--*/
     virtual bool GetAccessibilityNodeRectById(
         int64_t accessibilityId, int32_t* width, int32_t* height, int32_t* offsetX, int32_t* offsetY) = 0;
+    
+    /**
+     * @brief Try to attach web inputmethod after drag.
+     */
+    /*--ark web()--*/
+    virtual void OnDragAttach()  = 0;
 };
 
 }  // namespace OHOS::ArkWeb
