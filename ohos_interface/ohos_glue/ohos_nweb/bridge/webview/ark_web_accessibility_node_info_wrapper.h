@@ -124,7 +124,8 @@ public:
     bool GetIsAccessibilityFocus() override;
 
     bool GetIsPluralLineSupported() override;
-
+    
+    std::string GetAccessibilityLevel() override;
 private:
     ArkWebRefPtr<ArkWebAccessibilityNodeInfo> ark_web_accessibility_node_info_;
 };

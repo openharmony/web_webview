@@ -995,6 +995,8 @@ public:
     {
         return false;
     }
+    
+    virtual void OnAccessibilityEvent(int64_t accessibilityId, int32_t eventType) {}
 };
 
 } // namespace OHOS::NWeb

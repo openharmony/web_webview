@@ -1005,4 +1005,8 @@ bool ArkWebHandlerWrapper::OnColorChooserShow(
 
     return ark_web_handler_->OnColorChooserShow(initialColor, new ArkWebColorChooserCallbackImpl(callback));
 }
+
+void ArkWebHandlerWrapper::OnAccessibilityEvent(int64_t accessibilityId, int32_t eventType) {
+    ark_web_handler_->OnAccessibilityEvent(accessibilityId, eventType);
+}
 } // namespace OHOS::ArkWeb

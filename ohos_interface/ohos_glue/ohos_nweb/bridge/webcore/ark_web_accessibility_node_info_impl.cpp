@@ -269,4 +269,8 @@ bool ArkWebAccessibilityNodeInfoImpl::GetIsPluralLineSupported()
     return nweb_accessibility_node_info_->GetIsPluralLineSupported();
 }
 
+ArkWebString ArkWebAccessibilityNodeInfoImpl::GetAccessibilityLevel()
+{
+    return ArkWebStringClassToStruct(nweb_accessibility_node_info_->GetAccessibilityLevel());
+}
 } // namespace OHOS::ArkWeb
