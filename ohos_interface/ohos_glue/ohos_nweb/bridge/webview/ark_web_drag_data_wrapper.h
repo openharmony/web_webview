@@ -102,6 +102,11 @@ public:
      */
     void GetDragStartPosition(int& x, int& y) override;
 
+    /**
+     * @brief is drag new style.
+     */
+    bool IsDragNewStyle() override;
+
 private:
     ArkWebRefPtr<ArkWebDragData> ark_web_drag_data_;
 };

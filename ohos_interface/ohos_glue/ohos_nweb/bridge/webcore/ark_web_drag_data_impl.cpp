@@ -98,4 +98,9 @@ void ArkWebDragDataImpl::GetDragStartPosition(int& x, int& y)
     nweb_drag_data_->GetDragStartPosition(x, y);
 }
 
+bool ArkWebDragDataImpl::IsDragNewStyle()
+{
+    return nweb_drag_data_->IsDragNewStyle();
+}
+
 } // namespace OHOS::ArkWeb
