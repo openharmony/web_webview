@@ -747,6 +747,12 @@ public:
      */
     /*--ark web()--*/
     virtual void SetBlurOnKeyboardHideMode(int enable) = 0;
+
+    /**
+     * @brief Set whether to use the intrinsic size. The default is false.
+     */
+    /*--ark web()--*/
+    virtual void SetIntrinsicSizeEnable(bool enable) = 0;
 };
 
 } // namespace OHOS::ArkWeb
