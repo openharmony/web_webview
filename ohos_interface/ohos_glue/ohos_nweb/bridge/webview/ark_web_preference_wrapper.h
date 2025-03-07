@@ -669,6 +669,10 @@ public:
      */
     void SetFontWeightScale(float scale) override;
 
+    /**
+     * @brief Set whether to use the intrinsic size. The default is false.
+     */
+    void SetIntrinsicSizeEnable(bool enable) override;
 private:
     ArkWebRefPtr<ArkWebPreference> ark_web_preference_;
 };

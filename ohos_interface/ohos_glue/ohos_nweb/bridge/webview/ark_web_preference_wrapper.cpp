@@ -585,4 +585,10 @@ void ArkWebPreferenceWrapper::SetFontWeightScale(float scale)
         ark_web_preference_->SetFontWeightScale(scale);
     }
 }
+void ArkWebPreferenceWrapper::SetIntrinsicSizeEnable(bool enable)
+{
+    if (ark_web_preference_) {
+        ark_web_preference_->SetIntrinsicSizeEnable(enable);
+    }
+}
 } // namespace OHOS::ArkWeb
