@@ -43,7 +43,7 @@ ohos_shared_library("nweb_ohos_adapter") {
     ]
   }
 
-  defines = [ 
+  defines = [
     "HILOG_TAG=\"webadapter\"",
     "WEBVIEW_PACKAGE_NAME=\"${webview_package_name}\"",
     "WEBVIEW_SANDBOX_LIB_PATH=\"${webview_sandbox_lib_path}\"",
