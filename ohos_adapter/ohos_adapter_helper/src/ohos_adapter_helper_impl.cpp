@@ -347,4 +347,14 @@ OhosNativeBufferAdapter& OhosAdapterHelperImpl::GetOhosNativeBufferAdapter()
     return OhosNativeBufferAdapterImpl::GetInstance();
 }
 
+OhosDrawingTextFontAdapter& OhosAdapterHelperImpl::GetOhosDrawingTextFontAdapter()
+{
+    return OhosDrawingTextFontAdapterImpl::GetInstance();
+}
+
+OhosDrawingTextTypographyAdapter& OhosAdapterHelperImpl::GetOhosDrawingTextTypographyAdapter()
+{
+    return OhosDrawingTextTypographyAdapterImpl::GetInstance();
+}
+
 } // namespace OHOS::NWeb

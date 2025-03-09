@@ -116,6 +116,10 @@ public:
     void SetArkWebCoreHapPathOverride(const std::string& hapPath) override;
 
     OhosNativeBufferAdapter& GetOhosNativeBufferAdapter() override;
+
+    OhosDrawingTextFontAdapter& GetOhosDrawingTextFontAdapter() override;
+
+    OhosDrawingTextTypographyAdapter& GetOhosDrawingTextTypographyAdapter() override;
 };
 } // namespace OHOS::NWeb
 
