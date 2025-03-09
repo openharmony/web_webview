@@ -144,11 +144,10 @@ ohos_shared_library("nweb_ohos_adapter") {
   ]
 
   if (target_cpu == "arm" || target_cpu == "arm64" || target_cpu == "x86_64") {
-    include_dirs +=
-        [
-          "//prebuilts/ohos-sdk/linux/15/native/sysroot/usr/include/bundle",
-          "//prebuilts/ohos-sdk/linux/15/native/sysroot/usr/include/native_drawing",
-        ]
+    include_dirs += [
+      "//prebuilts/ohos-sdk/linux/15/native/sysroot/usr/include/bundle",
+      "//prebuilts/ohos-sdk/linux/15/native/sysroot/usr/include/native_drawing",
+    ]
   }
 
   public_configs = [ ":ohos_adapter_public_interface" ]
