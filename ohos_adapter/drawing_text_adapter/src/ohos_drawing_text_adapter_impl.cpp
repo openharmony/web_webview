@@ -110,7 +110,7 @@ int OhosDrawingTextTypographyAdapterImpl::GetSystemFontConfigInfo(void* fontConf
 
 int OhosDrawingTextTypographyAdapterImpl::GetDrawingArraySize(void* drawingArray, int32_t& sizeOfArray)
 {
-    sizeOfArray = OH_Drawing_GetDrawingArraySize(static_cast<OH_Drawing_Array*>(drawingArray));
+    sizeOfArray = static_cast<int32_t>(OH_Drawing_GetDrawingArraySize(static_cast<OH_Drawing_Array*>(drawingArray)));
     if (sizeOfArray < 0) {
         WVLOG_E("drawingArray GetDrawingArraySize, drawingArray is null.");
         return -1;
