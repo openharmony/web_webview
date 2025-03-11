@@ -43,6 +43,7 @@
 #include "ohos_adapter/include/ark_mmi_adapter.h"
 #include "ohos_adapter/include/ark_net_connect_adapter.h"
 #include "ohos_adapter/include/ark_net_proxy_adapter.h"
+#include "ohos_adapter/include/ark_ohos_drawing_text_adapter.h"
 #include "ohos_adapter/include/ark_ohos_image_decoder_adapter.h"
 #include "ohos_adapter/include/ark_ohos_init_web_adapter.h"
 #include "ohos_adapter/include/ark_ohos_native_buffer_adapter.h"
@@ -200,6 +201,12 @@ public:
      */
     /*--ark web()--*/
     virtual ArkWebRefPtr<ArkOhosNativeBufferAdapter> GetOhosNativeBufferAdapter() = 0;
+
+    /*--ark web()--*/
+    virtual ArkWebRefPtr<ArkOhosDrawingTextFontAdapter> GetOhosDrawingTextFontAdapter() = 0;
+
+    /*--ark web()--*/
+    virtual ArkWebRefPtr<ArkOhosDrawingTextTypographyAdapter> GetOhosDrawingTextTypographyAdapter() = 0;
 };
 
 } // namespace OHOS::ArkWeb

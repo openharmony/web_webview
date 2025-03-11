@@ -114,6 +114,10 @@ public:
 
     ArkWebRefPtr<ArkOhosNativeBufferAdapter> GetOhosNativeBufferAdapter() override;
 
+    ArkWebRefPtr<ArkOhosDrawingTextFontAdapter> GetOhosDrawingTextFontAdapter() override;
+
+    ArkWebRefPtr<ArkOhosDrawingTextTypographyAdapter> GetOhosDrawingTextTypographyAdapter() override;
+
 private:
     NWeb::OhosAdapterHelper& real_;
 
