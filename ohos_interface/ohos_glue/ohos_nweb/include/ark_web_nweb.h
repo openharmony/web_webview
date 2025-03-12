@@ -1655,8 +1655,12 @@ public:
      * @brief Send mouse wheel event with sourceTool info.
      */
     /*--ark web()--*/
-    virtual bool WebSendMouseWheelEventV2(
-        double x, double y, double delta_x, double delta_y, const ArkWebInt32Vector &pressedCodes, int32_t source) = 0;
+    virtual void WebSendMouseWheelEventV2(double x,
+                                          double y,
+                                          double delta_x,
+                                          double delta_y,
+                                          const ArkWebInt32Vector& pressedCodes,
+                                          int32_t source)  = 0;
 
     /**
      * @brief judge if browser use drag resize.

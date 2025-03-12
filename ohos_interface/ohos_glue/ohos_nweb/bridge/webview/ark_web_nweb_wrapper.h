@@ -1497,8 +1497,12 @@ public:
      * @brief Send mouse wheel event with sourceTool info.
      */
     /*--ark web()--*/
-    bool WebSendMouseWheelEventV2(double x, double y, double delta_x, double delta_y,
-        const std::vector<int32_t> &pressedCodes, int32_t source) override;
+    void WebSendMouseWheelEventV2(double x,
+                                  double y,
+                                  double delta_x,
+                                  double delta_y,
+                                  const std::vector<int32_t>& pressedCodes,
+                                  int32_t source) override;
 
     /**
      * @brief judge if browser use drag resize.

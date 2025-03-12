@@ -1714,11 +1714,12 @@ public:
     /** 
      * @brief Send mouse wheel event with sourceTool info.
      */
-    virtual bool WebSendMouseWheelEventV2(
-        double x, double y, double delta_x, double delta_y, const std::vector<int32_t> &pressedCodes, int32_t source)
-    {
-        return false;
-    }
+    virtual void WebSendMouseWheelEventV2(double x,
+                                          double y,
+                                          double delta_x,
+                                          double delta_y,
+                                          const std::vector<int32_t>& pressedCodes,
+                                          int32_t source) {}
 
     /**
      * @brief judge if browser use drag resize.
