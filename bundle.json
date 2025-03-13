@@ -283,6 +283,7 @@
                 "//base/web/webview/test/fuzztest/ohos_nweb/flushbuffer_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ohos_nweb/sethttpdns_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ohos_nweb/selectcertrequest_fuzzer:fuzztest",
+                "//base/web/webview/test/fuzztest/drawingtextadapter_fuzzer:fuzztest",
                 "//base/web/webview/test/unittest/nweb_value_test:unittest",
                 "//base/web/webview/test/unittest/display_manager_adapter_impl_test:unittest",
                 "//base/web/webview/test/unittest/net_connect_adapter_test:unittest",
@@ -326,7 +327,8 @@
                 "//base/web/webview/test/unittest/ohos_adapter/media_adapter_test:unittest",
                 "//base/web/webview/test/unittest/ohos_adapter/flowbuffer_adapter_impl_test:unittest",
                 "//base/web/webview/test/unittest/napi_common_test:unittest",
-                "//base/web/webview/test/unittest/ohos_adapter/native_buffer_adapter_test:unittest"
+                "//base/web/webview/test/unittest/ohos_adapter/native_buffer_adapter_test:unittest",
+                "//base/web/webview/test/unittest/ohos_adapter/drawing_text_adapter_test:unittest"
             ]
         }
     }
