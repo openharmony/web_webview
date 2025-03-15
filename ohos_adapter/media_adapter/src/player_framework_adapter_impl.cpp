@@ -299,7 +299,7 @@ int32_t PlayerAdapterImpl::SetPlaybackSpeed(PlaybackRateMode mode)
 
 int32_t PlayerAdapterImpl::SetVideoSurfaceNew(void* native_window)
 {
-    WVLOG_I("PlayerAdapterImpl::SetVideoSurfaceNew(%{public}p)", native_window);
+    WVLOG_I("PlayerAdapterImpl::SetVideoSurfaceNew");
     if (!player_) {
         WVLOG_E("player_ is nullptr");
         return -1;
