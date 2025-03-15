@@ -1459,6 +1459,17 @@ public:
      * @brief Try to attach web inputmethod after drag.
      */
     void OnDragAttach() override;
+
+    /**
+     * @brief Web drag resize optimize.
+     */
+    /*--ark web()--*/
+    void DragResize(uint32_t width, uint32_t height, uint32_t pre_height, uint32_t pre_width) override;
+
+    /**
+     * @brief judge if browser use drag resize.
+     */
+    bool IsNWebEx() override;
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };

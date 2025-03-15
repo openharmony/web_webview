@@ -1479,4 +1479,14 @@ void ArkWebNWebWrapper::OnDragAttach()
 {
     ark_web_nweb_->OnDragAttach();
 }
+
+void ArkWebNWebWrapper::DragResize(uint32_t width, uint32_t height, uint32_t pre_height, uint32_t pre_width)
+{
+    ark_web_nweb_->DragResize(width, height, pre_height, pre_width);
+}
+
+bool ArkWebNWebWrapper::IsNWebEx()
+{
+    return ark_web_nweb_->IsNWebEx();
+}
 } // namespace OHOS::ArkWeb

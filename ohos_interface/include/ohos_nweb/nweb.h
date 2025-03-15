@@ -1664,6 +1664,20 @@ public:
      * @brief Try to attach web inputmethod after drag.
      */
     virtual void OnDragAttach() {}
+
+    /**
+     * @brief Web drag resize optimize.
+     */
+    /*--ark web()--*/
+    virtual void DragResize(uint32_t width, uint32_t height, uint32_t pre_height, uint32_t pre_width) {};
+
+    /**
+     * @brief judge if browser use drag resize.
+     */
+    virtual bool IsNWebEx()
+    {
+        return false;
+    }
 };
 
 } // namespace OHOS::NWeb
