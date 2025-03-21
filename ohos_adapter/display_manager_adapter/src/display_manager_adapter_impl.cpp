@@ -198,6 +198,26 @@ OHOS::NWeb::FoldStatus DisplayAdapterImpl::ConvertFoldStatus(NativeDisplayManage
     }
 }
 
+OHOS::NWeb::DisplayState DisplayAdapterImpl::ConvertDisplayState(OHOS::Rosen::DisplayState state)
+{
+    switch (state) {
+        case OHOS::Rosen::DisplayState::OFF:
+            return OHOS::NWeb::DisplayState::OFF;
+        case OHOS::Rosen::DisplayState::ON:
+            return OHOS::NWeb::DisplayState::ON;
+        case OHOS::Rosen::DisplayState::DOZE:
+            return OHOS::NWeb::DisplayState::DOZE;
+        case OHOS::Rosen::DisplayState::DOZE_SUSPEND:
+            return OHOS::NWeb::DisplayState::DOZE_SUSPEND;
+        case OHOS::Rosen::DisplayState::VR:
+            return OHOS::NWeb::DisplayState::VR;
+        case OHOS::Rosen::DisplayState::ON_SUSPEND:
+            return OHOS::NWeb::DisplayState::ON_SUSPEND;
+        default:
+            return OHOS::NWeb::DisplayState::UNKNOWN;
+    }
+}
+
 DisplayId DisplayAdapterImpl::GetId()
 {
     if (display_ != nullptr) {
@@ -300,6 +320,138 @@ bool DisplayAdapterImpl::IsFoldable()
     return OH_NativeDisplayManager_IsFoldable();
 }
 
+std::string DisplayAdapterImpl::GetName()
+{
+    if (display_ != nullptr) {
+        auto displayInfo = display_->GetDisplayInfo();
+        if (displayInfo != nullptr) {
+            return displayInfo->GetName();
+        }
+    }
+    return "";
+}
+
+int32_t DisplayAdapterImpl::GetAvailableWidth()
+{
+    if (display_ != nullptr) {
+        auto displayInfo = display_->GetDisplayInfo();
+        if (displayInfo != nullptr) {
+            return displayInfo->GetAvailableWidth();
+        }
+    }
+    return 0;
+}
+
+int32_t DisplayAdapterImpl::GetAvailableHeight()
+{
+    if (display_ != nullptr) {
+        auto displayInfo = display_->GetDisplayInfo();
+        if (displayInfo != nullptr) {
+            return displayInfo->GetAvailableHeight();
+        }
+    }
+    return 0;
+}
+
+bool DisplayAdapterImpl::GetAliveStatus()
+{
+    if (display_ != nullptr) {
+        auto displayInfo = display_->GetDisplayInfo();
+        if (displayInfo != nullptr) {
+            return displayInfo->GetAliveStatus();
+        }
+    }
+    return true;
+}
+
+DisplayState DisplayAdapterImpl::GetDisplayState()
+{
+    if (display_ != nullptr) {
+        auto displayInfo = display_->GetDisplayInfo();
+        if (displayInfo != nullptr) {
+            return ConvertDisplayState(displayInfo->GetDisplayState());
+        }
+    }
+    return DisplayState::UNKNOWN;
+}
+
+int32_t DisplayAdapterImpl::GetDensityDpi()
+{
+    if (display_ != nullptr) {
+        auto displayInfo = display_->GetDisplayInfo();
+        if (displayInfo != nullptr) {
+            return displayInfo->GetDpi();
+        }
+    }
+    return 0;
+}
+
+int32_t DisplayAdapterImpl::GetX()
+{
+    if (display_ != nullptr) {
+        auto displayInfo = display_->GetDisplayInfo();
+        if (displayInfo != nullptr) {
+            return 0;
+        }
+    }
+    return 0;
+}
+
+int32_t DisplayAdapterImpl::GetY()
+{
+    if (display_ != nullptr) {
+        auto displayInfo = display_->GetDisplayInfo();
+        if (displayInfo != nullptr) {
+            return 0;
+        }
+    }
+    return 0;
+}
+
+DisplaySourceMode DisplayAdapterImpl::GetDisplaySourceMode()
+{
+    if (display_ != nullptr) {
+        auto displayInfo = display_->GetDisplayInfo();
+        if (displayInfo != nullptr) {
+            return DisplaySourceMode::NONE;
+        }
+    }
+    return DisplaySourceMode::NONE;
+}
+
+int32_t DisplayAdapterImpl::GetPhysicalWidth()
+{
+    if (display_ != nullptr) {
+        auto displayInfo = display_->GetDisplayInfo();
+        if (displayInfo != nullptr) {
+            return displayInfo->GetPhysicalWidth();
+        }
+    }
+    return 0;
+}
+
+int32_t DisplayAdapterImpl::GetPhysicalHeight()
+{
+    if (display_ != nullptr) {
+        auto displayInfo = display_->GetDisplayInfo();
+        if (displayInfo != nullptr) {
+            return displayInfo->GetPhysicalHeight();
+        }
+    }
+    return 0;
+}
+
+float DisplayAdapterImpl::GetDefaultVirtualPixelRatio()
+{
+    if (display_ != nullptr) {
+        auto displayInfo = display_->GetDisplayInfo();
+        if (displayInfo != nullptr) {
+            return displayInfo->GetDefaultVirtualPixelRatio();
+        }
+    }
+    return 0;
+}
+
 DisplayId DisplayManagerAdapterImpl::GetDefaultDisplayId()
 {
     return DisplayManager::GetInstance().GetDefaultDisplayId();
@@ -393,5 +545,26 @@ bool DisplayManagerAdapterImpl::UnregisterFoldStatusListener(uint32_t id)
         return true;
     }
     return false;
+}
+
+std::shared_ptr<DisplayAdapter> DisplayManagerAdapterImpl::GetPrimaryDisplay()
+{
+    sptr<Display> display = DisplayManager::GetInstance().GetPrimaryDisplaySync();
+    return std::make_shared<DisplayAdapterImpl>(display);
+}
+
+std::vector<std::shared_ptr<DisplayAdapter>> DisplayManagerAdapterImpl::GetAllDisplays()
+{
+    std::vector<sptr<Display>> displays = DisplayManager::GetInstance().GetAllDisplays();
+    std::vector<std::shared_ptr<DisplayAdapter>> displayAdapterList;
+    for (auto& display : displays) {
+        std::shared_ptr<DisplayAdapterImpl> displayAdapter = std::make_shared<DisplayAdapterImpl>(display);
+        if (!displayAdapter) {
+            WVLOG_E("DisplayManagerAdapterImpl::GetAllDisplays create displayAdapter failed");
+            return displayAdapterList;
+        }
+        displayAdapterList.emplace_back(displayAdapter);
+    }
+    return displayAdapterList;
 }
 }

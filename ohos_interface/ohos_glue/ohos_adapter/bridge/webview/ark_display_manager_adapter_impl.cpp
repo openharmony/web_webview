@@ -18,6 +18,7 @@
 #include "ohos_adapter/bridge/ark_display_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_display_listener_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_fold_status_listener_adapter_wrapper.h"
+#include "ohos_adapter/cpptoc/ark_display_adapter_vector_cpptoc.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
 
@@ -73,5 +74,22 @@ uint32_t ArkDisplayManagerAdapterImpl::RegisterFoldStatusListener(ArkWebRefPtr<A
 bool ArkDisplayManagerAdapterImpl::UnregisterFoldStatusListener(uint32_t id)
 {
     return real_->UnregisterDisplayListener(id);
+}
+
+ArkWebRefPtr<ArkDisplayAdapter> ArkDisplayManagerAdapterImpl::GetPrimaryDisplay()
+{
+    std::shared_ptr<NWeb::DisplayAdapter> ref = real_->GetPrimaryDisplay();
+    if (CHECK_SHARED_PTR_IS_NULL(ref)) {
+        return nullptr;
+    }
+
+    return new ArkDisplayAdapterImpl(ref);
+}
+
+ArkDisplayAdapterVector ArkDisplayManagerAdapterImpl::GetAllDisplays()
+{
+    std::vector<std::shared_ptr<NWeb::DisplayAdapter>> displays = real_->GetAllDisplays();
+    ArkDisplayAdapterVector result = ArkDisplayAdapterVectorClassToStruct(displays);
+    return result;
 }
 } // namespace OHOS::ArkWeb

@@ -45,7 +45,30 @@ public:
     OHOS::NWeb::FoldStatus GetFoldStatus() override;
 
     bool IsFoldable() override;
-    
+
+    std::string GetName() override;
+
+    int32_t GetAvailableWidth() override;
+
+    int32_t GetAvailableHeight() override;
+
+    bool GetAliveStatus() override;
+
+    OHOS::NWeb::DisplayState GetDisplayState() override;
+
+    int32_t GetDensityDpi() override;
+
+    int32_t GetX() override;
+
+    int32_t GetY() override;
+
+    OHOS::NWeb::DisplaySourceMode GetDisplaySourceMode() override;
+
+    int32_t GetPhysicalWidth() override;
+
+    int32_t GetPhysicalHeight() override;
+
+    float GetDefaultVirtualPixelRatio() override;
 private:
     ArkWebRefPtr<ArkDisplayAdapter> ctocpp_;
 };

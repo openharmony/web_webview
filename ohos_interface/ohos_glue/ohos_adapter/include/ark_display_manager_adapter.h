@@ -17,6 +17,8 @@
 #define ARK_DISPLAY_MANAGER_ADAPTER_H
 #pragma once
 
+#include "ohos_adapter/include/ark_display_adapter_vector.h"
+
 #include "base/include/ark_web_base_ref_counted.h"
 #include "base/include/ark_web_types.h"
 
@@ -99,6 +101,90 @@ public:
      */
     /*--ark web()--*/
     virtual bool IsFoldable() = 0;
+
+    /**
+     * @Description: Get display name.
+     * @Return: Display name.
+     */
+    /*--ark web()--*/
+    virtual ArkWebString GetName() = 0;
+
+    /**
+     * @Description: Get display available width.
+     * @Return: Display available width.
+     */
+    /*--ark web()--*/
+    virtual int32_t GetAvailableWidth() = 0;
+
+    /**
+     * @Description: Get display available height.
+     * @Return: Display available height.
+     */
+    /*--ark web()--*/
+    virtual int32_t GetAvailableHeight() = 0;
+
+    /**
+     * @Description: Get display alive status.
+     * @Return: Display alive status.
+     */
+    /*--ark web()--*/
+    virtual bool GetAliveStatus() = 0;
+
+    /**
+     * @Description: Get display state.
+     * @Return: Display state.
+     */
+    /*--ark web()--*/
+    virtual uint32_t GetDisplayState() = 0;
+
+    /**
+     * @Description: Get density DPI.
+     * @Return: Density DPI.
+     */
+    /*--ark web()--*/
+    virtual int32_t GetDensityDpi() = 0;
+
+    /**
+     * @Description: Get display position X.
+     * @Return: Position X.
+     */
+    /*--ark web()--*/
+    virtual int32_t GetX() = 0;
+
+    /**
+     * @Description: Get display position Y.
+     * @Return: Position Y.
+     */
+    /*--ark web()--*/
+    virtual int32_t GetY() = 0;
+
+    /**
+     * @Description: Get display source mode.
+     * @Return: Display source mode.
+     */
+    /*--ark web()--*/
+    virtual uint32_t GetDisplaySourceMode() = 0;
+
+    /**
+     * @Description: Get display physical width.
+     * @Return: Display physical width.
+     */
+    /*--ark web()--*/
+    virtual int32_t GetPhysicalWidth() = 0;
+
+    /**
+     * @Description: Get display physical Height.
+     * @Return: Display physical height.
+     */
+    /*--ark web()--*/
+    virtual int32_t GetPhysicalHeight() = 0;
+
+    /**
+     * @Description: Get default virtual pixel ratio.
+     * @Return: Default virtual pixel ratio.
+     */
+    /*--ark web()--*/
+    virtual float GetDefaultVirtualPixelRatio() = 0;
 };
 
 /*--ark web(source=webview)--*/
@@ -141,6 +227,20 @@ public:
      */
     /*--ark web()--*/
     virtual bool UnregisterFoldStatusListener(uint32_t id) = 0;
+
+    /**
+     * @Description: Get primary display.
+     * @Return: Primary display.
+     */
+    /*--ark web()--*/
+    virtual ArkWebRefPtr<ArkDisplayAdapter> GetPrimaryDisplay() = 0;
+
+    /**
+     * @Description: Get all displays list.
+     * @Return: All displays list.
+     */
+    /*--ark web()--*/
+    virtual ArkDisplayAdapterVector GetAllDisplays() = 0;
 };
 
 } // namespace OHOS::ArkWeb
