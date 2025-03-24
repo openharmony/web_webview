@@ -18,7 +18,6 @@
 #include <mutex>
 #include <securec.h>
 
-#include "application_context.h"
 #include "hisysevent_adapter.h"
 #include "media_errors.h"
 #include "nweb_log.h"
@@ -548,21 +547,6 @@ std::string GetPasteMimeTypeExtention(const PasteRecordVector& data)
     return primaryMimeType;
 }
 
-std::string PasteBoardClientAdapterImpl::GetDistributedFilesDirOfApplicationContext()
-{
-    const auto appContext = AbilityRuntime::ApplicationContext::GetApplicationContext();
-    if (appContext == nullptr) {
-        WVLOG_E("application context is null.");
-        return MEDIA;
-    }
-    const std::string distributedFilesDir = appContext->GetDistributedFilesDir();
-    if (distributedFilesDir.empty()) {
-        WVLOG_E("application context distributedFilesdir is empty.");
-        return MEDIA;
-    }
-    return distributedFilesDir;
-}
-
 bool PasteBoardClientAdapterImpl::GetPasteData(PasteRecordVector& data)
 {
     PasteData pData;
@@ -572,22 +556,12 @@ bool PasteBoardClientAdapterImpl::GetPasteData(PasteRecordVector& data)
         tokenId_ = 0;
         return false;
     }
-    std::shared_ptr<GetDataParams> params = std::make_shared<GetDataParams>();
-    params->destUri = GetDistributedFilesDirOfApplicationContext();
-    params->fileConflictOption = FILE_OVERWRITE;
-    params->progressIndicator = DEFAULT_PROGRESS_INDICATOR;
-    params->info = new (std::nothrow) ProgressInfo();
-
-    int32_t result = PasteboardClient::GetInstance()->GetDataWithProgress(pData, params);
-    if (result != static_cast<int32_t>(PasteboardError::E_OK)) {
+    if (int32_t result = PasteboardClient::GetInstance()->GetPasteData(pData);
+    result != static_cast<int32_t>(PasteboardError::E_OK)) {
         WVLOG_E("get data from clipboard failed, errcode=%{public}d", result);
         ReportPasteboardErrorEvent(result, pData.AllRecords().size(), GetPasteMimeTypeExtention(data));
         isLocalPaste_ = false;
         tokenId_ = 0;
-        if (params->info != nullptr) {
-            delete params->info;
-            params->info = nullptr;
-        }
         return false;
     }
     for (auto& record: pData.AllRecords()) {
@@ -595,10 +569,6 @@ bool PasteBoardClientAdapterImpl::GetPasteData(PasteRecordVector& data)
     }
     tokenId_ = pData.GetTokenId();
     isLocalPaste_ = pData.IsLocalPaste();
-    if (params->info != nullptr) {
-        delete params->info;
-        params->info = nullptr;
-    }
     return true;
 }
 

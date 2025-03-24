@@ -104,7 +104,6 @@ private:
     PasteBoardClientAdapterImpl() = default;
     PasteBoardClientAdapterImpl(const PasteBoardClientAdapterImpl&) = delete;
     PasteBoardClientAdapterImpl& operator=(const PasteBoardClientAdapterImpl&) = delete;
-    std::string GetDistributedFilesDirOfApplicationContext();
     uint32_t tokenId_ = 0;
     bool isLocalPaste_ = false;
     ObserverMap reg_;
