@@ -168,7 +168,7 @@ HWTEST_F(GraphicAdapterTest, GraphicAdapterTest_RequestVsync_002, TestSize.Level
 {
     VSyncAdapterImpl &adapter = VSyncAdapterImpl::GetInstance();
     adapter.InitAPSClient();
-    EXPECT_EQ(adapter.pkgName_, "");
+    EXPECT_EQ(adapter.pkgName_, "test");
     adapter.SetScene("WEB_LIST_FLING", 0);
     adapter.SetScene("WEB_LIST_FLING", 1);
     adapter.SetScene("WEB_LIST_FLING", 0);
