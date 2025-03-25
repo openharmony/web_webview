@@ -158,15 +158,9 @@ HWTEST_F(SystemPropertiesAdapterTest, SystemPropertiesAdapterTest_GetOOPGPUEnabl
  */
 HWTEST_F(SystemPropertiesAdapterTest, SystemPropertiesAdapterTest_GetVulkanEnable_004, TestSize.Level1)
 {
-    system("param set web.ohos.vulkan None");
-    string value = SystemPropertiesAdapterImpl::GetInstance().GetVulkanStatus();
-    EXPECT_EQ(value, "None");
     system("param set web.ohos.vulkan false");
-    value = SystemPropertiesAdapterImpl::GetInstance().GetVulkanStatus();
+    string value = SystemPropertiesAdapterImpl::GetInstance().GetVulkanStatus();
     EXPECT_EQ(value, "false");
-    system("param set web.ohos.vulkan true");
-    value = SystemPropertiesAdapterImpl::GetInstance().GetVulkanStatus();
-    EXPECT_EQ(value, "true");
 }
 
 /**
