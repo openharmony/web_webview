@@ -498,4 +498,8 @@ void ArkWebPreferenceImpl::SetBlurOnKeyboardHideMode(int enable)
     nweb_preference_->SetBlurOnKeyboardHideMode(enable);
 }
 
+void ArkWebPreferenceImpl::SetIntrinsicSizeEnable(bool enable)
+{
+    nweb_preference_->SetIntrinsicSizeEnable(enable);
+}
 } // namespace OHOS::ArkWeb

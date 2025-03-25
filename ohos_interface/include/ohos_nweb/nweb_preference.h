@@ -661,6 +661,11 @@ public:
      * @param enable set whether blur is allowed.
      */
     virtual void SetBlurOnKeyboardHideMode(int enable) {};
+
+    /**
+     * Set whether to use the intrinsic size. The default is false.
+     */
+    virtual void SetIntrinsicSizeEnable(bool enable) {};
 };
 
 } // namespace OHOS::NWeb
