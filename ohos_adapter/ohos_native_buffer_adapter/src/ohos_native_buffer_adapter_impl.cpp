@@ -57,7 +57,7 @@ void OhosNativeBufferAdapterImpl::AcquireBuffer(void* buffer)
         WVLOG_E("native buffer acquire, buffer is null.");
         return;
     }
-    WVLOG_D("native buffer acquired buffer %{public}p.", buffer);
+    WVLOG_D("native buffer acquired buffer %{private}p.", buffer);
     OH_NativeBuffer_Reference(static_cast<OH_NativeBuffer*>(buffer));
 }
 
@@ -68,7 +68,7 @@ void OhosNativeBufferAdapterImpl::Release(void* buffer)
         return;
     }
 
-    WVLOG_D("native buffer release buffer %{public}p.", buffer);
+    WVLOG_D("native buffer release buffer %{private}p.", buffer);
     if (OH_NativeBuffer_Unreference(static_cast<OH_NativeBuffer*>(buffer)) == 0) {
         WVLOG_D("native buffer release, unreference buffer.");
     }
@@ -82,7 +82,7 @@ int OhosNativeBufferAdapterImpl::GetEGLBuffer(void* buffer, void** eglBuffer)
         WVLOG_E("native buffer get egl buffer, buffer is null.");
         return -1;
     }
-    WVLOG_D("native buffer GetEGLBuffer %{public}p.", buffer);
+    WVLOG_D("native buffer GetEGLBuffer %{private}p.", buffer);
 
     OHNativeWindowBuffer* nativeWindowBuffer =
         OH_NativeWindow_CreateNativeWindowBufferFromNativeBuffer(static_cast<OH_NativeBuffer*>(buffer));
@@ -90,7 +90,7 @@ int OhosNativeBufferAdapterImpl::GetEGLBuffer(void* buffer, void** eglBuffer)
         WVLOG_E("native buffer failed to create native window buffer from native buffer.");
         return -1;
     } else {
-        WVLOG_D("native buffer create native window buffer from native bufferL %{public}p.", *eglBuffer);
+        WVLOG_D("native buffer create native window buffer from native bufferL %{private}p.", *eglBuffer);
         *eglBuffer = nativeWindowBuffer;
         return 0;
     }
@@ -103,7 +103,7 @@ int OhosNativeBufferAdapterImpl::FreeEGLBuffer(void* eglBuffer)
         return -1;
     }
 
-    WVLOG_D("native buffer free EGLBuffer %{public}p", eglBuffer);
+    WVLOG_D("native buffer free EGLBuffer %{private}p", eglBuffer);
     OH_NativeWindow_NativeObjectUnreference(eglBuffer);
     return 0;
 }
@@ -120,7 +120,7 @@ int OhosNativeBufferAdapterImpl::NativeBufferFromNativeWindowBuffer(void* native
         WVLOG_E("native buffer NativeBufferFromNativeWindowBuffer, native buffer is null.");
         return -1;
     }
-    WVLOG_D("native buffer NativeBufferFromNativeWindowBuffer %{public}p", nativeWindowBuffer);
+    WVLOG_D("native buffer NativeBufferFromNativeWindowBuffer %{private}p", nativeWindowBuffer);
     return 0;
 }
 
@@ -154,7 +154,7 @@ void OhosNativeBufferAdapterImpl::Allocate(
     // The plan here is that the actual buffer holder will be held onto by chromium.
     OH_NativeBuffer* buffer = OH_NativeBuffer_Alloc(&config);
     if (buffer != nullptr) {
-        WVLOG_D("native buffer allocate success, rawbuffer stored %{public}p", buffer);
+        WVLOG_D("native buffer allocate success, rawbuffer stored %{private}p", buffer);
         *outBuffer = buffer;
     } else {
         WVLOG_E("native buffer allocate failed.");
@@ -168,7 +168,7 @@ void OhosNativeBufferAdapterImpl::Describe(std::shared_ptr<NativeBufferConfigAda
         WVLOG_E("native buffer describe, buffer is null.");
         return;
     }
-    WVLOG_D("native buffer describe buffer %{public}p.", buffer);
+    WVLOG_D("native buffer describe buffer %{private}p.", buffer);
 
     OH_NativeBuffer_Config config = {};
     OH_NativeBuffer_GetConfig(static_cast<OH_NativeBuffer*>(buffer), &config);    
@@ -242,7 +242,7 @@ int OhosNativeBufferAdapterImpl::FreeNativeBuffer(void* nativeBuffer)
         WVLOG_E("native buffer FreeNativeBuffer, native buffer is null.");
         return -1;
     }
-    WVLOG_D("native buffer FreeNativeBuffer freeing: %{public}p.", nativeBuffer);
+    WVLOG_D("native buffer FreeNativeBuffer freeing: %{private}p.", nativeBuffer);
     OH_NativeBuffer_Unreference(static_cast<OH_NativeBuffer*>(nativeBuffer));
     return 0;
 }
