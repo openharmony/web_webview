@@ -874,6 +874,8 @@ component("ohos_adapter_glue_source") {
     "ohos_adapter/ctocpp/ark_date_time_format_adapter_ctocpp.h",
     "ohos_adapter/ctocpp/ark_display_adapter_ctocpp.cpp",
     "ohos_adapter/ctocpp/ark_display_adapter_ctocpp.h",
+    "ohos_adapter/ctocpp/ark_display_adapter_vector_ctocpp.cpp",
+    "ohos_adapter/ctocpp/ark_display_adapter_vector_ctocpp.h",
     "ohos_adapter/ctocpp/ark_display_manager_adapter_ctocpp.cpp",
     "ohos_adapter/ctocpp/ark_display_manager_adapter_ctocpp.h",
     "ohos_adapter/ctocpp/ark_enterprise_device_management_adapter_ctocpp.cpp",

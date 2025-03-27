@@ -763,6 +763,8 @@ action("ohos_glue_adapter_prepare") {
     "${glue_build_gen_dir}/ohos_adapter/cpptoc/ark_date_time_format_adapter_cpptoc.h",
     "${glue_build_gen_dir}/ohos_adapter/cpptoc/ark_display_adapter_cpptoc.cpp",
     "${glue_build_gen_dir}/ohos_adapter/cpptoc/ark_display_adapter_cpptoc.h",
+    "${glue_build_gen_dir}/ohos_adapter/cpptoc/ark_display_adapter_vector_cpptoc.cpp",
+    "${glue_build_gen_dir}/ohos_adapter/cpptoc/ark_display_adapter_vector_cpptoc.h",
     "${glue_build_gen_dir}/ohos_adapter/cpptoc/ark_display_manager_adapter_cpptoc.cpp",
     "${glue_build_gen_dir}/ohos_adapter/cpptoc/ark_display_manager_adapter_cpptoc.h",
     "${glue_build_gen_dir}/ohos_adapter/cpptoc/ark_enterprise_device_management_adapter_cpptoc.cpp",

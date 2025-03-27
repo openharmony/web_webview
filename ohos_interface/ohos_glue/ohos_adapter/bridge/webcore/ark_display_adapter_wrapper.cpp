@@ -72,4 +72,70 @@ bool ArkDisplayAdapterWrapper::IsFoldable()
 {
     return ctocpp_->IsFoldable();
 }
+
+std::string ArkDisplayAdapterWrapper::GetName()
+{
+    ArkWebString str = ctocpp_->GetName();
+    std::string result = ArkWebStringStructToClass(str);
+
+    ArkWebStringStructRelease(str);
+    return result;
+}
+
+int32_t ArkDisplayAdapterWrapper::GetAvailableWidth()
+{
+    return ctocpp_->GetAvailableWidth();
+}
+
+int32_t ArkDisplayAdapterWrapper::GetAvailableHeight()
+{
+    return ctocpp_->GetAvailableHeight();
+}
+
+bool ArkDisplayAdapterWrapper::GetAliveStatus()
+{
+    return ctocpp_->GetAliveStatus();
+}
+
+OHOS::NWeb::DisplayState ArkDisplayAdapterWrapper::GetDisplayState()
+{
+    uint32_t state = ctocpp_->GetDisplayState();
+    return (OHOS::NWeb::DisplayState)state;
+}
+
+int32_t ArkDisplayAdapterWrapper::GetDensityDpi()
+{
+    return ctocpp_->GetDensityDpi();
+}
+
+int32_t ArkDisplayAdapterWrapper::GetX()
+{
+    return ctocpp_->GetX();
+}
+
+int32_t ArkDisplayAdapterWrapper::GetY()
+{
+    return ctocpp_->GetY();
+}
+
+OHOS::NWeb::DisplaySourceMode ArkDisplayAdapterWrapper::GetDisplaySourceMode()
+{
+    uint32_t mode = ctocpp_->GetDisplaySourceMode();
+    return (OHOS::NWeb::DisplaySourceMode)mode;
+}
+
+int32_t ArkDisplayAdapterWrapper::GetPhysicalWidth()
+{
+    return ctocpp_->GetPhysicalWidth();
+}
+
+int32_t ArkDisplayAdapterWrapper::GetPhysicalHeight()
+{
+    return ctocpp_->GetPhysicalHeight();
+}
+
+float ArkDisplayAdapterWrapper::GetDefaultVirtualPixelRatio()
+{
+    return ctocpp_->GetDefaultVirtualPixelRatio();
+}
 } // namespace OHOS::ArkWeb

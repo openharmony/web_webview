@@ -71,4 +71,64 @@ bool ArkDisplayAdapterImpl::IsFoldable()
     return real_->IsFoldable();
 }
 
+ArkWebString ArkDisplayAdapterImpl::GetName()
+{
+    std::string str = real_->GetName();
+    return ArkWebStringClassToStruct(str);
+}
+
+int32_t ArkDisplayAdapterImpl::GetAvailableWidth()
+{
+    return real_->GetAvailableWidth();
+}
+
+int32_t ArkDisplayAdapterImpl::GetAvailableHeight()
+{
+    return real_->GetAvailableHeight();
+}
+
+bool ArkDisplayAdapterImpl::GetAliveStatus()
+{
+    return real_->GetAliveStatus();
+}
+
+uint32_t ArkDisplayAdapterImpl::GetDisplayState()
+{
+    return static_cast<uint32_t>(real_->GetDisplayState());
+}
+
+int32_t ArkDisplayAdapterImpl::GetDensityDpi()
+{
+    return real_->GetDensityDpi();
+}
+
+int32_t ArkDisplayAdapterImpl::GetX()
+{
+    return real_->GetX();
+}
+
+int32_t ArkDisplayAdapterImpl::GetY()
+{
+    return real_->GetY();
+}
+
+uint32_t ArkDisplayAdapterImpl::GetDisplaySourceMode()
+{
+    return static_cast<uint32_t>(real_->GetDisplaySourceMode());
+}
+
+int32_t ArkDisplayAdapterImpl::GetPhysicalWidth()
+{
+    return real_->GetPhysicalWidth();
+}
+
+int32_t ArkDisplayAdapterImpl::GetPhysicalHeight()
+{
+    return real_->GetPhysicalHeight();
+}
+
+float ArkDisplayAdapterImpl::GetDefaultVirtualPixelRatio()
+{
+    return real_->GetDefaultVirtualPixelRatio();
+}
 } // namespace OHOS::ArkWeb

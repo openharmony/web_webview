@@ -92,12 +92,25 @@ public:
     DisplayOrientation GetDisplayOrientation() override;
     FoldStatus GetFoldStatus() override;
     bool IsFoldable() override;
+    std::string GetName() override;
+    int32_t GetAvailableWidth() override;
+    int32_t GetAvailableHeight() override;
+    bool GetAliveStatus() override;
+    DisplayState GetDisplayState() override;
+    int32_t GetDensityDpi() override;
+    int32_t GetX() override;
+    int32_t GetY() override;
+    DisplaySourceMode GetDisplaySourceMode() override;
+    int32_t GetPhysicalWidth() override;
+    int32_t GetPhysicalHeight() override;
+    float GetDefaultVirtualPixelRatio() override;
 private:
     sptr<OHOS::Rosen::Display> display_;
     OHOS::NWeb::RotationType ConvertRotationType(OHOS::Rosen::Rotation type);
     OHOS::NWeb::OrientationType ConvertOrientationType(OHOS::Rosen::Orientation type);
     OHOS::NWeb::DisplayOrientation ConvertDisplayOrientationType(OHOS::Rosen::DisplayOrientation type);
     OHOS::NWeb::FoldStatus ConvertFoldStatus(NativeDisplayManager_FoldDisplayMode displayMode);
+    OHOS::NWeb::DisplayState ConvertDisplayState(OHOS::Rosen::DisplayState state);
 };
 
 using ListenerMap =
@@ -116,6 +129,8 @@ public:
     uint32_t RegisterFoldStatusListener(std::shared_ptr<FoldStatusListenerAdapter> listener) override;
     bool UnregisterFoldStatusListener(uint32_t id) override;
     static FoldStatusListenerMap foldStatusReg_;
+    std::shared_ptr<DisplayAdapter> GetPrimaryDisplay() override;
+    std::vector<std::shared_ptr<DisplayAdapter>> GetAllDisplays() override;
 private:
     ListenerMap reg_;
 };

@@ -46,6 +46,30 @@ public:
 
     bool IsFoldable() override;
 
+	ArkWebString GetName() override;
+
+    int32_t GetAvailableWidth() override;
+
+    int32_t GetAvailableHeight() override;
+
+    bool GetAliveStatus() override;
+
+    uint32_t GetDisplayState() override;
+
+    int32_t GetDensityDpi() override;
+
+    int32_t GetX() override;
+
+    int32_t GetY() override;
+
+    uint32_t GetDisplaySourceMode() override;
+
+    int32_t GetPhysicalWidth() override;
+
+    int32_t GetPhysicalHeight() override;
+
+    float GetDefaultVirtualPixelRatio() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::DisplayAdapter> real_;
 

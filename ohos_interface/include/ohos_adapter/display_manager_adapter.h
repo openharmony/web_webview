@@ -17,6 +17,7 @@
 #define DISPLAY_MANAGER_ADAPTER_H
 
 #include <memory>
+#include <vector>
 
 namespace OHOS::NWeb {
 
@@ -57,6 +58,24 @@ enum class FoldStatus : uint32_t {
     MAIN = 2,
     SUB = 3,
     COORDINATION = 4,
+};
+
+enum class DisplayState : uint32_t {
+    UNKNOWN,
+    OFF,
+    ON,
+    DOZE,
+    DOZE_SUSPEND,
+    VR,
+    ON_SUSPEND,
+};
+
+enum class DisplaySourceMode : uint32_t {
+    NONE = 0,
+    MAIN = 1,
+    MIRROR = 2,
+    EXTEND = 3,
+    ALONE = 4,
 };
 
 class DisplayListenerAdapter {
@@ -112,6 +131,30 @@ public:
     {
         return false;
     }
+
+    virtual std::string GetName() = 0;
+
+    virtual int32_t GetAvailableWidth() = 0;
+
+    virtual int32_t GetAvailableHeight() = 0;
+
+    virtual bool GetAliveStatus() = 0;
+
+    virtual DisplayState GetDisplayState() = 0;
+
+    virtual int32_t GetDensityDpi() = 0;
+
+    virtual int32_t GetX() = 0;
+
+    virtual int32_t GetY() = 0;
+
+    virtual DisplaySourceMode GetDisplaySourceMode() = 0;
+
+    virtual int32_t GetPhysicalWidth() = 0;
+
+    virtual int32_t GetPhysicalHeight() = 0;
+
+    virtual float GetDefaultVirtualPixelRatio() = 0;
 };
 
 class DisplayManagerAdapter {
@@ -139,6 +182,10 @@ public:
     {
         return false;
     }
+
+    virtual std::shared_ptr<DisplayAdapter> GetPrimaryDisplay() = 0;
+
+    virtual std::vector<std::shared_ptr<DisplayAdapter>> GetAllDisplays() = 0;
 };
 
 } // namespace OHOS::NWeb

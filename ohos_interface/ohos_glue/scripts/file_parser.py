@@ -431,6 +431,7 @@ _simpletypes = {
     'CefTime': ['cef_time_t', 'CefTime()'],
     'CefWindowHandle': ['cef_window_handle_t', 'kNullWindowHandle'],
     'WebSnapshotCallback':['WebSnapshotCallback', 'NULL'],
+    'ArkDisplayAdapterVector': ['ArkDisplayAdapterVector', '{0}'],
 }
 
 

@@ -17,6 +17,8 @@
 #define ARK_DISPLAY_MANAGER_ADAPTER_WRAPPER_H
 #pragma once
 
+#include <vector>
+
 #include "display_manager_adapter.h"
 #include "ohos_adapter/include/ark_display_manager_adapter.h"
 
@@ -39,6 +41,10 @@ public:
     uint32_t RegisterFoldStatusListener(std::shared_ptr<OHOS::NWeb::FoldStatusListenerAdapter> listener) override;
 
     bool UnregisterFoldStatusListener(uint32_t id) override;
+
+    std::shared_ptr<OHOS::NWeb::DisplayAdapter> GetPrimaryDisplay() override;
+
+    std::vector<std::shared_ptr<OHOS::NWeb::DisplayAdapter>> GetAllDisplays() override;
 
 private:
     ArkWebRefPtr<ArkDisplayManagerAdapter> ctocpp_;
