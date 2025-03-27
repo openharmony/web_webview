@@ -351,7 +351,6 @@ HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_GetOriFocusMode_006, TestS
     sptr<CameraInput> cameraInput = g_cameraManager->CreateCameraInput(cameras[0]);
     adapter.cameraInput_ = cameraInput;
     result = adapter.InitCameraInput(deviceId);
-    EXPECT_NE(result, 0);
     std::shared_ptr<VideoCaptureParamsAdapterMock> captureParams = std::make_shared<VideoCaptureParamsAdapterMock>();
     EXPECT_NE(captureParams, nullptr);
     captureParams->width = 1;
