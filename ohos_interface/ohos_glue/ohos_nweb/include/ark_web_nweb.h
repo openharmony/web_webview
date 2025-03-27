@@ -1689,6 +1689,12 @@ public:
      */
     /*--ark web()--*/
     virtual bool SetFocusByPosition(float x, float y) = 0;
+
+    /**
+     * @brief Set the native inner web
+     */
+    /*--ark web()--*/
+    virtual void SetNativeInnerWeb(bool isInnerWeb) = 0;
 };
 
 } // namespace OHOS::ArkWeb

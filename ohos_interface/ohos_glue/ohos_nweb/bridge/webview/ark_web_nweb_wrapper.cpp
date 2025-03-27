@@ -1544,4 +1544,9 @@ bool ArkWebNWebWrapper::SetFocusByPosition(float x, float y)
 {
     return ark_web_nweb_->SetFocusByPosition(x, y);
 }
+
+void ArkWebNWebWrapper::SetNativeInnerWeb(bool isInnerWeb)
+{
+    ark_web_nweb_->SetNativeInnerWeb(isInnerWeb);
+}
 } // namespace OHOS::ArkWeb
