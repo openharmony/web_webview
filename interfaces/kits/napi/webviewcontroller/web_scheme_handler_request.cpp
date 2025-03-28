@@ -16,6 +16,7 @@
 #include "web_scheme_handler_request.h"
 
 #include <securec.h>
+#include <mutex>
 
 #include "napi_web_scheme_handler_request.h"
 #include "napi_parse_utils.h"
@@ -25,6 +26,13 @@
 
 namespace OHOS::NWeb {
 namespace {
+
+std::unordered_map<WebSchemeHandler*, const ArkWeb_SchemeHandler*>
+    g_web_scheme_handler_map;
+std::unordered_map<const ArkWeb_SchemeHandler*, WebSchemeHandler*>
+    g_ark_web_scheme_handler_map;
+std::mutex g_mutex_for_handler_map;
+
 void OnRequestStart(const ArkWeb_SchemeHandler* schemeHandler,
                     ArkWeb_ResourceRequest* resourceRequest,
                     const ArkWeb_ResourceHandler* resourceHandler,
@@ -291,28 +299,30 @@ int32_t WebSchemeHandlerResponse::SetErrorCode(int32_t code)
     return OH_ArkWebResponse_SetError(response_, static_cast<ArkWeb_NetError>(code));
 }
 
-std::unordered_map<WebSchemeHandler*, const ArkWeb_SchemeHandler*>
-    WebSchemeHandler::webSchemeHandlerMap_;
-std::unordered_map<const ArkWeb_SchemeHandler*, WebSchemeHandler*>
-    WebSchemeHandler::arkWebSchemeHandlerMap_;
-
 const ArkWeb_SchemeHandler* WebSchemeHandler::GetArkWebSchemeHandler(
     WebSchemeHandler* handler)
 {
-    return WebSchemeHandler::webSchemeHandlerMap_.find(handler) !=
-        WebSchemeHandler::webSchemeHandlerMap_.end() ?
-        WebSchemeHandler::webSchemeHandlerMap_[handler] : nullptr;
+    std::lock_guard<std::mutex> auto_lock(g_mutex_for_handler_map);
+    auto iter = g_web_scheme_handler_map.find(handler);
+    if (iter == g_web_scheme_handler_map.end()) {
+        return nullptr;
+    }
+    return iter->second;
 }
 
 WebSchemeHandler* WebSchemeHandler::GetWebSchemeHandler(const ArkWeb_SchemeHandler* handler)
 {
-    return WebSchemeHandler::arkWebSchemeHandlerMap_.find(handler) !=
-        WebSchemeHandler::arkWebSchemeHandlerMap_.end() ?
-        WebSchemeHandler::arkWebSchemeHandlerMap_[handler] : nullptr;
+    std::lock_guard<std::mutex> auto_lock(g_mutex_for_handler_map);
+    auto iter = g_ark_web_scheme_handler_map.find(handler);
+    if (iter == g_ark_web_scheme_handler_map.end()) {
+        return nullptr;
+    }
+    return iter->second;
 }
 
 WebSchemeHandler::WebSchemeHandler(napi_env env)
-    : env_(env)
+    : env_(env),
+      thread_id_(gettid())
 {
     ArkWeb_SchemeHandler* handler;
     OH_ArkWeb_CreateSchemeHandler(&handler);
@@ -325,13 +335,22 @@ WebSchemeHandler::WebSchemeHandler(napi_env env)
     OH_ArkWebSchemeHandler_SetOnRequestStart(handler, onRequestStart_);
     OH_ArkWebSchemeHandler_SetOnRequestStop(handler, onRequestStop_);
     OH_ArkWebSchemeHandler_SetFromEts(handler, true);
-    webSchemeHandlerMap_.insert(std::make_pair(this, handler));
-    arkWebSchemeHandlerMap_.insert(std::make_pair(handler, this));
+
+    {
+        std::lock_guard<std::mutex> auto_lock(g_mutex_for_handler_map);
+        g_web_scheme_handler_map.insert(std::make_pair(this, handler));
+        g_ark_web_scheme_handler_map.insert(std::make_pair(handler, this));
+    }
 }
 
 WebSchemeHandler::~WebSchemeHandler()
 {
     WVLOG_D("WebSchemeHandler::~WebSchemeHandler");
+    pid_t current_tid = gettid();
+    if (current_tid != thread_id_) {
+        WVLOG_E("~WebSchemeHandler is in wrong thread! %{public}d != %{public}d",
+                current_tid, thread_id_);
+    }
     napi_delete_reference(env_, request_start_callback_);
     napi_delete_reference(env_, request_stop_callback_);
     ArkWeb_SchemeHandler* handler =
@@ -340,8 +359,11 @@ WebSchemeHandler::~WebSchemeHandler()
         WVLOG_E("~WebSchemeHandler not found ArkWeb_SchemeHandler");
         return;
     }
-    webSchemeHandlerMap_.erase(this);
-    arkWebSchemeHandlerMap_.erase(handler);
+    {
+        std::lock_guard<std::mutex> auto_lock(g_mutex_for_handler_map);
+        g_web_scheme_handler_map.erase(this);
+        g_ark_web_scheme_handler_map.erase(handler);
+    }
     OH_ArkWeb_DestroySchemeHandler(handler);
 }
 
