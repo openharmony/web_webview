@@ -17,6 +17,7 @@
 #define NWEB_WEB_SCHEME_HANDLER_REQUEST_H
 
 #include <string>
+#include <unistd.h>
 #include <uv.h>
 
 #include "napi/native_api.h"
@@ -107,10 +108,6 @@ public:
     void PutRequestStop(napi_env, napi_value callback);
 
     napi_ref delegate_ = nullptr;
-    static std::unordered_map<WebSchemeHandler*, const ArkWeb_SchemeHandler*>
-        webSchemeHandlerMap_;
-    static std::unordered_map<const ArkWeb_SchemeHandler*, WebSchemeHandler*>
-        arkWebSchemeHandlerMap_;
 private:
     typedef struct RequestStopParam {
         napi_env env_;
@@ -126,6 +123,7 @@ private:
     ArkWeb_OnRequestStop onRequestStop_ = nullptr;
     napi_ref request_start_callback_ = nullptr;
     napi_ref request_stop_callback_ = nullptr;
+    pid_t thread_id_;
 };
 
 class WebResourceHandler : public RefBase {
