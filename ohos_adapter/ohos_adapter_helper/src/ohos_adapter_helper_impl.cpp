@@ -43,6 +43,7 @@
 #include "media_codec_encoder_adapter_impl.h"
 #include "media_codec_list_adapter_impl.h"
 #endif
+#include "migration_manager_adapter_impl.h"
 #include "mmi_adapter_impl.h"
 #include "native_image_adapter_impl.h"
 #if defined(NWEB_TEL_ENABLE)
@@ -356,6 +357,11 @@ OhosDrawingTextFontAdapter& OhosAdapterHelperImpl::GetOhosDrawingTextFontAdapter
 OhosDrawingTextTypographyAdapter& OhosAdapterHelperImpl::GetOhosDrawingTextTypographyAdapter()
 {
     return OhosDrawingTextTypographyAdapterImpl::GetInstance();
+}
+
+std::unique_ptr<MigrationManagerAdapter> OhosAdapterHelperImpl::CreateMigrationMgrAdapter()
+{
+    return std::make_unique<MigrationManagerAdapterImpl>();
 }
 
 } // namespace OHOS::NWeb

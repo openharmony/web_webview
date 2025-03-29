@@ -15,16 +15,17 @@
 
 #include "keystore_adapter_impl.h"
 
-#include <string>
+#include <algorithm>
+#include <climits>
 #include <fcntl.h>
+#include <string>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <climits>
 
+#include "asset_api.h"
 #include "nweb_log.h"
-#include <algorithm>
 
 namespace {
 const uint32_t AES_COMMON_SIZE = 1024;
@@ -234,4 +235,30 @@ std::string KeystoreAdapterImpl::DecryptKey(const std::string alias, const std::
     HksFreeParamSet(&decryptParamSet);
     return std::string(reinterpret_cast<char*>(plainText.data), plainText.size);
 }
+
+std::string KeystoreAdapterImpl::AssetQuery(const std::string assetHandle)
+{
+    const char* ALIAS = assetHandle.c_str();
+    Asset_Blob alias = { (uint32_t)(strlen(ALIAS)), (uint8_t*)ALIAS };
+    Asset_Attr attr[] = {
+        { .tag = ASSET_TAG_ALIAS, .value.blob = alias },
+        { .tag = ASSET_TAG_RETURN_TYPE, .value.u32 = ASSET_RETURN_ALL },
+    };
+
+    Asset_ResultSet resultSet = { 0 };
+    int32_t ret = OH_Asset_Query(attr, sizeof(attr) / sizeof(attr[0]), &resultSet);
+    if (ret == ASSET_SUCCESS) {
+        Asset_Attr* secret = OH_Asset_ParseAttr(resultSet.results, ASSET_TAG_SECRET);
+        if (secret) {
+            Asset_Blob valueBlob = secret->value.blob;
+            std::string localKey(reinterpret_cast<char*>(valueBlob.data), valueBlob.size);
+            OH_Asset_FreeResultSet(&resultSet);
+            WVLOG_I("get key from asset success.");
+            return localKey;
+        }
+    }
+    WVLOG_E("hks finish invoke, query ret: %d", ret);
+    return std::string();
+}
+
 } // namespace OHOS::NWeb

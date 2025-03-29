@@ -29,16 +29,19 @@ ohos_shared_library("nweb_ohos_adapter") {
   if (target_cpu == "arm") {
     libs = [
       "//prebuilts/ohos-sdk/linux/15/native/sysroot/usr/lib/arm-linux-ohos/libbundle_ndk.z.so",
+      "//prebuilts/ohos-sdk/linux/15/native/sysroot/usr/lib/arm-linux-ohos/libasset_ndk.z.so",
       "//prebuilts/ohos-sdk/linux/15/native/sysroot/usr/lib/arm-linux-ohos/libnative_drawing.so",
     ]
   } else if (target_cpu == "arm64") {
     libs = [
       "//prebuilts/ohos-sdk/linux/15/native/sysroot/usr/lib/aarch64-linux-ohos/libbundle_ndk.z.so",
+      "//prebuilts/ohos-sdk/linux/15/native/sysroot/usr/lib/aarch64-linux-ohos/libasset_ndk.z.so",
       "//prebuilts/ohos-sdk/linux/15/native/sysroot/usr/lib/aarch64-linux-ohos/libnative_drawing.so",
     ]
   } else if (target_cpu == "x86_64") {
     libs = [
       "//prebuilts/ohos-sdk/linux/15/native/sysroot/usr/lib/x86_64-linux-ohos/libbundle_ndk.z.so",
+      "//prebuilts/ohos-sdk/linux/15/native/sysroot/usr/lib/x86_64-linux-ohos/libasset_ndk.z.so",
       "//prebuilts/ohos-sdk/linux/15/native/sysroot/usr/lib/aarch64-linux-ohos/libnative_drawing.so",
     ]
   }
@@ -84,6 +87,7 @@ ohos_shared_library("nweb_ohos_adapter") {
     "hiviewdfx_adapter/src/hitrace_adapter_impl.cpp",
     "inputmethodframework_adapter/src/imf_adapter_impl.cpp",
     "keystore_adapter/src/keystore_adapter_impl.cpp",
+    "migration_manager_adapter/src/migration_manager_adapter_impl.cpp",
     "multimodalinput_adapter/src/mmi_adapter_impl.cpp",
     "net_proxy_adapter/src/net_proxy_adapter_impl.cpp",
     "ohos_adapter_helper/src/ohos_adapter_helper_impl.cpp",
@@ -126,6 +130,7 @@ ohos_shared_library("nweb_ohos_adapter") {
     "keystore_adapter/include",
     "location_adapter/include",
     "media_adapter/include",
+    "migration_manager_adapter/include",
     "multimodalinput_adapter/include",
     "net_connect_adapter/include",
     "net_proxy_adapter/include",
@@ -146,6 +151,7 @@ ohos_shared_library("nweb_ohos_adapter") {
   if (target_cpu == "arm" || target_cpu == "arm64" || target_cpu == "x86_64") {
     include_dirs += [
       "//prebuilts/ohos-sdk/linux/15/native/sysroot/usr/include/bundle",
+      "//prebuilts/ohos-sdk/linux/15/native/sysroot/usr/include/asset",
       "//prebuilts/ohos-sdk/linux/15/native/sysroot/usr/include/native_drawing",
     ]
   }

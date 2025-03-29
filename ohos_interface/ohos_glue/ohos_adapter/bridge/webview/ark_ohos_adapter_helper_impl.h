@@ -118,6 +118,7 @@ public:
 
     ArkWebRefPtr<ArkOhosDrawingTextTypographyAdapter> GetOhosDrawingTextTypographyAdapter() override;
 
+    ArkWebRefPtr<ArkMigrationManagerAdapter> CreateMigrationMgrAdapter() override;
 private:
     NWeb::OhosAdapterHelper& real_;
 

@@ -28,6 +28,7 @@ public:
 
     std::string EncryptKey(const std::string alias, const std::string plainData) override;
     std::string DecryptKey(const std::string alis, const std::string encryptedData) override;
+    std::string AssetQuery(const std::string assetHandle) override;
 
 private:
     ArkWebRefPtr<ArkKeystoreAdapter> ctocpp_;

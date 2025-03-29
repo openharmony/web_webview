@@ -126,5 +126,22 @@ HWTEST_F(KeystoreAdapterImplTest, KeystoreAdapterImplTest_EncryptKey_002, TestSi
     nullDecrypt = KeystoreAdapterImpl::GetInstance().DecryptKey(long_str_alias, "test");
     EXPECT_TRUE(DecryptString.empty());
 }
+
+/**
+ * @tc.name: KeystoreAdapterImplTest_AssetQuery_002
+ * @tc.desc: Query asset
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(KeystoreAdapterImplTest, KeystoreAdapterImplTest_AssetQuery_003, TestSize.Level1)
+{
+    std::string alias = "test";
+    std::string encryptString = KeystoreAdapterImpl::GetInstance().AssetQuery(alias);
+    EXPECT_TRUE(encryptString.empty());
+
+    std::string nullAlias = "";
+    std::string nullEncrypt = KeystoreAdapterImpl::GetInstance().AssetQuery(nullAlias);
+    EXPECT_TRUE(nullEncrypt.empty());
+}
 }
 } // namespace NWeb
