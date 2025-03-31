@@ -349,9 +349,8 @@ void WebSchemeHandler::RequestStart(ArkWeb_ResourceRequest* request,
                                     const ArkWeb_ResourceHandler* ArkWeb_ResourceHandler,
                                     bool* intercept)
 {
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env_, &scope);
-    if (!scope) {
+    NApiScope scope(env_);
+    if (scope.scope_ == nullptr) {
         WVLOG_E("scheme handler RequestStart scope is nullptr");
         return;
     }
@@ -417,7 +416,6 @@ void WebSchemeHandler::RequestStart(ArkWeb_ResourceRequest* request,
         resourceHandler->SetFinishFlag();
         resourceHandler->DecStrongRef(resourceHandler);
     }
-    napi_close_handle_scope(env_, scope);
 }
 
 void WebSchemeHandler::RequestStopAfterWorkCb(uv_work_t* work, int status)
@@ -433,9 +431,8 @@ void WebSchemeHandler::RequestStopAfterWorkCb(uv_work_t* work, int status)
         work = nullptr;
         return;
     }
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(param->env_, &scope);
-    if (scope == nullptr) {
+    NApiScope scope(env_);
+    if (scope.scope_ == nullptr) {
         delete param;
         delete work;
         return;
@@ -444,7 +441,6 @@ void WebSchemeHandler::RequestStopAfterWorkCb(uv_work_t* work, int status)
     napi_status napiStatus;
     if (!param->callbackRef_) {
         WVLOG_E("scheme handler onRequestStop nil env");
-        napi_close_handle_scope(param->env_, scope);
         delete param;
         delete work;
         return;
@@ -452,7 +448,6 @@ void WebSchemeHandler::RequestStopAfterWorkCb(uv_work_t* work, int status)
     napiStatus = napi_get_reference_value(param->env_, param->callbackRef_, &callbackFunc);
     if (napiStatus != napi_ok || callbackFunc == nullptr) {
         WVLOG_E("scheme handler get onRequestStop func failed.");
-        napi_close_handle_scope(param->env_, scope);
         delete param;
         delete work;
         return;
@@ -480,7 +475,6 @@ void WebSchemeHandler::RequestStopAfterWorkCb(uv_work_t* work, int status)
         resourceHandler->SetFinishFlag();
         resourceHandler->DecStrongRef(resourceHandler);
     }
-    napi_close_handle_scope(param->env_, scope);
     delete param;
     param = nullptr;
     delete work;
@@ -744,9 +738,8 @@ void WebHttpBodyStream::ExecuteInitComplete(napi_env env, napi_status status, vo
     if (!param) {
         return;
     }
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (!scope) {
+    NApiScope scope(env);
+    if (scope.scope_ == nullptr) {
         delete param;
         return;
     }
@@ -770,7 +763,6 @@ void WebHttpBodyStream::ExecuteInitComplete(napi_env env, napi_status status, vo
         }
     }
     napi_delete_async_work(env, param->asyncWork);
-    napi_close_handle_scope(env, scope);
     delete param;
 }
 
@@ -781,9 +773,8 @@ void WebHttpBodyStream::ExecuteReadComplete(napi_env env, napi_status status, vo
     if (!param) {
         return;
     } 
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (!scope) {
+    NApiScope scope(env);
+    if (scope.scope_ == nullptr) {
         if (param->buffer) {
             delete param->buffer;
         }
@@ -809,7 +800,6 @@ void WebHttpBodyStream::ExecuteReadComplete(napi_env env, napi_status status, vo
         napi_resolve_deferred(env, param->deferred, result[INTEGER_ZERO]);
     }
     napi_delete_async_work(env, param->asyncWork);
-    napi_close_handle_scope(env, scope);
     delete param;
 }
 

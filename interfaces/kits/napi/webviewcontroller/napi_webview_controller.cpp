@@ -2285,9 +2285,8 @@ void NWebValueCallbackImpl::UvWebMessageOnReceiveValueCallback(uv_work_t *work, 
         work = nullptr;
         return;
     }
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(data->env_, &scope);
-    if (scope == nullptr) {
+    NApiScope scope(data->env_);
+    if (scope.scope_ == nullptr) {
         delete work;
         work = nullptr;
         return;
@@ -2296,7 +2295,6 @@ void NWebValueCallbackImpl::UvWebMessageOnReceiveValueCallback(uv_work_t *work, 
     if (!UvWebMsgOnReceiveCbDataHandler(data, result[INTEGER_ZERO])) {
         delete work;
         work = nullptr;
-        napi_close_handle_scope(data->env_, scope);
         return;
     }
 
@@ -2308,21 +2306,18 @@ void NWebValueCallbackImpl::UvWebMessageOnReceiveValueCallback(uv_work_t *work, 
     std::unique_lock<std::mutex> lock(data->mutex_);
     data->ready_ = true;
     data->condition_.notify_all();
-    napi_close_handle_scope(data->env_, scope);
 }
 
 static void InvokeWebMessageCallback(NapiWebMessagePort::WebMsgPortParam *data)
 {
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(data->env_, &scope);
-    if (scope == nullptr) {
+    NApiScope scope(data->env_);
+    if (scope.scope_ == nullptr) {
         WVLOG_E("scope is null");
         return;
     }
     napi_value result[INTEGER_ONE] = {0};
     if (!UvWebMsgOnReceiveCbDataHandler(data, result[INTEGER_ZERO])) {
         WVLOG_E("get result failed");
-        napi_close_handle_scope(data->env_, scope);
         return;
     }
 
@@ -2331,7 +2326,6 @@ static void InvokeWebMessageCallback(NapiWebMessagePort::WebMsgPortParam *data)
     napi_value placeHodler = nullptr;
     napi_call_function(data->env_, nullptr, onMsgEventFunc, INTEGER_ONE, &result[INTEGER_ZERO], &placeHodler);
 
-    napi_close_handle_scope(data->env_, scope);
 }
 
 void NWebValueCallbackImpl::OnReceiveValue(std::shared_ptr<NWebMessage> result)
@@ -4946,9 +4940,8 @@ napi_value NapiWebviewController::CreateWebPrintDocumentAdapter(napi_env env, na
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
         return result;
     }
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
+    NApiScope scope(env);
+    if (scope.scope_ == nullptr) {
         return result;
     }
     napi_value webPrintDoc = nullptr;
@@ -4959,11 +4952,9 @@ napi_value NapiWebviewController::CreateWebPrintDocumentAdapter(napi_env env, na
     napi_value proxy = nullptr;
     status = napi_new_instance(env, webPrintDoc, INTEGER_ONE, &consParam[INTEGER_ZERO], &proxy);
     if (status!= napi_ok) {
-        napi_close_handle_scope(env, scope);
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
         return result;
     }
-    napi_close_handle_scope(env, scope);
     return proxy;
 }
 
@@ -5073,9 +5064,8 @@ WebPrintWriteResultCallback ParseWebPrintWriteResultCallback(napi_env env, napi_
             if (!env) {
                 return;
             }
-            napi_handle_scope scope = nullptr;
-            napi_open_handle_scope(env, &scope);
-            if (scope == nullptr) {
+            NApiScope scope(env);
+            if (scope.scope_ == nullptr) {
                 return;
             }
             napi_value setResult[INTEGER_TWO] = {0};
@@ -5087,7 +5077,6 @@ WebPrintWriteResultCallback ParseWebPrintWriteResultCallback(napi_env env, napi_
             napi_value callbackResult = nullptr;
             napi_call_function(env, nullptr, callback, INTEGER_TWO, args, &callbackResult);
             napi_delete_reference(env, jCallback);
-            napi_close_handle_scope(env, scope);
         };
         return callbackImpl;
     }

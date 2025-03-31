@@ -416,9 +416,8 @@ void WebviewController::StoreWebArchiveCallback(const std::string &baseName, boo
         if (!env) {
             return;
         }
-        napi_handle_scope scope = nullptr;
-        napi_open_handle_scope(env, &scope);
-        if (scope == nullptr) {
+        NApiScope scope(env);
+        if (scope.scope_ == nullptr) {
             return;
         }
 
@@ -437,7 +436,6 @@ void WebviewController::StoreWebArchiveCallback(const std::string &baseName, boo
         napi_call_function(env, nullptr, callback, RESULT_COUNT, args, &callbackResult);
 
         napi_delete_reference(env, jCallback);
-        napi_close_handle_scope(env, scope);
     });
     nweb_ptr->StoreWebArchive(baseName, autoName, callbackImpl);
     return;
@@ -463,9 +461,8 @@ void WebviewController::StoreWebArchivePromise(const std::string &baseName, bool
         if (!env) {
             return;
         }
-        napi_handle_scope scope = nullptr;
-        napi_open_handle_scope(env, &scope);
-        if (scope == nullptr) {
+        NApiScope scope(env);
+        if (scope.scope_ == nullptr) {
             return;
         }
 
@@ -478,7 +475,6 @@ void WebviewController::StoreWebArchivePromise(const std::string &baseName, bool
         } else {
             napi_reject_deferred(env, deferred, args[PARAMZERO]);
         }
-        napi_close_handle_scope(env, scope);
     });
     nweb_ptr->StoreWebArchive(baseName, autoName, callbackImpl);
     return;
@@ -1643,9 +1639,8 @@ void WebviewController::PrecompileJavaScriptPromise(
             return;
         }
 
-        napi_handle_scope scope = nullptr;
-        napi_open_handle_scope(env, &scope);
-        if (scope == nullptr) {
+        NApiScope scope(env);
+        if (scope.scope_ == nullptr) {
             return;
         }
 
@@ -1658,7 +1653,6 @@ void WebviewController::PrecompileJavaScriptPromise(
             napi_reject_deferred(env, deferred, args[PARAMZERO]);
         }
 
-        napi_close_handle_scope(env, scope);
     });
 
     nweb_ptr->PrecompileJavaScript(url, script, cacheOptions, callbackImpl);

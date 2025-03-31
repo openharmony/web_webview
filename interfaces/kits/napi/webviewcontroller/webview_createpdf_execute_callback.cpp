@@ -88,8 +88,8 @@ void WebviewCreatePDFExecuteCallback::OnReceiveValue(const char* value, const lo
         std::shared_ptr<ArrayBufferExecuteParam> context(
             static_cast<ArrayBufferExecuteParam*>(param), [](ArrayBufferExecuteParam* ptr) { delete ptr; });
         napi_env env = param->env_;
-        napi_handle_scope scope = nullptr;
-        if (napi_open_handle_scope(env, &scope) != napi_ok) {
+        NApiScope scope(env);
+        if (scope.scope_ == nullptr) {
             WVLOG_E("[CreatePDF] open handle scope failed");
             return;
         }
@@ -100,9 +100,6 @@ void WebviewCreatePDFExecuteCallback::OnReceiveValue(const char* value, const lo
             UvAfterWorkCbPromise(env, param->deferred_, param->result_, param->size_);
         }
 
-        if (napi_close_handle_scope(env, scope) != napi_ok) {
-            WVLOG_E("[CreatePDF] close handle scope failed");
-        }
     };
     if (napi_status::napi_ok != napi_send_event(env_, task, napi_eprio_immediate)) {
         WVLOG_E("OnReceiveValue: Failed to SendEvent");

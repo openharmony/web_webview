@@ -118,9 +118,8 @@ void WebviewJavaScriptExecuteCallback::UvAfterWorkCb(uv_work_t* work, int status
         work = nullptr;
         return;
     }
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(param->env_, &scope);
-    if (scope == nullptr) {
+    NApiScope scope(param->env_);
+    if (scope.scope_ == nullptr) {
         return;
     }
 
@@ -130,7 +129,6 @@ void WebviewJavaScriptExecuteCallback::UvAfterWorkCb(uv_work_t* work, int status
         UvAfterWorkCbPromise(param->env_, param->deferred_, param->result_, param->extention_);
     }
 
-    napi_close_handle_scope(param->env_, scope);
     delete param;
     param = nullptr;
     delete work;

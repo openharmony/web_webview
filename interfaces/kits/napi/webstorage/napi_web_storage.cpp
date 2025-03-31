@@ -183,9 +183,8 @@ void NapiWebStorage::GetNapiWebStorageOriginForResult(napi_env env,
 void NapiWebStorage::GetOriginComplete(napi_env env, napi_status status, void *data)
 {
     GetOriginsParam* param = static_cast<GetOriginsParam*>(data);
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
+    NApiScope scope(env);
+    if (scope.scope_ == nullptr) {
         return;
     }
     napi_value setResult[RESULT_COUNT] = {0};
@@ -204,16 +203,14 @@ void NapiWebStorage::GetOriginComplete(napi_env env, napi_status status, void *d
     napi_call_function(env, nullptr, callback, RESULT_COUNT, args, &returnVal);
     napi_delete_reference(env, param->callbackRef);
     napi_delete_async_work(env, param->asyncWork);
-    napi_close_handle_scope(env, scope);
     delete param;
 }
 
 void NapiWebStorage::GetOriginsPromiseComplete(napi_env env, napi_status status, void *data)
 {
     GetOriginsParam* param = static_cast<GetOriginsParam*>(data);
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
+    NApiScope scope(env);
+    if (scope.scope_ == nullptr) {
         delete param;
         return;
     }
@@ -228,7 +225,6 @@ void NapiWebStorage::GetOriginsPromiseComplete(napi_env env, napi_status status,
         napi_reject_deferred(env, param->deferred, args[0]);
     }
     napi_delete_async_work(env, param->asyncWork);
-    napi_close_handle_scope(env, scope);
     delete param;
 }
 
@@ -338,9 +334,8 @@ void NapiWebStorage::ExecuteGetOriginUsageOrQuota(napi_env env, void *data)
 void NapiWebStorage::GetOriginUsageOrQuotaComplete(napi_env env, napi_status status, void *data)
 {
     GetOriginUsageOrQuotaParam* param = static_cast<GetOriginUsageOrQuotaParam*>(data);
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
+    NApiScope scope(env);
+    if (scope.scope_ == nullptr) {
         return;
     }
     napi_value setResult[RESULT_COUNT] = {0};
@@ -364,16 +359,14 @@ void NapiWebStorage::GetOriginUsageOrQuotaComplete(napi_env env, napi_status sta
     napi_delete_reference(env, param->jsStringRef);
     napi_delete_reference(env, param->callbackRef);
     napi_delete_async_work(env, param->asyncWork);
-    napi_close_handle_scope(env, scope);
     delete param;
 }
 
 void NapiWebStorage::GetOriginUsageOrQuotaPromiseComplete(napi_env env, napi_status status, void *data)
 {
     GetOriginUsageOrQuotaParam* param = static_cast<GetOriginUsageOrQuotaParam*>(data);
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
+    NApiScope scope(env);
+    if (scope.scope_ == nullptr) {
         return;
     }
     napi_value setResult[RESULT_COUNT] = {0};
@@ -387,7 +380,6 @@ void NapiWebStorage::GetOriginUsageOrQuotaPromiseComplete(napi_env env, napi_sta
     }
     napi_delete_reference(env, param->jsStringRef);
     napi_delete_async_work(env, param->asyncWork);
-    napi_close_handle_scope(env, scope);
     delete param;
 }
 
