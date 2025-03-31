@@ -21,7 +21,7 @@
 #define private public
 #include "net_proxy_adapter_impl.h"
 
-#include "net_conn_client.h"
+#include "net_conn_client_test_mock.h"
 #include "token_setproc.h"
 
 using namespace testing;
@@ -44,22 +44,6 @@ bool CommonEventManager::SubscribeCommonEvent(const std::shared_ptr<CommonEventS
 bool CommonEventManager::UnSubscribeCommonEvent(const std::shared_ptr<CommonEventSubscriber> &subscriber)
 {
     return g_unSubscribeCommonEventRet;
-}
-}
-
-namespace OHOS::NetManagerStandard {
-class NetConnClientMock : public NetConnClient {
-public:
-    MOCK_METHOD1(GetGlobalHttpProxy, int32_t(HttpProxy &));
-    MOCK_METHOD1(GetDefaultHttpProxy, int32_t(HttpProxy &));
-};
-NetConnClientMock *g_mock = nullptr;
-NetConnClient &NetConnClient::GetInstance()
-{
-    if (!g_mock) {
-        g_mock = new NetConnClientMock();
-    }
-    return *g_mock;
 }
 }
 
@@ -180,131 +164,107 @@ class MockNetProxyEventCallbackAdapter : public NetProxyEventCallbackAdapter {
     public:
         MockNetProxyEventCallbackAdapter() = default;
         void Changed(const std::string& host, const uint16_t& port, const std::string& pacUrl,
-                     const std::vector<std::string>& exclusionList) {}
+                     const std::vector<std::string>& exclusionList)
+        {
+            host_ = std::move(host);
+            port_ = port;
+            std::string httpProxyExclusions;
+            for (const auto& s : exclusionList) {
+                httpProxyExclusions.append(s + ",");
+            }
+            if (!httpProxyExclusions.empty()) {
+                httpProxyExclusions.pop_back();
+            }
+            exclusion_ = httpProxyExclusions;
+        }
+
+        std::string host_;
+        uint16_t port_;
+        std::string exclusion_;
 };
 
 /**
- * @tc.name: NetProxyAdapterTest_OnReceiveEvent_001.
+ * @tc.name: NetProxyAdapterTest_StartListen_001.
  * @tc.desc: IMF adapter unittest.
  * @tc.type: FUNC.
  * @tc.require:
  */
-HWTEST_F(NetProxyAdapterTest, NetProxyAdapterTest_OnReceiveEvent_001, TestSize.Level1)
+HWTEST_F(NetProxyAdapterTest, NetProxyAdapterTest_StartListen_001, TestSize.Level1)
 {
-    EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
-    EventFwk::CommonEventSubscribeInfo info(skill);
-    std::shared_ptr<NetProxyEventCallbackAdapter> eventCallback =
-        std::make_shared<MockNetProxyEventCallbackAdapter>();
-    NetProxyEventSubscriber criber(info, eventCallback);
-    EXPECT_NE(criber.eventCallback_, nullptr);
-    EventFwk::CommonEventData data;
+    ASSERT_FALSE(NetProxyAdapterImpl::GetInstance().StartListen());
 
-    AccessToken token;
-    HttpProxy httpProxy = {"tes.web.com", 0, {}};
-    int32_t ret = NetConnClient::GetInstance().SetGlobalHttpProxy(httpProxy);
-    EXPECT_NE(ret, 0);
-    criber.OnReceiveEvent(data);
-    Want want;
-    want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_HTTP_PROXY_CHANGE);
-    data.SetWant(want);
-    EXPECT_CALL(*g_mock, GetGlobalHttpProxy(::testing::_))
-        .Times(1)
-        .WillRepeatedly(::testing::Return(NetManagerStandard::NET_CONN_SUCCESS));
-    criber.OnReceiveEvent(data);
-    EXPECT_CALL(*g_mock, GetGlobalHttpProxy(::testing::_))
-        .Times(1)
-        .WillRepeatedly(::testing::Return(NetManagerStandard::NET_CONN_ERR_INPUT_NULL_PTR));
-    criber.OnReceiveEvent(data);
-    std::string host;
-    uint16_t port;
-    std::string pacUrl;
-    std::string exclusion;
-    EXPECT_CALL(*g_mock, GetGlobalHttpProxy(::testing::_))
-        .Times(1)
-        .WillRepeatedly(::testing::Return(NetManagerStandard::NET_CONN_SUCCESS));
-    NetProxyAdapterImpl::GetInstance().GetProperty(host, port, pacUrl, exclusion);
-    EXPECT_CALL(*g_mock, GetGlobalHttpProxy(::testing::_))
-        .Times(1)
-        .WillRepeatedly(::testing::Return(NetManagerStandard::NET_CONN_ERR_INPUT_NULL_PTR));
-    NetProxyAdapterImpl::GetInstance().GetProperty(host, port, pacUrl, exclusion);
-    testing::Mock::AllowLeak(g_mock);
-}
-
-/**
- * @tc.name: NetProxyAdapterTest_RegNetProxyEvent_002.
- * @tc.desc: IMF adapter unittest.
- * @tc.type: FUNC.
- * @tc.require:
- */
-HWTEST_F(NetProxyAdapterTest, NetProxyAdapterTest_RegNetProxyEvent_002, TestSize.Level1)
-{
-    NetProxyAdapterImpl::GetInstance().RegNetProxyEvent(nullptr);
-    EXPECT_EQ(NetProxyAdapterImpl::GetInstance().cb_, nullptr);
-    bool result = NetProxyAdapterImpl::GetInstance().StartListen();
-    EXPECT_FALSE(result);
-    std::shared_ptr<NetProxyEventCallbackAdapter> eventCallback =
+    std::shared_ptr<MockNetProxyEventCallbackAdapter> eventCallback =
         std::make_shared<MockNetProxyEventCallbackAdapter>();
     NetProxyAdapterImpl::GetInstance().RegNetProxyEvent(eventCallback);
-    EXPECT_NE(NetProxyAdapterImpl::GetInstance().cb_, nullptr);
-    result = NetProxyAdapterImpl::GetInstance().StartListen();
-    EXPECT_TRUE(result);
-    NetManagerStandard::HttpProxy httpProxy;
-    httpProxy.SetHost("");
-    NetManagerStandard::NetConnClient::GetInstance().SetAppHttpProxy(httpProxy);
-    httpProxy.SetHost("NONE");
-    NetManagerStandard::NetConnClient::GetInstance().SetAppHttpProxy(httpProxy);
-    httpProxy.SetHost("test_web");
-    NetManagerStandard::NetConnClient::GetInstance().SetAppHttpProxy(httpProxy);
+    HttpProxy httpProxy("NONE", 1, {"exclusion1", "exclusion2"});
+    NetConnClientMock::SetDefaultHttpProxy(httpProxy);
+    NetConnClientMock::SetAppId(1);
+    ASSERT_TRUE(NetProxyAdapterImpl::GetInstance().StartListen());
+    ASSERT_TRUE(NetConnClientMock::IsAppExist(1));
+    EXPECT_EQ(eventCallback->host_, "");
+    EXPECT_EQ(eventCallback->port_, 1);
+    EXPECT_EQ(eventCallback->exclusion_, "exclusion1,exclusion2");
 
-    EventFwk::CommonEventData data;
-    Want want;
-    want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_HTTP_PROXY_CHANGE);
-    data.SetWant(want);
-    EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
-    EventFwk::CommonEventSubscribeInfo info(skill);
-    NetProxyEventSubscriber criber(info, eventCallback);
-    NetManagerStandard::NetConnClient::GetInstance().appHttpProxy_.SetHost("web_test");
-    criber.OnReceiveEvent(data);
-    std::string host;
-    uint16_t port;
-    std::string pacUrl;
-    std::string exclusion;
-    NetProxyAdapterImpl::GetInstance().GetProperty(host, port, pacUrl, exclusion);
-    NetManagerStandard::NetConnClient::GetInstance().appHttpProxy_.SetHost("NONE");
-    NetProxyAdapterImpl::GetInstance().GetProperty(host, port, pacUrl, exclusion);
-    std::list<std::string> listString;
-    listString.push_back("testweb");
-    NetManagerStandard::HttpProxy proxy("test", 1, listString);
-    NetManagerStandard::NetConnClient::GetInstance().appHttpProxy_ = proxy;
-    NetProxyAdapterImpl::GetInstance().GetProperty(host, port, pacUrl, exclusion);
-
-    g_subscribeCommonEventRet = false;
-    result = NetProxyAdapterImpl::GetInstance().StartListen();
-    EXPECT_FALSE(result);
-    NetProxyAdapterImpl::GetInstance().cb_ = nullptr;
-    NetManagerStandard::NetConnClient::GetInstance().SetAppHttpProxy(httpProxy);
+    NetProxyAdapterImpl::GetInstance().StopListen();
+    ASSERT_FALSE(NetConnClientMock::IsAppExist(1));
 }
 
 /**
- * @tc.name: NetProxyAdapterTest_GetProperty_003.
+ * @tc.name: NetProxyAdapterTest_GetProperty_002.
  * @tc.desc: IMF adapter unittest.
  * @tc.type: FUNC.
  * @tc.require:
  */
-HWTEST_F(NetProxyAdapterTest, NetProxyAdapterTest_GetProperty_003, TestSize.Level1)
+HWTEST_F(NetProxyAdapterTest, NetProxyAdapterTest_GetProperty_002, TestSize.Level1)
 {
     std::string host;
     uint16_t port;
     std::string pacUrl;
     std::string exclusion;
+    HttpProxy httpProxy("testHost", 1, {"exclusion1", "exclusion2"});
+    NetConnClientMock::SetDefaultHttpProxy(httpProxy);
     NetProxyAdapterImpl::GetInstance().GetProperty(host, port, pacUrl, exclusion);
-    EXPECT_NE(NetProxyAdapterImpl::GetInstance().commonEventSubscriber_, nullptr);
-    g_unSubscribeCommonEventRet = false;
-    NetProxyAdapterImpl::GetInstance().StopListen();
-    g_unSubscribeCommonEventRet = true;
-    NetProxyAdapterImpl::GetInstance().StopListen();
-    NetProxyAdapterImpl::GetInstance().commonEventSubscriber_ = nullptr;
-    NetProxyAdapterImpl::GetInstance().StopListen();
+    EXPECT_EQ(host, "testHost");
+    EXPECT_EQ(port, 1);
+    EXPECT_EQ(exclusion, "exclusion1,exclusion2");
+
+    httpProxy = HttpProxy("NONE", 0, {"NONE"});
+    NetConnClientMock::SetDefaultHttpProxy(httpProxy);
+    NetProxyAdapterImpl::GetInstance().GetProperty(host, port, pacUrl, exclusion);
+    EXPECT_EQ(host, "");
+    EXPECT_EQ(port, 0);
+    EXPECT_EQ(exclusion, "");
+}
+
+/**
+ * @tc.name: NetProxyAdapterTest_OnReceiveEvent_003.
+ * @tc.desc: IMF adapter unittest.
+ * @tc.type: FUNC.
+ * @tc.require:
+ */
+HWTEST_F(NetProxyAdapterTest, NetProxyAdapterTest_OnReceiveEvent_003, TestSize.Level1)
+{
+    EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
+    EventFwk::CommonEventSubscribeInfo info(skill);
+    std::shared_ptr<MockNetProxyEventCallbackAdapter> eventCallback =
+        std::make_shared<MockNetProxyEventCallbackAdapter>();
+    NetProxyEventSubscriber criber(info, eventCallback);
+
+    HttpProxy httpProxy("testHost", 1, {"exclusion1", "exclusion2"});
+    NetConnClientMock::SetDefaultHttpProxy(httpProxy);
+    EventFwk::CommonEventData data;
+    criber.OnReceiveEvent(data);
+    EXPECT_EQ(eventCallback->host_, "");
+    EXPECT_EQ(eventCallback->port_, 0);
+    EXPECT_EQ(eventCallback->exclusion_, "");
+
+    Want want;
+    want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_HTTP_PROXY_CHANGE);
+    data.SetWant(want);
+    criber.OnReceiveEvent(data);
+    EXPECT_EQ(eventCallback->host_, "testHost");
+    EXPECT_EQ(eventCallback->port_, 1);
+    EXPECT_EQ(eventCallback->exclusion_, "exclusion1,exclusion2");
 }
 
 /**

@@ -20,6 +20,7 @@ config("module_private_config") {
 
   include_dirs = [
     "../../../../ohos_adapter/net_proxy_adapter/include",
+    "../../../../ohos_interface/include/ohos_adapter",
     "../../../../ohos_nweb/include",
   ]
 }
@@ -27,7 +28,12 @@ config("module_private_config") {
 ohos_unittest("net_proxy_adapter_test") {
   module_out_path = module_output_path
 
-  sources = [ "net_proxy_adapter_test.cpp" ]
+  sources = [
+    "net_conn_client_test_mock.cpp",
+    "net_conn_client_test_mock.h",
+  ]
+
+  sources += [ "net_proxy_adapter_test.cpp" ]
 
   configs = [ ":module_private_config" ]
 
