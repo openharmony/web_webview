@@ -20,6 +20,7 @@
 #include <vector>
 
 #include "business_error.h"
+#include "nweb_napi_scope.h"
 #include "napi/native_common.h"
 #include "nweb_cookie_manager.h"
 #include "nweb_helper.h"
@@ -344,8 +345,8 @@ napi_value ConfigCookieAsyncPromise(
     return promise;
 }
 
-bool NapiWebCookieManager::GetStringParaAndEmitError(napi_env env, napi_value argv, 
-                                                     const std::string& parav, 
+bool NapiWebCookieManager::GetStringParaAndEmitError(napi_env env, napi_value argv,
+                                                     const std::string& parav,
                                                      std::string& value)
 {
     if (!GetStringPara(env, argv, value)) {
@@ -356,8 +357,8 @@ bool NapiWebCookieManager::GetStringParaAndEmitError(napi_env env, napi_value ar
     return true;
 }
 
-bool NapiWebCookieManager::GetBooleanParaAndEmitError(napi_env env, napi_value argv, 
-                                                      const std::string& parav, 
+bool NapiWebCookieManager::GetBooleanParaAndEmitError(napi_env env, napi_value argv,
+                                                      const std::string& parav,
                                                       bool& value)
 {
     if (!GetBooleanPara(env, argv, value)) {

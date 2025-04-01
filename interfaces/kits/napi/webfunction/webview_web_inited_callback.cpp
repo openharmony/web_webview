@@ -15,6 +15,7 @@
 
 #include "webview_web_inited_callback.h"
 
+#include "nweb_napi_scope.h"
 #include "nweb_log.h"
 #include "uv.h"
 

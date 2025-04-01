@@ -17,6 +17,7 @@
 
 #include "business_error.h"
 #include "napi_parse_utils.h"
+#include "nweb_napi_scope.h"
 #include "nweb_log.h"
 #include "web_errors.h"
 

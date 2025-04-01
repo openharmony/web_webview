@@ -14,6 +14,7 @@
  */
 
 #include "napi_web_async_controller.h"
+#include "nweb_napi_scope.h"
 #include "nweb.h"
 #include "nweb_helper.h"
 #include "nweb_store_web_archive_callback.h"

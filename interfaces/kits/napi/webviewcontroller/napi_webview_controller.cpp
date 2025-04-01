@@ -27,6 +27,7 @@
 #include "application_context.h"
 #include "business_error.h"
 #include "napi_parse_utils.h"
+#include "nweb_napi_scope.h"
 #include "native_engine/native_engine.h"
 #include "nweb.h"
 #include "nweb_adapter_helper.h"
@@ -2325,7 +2326,6 @@ static void InvokeWebMessageCallback(NapiWebMessagePort::WebMsgPortParam *data)
     napi_get_reference_value(data->env_, data->callback_, &onMsgEventFunc);
     napi_value placeHodler = nullptr;
     napi_call_function(data->env_, nullptr, onMsgEventFunc, INTEGER_ONE, &result[INTEGER_ZERO], &placeHodler);
-
 }
 
 void NWebValueCallbackImpl::OnReceiveValue(std::shared_ptr<NWebMessage> result)

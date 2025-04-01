@@ -23,6 +23,7 @@
 #include "application_context.h"
 #include "business_error.h"
 #include "napi_parse_utils.h"
+#include "nweb_napi_scope.h"
 #include "ohos_resource_adapter_impl.h"
 
 #include "native_arkweb_utils.h"
@@ -1652,7 +1653,6 @@ void WebviewController::PrecompileJavaScriptPromise(
         } else {
             napi_reject_deferred(env, deferred, args[PARAMZERO]);
         }
-
     });
 
     nweb_ptr->PrecompileJavaScript(url, script, cacheOptions, callbackImpl);

@@ -19,6 +19,7 @@
 
 #include "napi_web_scheme_handler_request.h"
 #include "napi_parse_utils.h"
+#include "nweb_napi_scope.h"
 #include "nweb_log.h"
 #include "business_error.h"
 #include "web_errors.h"
@@ -354,7 +355,7 @@ void WebSchemeHandler::RequestStart(ArkWeb_ResourceRequest* request,
         WVLOG_E("scheme handler RequestStart scope is nullptr");
         return;
     }
-    
+
     WVLOG_D("WebSchemeHandler::RequestStart");
     size_t paramCount = 2;
     napi_value callbackFunc = nullptr;
@@ -772,7 +773,7 @@ void WebHttpBodyStream::ExecuteReadComplete(napi_env env, napi_status status, vo
     ReadParam* param = static_cast<ReadParam*>(data);
     if (!param) {
         return;
-    } 
+    }
     NApiScope scope(env);
     if (scope.scope_ == nullptr) {
         if (param->buffer) {
@@ -824,7 +825,7 @@ void WebHttpBodyStream::ExecuteRead(uint8_t* buffer, int bytesRead)
     NAPI_CALL_RETURN_VOID(env_, napi_create_async_work(env_, nullptr, resourceName,
         [](napi_env env, void *data) {},
         ExecuteReadComplete, static_cast<void *>(param), &param->asyncWork));
-    NAPI_CALL_RETURN_VOID(env_, 
+    NAPI_CALL_RETURN_VOID(env_,
         napi_queue_async_work_with_qos(env_, param->asyncWork, napi_qos_user_initiated));
 }
 

@@ -20,6 +20,7 @@
 
 #include "core/common/container_scope.h"
 #include "napi_parse_utils.h"
+#include "nweb_napi_scope.h"
 #include "native_engine/native_engine.h"
 #include "nweb_helper.h"
 #include "nweb_log.h"
