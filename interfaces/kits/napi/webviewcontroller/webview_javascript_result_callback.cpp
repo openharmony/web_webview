@@ -1182,7 +1182,7 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptResultS
     }
     close(fd);
 
-    ret = GetJavaScriptResultSelfHelper(jsObj, method, routingId, scope, argv);
+    ret = GetJavaScriptResultSelfHelper(jsObj, method, routingId, scope.scope_, argv);
     return ret;
 }
 

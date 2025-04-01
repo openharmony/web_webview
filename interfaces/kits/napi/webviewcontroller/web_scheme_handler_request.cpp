@@ -432,7 +432,7 @@ void WebSchemeHandler::RequestStopAfterWorkCb(uv_work_t* work, int status)
         work = nullptr;
         return;
     }
-    NApiScope scope(env_);
+    NApiScope scope(param->env_);
     if (scope.scope_ == nullptr) {
         delete param;
         delete work;

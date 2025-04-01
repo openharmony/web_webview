@@ -1504,8 +1504,13 @@ bool WebviewController::SetWebSchemeHandler(const char* scheme, WebSchemeHandler
         WVLOG_E("WebviewController::SetWebSchemeHandler handler or scheme is nullptr");
         return false;
     }
+    auto SchemeHandler_ptr = WebSchemeHandler::GetArkWebSchemeHandler(handler);
+    if (!SchemeHandler_ptr) {
+        WVLOG_E("WebviewController::SetWebSchemeHandler ArkWebSchemeHandler is nullptr");
+        return false;
+    }
     ArkWeb_SchemeHandler* schemeHandler =
-        const_cast<ArkWeb_SchemeHandler*>(WebSchemeHandler::GetArkWebSchemeHandler(handler));
+        const_cast<ArkWeb_SchemeHandler*>(SchemeHandler_ptr);
     return OH_ArkWeb_SetSchemeHandler(scheme, webTag_.c_str(), schemeHandler);
 }
 
@@ -1517,8 +1522,13 @@ int32_t WebviewController::ClearWebSchemeHandler()
 bool WebviewController::SetWebServiveWorkerSchemeHandler(
     const char* scheme, WebSchemeHandler* handler)
 {
+    auto SchemeHandler_ptr = WebSchemeHandler::GetArkWebSchemeHandler(handler);
+    if (!SchemeHandler_ptr) {
+        WVLOG_E("WebviewController::SetWebServiveWorkerSchemeHandler ArkWebSchemeHandler is nullptr");
+        return false;
+    }
     ArkWeb_SchemeHandler* schemeHandler =
-        const_cast<ArkWeb_SchemeHandler*>(WebSchemeHandler::GetArkWebSchemeHandler(handler));
+        const_cast<ArkWeb_SchemeHandler*>(SchemeHandler_ptr);
     return OH_ArkWebServiceWorker_SetSchemeHandler(scheme, schemeHandler);
 }
 
