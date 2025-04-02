@@ -116,4 +116,20 @@ void WindowAdapterImpl::SetTransformHint(uint32_t rotation, NWebNativeWindow win
     auto transform = ConvertRotation(rotation);
     nativeWindow->surface->SetTransformHint(transform);
 }
+
+void WindowAdapterImpl::AddNativeWindowRef(NWebNativeWindow window)
+{
+    int32_t ret = ::NativeObjectReference(reinterpret_cast<OHNativeWindow*>(window));
+    if (ret != 0) {
+        WVLOG_E("add window reference failed.");
+    }
+}
+
+void WindowAdapterImpl::NativeWindowUnRef(NWebNativeWindow window)
+{
+    int32_t ret = ::NativeObjectUnReference(reinterpret_cast<OHNativeWindow*>(window));
+    if (ret != 0) {
+        WVLOG_E("cancel window reference failed.");
+    }
+}
 } // namespace OHOS::NWeb
