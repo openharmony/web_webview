@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "business_error.h"
+#include "nweb_napi_scope.h"
 #include "napi/native_common.h"
 #include "nweb_data_base.h"
 #include "nweb_helper.h"
@@ -207,9 +208,8 @@ napi_value NapiGeolocationPermission::JsDeleteAllGeolocation(napi_env env, napi_
 void NapiGeolocationPermission::GetPermissionStateComplete(napi_env env, napi_status status, void *data)
 {
     GetOriginPermissionStateParam *param = static_cast<GetOriginPermissionStateParam *>(data);
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
+    NApiScope scope(env);
+    if (!scope.IsVaild()) {
         return;
     }
     napi_value setResult[RESULT_COUNT] = {0};
@@ -228,7 +228,6 @@ void NapiGeolocationPermission::GetPermissionStateComplete(napi_env env, napi_st
     napi_delete_reference(env, param->jsStringRef);
     napi_delete_reference(env, param->callbackRef);
     napi_delete_async_work(env, param->asyncWork);
-    napi_close_handle_scope(env, scope);
     delete param;
     param = nullptr;
 }
@@ -236,9 +235,8 @@ void NapiGeolocationPermission::GetPermissionStateComplete(napi_env env, napi_st
 void NapiGeolocationPermission::GetPermissionStatePromiseComplete(napi_env env, napi_status status, void *data)
 {
     GetOriginPermissionStateParam *param = static_cast<GetOriginPermissionStateParam *>(data);
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
+    NApiScope scope(env);
+    if (!scope.IsVaild()) {
         return;
     }
     napi_value setResult[RESULT_COUNT] = {0};
@@ -252,7 +250,6 @@ void NapiGeolocationPermission::GetPermissionStatePromiseComplete(napi_env env, 
     }
     napi_delete_reference(env, param->jsStringRef);
     napi_delete_async_work(env, param->asyncWork);
-    napi_close_handle_scope(env, scope);
     delete param;
     param = nullptr;
 }
@@ -344,13 +341,13 @@ napi_value NapiGeolocationPermission::JsGetAccessibleGeolocation(napi_env env, n
     napi_value argv[PARAMTHREE] = { 0 };
     napi_get_cb_info(env, info, &argc, argv, &retValue, nullptr);
     if (argc != argcPromise && argc != argcCallback && argc != argcPromiseForOld) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_THREE, "one", "two", "three"));
         return nullptr;
     }
     std::string origin;
     if (!GetStringPara(env, argv[PARAMZERO], origin)) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "origin", "string"));
         return nullptr;
     }
@@ -360,12 +357,12 @@ napi_value NapiGeolocationPermission::JsGetAccessibleGeolocation(napi_env env, n
         napi_valuetype valueType = napi_undefined;
         napi_typeof(env, argv[PARAMONE], &valueType);
         if (valueType != napi_function) {
-            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
                 NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "callback", "function"));
             return nullptr;
         }
         if (!GetBooleanPara(env, argv[PARAMTWO], incognitoMode)) {
-            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
                 NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
             return nullptr;
         }
@@ -378,7 +375,7 @@ napi_value NapiGeolocationPermission::JsGetAccessibleGeolocation(napi_env env, n
         napi_typeof(env, argv[PARAMONE], &valueType);
         if (valueType != napi_function) {
             if (!GetBooleanPara(env, argv[PARAMONE], incognitoMode)) {
-                NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR, 
+                NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
                     NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
                 return nullptr;
             }
@@ -394,9 +391,8 @@ napi_value NapiGeolocationPermission::JsGetAccessibleGeolocation(napi_env env, n
 void NapiGeolocationPermission::GetOriginComplete(napi_env env, napi_status status, void *data)
 {
     GetPermissionOriginsParam *param = static_cast<GetPermissionOriginsParam *>(data);
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
+    NApiScope scope(env);
+    if (!scope.IsVaild()) {
         return;
     }
     napi_value setResult[RESULT_COUNT] = {0};
@@ -420,7 +416,6 @@ void NapiGeolocationPermission::GetOriginComplete(napi_env env, napi_status stat
     napi_call_function(env, nullptr, callback, RESULT_COUNT, args, &returnVal);
     napi_delete_reference(env, param->callbackRef);
     napi_delete_async_work(env, param->asyncWork);
-    napi_close_handle_scope(env, scope);
     delete param;
     param = nullptr;
 }
@@ -428,9 +423,8 @@ void NapiGeolocationPermission::GetOriginComplete(napi_env env, napi_status stat
 void NapiGeolocationPermission::GetOriginsPromiseComplete(napi_env env, napi_status status, void *data)
 {
     GetPermissionOriginsParam *param = static_cast<GetPermissionOriginsParam *>(data);
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
+    NApiScope scope(env);
+    if (!scope.IsVaild()) {
         delete param;
         return;
     }
@@ -450,7 +444,6 @@ void NapiGeolocationPermission::GetOriginsPromiseComplete(napi_env env, napi_sta
         napi_reject_deferred(env, param->deferred, args[0]);
     }
     napi_delete_async_work(env, param->asyncWork);
-    napi_close_handle_scope(env, scope);
     delete param;
     param = nullptr;
 }

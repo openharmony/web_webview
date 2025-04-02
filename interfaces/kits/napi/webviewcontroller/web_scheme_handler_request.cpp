@@ -19,6 +19,7 @@
 
 #include "napi_web_scheme_handler_request.h"
 #include "napi_parse_utils.h"
+#include "nweb_napi_scope.h"
 #include "nweb_log.h"
 #include "business_error.h"
 #include "web_errors.h"
@@ -349,13 +350,12 @@ void WebSchemeHandler::RequestStart(ArkWeb_ResourceRequest* request,
                                     const ArkWeb_ResourceHandler* ArkWeb_ResourceHandler,
                                     bool* intercept)
 {
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env_, &scope);
-    if (!scope) {
+    NApiScope scope(env_);
+    if (!scope.IsVaild()) {
         WVLOG_E("scheme handler RequestStart scope is nullptr");
         return;
     }
-    
+
     WVLOG_D("WebSchemeHandler::RequestStart");
     size_t paramCount = 2;
     napi_value callbackFunc = nullptr;
@@ -417,7 +417,6 @@ void WebSchemeHandler::RequestStart(ArkWeb_ResourceRequest* request,
         resourceHandler->SetFinishFlag();
         resourceHandler->DecStrongRef(resourceHandler);
     }
-    napi_close_handle_scope(env_, scope);
 }
 
 void WebSchemeHandler::RequestStopAfterWorkCb(uv_work_t* work, int status)
@@ -433,9 +432,8 @@ void WebSchemeHandler::RequestStopAfterWorkCb(uv_work_t* work, int status)
         work = nullptr;
         return;
     }
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(param->env_, &scope);
-    if (scope == nullptr) {
+    NApiScope scope(param->env_);
+    if (!scope.IsVaild()) {
         delete param;
         delete work;
         return;
@@ -444,7 +442,6 @@ void WebSchemeHandler::RequestStopAfterWorkCb(uv_work_t* work, int status)
     napi_status napiStatus;
     if (!param->callbackRef_) {
         WVLOG_E("scheme handler onRequestStop nil env");
-        napi_close_handle_scope(param->env_, scope);
         delete param;
         delete work;
         return;
@@ -452,7 +449,6 @@ void WebSchemeHandler::RequestStopAfterWorkCb(uv_work_t* work, int status)
     napiStatus = napi_get_reference_value(param->env_, param->callbackRef_, &callbackFunc);
     if (napiStatus != napi_ok || callbackFunc == nullptr) {
         WVLOG_E("scheme handler get onRequestStop func failed.");
-        napi_close_handle_scope(param->env_, scope);
         delete param;
         delete work;
         return;
@@ -480,7 +476,6 @@ void WebSchemeHandler::RequestStopAfterWorkCb(uv_work_t* work, int status)
         resourceHandler->SetFinishFlag();
         resourceHandler->DecStrongRef(resourceHandler);
     }
-    napi_close_handle_scope(param->env_, scope);
     delete param;
     param = nullptr;
     delete work;
@@ -744,9 +739,8 @@ void WebHttpBodyStream::ExecuteInitComplete(napi_env env, napi_status status, vo
     if (!param) {
         return;
     }
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (!scope) {
+    NApiScope scope(env);
+    if (!scope.IsVaild()) {
         delete param;
         return;
     }
@@ -770,7 +764,6 @@ void WebHttpBodyStream::ExecuteInitComplete(napi_env env, napi_status status, vo
         }
     }
     napi_delete_async_work(env, param->asyncWork);
-    napi_close_handle_scope(env, scope);
     delete param;
 }
 
@@ -780,10 +773,9 @@ void WebHttpBodyStream::ExecuteReadComplete(napi_env env, napi_status status, vo
     ReadParam* param = static_cast<ReadParam*>(data);
     if (!param) {
         return;
-    } 
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (!scope) {
+    }
+    NApiScope scope(env);
+    if (!scope.IsVaild()) {
         if (param->buffer) {
             delete param->buffer;
         }
@@ -809,7 +801,6 @@ void WebHttpBodyStream::ExecuteReadComplete(napi_env env, napi_status status, vo
         napi_resolve_deferred(env, param->deferred, result[INTEGER_ZERO]);
     }
     napi_delete_async_work(env, param->asyncWork);
-    napi_close_handle_scope(env, scope);
     delete param;
 }
 
@@ -834,7 +825,7 @@ void WebHttpBodyStream::ExecuteRead(uint8_t* buffer, int bytesRead)
     NAPI_CALL_RETURN_VOID(env_, napi_create_async_work(env_, nullptr, resourceName,
         [](napi_env env, void *data) {},
         ExecuteReadComplete, static_cast<void *>(param), &param->asyncWork));
-    NAPI_CALL_RETURN_VOID(env_, 
+    NAPI_CALL_RETURN_VOID(env_,
         napi_queue_async_work_with_qos(env_, param->asyncWork, napi_qos_user_initiated));
 }
 

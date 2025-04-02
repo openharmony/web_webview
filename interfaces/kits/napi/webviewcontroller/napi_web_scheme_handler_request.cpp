@@ -22,6 +22,7 @@
 #include <cstring>
 
 #include "business_error.h"
+#include "nweb_napi_scope.h"
 #include "web_scheme_handler_request.h"
 #include "nweb_log.h"
 #include "napi_parse_utils.h"
@@ -115,15 +116,14 @@ napi_value NapiWebSchemeHandlerRequest::JS_GetHeader(napi_env env, napi_callback
         WVLOG_E("NapiWebSchemeHandlerRequest::JS_GetHeader request is nullptr");
         return nullptr;
     }
-    
+
     WebHeaderList list = request->GetHeader();
     napi_value result = nullptr;
     napi_create_array(env, &result);
     size_t headerSize = list.size();
     for (size_t index = 0; index < headerSize; index++) {
-        napi_handle_scope scope;
-        napi_status status = napi_open_handle_scope(env, &scope);
-        if (status != napi_ok) {
+        NApiScope scope(env);
+        if (!scope.IsVaild()) {
             break;
         }
         napi_value webHeaderObj = nullptr;
@@ -135,10 +135,6 @@ napi_value NapiWebSchemeHandlerRequest::JS_GetHeader(napi_env env, napi_callback
         napi_set_named_property(env, webHeaderObj, "headerKey", headerKey);
         napi_set_named_property(env, webHeaderObj, "headerValue", headerValue);
         napi_set_element(env, result, index, webHeaderObj);
-        status = napi_close_handle_scope(env, scope);
-        if (status != napi_ok) {
-            break;
-        }
     }
     return result;
 }
@@ -155,7 +151,7 @@ napi_value NapiWebSchemeHandlerRequest::JS_GetRequestUrl(napi_env env, napi_call
         WVLOG_E("NapiWebSchemeHandlerRequest::JS_GetRequestUrl request is nullptr");
         return nullptr;
     }
-    
+
     napi_value value;
     char *result = request->GetRequestUrl();
     napi_status status = napi_create_string_utf8(env, result, NAPI_AUTO_LENGTH, &value);
@@ -178,7 +174,7 @@ napi_value NapiWebSchemeHandlerRequest::JS_GetRequestMethod(napi_env env, napi_c
         WVLOG_E("NapiWebSchemeHandlerRequest::JS_GetRequestMethod request is nullptr");
         return nullptr;
     }
-    
+
     napi_value value;
     char *result = request->GetMethod();
     napi_status status = napi_create_string_utf8(env, result, NAPI_AUTO_LENGTH, &value);
@@ -201,7 +197,7 @@ napi_value NapiWebSchemeHandlerRequest::JS_GetReferrer(napi_env env, napi_callba
         WVLOG_E("NapiWebSchemeHandlerRequest::JS_GetReferrer request is nullptr");
         return nullptr;
     }
-    
+
     napi_value value;
     char *result = request->GetReferrer();
     napi_status status = napi_create_string_utf8(env, result, NAPI_AUTO_LENGTH, &value);
@@ -224,7 +220,7 @@ napi_value NapiWebSchemeHandlerRequest::JS_IsRedirect(napi_env env, napi_callbac
         WVLOG_E("NapiWebSchemeHandlerRequest::JS_IsRedirect request is nullptr");
         return nullptr;
     }
-    
+
     napi_value value;
     bool result = request->IsRedirect();
     NAPI_CALL(env, napi_get_boolean(env, result, &value));
@@ -243,7 +239,7 @@ napi_value NapiWebSchemeHandlerRequest::JS_IsMainFrame(napi_env env, napi_callba
         WVLOG_E("NapiWebSchemeHandlerRequest::JS_IsMainFrame request is nullptr");
         return nullptr;
     }
-    
+
     napi_value value;
     bool result = request->IsMainFrame();
     NAPI_CALL(env, napi_get_boolean(env, result, &value));
@@ -262,7 +258,7 @@ napi_value NapiWebSchemeHandlerRequest::JS_HasGesture(napi_env env, napi_callbac
         WVLOG_E("NapiWebSchemeHandlerRequest::JS_HasGesture request is nullptr");
         return nullptr;
     }
-    
+
     napi_value value;
     bool result = request->HasGesture();
     NAPI_CALL(env, napi_get_boolean(env, result, &value));
@@ -334,7 +330,7 @@ napi_value NapiWebSchemeHandlerRequest::JS_GetFrameUrl(napi_env env, napi_callba
         WVLOG_E("NapiWebSchemeHandlerRequest::JS_GetFrameUrl request is nullptr");
         return nullptr;
     }
-    
+
     napi_value value;
     char *result = request->GetFrameUrl();
     napi_status status = napi_create_string_utf8(env, result, NAPI_AUTO_LENGTH, &value);
@@ -467,7 +463,7 @@ napi_value NapiWebSchemeHandlerResponse::JS_GetUrl(napi_env env, napi_callback_i
         WVLOG_E("NapiWebSchemeHandlerResponse::JS_GetUrl response is nullptr");
         return nullptr;
     }
-    
+
     napi_value urlValue;
     char *result = response->GetUrl();
     napi_status status = napi_create_string_utf8(env, result, NAPI_AUTO_LENGTH, &urlValue);
@@ -564,7 +560,7 @@ napi_value NapiWebSchemeHandlerResponse::JS_GetStatusText(napi_env env, napi_cal
         WVLOG_E("NapiWebSchemeHandlerResponse::JS_GetStatusText response is nullptr");
         return nullptr;
     }
-    
+
     napi_value statusText;
     char* result = response->GetStatusText();
     napi_status status = napi_create_string_utf8(env, result, NAPI_AUTO_LENGTH, &statusText);
@@ -615,7 +611,7 @@ napi_value NapiWebSchemeHandlerResponse::JS_GetMimeType(napi_env env, napi_callb
         WVLOG_E("NapiWebSchemeHandlerResponse::JS_GetMimeType response is nullptr");
         return nullptr;
     }
-    
+
     napi_value mimeType;
     char* result = response->GetMimeType();
     napi_status status = napi_create_string_utf8(env, result, NAPI_AUTO_LENGTH, &mimeType);
@@ -665,7 +661,7 @@ napi_value NapiWebSchemeHandlerResponse::JS_GetEncoding(napi_env env, napi_callb
         WVLOG_E("NapiWebSchemeHandlerResponse::JS_GetEncoding response is nullptr");
         return nullptr;
     }
-    
+
     napi_value encoding;
     char* result = response->GetEncoding();
     napi_status status = napi_create_string_utf8(env, result, NAPI_AUTO_LENGTH, &encoding);
@@ -721,7 +717,7 @@ napi_value NapiWebSchemeHandlerResponse::JS_GetHeaderByName(napi_env env, napi_c
     if (!NapiParseUtils::ParseString(env, argv[0], name)) {
         return nullptr;
     }
-    
+
     napi_value headerValue;
     char* result = response->GetHeaderByName(name.c_str());
     napi_status status = napi_create_string_utf8(env, result, NAPI_AUTO_LENGTH, &headerValue);
@@ -793,7 +789,7 @@ napi_value NapiWebSchemeHandlerResponse::JS_GetNetErrorCode(napi_env env, napi_c
         WVLOG_E("NapiWebSchemeHandlerResponse::JS_GetEncoding response is nullptr");
         return nullptr;
     }
-    
+
     napi_value code;
     int32_t result = response->GetErrorCode();
     NAPI_CALL(env, napi_create_int32(env, result, &code));
@@ -1107,7 +1103,7 @@ napi_value NapiWebResourceHandler::JS_DidFailWithError(napi_env env, napi_callba
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "code", "int"));
         return nullptr;
     }
-    
+
     int32_t ret = resourceHandler->DidFailWithError(
         static_cast<ArkWeb_NetError>(errorCode));
     if (ret != 0) {
@@ -1184,7 +1180,7 @@ napi_value NapiWebHttpBodyStream::JS_Initialize(napi_env env, napi_callback_info
     size_t argcCallback = INTEGER_ONE;
     napi_value argv[INTEGER_ONE] = {0};
     WebHttpBodyStream *stream = nullptr;
-    
+
     napi_value result = nullptr;
     napi_get_undefined(env, &result);
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
@@ -1255,7 +1251,7 @@ napi_value NapiWebHttpBodyStream::JS_Read(napi_env env, napi_callback_info info)
     size_t argcCallback = INTEGER_TWO;
     napi_value argv[INTEGER_TWO] = {0};
     WebHttpBodyStream *stream = nullptr;
-    
+
     napi_value result = nullptr;
     napi_get_undefined(env, &result);
     napi_get_cb_info(env, info, &argc, argv, &thisVar, &data);

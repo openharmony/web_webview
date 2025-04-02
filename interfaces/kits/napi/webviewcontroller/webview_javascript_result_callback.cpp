@@ -20,6 +20,7 @@
 
 #include "core/common/container_scope.h"
 #include "napi_parse_utils.h"
+#include "nweb_napi_scope.h"
 #include "native_engine/native_engine.h"
 #include "nweb_helper.h"
 #include "nweb_log.h"
@@ -907,9 +908,8 @@ void ExecuteGetJavaScriptResult(
         return;
     }
     Ace::ContainerScope containerScope(jsObj->GetContainerScopeId());
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
+    NApiScope scope(env);
+    if (!scope.IsVaild()) {
         std::unique_lock<std::mutex> lock(param->mutex);
         param->ready = true;
         param->condition.notify_all();
@@ -937,7 +937,6 @@ void ExecuteGetJavaScriptResult(
         }
     }
 
-    napi_close_handle_scope(env, scope);
     std::unique_lock<std::mutex> lock(param->mutex);
     param->ready = true;
     param->condition.notify_all();
@@ -953,9 +952,8 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptResultS
         return ret;
     }
     Ace::ContainerScope containerScope(jsObj->GetContainerScopeId());
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(jsObj->GetEnv(), &scope);
-    if (scope == nullptr) {
+    NApiScope scope(jsObj->GetEnv());
+    if (!scope.IsVaild()) {
         return ret;
     }
 
@@ -993,7 +991,6 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptResultS
             ret = std::make_shared<NWebValue>(bin.c_str(), bin.size());
         }
     }
-    napi_close_handle_scope(jsObj->GetEnv(), scope);
     return ret;
 }
 
@@ -1166,30 +1163,26 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptResultS
     if (!jsObj) {
         return ret;
     }
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(jsObj->GetEnv(), &scope);
-    if (scope == nullptr) {
+    NApiScope scope(jsObj->GetEnv());
+    if (!scope.IsVaild()) {
         return ret;
     }
     auto flowbufferAdapter = OhosAdapterHelper::GetInstance().CreateFlowbufferAdapter();
     if (!flowbufferAdapter) {
-        napi_close_handle_scope(jsObj->GetEnv(), scope);
         return ret;
     }
     auto ashmem = flowbufferAdapter->CreateAshmemWithFd(fd, MAX_FLOWBUF_DATA_SIZE + HEADER_SIZE, PROT_READ);
     if (!ashmem) {
-        napi_close_handle_scope(jsObj->GetEnv(), scope);
         return ret;
     }
 
     std::vector<napi_value> argv = {};
     if (!ConstructArgv(ashmem, args, argv, jsObj, routingId)) {
-        napi_close_handle_scope(jsObj->GetEnv(), scope);
     	return ret;
     }
     close(fd);
 
-    ret = GetJavaScriptResultSelfHelper(jsObj, method, routingId, scope, argv);
+    ret = GetJavaScriptResultSelfHelper(jsObj, method, routingId, scope.scope_, argv);
     return ret;
 }
 
@@ -1322,16 +1315,14 @@ void ExecuteHasJavaScriptObjectMethods(
     }
     Ace::ContainerScope containerScope(jsObj->GetContainerScopeId());
 
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope) {
+    NApiScope scope(env);
+    if (scope.scope_) {
         if (jsObj && jsObj->HasMethod(inParam->methodName)) {
             *(static_cast<bool*>(outParam->ret)) = true;
         } else {
             WVLOG_D("WebviewJavaScriptResultCallBack::HasJavaScriptObjectMethods cannot find "
                     "object");
         }
-        napi_close_handle_scope(env, scope);
     }
 
     std::unique_lock<std::mutex> lock(param->mutex);
@@ -1390,9 +1381,8 @@ bool WebviewJavaScriptResultCallBack::HasJavaScriptObjectMethods(int32_t objectI
             "has javaScript object methods already in js thread, objectId = "
             "%{public}d, methodName = %{public}s",
             objectId, methodName.c_str());
-        napi_handle_scope scope = nullptr;
-        napi_open_handle_scope(env, &scope);
-        if (scope == nullptr) {
+        NApiScope scope(env);
+        if (!scope.IsVaild()) {
             return ret;
         }
 
@@ -1403,7 +1393,6 @@ bool WebviewJavaScriptResultCallBack::HasJavaScriptObjectMethods(int32_t objectI
                     "object");
         }
 
-        napi_close_handle_scope(env, scope);
         return ret;
     } else {
         WVLOG_D(
@@ -1434,17 +1423,15 @@ void ExecuteGetJavaScriptObjectMethods(
     }
     Ace::ContainerScope containerScope(jsObj->GetContainerScopeId());
 
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
+    NApiScope scope(env);
 
-    if (scope) {
+    if (scope.scope_) {
         if (jsObj) {
             auto methods = jsObj->GetMethodNames();
             for (auto& method : methods) {
                 (*(static_cast<std::shared_ptr<NWebValue>*>(outParam->ret)))->AddListValue(NWebValue(method));
             }
         }
-        napi_close_handle_scope(env, scope);
     }
 
     std::unique_lock<std::mutex> lock(param->mutex);
@@ -1502,9 +1489,8 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptObjectM
             "get javaScript object methods already in js thread, objectId = "
             "%{public}d",
             objectId);
-        napi_handle_scope scope = nullptr;
-        napi_open_handle_scope(env, &scope);
-        if (scope == nullptr) {
+        NApiScope scope(env);
+        if (!scope.IsVaild()) {
             return ret;
         }
 
@@ -1515,7 +1501,6 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptObjectM
             }
         }
 
-        napi_close_handle_scope(env, scope);
         return ret;
     } else {
         WVLOG_D(
@@ -1559,12 +1544,10 @@ void ExecuteRemoveJavaScriptObjectHolder(
     }
     Ace::ContainerScope containerScope(jsObj->GetContainerScopeId());
 
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
+    NApiScope scope(env);
 
-    if (scope) {
+    if (scope.scope_) {
         inParam->webJsResCb->RemoveJavaScriptObjectHolderInJsTd(inParam->frameRoutingId, inParam->objId);
-        napi_close_handle_scope(env, scope);
     }
 
     std::unique_lock<std::mutex> lock(param->mutex);
@@ -1622,15 +1605,13 @@ void WebviewJavaScriptResultCallBack::RemoveJavaScriptObjectHolder(int32_t holde
     }
     if (pthread_self() == engine->GetTid()) {
         WVLOG_D("remove javaScript object holder already in js thread");
-        napi_handle_scope scope = nullptr;
-        napi_open_handle_scope(env, &scope);
-        if (scope == nullptr) {
+        NApiScope scope(env);
+        if (!scope.IsVaild()) {
             return;
         }
 
         RemoveJavaScriptObjectHolderInJsTd(holder, objectId);
 
-        napi_close_handle_scope(env, scope);
         return;
     } else {
         WVLOG_D("remove javaScript object holder, not in js thread, post task to js thread");
