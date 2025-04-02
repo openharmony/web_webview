@@ -49,6 +49,7 @@ HWTEST(WindowAdapterImplTest, NormalTest, TestSize.Level1)
     window = OhosAdapterHelper::GetInstance().GetWindowAdapterInstance().CreateNativeWindowFromSurface(&pSurface);
     OhosAdapterHelper::GetInstance().GetWindowAdapterInstance().AddNativeWindowRef(window);
     OhosAdapterHelper::GetInstance().GetWindowAdapterInstance().NativeWindowUnRef(window);
+    window = nullptr;
 }
 
 /**
