@@ -77,7 +77,7 @@ void WebviewHasImageCallback::UvAfterWorkCb(uv_work_t* work, int status)
         return;
     }
     NApiScope scope(param->env_);
-    if (scope.scope_ == nullptr) {
+    if (!scope.IsVaild) {
         return;
     }
 

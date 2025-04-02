@@ -351,7 +351,7 @@ void WebSchemeHandler::RequestStart(ArkWeb_ResourceRequest* request,
                                     bool* intercept)
 {
     NApiScope scope(env_);
-    if (scope.scope_ == nullptr) {
+    if (!scope.IsVaild) {
         WVLOG_E("scheme handler RequestStart scope is nullptr");
         return;
     }
@@ -433,7 +433,7 @@ void WebSchemeHandler::RequestStopAfterWorkCb(uv_work_t* work, int status)
         return;
     }
     NApiScope scope(param->env_);
-    if (scope.scope_ == nullptr) {
+    if (!scope.IsVaild) {
         delete param;
         delete work;
         return;
@@ -740,7 +740,7 @@ void WebHttpBodyStream::ExecuteInitComplete(napi_env env, napi_status status, vo
         return;
     }
     NApiScope scope(env);
-    if (scope.scope_ == nullptr) {
+    if (!scope.IsVaild) {
         delete param;
         return;
     }
@@ -775,7 +775,7 @@ void WebHttpBodyStream::ExecuteReadComplete(napi_env env, napi_status status, vo
         return;
     }
     NApiScope scope(env);
-    if (scope.scope_ == nullptr) {
+    if (!scope.IsVaild) {
         if (param->buffer) {
             delete param->buffer;
         }

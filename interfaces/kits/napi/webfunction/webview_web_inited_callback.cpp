@@ -34,7 +34,7 @@ void UvWebInitedCallbackThreadWoker(uv_work_t *work, int status)
         return;
     }
     NApiScope scope(data->env_);
-    if (scope.scope_ == nullptr) {
+    if (!scope.IsVaild) {
         delete data;
         data = nullptr;
         delete work;

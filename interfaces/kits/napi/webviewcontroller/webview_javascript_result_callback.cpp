@@ -909,7 +909,7 @@ void ExecuteGetJavaScriptResult(
     }
     Ace::ContainerScope containerScope(jsObj->GetContainerScopeId());
     NApiScope scope(env);
-    if (scope.scope_ == nullptr) {
+    if (!scope.IsVaild) {
         std::unique_lock<std::mutex> lock(param->mutex);
         param->ready = true;
         param->condition.notify_all();
@@ -953,7 +953,7 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptResultS
     }
     Ace::ContainerScope containerScope(jsObj->GetContainerScopeId());
     NApiScope scope(jsObj->GetEnv());
-    if (scope.scope_ == nullptr) {
+    if (!scope.IsVaild) {
         return ret;
     }
 
@@ -1164,7 +1164,7 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptResultS
         return ret;
     }
     NApiScope scope(jsObj->GetEnv());
-    if (scope.scope_ == nullptr) {
+    if (!scope.IsVaild) {
         return ret;
     }
     auto flowbufferAdapter = OhosAdapterHelper::GetInstance().CreateFlowbufferAdapter();
@@ -1382,7 +1382,7 @@ bool WebviewJavaScriptResultCallBack::HasJavaScriptObjectMethods(int32_t objectI
             "%{public}d, methodName = %{public}s",
             objectId, methodName.c_str());
         NApiScope scope(env);
-        if (scope.scope_ == nullptr) {
+        if (!scope.IsVaild) {
             return ret;
         }
 
@@ -1490,7 +1490,7 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptObjectM
             "%{public}d",
             objectId);
         NApiScope scope(env);
-        if (scope.scope_ == nullptr) {
+        if (!scope.IsVaild) {
             return ret;
         }
 
@@ -1606,7 +1606,7 @@ void WebviewJavaScriptResultCallBack::RemoveJavaScriptObjectHolder(int32_t holde
     if (pthread_self() == engine->GetTid()) {
         WVLOG_D("remove javaScript object holder already in js thread");
         NApiScope scope(env);
-        if (scope.scope_ == nullptr) {
+        if (!scope.IsVaild) {
             return;
         }
 

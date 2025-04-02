@@ -90,7 +90,7 @@ void WebviewCreatePDFExecuteCallback::OnReceiveValue(const char* value, const lo
             static_cast<ArrayBufferExecuteParam*>(param), [](ArrayBufferExecuteParam* ptr) { delete ptr; });
         napi_env env = param->env_;
         NApiScope scope(env);
-        if (scope.scope_ == nullptr) {
+        if (!scope.IsVaild) {
             WVLOG_E("[CreatePDF] open handle scope failed");
             return;
         }
