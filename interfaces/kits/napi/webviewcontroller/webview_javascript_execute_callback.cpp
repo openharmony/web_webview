@@ -120,7 +120,7 @@ void WebviewJavaScriptExecuteCallback::UvAfterWorkCb(uv_work_t* work, int status
         return;
     }
     NApiScope scope(param->env_);
-    if (!scope.IsVaild) {
+    if (!scope.IsVaild()) {
         return;
     }
 

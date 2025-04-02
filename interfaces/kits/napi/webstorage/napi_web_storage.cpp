@@ -185,7 +185,7 @@ void NapiWebStorage::GetOriginComplete(napi_env env, napi_status status, void *d
 {
     GetOriginsParam* param = static_cast<GetOriginsParam*>(data);
     NApiScope scope(env);
-    if (!scope.IsVaild) {
+    if (!scope.IsVaild()) {
         return;
     }
     napi_value setResult[RESULT_COUNT] = {0};
@@ -211,7 +211,7 @@ void NapiWebStorage::GetOriginsPromiseComplete(napi_env env, napi_status status,
 {
     GetOriginsParam* param = static_cast<GetOriginsParam*>(data);
     NApiScope scope(env);
-    if (!scope.IsVaild) {
+    if (!scope.IsVaild()) {
         delete param;
         return;
     }
@@ -336,7 +336,7 @@ void NapiWebStorage::GetOriginUsageOrQuotaComplete(napi_env env, napi_status sta
 {
     GetOriginUsageOrQuotaParam* param = static_cast<GetOriginUsageOrQuotaParam*>(data);
     NApiScope scope(env);
-    if (!scope.IsVaild) {
+    if (!scope.IsVaild()) {
         return;
     }
     napi_value setResult[RESULT_COUNT] = {0};
@@ -367,7 +367,7 @@ void NapiWebStorage::GetOriginUsageOrQuotaPromiseComplete(napi_env env, napi_sta
 {
     GetOriginUsageOrQuotaParam* param = static_cast<GetOriginUsageOrQuotaParam*>(data);
     NApiScope scope(env);
-    if (!scope.IsVaild) {
+    if (!scope.IsVaild()) {
         return;
     }
     napi_value setResult[RESULT_COUNT] = {0};

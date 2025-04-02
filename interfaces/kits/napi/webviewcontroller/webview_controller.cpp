@@ -418,7 +418,7 @@ void WebviewController::StoreWebArchiveCallback(const std::string &baseName, boo
             return;
         }
         NApiScope scope(env);
-        if (!scope.IsVaild) {
+        if (!scope.IsVaild()) {
             return;
         }
 
@@ -463,7 +463,7 @@ void WebviewController::StoreWebArchivePromise(const std::string &baseName, bool
             return;
         }
         NApiScope scope(env);
-        if (!scope.IsVaild) {
+        if (!scope.IsVaild()) {
             return;
         }
 
@@ -1651,7 +1651,7 @@ void WebviewController::PrecompileJavaScriptPromise(
         }
 
         NApiScope scope(env);
-        if (!scope.IsVaild) {
+        if (!scope.IsVaild()) {
             return;
         }
 

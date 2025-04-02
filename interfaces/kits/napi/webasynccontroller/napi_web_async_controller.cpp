@@ -219,7 +219,7 @@ void NapiWebAsyncController::StoreWebArchiveCallback(const std::string &baseName
             return;
         }
         NApiScope scope(env);
-        if (!scope.IsVaild) {
+        if (!scope.IsVaild()) {
             return;
         }
 
@@ -264,7 +264,7 @@ void NapiWebAsyncController::StoreWebArchivePromise(const std::string &baseName,
             return;
         }
         NApiScope scope(env);
-        if (!scope.IsVaild) {
+        if (!scope.IsVaild()) {
             return;
         }
 

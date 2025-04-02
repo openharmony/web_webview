@@ -2287,7 +2287,7 @@ void NWebValueCallbackImpl::UvWebMessageOnReceiveValueCallback(uv_work_t *work, 
         return;
     }
     NApiScope scope(data->env_);
-    if (!scope.IsVaild) {
+    if (!scope.IsVaild()) {
         delete work;
         work = nullptr;
         return;
@@ -2312,7 +2312,7 @@ void NWebValueCallbackImpl::UvWebMessageOnReceiveValueCallback(uv_work_t *work, 
 static void InvokeWebMessageCallback(NapiWebMessagePort::WebMsgPortParam *data)
 {
     NApiScope scope(data->env_);
-    if (!scope.IsVaild) {
+    if (!scope.IsVaild()) {
         WVLOG_E("scope is null");
         return;
     }
@@ -4941,7 +4941,7 @@ napi_value NapiWebviewController::CreateWebPrintDocumentAdapter(napi_env env, na
         return result;
     }
     NApiScope scope(env);
-    if (!scope.IsVaild) {
+    if (!scope.IsVaild()) {
         return result;
     }
     napi_value webPrintDoc = nullptr;
@@ -5065,7 +5065,7 @@ WebPrintWriteResultCallback ParseWebPrintWriteResultCallback(napi_env env, napi_
                 return;
             }
             NApiScope scope(env);
-            if (!scope.IsVaild) {
+            if (!scope.IsVaild()) {
                 return;
             }
             napi_value setResult[INTEGER_TWO] = {0};

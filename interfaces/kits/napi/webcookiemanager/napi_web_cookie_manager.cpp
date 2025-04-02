@@ -829,7 +829,7 @@ void NWebSaveCookieCallbackImpl::UvJsCallbackThreadWoker(uv_work_t *work, int st
         return;
     }
     NApiScope scope(data->env_);
-    if (!scope.IsVaild) {
+    if (!scope.IsVaild()) {
         return;
     }
 
@@ -911,7 +911,7 @@ void NWebFetchCookieCallbackImpl::UvJsCallbackThreadWoker(uv_work_t *work, int s
         return;
     }
     NApiScope scope(data->env_);
-    if (!scope.IsVaild) {
+    if (!scope.IsVaild()) {
         return;
     }
 
@@ -1006,7 +1006,7 @@ void NWebCookieCallbackImpl::UvJsCallbackThreadWoker(uv_work_t *work, int status
         return;
     }
     NApiScope scope(data->env_);
-    if (!scope.IsVaild) {
+    if (!scope.IsVaild()) {
         return;
     }
 
@@ -1088,7 +1088,7 @@ void NWebConfigCookieCallbackImpl::UvJsCallbackThreadWoker(uv_work_t *work, int 
         return;
     }
     NApiScope scope(data->env_);
-    if (!scope.IsVaild) {
+    if (!scope.IsVaild()) {
         return;
     }
 

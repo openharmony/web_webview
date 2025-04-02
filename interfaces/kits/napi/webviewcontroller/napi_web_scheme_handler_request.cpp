@@ -123,7 +123,7 @@ napi_value NapiWebSchemeHandlerRequest::JS_GetHeader(napi_env env, napi_callback
     size_t headerSize = list.size();
     for (size_t index = 0; index < headerSize; index++) {
         NApiScope scope(env);
-        if (!scope.IsVaild) {
+        if (!scope.IsVaild()) {
             break;
         }
         napi_value webHeaderObj = nullptr;
