@@ -34,6 +34,10 @@ public:
     void NativeWindowSurfaceCleanCache(NWebNativeWindow window) override;
 
     void NativeWindowSurfaceCleanCacheWithPara(NWebNativeWindow window, bool cleanAll) override;
+
+    void AddNativeWindowRef(NWebNativeWindow window) override;
+
+    void NativeWindowUnRef(NWebNativeWindow window) override;
 };
 } // namespace OHOS::NWeb
 

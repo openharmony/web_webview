@@ -158,6 +158,12 @@ public:
 
     /*--ark web()--*/
     virtual void NativeWindowSurfaceCleanCacheWithPara(void* window, bool cleanAll) = 0;
+
+    /*--ark web()--*/
+    virtual void AddNativeWindowRef(void* window) = 0;
+
+    /*--ark web()--*/
+    virtual void NativeWindowUnRef(void* window) = 0;
 };
 
 /*--ark web(source=webview)--*/
