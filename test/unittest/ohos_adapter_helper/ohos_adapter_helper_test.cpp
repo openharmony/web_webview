@@ -153,6 +153,8 @@ HWTEST_F(OhosAdapterHelperTest, OhosAdapterHelper_GetInstance_002, TestSize.Leve
     void* token = nullptr;
     EXPECT_EQ(printAdapter.Print(PRINT_JOB_NAME, printDocumentAdapterImpl, printAttributesAdapter, token), -1);
 #endif
+    std::unique_ptr<MigrationManagerAdapter> migration = helper.CreateMigrationMgrAdapter();
+    EXPECT_NE(migration, nullptr);
     sptr<Surface> surface = nullptr;
     std::shared_ptr<NWebEngineInitArgsImpl> initArgs = std::make_shared<NWebEngineInitArgsImpl>();
     uint32_t width = 1;

@@ -29,6 +29,7 @@ public:
 
     virtual std::string EncryptKey(const std::string alias, const std::string plainData) = 0;
     virtual std::string DecryptKey(const std::string alis, const std::string encryptedData) = 0;
+    virtual std::string AssetQuery(const std::string assetHandle) = 0;
 };
 
 } // namespace OHOS::NWeb

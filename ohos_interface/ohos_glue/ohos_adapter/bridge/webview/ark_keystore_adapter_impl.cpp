@@ -41,4 +41,12 @@ ArkWebString ArkKeystoreAdapterImpl::DecryptKey(const ArkWebString& alias, const
     return ArkWebStringClassToStruct(result);
 }
 
+ArkWebString ArkKeystoreAdapterImpl::AssetQuery(const ArkWebString& assetHandle)
+{
+    std::string s_assetHandle = ArkWebStringStructToClass(assetHandle);
+    std::string result = real_.AssetQuery(s_assetHandle);
+
+    return ArkWebStringClassToStruct(result);
+}
+
 } // namespace OHOS::ArkWeb

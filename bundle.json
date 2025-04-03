@@ -325,6 +325,7 @@
                 "//base/web/webview/test/unittest/ohos_adapter/hiviewdfx_adapter_test:unittest",
                 "//base/web/webview/test/unittest/ohos_adapter/imf_adapter_test:unittest",
                 "//base/web/webview/test/unittest/ohos_adapter/media_adapter_test:unittest",
+                "//base/web/webview/test/unittest/ohos_adapter/migration_manager_adapter_test:unittest",
                 "//base/web/webview/test/unittest/ohos_adapter/flowbuffer_adapter_impl_test:unittest",
                 "//base/web/webview/test/unittest/napi_common_test:unittest",
                 "//base/web/webview/test/unittest/ohos_adapter/native_buffer_adapter_test:unittest",

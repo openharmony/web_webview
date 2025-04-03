@@ -55,4 +55,20 @@ std::string ArkKeystoreAdapterWrapper::DecryptKey(const std::string alias, const
     return result;
 }
 
+std::string ArkKeystoreAdapterWrapper::AssetQuery(const std::string assetHandle)
+{
+    if (!ctocpp_) {
+        return "";
+    }
+
+    ArkWebString ark_assetHandle = ArkWebStringClassToStruct(assetHandle);
+    ArkWebString ark_result = ctocpp_->AssetQuery(ark_assetHandle);
+
+    std::string result = ArkWebStringStructToClass(ark_result);
+    ArkWebStringStructRelease(ark_assetHandle);
+    ArkWebStringStructRelease(ark_result);
+
+    return result;
+}
+
 } // namespace OHOS::ArkWeb
