@@ -46,6 +46,7 @@
 #include "web_download_manager.h"
 #include "arkweb_scheme_handler.h"
 #include "web_scheme_handler_request.h"
+#include "system_properties_adapter_impl.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -5389,6 +5390,11 @@ napi_value NapiWebviewController::EnableIntelligentTrackingPrevention(
 {
     WVLOG_I("enable/disable intelligent tracking prevention.");
     napi_value result = nullptr;
+    if (SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType() == ProductDeviceType::DEVICE_TYPE_WEARABLE) {
+        WVLOG_E("EnableIntelligentTrackingPrevention: Capability not supported.");
+        BusinessError::ThrowErrorByErrcode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
+        return result;
+    }
     napi_value thisVar = nullptr;
     size_t argc = INTEGER_ONE;
     napi_value argv[INTEGER_ONE] = { 0 };
@@ -5421,6 +5427,11 @@ napi_value NapiWebviewController::IsIntelligentTrackingPreventionEnabled(
 {
     WVLOG_I("get intelligent tracking prevention enabled value.");
     napi_value result = nullptr;
+    if (SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType() == ProductDeviceType::DEVICE_TYPE_WEARABLE) {
+        WVLOG_E("IsIntelligentTrackingPreventionEnabled: Capability not supported.");
+        BusinessError::ThrowErrorByErrcode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
+        return result;
+    }
     WebviewController *webviewController = GetWebviewController(env, info);
 
     if (!webviewController) {
@@ -5472,6 +5483,11 @@ napi_value NapiWebviewController::AddIntelligentTrackingPreventionBypassingList(
 {
     WVLOG_I("Add intelligent tracking prevention bypassing list.");
     napi_value result = nullptr;
+    if (SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType() == ProductDeviceType::DEVICE_TYPE_WEARABLE) {
+        WVLOG_E("AddIntelligentTrackingPreventionBypassingList: Capability not supported.");
+        BusinessError::ThrowErrorByErrcode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
+        return result;
+    }
     napi_value thisVar = nullptr;
     size_t argc = INTEGER_ONE;
     napi_value argv[INTEGER_ONE] = { 0 };
@@ -5506,6 +5522,11 @@ napi_value NapiWebviewController::RemoveIntelligentTrackingPreventionBypassingLi
 {
     WVLOG_I("Remove intelligent tracking prevention bypassing list.");
     napi_value result = nullptr;
+    if (SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType() == ProductDeviceType::DEVICE_TYPE_WEARABLE) {
+        WVLOG_E("RemoveIntelligentTrackingPreventionBypassingList: Capability not supported.");
+        BusinessError::ThrowErrorByErrcode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
+        return result;
+    }
     napi_value thisVar = nullptr;
     size_t argc = INTEGER_ONE;
     napi_value argv[INTEGER_ONE] = { 0 };
@@ -5540,6 +5561,11 @@ napi_value NapiWebviewController::ClearIntelligentTrackingPreventionBypassingLis
 {
     napi_value result = nullptr;
     WVLOG_I("Clear intelligent tracking prevention bypassing list.");
+    if (SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType() == ProductDeviceType::DEVICE_TYPE_WEARABLE) {
+        WVLOG_E("ClearIntelligentTrackingPreventionBypassingList: Capability not supported.");
+        BusinessError::ThrowErrorByErrcode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
+        return result;
+    }
     NWebHelper::Instance().ClearIntelligentTrackingPreventionBypassingList();
     NAPI_CALL(env, napi_get_undefined(env, &result));
     return result;
@@ -6032,6 +6058,11 @@ napi_value NapiWebviewController::EnableAdsBlock(
     napi_env env, napi_callback_info info)
 {
     napi_value result = nullptr;
+    if (SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType() == ProductDeviceType::DEVICE_TYPE_WEARABLE) {
+        WVLOG_E("EnableAdsBlock: Capability not supported.");
+        BusinessError::ThrowErrorByErrcode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
+        return result;
+    }
     napi_value thisVar = nullptr;
     size_t argc = INTEGER_ONE;
     napi_value argv[INTEGER_ONE] = { 0 };
@@ -6067,6 +6098,11 @@ napi_value NapiWebviewController::EnableAdsBlock(
 napi_value NapiWebviewController::IsAdsBlockEnabled(napi_env env, napi_callback_info info)
 {
     napi_value result = nullptr;
+    if (SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType() == ProductDeviceType::DEVICE_TYPE_WEARABLE) {
+        WVLOG_E("IsAdsBlockEnabled: Capability not supported.");
+        BusinessError::ThrowErrorByErrcode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
+        return result;
+    }
     WebviewController *webviewController = GetWebviewController(env, info);
     if (!webviewController) {
         return nullptr;
@@ -6080,6 +6116,11 @@ napi_value NapiWebviewController::IsAdsBlockEnabled(napi_env env, napi_callback_
 napi_value NapiWebviewController::IsAdsBlockEnabledForCurPage(napi_env env, napi_callback_info info)
 {
     napi_value result = nullptr;
+    if (SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType() == ProductDeviceType::DEVICE_TYPE_WEARABLE) {
+        WVLOG_E("IsAdsBlockEnabledForCurPage: Capability not supported.");
+        BusinessError::ThrowErrorByErrcode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
+        return result;
+    }
     WebviewController *webviewController = GetWebviewController(env, info);
     if (!webviewController) {
         return nullptr;

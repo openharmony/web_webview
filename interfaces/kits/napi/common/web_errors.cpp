@@ -22,6 +22,7 @@
 namespace {
 // error message
 const std::string PARAM_CHECK_ERROR_MSG = "Invalid input parameter";
+const std::string CAPABILITY_NOT_SUPPORTED_ERROR_MSG = "Capability not supported";
 const std::string INIT_ERROR_MSG = "Init error. The WebviewController must be associated with a Web component";
 const std::string INVALID_URL_MSG = "Invalid url";
 const std::string INVALID_RESOURCE_MSG = "Invalid resource path or file type";
@@ -64,6 +65,7 @@ namespace ParamCheckErrorMsgTemplate {
 namespace NWebError {
 std::unordered_map<ErrCode, std::string> g_errCodeMsgMap = {
     {PARAM_CHECK_ERROR, PARAM_CHECK_ERROR_MSG},
+    {CAPABILITY_NOT_SUPPORTED_ERROR, CAPABILITY_NOT_SUPPORTED_ERROR_MSG},
     {INIT_ERROR, INIT_ERROR_MSG},
     {INVALID_URL, INVALID_URL_MSG},
     {INVALID_RESOURCE, INVALID_RESOURCE_MSG},

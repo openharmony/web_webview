@@ -39,6 +39,7 @@ constexpr ErrCode NWEB_ERROR = -1;
 constexpr ErrCode NO_ERROR = 0;
 
 constexpr ErrCode PARAM_CHECK_ERROR = 401;
+constexpr ErrCode CAPABILITY_NOT_SUPPORTED_ERROR = 801;
 constexpr ErrCode INIT_ERROR = 17100001;
 constexpr ErrCode INVALID_URL = 17100002;
 constexpr ErrCode INVALID_RESOURCE = 17100003;
