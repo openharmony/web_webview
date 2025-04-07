@@ -73,6 +73,10 @@ HWTEST_F(AppFwkUpdateClientTest, AppFwkUpdateClientTest_001, TestSize.Level0)
 {
     AppFwkUpdateClient &appFwkUpdateClient = AppFwkUpdateClient::GetInstance();
     EXPECT_NE(appFwkUpdateClient.appFwkUpdateDiedRecipient_, nullptr);
+    auto &client_1 = AppFwkUpdateClient::GetInstance();
+    auto &client_2 = AppFwkUpdateClient::GetInstance();
+    EXPECT_EQ(&client_1, &client_2);
+    EXPECT_EQ(client_1.appFwkUpdateDiedRecipient_, client_2.appFwkUpdateDiedRecipient_);
 }
 
 /**
@@ -217,4 +221,4 @@ HWTEST_F(AppFwkUpdateClientTest, AppFwkUpdateClientTest_009, TestSize.Level0)
     callback.OnLoadSystemAbilityFail(SUBSYS_WEBVIEW_SYS_UPDATE_SERVICE_ID);
     EXPECT_EQ(appFwkUpdateClient.GetFwkUpdate(), nullptr);
 }
-} // namespace OHOS::NWeb
+} // namespace OHOS::ArkCompiler
