@@ -228,6 +228,10 @@ public:
     virtual void NativeWindowSurfaceCleanCache(NWebNativeWindow window) = 0;
 
     virtual void NativeWindowSurfaceCleanCacheWithPara(NWebNativeWindow window, bool cleanAll) = 0;
+
+    virtual void AddNativeWindowRef(NWebNativeWindow window) = 0;
+
+    virtual void NativeWindowUnRef(NWebNativeWindow window) = 0;
 };
 
 class  OHOS_ADAPTER_EXPORT AshmemAdapter {

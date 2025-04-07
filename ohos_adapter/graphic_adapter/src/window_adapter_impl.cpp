@@ -65,4 +65,28 @@ void WindowAdapterImpl::NativeWindowSurfaceCleanCacheWithPara(NWebNativeWindow w
 {
     WVLOG_D("[adapter mock] WindowAdapterImpl::NativeWindowSurfaceCleanCacheWithPara");
 }
+
+void WindowAdapterImpl::AddNativeWindowRef(NWebNativeWindow window)
+{
+    if (window == nullptr) {
+        WVLOG_E("window is nullptr.");
+        return;
+    } 
+    int32_t ret = OH_NativeWindow_NativeObjectReference(window);
+    if (ret != 0) {
+        WVLOG_E("add window reference failed.");
+    }
+}
+
+void WindowAdapterImpl::NativeWindowUnRef(NWebNativeWindow window)
+{
+    if (window == nullptr) {
+        WVLOG_E("window is nullptr.");
+        return;
+    } 
+    int32_t ret = OH_NativeWindow_NativeObjectUnreference(window);
+    if (ret != 0) {
+        WVLOG_E("cancel window reference failed.");
+    }
+}
 } // namespace OHOS::NWeb

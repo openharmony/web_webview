@@ -46,4 +46,13 @@ void ArkWindowAdapterImpl::NativeWindowSurfaceCleanCacheWithPara(void* window, b
     return real_.NativeWindowSurfaceCleanCacheWithPara(window, cleanAll);
 }
 
+void ArkWindowAdapterImpl::AddNativeWindowRef(void* window)
+{
+    return real_.AddNativeWindowRef(window);
+}
+
+void ArkWindowAdapterImpl::NativeWindowUnRef(void* window)
+{
+    return real_.NativeWindowUnRef(window);
+}
 } // namespace OHOS::ArkWeb
