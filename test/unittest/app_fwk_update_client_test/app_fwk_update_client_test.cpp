@@ -73,8 +73,8 @@ HWTEST_F(AppFwkUpdateClientTest, AppFwkUpdateClientTest_001, TestSize.Level0)
 {
     AppFwkUpdateClient &appFwkUpdateClient = AppFwkUpdateClient::GetInstance();
     EXPECT_NE(appFwkUpdateClient.appFwkUpdateDiedRecipient_, nullptr);
-    auto &clent_1 = AppFwkUpdateClient::GetInstance();
-    auto &clent_2 = AppFwkUpdateClient::GetInstance();
+    auto &client_1 = AppFwkUpdateClient::GetInstance();
+    auto &client_2 = AppFwkUpdateClient::GetInstance();
     EXPECT_EQ(&client_1, &client_2);
     EXPECT_EQ(client_1.appFwkUpdateDiedRecipient_, client_2.appFwkUpdateDiedRecipient_);
 }
