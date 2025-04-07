@@ -72,6 +72,7 @@
                 "print_fwk",
                 "relational_store",
                 "resource_schedule_service",
+                "runtime_core",
                 "safwk",
                 "samgr",
                 "sensor",
@@ -90,6 +91,7 @@
         },
         "build": {
             "sub_component": [
+                "//base/web/webview/interfaces/kits/ani:ani_packages",
                 "//base/web/webview/interfaces/kits/cj:cj_webview_ffi",
                 "//base/web/webview/interfaces/kits/napi:webview_napi_back",
                 "//base/web/webview/interfaces/kits/napi:neterrorlist_napi",
