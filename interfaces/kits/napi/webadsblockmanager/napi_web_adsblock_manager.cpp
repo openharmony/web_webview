@@ -27,6 +27,7 @@
 #include "napi_parse_utils.h"
 #include "web_errors.h"
 #include "securec.h"
+#include "system_properties_adapter_impl.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -73,6 +74,12 @@ napi_value NapiWebAdsBlockManager::JsConstructor(napi_env env, napi_callback_inf
 
 napi_value NapiWebAdsBlockManager::JsSetAdsBlockRules(napi_env env, napi_callback_info info)
 {
+    napi_value result = nullptr;
+    if (SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType() == ProductDeviceType::DEVICE_TYPE_WEARABLE) {
+        WVLOG_E("SetAdsBlockRules: Capability not supported.");
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::CAPABILITY_NOT_SUPPORTED_ERROR);
+        return result;
+    }
     napi_value retValue = nullptr;
     size_t argc = INTEGER_TWO;
     napi_value argv[INTEGER_TWO] = { 0 };
@@ -85,7 +92,6 @@ napi_value NapiWebAdsBlockManager::JsSetAdsBlockRules(napi_env env, napi_callbac
         return nullptr;
     }
 
-    napi_value result = nullptr;
     std::string rulesFile;
     if (!NapiParseUtils::ParseString(env, argv[INTEGER_ZERO], rulesFile)) {
         WVLOG_E("setAdsBlockRules failed: first param should be string");
@@ -121,6 +127,12 @@ napi_value NapiWebAdsBlockManager::JsSetAdsBlockRules(napi_env env, napi_callbac
 
 napi_value NapiWebAdsBlockManager::JsAddAdsBlockDisallowedList(napi_env env, napi_callback_info info)
 {
+    napi_value result = nullptr;
+    if (SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType() == ProductDeviceType::DEVICE_TYPE_WEARABLE) {
+        WVLOG_E("AddAdsBlockDisallowedList: Capability not supported.");
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::CAPABILITY_NOT_SUPPORTED_ERROR);
+        return result;
+    }
     napi_value retValue = nullptr;
     size_t argc = INTEGER_ONE;
     napi_value argv[INTEGER_ONE] = { 0 };
@@ -133,7 +145,6 @@ napi_value NapiWebAdsBlockManager::JsAddAdsBlockDisallowedList(napi_env env, nap
         return nullptr;
     }
 
-    napi_value result = nullptr;
     std::vector<std::string> domainSuffixes;
     if (!NapiParseUtils::ParseStringArray(env, argv[INTEGER_ZERO], domainSuffixes)) {
         WVLOG_E("AddAdsBlockDisallowedList failed: domainSuffixes should be an array of string");
@@ -154,6 +165,12 @@ napi_value NapiWebAdsBlockManager::JsAddAdsBlockDisallowedList(napi_env env, nap
 
 napi_value NapiWebAdsBlockManager::JsRemoveAdsBlockDisallowedList(napi_env env, napi_callback_info info)
 {
+    napi_value result = nullptr;
+    if (SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType() == ProductDeviceType::DEVICE_TYPE_WEARABLE) {
+        WVLOG_E("RemoveAdsBlockDisallowedList: Capability not supported.");
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::CAPABILITY_NOT_SUPPORTED_ERROR);
+        return result;
+    }
     napi_value retValue = nullptr;
     size_t argc = INTEGER_ONE;
     napi_value argv[INTEGER_ONE] = { 0 };
@@ -166,7 +183,6 @@ napi_value NapiWebAdsBlockManager::JsRemoveAdsBlockDisallowedList(napi_env env, 
         return nullptr;
     }
 
-    napi_value result = nullptr;
     std::vector<std::string> domainSuffixes;
     if (!NapiParseUtils::ParseStringArray(env, argv[INTEGER_ZERO], domainSuffixes)) {
         WVLOG_E("removeAdsBlockDisallowedList failed: domainSuffixes should be an array of string");
@@ -188,6 +204,11 @@ napi_value NapiWebAdsBlockManager::JsRemoveAdsBlockDisallowedList(napi_env env, 
 napi_value NapiWebAdsBlockManager::JsClearAdsBlockDisallowedList(napi_env env, napi_callback_info info)
 {
     napi_value result = nullptr;
+    if (SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType() == ProductDeviceType::DEVICE_TYPE_WEARABLE) {
+        WVLOG_E("ClearAdsBlockDisallowedList: Capability not supported.");
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::CAPABILITY_NOT_SUPPORTED_ERROR);
+        return result;
+    }
 
     std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> adsBlockManager =
         OHOS::NWeb::NWebHelper::Instance().GetAdsBlockManager();
@@ -201,6 +222,12 @@ napi_value NapiWebAdsBlockManager::JsClearAdsBlockDisallowedList(napi_env env, n
 
 napi_value NapiWebAdsBlockManager::JsAddAdsBlockAllowedList(napi_env env, napi_callback_info info)
 {
+    napi_value result = nullptr;
+    if (SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType() == ProductDeviceType::DEVICE_TYPE_WEARABLE) {
+        WVLOG_E("AddAdsBlockAllowedList: Capability not supported.");
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::CAPABILITY_NOT_SUPPORTED_ERROR);
+        return result;
+    }
     napi_value retValue = nullptr;
     size_t argc = INTEGER_ONE;
     napi_value argv[INTEGER_ONE] = { 0 };
@@ -213,7 +240,6 @@ napi_value NapiWebAdsBlockManager::JsAddAdsBlockAllowedList(napi_env env, napi_c
         return nullptr;
     }
 
-    napi_value result = nullptr;
     std::vector<std::string> domainSuffixes;
     if (!NapiParseUtils::ParseStringArray(env, argv[INTEGER_ZERO], domainSuffixes)) {
         WVLOG_E("AddAdsBlockAllowedList failed: domainSuffixes should be an array of string");
@@ -234,6 +260,12 @@ napi_value NapiWebAdsBlockManager::JsAddAdsBlockAllowedList(napi_env env, napi_c
 
 napi_value NapiWebAdsBlockManager::JsRemoveAdsBlockAllowedList(napi_env env, napi_callback_info info)
 {
+    napi_value result = nullptr;
+    if (SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType() == ProductDeviceType::DEVICE_TYPE_WEARABLE) {
+        WVLOG_E("RemoveAdsBlockAllowedList: Capability not supported.");
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::CAPABILITY_NOT_SUPPORTED_ERROR);
+        return result;
+    }
     napi_value retValue = nullptr;
     size_t argc = INTEGER_ONE;
     napi_value argv[INTEGER_ONE] = { 0 };
@@ -246,7 +278,6 @@ napi_value NapiWebAdsBlockManager::JsRemoveAdsBlockAllowedList(napi_env env, nap
         return nullptr;
     }
 
-    napi_value result = nullptr;
     std::vector<std::string> domainSuffixes;
     if (!NapiParseUtils::ParseStringArray(env, argv[INTEGER_ZERO], domainSuffixes)) {
         WVLOG_E("removeAdsBlockAllowedList failed: domainSuffixes should be an array of string");
@@ -268,6 +299,11 @@ napi_value NapiWebAdsBlockManager::JsRemoveAdsBlockAllowedList(napi_env env, nap
 napi_value NapiWebAdsBlockManager::JsClearAdsBlockAllowedList(napi_env env, napi_callback_info info)
 {
     napi_value result = nullptr;
+    if (SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType() == ProductDeviceType::DEVICE_TYPE_WEARABLE) {
+        WVLOG_E("ClearAdsBlockAllowedList: Capability not supported.");
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::CAPABILITY_NOT_SUPPORTED_ERROR);
+        return result;
+    }
 
     std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> adsBlockManager =
         OHOS::NWeb::NWebHelper::Instance().GetAdsBlockManager();

@@ -28,6 +28,7 @@ config("web_public_config") {
     "$target_gen_dir/protos",
     "../../native",
     "../../../ohos_adapter/ohos_resource_adapter/include",
+    "../../../ohos_adapter/system_properties_adapter/include",
   ]
 }
 
