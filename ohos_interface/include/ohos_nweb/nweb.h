@@ -1755,6 +1755,11 @@ public:
     {
         return false;
     }
+
+    /**
+     * @brief Set the native inner web
+     */
+    virtual void SetNativeInnerWeb(bool isInnerWeb) {}
 };
 
 } // namespace OHOS::NWeb

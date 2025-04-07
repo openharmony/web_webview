@@ -1528,6 +1528,11 @@ public:
      */
     bool SetFocusByPosition(float x, float y) override;
 
+    /**
+     * @brief Set the native inner web
+     */
+    void SetNativeInnerWeb(bool isInnerWeb) override;
+
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };
