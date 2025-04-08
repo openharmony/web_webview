@@ -34,6 +34,7 @@ const std::string PRIVACY_MODE = "privacyMode";
 const std::string SESSION_SHARING = "sessionSharing";
 const std::string ENABLE = "enable";
 const std::string WIDEVINE_NAME = "com.widevine.alpha";
+const std::string WISEPLAY_NAME = "com.wiseplay.drm";
 
 constexpr int32_t SECURITY_LEVEL_1 = 1;
 constexpr int32_t SECURITY_LEVEL_3 = 3;
@@ -180,6 +181,7 @@ public:
     void OnStorageLoadInfo(const std::string& sessionId);
     void OnStorageClearInfoForKeyRelease(const std::string& sessionId);
     void OnStorageClearInfoForLoadFail(const std::string& sessionId);
+    void OnMediaLicenseReady(bool success);
 
     void UpdateEmeId(const std::string& emeId, bool isRelease);
     void UpdateMimeType(const std::string& mimeType, int32_t type);
@@ -280,6 +282,7 @@ private:
     uint32_t updateSessionPromiseId_ = 0;
     uint32_t loadSessionPromiseId_ = 0;
     std::string releaseEmeId_ = "";
+    bool isWiseplay_ = false;
 };
 } // namespace OHOS::NWeb
 #endif // DRM_ADAPTER_IMPL_H

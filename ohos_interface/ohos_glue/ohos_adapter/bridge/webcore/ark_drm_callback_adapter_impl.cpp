@@ -100,4 +100,9 @@ void ArkDrmCallbackAdapterImpl::OnStorageClearInfoForLoadFail(const ArkWebString
 {
     real_->OnStorageClearInfoForLoadFail(ArkWebStringStructToClass(sessionId));
 }
+
+void ArkDrmCallbackAdapterImpl::OnMediaLicenseReady(bool success)
+{
+    real_->OnMediaLicenseReady(success);
+}
 } // namespace OHOS::ArkWeb

@@ -58,6 +58,8 @@ public:
 
     void OnStorageClearInfoForLoadFail(const std::string& sessionId) override;
 
+    void OnMediaLicenseReady(bool success) override;
+
 private:
     ArkWebRefPtr<ArkDrmCallbackAdapter> ctocpp_;
 };

@@ -180,7 +180,8 @@ public:
 
 private:
 
-    void GetParamFromAVFormat(OH_AVFormat *avFormat, std::shared_ptr<AudioDecoderFormatAdapter> format);
+    AudioDecoderAdapterCode GetParamFromAVFormat(
+        OH_AVFormat *avFormat, std::shared_ptr<AudioDecoderFormatAdapter> format);
 
     AudioDecoderAdapterCode SetBufferCencInfo(uint32_t index, std::shared_ptr<AudioCencInfoAdapter> cencInfo);
 

@@ -225,6 +225,13 @@ void DrmCallbackImpl::OnStorageClearInfoForLoadFail(const std::string& sessionId
     }
 }
 
+void DrmCallbackImpl::OnMediaLicenseReady(bool success)
+{
+    if (callbackAdapter_) {
+        callbackAdapter_->OnMediaLicenseReady(success);
+    }
+}
+
 void DrmCallbackImpl::UpdateEmeId(const std::string& emeId, bool isRelease)
 {
     WVLOG_I("[DRM]DrmAdapterImpl::UpdateEmeId emeId = %{public}s.", emeId.c_str());
@@ -264,6 +271,9 @@ DrmAdapterImpl::~DrmAdapterImpl()
     WVLOG_I("[DRM]DrmAdapterImpl::~DrmAdapterImpl enter.");
     if (drmKeySessoin_ != nullptr) {
         ReleaseMediaKeySession();
+        if (callback_) {
+            callback_->OnMediaKeySessionReady(nullptr);
+        }
     }
     if (drmKeySystem_ != nullptr) {
         ReleaseMediaKeySystem();
@@ -623,6 +633,8 @@ int32_t DrmAdapterImpl::CreateKeySystem(const std::string& name, const std::stri
         if (configRet != static_cast<int32_t>(DrmResult::DRM_RESULT_OK)) {
             WVLOG_E("[DRM]DrmAdapterImpl::CreateKeySystem ORIGIN set failed.");
         }
+    } else if (name == WISEPLAY_NAME) {
+        isWiseplay_ = true;
     }
 
     ret = OH_MediaKeySystem_SetCallback(drmKeySystem_, SystemCallBackWithObj);
@@ -648,7 +660,7 @@ int32_t DrmAdapterImpl::CreateMediaKeySession()
         return static_cast<int32_t>(DrmResult::DRM_RESULT_ERROR);
     }
     if (drmKeySessoin_ != nullptr) {
-        WVLOG_E("[DRM]DrmAdapterImpl::CreateMediaKeySession drmKeySessoin_ already exist.");
+        WVLOG_W("[DRM]DrmAdapterImpl::CreateMediaKeySession drmKeySessoin_ already exist.");
         ReleaseMediaKeySession();
     }
     Drm_ErrCode ret = DRM_ERR_OK;
@@ -656,9 +668,6 @@ int32_t DrmAdapterImpl::CreateMediaKeySession()
     WVLOG_I("[DRM]DrmAdapterImpl::OH_MediaKeySystem_CreateMediaKeySession ret: %{public}d.", ret);
     if (ret != DRM_ERR_OK) {
         WVLOG_E("[DRM]DrmAdapterImpl::CreateMediaKeySession failed.");
-        if (callback_) {
-            callback_->OnMediaKeySessionReady(nullptr);
-        }
         return static_cast<int32_t>(DrmResult::DRM_RESULT_ERROR);
     }
     {
@@ -669,9 +678,6 @@ int32_t DrmAdapterImpl::CreateMediaKeySession()
     ret = OH_MediaKeySession_SetCallback(drmKeySessoin_, &sessionCallback);
     if (ret != DRM_ERR_OK) {
         WVLOG_E("[DRM]DrmAdapterImpl::CreateMediaKeySession failed.");
-        if (callback_) {
-            callback_->OnMediaKeySessionReady(nullptr);
-        }
         return static_cast<int32_t>(DrmResult::DRM_RESULT_ERROR);
     }
     if (callback_) {
@@ -822,7 +828,7 @@ void DrmAdapterImpl::StorageSaveInfoResult(bool result, int32_t type)
     }
     if (type != static_cast<int32_t>(MediaKeyType::MEDIA_KEY_TYPE_RELEASE)) {
         HandleKeyUpdatedCallback(updateSessionPromiseId_, result);
-        WVLOG_I("[DRM]DrmAdapterImpl::StorageSaveInfoResult result = %d: ", result);
+        WVLOG_I("[DRM]DrmAdapterImpl::StorageSaveInfoResult result = %{public}d: ", result);
         return;
     }
 
@@ -963,8 +969,7 @@ int32_t DrmAdapterImpl::RegistDrmCallback(std::shared_ptr<DrmCallbackAdapter> ca
 void DrmAdapterImpl::UpdateSessionResult(
     bool isKeyRelease, std::shared_ptr<SessionId> sessionId, uint8_t* mediaKeyId, int32_t mediaKeyIdLen)
 {
-    WVLOG_I("[DRM]DrmAdapterImpl::UpdateSessionResult enter, emeId: %{public}s,  mediaKeyIdLen = %{public}d",
-        sessionId->EmeId().c_str(), mediaKeyIdLen);
+    WVLOG_I("[DRM]DrmAdapterImpl::UpdateSessionResult enter.");
     if (sessionId == nullptr) {
         return;
     }
@@ -1014,10 +1019,7 @@ int32_t DrmAdapterImpl::UpdateSession(uint32_t promiseId, const std::string& eme
         WVLOG_E("[DRM]DrmAdapterImpl::UpdateSession, info is nullprt, emeId: %{public}s", emeId.c_str());
         return static_cast<int32_t>(DrmResult::DRM_RESULT_ERROR);
     }
-    bool isKeyRelease = false;
-    if (info->KeyType() == static_cast<int32_t>(MediaKeyType::MEDIA_KEY_TYPE_RELEASE)) {
-        isKeyRelease = true;
-    }
+    bool isKeyRelease = info->KeyType() == static_cast<int32_t>(MediaKeyType::MEDIA_KEY_TYPE_RELEASE);
     int32_t mediaKeyIdLen = MAX_KEY_SET_ID_LEN;
     uint8_t mediaKeyId[MAX_KEY_SET_ID_LEN] = { 0x00 };
     if (isKeyRelease) {
@@ -1039,6 +1041,9 @@ int32_t DrmAdapterImpl::UpdateSession(uint32_t promiseId, const std::string& eme
                 callback_->OnPromiseRejected(promiseId, "Update session failed.");
             }
             return static_cast<int32_t>(DrmResult::DRM_RESULT_ERROR);
+        }
+        if (isWiseplay_ && callback_) {
+            callback_->OnMediaLicenseReady(true);
         }
     }
     UpdateSessionResult(isKeyRelease, sessionId, mediaKeyId, mediaKeyIdLen);
@@ -1316,6 +1321,9 @@ void DrmAdapterImpl::LoadSessionWithLoadedStorage(std::shared_ptr<SessionId> ses
             return;
         }
         if (callback_) {
+            if (isWiseplay_) {
+                callback_->OnMediaLicenseReady(true);
+            }
             callback_->OnPromiseResolvedWithSession(promiseId, sessionId->EmeId());
         }
     }

@@ -132,4 +132,9 @@ void ArkDrmCallbackAdapterWrapper::OnStorageClearInfoForLoadFail(const std::stri
     ctocpp_->OnStorageClearInfoForLoadFail(arkSessionId);
     ArkWebStringStructRelease(arkSessionId);
 }
+
+void ArkDrmCallbackAdapterWrapper::OnMediaLicenseReady(bool success)
+{
+    ctocpp_->OnMediaLicenseReady(success);
+}
 } // namespace OHOS::ArkWeb
