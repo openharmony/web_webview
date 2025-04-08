@@ -69,7 +69,7 @@ void MigrationManagerAdapterImpl::MigrationListenerAdapterImpl::OnAbilityConnect
     int successCount = 0;
     std::vector<int> errorIndexList;
     std::vector<int> codeList;
-    nlohmann::json jsonObj = nlohmann::json::parse(replyData, null, false);
+    nlohmann::json jsonObj = nlohmann::json::parse(replyData, nullptr, false);
     if (jsonObj.is_discarded()) {
       WVLOG_W("parse reply json data failed.");
       return;
@@ -91,9 +91,8 @@ void MigrationManagerAdapterImpl::MigrationListenerAdapterImpl::OnAbilityConnect
     if (jsonObj.contains(REPLY_SUCCESS_COUNT) && jsonObj[REPLY_SUCCESS_COUNT].is_number_integer()) {
         successCount = jsonObj[REPLY_SUCCESS_COUNT];
     }
-    WVLOG_I("send migration request successCount: %{public}d", successCount);
     OnMigrationReply(errorCode, successCount, errorIndexList, codeList);
-    WVLOG_I("send migration request finish");
+    WVLOG_I("send migration request finish, successCount: %{public}d", successCount);
 }
 
 void MigrationManagerAdapterImpl::MigrationListenerAdapterImpl::SetJsonData(const std::string& jsonData)
