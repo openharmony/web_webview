@@ -1458,6 +1458,11 @@ public:
      * @brief judge if browser use drag resize.
      */
     bool IsNWebEx() override;
+    /**
+     * @brief Set the native inner web
+     */
+    void SetNativeInnerWeb(bool isInnerWeb) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

@@ -1489,4 +1489,9 @@ bool ArkWebNWebWrapper::IsNWebEx()
 {
     return ark_web_nweb_->IsNWebEx();
 }
+
+void ArkWebNWebWrapper::SetNativeInnerWeb(bool isInnerWeb)
+{
+    ark_web_nweb_->SetNativeInnerWeb(isInnerWeb);
+}
 } // namespace OHOS::ArkWeb
