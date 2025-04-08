@@ -69,7 +69,11 @@ void MigrationManagerAdapterImpl::MigrationListenerAdapterImpl::OnAbilityConnect
     int successCount = 0;
     std::vector<int> errorIndexList;
     std::vector<int> codeList;
-    nlohmann::json jsonObj = nlohmann::json::parse(replyData);
+    nlohmann::json jsonObj = nlohmann::json::parse(replyData, null, false);
+    if (jsonObj.is_discarded()) {
+      WVLOG_W("parse reply json data failed.");
+      return;
+    }
     if (jsonObj.contains(REPLY_CODE) && jsonObj[REPLY_CODE].is_number_integer()) {
         errorCode = jsonObj[REPLY_CODE];
     }
