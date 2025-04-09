@@ -18,6 +18,7 @@
 #pragma once
 
 #include "media_codec_decoder_adapter.h"
+#include "audio_cenc_info_adapter.h"
 #include "ohos_adapter/include/ark_media_codec_decoder_adapter.h"
 
 namespace OHOS::ArkWeb {
@@ -60,6 +61,11 @@ public:
 
     OHOS::NWeb::DecoderAdapterCode SetCallbackDec(
         const std::shared_ptr<OHOS::NWeb::DecoderCallbackAdapter> callback) override;
+
+    OHOS::NWeb::DecoderAdapterCode SetDecryptionConfig(void *session, bool isSecure) override;
+
+    OHOS::NWeb::DecoderAdapterCode SetAVCencInfo(
+        uint32_t index, const std::shared_ptr<NWeb::AudioCencInfoAdapter> cencInfo) override;
 
 private:
     ArkWebRefPtr<ArkMediaCodecDecoderAdapter> ctocpp_;

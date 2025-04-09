@@ -14,6 +14,9 @@
  */
 
 #include "audio_codec_decoder_adapter_impl.h"
+#include "audio_cenc_info_adapter_impl.h"
+#include "native_drm_common.h"
+#include "native_avcodec_base.h"
 
 #include "nweb_log.h"
 #include "gtest/gtest.h"
@@ -164,26 +167,63 @@ private:
     uint32_t codecConfigSize_ = 0;
 };
 
-// class AudioCencInfoAdapterMock : public AudioCencInfoAdapter {
-
 /**
  * @tc.name: AudioDecoderCallbackImpl_NormalTest_001.
- * @tc.desc: test of AudioDecoderCallbackImpl::OnError() OnOutputFormatChanged() OnInputBufferAvailable()
+ * @tc.desc: test of AudioDecoderCallbackManager::OnError() OnOutputFormatChanged() OnInputBufferAvailable()
              OnOutputBufferAvailable()
  * @tc.type: FUNC.
  * @tc.require:
  */
 HWTEST_F(AudioDecoderCallbackImplTest, AudioDecoderCallbackImpl_NormalTest_001, TestSize.Level1)
 {
-    std::shared_ptr<AudioDecoderCallbackAdapterImpl> audioDecoderCallbackImpl =
+    std::shared_ptr<AudioCodecDecoderAdapterImpl> decoder = std::make_shared<AudioCodecDecoderAdapterImpl>();
+    EXPECT_NE(decoder, nullptr);
+    EXPECT_EQ(decoder->CreateAudioDecoderByName(std::string(OH_AVCODEC_NAME_AUDIO_MPEG)),
+        AudioDecoderAdapterCode::DECODER_OK);
+    AudioDecoderCallbackManager::OnError(nullptr, 0, nullptr);
+    AudioDecoderCallbackManager::OnError(decoder->GetAVCodec(), 0, nullptr);
+    AudioDecoderCallbackManager::OnOutputFormatChanged(nullptr, 0, nullptr);
+    AudioDecoderCallbackManager::OnOutputFormatChanged(decoder->GetAVCodec(), 0, nullptr);
+
+    constexpr int32_t MEMSIZE = 1024 * 1024;
+    OH_AVBuffer* buffer = OH_AVBuffer_Create(MEMSIZE);
+    AudioDecoderCallbackManager::OnInputBufferAvailable(nullptr, 0, nullptr, nullptr);
+    AudioDecoderCallbackManager::OnInputBufferAvailable(decoder->GetAVCodec(), 0, nullptr, nullptr);
+    AudioDecoderCallbackManager::OnInputBufferAvailable(decoder->GetAVCodec(), 0, buffer, nullptr);
+    AudioDecoderCallbackManager::OnInputBufferAvailable(
+        decoder->GetAVCodec(), 0, buffer, nullptr);
+
+    AudioDecoderCallbackManager::OnOutputBufferAvailable(nullptr, 0, nullptr, nullptr);
+    AudioDecoderCallbackManager::OnOutputBufferAvailable(decoder->GetAVCodec(), 0, nullptr, nullptr);
+    AudioDecoderCallbackManager::OnOutputBufferAvailable(decoder->GetAVCodec(), 0, buffer, nullptr);
+    AudioDecoderCallbackManager::OnOutputBufferAvailable(
+        decoder->GetAVCodec(), 0, buffer, nullptr);
+
+    EXPECT_EQ(decoder->SetCallbackDec(nullptr), AudioDecoderAdapterCode::DECODER_ERROR);
+
+    std::shared_ptr<AudioDecoderCallbackAdapter> callback = std::make_shared<AudioDecoderCallbackAdapterMock>();
+    EXPECT_EQ(decoder->SetCallbackDec(callback), AudioDecoderAdapterCode::DECODER_OK);
+    AudioDecoderCallbackManager::OnError(decoder->GetAVCodec(), 0, nullptr);
+    AudioDecoderCallbackManager::OnOutputFormatChanged(decoder->GetAVCodec(), 0, nullptr);
+    AudioDecoderCallbackManager::OnInputBufferAvailable(
+        decoder->GetAVCodec(), 0, buffer, nullptr);
+    AudioDecoderCallbackManager::OnOutputBufferAvailable(
+        decoder->GetAVCodec(), 0, buffer, nullptr);
+    OH_AVBuffer_Destroy(buffer);
+    buffer = nullptr;
+
+    std::shared_ptr<AudioDecoderCallbackAdapterImpl> errCallbackImpl =
         std::make_shared<AudioDecoderCallbackAdapterImpl>(nullptr);
-    EXPECT_NE(audioDecoderCallbackImpl, nullptr);
-    audioDecoderCallbackImpl->OnError(0);
-    audioDecoderCallbackImpl->OnOutputFormatChanged();
-    audioDecoderCallbackImpl->OnInputBufferAvailable(0);
-    const int32_t BUFFER_SIZE = 10;
-    uint8_t buffer[BUFFER_SIZE] = {0};
-    audioDecoderCallbackImpl->OnOutputBufferAvailable(0, buffer, BUFFER_SIZE, 0, 0, 0);
+    errCallbackImpl->OnError(0);
+    errCallbackImpl->OnOutputFormatChanged();
+    errCallbackImpl->OnInputBufferAvailable(0);
+    errCallbackImpl->OnOutputBufferAvailable(0, nullptr, 0, 0, 0, 0);
+    std::shared_ptr<AudioDecoderCallbackAdapterImpl> callbackImpl =
+        std::make_shared<AudioDecoderCallbackAdapterImpl>(callback);
+    callbackImpl->OnError(0);
+    callbackImpl->OnOutputFormatChanged();
+    callbackImpl->OnInputBufferAvailable(0);
+    callbackImpl->OnOutputBufferAvailable(0, nullptr, 0, 0, 0, 0);
 }
 
 class AudioCodecDecoderAdapterImplTest : public testing::Test {
@@ -192,6 +232,8 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
+    void SetCencInfoAboutKeyIdIvAlgo(std::shared_ptr<AudioCencInfoAdapter> cencInfo);
+    void SetCencInfoAboutClearHeaderAndPayLoadLens(std::shared_ptr<AudioCencInfoAdapter> cencInfo);
 
 protected:
     std::shared_ptr<AudioDecoderFormatAdapterMock> format_ = nullptr;
@@ -205,7 +247,7 @@ void AudioCodecDecoderAdapterImplTest::TearDownTestCase(void) {}
 void AudioCodecDecoderAdapterImplTest::SetUp()
 {
     EXPECT_EQ(AudioCodecDecoderAdapterImpl_, nullptr);
-    AudioCodecDecoderAdapterImpl_ = std::make_unique<AudioCodecDecoderAdapterImpl>();
+    AudioCodecDecoderAdapterImpl_ = std::make_shared<AudioCodecDecoderAdapterImpl>();
     EXPECT_NE(AudioCodecDecoderAdapterImpl_, nullptr);
     format_ = std::make_unique<AudioDecoderFormatAdapterMock>();
     EXPECT_NE(format_, nullptr);
@@ -215,6 +257,35 @@ void AudioCodecDecoderAdapterImplTest::TearDown(void)
 {
     format_ = nullptr;
     AudioCodecDecoderAdapterImpl_ = nullptr;
+}
+
+void AudioCodecDecoderAdapterImplTest::SetCencInfoAboutKeyIdIvAlgo(
+    std::shared_ptr<AudioCencInfoAdapter> cencInfo)
+{
+    uint8_t keyId[] = {
+        0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+        0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01};
+    uint8_t iv[] = {
+        0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+        0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01};
+    cencInfo->SetAlgo(0);
+    cencInfo->SetKeyId(keyId);
+    cencInfo->SetKeyIdLen(DRM_KEY_ID_SIZE);
+    cencInfo->SetIv(iv);
+    cencInfo->SetIvLen(DRM_KEY_ID_SIZE);
+}
+
+void AudioCodecDecoderAdapterImplTest::SetCencInfoAboutClearHeaderAndPayLoadLens(
+    std::shared_ptr<AudioCencInfoAdapter> cencInfo)
+{
+    const std::vector<uint32_t> clearHeaderLens = {1, 2, 3};
+    const std::vector<uint32_t> payLoadLens = {4, 5, 6};
+    const uint32_t ERR_BLOCK_COUNT = 10000;
+    cencInfo->SetClearHeaderLens(clearHeaderLens);
+    cencInfo->SetPayLoadLens(payLoadLens);
+    cencInfo->SetEncryptedBlockCount(ERR_BLOCK_COUNT);
+    cencInfo->SetSkippedBlockCount(0);
+    cencInfo->SetFirstEncryptedOffset(0);
 }
 
 /**
@@ -240,6 +311,10 @@ HWTEST_F(AudioCodecDecoderAdapterImplTest, AudioCodecDecoderAdapterImpl_CreateAu
     AudioDecoderAdapterCode ret = AudioCodecDecoderAdapterImpl_->CreateAudioDecoderByName(name);
     EXPECT_EQ(ret, AudioDecoderAdapterCode::DECODER_OK);
 
+    // repeat create
+    ret = AudioCodecDecoderAdapterImpl_->CreateAudioDecoderByName(name);
+    EXPECT_EQ(ret, AudioDecoderAdapterCode::DECODER_OK);
+
     // release decoder.
     ret = AudioCodecDecoderAdapterImpl_->ReleaseDecoder();
     EXPECT_EQ(ret, AudioDecoderAdapterCode::DECODER_OK);
@@ -249,7 +324,15 @@ HWTEST_F(AudioCodecDecoderAdapterImplTest, AudioCodecDecoderAdapterImpl_CreateAu
     ret = AudioCodecDecoderAdapterImpl_->CreateAudioDecoderByMime(mimetype);
     EXPECT_EQ(ret, AudioDecoderAdapterCode::DECODER_OK);
 
+    // repeat create
+    ret = AudioCodecDecoderAdapterImpl_->CreateAudioDecoderByMime(mimetype);
+    EXPECT_EQ(ret, AudioDecoderAdapterCode::DECODER_OK);
+
     // release decoder.
+    ret = AudioCodecDecoderAdapterImpl_->ReleaseDecoder();
+    EXPECT_EQ(ret, AudioDecoderAdapterCode::DECODER_OK);
+
+    // repeat release decoder.
     ret = AudioCodecDecoderAdapterImpl_->ReleaseDecoder();
     EXPECT_EQ(ret, AudioDecoderAdapterCode::DECODER_OK);
 }
@@ -262,15 +345,19 @@ HWTEST_F(AudioCodecDecoderAdapterImplTest, AudioCodecDecoderAdapterImpl_CreateAu
  */
 HWTEST_F(AudioCodecDecoderAdapterImplTest, AudioCodecDecoderAdapterImpl_InvalidValueTest_002, TestSize.Level1)
 {
+    // not create decoder
     format_->SetSampleRate(0);
     format_->SetChannelCount(0);
     format_->SetBitRate(0);
     format_->SetMaxInputSize(0);
     format_->SetAudioSampleFormat(0);
     EXPECT_EQ(AudioCodecDecoderAdapterImpl_->ConfigureDecoder(format_), AudioDecoderAdapterCode::DECODER_ERROR);
+    EXPECT_EQ(AudioCodecDecoderAdapterImpl_->ConfigureDecoder(nullptr), AudioDecoderAdapterCode::DECODER_ERROR);
     EXPECT_EQ(AudioCodecDecoderAdapterImpl_->SetParameterDecoder(format_), AudioDecoderAdapterCode::DECODER_ERROR);
+    EXPECT_EQ(AudioCodecDecoderAdapterImpl_->SetParameterDecoder(nullptr), AudioDecoderAdapterCode::DECODER_ERROR);
 
     EXPECT_EQ(AudioCodecDecoderAdapterImpl_->SetCallbackDec(nullptr), AudioDecoderAdapterCode::DECODER_ERROR);
+    EXPECT_EQ(AudioCodecDecoderAdapterImpl_->GetAudioDecoderCallBack(), nullptr);
 
     EXPECT_EQ(AudioCodecDecoderAdapterImpl_->QueueInputBufferDec(0, 0, nullptr, 0, nullptr, false,
         BufferFlag::CODEC_BUFFER_FLAG_NONE), AudioDecoderAdapterCode::DECODER_ERROR);
@@ -286,12 +373,71 @@ HWTEST_F(AudioCodecDecoderAdapterImplTest, AudioCodecDecoderAdapterImpl_InvalidV
 }
 
 /**
- * @tc.name: AudioCodecDecoderAdapterImpl_NormalValueTest_003.
+ * @tc.name: AudioCodecDecoderAdapterImpl_QueueInputBufferDec_003.
+ * @tc.desc: test of InvalidValueScene in AudioCodecDecoderAdapterImpl
+ * @tc.type: FUNC.
+ * @tc.require:
+ */
+HWTEST_F(AudioCodecDecoderAdapterImplTest, AudioCodecDecoderAdapterImpl_QueueInputBufferDec_003, TestSize.Level1)
+{
+    std::string mimetype = std::string(OH_AVCODEC_MIMETYPE_AUDIO_MPEG);
+    AudioDecoderAdapterCode ret = AudioCodecDecoderAdapterImpl_->CreateAudioDecoderByMime(mimetype);
+    EXPECT_EQ(ret, AudioDecoderAdapterCode::DECODER_OK);
+    EXPECT_NE(AudioCodecDecoderAdapterImpl_->GetAVCodec(), nullptr);
+
+    EXPECT_EQ(AudioCodecDecoderAdapterImpl_->QueueInputBufferDec(0, 0, nullptr, 0, nullptr, true,
+        BufferFlag::CODEC_BUFFER_FLAG_NONE), AudioDecoderAdapterCode::DECODER_ERROR);
+
+    // test QueueInputBufferDec with decrypt data
+    std::shared_ptr<AudioCencInfoAdapterImpl> cencInfo = std::make_shared<AudioCencInfoAdapterImpl>();
+    EXPECT_EQ(AudioCodecDecoderAdapterImpl_->QueueInputBufferDec(0, 0, nullptr, 0, cencInfo, true,
+        BufferFlag::CODEC_BUFFER_FLAG_NONE), AudioDecoderAdapterCode::DECODER_ERROR);
+    const uint32_t ERR_ALGO = 10000;
+    cencInfo->SetAlgo(ERR_ALGO);
+    EXPECT_EQ(AudioCodecDecoderAdapterImpl_->QueueInputBufferDec(0, 0, nullptr, 0, cencInfo, true,
+        BufferFlag::CODEC_BUFFER_FLAG_NONE), AudioDecoderAdapterCode::DECODER_ERROR);
+    SetCencInfoAboutKeyIdIvAlgo(cencInfo);
+    EXPECT_EQ(AudioCodecDecoderAdapterImpl_->QueueInputBufferDec(0, 0, nullptr, 0, cencInfo, true,
+        BufferFlag::CODEC_BUFFER_FLAG_NONE), AudioDecoderAdapterCode::DECODER_ERROR);
+    SetCencInfoAboutClearHeaderAndPayLoadLens(cencInfo);
+    EXPECT_EQ(AudioCodecDecoderAdapterImpl_->QueueInputBufferDec(0, 0, nullptr, 0, cencInfo, true,
+        BufferFlag::CODEC_BUFFER_FLAG_NONE), AudioDecoderAdapterCode::DECODER_ERROR);
+    cencInfo->SetEncryptedBlockCount(0);
+    EXPECT_EQ(AudioCodecDecoderAdapterImpl_->QueueInputBufferDec(0, 0, nullptr, 0, cencInfo, true,
+        BufferFlag::CODEC_BUFFER_FLAG_NONE), AudioDecoderAdapterCode::DECODER_ERROR);
+    const uint32_t ERR_MODE = 10000;
+    cencInfo->SetMode(ERR_MODE);
+    EXPECT_EQ(AudioCodecDecoderAdapterImpl_->QueueInputBufferDec(0, 0, nullptr, 0, cencInfo, true,
+        BufferFlag::CODEC_BUFFER_FLAG_NONE), AudioDecoderAdapterCode::DECODER_ERROR);
+    cencInfo->SetMode(0);
+    EXPECT_EQ(AudioCodecDecoderAdapterImpl_->QueueInputBufferDec(0, 0, nullptr, 0, cencInfo, true,
+        BufferFlag::CODEC_BUFFER_FLAG_NONE), AudioDecoderAdapterCode::DECODER_ERROR);
+    // test QueueInputBufferDec with input buffer and output buffer
+    constexpr int32_t MEMSIZE = 1024 * 1024;
+    OH_AVBuffer* buffer = OH_AVBuffer_Create(MEMSIZE);
+    AudioCodecDecoderAdapterImpl_->SetInputBuffer(0, buffer);
+    AudioCodecDecoderAdapterImpl_->SetOutputBuffer(0, buffer);
+    AudioCodecDecoderAdapterImpl_->SetInputBuffer(0, nullptr);
+    AudioCodecDecoderAdapterImpl_->SetOutputBuffer(0, nullptr);
+
+    EXPECT_EQ(AudioCodecDecoderAdapterImpl_->QueueInputBufferDec(1, 0, nullptr, 0, cencInfo, true,
+        BufferFlag::CODEC_BUFFER_FLAG_NONE), AudioDecoderAdapterCode::DECODER_ERROR);
+    EXPECT_EQ(AudioCodecDecoderAdapterImpl_->QueueInputBufferDec(0, 0, nullptr, 0, cencInfo, true,
+        BufferFlag::CODEC_BUFFER_FLAG_NONE), AudioDecoderAdapterCode::DECODER_ERROR);
+    EXPECT_EQ(AudioCodecDecoderAdapterImpl_->QueueInputBufferDec(0, 0, nullptr, 0, cencInfo, true,
+        BufferFlag::CODEC_BUFFER_FLAG_EOS), AudioDecoderAdapterCode::DECODER_ERROR);
+    AudioCodecDecoderAdapterImpl_->ReleaseOutputBufferDec(0);
+    OH_AVBuffer_Destroy(buffer);
+    buffer = nullptr;
+}
+
+/**
+ * @tc.name: AudioCodecDecoderAdapterImpl_NormalValueTest_004.
  * @tc.desc: test of NormalScene in AudioCodecDecoderAdapterImpl
  * @tc.type: FUNC.
  * @tc.require:
  */
-HWTEST_F(AudioCodecDecoderAdapterImplTest, AudioCodecDecoderAdapterImpl_NormalValueTest_003, TestSize.Level1)
+HWTEST_F(AudioCodecDecoderAdapterImplTest, AudioCodecDecoderAdapterImpl_NormalValueTest_004, TestSize.Level1)
 {
     // create decoder by normal mimetype.
     std::string mimetype = std::string(OH_AVCODEC_MIMETYPE_AUDIO_MPEG);
@@ -307,7 +453,10 @@ HWTEST_F(AudioCodecDecoderAdapterImplTest, AudioCodecDecoderAdapterImpl_NormalVa
     format_->SetChannelCount(DEFAULT_CHANNEL_COUNT);
     format_->SetBitRate(DEFAULT_BITRATE);
     format_->SetMaxInputSize(DEFAULT_MAX_INPUT_SIZE);
+    EXPECT_EQ(AudioCodecDecoderAdapterImpl_->ConfigureDecoder(nullptr), AudioDecoderAdapterCode::DECODER_ERROR);
     EXPECT_EQ(AudioCodecDecoderAdapterImpl_->ConfigureDecoder(format_), AudioDecoderAdapterCode::DECODER_OK);
+    EXPECT_EQ(AudioCodecDecoderAdapterImpl_->GetOutputFormatDec(nullptr), AudioDecoderAdapterCode::DECODER_ERROR);
+    EXPECT_EQ(AudioCodecDecoderAdapterImpl_->GetOutputFormatDec(format_), AudioDecoderAdapterCode::DECODER_OK);
 
     // set callback for decoding.
     std::shared_ptr<AudioDecoderCallbackAdapter> callback = std::make_shared<AudioDecoderCallbackAdapterMock>();
@@ -316,11 +465,58 @@ HWTEST_F(AudioCodecDecoderAdapterImplTest, AudioCodecDecoderAdapterImpl_NormalVa
     // prepare decoder.
     EXPECT_EQ(AudioCodecDecoderAdapterImpl_->PrepareDecoder(), AudioDecoderAdapterCode::DECODER_OK);
     EXPECT_EQ(AudioCodecDecoderAdapterImpl_->StartDecoder(), AudioDecoderAdapterCode::DECODER_OK);
+    EXPECT_EQ(AudioCodecDecoderAdapterImpl_->SetParameterDecoder(nullptr), AudioDecoderAdapterCode::DECODER_ERROR);
     EXPECT_EQ(AudioCodecDecoderAdapterImpl_->SetParameterDecoder(format_), AudioDecoderAdapterCode::DECODER_OK);
     EXPECT_EQ(AudioCodecDecoderAdapterImpl_->FlushDecoder(), AudioDecoderAdapterCode::DECODER_OK);
     EXPECT_EQ(AudioCodecDecoderAdapterImpl_->StopDecoder(), AudioDecoderAdapterCode::DECODER_OK);
     EXPECT_EQ(AudioCodecDecoderAdapterImpl_->ResetDecoder(), AudioDecoderAdapterCode::DECODER_OK);
     EXPECT_EQ(AudioCodecDecoderAdapterImpl_->SetCallbackDec(callback), AudioDecoderAdapterCode::DECODER_OK);
+
+    EXPECT_EQ(AudioCodecDecoderAdapterImpl_->GetBufferFlag(
+        OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_EOS), BufferFlag::CODEC_BUFFER_FLAG_EOS);
+    (void)AudioCodecDecoderAdapterImpl_->GetDecoderMutex();
+}
+
+/**
+ * @tc.name: AudioCodecDecoderAdapterImpl_NormalValueTest_005.
+ * @tc.desc: test of NormalScene in AudioCodecDecoderAdapterImpl
+ * @tc.type: FUNC.
+ * @tc.require:
+ */
+HWTEST_F(AudioCodecDecoderAdapterImplTest, AudioCodecDecoderAdapterImpl_NormalValueTest_005, TestSize.Level1)
+{
+    constexpr int32_t DEFAULT_SAMPLERATE = 44100;
+    constexpr int64_t DEFAULT_BITRATE = 32000;
+    constexpr int32_t DEFAULT_CHANNEL_COUNT = 2;
+    constexpr int32_t DEFAULT_MAX_INPUT_SIZE = 1152;
+    constexpr bool DEFAUL_AAC_IS_ADTS = false;
+    constexpr int32_t DEFAULT_AUDIO_SAMPLE_FORMAT = 100;
+    constexpr int32_t DEFAUL_ID_HEARDER = 100;
+    constexpr int32_t DEFAULT_SETUP_HEADER = 100;
+    uint8_t codecConfig[10] = {0};
+    constexpr uint32_t DEFAULT_CODEC_Config_SIZE = 10;
+    std::shared_ptr<AudioDecoderFormatAdapterImpl> format = std::make_shared<AudioDecoderFormatAdapterImpl>();
+    format->SetSampleRate(DEFAULT_SAMPLERATE);
+    format->SetChannelCount(DEFAULT_CHANNEL_COUNT);
+    format->SetBitRate(DEFAULT_BITRATE);
+    format->SetMaxInputSize(DEFAULT_MAX_INPUT_SIZE);
+    format->SetAACIsAdts(DEFAUL_AAC_IS_ADTS);
+    format->SetAudioSampleFormat(DEFAULT_AUDIO_SAMPLE_FORMAT);
+    format->SetIdentificationHeader(DEFAUL_ID_HEARDER);
+    format->SetSetupHeader(DEFAULT_SETUP_HEADER);
+    format->SetCodecConfig(codecConfig);
+    format->SetCodecConfigSize(DEFAULT_CODEC_Config_SIZE);
+    format->PrintFormatData(format);
+    EXPECT_EQ(format->GetSampleRate(), DEFAULT_SAMPLERATE);
+    EXPECT_EQ(format->GetChannelCount(), DEFAULT_CHANNEL_COUNT);
+    EXPECT_EQ(format->GetBitRate(), DEFAULT_BITRATE);
+    EXPECT_EQ(format->GetMaxInputSize(), DEFAULT_MAX_INPUT_SIZE);
+    EXPECT_EQ(format->GetAACIsAdts(), DEFAUL_AAC_IS_ADTS);
+    EXPECT_EQ(format->GetAudioSampleFormat(), DEFAULT_AUDIO_SAMPLE_FORMAT);
+    EXPECT_EQ(format->GetIdentificationHeader(), DEFAUL_ID_HEARDER);
+    EXPECT_EQ(format->GetSetupHeader(), DEFAULT_SETUP_HEADER);
+    EXPECT_EQ(format->GetCodecConfig(), codecConfig);
+    EXPECT_EQ(format->GetCodecConfigSize(), DEFAULT_CODEC_Config_SIZE);
 }
 }
 } // namespace OHOS::NWeb

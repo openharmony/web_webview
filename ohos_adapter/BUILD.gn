@@ -257,6 +257,31 @@ ohos_shared_library("nweb_ohos_adapter") {
       "media_adapter/src/media_codec_list_adapter_impl.cpp",
       "media_adapter/src/ohos_buffer_adapter_impl.cpp",
     ]
+    if (target_cpu == "arm") {
+      libs += [
+        "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/arm-linux-ohos/libnative_media_vdec.so",
+        "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/arm-linux-ohos/libnative_media_codecbase.so",
+        "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/arm-linux-ohos/libnative_buffer.so",
+        "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/arm-linux-ohos/libnative_media_core.so",
+        "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/arm-linux-ohos/libnative_window.so",
+      ]
+    } else if (target_cpu == "arm64") {
+      libs += [
+        "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/aarch64-linux-ohos/libnative_media_vdec.so",
+        "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/aarch64-linux-ohos/libnative_media_codecbase.so",
+        "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/aarch64-linux-ohos/libnative_buffer.so",
+        "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/aarch64-linux-ohos/libnative_media_core.so",
+        "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/aarch64-linux-ohos/libnative_window.so",
+      ]
+    } else if (target_cpu == "x86_64") {
+      libs += [
+        "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/x86_64-linux-ohos/libnative_media_vdec.so",
+        "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/x86_64-linux-ohos/libnative_media_codecbase.so",
+        "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/x86_64-linux-ohos/libnative_buffer.so",
+        "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/x86_64-linux-ohos/libnative_media_core.so",
+        "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/x86_64-linux-ohos/libnative_window.so",
+      ]
+    }
     external_deps += [
       "av_codec:av_codec_client",
       "media_foundation:media_foundation",
@@ -267,27 +292,21 @@ ohos_shared_library("nweb_ohos_adapter") {
         "media_adapter/src/audio_codec_decoder_adapter_impl.cpp",
         "media_adapter/src/drm_adapter_impl.cpp",
       ]
-      public_external_deps += [ "drm_framework:native_drm" ]
+      external_deps += [ "drm_framework:native_drm" ]
       if (target_cpu == "arm") {
         libs += [
           "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/arm-linux-ohos/libnative_media_acodec.so",
-          "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/arm-linux-ohos/libnative_media_codecbase.so",
-          "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/arm-linux-ohos/libnative_media_core.so",
           "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/arm-linux-ohos/libnative_media_avcencinfo.so",
         ]
       } else if (target_cpu == "arm64") {
         libs += [
           "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/aarch64-linux-ohos/libnative_media_acodec.so",
           "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/aarch64-linux-ohos/libnative_media_avcencinfo.so",
-          "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/aarch64-linux-ohos/libnative_media_codecbase.so",
-          "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/aarch64-linux-ohos/libnative_media_core.so",
         ]
       } else if (target_cpu == "x86_64") {
         libs += [
           "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/x86_64-linux-ohos/libnative_media_acodec.so",
           "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/x86_64-linux-ohos/libnative_media_avcencinfo.so",
-          "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/x86_64-linux-ohos/libnative_media_codecbase.so",
-          "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/x86_64-linux-ohos/libnative_media_core.so",
         ]
       }
       defines += [ "NWEB_AUDIO_DRM_ENABLE" ]

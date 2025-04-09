@@ -17,6 +17,7 @@
 
 #include "ohos_adapter/bridge/ark_decoder_callback_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_decoder_format_adapter_wrapper.h"
+#include "ohos_adapter/bridge/ark_audio_cenc_info_adapter_wrapper.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
 
@@ -114,6 +115,21 @@ int32_t ArkMediaCodecDecoderAdapterImpl::SetCallbackDec(const ArkWebRefPtr<ArkDe
     }
 
     return (int32_t)real_->SetCallbackDec(std::make_shared<ArkDecoderCallbackAdapterWrapper>(callback));
+}
+
+int32_t ArkMediaCodecDecoderAdapterImpl::SetDecryptionConfig(void *session, bool isSecure)
+{
+    return (int32_t)real_->SetDecryptionConfig(session, isSecure);
+}
+
+int32_t ArkMediaCodecDecoderAdapterImpl::SetAVCencInfo(
+    uint32_t index, const ArkWebRefPtr<ArkAudioCencInfoAdapter> cencInfo)
+{
+    if (CHECK_REF_PTR_IS_NULL(cencInfo)) {
+        return (int32_t)real_->SetAVCencInfo(index, nullptr);
+    }
+
+    return (int32_t)real_->SetAVCencInfo(index, std::make_shared<ArkAudioCencInfoAdapterWrapper>(cencInfo));
 }
 
 } // namespace OHOS::ArkWeb

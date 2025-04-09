@@ -58,6 +58,8 @@ public:
 
     void OnStorageClearInfoForLoadFail(const ArkWebString& sessionId) override;
 
+    void OnMediaLicenseReady(bool success) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::DrmCallbackAdapter> real_;
 

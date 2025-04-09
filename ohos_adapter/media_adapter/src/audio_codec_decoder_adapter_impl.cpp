@@ -660,7 +660,10 @@ AudioDecoderAdapterCode AudioCodecDecoderAdapterImpl::GetOutputFormatDec(
         WVLOG_E("get output description fail.");
         return AudioDecoderAdapterCode::DECODER_ERROR;
     }
-    GetParamFromAVFormat(avFormat, format);
+    AudioDecoderAdapterCode ret = GetParamFromAVFormat(avFormat, format);
+    if (ret != AudioDecoderAdapterCode::DECODER_OK) {
+        return ret;
+    }
     OH_AVFormat_Destroy(avFormat);
     avFormat = nullptr;
 
@@ -776,13 +779,13 @@ BufferFlag AudioCodecDecoderAdapterImpl::GetBufferFlag(OHOS::MediaAVCodec::AVCod
     return flag->second;
 }
 
-void AudioCodecDecoderAdapterImpl::GetParamFromAVFormat(
+AudioDecoderAdapterCode AudioCodecDecoderAdapterImpl::GetParamFromAVFormat(
     OH_AVFormat *avFormat, std::shared_ptr<AudioDecoderFormatAdapter> format)
 {
     if (avFormat == nullptr || format == nullptr) {
         WVLOG_E("avFormat or format is nullptr, avFormat is %{public}d, format is. %{public}d",
             int32_t(avFormat == nullptr), int32_t(format == nullptr));
-        return;
+        return AudioDecoderAdapterCode::DECODER_ERROR;
     }
 
     int32_t sampleRate = 0;
@@ -820,6 +823,7 @@ void AudioCodecDecoderAdapterImpl::GetParamFromAVFormat(
     format->SetCodecConfig(codecConfig);
     format->SetCodecConfigSize(uint32_t(codecConfigSize));
     AudioDecoderFormatAdapterImpl::PrintFormatData(format);
+    return AudioDecoderAdapterCode::DECODER_OK;
 }
 
 std::map<OH_AVCodec*, OHOS::NWeb::AudioCodecDecoderAdapterImpl *> AudioDecoderCallbackManager::decoders_;

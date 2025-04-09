@@ -71,6 +71,9 @@ public:
 
     /*--ark web()--*/
     virtual void OnStorageClearInfoForLoadFail(const ArkWebString& sessionId) = 0;
+
+    /*--ark web()--*/
+    virtual void OnMediaLicenseReady(bool success) = 0;
 };
 
 /*--ark web(source=webview)--*/

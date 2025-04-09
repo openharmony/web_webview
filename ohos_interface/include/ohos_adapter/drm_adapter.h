@@ -58,6 +58,8 @@ public:
     virtual void OnStorageClearInfoForKeyRelease(const std::string& sessionId) = 0;
 
     virtual void OnStorageClearInfoForLoadFail(const std::string& sessionId) = 0;
+
+    virtual void OnMediaLicenseReady(bool success) {};
 };
 
 class DrmAdapter {

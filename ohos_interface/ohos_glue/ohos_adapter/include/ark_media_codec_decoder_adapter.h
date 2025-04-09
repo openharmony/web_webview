@@ -18,6 +18,7 @@
 #pragma once
 
 #include "ohos_adapter/include/ark_media_codec_adapter.h"
+#include "ohos_adapter/include/ark_audio_cenc_info_adapter.h"
 
 namespace OHOS::ArkWeb {
 
@@ -107,6 +108,12 @@ public:
 
     /*--ark web()--*/
     virtual int32_t SetCallbackDec(const ArkWebRefPtr<ArkDecoderCallbackAdapter> callback) = 0;
+
+    /*--ark web()--*/
+    virtual int32_t SetDecryptionConfig(void *session, bool isSecure) = 0;
+
+    /*--ark web()--*/
+    virtual int32_t SetAVCencInfo(uint32_t index, const ArkWebRefPtr<ArkAudioCencInfoAdapter> cencInfo) = 0;
 };
 
 } // namespace OHOS::ArkWeb

@@ -19,6 +19,7 @@
 
 #include "media_codec_decoder_adapter.h"
 #include "ohos_adapter/include/ark_media_codec_decoder_adapter.h"
+#include "ohos_adapter/include/ark_audio_cenc_info_adapter.h"
 
 namespace OHOS::ArkWeb {
 
@@ -56,6 +57,10 @@ public:
     int32_t ReleaseOutputBufferDec(uint32_t index, bool isRender) override;
 
     int32_t SetCallbackDec(const ArkWebRefPtr<ArkDecoderCallbackAdapter> callback) override;
+
+    int32_t SetDecryptionConfig(void *session, bool isSecure) override;
+
+    int32_t SetAVCencInfo(uint32_t index, const ArkWebRefPtr<ArkAudioCencInfoAdapter> cencInfo) override;
 
 private:
     std::shared_ptr<OHOS::NWeb::MediaCodecDecoderAdapter> real_;

@@ -25,6 +25,7 @@
 
 #include "graphic_adapter.h"
 #include "media_codec_adapter.h"
+#include "audio_cenc_info_adapter.h"
 
 namespace OHOS::NWeb {
 
@@ -100,6 +101,10 @@ public:
     virtual DecoderAdapterCode ReleaseOutputBufferDec(uint32_t index, bool isRender) = 0;
 
     virtual DecoderAdapterCode SetCallbackDec(const std::shared_ptr<DecoderCallbackAdapter> callback) = 0;
+
+    virtual DecoderAdapterCode SetDecryptionConfig(void *session, bool isSecure) = 0;
+
+    virtual DecoderAdapterCode SetAVCencInfo(uint32_t index, const std::shared_ptr<AudioCencInfoAdapter> cencInfo) = 0;
 };
 
 } // namespace OHOS::NWeb
