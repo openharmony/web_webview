@@ -59,7 +59,7 @@ bool AniParseUtils::IsResource(ani_env *env, const ani_object& object)
 {
     ani_class resourceCls;
     ani_status status =
-        env->FindClass("L@koalaui/arkts-arkui/generated/ArkResourceInterfaces/Resource;", &resourceCls);
+        env->FindClass("Lglobal/resource/Resource;", &resourceCls);
     if (status != ANI_OK) {
         WVLOG_E("AniUtils_IsResource FindClass status: %{public}d", status);
         return false;
