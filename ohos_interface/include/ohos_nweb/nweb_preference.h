@@ -668,6 +668,12 @@ public:
      * Set the scale of the font-weight.The default is 1.0f.
      */
     virtual void SetFontWeightScale(float scale) {};
+
+    /**
+     * Set whether to use the intrinsic size. The default is false.
+     */
+    virtual void SetIntrinsicSizeEnable(bool enable) {};
+    
 };
 
 } // namespace OHOS::NWeb
