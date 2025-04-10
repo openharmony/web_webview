@@ -22,9 +22,9 @@ namespace OHOS {
 namespace NWebError {
 class AniBusinessError {
 public:
-    static ani_status ThrowError(ani_env *env, int errorCode, const std::string& error_message);
+    static ani_status ThrowError(ani_env *env, int32_t errorCode, const std::string& error_message);
 
-    static ani_status ThrowErrorByErrCode(ani_env *env, int errorCode);
+    static ani_status ThrowErrorByErrCode(ani_env *env, int32_t errorCode);
 };
 }
 }

@@ -57,7 +57,7 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-const char* WEBVIEW_CONTROLLER_CLASS_NAME = "L@ohos/web/webview/webview/webviewController;";
+const char* WEBVIEW_CONTROLLER_CLASS_NAME = "L@ohos/web/webview/webview/WebviewController;";
 const char* WEB_HEADER_CLASS_NAME = "L@ohos/web/webview/webview/WebHeader;";
 
 bool ParseResourceRawfileUrl(ani_env *env, const ani_object& object, std::string& fileName)
