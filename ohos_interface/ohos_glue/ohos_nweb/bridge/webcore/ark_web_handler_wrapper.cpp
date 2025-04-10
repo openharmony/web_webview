@@ -1086,4 +1086,9 @@ void ArkWebHandlerWrapper::OnAccessibilityEventV2(
     ark_web_handler_->OnAccessibilityEventV2(accessibilityId, eventType, stArgument);
     ArkWebStringStructRelease(stArgument);
 }
+
+bool ArkWebHandlerWrapper::OnNestedScroll(float& x, float& y, float& xVelocity, float& yVelocity, bool& isAvailable)
+{
+    return ark_web_handler_->OnNestedScroll(x, y, xVelocity, yVelocity, isAvailable);
+}
 } // namespace OHOS::ArkWeb

@@ -1056,6 +1056,11 @@ public:
     virtual void RestoreRenderFit() {}
 
     virtual void OnAccessibilityEventV2(int64_t accessibilityId, int32_t eventType, const std::string& argument) {}
+
+    virtual bool OnNestedScroll(float& x, float& y, float& xVelocity, float& yVelocity, bool& isAvailable)
+    {
+        return false;
+    }
 };
 
 } // namespace OHOS::NWeb
