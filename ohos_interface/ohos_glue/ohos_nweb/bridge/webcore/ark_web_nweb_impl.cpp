@@ -1315,4 +1315,9 @@ void ArkWebNWebImpl::SetNativeInnerWeb(bool isInnerWeb)
 {
     nweb_nweb_->SetNativeInnerWeb(isInnerWeb);
 }
+
+void ArkWebNWebImpl::SetSurfaceDensity(const double& density)
+{
+    nweb_nweb_->SetSurfaceDensity(density);
+}
 } // namespace OHOS::ArkWeb

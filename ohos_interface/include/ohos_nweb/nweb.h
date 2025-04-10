@@ -1760,6 +1760,12 @@ public:
      * @brief Set the native inner web
      */
     virtual void SetNativeInnerWeb(bool isInnerWeb) {}
+
+    /**
+     * @brief set DPI when DPI changes.
+     * @param density The new density value.
+     */
+    virtual void SetSurfaceDensity(const double& density) {}
 };
 
 } // namespace OHOS::NWeb
