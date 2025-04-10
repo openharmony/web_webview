@@ -1695,6 +1695,13 @@ public:
      */
     /*--ark web()--*/
     virtual void SetNativeInnerWeb(bool isInnerWeb) = 0;
+
+    /**
+     * @brief set DPI when DPI changes.
+     * @param density The new density value.
+     */
+    /*--ark web()--*/
+    virtual void SetSurfaceDensity(const double& density) = 0;
 };
 
 } // namespace OHOS::ArkWeb
