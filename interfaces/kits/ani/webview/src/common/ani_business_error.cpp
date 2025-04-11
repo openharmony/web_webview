@@ -20,45 +20,91 @@
 
 namespace OHOS {
 namespace NWebError {
-ani_status AniBusinessError::ThrowError(ani_env *env, int errorCode, const std::string& error_message)
+namespace {
+ani_object WrapBusinessError(ani_env *env, const std::string& msg)
 {
-    ani_status status;
-    ani_class errCls;
-    const char* className = "L@koalaui/arkts-arkui/generated/ArkBaseInterfaces/BusinessError;";
-    if ((status = env->FindClass(className, &errCls)) != ANI_OK) {
+    ani_class cls {};
+    ani_method method {};
+    ani_object obj = nullptr;
+    ani_status status = ANI_ERROR;
+    if (env == nullptr) {
+        WVLOG_E("null env");
+        return nullptr;
+    }
+
+    ani_string aniMsg = nullptr;
+    if ((status = env->String_NewUTF8(msg.c_str(), msg.size(), &aniMsg)) != ANI_OK) {
+        WVLOG_E("String_NewUTF8 failed %{public}d", status);
+        return nullptr;
+    }
+
+    ani_ref undefRef;
+    if ((status = env->GetUndefined(&undefRef)) != ANI_OK) {
+        WVLOG_E("GetUndefined failed %{public}d", status);
+        return nullptr;
+    }
+
+    if ((status = env->FindClass("Lescompat/Error;", &cls)) != ANI_OK) {
+        WVLOG_E("FindClass failed %{public}d", status);
+        return nullptr;
+    }
+    if ((status = env->Class_FindMethod(cls, "<ctor>", "Lstd/core/String;Lescompat/ErrorOptions;:V", &method)) !=
+        ANI_OK) {
+        WVLOG_E("Class_FindMethod failed %{public}d", status);
+        return nullptr;
+    }
+
+    if ((status = env->Object_New(cls, method, &obj, aniMsg, undefRef)) != ANI_OK) {
+        WVLOG_E("Object_New failed %{public}d", status);
+        return nullptr;
+    }
+    return obj;
+}
+
+ani_object CreateBusinessError(ani_env *env, ani_int code, const std::string& msg)
+{
+    ani_class cls {};
+    ani_method method {};
+    ani_object obj = nullptr;
+    ani_status status = ANI_ERROR;
+    if (env == nullptr) {
+        WVLOG_E("null env");
+        return nullptr;
+    }
+    if ((status = env->FindClass("L@ohos/base/BusinessError;", &cls)) != ANI_OK) {
+        WVLOG_E("FindClass failed %{public}d", status);
+        return nullptr;
+    }
+    if ((status = env->Class_FindMethod(cls, "<ctor>", "DLescompat/Error;:V", &method)) != ANI_OK) {
+        WVLOG_E("Class_FindMethod failed %{public}d", status);
+        return nullptr;
+    }
+    ani_object error = WrapBusinessError(env, msg);
+    if (error == nullptr) {
+        WVLOG_E("error nulll");
+        return nullptr;
+    }
+    ani_double dCode(code);
+    if ((status = env->Object_New(cls, method, &obj, dCode, error)) != ANI_OK) {
+        WVLOG_E("Object_New failed %{public}d", status);
+        return nullptr;
+    }
+    return obj;
+}
+}
+
+ani_status AniBusinessError::ThrowError(ani_env *env, int32_t errorCode, const std::string& error_message)
+{
+    ani_object err = CreateBusinessError(env, errorCode, error_message);
+    if (err == nullptr) {
+        WVLOG_E("err nulll");
         return ANI_ERROR;
     }
-    ani_method errCtor;
-    if ((status = env->Class_FindMethod(errCls, "<ctor>", ":V", &errCtor)) != ANI_OK) {
-        return ANI_ERROR;
-    }
-    ani_object errObj;
-    if ((status = env->Object_New(errCls, errCtor, &errObj)) != ANI_OK) {
-        return ANI_ERROR;
-    }
-    ani_field code_field = nullptr;
-    if ((status = env->Class_FindField(errCls, "code", &code_field)) != ANI_OK) {
-        return ANI_ERROR;
-    }
-    if ((status = env->Object_SetField_Double(errObj, code_field, errorCode)) != ANI_OK) {
-        return ANI_ERROR;
-    }
-    ani_field message_field = nullptr;
-    if ((status = env->Class_FindField(errCls, "message", &message_field)) != ANI_OK) {
-        return ANI_ERROR;
-    }
-    ani_string ani_str_errorMsg;
-    if ((status = env->String_NewUTF8(error_message.c_str(), error_message.size(), &ani_str_errorMsg)) != ANI_OK) {
-        return ANI_ERROR;
-    }
-    if ((status = env->Object_SetField_Ref(errObj, message_field, ani_str_errorMsg)) != ANI_OK) {
-        return ANI_ERROR;
-    }
-    env->ThrowError(static_cast<ani_error>(errObj));
+    env->ThrowError(static_cast<ani_error>(err));
     return ANI_OK;
 }
 
-ani_status AniBusinessError::ThrowErrorByErrCode(ani_env *env, int errorCode)
+ani_status AniBusinessError::ThrowErrorByErrCode(ani_env *env, int32_t errorCode)
 {
     return ThrowError(env, errorCode, GetErrMsgByErrCode(errorCode));
 }
