@@ -68,5 +68,8 @@ export default namespace webview {
 
         native static initializeWebEngine(): void;
         native loadUrl(url: string, headers?: Array<WebHeader>): void;
+
+        native onActive(): void;
+        native onInactive(): void;
     }
 }
