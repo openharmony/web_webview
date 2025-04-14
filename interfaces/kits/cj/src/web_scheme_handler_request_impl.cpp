@@ -111,7 +111,6 @@ namespace OHOS::Webview {
             return NWebError::PARAM_CHECK_ERROR;
         }
         OH_ArkWebHttpBodyStream_Read(stream_, buffer, bufLen);
-        delete[] buffer;
         return NWebError::NO_ERROR;
     }
 
