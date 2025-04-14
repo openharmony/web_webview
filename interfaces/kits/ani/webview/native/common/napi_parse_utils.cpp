@@ -463,6 +463,20 @@ bool IsNumberOfLength(const std::string &value)
     return std::all_of(value.begin(), value.end(), [](char i) { return isdigit(i); });
 }
 
+int32_t GetNumFromString(const std::string &input)
+{
+    int32_t value;
+
+    try {
+        value = std::stoi(input);
+    } catch (std::out_of_range&) {
+        WVLOG_E("value trans failed: out of range");
+        value = 0;
+    }
+
+    return value;
+}
+
 bool NapiParseUtils::ParseJsLengthStringToInt(const std::string &input, PixelUnit &type, int32_t &value)
 {
     if (input.empty()) {
@@ -472,14 +486,14 @@ bool NapiParseUtils::ParseJsLengthStringToInt(const std::string &input, PixelUni
         return false;
     }
     if (IsNumberOfLength(input)) {
-        value = std::stoi(input);
+        value = GetNumFromString(input);
         type = PixelUnit::VP;
         return true;
     }
     if (input.back() == '%') {
         std::string trans = input.substr(0, input.length() - 1);
         if (IsNumberOfLength(trans)) {
-            value = std::stoi(trans);
+            value = GetNumFromString(trans);
             type = PixelUnit::PERCENTAGE;
             return true;
         }
@@ -494,11 +508,11 @@ bool NapiParseUtils::ParseJsLengthStringToInt(const std::string &input, PixelUni
         return false;
     }
     if (lastTwo == "px") {
-        value = std::stoi(trans);
+        value = GetNumFromString(trans);
         type = PixelUnit::PX;
         return true;
     } else if (lastTwo == "vp") {
-        value = std::stoi(trans);
+        value = GetNumFromString(trans);
         type = PixelUnit::VP;
         return true;
     }

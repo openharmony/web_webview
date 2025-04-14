@@ -31,8 +31,6 @@
 #include "webview_javascript_result_callback.h"
 #include "print_manager_adapter.h"
 
-// #include "web_scheme_handler_request.h"
-
 namespace OHOS {
 namespace NWeb {
 enum class WebHitTestType : int {
@@ -300,15 +298,6 @@ public:
 
     static std::string GenerateWebTag();
 
-    // bool SetWebSchemeHandler(const char* scheme, WebSchemeHandler* handler) const;
-
-    // int32_t ClearWebSchemeHandler();
-
-    // static bool SetWebServiveWorkerSchemeHandler(
-    //     const char* scheme, WebSchemeHandler* handler);
-
-    // static int32_t ClearWebServiceWorkerSchemeHandler();
-
     void CloseAllMediaPresentations();
 
     void StopAllMedia();
@@ -328,8 +317,6 @@ public:
     ErrCode StopCamera();
 
     ErrCode CloseCamera();
-
-    // void OnCreateNativeMediaPlayer(napi_env env, napi_ref callback);
 
     bool ParseScriptContent(napi_env env, napi_value value, std::string &script);
 

@@ -103,8 +103,8 @@ bool ParseResourceUrl(ani_env *env, ani_object urlObject, std::string& url, Webv
         return false;
     }
     double typeDouble;
-    if (env->Object_CallMethodByName_Double(
-            static_cast<ani_object>(typeRef), "unboxed", ":D", &typeDouble) != ANI_OK) {
+    if (env->Object_CallMethodByName_Double(static_cast<ani_object>(typeRef), "unboxed", ":D",
+                                            &typeDouble) != ANI_OK) {
         return false;
     }
     std::string bundleName;
@@ -243,8 +243,8 @@ static bool GetWebHeaders(ani_env *env, ani_object headersArrayObj, std::map<std
     }
     for (int i = 0; i < int(headersLength); i++) {
         ani_ref webHeaderRef;
-        if (env->Object_CallMethodByName_Ref(
-                headersArrayObj, "$_get", "I:Lstd/core/Object;", &webHeaderRef, (ani_int)i) != ANI_OK) {
+        if (env->Object_CallMethodByName_Ref(headersArrayObj, "$_get", "I:Lstd/core/Object;",
+                                             &webHeaderRef, (ani_int)i) != ANI_OK) {
             return false;
         }
         ani_object webHeaderObj = reinterpret_cast<ani_object>(webHeaderRef);
