@@ -711,6 +711,10 @@ extern "C" {
             return ret;
         }
         std::shared_ptr<NWeb::HitTestResult> nwebResult = nativeWebviewCtl->GetHitTestValue();
+        if (nwebResult == nullptr) {
+            *errCode = NWebError::INIT_ERROR;
+            return ret;
+        }
         *errCode = NWebError::NO_ERROR;
         ret.code = nwebResult->GetType();
         ret.data = MallocCString(nwebResult->GetExtra());
