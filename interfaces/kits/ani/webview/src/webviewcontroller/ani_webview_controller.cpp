@@ -351,6 +351,36 @@ static void Constructor(ani_env *env, ani_object object, ani_string webTagObject
     }
 }
 
+static void OnActive(ani_env *env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    controller->OnActive();
+}
+
+static void OnInactive(ani_env *env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    controller->OnInactive();
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     if (env == nullptr) {
@@ -369,6 +399,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "_setHapPath", nullptr, reinterpret_cast<void *>(SetHapPath) },
         ani_native_function { "initializeWebEngine", nullptr, reinterpret_cast<void *>(InitializeWebEngine) },
         ani_native_function { "loadUrl", nullptr, reinterpret_cast<void *>(LoadUrl) },
+        ani_native_function { "onActive", nullptr, reinterpret_cast<void *>(OnActive) },
+        ani_native_function { "onInactive", nullptr, reinterpret_cast<void *>(OnInactive) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
