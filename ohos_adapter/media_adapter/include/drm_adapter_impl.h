@@ -46,6 +46,8 @@ constexpr int32_t HEX_OFFSET = 4;
 constexpr int32_t MAX_KEY_SET_ID_LEN = 128;
 constexpr uint64_t MILLISECOND_IN_SECOND = 1000;
 constexpr int32_t MILLISECOND_DIGITS = 3;
+constexpr int32_t EXPIRATION_INFO_MAX_LEN = 16;
+constexpr int32_t EXPIRATION_INFO_BASE = 10;
 
 enum class MediaKeyType : int32_t {
     MEDIA_KEY_TYPE_OFFLINE = 0,

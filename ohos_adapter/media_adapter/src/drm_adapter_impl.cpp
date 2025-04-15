@@ -470,7 +470,7 @@ void DrmAdapterImpl::OnSessionExpirationUpdate(MediaKeySession* drmKeySessoin, u
     }
 
     uint64_t timeStamp = 0;
-    if (info != nullptr && infoLen > 0) {
+    if (info != nullptr && infoLen > 0 && infoLen <= EXPIRATION_INFO_MAX_LEN) {
         std::vector<uint8_t> infoData;
         std::string infoString;
         infoData.insert(infoData.begin(), info, info + infoLen);
@@ -481,7 +481,7 @@ void DrmAdapterImpl::OnSessionExpirationUpdate(MediaKeySession* drmKeySessoin, u
             if (infoString.size() > MILLISECOND_DIGITS) {
                 infoString.erase(infoString.size() - MILLISECOND_DIGITS, MILLISECOND_DIGITS);
             }
-            timeStamp = std::stoull(infoString);
+            timeStamp = std::strtoull(infoString.c_str(), nullptr, EXPIRATION_INFO_BASE);
         }
     }
     std::string emeId = callback->EmeId();
