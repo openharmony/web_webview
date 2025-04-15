@@ -381,6 +381,23 @@ static void OnInactive(ani_env *env, ani_object object)
     controller->OnInactive();
 }
 
+static ani_double GetWebId(ani_env *env, ani_object object)
+{
+    int32_t webId = -1;
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return static_cast<ani_double>(webId);
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return static_cast<ani_double>(webId);
+    }
+
+    webId = controller->GetWebId();
+    return static_cast<ani_double>(webId);
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     if (env == nullptr) {
@@ -401,6 +418,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "loadUrl", nullptr, reinterpret_cast<void *>(LoadUrl) },
         ani_native_function { "onActive", nullptr, reinterpret_cast<void *>(OnActive) },
         ani_native_function { "onInactive", nullptr, reinterpret_cast<void *>(OnInactive) },
+        ani_native_function { "getWebId", nullptr, reinterpret_cast<void *>(GetWebId) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
