@@ -71,5 +71,6 @@ export default namespace webview {
 
         native onActive(): void;
         native onInactive(): void;
+        native getWebId(): number;
     }
 }
