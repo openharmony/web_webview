@@ -31,12 +31,13 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
     WVLOG_I("Webview ANI_Constructor");
     ani_env *env = nullptr;
     ani_status status = vm->GetEnv(ANI_VERSION_1, &env);
-    if (status != ANI_OK) {
+    if (status != ANI_OK || !env) {
         WVLOG_E("ANI_Constructor GetEnv status: %{public}d", status);
         return ANI_NOT_FOUND;
     }
 
     StsWebviewControllerInit(env);
+    StsCleanerInit(env);
     *result = ANI_VERSION_1;
     return ANI_OK;
 }

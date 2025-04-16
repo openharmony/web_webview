@@ -280,7 +280,7 @@ static void LoadUrl(ani_env *env, ani_object object, ani_object urlObject, ani_o
         return;
     }
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
-    if (!controller) {
+    if (!controller || !controller->IsInit()) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
@@ -402,18 +402,248 @@ static ani_boolean GetScrollable(ani_env *env, ani_object object)
 {
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
-        return true;
+        return ANI_TRUE;
     }
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
-    if (!controller) {
+    if (!controller || !controller->IsInit()) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
-        return true;
+        return ANI_TRUE;
     }
 
-    return controller->GetScrollable();
+    return static_cast<ani_boolean>(controller->GetScrollable());
 }
 
 static void RequestFocus(ani_env *env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    controller->RequestFocus();
+}
+
+static ani_boolean ScrollByWithResult(ani_env *env, ani_object object, ani_double deltaX, ani_double deltaY)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return ANI_FALSE;
+    }
+    return static_cast<ani_boolean>(
+        controller->ScrollByWithResult(static_cast<float>(deltaX), static_cast<float>(deltaY)));
+}
+static void SetScrollable(ani_env *env, ani_object object, ani_boolean enable, ani_enum_item type)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    int32_t scrollType = -1;
+    ani_boolean isUndefined = ANI_TRUE;
+    env->Reference_IsUndefined(type, &isUndefined);
+    if (isUndefined == ANI_FALSE) {
+        ani_int iType;
+        if (env->EnumItem_GetValue_Int(type, &iType) != ANI_OK) {
+            WVLOG_E("BusinessError: 401. The character of 'scrollType' must be int32.");
+            AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+            return;
+        }
+        scrollType = static_cast<int32_t>(iType);
+    }
+    controller->SetScrollable(static_cast<bool>(enable), scrollType);
+}
+static void ScrollTo(ani_env *env, ani_object object, ani_double x, ani_double y, ani_object durationObj)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    ani_boolean isUndefined = ANI_TRUE;
+    env->Reference_IsUndefined(durationObj, &isUndefined);
+    if (isUndefined == ANI_TRUE) {
+        controller->ScrollTo(static_cast<float>(x), static_cast<float>(y));
+    } else {
+        ani_double duration;
+        if (env->Object_CallMethodByName_Double(durationObj, "doubleValue", nullptr, &duration) != ANI_OK) {
+            AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "duration", "number"));
+            return;
+        }
+        controller->ScrollToWithAnime(
+            static_cast<float>(x), static_cast<float>(y), static_cast<int32_t>(duration));
+    }
+}
+static void ScrollBy(ani_env *env, ani_object object, ani_double deltaX, ani_double deltaY, ani_object durationObj) {
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    ani_boolean isUndefined = ANI_TRUE;
+    env->Reference_IsUndefined(durationObj, &isUndefined);
+    if (isUndefined == ANI_TRUE) {
+        controller->ScrollBy(static_cast<float>(deltaX), static_cast<float>(deltaY));
+    } else {
+        ani_double duration;
+        if (env->Object_CallMethodByName_Double(durationObj, "doubleValue", nullptr, &duration) != ANI_OK) {
+            AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "duration", "number"));
+            return;
+        }
+        controller->ScrollByWithAnime(
+            static_cast<float>(deltaX), static_cast<float>(deltaY), static_cast<int32_t>(duration));
+    }
+}
+static ani_object GetScrollOffset(ani_env *env, ani_object object)
+{
+    ani_object offset = {};
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return offset;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return offset;
+    }
+    float offsetX = 0;
+    float offsetY = 0;
+    controller->GetScrollOffset(&offsetX, &offsetY);
+
+    static const char* className = "L@ohos/web/webview/webview/ScrollOffsetInner;";
+    ani_class cls;
+    ani_status status = env->FindClass(className, &cls);
+    if (status != ANI_OK) {
+        WVLOG_E("find %{public}s class failed, status: %{public}d", className, status);
+        return offset;
+    }
+    ani_method ctor;
+    if ((status = env->Class_FindMethod(cls, "<ctor>", nullptr, &ctor)) != ANI_OK) {
+        WVLOG_E("get %{public}s ctor method failed, status: %{public}d", className, status);
+        return offset;
+    }
+    if ((status = env->Object_New(cls, ctor, &offset)) != ANI_OK) {
+        WVLOG_E("Object_New failed, status: %{public}d", status);
+        return offset;
+    }
+
+    ani_method xSetter;
+    ani_method ySetter;
+    if (env->Class_FindSetter(cls, "x", &xSetter) != ANI_OK ||
+        env->Class_FindSetter(cls, "y", &ySetter) != ANI_OK) {
+        WVLOG_E("%{public}s Class_FindSetter failed", className);
+        return offset;
+    }
+    env->Object_CallMethod_Void(offset, xSetter, static_cast<ani_double>(offsetX));
+    env->Object_CallMethod_Void(offset, ySetter, static_cast<ani_double>(offsetY));
+    return offset;
+}
+static void SlideScroll(ani_env *env, ani_object object, ani_double vx, ani_double vy)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    controller->SlideScroll(static_cast<float>(vx), static_cast<float>(vy));
+}
+
+static void PageDown(ani_env *env, ani_object object, ani_boolean bottom)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    controller->ScrollPageDown(static_cast<bool>(bottom));
+}
+static void PageUp(ani_env *env, ani_object object, ani_boolean top)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    controller->ScrollPageUp(static_cast<bool>(top));
+}
+
+static void Zoom(ani_env *env, ani_object object, ani_double factor)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    ErrCode ret = controller->Zoom(factor);
+    if (ret != NO_ERROR) {
+        if (ret == NWEB_ERROR) {
+            WVLOG_E("Zoom failed.");
+            return;
+        }
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+    }
+}
+static void ZoomOut(ani_env *env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    ErrCode ret = controller->ZoomOut();
+    if (ret != NO_ERROR) {
+        if (ret == NWEB_ERROR) {
+            WVLOG_E("ZoomOut failed.");
+            return;
+        }
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+    }
+}
+static void ZoomIn(ani_env *env, ani_object object)
 {
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
@@ -424,8 +654,33 @@ static void RequestFocus(ani_env *env, ani_object object)
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
+    ErrCode ret = controller->ZoomIn();
+    if (ret != NO_ERROR) {
+        if (ret == NWEB_ERROR) {
+            WVLOG_E("ZoomIn failed.");
+            return;
+        }
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+    }
+}
 
-    controller->RequestFocus();
+ani_status StsCleanerInit(ani_env *env)
+{
+    static const char *cleanerName = "L@ohos/web/webview/Cleaner;";
+    ani_class cleanerCls = nullptr;
+    ani_status status = env->FindClass(cleanerName, &cleanerCls);
+    if (status != ANI_OK || !cleanerCls) {
+        WVLOG_E("find %{public}s class failed, status: %{public}d", cleanerName, status);
+        return status;
+    }
+    std::array cleanerMethods = {
+        ani_native_function { "clean", nullptr, reinterpret_cast<void *>(Clean) },
+    };
+    status = env->Class_BindNativeMethods(cleanerCls, cleanerMethods.data(), cleanerMethods.size());
+    if (status != ANI_OK) {
+        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+    }
+    return status;
 }
 
 ani_status StsWebviewControllerInit(ani_env *env)
@@ -451,24 +706,20 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "getWebId", nullptr, reinterpret_cast<void *>(GetWebId) },
         ani_native_function { "getScrollable", nullptr, reinterpret_cast<void *>(GetScrollable) },
         ani_native_function { "requestFocus", nullptr, reinterpret_cast<void *>(RequestFocus) },
+        ani_native_function { "scrollByWithResult", nullptr, reinterpret_cast<void *>(ScrollByWithResult) },
+        ani_native_function { "setScrollable", nullptr, reinterpret_cast<void *>(SetScrollable) },
+        ani_native_function { "scrollTo", nullptr, reinterpret_cast<void *>(ScrollTo) },
+        ani_native_function { "scrollBy", nullptr, reinterpret_cast<void *>(ScrollBy) },
+        ani_native_function { "getScrollOffset", nullptr, reinterpret_cast<void *>(GetScrollOffset) },
+        ani_native_function { "slideScroll", nullptr, reinterpret_cast<void *>(SlideScroll) },
+        ani_native_function { "zoom", nullptr, reinterpret_cast<void *>(Zoom) },
+        ani_native_function { "pageDown", nullptr, reinterpret_cast<void *>(PageDown) },
+        ani_native_function { "pageUp", nullptr, reinterpret_cast<void *>(PageUp) },
+        ani_native_function { "zoomOut", nullptr, reinterpret_cast<void *>(ZoomOut) },
+        ani_native_function { "zoomIn", nullptr, reinterpret_cast<void *>(ZoomIn) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
-    if (status != ANI_OK) {
-        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
-    }
-
-    static const char *cleanerName = "L@ohos/web/webview/Cleaner;";
-    ani_class cleanerCls = nullptr;
-    status = env->FindClass(cleanerName, &cleanerCls);
-    if (status != ANI_OK || !cleanerCls) {
-        WVLOG_E("find %{public}s class failed, status: %{public}d", cleanerName, status);
-        return ANI_ERROR;
-    }
-    std::array cleanerMethods = {
-        ani_native_function { "clean", nullptr, reinterpret_cast<void *>(Clean) },
-    };
-    status = env->Class_BindNativeMethods(cleanerCls, cleanerMethods.data(), cleanerMethods.size());
     if (status != ANI_OK) {
         WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
     }

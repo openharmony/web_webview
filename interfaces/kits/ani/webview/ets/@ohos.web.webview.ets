@@ -40,13 +40,19 @@ export default namespace webview {
         method: string;
         formData: string;
     }
+
     export interface WebHeader {
         headerKey: string;
         headerValue: string;
     }
+
     export interface ScrollOffset {
         x: number;
         y: number;
+    }
+    export class ScrollOffsetInner implements ScrollOffset {
+        x: number = 0;
+        y: number = 0;
     }
 
     export class WebviewController {
@@ -83,5 +89,16 @@ export default namespace webview {
         native getWebId(): number;
         native getScrollable(): boolean;
         native requestFocus(): void;
+        native scrollByWithResult(deltaX: number, deltaY: number): boolean;
+        native setScrollable(enable: boolean, type?: ScrollType): void;
+        native scrollTo(x: number, y: number, duration?: number): void;
+        native scrollBy(deltaX: number, deltaY: number, duration?: number): void;
+        native getScrollOffset(): ScrollOffset;
+        native slideScroll(vx: number, vy: number): void;
+        native zoom(factor: number): void;
+        native pageDown(bottom: boolean): void;
+        native pageUp(top: boolean): void;
+        native zoomOut(): void;
+        native zoomIn(): void;
     }
 }
