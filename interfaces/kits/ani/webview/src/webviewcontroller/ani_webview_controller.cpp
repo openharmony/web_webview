@@ -398,6 +398,36 @@ static ani_double GetWebId(ani_env *env, ani_object object)
     return static_cast<ani_double>(webId);
 }
 
+static ani_boolean GetScrollable(ani_env *env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return true;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return true;
+    }
+
+    return controller->GetScrollable();
+}
+
+static void RequestFocus(ani_env *env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    controller->RequestFocus();
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     if (env == nullptr) {
@@ -419,6 +449,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "onActive", nullptr, reinterpret_cast<void *>(OnActive) },
         ani_native_function { "onInactive", nullptr, reinterpret_cast<void *>(OnInactive) },
         ani_native_function { "getWebId", nullptr, reinterpret_cast<void *>(GetWebId) },
+        ani_native_function { "getScrollable", nullptr, reinterpret_cast<void *>(GetScrollable) },
+        ani_native_function { "requestFocus", nullptr, reinterpret_cast<void *>(RequestFocus) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
