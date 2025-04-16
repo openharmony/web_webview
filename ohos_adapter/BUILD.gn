@@ -149,9 +149,9 @@ ohos_shared_library("nweb_ohos_adapter") {
 
   if (target_cpu == "arm" || target_cpu == "arm64" || target_cpu == "x86_64") {
     include_dirs += [
-      "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/include/bundle",
-      "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/include/asset",
-      "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/include/native_drawing",
+      "//prebuilts/ohos-sdk/linux/20/native/sysroot/usr/include/bundle",
+      "//prebuilts/ohos-sdk/linux/20/native/sysroot/usr/include/asset",
+      "//prebuilts/ohos-sdk/linux/20/native/sysroot/usr/include/native_drawing",
     ]
   }
 
@@ -295,18 +295,18 @@ ohos_shared_library("nweb_ohos_adapter") {
       public_external_deps += [ "drm_framework:native_drm" ]
       if (target_cpu == "arm") {
         libs += [
-          "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/arm-linux-ohos/libnative_media_acodec.so",
-          "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/arm-linux-ohos/libnative_media_avcencinfo.so",
+          "//prebuilts/ohos-sdk/linux/20/native/sysroot/usr/lib/arm-linux-ohos/libnative_media_acodec.so",
+          "//prebuilts/ohos-sdk/linux/20/native/sysroot/usr/lib/arm-linux-ohos/libnative_media_avcencinfo.so",
         ]
       } else if (target_cpu == "arm64") {
         libs += [
-          "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/aarch64-linux-ohos/libnative_media_acodec.so",
-          "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/aarch64-linux-ohos/libnative_media_avcencinfo.so",
+          "//prebuilts/ohos-sdk/linux/20/native/sysroot/usr/lib/aarch64-linux-ohos/libnative_media_acodec.so",
+          "//prebuilts/ohos-sdk/linux/20/native/sysroot/usr/lib/aarch64-linux-ohos/libnative_media_avcencinfo.so",
         ]
       } else if (target_cpu == "x86_64") {
         libs += [
-          "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/x86_64-linux-ohos/libnative_media_acodec.so",
-          "//prebuilts/ohos-sdk/linux/18/native/sysroot/usr/lib/x86_64-linux-ohos/libnative_media_avcencinfo.so",
+          "//prebuilts/ohos-sdk/linux/20/native/sysroot/usr/lib/x86_64-linux-ohos/libnative_media_acodec.so",
+          "//prebuilts/ohos-sdk/linux/20/native/sysroot/usr/lib/x86_64-linux-ohos/libnative_media_avcencinfo.so",
         ]
       }
       defines += [ "NWEB_AUDIO_DRM_ENABLE" ]
