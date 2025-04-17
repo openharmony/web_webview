@@ -2100,5 +2100,17 @@ int WebMessageExt::ConvertNwebType2JsType(NWebValue::Type type)
     return static_cast<int>(jsType);
 }
 
+std::shared_ptr<HitTestResult> WebviewController::GetLastHitTest()
+{
+    std::shared_ptr<HitTestResult> nwebResult;
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (nweb_ptr) {
+        nwebResult = nweb_ptr->GetLastHitTestResult();
+        if (nwebResult) {
+            nwebResult->SetType(ConverToWebHitTestType(nwebResult->GetType()));
+        }
+    }
+    return nwebResult;
+}
 } // namespace NWeb
 } // namespace OHOS

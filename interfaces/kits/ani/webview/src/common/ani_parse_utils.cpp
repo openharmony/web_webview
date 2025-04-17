@@ -99,5 +99,40 @@ bool AniParseUtils::Wrap(ani_env *env, const ani_object& object, const char *cla
     }
     return true;
 }
+
+bool AniParseUtils::CreateObjectVoid(ani_env *env, const char *className, ani_object& object)
+{
+    ani_class cls;
+    ani_status status = env->FindClass(className, &cls);
+    if (status != ANI_OK) {
+        WVLOG_E("find %{public}s class failed, status: %{public}d", className, status);
+        return false;
+    }
+    ani_method ctor;
+    if ((status = env->Class_FindMethod(cls, "<ctor>", nullptr, &ctor)) != ANI_OK) {
+        WVLOG_E("get %{public}s ctor method failed, status: %{public}d", className, status);
+        return false;
+    }
+    if ((status = env->Object_New(cls, ctor, &object)) != ANI_OK) {
+        WVLOG_E("new %{public}s failed, status: %{public}d", className, status);
+        return false;
+    }
+    return true;
+}
+
+bool AniParseUtils::GetEnumItemByIndex(ani_env *env, const char* enumName, int32_t typeIndex, ani_enum_item& eType)
+{
+    ani_enum enumType;
+    ani_status status = env->FindEnum(enumName, &enumType);
+    if (status != ANI_OK) {
+        WVLOG_E("find %{public}s enum failed, status: %{public}d", enumName, status);
+        return false;
+    }
+    if ((status = env->Enum_GetEnumItemByIndex(enumType, typeIndex, &eType)) != ANI_OK) {
+        WVLOG_E("get %{public}s item by index failed, status: %{public}d", enumName, status);
+        return false;
+    }
+    return true;
+}
 }
 }

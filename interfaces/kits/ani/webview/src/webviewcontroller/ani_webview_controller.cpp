@@ -21,6 +21,7 @@
 #include "ani_webview_controller.h"
 
 #include "ani_business_error.h"
+#include "ani_class_name.h"
 #include "ani_parse_utils.h"
 
 #include <cstdlib>
@@ -57,9 +58,6 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-const char* WEBVIEW_CONTROLLER_CLASS_NAME = "L@ohos/web/webview/webview/WebviewController;";
-const char* WEB_HEADER_CLASS_NAME = "L@ohos/web/webview/webview/WebHeader;";
-
 bool ParseResourceRawfileUrl(ani_env *env, const ani_object& object, std::string& fileName)
 {
     ani_ref paramsRef;
@@ -237,7 +235,7 @@ static bool GetWebHeaders(ani_env *env, ani_object headersArrayObj, std::map<std
         return false;
     }
     ani_class webHeaderClass;
-    if (env->FindClass(WEB_HEADER_CLASS_NAME, &webHeaderClass) != ANI_OK) {
+    if (env->FindClass(ANI_CLASS_WEB_HEADER, &webHeaderClass) != ANI_OK) {
         WVLOG_E("Find WebHeader Class failed");
         return false;
     }
@@ -344,7 +342,7 @@ static void Constructor(ani_env *env, ani_object object, ani_string webTagObject
         return;
     }
     WebviewController::webTagSet_.insert(webTag);
-    if (!AniParseUtils::Wrap(env, object, WEBVIEW_CONTROLLER_CLASS_NAME, reinterpret_cast<ani_long>(controller))) {
+    if (!AniParseUtils::Wrap(env, object, ANI_CLASS_WEBVIEW_CONTROLLER, reinterpret_cast<ani_long>(controller))) {
         WVLOG_E("webview controller wrap failed");
         delete controller;
         controller = nullptr;
@@ -534,32 +532,10 @@ static ani_object GetScrollOffset(ani_env *env, ani_object object)
     float offsetY = 0;
     controller->GetScrollOffset(&offsetX, &offsetY);
 
-    static const char* className = "L@ohos/web/webview/webview/ScrollOffsetInner;";
-    ani_class cls;
-    ani_status status = env->FindClass(className, &cls);
-    if (status != ANI_OK) {
-        WVLOG_E("find %{public}s class failed, status: %{public}d", className, status);
-        return offset;
+    if (AniParseUtils::CreateObjectVoid(env, ANI_CLASS_SCROLL_OFFSET_INNER, offset)) {
+        env->Object_SetPropertyByName_Double(offset, "x", static_cast<ani_double>(offsetX));
+        env->Object_SetPropertyByName_Double(offset, "y", static_cast<ani_double>(offsetY));
     }
-    ani_method ctor;
-    if ((status = env->Class_FindMethod(cls, "<ctor>", nullptr, &ctor)) != ANI_OK) {
-        WVLOG_E("get %{public}s ctor method failed, status: %{public}d", className, status);
-        return offset;
-    }
-    if ((status = env->Object_New(cls, ctor, &offset)) != ANI_OK) {
-        WVLOG_E("Object_New failed, status: %{public}d", status);
-        return offset;
-    }
-
-    ani_method xSetter;
-    ani_method ySetter;
-    if (env->Class_FindSetter(cls, "x", &xSetter) != ANI_OK ||
-        env->Class_FindSetter(cls, "y", &ySetter) != ANI_OK) {
-        WVLOG_E("%{public}s Class_FindSetter failed", className);
-        return offset;
-    }
-    env->Object_CallMethod_Void(offset, xSetter, static_cast<ani_double>(offsetX));
-    env->Object_CallMethod_Void(offset, ySetter, static_cast<ani_double>(offsetY));
     return offset;
 }
 static void SlideScroll(ani_env *env, ani_object object, ani_double vx, ani_double vy)
@@ -614,7 +590,7 @@ static void Zoom(ani_env *env, ani_object object, ani_double factor)
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
-    ErrCode ret = controller->Zoom(factor);
+    ErrCode ret = controller->Zoom(static_cast<float>(factor));
     if (ret != NO_ERROR) {
         if (ret == NWEB_ERROR) {
             WVLOG_E("Zoom failed.");
@@ -650,7 +626,7 @@ static void ZoomIn(ani_env *env, ani_object object)
         return;
     }
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
-    if (!controller) {
+    if (!controller || !controller->IsInit()) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
@@ -664,13 +640,40 @@ static void ZoomIn(ani_env *env, ani_object object)
     }
 }
 
+static ani_object GetLastHitTest(ani_env *env, ani_object object)
+{
+    ani_object hitTestValue = {};
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return hitTestValue;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return hitTestValue;
+    }
+    std::shared_ptr<HitTestResult> nwebResult = controller->GetLastHitTest();
+    if (!AniParseUtils::CreateObjectVoid(env, ANI_CLASS_HIT_TEST_VALUE_INNER, hitTestValue) || !nwebResult) {
+        return hitTestValue;
+    }
+    ani_enum_item eType;
+    if (AniParseUtils::GetEnumItemByIndex(env, ANI_ENUM_WEB_HIT_TEST_TYPE, nwebResult->GetType(), eType)) {
+        env->Object_SetPropertyByName_Ref(hitTestValue, "type", eType);
+    }
+    auto extra = nwebResult->GetExtra();
+    ani_string aniExtra;
+    if (env->String_NewUTF8(extra.c_str(), extra.size(), &aniExtra) == ANI_OK) {
+        env->Object_SetPropertyByName_Ref(hitTestValue, "extra", aniExtra);
+    }
+    return hitTestValue;
+}
+
 ani_status StsCleanerInit(ani_env *env)
 {
-    static const char *cleanerName = "L@ohos/web/webview/Cleaner;";
     ani_class cleanerCls = nullptr;
-    ani_status status = env->FindClass(cleanerName, &cleanerCls);
+    ani_status status = env->FindClass(ANI_CLASS_CLEANER, &cleanerCls);
     if (status != ANI_OK || !cleanerCls) {
-        WVLOG_E("find %{public}s class failed, status: %{public}d", cleanerName, status);
+        WVLOG_E("find %{public}s class failed, status: %{public}d", ANI_CLASS_CLEANER, status);
         return status;
     }
     std::array cleanerMethods = {
@@ -690,9 +693,9 @@ ani_status StsWebviewControllerInit(ani_env *env)
         return ANI_ERROR;
     }
     ani_class webviewControllerCls = nullptr;
-    ani_status status = env->FindClass(WEBVIEW_CONTROLLER_CLASS_NAME, &webviewControllerCls);
+    ani_status status = env->FindClass(ANI_CLASS_WEBVIEW_CONTROLLER, &webviewControllerCls);
     if (status != ANI_OK || !webviewControllerCls) {
-        WVLOG_E("find %{public}s class failed, status: %{public}d", WEBVIEW_CONTROLLER_CLASS_NAME, status);
+        WVLOG_E("find %{public}s class failed, status: %{public}d", ANI_CLASS_WEBVIEW_CONTROLLER, status);
         return ANI_ERROR;
     }
     std::array controllerMethods = {
@@ -717,6 +720,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "pageUp", nullptr, reinterpret_cast<void *>(PageUp) },
         ani_native_function { "zoomOut", nullptr, reinterpret_cast<void *>(ZoomOut) },
         ani_native_function { "zoomIn", nullptr, reinterpret_cast<void *>(ZoomIn) },
+        ani_native_function { "getLastHitTest", nullptr, reinterpret_cast<void *>(GetLastHitTest) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());

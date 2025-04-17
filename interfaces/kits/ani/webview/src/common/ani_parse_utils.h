@@ -28,6 +28,8 @@ public:
     static bool IsResource(ani_env *env, const ani_object& object);
     static void* Unwrap(ani_env *env, const ani_object& object);
     static bool Wrap(ani_env *env, const ani_object& object, const char *className, const ani_long& thisVar);
+    static bool CreateObjectVoid(ani_env *env, const char *className, ani_object& object);
+    static bool GetEnumItemByIndex(ani_env *env, const char* enumName, int32_t typeIndex, ani_enum_item& eType);
 };
 } // namespace NWeb
 } // namespace OHOS
