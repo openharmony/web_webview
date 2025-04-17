@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+import { Resource } from 'global.resource'
+
 class Cleaner {
     private ptr: long = 0
     constructor(ptr: long) {
@@ -29,6 +31,10 @@ let destroyRegister = new FinalizationRegistry<Cleaner>(CleanerCallback)
 let unregisterToken = new object()
 
 export default namespace webview {
+    export enum ScrollType {
+        EVENT
+    }
+
     export interface RequestInfo {
         url: string;
         method: string;
@@ -38,6 +44,15 @@ export default namespace webview {
     export interface WebHeader {
         headerKey: string;
         headerValue: string;
+    }
+
+    export interface ScrollOffset {
+        x: number;
+        y: number;
+    }
+    export class ScrollOffsetInner implements ScrollOffset {
+        x: number = 0;
+        y: number = 0;
     }
 
     export class WebviewController {
@@ -67,10 +82,23 @@ export default namespace webview {
         native _setHapPath(hapPath: string): void;
 
         native static initializeWebEngine(): void;
-        native loadUrl(url: string, headers?: Array<WebHeader>): void;
+        native loadUrl(url: string | Resource, headers?: Array<WebHeader>): void;
 
         native onActive(): void;
         native onInactive(): void;
         native getWebId(): number;
+        native getScrollable(): boolean;
+        native requestFocus(): void;
+        native scrollByWithResult(deltaX: number, deltaY: number): boolean;
+        native setScrollable(enable: boolean, type?: ScrollType): void;
+        native scrollTo(x: number, y: number, duration?: number): void;
+        native scrollBy(deltaX: number, deltaY: number, duration?: number): void;
+        native getScrollOffset(): ScrollOffset;
+        native slideScroll(vx: number, vy: number): void;
+        native zoom(factor: number): void;
+        native pageDown(bottom: boolean): void;
+        native pageUp(top: boolean): void;
+        native zoomOut(): void;
+        native zoomIn(): void;
     }
 }

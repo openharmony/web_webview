@@ -21,6 +21,7 @@
 namespace OHOS {
 namespace NWeb {
 ani_status StsWebviewControllerInit(ani_env *env);
+ani_status StsCleanerInit(ani_env *env);
 } // namespace NWeb
 } // namespace OHOS
 #endif // OHOS_NWEB_ANI_WEBVIEW_CONTROLLER_H
