@@ -386,6 +386,8 @@ public:
 
     bool GetRawFileUrl(const std::string &fileName,
         const std::string& bundleName, const std::string& moduleName, std::string &result) const;
+
+    std::shared_ptr<HitTestResult> GetLastHitTest();
 private:
     int ConverToWebHitTestType(int hitType);
 

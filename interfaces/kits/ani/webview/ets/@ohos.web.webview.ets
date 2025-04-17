@@ -35,6 +35,17 @@ export default namespace webview {
         EVENT
     }
 
+    export enum WebHitTestType {
+        EditText,
+        Email,
+        HttpAnchor,
+        HttpAnchorImg,
+        Img,
+        Map,
+        Phone,
+        Unknown
+    }
+
     export interface RequestInfo {
         url: string;
         method: string;
@@ -53,6 +64,15 @@ export default namespace webview {
     export class ScrollOffsetInner implements ScrollOffset {
         x: number = 0;
         y: number = 0;
+    }
+
+    export interface HitTestValue {
+        type: WebHitTestType;
+        extra: string;
+    }
+    export class HitTestValueInner implements HitTestValue {
+        type: WebHitTestType = WebHitTestType.Unknown;
+        extra: string = "";
     }
 
     export class WebviewController {
@@ -100,5 +120,6 @@ export default namespace webview {
         native pageUp(top: boolean): void;
         native zoomOut(): void;
         native zoomIn(): void;
+        native getHitTestValue(): HitTestValue;
     }
 }
