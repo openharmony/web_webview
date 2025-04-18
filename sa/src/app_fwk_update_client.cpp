@@ -146,6 +146,12 @@ bool AppFwkUpdateClient::LoadFwkService()
         auto waitStatus = loadSaCondition_.wait_for(
             lock, std::chrono::milliseconds(LOAD_SA_TIMEOUT_MS), [this]() { return loadSaFinished_; });
         if (!waitStatus) {
+            auto remoteObj = systemAbilityMgr->CheckSystemAbility(SUBSYS_WEBVIEW_SYS_UPDATE_SERVICE_ID);
+            if (remoteObj != nullptr) {
+                SetFwkUpdate(remoteObj);
+                return true;
+            }
+
             WVLOG_I("load fwk service timeout.");
             return false;
         }
