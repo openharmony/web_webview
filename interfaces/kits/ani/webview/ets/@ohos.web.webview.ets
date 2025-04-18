@@ -121,5 +121,6 @@ export default namespace webview {
         native zoomOut(): void;
         native zoomIn(): void;
         native getLastHitTest(): HitTestValue;
+        native getPageHeight(): number;
     }
 }
