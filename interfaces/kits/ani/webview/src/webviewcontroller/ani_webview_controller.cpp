@@ -491,7 +491,8 @@ static void ScrollTo(ani_env *env, ani_object object, ani_double x, ani_double y
             static_cast<float>(x), static_cast<float>(y), static_cast<int32_t>(duration));
     }
 }
-static void ScrollBy(ani_env *env, ani_object object, ani_double deltaX, ani_double deltaY, ani_object durationObj) {
+static void ScrollBy(ani_env *env, ani_object object, ani_double deltaX, ani_double deltaY, ani_object durationObj)
+{
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
