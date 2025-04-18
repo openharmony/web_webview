@@ -1086,4 +1086,22 @@ void ArkWebHandlerWrapper::OnAccessibilityEventV2(
     ark_web_handler_->OnAccessibilityEventV2(accessibilityId, eventType, stArgument);
     ArkWebStringStructRelease(stArgument);
 }
+
+bool ArkWebHandlerWrapper::OnBeforeUnloadByJSV2(const std::string& url, const std::string& message,
+    std::shared_ptr<OHOS::NWeb::NWebJSDialogResult> result, bool isReload)
+{
+    ArkWebString stUrl = ArkWebStringClassToStruct(url);
+    ArkWebString stMessage = ArkWebStringClassToStruct(message);
+
+    bool flag = false;
+    if (CHECK_SHARED_PTR_IS_NULL(result)) {
+        flag = ark_web_handler_->OnBeforeUnloadByJSV2(stUrl, stMessage, nullptr, isReload);
+    } else {
+        flag = ark_web_handler_->OnBeforeUnloadByJSV2(stUrl, stMessage, new ArkWebJsDialogResultImpl(result), isReload);
+    }
+
+    ArkWebStringStructRelease(stUrl);
+    ArkWebStringStructRelease(stMessage);
+    return flag;
+}
 } // namespace OHOS::ArkWeb
