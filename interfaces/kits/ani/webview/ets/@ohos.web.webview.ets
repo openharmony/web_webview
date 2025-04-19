@@ -120,6 +120,6 @@ export default namespace webview {
         native pageUp(top: boolean): void;
         native zoomOut(): void;
         native zoomIn(): void;
-        native getHitTestValue(): HitTestValue;
+        native getLastHitTest(): HitTestValue;
     }
 }
