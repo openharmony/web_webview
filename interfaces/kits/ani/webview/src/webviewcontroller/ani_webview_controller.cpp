@@ -687,6 +687,23 @@ ani_status StsCleanerInit(ani_env *env)
     return status;
 }
 
+static ani_double GetPageHeight(ani_env *env, ani_object object)
+{
+    int32_t pageHeight = 0;
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return static_cast<ani_double>(pageHeight);
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return static_cast<ani_double>(pageHeight);
+    }
+
+    pageHeight = controller->GetPageHeight();
+    return static_cast<ani_double>(pageHeight);
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     if (env == nullptr) {
@@ -722,6 +739,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "zoomOut", nullptr, reinterpret_cast<void *>(ZoomOut) },
         ani_native_function { "zoomIn", nullptr, reinterpret_cast<void *>(ZoomIn) },
         ani_native_function { "getLastHitTest", nullptr, reinterpret_cast<void *>(GetLastHitTest) },
+        ani_native_function { "getPageHeight", nullptr, reinterpret_cast<void *>(GetPageHeight) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
