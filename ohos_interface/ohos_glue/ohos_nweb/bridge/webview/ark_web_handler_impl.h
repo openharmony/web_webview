@@ -593,6 +593,23 @@ public:
     void RestoreRenderFit() override;
 
     void OnAccessibilityEventV2(int64_t accessibilityId, int32_t eventType, const ArkWebString& argument) override;
+
+    /**
+     * @brief Notify the host application that the web page wants to handle
+     *        JavaScript onbeforeunload.
+     *
+     * @param url String: The url of the page requesting.
+     * @param message String: The message of the dialog.
+     * @param result std::shared_ptr<NWebJSDialogResult>: A NWebJSDialogResult to
+     *        confirm that the user closed the window.
+     * @param isReload bool: The isReload parameter is set to true when the page is refreshed;
+     *        otherwise, it remains false. Default is false.
+     *
+     * @return To show a custom dialog, the app should return true.
+     */
+    bool OnBeforeUnloadByJSV2(const ArkWebString& url, const ArkWebString& message,
+        ArkWebRefPtr<ArkWebJsDialogResult> result, bool isReload) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };

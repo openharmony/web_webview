@@ -959,4 +959,16 @@ void ArkWebHandlerImpl::OnAccessibilityEventV2(int64_t accessibilityId, int32_t 
 {
     nweb_handler_->OnAccessibilityEventV2(accessibilityId, eventType, ArkWebStringStructToClass(argument));
 }
+
+bool ArkWebHandlerImpl::OnBeforeUnloadByJSV2(
+    const ArkWebString& url, const ArkWebString& message, ArkWebRefPtr<ArkWebJsDialogResult> result, bool isReload)
+{
+    if (CHECK_REF_PTR_IS_NULL(result)) {
+        return nweb_handler_->OnBeforeUnloadByJSV2(
+            ArkWebStringStructToClass(url), ArkWebStringStructToClass(message), nullptr, isReload);
+    }
+
+    return nweb_handler_->OnBeforeUnloadByJSV2(ArkWebStringStructToClass(url), ArkWebStringStructToClass(message),
+        std::make_shared<ArkWebJsDialogResultWrapper>(result), isReload);
+}
 } // namespace OHOS::ArkWeb
