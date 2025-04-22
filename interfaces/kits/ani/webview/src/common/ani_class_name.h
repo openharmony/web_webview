@@ -29,6 +29,9 @@ static const char* ANI_CLASS_SCROLL_OFFSET_INNER = "L@ohos/web/webview/webview/S
 static const char* ANI_ENUM_WEB_HIT_TEST_TYPE = "L@ohos/web/webview/webview/WebHitTestType;";
 static const char* ANI_CLASS_HIT_TEST_VALUE_INNER = "L@ohos/web/webview/webview/HitTestValueInner;";
 
+const char* ANI_BACK_FORWARD_LIST_INNER_CLASS_NAME = "L@ohos/web/webview/webview/BackForwardListinner;";
+const char* ANI_HISTORY_ITEM_INNER_CLASS_NAME = "L@ohos/web/webview/webview/HistoryIteminner;";
+
 } // namespace NWeb
 } // namespace OHOS
 #endif // OHOS_NWEB_ANI_WEB_WEBVIEW_ANI_CLASS_NAME

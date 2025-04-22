@@ -52,6 +52,14 @@
 #include "iservice_registry.h"
 #include "parameters.h"
 #include "system_ability_definition.h"
+#include "nweb_c_api.h"
+#include "web_download_delegate.h"
+#include "web_download_manager.h"
+#include "pixel_map.h"
+#include "pixel_map_ani.h"
+#include "proxy_config.h"
+#include "web_scheme_handler_response.h"
+#include "web_download_item.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -316,7 +324,31 @@ static void Clean(ani_env *env, ani_object object)
         WVLOG_E("Clean Object_GetFieldByName_Long status: %{public}d", status);
         return;
     }
-    delete reinterpret_cast<WebviewController *>(ptr);
+
+    ani_ref nameObj = nullptr;
+    if ((status = env->Object_GetFieldByName_Ref(object, "name", &nameObj)) != ANI_OK) {
+        WVLOG_E("Clean Object_GetFieldByName_Ref status: %{public}d", status);
+        return;
+    }
+    std::string clsName = "";
+    if (!AniParseUtils::ParseString(env, nameObj, clsName)) {
+        WVLOG_E("Clean ParseString failed.");
+        return;
+    }
+    if (clsName == "WebviewController") {
+        delete reinterpret_cast<WebviewController *>(ptr);
+    } else if (clsName == "WebHistoryList") {
+        delete reinterpret_cast<WebHistoryList *>(ptr);
+    } else if (clsName == "ProxyConfig") {
+        delete reinterpret_cast<ProxyConfig *>(ptr);
+    } else if (clsName == "WebSchemeHandlerResponse") {
+        delete reinterpret_cast<WebSchemeHandlerResponse *>(ptr);
+    } else if (clsName == "WebDownloadDelegate") {
+        delete reinterpret_cast<WebDownloadDelegate *>(ptr);
+    } else {
+        WVLOG_E("Clean unsupport className: %{public}s", clsName.c_str());
+    }
+    return;
 }
 
 static void Constructor(ani_env *env, ani_object object, ani_string webTagObject)
@@ -669,6 +701,300 @@ static ani_object GetLastHitTest(ani_env *env, ani_object object)
     return hitTestValue;
 }
 
+static void Stop(ani_env *env, ani_object object)
+{
+    WVLOG_D("[WebviewCotr] Stop");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    controller->Stop();
+}
+
+static void Refresh(ani_env *env, ani_object object)
+{
+    WVLOG_D("[WebviewCotr] Refresh");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    controller->Refresh();
+}
+
+static void StartDownload(ani_env *env, ani_object object, ani_string aniUrl)
+{
+    WVLOG_D("[WebviewCotr] StartDownload");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    std::string urlStr;
+    if (!AniParseUtils::ParseString(env, aniUrl, urlStr)) {
+        WVLOG_E("Parse url failed.");
+        return;
+    }
+    WVLOG_I("StartDownload url: %{public}s", urlStr.c_str());
+    int32_t nwebId = controller->GetWebId();
+    NWebHelper::Instance().LoadNWebSDK();
+    WebDownloader_StartDownload(nwebId, urlStr.c_str());
+}
+
+static void SetDownloadDelegate(ani_env *env, ani_object object, ani_object aniDelegate)
+{
+    WVLOG_D("[WebviewCotr] SetDownloadDelegate");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    NWebHelper::Instance().LoadNWebSDK();
+
+    WebDownloadDelegate* delegate = nullptr;
+    ani_long thisVar;
+    ani_status status = env->Object_GetFieldByName_Long(aniDelegate, "nativePtr", &thisVar);
+    if (status != ANI_OK) {
+        WVLOG_E("AniUtils_Unwrap Object_GetFieldByName_Long status: %{public}d", status);
+        return;
+    }
+    delegate = reinterpret_cast<WebDownloadDelegate *>(thisVar);
+    if (delegate == nullptr) {
+        WVLOG_E("WebDownloadDelegate is null.");
+        return;
+    }
+    int32_t nwebId = controller->GetWebId();
+    WebDownloadManager::AddDownloadDelegateForWeb(nwebId, delegate);
+}
+
+Media::PixelFormat getColorType(ImageColorType colorType)
+{
+    Media::PixelFormat pixelFormat_;
+    switch (colorType) {
+        case ImageColorType::COLOR_TYPE_UNKNOWN:
+            pixelFormat_ = Media::PixelFormat::UNKNOWN;
+            break;
+        case ImageColorType::COLOR_TYPE_RGBA_8888:
+            pixelFormat_ = Media::PixelFormat::RGBA_8888;
+            break;
+        case ImageColorType::COLOR_TYPE_BGRA_8888:
+            pixelFormat_ = Media::PixelFormat::BGRA_8888;
+            break;
+        default:
+            pixelFormat_ = Media::PixelFormat::UNKNOWN;
+            break;
+    }
+    return pixelFormat_;
+}
+
+Media::AlphaType getAlphaType(ImageAlphaType alphaType)
+{
+    Media::AlphaType alphaType_;
+    switch (alphaType) {
+        case ImageAlphaType::ALPHA_TYPE_UNKNOWN:
+            alphaType_ = Media::AlphaType::IMAGE_ALPHA_TYPE_UNKNOWN;
+            break;
+        case ImageAlphaType::ALPHA_TYPE_OPAQUE:
+            alphaType_ = Media::AlphaType::IMAGE_ALPHA_TYPE_OPAQUE;
+            break;
+        case ImageAlphaType::ALPHA_TYPE_PREMULTIPLIED:
+            alphaType_ = Media::AlphaType::IMAGE_ALPHA_TYPE_PREMUL;
+            break;
+        case ImageAlphaType::ALPHA_TYPE_POSTMULTIPLIED:
+            alphaType_ = Media::AlphaType::IMAGE_ALPHA_TYPE_UNPREMUL;
+            break;
+        default:
+            alphaType_ = Media::AlphaType::IMAGE_ALPHA_TYPE_UNKNOWN;
+            break;
+    }
+    return alphaType_;
+}
+
+static ani_ref GetFaviconByHistoryItem(ani_env *env, std::shared_ptr<NWebHistoryItem> item)
+{
+    if (env == nullptr || !item) {
+        WVLOG_E("[PIXELMAP] env or NWebHistoryItem is nullptr");
+        return nullptr;
+    }
+
+    ani_ref result = nullptr;
+    void *data = nullptr;
+    int32_t width = 0;
+    int32_t height = 0;
+    ImageColorType colorType = ImageColorType::COLOR_TYPE_UNKNOWN;
+    ImageAlphaType alphaType = ImageAlphaType::ALPHA_TYPE_UNKNOWN;
+    bool isGetFavicon = item->GetFavicon(&data, width, height, colorType, alphaType);
+    if (env->GetNull(&result) != ANI_OK) {
+        WVLOG_E("[PIXELMAP] GetNull fail");
+        return nullptr;
+    }
+    if (!isGetFavicon) {
+        WVLOG_E("[PIXELMAP] isGetFavicon is false");
+        return result;
+    }
+
+    Media::InitializationOptions opt;
+    opt.size.width = width;
+    opt.size.height = height;
+    opt.pixelFormat = getColorType(colorType);
+    opt.alphaType = getAlphaType(alphaType);
+    opt.editable = true;
+    auto pixelMap = Media::PixelMap::Create(opt);
+    if (pixelMap == nullptr) {
+         WVLOG_E("[PIXELMAP] pixelMap is null");
+        return result;
+    }
+    uint64_t stride = static_cast<uint64_t>(width) << 2;
+    uint64_t bufferSize = stride * static_cast<uint64_t>(height);
+    pixelMap->WritePixels(static_cast<const uint8_t *>(data), bufferSize);
+    std::shared_ptr<Media::PixelMap> pixelMapToJs(pixelMap.release());
+    ani_object jsPixelMap = OHOS::Media::PixelMapAni::CreatePixelMap(env, pixelMapToJs);
+    return jsPixelMap;
+}
+
+static ani_ref GetBackForwardEntries(ani_env *env, ani_object object)
+{
+    WVLOG_D("[BACKFORWARD] GetBackForwardEntries");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return nullptr;
+    }
+
+    std::shared_ptr<NWebHistoryList> list = controller->GetHistoryList();
+    if (!list) {
+        return nullptr;
+    }
+
+    int32_t currentIndex = list->GetCurrentIndex();
+    int32_t size = list->GetListSize();
+    WebHistoryList *webHistoryList = new (std::nothrow) WebHistoryList(list);
+    if (webHistoryList == nullptr) {
+        WVLOG_E("[BACKFORWARD] new WebHistoryList failed");
+        return nullptr;
+    }
+
+    ani_object backForwardObj = {};
+    if (AniParseUtils::CreateObjectVoid(env, ANI_BACK_FORWARD_LIST_INNER_CLASS_NAME, backForwardObj) == false) {
+        WVLOG_E("[BACKFORWARD] CreateObjectVoid failed");
+        return nullptr;
+    }
+
+    if (!AniParseUtils::Wrap(env, backForwardObj, ANI_BACK_FORWARD_LIST_INNER_CLASS_NAME,
+                             reinterpret_cast<ani_long>(webHistoryList))) {
+        WVLOG_E("[BACKFORWARD] WebDownloadDelegate wrap failed");
+        delete webHistoryList;
+        webHistoryList = nullptr;
+        return nullptr;
+    }
+
+    env->Object_SetPropertyByName_Int(backForwardObj, "currentIndex", static_cast<ani_int>(currentIndex));
+    env->Object_SetPropertyByName_Int(backForwardObj, "size", static_cast<ani_int>(size));
+    return backForwardObj;
+}
+
+static ani_ref GetItemAtIndex(ani_env *env, ani_object object, ani_int aniIndex)
+{
+    if (env == nullptr) {
+        WVLOG_E("[BACKFORWARD] env is nullptr");
+        return nullptr;
+    }
+
+    int32_t index = static_cast<int32_t>(aniIndex);
+    WebHistoryList *historyList = reinterpret_cast<WebHistoryList *>(AniParseUtils::Unwrap(env, object));
+    if (!historyList) {
+        WVLOG_E("[BACKFORWARD] Unwrap failed");
+        return nullptr;
+    }
+
+    if (index >= historyList->GetListSize() || index < 0) {
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            "BusinessError 401: Parameter error. The value of index must be greater than or equal to 0");
+        return nullptr;
+    }
+
+    std::shared_ptr<NWebHistoryItem> item = historyList->GetItem(index);
+    if (!item) {
+        return nullptr;
+    }
+
+    std::string historyUrl = item->GetHistoryUrl();
+    std::string historyRawUrl = item->GetHistoryRawUrl();
+    std::string title = item->GetHistoryTitle();
+
+    ani_object historyItemListObj = {};
+    if (AniParseUtils::CreateObjectVoid(env, ANI_HISTORY_ITEM_INNER_CLASS_NAME, historyItemListObj) == false) {
+        WVLOG_E("[BACKFORWARD] CreateObjectVoid failed");
+        return nullptr;
+    }
+
+    if (AniParseUtils::SetPropertyByName_String(env, historyItemListObj, "historyUrl", historyUrl) != ANI_OK) {
+        WVLOG_E("[BACKFORWARD] SetPropertyByName_String failed! key=historyUrl, value=%{public}s.", historyUrl.c_str());
+        return historyItemListObj;
+    }
+
+    if (AniParseUtils::SetPropertyByName_String(env, historyItemListObj, "historyRawUrl", historyRawUrl) != ANI_OK) {
+        WVLOG_E("[BACKFORWARD] SetPropertyByName_String failed! key=historyRawUrl, value=%{public}s.",
+                historyRawUrl.c_str());
+        return historyItemListObj;
+    }
+
+    if (AniParseUtils::SetPropertyByName_String(env, historyItemListObj, "title", title) != ANI_OK) {
+        WVLOG_E("[BACKFORWARD] SetPropertyByName_String failed! key=title, value=%{public}s.", title.c_str());
+        return historyItemListObj;
+    }
+
+    ani_ref iconRef = GetFaviconByHistoryItem(env, item);
+    if (env->Object_SetPropertyByName_Ref(historyItemListObj, "icon", iconRef) != ANI_OK) {
+        WVLOG_E("[BACKFORWARD] SetPropertyByName_String failed! key=icon.");
+        return historyItemListObj;
+    }
+    return historyItemListObj;
+}
+
+ani_status StsBackForwardListInit(ani_env *env)
+{
+    ani_class backForwardListCls = nullptr;
+    ani_status status = env->FindClass(ANI_BACK_FORWARD_LIST_INNER_CLASS_NAME, &backForwardListCls);
+    if (status != ANI_OK || !backForwardListCls) {
+        WVLOG_E("find %{public}s class failed, status: %{public}d", ANI_BACK_FORWARD_LIST_INNER_CLASS_NAME, status);
+        return ANI_ERROR;
+    }
+
+    std::array methodArray = {
+        ani_native_function { "getItemAtIndex", nullptr, reinterpret_cast<void *>(GetItemAtIndex) },
+    };
+
+    status = env->Class_BindNativeMethods(backForwardListCls, methodArray.data(), methodArray.size());
+    if (status != ANI_OK) {
+        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+    }
+
+    return ANI_OK;
+}
+
 ani_status StsCleanerInit(ani_env *env)
 {
     ani_class cleanerCls = nullptr;
@@ -740,6 +1066,11 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "zoomIn", nullptr, reinterpret_cast<void *>(ZoomIn) },
         ani_native_function { "getLastHitTest", nullptr, reinterpret_cast<void *>(GetLastHitTest) },
         ani_native_function { "getPageHeight", nullptr, reinterpret_cast<void *>(GetPageHeight) },
+        ani_native_function { "refresh", nullptr, reinterpret_cast<void *>(Refresh) },
+        ani_native_function { "stop", nullptr, reinterpret_cast<void *>(Stop) },
+        ani_native_function { "startDownload", nullptr, reinterpret_cast<void *>(StartDownload) },
+        ani_native_function { "setDownloadDelegate", nullptr, reinterpret_cast<void *>(SetDownloadDelegate) },
+        ani_native_function { "getBackForwardEntries", nullptr, reinterpret_cast<void *>(GetBackForwardEntries) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
