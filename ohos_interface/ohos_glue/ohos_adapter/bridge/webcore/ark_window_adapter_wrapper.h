@@ -39,6 +39,11 @@ public:
     void NativeWindowSurfaceCleanCacheWithPara(ArkWebNativeWindow window, bool cleanAll) override;
 
     void SetTransformHint(uint32_t rotation, ArkWebNativeWindow window) override;
+
+    void AddNativeWindowRef(ArkWebNativeWindow window) override;
+
+    void NativeWindowUnRef(ArkWebNativeWindow window) override;
+
 private:
     ArkWebRefPtr<ArkWindowAdapter> ctocpp_;
 };

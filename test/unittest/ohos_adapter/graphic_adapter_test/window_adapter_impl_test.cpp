@@ -41,6 +41,15 @@ HWTEST(WindowAdapterImplTest, NormalTest, TestSize.Level1)
     OhosAdapterHelper::GetInstance().GetWindowAdapterInstance().DestroyNativeWindow(window);
     window = nullptr;
     OhosAdapterHelper::GetInstance().GetWindowAdapterInstance().NativeWindowSurfaceCleanCacheWithPara(window, false);
+    OhosAdapterHelper::GetInstance().GetWindowAdapterInstance().AddNativeWindowRef(window);
+    OhosAdapterHelper::GetInstance().GetWindowAdapterInstance().NativeWindowUnRef(window);
+    cSurface = IConsumerSurface::Create("test1");
+    producer = cSurface->GetProducer();
+    pSurface = Surface::CreateSurfaceAsProducer(producer);
+    window = OhosAdapterHelper::GetInstance().GetWindowAdapterInstance().CreateNativeWindowFromSurface(&pSurface);
+    OhosAdapterHelper::GetInstance().GetWindowAdapterInstance().AddNativeWindowRef(window);
+    OhosAdapterHelper::GetInstance().GetWindowAdapterInstance().NativeWindowUnRef(window);
+    window = nullptr;
 }
 
 /**

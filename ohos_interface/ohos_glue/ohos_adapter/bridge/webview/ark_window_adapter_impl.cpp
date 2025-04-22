@@ -50,4 +50,14 @@ void ArkWindowAdapterImpl::SetTransformHint(uint32_t rotation, void* window)
 {
     return real_.SetTransformHint(rotation, window);
 }
+
+void ArkWindowAdapterImpl::AddNativeWindowRef(void* window)
+{
+    return real_.AddNativeWindowRef(window);
+}
+
+void ArkWindowAdapterImpl::NativeWindowUnRef(void* window)
+{
+    return real_.NativeWindowUnRef(window);
+}
 } // namespace OHOS::ArkWeb

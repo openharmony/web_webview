@@ -21,6 +21,7 @@
 #include "foundation/graphic/graphic_surface/interfaces/inner_api/surface/surface.h"
 #include "foundation/graphic/graphic_surface/interfaces/inner_api/surface/window.h"
 #include "foundation/graphic/graphic_surface/surface/include/native_window.h"
+#include "foundation/graphic/graphic_surface/interfaces/inner_api/surface/external_window.h"
 
 namespace OHOS::NWeb {
 constexpr uint32_t ROTATE_NONE = 0;
@@ -115,5 +116,21 @@ void WindowAdapterImpl::SetTransformHint(uint32_t rotation, NWebNativeWindow win
 
     auto transform = ConvertRotation(rotation);
     nativeWindow->surface->SetTransformHint(transform);
+}
+
+void WindowAdapterImpl::AddNativeWindowRef(NWebNativeWindow window)
+{
+    int32_t ret = OH_NativeWindow_NativeObjectReference(reinterpret_cast<OHNativeWindow*>(window));
+    if (ret != 0) {
+        WVLOG_E("add window reference failed.");
+    }
+}
+
+void WindowAdapterImpl::NativeWindowUnRef(NWebNativeWindow window)
+{
+    int32_t ret = OH_NativeWindow_NativeObjectUnreference(reinterpret_cast<OHNativeWindow*>(window));
+    if (ret != 0) {
+        WVLOG_E("cancel window reference failed.");
+    }
 }
 } // namespace OHOS::NWeb
