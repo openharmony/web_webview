@@ -45,6 +45,7 @@ const std::string DOWNLOAD_NOT_START_MSG = "The download task is not started yet
 const std::string REGISTER_CUSTOM_SCHEME_FAILED_MSG = "Failed to register custom schemes.";
 const std::string HTTP_BODY_STREAN_INIT_FAILED_MSG = "Failed to initialize the HTTP body stream.";
 const std::string RESOURCE_HANDLER_INVALID_MSG = "The resource handler is invalid.";
+const std::string NOT_ALLOWED_PORT_MSG = "The port number is not within the allowed range.";
 const std::string UNKNOWN_ERROR_MSG = "Unknown error message.";
 }
 
@@ -88,6 +89,7 @@ std::unordered_map<ErrCode, std::string> g_errCodeMsgMap = {
     {REGISTER_CUSTOM_SCHEME_FAILED, REGISTER_CUSTOM_SCHEME_FAILED_MSG},
     {HTTP_BODY_STREAN_INIT_FAILED, HTTP_BODY_STREAN_INIT_FAILED_MSG},
     {RESOURCE_HANDLER_INVALID, RESOURCE_HANDLER_INVALID_MSG},
+    {NOT_ALLOWED_PORT, NOT_ALLOWED_PORT_MSG},
 };
 
 std::string GetErrMsgByErrCode(ErrCode code)

@@ -270,4 +270,9 @@ void ArkWebEngineImpl::RemoveProxyOverride(ArkWebRefPtr<ArkWebProxyChangedCallba
     nweb_engine_->RemoveProxyOverride(nweb_proxy_callback);
 }
 
+void ArkWebEngineImpl::SetWebDebuggingAccessAndPort(bool isEnableDebug, int32_t port)
+{
+    nweb_engine_->SetWebDebuggingAccessAndPort(isEnableDebug, port);
+}
+
 } // namespace OHOS::ArkWeb
