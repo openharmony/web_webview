@@ -1179,4 +1179,30 @@ std::string NWebAdapterHelper::GetBundleName()
 {
     return NWebConfigHelper::Instance().GetBundleName();
 }
+
+void NWebHelper::SetWebDebuggingAccess(bool isEnableDebug)
+{
+    if (!initFlag_) {
+        WVLOG_E("SetWebDebuggingAccess, not initialized");
+        return;
+    }
+    if (!nwebEngine_) {
+        WVLOG_E("SetWebDebuggingAccess, nweb engine is nullptr");
+        return;
+    }
+    nwebEngine_->SetWebDebuggingAccess(isEnableDebug);
+}
+
+void NWebHelper::SetWebDebuggingAccessAndPort(bool isEnableDebug, int32_t port)
+{
+    if (!initFlag_) {
+        WVLOG_E("SetWebDebuggingAccessAndPort, not initialized");
+        return;
+    }
+    if (!nwebEngine_) {
+        WVLOG_E("SetWebDebuggingAccessAndPort, nweb engine is nullptr");
+        return;
+    }
+    nwebEngine_->SetWebDebuggingAccessAndPort(isEnableDebug, port);
+}
 } // namespace OHOS::NWeb

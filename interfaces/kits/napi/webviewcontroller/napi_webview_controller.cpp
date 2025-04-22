@@ -511,6 +511,7 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_FUNCTION("clearServiceWorkerWebSchemeHandler",
                                      NapiWebviewController::ClearServiceWorkerWebSchemeHandler),
         DECLARE_NAPI_FUNCTION("getWebDebuggingAccess", NapiWebviewController::InnerGetWebDebuggingAccess),
+        DECLARE_NAPI_FUNCTION("getWebDebuggingPort", NapiWebviewController::InnerGetWebDebuggingPort),
         DECLARE_NAPI_FUNCTION("setWebId", NapiWebviewController::SetWebId),
         DECLARE_NAPI_FUNCTION("jsProxy", NapiWebviewController::InnerJsProxy),
         DECLARE_NAPI_FUNCTION("getCustomeSchemeCmdLine", NapiWebviewController::InnerGetCustomeSchemeCmdLine),
@@ -984,13 +985,14 @@ napi_value NapiWebviewController::SetWebDebuggingAccess(napi_env env, napi_callb
         return result;
     }
     napi_value thisVar = nullptr;
-    size_t argc = INTEGER_ONE;
-    napi_value argv[INTEGER_ONE] = {0};
+    size_t argc = INTEGER_TWO;
+    napi_value argv[INTEGER_TWO] = {0};
 
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
-    if (argc != INTEGER_ONE) {
+    if (argc != INTEGER_ONE && argc != INTEGER_TWO) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
+            NWebError::FormatString(
+                ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_TWO, "one", "two"));
         return result;
     }
 
@@ -1000,7 +1002,25 @@ napi_value NapiWebviewController::SetWebDebuggingAccess(napi_env env, napi_callb
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "webDebuggingAccess", "boolean"));
         return result;
     }
+
+    // Optional param : port.
+    int32_t webDebuggingPort = 0;
+    if (argc > 1) {
+      NapiParseUtils::ParseInt32(env, argv[1], webDebuggingPort);
+    }
+
+    if (WebviewController::webDebuggingAccess_ != webDebuggingAccess ||
+        WebviewController::webDebuggingPort_ != webDebuggingPort) {
+        if (webDebuggingPort > 0) {
+            NWebHelper::Instance().SetWebDebuggingAccessAndPort(
+                webDebuggingAccess, webDebuggingPort);
+        } else {
+            NWebHelper::Instance().SetWebDebuggingAccess(webDebuggingAccess);
+        }
+    }
+
     WebviewController::webDebuggingAccess_ = webDebuggingAccess;
+    WebviewController::webDebuggingPort_ = webDebuggingPort;
 
     NAPI_CALL(env, napi_get_undefined(env, &result));
     return result;
@@ -1063,6 +1083,13 @@ napi_value NapiWebviewController::InnerGetWebDebuggingAccess(napi_env env, napi_
     napi_value result = nullptr;
     napi_get_boolean(env, webDebuggingAccess, &result);
     return result;
+}
+
+napi_value NapiWebviewController::InnerGetWebDebuggingPort(napi_env env, napi_callback_info info)
+{
+    WVLOG_D("InnerGetWebDebuggingPort start");
+    int32_t webDebuggingPort = WebviewController::webDebuggingPort_;
+    return NapiParseUtils::ToInt32Value(env, webDebuggingPort);
 }
 
 napi_value NapiWebviewController::InnerGetThisVar(napi_env env, napi_callback_info info)

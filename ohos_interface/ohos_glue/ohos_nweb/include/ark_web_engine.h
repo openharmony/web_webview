@@ -161,6 +161,9 @@ public:
      */
     /*--ark web()--*/
     virtual void RemoveProxyOverride(ArkWebRefPtr<ArkWebProxyChangedCallback> callback) = 0;
+
+    /*--ark web()--*/
+    virtual void SetWebDebuggingAccessAndPort(bool isEnableDebug, int32_t port) = 0;
 };
 
 } // namespace OHOS::ArkWeb
