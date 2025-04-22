@@ -30,6 +30,8 @@ public:
     static bool Wrap(ani_env *env, const ani_object& object, const char *className, const ani_long& thisVar);
     static bool CreateObjectVoid(ani_env *env, const char *className, ani_object& object);
     static bool GetEnumItemByIndex(ani_env *env, const char* enumName, int32_t typeIndex, ani_enum_item& eType);
+    static ani_status SetPropertyByName_String(ani_env *env, ani_object aniCls,
+                                               const char *keyName, std::string keyValue);
 };
 } // namespace NWeb
 } // namespace OHOS

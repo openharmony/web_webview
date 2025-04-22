@@ -134,5 +134,29 @@ bool AniParseUtils::GetEnumItemByIndex(ani_env *env, const char* enumName, int32
     }
     return true;
 }
+
+ani_status AniParseUtils::SetPropertyByName_String(ani_env *env, ani_object aniCls,
+                                                   const char *keyName, std::string keyValue)
+{
+    ani_status status;
+    ani_ref string_ref;
+    status = env->Object_GetPropertyByName_Ref(aniCls, keyName, &string_ref);
+    if (status != ANI_OK) {
+        WVLOG_E("Object_GetPropertyByName_Ref failed, key=%{public}s, name=%{public}s, status=%{public}d",
+                keyName, keyValue.c_str(), status);
+        return status;
+    }
+
+    ani_string aniResult{};
+    status = env->String_NewUTF8(keyValue.c_str(), keyValue.size(), &aniResult);
+    if (status != ANI_OK) {
+        WVLOG_E("String_GetUTF8 failed, key=%{public}s, name=%{public}s, status=%{public}d",
+                keyName, keyValue.c_str(), status);
+        return status;
+    }
+
+    status = env->Object_SetPropertyByName_Ref(aniCls, keyName, static_cast<ani_ref>(aniResult));
+    return status;
+}
 }
 }

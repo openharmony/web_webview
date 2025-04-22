@@ -95,6 +95,7 @@ ohos_shared_library("webview_ani") {
 
   include_dirs = [
     "./src/common",
+    "./src/proxycontroller",
     "./src/webviewcontroller",
   ]
 
@@ -102,6 +103,23 @@ ohos_shared_library("webview_ani") {
     "./src/common/ani_business_error.cpp",
     "./src/common/ani_parse_utils.cpp",
     "./src/webviewcontroller/ani_webview_controller.cpp",
+    "./src/webviewcontroller/web_scheme_handler_response.cpp",
+    "./src/webviewcontroller/web_scheme_handler_response.h",
+    "./src/webviewcontroller/ani_web_scheme_handler_response.cpp",
+    "./src/webviewcontroller/ani_web_download_delegate.cpp",
+    "./src/webviewcontroller/web_download_delegate.cpp",
+    "./src/webviewcontroller/web_download_delegate.h",
+    "./src/webviewcontroller/web_download_item.cpp",
+    "./src/webviewcontroller/web_download_item.h",
+    "./src/webviewcontroller/web_download_manager.cpp",
+    "./src/webviewcontroller/web_download_manager.h",
+    "./src/webviewcontroller/ani_web_cookie_manager.cpp",
+    "./src/proxycontroller/ani_proxy_config.cpp",
+    "./src/proxycontroller/ani_proxy_config.h",
+    "./src/proxycontroller/proxy_config.cpp",
+    "./src/proxycontroller/proxy_config.h",
+    "./src/proxycontroller/proxy_rule.cpp",
+    "./src/proxycontroller/proxy_rule.h",
     "./src/sts_web_webview.cpp",
   ]
 
@@ -122,8 +140,10 @@ ohos_shared_library("webview_ani") {
     "hilog:libhilog",
     "image_framework:image",
     "image_framework:image_native",
+    "image_framework:image_ani",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "napi:ace_container_scope",
     "napi:ace_napi",
     "protobuf:protobuf_lite",
     "runtime_core:ani",

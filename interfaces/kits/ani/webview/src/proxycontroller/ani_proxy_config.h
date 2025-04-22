@@ -13,19 +13,14 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_NWEB_ANI_WEBVIEW_CONTROLLER_H
-#define OHOS_NWEB_ANI_WEBVIEW_CONTROLLER_H
+#ifndef OHOS_NWEB_ANI_ANI_PROXY_CONFIG_H
+#define OHOS_NWEB_ANI_ANI_PROXY_CONFIG_H
 
 #include <ani.h>
 
 namespace OHOS {
 namespace NWeb {
-ani_status StsWebviewControllerInit(ani_env *env);
-ani_status StsCleanerInit(ani_env *env);
-ani_status StsBackForwardListInit(ani_env *env);
-ani_status StsWebSchemeHandlerResponseInit(ani_env *env);
-ani_status StsWebDownloadDelegateInit(ani_env *env);
-ani_status StsWebCookieManagerInit(ani_env *env);
+ani_status StsWebProxyConfigInit(ani_env *env);
 } // namespace NWeb
 } // namespace OHOS
-#endif // OHOS_NWEB_ANI_WEBVIEW_CONTROLLER_H
+#endif // OHOS_NWEB_ANI_ANI_PROXY_CONFIG_H
