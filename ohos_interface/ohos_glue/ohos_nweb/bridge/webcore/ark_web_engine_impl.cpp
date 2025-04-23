@@ -204,6 +204,16 @@ void ArkWebEngineImpl::ClearHostIP(const ArkWebString& hostName)
     nweb_engine_->ClearHostIP(ArkWebStringStructToClass(hostName));
 }
 
+void ArkWebEngineImpl::SetAppCustomUserAgent(const ArkWebString& userAgent)
+{
+    nweb_engine_->SetAppCustomUserAgent(ArkWebStringStructToClass(userAgent));
+}
+
+void ArkWebEngineImpl::SetUserAgentForHosts(const ArkWebString& userAgent, const ArkWebStringVector& hosts)
+{
+    nweb_engine_->SetUserAgentForHosts(ArkWebStringStructToClass(userAgent), ArkWebStringVectorStructToClass(hosts));
+}
+
 void ArkWebEngineImpl::EnableWholeWebPageDrawing()
 {
     nweb_engine_->EnableWholeWebPageDrawing();

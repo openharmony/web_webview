@@ -236,6 +236,16 @@ void ArkWebEngineWrapper::ClearHostIP(const std::string& hostName)
     ark_web_engine_->ClearHostIP(ArkWebStringClassToStruct(hostName));
 }
 
+void ArkWebEngineWrapper::SetAppCustomUserAgent(const std::string& userAgent)
+{
+    ark_web_engine_->SetAppCustomUserAgent(ArkWebStringClassToStruct(userAgent));
+}
+
+void ArkWebEngineWrapper::SetUserAgentForHosts(const std::string& userAgent, const std::vector<std::string>& hosts)
+{
+    ark_web_engine_->SetUserAgentForHosts(ArkWebStringClassToStruct(userAgent), ArkWebStringVectorClassToStruct(hosts));
+}
+
 void ArkWebEngineWrapper::EnableWholeWebPageDrawing()
 {
     ark_web_engine_->EnableWholeWebPageDrawing();

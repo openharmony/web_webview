@@ -77,6 +77,10 @@ public:
 
     void ClearHostIP(const std::string& hostName) override;
 
+    void SetAppCustomUserAgent(const std::string& userAgent) override;
+
+    void SetUserAgentForHosts(const std::string& userAgent, const std::vector<std::string>& hosts) override;
+
     void EnableWholeWebPageDrawing() override;
 
     std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> GetAdsBlockManager() override;

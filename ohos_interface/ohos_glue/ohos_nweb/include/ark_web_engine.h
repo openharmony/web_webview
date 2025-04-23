@@ -164,6 +164,12 @@ public:
 
     /*--ark web()--*/
     virtual void SetWebDebuggingAccessAndPort(bool isEnableDebug, int32_t port) = 0;
+    
+    /*--ark web()--*/
+    virtual void SetAppCustomUserAgent(const ArkWebString& userAgent) = 0;
+
+    /*--ark web()--*/
+    virtual void SetUserAgentForHosts(const ArkWebString& userAgent, const ArkWebStringVector& hosts) = 0;
 };
 
 } // namespace OHOS::ArkWeb
