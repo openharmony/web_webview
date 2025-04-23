@@ -174,6 +174,20 @@ export default namespace webview {
         native startDownload(url: string): void;
         native setDownloadDelegate(delegate: WebDownloadDelegate): void;
         native getBackForwardEntries(): BackForwardList;
+        native postUrl(url: string, postData: ArrayBuffer): void;
+        native getUrl(): string;
+        native getTitle(): string;
+        native getOriginalUrl(): string;
+        native getUserAgent(): string;
+        native getCustomUserAgent(): string;
+        native getLastJavascriptProxyCallingFrameUrl(): string;
+        native forward(): void;
+        native backward(): void;
+        native accessForward(): boolean;
+        native accessBackward(): boolean;
+        native loadData(data: string, mimeType: string, encoding: string, baseUrl?: string, historyUrl?: string): void;
+        native clearHistory(): void;
+        native clearWebSchemeHandler(): void;
     }
 
     export class WebSchemeHandlerResponse {

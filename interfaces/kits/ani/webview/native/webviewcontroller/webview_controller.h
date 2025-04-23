@@ -30,6 +30,7 @@
 #include "web_errors.h"
 #include "webview_javascript_result_callback.h"
 #include "print_manager_adapter.h"
+#include "arkweb_scheme_handler.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -311,6 +312,8 @@ public:
     void EnableIntelligentTrackingPrevention(bool enable);
 
     bool IsIntelligentTrackingPreventionEnabled() const;
+
+    int32_t ClearWebSchemeHandler();
 
     ErrCode StartCamera();
 
