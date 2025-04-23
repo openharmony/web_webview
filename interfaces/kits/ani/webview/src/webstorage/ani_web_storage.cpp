@@ -16,10 +16,6 @@
 
 #include <array>
 #include <iostream>
-
-#include "ani_business_error.h"
-#include "ani_parse_utils.h"
-
 #include <cstdlib>
 #include <ctime>
 #include <memory>
@@ -27,15 +23,14 @@
 #include <securec.h>
 #include <regex>
 
+#include "ani_business_error.h"
+#include "ani_parse_utils.h"
 #include "nweb_helper.h"
 #include "nweb_web_storage.h"
-
 #include "application_context.h"
 #include "ohos_resource_adapter_impl.h"
-
 #include "native_arkweb_utils.h"
 #include "native_interface_arkweb.h"
-
 #include "nweb_log.h"
 #include "web_errors.h"
 #include "webview_createpdf_execute_callback.h"
@@ -55,7 +50,7 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-static const char* WEB_STORAGE_CLASS_NAME = "L@ohos/web/webview/webview/WebStorage";
+static const char* WEB_STORAGE_CLASS_NAME = "L@ohos/web/webview/webview/WebStorage;";
 static const char* ANI_CLASS_WEB_STORAGE_ORIGIN_INNER = "L@ohos/web/webview/webview/WebStorageOriginInner;";
 }
 
