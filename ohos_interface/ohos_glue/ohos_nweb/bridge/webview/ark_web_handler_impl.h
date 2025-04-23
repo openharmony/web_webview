@@ -600,15 +600,15 @@ public:
      *
      * @param url String: The url of the page requesting.
      * @param message String: The message of the dialog.
-     * @param result std::shared_ptr<NWebJSDialogResult>: A NWebJSDialogResult to
-     *        confirm that the user closed the window.
      * @param isReload bool: The isReload parameter is set to true when the page is refreshed;
      *        otherwise, it remains false. Default is false.
+     * @param result std::shared_ptr<NWebJSDialogResult>: A NWebJSDialogResult to
+     *        confirm that the user closed the window.
      *
      * @return To show a custom dialog, the app should return true.
      */
-    bool OnBeforeUnloadByJSV2(const ArkWebString& url, const ArkWebString& message,
-        ArkWebRefPtr<ArkWebJsDialogResult> result, bool isReload) override;
+    bool OnBeforeUnloadByJSV2(const ArkWebString& url, const ArkWebString& message, bool isReload,
+        ArkWebRefPtr<ArkWebJsDialogResult> result) override;
 
     /**
      * @brief called when the web page is active for window.open called by other web component.

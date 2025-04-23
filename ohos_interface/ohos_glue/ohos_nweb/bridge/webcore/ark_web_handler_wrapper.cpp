@@ -1087,17 +1087,17 @@ void ArkWebHandlerWrapper::OnAccessibilityEventV2(
     ArkWebStringStructRelease(stArgument);
 }
 
-bool ArkWebHandlerWrapper::OnBeforeUnloadByJSV2(const std::string& url, const std::string& message,
-    std::shared_ptr<OHOS::NWeb::NWebJSDialogResult> result, bool isReload)
+bool ArkWebHandlerWrapper::OnBeforeUnloadByJSV2(const std::string& url, const std::string& message, bool isReload,
+    std::shared_ptr<OHOS::NWeb::NWebJSDialogResult> result)
 {
     ArkWebString stUrl = ArkWebStringClassToStruct(url);
     ArkWebString stMessage = ArkWebStringClassToStruct(message);
 
     bool flag = false;
     if (CHECK_SHARED_PTR_IS_NULL(result)) {
-        flag = ark_web_handler_->OnBeforeUnloadByJSV2(stUrl, stMessage, nullptr, isReload);
+        flag = ark_web_handler_->OnBeforeUnloadByJSV2(stUrl, stMessage, isReload, nullptr);
     } else {
-        flag = ark_web_handler_->OnBeforeUnloadByJSV2(stUrl, stMessage, new ArkWebJsDialogResultImpl(result), isReload);
+        flag = ark_web_handler_->OnBeforeUnloadByJSV2(stUrl, stMessage, isReload, new ArkWebJsDialogResultImpl(result));
     }
 
     ArkWebStringStructRelease(stUrl);
