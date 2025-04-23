@@ -915,6 +915,327 @@ static ani_ref GetBackForwardEntries(ani_env *env, ani_object object)
     return backForwardObj;
 }
 
+static void PostUrl(ani_env *env, ani_object object, ani_object urlObj, ani_object arrayBufferObj)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    std::string url;
+    if (!GetUrl(env, urlObj, url, controller)) {
+        return;
+    }
+
+    char *arrayBuffer = nullptr;
+    size_t byteLength = 0;
+    if (env->ArrayBuffer_GetInfo(reinterpret_cast<ani_arraybuffer>(arrayBufferObj),
+                                 reinterpret_cast<void **>(&arrayBuffer), &byteLength) != ANI_OK) {
+        WVLOG_E("ArrayBuffer_GetInfo failed");
+        return;
+    }
+    std::vector<char> postData(arrayBuffer, arrayBuffer + byteLength);
+
+    ErrCode ret = controller->PostUrl(url, postData);
+    if (ret != NO_ERROR) {
+        if (ret == NWEB_ERROR) {
+            WVLOG_E("PostUrl failed");
+            return;
+        }
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+        return;
+    }
+}
+
+static ani_string GetUrlAni(ani_env *env, ani_object object)
+{
+    ani_string url = nullptr;
+
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return url;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return url;
+    }
+
+    std::string result = controller->GetUrl();
+    env->String_NewUTF8(result.c_str(), result.size(), &url);
+
+    return url;
+}
+
+static ani_string GetTitle(ani_env *env, ani_object object)
+{
+    ani_string title = nullptr;
+
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return title;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return title;
+    }
+
+    std::string result = controller->GetTitle();
+    env->String_NewUTF8(result.c_str(), result.size(), &title);
+
+    return title;
+}
+
+static ani_string GetOriginalUrl(ani_env *env, ani_object object)
+{
+    ani_string originUrl = nullptr;
+
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return originUrl;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return originUrl;
+    }
+
+    std::string result = controller->GetOriginalUrl();
+    env->String_NewUTF8(result.c_str(), result.size(), &originUrl);
+
+    return originUrl;
+}
+
+static ani_string GetUserAgent(ani_env *env, ani_object object)
+{
+    ani_string userAgent = nullptr;
+
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return userAgent;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return userAgent;
+    }
+
+    std::string result = controller->GetUserAgent();
+    env->String_NewUTF8(result.c_str(), result.size(), &userAgent);
+
+    return userAgent;
+}
+
+static ani_string GetCustomUserAgent(ani_env *env, ani_object object)
+{
+    ani_string customUserAgent = nullptr;
+
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return customUserAgent;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return customUserAgent;
+    }
+
+    std::string result = controller->GetCustomUserAgent();
+    env->String_NewUTF8(result.c_str(), result.size(), &customUserAgent);
+
+    return customUserAgent;
+}
+
+static ani_string GetLastJavascriptProxyCallingFrameUrl(ani_env *env, ani_object object)
+{
+    ani_string lastCallingFrameUrl = nullptr;
+
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return lastCallingFrameUrl;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return lastCallingFrameUrl;
+    }
+
+    std::string result = controller->GetLastJavascriptProxyCallingFrameUrl();
+    env->String_NewUTF8(result.c_str(), result.size(), &lastCallingFrameUrl);
+
+    return lastCallingFrameUrl;
+}
+
+static void Forward(ani_env *env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    controller->Forward();   
+}
+
+static void Backward(ani_env *env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    controller->Backward();  
+}
+
+static ani_boolean AccessForward(ani_env *env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return ANI_FALSE;
+    }
+
+    if (!controller->AccessForward()) {
+        return ANI_FALSE;
+    }
+
+    return ANI_TRUE;
+}
+
+static ani_boolean AccessBackward(ani_env *env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return ANI_FALSE;
+    }
+
+    if (!controller->AccessBackward()) {
+        return ANI_FALSE;
+    }
+
+    return ANI_TRUE;
+}
+
+static void LoadData(ani_env *env, ani_object object, ani_object urlObj, ani_object mimeTypeObj,
+                     ani_object encodingObj, ani_object baseUrlObj, ani_object historyUrlObj)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    std::string url;
+    if (!GetUrl(env, urlObj, url, controller)) {
+        return;
+    }
+    std::string mimeType;
+    if (!AniParseUtils::ParseString(env, mimeTypeObj, mimeType)) {
+        return;
+    }
+    std::string encoding;
+    if (!AniParseUtils::ParseString(env, encodingObj, encoding)) {
+        return;
+    }
+    std::string baseUrl;
+    ani_boolean isUndefined = ANI_TRUE;
+    if (env->Reference_IsUndefined(baseUrlObj, &isUndefined) != ANI_OK) {
+        return;
+    }
+    if (!isUndefined && !AniParseUtils::ParseString(env, baseUrlObj, baseUrl)) {
+        return;
+    }
+    std::string historyUrl;
+    if (env->Reference_IsUndefined(historyUrlObj, &isUndefined) != ANI_OK) {
+        return;
+    }
+    if (!isUndefined && !AniParseUtils::ParseString(env, historyUrlObj, historyUrl)) {
+        return;
+    }
+    ErrCode ret = controller->LoadData(url, mimeType, encoding, baseUrl, historyUrl);
+    if (ret != NO_ERROR) {
+        if (ret == NWEB_ERROR) {
+            WVLOG_E("LoadData failed");
+            return;
+        }
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+        return;
+    }
+}
+
+static void ClearHistory(ani_env *env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    controller->ClearHistory(); 
+}
+
+static void ClearWebSchemeHandler(ani_env *env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    if (controller->ClearWebSchemeHandler() != 0) {
+        WVLOG_E("AniWebviewController::ClearWebSchemeHandler failed");
+    }
+    WVLOG_I("AniWebviewController::ClearWebSchemeHandler successful");
+}
+
 static ani_ref GetItemAtIndex(ani_env *env, ani_object object, ani_int aniIndex)
 {
     if (env == nullptr) {
@@ -1071,6 +1392,21 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "startDownload", nullptr, reinterpret_cast<void *>(StartDownload) },
         ani_native_function { "setDownloadDelegate", nullptr, reinterpret_cast<void *>(SetDownloadDelegate) },
         ani_native_function { "getBackForwardEntries", nullptr, reinterpret_cast<void *>(GetBackForwardEntries) },
+        ani_native_function { "postUrl", nullptr, reinterpret_cast<void *>(PostUrl) },
+        ani_native_function { "getUrl", nullptr, reinterpret_cast<void *>(GetUrlAni) },
+        ani_native_function { "getTitle", nullptr, reinterpret_cast<void *>(GetTitle) },
+        ani_native_function { "getOriginalUrl", nullptr, reinterpret_cast<void *>(GetOriginalUrl) },
+        ani_native_function { "getUserAgent", nullptr, reinterpret_cast<void *>(GetUserAgent) },
+        ani_native_function { "getCustomUserAgent", nullptr, reinterpret_cast<void *>(GetCustomUserAgent) },
+        ani_native_function { "getLastJavascriptProxyCallingFrameUrl", nullptr,
+                              reinterpret_cast<void *>(GetLastJavascriptProxyCallingFrameUrl) },
+        ani_native_function { "forward", nullptr, reinterpret_cast<void *>(Forward) },
+        ani_native_function { "backward", nullptr, reinterpret_cast<void *>(Backward) },
+        ani_native_function { "accessForward", nullptr, reinterpret_cast<void *>(AccessForward) },
+        ani_native_function { "accessBackward", nullptr, reinterpret_cast<void *>(AccessBackward) },
+        ani_native_function { "loadData", nullptr, reinterpret_cast<void *>(LoadData) },
+        ani_native_function { "clearHistory", nullptr, reinterpret_cast<void *>(ClearHistory) },
+        ani_native_function { "clearWebSchemeHandler", nullptr, reinterpret_cast<void *>(ClearWebSchemeHandler) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());

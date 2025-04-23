@@ -1500,6 +1500,11 @@ void WebPrintWriteResultCallbackAdapter::WriteResultCallback(std::string jobId, 
     cb_(jobId, code);
 }
 
+int32_t WebviewController::ClearWebSchemeHandler()
+{
+    return OH_ArkWeb_ClearSchemeHandlers(webTag_.c_str());
+}
+
 ErrCode WebviewController::StartCamera()
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
