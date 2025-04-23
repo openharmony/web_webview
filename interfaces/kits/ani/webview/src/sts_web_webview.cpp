@@ -21,6 +21,7 @@
 
 #include "ani_webview_controller.h"
 #include "ani_proxy_config.h"
+#include "ani_web_storage.h"
 #include "nweb_log.h"
 
 namespace OHOS {
@@ -44,6 +45,7 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
     StsWebCookieManagerInit(env);
     StsWebProxyConfigInit(env);
     StsCleanerInit(env);
+    StsWebStorageInit(env);
     *result = ANI_VERSION_1;
     return ANI_OK;
 }

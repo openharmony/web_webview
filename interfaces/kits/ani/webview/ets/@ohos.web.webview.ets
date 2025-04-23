@@ -564,4 +564,105 @@ export default namespace webview {
          */
         native getProxyRules(): Array<ProxyRule>;
     }
+
+    export interface WebStorageOrigin {
+        origin: string;
+        usage: number;
+        quota: number;
+    }
+
+    export class WebStorageOriginInner implements WebStorageOrigin {
+        origin: string = "";
+        usage: number = 0;
+        quota: number = 0;
+    }
+
+    export class WebStorage {
+        static {
+            loadLibrary("webview_ani.z");
+        }
+        native static getOriginsSync(): Array<WebStorageOrigin>;
+        native static getOriginQuotaSync(origin: string): number;
+        native static getOriginUsageSync(origin: string): number;
+        native static deleteAllData(incognito?: boolean): void;
+        native static deleteOrigin(origin: string): void;
+        static getOrigins(): Promise<Array<WebStorageOrigin>> {
+            let p = new Promise<Array<WebStorageOrigin>>((resolve: (v: Array<WebStorageOrigin>) => void,
+            reject: (error: Object) => void) => {
+                let p1 = taskpool.execute(WebStorage.getOriginsSync);
+                p1.then((e : NullishType) => {
+                    let r = e as Array<WebStorageOrigin>;
+                    resolve(r);
+                }).catch((error: Error): Array<WebStorageOrigin> => {
+                    reject(error);
+                });
+            });
+            return p;
+        }
+
+        static getOrigins(callback: AsyncCallback<Array<WebStorageOrigin>>): void {
+            let p = taskpool.execute(WebStorage.getOriginsSync);
+            p.then((e : NullishType) => {
+                let r = e as Array<WebStorageOrigin>;
+                let err : BusinessError<void> = new BusinessError<void>();
+                callback(err, r);
+            }).catch((error: NullishType) => {
+                let err = error as BusinessError<void>;
+                let data = new Array<WebStorageOrigin>;
+                callback(err, data);
+            });
+        }
+
+        static getOriginQuota(origin: string): Promise<number> {
+            let p = new Promise<number>((resolve: (v: number) => void,
+            reject: (error: Object) => void) => {
+                let p1 = taskpool.execute(WebStorage.getOriginQuotaSync, origin);
+                p1.then((e : NullishType) => {
+                    let r = e as number;
+                    resolve(r);
+                }).catch((error: Error): number => {
+                    reject(error);
+                });
+            });
+            return p;
+        }
+
+        static getOriginQuota(origin: string, callback: AsyncCallback<number>): void {
+            let p = taskpool.execute(WebStorage.getOriginQuotaSync, origin);
+            p.then((e : NullishType) => {
+                let r = e as number;
+                let err : BusinessError<void> = new BusinessError<void>();
+                callback(err, r);
+            }).catch((error: NullishType) => {
+                let err = error as BusinessError<void>;
+                callback(err, -1);
+            });
+        }
+
+        static getOriginUsage(origin: string): Promise<number> {
+            let p = new Promise<number>((resolve: (v: number) => void,
+            reject: (error: Object) => void) => {
+                let p1 = taskpool.execute(WebStorage.getOriginUsageSync, origin);
+                p1.then((e : NullishType) => {
+                    let r = e as number;
+                    resolve(r);
+                }).catch((error: Error): number => {
+                    reject(error);
+                });
+            });
+            return p;
+        }
+
+        static getOriginUsage(origin: string, callback: AsyncCallback<number>): void {
+            let p = taskpool.execute(WebStorage.getOriginUsageSync, origin);
+            p.then((e : NullishType) => {
+                let r = e as number;
+                let err : BusinessError<void> = new BusinessError<void>();
+                callback(err, r);
+            }).catch((error: NullishType) => {
+                let err = error as BusinessError<void>;
+                callback(err, -1);
+            });
+        }
+    }
 }
