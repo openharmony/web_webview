@@ -1527,6 +1527,20 @@ public:
     /*--ark web()--*/
     void SetSurfaceDensity(const double& density) override;
 
+    /**
+     * @brief RegisterNativeJavaScriptProxy.
+     *
+     * @param objName object name.
+     * @param methodName methodName list
+     * @param data The ptr of NWebJsProxyMethod.
+     * @param isAsync True mean Async.
+     * @param permission permission.
+     */
+    void RegisterNativeJavaScriptProxy(const ArkWebString& objName,
+        const ArkWebStringVector& methodName,
+        ArkWebRefPtr<ArkWebJsProxyMethod> data,
+        bool isAsync,
+        const ArkWebString& permission) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

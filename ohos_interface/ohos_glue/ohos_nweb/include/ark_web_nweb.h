@@ -30,6 +30,7 @@
 #include "ohos_nweb/include/ark_web_history_list.h"
 #include "ohos_nweb/include/ark_web_hit_test_result.h"
 #include "ohos_nweb/include/ark_web_js_proxy_callback_vector.h"
+#include "ohos_nweb/include/ark_web_js_proxy_method.h"
 #include "ohos_nweb/include/ark_web_js_result_callback.h"
 #include "ohos_nweb/include/ark_web_keyboard_event.h"
 #include "ohos_nweb/include/ark_web_message_value_callback.h"
@@ -1702,6 +1703,22 @@ public:
      */
     /*--ark web()--*/
     virtual void SetSurfaceDensity(const double& density) = 0;
+
+    /**
+     * @brief: register native javaScriptProxy.
+     *
+     * @param objName object name.
+     * @param methodName methodName list
+     * @param data The ptr of NWebJsProxyMethod.
+     * @param isAsync True mean.
+     * @param permission permission.
+     */
+    /*--ark web()--*/
+    virtual void RegisterNativeJavaScriptProxy(const ArkWebString& objName,
+        const ArkWebStringVector& methodName,
+        ArkWebRefPtr<ArkWebJsProxyMethod> data,
+        bool isAsync,
+        const ArkWebString& permission) = 0;
 };
 
 } // namespace OHOS::ArkWeb

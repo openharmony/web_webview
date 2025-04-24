@@ -279,6 +279,16 @@ typedef void (*NativeArkWebOnDestroyCallback)(const char*);
 using ScriptItems = std::map<std::string, std::vector<std::string>>;
 using ScriptItemsByOrder = std::vector<std::string>;
 using WebSnapshotCallback = std::function<void(const char*, bool, float, void*, int, int)>;
+
+class OHOS_NWEB_EXPORT NWebJsProxyMethod {
+    public:
+        virtual ~NWebJsProxyMethod() = default;
+    
+        virtual int32_t GetSize() = 0;
+    
+        virtual void OnHandle(int32_t number, const std::vector<std::string>& param) = 0;
+    };
+    
 class OHOS_NWEB_EXPORT NWeb : public std::enable_shared_from_this<NWeb> {
 public:
     NWeb() = default;
@@ -1766,6 +1776,21 @@ public:
      * @param density The new density value.
      */
     virtual void SetSurfaceDensity(const double& density) {}
+
+    /**
+     * @brief: register native javaScriptProxy.
+     *
+     * @param objName  String: object name.
+     * @param methodName std::vector<std::string>: methodName list
+     * @param data std::shared_ptr<OHOS::NWeb::NWebJsProxyMethod>: The ptr of NWebJsProxyMethod.
+     * @param isAsync bool: True mean.
+     * @param permission string: permission.
+     */
+    virtual void RegisterNativeJavaScriptProxy(const std::string& objName,
+        const std::vector<std::string>& methodName,
+        std::shared_ptr<OHOS::NWeb::NWebJsProxyMethod> data,
+        bool isAsync,
+        const std::string& permission) {}
 };
 
 } // namespace OHOS::NWeb

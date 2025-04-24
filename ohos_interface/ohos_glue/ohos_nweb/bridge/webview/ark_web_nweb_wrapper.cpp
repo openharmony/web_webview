@@ -28,6 +28,7 @@
 #include "ohos_nweb/bridge/ark_web_handler_impl.h"
 #include "ohos_nweb/bridge/ark_web_history_list_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_hit_test_result_wrapper.h"
+#include "ohos_nweb/bridge/ark_web_js_proxy_method_impl.h"
 #include "ohos_nweb/bridge/ark_web_js_result_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_keyboard_event_impl.h"
 #include "ohos_nweb/bridge/ark_web_message_value_callback_impl.h"
@@ -1553,5 +1554,32 @@ void ArkWebNWebWrapper::SetNativeInnerWeb(bool isInnerWeb)
 void ArkWebNWebWrapper::SetSurfaceDensity(const double& density)
 {
     ark_web_nweb_->SetSurfaceDensity(density);
+}
+
+void ArkWebNWebWrapper::RegisterNativeJavaScriptProxy(const std::string& objName,
+    const std::vector<std::string>& methodName, std::shared_ptr<OHOS::NWeb::NWebJsProxyMethod> data,
+    bool isAsync, const std::string& permission)
+{
+    ArkWebString stObjName = ArkWebStringClassToStruct(objName);
+    ArkWebStringVector stMethodName = ArkWebStringVectorClassToStruct(methodName);
+    ArkWebString stPermission = ArkWebStringClassToStruct(permission);
+
+    if (CHECK_SHARED_PTR_IS_NULL(data)) {
+        ark_web_nweb_->RegisterNativeJavaScriptProxy(stObjName,
+                                                     stMethodName,
+                                                     nullptr,
+                                                     isAsync,
+                                                     stPermission);
+    } else {
+        ark_web_nweb_->RegisterNativeJavaScriptProxy(stObjName,
+                                                     stMethodName,
+                                                     new ArkWebJsProxyMethodImpl(data),
+                                                     isAsync,
+                                                     stPermission);
+    }
+
+    ArkWebStringStructRelease(stObjName);
+    ArkWebStringVectorStructRelease(stMethodName);
+    ArkWebStringStructRelease(stPermission);
 }
 } // namespace OHOS::ArkWeb

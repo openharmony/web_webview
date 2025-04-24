@@ -115,6 +115,7 @@ enum ArkWebBridgeType {
     ARK_WEB_MOUSE_EVENT = 91,
     ARK_WEB_KEYBOARD_EVENT = 92,
     ARK_WEB_PROXY_CHANGED_CALLBACK = 93,
+    ARK_WEB_JS_PROXY_METHOD = 94,
 
     /*Note: The end of nweb interface bridge type*/
     ARK_WEB_NWEB_INTERFACE_BUTT,
