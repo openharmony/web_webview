@@ -356,13 +356,13 @@ export default namespace webview {
          */
         static saveCookieAsync(): Promise<void> {
             let pPromise = new Promise<void>((resolve: (v: undefined) => void,
-                                              reject: (error: Object) => void): void => {
+                                              reject: (error: Error) => void): void => {
                 let pPromise1 = taskpool.execute(():undefined => {
                     WebCookieManager.saveCookieSync();  return undefined});
                 pPromise1.then((e :NullishType): void=>{
                     console.log("in Promise then. e is ", e)
                     resolve(undefined);
-                }, (err:Object): void => {
+                }, (err:Error): void => {
                     reject(err);
                 });
             });
@@ -384,7 +384,7 @@ export default namespace webview {
                 let resultCode: Int  = 0;
                 let r: BusinessError = { code: resultCode.intValue(), data: undefined };
                 callback(r, undefined);
-            }, (err:Object): void => {
+            }, (err:Error): void => {
             });
         }
 
@@ -410,13 +410,13 @@ export default namespace webview {
          */
         static clearAllCookies(): Promise<void> {
             let pPromise = new Promise<void>((resolve: (v: undefined) => void,
-                                              reject: (error: Object) => void): void => {
+                                              reject: (error: Error) => void): void => {
                 let pPromise1 = taskpool.execute(():undefined => {
                     WebCookieManager.clearAllCookiesSync();  return undefined});
                 pPromise1.then((e :NullishType): void=>{
                     console.log("in Promise then. e is ", e)
                     resolve(undefined);
-                }, (err:Object): void => {
+                }, (err:Error): void => {
                     reject(err);
                 });
             });
@@ -440,20 +440,20 @@ export default namespace webview {
                 let resultCode: Int  = 0;
                 let r: BusinessError = { code: resultCode.intValue(), data: undefined };
                 callback(r, undefined);
-            }, (err:Object): void => {
+            }, (err:Error): void => {
             });
         }
 
         native static fetchCookieSync(url: string, incognito?: boolean): string;
         static fetchCookie(url: string): Promise<string> {
-            let pPromise = new Promise<string>((resolve: (v: string) => void, reject: (error: Object) => void) => {
+            let pPromise = new Promise<string>((resolve: (v: string) => void, reject: (error: Error) => void) => {
                 let pPromise1 = taskpool.execute((): string => {
                     return WebCookieManager.fetchCookieSync(url);
                 });
                 pPromise1.then((e: NullishType) => {
                     let r: string = e as string;
                     resolve(r);
-                }, (error: Object): void => {
+                }, (error: Error): void => {
                 });
             });
             return pPromise;
@@ -467,7 +467,7 @@ export default namespace webview {
                 let resultCode: Int = 0;
                 let error: BusinessError = { code: resultCode.intValue(), data: undefined };
                 callback(error, data); 
-            }, (err: Object): void => {
+            }, (err: Error): void => {
             });
         }
     }
