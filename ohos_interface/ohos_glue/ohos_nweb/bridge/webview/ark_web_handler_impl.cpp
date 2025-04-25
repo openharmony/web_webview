@@ -971,4 +971,9 @@ bool ArkWebHandlerImpl::OnBeforeUnloadByJSV2(
     return nweb_handler_->OnBeforeUnloadByJSV2(ArkWebStringStructToClass(url), ArkWebStringStructToClass(message),
         std::make_shared<ArkWebJsDialogResultWrapper>(result), isReload);
 }
+
+void ArkWebHandlerImpl::OnActivateContentByJS()
+{
+    nweb_handler_->OnActivateContentByJS();
+}
 } // namespace OHOS::ArkWeb

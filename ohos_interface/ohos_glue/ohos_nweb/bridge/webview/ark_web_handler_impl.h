@@ -610,6 +610,11 @@ public:
     bool OnBeforeUnloadByJSV2(const ArkWebString& url, const ArkWebString& message,
         ArkWebRefPtr<ArkWebJsDialogResult> result, bool isReload) override;
 
+    /**
+     * @brief called when the web page is active for window.open called by other web component.
+     */
+    void OnActivateContentByJS() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };
