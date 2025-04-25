@@ -107,6 +107,8 @@ public:
                                   std::shared_ptr<NWebProxyChangedCallback> callback) {}
     
     virtual void RemoveProxyOverride(std::shared_ptr<NWebProxyChangedCallback> callback) {}
+
+    virtual void SetWebDebuggingAccessAndPort(bool isEnableDebug, int32_t port) {}
 };
 
 } // namespace OHOS::NWeb

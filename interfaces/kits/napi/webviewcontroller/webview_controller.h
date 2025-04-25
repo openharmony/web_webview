@@ -418,6 +418,7 @@ public:
     static std::string customeSchemeCmdLine_;
     static bool existNweb_;
     static bool webDebuggingAccess_;
+    static int32_t webDebuggingPort_;
     static std::set<std::string> webTagSet_;
     static int32_t webTagStrId_;
 

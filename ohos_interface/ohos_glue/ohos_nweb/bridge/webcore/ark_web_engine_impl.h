@@ -98,6 +98,8 @@ public:
 
     void RemoveProxyOverride(ArkWebRefPtr<ArkWebProxyChangedCallback> callback) override;
 
+    void SetWebDebuggingAccessAndPort(bool isEnableDebug, int32_t port) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebEngine> nweb_engine_;
 };
