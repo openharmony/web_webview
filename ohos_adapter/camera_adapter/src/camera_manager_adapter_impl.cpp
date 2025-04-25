@@ -293,6 +293,7 @@ std::vector<std::shared_ptr<VideoDeviceDescriptorAdapter>> CameraManagerAdapterI
         }
 
         std::string displayName = GetCameraDisplayName(cameraObj->GetID(), cameraObj->GetPosition());
+        std::replace(displayName.begin(), displayName.end(), '/', ' ');
         deviceDisc->SetDisplayName(displayName);
         deviceDisc->SetDeviceId(cameraObj->GetID());
         deviceDisc->SetModelId(cameraObj->GetID());
