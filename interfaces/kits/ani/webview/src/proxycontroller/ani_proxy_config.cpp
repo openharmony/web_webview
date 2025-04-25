@@ -87,13 +87,13 @@ static ani_ref GetProxyRulesInternal(ani_env *env, ProxyConfig* proxyConfig,
     size_t rulesSize = proxyRules.size();
 
     ani_method arrayCtor;
-    if(env->Class_FindMethod(arrayCls, "<ctor>", "I:V", &arrayCtor) != ANI_OK){
+    if (env->Class_FindMethod(arrayCls, "<ctor>", "I:V", &arrayCtor) != ANI_OK) {
         WVLOG_E("[PROXYCONTROLLER] FindClass Lescompat/Array; Failed.");
         return nullptr;
     }
 
     ani_object arrayObj;
-    if(env->Object_New(arrayCls, arrayCtor, &arrayObj, rulesSize) != ANI_OK){
+    if (env->Object_New(arrayCls, arrayCtor, &arrayObj, rulesSize) != ANI_OK) {
         WVLOG_E("[PROXYCONTROLLER] Object_New Array Faild.");
         return arrayObj;
     }
@@ -106,8 +106,8 @@ static ani_ref GetProxyRulesInternal(ani_env *env, ProxyConfig* proxyConfig,
             return arrayObj;
         }
         ani_string itemString{};
-        if ((status = env->String_NewUTF8(proxyRules[i].GetUrl().c_str(), proxyRules[i].GetUrl().size(),
-             &itemString)) != ANI_OK) {
+        if ((status = env->String_NewUTF8(proxyRules[i].GetUrl().c_str(),
+                                          proxyRules[i].GetUrl().size(), &itemString)) != ANI_OK) {
             WVLOG_E("[PROXYCONTROLLER] String_NewUTF8 status: %{public}d", status);
             return arrayObj;
         }
@@ -126,7 +126,7 @@ static ani_ref GetProxyRulesInternal(ani_env *env, ProxyConfig* proxyConfig,
             return arrayObj;
         }
 
-        if(env->Object_CallMethodByName_Void(arrayObj, "$_set", "ILstd/core/Object;:V", i, inputObject) != ANI_OK){
+        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "ILstd/core/Object;:V", i, inputObject) != ANI_OK) {
             WVLOG_E("[PROXYCONTROLLER] Object_New status: %{public}d", status);
             return arrayObj;
         }
@@ -162,7 +162,7 @@ static ani_ref JsGetProxyRule(ani_env *env, ani_object object)
     }
 
     ani_class arrayCls = nullptr;
-    if (env->FindClass("Lescompat/Array;", &arrayCls) != ANI_OK){
+    if (env->FindClass("Lescompat/Array;", &arrayCls) != ANI_OK) {
         WVLOG_E("[PROXYCONTROLLER] FindClass Lescompat/Array; Failed.");
         return nullptr;
     }

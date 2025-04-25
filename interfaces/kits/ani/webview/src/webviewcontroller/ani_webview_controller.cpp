@@ -1092,7 +1092,7 @@ static void Forward(ani_env *env, ani_object object)
         return;
     }
 
-    controller->Forward();   
+    controller->Forward();
 }
 
 static void Backward(ani_env *env, ani_object object)
@@ -1108,7 +1108,7 @@ static void Backward(ani_env *env, ani_object object)
         return;
     }
 
-    controller->Backward();  
+    controller->Backward();
 }
 
 static ani_boolean AccessForward(ani_env *env, ani_object object)
@@ -1214,7 +1214,7 @@ static void ClearHistory(ani_env *env, ani_object object)
         return;
     }
 
-    controller->ClearHistory(); 
+    controller->ClearHistory();
 }
 
 static void ClearWebSchemeHandler(ani_env *env, ani_object object)
