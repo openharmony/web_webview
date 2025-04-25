@@ -66,7 +66,7 @@ void DeleteAllData(ani_env *env, ani_object object, ani_object incognitoObj)
         return;
     }
     ani_boolean isUndefined = ANI_TRUE;
-    if(env->Reference_IsUndefined(incognitoObj, &isUndefined) != ANI_OK || isUndefined == ANI_TRUE) {
+    if (env->Reference_IsUndefined(incognitoObj, &isUndefined) != ANI_OK || isUndefined == ANI_TRUE) {
         webStorage->DeleteAllData(false);
     } else {
         ani_boolean incognito = ANI_FALSE;
@@ -86,7 +86,7 @@ void DeleteOrigin(ani_env *env, ani_object object, ani_string origin)
         return;
     }
     ani_boolean isUndefined = ANI_TRUE;
-    if(env->Reference_IsUndefined(origin, &isUndefined) != ANI_OK || isUndefined == ANI_TRUE) {
+    if (env->Reference_IsUndefined(origin, &isUndefined) != ANI_OK || isUndefined == ANI_TRUE) {
         WVLOG_E("origin is undefined");
         return;
     }
@@ -103,7 +103,8 @@ void DeleteOrigin(ani_env *env, ani_object object, ani_string origin)
     webStorage->DeleteOrigin(originStr);
 }
 
-static bool SetStringToObj(ani_env *env, ani_object obj, const char *propertyName, const std::string &propertyValue) {
+static bool SetStringToObj(ani_env *env, ani_object obj, const char *propertyName, const std::string &propertyValue)
+{
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return false;
@@ -124,7 +125,8 @@ static bool SetStringToObj(ani_env *env, ani_object obj, const char *propertyNam
     return true;
 }
 
-static bool SetLongToObj(ani_env *env, ani_object obj, const char *propertyName, long propertyValue) {
+static bool SetLongToObj(ani_env *env, ani_object obj, const char *propertyName, long propertyValue)
+{
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return false;
@@ -210,7 +212,7 @@ ani_double GetOriginQuotaSync(ani_env *env, ani_object obj, ani_string origin)
         return quota;
     }
     ani_boolean isUndefined = ANI_TRUE;
-    if(env->Reference_IsUndefined(origin, &isUndefined) != ANI_OK || isUndefined == ANI_TRUE) {
+    if (env->Reference_IsUndefined(origin, &isUndefined) != ANI_OK || isUndefined == ANI_TRUE) {
         WVLOG_E("origin is undefined");
         return quota;
     }
@@ -236,7 +238,7 @@ ani_double GetOriginUsageSync(ani_env *env, ani_object obj, ani_string origin)
         return usage;
     }
     ani_boolean isUndefined = ANI_TRUE;
-    if(env->Reference_IsUndefined(origin, &isUndefined) != ANI_OK || isUndefined == ANI_TRUE) {
+    if (env->Reference_IsUndefined(origin, &isUndefined) != ANI_OK || isUndefined == ANI_TRUE) {
         WVLOG_E("origin is undefined");
         return usage;
     }
