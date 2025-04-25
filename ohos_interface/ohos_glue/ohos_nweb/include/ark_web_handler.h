@@ -881,6 +881,12 @@ public:
     /*--ark web()--*/
     virtual bool OnBeforeUnloadByJSV2(const ArkWebString& url, const ArkWebString& message,
         ArkWebRefPtr<ArkWebJsDialogResult> result, bool isReload) = 0;
+
+    /**
+     * @brief called when the web page is active for window.open called by other web component.
+     */
+    /*--ark web()--*/
+    virtual void OnActivateContentByJS() = 0;
 };
 
 } // namespace OHOS::ArkWeb

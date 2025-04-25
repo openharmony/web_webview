@@ -1074,6 +1074,11 @@ public:
     {
         return false;
     }
+
+    /**
+     * @brief called when the web page is active for window.open called by other web component.
+     */
+    virtual void OnActivateContentByJS() {}
 };
 
 } // namespace OHOS::NWeb

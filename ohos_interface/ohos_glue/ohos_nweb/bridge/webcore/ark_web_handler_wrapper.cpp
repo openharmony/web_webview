@@ -1104,4 +1104,9 @@ bool ArkWebHandlerWrapper::OnBeforeUnloadByJSV2(const std::string& url, const st
     ArkWebStringStructRelease(stMessage);
     return flag;
 }
+
+void ArkWebHandlerWrapper::OnActivateContentByJS()
+{
+    ark_web_handler_->OnActivateContentByJS();
+}
 } // namespace OHOS::ArkWeb
