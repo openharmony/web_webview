@@ -602,7 +602,7 @@ export default namespace webview {
         native static deleteOrigin(origin: string): void;
         static getOrigins(): Promise<Array<WebStorageOrigin>> {
             let p = new Promise<Array<WebStorageOrigin>>((resolve: (v: Array<WebStorageOrigin>) => void,
-            reject: (error: Object) => void) => {
+            reject: (error: Error) => void) => {
                 let p1 = taskpool.execute(WebStorage.getOriginsSync);
                 p1.then((e : NullishType) => {
                     let r = e as Array<WebStorageOrigin>;
@@ -620,7 +620,7 @@ export default namespace webview {
                 let r = e as Array<WebStorageOrigin>;
                 let err : BusinessError<void> = new BusinessError<void>();
                 callback(err, r);
-            }).catch((error: NullishType) => {
+            }).catch((error: Error) => {
                 let err = error as BusinessError<void>;
                 let data = new Array<WebStorageOrigin>;
                 callback(err, data);
@@ -629,7 +629,7 @@ export default namespace webview {
 
         static getOriginQuota(origin: string): Promise<number> {
             let p = new Promise<number>((resolve: (v: number) => void,
-            reject: (error: Object) => void) => {
+            reject: (error: Error) => void) => {
                 let p1 = taskpool.execute(WebStorage.getOriginQuotaSync, origin);
                 p1.then((e : NullishType) => {
                     let r = e as number;
@@ -647,7 +647,7 @@ export default namespace webview {
                 let r = e as number;
                 let err : BusinessError<void> = new BusinessError<void>();
                 callback(err, r);
-            }).catch((error: NullishType) => {
+            }).catch((error: Error) => {
                 let err = error as BusinessError<void>;
                 callback(err, -1);
             });
@@ -655,7 +655,7 @@ export default namespace webview {
 
         static getOriginUsage(origin: string): Promise<number> {
             let p = new Promise<number>((resolve: (v: number) => void,
-            reject: (error: Object) => void) => {
+            reject: (error: Error) => void) => {
                 let p1 = taskpool.execute(WebStorage.getOriginUsageSync, origin);
                 p1.then((e : NullishType) => {
                     let r = e as number;
@@ -673,7 +673,7 @@ export default namespace webview {
                 let r = e as number;
                 let err : BusinessError<void> = new BusinessError<void>();
                 callback(err, r);
-            }).catch((error: NullishType) => {
+            }).catch((error: Error) => {
                 let err = error as BusinessError<void>;
                 callback(err, -1);
             });
