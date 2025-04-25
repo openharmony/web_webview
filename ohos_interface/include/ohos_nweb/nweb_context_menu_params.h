@@ -155,6 +155,9 @@ enum MenuCommandId {
     CI_CUT = 3,
     CI_SELECT_ALL = 4,
     CI_DELETE = 5,
+    CI_REDO = 6,
+    CI_UNDO = 7,
+    CI_PASTE_AND_MATCH_STYLE = 8,
 };
 
 class OHOS_NWEB_EXPORT NWebContextMenuCallback {
