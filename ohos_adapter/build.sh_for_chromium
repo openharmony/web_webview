@@ -339,11 +339,6 @@ if [ $buildgn = 1 ]; then
 fi
 time_end_for_gn=$(date +%s)
 
-cd ohos_adapter
-tar -zxvf ./sysroot.tar.gz
-cp -r ./sysroot ../../prebuilts/ohos-sdk/linux/12/native/
-cd ..
-
 cp -r ../deps_code/webview/ohos_interface/include/ohos_adapter ./ohos_adapter/interfaces
 third_party/depot_tools/ninja -C $build_dir -j$buildcount nweb_ohos_adapter ohos_adapter_napi
 time_end_for_build=$(date +%s)
