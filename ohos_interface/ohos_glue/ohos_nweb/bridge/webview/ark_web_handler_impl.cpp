@@ -961,15 +961,15 @@ void ArkWebHandlerImpl::OnAccessibilityEventV2(int64_t accessibilityId, int32_t 
 }
 
 bool ArkWebHandlerImpl::OnBeforeUnloadByJSV2(
-    const ArkWebString& url, const ArkWebString& message, ArkWebRefPtr<ArkWebJsDialogResult> result, bool isReload)
+    const ArkWebString& url, const ArkWebString& message, bool isReload, ArkWebRefPtr<ArkWebJsDialogResult> result)
 {
     if (CHECK_REF_PTR_IS_NULL(result)) {
         return nweb_handler_->OnBeforeUnloadByJSV2(
-            ArkWebStringStructToClass(url), ArkWebStringStructToClass(message), nullptr, isReload);
+            ArkWebStringStructToClass(url), ArkWebStringStructToClass(message), isReload, nullptr);
     }
 
     return nweb_handler_->OnBeforeUnloadByJSV2(ArkWebStringStructToClass(url), ArkWebStringStructToClass(message),
-        std::make_shared<ArkWebJsDialogResultWrapper>(result), isReload);
+        isReload, std::make_shared<ArkWebJsDialogResultWrapper>(result));
 }
 
 void ArkWebHandlerImpl::OnActivateContentByJS()
