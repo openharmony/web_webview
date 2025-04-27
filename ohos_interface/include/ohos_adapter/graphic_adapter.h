@@ -45,6 +45,8 @@ public:
     virtual void SetOnVsyncCallback(void (*callback)()) = 0;
 
     virtual void SetOnVsyncEndCallback(void (*onVsyncEndCallback)()) {}
+
+    virtual void SetDVSyncSwitch(bool dvsyncSwitch) = 0;
 };
 
 // be consistent with rom/foundation/graphic/graphic_2d/interfaces/inner_api/common/graphic_common_c.h:GSError

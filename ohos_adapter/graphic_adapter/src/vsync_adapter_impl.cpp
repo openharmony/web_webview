@@ -18,6 +18,7 @@
 #include "nweb_log.h"
 #include <unistd.h>
 #include <native_vsync/graphic_error_code.h>
+#include "system_properties_adapter_impl.h"
 
 namespace OHOS::NWeb {
 
@@ -42,7 +43,7 @@ VSyncAdapterImpl& VSyncAdapterImpl::GetInstance()
 VSyncErrorCode VSyncAdapterImpl::Init()
 {
     if (!vsyncReceiver_) {
-        const std::string vsyncName = "NWeb_" + std::to_string(getpid());
+        const std::string vsyncName = "WebCore_" + std::to_string(getpid());
         vsyncReceiver_ = OH_NativeVSync_Create(vsyncName.c_str(), vsyncName.length());
         if (!vsyncReceiver_) {
             WVLOG_E("CreateVSyncReceiver failed");
@@ -147,5 +148,28 @@ void VSyncAdapterImpl::SetOnVsyncEndCallback(void (*onVsyncEndCallback)())
 {
     WVLOG_D("callback function: %{public}ld", (long)onVsyncEndCallback);
     onVsyncEndCallback_ = onVsyncEndCallback;
+}
+
+void VSyncAdapterImpl::SetDVSyncSwitch(bool dvsyncSwitch)
+{
+    if (Init() != VSyncErrorCode::SUCCESS) {
+        WVLOG_E("NWebWindowAdatrper init fail!");
+        return;
+    }
+
+    if (!vsyncReceiver_) {
+        WVLOG_E("NWebWindowAdatrper SetDVSyncSwitch: receiver_ is nullptr!");
+        return;
+    } else if (OHOS::NWeb::SystemPropertiesAdapterImpl::GetInstance()
+        .GetBoolParameter(std::string("web.ohos.dvsync"), false)) {
+        WVLOG_D("NWebWindowAdatrper SetDVSyncSwitch: dvsyncSwitch = %{public}d", dvsyncSwitch);
+        int ret = OH_NativeVSync_DVSyncSwitch(vsyncReceiver_, dvsyncSwitch);
+        if (ret != 0) {
+            WVLOG_E("SetNativeDVSyncSwitch failed, ret = %{public}d", ret);
+            return;
+        }
+    } else {
+        WVLOG_D("NWebWindowAdatrper SetDVSyncSwitch Disabled!");
+    }
 }
 } // namespace OHOS::NWeb
