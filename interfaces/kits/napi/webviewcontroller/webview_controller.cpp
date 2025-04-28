@@ -58,6 +58,16 @@ namespace OHOS {
 namespace NWeb {
 namespace {
 constexpr uint32_t URL_MAXIMUM = 2048;
+const std::string EVENT_CONTROLLER_ATTACH_STATE_CHANGE = "controllerAttachStateChange";
+const std::string EVENT_WAIT_FOR_ATTACH = "waitForAttach";
+
+struct WaitForAttachParam {
+    napi_async_work asyncWork;
+    napi_deferred deferred;
+    int32_t timeout;
+    WebviewController* webviewController;
+    int32_t state;
+};
 bool GetAppBundleNameAndModuleName(std::string& bundleName, std::string& moduleName)
 {
     static std::string applicationBundleName;
@@ -113,6 +123,49 @@ WebviewController::~WebviewController()
 {
     std::unique_lock<std::mutex> lk(g_objectMtx);
     g_webview_controller_map.erase(nwebId_);
+
+    attachState_ = AttachState::ATTACHED;
+    attachCond_.notify_all();
+
+    for (auto& [eventName, regObjs] : attachEventRegisterInfo_) {
+        for (auto& regObj : regObjs) {
+            if (regObj.m_regHanderRef != nullptr) {
+                napi_delete_reference(regObj.m_regEnv, regObj.m_regHanderRef);
+                regObj.m_regHanderRef = nullptr;
+            }
+        }
+    }
+    attachEventRegisterInfo_.clear();
+}
+
+void WebviewController::TriggerStateChangeCallback(const std::string& type)
+{
+    auto iter = attachEventRegisterInfo_.find(type);
+    if (iter == attachEventRegisterInfo_.end()) {
+        WVLOG_D("WebviewController::TriggerStateChangeCallback event %{public}s not found.",
+            type.c_str());
+        return;
+    }
+
+    const std::vector<WebRegObj>& regObjs = iter->second;
+    for (const auto& regObj : regObjs) {
+        napi_env env = regObj.m_regEnv;
+        napi_value handler = nullptr;
+        napi_get_reference_value(env, regObj.m_regHanderRef, &handler);
+
+        if (handler == nullptr) {
+            WVLOG_E("handler for event %{public}s is null.", type.c_str());
+            continue;
+        }
+
+        napi_value jsState = nullptr;
+        napi_create_int32(env, static_cast<int32_t>(attachState_), &jsState);
+
+        napi_value undefined;
+        napi_get_undefined(env, &undefined);
+
+        napi_call_function(env, nullptr, handler, 1, &jsState, &undefined);
+    }
 }
 
 void WebviewController::SetWebId(int32_t nwebId)
@@ -126,11 +179,21 @@ void WebviewController::SetWebId(int32_t nwebId)
         return;
     }
 
+    AttachState prevState = attachState_;
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
     if (nweb_ptr) {
         OH_NativeArkWeb_BindWebTagToWebInstance(webTag_.c_str(), nweb_ptr);
         NWebHelper::Instance().SetWebTag(nwebId_, webTag_.c_str());
+        attachState_ = AttachState::ATTACHED;
+        attachCond_.notify_all();
     }
+    if (!nweb_ptr && nwebId_ == -1) {
+        attachState_ = AttachState::NOT_ATTACHED;
+    }
+    if (prevState != attachState_) {
+        TriggerStateChangeCallback(EVENT_CONTROLLER_ATTACH_STATE_CHANGE);
+    }
+
     SetNWebJavaScriptResultCallBack();
     NativeArkWeb_OnValidCallback validCallback = OH_NativeArkWeb_GetJavaScriptProxyValidCallback(webTag_.c_str());
     if (validCallback) {
@@ -2152,6 +2215,188 @@ std::shared_ptr<HitTestResult> WebviewController::GetLastHitTest()
         }
     }
     return nwebResult;
+}
+
+int WebviewController::GetAttachState()
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (nweb_ptr) {
+        return static_cast<int>(attachState_);
+    }
+    return static_cast<int>(AttachState::NOT_ATTACHED);
+}
+
+void WebviewController::RegisterStateChangeCallback(const napi_env& env, const std::string& type, napi_value handler)
+{
+    napi_ref handlerRef = nullptr;
+    napi_create_reference(env, handler, 1, &handlerRef);
+    WebRegObj regObj(env, handlerRef);
+    auto iter = attachEventRegisterInfo_.find(type);
+    if (iter == attachEventRegisterInfo_.end()) {
+        attachEventRegisterInfo_[type] = std::vector<WebRegObj> {regObj};
+        WVLOG_I("WebviewController::RegisterStateChangeCallback add new type.");
+        return;
+    }
+    bool found = false;
+    for (auto& regObjInList : iter->second) {
+        if (env == regObjInList.m_regEnv) {
+            napi_value handlerTemp = nullptr;
+            if (napi_get_reference_value(env, regObjInList.m_regHanderRef, &handlerTemp) != napi_ok) {
+                WVLOG_E("WebviewController::RegisterStateChangeCallback Failed to get reference value.");
+                napi_delete_reference(env, handlerRef);
+                return;
+            }
+            bool isEqual = false;
+            if (napi_strict_equals(env, handlerTemp, handler, &isEqual) != napi_ok) {
+                WVLOG_E("WebviewController::RegisterStateChangeCallback Failed to compare handlers.");
+                napi_delete_reference(env, handlerRef);
+                return;
+            }
+            if (isEqual) {
+                WVLOG_E("WebviewController::RegisterStateChangeCallback handler function is same");
+                found = true;
+                break;
+            }
+        }
+    }
+    if (!found) {
+        iter->second.emplace_back(regObj);
+    }
+}
+
+void WebviewController::DeleteRegisterObj(const napi_env& env, std::vector<WebRegObj>& vecRegObjs, napi_value& handler)
+{
+    auto iter = vecRegObjs.begin();
+    while (iter != vecRegObjs.end()) {
+        if (env == iter->m_regEnv) {
+            napi_value handlerTemp = nullptr;
+            napi_status status = napi_get_reference_value(env, iter->m_regHanderRef, &handlerTemp);
+            if (status != napi_ok) {
+                WVLOG_E("WebviewController::DeleteRegisterObj Failed to get reference value.");
+                ++iter;
+                continue;
+            }
+            if (handlerTemp == nullptr) {
+                WVLOG_W("WebviewController::DeleteRegisterObj handlerTemp is null");
+            }
+            if (handler == nullptr) {
+                WVLOG_W("WebviewController::DeleteRegisterObj handler is null");
+            }
+            bool isEqual = false;
+            status = napi_strict_equals(env, handlerTemp, handler, &isEqual);
+            if (status != napi_ok) {
+                WVLOG_E("WebviewController::DeleteRegisterObj Failed to compare handlers.");
+                ++iter;
+                continue;
+            }
+            WVLOG_D("WebviewController::DeleteRegisterObj Delete register isEqual = %{public}d", isEqual);
+            if (isEqual) {
+                napi_delete_reference(env, iter->m_regHanderRef);
+                WVLOG_I("WebviewController::DeleteRegisterObj Delete register object ref.");
+                iter = vecRegObjs.erase(iter);
+                break;
+            } else {
+                ++iter;
+            }
+        } else {
+            WVLOG_D(
+                "WebviewController::DeleteRegisterObj Unregister event, env is not equal %{private}p, : %{private}p",
+                env, iter->m_regEnv);
+            ++iter;
+        }
+    }
+}
+
+void WebviewController::DeleteAllRegisterObj(const napi_env& env, std::vector<WebRegObj>& vecRegObjs)
+{
+    auto iter = vecRegObjs.begin();
+    for (; iter != vecRegObjs.end();) {
+        if (env == iter->m_regEnv) {
+            napi_delete_reference(iter->m_regEnv, iter->m_regHanderRef);
+            iter = vecRegObjs.erase(iter);
+        } else {
+            WVLOG_D("WebviewController::DeleteAllRegisterObj Unregister all event, env is not equal %{private}p, : "
+                    "%{private}p",
+                env, iter->m_regEnv);
+            ++iter;
+        }
+    }
+}
+
+void WebviewController::UnregisterStateChangeCallback(const napi_env& env, const std::string& type, napi_value handler)
+{
+    auto iter = attachEventRegisterInfo_.find(type);
+    if (iter == attachEventRegisterInfo_.end()) {
+        WVLOG_W("WebviewController::UnregisterStateChangeCallback Unregister type not registered!");
+        return;
+    }
+    if (handler != nullptr) {
+        DeleteRegisterObj(env, iter->second, handler);
+    } else {
+        WVLOG_I("WebviewController::UnregisterStateChangeCallback All callback is unsubscribe for event: %{public}s",
+            type.c_str());
+        DeleteAllRegisterObj(env, iter->second);
+    }
+    if (iter->second.empty()) {
+        attachEventRegisterInfo_.erase(iter);
+    }
+}
+
+void WebviewController::WaitForAttached(napi_env env, void* data)
+{
+    WVLOG_D("WebviewController::WaitForAttached start");
+    WaitForAttachParam* param = static_cast<WaitForAttachParam*>(data);
+    std::unique_lock<std::mutex> attachLock(param->webviewController->attachMtx_);
+    param->webviewController->attachCond_.wait_for(attachLock, std::chrono::milliseconds(param->timeout), [param] {
+        return param->webviewController->attachState_ == AttachState::ATTACHED;
+    });
+    param->state = static_cast<int32_t>(param->webviewController->attachState_);
+}
+
+void WebviewController::TriggerWaitforAttachedPromise(napi_env env, napi_status status, void* data)
+{
+    WaitForAttachParam* param = static_cast<WaitForAttachParam*>(data);
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(env, &scope);
+    if (scope == nullptr) {
+        delete param;
+        param = nullptr;
+        return;
+    }
+
+    WVLOG_D("WebviewController::TriggerWaitforAttachedPromise start");
+    if (param->deferred != nullptr) {
+        napi_value jsState = nullptr;
+        napi_create_int32(env, param->state, &jsState);
+        napi_resolve_deferred(env, param->deferred, jsState);
+    }
+    napi_close_handle_scope(env, scope);
+    napi_delete_async_work(env, param->asyncWork);
+    delete param;
+    param = nullptr;
+}
+
+napi_value WebviewController::WaitForAttachedPromise(napi_env env, int32_t timeout, napi_deferred deferred)
+{
+    napi_value result = nullptr;
+    napi_value resourceName = nullptr;
+    WaitForAttachParam *param = new (std::nothrow) WaitForAttachParam {
+        .asyncWork = nullptr,
+        .deferred = deferred,
+        .timeout = timeout,
+        .webviewController = this,
+        .state = static_cast<int32_t>(attachState_),
+    };
+    if (param == nullptr) {
+        return nullptr;
+    }
+
+    NAPI_CALL(env, napi_create_string_utf8(env, EVENT_WAIT_FOR_ATTACH.c_str(), NAPI_AUTO_LENGTH, &resourceName));
+    NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, WaitForAttached,
+        TriggerWaitforAttachedPromise, static_cast<void *>(param), &param->asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, param->asyncWork, napi_qos_user_initiated));
+    napi_get_undefined(env, &result);
+    return result;
 }
 } // namespace NWeb
 } // namespace OHOS

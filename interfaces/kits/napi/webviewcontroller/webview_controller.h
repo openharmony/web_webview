@@ -125,6 +125,29 @@ enum class ScrollType : int {
     EVENT = 0,
 };
 
+enum class AttachState : int {
+    NOT_ATTACHED = 0,
+    ATTACHED = 1
+};
+
+class WebRegObj {
+public:
+    WebRegObj() : m_regEnv(0), m_regHanderRef(nullptr) {
+    }
+
+    explicit WebRegObj(const napi_env& env, const napi_ref& ref)
+    {
+        m_regEnv = env;
+        m_regHanderRef = ref;
+    }
+
+    ~WebRegObj() {
+    }
+
+    napi_env m_regEnv;
+    napi_ref m_regHanderRef;
+};
+
 class WebPrintDocument;
 class WebviewController {
 public:
@@ -398,6 +421,27 @@ public:
     bool ScrollByWithResult(float deltaX, float deltaY) const;
 
     std::shared_ptr<HitTestResult> GetLastHitTest();
+
+    int GetAttachState();
+
+    void RegisterStateChangeCallback(
+        const napi_env& env, const std::string& type, napi_value handler);
+
+    void TriggerStateChangeCallback(const std::string& type);
+
+    void DeleteRegisterObj(
+        const napi_env& env, std::vector<WebRegObj>& vecRegObjs, napi_value& handler);
+
+    void DeleteAllRegisterObj(const napi_env& env, std::vector<WebRegObj>& vecRegObjs);
+
+    void UnregisterStateChangeCallback(
+        const napi_env& env, const std::string& type, napi_value handler);
+
+    static void WaitForAttached(napi_env env, void* data);
+
+    static void TriggerWaitforAttachedPromise(napi_env env, napi_status status, void *data);
+
+    napi_value WaitForAttachedPromise(napi_env env, int32_t timeout, napi_deferred deferred);
 private:
     int ConverToWebHitTestType(int hitType);
 
@@ -429,6 +473,10 @@ private:
     std::string hapPath_ = "";
     std::string webTag_ = "";
     std::vector<std::string> moduleName_;
+    AttachState attachState_ = AttachState::NOT_ATTACHED;
+    std::unordered_map<std::string, std::vector<WebRegObj>> attachEventRegisterInfo_;
+    std::condition_variable attachCond_;
+    std::mutex attachMtx_;
 };
 
 class WebMessagePort {
