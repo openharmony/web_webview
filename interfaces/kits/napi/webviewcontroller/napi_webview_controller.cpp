@@ -53,6 +53,7 @@ using NWebError::NO_ERROR;
 
 namespace {
 constexpr uint32_t URL_MAXIMUM = 2048;
+constexpr int32_t MAX_WAIT_FOR_ATTACH_TIMEOUT = 300000;
 constexpr uint32_t SOCKET_MAXIMUM = 6;
 constexpr char URL_REGEXPR[] = "^http(s)?:\\/\\/.+";
 constexpr size_t MAX_RESOURCES_COUNT = 30;
@@ -66,6 +67,7 @@ constexpr double HALF = 2.0;
 constexpr double TEN_MILLIMETER_TO_INCH = 0.39;
 constexpr size_t BFCACHE_DEFAULT_SIZE = 1;
 constexpr size_t BFCACHE_DEFAULT_TIMETOLIVE = 600;
+constexpr const char* EVENT_ATTACH_STATE_CHANGE = "controllerAttachStateChange";
 using WebPrintWriteResultCallback = std::function<void(std::string, uint32_t)>;
 
 bool ParsePrepareUrl(napi_env env, napi_value urlObj, std::string& url)
@@ -646,6 +648,10 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
             NapiWebviewController::GetScrollOffset),
         DECLARE_NAPI_FUNCTION("createPdf", NapiWebviewController::RunCreatePDFExt),
         DECLARE_NAPI_FUNCTION("getLastHitTest", NapiWebviewController::GetLastHitTest),
+        DECLARE_NAPI_FUNCTION("getAttachState", NapiWebviewController::GetAttachState),
+        DECLARE_NAPI_FUNCTION("on", NapiWebviewController::On),
+        DECLARE_NAPI_FUNCTION("off", NapiWebviewController::Off),
+        DECLARE_NAPI_FUNCTION("waitForAttached", NapiWebviewController::WaitForAttached),
     };
     napi_value constructor = nullptr;
     napi_define_class(env, WEBVIEW_CONTROLLER_CLASS_NAME.c_str(), WEBVIEW_CONTROLLER_CLASS_NAME.length(),
@@ -850,6 +856,18 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         NapiParseUtils::CreateEnumConstructor, nullptr, sizeof(scrollTypeProperties) /
         sizeof(scrollTypeProperties[0]), scrollTypeProperties, &scrollTypeEnum);
     napi_set_named_property(env, exports, WEB_SCROLL_TYPE_ENUM_NAME.c_str(), scrollTypeEnum);
+
+    napi_value controllerAttachStateEnum = nullptr;
+    napi_property_descriptor controllerAttachStateProperties[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("UNATTACHED", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(AttachState::NOT_ATTACHED))),
+        DECLARE_NAPI_STATIC_PROPERTY("ATTACHED", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(AttachState::ATTACHED))),
+    };
+    napi_define_class(env, WEB_CONTROLLER_ATTACHSTATE_ENUM_NAME.c_str(), WEB_CONTROLLER_ATTACHSTATE_ENUM_NAME.length(),
+        NapiParseUtils::CreateEnumConstructor, nullptr, sizeof(controllerAttachStateProperties) /
+        sizeof(controllerAttachStateProperties[0]), controllerAttachStateProperties, &controllerAttachStateEnum);
+    napi_set_named_property(env, exports, WEB_CONTROLLER_ATTACHSTATE_ENUM_NAME.c_str(), controllerAttachStateEnum);
 
     WebviewJavaScriptExecuteCallback::InitJSExcute(env, exports);
     WebviewCreatePDFExecuteCallback::InitJSExcute(env, exports);
@@ -6673,6 +6691,161 @@ napi_value NapiWebviewController::GetLastHitTest(napi_env env, napi_callback_inf
     }
     napi_set_named_property(env, result, "extra", extra);
     return result;
+}
+
+napi_value NapiWebviewController::GetAttachState(napi_env env, napi_callback_info info)
+{
+    napi_value result = nullptr;
+    WebviewController *webviewController = nullptr;
+    int32_t attachState = 0;
+    napi_value thisVar = nullptr;
+    napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, nullptr);
+    napi_unwrap(env, thisVar, (void **)&webviewController);
+    if (!webviewController) {
+        napi_create_int32(env, attachState, &result);
+        return result;
+    }
+
+    attachState = webviewController->GetAttachState();
+    napi_create_int32(env, attachState, &result);
+    return result;
+}
+
+napi_value NapiWebviewController::On(napi_env env, napi_callback_info info)
+{
+    size_t argc = INTEGER_TWO;
+    napi_value argv[INTEGER_TWO] = { 0 };
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
+    std::string type;
+
+    napi_get_undefined(env, &result);
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    WebviewController *webviewController = nullptr;
+    napi_unwrap(env, thisVar, (void **)&webviewController);
+    if (!webviewController) {
+        return result;
+    }
+
+    if (argc != INTEGER_TWO) {
+       BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+           NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "two"));
+       return result;
+    }
+
+    if (!NapiParseUtils::ParseString(env, argv[INTEGER_ZERO], type)) {
+       BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+           NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "type", "string"));
+       return result;
+    }
+
+    if (type != EVENT_ATTACH_STATE_CHANGE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+           NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "type"));
+       return result;
+    }
+
+    napi_valuetype handler = napi_undefined;
+    napi_typeof(env, argv[1], &handler);
+    if (handler != napi_function) {
+        WVLOG_E("arg type is invalid");
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "callback", "function"));
+        return result;
+    }
+    webviewController->RegisterStateChangeCallback(env, type, argv[1]);
+    return result;
+}
+
+napi_value NapiWebviewController::Off(napi_env env, napi_callback_info info)
+{
+    size_t argc = 2;
+    napi_value argv[2] = {0};
+    napi_value thisVar = 0;
+    napi_value result = nullptr;
+    std::string type;
+    napi_get_undefined(env, &result);
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    WebviewController *webviewController = nullptr;
+    napi_unwrap(env, thisVar, (void **)&webviewController);
+    if (!webviewController) {
+        return result;
+    }
+
+    if (argc != INTEGER_ONE && argc != INTEGER_TWO) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_TWO, "one", "two"));
+        return result;
+    }
+
+    if (!NapiParseUtils::ParseString(env, argv[INTEGER_ZERO], type)) {
+       BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+           NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "type", "string"));
+       return result;
+    }
+
+    if (type != EVENT_ATTACH_STATE_CHANGE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+           NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "type"));
+       return result;
+    }
+
+    if (argc == INTEGER_TWO) {
+        napi_valuetype handler = napi_undefined;
+        napi_typeof(env, argv[1], &handler);
+        if (handler != napi_function) {
+            WVLOG_E("arg type is invalid");
+            BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "callback", "function"));
+            return result;
+        }
+    }
+    webviewController->UnregisterStateChangeCallback(
+        env, type, argc == INTEGER_TWO ? argv[1] : nullptr);
+    return result;
+}
+
+napi_value NapiWebviewController::WaitForAttached(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
+    size_t argc = INTEGER_ONE;
+    int32_t timeout = 0;
+    napi_value argv[INTEGER_TWO] = { 0 };
+
+    napi_get_undefined(env, &result);
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+
+    WebviewController *webviewController = nullptr;
+    napi_unwrap(env, thisVar, (void **)&webviewController);
+    if (!webviewController) {
+        return result;
+    }
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
+        return result;
+    }
+    if (!NapiParseUtils::ParseInt32(env, argv[INTEGER_ZERO], timeout)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR,
+                                    "timeout", "number"));
+        return result;
+    }
+    if (timeout > MAX_WAIT_FOR_ATTACH_TIMEOUT | timeout < INTEGER_ZERO){
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID,
+                                    "timeout"));
+        return result;
+    }
+
+    napi_deferred deferred = nullptr;
+    napi_value promise = nullptr;
+    napi_create_promise(env, &deferred, &promise);
+    if (promise && deferred) {
+        webviewController->WaitForAttachedPromise(env, timeout, deferred);
+    }
+    return promise;
 }
 } // namespace NWeb
 } // namespace OHOS
