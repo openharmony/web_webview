@@ -1109,4 +1109,21 @@ void ArkWebHandlerWrapper::OnActivateContentByJS()
 {
     ark_web_handler_->OnActivateContentByJS();
 }
+
+void ArkWebHandlerWrapper::OnLoadStarted(const std::string& url) {
+    ArkWebString stUrl = ArkWebStringClassToStruct(url);
+
+    ark_web_handler_->OnLoadStarted(stUrl);
+
+    ArkWebStringStructRelease(stUrl);
+}
+
+void ArkWebHandlerWrapper::OnLoadFinished(const std::string& url) {
+    ArkWebString stUrl = ArkWebStringClassToStruct(url);
+
+    ark_web_handler_->OnLoadFinished(stUrl);
+
+    ArkWebStringStructRelease(stUrl);
+}
+
 } // namespace OHOS::ArkWeb

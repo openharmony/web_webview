@@ -976,4 +976,15 @@ void ArkWebHandlerImpl::OnActivateContentByJS()
 {
     nweb_handler_->OnActivateContentByJS();
 }
+
+void ArkWebHandlerImpl::OnLoadStarted(const ArkWebString& url)
+{
+    nweb_handler_->OnLoadStarted(ArkWebStringStructToClass(url));
+}
+
+void ArkWebHandlerImpl::OnLoadFinished(const ArkWebString& url)
+{
+    nweb_handler_->OnLoadFinished(ArkWebStringStructToClass(url));
+}
+
 } // namespace OHOS::ArkWeb

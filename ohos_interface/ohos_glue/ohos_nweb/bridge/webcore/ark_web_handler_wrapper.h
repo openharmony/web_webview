@@ -652,6 +652,9 @@ public:
      */
     void OnActivateContentByJS() override;
 
+    void OnLoadStarted(const std::string& url) override;
+
+    void OnLoadFinished(const std::string& url) override;
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };

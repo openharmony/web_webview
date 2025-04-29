@@ -887,6 +887,29 @@ public:
      */
     /*--ark web()--*/
     virtual void OnActivateContentByJS() = 0;
+
+    /**
+     * @Description Notify the SDK that a web site has started loading. This method is
+     * called once for each main frame load. Embedded frame changes, i.e. clicking
+     * a link whose target is an iframe and fragment navigations (navigations to
+     * #fragment_id) will not trigger this callback.
+     *
+     * @Input url The url to be loaded.
+     */
+    /*--ark web()--*/
+    virtual void OnLoadStarted(const ArkWebString& url) = 0;
+
+    /**
+     * @Description Notify the SDK that a web site has finished loading. This method is
+     * called only for main frame. Different from onPageEnd, onLoadFinished is
+     * triggered only once if the mainframe is automatically redirected before the
+     * page is completely loaded. OnPageEnd is triggered every navigation.
+     * fragment navigation also triggers onLoadFinished.
+     *
+     * @Input url The url of the web site.
+     */
+    /*--ark web()--*/
+    virtual void OnLoadFinished(const ArkWebString& url) = 0;
 };
 
 } // namespace OHOS::ArkWeb
