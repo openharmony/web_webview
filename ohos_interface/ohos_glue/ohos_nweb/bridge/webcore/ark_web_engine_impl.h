@@ -78,6 +78,10 @@ public:
 
     void ClearHostIP(const ArkWebString& hostName) override;
 
+    void SetAppCustomUserAgent(const ArkWebString& userAgent) override;
+
+    void SetUserAgentForHosts(const ArkWebString& userAgent, const ArkWebStringVector& hosts) override;
+
     void EnableWholeWebPageDrawing() override;
 
     ArkWebRefPtr<ArkWebAdsBlockManager> GetAdsBlockManager() override;

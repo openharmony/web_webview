@@ -82,6 +82,10 @@ public:
     void SetHostIP(const std::string& hostName, const std::string& address, int32_t aliveTime);
     void ClearHostIP(const std::string& hostName);
 
+    void SetAppCustomUserAgent(const std::string& userAgent);
+
+    void SetUserAgentForHosts(const std::string& userAgent, const std::vector<std::string>& hosts);
+
     void WarmupServiceWorker(const std::string& url);
 
     void EnableWholeWebPageDrawing();

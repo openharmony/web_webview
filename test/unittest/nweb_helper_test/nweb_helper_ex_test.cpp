@@ -144,6 +144,10 @@ public:
 
     void ClearHostIP(const std::string& hostName) {}
 
+    void SetAppCustomUserAgent(const std::string& userAgent) {}
+
+    void SetUserAgentForHosts(const std::string& userAgent, const std::vector<std::string>& hosts) {}
+
     void EnableWholeWebPageDrawing() {}
 
     std::shared_ptr<NWebAdsBlockManager> GetAdsBlockManager()

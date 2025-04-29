@@ -109,6 +109,10 @@ public:
     virtual void RemoveProxyOverride(std::shared_ptr<NWebProxyChangedCallback> callback) {}
 
     virtual void SetWebDebuggingAccessAndPort(bool isEnableDebug, int32_t port) {}
+    
+    virtual void SetAppCustomUserAgent(const std::string& userAgent) {}
+
+    virtual void SetUserAgentForHosts(const std::string& userAgent, const std::vector<std::string>& hosts) {}
 };
 
 } // namespace OHOS::NWeb
