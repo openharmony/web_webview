@@ -568,6 +568,16 @@ void WebSchemeHandler::PutRequestStop(napi_env, napi_value callback)
     }
 }
 
+void WebSchemeHandler::DeleteReference(WebSchemeHandler* schemehandler)
+{
+    ArkWeb_SchemeHandler* handler =
+        const_cast<ArkWeb_SchemeHandler*>(GetArkWebSchemeHandler(schemehandler));
+    if (handler && schemehandler->delegate_) {
+        napi_delete_reference(schemehandler->env_, schemehandler->delegate_);
+        schemehandler->delegate_ = nullptr;
+    }
+}
+
 WebResourceHandler::WebResourceHandler(napi_env env)
     : env_(env)
 {
@@ -730,6 +740,11 @@ void WebHttpBodyStream::Read(int bufLen, napi_ref jsCallback, napi_deferred defe
     }
     uint8_t* buffer = new (std::nothrow) uint8_t[bufLen];
     if (buffer == nullptr) {
+        return;
+    }
+    if (!stream_) {
+        elete[] buffer;
+        buffer = nullptr;
         return;
     }
     OH_ArkWebHttpBodyStream_Read(stream_, buffer, bufLen);

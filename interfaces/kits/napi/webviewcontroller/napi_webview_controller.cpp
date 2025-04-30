@@ -5314,7 +5314,10 @@ napi_value NapiWebviewController::SetWebSchemeHandler(napi_env env, napi_callbac
         WVLOG_E("NapiWebviewController::SetWebSchemeHandler handler is null");
         return nullptr;
     }
-    napi_create_reference(env, obj, 1, &handler->delegate_);
+    if (handler->delegate_ == nullptr) {
+        napi_create_reference(env, obj, 1, &handler->delegate_);
+        webviewController->SaveWebSchemeHandler(scheme.c_str(), handler);
+    }
 
     if (!webviewController->SetWebSchemeHandler(scheme.c_str(), handler)) {
         WVLOG_E("NapiWebviewController::SetWebSchemeHandler failed");
@@ -5362,7 +5365,10 @@ napi_value NapiWebviewController::SetServiceWorkerWebSchemeHandler(
         WVLOG_E("NapiWebviewController::SetServiceWorkerWebSchemeHandler handler is null");
         return nullptr;
     }
-    napi_create_reference(env, obj, 1, &handler->delegate_);
+    if (handler->delegate_ == nullptr) {
+        napi_create_reference(env, obj, 1, &handler->delegate_);
+        WebviewController::SaveWebServiceWorkerSchemeHandler(scheme.c_str(), handler);
+    }
 
     if (!WebviewController::SetWebServiveWorkerSchemeHandler(
         scheme.c_str(), handler)) {
