@@ -6728,20 +6728,20 @@ napi_value NapiWebviewController::On(napi_env env, napi_callback_info info)
     }
 
     if (argc != INTEGER_TWO) {
-       BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-           NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "two"));
-       return result;
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "two"));
+        return result;
     }
 
     if (!NapiParseUtils::ParseString(env, argv[INTEGER_ZERO], type)) {
-       BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-           NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "type", "string"));
-       return result;
+        BusinessError::ThrowErrorByErrcode(
+            env, PARAM_CHECK_ERROR, NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "type", "string"));
+        return result;
     }
 
     if (type != EVENT_ATTACH_STATE_CHANGE) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-           NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "type"));
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "type"));
        return result;
     }
 
@@ -6779,14 +6779,14 @@ napi_value NapiWebviewController::Off(napi_env env, napi_callback_info info)
     }
 
     if (!NapiParseUtils::ParseString(env, argv[INTEGER_ZERO], type)) {
-       BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-           NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "type", "string"));
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "type", "string"));
        return result;
     }
 
     if (type != EVENT_ATTACH_STATE_CHANGE) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-           NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "type"));
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "type"));
        return result;
     }
 
@@ -6832,7 +6832,7 @@ napi_value NapiWebviewController::WaitForAttached(napi_env env, napi_callback_in
                                     "timeout", "number"));
         return result;
     }
-    if (timeout > MAX_WAIT_FOR_ATTACH_TIMEOUT | timeout < INTEGER_ZERO){
+    if (timeout > MAX_WAIT_FOR_ATTACH_TIMEOUT | timeout < INTEGER_ZERO) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID,
                                     "timeout"));

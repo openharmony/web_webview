@@ -139,6 +139,7 @@ public:
     {
         m_regEnv = env;
         m_regHanderRef = ref;
+        m_isMarked = false;
     }
 
     ~WebRegObj() {
@@ -146,6 +147,7 @@ public:
 
     napi_env m_regEnv;
     napi_ref m_regHanderRef;
+    bool m_isMarked;
 };
 
 class WebPrintDocument;
