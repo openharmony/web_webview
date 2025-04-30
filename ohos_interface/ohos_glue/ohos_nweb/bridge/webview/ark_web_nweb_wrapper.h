@@ -1554,6 +1554,16 @@ public:
         std::shared_ptr<OHOS::NWeb::NWebJsProxyMethod> data,
         bool isAsync,
         const std::string& permission) override;
+
+    /**
+     * @brief Send the accessibility hover event coordinate.
+     *
+     * @param x horizontal location of coordinate.
+     * @param y vertical location of coordinate.
+     * @param isHoverEnter whether the accessibility hover event is a hover enter event.
+     */
+    /*--ark web()--*/
+    void SendAccessibilityHoverEventV2(int32_t x, int32_t y, bool isHoverEnter) override;
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };
