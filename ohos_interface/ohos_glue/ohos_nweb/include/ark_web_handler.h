@@ -810,6 +810,15 @@ public:
      */
     /*--ark web()--*/
     virtual void OnAccessibilityEvent(int64_t accessibilityId, int32_t eventType) = 0;
+
+    /**
+     * @Description: Called when an accessibility event occurs.
+     * @Input accessibilityId: the accessibility id of the accessibility node of the accessibility event.
+     * @Input eventType: the event type of the accessibility event.
+     * @Input argument: the argument of the accessibility event.
+     */
+    /*--ark web()--*/
+    virtual void OnAccessibilityEventV2(int64_t accessibilityId, int32_t eventType, const ArkWebString& argument) = 0;
 };
 
 } // namespace OHOS::ArkWeb

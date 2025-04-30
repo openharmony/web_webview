@@ -929,4 +929,9 @@ void ArkWebHandlerImpl::OnAccessibilityEvent(int64_t accessibilityId, int32_t ev
 {
     nweb_handler_->OnAccessibilityEvent(accessibilityId, eventType);
 }
+
+void ArkWebHandlerImpl::OnAccessibilityEventV2(int64_t accessibilityId, int32_t eventType, const ArkWebString& argument)
+{
+    nweb_handler_->OnAccessibilityEventV2(accessibilityId, eventType, ArkWebStringStructToClass(argument));
+}
 } // namespace OHOS::ArkWeb

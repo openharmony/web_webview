@@ -1009,6 +1009,8 @@ public:
     virtual void RestoreRenderFit() {}
 
     virtual void OnAccessibilityEvent(int64_t accessibilityId, int32_t eventType) {}
+
+    virtual void OnAccessibilityEventV2(int64_t accessibilityId, int32_t eventType, const std::string& argument) {}
 };
 
 } // namespace OHOS::NWeb

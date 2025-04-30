@@ -1050,4 +1050,12 @@ void ArkWebHandlerWrapper::RestoreRenderFit()
 void ArkWebHandlerWrapper::OnAccessibilityEvent(int64_t accessibilityId, int32_t eventType) {
     ark_web_handler_->OnAccessibilityEvent(accessibilityId, eventType);
 }
+
+void ArkWebHandlerWrapper::OnAccessibilityEventV2(
+    int64_t accessibilityId, int32_t eventType, const std::string& argument)
+{
+    ArkWebString stArgument = ArkWebStringClassToStruct(argument);
+    ark_web_handler_->OnAccessibilityEventV2(accessibilityId, eventType, stArgument);
+    ArkWebStringStructRelease(stArgument);
+}
 } // namespace OHOS::ArkWeb
