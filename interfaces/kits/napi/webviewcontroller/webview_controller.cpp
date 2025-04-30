@@ -149,22 +149,32 @@ void WebviewController::TriggerStateChangeCallback(const std::string& type)
 
     const std::vector<WebRegObj>& regObjs = iter->second;
     for (const auto& regObj : regObjs) {
-        napi_env env = regObj.m_regEnv;
-        napi_value handler = nullptr;
-        napi_get_reference_value(env, regObj.m_regHanderRef, &handler);
+        if (!regObj.m_isMarked){
+            napi_env env = regObj.m_regEnv;
+            napi_value handler = nullptr;
+            napi_get_reference_value(env, regObj.m_regHanderRef, &handler);
 
-        if (handler == nullptr) {
-            WVLOG_E("handler for event %{public}s is null.", type.c_str());
-            continue;
+            if (handler == nullptr) {
+                WVLOG_E("handler for event %{public}s is null.", type.c_str());
+                continue;
+            }
+
+            napi_value jsState = nullptr;
+            napi_create_int32(env, static_cast<int32_t>(attachState_), &jsState);
+
+            napi_value undefined;
+            napi_get_undefined(env, &undefined);
+
+            napi_call_function(env, nullptr, handler, 1, &jsState, &undefined);
         }
-
-        napi_value jsState = nullptr;
-        napi_create_int32(env, static_cast<int32_t>(attachState_), &jsState);
-
-        napi_value undefined;
-        napi_get_undefined(env, &undefined);
-
-        napi_call_function(env, nullptr, handler, 1, &jsState, &undefined);
+    }
+    for (auto it = iter->second.begin(); it != iter->second.end();) {
+        if (it->m_isMarked) {
+            napi_delete_reference(it->m_regEnv, it->m_regHanderRef);
+            it = iter->second.erase(it);
+        } else {
+            ++it;
+        }
     }
 }
 
@@ -2291,9 +2301,8 @@ void WebviewController::DeleteRegisterObj(const napi_env& env, std::vector<WebRe
             }
             WVLOG_D("WebviewController::DeleteRegisterObj Delete register isEqual = %{public}d", isEqual);
             if (isEqual) {
-                napi_delete_reference(env, iter->m_regHanderRef);
+                iter->m_isMarked = true;
                 WVLOG_I("WebviewController::DeleteRegisterObj Delete register object ref.");
-                iter = vecRegObjs.erase(iter);
                 break;
             } else {
                 ++iter;
@@ -2312,8 +2321,7 @@ void WebviewController::DeleteAllRegisterObj(const napi_env& env, std::vector<We
     auto iter = vecRegObjs.begin();
     for (; iter != vecRegObjs.end();) {
         if (env == iter->m_regEnv) {
-            napi_delete_reference(iter->m_regEnv, iter->m_regHanderRef);
-            iter = vecRegObjs.erase(iter);
+            iter->m_isMarked = true;
         } else {
             WVLOG_D("WebviewController::DeleteAllRegisterObj Unregister all event, env is not equal %{private}p, : "
                     "%{private}p",
