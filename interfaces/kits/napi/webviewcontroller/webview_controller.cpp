@@ -2278,7 +2278,7 @@ void WebviewController::DeleteRegisterObj(const napi_env& env, std::vector<WebRe
 {
     auto iter = vecRegObjs.begin();
     while (iter != vecRegObjs.end()) {
-        if (env == iter->m_regEnv) {
+        if (env == iter->m_regEnv && !iter->m_isMarked) {
             napi_value handlerTemp = nullptr;
             napi_status status = napi_get_reference_value(env, iter->m_regHanderRef, &handlerTemp);
             if (status != napi_ok) {
@@ -2320,7 +2320,7 @@ void WebviewController::DeleteAllRegisterObj(const napi_env& env, std::vector<We
 {
     auto iter = vecRegObjs.begin();
     for (; iter != vecRegObjs.end();) {
-        if (env == iter->m_regEnv) {
+        if (env == iter->m_regEnv && !iter->m_isMarked) {
             iter->m_isMarked = true;
         } else {
             WVLOG_D("WebviewController::DeleteAllRegisterObj Unregister all event, env is not equal %{private}p, : "
