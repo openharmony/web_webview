@@ -1522,6 +1522,20 @@ public:
     /*--ark web()--*/
     void SetSurfaceDensity(const double& density) override;
 
+    /**
+     * @brief Get select startIndex.
+     */
+    int GetSelectStartIndex() override;
+
+    /**
+     * @brief Get select endIndex.
+     */
+    int GetSelectEndIndex() override;
+
+    /**
+     * @brief Get all text info.
+     */
+    ArkWebString GetAllTextInfo() override;
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

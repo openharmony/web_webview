@@ -1761,6 +1761,30 @@ public:
      * @param density The new density value.
      */
     virtual void SetSurfaceDensity(const double& density) {}
+
+    /**
+     * Get select startIndex.
+     */
+    virtual int GetSelectStartIndex()
+    {
+        return 0;
+    }
+
+    /**
+     * Get select endIndex.
+     */
+    virtual int GetSelectEndIndex()
+    {
+        return 0;
+    }
+
+    /**
+     * Get All text info.
+     */
+    virtual std::string GetAllTextInfo()
+    {
+        return "";
+    }
 };
 
 } // namespace OHOS::NWeb

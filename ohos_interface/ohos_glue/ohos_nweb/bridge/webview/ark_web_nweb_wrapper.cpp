@@ -1549,4 +1549,19 @@ void ArkWebNWebWrapper::SetSurfaceDensity(const double& density)
 {
     ark_web_nweb_->SetSurfaceDensity(density);
 }
+
+int ArkWebNWebWrapper::GetSelectStartIndex()
+{
+    return ark_web_nweb_->GetSelectStartIndex();
+}
+
+int ArkWebNWebWrapper::GetSelectEndIndex()
+{
+    return ark_web_nweb_->GetSelectEndIndex();
+}
+
+std::string ArkWebNWebWrapper::GetAllTextInfo()
+{
+    return ArkWebStringStructToClass(ark_web_nweb_->GetAllTextInfo());
+}
 } // namespace OHOS::ArkWeb
