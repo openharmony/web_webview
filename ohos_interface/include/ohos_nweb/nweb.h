@@ -1797,6 +1797,22 @@ public:
     {
         return "";
     }
+
+    /**
+     *  @brief Set the native window of picture in picture.
+     */
+    virtual void SetPipNativeWindow(int delegate_id,
+                                    int child_id,
+                                    int frame_routing_id,
+                                    void* window) = 0;
+
+    /**
+     * @brief Send event of picture in picture.
+     */
+    virtual void SendPipEvent(int delegate_id,
+                              int child_id,
+                              int frame_routing_id,
+                              int event) = 0;
 };
 
 } // namespace OHOS::NWeb

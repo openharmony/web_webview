@@ -987,4 +987,14 @@ void ArkWebHandlerImpl::OnLoadFinished(const ArkWebString& url)
     nweb_handler_->OnLoadFinished(ArkWebStringStructToClass(url));
 }
 
+void ArkWebHandlerImpl::OnPip(int status,
+                              int delegate_id,
+                              int child_id,
+                              int frame_routing_id,
+                              int width,
+                              int height)
+{
+    nweb_handler_->OnPip(status, delegate_id, child_id,
+                         frame_routing_id, width, height);
+}
 } // namespace OHOS::ArkWeb

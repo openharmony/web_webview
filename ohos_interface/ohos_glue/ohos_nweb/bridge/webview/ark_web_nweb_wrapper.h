@@ -1560,6 +1560,25 @@ public:
      * @brief Get all text info.
      */
     std::string GetAllTextInfo() override;
+
+    /**
+     * @brief Set the native window of picture in picture.
+     */
+    /*--ark web()--*/
+    void SetPipNativeWindow(int delegate_id,
+                            int child_id,
+                            int frame_routing_id,
+                            void* window) override;
+
+    /**
+     * @brief Send event of picture in picture.
+     */
+    /*--ark web()--*/
+    void SendPipEvent(int delegate_id,
+                      int child_id,
+                      int frame_routing_id,
+                      int event) override;
+
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };

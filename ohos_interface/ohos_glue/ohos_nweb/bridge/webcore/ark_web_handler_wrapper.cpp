@@ -1126,4 +1126,14 @@ void ArkWebHandlerWrapper::OnLoadFinished(const std::string& url) {
     ArkWebStringStructRelease(stUrl);
 }
 
+void ArkWebHandlerWrapper::OnPip(int status,
+                                 int delegate_id,
+                                 int child_id,
+                                 int frame_routing_id,
+                                 int width,
+                                 int height)
+{
+    ark_web_handler_->OnPip(status, delegate_id, child_id,
+                            frame_routing_id, width, height);
+}
 } // namespace OHOS::ArkWeb
