@@ -40,6 +40,7 @@ public:
     void SetOnVsyncCallback(void (*callback)()) override;
     void SetIsGPUProcess(bool isGPU);
     void SetOnVsyncEndCallback(void (*onVsyncEndCallback)()) override;
+    void SetDVSyncSwitch(bool dvsyncSwitch) override;
 private:
     static void OnVsync(long long timestamp, void* data);
     void VsyncCallbackInner(long long nanoTimestamp);
