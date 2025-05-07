@@ -1550,6 +1550,13 @@ void ArkWebNWebWrapper::SetSurfaceDensity(const double& density)
     ark_web_nweb_->SetSurfaceDensity(density);
 }
 
+void ArkWebNWebWrapper::SetBorderRadiusFromWeb(double borderRadiusTopLeft, double borderRadiusTopRight,
+    double borderRadiusBottomLeft, double borderRadiusBottomRight)
+{
+    ark_web_nweb_->SetBorderRadiusFromWeb(
+        borderRadiusTopLeft, borderRadiusTopRight, borderRadiusBottomLeft, borderRadiusBottomRight);
+}
+
 int ArkWebNWebWrapper::GetSelectStartIndex()
 {
     return ark_web_nweb_->GetSelectStartIndex();
@@ -1562,6 +1569,9 @@ int ArkWebNWebWrapper::GetSelectEndIndex()
 
 std::string ArkWebNWebWrapper::GetAllTextInfo()
 {
-    return ArkWebStringStructToClass(ark_web_nweb_->GetAllTextInfo());
+    ArkWebString allTextInfo = ark_web_nweb_->GetAllTextInfo();
+    std::string allText = ArkWebStringStructToClass(allTextInfo);
+    ArkWebStringStructRelease(allTextInfo);
+    return allText;
 }
 } // namespace OHOS::ArkWeb

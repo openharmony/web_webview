@@ -1316,6 +1316,13 @@ void ArkWebNWebImpl::SetSurfaceDensity(const double& density)
     nweb_nweb_->SetSurfaceDensity(density);
 }
 
+void ArkWebNWebImpl::SetBorderRadiusFromWeb(double borderRadiusTopLeft, double borderRadiusTopRight,
+    double borderRadiusBottomLeft, double borderRadiusBottomRight)
+{
+    nweb_nweb_->SetBorderRadiusFromWeb(
+        borderRadiusTopLeft, borderRadiusTopRight, borderRadiusBottomLeft, borderRadiusBottomRight);
+}
+
 int ArkWebNWebImpl::GetSelectStartIndex()
 {
     return nweb_nweb_->GetSelectStartIndex();
