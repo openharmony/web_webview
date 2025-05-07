@@ -1546,6 +1546,20 @@ public:
     void SetBorderRadiusFromWeb(double borderRadiusTopLeft, double borderRadiusTopRight, double borderRadiusBottomLeft,
         double borderRadiusBottomRight) override;
 
+    /**
+     * @brief Get select startIndex.
+     */
+    int GetSelectStartIndex() override;
+
+    /**
+     * @brief Get select endIndex.
+     */
+    int GetSelectEndIndex() override;
+
+    /**
+     * @brief Get all text info.
+     */
+    std::string GetAllTextInfo() override;
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };

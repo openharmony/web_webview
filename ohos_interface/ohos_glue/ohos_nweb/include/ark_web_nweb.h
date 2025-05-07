@@ -1708,6 +1708,30 @@ public:
     /*--ark web()--*/
     virtual void SetBorderRadiusFromWeb(double borderRadiusTopLeft, double borderRadiusTopRight,
         double borderRadiusBottomLeft, double borderRadiusBottomRight) = 0;
+
+    /**
+     * @brief Get select startIndex.
+     *
+     * @return the select startIndex.
+     */
+    /*--ark web()--*/
+    virtual int GetSelectStartIndex() = 0;
+
+    /**
+     * @brief Get select endIndex.
+     *
+     * @return the select endIndex.
+     */
+    /*--ark web()--*/
+    virtual int GetSelectEndIndex() = 0;
+
+    /**
+     * @brief Get all text info.
+     *
+     * @return the info of all text.
+     */
+    /*--ark web()--*/
+    virtual ArkWebString GetAllTextInfo() = 0;
 };
 
 } // namespace OHOS::ArkWeb

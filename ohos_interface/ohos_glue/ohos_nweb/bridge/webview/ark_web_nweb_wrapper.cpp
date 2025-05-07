@@ -1556,4 +1556,22 @@ void ArkWebNWebWrapper::SetBorderRadiusFromWeb(double borderRadiusTopLeft, doubl
     ark_web_nweb_->SetBorderRadiusFromWeb(
         borderRadiusTopLeft, borderRadiusTopRight, borderRadiusBottomLeft, borderRadiusBottomRight);
 }
+
+int ArkWebNWebWrapper::GetSelectStartIndex()
+{
+    return ark_web_nweb_->GetSelectStartIndex();
+}
+
+int ArkWebNWebWrapper::GetSelectEndIndex()
+{
+    return ark_web_nweb_->GetSelectEndIndex();
+}
+
+std::string ArkWebNWebWrapper::GetAllTextInfo()
+{
+    ArkWebString allTextInfo = ark_web_nweb_->GetAllTextInfo();
+    std::string allText = ArkWebStringStructToClass(allTextInfo);
+    ArkWebStringStructRelease(allTextInfo);
+    return allText;
+}
 } // namespace OHOS::ArkWeb
