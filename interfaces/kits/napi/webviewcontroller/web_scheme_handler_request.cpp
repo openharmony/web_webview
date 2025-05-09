@@ -743,7 +743,7 @@ void WebHttpBodyStream::Read(int bufLen, napi_ref jsCallback, napi_deferred defe
         return;
     }
     if (!stream_) {
-        elete[] buffer;
+        delete[] buffer;
         buffer = nullptr;
         return;
     }
