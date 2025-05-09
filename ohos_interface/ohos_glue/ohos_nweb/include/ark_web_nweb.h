@@ -1719,6 +1719,16 @@ public:
         ArkWebRefPtr<ArkWebJsProxyMethod> data,
         bool isAsync,
         const ArkWebString& permission) = 0;
+
+    /**
+     * @brief Send the accessibility hover event coordinate.
+     *
+     * @param x horizontal location of coordinate.
+     * @param y vertical location of coordinate.
+     * @param isHoverEnter whether the accessibility hover event is a hover enter event.
+     */
+    /*--ark web()--*/
+    virtual void SendAccessibilityHoverEventV2(int32_t x, int32_t y, bool isHoverEnter) = 0;
 };
 
 } // namespace OHOS::ArkWeb

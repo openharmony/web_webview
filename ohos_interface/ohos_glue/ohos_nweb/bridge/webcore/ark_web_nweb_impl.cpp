@@ -1340,4 +1340,9 @@ void ArkWebNWebImpl::RegisterNativeJavaScriptProxy(const ArkWebString& objName,
                                               isAsync,
                                               ArkWebStringStructToClass(permission));
 }
+
+void ArkWebNWebImpl::SendAccessibilityHoverEventV2(int32_t x, int32_t y, bool isHoverEnter)
+{
+    nweb_nweb_->SendAccessibilityHoverEventV2(x, y, isHoverEnter);
+}
 } // namespace OHOS::ArkWeb
