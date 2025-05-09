@@ -395,8 +395,6 @@ public:
 
     void ScrollByWithAnime(float deltaX, float deltaY, int32_t duration) ;
 
-    void SetBackForwardCacheOptions(int32_t size, int32_t timeToLive);
-
     void SaveWebSchemeHandler(const char* scheme, WebSchemeHandler* handler);
 
     static void SaveWebServiceWorkerSchemeHandler(const char* scheme, WebSchemeHandler* handler);
