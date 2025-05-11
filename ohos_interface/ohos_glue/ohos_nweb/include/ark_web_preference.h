@@ -765,6 +765,13 @@ public:
      */
     /*--ark web()--*/
     virtual void SetIntrinsicSizeEnable(bool enable) = 0;
+
+    /**
+     * @brief Set whether to support css diplay when reporting the visibility of native embed.
+     *        The default is false.
+     */
+    /*--ark web()--*/
+    virtual void SetCssDisplayChangeEnabled(bool enable) = 0;
 };
 
 } // namespace OHOS::ArkWeb
