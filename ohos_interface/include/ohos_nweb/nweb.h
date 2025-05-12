@@ -1804,7 +1804,7 @@ public:
     virtual void SetPipNativeWindow(int delegate_id,
                                     int child_id,
                                     int frame_routing_id,
-                                    void* window) = 0;
+                                    void* window) {}
 
     /**
      * @brief Send event of picture in picture.
@@ -1812,7 +1812,7 @@ public:
     virtual void SendPipEvent(int delegate_id,
                               int child_id,
                               int frame_routing_id,
-                              int event) = 0;
+                              int event) {}
 };
 
 } // namespace OHOS::NWeb
