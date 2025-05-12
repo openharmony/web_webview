@@ -605,7 +605,8 @@ AudioDecoderAdapterCode AudioCodecDecoderAdapterImpl::QueueInputBufferDec(uint32
     }
 
     OH_AVBuffer *avBuffer = GetInputBuffer(index);
-    if (avBuffer == nullptr) {
+    int32_t bufferCapacity = OH_AVBuffer_GetCapacity(avBuffer);
+    if (avBuffer == nullptr || bufferCapacity < bufferSize) {
         WVLOG_E("QueueInputBufferDec fail, inputbuffer[%{public}u] not find.", index);
         return AudioDecoderAdapterCode::DECODER_ERROR;
     }
@@ -615,7 +616,7 @@ AudioDecoderAdapterCode AudioCodecDecoderAdapterImpl::QueueInputBufferDec(uint32
             WVLOG_E("index[%{public}u] bufferData is nullptr.", index);
             return AudioDecoderAdapterCode::DECODER_ERROR;
         }
-        if (memcpy_s(addr, bufferSize, bufferData, bufferSize) != EOK) {
+        if (memcpy_s(addr, bufferCapacity, bufferData, bufferSize) != EOK) {
             WVLOG_E(" index[%{public}u] memcpy_s buffer fail.", index);
             return AudioDecoderAdapterCode::DECODER_ERROR;
         }
