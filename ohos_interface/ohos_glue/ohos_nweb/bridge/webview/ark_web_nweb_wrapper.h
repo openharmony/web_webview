@@ -1564,7 +1564,6 @@ public:
     /**
      * @brief Set the native window of picture in picture.
      */
-    /*--ark web()--*/
     void SetPipNativeWindow(int delegate_id,
                             int child_id,
                             int frame_routing_id,
@@ -1573,7 +1572,6 @@ public:
     /**
      * @brief Send event of picture in picture.
      */
-    /*--ark web()--*/
     void SendPipEvent(int delegate_id,
                       int child_id,
                       int frame_routing_id,
