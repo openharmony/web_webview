@@ -4282,9 +4282,13 @@ int32_t CustomizeSchemesArrayDataHandler(napi_env env, napi_value array)
     }
     int32_t registerResult;
     for (auto it = schemeVector.begin(); it != schemeVector.end(); ++it) {
-        registerResult = OH_ArkWeb_RegisterCustomSchemes(it->name.c_str(), it->option);
-        if (registerResult != NO_ERROR) {
-            return registerResult;
+        if (OHOS::NWeb::NWebHelper::Instance().HasLoadWebEngine() == false) {
+            OHOS::NWeb::NWebHelper::Instance().SaveSchemeVector(it->name.c_str(), it->option);
+        } else {
+            registerResult = OH_ArkWeb_RegisterCustomSchemes(it->name.c_str(), it->option);
+            if (registerResult != NO_ERROR) {
+                return registerResult;
+            }
         }
     }
     return NO_ERROR;
