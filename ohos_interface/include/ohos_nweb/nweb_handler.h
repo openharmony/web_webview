@@ -1100,6 +1100,16 @@ public:
      * @param url The url of the web site.
      */
     virtual void OnLoadFinished(const std::string& url) {}
+
+    /**
+     * @brief Called when web occurs event of picture in picture.
+     */
+    virtual void OnPip(int status,
+                       int delegate_id,
+                       int child_id,
+                       int frame_routing_id,
+                       int width,
+                       int height) {}
 };
 
 } // namespace OHOS::NWeb

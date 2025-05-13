@@ -1337,4 +1337,22 @@ ArkWebString ArkWebNWebImpl::GetAllTextInfo()
 {
     return ArkWebStringClassToStruct(nweb_nweb_->GetAllTextInfo());
 }
+
+void ArkWebNWebImpl::SetPipNativeWindow(int delegate_id,
+                                        int child_id,
+                                        int frame_routing_id,
+                                        void* window)
+{
+    nweb_nweb_->SetPipNativeWindow(delegate_id, child_id,
+                                   frame_routing_id, window);
+}
+
+void ArkWebNWebImpl::SendPipEvent(int delegate_id,
+                                  int child_id,
+                                  int frame_routing_id,
+                                  int event)
+{
+    nweb_nweb_->SendPipEvent(delegate_id, child_id,
+                             frame_routing_id,event);
+}
 } // namespace OHOS::ArkWeb

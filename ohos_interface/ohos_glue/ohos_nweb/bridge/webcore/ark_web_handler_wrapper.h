@@ -655,6 +655,13 @@ public:
     void OnLoadStarted(const std::string& url) override;
 
     void OnLoadFinished(const std::string& url) override;
+
+    void OnPip(int status,
+               int delegate_id,
+               int child_id,
+               int frame_routing_id,
+               int width,
+               int height) override;
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };

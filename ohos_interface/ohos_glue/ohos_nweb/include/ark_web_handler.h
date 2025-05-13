@@ -910,6 +910,14 @@ public:
      */
     /*--ark web()--*/
     virtual void OnLoadFinished(const ArkWebString& url) = 0;
+
+    /*--ark web()--*/
+    virtual void OnPip(int status,
+                       int delegate_id,
+                       int child_id,
+                       int frame_routing_id,
+                       int width,
+                       int height) = 0;
 };
 
 } // namespace OHOS::ArkWeb
