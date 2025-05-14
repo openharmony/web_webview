@@ -106,6 +106,7 @@ public:
 
     void PutRequestStart(napi_env, napi_value callback);
     void PutRequestStop(napi_env, napi_value callback);
+    void DeleteReference(WebSchemeHandler* schemehandler);
 
     napi_ref delegate_ = nullptr;
 private:

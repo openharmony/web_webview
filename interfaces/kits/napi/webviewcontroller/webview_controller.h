@@ -395,6 +395,9 @@ public:
 
     void ScrollByWithAnime(float deltaX, float deltaY, int32_t duration) ;
 
+    void SaveWebSchemeHandler(const char* scheme, WebSchemeHandler* handler);
+
+    static void SaveWebServiceWorkerSchemeHandler(const char* scheme, WebSchemeHandler* handler);
 private:
     int ConverToWebHitTestType(int hitType);
 
@@ -411,6 +414,10 @@ private:
                                     int32_t& result);
     bool GetHapModuleInfo();
 
+    void DeleteWebSchemeHandler();
+
+    static void DeleteWebServiceWorkerSchemeHandler();
+
 public:
     static std::string customeSchemeCmdLine_;
     static bool existNweb_;
@@ -425,6 +432,8 @@ private:
     std::string hapPath_ = "";
     std::string webTag_ = "";
     std::vector<std::string> moduleName_;
+    std::map<std::string, WebSchemeHandler*> webSchemeHandlerMap_;
+    static std::map<std::string, WebSchemeHandler*> webServiceWorkerSchemeHandlerMap_;
 };
 
 class WebMessagePort {
