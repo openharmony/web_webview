@@ -382,7 +382,7 @@ export default namespace webview {
             let pCallback = taskpool.execute(():undefined => {WebCookieManager.saveCookieSync();  return undefined});
             pCallback.then((e :NullishType)=>{
                 let resultCode: Int  = 0;
-                let r: BusinessError = { code: resultCode.intValue(), data: undefined };
+                let r: BusinessError = { code: resultCode.toInt(), data: undefined };
                 callback(r, undefined);
             }, (err:Error): void => {
             });
@@ -438,7 +438,7 @@ export default namespace webview {
                 WebCookieManager.clearAllCookiesSync();  return undefined});
             pCallback.then((e :NullishType)=>{
                 let resultCode: Int  = 0;
-                let r: BusinessError = { code: resultCode.intValue(), data: undefined };
+                let r: BusinessError = { code: resultCode.toInt(), data: undefined };
                 callback(r, undefined);
             }, (err:Error): void => {
             });
@@ -465,8 +465,8 @@ export default namespace webview {
             pCallback.then((e: NullishType) => {
                 let data: string = e as string;
                 let resultCode: Int = 0;
-                let error: BusinessError = { code: resultCode.intValue(), data: undefined };
-                callback(error, data); 
+                let error: BusinessError = { code: resultCode.toInt(), data: undefined };
+                callback(error, data);
             }, (err: Error): void => {
             });
         }
