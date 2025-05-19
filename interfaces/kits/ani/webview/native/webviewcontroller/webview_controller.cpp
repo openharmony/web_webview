@@ -27,7 +27,6 @@
 
 #include "native_arkweb_utils.h"
 #include "native_interface_arkweb.h"
-// #include "native_media_player_impl.h"
 
 #include "nweb_log.h"
 #include "nweb_store_web_archive_callback.h"
@@ -1501,35 +1500,6 @@ void WebPrintWriteResultCallbackAdapter::WriteResultCallback(std::string jobId, 
     cb_(jobId, code);
 }
 
-// bool WebviewController::SetWebSchemeHandler(const char* scheme, WebSchemeHandler* handler) const
-// {
-//     if (!handler || !scheme) {
-//         WVLOG_E("WebviewController::SetWebSchemeHandler handler or scheme is nullptr");
-//         return false;
-//     }
-//     ArkWeb_SchemeHandler* schemeHandler =
-//         const_cast<ArkWeb_SchemeHandler*>(WebSchemeHandler::GetArkWebSchemeHandler(handler));
-//     return OH_ArkWeb_SetSchemeHandler(scheme, webTag_.c_str(), schemeHandler);
-// }
-
-// int32_t WebviewController::ClearWebSchemeHandler()
-// {
-//     return OH_ArkWeb_ClearSchemeHandlers(webTag_.c_str());
-// }
-
-// bool WebviewController::SetWebServiveWorkerSchemeHandler(
-//     const char* scheme, WebSchemeHandler* handler)
-// {
-//     ArkWeb_SchemeHandler* schemeHandler =
-//         const_cast<ArkWeb_SchemeHandler*>(WebSchemeHandler::GetArkWebSchemeHandler(handler));
-//     return OH_ArkWebServiceWorker_SetSchemeHandler(scheme, schemeHandler);
-// }
-
-// int32_t WebviewController::ClearWebServiceWorkerSchemeHandler()
-// {
-//     return OH_ArkWebServiceWorker_ClearSchemeHandlers();
-// }
-
 ErrCode WebviewController::StartCamera()
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
@@ -1573,17 +1543,6 @@ std::string WebviewController::GetLastJavascriptProxyCallingFrameUrl()
     return nweb_ptr->GetLastJavascriptProxyCallingFrameUrl();
 }
 
-// void WebviewController::OnCreateNativeMediaPlayer(napi_env env, napi_ref callback)
-// {
-//     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-//     if (!nweb_ptr) {
-//         return;
-//     }
-
-//     auto callbackImpl = std::make_shared<NWebCreateNativeMediaPlayerCallbackImpl>(nwebId_, env, callback);
-//     nweb_ptr->OnCreateNativeMediaPlayer(callbackImpl);
-// }
-
 bool WebviewController::ParseScriptContent(napi_env env, napi_value value, std::string &script)
 {
     napi_valuetype valueType;
@@ -1610,7 +1569,8 @@ bool WebviewController::ParseScriptContent(napi_env env, napi_value value, std::
     return true;
 }
 
-std::shared_ptr<CacheOptions> WebviewController::ParseCacheOptions(napi_env env, napi_value value) {
+std::shared_ptr<CacheOptions> WebviewController::ParseCacheOptions(napi_env env, napi_value value)
+{
     std::map<std::string, std::string> responseHeaders;
     auto defaultCacheOptions = std::make_shared<NWebCacheOptionsImpl>(responseHeaders);
 
@@ -1883,6 +1843,7 @@ bool WebviewController::ParseJsLengthResourceToInt(
     if (resourceType == napi_number) {
         int32_t resourceTypeNum;
         NapiParseUtils::ParseInt32(env, jsResourceType, resourceTypeNum);
+        std::string resourceString;
         switch (resourceTypeNum) {
             case static_cast<int>(ResourceType::INTEGER):
                 if (resourceManager->GetIntegerById(resId, result) == Global::Resource::SUCCESS) {
@@ -1891,10 +1852,11 @@ bool WebviewController::ParseJsLengthResourceToInt(
                 }
                 break;
             case static_cast<int>(ResourceType::STRING):
-                std::string resourceString;
                 if (resourceManager->GetStringById(resId, resourceString) == Global::Resource::SUCCESS) {
                     return NapiParseUtils::ParseJsLengthStringToInt(resourceString, type, result);
                 }
+                break;
+            default:
                 break;
         }
         WVLOG_E("WebPageSnapshot resource type not support");
