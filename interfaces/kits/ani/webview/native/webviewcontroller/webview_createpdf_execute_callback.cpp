@@ -44,7 +44,7 @@ void WebviewCreatePDFExecuteCallback::ReleaseArrayBufferExecuteParamAndUvWork(
 {
     if (param != nullptr) {
         if (param->result_ != nullptr) {
-            delete param->result_;
+            delete[] param->result_;
             param->result_ = nullptr;
         }
         delete param;
