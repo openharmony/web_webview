@@ -458,12 +458,12 @@ bool ParseRegisterJavaScriptProxyParam(napi_env env, size_t argc, napi_value* ar
         return false;
     }
     std::vector<std::string> asyncMethodList;
-    if (argc == INTEGER_FOUR && !NapiParseUtils::ParseStringArray(env, argv[INTEGER_THREE], asyncMethodList)) {
+    if (argc >= INTEGER_FOUR && !NapiParseUtils::ParseStringArray(env, argv[INTEGER_THREE], asyncMethodList)) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
         return false;
     }
     std::string permission;
-    if (argc >= INTEGER_FIVE && !NapiParseUtils::ParseString(env, argv[INTEGER_FOUR], permission)) {
+    if (argc == INTEGER_FIVE && !NapiParseUtils::ParseString(env, argv[INTEGER_FOUR], permission)) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "permission", "string"));
         return false;
