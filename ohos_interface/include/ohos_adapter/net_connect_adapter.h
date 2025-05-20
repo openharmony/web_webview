@@ -106,6 +106,15 @@ public:
         const std::shared_ptr<NetConnectionPropertiesAdapter> properties) { return 0; }
 };
 
+class VpnListener {
+public:
+    VpnListener() = default;
+    virtual ~VpnListener() = default;
+ 
+    virtual void OnAvailable() = 0;
+    virtual void OnLost() = 0;
+};
+
 class NetConnectAdapter {
 public:
     NetConnectAdapter() = default;
@@ -121,6 +130,12 @@ public:
     virtual std::vector<std::string> GetDnsServers() = 0;
 
     virtual std::vector<std::string> GetDnsServersByNetId(int32_t netId) = 0;
+
+    virtual std::vector<std::string> GetDnsServersForVpn() = 0;
+ 
+    virtual void RegisterVpnListener(std::shared_ptr<VpnListener>) = 0;
+ 
+    virtual void UnRegisterVpnListener() = 0;
 };
 
 } // namespace OHOS::NWeb
