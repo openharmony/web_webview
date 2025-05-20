@@ -591,4 +591,11 @@ void ArkWebPreferenceWrapper::SetIntrinsicSizeEnable(bool enable)
         ark_web_preference_->SetIntrinsicSizeEnable(enable);
     }
 }
+
+void ArkWebPreferenceWrapper::SetCssDisplayChangeEnabled(bool enable)
+{
+    if (ark_web_preference_) {
+        ark_web_preference_->SetCssDisplayChangeEnabled(enable);
+    }
+}
 } // namespace OHOS::ArkWeb
