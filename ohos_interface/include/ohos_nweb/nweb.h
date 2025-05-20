@@ -1799,6 +1799,11 @@ public:
      * @param isHoverEnter whether the accessibility hover event is a hover enter event.
      */
     virtual void SendAccessibilityHoverEventV2(int32_t x, int32_t y, bool isHoverEnter) {}
+
+    /**
+     * @brief Set the window id.
+     */
+    virtual void SetFocusWindowId(uint32_t focus_window_id) {}
 };
 
 } // namespace OHOS::NWeb

@@ -1345,4 +1345,9 @@ void ArkWebNWebImpl::SendAccessibilityHoverEventV2(int32_t x, int32_t y, bool is
 {
     nweb_nweb_->SendAccessibilityHoverEventV2(x, y, isHoverEnter);
 }
+
+void ArkWebNWebImpl::SetFocusWindowId(uint32_t focus_window_id)
+{
+    nweb_nweb_->SetFocusWindowId(focus_window_id);
+}
 } // namespace OHOS::ArkWeb

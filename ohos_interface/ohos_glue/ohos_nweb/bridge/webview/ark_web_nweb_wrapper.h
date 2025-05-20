@@ -1564,6 +1564,12 @@ public:
      */
     /*--ark web()--*/
     void SendAccessibilityHoverEventV2(int32_t x, int32_t y, bool isHoverEnter) override;
+
+    /**
+     * @brief Set the window id.
+     */
+    void SetFocusWindowId(uint32_t focus_window_id) override;
+
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };
