@@ -458,7 +458,7 @@ bool ParseRegisterJavaScriptProxyParam(napi_env env, size_t argc, napi_value* ar
         return false;
     }
     std::vector<std::string> asyncMethodList;
-    if (argc == INTEGER_FOUR && !NapiParseUtils::ParseStringArray(env, argv[INTEGER_THREE], asyncMethodList)) {
+    if (argc >= INTEGER_FOUR && !NapiParseUtils::ParseStringArray(env, argv[INTEGER_THREE], asyncMethodList)) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
         return false;
     }
