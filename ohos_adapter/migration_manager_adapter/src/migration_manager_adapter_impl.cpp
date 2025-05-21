@@ -46,9 +46,8 @@ void MigrationManagerAdapterImpl::MigrationListenerAdapterImpl::OnAbilityConnect
     if (!remoteObject) {
         return;
     }
-    if (remoteObject_ == nullptr) {
-        remoteObject_ = remoteObject;
-    }
+
+    remoteObject_ = remoteObject;
 
     MessageParcel data;
     MessageParcel reply;
