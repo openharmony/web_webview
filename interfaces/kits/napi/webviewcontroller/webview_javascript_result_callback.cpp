@@ -977,7 +977,10 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptResultS
     if (isObject) {
         JavaScriptOb::ObjectID returnedObjectId;
         if (FindObjectIdInJsTd(jsObj->GetEnv(), callResult, &returnedObjectId)) {
-            FindObject(returnedObjectId)->AddHolder(routingId);
+            std::shared_ptr<JavaScriptOb> obj = FindObject(returnedObjectId);
+            if (obj) {
+                obj->AddHolder(routingId);
+            }
         } else {
             returnedObjectId = AddObject(jsObj->GetEnv(), callResult, false, routingId);
         }
@@ -1119,6 +1122,10 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptResultS
     std::vector<napi_value> argv)
 {
     std::shared_ptr<NWebValue> ret = std::make_shared<NWebValue>(NWebValue::Type::NONE);
+    if (!jsObj) {
+        WVLOG_E("WebviewJavaScriptResultCallBack::ExecuteGetJavaScriptResult jsObj null");
+        return ret;
+    }
     napi_value callback = jsObj->FindMethod(method);
     if (!callback) {
         WVLOG_E("WebviewJavaScriptResultCallBack::ExecuteGetJavaScriptResult callback null");
