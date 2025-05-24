@@ -78,6 +78,7 @@ public:
 
     ArkWebString GetScrollFriction() override;
 
+    ArkWebString GetDeviceInfoApiVersion() override;
 private:
     NWeb::SystemPropertiesAdapter& real_;
 
