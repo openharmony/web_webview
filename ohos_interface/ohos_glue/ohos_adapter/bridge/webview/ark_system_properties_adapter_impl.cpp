@@ -182,4 +182,10 @@ ArkWebString ArkSystemPropertiesAdapterImpl::GetScrollFriction()
     std::string str = real_.GetScrollFriction();
     return ArkWebStringClassToStruct(str);
 }
+
+ArkWebString ArkSystemPropertiesAdapterImpl::GetDeviceInfoApiVersion()
+{
+    std::string str = real_.GetDeviceInfoApiVersion();
+    return ArkWebStringClassToStruct(str);
+}
 } // namespace OHOS::ArkWeb
