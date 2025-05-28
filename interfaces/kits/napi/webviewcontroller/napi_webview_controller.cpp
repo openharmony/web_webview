@@ -1002,6 +1002,11 @@ napi_value NapiWebviewController::SetWebDebuggingAccess(napi_env env, napi_callb
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "webDebuggingAccess", "boolean"));
         return result;
     }
+
+    if (WebviewController::webDebuggingAccess_ != webDebuggingAccess) {
+        NWebHelper::Instance().SetWebDebuggingAccess(webDebuggingAccess);
+    }
+
     WebviewController::webDebuggingAccess_ = webDebuggingAccess;
 
     NAPI_CALL(env, napi_get_undefined(env, &result));

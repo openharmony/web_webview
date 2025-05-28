@@ -101,6 +101,8 @@ public:
 
     void RemoveProxyOverride(std::shared_ptr<NWebProxyChangedCallback> callback);
 
+    void SetWebDebuggingAccess(bool isEnableDebug);
+
 private:
     NWebHelper() = default;
     bool GetWebEngine(bool fromArk);

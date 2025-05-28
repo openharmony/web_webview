@@ -1056,6 +1056,19 @@ void NWebHelper::TrimMemoryByPressureLevel(int32_t memoryLevel)
     nwebEngine_->TrimMemoryByPressureLevel(memoryLevel);
 }
 
+void NWebHelper::SetWebDebuggingAccess(bool isEnableDebug)
+{
+    if (!initFlag_) {
+        WVLOG_E("SetWebDebuggingAccess, not initialized");
+        return;
+    }
+    if (!nwebEngine_) {
+        WVLOG_E("SetWebDebuggingAccess, nweb engine is nullptr");
+        return;
+    }
+    nwebEngine_->SetWebDebuggingAccess(isEnableDebug);
+}
+
 void NWebHelper::RemoveAllCache(bool includeDiskFiles)
 {
     if (!LoadWebEngine(true, true)) {
