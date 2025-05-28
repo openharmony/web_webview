@@ -283,6 +283,7 @@
                 "//base/web/webview/test/fuzztest/ohos_nweb/selectcertrequest_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/drawingtextadapter_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ohos_nweb/napi_fuzzer:fuzztest",
+                "//base/web/webview/test/fuzztest/ohos_nweb/napi_webview_controller_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ohos_nweb/initandrun_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ohos_nweb/nwebhelper_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ohos_nweb/hisysevent_fuzzer:fuzztest",
