@@ -16,6 +16,7 @@
 #include "ohos_adapter/bridge/ark_net_connect_adapter_wrapper.h"
 
 #include "ohos_adapter/bridge/ark_net_conn_callback_impl.h"
+#include "ohos_adapter/bridge/ark_vpn_listener_impl.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
 
@@ -62,5 +63,27 @@ std::vector<std::string> ArkNetConnectAdapterWrapper::GetDnsServersByNetId(int32
     std::vector<std::string> servers = ArkWebStringVectorStructToClass(ark_servers);
     ArkWebStringVectorStructRelease(ark_servers);
     return servers;
+}
+
+std::vector<std::string> ArkNetConnectAdapterWrapper::GetDnsServersForVpn()
+{
+    ArkWebStringVector ark_servers = ctocpp_->GetDnsServersForVpn();
+    std::vector<std::string> servers = ArkWebStringVectorStructToClass(ark_servers);
+    ArkWebStringVectorStructRelease(ark_servers);
+    return servers;
+}
+ 
+void ArkNetConnectAdapterWrapper::RegisterVpnListener(std::shared_ptr<OHOS::NWeb::VpnListener> cb)
+{
+    if (CHECK_SHARED_PTR_IS_NULL(cb)) {
+        return ctocpp_->RegisterVpnListener(nullptr);
+    }
+ 
+    return ctocpp_->RegisterVpnListener(new ArkVpnListenerImpl(cb));
+}
+ 
+void ArkNetConnectAdapterWrapper::UnRegisterVpnListener()
+{
+    ctocpp_->UnRegisterVpnListener();
 }
 } // namespace OHOS::ArkWeb
