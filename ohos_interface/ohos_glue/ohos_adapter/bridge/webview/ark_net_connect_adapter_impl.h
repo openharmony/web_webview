@@ -36,6 +36,12 @@ public:
 
     ArkWebStringVector GetDnsServersByNetId(int32_t netId) override;
 
+    ArkWebStringVector GetDnsServersForVpn() override;
+ 
+    void RegisterVpnListener(ArkWebRefPtr<ArkVpnListener> cb) override;
+ 
+    void UnRegisterVpnListener() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NetConnectAdapter> real_;
 

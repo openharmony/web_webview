@@ -37,6 +37,12 @@ public:
 
     std::vector<std::string> GetDnsServersByNetId(int32_t net_id) override;
 
+    std::vector<std::string> GetDnsServersForVpn() override;
+ 
+    void RegisterVpnListener(std::shared_ptr<OHOS::NWeb::VpnListener> cb) override;
+ 
+    void UnRegisterVpnListener() override;
+
 private:
     ArkWebRefPtr<ArkNetConnectAdapter> ctocpp_;
 };
