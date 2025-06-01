@@ -713,6 +713,8 @@ action("ohos_glue_adapter_prepare") {
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_video_enc_info_adapter_wrapper.h",
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_video_info_adapter_wrapper.cpp",
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_video_info_adapter_wrapper.h",
+    "${glue_build_gen_dir}/ohos_adapter/bridge/ark_vpn_listener_wrapper.cpp",
+    "${glue_build_gen_dir}/ohos_adapter/bridge/ark_vpn_listener_wrapper.h",
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_vsync_adapter_impl.cpp",
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_vsync_adapter_impl.h",
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_web_adapter_webview_bridge_helper.cpp",
@@ -1007,6 +1009,8 @@ action("ohos_glue_adapter_prepare") {
     "${glue_build_gen_dir}/ohos_adapter/ctocpp/ark_video_enc_info_adapter_ctocpp.h",
     "${glue_build_gen_dir}/ohos_adapter/ctocpp/ark_video_info_adapter_ctocpp.cpp",
     "${glue_build_gen_dir}/ohos_adapter/ctocpp/ark_video_info_adapter_ctocpp.h",
+    "${glue_build_gen_dir}/ohos_adapter/ctocpp/ark_vpn_listener_ctocpp.cpp",
+    "${glue_build_gen_dir}/ohos_adapter/ctocpp/ark_vpn_listener_ctocpp.h",
   ]
 
   deps = [
