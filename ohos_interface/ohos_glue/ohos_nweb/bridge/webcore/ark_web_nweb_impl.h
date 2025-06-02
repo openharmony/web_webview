@@ -1522,6 +1522,48 @@ public:
     /*--ark web()--*/
     void SetSurfaceDensity(const double& density) override;
 
+    /**
+     * @brief When the user sets the webpage's border radius,
+     *        update Chromium with this radius value for repaint the scrollbar.
+     * @param borderRadiusTopLeft: Radius value of the rounded corner in the top-left of the webpage.
+     * @param borderRadiusTopRight: Radius value of the rounded corner in the top-right of the webpage.
+     * @param borderRadiusBottomLeft: Radius value of the rounded corner in the bottom-left of the webpage.
+     * @param borderRadiusBottomRight: Radius value of the rounded corner in the bottom-right of the webpage.
+     */
+    void SetBorderRadiusFromWeb(double borderRadiusTopLeft, double borderRadiusTopRight, double borderRadiusBottomLeft,
+        double borderRadiusBottomRight) override;
+
+    /**
+     * @brief Get select startIndex.
+     */
+    int GetSelectStartIndex() override;
+
+    /**
+     * @brief Get select endIndex.
+     */
+    int GetSelectEndIndex() override;
+
+    /**
+     * @brief Get all text info.
+     */
+    ArkWebString GetAllTextInfo() override;
+
+    /**
+     * @brief Set the native window of picture in picture.
+     */
+    void SetPipNativeWindow(int delegate_id,
+                            int child_id,
+                            int frame_routing_id,
+                            void* window) override;
+
+    /**
+     * @brief Send event of picture in picture.
+     */
+    void SendPipEvent(int delegate_id,
+                      int child_id,
+                      int frame_routing_id,
+                      int event) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

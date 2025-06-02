@@ -963,5 +963,41 @@ void ArkWebHandlerImpl::OnAccessibilityEventV2(int64_t accessibilityId, int32_t 
 bool ArkWebHandlerImpl::OnNestedScroll(float& x, float& y, float& xVelocity, float& yVelocity, bool& isAvailable)
 {
     return nweb_handler_->OnNestedScroll(x, y, xVelocity, yVelocity, isAvailable);
+bool ArkWebHandlerImpl::OnBeforeUnloadByJSV2(
+    const ArkWebString& url, const ArkWebString& message, bool isReload, ArkWebRefPtr<ArkWebJsDialogResult> result)
+{
+    if (CHECK_REF_PTR_IS_NULL(result)) {
+        return nweb_handler_->OnBeforeUnloadByJSV2(
+            ArkWebStringStructToClass(url), ArkWebStringStructToClass(message), isReload, nullptr);
+    }
+
+    return nweb_handler_->OnBeforeUnloadByJSV2(ArkWebStringStructToClass(url), ArkWebStringStructToClass(message),
+        isReload, std::make_shared<ArkWebJsDialogResultWrapper>(result));
+}
+
+void ArkWebHandlerImpl::OnActivateContentByJS()
+{
+    nweb_handler_->OnActivateContentByJS();
+}
+
+void ArkWebHandlerImpl::OnLoadStarted(const ArkWebString& url)
+{
+    nweb_handler_->OnLoadStarted(ArkWebStringStructToClass(url));
+}
+
+void ArkWebHandlerImpl::OnLoadFinished(const ArkWebString& url)
+{
+    nweb_handler_->OnLoadFinished(ArkWebStringStructToClass(url));
+}
+
+void ArkWebHandlerImpl::OnPip(int status,
+                              int delegate_id,
+                              int child_id,
+                              int frame_routing_id,
+                              int width,
+                              int height)
+{
+    nweb_handler_->OnPip(status, delegate_id, child_id,
+                         frame_routing_id, width, height);
 }
 } // namespace OHOS::ArkWeb

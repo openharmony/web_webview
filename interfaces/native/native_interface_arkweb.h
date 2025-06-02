@@ -34,6 +34,7 @@
 #include <cstdint>
 
 #include "arkweb_error_code.h"
+#include "arkweb_type.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -179,6 +180,23 @@ ArkWeb_ErrorCode OH_NativeArkWeb_LoadData(const char* webTag,
                                           const char* encoding,
                                           const char* baseUrl,
                                           const char* historyUrl);
+
+/**
+ * @brief Register a JavaScript object with callback methods, which may return values. This object will be injected
+ *        into all frames of the current page, including all iframes, and will be accessible using the specified
+ *        name in ArkWeb_ProxyObjectWithResult. The object will only be available in JavaScript after the next
+ *        load or reload.
+ *        These methods will be executed in the ArkWeb worker thread.
+ *
+ * @param webTag The name of the web component.
+ * @param proxyObject The JavaScript object to register, the object has callback functions with return value.
+ * @param permission The JSON string, which defaults to null, is used to configure the permission control for
+ *                   JSBridge, allowing for the definition of URL whitelists at the object and method levels.
+ *
+ * @since 20
+ */
+void OH_NativeArkWeb_RegisterAsyncThreadJavaScriptProxy(const char* webTag,
+    const ArkWeb_ProxyObjectWithResult* proxyObject, const char* permission);
 
 #ifdef __cplusplus
 };

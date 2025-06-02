@@ -43,6 +43,16 @@ public:
 };
 
 /*--ark web(source=webcore)--*/
+class ArkVpnListener : public virtual ArkWebBaseRefCounted {
+public:
+    /*--ark web()--*/
+    virtual void OnAvailable() = 0;
+ 
+    /*--ark web()--*/
+    virtual void OnLost() = 0;
+};
+
+/*--ark web(source=webcore)--*/
 class ArkNetConnCallback : public virtual ArkWebBaseRefCounted {
 public:
     /*--ark web()--*/
@@ -83,6 +93,15 @@ public:
 
     /*--ark web()--*/
     virtual ArkWebStringVector GetDnsServersByNetId(int32_t netId) = 0;
+
+    /*--ark web()--*/
+    virtual ArkWebStringVector GetDnsServersForVpn() = 0;
+ 
+    /*--ark web()--*/
+    virtual void RegisterVpnListener(ArkWebRefPtr<ArkVpnListener> cb) = 0;
+ 
+    /*--ark web()--*/
+    virtual void UnRegisterVpnListener() = 0;
 };
 
 } // namespace OHOS::ArkWeb

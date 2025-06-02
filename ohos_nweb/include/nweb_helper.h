@@ -30,6 +30,11 @@
 #include "nweb_proxy_changed_callback.h"
 
 namespace OHOS::NWeb {
+struct NwebScheme {
+    const std::string name;
+    int32_t option = 0;
+};
+
 struct FrameRateSetting {
     int32_t min_ { 0 };
     int32_t max_ { 0 };
@@ -82,6 +87,10 @@ public:
     void SetHostIP(const std::string& hostName, const std::string& address, int32_t aliveTime);
     void ClearHostIP(const std::string& hostName);
 
+    void SetAppCustomUserAgent(const std::string& userAgent);
+
+    void SetUserAgentForHosts(const std::string& userAgent, const std::vector<std::string>& hosts);
+
     void WarmupServiceWorker(const std::string& url);
 
     void EnableWholeWebPageDrawing();
@@ -101,6 +110,15 @@ public:
 
     void RemoveProxyOverride(std::shared_ptr<NWebProxyChangedCallback> callback);
 
+    void SetWebDebuggingAccess(bool isEnableDebug);
+    void SetWebDebuggingAccessAndPort(bool isEnableDebug, int32_t port);
+ 
+    bool HasLoadWebEngine();
+
+    void SaveSchemeVector(const char* name, int32_t option);
+
+    bool RegisterCustomSchemes();
+
 private:
     NWebHelper() = default;
     bool GetWebEngine(bool fromArk);
@@ -112,6 +130,7 @@ private:
     std::string bundlePath_;
     std::string customSchemeCmdLine_;
     std::shared_ptr<NWebEngine> nwebEngine_ = nullptr;
+    std::vector<NwebScheme> schemeVector_;
     std::vector<std::string> backForwardCacheCmdLine_;
 };
 } // namespace OHOS::NWeb

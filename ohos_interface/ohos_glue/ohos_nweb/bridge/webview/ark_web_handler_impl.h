@@ -595,6 +595,37 @@ public:
     void OnAccessibilityEventV2(int64_t accessibilityId, int32_t eventType, const ArkWebString& argument) override;
 
     bool OnNestedScroll(float& x, float& y, float& xVelocity, float& yVelocity, bool& isAvailable) override;
+    /**
+     * @brief Notify the host application that the web page wants to handle
+     *        JavaScript onbeforeunload.
+     *
+     * @param url String: The url of the page requesting.
+     * @param message String: The message of the dialog.
+     * @param isReload bool: The isReload parameter is set to true when the page is refreshed;
+     *        otherwise, it remains false. Default is false.
+     * @param result std::shared_ptr<NWebJSDialogResult>: A NWebJSDialogResult to
+     *        confirm that the user closed the window.
+     *
+     * @return To show a custom dialog, the app should return true.
+     */
+    bool OnBeforeUnloadByJSV2(const ArkWebString& url, const ArkWebString& message, bool isReload,
+        ArkWebRefPtr<ArkWebJsDialogResult> result) override;
+
+    /**
+     * @brief called when the web page is active for window.open called by other web component.
+     */
+    void OnActivateContentByJS() override;
+
+    void OnLoadStarted(const ArkWebString& url) override;
+
+    void OnLoadFinished(const ArkWebString& url) override;
+
+    void OnPip(int status,
+               int delegate_id,
+               int child_id,
+               int frame_routing_id,
+               int width,
+               int height) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };

@@ -42,6 +42,7 @@ const std::string WEB_RENDER_PROCESS_MODE_ENUM_NAME = "RenderProcessMode";
 const std::string OFFLINE_RESOURCE_TYPE_ENUM_NAME = "OfflineResourceType";
 const std::string WEB_PRESSURE_LEVEL_ENUM_NAME = "PressureLevel";
 const std::string WEB_SCROLL_TYPE_ENUM_NAME = "ScrollType";
+const std::string WEB_CONTROLLER_ATTACHSTATE_ENUM_NAME = "ControllerAttachState";
 constexpr double TEN_MILLIMETER_TO_INCH = 0.39;
 
 struct Scheme {
@@ -92,6 +93,8 @@ private:
     static napi_value IsSafeBrowsingEnabled(napi_env env, napi_callback_info info);
 
     static napi_value InnerGetWebDebuggingAccess(napi_env env, napi_callback_info info);
+
+    static napi_value InnerGetWebDebuggingPort(napi_env env, napi_callback_info info);
 
     static napi_value SetWebId(napi_env env, napi_callback_info info);
 
@@ -343,6 +346,10 @@ private:
 
     static napi_value ClearHostIP(napi_env env, napi_callback_info info);
 
+    static napi_value SetAppCustomUserAgent(napi_env env, napi_callback_info info);
+
+    static napi_value SetUserAgentForHosts(napi_env env, napi_callback_info info);
+
     static napi_value WarmupServiceWorker(napi_env env, napi_callback_info info);
 
     static napi_value GetSurfaceId(napi_env env, napi_callback_info info);
@@ -377,6 +384,10 @@ private:
     static int32_t maxFdNum_;
     static std::atomic<int32_t> usedFd_;
     static napi_value GetLastHitTest(napi_env env, napi_callback_info info);
+    static napi_value GetAttachState(napi_env env, napi_callback_info info);
+    static napi_value On(napi_env env, napi_callback_info info);
+    static napi_value Off(napi_env env, napi_callback_info info);
+    static napi_value WaitForAttached(napi_env env, napi_callback_info info);
 };
 
 class NWebValueCallbackImpl : public NWebMessageValueCallback {

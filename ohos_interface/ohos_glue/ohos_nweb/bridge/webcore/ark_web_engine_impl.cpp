@@ -204,6 +204,16 @@ void ArkWebEngineImpl::ClearHostIP(const ArkWebString& hostName)
     nweb_engine_->ClearHostIP(ArkWebStringStructToClass(hostName));
 }
 
+void ArkWebEngineImpl::SetAppCustomUserAgent(const ArkWebString& userAgent)
+{
+    nweb_engine_->SetAppCustomUserAgent(ArkWebStringStructToClass(userAgent));
+}
+
+void ArkWebEngineImpl::SetUserAgentForHosts(const ArkWebString& userAgent, const ArkWebStringVector& hosts)
+{
+    nweb_engine_->SetUserAgentForHosts(ArkWebStringStructToClass(userAgent), ArkWebStringVectorStructToClass(hosts));
+}
+
 void ArkWebEngineImpl::EnableWholeWebPageDrawing()
 {
     nweb_engine_->EnableWholeWebPageDrawing();
@@ -258,6 +268,11 @@ void ArkWebEngineImpl::RemoveProxyOverride(ArkWebRefPtr<ArkWebProxyChangedCallba
     std::shared_ptr<OHOS::NWeb::NWebProxyChangedCallback> nweb_proxy_callback =
         std::make_shared<ArkWebProxyChangedCallbackImpl>(callback);
     nweb_engine_->RemoveProxyOverride(nweb_proxy_callback);
+}
+
+void ArkWebEngineImpl::SetWebDebuggingAccessAndPort(bool isEnableDebug, int32_t port)
+{
+    nweb_engine_->SetWebDebuggingAccessAndPort(isEnableDebug, port);
 }
 
 } // namespace OHOS::ArkWeb

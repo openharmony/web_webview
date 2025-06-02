@@ -197,3 +197,27 @@ ArkWeb_ErrorCode OH_NativeArkWeb_LoadData(const char* webTag,
     }
     return loadData(webTag, data, mimeType, encoding, baseUrl, historyUrl);
 }
+
+void OH_NativeArkWeb_RegisterAsyncThreadJavaScriptProxy(const char* webTag,
+                                                        const ArkWeb_ProxyObjectWithResult* proxyObject,
+                                                        const char* permission)
+{
+    WVLOG_I("native OH_NativeArkWeb_RegisterAsyncThreadJavaScriptProxy, webTag: %{public}s", webTag);
+    if (!OHOS::NWeb::NWebHelper::Instance().LoadWebEngine(true, false)) {
+        WVLOG_E("NativeArkWeb webEngineHandle is nullptr");
+        return;
+    }
+
+    void (*registerAsyncThreadJavaScriptProxy)(const char* webTag,
+                                               const ArkWeb_ProxyObjectWithResult* proxyObject,
+                                               const char* permission) = nullptr;
+
+#define ARKWEB_NATIVE_LOAD_FN_PTR(apiMember, funcImpl) LoadFunction(#funcImpl, &(apiMember))
+    ARKWEB_NATIVE_LOAD_FN_PTR(registerAsyncThreadJavaScriptProxy, OH_NativeArkWeb_RegisterAsyncThreadJavaScriptProxy);
+#undef ARKWEB_NATIVE_LOAD_FN_PTR
+    if (!registerAsyncThreadJavaScriptProxy) {
+        WVLOG_E("failed to load function OH_NativeArkWeb_RegisterAsyncThreadJavaScriptProxy");
+        return;
+    }
+    return registerAsyncThreadJavaScriptProxy(webTag, proxyObject, permission);
+}

@@ -1696,6 +1696,60 @@ public:
      */
     /*--ark web()--*/
     virtual void SetSurfaceDensity(const double& density) = 0;
+
+    /**
+     * @brief When the user sets the webpage's border radius,
+     *        update Chromium with this radius value for repaint the scrollbar.
+     * @param borderRadiusTopLeft: Radius value of the rounded corner in the top-left of the webpage.
+     * @param borderRadiusTopRight: Radius value of the rounded corner in the top-right of the webpage.
+     * @param borderRadiusBottomLeft: Radius value of the rounded corner in the bottom-left of the webpage.
+     * @param borderRadiusBottomRight: Radius value of the rounded corner in the bottom-right of the webpage.
+     */
+    /*--ark web()--*/
+    virtual void SetBorderRadiusFromWeb(double borderRadiusTopLeft, double borderRadiusTopRight,
+        double borderRadiusBottomLeft, double borderRadiusBottomRight) = 0;
+
+    /**
+     * @brief Get select startIndex.
+     *
+     * @return the select startIndex.
+     */
+    /*--ark web()--*/
+    virtual int GetSelectStartIndex() = 0;
+
+    /**
+     * @brief Get select endIndex.
+     *
+     * @return the select endIndex.
+     */
+    /*--ark web()--*/
+    virtual int GetSelectEndIndex() = 0;
+
+    /**
+     * @brief Get all text info.
+     *
+     * @return the info of all text.
+     */
+    /*--ark web()--*/
+    virtual ArkWebString GetAllTextInfo() = 0;
+
+    /**
+     * @brief Set the native window of picture in picture.
+     */
+    /*--ark web()--*/
+    virtual void SetPipNativeWindow(int delegate_id,
+                                    int child_id,
+                                    int frame_routing_id,
+                                    void* window) = 0;
+
+    /**
+     * @brief Send event of picture in picture.
+     */
+    /*--ark web()--*/
+    virtual void SendPipEvent(int delegate_id,
+                              int child_id,
+                              int frame_routing_id,
+                              int event) = 0;
 };
 
 } // namespace OHOS::ArkWeb

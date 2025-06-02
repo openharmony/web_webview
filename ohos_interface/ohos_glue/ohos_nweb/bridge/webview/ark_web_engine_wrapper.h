@@ -77,6 +77,10 @@ public:
 
     void ClearHostIP(const std::string& hostName) override;
 
+    void SetAppCustomUserAgent(const std::string& userAgent) override;
+
+    void SetUserAgentForHosts(const std::string& userAgent, const std::vector<std::string>& hosts) override;
+
     void EnableWholeWebPageDrawing() override;
 
     std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> GetAdsBlockManager() override;
@@ -96,6 +100,8 @@ public:
                           std::shared_ptr<OHOS::NWeb::NWebProxyChangedCallback> callback) override;
 
     void RemoveProxyOverride(std::shared_ptr<OHOS::NWeb::NWebProxyChangedCallback> callback) override;
+
+    void SetWebDebuggingAccessAndPort(bool isEnableDebug, int32_t port) override;
 
 private:
     ArkWebRefPtr<ArkWebEngine> ark_web_engine_;
