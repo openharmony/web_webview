@@ -868,6 +868,7 @@ public:
 
     /*--ark web()--*/
     virtual bool OnNestedScroll(float& x, float& y, float& xVelocity, float& yVelocity, bool& isAvailable) = 0;
+    
     /**
      * @brief Notify the host application that the web page wants to handle
      *        JavaScript onbeforeunload.

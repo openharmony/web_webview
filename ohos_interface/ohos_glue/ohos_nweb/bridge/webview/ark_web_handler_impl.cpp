@@ -963,6 +963,8 @@ void ArkWebHandlerImpl::OnAccessibilityEventV2(int64_t accessibilityId, int32_t 
 bool ArkWebHandlerImpl::OnNestedScroll(float& x, float& y, float& xVelocity, float& yVelocity, bool& isAvailable)
 {
     return nweb_handler_->OnNestedScroll(x, y, xVelocity, yVelocity, isAvailable);
+}
+
 bool ArkWebHandlerImpl::OnBeforeUnloadByJSV2(
     const ArkWebString& url, const ArkWebString& message, bool isReload, ArkWebRefPtr<ArkWebJsDialogResult> result)
 {

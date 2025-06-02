@@ -1061,6 +1061,7 @@ public:
     {
         return false;
     }
+    
     /**
      * @brief Notify the host application that the web page wants to handle
      * JavaScript onbeforeunload.
