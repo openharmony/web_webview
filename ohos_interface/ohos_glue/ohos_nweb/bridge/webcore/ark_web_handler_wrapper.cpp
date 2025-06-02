@@ -1087,6 +1087,11 @@ void ArkWebHandlerWrapper::OnAccessibilityEventV2(
     ArkWebStringStructRelease(stArgument);
 }
 
+bool ArkWebHandlerWrapper::OnNestedScroll(float& x, float& y, float& xVelocity, float& yVelocity, bool& isAvailable)
+{
+    return ark_web_handler_->OnNestedScroll(x, y, xVelocity, yVelocity, isAvailable);
+}
+
 bool ArkWebHandlerWrapper::OnBeforeUnloadByJSV2(const std::string& url, const std::string& message, bool isReload,
     std::shared_ptr<OHOS::NWeb::NWebJSDialogResult> result)
 {

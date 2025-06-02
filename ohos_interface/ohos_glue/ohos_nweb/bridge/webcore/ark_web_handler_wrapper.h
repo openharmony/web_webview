@@ -632,6 +632,8 @@ public:
 
     void OnAccessibilityEventV2(int64_t accessibilityId, int32_t eventType, const std::string& argument) override;
 
+    bool OnNestedScroll(float& x, float& y, float& xVelocity, float& yVelocity, bool& isAvailable) override;
+    
     /**
      * @brief Notify the host application that the web page wants to handle
      *        JavaScript onbeforeunload.

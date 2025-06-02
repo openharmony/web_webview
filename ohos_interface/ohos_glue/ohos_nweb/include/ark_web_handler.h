@@ -866,6 +866,9 @@ public:
     /*--ark web()--*/
     virtual void OnAccessibilityEventV2(int64_t accessibilityId, int32_t eventType, const ArkWebString& argument) = 0;
 
+    /*--ark web()--*/
+    virtual bool OnNestedScroll(float& x, float& y, float& xVelocity, float& yVelocity, bool& isAvailable) = 0;
+    
     /**
      * @brief Notify the host application that the web page wants to handle
      *        JavaScript onbeforeunload.
