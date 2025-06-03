@@ -580,6 +580,8 @@ public:
     void RestoreRenderFit() override;
 
     void OnAccessibilityEvent(int64_t accessibilityId, int32_t eventType) override;
+
+    void OnAccessibilityEventV2(int64_t accessibilityId, int32_t eventType, const ArkWebString& argument) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };

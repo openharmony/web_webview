@@ -617,6 +617,8 @@ public:
     void RestoreRenderFit() override;
 
     void OnAccessibilityEvent(int64_t accessibilityId, int32_t eventType) override;
+
+    void OnAccessibilityEventV2(int64_t accessibilityId, int32_t eventType, const std::string& argument) override;
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };
