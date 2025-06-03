@@ -50,6 +50,11 @@ export default namespace webview {
         Unknown
     }
 
+    export enum RenderProcessMode{
+        SINGLE = 0,
+        MULTIPLE = 1
+    }
+
     export interface RequestInfo {
         url: string;
         method: string;
@@ -188,6 +193,12 @@ export default namespace webview {
         native loadData(data: string, mimeType: string, encoding: string, baseUrl?: string, historyUrl?: string): void;
         native clearHistory(): void;
         native clearWebSchemeHandler(): void;
+        native terminateRenderProcess(): boolean;
+        native static setRenderProcessMode(mode: RenderProcessMode): void;
+        native static getRenderProcessMode(): RenderProcessMode;
+        native static pauseAllTimers(): void;
+        native static resumeAllTimers(): void;
+        native serializeWebState(): Uint8Array;
     }
 
     export class WebSchemeHandlerResponse {

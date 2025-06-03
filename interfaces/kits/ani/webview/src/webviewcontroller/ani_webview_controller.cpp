@@ -1351,6 +1351,126 @@ static ani_double GetPageHeight(ani_env *env, ani_object object)
     return static_cast<ani_double>(pageHeight);
 }
 
+static ani_boolean TerminateRenderProcess(ani_env* env, ani_object object)
+{
+    WVLOG_I("TerminateRenderProcess");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return ANI_FALSE;
+    }
+
+    if (!controller->TerminateRenderProcess()) {
+        return ANI_FALSE;
+    }
+
+    return ANI_TRUE;
+}
+
+static void SetRenderProcessMode(ani_env* env, ani_object object, ani_enum_item mode)
+{
+    WVLOG_D("[WebviewCotr] SetRenderProcessMode");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    ani_boolean isUndefined = ANI_FALSE;
+    if (env->Reference_IsUndefined(mode, &isUndefined) != ANI_OK || isUndefined) {
+        return;
+    }
+
+    ani_int iMode;
+    if (env->EnumItem_GetValue_Int(mode, &iMode) != ANI_OK) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+
+    int32_t renderProcessMode = static_cast<int32_t>(iMode);
+    WVLOG_I("SetRenderProcessMode mode: %{public}d", renderProcessMode);
+    NWebHelper::Instance().SetRenderProcessMode(static_cast<RenderProcessMode>(renderProcessMode));
+}
+
+static ani_enum_item GetRenderProcessMode(ani_env* env, ani_object object)
+{
+    ani_int renderProcessMode = 0;
+    ani_enum enumType;
+    env->FindEnum("Lani_enum/COLORINT;", &enumType);
+
+    renderProcessMode = static_cast<ani_int>(NWebHelper::Instance().GetRenderProcessMode());
+    WVLOG_I("getRenderProcessMode mode = %{public}d", static_cast<int32_t>(renderProcessMode));
+    ani_enum_item mode;
+    env->Enum_GetEnumItemByIndex(enumType, renderProcessMode, &mode);
+    return mode;
+}
+
+static void PauseAllTimers(ani_env* env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    WVLOG_I("PauseAllTimers");
+    NWebHelper::Instance().PauseAllTimers();
+    return;
+}
+
+static void ResumeAllTimers(ani_env* env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    WVLOG_I("ResumeAllTimers");
+    NWebHelper::Instance().ResumeAllTimers();
+    return;
+}
+
+static ani_object SerializeWebState(ani_env* env, ani_object object)
+{
+    ani_object result = nullptr;
+
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return result;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return result;
+    }
+
+    void* data = nullptr;
+    ani_arraybuffer buffer = nullptr;
+    auto webState = controller->SerializeWebState();
+
+    size_t length = webState.size();
+    env->CreateArrayBuffer(length, &data, &buffer);
+
+    int retCode = memcpy_s(data, length, webState.data(), length);
+    if (retCode != 0) {
+        return result;
+    }
+
+    ani_class cls;
+    ani_method ctor;
+    if (env->FindClass("Lstd/core/ArrayBuffer;", &cls) != ANI_OK) {
+        return result;
+    }
+    if (env->Class_FindMethod(cls, "<ctor>", "I:V", &ctor) != ANI_OK) {
+        return result;
+    }
+
+    ani_object arrayObject;
+    env->Object_New(cls, ctor, &arrayObject, buffer);
+    return arrayObject;
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     if (env == nullptr) {
@@ -1407,6 +1527,12 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "loadData", nullptr, reinterpret_cast<void *>(LoadData) },
         ani_native_function { "clearHistory", nullptr, reinterpret_cast<void *>(ClearHistory) },
         ani_native_function { "clearWebSchemeHandler", nullptr, reinterpret_cast<void *>(ClearWebSchemeHandler) },
+        ani_native_function { "terminateRenderProcess", nullptr, reinterpret_cast<void *>(TerminateRenderProcess) },
+        ani_native_function { "setRenderProcessMode", nullptr, reinterpret_cast<void *>(SetRenderProcessMode) },
+        ani_native_function { "getRenderProcessMode", nullptr, reinterpret_cast<void *>(GetRenderProcessMode) },
+        ani_native_function { "pauseAllTimers", nullptr, reinterpret_cast<void *>(PauseAllTimers) },
+        ani_native_function { "resumeAllTimers", nullptr, reinterpret_cast<void *>(ResumeAllTimers) },
+        ani_native_function { "serializeWebState", nullptr, reinterpret_cast<void *>(SerializeWebState) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
