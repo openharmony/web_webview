@@ -20,13 +20,28 @@
 #include <string>
 #include <unordered_map>
 
+#include "common_event_manager.h"
+#include "common_event_subscriber.h"
+#include "common_event_support.h"
 #include "i_net_conn_callback.h"
 #include "net_connect_adapter.h"
 #include "net_connect_callback_impl.h"
 #include "net_conn_client.h"
+#include "want.h"
 
 namespace OHOS::NWeb {
 using namespace OHOS::NetManagerStandard;
+
+class NetVPNEventSubscriber : public EventFwk::CommonEventSubscriber {
+public:
+    NetVPNEventSubscriber(EventFwk::CommonEventSubscribeInfo& in, std::shared_ptr<VpnListener>);
+    ~NetVPNEventSubscriber() override = default;
+    void OnReceiveEvent(const EventFwk::CommonEventData& data) override;
+ 
+private:
+    std::shared_ptr<VpnListener> cb_ = nullptr;
+};
+
 class NetConnectAdapterImpl : public NetConnectAdapter {
 public:
     NetConnectAdapterImpl() = default;
@@ -43,10 +58,20 @@ public:
 
     std::vector<std::string> GetDnsServersByNetId(int32_t netId) override;
 
+    std::vector<std::string> GetDnsServersForVpn() override;
+ 
+    void RegisterVpnListener(std::shared_ptr<VpnListener> cb) override;
+ 
+    void UnRegisterVpnListener() override;
+
 private:
     std::vector<std::string> GetDnsServersInternal(const NetHandle &netHandle);
 
+    bool HasVpnTransport();
+
     std::unordered_map<int32_t, sptr<NetConnectCallbackImpl>> netConnCallbackMap_;
+
+    std::shared_ptr<EventFwk::CommonEventSubscriber> commonEventSubscriber_ = nullptr;
 };
 }  // namespace OHOS::NWeb
 
