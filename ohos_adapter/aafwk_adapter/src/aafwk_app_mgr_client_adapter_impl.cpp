@@ -20,6 +20,7 @@
 
 #include <AbilityKit/native_child_process.h>
 #include <native_window/external_window.h>
+#include <system_properties_adapter_impl.h>
 #include <IPCKit/ipc_kit.h>
 #include "nweb_log.h"
 
@@ -42,6 +43,7 @@ const uint32_t IPC_B2G_CODE_INIT_DATA = 10001;
 const uint32_t IPC_G2B_CODE_QUERY_WINDOW = 10002;
 const uint32_t IPC_G2B_CODE_DESTROY_WINDOW = 10003;
 const uint32_t IPC_G2B_CODE_PASS_WINDOW = 10004;
+const uint32_t IPC_G2B_CODE_QUERY_BOOL = 10005;
 OHIPCRemoteProxy* g_remote_proxy = nullptr;
 std::shared_ptr<AafwkBrowserHostAdapter> g_browser_host_adapter = nullptr;
 std::mutex mtx;
@@ -104,6 +106,19 @@ int OnRemoteRequestForGpuProcess(uint32_t code, const OHIPCParcel* data, OHIPCPa
         OHNativeWindow *window;
         if (OH_NativeWindow_ReadFromParcel(dataToRead, &window) != 0) {
             WVLOG_E("failed to read window");
+            return -1;
+        }
+        return 0;
+    } else if (code == IPC_G2B_CODE_QUERY_BOOL) {
+        std::string key = std::string(OH_IPCParcel_ReadString(data));
+        int32_t defaultNum = 0;
+        if (OH_IPCParcel_ReadInt32(data, &defaultNum) != 0) {
+            WVLOG_E("failed to get default Num");
+            return -1;
+        }
+        bool value = OHOS::NWeb::SystemPropertiesAdapterImpl::GetInstance().GetBoolParameter(key, !!defaultNum);
+        if (OH_IPCParcel_WriteInt32(reply, value) != 0) {
+            WVLOG_E("failed to write int32");
             return -1;
         }
         return 0;
