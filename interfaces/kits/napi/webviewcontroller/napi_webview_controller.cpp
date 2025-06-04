@@ -1007,14 +1007,14 @@ napi_value NapiWebviewController::SetWebDebuggingAccess(napi_env env, napi_callb
         return result;
     }
 
-    // Optional param : port.
+    // Optional param : port, range:(1024, 65535]
     int32_t webDebuggingPort = 0;
     if (argc > 1) {
       if (NapiParseUtils::ParseInt32(env, argv[1], webDebuggingPort)) {
-        const int32_t kNoAllowedPortRangeStart = 0;
-        const int32_t kNoAllowedPortRangeEnd = 1024;
-        if (webDebuggingPort >= kNoAllowedPortRangeStart &&
-            webDebuggingPort <= kNoAllowedPortRangeEnd) {
+        const int32_t kValidPortRangeStart = 1025;
+        const int32_t kValidPortRangeEnd = 65535;
+        if (webDebuggingPort < kValidPortRangeStart ||
+            webDebuggingPort > kValidPortRangeEnd) {
             BusinessError::ThrowErrorByErrcode(env, NOT_ALLOWED_PORT);
             return result;
         }
