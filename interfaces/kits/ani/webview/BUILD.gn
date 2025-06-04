@@ -25,6 +25,7 @@ config("web_native_public_config") {
     "native/webfunction",
     "native/webstorage",
     "native/webviewcontroller",
+    "native/NativeMediaPlayerBridge",
     "../../../native",
     "../../../../ohos_adapter/ohos_resource_adapter/include",
   ]
@@ -116,6 +117,7 @@ ohos_shared_library("webview_ani") {
     "./src/webviewcontroller/web_download_manager.cpp",
     "./src/webviewcontroller/web_download_manager.h",
     "./src/webviewcontroller/ani_web_cookie_manager.cpp",
+    "./src/webviewcontroller/ani_native_media_player.cpp",
     "./src/proxycontroller/ani_proxy_config.cpp",
     "./src/proxycontroller/ani_proxy_config.h",
     "./src/proxycontroller/proxy_config.cpp",
