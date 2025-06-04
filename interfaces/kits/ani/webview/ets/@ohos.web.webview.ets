@@ -356,6 +356,61 @@ export default namespace webview {
          */
         native static saveCookieSync(): void;
 
+        native static configCookieSync(url: string, value: string, incognito: boolean, includeHttpOnly: boolean): void;
+
+        native static configCookieSyncInternal(url: string, value: string, incognito?: boolean): void;
+
+        static configCookieSync(url: string, value: string, incognito?: boolean): void {
+            WebCookieManager.configCookieSyncInternal(url, value, incognito);
+        }
+
+        static configCookie(url: string, value: string, callback: AsyncCallback<void>): void {
+            let pCallback = taskpool.execute((): undefined => {
+                WebCookieManager.configCookieSync(url, value, false, false);
+                return undefined
+        });
+            pCallback.then((e :NullishType)=>{
+                let resultCode: Int  = 0;
+                let r: BusinessError = { code: resultCode.toInt(), data: undefined };
+                callback(r, undefined);
+            }, (err: Object): void => {
+            });
+        }
+
+
+
+        static configCookie(url: string, value: string): Promise<void> {
+            let pPromise = new Promise<void>((resolve: (v: undefined) => void,
+                                              reject: (error: Object) => void): void => {
+                let pPromise1 = taskpool.execute(():undefined => {
+                    WebCookieManager.configCookieSync(url, value, false, false);
+                    return undefined});
+                pPromise1.then((e :NullishType): void=>{
+                    console.log("in Promise then. e is ", e)
+                    resolve(undefined);
+                }, (err:Object): void => {
+                    reject(err);
+                });
+            });
+            return pPromise;
+        }
+
+        static configCookie(url: string, value: string, incognito: boolean, includeHttpOnly: boolean): Promise<void> {
+            let pPromise = new Promise<void>((resolve: (v: undefined) => void,
+                                              reject: (error: Object) => void): void => {
+                let pPromise1 = taskpool.execute(():undefined => {
+                    WebCookieManager.configCookieSync(url, value, incognito, includeHttpOnly);
+                    return undefined});
+                pPromise1.then((e :NullishType): void=>{
+                    console.log("in Promise then. e is ", e)
+                    resolve(undefined);
+                }, (err:Object): void => {
+                    reject(err);
+                });
+            });
+            return pPromise;
+        }
+
         /**
          * Save the cookies Asynchronously.
          * @returns { Promise<void> } - A promise resolved after the cookies have been saved.
