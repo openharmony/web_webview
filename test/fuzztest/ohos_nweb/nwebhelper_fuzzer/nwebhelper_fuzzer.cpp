@@ -79,6 +79,9 @@ bool NWebHelperFuzzTest(const uint8_t* data, size_t size)
     (void)result;
     result = NWebHelper::Instance().LoadNWebSDK();
     (void)result;
+    std::vector<std::string> hosts;
+    NWebHelper::Instance().SetAppCustomUserAgent("web_test");
+    NWebHelper::Instance().SetUserAgentForHosts("web_test", hosts);
     return true;
 }
 
