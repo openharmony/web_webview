@@ -1471,6 +1471,50 @@ static ani_object SerializeWebState(ani_env* env, ani_object object)
     return arrayObject;
 }
 
+static void TrimMemoryByPressureLevel(ani_env *env, ani_object object, ani_double level)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    int32_t memoryLevel = static_cast<int32_t>(level) == 1 ? 0 : static_cast<int32_t>(level);
+    NWebHelper::Instance().TrimMemoryByPressureLevel(memoryLevel);
+    return;
+}
+
+static void SetPathAllowingUniversalAccess(ani_env *env, ani_object object, ani_object pathList)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    ani_array_ref pathListStr = static_cast<ani_array_ref>(pathList);
+    ani_int pathCount;
+    env->Object_CallMethodByName_Int(pathList,"getByteLength",nullptr,&pathCount);
+    std::vector<std::string>pathListArr;
+    for (ani_int i = 0 ; i < pathCount ; i++) {
+        ani_ref pathItem = nullptr;
+        env->Array_Get_Ref(pathListStr, i, &pathItem);
+        std::string path;
+        if (!AniParseUtils::ParseString(env, pathItem, path)) {
+            AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "pathList", "Array<string>"));
+            return;
+        }
+        if (path.empty()) {
+            AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+                NWebError::FormatString("BusinessError 401: Parameter error. Path: '%s' is invalid", path.c_str()));
+            return;
+        }
+        pathListArr.emplace_back(path);
+    }
+}    
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     if (env == nullptr) {
@@ -1533,6 +1577,10 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "pauseAllTimers", nullptr, reinterpret_cast<void *>(PauseAllTimers) },
         ani_native_function { "resumeAllTimers", nullptr, reinterpret_cast<void *>(ResumeAllTimers) },
         ani_native_function { "serializeWebState", nullptr, reinterpret_cast<void *>(SerializeWebState) },
+        ani_native_function { "trimMemoryByPressureLevel", nullptr,
+                              reinterpret_cast<void *>(TrimMemoryByPressureLevel) },
+        ani_native_function { "setPathAllowingUniversalAccess", nullptr, 
+                              reinterpret_cast<void *>(SetPathAllowingUniversalAccess) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());

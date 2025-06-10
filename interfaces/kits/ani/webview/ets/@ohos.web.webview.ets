@@ -55,6 +55,11 @@ export default namespace webview {
         MULTIPLE = 1
     }
 
+    export enum PressureLevel {
+        MEMORY_PRESSURE_LEVEL_MODERATE = 1,
+        MEMORY_PRESSURE_LEVEL_CRITICAL = 2
+    }
+
     export interface RequestInfo {
         url: string;
         method: string;
@@ -199,6 +204,8 @@ export default namespace webview {
         native static pauseAllTimers(): void;
         native static resumeAllTimers(): void;
         native serializeWebState(): Uint8Array;
+        native static trimMemoryByPressureLevel(level: PressureLevel): void;
+        native setPathAllowingUniversalAccess(pathList: Array<string>): void;
     }
 
     export class WebSchemeHandlerResponse {
@@ -769,5 +776,32 @@ export default namespace webview {
         native enterFullScreen(): void;
         native exitFullscreen(): void;
 
+    }
+
+    export class WebDataBase {
+        private nativePtr: long = 0;
+        private cleaner?: Cleaner;
+
+        registerCleaner(ptr: long): void {
+            this.cleaner = new Cleaner(ptr, "WebDataBase")
+            destroyRegister.register(this, this.cleaner!, unregisterToken);
+        }
+        unregisterCleaner(): void {
+            destroyRegister.unregister(unregisterToken);
+        }
+
+        bindNativePtr(ptr: long): void {
+            if (this.nativePtr == 0) {
+                this.nativePtr = ptr;
+                this.registerCleaner(this.nativePtr)
+            }
+        }
+
+        native constructor();
+
+        native static existHttpAuthCredentials(): boolean;
+        native static deleteHttpAuthCredentials(): void;
+        native static getHttpAuthCredentials(host: string, realm: string): Array<string>;
+        native static saveHttpAuthCredentials(host: string, realm: string, username: string, password: string): void;
     }
 }
