@@ -160,16 +160,13 @@ void VSyncAdapterImpl::SetDVSyncSwitch(bool dvsyncSwitch)
     if (!vsyncReceiver_) {
         WVLOG_E("NWebWindowAdatrper SetDVSyncSwitch: receiver_ is nullptr!");
         return;
-    } else if (OHOS::NWeb::SystemPropertiesAdapterImpl::GetInstance()
-        .GetBoolParameter(std::string("web.ohos.dvsync"), false)) {
-        WVLOG_D("NWebWindowAdatrper SetDVSyncSwitch: dvsyncSwitch = %{public}d", dvsyncSwitch);
-        int ret = OH_NativeVSync_DVSyncSwitch(vsyncReceiver_, dvsyncSwitch);
-        if (ret != 0) {
-            WVLOG_E("SetNativeDVSyncSwitch failed, ret = %{public}d", ret);
-            return;
-        }
-    } else {
-        WVLOG_D("NWebWindowAdatrper SetDVSyncSwitch Disabled!");
+    }
+
+    WVLOG_D("NWebWindowAdatrper SetDVSyncSwitch: dvsyncSwitch = %{public}d", dvsyncSwitch);
+    int ret = OH_NativeVSync_DVSyncSwitch(vsyncReceiver_, dvsyncSwitch);
+    if (ret != 0) {
+        WVLOG_E("SetNativeDVSyncSwitch failed, ret = %{public}d", ret);
+        return;
     }
 }
 } // namespace OHOS::NWeb
