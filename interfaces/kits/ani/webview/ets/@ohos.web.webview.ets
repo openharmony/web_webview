@@ -387,15 +387,15 @@ export default namespace webview {
 
 
         static configCookie(url: string, value: string): Promise<void> {
-            let pPromise = new Promise<void>((resolve: (v: undefined) => void,
-                                              reject: (error: Object) => void): void => {
+            let pPromise = new Promise<void>((resolve: (v: PromiseLike<void>) => void,
+                                              reject: (error: Error) => void): void => {
                 let pPromise1 = taskpool.execute(():undefined => {
                     WebCookieManager.configCookieSync(url, value, false, false);
                     return undefined});
                 pPromise1.then((e :NullishType): void=>{
                     console.log("in Promise then. e is ", e)
-                    resolve(undefined);
-                }, (err:Object): void => {
+                    resolve(Promise.resolve());
+                }, (err:Error): void => {
                     reject(err);
                 });
             });
@@ -403,15 +403,15 @@ export default namespace webview {
         }
 
         static configCookie(url: string, value: string, incognito: boolean, includeHttpOnly: boolean): Promise<void> {
-            let pPromise = new Promise<void>((resolve: (v: undefined) => void,
-                                              reject: (error: Object) => void): void => {
+            let pPromise = new Promise<void>((resolve: (v: PromiseLike<void>) => void,
+                                              reject: (error: Error) => void): void => {
                 let pPromise1 = taskpool.execute(():undefined => {
                     WebCookieManager.configCookieSync(url, value, incognito, includeHttpOnly);
                     return undefined});
                 pPromise1.then((e :NullishType): void=>{
                     console.log("in Promise then. e is ", e)
-                    resolve(undefined);
-                }, (err:Object): void => {
+                    resolve(Promise.resolve());
+                }, (err:Error): void => {
                     reject(err);
                 });
             });
