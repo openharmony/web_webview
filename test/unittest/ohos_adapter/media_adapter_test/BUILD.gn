@@ -44,10 +44,7 @@ ohos_unittest("nweb_media_adapter_test") {
   ]
 
   configs = [ ":module_private_config" ]
-  include_dirs = [
-    "../../../../ohos_nweb/include",
-    "${current_sdk_home}/native/sysroot/usr/include/multimedia/av_session/",
-  ]
+  include_dirs = [ "../../../../ohos_nweb/include" ]
 
   deps = [ "../../../../ohos_adapter:nweb_ohos_adapter" ]
 

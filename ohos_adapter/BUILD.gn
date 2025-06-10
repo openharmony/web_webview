@@ -390,20 +390,6 @@ ohos_shared_library("nweb_ohos_adapter") {
   if (webview_media_avsession_enable) {
     sources += [ "media_adapter/src/media_avsession_adapter_impl.cpp" ]
     external_deps += [ "av_session:avsession_client" ]
-    if (target_cpu == "arm") {
-      libs += [
-        "${current_sdk_home}/native/sysroot/usr/lib/arm-linux-ohos/libohavsession.so",
-      ]
-    } else if (target_cpu == "arm64") {
-      libs += [
-        "${current_sdk_home}/native/sysroot/usr/lib/aarch64-linux-ohos/libohavsession.so",
-      ]
-    } else if (target_cpu == "x86_64") {
-      libs += [
-        "${current_sdk_home}/native/sysroot/usr/lib/x86_64-linux-ohos/libohavsession.so",
-      ]
-    }
-    include_dirs += [ "${current_sdk_home}/native/sysroot/usr/include/multimedia/av_session/" ]
     defines += [ "NWEB_MEDIA_AVSESSION_ENABLE" ]
   }
 

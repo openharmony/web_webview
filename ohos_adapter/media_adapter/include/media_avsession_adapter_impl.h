@@ -20,9 +20,6 @@
 
 #include "media_avsession_adapter.h"
 #include "av_session.h"
-#include "native_avmetadata.h"
-#include "native_avsession.h"
-#include "native_avsession_errors.h"
 
 namespace OHOS::NWeb {
 
@@ -98,14 +95,10 @@ private:
     void DestroyAndEraseSession();
     bool CreateNewSession(const MediaAVSessionType& type);
 
-    AVMetadata_Result UpdateAVMetadata();
     std::shared_ptr<MediaAVSessionKey> avSessionKey_;
     std::shared_ptr<AVSession::AVMetaData> avMetadata_;
     std::shared_ptr<AVSession::AVPlaybackState> avPlaybackState_;
     std::shared_ptr<AVSession::AVSession> avSession_;
-    //download and save image to avMetadata_Image by ndk
-    OH_AVMetadata *avMetadata_Image = nullptr;
-    OH_AVMetadataBuilder *builder_ = nullptr;
     static std::unordered_map<std::string, std::shared_ptr<AVSession::AVSession>> avSessionMap;
 };
 } // namespace OHOS::NWeb
