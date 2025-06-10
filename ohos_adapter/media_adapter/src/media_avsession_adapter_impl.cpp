@@ -194,31 +194,12 @@ std::string MediaAVSessionKey::ToString() {
 MediaAVSessionAdapterImpl::MediaAVSessionAdapterImpl() {
     avSessionKey_ = std::make_shared<MediaAVSessionKey>();
     avSessionKey_->Init();
-    AVMetadata_Result ret = OH_AVMetadataBuilder_Create(&builder_);
-    if (ret != AVMETADATA_SUCCESS) {
-        WVLOG_E("create metadata builder failed, ret=%{public}d", ret);
-    }
     avMetadata_ = std::make_shared<AVSession::AVMetaData>();
     avMetadata_->SetAssetId(std::to_string(avSessionKey_->GetPID()));
     avPlaybackState_ = std::make_shared<AVSession::AVPlaybackState>();
 }
 
 MediaAVSessionAdapterImpl::~MediaAVSessionAdapterImpl() {
-    WVLOG_I("MediaAVSessionAdapterImpl::~MediaAVSessionAdapterImpl()");
-    if (avMetadata_Image) {
-        AVMetadata_Result ret = OH_AVMetadata_Destroy(avMetadata_Image);
-        if (ret != AVMETADATA_SUCCESS) {
-            WVLOG_E("destroy avmetadata failed, ret=%{public}d", ret);
-        }
-    }
-    if (builder_) {
-        AVMetadata_Result ret = OH_AVMetadataBuilder_Destroy(builder_);
-        if (ret != AVMETADATA_SUCCESS) {
-            WVLOG_E("destroy avmetadata builder failed, ret=%{public}d", ret);
-        }
-    }
-    avMetadata_Image = nullptr;
-    builder_ = nullptr;
     DestroyAVSession();
 }
 
@@ -405,17 +386,14 @@ bool MediaAVSessionAdapterImpl::UpdateMetaDataCache(const std::shared_ptr<MediaA
         avMetadata_->SetAlbum(metadata->GetAlbum());
         updated = true;
     }
-    AVMetadata_Result ret = OH_AVMetadataBuilder_SetMediaImageUri(builder_, metadata->GetImageUrl().c_str());
-    if (ret == AVMETADATA_SUCCESS) {
+    if (avMetadata_->GetMediaImageUri() != metadata->GetImageUrl()) {
+        avMetadata_->SetMediaImageUri(metadata->GetImageUrl());
         updated = true;
     }
 
-    if (updated) {
-        UpdateAVMetadata();
-    }
-     WVLOG_I("media avsession adapter UpdateMetaDataCache return updated: %{public}d", updated);
-     return updated;
- }
+    WVLOG_I("media avsession adapter UpdateMetaDataCache return updated: %{public}d", updated);
+    return updated;
+}
 
 bool MediaAVSessionAdapterImpl::UpdateMetaDataCache(const std::shared_ptr<MediaAVSessionPositionAdapter> position) {
     if (!position) {
@@ -511,10 +489,13 @@ bool MediaAVSessionAdapterImpl::CreateNewSession(const MediaAVSessionType& type)
             std::shared_ptr<OHOS::AAFwk::WantParams> want = std::make_shared<OHOS::AAFwk::WantParams>();
             if (!want) {
                 WVLOG_E("CreateNewSession: create want failed");
+                return false;
             }
-            sptr<OHOS::AAFwk::IArray> params = new (std::nothrow) OHOS::AAFwk::Array(PARAMS_VALUE, OHOS::AAFwk::g_IID_IBoolean);
+            sptr<OHOS::AAFwk::IArray> params = new (std::nothrow) OHOS::AAFwk::Array(
+                PARAMS_VALUE, OHOS::AAFwk::g_IID_IBoolean);
             if (!params) {
                 WVLOG_E("CreateNewSession: create params failed");
+                return false;
             }
             params->Set(INDEX_VALUE, OHOS::AAFwk::Boolean::Box(true));
             want->SetParam("hw_live_view_hidden_when_keyguard", params);
@@ -528,33 +509,6 @@ bool MediaAVSessionAdapterImpl::CreateNewSession(const MediaAVSessionType& type)
         WVLOG_E("media avsession adapter CreateNewSession Fail, out return false");
         return false;
     }
-}
-
-AVMetadata_Result MediaAVSessionAdapterImpl::UpdateAVMetadata()
-{
-    AVMetadata_Result ret = AVMETADATA_SUCCESS;
-
-    if (avMetadata_Image) {
-        ret = OH_AVMetadata_Destroy(avMetadata_Image);
-        if (ret != AVMETADATA_SUCCESS) {
-            WVLOG_E("OH_AVMetadata_Destroy failed. ret: %{public}d", ret);
-        }
-    }
-    avMetadata_Image = nullptr;
-    ret = OH_AVMetadataBuilder_GenerateAVMetadata(builder_, &avMetadata_Image);
-    if (ret != AVMETADATA_SUCCESS) {
-        WVLOG_E("generate avmetadata failed, ret=%{public}d", ret);
-    }
-    auto downloadData = reinterpret_cast<AVSession::AVMetaData*>(avMetadata_Image);
-    std::shared_ptr<AVSession::AVSessionPixelMap> mediaimage = nullptr;
-    if (downloadData)
-        mediaimage = downloadData->GetMediaImage();
-    if (avMetadata_ && mediaimage) {
-        avMetadata_->SetMediaImage(mediaimage);
-        WVLOG_I("Set media poster success!");
-    }
-
-    return ret;
 }
 
 } // namespace OHOS::NWeb

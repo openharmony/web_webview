@@ -24,7 +24,6 @@ ohos_fuzztest("MediaAVSessionAdapterImplFuzzTest") {
     "$webview_path/ohos_adapter/media_adapter/include",
     "$webview_path/ohos_adapter/graphic_adapter/include",
     "$webview_path/test/fuzztest",
-    "${current_sdk_home}/native/sysroot/usr/include/multimedia/av_session/",
   ]
   cflags = [
     "-g",
