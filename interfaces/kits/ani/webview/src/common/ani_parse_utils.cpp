@@ -15,6 +15,7 @@
 
 #include "ani_parse_utils.h"
 
+#include <arpa/inet.h>
 #include <sys/mman.h>
 #include <unistd.h>
 #include <regex>
@@ -247,6 +248,50 @@ bool AniParseUtils::ParseStringArrayMap(ani_env* env, ani_object argv, std::map<
     }
 
     return true;
+}
+
+bool AniParseUtils::GetStringList(ani_env *env, ani_object array, std::vector<std::string>& outValue)
+{
+    ani_double arrayLength;
+    if (env->Object_GetPropertyByName_Double(array, "length", &arrayLength) != ANI_OK) {
+        WVLOG_E("Param check failed, unable to get array length.");
+        return false;
+    }
+    for (int32_t i = 0; i < static_cast<int32_t>(arrayLength); ++i) {
+        ani_ref elementRef;
+        if (env->Object_CallMethodByName_Ref(array, "$_get", "I:Lstd/core/Object;", &elementRef, 
+            static_cast<ani_int>(i)) != ANI_OK) {
+            WVLOG_E("Failed to get element at index %d", i);
+            return false;
+        }
+        std::string strValue;
+        if (!AniParseUtils::ParseString(env, elementRef, strValue)) {
+            WVLOG_W("Failed to parse string at index %d", i);
+            continue;
+        }
+        outValue.push_back(strValue);
+    }
+    return true;
+}
+
+bool AniParseUtils::ParseIP(ani_env *env, ani_object urlObj, std::string& ip)
+{
+    if (AniParseUtils::ParseString(env, urlObj, ip)) {
+        if (ip == "") {
+            WVLOG_E("The IP is null");
+            return false;
+        }
+
+        unsigned char buf[sizeof(struct in6_addr)];
+        if ((inet_pton(AF_INET, ip.c_str(), buf) == 1) || (inet_pton(AF_INET6, ip.c_str(), buf) == 1)) {
+            return true;
+        }
+        WVLOG_E("IP error.");
+        return false;
+    }
+
+    WVLOG_E("Unable to parse type from ip object.");
+    return false;
 }
 }
 }

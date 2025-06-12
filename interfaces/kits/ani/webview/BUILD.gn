@@ -99,6 +99,7 @@ ohos_shared_library("webview_ani") {
     "./src/common",
     "./src/proxycontroller",
     "./src/webstorage",
+    "./src/webadsblockmanager",
     "./src/webdatabase",
     "./src/webviewcontroller",
   ]
@@ -107,6 +108,8 @@ ohos_shared_library("webview_ani") {
     "./src/common/ani_business_error.cpp",
     "./src/common/ani_parse_utils.cpp",
     "./src/webstorage/ani_web_storage.cpp",
+    "./src/webadsblockmanager/ani_web_adsblock_manager.h",
+    "./src/webadsblockmanager/ani_web_adsblock_manager.cpp",
     "./src/webdatabase/ani_web_data_base.cpp",
     "./src/webdatabase/ani_geolocation_permission.cpp",
     "./src/webviewcontroller/ani_webview_controller.cpp",
