@@ -343,6 +343,10 @@ private:
 
     static napi_value ClearHostIP(napi_env env, napi_callback_info info);
 
+    static napi_value SetAppCustomUserAgent(napi_env env, napi_callback_info info);
+
+    static napi_value SetUserAgentForHosts(napi_env env, napi_callback_info info);
+
     static napi_value WarmupServiceWorker(napi_env env, napi_callback_info info);
 
     static napi_value GetSurfaceId(napi_env env, napi_callback_info info);

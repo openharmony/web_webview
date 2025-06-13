@@ -1044,6 +1044,26 @@ void NWebHelper::ClearHostIP(const std::string& hostName)
     nwebEngine_->ClearHostIP(hostName);
 }
 
+void NWebHelper::SetAppCustomUserAgent(const std::string& userAgent)
+{
+    if (!LoadWebEngine(true, false)) {
+        WVLOG_E("failed to load web engine");
+        return;
+    }
+
+    nwebEngine_->SetAppCustomUserAgent(userAgent);
+}
+
+void NWebHelper::SetUserAgentForHosts(const std::string& userAgent, const std::vector<std::string>& hosts)
+{
+    if (!LoadWebEngine(true, false)) {
+        WVLOG_E("failed to load web engine");
+        return;
+    }
+
+    nwebEngine_->SetUserAgentForHosts(userAgent, hosts);
+}
+
 void NWebHelper::WarmupServiceWorker(const std::string& url)
 {
     if (nwebEngine_ == nullptr) {
