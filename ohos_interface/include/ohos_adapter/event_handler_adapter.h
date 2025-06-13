@@ -50,7 +50,7 @@ public:
 
     virtual void RemoveFileDescriptorListener(int32_t fileDescriptor) = 0;
 
-    virtual void PostTask(const std::shared_ptr<OnceCallbackAdapter> callback) = 0;
+    virtual void PostTask(const std::shared_ptr<OnceCallbackAdapter> callback) {};
 
     // be consistent with
     // rom/base/notification/eventhandler/interfaces/inner_api/file_descriptor_listener.h
