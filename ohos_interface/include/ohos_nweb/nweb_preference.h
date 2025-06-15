@@ -673,7 +673,12 @@ public:
      * Set whether to use the intrinsic size. The default is false.
      */
     virtual void SetIntrinsicSizeEnable(bool enable) {}
-    
+
+    /**
+     * Set whether to support css diplay when reporting the visibility of native embed.
+     * The default is false.
+     */
+    virtual void SetCssDisplayChangeEnabled(bool enable) {}
 };
 
 } // namespace OHOS::NWeb

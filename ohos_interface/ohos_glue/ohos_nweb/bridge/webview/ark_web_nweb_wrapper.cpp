@@ -1551,6 +1551,13 @@ void ArkWebNWebWrapper::SetSurfaceDensity(const double& density)
     ark_web_nweb_->SetSurfaceDensity(density);
 }
 
+void ArkWebNWebWrapper::SetBorderRadiusFromWeb(double borderRadiusTopLeft, double borderRadiusTopRight,
+    double borderRadiusBottomLeft, double borderRadiusBottomRight)
+{
+    ark_web_nweb_->SetBorderRadiusFromWeb(
+        borderRadiusTopLeft, borderRadiusTopRight, borderRadiusBottomLeft, borderRadiusBottomRight);
+}
+
 void ArkWebNWebWrapper::SetNativeInnerWeb(bool isInnerWeb)
 {
     ark_web_nweb_->SetNativeInnerWeb(isInnerWeb);
@@ -1623,5 +1630,23 @@ void ArkWebNWebWrapper::OnDataDetectorCopy(const std::vector<std::string>& recor
     ArkWebStringVector cRecordMix = ArkWebStringVectorClassToStruct(recordMix);
     ark_web_nweb_->OnDataDetectorCopy(cRecordMix);
     ArkWebStringVectorStructRelease(cRecordMix);
+}
+
+int ArkWebNWebWrapper::GetSelectStartIndex()
+{
+    return ark_web_nweb_->GetSelectStartIndex();
+}
+
+int ArkWebNWebWrapper::GetSelectEndIndex()
+{
+    return ark_web_nweb_->GetSelectEndIndex();
+}
+
+std::string ArkWebNWebWrapper::GetAllTextInfo()
+{
+    ArkWebString allTextInfo = ark_web_nweb_->GetAllTextInfo();
+    std::string allText = ArkWebStringStructToClass(allTextInfo);
+    ArkWebStringStructRelease(allTextInfo);
+    return allText;
 }
 } // namespace OHOS::ArkWeb
