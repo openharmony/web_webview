@@ -63,6 +63,15 @@
 
 namespace OHOS {
 namespace NWeb {
+constexpr int32_t RESULT_COUNT = 2;
+struct SnapshotOptions {
+    std::string id;
+    int32_t width = 0;
+    int32_t height = 0;
+    PixelUnit widthType = PixelUnit::NONE;
+    PixelUnit heightType = PixelUnit::NONE;
+    PixelUnit sizeType = PixelUnit::NONE;
+};
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
@@ -1495,7 +1504,7 @@ static void SetPathAllowingUniversalAccess(ani_env *env, ani_object object, ani_
     }
     ani_array_ref pathListStr = static_cast<ani_array_ref>(pathList);
     ani_int pathCount;
-    env->Object_CallMethodByName_Int(pathList,"getByteLength",nullptr,&pathCount);
+    env->Object_GetPropertyByName_Int(pathList,"length",&pathCount);
     std::vector<std::string>pathListArr;
     for (ani_int i = 0 ; i < pathCount ; i++) {
         ani_ref pathItem = nullptr;
@@ -1513,7 +1522,36 @@ static void SetPathAllowingUniversalAccess(ani_env *env, ani_object object, ani_
         }
         pathListArr.emplace_back(path);
     }
-}    
+}
+
+static void EnableWholeWebPageDrawing(ani_env* env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    ani_ref result = nullptr;
+    NWebHelper::Instance().EnableWholeWebPageDrawing();
+    env->GetUndefined(&result);
+    return;
+}
+
+static ani_string GetSurfaceId(ani_env* env, ani_object object)
+{
+    ani_string result = nullptr;
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return result;
+    }
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return result;
+    }
+    std::string surfaceId = controller->GetSurfaceId();
+    env->String_NewUTF8(surfaceId.c_str(), surfaceId.size(), &result);
+    return result;
+}
 
 ani_status StsWebviewControllerInit(ani_env *env)
 {
@@ -1581,6 +1619,9 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void *>(TrimMemoryByPressureLevel) },
         ani_native_function { "setPathAllowingUniversalAccess", nullptr, 
                               reinterpret_cast<void *>(SetPathAllowingUniversalAccess) },
+        ani_native_function { "enableWholeWebPageDrawing", nullptr,
+                              reinterpret_cast<void *>(EnableWholeWebPageDrawing) },
+        ani_native_function { "getSurfaceId", nullptr, reinterpret_cast<void *>(GetSurfaceId) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
