@@ -1087,6 +1087,11 @@ void ArkWebHandlerWrapper::OnAccessibilityEventV2(
     ArkWebStringStructRelease(stArgument);
 }
 
+bool ArkWebHandlerWrapper::OnNestedScroll(float& x, float& y, float& xVelocity, float& yVelocity, bool& isAvailable)
+{
+    return ark_web_handler_->OnNestedScroll(x, y, xVelocity, yVelocity, isAvailable);
+}
+
 void ArkWebHandlerWrapper::EnableSecurityLayer(bool isNeedSecurityLayer)
 {
     ark_web_handler_->EnableSecurityLayer(isNeedSecurityLayer);
@@ -1095,5 +1100,44 @@ void ArkWebHandlerWrapper::EnableSecurityLayer(bool isNeedSecurityLayer)
 bool ArkWebHandlerWrapper::ChangeVisibilityOfQuickMenuV2()
 {
     return ark_web_handler_->ChangeVisibilityOfQuickMenuV2();
+}
+
+bool ArkWebHandlerWrapper::OnBeforeUnloadByJSV2(const std::string& url, const std::string& message, bool isReload,
+    std::shared_ptr<OHOS::NWeb::NWebJSDialogResult> result)
+{
+    ArkWebString stUrl = ArkWebStringClassToStruct(url);
+    ArkWebString stMessage = ArkWebStringClassToStruct(message);
+
+    bool flag = false;
+    if (CHECK_SHARED_PTR_IS_NULL(result)) {
+        flag = ark_web_handler_->OnBeforeUnloadByJSV2(stUrl, stMessage, isReload, nullptr);
+    } else {
+        flag = ark_web_handler_->OnBeforeUnloadByJSV2(stUrl, stMessage, isReload, new ArkWebJsDialogResultImpl(result));
+    }
+
+    ArkWebStringStructRelease(stUrl);
+    ArkWebStringStructRelease(stMessage);
+    return flag;
+}
+
+void ArkWebHandlerWrapper::OnActivateContentByJS()
+{
+    ark_web_handler_->OnActivateContentByJS();
+}
+
+void ArkWebHandlerWrapper::OnLoadStarted(const std::string& url) {
+    ArkWebString stUrl = ArkWebStringClassToStruct(url);
+
+    ark_web_handler_->OnLoadStarted(stUrl);
+
+    ArkWebStringStructRelease(stUrl);
+}
+
+void ArkWebHandlerWrapper::OnLoadFinished(const std::string& url) {
+    ArkWebString stUrl = ArkWebStringClassToStruct(url);
+
+    ark_web_handler_->OnLoadFinished(stUrl);
+
+    ArkWebStringStructRelease(stUrl);
 }
 } // namespace OHOS::ArkWeb

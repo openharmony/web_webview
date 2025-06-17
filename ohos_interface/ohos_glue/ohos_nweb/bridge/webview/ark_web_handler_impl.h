@@ -594,9 +594,20 @@ public:
 
     void OnAccessibilityEventV2(int64_t accessibilityId, int32_t eventType, const ArkWebString& argument) override;
 
+    bool OnNestedScroll(float& x, float& y, float& xVelocity, float& yVelocity, bool& isAvailable) override;
+    
     void EnableSecurityLayer(bool isNeedSecurityLayer) override;
 
     bool ChangeVisibilityOfQuickMenuV2() override;
+
+    bool OnBeforeUnloadByJSV2(const ArkWebString& url, const ArkWebString& message, bool isReload,
+        ArkWebRefPtr<ArkWebJsDialogResult> result) override;
+
+    void OnActivateContentByJS() override;
+
+    void OnLoadStarted(const ArkWebString& url) override;
+
+    void OnLoadFinished(const ArkWebString& url) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };

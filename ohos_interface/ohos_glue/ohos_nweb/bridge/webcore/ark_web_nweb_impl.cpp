@@ -1317,6 +1317,13 @@ void ArkWebNWebImpl::SetSurfaceDensity(const double& density)
     nweb_nweb_->SetSurfaceDensity(density);
 }
 
+void ArkWebNWebImpl::SetBorderRadiusFromWeb(double borderRadiusTopLeft, double borderRadiusTopRight,
+    double borderRadiusBottomLeft, double borderRadiusBottomRight)
+{
+    nweb_nweb_->SetBorderRadiusFromWeb(
+        borderRadiusTopLeft, borderRadiusTopRight, borderRadiusBottomLeft, borderRadiusBottomRight);
+}
+
 void ArkWebNWebImpl::SetNativeInnerWeb(bool isInnerWeb)
 {
     nweb_nweb_->SetNativeInnerWeb(isInnerWeb);
@@ -1379,5 +1386,20 @@ void ArkWebNWebImpl::OnDataDetectorSelectText()
 void ArkWebNWebImpl::OnDataDetectorCopy(const ArkWebStringVector& recordMix)
 {
     nweb_nweb_->OnDataDetectorCopy(ArkWebStringVectorStructToClass(recordMix));
+}
+
+int ArkWebNWebImpl::GetSelectStartIndex()
+{
+    return nweb_nweb_->GetSelectStartIndex();
+}
+
+int ArkWebNWebImpl::GetSelectEndIndex()
+{
+    return nweb_nweb_->GetSelectEndIndex();
+}
+
+ArkWebString ArkWebNWebImpl::GetAllTextInfo()
+{
+    return ArkWebStringClassToStruct(nweb_nweb_->GetAllTextInfo());
 }
 } // namespace OHOS::ArkWeb

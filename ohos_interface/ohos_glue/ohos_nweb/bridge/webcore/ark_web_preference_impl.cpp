@@ -515,4 +515,9 @@ void ArkWebPreferenceImpl::SetIntrinsicSizeEnable(bool enable)
 {
     nweb_preference_->SetIntrinsicSizeEnable(enable);
 }
+
+void ArkWebPreferenceImpl::SetCssDisplayChangeEnabled(bool enable)
+{
+    nweb_preference_->SetCssDisplayChangeEnabled(enable);
+}
 } // namespace OHOS::ArkWeb

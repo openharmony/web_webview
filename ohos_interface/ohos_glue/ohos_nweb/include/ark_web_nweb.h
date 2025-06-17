@@ -1699,6 +1699,18 @@ public:
     virtual void SetSurfaceDensity(const double& density) = 0;
 
     /**
+     * @brief When the user sets the webpage's border radius,
+     *        update Chromium with this radius value for repaint the scrollbar.
+     * @param borderRadiusTopLeft: Radius value of the rounded corner in the top-left of the webpage.
+     * @param borderRadiusTopRight: Radius value of the rounded corner in the top-right of the webpage.
+     * @param borderRadiusBottomLeft: Radius value of the rounded corner in the bottom-left of the webpage.
+     * @param borderRadiusBottomRight: Radius value of the rounded corner in the bottom-right of the webpage.
+     */
+    /*--ark web()--*/
+    virtual void SetBorderRadiusFromWeb(double borderRadiusTopLeft, double borderRadiusTopRight,
+        double borderRadiusBottomLeft, double borderRadiusBottomRight) = 0;
+
+    /**
      * @brief Set the native inner web
      */
     /*--ark web()--*/
@@ -1771,6 +1783,30 @@ public:
      */
     /*--ark web()--*/
     virtual void OnDataDetectorCopy(const ArkWebStringVector& recordMix) = 0;
+
+    /**
+     * @brief Get select startIndex.
+     *
+     * @return the select startIndex.
+     */
+    /*--ark web()--*/
+    virtual int GetSelectStartIndex() = 0;
+
+    /**
+     * @brief Get select endIndex.
+     *
+     * @return the select endIndex.
+     */
+    /*--ark web()--*/
+    virtual int GetSelectEndIndex() = 0;
+
+    /**
+     * @brief Get all text info.
+     *
+     * @return the info of all text.
+     */
+    /*--ark web()--*/
+    virtual ArkWebString GetAllTextInfo() = 0;
 };
 
 } // namespace OHOS::ArkWeb

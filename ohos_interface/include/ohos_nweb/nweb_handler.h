@@ -1057,12 +1057,61 @@ public:
 
     virtual void OnAccessibilityEventV2(int64_t accessibilityId, int32_t eventType, const std::string& argument) {}
 
+    virtual bool OnNestedScroll(float& x, float& y, float& xVelocity, float& yVelocity, bool& isAvailable)
+    {
+        return false;
+    }
+
     virtual void EnableSecurityLayer(bool isNeedSecurityLayer) {}
 
     /**
      * @brief Called When you click on the selected area.
      */
     virtual bool ChangeVisibilityOfQuickMenuV2() { return false; }
+
+    /**
+     * @brief Notify the host application that the web page wants to handle
+     * JavaScript onbeforeunload.
+     *
+     * @param url  String: The url of the page requesting.
+     * @param message  String: The message of the dialog.
+     * @param isReload bool: The isReload parameter is set to true when the page is refreshed;
+     *        otherwise, it remains false. Default is false.
+     * @param result  std::shared_ptr<NWebJSDialogResult>: A NWebJSDialogResult to
+     *        confirm that the user closed the window.
+     * @return To show a custom dialog, the app should return true.
+     */
+    virtual bool OnBeforeUnloadByJSV2(
+        const std::string& url, const std::string& message, bool isReload, std::shared_ptr<NWebJSDialogResult> result)
+    {
+        return false;
+    }
+
+    /**
+     * @brief called when the web page is active for window.open called by other web component.
+     */
+    virtual void OnActivateContentByJS() {}
+
+    /**
+     * @brief Notify the SDK that a web site has started loading. This method is
+     * called once for each main frame load. Embedded frame changes, i.e. clicking
+     * a link whose target is an iframe and fragment navigations (navigations to
+     * #fragment_id) will not trigger this callback.
+     *
+     * @param url The url to be loaded.
+     */
+    virtual void OnLoadStarted(const std::string& url) {}
+
+    /**
+     * @brief Notify the SDK that a web site has finished loading. This method is
+     * called only for main frame. Different from onPageEnd, onLoadFinished is
+     * triggered only once if the mainframe is automatically redirected before the
+     * page is completely loaded. OnPageEnd is triggered every navigation.
+     * fragment navigation also triggers onLoadFinished.
+     *
+     * @param url The url of the web site.
+     */
+    virtual void OnLoadFinished(const std::string& url) {}
 };
 
 } // namespace OHOS::NWeb
