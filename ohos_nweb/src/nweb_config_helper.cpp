@@ -341,7 +341,13 @@ void NWebConfigHelper::ParseNWebLTPOApp(xmlNodePtr nodePtr)
             WVLOG_E("invalid node!");
             continue;
         }
-        std::string bundleName = (char *)xmlGetProp(curDynamicNodePtr, BAD_CAST(XML_ATTR_NAME));
+        char* bundleNamePtr = (char *)xmlGetProp(curDynamicNodePtr, BAD_CAST(XML_ATTR_NAME));
+        if (!bundleNamePtr) {
+            WVLOG_E("invalid bundleName!");
+            continue;
+        }
+        std::string bundleName(bundleNamePtr);
+        xmlFree(bundleNamePtr);
         ltpoAllowedApps_.emplace(bundleName);
         WVLOG_D("ltpo dynamic app: %{public}s", bundleName.c_str());
     }
