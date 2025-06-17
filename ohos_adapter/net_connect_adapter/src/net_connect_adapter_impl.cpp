@@ -22,6 +22,117 @@
 #include "nweb_log.h"
 
 namespace OHOS::NWeb {
+
+namespace {
+const int32_t DEFAULT_VALUE = -1;
+const int32_t BEARER_VPN = 4;
+}
+ 
+NetVPNEventSubscriber::NetVPNEventSubscriber(
+    EventFwk::CommonEventSubscribeInfo& in,
+    std::shared_ptr<VpnListener> cb)
+    : EventFwk::CommonEventSubscriber(in),
+      cb_(cb)
+{}
+ 
+void NetVPNEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData& data)
+{
+    const std::string action = data.GetWant().GetAction();
+    if (action != EventFwk::CommonEventSupport::COMMON_EVENT_CONNECTIVITY_CHANGE) {
+        WVLOG_I("receive other action %{public}s", action.c_str());
+        return;
+    }
+ 
+    int32_t code = data.GetCode();
+    int32_t netType = data.GetWant().GetIntParam("NetType", DEFAULT_VALUE);
+ 
+    WVLOG_I("receive COMMON_EVENT_CONNECTIVITY_CHANGE type: %{public}d code: %{public}d", netType, code);
+    if (netType == DEFAULT_VALUE) {
+        WVLOG_E("net vpn default net type");
+        return;
+    }
+ 
+    if (netType != BEARER_VPN) {
+        return;
+    }
+ 
+    if (!cb_) {
+        WVLOG_E("net vpn listener is not set");
+        return;
+    }
+ 
+    if (code == NetManagerStandard::NetConnState::NET_CONN_STATE_CONNECTED) {
+       WVLOG_I("vpn is available");
+       cb_->OnAvailable();
+       return;
+    }
+ 
+    if (code == NetManagerStandard::NetConnState::NET_CONN_STATE_DISCONNECTED) {
+        WVLOG_I("vpn is lost");
+        cb_->OnLost();
+        return;
+    }
+}
+ 
+void NetConnectAdapterImpl::RegisterVpnListener(std::shared_ptr<VpnListener> cb)
+{
+    if (commonEventSubscriber_) {
+      WVLOG_I("start vpn listen, common event subscriber has registered");
+      return;
+    }
+ 
+    if (!cb)  {
+      WVLOG_E("start vpn listen, register vpn listener failed cb is nullptr");
+      return;
+    }
+ 
+    EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
+    skill.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_CONNECTIVITY_CHANGE);
+    EventFwk::CommonEventSubscribeInfo info(skill);
+    info.SetPriority(1); //The higher the value, the higher the priority
+    commonEventSubscriber_ = std::make_shared<NetVPNEventSubscriber>(info, cb);
+    if (!commonEventSubscriber_) {
+        WVLOG_E("start vpn listen, common event subscriber is null");
+        return;
+    }
+ 
+    bool ret = EventFwk::CommonEventManager::SubscribeCommonEvent(commonEventSubscriber_);
+    if (ret == false) {
+        WVLOG_E("start vpn listen, subscribe common event failed");
+    }
+ 
+    if (HasVpnTransport()) {
+        WVLOG_I("has vpn transport, vpn is available");
+        cb->OnAvailable();
+    }
+}
+ 
+bool NetConnectAdapterImpl::HasVpnTransport()
+{
+    std::list<sptr<NetManagerStandard::NetHandle>> netHandleList;
+    int32_t ret = NetConnClient::GetInstance().GetAllNets(netHandleList);
+    if (ret != NETMANAGER_SUCCESS) {
+        WVLOG_E("get all nets failed, ret = %{public}d.", ret);
+        return false;
+    }
+ 
+    for (sptr<NetManagerStandard::NetHandle> netHandle : netHandleList) {
+        NetManagerStandard::NetAllCapabilities netAllCap;
+        NetConnClient::GetInstance().GetNetCapabilities(*netHandle, netAllCap);
+        if (netAllCap.bearerTypes_.count(NetManagerStandard::BEARER_VPN) > 0) {
+            return true;
+        }
+    }
+    return false;
+}
+ 
+void NetConnectAdapterImpl::UnRegisterVpnListener()
+{
+    if (commonEventSubscriber_) {
+        commonEventSubscriber_ = nullptr;
+    }
+}
+
 int32_t NetConnectAdapterImpl::RegisterNetConnCallback(std::shared_ptr<NetConnCallback> cb)
 {
     static int32_t count = 0;
@@ -144,6 +255,26 @@ std::vector<std::string> NetConnectAdapterImpl::GetDnsServers()
     }
 
     return GetDnsServersInternal(netHandle);
+}
+
+std::vector<std::string> NetConnectAdapterImpl::GetDnsServersForVpn()
+{
+    std::list<sptr<NetManagerStandard::NetHandle>> netHandleList;
+    int32_t ret = NetConnClient::GetInstance().GetAllNets(netHandleList);
+    if (ret != NETMANAGER_SUCCESS) {
+        WVLOG_E("get all nets by net id for dns servers failed, ret = %{public}d.", ret);
+        return std::vector<std::string>();
+    }
+ 
+    for (sptr<NetManagerStandard::NetHandle> netHandle : netHandleList) {
+        NetManagerStandard::NetAllCapabilities netAllCap;
+        NetConnClient::GetInstance().GetNetCapabilities(*netHandle, netAllCap);
+        if (netAllCap.bearerTypes_.count(NetManagerStandard::BEARER_VPN) > 0) {
+            WVLOG_I("get dns for vpn");
+            return GetDnsServersInternal(*netHandle);
+        }
+    }
+    return std::vector<std::string>();
 }
 
 std::vector<std::string> NetConnectAdapterImpl::GetDnsServersByNetId(int32_t netId)
