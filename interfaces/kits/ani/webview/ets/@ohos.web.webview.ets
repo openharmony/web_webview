@@ -39,6 +39,31 @@ export default namespace webview {
         EVENT
     }
 
+    export interface CacheOptions {
+        responseHeaders: Array<WebHeader>;
+    }
+
+    export enum OfflineResourceType {
+        IMAGE,
+        CSS,
+        CLASSIC_JS,
+        MODULE_JS
+    }
+
+    export interface OfflineResourceMap {
+        urlList: Array<string>,
+        resource: Uint8Array,
+        responseHeaders: Array<WebHeader>,
+        type: OfflineResourceType
+    }
+
+    export interface OfflineResourceMapInternal {
+        urlList: Array<string>,
+        resource: ArrayBuffer,
+        responseHeaders: Array<WebHeader>,
+        type: OfflineResourceType
+    }
+
     export enum WebHitTestType {
         EditText,
         Email,
@@ -206,6 +231,40 @@ export default namespace webview {
         native serializeWebState(): Uint8Array;
         native static trimMemoryByPressureLevel(level: PressureLevel): void;
         native setPathAllowingUniversalAccess(pathList: Array<string>): void;
+        native setPrintBackground(enable: boolean): void;
+        native getPrintBackground(): boolean;
+        native injectOfflineResourcesInternal(resourceMaps: Array<OfflineResourceMapInternal>) : void;
+        injectOfflineResources(resourceMaps: Array<OfflineResourceMap>): void {
+            let res = resourceMaps.map((map) => ({
+                urlList: map.urlList,
+                resource: map.resource.buffer, 
+                responseHeaders: map.responseHeaders,
+                type: map.type} as OfflineResourceMapInternal));
+            this.injectOfflineResourcesInternal(res);
+        }
+        native static clearPrefetchedResource(cacheKeyList: Array<string>): void;
+        native precompileJavaScriptInternal(url: string, script: string | ArrayBuffer, cacheOptions: CacheOptions): number;
+
+        precompileJavaScript(url: string, script: string | Uint8Array, cacheOptions: CacheOptions): Promise<number> {
+            let resScript: string | ArrayBuffer
+            if (typeof script === 'string') {
+                resScript = script as string;
+            } else if (script instanceof Uint8Array) {
+                resScript = script.buffer as ArrayBuffer;
+            }
+            let p = new Promise<number>((resolve: (v: number) => void,
+            reject: (error: Error) => void) => {
+                let p1 = taskpool.execute(this.precompileJavaScriptInternal, url, resScript, cacheOptions);
+                p1.then((e : NullishType) => {
+                    let r = e as number;
+                    resolve(r);
+                }).catch((error: Error): number => {
+                    reject(error);
+                });
+            });
+            return p;
+        }
+        native static prefetchResource(request: RequestInfo, additionalHeaders?: Array<WebHeader>, cacheKey?: string, cacheValidTime?: number): void;
     }
 
     export class WebSchemeHandlerResponse {

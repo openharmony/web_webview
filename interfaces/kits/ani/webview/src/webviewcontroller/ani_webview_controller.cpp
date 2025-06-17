@@ -23,6 +23,7 @@
 #include "ani_business_error.h"
 #include "ani_class_name.h"
 #include "ani_parse_utils.h"
+#include "nweb_init_params.h"
 
 #include <cstdlib>
 #include <ctime>
@@ -66,6 +67,55 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
+constexpr size_t MAX_RESOURCES_COUNT = 30;
+constexpr uint32_t URL_MAXIMUM = 2048;
+constexpr char URL_REGEXPR[] = "^http(s)?:\\/\\/.+";
+
+bool ParsePrepareUrl(ani_env* env, ani_ref urlObj, std::string& url)
+{
+    if (AniParseUtils::ParseString(env, urlObj, url)) {
+        if (url.size() > URL_MAXIMUM) {
+            WVLOG_E("The URL exceeds the maximum length of %{public}d", URL_MAXIMUM);
+            return false;
+        }
+
+        if (!regex_match(url, std::regex(URL_REGEXPR, std::regex_constants::icase))) {
+            WVLOG_E("ParsePrepareUrl error");
+            return false;
+        }
+        return true;
+    }
+
+    WVLOG_E("Unable to parse type from url object.");
+    return false;
+}
+
+bool ParsePrepareRequestMethod(ani_env* env, ani_ref methodObj, std::string& method)
+{
+    if (AniParseUtils::ParseString(env, methodObj, method)) {
+        if (method != "POST") {
+            WVLOG_E("The method %{public}s is not supported.", method.c_str());
+            return false;
+        }
+        return true;
+    }
+
+    WVLOG_E("Unable to parse type from method object.");
+    return false;
+}
+
+bool CheckCacheKey(ani_env* env, const std::string& cacheKey)
+{
+    for (char c : cacheKey) {
+        if (!isalnum(c)) {
+            WVLOG_E("AniBusinessError: 401. The character of 'cacheKey' must be number or letters.");
+            AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+            return false;
+        }
+    }
+    return true;
+}
+
 bool ParseResourceRawfileUrl(ani_env *env, const ani_object& object, std::string& fileName)
 {
     ani_ref paramsRef;
@@ -1513,7 +1563,355 @@ static void SetPathAllowingUniversalAccess(ani_env *env, ani_object object, ani_
         }
         pathListArr.emplace_back(path);
     }
-}    
+}
+
+static void SetPrintBackground(ani_env* env, ani_object object, ani_boolean enable)
+{
+    bool printBackgroundEnabled = static_cast<bool>(enable);
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    controller->SetPrintBackground(printBackgroundEnabled);
+    return;
+}
+
+static ani_boolean GetPrintBackground(ani_env* env, ani_object object, ani_boolean enable)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return ANI_FALSE;
+    }
+
+    if (!controller->GetPrintBackground()) {
+        return ANI_FALSE;
+    }
+
+    return ANI_TRUE;
+}
+
+static void AddResourceToMemoryCache(ani_env* env, ani_object object, OfflineResourceValueAni resourceValue)
+{
+    WVLOG_I("AddResourceToMemoryCache begin");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    std::vector<std::string> urlList;
+    ani_size byteLength;
+    uint8_t* arrayBufferUint8 = nullptr;
+    std::map<std::string, std::string> responseHeaders;
+    ani_int type = 0;
+
+    ani_object urlListObject = static_cast<ani_object>(resourceValue.urlListArray);
+    if (!AniParseUtils::ParseStringArray(env, urlListObject, urlList)) {
+        WVLOG_E("InjectOfflineResources ParseStringArray fail");
+        return;
+    }
+    if (env->ArrayBuffer_GetInfo(reinterpret_cast<ani_arraybuffer>(resourceValue.resourceArrayBuffer),
+            reinterpret_cast<void**>(&arrayBufferUint8), &byteLength) != ANI_OK) {
+        WVLOG_E("ArrayBuffer_GetInfo failed");
+        return;
+    }
+    std::vector<uint8_t> postData(arrayBufferUint8, arrayBufferUint8 + byteLength);
+    if (!AniParseUtils::ParseStringArrayMap(
+            env, static_cast<ani_object>(resourceValue.responseHeadersArray), responseHeaders)) {
+        WVLOG_E("InjectOfflineResources ParseStringArrayMap fail");
+        return;
+    }
+    env->EnumItem_GetValue_Int(static_cast<ani_enum_item>(resourceValue.typeRef), &type);
+
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    if (!controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    controller->InjectOfflineResource(urlList, postData, responseHeaders, type);
+}
+
+static void AddResourcesToMemoryCache(
+    ani_env* env, ani_object object, ani_int resourceMapsCount, ani_object resourceMaps)
+{
+    ani_array_ref resourceMapsRef;
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    if (!object) {
+        WVLOG_E("object is nullptr");
+        return;
+    }
+    resourceMapsRef = static_cast<ani_array_ref>(resourceMaps);
+    for (ani_int i = 0; i < resourceMapsCount; i++) {
+        ani_ref resourceMapItem = nullptr;
+        env->Array_Get_Ref(resourceMapsRef, i, &resourceMapItem);
+        ani_ref urlListArray = nullptr;
+        ani_ref resourceArrayBuffer = nullptr;
+        ani_ref responseHeadersArray = nullptr;
+        ani_ref typeRef = nullptr;
+        if (env->Object_GetPropertyByName_Ref(static_cast<ani_object>(resourceMapItem), "urlList", &urlListArray) !=
+            ANI_OK) {
+            AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+            WVLOG_E("urlList error");
+            continue;
+        }
+        if (env->Object_GetPropertyByName_Ref(
+                static_cast<ani_object>(resourceMapItem), "resource", &resourceArrayBuffer) != ANI_OK) {
+            AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+            WVLOG_E("resource error");
+            continue;
+        }
+        if (env->Object_GetPropertyByName_Ref(
+                static_cast<ani_object>(resourceMapItem), "responseHeaders", &responseHeadersArray) != ANI_OK) {
+            AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+            WVLOG_E("responseHeaders error");
+            continue;
+        }
+        if (env->Object_GetPropertyByName_Ref(static_cast<ani_object>(resourceMapItem), "type", &typeRef) != ANI_OK) {
+            AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+            WVLOG_E("type error");
+            continue;
+        }
+        OfflineResourceValueAni resourceValue;
+        resourceValue.urlListArray = urlListArray;
+        resourceValue.resourceArrayBuffer = resourceArrayBuffer;
+        resourceValue.responseHeadersArray = responseHeadersArray;
+        resourceValue.typeRef = typeRef;
+        AddResourceToMemoryCache(env, object, resourceValue);
+    }
+}
+
+static void InjectOfflineResources(ani_env* env, ani_object object, ani_object resourceMaps)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    if (!object) {
+        WVLOG_E("object is nullptr");
+        return;
+    }
+    ani_double resourceMapsCount;
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("controller null");
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    env->Object_GetPropertyByName_Double(resourceMaps, "length", &resourceMapsCount);
+    size_t resourceMapsCountInt = static_cast<size_t>(resourceMapsCount);
+    if (resourceMapsCountInt > MAX_RESOURCES_COUNT || resourceMapsCountInt == 0) {
+        WVLOG_E("BusinessError: 401. The size of 'resourceMaps' must less than %{public}zu and not 0",
+            MAX_RESOURCES_COUNT);
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    AddResourcesToMemoryCache(env, object, resourceMapsCount, resourceMaps);
+}
+
+static void ClearPrefetchedResource(ani_env* env, ani_object aniClass, ani_object cacheKey)
+{
+    WVLOG_I("ClearPrefetchedResource invoked.");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    ani_array_ref cacheKeyStr = nullptr;
+    cacheKeyStr = static_cast<ani_array_ref>(cacheKey);
+    ani_double cacheKeyCount;
+    env->Object_GetPropertyByName_Double(cacheKey, "length", &cacheKeyCount);
+    std::vector<std::string> cacheKeyList;
+    for (ani_double i = 0; i < cacheKeyCount; i++) {
+        ani_ref pathItem = nullptr;
+        env->Array_Get_Ref(cacheKeyStr, i, &pathItem);
+        std::string path;
+        if (!AniParseUtils::ParseString(env, pathItem, path)) {
+            AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "cacheKey", "Array<string>"));
+            return;
+        }
+        if (path.empty()) {
+            AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+                NWebError::FormatString("BusinessError 401: Parameter error. Path: '%s' is invalid", path.c_str()));
+            return;
+        }
+        cacheKeyList.emplace_back(path);
+    }
+    NWebHelper::Instance().ClearPrefetchedResource(cacheKeyList);
+}
+
+ani_double PrecompileJavaScriptPromise(ani_env* env, ani_object object, std::string url,
+    std::string script, std::shared_ptr<OHOS::NWeb::CacheOptions> cacheOptions)
+{
+    WVLOG_I("PrecompileJavaScript");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return NWEB_ERROR;
+    }
+    ani_resolver resolver = nullptr;
+    ani_error rejection = nullptr;
+    ani_vm* vm = nullptr;
+    env->GetVM(&vm);
+    env->PromiseResolver_Reject(resolver, rejection);
+    auto callbackImpl = std::make_shared<OHOS::NWeb::NWebPrecompileCallback>();
+    if (url.empty() || script.empty()) {
+        WVLOG_E("PrecompileJavaScript args empty");
+        return NWebError::PARAM_CHECK_ERROR;
+    }
+    if (!callbackImpl) {
+        WVLOG_E("PrecompileJavaScript !callbackImpl");
+        return NWebError::PARAM_CHECK_ERROR;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_I("PrecompileJavaScript controller fail");
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return NWEB_ERROR;
+    }
+    controller->PrecompileJavaScript(url, script, cacheOptions, callbackImpl);
+    return NWebError::NO_ERROR;
+}
+
+ani_double PrecompileJavaScript(
+    ani_env* env, ani_object object, ani_object url, ani_object script, ani_object cacheOptions)
+{
+    WVLOG_I("PrecompileJavaScript begin");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return -1.0;
+    }
+
+    std::string urlStr;
+    if (!AniParseUtils::ParseString(env, url, urlStr)) {
+        WVLOG_E("Parse url failed.");
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "url", "string"));
+        return -1.0;
+    }
+    ani_class ArrayBufferCls;
+    env->FindClass("escompat.ArrayBuffer", &ArrayBufferCls);
+    ani_boolean isArrayBuffer;
+    std::string scriptStr;
+    env->Object_InstanceOf(script, ArrayBufferCls, &isArrayBuffer);
+    if (isArrayBuffer) {
+        uint8_t* arrayBuffer = nullptr;
+        ani_size byteLength;
+        if (env->ArrayBuffer_GetInfo(reinterpret_cast<ani_arraybuffer>(script), reinterpret_cast<void**>(&arrayBuffer),
+                &byteLength) != ANI_OK) {
+            WVLOG_E("ArrayBuffer_GetInfo failed");
+            return -1.0;
+        }
+        std::vector<uint8_t> postData(arrayBuffer, arrayBuffer + byteLength);
+    } else {
+        if (!AniParseUtils::ParseString(env, script, scriptStr)) {
+            WVLOG_E("PrecompileJavaScript :script must be string or Uint8Array");
+            return -1.0;
+        }
+    }
+    
+    auto cacheOptionsPtr = AniParseUtils::ParseCacheOptions(env, cacheOptions);
+    PrecompileJavaScriptPromise(env, object, urlStr, scriptStr, cacheOptionsPtr);
+    return -1.0;
+}
+
+static std::shared_ptr<NWebEnginePrefetchArgs> ParsePrefetchArgs(ani_env* env, ani_object object, ani_object request)
+{
+    if (env == nullptr) {
+        return nullptr;
+    }
+    ani_ref urlObj = nullptr;
+    std::string url;
+    if (env->Object_GetPropertyByName_Ref(request, "url", &urlObj) != ANI_OK) {
+        return nullptr;
+    }
+    if (!ParsePrepareUrl(env, urlObj, url)) {
+        AniBusinessError::ThrowErrorByErrCode(env, INVALID_URL);
+        return nullptr;
+    }
+
+    ani_ref methodObj = nullptr;
+    std::string method;
+    env->Object_GetPropertyByName_Ref(request, "method", &methodObj);
+    if (!ParsePrepareRequestMethod(env, methodObj, method)) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return nullptr;
+    }
+
+    ani_ref formDataObj = nullptr;
+    std::string formData;
+    env->Object_GetPropertyByName_Ref(request, "formData", &formDataObj);
+    if (!AniParseUtils::ParseString(env, formDataObj, formData)) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return nullptr;
+    }
+    std::shared_ptr<NWebEnginePrefetchArgs> prefetchArgs =
+        std::make_shared<NWebEnginePrefetchArgsImpl>(url, method, formData);
+    return prefetchArgs;
+}
+
+static void PrefetchResource(ani_env* env, ani_object object, ani_object request, ani_object additionalHeaders,
+    ani_object cacheKey, ani_object cacheValidTime)
+{
+    if (env == nullptr) {
+        return;
+    }
+    std::shared_ptr<NWebEnginePrefetchArgs> prefetchArgs = ParsePrefetchArgs(env, object, request);
+    if (prefetchArgs == nullptr) {
+        return;
+    }
+    ani_boolean isUndefined = ANI_TRUE;
+    std::map<std::string, std::string> additionalHttpHeadersObj;
+    env->Reference_IsUndefined(additionalHeaders, &isUndefined);
+    if (!isUndefined && !GetWebHeaders(env, additionalHeaders, additionalHttpHeadersObj)) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    std::string cacheKeyObj;
+    if (env->Reference_IsUndefined(cacheKey, &isUndefined) != ANI_OK) {
+        return;
+    }
+    if (!isUndefined && !AniParseUtils::ParseString(env, cacheKey, cacheKeyObj)) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    if (cacheKeyObj.empty()) {
+        cacheKeyObj = prefetchArgs->GetUrl();
+    } else {
+        if (!CheckCacheKey(env, cacheKeyObj)) {
+            return;
+        }
+    }
+    if (env->Reference_IsUndefined(cacheValidTime, &isUndefined) != ANI_OK) {
+        return;
+    }
+    ani_double cacheValidTimeTemp = 300;
+    if (!isUndefined &&
+        (env->Object_CallMethodByName_Double(cacheValidTime, "doubleValue", nullptr, &cacheValidTimeTemp) != ANI_OK)) {
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "duration", "number"));
+        return;
+    }
+    int32_t cacheValidTimeObj = static_cast<int32_t>(cacheValidTimeTemp);
+    if (cacheValidTimeObj <= 0 || cacheValidTimeObj > INT_MAX) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    NWebHelper::Instance().PrefetchResource(prefetchArgs, additionalHttpHeadersObj, cacheKeyObj, cacheValidTimeObj);
+    return;
+}
 
 ani_status StsWebviewControllerInit(ani_env *env)
 {
@@ -1581,6 +1979,13 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void *>(TrimMemoryByPressureLevel) },
         ani_native_function { "setPathAllowingUniversalAccess", nullptr, 
                               reinterpret_cast<void *>(SetPathAllowingUniversalAccess) },
+        ani_native_function { "injectOfflineResourcesInternal", nullptr,
+                              reinterpret_cast<void *>(InjectOfflineResources) },
+        ani_native_function { "clearPrefetchedResource", nullptr, reinterpret_cast<void *>(ClearPrefetchedResource) },
+        ani_native_function { "precompileJavaScriptInternal", nullptr, reinterpret_cast<void *>(PrecompileJavaScript) },
+        ani_native_function { "prefetchResource", nullptr, reinterpret_cast<void *>(PrefetchResource) },
+        ani_native_function { "setPrintBackground", nullptr, reinterpret_cast<void*>(SetPrintBackground) },
+        ani_native_function { "getPrintBackground", nullptr, reinterpret_cast<void*>(GetPrintBackground) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
