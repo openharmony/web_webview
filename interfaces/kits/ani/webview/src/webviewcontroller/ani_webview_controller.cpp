@@ -899,6 +899,8 @@ static ani_ref GetBackForwardEntries(ani_env *env, ani_object object)
     ani_object backForwardObj = {};
     if (AniParseUtils::CreateObjectVoid(env, ANI_BACK_FORWARD_LIST_INNER_CLASS_NAME, backForwardObj) == false) {
         WVLOG_E("[BACKFORWARD] CreateObjectVoid failed");
+        delete webHistoryList;
+        webHistoryList = nullptr;
         return nullptr;
     }
 
