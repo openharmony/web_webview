@@ -1544,6 +1544,37 @@ static ani_string GetSurfaceId(ani_env* env, ani_object object)
     return result;
 }
 
+static void SetPrintBackground(ani_env* env, ani_object object, ani_boolean enable)
+{
+    bool printBackgroundEnabled = static_cast<bool>(enable);
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    controller->SetPrintBackground(printBackgroundEnabled);
+    return;
+}
+
+static ani_boolean GetPrintBackground(ani_env* env, ani_object object, ani_boolean enable)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return ANI_FALSE;
+    }
+
+    if (!controller->GetPrintBackground()) {
+        return ANI_FALSE;
+    }
+
+    return ANI_TRUE;
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     if (env == nullptr) {
@@ -1613,6 +1644,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "enableWholeWebPageDrawing", nullptr,
                               reinterpret_cast<void *>(EnableWholeWebPageDrawing) },
         ani_native_function { "getSurfaceId", nullptr, reinterpret_cast<void *>(GetSurfaceId) },
+        ani_native_function { "setPrintBackground", nullptr, reinterpret_cast<void*>(SetPrintBackground) },
+        ani_native_function { "getPrintBackground", nullptr, reinterpret_cast<void*>(GetPrintBackground) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
