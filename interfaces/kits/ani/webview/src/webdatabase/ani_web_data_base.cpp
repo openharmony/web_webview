@@ -53,7 +53,7 @@ bool GetSize(ani_env* env,ani_string pwd, ani_size& outValue)
 {   
     ani_size bufferSize = 0;
     env->String_GetUTF8Size(pwd, &bufferSize);
-    if (bufferSize > MAX_STRING_LENGTH) {
+    if (bufferSize > MAX_PWD_LENGTH) {
         return false;
     }
     outValue = bufferSize;
@@ -97,7 +97,7 @@ static void JsSaveHttpAuthCredentials(
         return;
     }
     ani_size bufferSize = 0;
-    if (!GetSize(env,password, bufferSize) || bufferSize > MAX_PWD_LENGTH) {
+    if (!GetSize(env,password, bufferSize)) {
         AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
             "BusinessError 401: Parameter error. The length of 'password' must be between 0 and 256.");
         return ;
@@ -113,7 +113,7 @@ static void JsSaveHttpAuthCredentials(
         if (dataBase != nullptr) {
             dataBase->SaveHttpAuthCredentials(hostStr, realmStr, usernameStr, passwordBox);
         }
-        (void)memset_s(password, sizeof(password), 0, sizeof(password));
+        (void)memset_s(passwordBox, sizeof(passwordBox), 0, sizeof(passwordBox));
     }
     return ;
 }
@@ -181,13 +181,17 @@ static ani_object JsGetHttpAuthCredentials(ani_env* env, ani_object object, ani_
     if (!username.empty() && strlen(password) > 0) {
         ani_string nameVal = nullptr;
         ani_string pwdVal = nullptr;
+        ani_class arrayClass;
+        env->FindClass("escompat.Array",&arrayClass);
         env->String_NewUTF8(username.c_str(), username.length(), &nameVal);
+        env->Array_New_Ref(arrayClass, username.length(), nameVal, &arr);
         env->Array_Set_Ref(arr, PARAMZERO, nameVal);
         env->String_NewUTF8(password, strlen(password), &pwdVal);
         env->Array_Set_Ref(arr, PARAMONE, pwdVal);
     }
     (void)memset_s(password, MAX_PWD_LENGTH + 1, 0, MAX_PWD_LENGTH + 1);
-    return arr;
+    ani_object httpArr = static_cast<ani_object>(arr);
+    return httpArr;
 }
 
 ani_status StsWebDataBaseInit(ani_env* env)
