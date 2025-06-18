@@ -20,19 +20,8 @@
 #include <string>
 #include <vector>
 
-#include "nweb.h"
-#include "nweb_web_message.h"
-#include "web_errors.h"
-
 namespace OHOS {
 namespace NWeb {
-    constexpr int PARSE_ZERO = 0;
-    constexpr int PARSE_ONE = 1;
-    constexpr int PARSE_TWO = 2;
-    constexpr int PARSE_THREE = 3;
-    constexpr int PARSE_FOUR = 4;
-    constexpr int PARSE_FIVE = 5;
-    constexpr int MAX_STRING_TO_INT32_LENGTH = 10;
 class AniParseUtils {
 public:
     static bool ParseString(ani_env *env, ani_ref ref, std::string& outValue);
@@ -44,11 +33,6 @@ public:
     static bool GetEnumItemByIndex(ani_env *env, const char* enumName, int32_t typeIndex, ani_enum_item& eType);
     static ani_status SetPropertyByName_String(ani_env *env, ani_object aniCls,
                                                const char *keyName, std::string keyValue);
-    static bool ParseJsLengthStringToInt(const std::string &input, PixelUnit &type, int32_t &value);
-    static bool ParseInt32(ani_env *env, ani_ref ref, int32_t& outValue);
-    static bool IsFunction(ani_env *env, const ani_object& object);
-    static bool IsDouble(ani_env *env, const ani_object& object);
-    static bool IsObject(ani_env *env, const ani_object& object);
 };
 } // namespace NWeb
 } // namespace OHOS
