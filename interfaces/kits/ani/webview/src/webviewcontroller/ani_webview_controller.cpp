@@ -63,15 +63,6 @@
 
 namespace OHOS {
 namespace NWeb {
-constexpr int32_t RESULT_COUNT = 2;
-struct SnapshotOptions {
-    std::string id;
-    int32_t width = 0;
-    int32_t height = 0;
-    PixelUnit widthType = PixelUnit::NONE;
-    PixelUnit heightType = PixelUnit::NONE;
-    PixelUnit sizeType = PixelUnit::NONE;
-};
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
