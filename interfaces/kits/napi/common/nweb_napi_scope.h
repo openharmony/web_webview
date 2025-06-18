@@ -33,6 +33,10 @@ struct NApiScope {
         }
     }
 
+    bool IsVaild() {
+        return scope_ != nullptr;
+    }
+
     napi_env env_;
     napi_handle_scope scope_ = nullptr;
 };

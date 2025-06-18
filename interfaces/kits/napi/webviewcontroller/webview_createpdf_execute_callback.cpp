@@ -19,6 +19,7 @@
 
 #include "business_error.h"
 #include "napi_parse_utils.h"
+#include "nweb_napi_scope.h"
 #include "nweb_log.h"
 #include "web_errors.h"
 #include "webview_createpdf_execute_callback.h"
@@ -88,8 +89,8 @@ void WebviewCreatePDFExecuteCallback::OnReceiveValue(const char* value, const lo
         std::shared_ptr<ArrayBufferExecuteParam> context(
             static_cast<ArrayBufferExecuteParam*>(param), [](ArrayBufferExecuteParam* ptr) { delete ptr; });
         napi_env env = param->env_;
-        napi_handle_scope scope = nullptr;
-        if (napi_open_handle_scope(env, &scope) != napi_ok) {
+        NApiScope scope(env);
+        if (!scope.IsVaild()) {
             WVLOG_E("[CreatePDF] open handle scope failed");
             return;
         }
@@ -98,10 +99,6 @@ void WebviewCreatePDFExecuteCallback::OnReceiveValue(const char* value, const lo
             UvAfterWorkCbAsync(env, param->callbackRef_, param->result_, param->size_);
         } else if (param->deferred_) {
             UvAfterWorkCbPromise(env, param->deferred_, param->result_, param->size_);
-        }
-
-        if (napi_close_handle_scope(env, scope) != napi_ok) {
-            WVLOG_E("[CreatePDF] close handle scope failed");
         }
     };
     if (napi_status::napi_ok != napi_send_event(env_, task, napi_eprio_immediate)) {
