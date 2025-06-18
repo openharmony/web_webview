@@ -1649,4 +1649,22 @@ std::string ArkWebNWebWrapper::GetAllTextInfo()
     ArkWebStringStructRelease(allTextInfo);
     return allText;
 }
+
+void ArkWebNWebWrapper::SetPipNativeWindow(int delegate_id,
+                                           int child_id,
+                                           int frame_routing_id,
+                                           void* window)
+{
+    ark_web_nweb_->SetPipNativeWindow(delegate_id, child_id,
+                                      frame_routing_id, window);
+}
+
+void ArkWebNWebWrapper::SendPipEvent(int delegate_id,
+                                     int child_id,
+                                     int frame_routing_id,
+                                     int event)
+{
+    ark_web_nweb_->SendPipEvent(delegate_id, child_id,
+                                frame_routing_id, event);
+}
 } // namespace OHOS::ArkWeb

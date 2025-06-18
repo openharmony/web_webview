@@ -1807,6 +1807,24 @@ public:
      */
     /*--ark web()--*/
     virtual ArkWebString GetAllTextInfo() = 0;
+
+    /**
+     * @brief Set the native window of picture in picture.
+     */
+    /*--ark web()--*/
+    virtual void SetPipNativeWindow(int delegate_id,
+                                    int child_id,
+                                    int frame_routing_id,
+                                    void* window) = 0;
+
+    /**
+     * @brief Send event of picture in picture.
+     */
+    /*--ark web()--*/
+    virtual void SendPipEvent(int delegate_id,
+                              int child_id,
+                              int frame_routing_id,
+                              int event) = 0;
 };
 
 } // namespace OHOS::ArkWeb
