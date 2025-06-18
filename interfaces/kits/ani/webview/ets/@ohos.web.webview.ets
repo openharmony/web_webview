@@ -265,6 +265,7 @@ export default namespace webview {
             return p;
         }
         native static prefetchResource(request: RequestInfo, additionalHeaders?: Array<WebHeader>, cacheKey?: string, cacheValidTime?: number): void;
+        
     }
 
     export class WebSchemeHandlerResponse {
@@ -862,5 +863,162 @@ export default namespace webview {
         native static deleteHttpAuthCredentials(): void;
         native static getHttpAuthCredentials(host: string, realm: string): Array<string>;
         native static saveHttpAuthCredentials(host: string, realm: string, username: string, password: string): void;
+    }
+
+    export class GeolocationPermissions {
+        static {
+            loadLibrary("webview_ani.z");
+        }
+        private nativePtr: long = 0;
+        private cleaner?: Cleaner;
+
+        registerCleaner(ptr: long): void {
+            this.cleaner = new Cleaner(ptr, "GeolocationPermissions")
+            destroyRegister.register(this, this.cleaner!, unregisterToken);
+        }
+        unregisterCleaner(): void {
+            destroyRegister.unregister(unregisterToken);
+        }
+
+        bindNativePtr(ptr: long): void {
+            if (this.nativePtr == 0) {
+                this.nativePtr = ptr;
+                this.registerCleaner(this.nativePtr)
+            }
+        }
+
+        native constructor();
+        native static deleteAllGeolocation_inner(incognito: boolean): void;
+        native static getOriginsSync(incognito:boolean): Array<string>;
+        native static deleteGeolocation_inner(origin: string, incognito: boolean): void;
+        native static allowGeolocation_inner(origin: string, incognito: boolean): void;
+        native static getAccessibleGeolocationSync(origin: string, incognito:boolean): boolean;
+        static deleteAllGeolocation(incognito?: boolean): void{
+            let incognitoMode:boolean = false;
+            if(incognito !== undefined)
+            {
+                incognitoMode = incognito;
+            }
+            GeolocationPermissions.deleteAllGeolocation_inner(incognitoMode);
+        }
+
+        static deleteGeolocation(origin: string, incognito?: boolean): void{
+            let incognitoMode:boolean = false;
+            if(incognito !== undefined)
+            {
+                incognitoMode = incognito;
+            }
+            GeolocationPermissions.deleteGeolocation_inner(origin,incognitoMode);
+        }
+
+        static allowGeolocation(origin: string, incognito?: boolean): void{
+            let incognitoMode:boolean = false;
+            if(incognito !== undefined)
+            {
+                incognitoMode = incognito;
+            }
+            GeolocationPermissions.allowGeolocation_inner(origin,incognitoMode);
+        }
+
+
+
+        static getStoredGeolocation(incognito?: boolean):Promise<Array<string>>{
+            let incognitoMode:boolean = false;
+            if(incognito !== undefined)
+            {
+                incognitoMode = incognito;
+            }
+            let p = new Promise<Array<string>>((resolve: (v: Array<string>) => void,
+                reject: (error: Error) => void) => {
+                let p1 = taskpool.execute(GeolocationPermissions.getOriginsSync,incognitoMode);
+                p1.then((e : NullishType) => {
+                    let r = e as Array<string>;
+                    resolve(r);
+                }).catch((error: Error): Array<string> => {
+                    reject(error);
+                });
+            });
+            return p;
+        }
+
+        static getStoredGeolocation(callback:AsyncCallback<Array<string>>,incognito?: boolean):void{
+            let incognitoMode:boolean = false;
+            if(incognito !== undefined)
+            {
+                incognitoMode = incognito;
+            }
+            let p = taskpool.execute(GeolocationPermissions.getOriginsSync,incognitoMode);
+            p.then((e : NullishType) => {
+                let r = e as Array<string>;
+                let err:  BusinessError = {};
+                err.code = 0;
+                callback(err, r);
+            }).catch((error: Error) => {
+                let err = error as BusinessError<void>;
+                callback(err, []);
+            });
+        }
+
+
+        static getAccessibleGeolocation(origin: string, incognito?: boolean):Promise<boolean>{
+            let incognitoMode:boolean = false;
+            if(incognito !== undefined)
+            {
+                incognitoMode = incognito;
+            }
+            let p = new Promise<boolean>((resolve: (v: boolean) => void,
+            reject: (error: Error) => void) => {
+                let p1 = taskpool.execute(GeolocationPermissions.getAccessibleGeolocationSync, origin, incognitoMode);
+                p1.then((e : NullishType) => {
+                    let r = e as boolean;
+                    resolve(r);
+                }).catch((error: Error): boolean => {
+                    reject(error);
+                });
+            });
+            return p;
+        }
+
+        static getAccessibleGeolocation(origin: string, callback:AsyncCallback<boolean>,incognito?: boolean):void{
+            let incognitoMode:boolean = false;
+            if(incognito !== undefined)
+            {
+                incognitoMode = incognito;
+            }
+            let p = taskpool.execute(GeolocationPermissions.getAccessibleGeolocationSync, origin, incognitoMode);
+            p.then((e : NullishType) => {
+                let r = e as boolean;
+                let err:  BusinessError = {};
+                err.code = 0;
+                callback(err, r);
+            }).catch((error: Error) => {
+                let err = error as BusinessError<void>;
+                callback(err, false);
+            });
+        }
+    }
+
+    export class PdfData {
+        private nativePtr: long = 0;
+        private cleaner?: Cleaner;
+
+        registerCleaner(ptr: long): void {
+            this.cleaner = new Cleaner(ptr, "PdfData")
+            destroyRegister.register(this, this.cleaner!, unregisterToken);
+        }
+        unregisterCleaner(): void {
+            destroyRegister.unregister(unregisterToken);
+        }
+
+        bindNativePtr(ptr: long): void {
+            if (this.nativePtr == 0) {
+                this.nativePtr = ptr;
+                this.registerCleaner(this.nativePtr)
+            }
+        }
+
+        native constructor();
+
+        native static pdfArrayBuffer(): Uint8Array;
     }
 }
