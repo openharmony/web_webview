@@ -146,6 +146,8 @@ public:
     virtual ColorGamutAdapter GetColorGamut() = 0;
 
     virtual TransformTypeAdapter GetTransformType() = 0;
+
+    virtual int64_t GetTimestamp() = 0;
 };
 
 class BufferFlushConfigAdapter {
