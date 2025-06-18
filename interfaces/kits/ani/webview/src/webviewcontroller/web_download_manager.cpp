@@ -62,6 +62,10 @@ void DownloadBeforeStart(NWebDownloadItem *downloadItem, WebBeforeDownloadCallba
     WebDownloadItem_Destroy(downloadItem);
     webDownloadItem->before_download_callback = wrapper;
     webDownloadDelegate->DownloadBeforeStart(webDownloadItem);
+    if (webDownloadItem) {
+        webDownloadItem = nullptr;
+        delete webDownloadItem;
+    }
 }
 
 void DownloadDidUpdate(NWebDownloadItem *downloadItem, WebDownloadItemCallbackWrapper *wrapper)
