@@ -18,7 +18,6 @@
 
 #include <ani.h>
 #include <string>
-#include <vector>
 
 namespace OHOS {
 namespace NWeb {
