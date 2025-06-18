@@ -108,21 +108,5 @@ ani_status AniBusinessError::ThrowErrorByErrCode(ani_env *env, int32_t errorCode
 {
     return ThrowError(env, errorCode, GetErrMsgByErrCode(errorCode));
 }
-
-ani_ref AniBusinessError::CreateError(ani_env* env, int32_t err)
-{
-    if (env == nullptr) {
-        WVLOG_E("null env");
-        return nullptr;
-    }
-    ani_object businessError = nullptr;
-    ani_int errorCode = static_cast<ani_int>(err);
-    ani_ref errorMessage = nullptr;
-    env->String_NewUTF8(
-        GetErrMsgByErrCode(err).c_str(), GetErrMsgByErrCode(err).size(), reinterpret_cast<ani_string*>(errorMessage));
-    env->Object_SetPropertyByName_Int(businessError, "code", errorCode);
-    env->Object_SetPropertyByName_Ref(businessError, "message", errorMessage);
-    return businessError;
-}
 }
 }
