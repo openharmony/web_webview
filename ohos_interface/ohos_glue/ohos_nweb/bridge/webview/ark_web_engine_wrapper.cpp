@@ -27,6 +27,7 @@
 #include "ohos_nweb/bridge/ark_web_proxy_changed_callback_wrapper.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
+#include "base/include/ark_web_errno.h"
 
 namespace OHOS::NWeb {
 
@@ -304,6 +305,15 @@ void ArkWebEngineWrapper::RemoveProxyOverride(std::shared_ptr<OHOS::NWeb::NWebPr
 {
     ArkWebRefPtr<ArkWebProxyChangedCallback> ark_web_proxy_callback = new ArkWebProxyChangedCallbackWrapper(callback);
     ark_web_engine_->RemoveProxyOverride(ark_web_proxy_callback);
+}
+
+void ArkWebEngineWrapper::SetWebDebuggingAccessAndPort(
+    bool isEnableDebug, int32_t port)
+{
+    ark_web_engine_->SetWebDebuggingAccessAndPort(isEnableDebug, port);
+    if (ArkWebGetErrno() != RESULT_OK) {
+        ark_web_engine_->SetWebDebuggingAccess(isEnableDebug);
+    }
 }
 
 } // namespace OHOS::ArkWeb

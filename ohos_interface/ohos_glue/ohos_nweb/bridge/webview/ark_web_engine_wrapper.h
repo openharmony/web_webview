@@ -101,6 +101,8 @@ public:
 
     void RemoveProxyOverride(std::shared_ptr<OHOS::NWeb::NWebProxyChangedCallback> callback) override;
 
+    void SetWebDebuggingAccessAndPort(bool isEnableDebug, int32_t port) override;
+
 private:
     ArkWebRefPtr<ArkWebEngine> ark_web_engine_;
 };

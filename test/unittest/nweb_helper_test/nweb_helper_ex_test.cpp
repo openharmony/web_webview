@@ -159,6 +159,9 @@ public:
 
     void RemoveAllCache(bool include_disk_files) {}
 
+    MOCK_METHOD(void, SetWebDebuggingAccessAndPort,
+        (bool isEnableDebug, int32_t port), (override));
+
 private:
     RenderProcessMode process_mode_ = RenderProcessMode::SINGLE_MODE;
 };
@@ -888,6 +891,31 @@ HWTEST_F(NwebHelperTest,
     EXPECT_EQ(nweb, nullptr);
     webApplicationStateCallback_->nweb_ = nweb;
     webApplicationStateCallback_->NotifyApplicationBackground();
+}
+
+/**
+ * @tc.name: SetWebDebuggingAccess
+ * @tc.desc: SetWebDebuggingAccess and SetWebDebuggingAccessAndPort.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, SetWebDebuggingAccess, TestSize.Level1)
+{
+    auto nwebEngineMock = std::make_shared<MockNWebEngine>();
+    bool isEnableDebug = true;
+    int32_t port = 8888;
+    EXPECT_CALL(*nwebEngineMock, SetWebDebuggingAccessAndPort(isEnableDebug, port)).Times(1);
+
+    NWebHelper::Instance().SetWebDebuggingAccess(isEnableDebug);
+    NWebHelper::Instance().SetWebDebuggingAccessAndPort(isEnableDebug, port);
+
+    NWebHelper::Instance().initFlag_ = true;
+    NWebHelper::Instance().SetWebDebuggingAccess(isEnableDebug);
+    NWebHelper::Instance().SetWebDebuggingAccessAndPort(isEnableDebug, port);
+
+    NWebHelper::Instance().nwebEngine_ = nwebEngineMock;
+    NWebHelper::Instance().SetWebDebuggingAccess(isEnableDebug);
+    NWebHelper::Instance().SetWebDebuggingAccessAndPort(isEnableDebug, port);
 }
 } // namespace OHOS::NWeb
 }

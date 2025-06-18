@@ -93,6 +93,8 @@ private:
 
     static napi_value InnerGetWebDebuggingAccess(napi_env env, napi_callback_info info);
 
+    static napi_value InnerGetWebDebuggingPort(napi_env env, napi_callback_info info);
+
     static napi_value SetWebId(napi_env env, napi_callback_info info);
 
     static napi_value InnerJsProxy(napi_env env, napi_callback_info info);
