@@ -15,6 +15,7 @@
 
 #include "webview_web_inited_callback.h"
 
+#include "nweb_napi_scope.h"
 #include "nweb_log.h"
 #include "uv.h"
 
@@ -32,9 +33,8 @@ void UvWebInitedCallbackThreadWoker(uv_work_t *work, int status)
         work = nullptr;
         return;
     }
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(data->env_, &scope);
-    if (scope == nullptr) {
+    NApiScope scope(data->env_);
+    if (!scope.IsVaild()) {
         delete data;
         data = nullptr;
         delete work;
@@ -46,7 +46,6 @@ void UvWebInitedCallbackThreadWoker(uv_work_t *work, int status)
     napi_get_reference_value(data->env_, data->webInitedCallback_, &jsWebInitedCallback);
     napi_call_function(data->env_, nullptr, jsWebInitedCallback, 0, {}, &webInitedResult);
 
-    napi_close_handle_scope(data->env_, scope);
     delete data;
     data = nullptr;
     delete work;
