@@ -608,6 +608,13 @@ public:
     void OnLoadStarted(const ArkWebString& url) override;
 
     void OnLoadFinished(const ArkWebString& url) override;
+
+    void OnPip(int status,
+               int delegate_id,
+               int child_id,
+               int frame_routing_id,
+               int width,
+               int height) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };
