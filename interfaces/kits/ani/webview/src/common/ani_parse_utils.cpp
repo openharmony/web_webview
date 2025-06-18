@@ -20,7 +20,6 @@
 #include <regex>
 
 #include "nweb_log.h"
-#include "ohos_adapter_helper.h"
 #include "securec.h"
 
 namespace OHOS {
