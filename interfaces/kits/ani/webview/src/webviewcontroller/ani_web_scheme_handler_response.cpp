@@ -79,6 +79,9 @@ static ani_string JsGetUrl(ani_env *env, ani_object object)
         return url;
     }
     char* result = schemeHandler->GetUrl();
+    if (result == nullptr) {
+        return url;
+    }
     env->String_NewUTF8(result, strlen(result), &url);
     OH_ArkWeb_ReleaseString(result);
     return url;

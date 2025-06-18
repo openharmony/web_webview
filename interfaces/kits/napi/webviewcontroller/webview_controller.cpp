@@ -23,6 +23,7 @@
 #include "application_context.h"
 #include "business_error.h"
 #include "napi_parse_utils.h"
+#include "nweb_napi_scope.h"
 #include "ohos_resource_adapter_impl.h"
 
 #include "native_arkweb_utils.h"
@@ -416,9 +417,8 @@ void WebviewController::StoreWebArchiveCallback(const std::string &baseName, boo
         if (!env) {
             return;
         }
-        napi_handle_scope scope = nullptr;
-        napi_open_handle_scope(env, &scope);
-        if (scope == nullptr) {
+        NApiScope scope(env);
+        if (!scope.IsVaild()) {
             return;
         }
 
@@ -437,7 +437,6 @@ void WebviewController::StoreWebArchiveCallback(const std::string &baseName, boo
         napi_call_function(env, nullptr, callback, RESULT_COUNT, args, &callbackResult);
 
         napi_delete_reference(env, jCallback);
-        napi_close_handle_scope(env, scope);
     });
     nweb_ptr->StoreWebArchive(baseName, autoName, callbackImpl);
     return;
@@ -463,9 +462,8 @@ void WebviewController::StoreWebArchivePromise(const std::string &baseName, bool
         if (!env) {
             return;
         }
-        napi_handle_scope scope = nullptr;
-        napi_open_handle_scope(env, &scope);
-        if (scope == nullptr) {
+        NApiScope scope(env);
+        if (!scope.IsVaild()) {
             return;
         }
 
@@ -478,7 +476,6 @@ void WebviewController::StoreWebArchivePromise(const std::string &baseName, bool
         } else {
             napi_reject_deferred(env, deferred, args[PARAMZERO]);
         }
-        napi_close_handle_scope(env, scope);
     });
     nweb_ptr->StoreWebArchive(baseName, autoName, callbackImpl);
     return;
@@ -1507,8 +1504,13 @@ bool WebviewController::SetWebSchemeHandler(const char* scheme, WebSchemeHandler
         WVLOG_E("WebviewController::SetWebSchemeHandler handler or scheme is nullptr");
         return false;
     }
+    auto schemeHandler_ptr = WebSchemeHandler::GetArkWebSchemeHandler(handler);
+    if (!schemeHandler_ptr) {
+        WVLOG_E("WebviewController::SetWebSchemeHandler ArkWebSchemeHandler is nullptr");
+        return false;
+    }
     ArkWeb_SchemeHandler* schemeHandler =
-        const_cast<ArkWeb_SchemeHandler*>(WebSchemeHandler::GetArkWebSchemeHandler(handler));
+        const_cast<ArkWeb_SchemeHandler*>(schemeHandler_ptr);
     return OH_ArkWeb_SetSchemeHandler(scheme, webTag_.c_str(), schemeHandler);
 }
 
@@ -1520,8 +1522,13 @@ int32_t WebviewController::ClearWebSchemeHandler()
 bool WebviewController::SetWebServiveWorkerSchemeHandler(
     const char* scheme, WebSchemeHandler* handler)
 {
+    auto schemeHandler_ptr = WebSchemeHandler::GetArkWebSchemeHandler(handler);
+    if (!schemeHandler_ptr) {
+        WVLOG_E("WebviewController::SetWebServiveWorkerSchemeHandler ArkWebSchemeHandler is nullptr");
+        return false;
+    }
     ArkWeb_SchemeHandler* schemeHandler =
-        const_cast<ArkWeb_SchemeHandler*>(WebSchemeHandler::GetArkWebSchemeHandler(handler));
+        const_cast<ArkWeb_SchemeHandler*>(schemeHandler_ptr);
     return OH_ArkWebServiceWorker_SetSchemeHandler(scheme, schemeHandler);
 }
 
@@ -1643,9 +1650,8 @@ void WebviewController::PrecompileJavaScriptPromise(
             return;
         }
 
-        napi_handle_scope scope = nullptr;
-        napi_open_handle_scope(env, &scope);
-        if (scope == nullptr) {
+        NApiScope scope(env);
+        if (!scope.IsVaild()) {
             return;
         }
 
@@ -1657,8 +1663,6 @@ void WebviewController::PrecompileJavaScriptPromise(
         } else {
             napi_reject_deferred(env, deferred, args[PARAMZERO]);
         }
-
-        napi_close_handle_scope(env, scope);
     });
 
     nweb_ptr->PrecompileJavaScript(url, script, cacheOptions, callbackImpl);
