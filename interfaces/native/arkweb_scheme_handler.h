@@ -901,6 +901,9 @@ void OH_ArkWeb_ReleaseByteArray(uint8_t* byteArray);
 int32_t OH_ArkWebSchemeHandler_SetFromEts(ArkWeb_SchemeHandler* schemeHandler,
                                           bool fromEts);
 
+void DestroySchemeHandlerApiForTest();
+void SetSchemeHandlerApiForTest(void* schemeHandlerApi);
+
 #ifdef __cplusplus
 };
 #endif
