@@ -1982,7 +1982,6 @@ static void StopAllMedia(ani_env* env, ani_object object)
     }
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
     if (!controller || !controller->IsInit()) {
-
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
