@@ -21,6 +21,7 @@
 
 #include "nweb_log.h"
 #include "securec.h"
+#include "nweb_cache_options_impl.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -157,6 +158,95 @@ ani_status AniParseUtils::SetPropertyByName_String(ani_env *env, ani_object aniC
 
     status = env->Object_SetPropertyByName_Ref(aniCls, keyName, static_cast<ani_ref>(aniResult));
     return status;
+}
+
+std::shared_ptr<CacheOptions> AniParseUtils::ParseCacheOptions(ani_env *env, ani_object cacheOptions)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    ani_ref cacheOptionsArray = nullptr;
+    std::map<std::string, std::string> responseHeaders;
+    auto defaultCacheOptions = std::make_shared<NWebCacheOptionsImpl>(responseHeaders);
+    if (env->Object_GetPropertyByName_Ref(cacheOptions, "responseHeaders", &cacheOptionsArray) != ANI_OK) {
+        return defaultCacheOptions;
+    }
+    ParseStringArrayMap(env, static_cast<ani_object>(cacheOptionsArray), responseHeaders);
+    return std::make_shared<NWebCacheOptionsImpl>(responseHeaders);
+}
+
+bool AniParseUtils::ParseStringArray(ani_env* env, ani_object argv, std::vector<std::string>& outValue)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    ani_class cls;
+    ani_boolean isArray = ANI_FALSE;
+    ani_double arrayLength;
+    ani_array_ref arrayRef;
+    env->FindClass("Lescompat/Array;", &cls);
+    env->Object_InstanceOf(argv, cls, &isArray);
+    if (!isArray) {
+        WVLOG_E("argv must be array");
+        return false;
+    }
+
+    arrayRef = static_cast<ani_array_ref>(argv);
+    env->Object_GetPropertyByName_Double(argv, "length", &arrayLength);
+    for (ani_double i = 0; i < arrayLength; i++) {
+        ani_ref arrayItem = nullptr;
+        env->Array_Get_Ref(arrayRef, i, &arrayItem);
+        std::string str;
+        if (ParseString(env, arrayItem, str)) {
+            outValue.push_back(str);
+        }
+    }
+    return true;
+}
+
+bool AniParseUtils::ParseStringArrayMap(ani_env* env, ani_object argv, std::map<std::string, std::string>& outValue)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    ani_class cls;
+    ani_boolean isArray = ANI_FALSE;
+    ani_array_ref arrayRef;
+    ani_double arrayLength;
+    env->FindClass("Lescompat/Array;", &cls);
+    env->Object_InstanceOf(argv, cls, &isArray);
+    if (!isArray) {
+        WVLOG_E("argv must be array");
+        return false;
+    }
+
+    arrayRef = static_cast<ani_array_ref>(argv);
+    env->Object_GetPropertyByName_Double(argv, "length", &arrayLength);
+    for (ani_double i = 0; i < arrayLength; i++) {
+        ani_ref arrayItem = nullptr;
+        env->Array_Get_Ref(arrayRef, i, &arrayItem);
+        ani_ref keyObj = nullptr;
+        ani_ref valueObj = nullptr;
+        env->Object_GetPropertyByName_Ref(static_cast<ani_object>(arrayItem), "headerKey", &keyObj);
+        env->Object_GetPropertyByName_Ref(static_cast<ani_object>(arrayItem), "headerValue", &valueObj);
+
+        std::string keyString;
+        std::string valueString;
+        if (!AniParseUtils::ParseString(env, keyObj, keyString)) {
+            WVLOG_E("Parse keyString failed.");
+            return false;
+        }
+        if (!AniParseUtils::ParseString(env, valueObj, valueString)) {
+            WVLOG_E("Parse valueString failed.");
+            return false;
+        }
+        outValue[keyString] = valueString;
+    }
+
+    return true;
 }
 }
 }

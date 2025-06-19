@@ -20,6 +20,13 @@
 
 namespace OHOS {
 namespace NWeb {
+struct OfflineResourceValueAni {
+    ani_ref urlListArray;
+    ani_ref resourceArrayBuffer;
+    ani_ref responseHeadersArray;
+    ani_ref typeRef;
+};
+
 ani_status StsWebviewControllerInit(ani_env *env);
 ani_status StsCleanerInit(ani_env *env);
 ani_status StsBackForwardListInit(ani_env *env);
