@@ -267,6 +267,14 @@ export default namespace webview {
             return p;
         }
         native static prefetchResource(request: RequestInfo, additionalHeaders?: Array<WebHeader>, cacheKey?: string, cacheValidTime?: number): void;
+        native startCamera(): void;
+        native closeAllMediaPresentations(): void;
+        native stopAllMedia(): void;
+        native stopCamera(): void;
+        native closeCamera(): void;
+        native pauseAllMedia(): void;
+        native resumeAllMedia(): void;
+        native setAudioMuted(mute: boolean): void;
         
     }
 
