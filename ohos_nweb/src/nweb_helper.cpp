@@ -729,6 +729,7 @@ bool NWebHelper::InitWebEngine()
 
 bool NWebHelper::LoadWebEngine(bool fromArk, bool runFlag)
 {
+    std::lock_guard<std::mutex> lock(lock_);
     if (!GetWebEngine(fromArk)) {
         return false;
     }

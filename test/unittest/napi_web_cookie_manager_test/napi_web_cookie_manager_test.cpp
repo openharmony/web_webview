@@ -50,7 +50,7 @@ void NapiWebCookieManagerTest::SetUp(void)
 void NapiWebCookieManagerTest::TearDown(void)
 {}
 
-NWebHelper g_nwebHelperInstance = NWebHelper::Instance();
+NWebHelper& g_nwebHelperInstance = NWebHelper::Instance();
 /**
  * @tc.name: NapiWebCookieManagerTest_001
  * @tc.desc: GetCookieManager.
