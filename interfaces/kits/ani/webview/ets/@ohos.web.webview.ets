@@ -231,6 +231,8 @@ export default namespace webview {
         native serializeWebState(): Uint8Array;
         native static trimMemoryByPressureLevel(level: PressureLevel): void;
         native setPathAllowingUniversalAccess(pathList: Array<string>): void;
+        native getSurfaceId(): string;
+        native static enableWholeWebPageDrawing(): void;
         native setPrintBackground(enable: boolean): void;
         native getPrintBackground(): boolean;
         native injectOfflineResourcesInternal(resourceMaps: Array<OfflineResourceMapInternal>) : void;
