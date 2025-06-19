@@ -408,6 +408,8 @@ static void Clean(ani_env *env, ani_object object)
         delete reinterpret_cast<WebSchemeHandlerResponse *>(ptr);
     } else if (clsName == "WebDownloadDelegate") {
         delete reinterpret_cast<WebDownloadDelegate *>(ptr);
+    } else if (clsName == "WebMessageExt"){
+        delete reinterpret_cast<WebMessageExt *>(ptr);
     } else {
         WVLOG_E("Clean unsupport className: %{public}s", clsName.c_str());
     }
@@ -2918,6 +2920,415 @@ static void InnerCompleteWindowNew(ani_env* env, ani_object object, ani_int pare
         return;
     }
     controller->InnerCompleteWindowNew(parentNWebId);
+}
+
+static void ConstructorExt(ani_env* env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto webMsg = std::make_shared<OHOS::NWeb::NWebMessage>(NWebValue::Type::NONE);
+    WebMessageExt* webMessageExt = new (std::nothrow) WebMessageExt(webMsg);
+    if (webMessageExt == nullptr) {
+        WVLOG_E("new webMessageExt failed");
+        return;
+    }
+    if (!AniParseUtils::Wrap(env, object, ANI_WEB_MESSAGE_EXT_NAME, reinterpret_cast<ani_long>(webMessageExt))) {
+        WVLOG_E("webview webMessageExt wrap failed");
+        delete webMessageExt;
+        webMessageExt = nullptr;
+    }
+}
+
+static void SetType(ani_env* env, ani_object object, ani_enum_item value)
+{
+    WVLOG_D("WebMessageExt SetType start.");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* webMessageExt = reinterpret_cast<WebMessageExt*>(AniParseUtils::Unwrap(env, object));
+    if (!webMessageExt) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    ani_int iValue;
+    if (env->EnumItem_GetValue_Int(value, &iValue) != ANI_OK) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+
+    int32_t typeValue = static_cast<int32_t>(iValue);
+    webMessageExt->SetType(typeValue);
+}
+
+static void SetString(ani_env* env, ani_object object, ani_string aniValue)
+{
+    WVLOG_D("WebMessageExt SetString start.");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* webMessageExt = reinterpret_cast<WebMessageExt*>(AniParseUtils::Unwrap(env, object));
+    if (!webMessageExt) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    std::string value;
+    if (!AniParseUtils::ParseString(env, aniValue, value)) {
+        WVLOG_E("Parse url failed.");
+        return;
+    }
+    if (webMessageExt->GetType() != static_cast<int32_t>(WebMessageType::STRING)) {
+        WVLOG_E("web message SetString error type:%{public}d", webMessageExt->GetType());
+        AniBusinessError::ThrowErrorByErrCode(env, TYPE_NOT_MATCH_WITCH_VALUE);
+        return;
+    }
+
+    webMessageExt->SetString(value);
+}
+
+static void SetNumber(ani_env* env, ani_object object, ani_double value)
+{
+    WVLOG_D("WebMessageExt SetNumber start.");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* webMessageExt = reinterpret_cast<WebMessageExt*>(AniParseUtils::Unwrap(env, object));
+    if (!webMessageExt) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    if (webMessageExt->GetType() != static_cast<int32_t>(WebMessageType::NUMBER)) {
+        WVLOG_E("web message SetNumber error type:%{public}d", webMessageExt->GetType());
+        AniBusinessError::ThrowErrorByErrCode(env, TYPE_NOT_MATCH_WITCH_VALUE);
+        return;
+    }
+    webMessageExt->SetNumber(static_cast<double>(value));
+}
+
+static void SetBoolean(ani_env* env, ani_object object, ani_boolean value)
+{
+    WVLOG_D("WebMessageExt SetBoolean start.");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* webMessageExt = reinterpret_cast<WebMessageExt*>(AniParseUtils::Unwrap(env, object));
+    if (!webMessageExt) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    if (webMessageExt->GetType() != static_cast<int32_t>(WebMessageType::BOOLEAN)) {
+        WVLOG_E("web message SetBoolean error type:%{public}d", webMessageExt->GetType());
+        AniBusinessError::ThrowErrorByErrCode(env, TYPE_NOT_MATCH_WITCH_VALUE);
+        return;
+    }
+
+    webMessageExt->SetBoolean(static_cast<bool>(value));
+}
+
+static void SetArrayBuffer(ani_env* env, ani_object object, ani_object value)
+{
+    WVLOG_D("WebMessageExt SetArrayBuffer start.");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* webMessageExt = reinterpret_cast<WebMessageExt*>(AniParseUtils::Unwrap(env, object));
+    if (!webMessageExt) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    char* arrayBuffer = nullptr;
+    size_t byteLength = 0;
+    if (env->ArrayBuffer_GetInfo(
+            reinterpret_cast<ani_arraybuffer>(value), reinterpret_cast<void**>(&arrayBuffer), &byteLength) != ANI_OK) {
+        WVLOG_E("ArrayBuffer_GetInfo failed");
+        return;
+    }
+    std::vector<uint8_t> vecData(arrayBuffer, arrayBuffer + byteLength);
+
+    if (webMessageExt->GetType() != static_cast<int32_t>(WebMessageType::ARRAYBUFFER)) {
+        WVLOG_E("web message SetArrayBuffer error type:%{public}d", webMessageExt->GetType());
+        AniBusinessError::ThrowErrorByErrCode(env, TYPE_NOT_MATCH_WITCH_VALUE);
+        return;
+    }
+    webMessageExt->SetArrayBuffer(vecData);
+}
+
+static void SetError(ani_env* env, ani_object object, ani_object errorMsg)
+{
+    WVLOG_D("WebMessageExt setError start.000");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    ani_ref aniName;
+    if (env->Object_GetPropertyByName_Ref(errorMsg, "name", &aniName) != ANI_OK) {
+        return;
+    }
+
+    ani_ref aniMessage;
+    if (env->Object_GetPropertyByName_Ref(errorMsg, "message", &aniMessage) != ANI_OK) {
+        return;
+    }
+    auto* webMessageExt = reinterpret_cast<WebMessageExt*>(AniParseUtils::Unwrap(env, object));
+    if (!webMessageExt) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    if (webMessageExt->GetType() != static_cast<int32_t>(WebMessageType::ERROR)) {
+        WVLOG_E("web message setError error type:%{public}d", webMessageExt->GetType());
+        AniBusinessError::ThrowErrorByErrCode(env, TYPE_NOT_MATCH_WITCH_VALUE);
+        return;
+    }
+
+    std::string name;
+    if (!AniParseUtils::ParseString(env, aniName, name)) {
+        return;
+    }
+    std::string message;
+    if (!AniParseUtils::ParseString(env, aniMessage, message)) {
+        return;
+    }
+    webMessageExt->SetError(name, message);
+}
+
+static ani_enum_item GetType(ani_env* env, ani_object object)
+{
+    WVLOG_D("WebMessageExt GetType.");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+
+    auto* webMessageExt = reinterpret_cast<WebMessageExt*>(AniParseUtils::Unwrap(env, object));
+    if (!webMessageExt) {
+        WVLOG_D("WebMessageExt GetType.");
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return nullptr;
+    }
+
+    ani_int typeMode = 0;
+    ani_enum enumType;
+    env->FindEnum("L@ohos/web/webview/webview/WebMessageType;", &enumType);
+    typeMode = static_cast<ani_int>(webMessageExt->GetType());
+    WVLOG_D("WebMessageExt mode = %{public}d", static_cast<int32_t>(typeMode));
+    ani_enum_item mode;
+    env->Enum_GetEnumItemByIndex(enumType, typeMode, &mode);
+    return mode;
+}
+
+static ani_string GetString(ani_env* env, ani_object object)
+{
+    WVLOG_D("WebMessageExt GetString.");
+    ani_string result = nullptr;
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return result;
+    }
+
+    auto* webMessageExt = reinterpret_cast<WebMessageExt*>(AniParseUtils::Unwrap(env, object));
+    if (!webMessageExt) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return result;
+    }
+
+    if (webMessageExt->GetType() != static_cast<int32_t>(WebMessageType::STRING)) {
+        WVLOG_E("web message setError error type:%{public}d", webMessageExt->GetType());
+        AniBusinessError::ThrowErrorByErrCode(env, TYPE_NOT_MATCH_WITCH_VALUE);
+        return result;
+    }
+
+    auto message = webMessageExt->GetData();
+    if (!message) {
+        WVLOG_E("message data is nullptr");
+        return result;
+    }
+
+    std::string stringMsg = message->GetString();
+    env->String_NewUTF8(stringMsg.c_str(), stringMsg.size(), &result);
+    return result;
+}
+
+static ani_double GetNumber(ani_env* env, ani_object object)
+{
+    WVLOG_D("WebMessageExt GetNumber.");
+    ani_double result = 0;
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return result;
+    }
+
+    auto* webMessageExt = reinterpret_cast<WebMessageExt*>(AniParseUtils::Unwrap(env, object));
+    if (!webMessageExt) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return result;
+    }
+
+    if (webMessageExt->GetType() != static_cast<int32_t>(WebMessageType::NUMBER)) {
+        WVLOG_E("web message GetNumber error type:%{public}d", webMessageExt->GetType());
+        AniBusinessError::ThrowErrorByErrCode(env, TYPE_NOT_MATCH_WITCH_VALUE);
+        return result;
+    }
+
+    auto message = webMessageExt->GetData();
+    if (!message) {
+        WVLOG_E("message data is nullptr");
+        return result;
+    }
+    double numberMsg = message->GetDouble();
+    result = static_cast<ani_double>(numberMsg);
+    return result;
+}
+
+static ani_boolean GetBoolean(ani_env* env, ani_object object)
+{
+    WVLOG_D("WebMessageExt GetBoolean.");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+
+    auto* webMessageExt = reinterpret_cast<WebMessageExt*>(AniParseUtils::Unwrap(env, object));
+    if (!webMessageExt) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return ANI_FALSE;
+    }
+
+    if (webMessageExt->GetType() != static_cast<int32_t>(WebMessageType::BOOLEAN)) {
+        WVLOG_E("web message GetBoolean error type:%{public}d", webMessageExt->GetType());
+        AniBusinessError::ThrowErrorByErrCode(env, TYPE_NOT_MATCH_WITCH_VALUE);
+        return ANI_FALSE;
+    }
+
+    auto message = webMessageExt->GetData();
+    if (!message) {
+        WVLOG_E("message data is nullptr");
+        return ANI_FALSE;
+    }
+
+    return static_cast<ani_boolean>(message->GetBoolean());
+}
+
+static ani_object GetArrayBuffer(ani_env* env, ani_object object)
+{
+    WVLOG_D("WebMessageExt GetArrayBuffer.");
+    ani_object result = nullptr;
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return result;
+    }
+
+    auto* webMessageExt = reinterpret_cast<WebMessageExt*>(AniParseUtils::Unwrap(env, object));
+    if (!webMessageExt) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return result;
+    }
+
+    if (webMessageExt->GetType() != static_cast<int32_t>(WebMessageType::ARRAYBUFFER)) {
+        WVLOG_E("web message GetArrayBuffer error type:%{public}d", webMessageExt->GetType());
+        AniBusinessError::ThrowErrorByErrCode(env, TYPE_NOT_MATCH_WITCH_VALUE);
+        return result;
+    }
+
+    auto message = webMessageExt->GetData();
+    if (!message) {
+        WVLOG_E("message data is nullptr");
+        return result;
+    }
+    auto getArrayBuffer = message->GetBinary();
+
+    void* arrayData = nullptr;
+    ani_arraybuffer arraybuffer;
+    ani_status status = env->CreateArrayBuffer(getArrayBuffer.size(), &arrayData, &arraybuffer);
+    if (status != ANI_OK) {
+        WVLOG_E("Create arraybuffer failed");
+        return arraybuffer;
+    }
+    for (size_t i = 0; i < getArrayBuffer.size(); ++i) {
+        *(uint8_t*)((uint8_t*)arrayData + i) = getArrayBuffer[i];
+    }
+    return arraybuffer;
+}
+
+static ani_string GetError(ani_env* env, ani_object object)
+{
+    WVLOG_D("WebMessageExt GetError Start.");
+    ani_string result = nullptr;
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return result;
+    }
+
+    auto* webMessageExt = reinterpret_cast<WebMessageExt*>(AniParseUtils::Unwrap(env, object));
+    if (!webMessageExt) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return result;
+    }
+
+    if (webMessageExt->GetType() != static_cast<int32_t>(WebMessageType::ERROR)) {
+        WVLOG_E("web message GetError error type:%{public}d", webMessageExt->GetType());
+        AniBusinessError::ThrowErrorByErrCode(env, TYPE_NOT_MATCH_WITCH_VALUE);
+        return result;
+    }
+
+    auto message = webMessageExt->GetData();
+    if (!message) {
+        WVLOG_E("message data is nullptr");
+        return result;
+    }
+    std::string errMsg = message->GetErrName() + ": " + message->GetErrMsg();
+    env->String_NewUTF8(errMsg.c_str(), errMsg.size(), &result);
+    return result;
+}
+
+ani_status StsWebMessageExtInit(ani_env* env)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_ERROR;
+    }
+    ani_class webMessageExtCls = nullptr;
+    ani_status status = env->FindClass(ANI_WEB_MESSAGE_EXT_NAME, &webMessageExtCls);
+    if (status != ANI_OK || !webMessageExtCls) {
+        WVLOG_E("find %{public}s class failed, status: %{public}d", ANI_WEB_MESSAGE_EXT_NAME, status);
+        return status;
+    }
+    std::array webMessageExtMethods = {
+        ani_native_function { "<ctor>", nullptr, reinterpret_cast<void*>(ConstructorExt) },
+        ani_native_function { "setType", nullptr, reinterpret_cast<void*>(SetType) },
+        ani_native_function { "setString", nullptr, reinterpret_cast<void*>(SetString) },
+        ani_native_function { "setNumber", nullptr, reinterpret_cast<void*>(SetNumber) },
+        ani_native_function { "setBoolean", nullptr, reinterpret_cast<void*>(SetBoolean) },
+        ani_native_function { "setArrayBuffer", nullptr, reinterpret_cast<void*>(SetArrayBuffer) },
+        ani_native_function { "setError", nullptr, reinterpret_cast<void*>(SetError) },
+        ani_native_function { "getType", nullptr, reinterpret_cast<void*>(GetType) },
+        ani_native_function { "getString", nullptr, reinterpret_cast<void*>(GetString) },
+        ani_native_function { "getNumber", nullptr, reinterpret_cast<void*>(GetNumber) },
+        ani_native_function { "getBoolean", nullptr, reinterpret_cast<void*>(GetBoolean) },
+        ani_native_function { "getArrayBuffer", nullptr, reinterpret_cast<void*>(GetArrayBuffer) },
+        ani_native_function { "getError", nullptr, reinterpret_cast<void*>(GetError) },
+    };
+    status = env->Class_BindNativeMethods(webMessageExtCls, webMessageExtMethods.data(), webMessageExtMethods.size());
+    if (status != ANI_OK) {
+        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+    }
+    return status;
 }
 
 ani_status StsWebviewControllerInit(ani_env *env)

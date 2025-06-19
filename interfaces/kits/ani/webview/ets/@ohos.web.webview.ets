@@ -672,6 +672,9 @@ export default namespace webview {
          */
         native static saveCookieSync(): void;
 
+        native static existCookie(incognito?: boolean): boolean;
+        native static isCookieAllowed(): boolean;
+        native static clearSessionCookieSync(): void;
         native static configCookieSync(url: string, value: string, incognito: boolean, includeHttpOnly: boolean): void;
 
         native static configCookieSyncInternal(url: string, value: string, incognito?: boolean): void;
@@ -851,6 +854,45 @@ export default namespace webview {
                 callback(error, data);
             }, (err: Error): void => {
             });
+        }
+
+        static clearSessionCookie(callback: AsyncCallback<void>): void {
+            let pCallback = taskpool.execute(():undefined => {WebCookieManager.clearSessionCookieSync(); return undefined});
+            pCallback.then((e :NullishType) => {
+                let resultCode: Int = 0;
+                let r: BusinessError = { code: resultCode.toInt(), data: undefined };
+                callback(r, undefined);
+            }, (err: Error): void => {
+            });
+        }
+
+        static clearSessionCookie(): Promise<void> {
+            let pPromise = new Promise<void>((resolve: (v: undefined) => void,
+                                              reject: (error: Error) => void): void => {
+                let pPromise1 = taskpool.execute(():undefined => {
+                    WebCookieManager.clearSessionCookieSync();  return undefined});
+                pPromise1.then((e: NullishType): void => {
+                    console.log("in Promise then. e is ", e)
+                    resolve(undefined);
+                }, (err: Error): void => {
+                    reject(err);
+                });
+            });
+            return pPromise;
+        }
+
+        static fetchCookie(url: string, incognito: boolean): Promise<string> {
+            let pPromise = new Promise<string>((resolve: (v: string) => void, reject: (error: Error) => void) => {
+                let pPromise1 = taskpool.execute((): string => {
+                    return WebCookieManager.fetchCookieSync(url, incognito);
+                });
+                pPromise1.then((e: NullishType) => {
+                    let r: string = e as string;
+                    resolve(r);
+                }, (error: Error): void => {
+                });
+            });
+            return pPromise;
         }
     }
 
@@ -1257,5 +1299,51 @@ export default namespace webview {
         native constructor();
 
         native static pdfArrayBuffer(): Uint8Array;
+    }
+
+    export enum WebMessageType {
+        NOT_SUPPORT,
+        STRING,
+        NUMBER,
+        BOOLEAN,
+        ARRAY_BUFFER,
+        ARRAY,
+        ERROR
+    }
+
+    export class WebMessageExt {
+        private nativePtr: long = 0;
+        private cleaner?: Cleaner;
+
+        registerCleaner(ptr: long): void {
+            this.cleaner = new Cleaner(ptr, "WebMessageExt")
+            destroyRegister.register(this, this.cleaner!, unregisterToken);
+        }
+        unregisterCleaner(): void {
+            destroyRegister.unregister(unregisterToken);
+        }
+
+        bindNativePtr(ptr: long): void {
+            if (this.nativePtr == 0) {
+                this.nativePtr = ptr;
+                this.registerCleaner(this.nativePtr)
+            }
+        }
+
+        native constructor();
+
+        native setType(type: WebMessageType): void;
+        native setString(message: string): void;
+        native setNumber(message: number): void;
+        native setBoolean(message: boolean): void;
+        native setArrayBuffer(message: ArrayBuffer): void;
+        native setError(message: Error): void;
+        
+        native getType(): WebMessageType;
+        native getString(): string;
+        native getNumber(): number;
+        native getBoolean(): boolean;
+        native getArrayBuffer(): ArrayBuffer;
+        native getError(): Error;
     }
 }
