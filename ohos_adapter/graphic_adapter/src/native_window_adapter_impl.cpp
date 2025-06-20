@@ -318,7 +318,7 @@ std::shared_ptr<SurfaceBufferAdapter> ProducerNativeAdapterImpl::RequestBuffer(
         return nullptr;
     }
 
-    OH_NativeWindow_NativeWindowHandleOpt(window_, SET_UI_TIMESTAMP, flushConfigAdapter->GetTimestamp());
+    OH_NativeWindow_NativeWindowHandleOpt(window_, SET_UI_TIMESTAMP, configAdapter->GetTimestamp());
 
     TransToBufferConfig(configAdapter);
     OHNativeWindowBuffer* buffer = nullptr;
