@@ -2072,6 +2072,26 @@ static void SetAudioMuted(ani_env* env, ani_object object,ani_boolean mute)
     return;
 }
 
+static ani_enum_item GetMediaPlaybackState(ani_env* env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    ani_int mediaPlaybackState = 0;
+    ani_enum enumType;
+    env->FindEnum(ANI_ENUM_MEDIA_PLAY_BACK_STATE, &enumType);
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return nullptr;
+    }
+    mediaPlaybackState = static_cast<ani_int>(controller->GetMediaPlaybackState());
+    ani_enum_item state;
+    env->Enum_GetEnumItemByIndex(enumType, mediaPlaybackState, &state);
+    return state;
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     if (env == nullptr) {
@@ -2157,6 +2177,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "pauseAllMedia", nullptr, reinterpret_cast<void *>(PauseAllMedia) },
         ani_native_function { "resumeAllMedia", nullptr, reinterpret_cast<void *>(ResumeAllMedia) },
         ani_native_function { "setAudioMuted", nullptr, reinterpret_cast<void *>(SetAudioMuted) },
+        ani_native_function { "getMediaPlaybackState", nullptr, reinterpret_cast<void *>(GetMediaPlaybackState) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
