@@ -67,6 +67,7 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
+ani_vm *g_vm = nullptr;
 constexpr size_t MAX_RESOURCES_COUNT = 30;
 constexpr uint32_t URL_MAXIMUM = 2048;
 constexpr char URL_REGEXPR[] = "^http(s)?:\\/\\/.+";
@@ -2092,6 +2093,26 @@ static ani_enum_item GetMediaPlaybackState(ani_env* env, ani_object object)
     return state;
 }
 
+void OnCreateNativeMediaPlayer(ani_env* env, ani_object object, ani_fn_object callback)
+{
+    ani_vm *vm = nullptr;
+    env->GetVM(&vm);
+    g_vm = vm;
+    WVLOG_D("put on_create_native_media_player callback");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    WVLOG_I("put on_create_native_media_player callback");
+    controller->OnCreateNativeMediaPlayer(g_vm, callback);
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     if (env == nullptr) {
@@ -2158,6 +2179,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void *>(TrimMemoryByPressureLevel) },
         ani_native_function { "setPathAllowingUniversalAccess", nullptr, 
                               reinterpret_cast<void *>(SetPathAllowingUniversalAccess) },
+        ani_native_function { "onCreateNativeMediaPlayer", "Lstd/core/Function2;:V", 
+                              reinterpret_cast<void *>(OnCreateNativeMediaPlayer) },
         ani_native_function { "injectOfflineResourcesInternal", nullptr,
                               reinterpret_cast<void *>(InjectOfflineResources) },
         ani_native_function { "clearPrefetchedResource", nullptr, reinterpret_cast<void *>(ClearPrefetchedResource) },

@@ -35,6 +35,7 @@
 #include "webview_hasimage_callback.h"
 #include "webview_javascript_execute_callback.h"
 #include "webview_javascript_result_callback.h"
+#include "native_media_player_impl.h"
 
 #include "nweb_precompile_callback.h"
 #include "nweb_cache_options_impl.h"
@@ -2137,6 +2138,22 @@ std::shared_ptr<HitTestResult> WebviewController::GetLastHitTest()
         }
     }
     return nwebResult;
+}
+
+void WebviewController::OnCreateNativeMediaPlayer(ani_vm* vm, ani_fn_object callback)
+{
+    WVLOG_D("put on_create_native_media_player callback");
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return;
+    }
+
+    auto callbackImpl = std::make_shared<NWebCreateNativeMediaPlayerCallbackImpl>(nwebId_, vm, callback);
+    if(!callbackImpl){
+        return;
+    }
+    WVLOG_I("put on_create_native_media_player callback");
+    nweb_ptr->OnCreateNativeMediaPlayer(callbackImpl);
 }
 } // namespace NWeb
 } // namespace OHOS
