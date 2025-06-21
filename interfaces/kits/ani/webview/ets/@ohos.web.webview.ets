@@ -85,6 +85,13 @@ export default namespace webview {
         MEMORY_PRESSURE_LEVEL_CRITICAL = 2
     }
 
+    export enum MediaPlaybackState {
+        NONE = 0,
+        PLAYING = 1,
+        PAUSED = 2,
+        STOPPED = 3
+    }
+
     export interface RequestInfo {
         url: string;
         method: string;
@@ -275,7 +282,7 @@ export default namespace webview {
         native pauseAllMedia(): void;
         native resumeAllMedia(): void;
         native setAudioMuted(mute: boolean): void;
-        
+        native getMediaPlaybackState(): MediaPlaybackState;
     }
 
     export class WebSchemeHandlerResponse {
