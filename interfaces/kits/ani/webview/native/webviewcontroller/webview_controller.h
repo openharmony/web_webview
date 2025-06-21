@@ -16,6 +16,7 @@
 #ifndef NWEB_WEBVIEW_CONTROLLER_H
 #define NWEB_WEBVIEW_CONTROLLER_H
 
+#include "ani.h"
 #include <filesystem>
 #include <memory>
 #include <string>
@@ -391,6 +392,8 @@ public:
         const std::string& bundleName, const std::string& moduleName, std::string &result) const;
 
     std::shared_ptr<HitTestResult> GetLastHitTest();
+    
+    void OnCreateNativeMediaPlayer(ani_vm *vm, ani_fn_object callback);
 private:
     int ConverToWebHitTestType(int hitType);
 

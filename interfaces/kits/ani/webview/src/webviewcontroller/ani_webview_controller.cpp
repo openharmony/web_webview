@@ -66,6 +66,8 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
+ani_vm *g_vm = nullptr;
+
 bool ParseResourceRawfileUrl(ani_env *env, const ani_object& object, std::string& fileName)
 {
     ani_ref paramsRef;
@@ -1513,10 +1515,28 @@ static void SetPathAllowingUniversalAccess(ani_env *env, ani_object object, ani_
         }
         pathListArr.emplace_back(path);
     }
-}    
+}
 
-ani_status StsWebviewControllerInit(ani_env *env)
+void OnCreateNativeMediaPlayer(ani_env* env, ani_object object, ani_fn_object callback)
 {
+    WVLOG_D("put on_create_native_media_player callback");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    WVLOG_I("put on_create_native_media_player callback");
+    controller->OnCreateNativeMediaPlayer(g_vm, callback);
+}
+
+ani_status StsWebviewControllerInit(ani_vm *vm, ani_env *env)
+{
+    g_vm = vm;
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return ANI_ERROR;
@@ -1581,6 +1601,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void *>(TrimMemoryByPressureLevel) },
         ani_native_function { "setPathAllowingUniversalAccess", nullptr, 
                               reinterpret_cast<void *>(SetPathAllowingUniversalAccess) },
+        ani_native_function { "onCreateNativeMediaPlayer", "Lstd/core/Function2;:V", 
+                              reinterpret_cast<void *>(OnCreateNativeMediaPlayer) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());

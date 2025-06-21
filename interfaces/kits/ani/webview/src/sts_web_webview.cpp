@@ -19,6 +19,7 @@
 #include <ctime>
 #include <iostream>
 
+#include "ani_native_media_player_handler.h"
 #include "ani_webview_controller.h"
 #include "ani_proxy_config.h"
 #include "ani_web_storage.h"
@@ -39,7 +40,7 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
         return ANI_NOT_FOUND;
     }
 
-    StsWebviewControllerInit(env);
+    StsWebviewControllerInit(vm, env);
     StsBackForwardListInit(env);
     StsWebSchemeHandlerResponseInit(env);
     StsWebDownloadDelegateInit(env);
@@ -47,7 +48,7 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
     StsWebProxyConfigInit(env);
     StsCleanerInit(env);
     StsWebStorageInit(env);
-    StsNativeMediaPlayerInit(env);
+    StsNativeMediaPlayerHandlerinnerInit(env);
     StsWebDataBaseInit(env);
     *result = ANI_VERSION_1;
     return ANI_OK;

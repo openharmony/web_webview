@@ -60,6 +60,65 @@ export default namespace webview {
         MEMORY_PRESSURE_LEVEL_CRITICAL = 2
     }
 
+    export enum PlaybackStatus {
+        PAUSED = 0,
+        PLAYING = 1
+    }
+
+    export enum NetworkState {
+        EMPTY = 0,
+        IDLE = 1,
+        LOADING = 2,
+        NETWORK_ERROR = 3
+    }
+
+    export enum ReadyState {
+        HAVE_NOTHING = 0,
+        HAVE_METADATA = 1,
+        HAVE_CURRENT_DATA = 2,
+        HAVE_FUTURE_DATA = 3,
+        HAVE_ENOUGH_DATA = 4
+    }
+
+    export enum MediaError {
+        NETWORK_ERROR = 1,
+        FORMAT_ERROR = 2,
+        DECODE_ERROR = 3
+    }
+
+    export enum MediaType {
+        VIDEO = 0,
+        AUDIO = 1
+    }
+
+    export enum SourceType {
+        URL = 0,
+        MSE = 1
+    }
+
+    export enum Preload {
+        NONE = 0,
+        METADATA = 1,
+        AUTO = 2
+    }
+
+    export enum SuspendType {
+        ENTER_BACK_FORWARD_CACHE = 0,
+        ENTER_BACKGROUND = 1,
+        AUTO_CLEANUP = 2
+    }
+
+    export class MediaSourceInfo {
+        type: SourceType = SourceType.URL;
+        source: string = "";
+        format: string = "";
+    }
+
+    export class NativeMediaPlayerSurfaceInfo {
+        id: string = "";
+        rect: RectEvent = {x : 0, y : 0, width : 0, height : 0};
+    }
+
     export interface RequestInfo {
         url: string;
         method: string;
@@ -102,6 +161,137 @@ export default namespace webview {
         historyRawUrl: string;
         title: string;
     }
+
+    export interface RectEvent {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    }
+
+    export class RectEventinner implements RectEvent {
+        x: number = 0;
+        y: number = 0;
+        width: number = 0;
+        height: number = 0;
+    }
+
+    export interface MediaInfo {
+        embedID: string;
+        mediaType: MediaType;
+        mediaSrcList: MediaSourceInfo[];
+        surfaceInfo: NativeMediaPlayerSurfaceInfo;
+        controlsShown: boolean;
+        controlList: string[];
+        muted: boolean;
+        posterUrl: string;
+        preload: Preload;
+        headers: Record<string, string>;
+        attributes: Record<string, string>;
+    }
+
+    export class MediaInfoinner implements MediaInfo {
+        embedID: string = "";
+        mediaType: MediaType = MediaType.VIDEO;
+        mediaSrcList: MediaSourceInfo[] = [];
+        surfaceInfo: NativeMediaPlayerSurfaceInfo = {};
+        controlsShown: boolean = false;
+        controlList: string[] = [];
+        muted: boolean = false;
+        posterUrl: string = "";
+        preload: Preload = Preload.NONE;
+        headers: Record<string, string> = {};
+        attributes: Record<string, string> = {};
+    }
+
+    export interface NativeMediaPlayerHandler {
+        handleStatusChanged(status: PlaybackStatus): void
+        handleVolumeChanged(volume: number): void
+        handleMutedChanged(muted: boolean): void
+        handlePlaybackRateChanged(playbackRate: number): void
+        handleDurationChanged(duration: number): void
+        handleTimeUpdate(currentPlayTime: number): void
+        handleBufferedEndTimeChanged(bufferedEndTime: number): void
+        handleEnded(): void
+        handleNetworkStateChanged(state: NetworkState): void
+        handleReadyStateChanged(state: ReadyState): void
+        handleFullscreenChanged(fullscreen: boolean): void
+        handleSeeking(): void
+        handleSeekFinished(): void
+        handleError(error: MediaError, errorMessage: string): void
+        handleVideoSizeChanged(width: number, height: number): void
+    }
+
+    export class NativeMediaPlayerHandlerinner implements NativeMediaPlayerHandler {
+        private nativePtr: long = 0;
+        private cleaner?: Cleaner;
+
+        registerCleaner(ptr: long): void {
+            this.cleaner = new Cleaner(ptr, "NativeMediaPlayerHandlerinner")
+            destroyRegister.register(this, this.cleaner!, unregisterToken);
+        }
+        unregisterCleaner(): void {
+            destroyRegister.unregister(unregisterToken);
+        }
+
+        bindNativePtr(ptr: long): void {
+            if (this.nativePtr == 0) {
+                this.nativePtr = ptr;
+                this.registerCleaner(this.nativePtr)
+            }
+        }
+
+        native constructor();
+
+        native handleStatusChanged(status: PlaybackStatus): void
+        native handleVolumeChanged(volume: number): void
+        native handleMutedChanged(muted: boolean): void
+        native handlePlaybackRateChanged(playbackRate: number): void
+        native handleDurationChanged(duration: number): void
+        native handleTimeUpdate(currentPlayTime: number): void
+        native handleBufferedEndTimeChanged(bufferedEndTime: number): void
+        native handleEnded(): void
+        native handleNetworkStateChanged(state: NetworkState): void
+        native handleReadyStateChanged(state: ReadyState): void
+        native handleFullscreenChanged(fullscreen: boolean): void
+        native handleSeeking(): void
+        native handleSeekFinished(): void
+        native handleError(error: MediaError, errorMessage: string): void
+        native handleVideoSizeChanged(width: number, height: number): void
+    }
+
+    export interface NativeMediaPlayerBridge {
+        updateRect(x: number, y: number, width: number, height: number): void
+        play(): void
+        pause(): void
+        seek(targetTime: number): void
+        setVolume(volume: number): void
+        setMuted(muted: boolean): void
+        setPlaybackRate(playbackRate: number): void
+        release(): void
+        enterFullscreen(): void
+        exitFullscreen(): void
+        resumePlayer?: ResumePlayerFn;
+        suspendPlayer?: SuspendPlayerFn;
+    }
+
+    export class NativeMediaPlayerBridgeinner implements NativeMediaPlayerBridge {
+        updateRect(x: number, y: number, width: number, height: number): void
+        play(): void
+        pause(): void
+        seek(targetTime: number): void
+        setVolume(volume: number): void
+        setMuted(muted: boolean): void
+        setPlaybackRate(playbackRate: number): void
+        release(): void
+        enterFullscreen(): void
+        exitFullscreen(): void
+        resumePlayer?: ResumePlayerFn;
+        suspendPlayer?: SuspendPlayerFn;
+    }
+
+    type SuspendPlayerFn = (type: SuspendType) => void
+    type ResumePlayerFn = () => void
 
     export interface BackForwardList {
         currentIndex: number;
@@ -206,6 +396,8 @@ export default namespace webview {
         native serializeWebState(): Uint8Array;
         native static trimMemoryByPressureLevel(level: PressureLevel): void;
         native setPathAllowingUniversalAccess(pathList: Array<string>): void;
+        native onCreateNativeMediaPlayer(callback: (handler: NativeMediaPlayerHandler, mediaInfo: MediaInfo) => NativeMediaPlayerBridge): void;
+
     }
 
     export class WebSchemeHandlerResponse {
@@ -751,31 +943,6 @@ export default namespace webview {
                 callback(err, -1);
             });
         }
-    }
-    export class NativeMediaPlayerBridge{
-        private nativePtr: long = 0;
-        private cleaner?: Cleaner;
-
-        registerCleaner(ptr: long): void {
-            this.cleaner = new Cleaner(ptr, "NativeMediaPlayerBridge")
-            destroyRegister.register(this, this.cleaner!, unregisterToken);
-        }
-        unregisterCleaner(): void {
-            destroyRegister.unregister(unregisterToken);
-        }
-
-        bindNativePtr(ptr: long): void {
-            if (this.nativePtr == 0) {
-                this.nativePtr = ptr;
-                this.registerCleaner(this.nativePtr)
-            }
-        }
-
-        native constructor();
-
-        native enterFullScreen(): void;
-        native exitFullscreen(): void;
-
     }
 
     export class WebDataBase {
