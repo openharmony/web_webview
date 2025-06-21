@@ -22,6 +22,7 @@
 #include <cstring>
 
 #include "business_error.h"
+#include "nweb_napi_scope.h"
 #include "web_scheme_handler_request.h"
 #include "nweb_log.h"
 #include "napi_parse_utils.h"
@@ -121,9 +122,8 @@ napi_value NapiWebSchemeHandlerRequest::JS_GetHeader(napi_env env, napi_callback
     napi_create_array(env, &result);
     size_t headerSize = list.size();
     for (size_t index = 0; index < headerSize; index++) {
-        napi_handle_scope scope;
-        napi_status status = napi_open_handle_scope(env, &scope);
-        if (status != napi_ok) {
+        NApiScope scope(env);
+        if (!scope.IsVaild()) {
             break;
         }
         napi_value webHeaderObj = nullptr;
@@ -135,10 +135,6 @@ napi_value NapiWebSchemeHandlerRequest::JS_GetHeader(napi_env env, napi_callback
         napi_set_named_property(env, webHeaderObj, "headerKey", headerKey);
         napi_set_named_property(env, webHeaderObj, "headerValue", headerValue);
         napi_set_element(env, result, index, webHeaderObj);
-        status = napi_close_handle_scope(env, scope);
-        if (status != napi_ok) {
-            break;
-        }
     }
     return result;
 }

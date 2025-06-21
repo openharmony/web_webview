@@ -35,7 +35,7 @@ const char* NATIVE_MEDIA_PLAYER_HANDLER_INNER = "L@ohos/web/webview/webview/Nati
 const char* MWDIA_INFO_INNER = "L@ohos/web/webview/webview/MediaInfoinner;";
 const char* RECT_EVENT_INNER = "L@ohos/web/webview/webview/RectEventinner;";
 const char* CLASS_MEDIA_SOURCE_INFO = "L@ohos/web/webview/webview/MediaSourceInfo;";
-const char* CLASS_NATIVE_MEDIA_PLAYER_SURFACE_INFO = "L@ohos/web/webview/webview/NativeMediaPlayerSurfaceInfo;";
+const char* NATIVE_MEDIA_PLAYER_SURFACE_INFO = "L@ohos/web/webview/webview/NativeMediaPlayerSurfaceInfo;";
 const char* CLASS_NAME_STRING = "Lstd/core/String;";
 const char* ANI_ENUM_MEDIA_TYPE = "L@ohos/web/webview/webview/MediaType;";
 const char* ANI_ENUM_PRELOAD = "L@ohos/web/webview/webview/Preload;";
@@ -515,8 +515,9 @@ void NWebNativeMediaPlayerBridgeImpl::ResumeMediaPlayer()
     ani_ref fnRef {};
     auto status1 = env->Object_GetFieldByName_Ref(mediaCls, "resumePlayer", &fnRef);
 
-    auto status2 = env->FunctionalObject_Call(static_cast<ani_fn_object>(fnRef), ani_size(INTEGER_ZERO), nullptr, nullptr);
-    WVLOG_D("begiPlay failed%{public}d %{public}d %{public}d", status,status1,status2);
+    auto status2 =
+        env->FunctionalObject_Call(static_cast<ani_fn_object>(fnRef), ani_size(INTEGER_ZERO), nullptr, nullptr);
+    WVLOG_D("begiPlay failed%{public}d %{public}d %{public}d", status, status1, status2);
 }
 
 void NWebNativeMediaPlayerBridgeImpl::SuspendMediaPlayer(SuspendType type)
@@ -860,7 +861,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructSurfaceInfo(
         return nullptr;
     }
     ani_object object;
-    if (!CreateObjectVoid(env, CLASS_NATIVE_MEDIA_PLAYER_SURFACE_INFO, object)) {
+    if (!CreateObjectVoid(env, NATIVE_MEDIA_PLAYER_SURFACE_INFO, object)) {
         return nullptr;
     }
 

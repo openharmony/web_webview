@@ -20,6 +20,7 @@
 #include <vector>
 
 #include "business_error.h"
+#include "nweb_napi_scope.h"
 #include "napi/native_common.h"
 #include "nweb_cookie_manager.h"
 #include "nweb_helper.h"
@@ -827,9 +828,8 @@ void NWebSaveCookieCallbackImpl::UvJsCallbackThreadWoker(uv_work_t *work, int st
         work = nullptr;
         return;
     }
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(data->env_, &scope);
-    if (scope == nullptr) {
+    NApiScope scope(data->env_);
+    if (!scope.IsVaild()) {
         return;
     }
 
@@ -849,7 +849,6 @@ void NWebSaveCookieCallbackImpl::UvJsCallbackThreadWoker(uv_work_t *work, int st
         napi_resolve_deferred(data->env_, data->deferred_, jsResult);
     }
 
-    napi_close_handle_scope(data->env_, scope);
     delete data;
     data = nullptr;
     delete work;
@@ -911,9 +910,8 @@ void NWebFetchCookieCallbackImpl::UvJsCallbackThreadWoker(uv_work_t *work, int s
         work = nullptr;
         return;
     }
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(data->env_, &scope);
-    if (scope == nullptr) {
+    NApiScope scope(data->env_);
+    if (!scope.IsVaild()) {
         return;
     }
 
@@ -945,7 +943,6 @@ void NWebFetchCookieCallbackImpl::UvJsCallbackThreadWoker(uv_work_t *work, int s
         }
     }
 
-    napi_close_handle_scope(data->env_, scope);
     delete data;
     data = nullptr;
     delete work;
@@ -1008,9 +1005,8 @@ void NWebCookieCallbackImpl::UvJsCallbackThreadWoker(uv_work_t *work, int status
         work = nullptr;
         return;
     }
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(data->env_, &scope);
-    if (scope == nullptr) {
+    NApiScope scope(data->env_);
+    if (!scope.IsVaild()) {
         return;
     }
 
@@ -1030,7 +1026,6 @@ void NWebCookieCallbackImpl::UvJsCallbackThreadWoker(uv_work_t *work, int status
         napi_resolve_deferred(data->env_, data->deferred_, jsResult);
     }
 
-    napi_close_handle_scope(data->env_, scope);
     delete data;
     data = nullptr;
     delete work;
@@ -1092,9 +1087,8 @@ void NWebConfigCookieCallbackImpl::UvJsCallbackThreadWoker(uv_work_t *work, int 
         work = nullptr;
         return;
     }
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(data->env_, &scope);
-    if (scope == nullptr) {
+    NApiScope scope(data->env_);
+    if (!scope.IsVaild()) {
         return;
     }
 
@@ -1124,7 +1118,6 @@ void NWebConfigCookieCallbackImpl::UvJsCallbackThreadWoker(uv_work_t *work, int 
         }
     }
 
-    napi_close_handle_scope(data->env_, scope);
     delete data;
     data = nullptr;
     delete work;

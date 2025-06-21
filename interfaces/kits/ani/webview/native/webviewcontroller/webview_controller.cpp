@@ -1630,6 +1630,27 @@ void WebviewController::PrecompileJavaScriptPromise(
     nweb_ptr->PrecompileJavaScript(url, script, cacheOptions, callbackImpl);
 }
 
+int32_t WebviewController::PrecompileJavaScript(std::string url, std::string script,
+    std::shared_ptr<OHOS::NWeb::CacheOptions> cacheOptions,
+    std::shared_ptr<OHOS::NWeb::NWebMessageValueCallback> callbackImpl)
+{
+    WVLOG_I("PrecompileJavaScript begin");
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return NWebError::INIT_ERROR;
+    }
+    if (url.empty() || script.empty()) {
+        return NWebError::PARAM_CHECK_ERROR;
+    }
+    if (!callbackImpl) {
+        WVLOG_E("PrecompileJavaScript !callbackImpl");
+        return NWebError::PARAM_CHECK_ERROR;
+    }
+    
+    nweb_ptr->PrecompileJavaScript(url, script, cacheOptions, callbackImpl);
+    return NWebError::NO_ERROR;
+}
+
 bool WebviewController::ParseResponseHeaders(napi_env env,
                                              napi_value value,
                                              std::map<std::string, std::string> &responseHeaders) const

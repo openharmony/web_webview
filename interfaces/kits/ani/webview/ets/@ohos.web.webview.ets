@@ -39,6 +39,31 @@ export default namespace webview {
         EVENT
     }
 
+    export interface CacheOptions {
+        responseHeaders: Array<WebHeader>;
+    }
+
+    export enum OfflineResourceType {
+        IMAGE,
+        CSS,
+        CLASSIC_JS,
+        MODULE_JS
+    }
+
+    export interface OfflineResourceMap {
+        urlList: Array<string>,
+        resource: Uint8Array,
+        responseHeaders: Array<WebHeader>,
+        type: OfflineResourceType
+    }
+
+    export interface OfflineResourceMapInternal {
+        urlList: Array<string>,
+        resource: ArrayBuffer,
+        responseHeaders: Array<WebHeader>,
+        type: OfflineResourceType
+    }
+
     export enum WebHitTestType {
         EditText,
         Email,
@@ -117,6 +142,13 @@ export default namespace webview {
     export class NativeMediaPlayerSurfaceInfo {
         id: string = "";
         rect: RectEvent = {x : 0, y : 0, width : 0, height : 0};
+    }
+
+    export enum MediaPlaybackState {
+        NONE = 0,
+        PLAYING = 1,
+        PAUSED = 2,
+        STOPPED = 3
     }
 
     export interface RequestInfo {
@@ -275,21 +307,6 @@ export default namespace webview {
         suspendPlayer?: SuspendPlayerFn;
     }
 
-    export class NativeMediaPlayerBridgeinner implements NativeMediaPlayerBridge {
-        updateRect(x: number, y: number, width: number, height: number): void
-        play(): void
-        pause(): void
-        seek(targetTime: number): void
-        setVolume(volume: number): void
-        setMuted(muted: boolean): void
-        setPlaybackRate(playbackRate: number): void
-        release(): void
-        enterFullscreen(): void
-        exitFullscreen(): void
-        resumePlayer?: ResumePlayerFn;
-        suspendPlayer?: SuspendPlayerFn;
-    }
-
     type SuspendPlayerFn = (type: SuspendType) => void
     type ResumePlayerFn = () => void
 
@@ -317,8 +334,8 @@ export default namespace webview {
             }
         }
 
-        currentIndex: number;
-        size: number;
+        currentIndex: number = 0;
+        size: number = 0;
         native getItemAtIndex(index: number): HistoryItem;
     }
 
@@ -398,6 +415,51 @@ export default namespace webview {
         native setPathAllowingUniversalAccess(pathList: Array<string>): void;
         native onCreateNativeMediaPlayer(callback: (handler: NativeMediaPlayerHandler, mediaInfo: MediaInfo) => NativeMediaPlayerBridge): void;
 
+        native getSurfaceId(): string;
+        native static enableWholeWebPageDrawing(): void;
+        native setPrintBackground(enable: boolean): void;
+        native getPrintBackground(): boolean;
+        native injectOfflineResourcesInternal(resourceMaps: Array<OfflineResourceMapInternal>) : void;
+        injectOfflineResources(resourceMaps: Array<OfflineResourceMap>): void {
+            let res = resourceMaps.map((map) => ({
+                urlList: map.urlList,
+                resource: map.resource.buffer, 
+                responseHeaders: map.responseHeaders,
+                type: map.type} as OfflineResourceMapInternal));
+            this.injectOfflineResourcesInternal(res);
+        }
+        native static clearPrefetchedResource(cacheKeyList: Array<string>): void;
+        native precompileJavaScriptInternal(url: string, script: string | ArrayBuffer, cacheOptions: CacheOptions): number;
+
+        precompileJavaScript(url: string, script: string | Uint8Array, cacheOptions: CacheOptions): Promise<number> {
+            let resScript: string | ArrayBuffer
+            if (typeof script === 'string') {
+                resScript = script as string;
+            } else if (script instanceof Uint8Array) {
+                resScript = script.buffer as ArrayBuffer;
+            }
+            let p = new Promise<number>((resolve: (v: number) => void,
+            reject: (error: Error) => void) => {
+                let p1 = taskpool.execute(this.precompileJavaScriptInternal, url, resScript, cacheOptions);
+                p1.then((e : NullishType) => {
+                    let r = e as number;
+                    resolve(r);
+                }).catch((error: Error): number => {
+                    reject(error);
+                });
+            });
+            return p;
+        }
+        native static prefetchResource(request: RequestInfo, additionalHeaders?: Array<WebHeader>, cacheKey?: string, cacheValidTime?: number): void;
+        native startCamera(): void;
+        native closeAllMediaPresentations(): void;
+        native stopAllMedia(): void;
+        native stopCamera(): void;
+        native closeCamera(): void;
+        native pauseAllMedia(): void;
+        native resumeAllMedia(): void;
+        native setAudioMuted(mute: boolean): void;
+        native getMediaPlaybackState(): MediaPlaybackState;
     }
 
     export class WebSchemeHandlerResponse {
@@ -970,5 +1032,162 @@ export default namespace webview {
         native static deleteHttpAuthCredentials(): void;
         native static getHttpAuthCredentials(host: string, realm: string): Array<string>;
         native static saveHttpAuthCredentials(host: string, realm: string, username: string, password: string): void;
+    }
+
+    export class GeolocationPermissions {
+        static {
+            loadLibrary("webview_ani.z");
+        }
+        private nativePtr: long = 0;
+        private cleaner?: Cleaner;
+
+        registerCleaner(ptr: long): void {
+            this.cleaner = new Cleaner(ptr, "GeolocationPermissions")
+            destroyRegister.register(this, this.cleaner!, unregisterToken);
+        }
+        unregisterCleaner(): void {
+            destroyRegister.unregister(unregisterToken);
+        }
+
+        bindNativePtr(ptr: long): void {
+            if (this.nativePtr == 0) {
+                this.nativePtr = ptr;
+                this.registerCleaner(this.nativePtr)
+            }
+        }
+
+        native constructor();
+        native static deleteAllGeolocation_inner(incognito: boolean): void;
+        native static getOriginsSync(incognito:boolean): Array<string>;
+        native static deleteGeolocation_inner(origin: string, incognito: boolean): void;
+        native static allowGeolocation_inner(origin: string, incognito: boolean): void;
+        native static getAccessibleGeolocationSync(origin: string, incognito:boolean): boolean;
+        static deleteAllGeolocation(incognito?: boolean): void{
+            let incognitoMode:boolean = false;
+            if(incognito !== undefined)
+            {
+                incognitoMode = incognito;
+            }
+            GeolocationPermissions.deleteAllGeolocation_inner(incognitoMode);
+        }
+
+        static deleteGeolocation(origin: string, incognito?: boolean): void{
+            let incognitoMode:boolean = false;
+            if(incognito !== undefined)
+            {
+                incognitoMode = incognito;
+            }
+            GeolocationPermissions.deleteGeolocation_inner(origin,incognitoMode);
+        }
+
+        static allowGeolocation(origin: string, incognito?: boolean): void{
+            let incognitoMode:boolean = false;
+            if(incognito !== undefined)
+            {
+                incognitoMode = incognito;
+            }
+            GeolocationPermissions.allowGeolocation_inner(origin,incognitoMode);
+        }
+
+
+
+        static getStoredGeolocation(incognito?: boolean):Promise<Array<string>>{
+            let incognitoMode:boolean = false;
+            if(incognito !== undefined)
+            {
+                incognitoMode = incognito;
+            }
+            let p = new Promise<Array<string>>((resolve: (v: Array<string>) => void,
+                reject: (error: Error) => void) => {
+                let p1 = taskpool.execute(GeolocationPermissions.getOriginsSync,incognitoMode);
+                p1.then((e : NullishType) => {
+                    let r = e as Array<string>;
+                    resolve(r);
+                }).catch((error: Error): Array<string> => {
+                    reject(error);
+                });
+            });
+            return p;
+        }
+
+        static getStoredGeolocation(callback:AsyncCallback<Array<string>>,incognito?: boolean):void{
+            let incognitoMode:boolean = false;
+            if(incognito !== undefined)
+            {
+                incognitoMode = incognito;
+            }
+            let p = taskpool.execute(GeolocationPermissions.getOriginsSync,incognitoMode);
+            p.then((e : NullishType) => {
+                let r = e as Array<string>;
+                let err:  BusinessError = {};
+                err.code = 0;
+                callback(err, r);
+            }).catch((error: Error) => {
+                let err = error as BusinessError<void>;
+                callback(err, []);
+            });
+        }
+
+
+        static getAccessibleGeolocation(origin: string, incognito?: boolean):Promise<boolean>{
+            let incognitoMode:boolean = false;
+            if(incognito !== undefined)
+            {
+                incognitoMode = incognito;
+            }
+            let p = new Promise<boolean>((resolve: (v: boolean) => void,
+            reject: (error: Error) => void) => {
+                let p1 = taskpool.execute(GeolocationPermissions.getAccessibleGeolocationSync, origin, incognitoMode);
+                p1.then((e : NullishType) => {
+                    let r = e as boolean;
+                    resolve(r);
+                }).catch((error: Error): boolean => {
+                    reject(error);
+                });
+            });
+            return p;
+        }
+
+        static getAccessibleGeolocation(origin: string, callback:AsyncCallback<boolean>,incognito?: boolean):void{
+            let incognitoMode:boolean = false;
+            if(incognito !== undefined)
+            {
+                incognitoMode = incognito;
+            }
+            let p = taskpool.execute(GeolocationPermissions.getAccessibleGeolocationSync, origin, incognitoMode);
+            p.then((e : NullishType) => {
+                let r = e as boolean;
+                let err:  BusinessError = {};
+                err.code = 0;
+                callback(err, r);
+            }).catch((error: Error) => {
+                let err = error as BusinessError<void>;
+                callback(err, false);
+            });
+        }
+    }
+
+    export class PdfData {
+        private nativePtr: long = 0;
+        private cleaner?: Cleaner;
+
+        registerCleaner(ptr: long): void {
+            this.cleaner = new Cleaner(ptr, "PdfData")
+            destroyRegister.register(this, this.cleaner!, unregisterToken);
+        }
+        unregisterCleaner(): void {
+            destroyRegister.unregister(unregisterToken);
+        }
+
+        bindNativePtr(ptr: long): void {
+            if (this.nativePtr == 0) {
+                this.nativePtr = ptr;
+                this.registerCleaner(this.nativePtr)
+            }
+        }
+
+        native constructor();
+
+        native static pdfArrayBuffer(): Uint8Array;
     }
 }

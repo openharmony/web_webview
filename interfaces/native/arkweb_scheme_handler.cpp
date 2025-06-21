@@ -137,6 +137,19 @@ bool EnsureSdkLoaded()
 #undef FOR_EACH_API_FN
 } // namespace
 
+[[maybe_unused]] void DestroySchemeHandlerApiForTest()
+{
+    if (g_SchemeHandlerApi) {
+        delete g_SchemeHandlerApi;
+        g_SchemeHandlerApi = nullptr;
+    }
+}
+
+[[maybe_unused]] void SetSchemeHandlerApiForTest(void* schemeHandlerApi)
+{
+    g_SchemeHandlerApi = static_cast<SchemeHandlerApi*>(schemeHandlerApi);
+}
+
 using namespace OHOS;
 void OH_ArkWebRequestHeaderList_Destroy(ArkWeb_RequestHeaderList* requestHeaderList)
 {

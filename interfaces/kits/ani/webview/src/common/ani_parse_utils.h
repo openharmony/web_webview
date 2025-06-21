@@ -18,6 +18,7 @@
 
 #include <ani.h>
 #include <string>
+#include "nweb.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -32,6 +33,9 @@ public:
     static bool GetEnumItemByIndex(ani_env *env, const char* enumName, int32_t typeIndex, ani_enum_item& eType);
     static ani_status SetPropertyByName_String(ani_env *env, ani_object aniCls,
                                                const char *keyName, std::string keyValue);
+    static std::shared_ptr<CacheOptions> ParseCacheOptions(ani_env* env, ani_object cacheOptions);
+    static bool ParseStringArray(ani_env* env, ani_object argv, std::vector<std::string>& outValue);
+    static bool ParseStringArrayMap(ani_env* env, ani_object argv, std::map<std::string, std::string>& outValue);
 };
 } // namespace NWeb
 } // namespace OHOS

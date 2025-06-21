@@ -239,7 +239,8 @@ ani_status StsWebCookieManagerInit(ani_env *env)
     }
     std::array allMethods = {
         ani_native_function { "configCookieSyncInternal", nullptr, reinterpret_cast<void *>(JsSetCookieSyncThree) },
-        ani_native_function { "configCookieSync", nullptr, reinterpret_cast<void *>(JsSetCookieSync) },
+        ani_native_function { "configCookieSync", "Lstd/core/String;Lstd/core/String;ZZ:V",
+                              reinterpret_cast<void *>(JsSetCookieSync) },
         ani_native_function { "fetchCookieSync", nullptr, reinterpret_cast<void *>(JsFetchCookieSync) },
         ani_native_function { "saveCookieSync", nullptr, reinterpret_cast<void *>(JsSaveCookieSync) },
         ani_native_function { "clearAllCookiesSync", nullptr, reinterpret_cast<void *>(JsClearAllCookiesSync) },

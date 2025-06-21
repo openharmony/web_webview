@@ -24,7 +24,9 @@
 #include "ani_proxy_config.h"
 #include "ani_web_storage.h"
 #include "ani_web_data_base.h"
+#include "ani_webview_createpdf_execute_callback.h"
 #include "nweb_log.h"
+#include "ani_geolocation_permission.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -40,7 +42,7 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
         return ANI_NOT_FOUND;
     }
 
-    StsWebviewControllerInit(vm, env);
+    StsWebviewControllerInit(env);
     StsBackForwardListInit(env);
     StsWebSchemeHandlerResponseInit(env);
     StsWebDownloadDelegateInit(env);
@@ -50,6 +52,8 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
     StsWebStorageInit(env);
     StsNativeMediaPlayerHandlerinnerInit(env);
     StsWebDataBaseInit(env);
+    StsPdfDataInit(env);
+    StsGeolocationPermissionInit(env);
     *result = ANI_VERSION_1;
     return ANI_OK;
 }

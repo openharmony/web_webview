@@ -32,6 +32,8 @@ static const char* ANI_CLASS_HIT_TEST_VALUE_INNER = "L@ohos/web/webview/webview/
 const char* ANI_BACK_FORWARD_LIST_INNER_CLASS_NAME = "L@ohos/web/webview/webview/BackForwardListinner;";
 const char* ANI_HISTORY_ITEM_INNER_CLASS_NAME = "L@ohos/web/webview/webview/HistoryIteminner;";
 
+const char* ANI_ENUM_MEDIA_PLAY_BACK_STATE = "L@ohos/web/webview/webview/MediaPlaybackState;";
+
 } // namespace NWeb
 } // namespace OHOS
 #endif // OHOS_NWEB_ANI_WEB_WEBVIEW_ANI_CLASS_NAME
