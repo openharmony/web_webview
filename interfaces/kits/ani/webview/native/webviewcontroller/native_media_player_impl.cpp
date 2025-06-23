@@ -32,7 +32,7 @@ constexpr int INTEGER_FOUR = 4;
 
 namespace {
 const char* NATIVE_MEDIA_PLAYER_HANDLER_INNER = "L@ohos/web/webview/webview/NativeMediaPlayerHandlerinner;";
-const char* MWDIA_INFO_INNER = "L@ohos/web/webview/webview/MediaInfoinner;";
+const char* MEDIA_INFO_INNER = "L@ohos/web/webview/webview/MediaInfoinner;";
 const char* RECT_EVENT_INNER = "L@ohos/web/webview/webview/RectEventinner;";
 const char* CLASS_MEDIA_SOURCE_INFO = "L@ohos/web/webview/webview/MediaSourceInfo;";
 const char* NATIVE_MEDIA_PLAYER_SURFACE_INFO = "L@ohos/web/webview/webview/NativeMediaPlayerSurfaceInfo;";
@@ -45,8 +45,6 @@ const char* ANI_ENUM_SUSPEND_TYPE = "L@ohos/web/webview/webview/SuspendType;";
 
 bool EnumParseInt32_t(ani_env* env, ani_enum_item enum_item, int32_t& outValue)
 {
-    WVLOG_D("EnumParseInt32_t");
-
     ani_class doubleObject;
     if (env->FindClass("Lstd/core/Object;", &doubleObject) != ANI_OK) {
         WVLOG_E("EnumParseInt32 failed - invalid FindClass type");
@@ -61,7 +59,6 @@ bool EnumParseInt32_t(ani_env* env, ani_enum_item enum_item, int32_t& outValue)
     ani_int number = 0;
     env->EnumItem_GetValue_Int(enum_item, &number);
     outValue = static_cast<int32_t>(number);
-    WVLOG_I("EnumParseInt32_t%{public}d", outValue);
     return true;
 }
 
@@ -136,91 +133,93 @@ AniNativeMediaPlayerHandlerImpl::AniNativeMediaPlayerHandlerImpl(
 
 void AniNativeMediaPlayerHandlerImpl::HandleStatusChanged(PlaybackStatus status)
 {
-    WVLOG_D("begin to handle status changed,nweb id is %{public}d", nwebId_);
+    WVLOG_I("begin to handle status changed, nweb id is %{public}d", nwebId_);
 
     if (handler_) {
-        WVLOG_D("begin to handle status changed,nweb id is %{public}d, %{public}d", nwebId_, static_cast<int>(status));
+        WVLOG_I("begin to handle status changed, nweb id is %{public}d, status is %{public}d", nwebId_,
+            static_cast<int>(status));
         handler_->HandleStatusChanged(status);
     }
 }
 
 void AniNativeMediaPlayerHandlerImpl::HandleVolumeChanged(double volume)
 {
-    WVLOG_D("begin to handle volume changed,nweb id is %{public}d", nwebId_);
+    WVLOG_I("begin to handle volume changed, nweb id is %{public}d", nwebId_);
 
     if (handler_) {
-        WVLOG_D("begin to handle volume changed,nweb id is %{public}d, %{public}f", nwebId_, volume);
+        WVLOG_I("begin to handle volume changed, nweb id is %{public}d, volume is %{public}f", nwebId_, volume);
         handler_->HandleVolumeChanged(volume);
     }
 }
 
 void AniNativeMediaPlayerHandlerImpl::HandleMutedChanged(bool isMuted)
 {
-    WVLOG_D("begin to handle muted changed,nweb id is %{public}d", nwebId_);
+    WVLOG_I("begin to handle muted changed, nweb id is %{public}d", nwebId_);
 
     if (handler_) {
-        WVLOG_D("begin to handle muted changed,nweb id is %{public}d, %{public}d", nwebId_, isMuted);
+        WVLOG_I("begin to handle muted changed, nweb id is %{public}d, isMuted is %{public}d", nwebId_, isMuted);
         handler_->HandleMutedChanged(isMuted);
     }
 }
 
 void AniNativeMediaPlayerHandlerImpl::HandlePlaybackRateChanged(double playbackRate)
 {
-    WVLOG_D("begin to handle playback rate changed,nweb id is %{public}d", nwebId_);
+    WVLOG_I("begin to handle playback rate changed, nweb id is %{public}d", nwebId_);
 
     if (handler_) {
-        WVLOG_D("begin to handle playback rate changed,nweb id is %{public}d, %{public}f", nwebId_, playbackRate);
+        WVLOG_I("begin to handle playback rate changed, nweb id is %{public}d, playbackRate is %{public}f", nwebId_,
+            playbackRate);
         handler_->HandlePlaybackRateChanged(playbackRate);
     }
 }
 
 void AniNativeMediaPlayerHandlerImpl::HandleDurationChanged(double duration)
 {
-    WVLOG_D("begin to handle duration changed,nweb id is %{public}d", nwebId_);
+    WVLOG_I("begin to handle duration changed, nweb id is %{public}d", nwebId_);
 
     if (handler_) {
-        WVLOG_D("begin to handle duration changed,nweb id is %{public}d, %{public}f", nwebId_, duration);
+        WVLOG_I("begin to handle duration changed, nweb id is %{public}d, duration is %{public}f", nwebId_, duration);
         handler_->HandleDurationChanged(duration);
     }
 }
 
 void AniNativeMediaPlayerHandlerImpl::HandleTimeUpdate(double playTime)
 {
-    WVLOG_D("begin to handle time update,nweb id is %{public}d", nwebId_);
+    WVLOG_I("begin to handle time update, nweb id is %{public}d", nwebId_);
 
     if (handler_) {
-        WVLOG_D("begin to handle time update,nweb id is %{public}d, %{public}f", nwebId_, playTime);
+        WVLOG_I("begin to handle time update, nweb id is %{public}d, playTime is %{public}f", nwebId_, playTime);
         handler_->HandleTimeUpdate(playTime);
     }
 }
 
 void AniNativeMediaPlayerHandlerImpl::HandleBufferedEndTimeChanged(double bufferedEndTime)
 {
-    WVLOG_D("begin to handle buffered end time changed,nweb id is %{public}d", nwebId_);
+    WVLOG_I("begin to handle buffered end time changed, nweb id is %{public}d", nwebId_);
 
     if (handler_) {
-        WVLOG_D(
-            "begin to handle buffered end time changed,nweb id is %{public}d, %{public}f", nwebId_, bufferedEndTime);
+        WVLOG_I("begin to handle buffered end time changed, nweb id is %{public}d, bufferedEndTime is %{public}f",
+            nwebId_, bufferedEndTime);
         handler_->HandleBufferedEndTimeChanged(bufferedEndTime);
     }
 }
 
 void AniNativeMediaPlayerHandlerImpl::HandleEnded()
 {
-    WVLOG_D("begin to handle end,nweb id is %{public}d", nwebId_);
+    WVLOG_I("begin to handle end, nweb id is %{public}d", nwebId_);
 
     if (handler_) {
-        WVLOG_D("begin to handle end,nweb id is %{public}d", nwebId_);
+        WVLOG_I("begin to handle end, nweb id is %{public}d", nwebId_);
         handler_->HandleEnded();
     }
 }
 
 void AniNativeMediaPlayerHandlerImpl::HandleNetworkStateChanged(NetworkState state)
 {
-    WVLOG_D("begin to handle network state changed,nweb id is %{public}d", nwebId_);
+    WVLOG_I("begin to handle network state changed, nweb id is %{public}d", nwebId_);
 
     if (handler_) {
-        WVLOG_D("begin to handle network state changed,nweb id is %{public}d, %{public}d", nwebId_,
+        WVLOG_I("begin to handle network state changed, nweb id is %{public}d, state is %{public}d", nwebId_,
             static_cast<int>(state));
         handler_->HandleNetworkStateChanged(state);
     }
@@ -228,63 +227,64 @@ void AniNativeMediaPlayerHandlerImpl::HandleNetworkStateChanged(NetworkState sta
 
 void AniNativeMediaPlayerHandlerImpl::HandleReadyStateChanged(ReadyState state)
 {
-    WVLOG_D("begin to handle ready state changed,nweb id is %{public}d", nwebId_);
+    WVLOG_I("begin to handle ready state changed, nweb id is %{public}d", nwebId_);
 
     if (handler_) {
-        WVLOG_D(
-            "begin to handle ready state changed,nweb id is %{public}d, %{public}d", nwebId_, static_cast<int>(state));
+        WVLOG_I("begin to handle ready state changed, nweb id is %{public}d, state is %{public}d", nwebId_,
+            static_cast<int>(state));
         handler_->HandleReadyStateChanged(state);
     }
 }
 
 void AniNativeMediaPlayerHandlerImpl::HandleFullScreenChanged(bool isFullScreen)
 {
-    WVLOG_D("begin to handle full screen changed,nweb id is %{public}d", nwebId_);
+    WVLOG_I("begin to handle full screen changed, nweb id is %{public}d", nwebId_);
 
     if (handler_) {
-        WVLOG_D("begin to handle full screen changed,nweb id is %{public}d, %{public}d", nwebId_, isFullScreen);
+        WVLOG_I("begin to handle full screen changed, nweb id is %{public}d, isFullScreen is %{public}d", nwebId_,
+            isFullScreen);
         handler_->HandleFullScreenChanged(isFullScreen);
     }
 }
 
 void AniNativeMediaPlayerHandlerImpl::HandleSeeking()
 {
-    WVLOG_D("begin to handle seeking,nweb id is %{public}d", nwebId_);
+    WVLOG_I("begin to handle seeking, nweb id is %{public}d", nwebId_);
 
     if (handler_) {
-        WVLOG_D("begin to handle seeking,nweb id is %{public}d", nwebId_);
+        WVLOG_I("begin to handle seeking, nweb id is %{public}d", nwebId_);
         handler_->HandleSeeking();
     }
 }
 
 void AniNativeMediaPlayerHandlerImpl::HandleSeekFinished()
 {
-    WVLOG_D("begin to handle seek finished,nweb id is %{public}d", nwebId_);
+    WVLOG_I("begin to handle seek finished, nweb id is %{public}d", nwebId_);
 
     if (handler_) {
-        WVLOG_D("begin to handle seek finished,nweb id is %{public}d", nwebId_);
+        WVLOG_I("begin to handle seek finished, nweb id is %{public}d", nwebId_);
         handler_->HandleSeekFinished();
     }
 }
 
 void AniNativeMediaPlayerHandlerImpl::HandleError(MediaError error, const std::string& message)
 {
-    WVLOG_D("begin to handle error,nweb id is %{public}d", nwebId_);
+    WVLOG_I("begin to handle error, nweb id is %{public}d", nwebId_);
 
     if (handler_) {
-        WVLOG_D("begin to handle error,nweb id is %{public}d, %{public}d, %{public}s", nwebId_, static_cast<int>(error),
-            message.c_str());
+        WVLOG_I("begin to handle error, nweb id is %{public}d, error is %{public}d, message is %{public}s", nwebId_,
+            static_cast<int>(error), message.c_str());
         handler_->HandleError(error, message);
     }
 }
 
 void AniNativeMediaPlayerHandlerImpl::HandleVideoSizeChanged(double width, double height)
 {
-    WVLOG_D("begin to handle video size changed,nweb id is %{public}d", nwebId_);
+    WVLOG_I("begin to handle video size changed, nweb id is %{public}d", nwebId_);
 
     if (handler_) {
-        WVLOG_D(
-            "begin to handle video size changed,nweb id is %{public}d, %{public}f, %{public}f", nwebId_, width, height);
+        WVLOG_I("begin to handle video size changed, nweb id is %{public}d, width is %{public}f, height is %{public}f",
+            nwebId_, width, height);
         handler_->HandleVideoSizeChanged(width, height);
     }
 }
@@ -317,7 +317,7 @@ ani_object createObjectDouble(ani_env* env, ani_double status)
     env->Class_FindMethod(doubleCls, "<ctor>", "d:", &ctor);
     ani_object obj {};
     if (env->Object_New(doubleCls, ctor, &obj, status) != ANI_OK) {
-        WVLOG_D("createObjectDouble failed");
+        WVLOG_E("createObjectDouble failed");
         return nullptr;
     }
     return obj;
@@ -332,7 +332,7 @@ ani_object createObjectBoolean(ani_env* env, ani_boolean status)
     env->Class_FindMethod(booleanCls, "<ctor>", "z:", &ctor);
     ani_object obj {};
     if (env->Object_New(booleanCls, ctor, &obj, status) != ANI_OK) {
-        WVLOG_D("createObjectBoolean failed");
+        WVLOG_E("createObjectBoolean failed");
         return nullptr;
     }
     return obj;
@@ -347,7 +347,7 @@ ani_object createObjectInt(ani_env* env, ani_int status)
     env->Class_FindMethod(intCls, "<ctor>", "i:", &ctor);
     ani_object obj {};
     if (env->Object_New(intCls, ctor, &obj, status) != ANI_OK) {
-        WVLOG_D("createObjectInt failed");
+        WVLOG_E("createObjectInt failed");
         return nullptr;
     }
     return obj;
@@ -355,8 +355,7 @@ ani_object createObjectInt(ani_env* env, ani_int status)
 
 void NWebNativeMediaPlayerBridgeImpl::UpdateRect(double x, double y, double width, double height)
 {
-    WVLOG_D("begin to update rect,nweb id is %{public}d %{public}f %{public}f %{public}f %{public}f", nwebId_, x, y,
-        width, height);
+    WVLOG_I("begin to update rect, nweb id is %{public}d", nwebId_);
 
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
@@ -377,7 +376,7 @@ void NWebNativeMediaPlayerBridgeImpl::UpdateRect(double x, double y, double widt
 
 void NWebNativeMediaPlayerBridgeImpl::Play()
 {
-    WVLOG_D("begin to play,nweb id is %{public}d", nwebId_);
+    WVLOG_I("begin to play, nweb id is %{public}d", nwebId_);
 
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
@@ -390,7 +389,7 @@ void NWebNativeMediaPlayerBridgeImpl::Play()
 
 void NWebNativeMediaPlayerBridgeImpl::Pause()
 {
-    WVLOG_D("begin to pause,nweb id is %{public}d", nwebId_);
+    WVLOG_I("begin to pause, nweb id is %{public}d", nwebId_);
 
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
@@ -403,7 +402,7 @@ void NWebNativeMediaPlayerBridgeImpl::Pause()
 
 void NWebNativeMediaPlayerBridgeImpl::Seek(double time)
 {
-    WVLOG_D("begin to seek,nweb id is %{public}d,time is %{public}f", nwebId_, time);
+    WVLOG_I("begin to seek, nweb id is %{public}d, time is %{public}f", nwebId_, time);
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
@@ -419,7 +418,7 @@ void NWebNativeMediaPlayerBridgeImpl::Seek(double time)
 
 void NWebNativeMediaPlayerBridgeImpl::SetVolume(double volume)
 {
-    WVLOG_D("begin to set volume,nweb id is %{public}d,volume is %{public}f", nwebId_, volume);
+    WVLOG_I("begin to set volume, nweb id is %{public}d, volume is %{public}f", nwebId_, volume);
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
@@ -435,7 +434,7 @@ void NWebNativeMediaPlayerBridgeImpl::SetVolume(double volume)
 
 void NWebNativeMediaPlayerBridgeImpl::SetMuted(bool isMuted)
 {
-    WVLOG_D("begin to set muted,nweb id is %{public}d,muted flag is %{public}d", nwebId_, isMuted);
+    WVLOG_I("begin to set muted, nweb id is %{public}d, muted flag is %{public}d", nwebId_, isMuted);
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
@@ -452,7 +451,7 @@ void NWebNativeMediaPlayerBridgeImpl::SetMuted(bool isMuted)
 
 void NWebNativeMediaPlayerBridgeImpl::SetPlaybackRate(double playbackRate)
 {
-    WVLOG_D("begin to set playback rate,nweb id is %{public}d,playback rate is %{public}f", nwebId_, playbackRate);
+    WVLOG_I("begin to set playback rate, nweb id is %{public}d, playback rate is %{public}f", nwebId_, playbackRate);
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
@@ -469,7 +468,7 @@ void NWebNativeMediaPlayerBridgeImpl::SetPlaybackRate(double playbackRate)
 
 void NWebNativeMediaPlayerBridgeImpl::Release()
 {
-    WVLOG_D("begin to release,nweb id is %{public}d", nwebId_);
+    WVLOG_I("begin to release, nweb id is %{public}d", nwebId_);
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
@@ -481,70 +480,65 @@ void NWebNativeMediaPlayerBridgeImpl::Release()
 
 void NWebNativeMediaPlayerBridgeImpl::EnterFullScreen()
 {
-    WVLOG_D("begin to enter full screen,nweb id is %{public}d", nwebId_);
+    WVLOG_I("begin to enter full screen, nweb id is %{public}d", nwebId_);
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
     }
     if (env->Object_CallMethodByName_Void(reinterpret_cast<ani_object>(value_), "enterFullscreen", nullptr) != ANI_OK) {
-        WVLOG_E("begin to enter full screen,nweb id is failed");
+        WVLOG_E("EnterFullScreen failed");
     }
 }
 
 void NWebNativeMediaPlayerBridgeImpl::ExitFullScreen()
 {
-    WVLOG_D("begin to exit full screen,nweb id is %{public}d", nwebId_);
+    WVLOG_I("begin to exit full screen, nweb id is %{public}d", nwebId_);
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
     }
     if (env->Object_CallMethodByName_Void(reinterpret_cast<ani_object>(value_), "exitFullscreen", nullptr) != ANI_OK) {
-        WVLOG_E("begin to exit full screen,nweb id is failed");
+        WVLOG_E("ExitFullScreen failed");
     }
 }
 
 void NWebNativeMediaPlayerBridgeImpl::ResumeMediaPlayer()
 {
-    WVLOG_D("begin to resume media player,nweb id is %{public}d", nwebId_);
+    WVLOG_I("begin to resume media player, nweb id is %{public}d", nwebId_);
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
     }
-    ani_class mediaCls;
-    auto status = env->FindClass("L@ohos/web/webview/webview/NativeMediaPlayerBridgeinner;", &mediaCls);
-    ani_ref fnRef {};
-    auto status1 = env->Object_GetFieldByName_Ref(mediaCls, "resumePlayer", &fnRef);
-
-    auto status2 =
-        env->FunctionalObject_Call(static_cast<ani_fn_object>(fnRef), ani_size(INTEGER_ZERO), nullptr, nullptr);
-    WVLOG_D("begiPlay failed%{public}d %{public}d %{public}d", status, status1, status2);
+    ani_ref argv[INTEGER_ZERO];
+    ani_ref resumeRef {};
+    ani_ref ref;
+    env->Object_GetPropertyByName_Ref(reinterpret_cast<ani_object>(value_), "resumePlayer", &resumeRef);
+    if (env->FunctionalObject_Call(static_cast<ani_fn_object>(resumeRef), ani_size(INTEGER_ZERO), argv, &ref) !=
+        ANI_OK) {
+        WVLOG_E("ResumeMediaPlayer failed");
+    }
 }
 
 void NWebNativeMediaPlayerBridgeImpl::SuspendMediaPlayer(SuspendType type)
 {
-    WVLOG_D("begin to suspend media player,nweb id is %{public}d %{public}d", nwebId_, static_cast<int>(type));
+    WVLOG_I("begin to suspend media player, nweb id is %{public}d %{public}d", nwebId_, static_cast<int>(type));
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
     }
 
     ani_enum_item SuspendTypeRef;
-    if (GetEnumItemByIndex(env, ANI_ENUM_SUSPEND_TYPE, static_cast<int32_t>(type), SuspendTypeRef)) {
-        WVLOG_D("begin to suspend media player,nweb id is");
-    }
-    int statusStr;
-    EnumParseInt32_t(env, SuspendTypeRef, statusStr);
+    GetEnumItemByIndex(env, ANI_ENUM_SUSPEND_TYPE, static_cast<int32_t>(type), SuspendTypeRef);
 
     ani_ref argv[INTEGER_ONE];
-    argv[INTEGER_ZERO] = reinterpret_cast<ani_ref>(static_cast<SuspendType>(statusStr));
-
-    ani_class cls;
-    env->FindClass("L@ohos/web/webview/webview/NativeMediaPlayerBridgeinner;", &cls);
-    ani_ref fnRef {};
-    env->Object_GetFieldByName_Ref(cls, "suspendPlayer", &fnRef);
-
-    auto status = env->FunctionalObject_Call(static_cast<ani_fn_object>(fnRef), ani_size(INTEGER_ONE), argv, nullptr);
-    WVLOG_D("begiPlay failed%{public}d", status);
+    argv[INTEGER_ZERO] = static_cast<ani_ref>(SuspendTypeRef);
+    ani_ref suspendRef {};
+    ani_ref ref;
+    env->Object_GetPropertyByName_Ref(reinterpret_cast<ani_object>(value_), "suspendPlayer", &suspendRef);
+    if (env->FunctionalObject_Call(static_cast<ani_fn_object>(suspendRef), ani_size(INTEGER_ONE), argv, &ref) !=
+        ANI_OK) {
+        WVLOG_E("SuspendMediaPlayer failed");
+    }
 }
 
 NWebCreateNativeMediaPlayerCallbackImpl::NWebCreateNativeMediaPlayerCallbackImpl(
@@ -570,20 +564,20 @@ NWebCreateNativeMediaPlayerCallbackImpl::~NWebCreateNativeMediaPlayerCallbackImp
 std::shared_ptr<NWebNativeMediaPlayerBridge> NWebCreateNativeMediaPlayerCallbackImpl::OnCreate(
     std::shared_ptr<NWebNativeMediaPlayerHandler> handler, std::shared_ptr<NWebMediaInfo> mediaInfo)
 {
-    WVLOG_D("begin to create native media player,nweb id is %{public}d", nwebId_);
+    WVLOG_I("begin to create native media player, nweb id is %{public}d", nwebId_);
 
     if (!callback_) {
-        WVLOG_E("callback is null,nweb id is %{public}d", nwebId_);
+        WVLOG_E("callback is null, nweb id is %{public}d", nwebId_);
         return nullptr;
     }
     if (!handler || !mediaInfo) {
-        WVLOG_E("param is null,nweb id is %{public}d", nwebId_);
+        WVLOG_E("param is null, nweb id is %{public}d", nwebId_);
         return nullptr;
     }
 
     ani_object argv1 = ConstructHandler(handler);
     ani_object argv2 = ConstructMediaInfo(mediaInfo);
-    if (argv1 != nullptr || argv2 != nullptr) {
+    if (argv1 == nullptr || argv2 == nullptr) {
         WVLOG_E("Construct failed");
     }
 
@@ -600,9 +594,6 @@ std::shared_ptr<NWebNativeMediaPlayerBridge> NWebCreateNativeMediaPlayerCallback
         ANI_OK) {
         WVLOG_E("FunctionalObject_Call failed");
     }
-    if (result == nullptr) {
-        WVLOG_E("FunctionalObject_Call failed");
-    }
 
     return std::make_shared<NWebNativeMediaPlayerBridgeImpl>(nwebId_, vm_, result);
 }
@@ -610,7 +601,7 @@ std::shared_ptr<NWebNativeMediaPlayerBridge> NWebCreateNativeMediaPlayerCallback
 ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructRect(
     std::shared_ptr<NWebNativeMediaPlayerSurfaceInfo> surfaceInfo)
 {
-    WVLOG_D("ConstructRect");
+    WVLOG_I("ConstructRect start");
 
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
@@ -623,12 +614,12 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructRect(
     ani_double x = static_cast<ani_double>(surfaceInfo->GetX());
     ani_double y = static_cast<ani_double>(surfaceInfo->GetY());
     ani_double width = static_cast<ani_double>(surfaceInfo->GetWidth());
-    ani_double heigth = static_cast<ani_double>(surfaceInfo->GetHeight());
+    ani_double height = static_cast<ani_double>(surfaceInfo->GetHeight());
 
     env->Object_SetPropertyByName_Double(object, "x", x);
     env->Object_SetPropertyByName_Double(object, "y", y);
     env->Object_SetPropertyByName_Double(object, "width", width);
-    env->Object_SetPropertyByName_Double(object, "heigth", heigth);
+    env->Object_SetPropertyByName_Double(object, "height", height);
 
     return object;
 }
@@ -636,7 +627,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructRect(
 ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructHandler(
     std::shared_ptr<NWebNativeMediaPlayerHandler> handler)
 {
-    WVLOG_D("ConstructHandler");
+    WVLOG_I("ConstructHandler start");
 
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
@@ -668,7 +659,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructHandler(
 
 ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructControls(const std::vector<std::string>& controls)
 {
-    WVLOG_D("ConstructControls");
+    WVLOG_I("ConstructControls start");
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return nullptr;
@@ -676,15 +667,15 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructControls(const std:
 
     ani_class stringCls = nullptr;
     if (ANI_OK != env->FindClass(CLASS_NAME_STRING, &stringCls)) {
-        WVLOG_E("FindCl534ass failed");
+        WVLOG_E("FindClass failed");
     }
     ani_ref undefinedRef = nullptr;
     if (ANI_OK != env->GetUndefined(&undefinedRef)) {
-        WVLOG_E("GetUndefi345ned failed");
+        WVLOG_E("GetUndefined failed");
     }
     ani_array_ref array;
     if (ANI_OK != env->Array_New_Ref(stringCls, controls.size(), undefinedRef, &array)) {
-        WVLOG_E("27ConstructCo455ntrolsfailed");
+        WVLOG_E("ConstructControls failed");
     }
 
     for (size_t i = 0; i < controls.size(); i++) {
@@ -697,7 +688,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructControls(const std:
 
 ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructHeaders(const std::map<std::string, std::string>& headers)
 {
-    WVLOG_D("ConstructHeaders");
+    WVLOG_I("ConstructHeaders start");
 
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
@@ -723,7 +714,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructHeaders(const std::
 ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructAttributes(
     const std::map<std::string, std::string>& attributes)
 {
-    WVLOG_D("ConstructAttributes");
+    WVLOG_I("ConstructAttributes start");
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return nullptr;
@@ -747,64 +738,51 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructAttributes(
 
 ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructMediaInfo(std::shared_ptr<NWebMediaInfo> mediaInfo)
 {
-    WVLOG_D("ConstructMediaInfo");
+    WVLOG_I("ConstructMediaInfo start");
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return nullptr;
     }
 
     ani_object object = nullptr;
-    if (!CreateObjectVoid(env, MWDIA_INFO_INNER, object)) {
+    if (!CreateObjectVoid(env, MEDIA_INFO_INNER, object)) {
         return nullptr;
     }
-
     ani_string embedId;
     std::string id = mediaInfo->GetEmbedId();
     env->String_NewUTF8(id.c_str(), id.length(), &embedId);
     ani_ref embedIdref = static_cast<ani_ref>(embedId);
     env->Object_SetPropertyByName_Ref(object, "embedID", embedIdref);
-
     ani_enum_item mediaTypeRef;
-    if (GetEnumItemByIndex(env, ANI_ENUM_MEDIA_TYPE, static_cast<int32_t>(mediaInfo->GetMediaType()), mediaTypeRef)) {
-        env->Object_SetPropertyByName_Ref(object, "mediaType", mediaTypeRef);
-    }
-
+    GetEnumItemByIndex(env, ANI_ENUM_MEDIA_TYPE, static_cast<int32_t>(mediaInfo->GetMediaType()), mediaTypeRef);
+    env->Object_SetPropertyByName_Ref(object, "mediaType", mediaTypeRef);
     ani_object mediaSrcList = ConstructSourceInfos(mediaInfo->GetSourceInfos());
     ani_ref mediaSrcListRef = static_cast<ani_ref>(mediaSrcList);
     env->Object_SetPropertyByName_Ref(object, "mediaSrcList", mediaSrcListRef);
-
     ani_object surfaceInfo = ConstructSurfaceInfo(mediaInfo->GetSurfaceInfo());
     ani_ref surfaceInfoRef = static_cast<ani_ref>(surfaceInfo);
     env->Object_SetPropertyByName_Ref(object, "surfaceInfo", surfaceInfoRef);
-
     ani_boolean isControlsShown = static_cast<ani_boolean>(mediaInfo->GetIsControlsShown());
     env->Object_SetPropertyByName_Boolean(object, "controlsShown", isControlsShown);
-
     ani_object controlList = ConstructControls(mediaInfo->GetControls());
     ani_ref controlListRef = static_cast<ani_ref>(controlList);
     env->Object_SetPropertyByName_Ref(object, "controlList", controlListRef);
-
     ani_object headers = ConstructHeaders(mediaInfo->GetHeaders());
     ani_ref headersRef = static_cast<ani_ref>(headers);
     env->Object_SetPropertyByName_Ref(object, "headers", headersRef);
-
     ani_object attributes = ConstructAttributes(mediaInfo->GetAttributes());
     ani_ref attributesRef = static_cast<ani_ref>(attributes);
     env->Object_SetPropertyByName_Ref(object, "attributes", attributesRef);
-
     ani_boolean isMuted = static_cast<ani_boolean>(mediaInfo->GetIsMuted());
     env->Object_SetPropertyByName_Boolean(object, "muted", isMuted);
-
     ani_string posterUrl {};
     std::string url = mediaInfo->GetPosterUrl();
     env->String_NewUTF8(url.c_str(), url.length(), &posterUrl);
     ani_ref posterUrlref = static_cast<ani_ref>(posterUrl);
     env->Object_SetPropertyByName_Ref(object, "posterUrl", posterUrlref);
-
     ani_enum_item preloadRef;
-    if (GetEnumItemByIndex(env, ANI_ENUM_PRELOAD, static_cast<int32_t>(mediaInfo->GetPreload()), preloadRef)) {
-        env->Object_SetPropertyByName_Ref(object, "preload", preloadRef);
-    }
+    GetEnumItemByIndex(env, ANI_ENUM_PRELOAD, static_cast<int32_t>(mediaInfo->GetPreload()), preloadRef);
+    env->Object_SetPropertyByName_Ref(object, "preload", preloadRef);
 
     return object;
 }
@@ -812,7 +790,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructMediaInfo(std::shar
 ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructSourceInfos(
     const std::vector<std::shared_ptr<NWebMediaSourceInfo>>& sourceInfos)
 {
-    WVLOG_D("ConstructSourceInfos");
+    WVLOG_I("ConstructSourceInfos start");
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return nullptr;
@@ -827,7 +805,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructSourceInfos(
     }
     ani_array_ref array;
     if (ANI_OK != env->Array_New_Ref(stringCls, sourceInfos.size(), undefinedRef, &array)) {
-        WVLOG_E("27ConstructControlsfailed");
+        WVLOG_E("ConstructSourceInfos failed");
     }
 
     for (size_t i = 0; i < sourceInfos.size(); i++) {
@@ -837,9 +815,8 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructSourceInfos(
         }
 
         ani_enum_item typeRef;
-        if (GetEnumItemByIndex(env, ANI_ENUM_SOURCE_TYPE, static_cast<int32_t>(sourceInfos[i]->GetType()), typeRef)) {
-            env->Object_SetPropertyByName_Ref(sourceInfo, "type", typeRef);
-        }
+        GetEnumItemByIndex(env, ANI_ENUM_SOURCE_TYPE, static_cast<int32_t>(sourceInfos[i]->GetType()), typeRef);
+        env->Object_SetPropertyByName_Ref(sourceInfo, "type", typeRef);
 
         auto sourceref = StringToAniStr(env, sourceInfos[i]->GetSource());
         env->Object_SetPropertyByName_Ref(sourceInfo, "source", sourceref);
@@ -855,7 +832,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructSourceInfos(
 ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructSurfaceInfo(
     std::shared_ptr<NWebNativeMediaPlayerSurfaceInfo> surfaceInfo)
 {
-    WVLOG_D("ConstructSurfaceInfo");
+    WVLOG_I("ConstructSurfaceInfo start");
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return nullptr;

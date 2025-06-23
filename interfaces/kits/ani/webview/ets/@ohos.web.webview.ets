@@ -273,7 +273,7 @@ export default namespace webview {
             }
         }
 
-        native constructor();
+        constructor(){};
 
         native handleStatusChanged(status: PlaybackStatus): void
         native handleVolumeChanged(volume: number): void
