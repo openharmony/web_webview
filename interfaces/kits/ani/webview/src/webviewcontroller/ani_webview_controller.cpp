@@ -68,6 +68,8 @@ using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
 ani_vm *g_vm = nullptr;
+constexpr size_t MAX_URL_TRUST_LIST_STR_LEN = 10 * 1024 * 1024; // 10M
+constexpr uint32_t SOCKET_MAXIMUM = 6;
 constexpr size_t MAX_RESOURCES_COUNT = 30;
 constexpr uint32_t URL_MAXIMUM = 2048;
 constexpr char URL_REGEXPR[] = "^http(s)?:\\/\\/.+";
@@ -509,6 +511,20 @@ static void RequestFocus(ani_env *env, ani_object object)
     controller->RequestFocus();
 }
 
+static void clearClientAuthenticationCache(ani_env *env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    controller->ClearClientAuthenticationCache();   
+}
+
 static ani_boolean ScrollByWithResult(ani_env *env, ani_object object, ani_double deltaX, ani_double deltaY)
 {
     if (env == nullptr) {
@@ -663,6 +679,253 @@ static void PageUp(ani_env *env, ani_object object, ani_boolean top)
     controller->ScrollPageUp(static_cast<bool>(top));
 }
 
+static ani_boolean IsAdsBlockEnabledForCurPage(ani_env *env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        return ANI_FALSE;
+    }
+    if(!controller->IsAdsBlockEnabledForCurPage()) {
+        WVLOG_E("IsAdsBlockEnabledForCurPage failed.");
+        return ANI_FALSE;
+    }
+    return ANI_TRUE;
+}
+
+static ani_boolean IsIntelligentTrackingPreventionEnabled(ani_env *env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        return ANI_FALSE;
+    }
+    if(!controller->IsIntelligentTrackingPreventionEnabled()) {
+        WVLOG_E("IsIntelligentTrackingPreventionEnabled failed.");
+        return ANI_FALSE;
+    }
+    return ANI_TRUE;
+}
+
+static void AddIntelligentTrackingPreventionBypassingList(ani_env *env, ani_object object, ani_object stringArrayObj)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    std::vector<std::string> hosts;
+    if(!AniParseUtils::GetStringList(env, stringArrayObj, hosts)) {
+        WVLOG_E("GetStringList failed.");
+        return;
+    }
+    NWebHelper::Instance().AddIntelligentTrackingPreventionBypassingList(hosts);
+    return;
+}
+
+static void RemoveIntelligentTrackingPreventionBypassingList(ani_env *env, ani_object object, 
+    ani_object stringArrayObj)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    std::vector<std::string> hosts;
+    if(!AniParseUtils::GetStringList(env, stringArrayObj, hosts)) {
+        WVLOG_E("GetStringList failed.");
+        return;
+    }
+    NWebHelper::Instance().RemoveIntelligentTrackingPreventionBypassingList(hosts);
+    return;
+}
+
+static void ClearIntelligentTrackingPreventionBypassingList(ani_env *env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    WVLOG_I("Clear intelligent tracking prevention bypassing list.");
+    NWebHelper::Instance().ClearIntelligentTrackingPreventionBypassingList();
+    return;
+}
+static void SetHostIP(ani_env *env, ani_object object, ani_object hostNameObj, ani_object addressObj, 
+    ani_int aliveTime)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    std::string hostName;
+    if (!AniParseUtils::ParseString(env, hostNameObj, hostName)) {
+        WVLOG_E("Parse host name failed.");
+        return;
+    }
+    std::string address;
+    if (!AniParseUtils::ParseIP(env, addressObj, address)) {
+        WVLOG_E("Parse address failed.");
+        return;
+    }
+    int aliveTimeInt = static_cast<int32_t>(std::round(aliveTime));
+    if (aliveTime <= 0) {
+        WVLOG_E("aliveTime must be greater than 0, aliveTime: %{public}d", aliveTimeInt);
+        return;
+    }
+    WVLOG_I("Set host ip: %{public}s, %{public}s, aliveTime: %{public}d", hostName.c_str(), address.c_str(), 
+    aliveTimeInt);
+    NWebHelper::Instance().SetHostIP(hostName, address, aliveTimeInt);
+    return;
+}
+static void ClearHostIP(ani_env *env, ani_object object, ani_object hostNameObj)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    std::string hostName;
+    if (!AniParseUtils::ParseString(env, hostNameObj, hostName)) {
+        WVLOG_E("Parse host name failed.");
+        return;
+    }
+    WVLOG_I("Clear host ip: %{public}s", hostName.c_str());
+    NWebHelper::Instance().ClearHostIP(hostName);
+    return;
+}
+
+static void WarmupServiceWorker(ani_env *env, ani_object object, ani_object urlObj)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    std::string url;
+    if (!AniParseUtils::ParseString(env, urlObj, url)) {
+        WVLOG_E("Parse url failed.");
+        return;
+    }
+    WVLOG_I("Warm up Service Worker: %{public}s", url.c_str());
+    NWebHelper::Instance().WarmupServiceWorker(url);
+    return;
+}
+
+static void SetUrlTrustList(ani_env *env, ani_object object, ani_object urlTrustListObj)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("webview controller is null or not init");
+        return;
+    }
+
+    std::string urlTrustList;
+    if (!AniParseUtils::ParseString(env, urlTrustListObj, urlTrustList)) {
+        return;
+    }
+    if (urlTrustList.size() > MAX_URL_TRUST_LIST_STR_LEN) {
+        WVLOG_E("EnableAdsBlock: url trust list len is too large.");
+        return;
+    }
+    std::string detailMsg;
+    ErrCode ret = controller->SetUrlTrustList(urlTrustList, detailMsg);
+    if (ret != NO_ERROR) {
+        WVLOG_E("Set Url Trust List failed, detailMsg: %{public}s", detailMsg.c_str());
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+        return;
+    }
+}
+
+static void EnableIntelligentTrackingPrevention(ani_env *env, ani_object object, ani_boolean enable)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("controller is nullptr");
+        return;
+    }
+    WVLOG_I("enable/disable intelligent tracking prevention.");
+    controller->EnableIntelligentTrackingPrevention(static_cast<bool>(enable));
+    return;
+}
+
+static void SearchNext(ani_env *env, ani_object object, ani_boolean forward)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    controller->SearchNext(static_cast<bool>(forward));
+    return;
+}
+
+static ani_string GetDefaultUserAgent(ani_env *env, ani_object object)
+{
+    ani_string userAgent = nullptr;
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return userAgent;
+    }
+    WVLOG_I("Get the default user agent.");
+    std::string result = NWebHelper::Instance().GetDefaultUserAgent();
+    env->String_NewUTF8(result.c_str(), result.size(), &userAgent);
+    return userAgent;
+}
+
+static ani_boolean IsSafeBrowsingEnabled(ani_env *env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return ANI_FALSE;
+    }
+    if (!controller->IsSafeBrowsingEnabled()) {
+        return ANI_FALSE;
+    }
+    return ANI_TRUE;
+}
+
+static void PrepareForPageLoad(
+    ani_env* env, ani_object object, ani_string aniUrl, ani_boolean preconnectable, ani_double aniNumSockets)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    std::string url;
+    if (!AniParseUtils::ParseString(env, aniUrl, url)) {
+        WVLOG_E("parse url failed");
+        return;
+    }
+    int32_t numSockets = static_cast<int32_t>(std::round(aniNumSockets));
+    if (numSockets <= 0 || static_cast<uint32_t>(numSockets) > SOCKET_MAXIMUM) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    NWebHelper::Instance().PrepareForPageLoad(url, preconnectable, numSockets);
+    return;
+}
+
 static void Zoom(ani_env *env, ani_object object, ani_double factor)
 {
     if (env == nullptr) {
@@ -765,6 +1028,36 @@ static void Stop(ani_env *env, ani_object object)
         return;
     }
     controller->Stop();
+}
+
+static void clearSslCache(ani_env *env, ani_object object)
+{
+    WVLOG_D("[WebviewCotr] clearSslCache");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    controller->ClearSslCache();
+}
+
+static void clearMatches(ani_env *env, ani_object object)
+{
+    WVLOG_D("[WebviewCotr] clearMatches");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    controller->ClearMatches();
 }
 
 static void Refresh(ani_env *env, ani_object object)
@@ -921,6 +1214,47 @@ static ani_ref GetFaviconByHistoryItem(ani_env *env, std::shared_ptr<NWebHistory
     return jsPixelMap;
 }
 
+static ani_ref GetFavicon(ani_env* env, ani_object object)
+{
+    ani_ref result = nullptr;
+    if (env == nullptr) {
+        WVLOG_E("[PIXELMAP] env is nullptr");
+        return result;
+    }
+    auto *controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return result;
+    }
+    
+    const void *data = nullptr;
+    size_t width = 0;
+    size_t height = 0;
+    ImageColorType colorType = ImageColorType::COLOR_TYPE_UNKNOWN;
+    ImageAlphaType alphaType = ImageAlphaType::ALPHA_TYPE_UNKNOWN;
+    bool isGetFavicon = controller->GetFavicon(&data, width, height, colorType, alphaType);
+    if (!isGetFavicon) {
+        return result;
+    }
+
+    Media::InitializationOptions opt;
+    opt.size.width = width;
+    opt.size.height = height;
+    opt.pixelFormat = getColorType(colorType);
+    opt.alphaType = getAlphaType(alphaType);
+    opt.editable = true;
+    auto pixelMap = Media::PixelMap::Create(opt);
+    if (pixelMap == nullptr) {
+        return result;
+    }
+    uint64_t stride = static_cast<uint64_t>(width) << 2;
+    uint64_t bufferSize = stride * static_cast<uint64_t>(height);
+    pixelMap->WritePixels(static_cast<const uint8_t *>(data), bufferSize);
+    std::shared_ptr<Media::PixelMap> pixelMapToJs(pixelMap.release());
+    ani_object jsPixelMap = OHOS::Media::PixelMapAni::CreatePixelMap(env, pixelMapToJs);
+    return jsPixelMap;
+}
+
 static ani_ref GetBackForwardEntries(ani_env *env, ani_object object)
 {
     WVLOG_D("[BACKFORWARD] GetBackForwardEntries");
@@ -966,6 +1300,17 @@ static ani_ref GetBackForwardEntries(ani_env *env, ani_object object)
     env->Object_SetPropertyByName_Double(backForwardObj, "currentIndex", static_cast<ani_double>(currentIndex));
     env->Object_SetPropertyByName_Double(backForwardObj, "size", static_cast<ani_double>(size));
     return backForwardObj;
+}
+
+static void RemoveAllCache(ani_env *env, ani_object object, ani_boolean clearRom)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    NWebHelper::Instance().RemoveAllCache(static_cast<bool>(clearRom));
+    return;
 }
 
 static void PostUrl(ani_env *env, ani_object object, ani_object urlObj, ani_object arrayBufferObj)
@@ -1204,6 +1549,61 @@ static ani_boolean AccessBackward(ani_env *env, ani_object object)
     return ANI_TRUE;
 }
 
+static ani_boolean AccessStep(ani_env *env, ani_object object, ani_int step)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if ((!controller)|| !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return ANI_FALSE;
+    }
+    if (!controller->AccessStep(static_cast<int32_t>(step))) {
+        return ANI_FALSE;
+    }
+    return ANI_TRUE;
+}
+
+static ani_boolean IsAdsBlockEnabled(ani_env *env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("controller is nullptr");
+        return ANI_FALSE;
+    }
+
+    if (!controller->IsAdsBlockEnabled()) {
+        return ANI_FALSE;
+    }
+
+    return ANI_TRUE;
+}
+
+static void EnableAdsBlock(ani_env *env, ani_object object, ani_boolean enable)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("controller is nullptr");
+        return;
+    }
+
+    controller->EnableAdsBlock(static_cast<bool>(enable));
+    return;
+}
+
 static void LoadData(ani_env *env, ani_object object, ani_object urlObj, ani_object mimeTypeObj,
                      ani_object encodingObj, ani_object baseUrlObj, ani_object historyUrlObj)
 {
@@ -1387,6 +1787,68 @@ ani_status StsCleanerInit(ani_env *env)
     return status;
 }
 
+static void SetConnectionTimeout(ani_env* env, ani_object object, ani_double aniTimeout)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    int32_t timeout = static_cast<int32_t>(std::round(aniTimeout));
+    if (timeout <= 0) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    NWebHelper::Instance().SetConnectionTimeout(timeout);
+    return;
+}
+
+static void BackOrForward(ani_env* env, ani_object object, ani_int step)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    ErrCode ret = controller->BackOrForward(step);
+    if (ret != NO_ERROR) {
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+    }
+    return;
+}
+
+static void SetWebDebuggingAccess(ani_env* env, ani_object object, ani_boolean webDebuggingAccess)
+{
+    WVLOG_D("[WebviewCotr] SetWebDebuggingAccess");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    WebviewController::webDebuggingAccess_ = webDebuggingAccess;
+    return;
+}
+
+static void EnableSafeBrowsing(ani_env* env, ani_object object, ani_boolean enable)
+{
+    WVLOG_D("[WebviewCotr] EnableSafeBrowsing");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    controller->EnableSafeBrowsing(enable);
+    return;
+}
+
 static ani_double GetPageHeight(ani_env *env, ani_object object)
 {
     int32_t pageHeight = 0;
@@ -1481,6 +1943,74 @@ static void ResumeAllTimers(ani_env* env, ani_object object)
     WVLOG_I("ResumeAllTimers");
     NWebHelper::Instance().ResumeAllTimers();
     return;
+}
+
+static void SetCustomUserAgent(ani_env* env, ani_object object, ani_object userAgentObj)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    std::string userAgent;
+    if (!AniParseUtils::ParseString(env, userAgentObj, userAgent)) {
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    ErrCode ret = controller->SetCustomUserAgent(userAgent);
+    if (ret != NO_ERROR) {
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+    }
+}
+
+static void RemoveCache(ani_env* env, ani_object object, ani_boolean clearRom)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    controller->RemoveCache(clearRom);
+    return;
+}
+
+static void SetNetworkAvailable(ani_env* env, ani_object object, ani_boolean enable)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    controller->PutNetworkAvailable(enable);
+    return;
+}
+
+static ani_boolean IsIncognitoMode(ani_env *env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return ANI_FALSE;
+    }
+    if (!controller->IsIncognitoMode()) {
+        return ANI_FALSE;
+    }
+    return ANI_TRUE;
 }
 
 static ani_object SerializeWebState(ani_env* env, ani_object object)
@@ -2136,6 +2666,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "getWebId", nullptr, reinterpret_cast<void *>(GetWebId) },
         ani_native_function { "getScrollable", nullptr, reinterpret_cast<void *>(GetScrollable) },
         ani_native_function { "requestFocus", nullptr, reinterpret_cast<void *>(RequestFocus) },
+        ani_native_function { "clearClientAuthenticationCache", nullptr, 
+            reinterpret_cast<void *>(clearClientAuthenticationCache) },
         ani_native_function { "scrollByWithResult", nullptr, reinterpret_cast<void *>(ScrollByWithResult) },
         ani_native_function { "setScrollable", nullptr, reinterpret_cast<void *>(SetScrollable) },
         ani_native_function { "scrollTo", nullptr, reinterpret_cast<void *>(ScrollTo) },
@@ -2145,15 +2677,42 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "zoom", nullptr, reinterpret_cast<void *>(Zoom) },
         ani_native_function { "pageDown", nullptr, reinterpret_cast<void *>(PageDown) },
         ani_native_function { "pageUp", nullptr, reinterpret_cast<void *>(PageUp) },
+        ani_native_function { "isAdsBlockEnabledForCurPage", nullptr, 
+            reinterpret_cast<void *>(IsAdsBlockEnabledForCurPage) },
+        ani_native_function { "isIntelligentTrackingPreventionEnabled", nullptr,
+            reinterpret_cast<void *>(IsIntelligentTrackingPreventionEnabled) },
+        ani_native_function { "addIntelligentTrackingPreventionBypassingList", nullptr,
+            reinterpret_cast<void *>(AddIntelligentTrackingPreventionBypassingList) },
+        ani_native_function { "removeIntelligentTrackingPreventionBypassingList", nullptr,
+            reinterpret_cast<void *>(RemoveIntelligentTrackingPreventionBypassingList) },
+        ani_native_function { "clearIntelligentTrackingPreventionBypassingList", nullptr,
+            reinterpret_cast<void *>(ClearIntelligentTrackingPreventionBypassingList) },
+        ani_native_function { "setHostIP", nullptr, reinterpret_cast<void *>(SetHostIP) },
+        ani_native_function { "clearHostIP", nullptr,reinterpret_cast<void *>(ClearHostIP) },
+        ani_native_function { "warmupServiceWorker", nullptr, reinterpret_cast<void *>(WarmupServiceWorker) },
+        ani_native_function { "isSafeBrowsingEnabled", nullptr, reinterpret_cast<void *>(IsSafeBrowsingEnabled) },
+        ani_native_function { "prepareForPageLoad", nullptr, reinterpret_cast<void *>(PrepareForPageLoad) },
+        ani_native_function { "getFavicon", nullptr, reinterpret_cast<void *>(GetFavicon) },
+        ani_native_function { "setUrlTrustList", nullptr, reinterpret_cast<void *>(SetUrlTrustList) },
+        ani_native_function { "enableIntelligentTrackingPrevention", nullptr,
+                              reinterpret_cast<void *>(EnableIntelligentTrackingPrevention) },
+        ani_native_function { "searchNext", nullptr, reinterpret_cast<void *>(SearchNext) },
+        ani_native_function { "getDefaultUserAgent", nullptr, reinterpret_cast<void *>(GetDefaultUserAgent) },
         ani_native_function { "zoomOut", nullptr, reinterpret_cast<void *>(ZoomOut) },
         ani_native_function { "zoomIn", nullptr, reinterpret_cast<void *>(ZoomIn) },
         ani_native_function { "getLastHitTest", nullptr, reinterpret_cast<void *>(GetLastHitTest) },
         ani_native_function { "getPageHeight", nullptr, reinterpret_cast<void *>(GetPageHeight) },
         ani_native_function { "refresh", nullptr, reinterpret_cast<void *>(Refresh) },
         ani_native_function { "stop", nullptr, reinterpret_cast<void *>(Stop) },
+        ani_native_function { "clearSslCache", nullptr, reinterpret_cast<void *>(clearSslCache) },
+        ani_native_function { "clearMatches", nullptr, reinterpret_cast<void *>(clearMatches) },
         ani_native_function { "startDownload", nullptr, reinterpret_cast<void *>(StartDownload) },
         ani_native_function { "setDownloadDelegate", nullptr, reinterpret_cast<void *>(SetDownloadDelegate) },
         ani_native_function { "getBackForwardEntries", nullptr, reinterpret_cast<void *>(GetBackForwardEntries) },
+        ani_native_function { "accessStep", nullptr, reinterpret_cast<void *>(AccessStep) },
+        ani_native_function { "removeAllCache", nullptr, reinterpret_cast<void *>(RemoveAllCache) },
+        ani_native_function { "isAdsBlockEnabled", nullptr, reinterpret_cast<void *>(IsAdsBlockEnabled) },
+        ani_native_function { "enableAdsBlock", nullptr, reinterpret_cast<void *>(EnableAdsBlock) },
         ani_native_function { "postUrl", nullptr, reinterpret_cast<void *>(PostUrl) },
         ani_native_function { "getUrl", nullptr, reinterpret_cast<void *>(GetUrlAni) },
         ani_native_function { "getTitle", nullptr, reinterpret_cast<void *>(GetTitle) },
@@ -2172,8 +2731,16 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "terminateRenderProcess", nullptr, reinterpret_cast<void *>(TerminateRenderProcess) },
         ani_native_function { "setRenderProcessMode", nullptr, reinterpret_cast<void *>(SetRenderProcessMode) },
         ani_native_function { "getRenderProcessMode", nullptr, reinterpret_cast<void *>(GetRenderProcessMode) },
+        ani_native_function { "setConnectionTimeout", nullptr, reinterpret_cast<void *>(SetConnectionTimeout) },
+        ani_native_function { "backOrForward", nullptr, reinterpret_cast<void *>(BackOrForward) },
+        ani_native_function { "setWebDebuggingAccess", nullptr, reinterpret_cast<void *>(SetWebDebuggingAccess) },
+        ani_native_function { "enableSafeBrowsing", nullptr, reinterpret_cast<void *>(EnableSafeBrowsing) },
         ani_native_function { "pauseAllTimers", nullptr, reinterpret_cast<void *>(PauseAllTimers) },
         ani_native_function { "resumeAllTimers", nullptr, reinterpret_cast<void *>(ResumeAllTimers) },
+        ani_native_function { "setCustomUserAgent", nullptr, reinterpret_cast<void *>(SetCustomUserAgent) },
+        ani_native_function { "removeCache", nullptr, reinterpret_cast<void *>(RemoveCache) },
+        ani_native_function { "setNetworkAvailable", nullptr, reinterpret_cast<void *>(SetNetworkAvailable) },
+        ani_native_function { "isIncognitoMode", nullptr, reinterpret_cast<void *>(IsIncognitoMode) },
         ani_native_function { "serializeWebState", nullptr, reinterpret_cast<void *>(SerializeWebState) },
         ani_native_function { "trimMemoryByPressureLevel", nullptr,
                               reinterpret_cast<void *>(TrimMemoryByPressureLevel) },

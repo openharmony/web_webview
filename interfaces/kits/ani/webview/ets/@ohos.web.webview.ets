@@ -373,6 +373,7 @@ export default namespace webview {
         native getWebId(): number;
         native getScrollable(): boolean;
         native requestFocus(): void;
+        native clearClientAuthenticationCache(): void;
         native scrollByWithResult(deltaX: number, deltaY: number): boolean;
         native setScrollable(enable: boolean, type?: ScrollType): void;
         native scrollTo(x: number, y: number, duration?: number): void;
@@ -380,17 +381,38 @@ export default namespace webview {
         native getScrollOffset(): ScrollOffset;
         native slideScroll(vx: number, vy: number): void;
         native zoom(factor: number): void;
+        native isSafeBrowsingEnabled(): boolean;
+        native static prepareForPageLoad(url: string, preconnectable: boolean, numSockets: number): void;
+        native getFavicon(): image.PixelMap;
         native pageDown(bottom: boolean): void;
         native pageUp(top: boolean): void;
+        native isAdsBlockEnabledForCurPage(): boolean;
+        native isIntelligentTrackingPreventionEnabled(): boolean;
+        native static addIntelligentTrackingPreventionBypassingList(hostList: Array<string>): void;
+        native static removeIntelligentTrackingPreventionBypassingList(hostList: Array<string>): void;
+        native static clearIntelligentTrackingPreventionBypassingList(): void;
+        native static setHostIP(hostName: string, address: string, aliveTime: number): void;
+        native static clearHostIP(hostName: string): void;
+        native static warmupServiceWorker(url: string): void;
         native zoomOut(): void;
         native zoomIn(): void;
         native getLastHitTest(): HitTestValue;
         native getPageHeight(): number;
         native refresh(): void;
         native stop(): void;
+        native clearSslCache(): void;
+        native clearMatches(): void;
         native startDownload(url: string): void;
         native setDownloadDelegate(delegate: WebDownloadDelegate): void;
         native getBackForwardEntries(): BackForwardList;
+        native setUrlTrustList(urlTrustList: string): void;
+        native enableIntelligentTrackingPrevention(enable: boolean): void;
+        native searchNext(forward: boolean): void;
+        native static getDefaultUserAgent(): string;
+        native static removeAllCache(clearRom: boolean): void;
+        native accessStep(step: number): boolean;
+        native isAdsBlockEnabled(): boolean;
+        native enableAdsBlock(enable: boolean): void;
         native postUrl(url: string, postData: ArrayBuffer): void;
         native getUrl(): string;
         native getTitle(): string;
@@ -406,10 +428,18 @@ export default namespace webview {
         native clearHistory(): void;
         native clearWebSchemeHandler(): void;
         native terminateRenderProcess(): boolean;
+        native static setConnectionTimeout(timeout: number): void;
+        native backOrForward(step: number): void;
+        native static setWebDebuggingAccess(webDebuggingAccess: boolean): void;
+        native enableSafeBrowsing(enable: boolean): void;
         native static setRenderProcessMode(mode: RenderProcessMode): void;
         native static getRenderProcessMode(): RenderProcessMode;
         native static pauseAllTimers(): void;
         native static resumeAllTimers(): void;
+        native setCustomUserAgent(userAgent: string): void;
+        native removeCache(clearRom: boolean): void;
+        native setNetworkAvailable(enable: boolean): void;
+        native isIncognitoMode(): boolean;
         native serializeWebState(): Uint8Array;
         native static trimMemoryByPressureLevel(level: PressureLevel): void;
         native setPathAllowingUniversalAccess(pathList: Array<string>): void;
@@ -1005,6 +1035,19 @@ export default namespace webview {
                 callback(err, -1);
             });
         }
+    }
+
+    export class AdsBlockManager {
+        static {
+            loadLibrary("webview_ani.z");
+        }
+
+        native static clearAdsBlockAllowedList(): void;
+        native static clearAdsBlockDisallowedList(): void;
+        native static removeAdsBlockDisallowedList(domainSuffixes: Array<string>): void;
+        native static addAdsBlockDisallowedList(domainSuffixes: Array<string>): void;
+        native static removeAdsBlockAllowedList(domainSuffixes: Array<string>): void;
+        native static addAdsBlockAllowedList(domainSuffixes: Array<string>): void;
     }
 
     export class WebDataBase {
