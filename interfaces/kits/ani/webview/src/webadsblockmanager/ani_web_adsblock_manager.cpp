@@ -167,7 +167,7 @@ void RemoveAdsBlockAllowedList(ani_env *env, ani_object object, ani_object domai
     }
 }
 
-static void JsSetAdsBlockRules(ani_env *env, ani_object aniClass, ani_object rulesFile, ani_object replace)
+static void JsSetAdsBlockRules(ani_env* env, ani_object aniClass, ani_object rulesFile, ani_object replace)
 {
     WVLOG_I("JsSetAdsBlockRules begin");
     if (env == nullptr) {
