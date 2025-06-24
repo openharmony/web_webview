@@ -30,6 +30,7 @@ using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
 static const char* WEB_ADS_BLOCK_MANAGER_CLASS_NAME = "L@ohos/web/webview/webview/AdsBlockManager;";
+constexpr int MAX_URL_RULES_FILEPATH_LENGTH = 255;
 }
 
 void ClearAdsBlockAllowedList(ani_env *env, ani_object object)
