@@ -197,7 +197,7 @@ static void JsSetAdsBlockRules(ani_env* env, ani_object aniClass, ani_object rul
     env->Reference_IsUndefined(replace, &isUndefined);
     if (isUndefined != ANI_TRUE) {
         ani_boolean breplaceMode;
-        if (env->Object_CallMethodByName_Boolean(replace, "booleanValue", nullptr, &breplaceMode) != ANI_OK) {
+        if (env->Object_CallMethodByName_Boolean(replace, "unboxed", nullptr, &breplaceMode) != ANI_OK) {
             AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
                 NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "replace", "boolean"));
             return;
