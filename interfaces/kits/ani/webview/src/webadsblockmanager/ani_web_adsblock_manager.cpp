@@ -166,6 +166,48 @@ void RemoveAdsBlockAllowedList(ani_env *env, ani_object object, ani_object domai
     }
 }
 
+static void JsSetAdsBlockRules(ani_env *env, ani_object aniClass, ani_object rulesFile, ani_object replace)
+{
+    WVLOG_I("JsSetAdsBlockRules begin");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    std::string rulesFileStr;
+    if (!AniParseUtils::IsString(env, rulesFile)) {
+        WVLOG_E("env must be string");
+        return;
+    }
+    if (!AniParseUtils::ParseString(env, static_cast<ani_ref>(rulesFile), rulesFileStr)) {
+        WVLOG_E("JsSetAdsBlockRules ParseString Fail");
+        return;
+    }
+    if (rulesFileStr.length() > MAX_URL_RULES_FILEPATH_LENGTH) {
+        WVLOG_E("setAdsBlockRules failed: rulesFile path too long > %{public}d", MAX_URL_RULES_FILEPATH_LENGTH);
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    bool replaceMode = false;
+    ani_boolean isUndefined = ANI_TRUE;
+    env->Reference_IsUndefined(replace, &isUndefined);
+    if (isUndefined != ANI_TRUE) {
+        ani_boolean breplaceMode;
+        if (env->Object_CallMethodByName_Boolean(replace, "booleanValue", nullptr, &breplaceMode) != ANI_OK) {
+            AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "replace", "boolean"));
+            return;
+        }
+        replaceMode = static_cast<bool>(breplaceMode);
+    }
+    std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> adsBlockManager =
+        OHOS::NWeb::NWebHelper::Instance().GetAdsBlockManager();
+    if (adsBlockManager != nullptr) {
+        adsBlockManager->SetAdsBlockRules(rulesFileStr, replaceMode);
+    }
+    return;
+}
+
 ani_status StsWebAdsBlockManagerInit(ani_env *env)
 {
     if (env == nullptr) {
@@ -192,6 +234,8 @@ ani_status StsWebAdsBlockManagerInit(ani_env *env)
             nullptr, reinterpret_cast<void *>(RemoveAdsBlockAllowedList)},
         ani_native_function { "addAdsBlockAllowedList",
             nullptr, reinterpret_cast<void *>(AddAdsBlockAllowedList)},
+        ani_native_function { "setAdsBlockRules",
+            nullptr, reinterpret_cast<void *>(JsSetAdsBlockRules)},
     };
 
     status = env->Class_BindNativeMethods(webAdsBlockManagerCls, managerMethods.data(), managerMethods.size());

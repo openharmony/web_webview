@@ -1048,6 +1048,7 @@ export default namespace webview {
         native static addAdsBlockDisallowedList(domainSuffixes: Array<string>): void;
         native static removeAdsBlockAllowedList(domainSuffixes: Array<string>): void;
         native static addAdsBlockAllowedList(domainSuffixes: Array<string>): void;
+        native static setAdsBlockRules(rulesFile: string, replace: boolean): void;
     }
 
     export class WebDataBase {
