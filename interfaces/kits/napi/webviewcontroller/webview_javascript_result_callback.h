@@ -470,7 +470,7 @@ public:
 
     void RemoveTransientJavaScriptObject() override;
 
-    void RemoveTransientJavaScriptObjectInJsTd();
+    void RemoveTransientJavaScriptObjectInJsThread();
 
     bool FindObjectIdInJsTd(napi_env env, napi_value object, JavaScriptOb::ObjectID* objectId);
 

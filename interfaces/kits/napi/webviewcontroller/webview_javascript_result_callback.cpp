@@ -1624,13 +1624,13 @@ void WebviewJavaScriptResultCallBack::RemoveJavaScriptObjectHolder(int32_t holde
     }
 }
 
-void WebviewJavaScriptResultCallBack::RemoveTransientJavaScriptObjectInJsTd()
+void WebviewJavaScriptResultCallBack::RemoveTransientJavaScriptObjectInJsThread()
 {
     // remove retainedObjectSet_ and objects_ CreateTransient object
     auto iter = objects_.begin();
     while (iter != objects_.end()) {
         if (!(iter->second->IsNamed())) {
-            WVLOG_D("WebviewJavaScriptResultCallBack::RemoveTransientJavaScriptObjectInJsTd "
+            WVLOG_D("WebviewJavaScriptResultCallBack::RemoveTransientJavaScriptObjectInJsThread "
                     "objectId = %{public}d  is removed",
                 (int32_t)iter->first);
             // reminder me: object->ToWeakRef(), object is erased so the destructor called
@@ -1654,7 +1654,7 @@ void WebviewJavaScriptResultCallBack::RemoveTransientJavaScriptObjectInJsTd()
             ++iter2;
         }
         if (!isHasObj) {
-            WVLOG_D("WebviewJavaScriptResultCallBack::RemoveTransientJavaScriptObjectInJsTd "
+            WVLOG_D("WebviewJavaScriptResultCallBack::RemoveTransientJavaScriptObjectInJsThread "
                     "isHasObj == false");
             retainedObjectSet_.erase(*iter1);
         }
@@ -1676,7 +1676,7 @@ void ExecuteRemoveTransientJavaScriptObject(
     NApiScope scope(env);
  
     if (scope.IsVaild()) {
-        inParam->webJsResCb->RemoveTransientJavaScriptObjectInJsTd();
+        inParam->webJsResCb->RemoveTransientJavaScriptObjectInJsThread();
     }
  
     std::unique_lock<std::mutex> lock(param->mutex);
@@ -1746,7 +1746,7 @@ void WebviewJavaScriptResultCallBack::RemoveTransientJavaScriptObject()
             return;
         }
  
-        RemoveTransientJavaScriptObjectInJsTd();
+        RemoveTransientJavaScriptObjectInJsThread();
     } else {
         WVLOG_D("remove transient javaScript object, not in js thread, post task to js thread");
         PostRemoveTransientJavaScriptObjectToJsThread(jsObj);
