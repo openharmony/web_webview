@@ -16,6 +16,7 @@
 #include <cstring>
 #include <gtest/gtest.h>
 #include <surface.h>
+#include <fcntl.h>
 
 #define private public
 #include "nweb_adapter_helper.h"
@@ -35,7 +36,7 @@ namespace {
 sptr<Surface> g_surface = nullptr;
 const std::string MOCK_NWEB_INSTALLATION_DIR = "/data/app/el1/bundle/public/com.ohos.arkwebcore";
 #if defined(NWEB_PRINT_ENABLE)
-const std::string PRINT_FILE_DIR = "/data/storage/el2/base/print.png";
+const char *TESTFILE_PATH = "/data/test/unittestfile";
 const std::string PRINT_JOB_NAME = "webPrintTestJob";
 #endif
 } // namespace
@@ -142,16 +143,20 @@ HWTEST_F(OhosAdapterHelperTest, OhosAdapterHelper_GetInstance_002, TestSize.Leve
     EXPECT_NE(ohosResourceAdapterImpl, nullptr);
 #if defined(NWEB_PRINT_ENABLE)
     PrintManagerAdapter& printAdapter = helper.GetPrintManagerInstance();
-    std::vector<std::string> fileList = { PRINT_FILE_DIR };
-    std::vector<uint32_t> fdList = { 1 };
-    std::string taskId;
-    int32_t ret = printAdapter.StartPrint(fileList, fdList, taskId);
-    EXPECT_EQ(ret, -1);
-    std::shared_ptr<PrintDocumentAdapterAdapter> printDocumentAdapterImpl;
-    PrintAttributesAdapter printAttributesAdapter;
-    EXPECT_EQ(printAdapter.Print(PRINT_JOB_NAME, printDocumentAdapterImpl, printAttributesAdapter), -1);
-    void* token = nullptr;
-    EXPECT_EQ(printAdapter.Print(PRINT_JOB_NAME, printDocumentAdapterImpl, printAttributesAdapter, token), -1);
+    std::vector<std::string> fileList = { TESTFILE_PATH };
+    int32_t fd = open(TESTFILE_PATH, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+    if (fd >= 0) {
+        std::vector<uint32_t> fdList = { fd };
+        std::string taskId;
+        int32_t ret = printAdapter.StartPrint(fileList, fdList, taskId);
+        EXPECT_EQ(ret, -1);
+        std::shared_ptr<PrintDocumentAdapterAdapter> printDocumentAdapterImpl;
+        PrintAttributesAdapter printAttributesAdapter;
+        EXPECT_EQ(printAdapter.Print(PRINT_JOB_NAME, printDocumentAdapterImpl, printAttributesAdapter), -1);
+        void* token = nullptr;
+        EXPECT_EQ(printAdapter.Print(PRINT_JOB_NAME, printDocumentAdapterImpl, printAttributesAdapter, token), -1);
+        close(fd);
+    }
 #endif
     std::unique_ptr<MigrationManagerAdapter> migration = helper.CreateMigrationMgrAdapter();
     EXPECT_NE(migration, nullptr);
