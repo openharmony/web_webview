@@ -1624,13 +1624,13 @@ void WebviewJavaScriptResultCallBack::RemoveJavaScriptObjectHolder(int32_t holde
     }
 }
 
-void WebviewJavaScriptResultCallBack::RemoveTransientJavaScriptObject()
+void WebviewJavaScriptResultCallBack::RemoveTransientJavaScriptObjectInJsTd()
 {
     // remove retainedObjectSet_ and objects_ CreateTransient object
     auto iter = objects_.begin();
     while (iter != objects_.end()) {
         if (!(iter->second->IsNamed())) {
-            WVLOG_D("WebviewJavaScriptResultCallBack::RemoveTransientJavaScriptObject "
+            WVLOG_D("WebviewJavaScriptResultCallBack::RemoveTransientJavaScriptObjectInJsTd "
                     "objectId = %{public}d  is removed",
                 (int32_t)iter->first);
             // reminder me: object->ToWeakRef(), object is erased so the destructor called
@@ -1654,11 +1654,102 @@ void WebviewJavaScriptResultCallBack::RemoveTransientJavaScriptObject()
             ++iter2;
         }
         if (!isHasObj) {
-            WVLOG_D("WebviewJavaScriptResultCallBack::RemoveTransientJavaScriptObject "
+            WVLOG_D("WebviewJavaScriptResultCallBack::RemoveTransientJavaScriptObjectInJsTd "
                     "isHasObj == false");
             retainedObjectSet_.erase(*iter1);
         }
         ++iter1;
+    }
+}
+
+void ExecuteRemoveTransientJavaScriptObject(
+    napi_env env, napi_status status, WebviewJavaScriptResultCallBack::NapiJsCallBackParm* param)
+{
+    if (!param) {
+        return;
+    }
+ 
+    auto* inParam = static_cast<WebviewJavaScriptResultCallBack::NapiJsCallBackInParm*>(param->input);
+ 
+    Ace::ContainerScope containerScope(inParam->containerScopeId);
+ 
+    NApiScope scope(env);
+ 
+    if (scope.IsVaild()) {
+        inParam->webJsResCb->RemoveTransientJavaScriptObjectInJsTd();
+    }
+ 
+    std::unique_lock<std::mutex> lock(param->mutex);
+    param->ready = true;
+    param->condition.notify_all();
+}
+ 
+void WebviewJavaScriptResultCallBack::PostRemoveTransientJavaScriptObjectToJsThread(
+    std::shared_ptr<JavaScriptOb> jsObj)
+{
+    WVLOG_D("WebviewJavaScriptResultCallBack::PostRemoveTransientJavaScriptObjectToJsThread called");
+    if (!jsObj) {
+        return;
+    }
+    napi_env env = jsObj->GetEnv();
+    WebviewJavaScriptResultCallBack::NapiJsCallBackInParm* inParam = nullptr;
+    WebviewJavaScriptResultCallBack::NapiJsCallBackOutParm* outParam = nullptr;
+    WebviewJavaScriptResultCallBack::NapiJsCallBackParm* param = nullptr;
+    if (!CreateNapiJsCallBackParm(inParam, outParam, param)) {
+        return;
+    }
+ 
+    inParam->webJsResCb = this;
+    inParam->containerScopeId = jsObj->GetContainerScopeId();
+    param->input = reinterpret_cast<void*>(inParam);
+    param->out = reinterpret_cast<void*>(outParam);
+    param->env = env;
+ 
+    CreateUvQueueWorkEnhanced(env, param, ExecuteRemoveTransientJavaScriptObject);
+ 
+    {
+        std::unique_lock<std::mutex> lock(param->mutex);
+        param->condition.wait(lock, [&param] { return param->ready; });
+    }
+    DeleteNapiJsCallBackParm(inParam, outParam, param);
+}
+ 
+void WebviewJavaScriptResultCallBack::RemoveTransientJavaScriptObject()
+{
+    WVLOG_D("WebviewJavaScriptResultCallBack::RemoveTransientJavaScriptObject called");
+    std::shared_ptr<JavaScriptOb> jsObj = nullptr;
+    if (!objects_.empty()) {
+        jsObj = objects_.begin()->second;
+    } else if (!retainedObjectSet_.empty()) {
+        jsObj = *(retainedObjectSet_.begin());
+    } else {
+        WVLOG_D("WebviewJavaScriptResultCallBack::RemoveTransientJavaScriptObject "
+                "objects_ & retainedObjectSet_ is empty.");
+        return;
+    }
+ 
+    if (!jsObj) {
+        WVLOG_D("WebviewJavaScriptResultCallBack::RemoveTransientJavaScriptObject "
+                "jsObj is nullptr.");
+        return;
+    }
+ 
+    napi_env env = jsObj->GetEnv();
+    auto engine = reinterpret_cast<NativeEngine*>(env);
+    if (engine == nullptr) {
+        return;
+    }
+    if (pthread_self() == engine->GetTid()) {
+        WVLOG_D("remove transient javaScript object already in js thread");
+        NApiScope scope(env);
+        if (!scope.IsVaild()) {
+            return;
+        }
+ 
+        RemoveTransientJavaScriptObjectInJsTd();
+    } else {
+        WVLOG_D("remove transient javaScript object, not in js thread, post task to js thread");
+        PostRemoveTransientJavaScriptObjectToJsThread(jsObj);
     }
 }
 
