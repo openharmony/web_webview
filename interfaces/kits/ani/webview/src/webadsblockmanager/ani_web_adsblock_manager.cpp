@@ -175,6 +175,7 @@ static void JsSetAdsBlockRules(ani_env* env, ani_object aniClass, ani_object rul
         return;
     }
     std::string rulesFileStr;
+    bool replaceMode = false;
     if (!AniParseUtils::IsString(env, rulesFile)) {
         WVLOG_E("env must be string");
         return;
@@ -188,7 +189,6 @@ static void JsSetAdsBlockRules(ani_env* env, ani_object aniClass, ani_object rul
         AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
         return;
     }
-    bool replaceMode = false;
     replaceMode = static_cast<bool>(replace);
     std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> adsBlockManager =
         OHOS::NWeb::NWebHelper::Instance().GetAdsBlockManager();
