@@ -203,7 +203,7 @@ static void JsSetAdsBlockRules(ani_env* env, ani_object aniClass, ani_object rul
             return;
         }
         replaceMode = static_cast<bool>(breplaceMode);
-        WVLOG_I("JsSetAdsBlockRules begin3 replaceMode: %{public}d" replaceMode);
+        WVLOG_I("JsSetAdsBlockRules begin3 replaceMode: %{public}d", replaceMode);
     }
     WVLOG_I("JsSetAdsBlockRules begin3");
     std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> adsBlockManager =
