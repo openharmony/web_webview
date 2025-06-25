@@ -194,6 +194,26 @@ export default namespace webview {
         title: string;
     }
 
+    export interface SnapshotResult {
+        id?: string;
+        status?: boolean;
+        imagePixelMap?: image.PixelMap;
+    }
+ 
+    export class SnapshotResultClass implements SnapshotResult {
+        id?: string;
+        status?: boolean;
+        imagePixelMap?: image.PixelMap;
+    }
+ 
+    export interface SnapshotInfo {
+        id?: string;
+    }
+ 
+    export class SnapshotInfoClass implements SnapshotInfo {
+        id?: string;
+    }
+
     export interface RectEvent {
         x: number;
         y: number;
@@ -449,6 +469,7 @@ export default namespace webview {
         native static enableWholeWebPageDrawing(): void;
         native setPrintBackground(enable: boolean): void;
         native getPrintBackground(): boolean;
+        native webPageSnapshot(info: SnapshotInfo, callback: AsyncCallback<SnapshotResult>): void;
         native injectOfflineResourcesInternal(resourceMaps: Array<OfflineResourceMapInternal>) : void;
         injectOfflineResources(resourceMaps: Array<OfflineResourceMap>): void {
             let res = resourceMaps.map((map) => ({

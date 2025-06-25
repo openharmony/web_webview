@@ -58,6 +58,7 @@
 #include "web_download_manager.h"
 #include "pixel_map.h"
 #include "pixel_map_ani.h"
+#include "pixel_map_taihe_ani.h"
 #include "proxy_config.h"
 #include "web_scheme_handler_response.h"
 #include "web_download_item.h"
@@ -67,12 +68,21 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
+constexpr int32_t RESULT_COUNT = 2;
 ani_vm *g_vm = nullptr;
 constexpr size_t MAX_URL_TRUST_LIST_STR_LEN = 10 * 1024 * 1024; // 10M
 constexpr uint32_t SOCKET_MAXIMUM = 6;
 constexpr size_t MAX_RESOURCES_COUNT = 30;
 constexpr uint32_t URL_MAXIMUM = 2048;
 constexpr char URL_REGEXPR[] = "^http(s)?:\\/\\/.+";
+struct SnapshotOptions {
+    std::string id;
+    int32_t width = 0;
+    int32_t height = 0;
+    PixelUnit widthType = PixelUnit::NONE;
+    PixelUnit heightType = PixelUnit::NONE;
+    PixelUnit sizeType = PixelUnit::NONE;
+};
 
 bool ParsePrepareUrl(ani_env* env, ani_ref urlObj, std::string& url)
 {
@@ -2643,6 +2653,241 @@ void OnCreateNativeMediaPlayer(ani_env* env, ani_object object, ani_fn_object ca
     controller->OnCreateNativeMediaPlayer(g_vm, callback);
 }
 
+bool ParseJsLengthResourceToInt(ani_env* env, ani_object jsLength, PixelUnit& type, int32_t& result)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    ani_ref resIdObj = nullptr;
+    int32_t resId;
+    if ((env->Object_GetPropertyByName_Ref(jsLength, "id", &resIdObj) != ANI_OK)) {
+        return false;
+    }
+    if (!AniParseUtils::ParseInt32(env, resIdObj, resId)) {
+        return false;
+    }
+    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
+        AbilityRuntime::ApplicationContext::GetApplicationContext();
+    if (!context) {
+        WVLOG_E("WebPageSnapshot Failed to get application context.");
+        return false;
+    }
+    auto resourceManager = context->GetResourceManager();
+    if (!resourceManager) {
+        WVLOG_E("WebPageSnapshot Failed to get resource manager.");
+        return false;
+    }
+    ani_ref jsResourceType = nullptr;
+    env->Object_GetPropertyByName_Ref(jsLength, "type", &jsResourceType);
+    if (AniParseUtils::IsDouble(env, static_cast<ani_object>(jsResourceType))) {
+        int32_t resourceTypeNum;
+        AniParseUtils::ParseInt32(env, jsResourceType, resourceTypeNum);
+        std::string resourceString;
+        switch (resourceTypeNum) {
+            case static_cast<int>(ResourceType::INTEGER):
+                if (resourceManager->GetIntegerById(resId, result) == Global::Resource::SUCCESS) {
+                    type = PixelUnit::VP;
+                    return true;
+                }
+                break;
+            case static_cast<int>(ResourceType::STRING):
+                if (resourceManager->GetStringById(resId, resourceString) == Global::Resource::SUCCESS) {
+                    return AniParseUtils::ParseJsLengthStringToInt(resourceString, type, result);
+                }
+                break;
+            default:
+                WVLOG_E("WebPageSnapshot resource type not support");
+                break;
+        }
+        return false;
+    }
+    return false;
+}
+
+bool ParseJsLengthToInt(ani_env* env, ani_object jsLength, PixelUnit& type, int32_t& result)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    if ((!AniParseUtils::IsObject(env, jsLength)) && (!AniParseUtils::IsString(env, jsLength)) &&
+        (!AniParseUtils::IsDouble(env, jsLength))) {
+        WVLOG_E("WebPageSnapshot Unable to parse js length object.");
+        return false;
+    }
+    if (AniParseUtils::IsDouble(env, jsLength)) {
+        AniParseUtils::ParseInt32(env, jsLength, result);
+        type = PixelUnit::VP;
+        return true;
+    }
+    if (AniParseUtils::IsString(env, jsLength)) {
+        std::string nativeString;
+        AniParseUtils::ParseString(env, jsLength, nativeString);
+        if (!AniParseUtils::ParseJsLengthStringToInt(nativeString, type, result)) {
+            return false;
+        }
+        return true;
+    }
+    if (AniParseUtils::IsObject(env, jsLength)) {
+        return ParseJsLengthResourceToInt(env, jsLength, type, result);
+    }
+    return false;
+}
+
+static void JsErrorCallback(ani_env* env, ani_ref jsCallback, int32_t err)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    ani_object jsResult = {};
+    ani_ref jsError = AniBusinessError::CreateError(env, err);
+    ani_fn_object callbackFn = static_cast<ani_fn_object>(jsCallback);
+    std::vector<ani_ref> vec;
+    vec.push_back(jsError);
+    vec.push_back(jsResult);
+    ani_ref fnReturnVal;
+    env->FunctionalObject_Call(callbackFn, ani_size(RESULT_COUNT), vec.data(), &fnReturnVal);
+}
+
+std::atomic<bool> g_inWebPageSnapshot { false };
+WebSnapshotCallback CreateWebPageSnapshotResultCallback(
+    ani_env* env, ani_ref jsCallback, bool check, int32_t inputWidth, int32_t inputHeight)
+{
+    return [env, jCallback = std::move(jsCallback), check, inputWidth, inputHeight](const char* returnId,
+               bool returnStatus, float radio, void* returnData, int returnWidth, int returnHeight) {
+        WVLOG_I("WebPageSnapshot return ani callback");
+        ani_object jsResult = {};
+        if (AniParseUtils::CreateObjectVoid(env, ANI_SNAPSHOT_RESULT_CLASS_NAME, jsResult) == false) {
+            WVLOG_E("jsResult CreateObjectVoid failed");
+            return;
+        }
+        ani_object jsPixelMap = nullptr;
+        Media::InitializationOptions opt;
+        opt.size.width = static_cast<int32_t>(returnWidth);
+        opt.size.height = static_cast<int32_t>(returnHeight);
+        opt.pixelFormat = Media::PixelFormat::RGBA_8888;
+        opt.alphaType = Media::AlphaType::IMAGE_ALPHA_TYPE_OPAQUE;
+        opt.editable = true;
+        auto pixelMap = Media::PixelMap::Create(opt);
+        if (pixelMap != nullptr) {
+            uint64_t stride = static_cast<uint64_t>(returnWidth) << 2;
+            uint64_t bufferSize = stride * static_cast<uint64_t>(returnHeight);
+            pixelMap->WritePixels(static_cast<const uint8_t*>(returnData), bufferSize);
+            std::shared_ptr<Media::PixelMap> pixelMapToJs(pixelMap.release());
+            jsPixelMap = OHOS::Media::PixelMapTaiheAni::CreateEtsPixelMap(env, pixelMapToJs);
+        } else {
+            WVLOG_E("WebPageSnapshot create pixel map error");
+        }
+        env->Object_SetPropertyByName_Ref(jsResult, "imagePixelMap", jsPixelMap);
+        ani_string jsId = nullptr;
+        env->String_NewUTF8(returnId, strlen(returnId), &jsId);
+        env->Object_SetPropertyByName_Ref(jsResult, "id", jsId);
+        ani_object jsStatus = {};
+        if (!AniParseUtils::CreateBoolean(env, returnStatus, jsStatus)) {
+            return;
+        }
+        env->Object_SetPropertyByName_Ref(jsResult, "status", jsStatus);
+        ani_object jsError = {};
+        ani_ref callbackResult;
+        std::vector<ani_ref> vec;
+        vec.push_back(jsError);
+        vec.push_back(jsResult);
+        ani_fn_object callbackFn = static_cast<ani_fn_object>(jCallback);
+        env->FunctionalObject_Call(callbackFn, ani_size(RESULT_COUNT), vec.data(), &callbackResult);
+        env->GlobalReference_Delete(jCallback);
+        g_inWebPageSnapshot = false;
+    };
+}
+
+bool ParseSnapshotOptions(ani_env* env, ani_object info, SnapshotOptions& options)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    ani_ref snapshotId = nullptr;
+    ani_ref snapshotSize = nullptr;
+    ani_ref snapshotSizeWidth = nullptr;
+    ani_ref snapshotSizeHeight = nullptr;
+    if (env->Object_GetPropertyByName_Ref(info, "id", &snapshotId) == ANI_OK) {
+        AniParseUtils::ParseString(env, snapshotId, options.id);
+    }
+    if (env->Object_GetPropertyByName_Ref(info, "size", &snapshotSize) == ANI_OK) {
+        ani_object snapshotSizeObj = static_cast<ani_object>(snapshotSize);
+        if (env->Object_GetPropertyByName_Ref(snapshotSizeObj, "width", &snapshotSizeWidth) == ANI_OK) {
+            ani_object snapshotSizeWidthObj = static_cast<ani_object>(snapshotSizeWidth);
+            if (!ParseJsLengthToInt(env, snapshotSizeWidthObj, options.widthType, options.width)) {
+                return false;
+            }
+        }
+        if (env->Object_GetPropertyByName_Ref(snapshotSizeObj, "height", &snapshotSizeHeight) == ANI_OK) {
+            ani_object snapshotSizeHeightObj = static_cast<ani_object>(snapshotSizeHeight);
+            if (!ParseJsLengthToInt(env, snapshotSizeHeightObj, options.heightType, options.height)) {
+                return false;
+            }
+        }
+    }
+    if (options.widthType != PixelUnit::NONE && options.heightType != PixelUnit::NONE &&
+        options.widthType != options.heightType) {
+        WVLOG_E("WebPageSnapshot input different pixel unit");
+        return false;
+    }
+    if (options.widthType != PixelUnit::NONE) {
+        options.sizeType = options.widthType;
+    } else if (options.heightType != PixelUnit::NONE) {
+        options.sizeType = options.heightType;
+    }
+    if (options.width < 0 || options.height < 0) {
+        WVLOG_E("WebPageSnapshot input pixel length less than 0");
+        return false;
+    }
+    return true;
+}
+
+static void WebPageSnapshot(ani_env* env, ani_object object, ani_object info, ani_object callback)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    if (!AniParseUtils::IsFunction(env, callback)) {
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    if (g_inWebPageSnapshot) {
+        JsErrorCallback(env, std::move(callback), FUNCTION_NOT_ENABLE);
+        return;
+    }
+    g_inWebPageSnapshot = true;
+    SnapshotOptions options;
+    if (!ParseSnapshotOptions(env, info, options)) {
+        JsErrorCallback(env, std::move(callback), PARAM_CHECK_ERROR);
+        g_inWebPageSnapshot = false;
+        return;
+    }
+    bool pixelCheck = (options.sizeType == PixelUnit::VP);
+    WVLOG_I("WebPageSnapshot pixel type :%{public}d", static_cast<int>(options.sizeType));    
+    ani_ref callbackRef;
+    if (ANI_OK != env->GlobalReference_Create(callback, &callbackRef)) {
+        WVLOG_E("WebPageSnapshot failed to create reference for callback");
+        return;
+    }
+    auto resultCallback =
+        CreateWebPageSnapshotResultCallback(env, std::move(callbackRef), pixelCheck, options.width, options.height);
+    ErrCode ret = controller->WebPageSnapshot(
+        options.id.c_str(), options.sizeType, options.width, options.height, std::move(resultCallback));
+    if (ret != NO_ERROR) {
+        g_inWebPageSnapshot = false;
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+    }
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     if (env == nullptr) {
@@ -2768,6 +3013,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "resumeAllMedia", nullptr, reinterpret_cast<void *>(ResumeAllMedia) },
         ani_native_function { "setAudioMuted", nullptr, reinterpret_cast<void *>(SetAudioMuted) },
         ani_native_function { "getMediaPlaybackState", nullptr, reinterpret_cast<void *>(GetMediaPlaybackState) },
+        ani_native_function { "webPageSnapshot", nullptr, reinterpret_cast<void *>(WebPageSnapshot) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());

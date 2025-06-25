@@ -25,6 +25,7 @@ public:
     static ani_status ThrowError(ani_env *env, int32_t errorCode, const std::string& error_message);
 
     static ani_status ThrowErrorByErrCode(ani_env *env, int32_t errorCode);
+    static ani_ref CreateError(ani_env *env, int32_t err);
 };
 }
 }
