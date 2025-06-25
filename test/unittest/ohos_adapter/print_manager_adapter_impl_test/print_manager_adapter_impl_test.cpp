@@ -29,7 +29,7 @@ namespace OHOS {
 namespace NWeb {
 
 namespace {
-
+const char *TESTFILE_PATH = "/data/test/unittestfile";
 }
 
 class PrintManagerAdapterImplTest : public testing::Test {
@@ -79,32 +79,36 @@ class MockPrintWriteResultCallbackAdapter : public PrintWriteResultCallbackAdapt
 HWTEST_F(PrintManagerAdapterImplTest, PrintManagerAdapterImplTest_InitParamSet_001, TestSize.Level1)
 {
 #if defined(NWEB_PRINT_ENABLE)
-    std::vector<std::string> fileList = { "/data/storage/el2/base/print.png" };
-    std::vector<uint32_t> fdList = { 1 };
-    std::string taskId;
-    PrintManagerAdapterImpl::GetInstance().StartPrint(fileList, fdList, taskId);
-    std::shared_ptr<PrintDocumentAdapterAdapter> printDocumentAdapterImpl;
-    PrintAttributesAdapter printAttributesAdapter;
-    PrintManagerAdapterImpl::GetInstance().Print("webPrintTestJob", printDocumentAdapterImpl, printAttributesAdapter);
-    void* token = nullptr;
-    PrintManagerAdapterImpl::GetInstance().Print("webPrintTestJob", printDocumentAdapterImpl,
-        printAttributesAdapter, token);
-    std::shared_ptr<PrintDocumentAdapterAdapter> mock = std::make_shared<PrintDocumentAdapterImplMock>();
-    EXPECT_NE(mock, nullptr);
-    PrintDocumentAdapterImpl documentAdapter(mock);
-    std::string jobId = "abc";
-    OHOS::Print::PrintAttributes oldAttrs = OHOS::Print::PrintAttributes();
-    OHOS::Print::PrintAttributes newAttrs = OHOS::Print::PrintAttributes();
-    uint32_t fd = 1;
-    auto writeResultCallback = [](std::string str, uint32_t index){};
-    uint32_t state = 1;
+    std::vector<std::string> fileList = { TESTFILE_PATH };
+    uint32_t fd = open(TESTFILE_PATH, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+    if (fd >= 0) {
+        std::vector<uint32_t> fdList = { fd };
+        std::string taskId;
+        PrintManagerAdapterImpl::GetInstance().StartPrint(fileList, fdList, taskId);
+        std::shared_ptr<PrintDocumentAdapterAdapter> printDocumentAdapterImpl;
+        PrintAttributesAdapter printAttributesAdapter;
+        PrintManagerAdapterImpl::GetInstance().Print("webPrintTestJob", printDocumentAdapterImpl,
+            printAttributesAdapter);
+        void* token = nullptr;
+        PrintManagerAdapterImpl::GetInstance().Print("webPrintTestJob", printDocumentAdapterImpl,
+            printAttributesAdapter, token);
+        std::shared_ptr<PrintDocumentAdapterAdapter> mock = std::make_shared<PrintDocumentAdapterImplMock>();
+        EXPECT_NE(mock, nullptr);
+        PrintDocumentAdapterImpl documentAdapter(mock);
+        std::string jobId = "abc";
+        OHOS::Print::PrintAttributes oldAttrs = OHOS::Print::PrintAttributes();
+        OHOS::Print::PrintAttributes newAttrs = OHOS::Print::PrintAttributes();
+        auto writeResultCallback = [](std::string str, uint32_t index){};
+        uint32_t state = 1;
 
-    EXPECT_NE(documentAdapter.cb_, nullptr);
-    documentAdapter.onStartLayoutWrite(jobId, oldAttrs, newAttrs, fd, writeResultCallback);
-    documentAdapter.onJobStateChanged(jobId, state);
-    documentAdapter.cb_ = nullptr;
-    documentAdapter.onStartLayoutWrite(jobId, oldAttrs, newAttrs, fd, writeResultCallback);
-    documentAdapter.onJobStateChanged(jobId, state);
+        EXPECT_NE(documentAdapter.cb_, nullptr);
+        documentAdapter.onStartLayoutWrite(jobId, oldAttrs, newAttrs, fd, writeResultCallback);
+        documentAdapter.onJobStateChanged(jobId, state);
+        documentAdapter.cb_ = nullptr;
+        documentAdapter.onStartLayoutWrite(jobId, oldAttrs, newAttrs, fd, writeResultCallback);
+        documentAdapter.onJobStateChanged(jobId, state);
+        close(fd);
+    }
 #endif
 }
 }
