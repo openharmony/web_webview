@@ -177,7 +177,7 @@ static void JsSetAdsBlockRules(ani_env* env, ani_object aniClass, ani_object rul
     std::string rulesFileStr;
     bool replaceMode = false;
     if (!AniParseUtils::IsString(env, rulesFile)) {
-        WVLOG_E("env must be string");
+        WVLOG_E("JsSetAdsBlockRules FindClass Fail");
         return;
     }
     if (!AniParseUtils::ParseString(env, static_cast<ani_ref>(rulesFile), rulesFileStr)) {
