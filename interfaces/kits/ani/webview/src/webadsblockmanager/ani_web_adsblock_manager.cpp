@@ -167,7 +167,7 @@ void RemoveAdsBlockAllowedList(ani_env *env, ani_object object, ani_object domai
     }
 }
 
-static void JsSetAdsBlockRules(ani_env* env, ani_object aniClass, ani_object rulesFile, ani_object replace)
+static void JsSetAdsBlockRules(ani_env* env, ani_object aniClass, ani_object rulesFile, ani_boolean replace)
 {
     WVLOG_I("JsSetAdsBlockRules begin");
     if (env == nullptr) {
@@ -193,18 +193,9 @@ static void JsSetAdsBlockRules(ani_env* env, ani_object aniClass, ani_object rul
     }
     WVLOG_I("JsSetAdsBlockRules begin2");
     bool replaceMode = false;
-    ani_boolean isUndefined = ANI_TRUE;
-    env->Reference_IsUndefined(replace, &isUndefined);
-    if (isUndefined != ANI_TRUE) {
-        ani_boolean breplaceMode = ANI_FALSE;
-        if (env->Object_CallMethodByName_Boolean(replace, "unboxed", nullptr, &breplaceMode) != ANI_OK) {
-            AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "replace", "boolean"));
-            return;
-        }
-        replaceMode = static_cast<bool>(breplaceMode);
-        WVLOG_I("JsSetAdsBlockRules begin3 replaceMode: %{public}d", replaceMode);
-    }
+    replaceMode = static_cast<bool>(replace);
+
+    WVLOG_I("JsSetAdsBlockRules begin3 replaceMode: %{public}d", replaceMode);
     WVLOG_I("JsSetAdsBlockRules begin3");
     std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> adsBlockManager =
         OHOS::NWeb::NWebHelper::Instance().GetAdsBlockManager();
