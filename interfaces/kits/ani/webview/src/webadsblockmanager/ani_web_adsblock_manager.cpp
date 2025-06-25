@@ -174,32 +174,24 @@ static void JsSetAdsBlockRules(ani_env* env, ani_object aniClass, ani_object rul
         WVLOG_E("env is nullptr");
         return;
     }
-    WVLOG_I("JsSetAdsBlockRules begin2");
     std::string rulesFileStr;
     if (!AniParseUtils::IsString(env, rulesFile)) {
         WVLOG_E("env must be string");
         return;
     }
-    WVLOG_I("JsSetAdsBlockRules begin2");
     if (!AniParseUtils::ParseString(env, static_cast<ani_ref>(rulesFile), rulesFileStr)) {
         WVLOG_E("JsSetAdsBlockRules ParseString Fail");
         return;
     }
-    WVLOG_I("JsSetAdsBlockRules begin2");
     if (rulesFileStr.length() > MAX_URL_RULES_FILEPATH_LENGTH) {
         WVLOG_E("setAdsBlockRules failed: rulesFile path too long > %{public}d", MAX_URL_RULES_FILEPATH_LENGTH);
         AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
         return;
     }
-    WVLOG_I("JsSetAdsBlockRules begin2");
     bool replaceMode = false;
     replaceMode = static_cast<bool>(replace);
-
-    WVLOG_I("JsSetAdsBlockRules begin3 replaceMode: %{public}d", replaceMode);
-    WVLOG_I("JsSetAdsBlockRules begin3");
     std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> adsBlockManager =
         OHOS::NWeb::NWebHelper::Instance().GetAdsBlockManager();
-    WVLOG_I("JsSetAdsBlockRules begin4");
     if (adsBlockManager != nullptr) {
         adsBlockManager->SetAdsBlockRules(rulesFileStr, replaceMode);
     }
