@@ -414,6 +414,7 @@ public:
         int32_t nwebId = -1;
         int32_t frameRoutingId = -1;
         int32_t objId = -1;
+        int32_t containerScopeId = -1;
         std::string objName;
         std::string methodName;
         void* data = nullptr;
@@ -469,6 +470,8 @@ public:
 
     void RemoveTransientJavaScriptObject() override;
 
+    void RemoveTransientJavaScriptObjectInJsThread();
+
     bool FindObjectIdInJsTd(napi_env env, napi_value object, JavaScriptOb::ObjectID* objectId);
 
     std::unordered_map<std::string, std::shared_ptr<JavaScriptOb>> GetNamedObjects();
@@ -517,6 +520,8 @@ private:
 
     std::shared_ptr<NWebValue> GetJavaScriptResultSelfFlowbuf(std::vector<std::shared_ptr<NWebValue>> args,
         const std::string& method, const std::string& objName, int fd, int32_t routingId, int32_t objectId);
+    
+    void PostRemoveTransientJavaScriptObjectToJsThread(std::shared_ptr<JavaScriptOb> jsObj);
 
     int32_t nwebId_ = -1;
 
