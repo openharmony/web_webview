@@ -38,7 +38,7 @@ bool AniParseUtils::ParseString(ani_env *env, ani_ref ref, std::string& outValue
     ani_size bytes_written = 0;
     env->String_GetUTF8(str, utfBuffer, strSize + 1, &bytes_written);
     utfBuffer[bytes_written] = '\0';
-    outValue = std::string(utfBuffer);
+    outValue = std::string(utfBuffer, strSize);
     return true;
 }
 

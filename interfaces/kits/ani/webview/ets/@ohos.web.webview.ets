@@ -117,8 +117,8 @@ export default namespace webview {
             }
         }
 
-        currentIndex: number;
-        size: number;
+        currentIndex: number = 0;
+        size: number = 0;
         native getItemAtIndex(index: number): HistoryItem;
     }
 
