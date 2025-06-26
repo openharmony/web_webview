@@ -752,8 +752,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructAttributes(
     return object;
 }
 
-ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructMediaInfo(
-    std::shared_ptr<NWebMediaInfo> mediaInfo)
+ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructMediaInfo(std::shared_ptr<NWebMediaInfo> mediaInfo)
 {
     WVLOG_I("ConstructMediaInfo start");
     ani_env* env = nullptr;
@@ -764,10 +763,10 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructMediaInfo(
     if (!CreateObjectVoid(env, MEDIA_INFO_INNER, object)) {
         return nullptr;
     }
+
     ani_string embedId;
     std::string id = mediaInfo->GetEmbedId();
     env->String_NewUTF8(id.c_str(), id.length(), &embedId);
-
     ani_ref embedIdref = static_cast<ani_ref>(embedId);
     if (embedIdref == nullptr) { return nullptr; }
     env->Object_SetPropertyByName_Ref(object, "embedID", embedIdref);
@@ -813,7 +812,6 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructMediaInfo(
     ani_string posterUrl {};
     std::string url = mediaInfo->GetPosterUrl();
     env->String_NewUTF8(url.c_str(), url.length(), &posterUrl);
-
     ani_ref posterUrlref = static_cast<ani_ref>(posterUrl);
     if (posterUrlref == nullptr) { return nullptr; }
     env->Object_SetPropertyByName_Ref(object, "posterUrl", posterUrlref);
