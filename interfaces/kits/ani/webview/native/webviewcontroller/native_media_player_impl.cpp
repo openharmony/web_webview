@@ -763,14 +763,12 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructMediaInfo(std::shar
     if (!CreateObjectVoid(env, MEDIA_INFO_INNER, object)) {
         return nullptr;
     }
-
     ani_string embedId;
     std::string id = mediaInfo->GetEmbedId();
     env->String_NewUTF8(id.c_str(), id.length(), &embedId);
     ani_ref embedIdref = static_cast<ani_ref>(embedId);
     if (embedIdref == nullptr) { return nullptr; }
     env->Object_SetPropertyByName_Ref(object, "embedID", embedIdref);
-
     ani_enum_item mediaTypeRef;
     if (!GetEnumItemByIndex(env, ANI_ENUM_MEDIA_TYPE, 
                             static_cast<int32_t>(mediaInfo->GetMediaType()), mediaTypeRef)) {
@@ -782,25 +780,20 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructMediaInfo(std::shar
     ani_ref mediaSrcListRef = static_cast<ani_ref>(mediaSrcList);
     if (mediaSrcListRef == nullptr) { return nullptr; }
     env->Object_SetPropertyByName_Ref(object, "mediaSrcList", mediaSrcListRef);
-
     ani_object surfaceInfo = ConstructSurfaceInfo(mediaInfo->GetSurfaceInfo());
     ani_ref surfaceInfoRef = static_cast<ani_ref>(surfaceInfo);
     if (surfaceInfoRef == nullptr) { return nullptr; }
     env->Object_SetPropertyByName_Ref(object, "surfaceInfo", surfaceInfoRef);
-
     ani_boolean isControlsShown = static_cast<ani_boolean>(mediaInfo->GetIsControlsShown());
     env->Object_SetPropertyByName_Boolean(object, "controlsShown", isControlsShown);
-
     ani_object controlList = ConstructControls(mediaInfo->GetControls());
     ani_ref controlListRef = static_cast<ani_ref>(controlList);
     if (controlListRef == nullptr) { return nullptr; }
     env->Object_SetPropertyByName_Ref(object, "controlList", controlListRef);
-
     ani_object headers = ConstructHeaders(mediaInfo->GetHeaders());
     ani_ref headersRef = static_cast<ani_ref>(headers);
     if (headersRef == nullptr) { return nullptr; }
     env->Object_SetPropertyByName_Ref(object, "headers", headersRef);
-
     ani_object attributes = ConstructAttributes(mediaInfo->GetAttributes());
     ani_ref attributesRef = static_cast<ani_ref>(attributes);
     if (attributesRef == nullptr) { return nullptr; }
@@ -808,14 +801,12 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructMediaInfo(std::shar
     
     ani_boolean isMuted = static_cast<ani_boolean>(mediaInfo->GetIsMuted());
     env->Object_SetPropertyByName_Boolean(object, "muted", isMuted);
-
     ani_string posterUrl {};
     std::string url = mediaInfo->GetPosterUrl();
     env->String_NewUTF8(url.c_str(), url.length(), &posterUrl);
     ani_ref posterUrlref = static_cast<ani_ref>(posterUrl);
     if (posterUrlref == nullptr) { return nullptr; }
     env->Object_SetPropertyByName_Ref(object, "posterUrl", posterUrlref);
-
     ani_enum_item preloadRef;
     if (!GetEnumItemByIndex(env, ANI_ENUM_PRELOAD, 
                             static_cast<int32_t>(mediaInfo->GetPreload()), preloadRef)) {
