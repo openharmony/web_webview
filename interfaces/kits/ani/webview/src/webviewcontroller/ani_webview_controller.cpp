@@ -2098,7 +2098,9 @@ void OnCreateNativeMediaPlayer(ani_env* env, ani_object object, ani_fn_object ca
     ani_vm *vm = nullptr;
     env->GetVM(&vm);
     g_vm = vm;
+
     WVLOG_D("put on_create_native_media_player callback");
+
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
@@ -2109,7 +2111,6 @@ void OnCreateNativeMediaPlayer(ani_env* env, ani_object object, ani_fn_object ca
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
-    WVLOG_I("put on_create_native_media_player callback");
     controller->OnCreateNativeMediaPlayer(g_vm, callback);
 }
 
