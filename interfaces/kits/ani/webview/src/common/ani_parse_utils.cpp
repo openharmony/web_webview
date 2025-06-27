@@ -21,6 +21,7 @@
 #include <regex>
 
 #include "nweb_log.h"
+#include "ohos_adapter_helper.h"
 #include "securec.h"
 #include "nweb_cache_options_impl.h"
 
@@ -292,6 +293,214 @@ bool AniParseUtils::ParseIP(ani_env *env, ani_object urlObj, std::string& ip)
 
     WVLOG_E("Unable to parse type from ip object.");
     return false;
+}
+
+bool IsFormatStringOfLength(const std::string& str)
+{
+    std::regex pattern("^\\d+(px|vp|%)?$");
+    return std::regex_match(str, pattern);
+}
+ 
+bool IsNumberOfLength(const std::string& value)
+{
+    if (value.empty()) {
+        return false;
+    }
+    return std::all_of(value.begin(), value.end(), [](char i) { return isdigit(i); });
+}
+ 
+bool TransStringToInt(const std::string& str, int32_t& value)
+{
+    if (str.empty()) {
+        return false;
+    }
+    int64_t tempValue = std::stoll(str);
+    if (tempValue < std::numeric_limits<int32_t>::min() || tempValue > std::numeric_limits<int32_t>::max()) {
+        WVLOG_E("input trans failed: out of range");
+        value = 0;
+        return false;
+    }
+    value = static_cast<int32_t>(tempValue);
+    return true;
+}
+ 
+bool AniParseUtils::ParseJsLengthStringToInt(const std::string& input, PixelUnit& type, int32_t& value)
+{
+        if (input.empty() || input.size() > MAX_STRING_TO_INT32_LENGTH) {
+            return false;
+        }
+        if (!IsFormatStringOfLength(input)) {
+            return false;
+        }
+        if (IsNumberOfLength(input)) {
+            if (TransStringToInt(input, value)) {
+                type = PixelUnit::VP;
+                return true;
+            }
+            return false;
+        }
+        if (input.back() == '%') {
+            std::string trans = input.substr(0, input.length() - 1);
+            if (IsNumberOfLength(trans)) {
+                if (TransStringToInt(trans, value)) {
+                    type = PixelUnit::PERCENTAGE;
+                    return true;
+                }
+            }
+            return false;
+        }
+        if (input.length() < PARSE_THREE) {
+            return false;
+        }
+        std::string lastTwo = input.substr(input.length() - PARSE_TWO);
+        std::string trans = input.substr(0, input.length() - PARSE_TWO);
+        if (!IsNumberOfLength(trans)) {
+            return false;
+        }
+        if (lastTwo == "px") {
+            if (TransStringToInt(trans, value)) {
+                type = PixelUnit::PX;
+                return true;
+            }
+        } else if (lastTwo == "vp") {
+            if (TransStringToInt(trans, value)) {
+                type = PixelUnit::VP;
+                return true;
+            }
+        }
+        return false;
+}
+ 
+bool AniParseUtils::ParseInt32(ani_env* env, ani_ref ref, int32_t& outValue)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    ani_object object = static_cast<ani_object>(ref);
+    ani_type type;
+    auto statusGetType = env->Object_GetType(object, &type);
+    if (statusGetType != ANI_OK) {
+        WVLOG_E("ParseInt32 failed - invalid number type");
+        return false;
+    }
+    ani_class doubleClass;
+    env->FindClass("Lstd/core/Double;", &doubleClass);
+    ani_boolean isDouble;
+    auto statusInstanceOf = env->Object_InstanceOf(object, doubleClass, &isDouble);
+    if (statusInstanceOf != ANI_OK) {
+        WVLOG_E("ParseInt32 failed - Object_InstanceOf error: %d", statusInstanceOf);
+        return false;
+    }
+    if (!isDouble) {
+        WVLOG_E("ParseInt32 failed - invalid number type");
+        return false;
+    }
+    ani_variable variable {};
+    env->Variable_SetValue_Ref(variable, ref);
+    ani_int number;
+    auto status_GetValue_Int = env->Variable_GetValue_Int(variable, &number);
+    if (status_GetValue_Int != ANI_OK) {
+        WVLOG_E("ParseInt32 failed - get value error: %d", status_GetValue_Int);
+        return false;
+    }
+    if(number < INT32_MIN || number > INT32_MAX){
+        WVLOG_E("ParseInt32 failed - value out of range: %d", number);
+        return false;
+    }
+    outValue = static_cast<int32_t>(number);
+    return true;
+}
+ 
+bool AniParseUtils::IsFunction(ani_env* env, const ani_object& object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    ani_class functionCls;
+    ani_status status = env->FindClass("Lstd/core/Function;", &functionCls);
+    if (status != ANI_OK) {
+        WVLOG_E("AniUtils_IsFunction FindClass status: %{public}d", status);
+        return false;
+    }
+    ani_boolean isFunction = false;
+    auto statusInstanceOf = env->Object_InstanceOf(object, functionCls, &isFunction);
+    if (statusInstanceOf != ANI_OK) {
+        WVLOG_E("IsFunction failed - Object_InstanceOf error: %d", statusInstanceOf);
+        return false;
+    }
+    return isFunction;
+}
+ 
+bool AniParseUtils::IsDouble(ani_env* env, const ani_object& object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    ani_class doubleCls;
+    ani_status status = env->FindClass("Lstd/core/Double;", &doubleCls);
+    if (status != ANI_OK) {
+        WVLOG_E("AniUtils_IsDouble FindClass status: %{public}d", status);
+        return false;
+    }
+    ani_boolean isDouble = false;
+    auto statusInstanceOf = env->Object_InstanceOf(object, doubleCls, &isDouble);
+    if (statusInstanceOf != ANI_OK) {
+        WVLOG_E("IsDouble failed - Object_InstanceOf error: %d", statusInstanceOf);
+        return false;
+    }
+    return isDouble;
+}
+ 
+bool AniParseUtils::IsObject(ani_env* env, const ani_object& object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    ani_class objectCls;
+    ani_status status = env->FindClass("Lstd/core/Object;", &objectCls);
+    if (status != ANI_OK) {
+        WVLOG_E("AniUtils_IsObject FindClass status: %{public}d", status);
+        return false;
+    }
+    ani_boolean isObject = false;
+    auto statusInstanceOf = env->Object_InstanceOf(object, objectCls, &isObject);
+    if (statusInstanceOf != ANI_OK) {
+        WVLOG_E("IsObject failed - Object_InstanceOf error: %d", statusInstanceOf);
+        return false;
+    }
+    return isObject;
+}
+ 
+bool AniParseUtils::CreateBoolean(ani_env *env, bool src, ani_object& aniObj)
+{   
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    static const char *className = "Lstd/core/Boolean;";
+    ani_class cls;
+    ani_status status = env->FindClass(className, &cls);
+    if (status != ANI_OK) {
+        WVLOG_E("find %{public}s class failed, status: %{public}d", className, status);
+        return false;
+    }
+    ani_method ctor;
+    status = env->Class_FindMethod(cls, "<ctor>","Z:V", &ctor);
+    if (status != ANI_OK) {
+        WVLOG_E("get %{public}s ctor method failed, status: %{public}d", className, status);
+        return false;
+    }
+    ani_boolean aniBool = src ? ANI_TRUE : ANI_FALSE;
+    status = env->Object_New(cls, ctor, &aniObj, aniBool);
+    if (status != ANI_OK) {
+        WVLOG_E("new %{public}s failed, status: %{public}d", className, status);
+        return false;
+    }
+    return true;
 }
 }
 }

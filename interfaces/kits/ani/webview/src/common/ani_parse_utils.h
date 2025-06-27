@@ -23,6 +23,13 @@
 
 namespace OHOS {
 namespace NWeb {
+constexpr int PARSE_ZERO = 0;
+constexpr int PARSE_ONE = 1;
+constexpr int PARSE_TWO = 2;
+constexpr int PARSE_THREE = 3;
+constexpr int PARSE_FOUR = 4;
+constexpr int PARSE_FIVE = 5;
+constexpr int MAX_STRING_TO_INT32_LENGTH = 10;
 class AniParseUtils {
 public:
     static bool ParseString(ani_env *env, ani_ref ref, std::string& outValue);
@@ -39,6 +46,12 @@ public:
     static bool ParseStringArrayMap(ani_env* env, ani_object argv, std::map<std::string, std::string>& outValue);
     static bool GetStringList(ani_env *env, ani_object array, std::vector<std::string>& outValue);
     static bool ParseIP(ani_env *env, ani_object urlObj, std::string& ip);
+    static bool ParseJsLengthStringToInt(const std::string &input, PixelUnit &type, int32_t &value);
+    static bool ParseInt32(ani_env *env, ani_ref ref, int32_t& outValue);
+    static bool IsFunction(ani_env *env, const ani_object& object);
+    static bool IsDouble(ani_env *env, const ani_object& object);
+    static bool IsObject(ani_env *env, const ani_object& object);
+    static bool CreateBoolean(ani_env *env, bool src, ani_object& aniObj);
 };
 } // namespace NWeb
 } // namespace OHOS

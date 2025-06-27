@@ -108,5 +108,11 @@ ani_status AniBusinessError::ThrowErrorByErrCode(ani_env *env, int32_t errorCode
 {
     return ThrowError(env, errorCode, GetErrMsgByErrCode(errorCode));
 }
+
+ani_ref AniBusinessError::CreateError(ani_env* env, int32_t err)
+{
+    std::string errMsg = GetErrMsgByErrCode(err);
+    return CreateBusinessError(env, err, errMsg);
+}
 }
 }
