@@ -2142,7 +2142,7 @@ std::shared_ptr<HitTestResult> WebviewController::GetLastHitTest()
 
 void WebviewController::OnCreateNativeMediaPlayer(ani_vm* vm, ani_fn_object callback)
 {
-    WVLOG_D("put on_create_native_media_player callback");
+    WVLOG_I("put on_create_native_media_player callback");
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
     if (!nweb_ptr) {
         return;
@@ -2152,7 +2152,6 @@ void WebviewController::OnCreateNativeMediaPlayer(ani_vm* vm, ani_fn_object call
     if(!callbackImpl){
         return;
     }
-    WVLOG_I("put on_create_native_media_player callback");
     nweb_ptr->OnCreateNativeMediaPlayer(callbackImpl);
 }
 } // namespace NWeb
