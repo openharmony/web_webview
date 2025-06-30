@@ -37,24 +37,27 @@ static ani_object GetArrayBuffer(ani_env* env, ani_object object)
         WVLOG_E("env is nullptr");
         return result;
     }
-    WebJsArrayBufferExt* webArrayBufferExt = nullptr;
-
+    WebJsArrayBufferExt* webArrayBufferExt = reinterpret_cast<WebJsArrayBufferExt*>(AniParseUtils::Unwrap(env, object));
     if (webArrayBufferExt == nullptr) {
+        WVLOG_E("unwrap webArrayBufferExt failed.");
         return result;
     }
 
     const char* pdfResult = webArrayBufferExt->GetPDFResult();
     const long size = webArrayBufferExt->GetPDFSize();
     if (pdfResult == nullptr || size <= 0) {
+        WVLOG_E("[CreatePDF] invalid PDF result or size");
         return nullptr;
     }
     ani_arraybuffer arraybuffer;
     void* bufferData = nullptr;
     env->CreateArrayBuffer(size, &bufferData, &arraybuffer);
     if (bufferData == nullptr) {
+        WVLOG_E("[CreatePDF] bufferData is null after array buffer creation");
         return nullptr;
     }
     if (memcpy_s(bufferData, size, pdfResult, size) != 0) {
+        WVLOG_E("[CreatePDF] memcpy failed");
         return nullptr;
     }
 
