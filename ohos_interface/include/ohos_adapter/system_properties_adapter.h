@@ -97,6 +97,8 @@ public:
     virtual std::string GetScrollVelocityScale() = 0;
 
     virtual std::string GetScrollFriction() = 0;
+
+    virtual std::string GetDeviceInfoApiVersion() = 0;
 };
 
 } // namespace OHOS::NWeb

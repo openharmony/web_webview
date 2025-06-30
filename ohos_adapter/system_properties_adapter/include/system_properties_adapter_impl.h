@@ -84,6 +84,8 @@ public:
 
     std::string GetScrollFriction() override;
 
+    std::string GetDeviceInfoApiVersion() override;
+
 private:
     SystemPropertiesAdapterImpl();
 

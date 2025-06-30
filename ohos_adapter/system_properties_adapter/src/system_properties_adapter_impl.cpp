@@ -362,4 +362,9 @@ std::string SystemPropertiesAdapterImpl::GetScrollFriction()
 {
     return OHOS::system::GetParameter("persist.scrollable.friction", "");
 }
+
+std::string SystemPropertiesAdapterImpl::GetDeviceInfoApiVersion()
+{
+    return OHOS::system::GetParameter("const.product.os.dist.apiversion", "");
+}
 } // namespace OHOS::NWeb

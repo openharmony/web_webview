@@ -79,6 +79,7 @@ public:
 
     std::string GetScrollFriction() override;
 
+    std::string GetDeviceInfoApiVersion() override;
 private:
     ArkWebRefPtr<ArkSystemPropertiesAdapter> ctocpp_;
 };
