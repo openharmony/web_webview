@@ -532,7 +532,7 @@ static void clearClientAuthenticationCache(ani_env *env, ani_object object)
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
-    controller->ClearClientAuthenticationCache();   
+    controller->ClearClientAuthenticationCache();
 }
 
 static ani_boolean ScrollByWithResult(ani_env *env, ani_object object, ani_double deltaX, ani_double deltaY)
@@ -738,7 +738,7 @@ static void AddIntelligentTrackingPreventionBypassingList(ani_env *env, ani_obje
     return;
 }
 
-static void RemoveIntelligentTrackingPreventionBypassingList(ani_env *env, ani_object object, 
+static void RemoveIntelligentTrackingPreventionBypassingList(ani_env *env, ani_object object,
     ani_object stringArrayObj)
 {
     if (env == nullptr) {
@@ -764,7 +764,7 @@ static void ClearIntelligentTrackingPreventionBypassingList(ani_env *env, ani_ob
     NWebHelper::Instance().ClearIntelligentTrackingPreventionBypassingList();
     return;
 }
-static void SetHostIP(ani_env *env, ani_object object, ani_object hostNameObj, ani_object addressObj, 
+static void SetHostIP(ani_env *env, ani_object object, ani_object hostNameObj, ani_object addressObj,
     ani_int aliveTime)
 {
     if (env == nullptr) {
@@ -786,7 +786,7 @@ static void SetHostIP(ani_env *env, ani_object object, ani_object hostNameObj, a
         WVLOG_E("aliveTime must be greater than 0, aliveTime: %{public}d", aliveTimeInt);
         return;
     }
-    WVLOG_I("Set host ip: %{public}s, %{public}s, aliveTime: %{public}d", hostName.c_str(), address.c_str(), 
+    WVLOG_I("Set host ip: %{public}s, %{public}s, aliveTime: %{public}d", hostName.c_str(), address.c_str(),
     aliveTimeInt);
     NWebHelper::Instance().SetHostIP(hostName, address, aliveTimeInt);
     return;
@@ -1236,7 +1236,7 @@ static ani_ref GetFavicon(ani_env* env, ani_object object)
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return result;
     }
-    
+
     const void *data = nullptr;
     size_t width = 0;
     size_t height = 0;
@@ -2393,7 +2393,7 @@ ani_double PrecompileJavaScript(
             return -1.0;
         }
     }
-    
+
     auto cacheOptionsPtr = AniParseUtils::ParseCacheOptions(env, cacheOptions);
     PrecompileJavaScriptPromise(env, object, urlStr, scriptStr, cacheOptionsPtr);
     return -1.0;
@@ -2873,7 +2873,7 @@ static void WebPageSnapshot(ani_env* env, ani_object object, ani_object info, an
         return;
     }
     bool pixelCheck = (options.sizeType == PixelUnit::VP);
-    WVLOG_I("WebPageSnapshot pixel type :%{public}d", static_cast<int>(options.sizeType));    
+    WVLOG_I("WebPageSnapshot pixel type :%{public}d", static_cast<int>(options.sizeType));
     ani_ref callbackRef;
     if (ANI_OK != env->GlobalReference_Create(callback, &callbackRef)) {
         WVLOG_E("WebPageSnapshot failed to create reference for callback");
@@ -2887,6 +2887,21 @@ static void WebPageSnapshot(ani_env* env, ani_object object, ani_object info, an
         g_inWebPageSnapshot = false;
         AniBusinessError::ThrowErrorByErrCode(env, ret);
     }
+}
+
+static void InnerCompleteWindowNew(ani_env* env, ani_object object, ani_int parentNWebId)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("InnerCompleteWindow webviewController is nullptr");
+        return;
+    }
+    controller->InnerCompleteWindowNew(parentNWebId);
 }
 
 ani_status StsWebviewControllerInit(ani_env *env)
@@ -2912,7 +2927,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "getWebId", nullptr, reinterpret_cast<void *>(GetWebId) },
         ani_native_function { "getScrollable", nullptr, reinterpret_cast<void *>(GetScrollable) },
         ani_native_function { "requestFocus", nullptr, reinterpret_cast<void *>(RequestFocus) },
-        ani_native_function { "clearClientAuthenticationCache", nullptr, 
+        ani_native_function { "clearClientAuthenticationCache", nullptr,
             reinterpret_cast<void *>(clearClientAuthenticationCache) },
         ani_native_function { "scrollByWithResult", nullptr, reinterpret_cast<void *>(ScrollByWithResult) },
         ani_native_function { "setScrollable", nullptr, reinterpret_cast<void *>(SetScrollable) },
@@ -2923,7 +2938,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "zoom", nullptr, reinterpret_cast<void *>(Zoom) },
         ani_native_function { "pageDown", nullptr, reinterpret_cast<void *>(PageDown) },
         ani_native_function { "pageUp", nullptr, reinterpret_cast<void *>(PageUp) },
-        ani_native_function { "isAdsBlockEnabledForCurPage", nullptr, 
+        ani_native_function { "isAdsBlockEnabledForCurPage", nullptr,
             reinterpret_cast<void *>(IsAdsBlockEnabledForCurPage) },
         ani_native_function { "isIntelligentTrackingPreventionEnabled", nullptr,
             reinterpret_cast<void *>(IsIntelligentTrackingPreventionEnabled) },
@@ -2990,9 +3005,9 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "serializeWebState", nullptr, reinterpret_cast<void *>(SerializeWebState) },
         ani_native_function { "trimMemoryByPressureLevel", nullptr,
                               reinterpret_cast<void *>(TrimMemoryByPressureLevel) },
-        ani_native_function { "setPathAllowingUniversalAccess", nullptr, 
+        ani_native_function { "setPathAllowingUniversalAccess", nullptr,
                               reinterpret_cast<void *>(SetPathAllowingUniversalAccess) },
-        ani_native_function { "onCreateNativeMediaPlayer", "Lstd/core/Function2;:V", 
+        ani_native_function { "onCreateNativeMediaPlayer", "Lstd/core/Function2;:V",
                               reinterpret_cast<void *>(OnCreateNativeMediaPlayer) },
         ani_native_function { "injectOfflineResourcesInternal", nullptr,
                               reinterpret_cast<void *>(InjectOfflineResources) },
@@ -3015,6 +3030,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "setAudioMuted", nullptr, reinterpret_cast<void *>(SetAudioMuted) },
         ani_native_function { "getMediaPlaybackState", nullptr, reinterpret_cast<void *>(GetMediaPlaybackState) },
         ani_native_function { "webPageSnapshot", nullptr, reinterpret_cast<void *>(WebPageSnapshot) },
+        ani_native_function { "innerCompleteWindowNew", nullptr, reinterpret_cast<void *>(InnerCompleteWindowNew) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
