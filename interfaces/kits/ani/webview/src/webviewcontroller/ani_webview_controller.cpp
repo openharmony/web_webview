@@ -1353,6 +1353,21 @@ static ani_double GetPageHeight(ani_env *env, ani_object object)
     return static_cast<ani_double>(pageHeight);
 }
 
+static void InnerCompleteWindowNew(ani_env* env, ani_object object, ani_int parentNWebId)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("InnerCompleteWindow webviewController is nullptr");
+        return;
+    }
+    controller->InnerCompleteWindowNew(parentNWebId);
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     if (env == nullptr) {
@@ -1409,6 +1424,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "loadData", nullptr, reinterpret_cast<void *>(LoadData) },
         ani_native_function { "clearHistory", nullptr, reinterpret_cast<void *>(ClearHistory) },
         ani_native_function { "clearWebSchemeHandler", nullptr, reinterpret_cast<void *>(ClearWebSchemeHandler) },
+        ani_native_function { "innerCompleteWindowNew", nullptr, reinterpret_cast<void *>(InnerCompleteWindowNew) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());

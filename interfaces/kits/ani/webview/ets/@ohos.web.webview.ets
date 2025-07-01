@@ -188,6 +188,10 @@ export default namespace webview {
         native loadData(data: string, mimeType: string, encoding: string, baseUrl?: string, historyUrl?: string): void;
         native clearHistory(): void;
         native clearWebSchemeHandler(): void;
+        native innerCompleteWindowNew(parentNwebId:int): void;
+        innerGetThisVar(): long {
+            return this.nativePtr;
+        }
     }
 
     export class WebSchemeHandlerResponse {
