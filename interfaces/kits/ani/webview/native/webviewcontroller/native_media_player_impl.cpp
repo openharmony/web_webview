@@ -57,7 +57,10 @@ bool EnumParseInt32_t(ani_env* env, ani_enum_item enum_item, int32_t& outValue)
         return false;
     }
     ani_int number = 0;
-    env->EnumItem_GetValue_Int(enum_item, &number);
+    if (env->EnumItem_GetValue_Int(enum_item, &number) != ANI_OK) {
+        WVLOG_E("EnumParseInt32 failed");
+        return false;
+    }
     outValue = static_cast<int32_t>(number);
     return true;
 }
@@ -367,6 +370,12 @@ void NWebNativeMediaPlayerBridgeImpl::UpdateRect(double x, double y, double widt
     argv[INTEGER_ONE] = createObjectDouble(env, y);
     argv[INTEGER_TWO] = createObjectDouble(env, width);
     argv[INTEGER_THREE] = createObjectDouble(env, height);
+    if (argv[INTEGER_ZERO] == nullptr || 
+        argv[INTEGER_ONE] == nullptr || 
+        argv[INTEGER_TWO] == nullptr || 
+        argv[INTEGER_THREE] == nullptr) {
+        return;
+    }
 
     if (env->Object_CallMethodByName_Void(reinterpret_cast<ani_object>(value_), "updateRect", nullptr, argv) !=
         ANI_OK) {
@@ -410,6 +419,9 @@ void NWebNativeMediaPlayerBridgeImpl::Seek(double time)
 
     ani_ref argv[INTEGER_ONE];
     argv[INTEGER_ZERO] = createObjectDouble(env, time);
+    if (argv[INTEGER_ZERO] == nullptr) {
+        return;
+    }
 
     if (env->Object_CallMethodByName_Void(reinterpret_cast<ani_object>(value_), "seek", nullptr, argv) != ANI_OK) {
         WVLOG_E("Seek failed");
@@ -426,6 +438,9 @@ void NWebNativeMediaPlayerBridgeImpl::SetVolume(double volume)
 
     ani_ref argv[INTEGER_ONE];
     argv[INTEGER_ZERO] = createObjectDouble(env, volume);
+    if (argv[INTEGER_ZERO] == nullptr) {
+        return;
+    }
 
     if (env->Object_CallMethodByName_Void(reinterpret_cast<ani_object>(value_), "setVolume", nullptr, argv) != ANI_OK) {
         WVLOG_E("SetVolume failed");
@@ -443,6 +458,9 @@ void NWebNativeMediaPlayerBridgeImpl::SetMuted(bool isMuted)
     ani_boolean isMutedBool = isMuted ? true : false;
     ani_ref argv[INTEGER_ONE];
     argv[INTEGER_ZERO] = createObjectBoolean(env, isMutedBool);
+    if (argv[INTEGER_ZERO] == nullptr) {
+        return;
+    }
 
     if (env->Object_CallMethodByName_Void(reinterpret_cast<ani_object>(value_), "setMuted", nullptr, argv) != ANI_OK) {
         WVLOG_E("SetMuted failed");
@@ -459,6 +477,9 @@ void NWebNativeMediaPlayerBridgeImpl::SetPlaybackRate(double playbackRate)
 
     ani_ref argv[INTEGER_ONE];
     argv[INTEGER_ZERO] = createObjectDouble(env, playbackRate);
+    if (argv[INTEGER_ZERO] == nullptr) {
+        return;
+    }
 
     if (env->Object_CallMethodByName_Void(reinterpret_cast<ani_object>(value_), "setPlaybackRate", nullptr, argv) !=
         ANI_OK) {

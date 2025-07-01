@@ -2143,6 +2143,10 @@ std::shared_ptr<HitTestResult> WebviewController::GetLastHitTest()
 void WebviewController::OnCreateNativeMediaPlayer(ani_vm* vm, ani_fn_object callback)
 {
     WVLOG_I("put on_create_native_media_player callback");
+    if (vm == nullptr) {
+        WVLOG_E("vm is nullptr");
+        return;
+    }
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
     if (!nweb_ptr) {
         return;
