@@ -515,6 +515,23 @@ export default namespace webview {
         innerGetThisVar(): long {
             return this.nativePtr;
         }
+        native precompileJavaScriptInternal(url: string, script: string | ArrayBuffer, cacheOptions: CacheOptions): Promise<number>;
+        precompileJavaScript(url: string, script: string | Uint8Array, cacheOptions: CacheOptions): Promise<number> {
+            let resScript: string | ArrayBuffer
+            if (typeof script === 'string') {
+                resScript = script as string;
+            } else if (script instanceof Uint8Array) {
+                resScript = script.buffer as ArrayBuffer;
+            }
+            
+            let promise: Promise<number> = this.precompileJavaScriptInternal(url,resScript,cacheOptions);
+                promise.then((e :number): void=>{
+                    console.log("precompileJavaScript promise")
+                }, (err:Error): void => {
+                    console.log("precompileJavaScript err: ", err)
+                });
+            return promise;
+        }      
     }
 
     export class WebSchemeHandlerResponse {

@@ -164,17 +164,20 @@ ani_status AniParseUtils::SetPropertyByName_String(ani_env *env, ani_object aniC
 
 std::shared_ptr<CacheOptions> AniParseUtils::ParseCacheOptions(ani_env *env, ani_object cacheOptions)
 {
-    if (env == nullptr) {
-        WVLOG_E("env is nullptr");
-        return nullptr;
-    }
-    ani_ref cacheOptionsArray = nullptr;
+    WVLOG_D("PrecompileJavaScript ParseCacheOptions begin");
     std::map<std::string, std::string> responseHeaders;
     auto defaultCacheOptions = std::make_shared<NWebCacheOptionsImpl>(responseHeaders);
+
+    ani_ref cacheOptionsArray = nullptr;
     if (env->Object_GetPropertyByName_Ref(cacheOptions, "responseHeaders", &cacheOptionsArray) != ANI_OK) {
+        WVLOG_E("PrecompileJavaScript defaultCacheOptions");
         return defaultCacheOptions;
     }
-    ParseStringArrayMap(env, static_cast<ani_object>(cacheOptionsArray), responseHeaders);
+
+    if(!ParseStringArrayMap(env, static_cast<ani_object>(cacheOptionsArray), responseHeaders)){
+        WVLOG_E("PrecompileJavaScript defaultCacheOptions");
+        return defaultCacheOptions;
+    }
     return std::make_shared<NWebCacheOptionsImpl>(responseHeaders);
 }
 
@@ -501,6 +504,39 @@ bool AniParseUtils::CreateBoolean(ani_env *env, bool src, ani_object& aniObj)
         return false;
     }
     return true;
+}
+
+ani_object AniParseUtils::CreateInt64Object(ani_env* env, ani_long val)
+{
+    ani_class cls;
+    env->FindClass("std.core.Long", &cls);
+    ani_method ctor;
+    env->Class_FindMethod(cls, "<ctor>", nullptr, &ctor);
+    ani_object obj {};
+    if (env->Object_New(cls, ctor, &obj, val) != ANI_OK) {
+        WVLOG_E("Failed to allocate Long");
+        ani_ref undefinedRef;
+        env->GetUndefined(&undefinedRef);
+        return static_cast<ani_object>(undefinedRef);
+    }
+    return obj;
+}
+
+ani_object AniParseUtils::CreateDouble(ani_env* env, ani_double val)
+{
+    static constexpr const char* className = "std.core.Double";
+    ani_class doubleCls {};
+    env->FindClass(className, &doubleCls);
+    ani_method ctor {};
+    env->Class_FindMethod(doubleCls, "<ctor>", "d:", &ctor);
+    ani_object obj {};
+    if (env->Object_New(doubleCls, ctor, &obj, static_cast<ani_double>(val)) != ANI_OK) {
+        std::cerr << "Failed to allocate Double!" << std::endl;
+        ani_ref undefinedRef;
+        env->GetUndefined(&undefinedRef);
+        return static_cast<ani_object>(undefinedRef);
+    }
+    return obj;
 }
 }
 }

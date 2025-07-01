@@ -52,6 +52,8 @@ public:
     static bool IsDouble(ani_env *env, const ani_object& object);
     static bool IsObject(ani_env *env, const ani_object& object);
     static bool CreateBoolean(ani_env *env, bool src, ani_object& aniObj);
+    static ani_object CreateInt64Object(ani_env *env, ani_long val);
+    static ani_object CreateDouble(ani_env *env, ani_double val); 
 };
 } // namespace NWeb
 } // namespace OHOS
