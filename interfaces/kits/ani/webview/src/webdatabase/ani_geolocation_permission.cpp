@@ -70,8 +70,8 @@
          return;
      }
  
-     std::string orgigin_new;
-     if (!AniParseUtils::ParseString(env, origin, orgigin_new)) {
+     std::string origin_new;
+     if (!AniParseUtils::ParseString(env, origin, origin_new)) {
          WVLOG_E("parse origin failed");
          return;
      }
@@ -82,13 +82,13 @@
          return;
      }
      if (operationType == ALLOW_PERMISSION_OPERATION) {
-         if (dataBase->SetPermissionByOrigin(orgigin_new, OHOS::NWeb::NWebDataBase::WebPermissionType::GEOLOCATION_TYPE,
+         if (dataBase->SetPermissionByOrigin(origin_new, OHOS::NWeb::NWebDataBase::WebPermissionType::GEOLOCATION_TYPE,
                  true, incognito) == NWebError::INVALID_ORIGIN) {
              AniBusinessError::ThrowError(env, NWebError::INVALID_ORIGIN, "Origin is wrong");
              return;
          }
      } else if (operationType == DELETE_PERMISSION_OPERATION) {
-         if (dataBase->ClearPermissionByOrigin(orgigin_new,
+         if (dataBase->ClearPermissionByOrigin(origin_new,
                  OHOS::NWeb::NWebDataBase::WebPermissionType::GEOLOCATION_TYPE,
                  incognito) == NWebError::INVALID_ORIGIN) {
              AniBusinessError::ThrowError(env, NWebError::INVALID_ORIGIN, "Origin is wrong");
@@ -242,6 +242,7 @@
      status = env->Class_BindNativeMethods(geolocationPermissionCls, allMethods.data(), allMethods.size());
      if (status != ANI_OK) {
          WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+         return ANI_ERROR;
      }
      return ANI_OK;
  }
