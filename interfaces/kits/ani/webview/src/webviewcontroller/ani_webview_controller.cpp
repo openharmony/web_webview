@@ -2487,6 +2487,7 @@ static void PrefetchResource(ani_env* env, ani_object object, ani_object request
 
 static void StartCamera(ani_env* env, ani_object object)
 {
+    WVLOG_I("StartCamera begin");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
@@ -2496,12 +2497,17 @@ static void StartCamera(ani_env* env, ani_object object)
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
-    controller->StartCamera();
+    ErrCode ret = controller->StartCamera();
+    if (ret != NO_ERROR) {
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+        return;
+    }
     return;
 }
 
 static void CloseAllMediaPresentations(ani_env* env, ani_object object)
 {
+    WVLOG_I("CloseAllMediaPresentations begin");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
@@ -2517,6 +2523,7 @@ static void CloseAllMediaPresentations(ani_env* env, ani_object object)
 
 static void StopAllMedia(ani_env* env, ani_object object)
 {
+    WVLOG_I("StopAllMedia begin");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
@@ -2532,25 +2539,7 @@ static void StopAllMedia(ani_env* env, ani_object object)
 
 static void StopCamera(ani_env* env, ani_object object)
 {
-    if (env == nullptr) {
-        WVLOG_E("env is nullptr");
-        return;
-    }
-    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
-    if (!controller) {
-        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
-        return;
-    }
-    if (!controller->IsInit()) {
-        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
-        return;
-    }
-    controller->StopCamera();
-    return;
-}
-
-static void CloseCamera(ani_env* env, ani_object object)
-{
+    WVLOG_I("StopCamera begin");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
@@ -2560,12 +2549,37 @@ static void CloseCamera(ani_env* env, ani_object object)
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
-    controller->CloseCamera();
+    ErrCode ret = controller->StopCamera();
+    if (ret != NO_ERROR) {
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+        return;
+    }
+    return;
+}
+
+static void CloseCamera(ani_env* env, ani_object object)
+{
+    WVLOG_I("CloseCamera begin");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    ErrCode ret = controller->CloseCamera();
+    if (ret != NO_ERROR) {
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+        return;
+    }
     return;
 }
 
 static void PauseAllMedia(ani_env* env, ani_object object)
 {
+    WVLOG_I("PauseAllMedia begin");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
@@ -2581,6 +2595,7 @@ static void PauseAllMedia(ani_env* env, ani_object object)
 
 static void ResumeAllMedia(ani_env* env, ani_object object)
 {
+    WVLOG_I("ResumeAllMedia begin");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
@@ -2596,6 +2611,7 @@ static void ResumeAllMedia(ani_env* env, ani_object object)
 
 static void SetAudioMuted(ani_env* env, ani_object object,ani_boolean mute)
 {
+    WVLOG_I("SetAudioMuted begin");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
@@ -2615,6 +2631,7 @@ static void SetAudioMuted(ani_env* env, ani_object object,ani_boolean mute)
 
 static ani_enum_item GetMediaPlaybackState(ani_env* env, ani_object object)
 {
+    WVLOG_I("GetMediaPlaybackState begin");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return nullptr;
@@ -2635,16 +2652,15 @@ static ani_enum_item GetMediaPlaybackState(ani_env* env, ani_object object)
 
 void OnCreateNativeMediaPlayer(ani_env* env, ani_object object, ani_fn_object callback)
 {
-    ani_vm *vm = nullptr;
-    env->GetVM(&vm);
-    g_vm = vm;
-
-    WVLOG_D("put on_create_native_media_player callback");
-
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
     }
+    
+    ani_vm *vm = nullptr;
+    env->GetVM(&vm);
+    g_vm = vm;
+    WVLOG_I("put on_create_native_media_player callback");
 
     auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
     if (!controller || !controller->IsInit()) {

@@ -52,7 +52,10 @@ bool EnumParseInt32_t(ani_env* env, ani_enum_item enum_item, int32_t& outValue)
         return false;
     }
     ani_int number = 0;
-    env->EnumItem_GetValue_Int(enum_item, &number);
+    if (env->EnumItem_GetValue_Int(enum_item, &number) != ANI_OK) {
+        WVLOG_E("EnumParseInt32 failed");
+        return false;
+    }
     outValue = static_cast<int32_t>(number);
     return true;
 }
@@ -72,7 +75,10 @@ bool ParseDouble_t(ani_env* env, ani_ref ref, double& outValue)
     }
 
     ani_double value = 0;
-    env->Object_CallMethodByName_Double(static_cast<ani_object>(ref), "unboxed", ":d", &value);
+    if (env->Object_CallMethodByName_Double(static_cast<ani_object>(ref), "unboxed", ":d", &value) != ANI_OK) {
+        WVLOG_E("ParseDouble failed");
+        return false;
+    }
     outValue = value;
     return true;
 }
@@ -91,7 +97,10 @@ bool ParseBoolean_t(ani_env* env, ani_ref ref, bool& outValue)
     }
 
     ani_boolean boolValue = false;
-    env->Object_CallMethodByName_Boolean(static_cast<ani_object>(ref), "unboxed", ":z", &boolValue);
+    if (env->Object_CallMethodByName_Boolean(static_cast<ani_object>(ref), "unboxed", ":z", &boolValue) != ANI_OK) {
+        WVLOG_E("ParseBoolean failed");
+        return false;
+    }
     outValue = boolValue ? true : false;
     return true;
 }
@@ -167,8 +176,13 @@ static void HandleVolumeChanged(ani_env* env, ani_object object, ani_double volu
         WVLOG_E("env is nullptr");
         return;
     }
+    ani_ref volumeRef = static_cast<ani_ref>(createObjectDouble(env, volume));
+    if (volumeRef == nullptr) {
+        WVLOG_E("failed to create volume object");
+        return;
+    }
     double volumeStr;
-    if (!ParseDouble_t(env, static_cast<ani_ref>(createObjectDouble(env, volume)), volumeStr)) {
+    if (!ParseDouble_t(env, volumeRef, volumeStr)) {
         WVLOG_E("failed to parse volume");
         NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
         return;
@@ -196,8 +210,13 @@ static void HandleMutedChanged(ani_env* env, ani_object object, ani_boolean mute
         WVLOG_E("env is nullptr");
         return;
     }
+    ani_ref mutedRef = static_cast<ani_ref>(createObjectBoolean(env, muted));
+    if (mutedRef == nullptr) {
+        WVLOG_E("failed to create muted object");
+        return;
+    }
     bool mutedStr;
-    if (!ParseBoolean_t(env, static_cast<ani_ref>(createObjectBoolean(env, muted)), mutedStr)) {
+    if (!ParseBoolean_t(env, mutedRef, mutedStr)) {
         WVLOG_E("failed to parse muted");
         NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
         return;
@@ -220,8 +239,13 @@ static void HandlePlaybackRateChanged(ani_env* env, ani_object object, ani_doubl
         WVLOG_E("env is nullptr");
         return;
     }
+    ani_ref playbackRateRef = static_cast<ani_ref>(createObjectDouble(env, playbackRate));
+    if (playbackRateRef == nullptr) {
+        WVLOG_E("failed to create playbackRate object");
+        return;
+    }
     double playbackRateStr;
-    if (!ParseDouble_t(env, static_cast<ani_ref>(createObjectDouble(env, playbackRate)), playbackRateStr)) {
+    if (!ParseDouble_t(env, playbackRateRef, playbackRateStr)) {
         WVLOG_E("failed to parse rate");
         NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
         return;
@@ -249,8 +273,13 @@ static void HandleDurationChanged(ani_env* env, ani_object object, ani_double du
         WVLOG_E("env is nullptr");
         return;
     }
+    ani_ref durationRef = static_cast<ani_ref>(createObjectDouble(env, duration));
+    if (durationRef == nullptr) {
+        WVLOG_E("failed to create duration object");
+        return;
+    }
     double durationStr;
-    if (!ParseDouble_t(env, static_cast<ani_ref>(createObjectDouble(env, duration)), durationStr)) {
+    if (!ParseDouble_t(env, durationRef, durationStr)) {
         WVLOG_E("failed to parse duration");
         NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
         return;
@@ -278,8 +307,13 @@ static void HandleTimeUpdate(ani_env* env, ani_object object, ani_double current
         WVLOG_E("env is nullptr");
         return;
     }
+    ani_ref currentPlayTimeRef = static_cast<ani_ref>(createObjectDouble(env, currentPlayTime));
+    if (currentPlayTimeRef == nullptr) {
+        WVLOG_E("failed to create currentPlayTime object");
+        return;
+    }
     double currentPlayTimeStr;
-    if (!ParseDouble_t(env, static_cast<ani_ref>(createObjectDouble(env, currentPlayTime)), currentPlayTimeStr)) {
+    if (!ParseDouble_t(env, currentPlayTimeRef, currentPlayTimeStr)) {
         WVLOG_E("failed to parse time");
         NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
         return;
@@ -307,8 +341,13 @@ static void HandleBufferedEndTimeChanged(ani_env* env, ani_object object, ani_do
         WVLOG_E("env is nullptr");
         return;
     }
+    ani_ref bufferedEndTimeRef = static_cast<ani_ref>(createObjectDouble(env, bufferedEndTime));
+    if (bufferedEndTimeRef == nullptr) {
+        WVLOG_E("failed to create bufferedEndTime object");
+        return;
+    }
     double bufferedEndTimeStr;
-    if (!ParseDouble_t(env, static_cast<ani_ref>(createObjectDouble(env, bufferedEndTime)), bufferedEndTimeStr)) {
+    if (!ParseDouble_t(env, bufferedEndTimeRef, bufferedEndTimeStr)) {
         WVLOG_E("failed to parse time");
         NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
         return;
@@ -413,8 +452,13 @@ static void HandleFullScreenChanged(ani_env* env, ani_object object, ani_boolean
         WVLOG_E("env is nullptr");
         return;
     }
+    ani_ref fullscreenRef = static_cast<ani_ref>(createObjectBoolean(env, fullscreen));
+    if (fullscreenRef == nullptr) {
+        WVLOG_E("failed to create fullscreen object");
+        return;
+    }
     bool fullscreenStr;
-    if (!ParseBoolean_t(env, static_cast<ani_ref>(createObjectBoolean(env, fullscreen)), fullscreenStr)) {
+    if (!ParseBoolean_t(env, fullscreenRef, fullscreenStr)) {
         WVLOG_E("failed to parse flag");
         NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
         return;
@@ -509,14 +553,24 @@ static void HandleVideoSizeChanged(ani_env* env, ani_object object, ani_double w
         WVLOG_E("env is nullptr");
         return;
     }
+    ani_ref widthRef = static_cast<ani_ref>(createObjectDouble(env, width));
+    if (widthRef == nullptr) {
+        WVLOG_E("failed to create width object");
+        return;
+    }
     double widthStr;
-    if (!ParseDouble_t(env, static_cast<ani_ref>(createObjectDouble(env, width)), widthStr)) {
+    if (!ParseDouble_t(env, widthRef, widthStr)) {
         WVLOG_E("failed to parse width");
         NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
         return;
     }
+    ani_ref heightRef = static_cast<ani_ref>(createObjectDouble(env, height));
+    if (heightRef == nullptr) {
+        WVLOG_E("failed to create height object");
+        return;
+    }
     double heightStr;
-    if (!ParseDouble_t(env, static_cast<ani_ref>(createObjectDouble(env, height)), heightStr)) {
+    if (!ParseDouble_t(env, heightRef, heightStr)) {
         WVLOG_E("failed to parse height");
         NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
         return;
