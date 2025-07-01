@@ -38,6 +38,8 @@ public:
     void AddNativeWindowRef(NWebNativeWindow window) override;
 
     void NativeWindowUnRef(NWebNativeWindow window) override;
+
+    void NativeWindowSetUsage(NWebNativeWindow window) override;
 };
 } // namespace OHOS::NWeb
 
