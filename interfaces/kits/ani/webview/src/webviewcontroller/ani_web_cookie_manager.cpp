@@ -30,7 +30,7 @@ const char* WEB_COOKIE_MANAGER_CLASS_NAME = "L@ohos/web/webview/webview/WebCooki
 }
 static void ClearSessionCookieSync(ani_env *env, ani_object aniClass)
 {
-    WVLOG_I("[COOKIE] ClearSessionCookieSync");
+    WVLOG_D("[COOKIE] ClearSessionCookieSync");
     std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
         OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
     if (cookieManager == nullptr) {
@@ -42,7 +42,7 @@ static void ClearSessionCookieSync(ani_env *env, ani_object aniClass)
 
 static ani_boolean JsExistCookie(ani_env *env, ani_object aniClass, ani_object incognito)
 {
-    WVLOG_I("[COOKIE] JsExistCookie");
+    WVLOG_D("[COOKIE] JsExistCookie");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return ANI_FALSE;
@@ -72,7 +72,7 @@ static ani_boolean JsExistCookie(ani_env *env, ani_object aniClass, ani_object i
 
 static ani_boolean JsIsCookieAllowed(ani_env *env, ani_object aniClass)
 {
-    WVLOG_I("[COOKIE] JsIsCookieAllowed");
+    WVLOG_D("[COOKIE] JsIsCookieAllowed");
     std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
         OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
     if (cookieManager == nullptr) {
