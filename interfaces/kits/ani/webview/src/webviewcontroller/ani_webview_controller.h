@@ -28,6 +28,7 @@ struct OfflineResourceValueAni {
 };
 
 ani_status StsWebviewControllerInit(ani_env *env);
+ani_status StsWebMessageExtInit(ani_env *env);
 ani_status StsCleanerInit(ani_env *env);
 ani_status StsBackForwardListInit(ani_env *env);
 ani_status StsWebSchemeHandlerResponseInit(ani_env *env);

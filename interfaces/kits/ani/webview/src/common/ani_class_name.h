@@ -23,6 +23,7 @@ namespace NWeb {
 
 static const char* ANI_CLASS_CLEANER = "L@ohos/web/webview/Cleaner;";
 static const char* ANI_CLASS_WEBVIEW_CONTROLLER = "L@ohos/web/webview/webview/WebviewController;";
+static const char* ANI_WEB_MESSAGE_EXT_NAME = "L@ohos/web/webview/webview/WebMessageExt;";
 static const char* ANI_CLASS_WEB_HEADER = "L@ohos/web/webview/webview/WebHeader;";
 
 static const char* ANI_CLASS_SCROLL_OFFSET_INNER = "L@ohos/web/webview/webview/ScrollOffsetInner;";
