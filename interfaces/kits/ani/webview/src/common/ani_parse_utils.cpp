@@ -164,7 +164,10 @@ ani_status AniParseUtils::SetPropertyByName_String(ani_env *env, ani_object aniC
 
 std::shared_ptr<CacheOptions> AniParseUtils::ParseCacheOptions(ani_env *env, ani_object cacheOptions)
 {
-    WVLOG_D("PrecompileJavaScript ParseCacheOptions begin");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
     std::map<std::string, std::string> responseHeaders;
     auto defaultCacheOptions = std::make_shared<NWebCacheOptionsImpl>(responseHeaders);
 
@@ -506,22 +509,6 @@ bool AniParseUtils::CreateBoolean(ani_env *env, bool src, ani_object& aniObj)
     return true;
 }
 
-ani_object AniParseUtils::CreateInt64Object(ani_env* env, ani_long val)
-{
-    ani_class cls;
-    env->FindClass("std.core.Long", &cls);
-    ani_method ctor;
-    env->Class_FindMethod(cls, "<ctor>", nullptr, &ctor);
-    ani_object obj {};
-    if (env->Object_New(cls, ctor, &obj, val) != ANI_OK) {
-        WVLOG_E("Failed to allocate Long");
-        ani_ref undefinedRef;
-        env->GetUndefined(&undefinedRef);
-        return static_cast<ani_object>(undefinedRef);
-    }
-    return obj;
-}
-
 ani_object AniParseUtils::CreateDouble(ani_env* env, ani_double val)
 {
     static constexpr const char* className = "std.core.Double";
@@ -531,7 +518,7 @@ ani_object AniParseUtils::CreateDouble(ani_env* env, ani_double val)
     env->Class_FindMethod(doubleCls, "<ctor>", "d:", &ctor);
     ani_object obj {};
     if (env->Object_New(doubleCls, ctor, &obj, static_cast<ani_double>(val)) != ANI_OK) {
-        std::cerr << "Failed to allocate Double!" << std::endl;
+        WVLOG_E("CreateDouble Failed");
         ani_ref undefinedRef;
         env->GetUndefined(&undefinedRef);
         return static_cast<ani_object>(undefinedRef);
