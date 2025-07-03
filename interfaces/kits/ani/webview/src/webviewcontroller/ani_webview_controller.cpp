@@ -2909,6 +2909,10 @@ ani_object PrecompileJavaScript(
     ani_boolean isArrayBuffer;
     std::string scriptStr;
     ani_status res = env->Object_InstanceOf(script, ArrayBufferCls, &isArrayBuffer);
+    if (res != ANI_OK) {
+        WVLOG_E("Object_InstanceOf failed");
+        return result;
+    }
     if (isArrayBuffer) {
         uint8_t* arrayBuffer = nullptr;
         ani_size byteLength;
