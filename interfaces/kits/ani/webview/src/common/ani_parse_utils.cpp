@@ -537,6 +537,8 @@ ani_object AniParseUtils::CreateDouble(ani_env* env, ani_double val)
         return static_cast<ani_object>(undefinedRef);
     }
     return obj;
+}
+
 ani_string StringToAniStr(ani_env* env, const std::string& str)
 {
     ani_string result {};
