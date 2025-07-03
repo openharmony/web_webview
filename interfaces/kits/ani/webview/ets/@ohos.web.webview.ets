@@ -502,15 +502,8 @@ export default namespace webview {
             } else if (script instanceof Uint8Array) {
                 resScript = script.buffer as ArrayBuffer;
             }
-            
-            let promise: Promise<number> = this.precompileJavaScriptInternal(url,resScript,cacheOptions);
-                promise.then((e :number): void=>{
-                    console.log("precompileJavaScript promise")
-                }, (err:Error): void => {
-                    console.log("precompileJavaScript err: ", err)
-                });
-            return promise;
-        }      
+            return this.precompileJavaScriptInternal(url,resScript,cacheOptions);
+        }
     }
 
     export class WebSchemeHandlerResponse {
