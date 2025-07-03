@@ -52,6 +52,7 @@ public:
     static bool IsDouble(ani_env *env, const ani_object& object);
     static bool IsObject(ani_env *env, const ani_object& object);
     static bool CreateBoolean(ani_env *env, bool src, ani_object& aniObj);
+    static ani_ref CreateAniStringArray(ani_env *env, const std::vector<std::string> &paths);
 };
 } // namespace NWeb
 } // namespace OHOS

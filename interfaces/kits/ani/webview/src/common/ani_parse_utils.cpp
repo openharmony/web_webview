@@ -502,5 +502,46 @@ bool AniParseUtils::CreateBoolean(ani_env *env, bool src, ani_object& aniObj)
     }
     return true;
 }
+
+ani_string StringToAniStr(ani_env* env, const std::string& str)
+{
+    ani_string result {};
+    if (ANI_OK != env->String_NewUTF8(str.c_str(), str.size(), &result)) {
+        return nullptr;
+    }
+    return result;
+}
+
+ani_ref AniParseUtils::CreateAniStringArray(ani_env* env, const std::vector<std::string>& paths)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    ani_class stringCls = nullptr;
+    static const char* className = "Lstd/core/String;";
+    ani_status status = env->FindClass(className, &stringCls);
+    if (status != ANI_OK) {
+        WVLOG_E("find %{public}s class failed, status: %{public}d", className, status);
+        return nullptr;
+    }
+    ani_ref undefinedRef = nullptr;
+    if (ANI_OK != env->GetUndefined(&undefinedRef)) {
+        WVLOG_E("GetUndefined Failed.");
+        return nullptr;
+    }
+    ani_array_ref array;
+    if (ANI_OK != env->Array_New_Ref(stringCls, paths.size(), undefinedRef, &array)) {
+        WVLOG_E("new array ref error.");
+        return nullptr;
+    }
+    for (size_t i = 0; i < paths.size(); ++i) {
+        auto item = StringToAniStr(env, paths[i]);
+        if (ANI_OK != env->Array_Set_Ref(array, i, item)) {
+            return nullptr;
+        }
+    }
+    return array;
+}
 }
 }
