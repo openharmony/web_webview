@@ -30,6 +30,7 @@ using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
 static const char* WEB_ADS_BLOCK_MANAGER_CLASS_NAME = "L@ohos/web/webview/webview/AdsBlockManager;";
+constexpr int MAX_URL_RULES_FILEPATH_LENGTH = 255;
 }
 
 void ClearAdsBlockAllowedList(ani_env *env, ani_object object)
@@ -166,6 +167,37 @@ void RemoveAdsBlockAllowedList(ani_env *env, ani_object object, ani_object domai
     }
 }
 
+static void JsSetAdsBlockRules(ani_env* env, ani_object aniClass, ani_object rulesFile, ani_boolean replace)
+{
+    WVLOG_I("JsSetAdsBlockRules begin");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    std::string rulesFileStr;
+    bool replaceMode = false;
+    if (!AniParseUtils::IsString(env, rulesFile)) {
+        WVLOG_E("JsSetAdsBlockRules FindClass Fail");
+        return;
+    }
+    if (!AniParseUtils::ParseString(env, static_cast<ani_ref>(rulesFile), rulesFileStr)) {
+        WVLOG_E("JsSetAdsBlockRules ParseString Fail");
+        return;
+    }
+    if (rulesFileStr.length() > MAX_URL_RULES_FILEPATH_LENGTH) {
+        WVLOG_E("setAdsBlockRules failed: rulesFile path too long > %{public}d", MAX_URL_RULES_FILEPATH_LENGTH);
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    replaceMode = static_cast<bool>(replace);
+    std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> adsBlockManager =
+        OHOS::NWeb::NWebHelper::Instance().GetAdsBlockManager();
+    if (adsBlockManager != nullptr) {
+        adsBlockManager->SetAdsBlockRules(rulesFileStr, replaceMode);
+    }
+    return;
+}
+
 ani_status StsWebAdsBlockManagerInit(ani_env *env)
 {
     if (env == nullptr) {
@@ -192,6 +224,8 @@ ani_status StsWebAdsBlockManagerInit(ani_env *env)
             nullptr, reinterpret_cast<void *>(RemoveAdsBlockAllowedList)},
         ani_native_function { "addAdsBlockAllowedList",
             nullptr, reinterpret_cast<void *>(AddAdsBlockAllowedList)},
+        ani_native_function { "setAdsBlockRules",
+            nullptr, reinterpret_cast<void *>(JsSetAdsBlockRules)},
     };
 
     status = env->Class_BindNativeMethods(webAdsBlockManagerCls, managerMethods.data(), managerMethods.size());
