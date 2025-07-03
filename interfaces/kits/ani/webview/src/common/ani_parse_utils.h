@@ -54,6 +54,7 @@ public:
     static bool CreateBoolean(ani_env *env, bool src, ani_object& aniObj);
     static ani_object CreateInt64Object(ani_env *env, ani_long val);
     static ani_object CreateDouble(ani_env *env, ani_double val); 
+    static ani_ref CreateAniStringArray(ani_env *env, const std::vector<std::string> &paths);
 };
 } // namespace NWeb
 } // namespace OHOS

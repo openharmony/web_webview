@@ -2077,7 +2077,7 @@ static void TrimMemoryByPressureLevel(ani_env *env, ani_object object, ani_doubl
     return;
 }
 
-static void SetPathAllowingUniversalAccess(ani_env *env, ani_object object, ani_object pathList)
+static void SetPathAllowingUniversalAccess(ani_env* env, ani_object object, ani_object pathList)
 {
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
@@ -2089,10 +2089,14 @@ static void SetPathAllowingUniversalAccess(ani_env *env, ani_object object, ani_
         return;
     }
     ani_array_ref pathListStr = static_cast<ani_array_ref>(pathList);
-    ani_int pathCount;
-    env->Object_GetPropertyByName_Int(pathList,"length",&pathCount);
-    std::vector<std::string>pathListArr;
-    for (ani_int i = 0 ; i < pathCount ; i++) {
+    ani_double pathCount;
+    ani_status status = env->Object_GetPropertyByName_Double(pathList, "length", &pathCount);
+    if (status != ANI_OK) {
+        WVLOG_E("Object_GetPropertyByName_Double failed, status: %{public}d", status);
+        return;
+    }
+    std::vector<std::string> pathListArr;
+    for (ani_double i = 0; i < pathCount; i++) {
         ani_ref pathItem = nullptr;
         env->Array_Get_Ref(pathListStr, i, &pathItem);
         std::string path;
@@ -2112,14 +2116,7 @@ static void SetPathAllowingUniversalAccess(ani_env *env, ani_object object, ani_
 
 static void EnableWholeWebPageDrawing(ani_env* env, ani_object object)
 {
-    if (env == nullptr) {
-        WVLOG_E("env is nullptr");
-        return;
-    }
-    ani_ref result = nullptr;
     NWebHelper::Instance().EnableWholeWebPageDrawing();
-    env->GetUndefined(&result);
-    return;
 }
 
 static ani_string GetSurfaceId(ani_env* env, ani_object object)

@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include <array>
 #include <iostream>
 #include <string>
@@ -24,12 +25,9 @@
 #include "securec.h"
 #include "web_errors.h"
 
-
 namespace {
 constexpr int32_t MAX_STRING_LENGTH = 40960;
 constexpr int32_t MAX_PWD_LENGTH = 256;
-constexpr int32_t PARAMZERO = 0;
-constexpr int32_t PARAMONE = 1;
 } // namespace
 namespace OHOS {
 namespace NWeb {
@@ -49,8 +47,8 @@ bool GetStringPara(ani_env* env, ani_string dataStr)
     return true;
 }
 
-bool GetSize(ani_env* env,ani_string pwd, ani_size& outValue)
-{   
+bool GetSize(ani_env* env, ani_string pwd, ani_size& outValue)
+{
     ani_size bufferSize = 0;
     env->String_GetUTF8Size(pwd, &bufferSize);
     if (bufferSize > MAX_PWD_LENGTH) {
@@ -60,8 +58,8 @@ bool GetSize(ani_env* env,ani_string pwd, ani_size& outValue)
     return true;
 }
 
-bool GetCharPara(ani_env* env,ani_string pwd,ani_size bufferSize)
-{    
+bool GetCharPara(ani_env* env, ani_string pwd, ani_size bufferSize)
+{
     ani_size jsStringLength = 0;
     env->String_GetUTF8Size(pwd, &jsStringLength);
     if (jsStringLength != bufferSize) {
@@ -72,42 +70,45 @@ bool GetCharPara(ani_env* env,ani_string pwd,ani_size bufferSize)
 
 static void JsSaveHttpAuthCredentials(
     ani_env* env, ani_object object, ani_string host, ani_string realm, ani_string username, ani_string password)
-{   
+{
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
-        return ;
+        return;
     }
-    if (!GetStringPara(env, host)||!GetStringPara(env, realm)||!GetStringPara(env, username)) {
+    if (!GetStringPara(env, host) || !GetStringPara(env, realm) || !GetStringPara(env, username)) {
         AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "parameter", "string"));
-        return ;
+        return;
     }
     std::string hostStr;
     std::string usernameStr;
     std::string realmStr;
     std::string passwordStr;
     if (!AniParseUtils::ParseString(env, host, hostStr) || !AniParseUtils::ParseString(env, username, usernameStr) ||
-        !AniParseUtils::ParseString(env, realm, realmStr) ||
-        !AniParseUtils::ParseString(env, password, passwordStr)) {
+        !AniParseUtils::ParseString(env, realm, realmStr) || !AniParseUtils::ParseString(env, password, passwordStr)) {
         return;
     }
     if (hostStr.empty() || usernameStr.empty()) {
-        AniBusinessError::ThrowError(env,NWebError::PARAM_CHECK_ERROR,
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NOT_NULL_TWO, "username", "string"));
         return;
     }
     ani_size bufferSize = 0;
-    if (!GetSize(env,password, bufferSize)) {
+    if (!GetSize(env, password, bufferSize)) {
         AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
             "BusinessError 401: Parameter error. The length of 'password' must be between 0 and 256.");
-        return ;
+        return;
     }
     if (bufferSize > 0) {
-         char passwordBox[bufferSize + 1];
+        char passwordBox[bufferSize + 1];
+        if (memcpy_s(passwordBox, bufferSize + 1, passwordStr.c_str(), bufferSize) != EOK) {
+            WVLOG_E("Webdatabase JsSaveHttpAuthCredentials fail: memcpy fail");
+            return;
+        }
         if (!GetCharPara(env, password, bufferSize)) {
             AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
                 "BusinessError 401: Parameter error. The length of 'password' obtained twice are different");
-            return ;
+            return;
         }
         std::shared_ptr<OHOS::NWeb::NWebDataBase> dataBase = OHOS::NWeb::NWebHelper::Instance().GetDataBase();
         if (dataBase != nullptr) {
@@ -115,11 +116,11 @@ static void JsSaveHttpAuthCredentials(
         }
         (void)memset_s(passwordBox, sizeof(passwordBox), 0, sizeof(passwordBox));
     }
-    return ;
+    return;
 }
 
 bool JsExistHttpAuthCredentials(ani_env* env, ani_object object)
-{   
+{
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return false;
@@ -133,10 +134,10 @@ bool JsExistHttpAuthCredentials(ani_env* env, ani_object object)
 }
 
 static void JsDeleteHttpAuthCredentials(ani_env* env, ani_object object)
-{   
+{
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
-        return ;
+        return;
     }
     std::shared_ptr<OHOS::NWeb::NWebDataBase> dataBase = OHOS::NWeb::NWebHelper::Instance().GetDataBase();
     if (dataBase != nullptr) {
@@ -145,8 +146,8 @@ static void JsDeleteHttpAuthCredentials(ani_env* env, ani_object object)
     return;
 }
 
-static ani_object JsGetHttpAuthCredentials(ani_env* env, ani_object object, ani_string host, ani_string realm)
-{    
+static ani_ref JsGetHttpAuthCredentials(ani_env* env, ani_object object, ani_string host, ani_string realm)
+{
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return nullptr;
@@ -163,7 +164,7 @@ static ani_object JsGetHttpAuthCredentials(ani_env* env, ani_object object, ani_
     }
     std::string hostStr;
     std::string realmStr;
-       if (!AniParseUtils::ParseString(env, host, hostStr) || !AniParseUtils::ParseString(env, realm, realmStr)) {
+    if (!AniParseUtils::ParseString(env, host, hostStr) || !AniParseUtils::ParseString(env, realm, realmStr)) {
         return nullptr;
     }
     if (hostStr.empty()) {
@@ -173,25 +174,17 @@ static ani_object JsGetHttpAuthCredentials(ani_env* env, ani_object object, ani_
     }
     std::string username;
     char password[MAX_PWD_LENGTH + 1] = { 0 };
-    ani_array_ref arr = nullptr;
+    std::vector<std::string> httpAuthCredentials;
     std::shared_ptr<OHOS::NWeb::NWebDataBase> dataBase = OHOS::NWeb::NWebHelper::Instance().GetDataBase();
     if (dataBase != nullptr) {
         dataBase->GetHttpAuthCredentials(hostStr, realmStr, username, password, MAX_PWD_LENGTH + 1);
     }
     if (!username.empty() && strlen(password) > 0) {
-        ani_string nameVal = nullptr;
-        ani_string pwdVal = nullptr;
-        ani_class arrayClass;
-        env->FindClass("escompat.Array",&arrayClass);
-        env->String_NewUTF8(username.c_str(), username.length(), &nameVal);
-        env->Array_New_Ref(arrayClass, username.length(), nameVal, &arr);
-        env->Array_Set_Ref(arr, PARAMZERO, nameVal);
-        env->String_NewUTF8(password, strlen(password), &pwdVal);
-        env->Array_Set_Ref(arr, PARAMONE, pwdVal);
+        httpAuthCredentials.emplace_back(username);
+        httpAuthCredentials.emplace_back(password);
     }
     (void)memset_s(password, MAX_PWD_LENGTH + 1, 0, MAX_PWD_LENGTH + 1);
-    ani_object httpArr = static_cast<ani_object>(arr);
-    return httpArr;
+    return AniParseUtils::CreateAniStringArray(env, httpAuthCredentials);
 }
 
 ani_status StsWebDataBaseInit(ani_env* env)
