@@ -15,6 +15,8 @@
 
 let cert = requireInternal('security.cert');
 let webview = requireInternal('web.webview');
+let fileIo = requireNapi('file.fs');
+let fileUri = requireNapi('file.fileuri');
 let picker = requireNapi('file.picker');
 let photoAccessHelper = requireNapi('file.photoAccessHelper');
 let cameraPicker = requireNapi('multimedia.cameraPicker');
@@ -74,16 +76,16 @@ function takePhoto(param, selectResult) {
       mediaType.push(cameraPicker.PickerMediaType.VIDEO);
     }
     cameraPicker.pick(getContext(this), mediaType, pickerProfileOptions)
-    .then((pickerResult) => {
-      if (pickerResult.resultCode === 0) {
+      .then((pickerResult) => {
         selectResult.handleFileList([pickerResult.resultUri]);
-      }
-    }).catch((error) => {
+      }).catch((error) => {
       console.log('selectFile error:' + JSON.stringify(error));
+      throw error;
     });
 
   } catch (error) {
     console.log('the pick call failed, error code' + JSON.stringify(error));
+    selectResult.handleFileList([]);
   }
 }
 
@@ -110,19 +112,49 @@ function needShowDialog(params) {
 
 function selectFile(param, result) {
   try {
-    let documentSelectOptions = createDocumentSelectionOptions(param);
     let documentPicker = new picker.DocumentViewPicker();
-    documentPicker.select(documentSelectOptions)
-      .then((documentSelectResult) => {
-        if (documentSelectResult && documentSelectResult.length > 0) {
+    if (param.getMode() !== FileSelectorMode.FileSaveMode) {
+      documentPicker.select(createDocumentSelectionOptions(param))
+        .then((documentSelectResult) => {
           let filePath = documentSelectResult;
           result.handleFileList(filePath);
-        }
-      }).catch((error) => {
+        }).catch((error) => {
         console.log('selectFile error: ' + JSON.stringify(error));
+        throw error;
       });
+    } else {
+      documentPicker.save(createDocumentSaveOptions(param))
+        .then((documentSaveResult) => {
+          let filePaths = documentSaveResult;
+          let tempUri = '';
+          if (filePaths.length > 0) {
+            let fileName = filePaths[0].substr(filePaths[0].lastIndexOf('/'));
+            let tempPath = getContext(this).filesDir + fileName;
+            tempUri = fileUri.getUriFromPath(tempPath);
+            let randomAccessFile = fileIo.createRandomAccessFileSync(tempPath, fileIo.OpenMode.CREATE);
+            randomAccessFile.close();
+
+            let watcher = fileIo.createWatcher(tempPath, 0x4, () => {
+              fileIo.copy(tempUri, filePaths[0]).then(() => {
+                console.log('Web save file succeeded in copying.');
+                fileIo.unlink(tempPath);
+              }).catch((err) => {
+                console.error(`Web save file failed to copy: ${JSON.stringify(err)}.`);
+              }).finally(() => {
+                watcher.stop();
+              });
+            });
+            watcher.start();
+          }
+          result.handleFileList([tempUri]);
+        }).catch((error) => {
+        console.log('saveFile error: ' + JSON.stringify(error));
+        throw error;
+      });
+    }
   } catch (error) {
     console.log('picker error: ' + JSON.stringify(error));
+    result.handleFileList([]);
   }
 }
 
@@ -146,8 +178,6 @@ function createDocumentSelectionOptions(param) {
       case FileSelectorMode.FileOpenFolderMode:
         documentSelectOptions.selectMode = picker.DocumentSelectMode.FOLDER;
         break;
-      case FileSelectorMode.FileSaveMode:
-        break;
       default:
         break;
     }
@@ -159,11 +189,29 @@ function createDocumentSelectionOptions(param) {
     if (currentDevice !== 'phone') {
     documentSelectOptions.fileSuffixFilters.push('.*');
     }
- } catch (error) {
+  } catch (error) {
     console.log('selectFile error: ' + + JSON.stringify(error));
-    return documentSelectOptions;
- }
+  }
   return documentSelectOptions;
+}
+
+function createDocumentSaveOptions(param) {
+  let documentSaveOptions = new picker.DocumentSaveOptions();
+  let currentDevice = deviceinfo.deviceType.toLowerCase();
+  try {
+    documentSaveOptions.pickerMode = picker.DocumentPickerMode.DEFAULT;
+    documentSaveOptions.fileSuffixChoices = [];
+    let suffix = param.getAcceptType().join(',');
+    if (suffix) {
+      documentSaveOptions.fileSuffixChoices.push(suffix);
+    }
+    if (currentDevice !== 'phone') {
+      documentSaveOptions.fileSuffixChoices.push('.*');
+    }
+  } catch (error) {
+    console.log('saveFile error: ' + + JSON.stringify(error));
+  }
+  return documentSaveOptions;
 }
 
 function isContainImageMimeType(acceptTypes) {
@@ -218,9 +266,6 @@ function selectPicture(param, selectResult) {
 
     let photoPicker = new photoAccessHelper.PhotoViewPicker();
     photoPicker.select(photoSelectOptions).then((photoSelectResult) => {
-      if (photoSelectResult.photoUris.length <= 0) {
-        return;
-      }
       for (let i = 0; i < photoSelectResult.photoUris.length; i++) {
         photoResultArray.push(photoSelectResult.photoUris[i]);
       }
@@ -228,6 +273,7 @@ function selectPicture(param, selectResult) {
     });
   } catch (error) {
     console.log('selectPicture error' + JSON.stringify(error));
+    selectResult.handleFileList([]);
   }
 }
 
