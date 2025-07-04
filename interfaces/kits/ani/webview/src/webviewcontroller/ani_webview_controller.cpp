@@ -2323,81 +2323,6 @@ static void ClearPrefetchedResource(ani_env* env, ani_object aniClass, ani_objec
     NWebHelper::Instance().ClearPrefetchedResource(cacheKeyList);
 }
 
-ani_double PrecompileJavaScriptPromise(ani_env* env, ani_object object, std::string url,
-    std::string script, std::shared_ptr<OHOS::NWeb::CacheOptions> cacheOptions)
-{
-    WVLOG_I("PrecompileJavaScript");
-    if (env == nullptr) {
-        WVLOG_E("env is nullptr");
-        return NWEB_ERROR;
-    }
-    ani_resolver resolver = nullptr;
-    ani_error rejection = nullptr;
-    ani_vm* vm = nullptr;
-    env->GetVM(&vm);
-    env->PromiseResolver_Reject(resolver, rejection);
-    auto callbackImpl = std::make_shared<OHOS::NWeb::NWebPrecompileCallback>();
-    if (url.empty() || script.empty()) {
-        WVLOG_E("PrecompileJavaScript args empty");
-        return NWebError::PARAM_CHECK_ERROR;
-    }
-    if (!callbackImpl) {
-        WVLOG_E("PrecompileJavaScript !callbackImpl");
-        return NWebError::PARAM_CHECK_ERROR;
-    }
-
-    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
-    if (!controller) {
-        WVLOG_I("PrecompileJavaScript controller fail");
-        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
-        return NWEB_ERROR;
-    }
-    controller->PrecompileJavaScript(url, script, cacheOptions, callbackImpl);
-    return NWebError::NO_ERROR;
-}
-
-ani_double PrecompileJavaScript(
-    ani_env* env, ani_object object, ani_object url, ani_object script, ani_object cacheOptions)
-{
-    WVLOG_I("PrecompileJavaScript begin");
-    if (env == nullptr) {
-        WVLOG_E("env is nullptr");
-        return -1.0;
-    }
-
-    std::string urlStr;
-    if (!AniParseUtils::ParseString(env, url, urlStr)) {
-        WVLOG_E("Parse url failed.");
-        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "url", "string"));
-        return -1.0;
-    }
-    ani_class ArrayBufferCls;
-    env->FindClass("escompat.ArrayBuffer", &ArrayBufferCls);
-    ani_boolean isArrayBuffer;
-    std::string scriptStr;
-    env->Object_InstanceOf(script, ArrayBufferCls, &isArrayBuffer);
-    if (isArrayBuffer) {
-        uint8_t* arrayBuffer = nullptr;
-        ani_size byteLength;
-        if (env->ArrayBuffer_GetInfo(reinterpret_cast<ani_arraybuffer>(script), reinterpret_cast<void**>(&arrayBuffer),
-                &byteLength) != ANI_OK) {
-            WVLOG_E("ArrayBuffer_GetInfo failed");
-            return -1.0;
-        }
-        std::vector<uint8_t> postData(arrayBuffer, arrayBuffer + byteLength);
-    } else {
-        if (!AniParseUtils::ParseString(env, script, scriptStr)) {
-            WVLOG_E("PrecompileJavaScript :script must be string or Uint8Array");
-            return -1.0;
-        }
-    }
-
-    auto cacheOptionsPtr = AniParseUtils::ParseCacheOptions(env, cacheOptions);
-    PrecompileJavaScriptPromise(env, object, urlStr, scriptStr, cacheOptionsPtr);
-    return -1.0;
-}
-
 static std::shared_ptr<NWebEnginePrefetchArgs> ParsePrefetchArgs(ani_env* env, ani_object object, ani_object request)
 {
     if (env == nullptr) {
@@ -2917,6 +2842,99 @@ static void InnerCompleteWindowNew(ani_env* env, ani_object object, ani_int pare
         return;
     }
     controller->InnerCompleteWindowNew(parentNWebId);
+}
+
+ani_object PrecompileJavaScriptPromise(ani_env* env, ani_object object, std::string url, std::string script,
+    std::shared_ptr<OHOS::NWeb::CacheOptions> cacheOptions)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+
+    WVLOG_D("PrecompileJavaScript Begin");
+    ani_vm* vm = nullptr;
+    env->GetVM(&vm);
+    ani_resolver resolver {};
+    ani_object promise {};
+    ani_status status = env->Promise_New(&resolver, &promise);
+    if (status != ANI_OK) {
+        WVLOG_E("promise_new failed");
+        return nullptr;
+    }
+
+    auto callbackImpl = std::make_shared<OHOS::NWeb::NWebPrecompileCallback>();
+    callbackImpl->SetCallback([env, resolver](int64_t result) -> void {
+        if (env == nullptr) {
+            WVLOG_E("env is nullptr");
+            return;
+        }
+        ani_object resolution = AniParseUtils::CreateDouble(env, result);
+        if (result == static_cast<int64_t>(PrecompileError::OK)) {
+            if (env->PromiseResolver_Resolve(resolver, resolution) != ANI_OK) {
+                WVLOG_E("PromiseResolver_Resolve fail");
+            }
+        } else {
+            if (env->PromiseResolver_Reject(resolver, static_cast<ani_error>(resolution)) != ANI_OK) {
+                WVLOG_E("PromiseResolver_Reject fail");
+            }
+        }
+    });
+
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("PrecompileJavaScript controller fail");
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return nullptr;
+    }
+    controller->PrecompileJavaScript(url, script, cacheOptions, callbackImpl);
+    return promise;
+}
+
+ani_object PrecompileJavaScript(
+    ani_env* env, ani_object object, ani_object url, ani_object script, ani_object cacheOptions)
+{
+    ani_object result = nullptr;
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return result;
+    }
+    std::string urlStr;
+    if (!AniParseUtils::ParseString(env, url, urlStr)) {
+        WVLOG_E("Parse url failed.");
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "url", "string"));
+        return result;
+    }
+    auto cacheOptionsPtr = AniParseUtils::ParseCacheOptions(env, cacheOptions);
+
+    ani_class ArrayBufferCls;
+    env->FindClass("escompat.ArrayBuffer", &ArrayBufferCls);
+    ani_boolean isArrayBuffer;
+    std::string scriptStr;
+    ani_status res = env->Object_InstanceOf(script, ArrayBufferCls, &isArrayBuffer);
+    if (res != ANI_OK) {
+        WVLOG_E("Object_InstanceOf failed");
+        return result;
+    }
+    if (isArrayBuffer) {
+        uint8_t* arrayBuffer = nullptr;
+        ani_size byteLength;
+        if (env->ArrayBuffer_GetInfo(reinterpret_cast<ani_arraybuffer>(script), reinterpret_cast<void**>(&arrayBuffer),
+                &byteLength) != ANI_OK) {
+            WVLOG_E("ArrayBuffer_GetInfo failed");
+            AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
+            return result;
+        }
+        std::vector<uint8_t> postData(arrayBuffer, arrayBuffer + byteLength);
+        scriptStr = std::string(postData.begin(), postData.end());
+    } else {
+        if (!AniParseUtils::ParseString(env, script, scriptStr)) {
+            WVLOG_E("PrecompileJavaScript :script must be string or Uint8Array");
+            return result;
+        }
+    }
+    return PrecompileJavaScriptPromise(env, object, urlStr, scriptStr, cacheOptionsPtr);
 }
 
 static void ConstructorExt(ani_env* env, ani_object object)

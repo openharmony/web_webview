@@ -480,27 +480,6 @@ export default namespace webview {
             this.injectOfflineResourcesInternal(res);
         }
         native static clearPrefetchedResource(cacheKeyList: Array<string>): void;
-        native precompileJavaScriptInternal(url: string, script: string | ArrayBuffer, cacheOptions: CacheOptions): number;
-
-        precompileJavaScript(url: string, script: string | Uint8Array, cacheOptions: CacheOptions): Promise<number> {
-            let resScript: string | ArrayBuffer
-            if (typeof script === 'string') {
-                resScript = script as string;
-            } else if (script instanceof Uint8Array) {
-                resScript = script.buffer as ArrayBuffer;
-            }
-            let p = new Promise<number>((resolve: (v: number) => void,
-            reject: (error: Error) => void) => {
-                let p1 = taskpool.execute(this.precompileJavaScriptInternal, url, resScript, cacheOptions);
-                p1.then((e : NullishType) => {
-                    let r = e as number;
-                    resolve(r);
-                }).catch((error: Error): number => {
-                    reject(error);
-                });
-            });
-            return p;
-        }
         native static prefetchResource(request: RequestInfo, additionalHeaders?: Array<WebHeader>, cacheKey?: string, cacheValidTime?: number): void;
         native startCamera(): void;
         native closeAllMediaPresentations(): void;
@@ -514,6 +493,16 @@ export default namespace webview {
         native innerCompleteWindowNew(parentNwebId:int): void;
         innerGetThisVar(): long {
             return this.nativePtr;
+        }
+        native precompileJavaScriptInternal(url: string, script: string | ArrayBuffer, cacheOptions: CacheOptions): Promise<number>;
+        precompileJavaScript(url: string, script: string | Uint8Array, cacheOptions: CacheOptions): Promise<number> {
+            let resScript: string | ArrayBuffer
+            if (typeof script === 'string') {
+                resScript = script as string;
+            } else if (script instanceof Uint8Array) {
+                resScript = script.buffer as ArrayBuffer;
+            }
+            return this.precompileJavaScriptInternal(url,resScript,cacheOptions);
         }
     }
 
