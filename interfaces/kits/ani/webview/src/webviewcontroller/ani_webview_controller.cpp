@@ -453,7 +453,7 @@ static void OnActive(ani_env *env, ani_object object)
         return;
     }
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
-    if (!controller) {
+    if (!controller || !controller->IsInit()) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
@@ -468,7 +468,7 @@ static void OnInactive(ani_env *env, ani_object object)
         return;
     }
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
-    if (!controller) {
+    if (!controller || !controller->IsInit()) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
@@ -484,7 +484,7 @@ static ani_double GetWebId(ani_env *env, ani_object object)
         return static_cast<ani_double>(webId);
     }
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
-    if (!controller) {
+    if (!controller || !controller->IsInit()) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return static_cast<ani_double>(webId);
     }
@@ -2580,7 +2580,7 @@ void OnCreateNativeMediaPlayer(ani_env* env, ani_object object, ani_fn_object ca
         WVLOG_E("env is nullptr");
         return;
     }
-    
+
     ani_vm *vm = nullptr;
     env->GetVM(&vm);
     g_vm = vm;
