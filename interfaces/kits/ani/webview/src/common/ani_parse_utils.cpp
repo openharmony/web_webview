@@ -376,48 +376,34 @@ bool AniParseUtils::ParseJsLengthStringToInt(const std::string& input, PixelUnit
         }
         return false;
 }
- 
+
 bool AniParseUtils::ParseInt32(ani_env* env, ani_ref ref, int32_t& outValue)
 {
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return false;
     }
-    ani_object object = static_cast<ani_object>(ref);
-    ani_type type;
-    auto statusGetType = env->Object_GetType(object, &type);
-    if (statusGetType != ANI_OK) {
-        WVLOG_E("ParseInt32 failed - invalid number type");
-        return false;
-    }
     ani_class doubleClass;
-    env->FindClass("Lstd/core/Double;", &doubleClass);
+    if (env->FindClass("Lstd/core/Double;", &doubleClass) != ANI_OK) {
+        WVLOG_E("ParseInt32 failed - invalid FindClass type");
+        return false;
+    }
     ani_boolean isDouble;
-    auto statusInstanceOf = env->Object_InstanceOf(object, doubleClass, &isDouble);
-    if (statusInstanceOf != ANI_OK) {
-        WVLOG_E("ParseInt32 failed - Object_InstanceOf error: %d", statusInstanceOf);
+    if (env->Object_InstanceOf(static_cast<ani_object>(ref), doubleClass, &isDouble) != ANI_OK ||
+        isDouble != ANI_TRUE) {
+        WVLOG_E("ParseInt32 failed - invalid double type");
         return false;
     }
-    if (!isDouble) {
-        WVLOG_E("ParseInt32 failed - invalid number type");
+
+    ani_double value = 0;
+    if (env->Object_CallMethodByName_Double(static_cast<ani_object>(ref), "unboxed", ":d", &value) != ANI_OK) {
+        WVLOG_E("ParseInt32 failed");
         return false;
     }
-    ani_variable variable {};
-    env->Variable_SetValue_Ref(variable, ref);
-    ani_int number;
-    auto status_GetValue_Int = env->Variable_GetValue_Int(variable, &number);
-    if (status_GetValue_Int != ANI_OK) {
-        WVLOG_E("ParseInt32 failed - get value error: %d", status_GetValue_Int);
-        return false;
-    }
-    if(number < INT32_MIN || number > INT32_MAX){
-        WVLOG_E("ParseInt32 failed - value out of range: %d", number);
-        return false;
-    }
-    outValue = static_cast<int32_t>(number);
+    outValue = static_cast<int32_t>(value);
     return true;
 }
- 
+
 bool AniParseUtils::IsFunction(ani_env* env, const ani_object& object)
 {
     if (env == nullptr) {
@@ -565,6 +551,209 @@ ani_ref AniParseUtils::CreateAniStringArray(ani_env* env, const std::vector<std:
         }
     }
     return array;
+}
+
+bool AniParseUtils::ParseBoolean(ani_env* env, ani_ref ref, bool& outValue)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    ani_class booleanClass;
+    if (env->FindClass("Lstd/core/Boolean;", &booleanClass) != ANI_OK) {
+        WVLOG_E("ParseBoolean failed - invalid FindClass type");
+        return false;
+    }
+    ani_boolean isBoolean;
+    if (env->Object_InstanceOf(static_cast<ani_object>(ref), booleanClass, &isBoolean) != ANI_OK ||
+        isBoolean != ANI_TRUE) {
+        WVLOG_E("ParseBoolean failed - invalid boolean type");
+        return false;
+    }
+
+    ani_boolean boolValue;
+    env->Object_CallMethodByName_Boolean(static_cast<ani_object>(ref), "unboxed", ":Z", &boolValue);
+    outValue = static_cast<bool>(boolValue);
+    return true;
+}
+
+bool AniParseUtils::ParseInt64(ani_env* env, ani_ref ref, int64_t& outValue)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    ani_class longClass;
+    if (env->FindClass("Lstd/core/Long;", &longClass) != ANI_OK) {
+        WVLOG_E("ParseInt64 failed - invalid FindClass type");
+        return false;
+    }
+    ani_boolean isLong;
+    if (env->Object_InstanceOf(static_cast<ani_object>(ref), longClass, &isLong) != ANI_OK || isLong != ANI_TRUE) {
+        WVLOG_E("ParseInt64 failed - invalid double type");
+        return false;
+    }
+
+    ani_long value;
+    env->Object_CallMethodByName_Long(static_cast<ani_object>(ref), "unboxed", ":L", &value);
+    outValue = static_cast<int64_t>(value);
+    return true;
+}
+
+bool AniParseUtils::ParseDouble(ani_env* env, ani_ref ref, double& outValue)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    ani_class doubleClass;
+    if (env->FindClass("Lstd/core/Double;", &doubleClass) != ANI_OK) {
+        WVLOG_E("ParseDouble failed - invalid FindClass type");
+        return false;
+    }
+    ani_boolean isDouble;
+    if (env->Object_InstanceOf(static_cast<ani_object>(ref), doubleClass, &isDouble) != ANI_OK ||
+        isDouble != ANI_TRUE) {
+        WVLOG_E("ParseDouble failed - invalid double type");
+        return false;
+    }
+
+    ani_double value;
+    env->Object_CallMethodByName_Double(static_cast<ani_object>(ref), "unboxed", ":D", &value);
+    outValue = static_cast<double>(value);
+    return true;
+}
+
+bool AniParseUtils::IsBoolean(ani_env* env, const ani_object& object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    ani_class booleanCls;
+    ani_status status = env->FindClass("Lstd/core/Boolean;", &booleanCls);
+    if (status != ANI_OK) {
+        WVLOG_E("AniUtils_IsBoolean FindClass status: %{public}d", status);
+        return false;
+    }
+    ani_boolean isBoolean = false;
+    auto statusInstanceOf = env->Object_InstanceOf(object, booleanCls, &isBoolean);
+    if (statusInstanceOf != ANI_OK) {
+        WVLOG_E("AniUtils_IsBoolean failed - Object_InstanceOf error: %d", statusInstanceOf);
+        return false;
+    }
+    return isBoolean;
+}
+
+bool AniParseUtils::IsInteger(ani_env* env, const ani_object& object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    ani_class longCls;
+    ani_status status = env->FindClass("Lstd/core/Long;", &longCls);
+    if (status != ANI_OK) {
+        WVLOG_E("AniUtils_IsINTEGER FindClass status: %{public}d", status);
+        return false;
+    }
+    ani_boolean isLong = false;
+    auto statusInstanceOf = env->Object_InstanceOf(object, longCls, &isLong);
+    if (statusInstanceOf != ANI_OK) {
+        WVLOG_E("AniUtils_IsINTEGER failed - Object_InstanceOf error: %d", statusInstanceOf);
+        return false;
+    }
+    return isLong;
+}
+
+bool AniParseUtils::ParseInt64Array(ani_env* env, ani_object argv, std::vector<int64_t>& outValue)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    ani_class cls;
+    ani_boolean isArray = ANI_FALSE;
+    ani_double arrayLength;
+    ani_array_ref arrayRef;
+    env->FindClass("Lescompat/Array;", &cls);
+    env->Object_InstanceOf(argv, cls, &isArray);
+    if (!isArray) {
+        WVLOG_E("argv must be array");
+        return false;
+    }
+
+    arrayRef = static_cast<ani_array_ref>(argv);
+    env->Object_GetPropertyByName_Double(argv, "length", &arrayLength);
+    for (ani_double i = 0; i < arrayLength; i++) {
+        ani_ref arrayItem = nullptr;
+        env->Array_Get_Ref(arrayRef, i, &arrayItem);
+        int64_t value;
+        if (ParseInt64(env, arrayItem, value)) {
+            outValue.push_back(value);
+        }
+    }
+    return true;
+}
+
+bool AniParseUtils::ParseBooleanArray(ani_env* env, ani_object argv, std::vector<bool>& outValue)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    ani_class cls;
+    ani_boolean isArray = ANI_FALSE;
+    ani_double arrayLength;
+    ani_array_ref arrayRef;
+    env->FindClass("Lescompat/Array;", &cls);
+    env->Object_InstanceOf(argv, cls, &isArray);
+    if (!isArray) {
+        WVLOG_E("argv must be array");
+        return false;
+    }
+
+    arrayRef = static_cast<ani_array_ref>(argv);
+    env->Object_GetPropertyByName_Double(argv, "length", &arrayLength);
+    for (ani_double i = 0; i < arrayLength; i++) {
+        ani_ref arrayItem = nullptr;
+        env->Array_Get_Ref(arrayRef, i, &arrayItem);
+        bool value;
+        if (ParseBoolean(env, arrayItem, value)) {
+            outValue.push_back(value);
+        }
+    }
+    return true;
+}
+
+bool AniParseUtils::ParseDoubleArray(ani_env* env, ani_object argv, std::vector<double>& outValue)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    ani_class cls;
+    ani_boolean isArray = ANI_FALSE;
+    ani_double arrayLength;
+    ani_array_ref arrayRef;
+    env->FindClass("Lescompat/Array;", &cls);
+    env->Object_InstanceOf(argv, cls, &isArray);
+    if (!isArray) {
+        WVLOG_E("argv must be array");
+        return false;
+    }
+
+    arrayRef = static_cast<ani_array_ref>(argv);
+    env->Object_GetPropertyByName_Double(argv, "length", &arrayLength);
+    for (ani_double i = 0; i < arrayLength; i++) {
+        ani_ref arrayItem = nullptr;
+        env->Array_Get_Ref(arrayRef, i, &arrayItem);
+        double value;
+        if (ParseDouble(env, arrayItem, value)) {
+            outValue.push_back(value);
+        }
+    }
+    return true;
 }
 }
 }
