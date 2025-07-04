@@ -2849,7 +2849,7 @@ ani_object PrecompileJavaScriptPromise(ani_env* env, ani_object object, std::str
 {
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
-        return;
+        return nullptr;
     }
 
     WVLOG_D("PrecompileJavaScript Begin");
@@ -2923,7 +2923,7 @@ ani_object PrecompileJavaScript(
         if (env->ArrayBuffer_GetInfo(reinterpret_cast<ani_arraybuffer>(script), reinterpret_cast<void**>(&arrayBuffer),
                 &byteLength) != ANI_OK) {
             WVLOG_E("ArrayBuffer_GetInfo failed");
-            AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR)
+            AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
             return result;
         }
         std::vector<uint8_t> postData(arrayBuffer, arrayBuffer + byteLength);
