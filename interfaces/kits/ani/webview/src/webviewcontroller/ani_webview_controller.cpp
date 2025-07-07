@@ -3083,9 +3083,89 @@ static void SetArrayBuffer(ani_env* env, ani_object object, ani_object value)
     webMessageExt->SetArrayBuffer(vecData);
 }
 
+static void HandleStringArray(ani_env* env, ani_object array, WebMessageExt* webMessageExt)
+{
+    std::vector<std::string> strVec;
+    if (!AniParseUtils::ParseStringArray(env, array, strVec)) {
+        WVLOG_E("WebMessageExt ParseStringArray error");
+        return;
+    }
+    webMessageExt->SetStringArray(strVec);
+}
+
+static void HandleBooleanArray(ani_env* env, ani_object array, WebMessageExt* webMessageExt)
+{
+    std::vector<bool> boolVec;
+    if (!AniParseUtils::ParseBooleanArray(env, array, boolVec)) {
+        WVLOG_E("WebMessageExt ParseBooleanArray error");
+        return;
+    }
+    webMessageExt->SetBooleanArray(boolVec);
+}
+
+static void HandleDoubleArray(ani_env* env, ani_object array, WebMessageExt* webMessageExt)
+{
+    std::vector<double> doubleVec;
+    if (!AniParseUtils::ParseDoubleArray(env, array, doubleVec)) {
+        WVLOG_E("WebMessageExt ParseDoubleArray error");
+        return;
+    }
+    webMessageExt->SetDoubleArray(doubleVec);
+}
+
+static void HandleInt64Array(ani_env* env, ani_object array, WebMessageExt* webMessageExt)
+{
+    std::vector<int64_t> intVec;
+    if (!AniParseUtils::ParseInt64Array(env, array, intVec)) {
+        WVLOG_E("WebMessageExt ParseInt64Array error");
+        return;
+    }
+    webMessageExt->SetInt64Array(intVec);
+}
+
+static void SetArray(ani_env* env, ani_object object, ani_object array)
+{
+    WVLOG_D("WebMessageExt SetArray start.");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* webMessageExt = reinterpret_cast<WebMessageExt*>(AniParseUtils::Unwrap(env, object));
+    if (!webMessageExt) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    if (webMessageExt->GetType() != static_cast<int32_t>(WebMessageType::ARRAY)) {
+        WVLOG_E("web message SetArray error type:%{public}d", webMessageExt->GetType());
+        AniBusinessError::ThrowErrorByErrCode(env, TYPE_NOT_MATCH_WITCH_VALUE);
+        return;
+    }
+
+    ani_ref element = nullptr;
+    if (env->Array_Get_Ref(static_cast<ani_array_ref>(array), 0, &element) != ANI_OK) {
+        WVLOG_E("WebMessageExt get element from array error");
+        return;
+    }
+
+    ani_object elementObj = static_cast<ani_object>(element);
+    if (AniParseUtils::IsString(env, elementObj)) {
+        HandleStringArray(env, array, webMessageExt);
+    } else if (AniParseUtils::IsBoolean(env, elementObj)) {
+        HandleBooleanArray(env, array, webMessageExt);
+    } else if (AniParseUtils::IsDouble(env, elementObj)) {
+        HandleDoubleArray(env, array, webMessageExt);
+    } else if (AniParseUtils::IsInteger(env, elementObj)) {
+        HandleInt64Array(env, array, webMessageExt);
+    } else {
+        WVLOG_E("Unsupported array element type");
+    }
+}
+
 static void SetError(ani_env* env, ani_object object, ani_object errorMsg)
 {
-    WVLOG_D("WebMessageExt setError start.000");
+    WVLOG_D("WebMessageExt setError start.");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
@@ -3281,6 +3361,233 @@ static ani_object GetArrayBuffer(ani_env* env, ani_object object)
     return arraybuffer;
 }
 
+ani_object ConvertToAniHandlerOfStringArray(ani_env* env, std::shared_ptr<NWebMessage> src)
+{
+    if (src == nullptr) {
+        WVLOG_E("src is nullptr");
+        return nullptr;
+    }
+    std::vector<std::string> values = src->GetStringArray();
+    ani_class stringCls = nullptr;
+    if (ANI_OK != env->FindClass("Lstd/core/String;", &stringCls)) {
+        WVLOG_E("WebMessageExt find class failed.");
+        return nullptr;
+    }
+
+    ani_ref undefinedRef = nullptr;
+    if (ANI_OK != env->GetUndefined(&undefinedRef)) {
+        WVLOG_E("WebMessageExt GetUndefined Failed.");
+        return nullptr;
+    }
+
+    ani_array_ref array = nullptr;
+    if (ANI_OK != env->Array_New_Ref(stringCls, values.size(), undefinedRef, &array)) {
+        WVLOG_E("WebMessageExt new array ref error.");
+        return array;
+    }
+
+    for (size_t i = 0; i < values.size(); ++i) {
+        ani_string result {};
+        if (ANI_OK != env->String_NewUTF8(values[i].c_str(), values[i].size(), &result)) {
+            continue;
+        }
+        if (ANI_OK != env->Array_Set_Ref(array, i, result)) {
+            return array;
+        }
+    }
+    return array;
+}
+
+ani_object ConvertToAniHandlerOfBooleanArray(ani_env* env, std::shared_ptr<NWebMessage> src)
+{
+    if (src == nullptr) {
+        WVLOG_E("src is nullptr");
+        return nullptr;
+    }
+    std::vector<bool> values = src->GetBooleanArray();
+    size_t valueSize = values.size();
+
+    ani_class boolCls = nullptr;
+    if (ANI_OK != env->FindClass("Lstd/core/Boolean;", &boolCls)) {
+        WVLOG_E("WebMessageExt find class failed.");
+        return nullptr;
+    }
+
+    ani_ref undefinedRef = nullptr;
+    if (ANI_OK != env->GetUndefined(&undefinedRef)) {
+        WVLOG_E("WebMessageExt GetUndefined Failed.");
+        return nullptr;
+    }
+
+    ani_array_ref array = nullptr;
+    if (ANI_OK != env->Array_New_Ref(boolCls, values.size(), undefinedRef, &array)) {
+        WVLOG_E("WebMessageExt new array ref error.");
+        return array;
+    }
+
+    for (size_t i = 0; i < valueSize; i++) {
+        ani_boolean item = static_cast<ani_boolean>(values[i]);
+        ani_class booleanCls {};
+        if (ANI_OK != env->FindClass("Lstd/core/Boolean;", &booleanCls)) {
+            return nullptr;
+        }
+        ani_method ctor {};
+        if (ANI_OK != env->Class_FindMethod(booleanCls, "<ctor>", "z:", &ctor)) {
+            return nullptr;
+        }
+        ani_object obj {};
+        if (env->Object_New(booleanCls, ctor, &obj, item) != ANI_OK) {
+            return nullptr;
+        }
+        if (ANI_OK != env->Array_Set_Ref(array, i, obj)) {
+            return array;
+        }
+    }
+    return array;
+}
+
+ani_object ConvertToAniHandlerOfDoubleArray(ani_env* env, std::shared_ptr<NWebMessage> src)
+{
+    if (src == nullptr) {
+        WVLOG_E("src is nullptr");
+        return nullptr;
+    }
+    std::vector<double> values = src->GetDoubleArray();
+    size_t valueSize = values.size();
+
+    ani_class doubleCls = nullptr;
+    if (ANI_OK != env->FindClass("Lstd/core/Double;", &doubleCls)) {
+        WVLOG_E("WebMessageExt find class failed.");
+        return nullptr;
+    }
+
+    ani_ref undefinedRef = nullptr;
+    if (ANI_OK != env->GetUndefined(&undefinedRef)) {
+        WVLOG_E("WebMessageExt GetUndefined Failed.");
+        return nullptr;
+    }
+
+    ani_array_ref array = nullptr;
+    if (ANI_OK != env->Array_New_Ref(doubleCls, values.size(), undefinedRef, &array)) {
+        WVLOG_E("WebMessageExt new array ref error.");
+        return array;
+    }
+
+    for (size_t i = 0; i < valueSize; i++) {
+        ani_double item = static_cast<ani_double>(values[i]);
+        ani_class cls {};
+        if (ANI_OK != env->FindClass("Lstd/core/Double;", &cls)) {
+            return nullptr;
+        }
+        ani_method ctor {};
+        if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", "d:", &ctor)) {
+            return nullptr;
+        }
+        ani_object obj {};
+        if (env->Object_New(cls, ctor, &obj, item) != ANI_OK) {
+            return nullptr;
+        }
+        if (ANI_OK != env->Array_Set_Ref(array, i, obj)) {
+            return array;
+        }
+    }
+    return array;
+}
+
+ani_object ConvertToAniHandlerOfInt64Array(ani_env* env, std::shared_ptr<NWebMessage> src)
+{
+    if (src == nullptr) {
+        WVLOG_E("src is nullptr");
+        return nullptr;
+    }
+    std::vector<int64_t> values = src->GetInt64Array();
+    size_t valueSize = values.size();
+
+    ani_class longCls = nullptr;
+    if (ANI_OK != env->FindClass("Lstd/core/Long;", &longCls)) {
+        WVLOG_E("WebMessageExt find class failed.");
+        return nullptr;
+    }
+
+    ani_ref undefinedRef = nullptr;
+    if (ANI_OK != env->GetUndefined(&undefinedRef)) {
+        WVLOG_E("WebMessageExt GetUndefined Failed.");
+        return nullptr;
+    }
+
+    ani_array_ref array = nullptr;
+    if (ANI_OK != env->Array_New_Ref(longCls, values.size(), undefinedRef, &array)) {
+        WVLOG_E("WebMessageExt new array ref error.");
+        return array;
+    }
+
+    for (size_t i = 0; i < valueSize; i++) {
+        ani_long item = static_cast<ani_boolean>(values[i]);
+        ani_class cls {};
+        if (ANI_OK != env->FindClass("Lstd/core/Long;", &cls)) {
+            return nullptr;
+        }
+        ani_method ctor {};
+        if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", "l:", &ctor)) {
+            return nullptr;
+        }
+        ani_object obj {};
+        if (env->Object_New(cls, ctor, &obj, item) != ANI_OK) {
+            return nullptr;
+        }
+        if (ANI_OK != env->Array_Set_Ref(array, i, obj)) {
+            return array;
+        }
+    }
+    return array;
+}
+
+static ani_object GetArray(ani_env* env, ani_object object)
+{
+    WVLOG_D("WebMessageExt GetArray Start.");
+    ani_object result = nullptr;
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return result;
+    }
+
+    auto* webMessageExt = reinterpret_cast<WebMessageExt*>(AniParseUtils::Unwrap(env, object));
+    if (!webMessageExt) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return result;
+    }
+
+    if (webMessageExt->GetType() != static_cast<int32_t>(WebMessageType::ARRAY)) {
+        WVLOG_E("web message GetArray error type:%{public}d", webMessageExt->GetType());
+        AniBusinessError::ThrowErrorByErrCode(env, TYPE_NOT_MATCH_WITCH_VALUE);
+        return result;
+    }
+
+    auto message = webMessageExt->GetData();
+    if (message == nullptr) {
+        WVLOG_E("web message failed.");
+        return result;
+    }
+    NWebValue::Type type = message->GetType();
+    if (type == NWebValue::Type::STRINGARRAY) {
+        result = ConvertToAniHandlerOfStringArray(env, message);
+        return result;
+    }
+    if (type == NWebValue::Type::BOOLEANARRAY) {
+        result = ConvertToAniHandlerOfBooleanArray(env, message);
+        return result;
+    }
+    if (type == NWebValue::Type::DOUBLEARRAY) {
+        result = ConvertToAniHandlerOfDoubleArray(env, message);
+        return result;
+    }
+    if (type == NWebValue::Type::INT64ARRAY) {
+        result = ConvertToAniHandlerOfInt64Array(env, message);
+        return result;
+    }
+    return result;
+}
+
 static ani_string GetError(ani_env* env, ani_object object)
 {
     WVLOG_D("WebMessageExt GetError Start.");
@@ -3331,12 +3638,14 @@ ani_status StsWebMessageExtInit(ani_env* env)
         ani_native_function { "setNumber", nullptr, reinterpret_cast<void*>(SetNumber) },
         ani_native_function { "setBoolean", nullptr, reinterpret_cast<void*>(SetBoolean) },
         ani_native_function { "setArrayBuffer", nullptr, reinterpret_cast<void*>(SetArrayBuffer) },
+        ani_native_function { "setArray", nullptr, reinterpret_cast<void *>(SetArray) },
         ani_native_function { "setError", nullptr, reinterpret_cast<void*>(SetError) },
         ani_native_function { "getType", nullptr, reinterpret_cast<void*>(GetType) },
         ani_native_function { "getString", nullptr, reinterpret_cast<void*>(GetString) },
         ani_native_function { "getNumber", nullptr, reinterpret_cast<void*>(GetNumber) },
         ani_native_function { "getBoolean", nullptr, reinterpret_cast<void*>(GetBoolean) },
         ani_native_function { "getArrayBuffer", nullptr, reinterpret_cast<void*>(GetArrayBuffer) },
+        ani_native_function { "getArray", nullptr, reinterpret_cast<void *>(GetArray) },
         ani_native_function { "getError", nullptr, reinterpret_cast<void*>(GetError) },
     };
     status = env->Class_BindNativeMethods(webMessageExtCls, webMessageExtMethods.data(), webMessageExtMethods.size());

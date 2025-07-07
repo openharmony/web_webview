@@ -1327,6 +1327,7 @@ export default namespace webview {
         native setNumber(message: number): void;
         native setBoolean(message: boolean): void;
         native setArrayBuffer(message: ArrayBuffer): void;
+        native setArray(message: Array<string | number | boolean>): void;
         native setError(message: Error): void;
         
         native getType(): WebMessageType;
@@ -1334,6 +1335,7 @@ export default namespace webview {
         native getNumber(): number;
         native getBoolean(): boolean;
         native getArrayBuffer(): ArrayBuffer;
+        native getArray(): Array<string | number | boolean>;
         native getError(): Error;
     }
 }
