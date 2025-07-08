@@ -33,6 +33,8 @@ ani_status StsCleanerInit(ani_env *env);
 ani_status StsBackForwardListInit(ani_env *env);
 ani_status StsWebSchemeHandlerResponseInit(ani_env *env);
 ani_status StsWebDownloadDelegateInit(ani_env *env);
+ani_status StsWebDownLoadItemInit(ani_env *env);
+ani_status StsWebDownloadManagerInit(ani_env *env);
 ani_status StsWebCookieManagerInit(ani_env *env);
 ani_status StsNativeMediaPlayerHandlerinnerInit(ani_env *env);
 } // namespace NWeb
