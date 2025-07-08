@@ -1309,8 +1309,8 @@ static ani_ref GetBackForwardEntries(ani_env *env, ani_object object)
         return nullptr;
     }
 
-    env->Object_SetPropertyByName_Double(backForwardObj, "currentIndex", static_cast<ani_double>(currentIndex));
-    env->Object_SetPropertyByName_Double(backForwardObj, "size", static_cast<ani_double>(size));
+    env->Object_SetPropertyByName_Int(backForwardObj, "currentIndex", static_cast<ani_int>(currentIndex));
+    env->Object_SetPropertyByName_Int(backForwardObj, "size", static_cast<ani_int>(size));
     return backForwardObj;
 }
 
@@ -1701,14 +1701,14 @@ static void ClearWebSchemeHandler(ani_env *env, ani_object object)
     WVLOG_I("AniWebviewController::ClearWebSchemeHandler successful");
 }
 
-static ani_ref GetItemAtIndex(ani_env *env, ani_object object, ani_double aniIndex)
+static ani_ref GetItemAtIndex(ani_env *env, ani_object object, ani_int aniIndex)
 {
     if (env == nullptr) {
         WVLOG_E("[BACKFORWARD] env is nullptr");
         return nullptr;
     }
 
-    int32_t index = static_cast<int32_t>(std::round(aniIndex));
+    int32_t index = static_cast<int32_t>(aniIndex);
     WebHistoryList *historyList = reinterpret_cast<WebHistoryList *>(AniParseUtils::Unwrap(env, object));
     if (!historyList) {
         WVLOG_E("[BACKFORWARD] Unwrap failed");

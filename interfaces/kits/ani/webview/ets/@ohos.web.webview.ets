@@ -331,9 +331,9 @@ export default namespace webview {
     type ResumePlayerFn = () => void
 
     export interface BackForwardList {
-        currentIndex: number;
-        size: number;
-        getItemAtIndex(index: number): HistoryItem;
+        currentIndex: int;
+        size: int;
+        getItemAtIndex(index: int): HistoryItem;
     }
 
     export class BackForwardListinner implements BackForwardList {
@@ -354,9 +354,9 @@ export default namespace webview {
             }
         }
 
-        currentIndex: number = 0;
-        size: number = 0;
-        native getItemAtIndex(index: number): HistoryItem;
+        currentIndex: int = 0;
+        size: int = 0;
+        native getItemAtIndex(index: int): HistoryItem;
     }
 
     export class WebviewController {
