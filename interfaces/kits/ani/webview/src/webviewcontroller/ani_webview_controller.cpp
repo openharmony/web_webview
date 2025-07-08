@@ -31,6 +31,7 @@
 #include <unordered_map>
 #include <securec.h>
 #include <regex>
+#include <vector>
 
 #include "application_context.h"
 #include "ohos_resource_adapter_impl.h"
@@ -60,6 +61,7 @@
 #include "pixel_map_ani.h"
 #include "pixel_map_taihe_ani.h"
 #include "proxy_config.h"
+#include "ani_parse_utils.h"
 #include "web_scheme_handler_response.h"
 #include "web_download_item.h"
 
@@ -414,6 +416,8 @@ static void Clean(ani_env *env, ani_object object)
         delete reinterpret_cast<WebDownloadItem *>(ptr);
     } else if (clsName == "WebDownloadManager") {
         delete reinterpret_cast<WebDownloadManager *>(ptr);
+    } else if (clsName == "WebMessagePort") {
+        delete reinterpret_cast<WebMessagePort *>(ptr);
     } else {
         WVLOG_E("Clean unsupport className: %{public}s", clsName.c_str());
     }
@@ -789,7 +793,7 @@ static void SetHostIP(ani_env *env, ani_object object, ani_object hostNameObj, a
         return;
     }
     int aliveTimeInt = static_cast<int32_t>(std::round(aliveTime));
-    if (aliveTime <= 0) {
+    if (aliveTimeInt <= 0) {
         WVLOG_E("aliveTime must be greater than 0, aliveTime: %{public}d", aliveTimeInt);
         return;
     }
@@ -901,6 +905,10 @@ static ani_string GetDefaultUserAgent(ani_env *env, ani_object object)
     }
     WVLOG_I("Get the default user agent.");
     std::string result = NWebHelper::Instance().GetDefaultUserAgent();
+    if (result.empty()) {
+        WVLOG_E("Default user agent is empty.");
+        return userAgent;
+    }
     env->String_NewUTF8(result.c_str(), result.size(), &userAgent);
     return userAgent;
 }
@@ -1368,6 +1376,77 @@ static void PostUrl(ani_env *env, ani_object object, ani_object urlObj, ani_obje
     }
 }
 
+bool GetSendPorts(ani_env* env, ani_object portsArrayObj, std::vector<std::string>& sendPorts)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    ani_double arrayLen = 0;
+    if (env->Object_GetPropertyByName_Double(portsArrayObj, "length", &arrayLen) != ANI_OK) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return false;
+    }
+    ani_class webMessagePortClass;
+    if (env->FindClass(ANI_WEB_MESSAGE_PORT_INNER_CLASS_NAME, &webMessagePortClass) != ANI_OK) {
+        WVLOG_E("Find WebMessagePort Class failed");
+        return false;
+    }
+
+    for (uint32_t i = 0; i < static_cast<uint32_t>(arrayLen); i++) {
+        ani_ref webMessagePortRef;
+        if (env->Object_CallMethodByName_Ref(
+                portsArrayObj, "$_get", "I:Lstd/core/Object;", &webMessagePortRef, (ani_int)i) != ANI_OK) {
+            return false;
+        }
+        ani_object portsObj = reinterpret_cast<ani_object>(webMessagePortRef);
+        ani_boolean isWebMessagePort = false;
+        env->Object_InstanceOf(portsObj, webMessagePortClass, &isWebMessagePort);
+        if (!isWebMessagePort) {
+            WVLOG_E("not WebMessagePort");
+            return false;
+        }
+        WebMessagePort* msgPort = reinterpret_cast<WebMessagePort*>(AniParseUtils::Unwrap(env, portsObj));
+        if ((!msgPort)) {
+            WVLOG_E("post port to html failed");
+            return false;
+        }
+        std::string portHandle = msgPort->GetPortHandle();
+        sendPorts.emplace_back(portHandle);
+    }
+    return true;
+}
+
+static void PostMessage(
+    ani_env* env, ani_object object, ani_object nameObj, ani_object portsArrayObj, ani_object uriObj)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    std::string portName;
+    if (!AniParseUtils::ParseString(env, nameObj, portName)) {
+        return;
+    }
+    std::vector<std::string> sendPorts;
+    if (!GetSendPorts(env, portsArrayObj, sendPorts)) {
+        WVLOG_E("post port to html failed, getSendPorts fail");
+        return;
+    }
+    std::string uriStr;
+    if (!AniParseUtils::ParseString(env, uriObj, uriStr)) {
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        WVLOG_E("post port to html failed, napi unwrap webviewController failed");
+        return;
+    }
+    controller->PostWebMessage(portName, sendPorts, uriStr);
+    return;
+}
+
 static ani_string GetUrlAni(ani_env *env, ani_object object)
 {
     ani_string url = nullptr;
@@ -1786,6 +1865,45 @@ ani_status StsBackForwardListInit(ani_env *env)
     return ANI_OK;
 }
 
+static void Close(ani_env* env, ani_object object)
+{
+    WVLOG_D("[WebMessagePort] close message port");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    WebMessagePort* msgPort = reinterpret_cast<WebMessagePort*>(AniParseUtils::Unwrap(env, object));
+    if (!msgPort) {
+        WVLOG_E("close message port failed, napi unwrap msg port failed");
+        return;
+    }
+    ErrCode ret = msgPort->ClosePort();
+    if (ret != NO_ERROR) {
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+        return;
+    }
+    return;
+}
+
+ani_status StsWebMessagePortInit(ani_env* env)
+{
+    ani_class webMessagePortCls = nullptr;
+    ani_status status = env->FindClass(ANI_WEB_MESSAGE_PORT_INNER_CLASS_NAME, &webMessagePortCls);
+    if (status != ANI_OK || !webMessagePortCls) {
+        WVLOG_E("find %{public}s class failed, status: %{public}d", ANI_WEB_MESSAGE_PORT_INNER_CLASS_NAME, status);
+        return ANI_ERROR;
+    }
+    std::array methodArray = {
+        ani_native_function { "close", nullptr, reinterpret_cast<void*>(Close) },
+    };
+    status = env->Class_BindNativeMethods(webMessagePortCls, methodArray.data(), methodArray.size());
+    if (status != ANI_OK) {
+        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+        return ANI_ERROR;
+    }
+    return ANI_OK;
+}
+
 ani_status StsCleanerInit(ani_env *env)
 {
     ani_class cleanerCls = nullptr;
@@ -1804,6 +1922,108 @@ ani_status StsCleanerInit(ani_env *env)
     return status;
 }
 
+static bool CreateWebMessagePortObj(
+    ani_env* env, ani_object& obj, int32_t nwebId, std::string& port, bool bIsExtentionType)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    if (!AniParseUtils::CreateObjectVoid(env, ANI_WEB_MESSAGE_PORT_INNER_CLASS_NAME, obj)) {
+        WVLOG_E("CreateObjectVoid failed");
+        return false;
+    }
+    WebMessagePort* webMessagePort = new (std::nothrow) WebMessagePort(nwebId, port, bIsExtentionType);
+    if (webMessagePort == nullptr) {
+        WVLOG_E("new WebMessagePort failed");
+        return false;
+    }
+    if (!AniParseUtils::Wrap(
+            env, obj, ANI_WEB_MESSAGE_PORT_INNER_CLASS_NAME, reinterpret_cast<ani_long>(webMessagePort))) {
+        WVLOG_E("WebMessagePort wrap failed");
+        delete webMessagePort;
+        webMessagePort = nullptr;
+        return false;
+    }
+    return true;
+}
+
+static ani_object CreateWebMessagePortsObj(
+    ani_env* env, ani_object isExtentionType, int32_t nwebId, std::vector<std::string>& ports)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    ani_boolean isUndefined = ANI_TRUE;
+    ani_boolean bIsExtentionType = ANI_FALSE;
+    env->Reference_IsUndefined(isExtentionType, &isUndefined);
+    if (isUndefined != ANI_TRUE) {
+        if (env->Object_CallMethodByName_Boolean(isExtentionType, "unboxed", nullptr, &bIsExtentionType) != ANI_OK) {
+            AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "isExtentionType", "boolean"));
+            return nullptr;
+        }
+    }
+
+    ani_object arrayObj = nullptr;
+    ani_class arrayCls = nullptr;
+    if (env->FindClass("Lescompat/Array;", &arrayCls) != ANI_OK) {
+        WVLOG_E("find class escompat/Array; failed");
+        return nullptr;
+    }
+    ani_method arrayCtor;
+    if (env->Class_FindMethod(arrayCls, "<ctor>", "I:V", &arrayCtor) != ANI_OK) {
+        WVLOG_E("get ctor method failed");
+        return nullptr;
+    }
+    if (env->Object_New(arrayCls, arrayCtor, &arrayObj, ports.size()) != ANI_OK) {
+        WVLOG_E("Object_New Array failed");
+        return nullptr;
+    }
+
+    for (size_t i = 0; i < ports.size(); ++i) {
+        ani_object obj = {};
+        if (!CreateWebMessagePortObj(env, obj, nwebId, ports[i], static_cast<bool>(bIsExtentionType))) {
+            return nullptr;
+        }
+        if ((isUndefined != ANI_TRUE) &&
+            (ANI_OK != env->Object_SetPropertyByName_Ref(obj, "isExtentionType", isExtentionType))) {
+            WVLOG_E("set NWebWeMessagePort failed");
+            return nullptr;
+        }
+        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "ILstd/core/Object;:V", i, obj) != ANI_OK) {
+            WVLOG_E("Object_CallMethodByName_Void failed");
+            return nullptr;
+        }
+    }
+    return arrayObj;
+}
+
+static ani_object CreateWebMessagePorts(ani_env* env, ani_object object, ani_object isExtentionType)
+{
+    ani_object result = nullptr;
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return result;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        WVLOG_E("create message port failed, napi unwrap webviewController failed");
+        return result;
+    }
+
+    int32_t nwebId = controller->GetWebId();
+    std::vector<std::string> ports = controller->CreateWebMessagePorts();
+    if (ports.size() != INTEGER_TWO) {
+        WVLOG_E("create web message port failed");
+        return result;
+    }
+    return CreateWebMessagePortsObj(env, isExtentionType, nwebId, ports);
+}
+
 static void SetConnectionTimeout(ani_env* env, ani_object object, ani_double aniTimeout)
 {
     if (env == nullptr) {
@@ -1812,7 +2032,7 @@ static void SetConnectionTimeout(ani_env* env, ani_object object, ani_double ani
     }
     int32_t timeout = static_cast<int32_t>(std::round(aniTimeout));
     if (timeout <= 0) {
-        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
         return;
     }
     NWebHelper::Instance().SetConnectionTimeout(timeout);
@@ -3732,6 +3952,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "isAdsBlockEnabled", nullptr, reinterpret_cast<void *>(IsAdsBlockEnabled) },
         ani_native_function { "enableAdsBlock", nullptr, reinterpret_cast<void *>(EnableAdsBlock) },
         ani_native_function { "postUrl", nullptr, reinterpret_cast<void *>(PostUrl) },
+        ani_native_function { "postMessage", nullptr, reinterpret_cast<void *>(PostMessage) },
         ani_native_function { "getUrl", nullptr, reinterpret_cast<void *>(GetUrlAni) },
         ani_native_function { "getTitle", nullptr, reinterpret_cast<void *>(GetTitle) },
         ani_native_function { "getOriginalUrl", nullptr, reinterpret_cast<void *>(GetOriginalUrl) },
@@ -3740,6 +3961,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "getLastJavascriptProxyCallingFrameUrl", nullptr,
                               reinterpret_cast<void *>(GetLastJavascriptProxyCallingFrameUrl) },
         ani_native_function { "forward", nullptr, reinterpret_cast<void *>(Forward) },
+        ani_native_function { "createWebMessagePorts", nullptr, reinterpret_cast<void *>(CreateWebMessagePorts) },
         ani_native_function { "backward", nullptr, reinterpret_cast<void *>(Backward) },
         ani_native_function { "accessForward", nullptr, reinterpret_cast<void *>(AccessForward) },
         ani_native_function { "accessBackward", nullptr, reinterpret_cast<void *>(AccessBackward) },

@@ -56,7 +56,10 @@ static ani_string GetGuid(ani_env* env, ani_object object)
 
     std::string guidStr = webDownloadItem->guid;
     ani_string result;
-    env->String_NewUTF8(guidStr.c_str(), guidStr.size(), &result);
+    if (env->String_NewUTF8(guidStr.c_str(), guidStr.size(), &result) != ANI_OK) {
+        WVLOG_E("creat stringObj error");
+        return nullptr;
+    }
     return result;
 }
 
@@ -91,7 +94,10 @@ static ani_string GetSuggestedFileName(ani_env* env, ani_object object)
 
     std::string fileName = webDownloadItem->suggestedFileName;
     ani_string result;
-    env->String_NewUTF8(fileName.c_str(), fileName.size(), &result);
+    if (env->String_NewUTF8(fileName.c_str(), fileName.size(), &result) != ANI_OK) {
+        WVLOG_E("creat stringObj error");
+        return nullptr;
+    }
     return result;
 }
 
@@ -175,7 +181,7 @@ static ani_string GetFullPath(ani_env* env, ani_object object)
 
 static ani_double GetTotalBytes(ani_env* env, ani_object object)
 {
-    int totalBytes = -1;
+    int64_t totalBytes = -1;
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return static_cast<ani_double>(totalBytes);
@@ -187,7 +193,7 @@ static ani_double GetTotalBytes(ani_env* env, ani_object object)
         return static_cast<ani_double>(totalBytes);
     }
 
-    totalBytes = static_cast<int>(webDownloadItem->totalBytes);
+    totalBytes = static_cast<int64_t>(webDownloadItem->totalBytes);
     return static_cast<ani_double>(totalBytes);
 }
 
@@ -239,7 +245,7 @@ static ani_enum_item GetState(ani_env* env, ani_object object)
         return state;
     }
 
-    ani_int stateTemp = static_cast<ani_int>(webDownloadItem->lastErrorCode);
+    ani_int stateTemp = static_cast<ani_int>(webDownloadItem->state);
     if (env->Enum_GetEnumItemByIndex(enumType, stateTemp, &state) != ANI_OK) {
         WVLOG_E("GetEnum error");
         return state;
@@ -477,7 +483,7 @@ static ani_object DeserializeInternal(ani_env* env, ani_object object, ani_objec
         status = env->Object_CallMethodByName_Byte(arrayObject, "at", "I:B", &value, static_cast<ani_int>(i));
         if (status != ANI_OK) {
             WVLOG_E("[DOWNLOAD]arrayBufferObj at() failed, status is %{public}d.", status);
-            break;
+            return nullptr;
         }
         dataStr[i] = static_cast<char>(value);
     }
@@ -488,7 +494,6 @@ static ani_object DeserializeInternal(ani_env* env, ani_object object, ani_objec
         WVLOG_E("[DOWNLOAD] Unserialize webDownloadItem failed");
         return nullptr;
     }
-    WVLOG_D("[DOWNLOAD] dataStr.c_str() is %{public}s", dataStr.c_str());
 
     WebDownloadItem* webDownloadItem = new WebDownloadItem(env);
     GetWebDownloadPb(webDownloadPb, webDownloadItem);

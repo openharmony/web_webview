@@ -55,7 +55,7 @@ void ClearAdsBlockDisallowedList(ani_env *env, ani_object object)
     std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> adsBlockManager = 
         OHOS::NWeb::NWebHelper::Instance().GetAdsBlockManager();
     if (adsBlockManager != nullptr) {
-        adsBlockManager->ClearAdsBlockAllowedList();
+        adsBlockManager->ClearAdsBlockDisallowedList();
     }
 }
 

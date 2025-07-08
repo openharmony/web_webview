@@ -428,7 +428,7 @@ export default namespace webview {
 
         native static initializeWebEngine(): void;
         native loadUrl(url: string | Resource, headers?: Array<WebHeader>): void;
-
+        native createWebMessagePorts(isExtentionType?: boolean): Array<WebMessagePort>;
         native onActive(): void;
         native onInactive(): void;
         native getWebId(): number;
@@ -475,6 +475,7 @@ export default namespace webview {
         native isAdsBlockEnabled(): boolean;
         native enableAdsBlock(enable: boolean): void;
         native postUrl(url: string, postData: ArrayBuffer): void;
+        native postMessage(name: string, ports: Array<WebMessagePort>, uri: string): void;
         native getUrl(): string;
         native getTitle(): string;
         native getOriginalUrl(): string;
@@ -1088,6 +1089,31 @@ export default namespace webview {
          * @since 20
          */
         native getProxyRules(): Array<ProxyRule>;
+    }
+
+    type WebMessage = ArrayBuffer | string;
+    export interface WebMessagePort {
+        isExtentionType?: boolean;
+        close(): void;
+    }
+    export class WebMessagePortInner implements WebMessagePort {
+        private nativePtr: long = 0;
+        private cleaner?: Cleaner;
+        registerCleaner(ptr: long): void {
+            this.cleaner = new Cleaner(ptr, "WebMessagePort")
+            destroyRegister.register(this, this.cleaner!, unregisterToken);
+        }
+        unregisterCleaner(): void {
+            destroyRegister.unregister(unregisterToken);
+        }
+        bindNativePtr(ptr: long): void {
+            if (this.nativePtr == 0) {
+                this.nativePtr = ptr;
+                this.registerCleaner(this.nativePtr)
+            }
+        }
+        isExtentionType?: boolean;
+        native close(): void;
     }
 
     export interface WebStorageOrigin {
