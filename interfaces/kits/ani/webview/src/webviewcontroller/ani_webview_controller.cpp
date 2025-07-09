@@ -410,6 +410,10 @@ static void Clean(ani_env *env, ani_object object)
         delete reinterpret_cast<WebDownloadDelegate *>(ptr);
     } else if (clsName == "WebMessageExt"){
         delete reinterpret_cast<WebMessageExt *>(ptr);
+    } else if (clsName == "WebDownloadItem") {
+        delete reinterpret_cast<WebDownloadItem *>(ptr);
+    } else if (clsName == "WebDownloadManager") {
+        delete reinterpret_cast<WebDownloadManager *>(ptr);
     } else {
         WVLOG_E("Clean unsupport className: %{public}s", clsName.c_str());
     }
@@ -418,6 +422,7 @@ static void Clean(ani_env *env, ani_object object)
 
 static void Constructor(ani_env *env, ani_object object, ani_string webTagObject)
 {
+    WVLOG_D("[DOWNLOAD] AniWebView native Constructor");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
@@ -3657,6 +3662,7 @@ ani_status StsWebMessageExtInit(ani_env* env)
 
 ani_status StsWebviewControllerInit(ani_env *env)
 {
+    WVLOG_D("[DOWNLOAD] StsWebviewControllerInit");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return ANI_ERROR;

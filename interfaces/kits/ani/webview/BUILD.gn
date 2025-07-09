@@ -25,6 +25,7 @@ config("web_native_public_config") {
     "native/webfunction",
     "native/webstorage",
     "native/webviewcontroller",
+    "$target_gen_dir/../../napi/protos",
     "../../../native",
     "../../../../ohos_adapter/ohos_resource_adapter/include",
   ]
@@ -34,8 +35,8 @@ ohos_shared_library("webview_native") {
   public_configs = [ ":web_native_public_config" ]
 
   sources = [
-    #"$target_gen_dir/protos/web_download.pb.cc",
-    #"$target_gen_dir/protos/web_download.pb.h",
+    "$target_gen_dir/../../napi/protos/web_download.pb.cc",
+    "$target_gen_dir/../../napi/protos/web_download.pb.h",
     "native/common/business_error.cpp",
     "native/common/napi_parse_utils.cpp",
     "native/common/web_errors.cpp",
@@ -63,6 +64,7 @@ ohos_shared_library("webview_native") {
     "../../../../ohos_adapter:nweb_ohos_adapter",
     "../../../../ohos_nweb:libnweb",
     "../../../native:ohweb",
+    "../../napi/protos:proto_gen",
   ]
   external_deps = [
     "ability_base:extractortool",
@@ -117,6 +119,8 @@ ohos_shared_library("webview_ani") {
     "./src/webviewcontroller/web_scheme_handler_response.h",
     "./src/webviewcontroller/ani_web_scheme_handler_response.cpp",
     "./src/webviewcontroller/ani_web_download_delegate.cpp",
+    "./src/webviewcontroller/ani_web_download_item.cpp",
+    "./src/webviewcontroller/ani_web_download_manager.cpp",
     "./src/webviewcontroller/web_download_delegate.cpp",
     "./src/webviewcontroller/web_download_delegate.h",
     "./src/webviewcontroller/web_download_item.cpp",
@@ -141,6 +145,7 @@ ohos_shared_library("webview_ani") {
     "../../../../ohos_adapter:nweb_ohos_adapter",
     "../../../../ohos_nweb:libnweb",
     "../../../native:ohweb",
+    "../../napi/protos:proto_gen",
   ]
   external_deps = [
     "ability_base:extractortool",

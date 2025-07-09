@@ -50,6 +50,47 @@ export default namespace webview {
         MODULE_JS
     }
 
+    export enum WebDownloadErrorCode {
+        ERROR_UNKNOWN = 0,
+        FILE_FAILED = 1,
+        FILE_ACCESS_DENIED = 2,
+        FILE_NO_SPACE = 3,
+        FILE_NAME_TOO_LONG = 5,
+        FILE_TOO_LARGE = 6,
+        FILE_TRANSIENT_ERROR = 10,
+        FILE_BLOCKED = 11,
+        FILE_TOO_SHORT = 13,
+        FILE_HASH_MISMATCH = 14,
+        FILE_SAME_AS_SOURCE = 15,
+        NETWORK_FAILED = 20,
+        NETWORK_TIMEOUT = 21,
+        NETWORK_DISCONNECTED = 22,
+        NETWORK_SERVER_DOWN = 23,
+        NETWORK_INVALID_REQUEST = 24,
+        SERVER_FAILED = 30,
+        SERVER_NO_RANGE = 31,
+        SERVER_BAD_CONTENT = 33,
+        SERVER_UNAUTHORIZED = 34,
+        SERVER_CERT_PROBLEM = 35,
+        SERVER_FORBIDDEN = 36,
+        SERVER_UNREACHABLE = 37,
+        SERVER_CONTENT_LENGTH_MISMATCH = 38,
+        SERVER_CROSS_ORIGIN_REDIRECT = 39,
+        USER_CANCELED = 40,
+        USER_SHUTDOWN = 41,
+        CRASH = 50
+    }
+
+    export enum WebDownloadState {
+        IN_PROGRESS = 0,
+        COMPLETED,
+        CANCELED,
+        INTERRUPTED,
+        PENDING,
+        PAUSED,
+        UNKNOWN
+    }
+
     export interface OfflineResourceMap {
         urlList: Array<string>,
         resource: Uint8Array,
@@ -550,26 +591,65 @@ export default namespace webview {
     }
 
     export class WebDownloadItem {
-        private url: string;
+        static {
+            loadLibrary("webview_ani.z");
+        }
+        private nativePtr: long = 0;
+        private cleaner?: Cleaner;
 
-        constructor(url: string) {
-            this.url = url;
+        registerCleaner(ptr: long): void {
+            this.cleaner = new Cleaner(ptr, "WebDownloadItem")
+            destroyRegister.register(this, this.cleaner!, unregisterToken);
+        }
+        unregisterCleaner(): void {
+            destroyRegister.unregister(unregisterToken);
         }
 
-        /**
-         * Get url of the web download request.
-         * @returns { string } - Returns the url.
-         * @syscap SystemCapability.Web.Webview.Core
-         * @crossplatform
-         * @atomicservice
-         * @since 20
-         */
-        getUrl(): string {
-            return this.url;
+        bindNativePtr(ptr: long): void {
+            if (this.nativePtr == 0) {
+                this.nativePtr = ptr;
+                this.registerCleaner(this.nativePtr)
+            }
+        }
+        
+        native constructor();
+
+        native getGuid(): string;
+        native getPercentComplete(): number;
+        native getSuggestedFileName(): string;
+
+        native getMethod(): string;
+        native getCurrentSpeed(): number;
+        native getReceivedBytes(): number;
+        native getFullPath(): string;
+        native getTotalBytes(): number;
+        native getLastErrorCode(): WebDownloadErrorCode;
+        native getState(): WebDownloadState;
+
+        native start(downloadPath: string): void;
+        native cancel(): void;
+        native pause(): void;
+        native resume(): void;
+
+        native serializeInternal(): ArrayBuffer;
+        serialize(): Uint8Array{
+            let buffer = this.serializeInternal();
+            let uint8Array = new Uint8Array(buffer);
+            return uint8Array;
+        }
+
+        native static deserializeInternal(arrayBuffer: ArrayBuffer): WebDownloadItem;
+        static deserialize(serializedData: Uint8Array): WebDownloadItem {
+            let buffer = serializedData.buffer;
+            let item = WebDownloadItem.deserializeInternal(buffer);
+            return item;
         }
     }
 
     export class WebDownloadDelegate {
+        static {
+            loadLibrary("webview_ani.z");
+        }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
 
@@ -590,15 +670,33 @@ export default namespace webview {
 
         native constructor();
 
-        /**
-         * Callback will be triggered before web download start.
-         * @param { Callback<WebDownloadItem> } callback - The callback of download will be start.
-         * @syscap SystemCapability.Web.Webview.Core
-         * @crossplatform
-         * @atomicservice
-         * @since 20
-         */
         native onBeforeDownload(callback : (item: WebDownloadItem) => void): void;
+        native onDownloadFinish(callback : (item: WebDownloadItem) => void): void;
+        native onDownloadUpdated(callback : (item: WebDownloadItem) => void): void;
+        native onDownloadFailed(callback : (item: WebDownloadItem) => void): void;
+    }
+    
+    export class WebDownloadManager {
+        private nativePtr: long = 0;
+        private cleaner?: Cleaner;
+
+        registerCleaner(ptr: long): void {
+            this.cleaner = new Cleaner(ptr, "WebDownloadManager")
+            destroyRegister.register(this, this.cleaner!, unregisterToken);
+        }
+        unregisterCleaner(): void {
+            destroyRegister.unregister(unregisterToken);
+        }
+
+        bindNativePtr(ptr: long): void {
+            if (this.nativePtr == 0) {
+                this.nativePtr = ptr;
+                this.registerCleaner(this.nativePtr)
+            }
+        }
+
+        native static resumeDownload(webDownloadItem: WebDownloadItem): void;
+        native static setDownloadDelegate(delegate: WebDownloadDelegate): void;
     }
 
     export class BackForwardCacheSupportedFeatures {
