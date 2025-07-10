@@ -46,6 +46,7 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
     StsWebviewControllerInit(env);
     StsWebMessageExtInit(env);
     StsBackForwardListInit(env);
+    StsWebMessagePortInit(env);
     StsWebSchemeHandlerResponseInit(env);
     StsWebDownloadDelegateInit(env);
     StsWebDownLoadItemInit(env);

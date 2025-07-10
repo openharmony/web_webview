@@ -79,7 +79,7 @@ void WebDownloadDelegate::DownloadBeforeStart(WebDownloadItem* webDownloadItem)
         }
         ani_object webItemObj = {};
         if (!AniParseUtils::CreateObjectVoid(env_, WEB_DOWNLOAD_ITEM_CLASS_NAME, webItemObj)) {
-            WVLOG_E("[DOWNLOAD] aniDownloadItem is null");
+            WVLOG_E("[DOWNLOAD] webItemObj is null");
             break;
         }
         if (!AniParseUtils::Wrap(
@@ -98,7 +98,6 @@ void WebDownloadDelegate::DownloadBeforeStart(WebDownloadItem* webDownloadItem)
     } while (false);
     if (!success && webDownloadItem) {
         delete webDownloadItem;
-        webDownloadItem = nullptr;
     }
 }
 

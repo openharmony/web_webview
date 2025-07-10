@@ -76,7 +76,7 @@ void DownloadDidUpdate(NWebDownloadItem *downloadItem, WebDownloadItemCallbackWr
 
     WebDownloadDelegate *webDownloadDelegate = GetWebDownloadDelegate(nwebId);
     if (!webDownloadDelegate) {
-        WVLOG_D("[DOWNLOAD] donn't found delegate for nweb.");
+        WVLOG_D("[DOWNLOAD] didn't find delegate for nweb.");
         webDownloadDelegate = g_default_delegate.get();
     }
 
