@@ -29,7 +29,7 @@
 
 namespace OHOS {
 namespace NWeb {
-const double MAX_VOLUME = 10.0;
+const double MAX_VOLUME = 1.0;
 const double MAX_PLAYBACK_RATE = 10.0;
 
 using namespace NWebError;
