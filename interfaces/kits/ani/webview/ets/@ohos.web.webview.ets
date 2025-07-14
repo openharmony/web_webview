@@ -777,10 +777,10 @@ export default namespace webview {
                 return undefined
         });
             pCallback.then((e :NullishType)=>{
-                let resultCode: Int  = 0;
-                let r: BusinessError = { code: resultCode.toInt(), data: undefined };
-                callback(r, undefined);
-            }, (err: Object): void => {
+                callback(null, undefined);
+            }, (err: Error): void => {
+                let error: BusinessError = err as BusinessError;
+                callback(error, undefined);
             });
         }
 
@@ -854,10 +854,10 @@ export default namespace webview {
         static saveCookieAsync(callback: AsyncCallback<void>): void {
             let pCallback = taskpool.execute(():undefined => {WebCookieManager.saveCookieSync();  return undefined});
             pCallback.then((e :NullishType)=>{
-                let resultCode: Int  = 0;
-                let r: BusinessError = { code: resultCode.toInt(), data: undefined };
-                callback(r, undefined);
+                callback(null, undefined);
             }, (err:Error): void => {
+                let error: BusinessError = err as BusinessError;
+                callback(error, undefined);
             });
         }
 
@@ -910,10 +910,10 @@ export default namespace webview {
             let pCallback = taskpool.execute(():undefined => {
                 WebCookieManager.clearAllCookiesSync();  return undefined});
             pCallback.then((e :NullishType)=>{
-                let resultCode: Int  = 0;
-                let r: BusinessError = { code: resultCode.toInt(), data: undefined };
-                callback(r, undefined);
+                callback(null, undefined);
             }, (err:Error): void => {
+                let error: BusinessError = err as BusinessError;
+                callback(error, undefined);
             });
         }
 
@@ -936,21 +936,20 @@ export default namespace webview {
                 return WebCookieManager.fetchCookieSync(url);
             });
             pCallback.then((e: NullishType) => {
-                let data: string = e as string;
-                let resultCode: Int = 0;
-                let error: BusinessError = { code: resultCode.toInt(), data: undefined };
-                callback(error, data);
-            }, (err: Error): void => {
+                callback(null, data);
+            }, (err:Error): void => {
+                let error: BusinessError = err as BusinessError;
+                callback(error, undefined);
             });
         }
 
         static clearSessionCookie(callback: AsyncCallback<void>): void {
             let pCallback = taskpool.execute(():undefined => {WebCookieManager.clearSessionCookieSync(); return undefined});
             pCallback.then((e :NullishType) => {
-                let resultCode: Int = 0;
-                let r: BusinessError = { code: resultCode.toInt(), data: undefined };
-                callback(r, undefined);
-            }, (err: Error): void => {
+                callback(null, undefined);
+            }, (err:Error): void => {
+                let error: BusinessError = err as BusinessError;
+                callback(error, undefined);
             });
         }
 
