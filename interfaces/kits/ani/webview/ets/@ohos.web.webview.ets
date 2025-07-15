@@ -204,12 +204,12 @@ export default namespace webview {
     }
 
     export interface ScrollOffset {
-        x: number;
-        y: number;
+        x: double;
+        y: double;
     }
     export class ScrollOffsetInner implements ScrollOffset {
-        x: number = 0;
-        y: number = 0;
+        x: double = 0;
+        y: double = 0;
     }
 
     export interface HitTestValue {
@@ -435,13 +435,13 @@ export default namespace webview {
         native getScrollable(): boolean;
         native requestFocus(): void;
         native clearClientAuthenticationCache(): void;
-        native scrollByWithResult(deltaX: number, deltaY: number): boolean;
+        native scrollByWithResult(deltaX: double, deltaY: double): boolean;
         native setScrollable(enable: boolean, type?: ScrollType): void;
-        native scrollTo(x: number, y: number, duration?: number): void;
-        native scrollBy(deltaX: number, deltaY: number, duration?: number): void;
+        native scrollTo(x: double, y: double, duration?: int): void;
+        native scrollBy(deltaX: double, deltaY: double, duration?: int): void;
         native getScrollOffset(): ScrollOffset;
-        native slideScroll(vx: number, vy: number): void;
-        native zoom(factor: number): void;
+        native slideScroll(vx: double, vy: double): void;
+        native zoom(factor: double): void;
         native isSafeBrowsingEnabled(): boolean;
         native static prepareForPageLoad(url: string, preconnectable: boolean, numSockets: number): void;
         native getFavicon(): image.PixelMap;
