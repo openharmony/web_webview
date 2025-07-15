@@ -2618,9 +2618,9 @@ static void PrefetchResource(ani_env* env, ani_object object, ani_object request
     if (env->Reference_IsUndefined(cacheValidTime, &isUndefined) != ANI_OK) {
         return;
     }
-    ani_double cacheValidTimeTemp = 300;
+    ani_int cacheValidTimeTemp = 300;
     if (!isUndefined &&
-        (env->Object_CallMethodByName_Double(cacheValidTime, "doubleValue", nullptr, &cacheValidTimeTemp) != ANI_OK)) {
+        (env->Object_CallMethodByName_Int(cacheValidTime, "unboxed", ":i", &cacheValidTimeTemp) != ANI_OK)) {
         AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "duration", "number"));
         return;
@@ -3094,7 +3094,7 @@ ani_object PrecompileJavaScriptPromise(ani_env* env, ani_object object, std::str
             WVLOG_E("env is nullptr");
             return;
         }
-        ani_object resolution = AniParseUtils::CreateDouble(env, result);
+        ani_object resolution = AniParseUtils::CreateInt(env, result);
         if (result == static_cast<int64_t>(PrecompileError::OK)) {
             if (env->PromiseResolver_Resolve(resolver, resolution) != ANI_OK) {
                 WVLOG_E("PromiseResolver_Resolve fail");

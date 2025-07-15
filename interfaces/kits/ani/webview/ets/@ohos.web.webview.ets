@@ -522,7 +522,7 @@ export default namespace webview {
             this.injectOfflineResourcesInternal(res);
         }
         native static clearPrefetchedResource(cacheKeyList: Array<string>): void;
-        native static prefetchResource(request: RequestInfo, additionalHeaders?: Array<WebHeader>, cacheKey?: string, cacheValidTime?: number): void;
+        native static prefetchResource(request: RequestInfo, additionalHeaders?: Array<WebHeader>, cacheKey?: string, cacheValidTime?: int): void;
         native startCamera(): void;
         native closeAllMediaPresentations(): void;
         native stopAllMedia(): void;
@@ -536,8 +536,8 @@ export default namespace webview {
         innerGetThisVar(): long {
             return this.nativePtr;
         }
-        native precompileJavaScriptInternal(url: string, script: string | ArrayBuffer, cacheOptions: CacheOptions): Promise<number>;
-        precompileJavaScript(url: string, script: string | Uint8Array, cacheOptions: CacheOptions): Promise<number> {
+        native precompileJavaScriptInternal(url: string, script: string | ArrayBuffer, cacheOptions: CacheOptions): Promise<int>;
+        precompileJavaScript(url: string, script: string | Uint8Array, cacheOptions: CacheOptions): Promise<int> {
             let resScript: string | ArrayBuffer
             if (typeof script === 'string') {
                 resScript = script as string;

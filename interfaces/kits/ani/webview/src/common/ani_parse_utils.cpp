@@ -512,6 +512,23 @@ ani_object AniParseUtils::CreateDouble(ani_env* env, ani_double val)
     return obj;
 }
 
+ani_object AniParseUtils::CreateInt(ani_env *env, ani_int val)
+{
+    static constexpr const char* className = "std.core.Int";
+    ani_class intCls {};
+    env->FindClass(className, &intCls);
+    ani_method ctor {};
+    env->Class_FindMethod(intCls, "<ctor>", "i:", &ctor);
+    ani_object obj {};
+    if (env->Object_New(intCls, ctor, &obj, static_cast<ani_int>(val)) != ANI_OK) {
+        WVLOG_E("CreateInt Failed");
+        ani_ref undefinedRef;
+        env->GetUndefined(&undefinedRef);
+        return static_cast<ani_object>(undefinedRef);
+    }
+    return obj;
+}
+
 ani_string StringToAniStr(ani_env* env, const std::string& str)
 {
     ani_string result {};
