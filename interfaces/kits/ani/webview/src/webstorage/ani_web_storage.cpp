@@ -49,8 +49,8 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-static const char* WEB_STORAGE_CLASS_NAME = "L@ohos/web/webview/webview/WebStorage;";
-static const char* ANI_CLASS_WEB_STORAGE_ORIGIN_INNER = "L@ohos/web/webview/webview/WebStorageOriginInner;";
+static const char* WEB_STORAGE_CLASS_NAME = "@ohos.web.webview.webview.WebStorage";
+static const char* ANI_CLASS_WEB_STORAGE_ORIGIN_INNER = "@ohos.web.webview.webview.WebStorageOriginInner";
 }
 
 void DeleteAllData(ani_env *env, ani_object object, ani_object incognitoObj)
@@ -167,7 +167,7 @@ static ani_object GetOriginsSync(ani_env *env, ani_object obj)
         return nullptr;
     }
     ani_class arrayCls = nullptr;
-    if (env->FindClass("Lescompat/Array;", &arrayCls) != ANI_OK) {
+    if (env->FindClass("escompat.Array", &arrayCls) != ANI_OK) {
         WVLOG_E("find class escompat/Array; failed");
         return nullptr;
     }

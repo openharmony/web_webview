@@ -2395,7 +2395,7 @@ static ani_enum_item GetRenderProcessMode(ani_env* env, ani_object object)
 {
     ani_int renderProcessMode = 0;
     ani_enum enumType;
-    env->FindEnum("L@ohos/web/webview/webview/RenderProcessMode;", &enumType);
+    env->FindEnum("@ohos.web.webview.webview.RenderProcessMode", &enumType);
 
     renderProcessMode = static_cast<ani_int>(NWebHelper::Instance().GetRenderProcessMode());
     WVLOG_I("getRenderProcessMode mode = %{public}d", static_cast<int32_t>(renderProcessMode));
@@ -3663,7 +3663,7 @@ static ani_enum_item GetType(ani_env* env, ani_object object)
 
     ani_int typeMode = 0;
     ani_enum enumType;
-    env->FindEnum("L@ohos/web/webview/webview/WebMessageType;", &enumType);
+    env->FindEnum("@ohos.web.webview.webview.WebMessageType", &enumType);
     typeMode = static_cast<ani_int>(webMessageExt->GetType());
     WVLOG_D("WebMessageExt mode = %{public}d", static_cast<int32_t>(typeMode));
     ani_enum_item mode;
@@ -3812,7 +3812,7 @@ ani_object ConvertToAniHandlerOfStringArray(ani_env* env, std::shared_ptr<NWebMe
     }
     std::vector<std::string> values = src->GetStringArray();
     ani_class stringCls = nullptr;
-    if (ANI_OK != env->FindClass("Lstd/core/String;", &stringCls)) {
+    if (ANI_OK != env->FindClass("std.core.String", &stringCls)) {
         WVLOG_E("WebMessageExt find class failed.");
         return nullptr;
     }
@@ -3851,7 +3851,7 @@ ani_object ConvertToAniHandlerOfBooleanArray(ani_env* env, std::shared_ptr<NWebM
     size_t valueSize = values.size();
 
     ani_class boolCls = nullptr;
-    if (ANI_OK != env->FindClass("Lstd/core/Boolean;", &boolCls)) {
+    if (ANI_OK != env->FindClass("std.core.Boolean", &boolCls)) {
         WVLOG_E("WebMessageExt find class failed.");
         return nullptr;
     }
@@ -3871,7 +3871,7 @@ ani_object ConvertToAniHandlerOfBooleanArray(ani_env* env, std::shared_ptr<NWebM
     for (size_t i = 0; i < valueSize; i++) {
         ani_boolean item = static_cast<ani_boolean>(values[i]);
         ani_class booleanCls {};
-        if (ANI_OK != env->FindClass("Lstd/core/Boolean;", &booleanCls)) {
+        if (ANI_OK != env->FindClass("std.core.Boolean", &booleanCls)) {
             return nullptr;
         }
         ani_method ctor {};
@@ -3899,7 +3899,7 @@ ani_object ConvertToAniHandlerOfDoubleArray(ani_env* env, std::shared_ptr<NWebMe
     size_t valueSize = values.size();
 
     ani_class doubleCls = nullptr;
-    if (ANI_OK != env->FindClass("Lstd/core/Double;", &doubleCls)) {
+    if (ANI_OK != env->FindClass("std.core.Double", &doubleCls)) {
         WVLOG_E("WebMessageExt find class failed.");
         return nullptr;
     }
@@ -3919,7 +3919,7 @@ ani_object ConvertToAniHandlerOfDoubleArray(ani_env* env, std::shared_ptr<NWebMe
     for (size_t i = 0; i < valueSize; i++) {
         ani_double item = static_cast<ani_double>(values[i]);
         ani_class cls {};
-        if (ANI_OK != env->FindClass("Lstd/core/Double;", &cls)) {
+        if (ANI_OK != env->FindClass("std.core.Double", &cls)) {
             return nullptr;
         }
         ani_method ctor {};
@@ -3947,7 +3947,7 @@ ani_object ConvertToAniHandlerOfInt64Array(ani_env* env, std::shared_ptr<NWebMes
     size_t valueSize = values.size();
 
     ani_class longCls = nullptr;
-    if (ANI_OK != env->FindClass("Lstd/core/Long;", &longCls)) {
+    if (ANI_OK != env->FindClass("std.core.Long", &longCls)) {
         WVLOG_E("WebMessageExt find class failed.");
         return nullptr;
     }
@@ -3967,7 +3967,7 @@ ani_object ConvertToAniHandlerOfInt64Array(ani_env* env, std::shared_ptr<NWebMes
     for (size_t i = 0; i < valueSize; i++) {
         ani_long item = static_cast<ani_boolean>(values[i]);
         ani_class cls {};
-        if (ANI_OK != env->FindClass("Lstd/core/Long;", &cls)) {
+        if (ANI_OK != env->FindClass("std.core.Long", &cls)) {
             return nullptr;
         }
         ani_method ctor {};
@@ -4205,7 +4205,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void *>(TrimMemoryByPressureLevel) },
         ani_native_function { "setPathAllowingUniversalAccess", nullptr,
                               reinterpret_cast<void *>(SetPathAllowingUniversalAccess) },
-        ani_native_function { "onCreateNativeMediaPlayer", "Lstd/core/Function2;:V",
+        ani_native_function { "onCreateNativeMediaPlayer", "C{std.core.Function2}:",
                               reinterpret_cast<void *>(OnCreateNativeMediaPlayer) },
         ani_native_function { "injectOfflineResourcesInternal", nullptr,
                               reinterpret_cast<void *>(InjectOfflineResources) },

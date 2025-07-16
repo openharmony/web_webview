@@ -44,7 +44,7 @@ ani_object WrapBusinessError(ani_env *env, const std::string& msg)
         return nullptr;
     }
 
-    if ((status = env->FindClass("Lescompat/Error;", &cls)) != ANI_OK) {
+    if ((status = env->FindClass("escompat.Error", &cls)) != ANI_OK) {
         WVLOG_E("FindClass failed %{public}d", status);
         return nullptr;
     }
@@ -71,7 +71,7 @@ ani_object CreateBusinessError(ani_env *env, ani_int code, const std::string& ms
         WVLOG_E("null env");
         return nullptr;
     }
-    if ((status = env->FindClass("L@ohos/base/BusinessError;", &cls)) != ANI_OK) {
+    if ((status = env->FindClass("@ohos.base.BusinessError", &cls)) != ANI_OK) {
         WVLOG_E("FindClass failed %{public}d", status);
         return nullptr;
     }

@@ -31,9 +31,9 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-const char* WEB_PROXY_CONFIG_CLASS_NAME = "L@ohos/web/webview/webview/ProxyConfig;";
-const char* WEB_PROXY_RULE_CLASS_NAME = "L@ohos/web/webview/webview/ProxyRule;";
-const char* WEB_PROXY_SCHEME_FILTER_ENUM_NAME = "L@ohos/web/webview/webview/ProxySchemeFilter;";
+const char* WEB_PROXY_CONFIG_CLASS_NAME = "@ohos.web.webview.webview.ProxyConfig";
+const char* WEB_PROXY_RULE_CLASS_NAME = "@ohos.web.webview.webview.ProxyRule";
+const char* WEB_PROXY_SCHEME_FILTER_ENUM_NAME = "@ohos.web.webview.webview.ProxySchemeFilter";
 }
 
 static void JsInsertProxyRule(ani_env *env, ani_object object, ani_string url, ani_enum_item schemeFilter)
@@ -162,7 +162,7 @@ static ani_ref JsGetProxyRule(ani_env *env, ani_object object)
     }
 
     ani_class arrayCls = nullptr;
-    if (env->FindClass("Lescompat/Array;", &arrayCls) != ANI_OK) {
+    if (env->FindClass("escompat.Array", &arrayCls) != ANI_OK) {
         WVLOG_E("[PROXYCONTROLLER] FindClass Lescompat/Array; Failed.");
         return nullptr;
     }
