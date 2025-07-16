@@ -423,7 +423,7 @@ export default namespace webview {
         }
 
         native constructor(webTag?: string);
-        native _setNWebId(nwebId: int): void;
+        native _setNWebId(nwebId: number): void;
         native _setHapPath(hapPath: string): void;
 
         native static initializeWebEngine(): void;
@@ -431,7 +431,7 @@ export default namespace webview {
         native createWebMessagePorts(isExtentionType?: boolean): Array<WebMessagePort>;
         native onActive(): void;
         native onInactive(): void;
-        native getWebId(): int;
+        native getWebId(): number;
         native getScrollable(): boolean;
         native requestFocus(): void;
         native clearClientAuthenticationCache(): void;
