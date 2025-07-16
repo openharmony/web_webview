@@ -2086,21 +2086,21 @@ static void EnableSafeBrowsing(ani_env* env, ani_object object, ani_boolean enab
     return;
 }
 
-static ani_double GetPageHeight(ani_env *env, ani_object object)
+static ani_int GetPageHeight(ani_env *env, ani_object object)
 {
     int32_t pageHeight = 0;
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
-        return static_cast<ani_double>(pageHeight);
+        return static_cast<ani_int>(pageHeight);
     }
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
     if (!controller || !controller->IsInit()) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
-        return static_cast<ani_double>(pageHeight);
+        return static_cast<ani_int>(pageHeight);
     }
 
     pageHeight = controller->GetPageHeight();
-    return static_cast<ani_double>(pageHeight);
+    return static_cast<ani_int>(pageHeight);
 }
 
 static ani_boolean TerminateRenderProcess(ani_env* env, ani_object object)
