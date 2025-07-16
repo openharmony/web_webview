@@ -234,7 +234,7 @@ static void InitializeWebEngine(ani_env *env, ani_object aniClass)
     }
 }
 
-static void SetNWebId(ani_env *env, ani_object object, ani_double nwebId)
+static void SetNWebId(ani_env *env, ani_object object, ani_int nwebId)
 {
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
@@ -245,7 +245,7 @@ static void SetNWebId(ani_env *env, ani_object object, ani_double nwebId)
         WVLOG_E("webviewController is nullptr.");
         return;
     }
-    auto id = static_cast<int>(std::round(nwebId));
+    auto id = static_cast<int>(nwebId);
     WVLOG_I("SetNWebId nwebId: %{public}d", id);
     controller->SetWebId(id);
 }
@@ -485,21 +485,21 @@ static void OnInactive(ani_env *env, ani_object object)
     controller->OnInactive();
 }
 
-static ani_double GetWebId(ani_env *env, ani_object object)
+static ani_int GetWebId(ani_env *env, ani_object object)
 {
     int32_t webId = -1;
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
-        return static_cast<ani_double>(webId);
+        return static_cast<ani_int>(webId);
     }
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
     if (!controller || !controller->IsInit()) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
-        return static_cast<ani_double>(webId);
+        return static_cast<ani_int>(webId);
     }
 
     webId = controller->GetWebId();
-    return static_cast<ani_double>(webId);
+    return static_cast<ani_int>(webId);
 }
 
 static ani_boolean GetScrollable(ani_env *env, ani_object object)
