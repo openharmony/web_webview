@@ -91,6 +91,7 @@ ohos_shared_library("webview_native") {
 }
 
 ohos_shared_library("webview_ani") {
+  shlib_type = "ani"
   sanitize = {
     cfi = true
     cfi_cross_dso = true
