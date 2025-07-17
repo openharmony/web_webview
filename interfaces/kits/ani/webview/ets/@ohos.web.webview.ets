@@ -256,17 +256,17 @@ export default namespace webview {
     }
 
     export interface RectEvent {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
+        x: double;
+        y: double;
+        width: double;
+        height: double;
     }
 
     export class RectEventinner implements RectEvent {
-        x: number = 0;
-        y: number = 0;
-        width: number = 0;
-        height: number = 0;
+        x: double = 0;
+        y: double = 0;
+        width: double = 0;
+        height: double = 0;
     }
 
     export interface MediaInfo {
@@ -299,12 +299,12 @@ export default namespace webview {
 
     export interface NativeMediaPlayerHandler {
         handleStatusChanged(status: PlaybackStatus): void
-        handleVolumeChanged(volume: number): void
+        handleVolumeChanged(volume: double): void
         handleMutedChanged(muted: boolean): void
-        handlePlaybackRateChanged(playbackRate: number): void
-        handleDurationChanged(duration: number): void
-        handleTimeUpdate(currentPlayTime: number): void
-        handleBufferedEndTimeChanged(bufferedEndTime: number): void
+        handlePlaybackRateChanged(playbackRate: double): void
+        handleDurationChanged(duration: double): void
+        handleTimeUpdate(currentPlayTime: double): void
+        handleBufferedEndTimeChanged(bufferedEndTime: double): void
         handleEnded(): void
         handleNetworkStateChanged(state: NetworkState): void
         handleReadyStateChanged(state: ReadyState): void
@@ -312,7 +312,7 @@ export default namespace webview {
         handleSeeking(): void
         handleSeekFinished(): void
         handleError(error: MediaError, errorMessage: string): void
-        handleVideoSizeChanged(width: number, height: number): void
+        handleVideoSizeChanged(width: double, height: double): void
     }
 
     export class NativeMediaPlayerHandlerinner implements NativeMediaPlayerHandler {
@@ -337,12 +337,12 @@ export default namespace webview {
         constructor(){};
 
         native handleStatusChanged(status: PlaybackStatus): void
-        native handleVolumeChanged(volume: number): void
+        native handleVolumeChanged(volume: double): void
         native handleMutedChanged(muted: boolean): void
-        native handlePlaybackRateChanged(playbackRate: number): void
-        native handleDurationChanged(duration: number): void
-        native handleTimeUpdate(currentPlayTime: number): void
-        native handleBufferedEndTimeChanged(bufferedEndTime: number): void
+        native handlePlaybackRateChanged(playbackRate: double): void
+        native handleDurationChanged(duration: double): void
+        native handleTimeUpdate(currentPlayTime: double): void
+        native handleBufferedEndTimeChanged(bufferedEndTime: double): void
         native handleEnded(): void
         native handleNetworkStateChanged(state: NetworkState): void
         native handleReadyStateChanged(state: ReadyState): void
@@ -350,17 +350,17 @@ export default namespace webview {
         native handleSeeking(): void
         native handleSeekFinished(): void
         native handleError(error: MediaError, errorMessage: string): void
-        native handleVideoSizeChanged(width: number, height: number): void
+        native handleVideoSizeChanged(width: double, height: double): void
     }
 
     export interface NativeMediaPlayerBridge {
-        updateRect(x: number, y: number, width: number, height: number): void
+        updateRect(x: double, y: double, width: double, height: double): void
         play(): void
         pause(): void
-        seek(targetTime: number): void
-        setVolume(volume: number): void
+        seek(targetTime: double): void
+        setVolume(volume: double): void
         setMuted(muted: boolean): void
-        setPlaybackRate(playbackRate: number): void
+        setPlaybackRate(playbackRate: double): void
         release(): void
         enterFullscreen(): void
         exitFullscreen(): void
