@@ -458,7 +458,7 @@ export default namespace webview {
         native zoomOut(): void;
         native zoomIn(): void;
         native getLastHitTest(): HitTestValue;
-        native getPageHeight(): number;
+        native getPageHeight(): int;
         native refresh(): void;
         native stop(): void;
         native clearSslCache(): void;
