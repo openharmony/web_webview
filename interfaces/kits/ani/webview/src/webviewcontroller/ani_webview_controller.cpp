@@ -2313,29 +2313,16 @@ static void SetPathAllowingUniversalAccess(ani_env* env, ani_object object, ani_
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
-    ani_array_ref pathListStr = static_cast<ani_array_ref>(pathList);
-    ani_double pathCount;
-    ani_status status = env->Object_GetPropertyByName_Double(pathList, "length", &pathCount);
-    if (status != ANI_OK) {
-        WVLOG_E("Object_GetPropertyByName_Double failed, status: %{public}d", status);
+    std::vector<std::string> pathListArr;
+    if (!AniParseUtils::ParseStringArray(env, pathList, pathListArr)) {
+        WVLOG_E("SetPathAllowingUniversalAccess ParseStringArray fail");
         return;
     }
-    std::vector<std::string> pathListArr;
-    for (ani_double i = 0; i < pathCount; i++) {
-        ani_ref pathItem = nullptr;
-        env->Array_Get_Ref(pathListStr, i, &pathItem);
-        std::string path;
-        if (!AniParseUtils::ParseString(env, pathItem, path)) {
-            AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "pathList", "Array<string>"));
-            return;
-        }
-        if (path.empty()) {
-            AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
-                NWebError::FormatString("BusinessError 401: Parameter error. Path: '%s' is invalid", path.c_str()));
-            return;
-        }
-        pathListArr.emplace_back(path);
+    std::string errorPath;
+    controller->SetPathAllowingUniversalAccess(pathListArr, errorPath);
+    if (!errorPath.empty()) {
+        WVLOG_E("%{public}s is invalid.", errorPath.c_str());
+    return;
     }
 }
 
