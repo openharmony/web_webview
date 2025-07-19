@@ -160,7 +160,7 @@ ohos_shared_library("webview_ani") {
     "image_framework:image",
     "image_framework:image_native",
     "image_framework:image_ani",
-    #"image_framework:image_taihe",
+    "image_framework:image_taihe",
     "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",

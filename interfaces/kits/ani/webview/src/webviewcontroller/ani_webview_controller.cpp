@@ -59,7 +59,7 @@
 #include "web_download_manager.h"
 #include "pixel_map.h"
 #include "pixel_map_ani.h"
-// #include "pixel_map_taihe_ani.h"
+#include "pixel_map_taihe_ani.h"
 #include "proxy_config.h"
 #include "ani_parse_utils.h"
 #include "web_scheme_handler_response.h"
@@ -2941,8 +2941,8 @@ WebSnapshotCallback CreateWebPageSnapshotResultCallback(
             uint64_t stride = static_cast<uint64_t>(returnWidth) << 2;
             uint64_t bufferSize = stride * static_cast<uint64_t>(returnHeight);
             pixelMap->WritePixels(static_cast<const uint8_t*>(returnData), bufferSize);
-            // std::shared_ptr<Media::PixelMap> pixelMapToJs(pixelMap.release());
-            // jsPixelMap = OHOS::Media::PixelMapTaiheAni::CreateEtsPixelMap(env, pixelMapToJs);
+            std::shared_ptr<Media::PixelMap> pixelMapToJs(pixelMap.release());
+            jsPixelMap = OHOS::Media::PixelMapTaiheAni::CreateEtsPixelMap(env, pixelMapToJs);
         } else {
             WVLOG_E("WebPageSnapshot create pixel map error");
         }
