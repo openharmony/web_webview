@@ -400,6 +400,54 @@ export default namespace webview {
         native getItemAtIndex(index: int): HistoryItem;
     }
 
+    export class AsyncCallbackWrapper<T> {
+        myFun_:AsyncCallback<T, void> = (err: BusinessError<void> | null, data: T | undefined) => {}
+
+        constructor(myFun:AsyncCallback<T, void>){
+            this.myFun_ = myFun;
+        }
+
+        invoke(err: BusinessError<void> | null, data: T | undefined) : void {
+            this.myFun_(err, data);
+        }
+    }
+
+    export interface PdfConfiguration {
+        width: double;
+        height: double;
+        marginTop: double;
+        marginBottom: double;
+        marginRight: double;
+        marginLeft: double;
+        scale?: double;
+        shouldPrintBackground?: boolean;
+    }
+
+    export class PdfData {
+        static {
+            loadLibrary("webview_ani.z");
+        }
+        private nativePtr: long = 0;
+        private cleaner?: Cleaner;
+
+        registerCleaner(ptr: long): void {
+            this.cleaner = new Cleaner(ptr, "PdfData")
+            destroyRegister.register(this, this.cleaner!, unregisterToken);
+        }
+        unregisterCleaner(): void {
+            destroyRegister.unregister(unregisterToken);
+        }
+
+        bindNativePtr(ptr: long): void {
+            if (this.nativePtr == 0) {
+                this.nativePtr = ptr;
+                this.registerCleaner(this.nativePtr)
+            }
+        }
+
+        native static pdfArrayBuffer(): Uint8Array;
+    }
+
     export class WebviewController {
         static {
             loadLibrary("webview_ani.z");
@@ -452,6 +500,29 @@ export default namespace webview {
         native static addIntelligentTrackingPreventionBypassingList(hostList: Array<string>): void;
         native static removeIntelligentTrackingPreventionBypassingList(hostList: Array<string>): void;
         native static clearIntelligentTrackingPreventionBypassingList(): void;
+        native createPdfNative(configuration: PdfConfiguration, callback: AsyncCallbackWrapper<PdfData>): void;
+        createPdf(configuration: PdfConfiguration, callback: AsyncCallback<PdfData, void>): void {
+            let myCall = new AsyncCallbackWrapper<PdfData>(callback);
+            taskpool.execute((): void => {
+                this.createPdfNative(configuration, myCall);
+            })
+        }
+        createPdf(configuration: PdfConfiguration): Promise<PdfData> {
+            let p:Promise<PdfData> =
+                new Promise<PdfData>((resolve: (data: PdfData | undefined)=>void, reject:(err: BusinessError<void> | null)=>void):void => {
+                let myCall = new AsyncCallbackWrapper<PdfData>((err: BusinessError<void> | null, data: PdfData | undefined)=>{
+                    if (err === null || err.code == 0) {
+                        resolve(data);
+                    } else {
+                        reject(err);
+                    }
+                });
+                taskpool.execute((): void => {
+                    this.createPdfNative(configuration, myCall);
+                });
+            });
+            return p;
+        }
         native static setHostIP(hostName: string, address: string, aliveTime: number): void;
         native static clearHostIP(hostName: string): void;
         native static warmupServiceWorker(url: string): void;
@@ -1389,30 +1460,6 @@ export default namespace webview {
                 callback(err, false);
             });
         }
-    }
-
-    export class PdfData {
-        private nativePtr: long = 0;
-        private cleaner?: Cleaner;
-
-        registerCleaner(ptr: long): void {
-            this.cleaner = new Cleaner(ptr, "PdfData")
-            destroyRegister.register(this, this.cleaner!, unregisterToken);
-        }
-        unregisterCleaner(): void {
-            destroyRegister.unregister(unregisterToken);
-        }
-
-        bindNativePtr(ptr: long): void {
-            if (this.nativePtr == 0) {
-                this.nativePtr = ptr;
-                this.registerCleaner(this.nativePtr)
-            }
-        }
-
-        native constructor();
-
-        native static pdfArrayBuffer(): Uint8Array;
     }
 
     export enum WebMessageType {

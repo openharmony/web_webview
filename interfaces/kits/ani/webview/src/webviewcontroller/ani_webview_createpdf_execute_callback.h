@@ -18,8 +18,11 @@
 #include <ani.h>
 #include <new>
 #include <securec.h>
+#include <mutex>
+#include "nweb_value_callback.h"
 
 namespace OHOS::NWeb {
+typedef void (*PdfCallbackFunc)(ani_env *env, const char* result, const long size, ani_ref callbackRef);
 
 class WebJsArrayBufferExt {
 public:
@@ -58,6 +61,23 @@ public:
 private:
     char* value_ = nullptr;
     long size_ = 0;
+};
+
+class WebviewCreatePDFExecuteCallback : public NWebArrayBufferValueCallback {
+public:
+    explicit WebviewCreatePDFExecuteCallback(ani_env *env, const PdfCallbackFunc& callback, ani_object callbackObject);
+    ~WebviewCreatePDFExecuteCallback();
+    void OnReceiveValue(const char* value, const long size) override;
+
+private:
+    ani_vm *aniVm_ = nullptr;
+    ani_ref callbackRef_ = nullptr;
+    PdfCallbackFunc callback_ = nullptr;
+    char* result_;
+    long size_;
+
+    void ThreadAfterCb(ani_env *env);
+    void ReleaseBuffer();
 };
 
 ani_status StsPdfDataInit(ani_env *env);
