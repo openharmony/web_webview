@@ -31,7 +31,6 @@
 #include "nweb_log.h"
 #include "nweb_store_web_archive_callback.h"
 #include "web_errors.h"
-#include "webview_createpdf_execute_callback.h"
 #include "webview_hasimage_callback.h"
 #include "webview_javascript_execute_callback.h"
 #include "webview_javascript_result_callback.h"
@@ -1052,44 +1051,18 @@ void WebviewController::RunJavaScriptPromiseExt(
     nweb_ptr->ExecuteJavaScriptExt(fd, scriptLength, callbackImpl, extention);
 }
 
-void WebviewController::CreatePDFCallbackExt(
-    napi_env env, std::shared_ptr<NWebPDFConfigArgs> pdfConfig, napi_ref pdfCallback)
+void WebviewController::CreatePDFExt(
+    std::shared_ptr<NWebPDFConfigArgs> pdfConfig, std::shared_ptr<NWebArrayBufferValueCallback> callbackImpl)
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
     if (!nweb_ptr) {
-        napi_value setResult[RESULT_COUNT] = { 0 };
-        setResult[PARAMZERO] = BusinessError::CreateError(env, NWebError::INIT_ERROR);
-        napi_get_null(env, &setResult[PARAMONE]);
-
-        napi_value args[RESULT_COUNT] = { setResult[PARAMZERO], setResult[PARAMONE] };
-        napi_value callback = nullptr;
-        napi_get_reference_value(env, pdfCallback, &callback);
-        napi_value callbackResult = nullptr;
-        napi_call_function(env, nullptr, callback, RESULT_COUNT, args, &callbackResult);
-        napi_delete_reference(env, pdfCallback);
+        WVLOG_E("nweb_ptr is nullptr");
         return;
     }
-    if (pdfCallback == nullptr) {
+    if (callbackImpl == nullptr) {
+        WVLOG_E("callbackImpl is nullptr");
         return;
     }
-    auto callbackImpl = std::make_shared<WebviewCreatePDFExecuteCallback>(env, pdfCallback, nullptr);
-    nweb_ptr->ExecuteCreatePDFExt(pdfConfig, callbackImpl);
-}
-
-void WebviewController::CreatePDFPromiseExt(
-    napi_env env, std::shared_ptr<NWebPDFConfigArgs> pdfConfig, napi_deferred deferred)
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (!nweb_ptr) {
-        napi_value pdfResult = nullptr;
-        pdfResult = NWebError::BusinessError::CreateError(env, NWebError::INIT_ERROR);
-        napi_reject_deferred(env, deferred, pdfResult);
-        return;
-    }
-    if (deferred == nullptr) {
-        return;
-    }
-    auto callbackImpl = std::make_shared<WebviewCreatePDFExecuteCallback>(env, nullptr, deferred);
     nweb_ptr->ExecuteCreatePDFExt(pdfConfig, callbackImpl);
 }
 

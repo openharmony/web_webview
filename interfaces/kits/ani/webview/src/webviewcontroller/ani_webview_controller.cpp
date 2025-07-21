@@ -41,7 +41,6 @@
 
 #include "nweb_log.h"
 #include "web_errors.h"
-#include "webview_createpdf_execute_callback.h"
 #include "webview_hasimage_callback.h"
 #include "webview_javascript_execute_callback.h"
 #include "webview_javascript_result_callback.h"
@@ -64,6 +63,7 @@
 #include "ani_parse_utils.h"
 #include "web_scheme_handler_response.h"
 #include "web_download_item.h"
+#include "ani_webview_createpdf_execute_callback.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -77,6 +77,19 @@ constexpr uint32_t SOCKET_MAXIMUM = 6;
 constexpr size_t MAX_RESOURCES_COUNT = 30;
 constexpr uint32_t URL_MAXIMUM = 2048;
 constexpr char URL_REGEXPR[] = "^http(s)?:\\/\\/.+";
+const char *INVOKE_METHOD_NAME = "invoke";
+constexpr double A4_WIDTH = 8.27;
+constexpr double A4_HEIGHT = 11.69;
+constexpr double SCALE_MIN = 0.1;
+constexpr double SCALE_MAX = 2.0;
+constexpr double HALF = 2.0;
+constexpr double TEN_MILLIMETER_TO_INCH = 0.39;
+struct PDFMarginConfig {
+    double top = TEN_MILLIMETER_TO_INCH;
+    double bottom = TEN_MILLIMETER_TO_INCH;
+    double right = TEN_MILLIMETER_TO_INCH;
+    double left = TEN_MILLIMETER_TO_INCH;
+};
 struct SnapshotOptions {
     std::string id;
     int32_t width = 0;
@@ -544,6 +557,237 @@ static void clearClientAuthenticationCache(ani_env *env, ani_object object)
         return;
     }
     controller->ClearClientAuthenticationCache();
+}
+
+PDFMarginConfig ParsePDFMarginConfigArgs(ani_env *env, ani_object preArgs, double width, double height)
+{
+    ani_double marginTopObj;
+    double marginTop = TEN_MILLIMETER_TO_INCH;
+    if (env->Object_GetPropertyByName_Double(preArgs, "marginTop", &marginTopObj) != ANI_OK) {
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "marginTop", "double"));
+        return PDFMarginConfig();
+    }
+    marginTop = static_cast<double>(marginTopObj);
+    marginTop = (marginTop >= height / HALF || marginTop <= 0.0) ? 0.0 : marginTop;
+
+    ani_double marginBottomObj;
+    double marginBottom = TEN_MILLIMETER_TO_INCH;
+    if (env->Object_GetPropertyByName_Double(preArgs, "marginBottom", &marginBottomObj) != ANI_OK) {
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "marginBottom", "double"));
+        return PDFMarginConfig();
+    }
+    marginBottom = static_cast<double>(marginBottomObj);
+    marginBottom = (marginBottom >= height / HALF || marginBottom <= 0.0) ? 0.0 : marginBottom;
+
+    ani_double marginRightObj;
+    double marginRight = TEN_MILLIMETER_TO_INCH;
+    if (env->Object_GetPropertyByName_Double(preArgs, "marginRight", &marginRightObj) != ANI_OK) {
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "marginRight", "double"));
+        return PDFMarginConfig();
+    }
+    marginRight = static_cast<double>(marginRightObj);
+    marginRight = (marginRight >= width / HALF || marginRight <= 0.0) ? 0.0 : marginRight;
+
+    ani_double marginLeftObj;
+    double marginLeft = TEN_MILLIMETER_TO_INCH;
+    if (env->Object_GetPropertyByName_Double(preArgs, "marginLeft", &marginLeftObj) != ANI_OK) {
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "marginLeft", "double"));
+        return PDFMarginConfig();
+    }
+    marginLeft = static_cast<double>(marginLeftObj);
+    marginLeft = (marginLeft >= width / HALF || marginLeft <= 0.0) ? 0.0 : marginLeft;
+
+    return { marginTop, marginBottom, marginRight, marginLeft };
+}
+
+bool ParsePDFScale(ani_env *env, ani_object preArgs, double &scale)
+{
+    ani_ref scale_ref;
+    ani_boolean isUndefined = ANI_TRUE;
+    if (env->Object_GetPropertyByName_Ref(preArgs, "scale", &scale_ref) != ANI_OK) {
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "scale", "double"));
+        return false;
+    }
+    if (env->Reference_IsUndefined(scale_ref, &isUndefined) != ANI_OK) {
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "scale", "double"));
+        return false;
+    }
+    if (!isUndefined && !AniParseUtils::ParseDouble_t(env, scale_ref, scale)) {
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "scale", "double"));
+        return false;
+    }
+    scale = scale > SCALE_MAX ? SCALE_MAX : scale < SCALE_MIN ? SCALE_MIN : scale;
+    return true;
+}
+
+bool ParsePDFShouldPrintBackground(ani_env *env, ani_object preArgs, bool &shouldPrintBackground)
+{
+    ani_ref shouldPrintBackground_ref;
+    ani_boolean isUndefined = ANI_TRUE;
+    if (env->Object_GetPropertyByName_Ref(preArgs, "shouldPrintBackground", &shouldPrintBackground_ref) != ANI_OK) {
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "shouldPrintBackground", "boolean"));
+        return false;
+    }
+    if (env->Reference_IsUndefined(shouldPrintBackground_ref, &isUndefined) != ANI_OK) {
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "shouldPrintBackground", "boolean"));
+        return false;
+    }
+    if (!isUndefined && !AniParseUtils::ParseBoolean_t(env, shouldPrintBackground_ref, shouldPrintBackground)) {
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "shouldPrintBackground", "boolean"));
+        return false;
+    }
+    return true;
+}
+
+std::shared_ptr<NWebPDFConfigArgs> ParsePDFConfigArgs(ani_env *env, ani_object preArgs)
+{
+    if (env == nullptr) {
+        WVLOG_E("ParsePDFConfigArgs env is nullptr");
+        return nullptr;
+    }
+    ani_double widthObj;
+    double width = A4_WIDTH;
+    if (env->Object_GetPropertyByName_Double(preArgs, "width", &widthObj) != ANI_OK) {
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "width", "double"));
+        return nullptr;
+    }
+    width = static_cast<double>(widthObj);
+
+    ani_double heightObj;
+    double height = A4_HEIGHT;
+    if (env->Object_GetPropertyByName_Double(preArgs, "height", &heightObj) != ANI_OK) {
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "height", "double"));
+        return nullptr;
+    }
+    height = static_cast<double>(heightObj);
+
+    auto margin = ParsePDFMarginConfigArgs(env, preArgs, width, height);
+
+    double scale = 1.0;
+    if (!ParsePDFScale(env, preArgs, scale)) {
+        return nullptr;
+    }
+
+    bool shouldPrintBackground = false;
+    if (!ParsePDFShouldPrintBackground(env, preArgs, shouldPrintBackground)) {
+        return nullptr;
+    }
+
+    std::shared_ptr<NWebPDFConfigArgs> pdfConfig = std::make_shared<NWebPDFConfigArgsImpl>(
+        width, height, scale, margin.top, margin.bottom, margin.right, margin.left, shouldPrintBackground);
+    WVLOG_D("PDFConfig width=%{public}f, height=%{public}f, scale==%{public}f, margin.top==%{public}f, "
+        "margin.bottom=%{public}f, margin.right=%{public}f, margin.left=%{public}f, shouldPrintBackground=%{public}s",
+        width, height, scale, margin.top, margin.bottom, margin.right, margin.left,
+        shouldPrintBackground ? "true" : "false");
+    return pdfConfig;
+}
+
+ani_object CreatePdfData(ani_env *env, const char* result, const long size)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+
+    WebJsArrayBufferExt *webArrayBufferExt = new (std::nothrow) WebJsArrayBufferExt(result, size);
+    if (webArrayBufferExt == nullptr) {
+        WVLOG_E("[PDFDATA] new WebHistoryList failed");
+        return nullptr;
+    }
+
+    ani_object pdfDataObj = {};
+    if (!AniParseUtils::CreateObjectVoid(env, ANI_PDF_DATA_CLASS_NAME, pdfDataObj)) {
+        WVLOG_E("[PDFDATA] CreateObjectVoid failed");
+        delete webArrayBufferExt;
+        webArrayBufferExt = nullptr;
+        return nullptr;
+    }
+
+    if (!AniParseUtils::Wrap(env, pdfDataObj, ANI_PDF_DATA_CLASS_NAME,
+        reinterpret_cast<ani_long>(webArrayBufferExt))) {
+        WVLOG_E("[PDFDATA] CreatePdf wrap failed");
+        delete webArrayBufferExt;
+        webArrayBufferExt = nullptr;
+        return nullptr;
+    }
+    return pdfDataObj;
+}
+
+bool AsyncCallback(ani_env *env, ani_ref call, ani_object stsErrCode, ani_object retObj)
+{
+    ani_status status = ANI_ERROR;
+    ani_class clsCall {};
+    if ((status = env->FindClass("L@ohos/web/webview/webview/AsyncCallbackWrapper;", &clsCall)) != ANI_OK) {
+        WVLOG_E("FindClass fail, status: %{public}d", status);
+        return false;
+    }
+    ani_method method = {};
+    if ((status = env->Class_FindMethod(
+        clsCall, INVOKE_METHOD_NAME, nullptr, &method)) != ANI_OK) {
+        WVLOG_E("Class_FindMethod fail, status: %{public}d", status);
+        return false;
+    }
+    if (retObj == nullptr) {
+        ani_ref undefinedRef = nullptr;
+        env->GetUndefined(&undefinedRef);
+        retObj = reinterpret_cast<ani_object>(undefinedRef);
+    }
+    if ((status = env->Object_CallMethod_Void(static_cast<ani_object>(call), method, stsErrCode, retObj)) != ANI_OK) {
+        WVLOG_E("Object_CallMethod_Void fail, status: %{public}d", status);
+        return false;
+    }
+    return true;
+}
+
+static void CreatePdfNative(ani_env *env, ani_object object, ani_object pdfConfigObject, ani_object callbackObject)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    std::shared_ptr<NWebPDFConfigArgs> pdfConfig = ParsePDFConfigArgs(env, pdfConfigObject);
+    if (pdfConfig == nullptr) {
+        WVLOG_E("ParsePDFConfigArgs failed");
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+
+    auto callback = [](ani_env *env, const char* result, const long size, ani_ref callbackRef) -> void {
+        if (env == nullptr) {
+            WVLOG_E("env is nullptr");
+            return;
+        }
+        ani_ref jsError = NWebError::AniBusinessError::CreateError(env, NWebError::NO_ERROR);
+        ani_object resolution = CreatePdfData(env, result, size);
+        if (resolution == nullptr) {
+            jsError = NWebError::AniBusinessError::CreateError(env, NWebError::PARAM_CHECK_ERROR);
+            AsyncCallback(env, callbackRef, static_cast<ani_object>(jsError), nullptr);
+            return;
+        }
+        AsyncCallback(env, callbackRef, static_cast<ani_object>(jsError), resolution);
+    };
+
+    std::shared_ptr<NWebArrayBufferValueCallback> callbackImpl =
+        std::make_shared<WebviewCreatePDFExecuteCallback>(env, callback, callbackObject);
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    controller->CreatePDFExt(pdfConfig, callbackImpl);
+    return;
 }
 
 static ani_boolean ScrollByWithResult(ani_env *env, ani_object object, ani_double deltaX, ani_double deltaY)
@@ -3906,6 +4150,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "requestFocus", nullptr, reinterpret_cast<void *>(RequestFocus) },
         ani_native_function { "clearClientAuthenticationCache", nullptr,
             reinterpret_cast<void *>(clearClientAuthenticationCache) },
+        ani_native_function { "createPdfNative", nullptr, reinterpret_cast<void *>(CreatePdfNative) },
         ani_native_function { "scrollByWithResult", nullptr, reinterpret_cast<void *>(ScrollByWithResult) },
         ani_native_function { "setScrollable", nullptr, reinterpret_cast<void *>(SetScrollable) },
         ani_native_function { "scrollTo", nullptr, reinterpret_cast<void *>(ScrollTo) },

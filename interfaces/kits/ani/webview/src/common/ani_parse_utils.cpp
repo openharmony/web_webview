@@ -103,6 +103,51 @@ bool AniParseUtils::Wrap(ani_env *env, const ani_object& object, const char *cla
     return true;
 }
 
+bool AniParseUtils::ParseDouble_t(ani_env* env, ani_ref ref, double& outValue)
+{
+    ani_class doubleClass;
+    if (env->FindClass("Lstd/core/Double;", &doubleClass) != ANI_OK) {
+        WVLOG_E("ParseDouble failed - invalid FindClass type");
+        return false;
+    }
+    ani_boolean isDouble;
+    if (env->Object_InstanceOf(static_cast<ani_object>(ref), doubleClass, &isDouble) != ANI_OK ||
+        isDouble != ANI_TRUE) {
+        WVLOG_E("ParseDouble failed - invalid double type");
+        return false;
+    }
+
+    ani_double value = 0;
+    if (env->Object_CallMethodByName_Double(static_cast<ani_object>(ref), "unboxed", ":d", &value) != ANI_OK) {
+        WVLOG_E("ParseDouble failed");
+        return false;
+    }
+    outValue = value;
+    return true;
+}
+
+bool AniParseUtils::ParseBoolean_t(ani_env* env, ani_ref ref, bool& outValue)
+{
+    ani_class boolClass;
+    if (env->FindClass("Lstd/core/Boolean;", &boolClass) != ANI_OK) {
+        WVLOG_E("ParseBoolean failed - invalid FindClass type");
+        return false;
+    }
+    ani_boolean isBool;
+    if (env->Object_InstanceOf(static_cast<ani_object>(ref), boolClass, &isBool) != ANI_OK || isBool != ANI_TRUE) {
+        WVLOG_E("ParseBoolean failed - invalid boolean type");
+        return false;
+    }
+
+    ani_boolean boolValue = false;
+    if (env->Object_CallMethodByName_Boolean(static_cast<ani_object>(ref), "unboxed", ":z", &boolValue) != ANI_OK) {
+        WVLOG_E("ParseBoolean failed");
+        return false;
+    }
+    outValue = boolValue ? true : false;
+    return true;
+}
+
 bool AniParseUtils::CreateObjectVoid(ani_env *env, const char *className, ani_object& object)
 {
     ani_class cls;

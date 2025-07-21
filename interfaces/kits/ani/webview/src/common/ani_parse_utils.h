@@ -63,6 +63,8 @@ public:
     static bool ParseInt64Array(ani_env* env, ani_object argv, std::vector<int64_t>& outValue);
     static bool ParseBooleanArray(ani_env* env, ani_object argv, std::vector<bool>& outValue);
     static bool ParseDoubleArray(ani_env* env, ani_object argv, std::vector<double>& outValue);
+    static bool ParseDouble_t(ani_env* env, ani_ref ref, double& outValue);
+    static bool ParseBoolean_t(ani_env* env, ani_ref ref, bool& outValue);
 };
 } // namespace NWeb
 } // namespace OHOS

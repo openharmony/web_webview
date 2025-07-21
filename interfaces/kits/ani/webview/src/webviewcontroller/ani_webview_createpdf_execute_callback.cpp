@@ -30,6 +30,102 @@ namespace name {
 const char* JS_EXT_ARR_CLASS_NAME = "L@ohos/web/webview/webview/PdfData;";
 } // namespace name
 
+WebviewCreatePDFExecuteCallback::WebviewCreatePDFExecuteCallback(ani_env *env,
+    const  PdfCallbackFunc& callback, ani_object callbackObject)
+{
+    if (env == nullptr || callback == nullptr) {
+        WVLOG_E("nullptr error");
+        return;
+    }
+    if (env->GlobalReference_Create(callbackObject, &callbackRef_) != ANI_OK) {
+        WVLOG_E("failed to create reference for callback");
+        return;
+    }
+    ani_vm *vm = nullptr;
+    env->GetVM(&vm);
+    aniVm_ = vm;
+    callback_ = callback;
+}
+
+WebviewCreatePDFExecuteCallback::~WebviewCreatePDFExecuteCallback()
+{
+    aniVm_ = nullptr;
+    callback_ = nullptr;
+    ReleaseBuffer();
+}
+
+void WebviewCreatePDFExecuteCallback::ReleaseBuffer()
+{
+    if (result_ != nullptr) {
+        delete[] result_;
+        result_ = nullptr;
+    }
+    if (callbackRef_ != nullptr && aniVm_ != nullptr) {
+        ani_env *env;
+        auto status = aniVm_->GetEnv(ANI_VERSION_1, &env);
+        if (status != ANI_OK) {
+            WVLOG_E("vm GetEnv, err: %{private}d", status);
+            return;
+        }
+        env->GlobalReference_Delete(callbackRef_);
+    }
+}
+
+void WebviewCreatePDFExecuteCallback::OnReceiveValue(const char* value, const long size)
+{
+    WVLOG_I("CreatePdf OnReceiveValue in");
+    if (aniVm_ == nullptr || callback_ == nullptr) {
+        WVLOG_E("aniVm_ or callback_ is nullptr");
+        return;
+    }
+    ani_env *env;
+    ani_options aniArgs { 0, nullptr };
+    auto status = aniVm_->AttachCurrentThread(&aniArgs, ANI_VERSION_1, &env);
+    if (status != ANI_OK) {
+        status = aniVm_->GetEnv(ANI_VERSION_1, &env);
+        if (status != ANI_OK) {
+            WVLOG_E("vm GetEnv, err: %{private}d", status);
+            ReleaseBuffer();
+            return;
+        }
+    }
+
+    result_ = new (std::nothrow) char[size + 1];
+    if (result_ == nullptr) {
+        WVLOG_E("new char failed");
+        ReleaseBuffer();
+        return;
+    }
+    if (memcpy_s(result_, size + 1, value, size) != 0) {
+        WVLOG_E("[CreatePDF] memcpy failed");
+        ReleaseBuffer();
+        return;
+    }
+    size_ = size;
+    ThreadAfterCb(env);
+    aniVm_->DetachCurrentThread();
+    return;
+}
+
+void WebviewCreatePDFExecuteCallback::ThreadAfterCb(ani_env *env)
+{
+    if (!env) {
+        WVLOG_E("[CreatePDF] env is nullptr");
+        ReleaseBuffer();
+        return;
+    }
+    
+    ani_size nr_refs = 16;
+    if (env->CreateLocalScope(nr_refs) != ANI_OK) {
+        WVLOG_E("[CreatePDF] CreateLocalScope failed");
+        ReleaseBuffer();
+        return;
+    }
+    callback_(env, result_, size_, std::move(callbackRef_));
+    env->DestroyLocalScope();
+    ReleaseBuffer();
+}
+
 static ani_object GetArrayBuffer(ani_env* env, ani_object object)
 {
     ani_object result = nullptr;

@@ -384,11 +384,8 @@ public:
 
     void GetScrollOffset(float* offset_x, float* offset_y);
 
-    void CreatePDFCallbackExt(
-        napi_env env, std::shared_ptr<NWebPDFConfigArgs> pdfConfig, napi_ref pdfCallback);
-
-    void CreatePDFPromiseExt(
-        napi_env env, std::shared_ptr<NWebPDFConfigArgs> pdfConfig, napi_deferred deferred);
+    void CreatePDFExt(
+        std::shared_ptr<NWebPDFConfigArgs> pdfConfig, std::shared_ptr<NWebArrayBufferValueCallback> callbackImpl);
 
     bool ScrollByWithResult(float deltaX, float deltaY) const;
 

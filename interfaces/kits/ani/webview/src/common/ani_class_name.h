@@ -36,6 +36,7 @@ const char* ANI_WEB_MESSAGE_PORT_INNER_CLASS_NAME = "L@ohos/web/webview/webview/
 
 const char* ANI_ENUM_MEDIA_PLAY_BACK_STATE = "L@ohos/web/webview/webview/MediaPlaybackState;";
 const char* ANI_SNAPSHOT_RESULT_CLASS_NAME = "L@ohos/web/webview/webview/SnapshotResultClass;";
+const char* ANI_PDF_DATA_CLASS_NAME = "L@ohos/web/webview/webview/PdfData;";
 
 } // namespace NWeb
 } // namespace OHOS
