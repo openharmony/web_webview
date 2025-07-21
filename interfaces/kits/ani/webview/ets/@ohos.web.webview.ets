@@ -35,6 +35,11 @@ let destroyRegister = new FinalizationRegistry<Cleaner>(CleanerCallback)
 let unregisterToken = new object()
 
 export default namespace webview {
+    static {
+        loadLibrary("webview_ani.z");
+    }
+    export native function once(type: string, callback: Callback<void>): void;
+
     export enum ScrollType {
         EVENT
     }
@@ -573,7 +578,12 @@ export default namespace webview {
         native removeCache(clearRom: boolean): void;
         native setNetworkAvailable(enable: boolean): void;
         native isIncognitoMode(): boolean;
-        native serializeWebState(): Uint8Array;
+        native serializeWebStateInternal(): ArrayBuffer;
+        serializeWebState(): Uint8Array{
+            let buffer = this.serializeWebStateInternal();
+            let uint8Array = new Uint8Array(buffer);
+            return uint8Array;
+        }
         native static trimMemoryByPressureLevel(level: PressureLevel): void;
         native setPathAllowingUniversalAccess(pathList: Array<string>): void;
         native onCreateNativeMediaPlayer(callback: (handler: NativeMediaPlayerHandler, mediaInfo: MediaInfo) => NativeMediaPlayerBridge): void;
