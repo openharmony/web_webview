@@ -302,9 +302,9 @@ ani_status StsWebCookieManagerInit(ani_env *env)
         ani_native_function { "clearAllCookiesSync", nullptr, reinterpret_cast<void *>(JsClearAllCookiesSync) },
     };
 
-    status = env->Class_BindNativeMethods(webCookieManagerCls, allMethods.data(), allMethods.size());
+    status = env->Class_BindStaticNativeMethods(webCookieManagerCls, allMethods.data(), allMethods.size());
     if (status != ANI_OK) {
-        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+        WVLOG_E("Class_BindStaticNativeMethods failed status: %{public}d", status);
     }
 
     return ANI_OK;

@@ -101,9 +101,9 @@ ani_status StsWebDownloadManagerInit(ani_env* env)
         ani_native_function { "setDownloadDelegate", nullptr, reinterpret_cast<void*>(SetDownloadDelegate) },
     };
 
-    status = env->Class_BindNativeMethods(webDownloadManagerCls, allMethods.data(), allMethods.size());
+    status = env->Class_BindStaticNativeMethods(webDownloadManagerCls, allMethods.data(), allMethods.size());
     if (status != ANI_OK) {
-        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+        WVLOG_E("Class_BindStaticNativeMethods failed status: %{public}d", status);
         return ANI_ERROR;
     }
     return ANI_OK;

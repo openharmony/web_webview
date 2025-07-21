@@ -228,9 +228,9 @@ ani_status StsWebAdsBlockManagerInit(ani_env *env)
             nullptr, reinterpret_cast<void *>(JsSetAdsBlockRules)},
     };
 
-    status = env->Class_BindNativeMethods(webAdsBlockManagerCls, managerMethods.data(), managerMethods.size());
+    status = env->Class_BindStaticNativeMethods(webAdsBlockManagerCls, managerMethods.data(), managerMethods.size());
     if (status != ANI_OK) {
-        WVLOG_E("WebAdsBlockManager Class_BindNativeMethods failed status: %{public}d", status);
+        WVLOG_E("WebAdsBlockManager Class_BindStaticNativeMethods failed status: %{public}d", status);
         return ANI_ERROR;
     }
     return ANI_OK;
