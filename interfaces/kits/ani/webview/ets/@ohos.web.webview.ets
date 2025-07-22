@@ -667,10 +667,10 @@ export default namespace webview {
         }
         createPdf(configuration: PdfConfiguration): Promise<PdfData> {
             let p:Promise<PdfData> =
-                new Promise<PdfData>((resolve: (data: PdfData | undefined)=>void, reject:(err: BusinessError<void> | null)=>void):void => {
+                new Promise<PdfData>((resolve: (data: PdfData)=>void, reject:(err: Error)=>void):void => {
                 let myCall = new AsyncCallbackWrapper<PdfData>((err: BusinessError<void> | null, data: PdfData | undefined)=>{
                     if (err === null || err.code == 0) {
-                        resolve(data);
+                        resolve(data!);
                     } else {
                         reject(err);
                     }
