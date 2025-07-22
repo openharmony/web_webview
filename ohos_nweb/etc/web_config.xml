@@ -46,6 +46,7 @@
             <enableIgnoreLockdownMode>false</enableIgnoreLockdownMode>
             <enablePrinting>false</enablePrinting>
             <enableCalcTabletMode>true</enableCalcTabletMode>
+            <disableMobileStyleSheet>false</disableMobileStyleSheet>
         </settingConfig>
         <userAgentConfig>
             <userAgentValue>Phone</userAgentValue>
