@@ -634,13 +634,23 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructHeaders(const std::
     if (!CreateObjectVoid(env, "Lescompat/Record;", object) || object == nullptr) {
         return nullptr;
     }
+    ani_class cls;
+    ani_status status = env->FindClass("Lescompat/Record;", &cls);
+    if (status != ANI_OK) {
+        WVLOG_E("find class failed, status: %{public}d", status);
+        return nullptr;
+    }
+    ani_method set;
+    if ((status = env->Class_FindMethod(cls, "$_set", nullptr, &set)) != ANI_OK) {
+        WVLOG_E("get set method failed, status: %{public}d",status);
+        return nullptr;
+    }
     for (const auto& header : headers) {
         ani_string key;
         ani_string value;
         env->String_NewUTF8(header.first.c_str(), header.first.length(), &key);
         env->String_NewUTF8(header.second.c_str(), header.second.length(), &value);
-        if (ANI_OK !=
-            env->Object_CallMethodByName_Void(object, "$_set", "Lstd/core/Object;Lstd/core/Object;:V", key, value)) {
+        if (ANI_OK != env->Object_CallMethod_Void(object, set, key, value)) {
             return nullptr;
         }
     }
@@ -659,13 +669,23 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructAttributes(
     if (!CreateObjectVoid(env, "Lescompat/Record;", object) || object == nullptr) {
         return nullptr;
     }
+    ani_class cls;
+    ani_status status = env->FindClass("Lescompat/Record;", &cls);
+    if (status != ANI_OK) {
+        WVLOG_E("find class failed, status: %{public}d", status);
+        return nullptr;
+    }
+    ani_method set;
+    if ((status = env->Class_FindMethod(cls, "$_set", nullptr, &set)) != ANI_OK) {
+        WVLOG_E("get set method failed, status: %{public}d",status);
+        return nullptr;
+    }
     for (const auto& attribute : attributes) {
         ani_string key;
         ani_string value;
         env->String_NewUTF8(attribute.first.c_str(), attribute.first.length(), &key);
         env->String_NewUTF8(attribute.second.c_str(), attribute.second.length(), &value);
-        if (ANI_OK !=
-            env->Object_CallMethodByName_Void(object, "$_set", "Lstd/core/Object;Lstd/core/Object;:V", key, value)) {
+        if (ANI_OK != env->Object_CallMethod_Void(object, set, key, value)) {
             return nullptr;
         }
     }
