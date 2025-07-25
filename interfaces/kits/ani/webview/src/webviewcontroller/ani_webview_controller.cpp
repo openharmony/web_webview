@@ -2395,7 +2395,7 @@ static ani_enum_item GetRenderProcessMode(ani_env* env, ani_object object)
 {
     ani_int renderProcessMode = 0;
     ani_enum enumType;
-    env->FindEnum("Lani_enum/COLORINT;", &enumType);
+    env->FindEnum("L@ohos/web/webview/webview/RenderProcessMode;", &enumType);
 
     renderProcessMode = static_cast<ani_int>(NWebHelper::Instance().GetRenderProcessMode());
     WVLOG_I("getRenderProcessMode mode = %{public}d", static_cast<int32_t>(renderProcessMode));
@@ -2497,7 +2497,6 @@ static ani_boolean IsIncognitoMode(ani_env *env, ani_object object)
 static ani_object SerializeWebState(ani_env* env, ani_object object)
 {
     ani_object result = nullptr;
-
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return result;
@@ -2520,19 +2519,7 @@ static ani_object SerializeWebState(ani_env* env, ani_object object)
     if (retCode != 0) {
         return result;
     }
-
-    ani_class cls;
-    ani_method ctor;
-    if (env->FindClass("Lstd/core/ArrayBuffer;", &cls) != ANI_OK) {
-        return result;
-    }
-    if (env->Class_FindMethod(cls, "<ctor>", "I:V", &ctor) != ANI_OK) {
-        return result;
-    }
-
-    ani_object arrayObject;
-    env->Object_New(cls, ctor, &arrayObject, buffer);
-    return arrayObject;
+    return buffer;
 }
 
 static void TrimMemoryByPressureLevel(ani_env *env, ani_object object, ani_double level)
@@ -4213,7 +4200,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "removeCache", nullptr, reinterpret_cast<void *>(RemoveCache) },
         ani_native_function { "setNetworkAvailable", nullptr, reinterpret_cast<void *>(SetNetworkAvailable) },
         ani_native_function { "isIncognitoMode", nullptr, reinterpret_cast<void *>(IsIncognitoMode) },
-        ani_native_function { "serializeWebState", nullptr, reinterpret_cast<void *>(SerializeWebState) },
+        ani_native_function { "serializeWebStateInternal", nullptr, reinterpret_cast<void *>(SerializeWebState) },
         ani_native_function { "trimMemoryByPressureLevel", nullptr,
                               reinterpret_cast<void *>(TrimMemoryByPressureLevel) },
         ani_native_function { "setPathAllowingUniversalAccess", nullptr,

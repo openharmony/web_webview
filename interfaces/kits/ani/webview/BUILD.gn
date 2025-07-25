@@ -104,6 +104,7 @@ ohos_shared_library("webview_ani") {
     "./src/webadsblockmanager",
     "./src/webdatabase",
     "./src/webviewcontroller",
+    "./src/webfunction",
   ]
 
   sources = [
@@ -136,7 +137,8 @@ ohos_shared_library("webview_ani") {
     "./src/proxycontroller/proxy_config.cpp",
     "./src/proxycontroller/proxy_config.h",
     "./src/proxycontroller/proxy_rule.cpp",
-    "./src/proxycontroller/proxy_rule.h",
+    "./src/webfunction/ani_webview_function.h",
+    "./src/webfunction/ani_webview_function.cpp",
     "./src/sts_web_webview.cpp",
   ]
 

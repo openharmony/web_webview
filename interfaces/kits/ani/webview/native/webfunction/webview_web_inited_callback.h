@@ -18,28 +18,40 @@
 #include <condition_variable>
 #include <uv.h>
 
+#include "ani.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "napi_parse_utils.h"
+#include "nweb_log.h"
 #include "nweb_value_callback.h"
 #include "ohos_init_web_adapter.h"
-
 namespace OHOS::NWeb {
 class WebInitedCallbackParam {
 public:
-    WebInitedCallbackParam(napi_env env, napi_ref callback) : env_(env), webInitedCallback_(callback) {}
-
-    napi_env env_;
-    napi_ref webInitedCallback_;
+    WebInitedCallbackParam(ani_env* env, ani_ref callback);
+    ~WebInitedCallbackParam();
+    ani_env* GetEnv()
+    {
+        ani_env* env = nullptr;
+        if (vm_) {
+            vm_->GetEnv(ANI_VERSION_1, &env);
+        }
+        return env;
+    }
+    ani_vm* vm_;
+    ani_ref webInitedCallback_;
 };
 
 class WebRunInitedCallbackImpl : public WebRunInitedCallback {
 public:
-    explicit WebRunInitedCallbackImpl(WebInitedCallbackParam *param) : param_(param) {}
-    ~WebRunInitedCallbackImpl() override {}
+    explicit WebRunInitedCallbackImpl(WebInitedCallbackParam* param) : param_(param) {}
+    ~WebRunInitedCallbackImpl() override
+    {
+        WVLOG_I("~WebRunInitedCallbackImpl start");
+    }
     void RunInitedCallback() override;
 
-    WebInitedCallbackParam *param_ = nullptr;
+    WebInitedCallbackParam* param_ = nullptr;
 };
-}
+} // namespace OHOS::NWeb
 #endif
