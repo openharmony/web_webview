@@ -739,6 +739,11 @@ bool AsyncCallback(ani_env *env, ani_ref call, ani_object stsErrCode, ani_object
         WVLOG_E("Class_FindMethod fail, status: %{public}d", status);
         return false;
     }
+    if (stsErrCode == nullptr) {
+        ani_ref nullRef = nullptr;
+        env->GetNull(&nullRef);
+        stsErrCode = reinterpret_cast<ani_object>(nullRef);
+    }
     if (retObj == nullptr) {
         ani_ref undefinedRef = nullptr;
         env->GetUndefined(&undefinedRef);
