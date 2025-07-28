@@ -84,7 +84,6 @@ ohos_shared_library("webview_ani") {
     "$target_gen_dir/../../napi/protos/web_download.pb.h",
     "native/common/business_error.cpp",
     "native/common/napi_parse_utils.cpp",
-    "native/common/web_errors.cpp",
     "native/webviewcontroller/native_media_player_impl.cpp",
     "native/webviewcontroller/native_media_player_impl.h",
     "native/webfunction/webview_web_inited_callback.cpp",
