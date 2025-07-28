@@ -449,20 +449,6 @@ bool NapiParseUtils::ConvertNWebToNapiValue(napi_env env, std::shared_ptr<NWebMe
     return it->second(env, src, dst);
 }
 
-bool IsFormatStringOfLength(const std::string &str)
-{
-    std::regex pattern("^\\d+(px|vp|%)?$");
-    return std::regex_match(str, pattern);
-}
-
-bool IsNumberOfLength(const std::string &value)
-{
-    if (value.empty()) {
-        return false;
-    }
-    return std::all_of(value.begin(), value.end(), [](char i) { return isdigit(i); });
-}
-
 int32_t GetNumFromString(const std::string &input)
 {
     int32_t value;
@@ -479,43 +465,6 @@ int32_t GetNumFromString(const std::string &input)
 
 bool NapiParseUtils::ParseJsLengthStringToInt(const std::string &input, PixelUnit &type, int32_t &value)
 {
-    if (input.empty()) {
-        return false;
-    }
-    if (!IsFormatStringOfLength(input)) {
-        return false;
-    }
-    if (IsNumberOfLength(input)) {
-        value = GetNumFromString(input);
-        type = PixelUnit::VP;
-        return true;
-    }
-    if (input.back() == '%') {
-        std::string trans = input.substr(0, input.length() - 1);
-        if (IsNumberOfLength(trans)) {
-            value = GetNumFromString(trans);
-            type = PixelUnit::PERCENTAGE;
-            return true;
-        }
-        return false;
-    }
-    if (input.length() < INTEGER_THREE) {
-        return false;
-    }
-    std::string lastTwo = input.substr(input.length() - INTEGER_TWO);
-    std::string trans = input.substr(0, input.length() - INTEGER_TWO);
-    if (!IsNumberOfLength(trans)) {
-        return false;
-    }
-    if (lastTwo == "px") {
-        value = GetNumFromString(trans);
-        type = PixelUnit::PX;
-        return true;
-    } else if (lastTwo == "vp") {
-        value = GetNumFromString(trans);
-        type = PixelUnit::VP;
-        return true;
-    }
     return false;
 }
 

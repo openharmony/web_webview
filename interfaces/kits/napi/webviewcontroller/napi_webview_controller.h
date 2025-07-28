@@ -410,6 +410,14 @@ private:
     static napi_value GetErrorPageEnabled(napi_env env, napi_callback_info info);
 };
 
+class ArkWebTransfer {
+public:
+    NapiWebMessageExt() = default;
+    ~NapiWebMessageExt() = default;
+    static napi_value CreateBackForwardListTransfer(napi_env env, napi_callback_info info);
+    static napi_value CreateWebMessagePortTransfer(napi_env env, napi_callback_info info);
+}
+
 class NWebValueCallbackImpl : public NWebMessageValueCallback {
 public:
     NWebValueCallbackImpl(napi_env env, napi_ref callback, bool extention)
