@@ -2139,7 +2139,8 @@ static void TransferBackForwardListToStaticInner(ani_env* env, ani_class aniClas
         WVLOG_E("[TRANSFER] arkts_esvalue_unwrap failed");
         return;
     }
-    if (!AniParseUtils::Wrap(env, output, ANI_BACK_FORWARD_LIST_INNER_CLASS_NAME, reinterpret_cast<ani_long>(nativePtr))) {
+    if (!AniParseUtils::Wrap(env, output, ANI_BACK_FORWARD_LIST_INNER_CLASS_NAME,
+                             reinterpret_cast<ani_long>(nativePtr))) {
         WVLOG_E("[TRANSFER] BackForwardList wrap failed");
         return;
     }
@@ -2211,7 +2212,8 @@ static void TransferWebMessagePortToStaticInner(ani_env* env, ani_class aniClass
         return;
     }
 
-    if (!AniParseUtils::Wrap(env, ouput, ANI_WEB_MESSAGE_PORT_INNER_CLASS_NAME, reinterpret_cast<ani_long>(nativePtr))) {
+    if (!AniParseUtils::Wrap(env, output, ANI_WEB_MESSAGE_PORT_INNER_CLASS_NAME,
+                             reinterpret_cast<ani_long>(nativePtr))) {
         WVLOG_E("[TRANSFER] WebMessagePort wrap failed");
         return;
     }
