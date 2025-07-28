@@ -412,8 +412,8 @@ private:
 
 class ArkWebTransfer {
 public:
-    NapiWebMessageExt() = default;
-    ~NapiWebMessageExt() = default;
+    ArkWebTransfer() = default;
+    ~ArkWebTransfer() = default;
     static napi_value CreateBackForwardListTransfer(napi_env env, napi_callback_info info);
     static napi_value CreateWebMessagePortTransfer(napi_env env, napi_callback_info info);
 };
