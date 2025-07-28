@@ -15,72 +15,79 @@
 
 #include "webview_web_inited_callback.h"
 
-#include "nweb_log.h"
 #include "uv.h"
 
 namespace OHOS::NWeb {
+constexpr ani_size REFERENCES_MAX_NUMBER = 16;
 namespace {
-void UvWebInitedCallbackThreadWoker(uv_work_t *work, int status)
+void UvWebInitedCallbackThreadWoker(WebRunInitedCallbackImpl* obj)
 {
-    if (work == nullptr) {
-        WVLOG_E("uv work is null");
+    WVLOG_I("enter UvWebInitedCallbackThreadWoker");
+    if (!obj || !(obj->param_)) {
+        WVLOG_E("callback obj or param is nullptr");
         return;
     }
-    WebInitedCallbackParam *data = reinterpret_cast<WebInitedCallbackParam*>(work->data);
-    if (data == nullptr) {
-        delete work;
-        work = nullptr;
-        return;
-    }
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(data->env_, &scope);
-    if (scope == nullptr) {
-        delete data;
-        data = nullptr;
-        delete work;
-        work = nullptr;
-        return;
-    }
-    napi_value webInitedResult = nullptr;
-    napi_value jsWebInitedCallback = nullptr;
-    napi_get_reference_value(data->env_, data->webInitedCallback_, &jsWebInitedCallback);
-    napi_call_function(data->env_, nullptr, jsWebInitedCallback, 0, {}, &webInitedResult);
 
-    napi_close_handle_scope(data->env_, scope);
-    delete data;
-    data = nullptr;
-    delete work;
-    work = nullptr;
+    ani_size nr_refs = REFERENCES_MAX_NUMBER;
+    ani_env* env = obj->param_->GetEnv();
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    env->CreateLocalScope(nr_refs);
+    ani_status status;
+    if (obj->param_->webInitedCallback_) {
+        ani_ref fnReturnVal;
+        if ((status = env->FunctionalObject_Call(
+                 static_cast<ani_fn_object>(obj->param_->webInitedCallback_), 0, {}, &fnReturnVal)) != ANI_OK) {
+            WVLOG_E("UvWebInitedCallbackThreadWoker callback execute failed status : %{public}d", status);
+            return;
+        } else {
+            WVLOG_I("UvWebInitedCallbackThreadWoker callback execute success!");
+        }
+    } else {
+        WVLOG_E("callback is nullptr");
+        env->DestroyLocalScope();
+        return;
+    }
+    env->DestroyLocalScope();
+    if (obj->param_) {
+        delete obj->param_;
+    }
+    return;
 }
 } // namespace
 
+WebInitedCallbackParam::WebInitedCallbackParam(ani_env* env, ani_ref callback)
+{
+    WVLOG_I("enter WebInitedCallbackParam");
+    if (!env || !callback) {
+        WVLOG_E("env or callback is nullptr");
+        return;
+    }
+    env->GetVM(&vm_);
+    env->GlobalReference_Create(callback, &webInitedCallback_);
+}
+
+WebInitedCallbackParam::~WebInitedCallbackParam()
+{
+    WVLOG_I("~WebInitedCallbackParam start");
+    ani_env* env = GetEnv();
+    if (env && webInitedCallback_) {
+        env->GlobalReference_Delete(webInitedCallback_);
+    } else {
+        WVLOG_E("~WebInitedCallbackParam delete ref error");
+    }
+}
+
 void WebRunInitedCallbackImpl::RunInitedCallback()
 {
-    uv_loop_s *loop = nullptr;
-    uv_work_t *work = nullptr;
-    napi_get_uv_event_loop(param_->env_, &loop);
-
-    if (loop == nullptr) {
-        WVLOG_E("get uv event loop failed");
+    WVLOG_I("enter RunInitedCallback");
+    if (!param_->webInitedCallback_) {
+        WVLOG_I("callback is null");
         return;
     }
-    work = new (std::nothrow) uv_work_t;
-    if (work == nullptr) {
-        WVLOG_E("new uv work failed");
-        return;
-    }
-    work->data = reinterpret_cast<void*>(param_);
-    int ret = uv_queue_work_with_qos(
-        loop, work, [](uv_work_t* work) {}, UvWebInitedCallbackThreadWoker, uv_qos_user_initiated);
-    if (ret != 0) {
-        if (param_ != nullptr) {
-            delete param_;
-            param_ = nullptr;
-        }
-        if (work != nullptr) {
-            delete work;
-            work = nullptr;
-        }
-    }
+    UvWebInitedCallbackThreadWoker(this);
+    WVLOG_I("PostTask successful!");
 }
-}
+} // namespace OHOS::NWeb

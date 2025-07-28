@@ -35,6 +35,11 @@ let destroyRegister = new FinalizationRegistry<Cleaner>(CleanerCallback)
 let unregisterToken = new object()
 
 export default namespace webview {
+    static {
+        loadLibrary("webview_ani.z");
+    }
+    export native function once(type: string, callback: Callback<void>): void;
+
     export enum ScrollType {
         EVENT
     }
@@ -573,7 +578,12 @@ export default namespace webview {
         native removeCache(clearRom: boolean): void;
         native setNetworkAvailable(enable: boolean): void;
         native isIncognitoMode(): boolean;
-        native serializeWebState(): Uint8Array;
+        native serializeWebStateInternal(): ArrayBuffer;
+        serializeWebState(): Uint8Array{
+            let buffer = this.serializeWebStateInternal();
+            let uint8Array = new Uint8Array(buffer);
+            return uint8Array;
+        }
         native static trimMemoryByPressureLevel(level: PressureLevel): void;
         native setPathAllowingUniversalAccess(pathList: Array<string>): void;
         native onCreateNativeMediaPlayer(callback: (handler: NativeMediaPlayerHandler, mediaInfo: MediaInfo) => NativeMediaPlayerBridge): void;
@@ -1197,14 +1207,14 @@ export default namespace webview {
 
     export interface WebStorageOrigin {
         origin: string;
-        usage: number;
-        quota: number;
+        usage: double;
+        quota: double;
     }
 
     export class WebStorageOriginInner implements WebStorageOrigin {
         origin: string = "";
-        usage: number = 0;
-        quota: number = 0;
+        usage: double = 0;
+        quota: double = 0;
     }
 
     export class WebStorage {
@@ -1212,8 +1222,8 @@ export default namespace webview {
             loadLibrary("webview_ani.z");
         }
         native static getOriginsSync(): Array<WebStorageOrigin>;
-        native static getOriginQuotaSync(origin: string): number;
-        native static getOriginUsageSync(origin: string): number;
+        native static getOriginQuotaSync(origin: string): double;
+        native static getOriginUsageSync(origin: string): double;
         native static deleteAllData(incognito?: boolean): void;
         native static deleteOrigin(origin: string): void;
         static getOrigins(): Promise<Array<WebStorageOrigin>> {
@@ -1243,24 +1253,24 @@ export default namespace webview {
             });
         }
 
-        static getOriginQuota(origin: string): Promise<number> {
-            let p = new Promise<number>((resolve: (v: number) => void,
+        static getOriginQuota(origin: string): Promise<double> {
+            let p = new Promise<double>((resolve: (v: double) => void,
             reject: (error: Error) => void) => {
                 let p1 = taskpool.execute(WebStorage.getOriginQuotaSync, origin);
                 p1.then((e : NullishType) => {
-                    let r = e as number;
+                    let r = e as double;
                     resolve(r);
-                }).catch((error: Error): number => {
+                }).catch((error: Error): double => {
                     reject(error);
                 });
             });
             return p;
         }
 
-        static getOriginQuota(origin: string, callback: AsyncCallback<number>): void {
+        static getOriginQuota(origin: string, callback: AsyncCallback<double>): void {
             let p = taskpool.execute(WebStorage.getOriginQuotaSync, origin);
             p.then((e : NullishType) => {
-                let r = e as number;
+                let r = e as double;
                 let err : BusinessError<void> = new BusinessError<void>();
                 callback(err, r);
             }).catch((error: Error) => {
@@ -1269,24 +1279,24 @@ export default namespace webview {
             });
         }
 
-        static getOriginUsage(origin: string): Promise<number> {
-            let p = new Promise<number>((resolve: (v: number) => void,
+        static getOriginUsage(origin: string): Promise<double> {
+            let p = new Promise<double>((resolve: (v: double) => void,
             reject: (error: Error) => void) => {
                 let p1 = taskpool.execute(WebStorage.getOriginUsageSync, origin);
                 p1.then((e : NullishType) => {
-                    let r = e as number;
+                    let r = e as double;
                     resolve(r);
-                }).catch((error: Error): number => {
+                }).catch((error: Error): double => {
                     reject(error);
                 });
             });
             return p;
         }
 
-        static getOriginUsage(origin: string, callback: AsyncCallback<number>): void {
+        static getOriginUsage(origin: string, callback: AsyncCallback<double>): void {
             let p = taskpool.execute(WebStorage.getOriginUsageSync, origin);
             p.then((e : NullishType) => {
-                let r = e as number;
+                let r = e as double;
                 let err : BusinessError<void> = new BusinessError<void>();
                 callback(err, r);
             }).catch((error: Error) => {

@@ -29,6 +29,7 @@
 #include "ani_geolocation_permission.h"
 #include "ani_web_adsblock_manager.h"
 #include "webview_javascript_execute_callback.h"
+#include "ani_webview_function.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -62,6 +63,7 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
     StsPdfDataInit(env);
     StsGeolocationPermissionInit(env);
     StsJsMessageExtInit(env);
+    StsWebviewFunctionInit(env);
     *result = ANI_VERSION_1;
     return ANI_OK;
 }
