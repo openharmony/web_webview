@@ -105,6 +105,18 @@ ohos_shared_library("webview_ani") {
     "./src/webdatabase",
     "./src/webviewcontroller",
     "./src/webfunction",
+    "../../nativecommon",
+    "native/common",
+    "native/webadsblockmanager",
+    "native/webasynccontroller",
+    "native/webcookiemanager",
+    "native/webdatabase",
+    "native/webfunction",
+    "native/webstorage",
+    "native/webviewcontroller",
+    "$target_gen_dir/../../napi/protos",
+    "../../../native",
+    "../../../../ohos_adapter/ohos_resource_adapter/include",
   ]
 
   sources = [
@@ -142,14 +154,40 @@ ohos_shared_library("webview_ani") {
     "./src/sts_web_webview.cpp",
   ]
 
+  sources += [
+    "$target_gen_dir/../../napi/protos/web_download.pb.cc",
+    "$target_gen_dir/../../napi/protos/web_download.pb.h",
+    "native/common/business_error.cpp",
+    "native/common/napi_parse_utils.cpp",
+    "native/common/web_errors.cpp",
+    "native/webviewcontroller/native_media_player_impl.cpp",
+    "native/webviewcontroller/native_media_player_impl.h",
+    "native/webfunction/webview_web_inited_callback.cpp",
+    #"native/webviewcontroller/native_media_player_impl.cpp",
+    #"native/webviewcontroller/native_media_player_impl.h",
+    #"native/webviewcontroller/web_download_delegate.cpp",
+    #"native/webviewcontroller/web_download_delegate.h",
+    #"native/webviewcontroller/web_download_item.cpp",
+    #"native/webviewcontroller/web_download_item.h",
+    #"native/webviewcontroller/web_download_manager.cpp",
+    #"native/webviewcontroller/web_download_manager.h",
+    #"native/webviewcontroller/web_scheme_handler_request.cpp",
+    #"native/webviewcontroller/web_scheme_handler_request.h",
+    "native/webviewcontroller/webview_controller.cpp",
+    "native/webviewcontroller/webview_hasimage_callback.cpp",
+    "native/webviewcontroller/webview_javascript_execute_callback.cpp",
+    "native/webviewcontroller/webview_javascript_result_callback.cpp",
+  ]
+
   deps = [
-    ":webview_native",
+    "../../nativecommon:webview_common",
     "../../../../ohos_adapter:nweb_ohos_adapter",
     "../../../../ohos_nweb:libnweb",
     "../../../native:ohweb",
     "../../napi/protos:proto_gen",
   ]
   external_deps = [
+    "runtime_core:ani_helpers",
     "ability_base:extractortool",
     "ability_runtime:app_context",
     "ace_engine:ace_container_scope",
