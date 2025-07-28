@@ -2108,34 +2108,28 @@ static void TransferBackForwardListToStaticInner(ani_env* env, ani_class aniClas
     std::string indexName = "currentIndex";
     ani_string sizePropertyName {};
     ani_string indexPropertyName {};
-    if (env->String_NewUTF8(sizeName.c_str(), sizeName.size(), &sizePropertyName) != ANI_OK) {
-        WVLOG_E("[TRANSFER] size String_NewUTF8 failed");
+    if ((env->String_NewUTF8(sizeName.c_str(), sizeName.size(), &sizePropertyName) != ANI_OK) ||
+        (env->String_NewUTF8(indexName.c_str(), indexName.size(), &indexPropertyName) != ANI_OK)) {
+        WVLOG_E("[TRANSFER] String_NewUTF8 failed");
         return;
     }
-    if (env->String_NewUTF8(indexName.c_str(), indexName.size(), &indexPropertyName) != ANI_OK) {
-        WVLOG_E("[TRANSFER] index String_NewUTF8 failed");
-        return;
-    }
+
     ani_ref sizeProperty {};
     ani_ref indexProperty {};
-    if (env->Object_CallMethodByName_Ref(input, "getPropertySafe", "C{std.core.String}:C{std:interop:ESValue}",
-            &sizeProperty, sizePropertyName) != ANI_OK) {
-        WVLOG_E("[TRANSFER] getPropertySafe failed");
-        return;
-    }
-    if (env->Object_CallMethodByName_Ref(input, "getPropertySafe", "C{std.core.String}:C{std:interop:ESValue}",
-            &indexProperty, indexPropertyName) != ANI_OK) {
+    if ((env->Object_CallMethodByName_Ref(input, "getPropertySafe", "C{std.core.String}:C{std:interop:ESValue}",
+            &sizeProperty, sizePropertyName) != ANI_OK) ||
+        (env->Object_CallMethodByName_Ref(input, "getPropertySafe", "C{std.core.String}:C{std:interop:ESValue}",
+            &indexProperty, indexPropertyName) != ANI_OK)) {
         WVLOG_E("[TRANSFER] getPropertySafe failed");
         return;
     }
 
     double sizeRef = 0;
     double indexRef = 0;
-    if (env->Object_CallMethodByName_Double(static_cast<ani_object>(sizeProperty), "toNumber", ":D", &sizeRef) != ANI_OK) {
-        WVLOG_E("[TRANSFER] ESValue toNumber failed");
-        return;
-    }
-    if (env->Object_CallMethodByName_Double(static_cast<ani_object>(indexProperty), "toNumber", ":D", &indexRef) != ANI_OK) {
+    if ((env->Object_CallMethodByName_Double(
+            static_cast<ani_object>(sizeProperty), "toNumber", ":D", &sizeRef) != ANI_OK) ||
+        (env->Object_CallMethodByName_Double(
+            static_cast<ani_object>(indexProperty), "toNumber", ":D", &indexRef) != ANI_OK)) {
         WVLOG_E("[TRANSFER] ESValue toNumber failed");
         return;
     }
@@ -2145,7 +2139,7 @@ static void TransferBackForwardListToStaticInner(ani_env* env, ani_class aniClas
         WVLOG_E("[TRANSFER] arkts_esvalue_unwrap failed");
         return;
     }
-    if (!AniParseUtils::Wrap(env, ouput, ANI_BACK_FORWARD_LIST_INNER_CLASS_NAME, reinterpret_cast<ani_long>(nativePtr))) {
+    if (!AniParseUtils::Wrap(env, output, ANI_BACK_FORWARD_LIST_INNER_CLASS_NAME, reinterpret_cast<ani_long>(nativePtr))) {
         WVLOG_E("[TRANSFER] BackForwardList wrap failed");
         return;
     }
