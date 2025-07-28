@@ -20,6 +20,8 @@
 #include <arpa/inet.h>
 #include <string>
 #include "nweb.h"
+#include "web_errors.h"
+#include "nweb_web_message.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -30,6 +32,10 @@ constexpr int PARSE_THREE = 3;
 constexpr int PARSE_FOUR = 4;
 constexpr int PARSE_FIVE = 5;
 constexpr int MAX_STRING_TO_INT32_LENGTH = 10;
+ani_ref ConvertToAniHandlerOfStringArr(ani_env* env, std::shared_ptr<NWebMessage> src);
+ani_ref ConvertToAniHandlerOfBooleanArr(ani_env* env, std::shared_ptr<NWebMessage> src);
+ani_ref ConvertToAniHandlerOfDoubleArr(ani_env* env, std::shared_ptr<NWebMessage> src);
+ani_ref ConvertToAniHandlerOfInt64Arr(ani_env* env, std::shared_ptr<NWebMessage> src);
 class AniParseUtils {
 public:
     static bool ParseString(ani_env *env, ani_ref ref, std::string& outValue);
@@ -66,6 +72,12 @@ public:
     static bool ParseDoubleArray(ani_env* env, ani_object argv, std::vector<double>& outValue);
     static bool ParseDouble_t(ani_env* env, ani_ref ref, double& outValue);
     static bool ParseBoolean_t(ani_env* env, ani_ref ref, bool& outValue);
+    static ErrCode ConstructStringFlowbuf(ani_env *env, const std::string script,
+                                          int& fd, size_t& scriptLength);
+    static ErrCode ConstructArrayBufFlowbuf(ani_env *env, const ani_object script,
+                                            int& fd, size_t& scriptLength);
+    static ani_ref ConvertNWebToAniValue(ani_env *env, std::shared_ptr<NWebMessage> src);
+    static bool ParseArrayBuffer(ani_env *env, ani_object script, std::string& outValue);
 };
 } // namespace NWeb
 } // namespace OHOS

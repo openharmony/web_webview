@@ -32,7 +32,6 @@
 #include "nweb_store_web_archive_callback.h"
 #include "web_errors.h"
 #include "webview_hasimage_callback.h"
-#include "webview_javascript_execute_callback.h"
 #include "webview_javascript_result_callback.h"
 #include "native_media_player_impl.h"
 
@@ -903,100 +902,6 @@ void WebviewController::RegisterJavaScriptProxy(RegisterJavaScriptProxyParam& pa
 
     nweb_ptr->RegisterArkJSfunction(param_tmp.objName, param_tmp.syncMethodList,
                                     std::vector<std::string>(), objId, param_tmp.permission);
-}
-
-void WebviewController::RunJavaScriptCallback(
-    const std::string& script, napi_env env, napi_ref jsCallback, bool extention)
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (!nweb_ptr) {
-        napi_value setResult[RESULT_COUNT] = {0};
-        setResult[PARAMZERO] = BusinessError::CreateError(env, NWebError::INIT_ERROR);
-        napi_get_null(env, &setResult[PARAMONE]);
-
-        napi_value args[RESULT_COUNT] = {setResult[PARAMZERO], setResult[PARAMONE]};
-        napi_value callback = nullptr;
-        napi_get_reference_value(env, jsCallback, &callback);
-        napi_value callbackResult = nullptr;
-        napi_call_function(env, nullptr, callback, RESULT_COUNT, args, &callbackResult);
-        napi_delete_reference(env, jsCallback);
-        return;
-    }
-
-    if (jsCallback == nullptr) {
-        return;
-    }
-
-    auto callbackImpl = std::make_shared<WebviewJavaScriptExecuteCallback>(env, jsCallback, nullptr, extention);
-    nweb_ptr->ExecuteJavaScript(script, callbackImpl, extention);
-}
-
-void WebviewController::RunJavaScriptPromise(const std::string &script, napi_env env,
-    napi_deferred deferred, bool extention)
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (!nweb_ptr) {
-        napi_value jsResult = nullptr;
-        jsResult = NWebError::BusinessError::CreateError(env, NWebError::INIT_ERROR);
-        napi_reject_deferred(env, deferred, jsResult);
-        return;
-    }
-
-    if (deferred == nullptr) {
-        return;
-    }
-
-    auto callbackImpl = std::make_shared<WebviewJavaScriptExecuteCallback>(env, nullptr, deferred, extention);
-    nweb_ptr->ExecuteJavaScript(script, callbackImpl, extention);
-}
-
-void WebviewController::RunJavaScriptCallbackExt(
-    const int fd, const size_t scriptLength, napi_env env, napi_ref jsCallback, bool extention)
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (!nweb_ptr) {
-        napi_value setResult[RESULT_COUNT] = {0};
-        setResult[PARAMZERO] = BusinessError::CreateError(env, NWebError::INIT_ERROR);
-        napi_get_null(env, &setResult[PARAMONE]);
-
-        napi_value args[RESULT_COUNT] = {setResult[PARAMZERO], setResult[PARAMONE]};
-        napi_value callback = nullptr;
-        napi_get_reference_value(env, jsCallback, &callback);
-        napi_value callbackResult = nullptr;
-        napi_call_function(env, nullptr, callback, RESULT_COUNT, args, &callbackResult);
-        napi_delete_reference(env, jsCallback);
-        close(fd);
-        return;
-    }
-
-    if (jsCallback == nullptr) {
-        close(fd);
-        return;
-    }
-
-    auto callbackImpl = std::make_shared<WebviewJavaScriptExecuteCallback>(env, jsCallback, nullptr, extention);
-    nweb_ptr->ExecuteJavaScriptExt(fd, scriptLength, callbackImpl, extention);
-}
-
-void WebviewController::RunJavaScriptPromiseExt(
-    const int fd, const size_t scriptLength, napi_env env, napi_deferred deferred, bool extention)
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (!nweb_ptr) {
-        napi_value jsResult = nullptr;
-        jsResult = NWebError::BusinessError::CreateError(env, NWebError::INIT_ERROR);
-        napi_reject_deferred(env, deferred, jsResult);
-        close(fd);
-        return;
-    }
-
-    if (deferred == nullptr) {
-        close(fd);
-        return;
-    }
-
-    auto callbackImpl = std::make_shared<WebviewJavaScriptExecuteCallback>(env, nullptr, deferred, extention);
-    nweb_ptr->ExecuteJavaScriptExt(fd, scriptLength, callbackImpl, extention);
 }
 
 void WebviewController::CreatePDFExt(
@@ -2060,5 +1965,10 @@ void WebviewController::OnCreateNativeMediaPlayer(ani_vm* vm, ani_fn_object call
     }
     nweb_ptr->OnCreateNativeMediaPlayer(callbackImpl);
 }
+
+int32_t WebviewController::GetNWebId() {
+    return nwebId_;
+}
+
 } // namespace NWeb
 } // namespace OHOS
