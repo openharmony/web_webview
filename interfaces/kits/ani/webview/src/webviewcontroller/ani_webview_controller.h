@@ -40,6 +40,7 @@ ani_status StsWebDownLoadItemInit(ani_env *env);
 ani_status StsWebDownloadManagerInit(ani_env *env);
 ani_status StsWebCookieManagerInit(ani_env *env);
 ani_status StsNativeMediaPlayerHandlerinnerInit(ani_env *env);
+ani_status StsJsMessageExtInit(ani_env *env);
 } // namespace NWeb
 } // namespace OHOS
 #endif // OHOS_NWEB_ANI_WEBVIEW_CONTROLLER_H

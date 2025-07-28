@@ -29,6 +29,8 @@
 #include <ctime>
 #include <memory>
 #include <unordered_map>
+#include <cstddef>
+#include <cstdint>
 #include <securec.h>
 #include <regex>
 #include <vector>
@@ -68,6 +70,8 @@
 #include "web_message_port.h"
 #include "arkcompiler/runtime_core/static_core/plugins/ets/runtime/libani_helpers/interop_js/arkts_esvalue.h"
 #include "arkcompiler/runtime_core/static_core/plugins/ets/runtime/libani_helpers/interop_js/arkts_interop_js_api.h"
+#include "ohos_adapter_helper.h"
+#include "nweb_adapter_helper.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -82,6 +86,9 @@ constexpr size_t MAX_RESOURCES_COUNT = 30;
 constexpr uint32_t URL_MAXIMUM = 2048;
 constexpr char URL_REGEXPR[] = "^http(s)?:\\/\\/.+";
 const char *INVOKE_METHOD_NAME = "invoke";
+const int CALLBACK_PARAM_LENGTH = 2;
+int32_t maxFdNum_ = -1;
+std::atomic<int32_t> usedFd_ { 0 };
 constexpr double A4_WIDTH = 8.27;
 constexpr double A4_HEIGHT = 11.69;
 constexpr double SCALE_MIN = 0.1;
@@ -4199,6 +4206,174 @@ ani_status StsWebMessageExtInit(ani_env* env)
     return status;
 }
 
+ErrCode ConstructFlowbuf(ani_env* env, ani_object script, int& fd, size_t& scriptLength)
+{
+    auto flowbufferAdapter = OhosAdapterHelper::GetInstance().CreateFlowbufferAdapter();
+    if (!flowbufferAdapter) {
+        return NWebError::NEW_OOM;
+    }
+    flowbufferAdapter->StartPerformanceBoost();
+    std::string scriptStr;
+    if (AniParseUtils::IsString(env, script)) {
+        if (!AniParseUtils::ParseString(env, script, scriptStr)) {
+            WVLOG_I("script is string constructstringflowbuf");
+            return AniParseUtils::ConstructStringFlowbuf(env, scriptStr, fd, scriptLength);
+        }
+    }
+    return AniParseUtils::ConstructArrayBufFlowbuf(env, script, fd, scriptLength);
+}
+
+static void RunJavaScriptInternal(
+    ani_env* env, ani_object object, const std::string& script, ani_object callback, bool extention)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    WVLOG_I("enter RunJavaScriptInternal");
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    ani_class functionClass;
+    env->FindClass("Lstd/core/Function;", &functionClass);
+    ani_boolean isFunction;
+    env->Object_InstanceOf(callback, functionClass, &isFunction);
+    if (!isFunction) {
+        WVLOG_I("callback is not fountion");
+        return;
+    }
+    int32_t nwebId = controller->GetNWebId();
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId);
+    if (!nweb_ptr) {
+        WVLOG_I("nweb_ptr is null");
+        ani_status status;
+        std::vector<ani_ref> resultRef(CALLBACK_PARAM_LENGTH);
+        resultRef[0] = OHOS::NWeb::CreateStsError(
+            env, static_cast<ani_int>(NWebError::INIT_ERROR), GetErrMsgByErrCode(INIT_ERROR));
+        env->GetNull(&resultRef[1]);
+        ani_ref jsCallback = nullptr;
+        env->GlobalReference_Create(callback, &jsCallback);
+        if (jsCallback) {
+            ani_ref fnReturnVal;
+            if ((status = env->FunctionalObject_Call(static_cast<ani_fn_object>(jsCallback), resultRef.size(),
+                     resultRef.data(), &fnReturnVal)) != ANI_OK) {
+                WVLOG_E("error callback FunctionalObject_Call Failed status : %{public}d!", status);
+            } else {
+                WVLOG_I("error callback FunctionalObject_Call Success!");
+            }
+        }
+        env->GlobalReference_Delete(jsCallback);
+        return;
+    }
+    if (callback) {
+        auto callbackImpl = std::make_shared<WebviewJavaScriptExecuteCallback>(env, callback, nullptr, extention);
+        nweb_ptr->ExecuteJavaScript(script, callbackImpl, extention);
+    }
+    return;
+}
+
+static void RunJSBackToOriginal(ani_env* env, ani_object object, ani_object script, ani_object callback, bool extention)
+{
+    std::string scriptStr;
+    bool parseResult = false;
+    if (AniParseUtils::IsString(env, script)) {
+        parseResult = AniParseUtils::ParseString(env, script, scriptStr);
+    }
+    WVLOG_I("in RunJSBackToOriginal parseResult : %{public}d", parseResult);
+
+    if (!parseResult) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    return RunJavaScriptInternal(env, object, scriptStr, callback, extention);
+}
+
+static void RunJavaScriptInternalExt(
+    ani_env* env, ani_object object, ani_object script, ani_object callbackObj, bool extention)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    int fd;
+    size_t scriptLength;
+    ErrCode constructResult = ConstructFlowbuf(env, script, fd, scriptLength);
+    if (constructResult != NO_ERROR) {
+        return RunJSBackToOriginal(env, object, script, callbackObj, extention);
+    }
+    usedFd_++;
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        close(fd);
+        usedFd_--;
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    int32_t nwebId = controller->GetNWebId();
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId);
+    if (!nweb_ptr) {
+        std::vector<ani_ref> resultRef(CALLBACK_PARAM_LENGTH);
+        resultRef[0] = OHOS::NWeb::CreateStsError(
+            env, static_cast<ani_int>(NWebError::INIT_ERROR), GetErrMsgByErrCode(INIT_ERROR));
+        env->GetNull(&resultRef[1]);
+        ani_ref jsCallback = nullptr;
+        env->GlobalReference_Create(callbackObj, &jsCallback);
+        if (jsCallback) {
+            ani_ref fnReturnVal;
+            env->FunctionalObject_Call(
+                static_cast<ani_fn_object>(jsCallback), resultRef.size(), resultRef.data(), &fnReturnVal);
+        }
+        env->GlobalReference_Delete(jsCallback);
+        return;
+    }
+    if (callbackObj) {
+        auto callbackImpl = std::make_shared<WebviewJavaScriptExecuteCallback>(env, callbackObj, nullptr, extention);
+        nweb_ptr->ExecuteJavaScriptExt(fd, scriptLength, callbackImpl, extention);
+    } else {
+        close(fd);
+    }
+    usedFd_--;
+    return;
+}
+
+static void RunJSCallback(ani_env* env, ani_object object, ani_object script, ani_object callbackObj, bool extention)
+{
+    WVLOG_I("enter RunJSCallback");
+    if (maxFdNum_ == -1) {
+        maxFdNum_ = std::atoi(NWebAdapterHelper::Instance().ParsePerfConfig("flowBufferConfig", "maxFdNumber").c_str());
+    }
+    if (usedFd_.load() < maxFdNum_) {
+        WVLOG_I("enter RunJavaScriptInternalExt in RunJSCallback");
+        return RunJavaScriptInternalExt(env, object, script, callbackObj, extention);
+    }
+
+    std::string scriptStr;
+    bool parseResult = (AniParseUtils::IsString(env, script)) ? AniParseUtils::ParseString(env, script, scriptStr)
+                                                              : AniParseUtils::ParseArrayBuffer(env, script, scriptStr);
+    if (!parseResult) {
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "script", "string"));
+        return;
+    }
+
+    WVLOG_I("enter RunJavaScriptInternal in RunJSCallback");
+    return RunJavaScriptInternal(env, object, scriptStr, callbackObj, extention);
+}
+
+static void RunJavaScriptCallback(ani_env* env, ani_object object, ani_object script, ani_object callbackObj)
+{
+    WVLOG_I("start RunJavaScriptCallback");
+    return RunJSCallback(env, object, script, callbackObj, false);
+}
+
+static void RunJavaScriptCallbackExt(ani_env* env, ani_object object, ani_object script, ani_object callbackObj)
+{
+    WVLOG_I("start RunJavaScriptCallback");
+    return RunJSCallback(env, object, script, callbackObj, true);
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     WVLOG_D("[DOWNLOAD] StsWebviewControllerInit");
@@ -4330,6 +4505,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "getMediaPlaybackState", nullptr, reinterpret_cast<void *>(GetMediaPlaybackState) },
         ani_native_function { "webPageSnapshot", nullptr, reinterpret_cast<void *>(WebPageSnapshot) },
         ani_native_function { "innerCompleteWindowNew", nullptr, reinterpret_cast<void *>(InnerCompleteWindowNew) },
+        ani_native_function { "runJavaScriptCallback", nullptr, reinterpret_cast<void *>(RunJavaScriptCallback) },
+        ani_native_function { "runJavaScriptCallbackExt", nullptr, reinterpret_cast<void *>(RunJavaScriptCallbackExt) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());

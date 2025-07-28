@@ -16,14 +16,18 @@
 #include "ani_parse_utils.h"
 
 #include <arpa/inet.h>
+#include <memory>
 #include <sys/mman.h>
 #include <unistd.h>
 #include <regex>
 
+#include "nweb_helper.h"
 #include "nweb_log.h"
 #include "ohos_adapter_helper.h"
 #include "securec.h"
 #include "nweb_cache_options_impl.h"
+
+#define MAX_FLOWBUF_DATA_SIZE 52428800 /* 50 MB */
 
 namespace OHOS {
 namespace NWeb {
@@ -815,6 +819,479 @@ bool AniParseUtils::ParseDoubleArray(ani_env* env, ani_object argv, std::vector<
             outValue.push_back(value);
         }
     }
+    return true;
+}
+
+ErrCode AniParseUtils::ConstructStringFlowbuf(ani_env *env, const std::string script, int& fd, size_t& scriptLength)
+{
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return NWebError::PARAM_CHECK_ERROR;
+    }
+
+    scriptLength = script.size();
+    if (scriptLength + 1 > MAX_FLOWBUF_DATA_SIZE) {
+        WVLOG_E("String length is too long");
+        return NWebError::PARAM_CHECK_ERROR;
+    }
+
+    auto flowbufferAdapter = OhosAdapterHelper::GetInstance().CreateFlowbufferAdapter();
+    if (!flowbufferAdapter) {
+        WVLOG_E("Create flowbuffer adapter failed");
+        return NWebError::NEW_OOM;
+    }
+
+    auto ashmem = flowbufferAdapter->CreateAshmem(scriptLength + 1, PROT_READ | PROT_WRITE, fd);
+    if (!ashmem) {
+        return NWebError::NEW_OOM;
+    }
+
+    ani_string string = nullptr;
+    env->String_NewUTF8(script.c_str(), scriptLength, &string);
+    ani_size result = 0U;
+    env->String_GetUTF8Size(string, &result);
+    if (result != scriptLength) {
+        close(fd);
+        WVLOG_E("Write js string failed, the length values are different");
+        return NWebError::PARAM_CHECK_ERROR;
+    }
+    return NWebError::NO_ERROR;
+}
+
+ErrCode AniParseUtils::ConstructArrayBufFlowbuf(ani_env* env, const ani_object script, int& fd, size_t& scriptLength)
+{
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return NWebError::PARAM_CHECK_ERROR;
+    }
+    ani_boolean isArrayBuffer = false;
+    ani_class arrayBufferClass;
+    ani_status status;
+    if ((status = env->FindClass("Lescompat/ArrayBuffer;", &arrayBufferClass)) != ANI_OK) {
+        WVLOG_E("find buffer class error status : %{public}d", status);
+        return NWebError::PARAM_CHECK_ERROR;
+    }
+    if ((env->Object_InstanceOf(script, arrayBufferClass, &isArrayBuffer) != ANI_OK) || !isArrayBuffer) {
+        WVLOG_E("Object_InstanceOf error status : %{public}d", status);
+        return NWebError::PARAM_CHECK_ERROR;
+    }
+
+    char* arrBuf = nullptr;
+    if ((status = env->ArrayBuffer_GetInfo(
+             static_cast<ani_arraybuffer>(script), reinterpret_cast<void**>(&arrBuf), &scriptLength)) != ANI_OK) {
+        WVLOG_E("ArrayBuffer_GetInfo error status : %{public}d", status);
+        return NWebError::PARAM_CHECK_ERROR;
+    }
+
+    // get ashmem
+    auto flowbufferAdapter = OhosAdapterHelper::GetInstance().CreateFlowbufferAdapter();
+    if (!flowbufferAdapter) {
+        WVLOG_E("Create flowbuffer adapter failed");
+        return NWebError::NEW_OOM;
+    }
+    auto ashmem = flowbufferAdapter->CreateAshmem(scriptLength + 1, PROT_READ | PROT_WRITE, fd);
+    if (!ashmem) {
+        return NWebError::NEW_OOM;
+    }
+
+    // write to ashmem
+    if (memcpy_s(ashmem, scriptLength + 1, arrBuf, scriptLength) != EOK) {
+        WVLOG_E("ConstructArrayBufFlowbuf, memory copy failed");
+        return NWebError::NEW_OOM;
+    }
+    static_cast<char*>(ashmem)[scriptLength] = '\0';
+    return NWebError::NO_ERROR;
+}
+
+ani_ref ConvertToAniHandlerOfString(ani_env* env, std::shared_ptr<NWebMessage> src)
+{
+    WVLOG_I("enter ConvertToNapiHandlerOfString");
+    if (!env || !src) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    std::string msgStr = src->GetString();
+    ani_string dstTemp;
+    env->String_NewUTF8(msgStr.c_str(), msgStr.size(), &dstTemp);
+    return static_cast<ani_ref>(dstTemp);
+}
+
+ani_ref ConvertToAniHandlerOfBinary(ani_env* env, std::shared_ptr<NWebMessage> src)
+{
+    WVLOG_I("enter ConvertToNapiHandlerOfBinary");
+    if (!env || !src) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    std::vector<uint8_t> msgArr = src->GetBinary();
+    void* arrayData = nullptr;
+    ani_arraybuffer arraybuffer;
+    ani_status status = env->CreateArrayBuffer(msgArr.size(), &arrayData, &arraybuffer);
+    if (status != ANI_OK) {
+        WVLOG_E("Create arraybuffer failed status : %{public}d", status);
+        return nullptr;
+    }
+    for (size_t i = 0; i < msgArr.size(); ++i) {
+        *(uint8_t*)((uint8_t*)arrayData + i) = msgArr[i];
+    }
+    WVLOG_I("ConvertToNapiHandlerOfBinary successful!");
+    return static_cast<ani_ref>(arraybuffer);
+}
+
+ani_ref ConvertToAniHandlerOfBoolean(ani_env* env, std::shared_ptr<NWebMessage> src)
+{
+    WVLOG_I("enter ConvertToAniHandlerOfBoolean");
+    if (!env || !src) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+
+    ani_class bool_cls;
+    ani_status status;
+    if ((status = env->FindClass("Lstd/core/Boolean;", &bool_cls)) != ANI_OK) {
+        WVLOG_E("error in FindClass status : %{public}d", status);
+        return nullptr;
+    }
+
+    ani_method boolInfoCtor;
+    if ((status = env->Class_FindMethod(bool_cls, "<ctor>", "Z:V", &boolInfoCtor)) != ANI_OK) {
+        WVLOG_E("error in FindMethod status : %{public}d", status);
+        return nullptr;
+    }
+
+    ani_object boolInfoObj;
+    env->Object_New(bool_cls, boolInfoCtor, &boolInfoObj, static_cast<ani_boolean>(src->GetBoolean()));
+    return static_cast<ani_ref>(boolInfoObj);
+}
+
+ani_ref ConvertToAniHandlerOfInteger(ani_env* env, std::shared_ptr<NWebMessage> src)
+{
+    WVLOG_I("enter ConvertToAniHandlerOfInteger");
+    if (!env || !src) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+
+    ani_class integer_cls;
+    ani_status status;
+    if ((status = env->FindClass("Lstd/core/Boolean;", &integer_cls)) != ANI_OK) {
+        WVLOG_E("error in FindClass status : %{public}d", status);
+        return nullptr;
+    }
+
+    ani_method integerInfoCtor;
+    if ((status = env->Class_FindMethod(integer_cls, "<ctor>", "J:V", &integerInfoCtor)) != ANI_OK) {
+        WVLOG_E("error in FindMethod status : %{public}d", status);
+        return nullptr;
+    }
+
+    ani_object integerInfoObj;
+    env->Object_New(integer_cls, integerInfoCtor, &integerInfoObj, static_cast<ani_long>(src->GetInt64()));
+    return static_cast<ani_ref>(integerInfoObj);
+}
+
+ani_ref ConvertToAniHandlerOfDouble(ani_env* env, std::shared_ptr<NWebMessage> src)
+{
+    WVLOG_I("enter ConvertToAniHandlerOfDouble");
+    if (!env || !src) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+
+    ani_class double_cls;
+    ani_status status;
+    if ((status = env->FindClass("Lstd/core/Boolean;", &double_cls)) != ANI_OK) {
+        WVLOG_E("error in FindClass status : %{public}d", status);
+        return nullptr;
+    }
+
+    ani_method doubleInfoCtor;
+    if ((status = env->Class_FindMethod(double_cls, "<ctor>", "J:V", &doubleInfoCtor)) != ANI_OK) {
+        WVLOG_E("error in FindMethod status : %{public}d", status);
+        return nullptr;
+    }
+
+    ani_object doubleInfoObj;
+    env->Object_New(double_cls, doubleInfoCtor, &doubleInfoObj, static_cast<ani_long>(src->GetDouble()));
+    return static_cast<ani_ref>(doubleInfoObj);
+}
+
+ani_ref ConvertToAniHandlerOfError(ani_env* env, std::shared_ptr<NWebMessage> src)
+{
+    WVLOG_I("enter ConvertToAniHandlerOfError");
+    if (!env || !src) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    std::string errorMsg = src->GetErrName() + ": " + src->GetErrMsg();
+    ani_string message = nullptr;
+    if (env->String_NewUTF8(errorMsg.c_str(), errorMsg.length(), &message) != ANI_OK) {
+        WVLOG_E("error create ani_string object");
+        return nullptr;
+    }
+
+    ani_class errCls;
+    ani_status status;
+    if ((status = env->FindClass("Lstd/core/NullPointerError;", &errCls)) != ANI_OK) {
+        WVLOG_E("error in FindClass status : %{public}d", status);
+        return nullptr;
+    }
+
+    ani_method errInfoCtor;
+    if ((status = env->Class_FindMethod(errCls, "<ctor>", nullptr, &errInfoCtor)) != ANI_OK) {
+        WVLOG_E("error in FindMethod status : %{public}d", status);
+        return nullptr;
+    }
+
+    ani_object errObj;
+    env->Object_New(errCls, errInfoCtor, &errObj, message);
+    return static_cast<ani_ref>(errObj);
+}
+
+ani_ref ConvertToAniHandlerOfStringArr(ani_env* env, std::shared_ptr<NWebMessage> src)
+{
+    WVLOG_I("enter ConvertToAniHandlerOfStringArray");
+    if (!env || !src) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    std::vector<std::string> values = src->GetStringArray();
+    ani_class stringCls = nullptr;
+    if (ANI_OK != env->FindClass("Lstd/core/String;", &stringCls)) {
+        WVLOG_E("WebMessageExt find class failed.");
+        return nullptr;
+    }
+
+    ani_ref undefinedRef = nullptr;
+    if (ANI_OK != env->GetUndefined(&undefinedRef)) {
+        WVLOG_E("WebMessageExt GetUndefined Failed.");
+        return nullptr;
+    }
+
+    ani_array_ref array = nullptr;
+    if (ANI_OK != env->Array_New_Ref(stringCls, values.size(), undefinedRef, &array)) {
+        WVLOG_E("WebMessageExt new array ref error.");
+        return array;
+    }
+
+    for (size_t i = 0; i < values.size(); ++i) {
+        ani_string result {};
+        if (ANI_OK != env->String_NewUTF8(values[i].c_str(), values[i].size(), &result)) {
+            continue;
+        }
+        if (ANI_OK != env->Array_Set_Ref(array, i, result)) {
+            return array;
+        }
+    }
+    return static_cast<ani_ref>(array);
+}
+
+ani_ref ConvertToAniHandlerOfBooleanArr(ani_env* env, std::shared_ptr<NWebMessage> src)
+{
+    WVLOG_I("enter ConvertToAniHandlerOfBooleanArr");
+    if (!env || !src) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    std::vector<bool> values = src->GetBooleanArray();
+    size_t valueSize = values.size();
+
+    ani_class boolCls = nullptr;
+    if (ANI_OK != env->FindClass("Lstd/core/Boolean;", &boolCls)) {
+        WVLOG_E("WebMessageExt find class failed.");
+        return nullptr;
+    }
+
+    ani_ref undefinedRef = nullptr;
+    if (ANI_OK != env->GetUndefined(&undefinedRef)) {
+        WVLOG_E("WebMessageExt GetUndefined Failed.");
+        return nullptr;
+    }
+
+    ani_array_ref array = nullptr;
+    if (ANI_OK != env->Array_New_Ref(boolCls, values.size(), undefinedRef, &array)) {
+        WVLOG_E("WebMessageExt new array ref error.");
+        return array;
+    }
+
+    for (size_t i = 0; i < valueSize; i++) {
+        ani_boolean item = static_cast<ani_boolean>(values[i]);
+        ani_class booleanCls {};
+        if (ANI_OK != env->FindClass("Lstd/core/Boolean;", &booleanCls)) {
+            return nullptr;
+        }
+        ani_method ctor {};
+        if (ANI_OK != env->Class_FindMethod(booleanCls, "<ctor>", "z:", &ctor)) {
+            return nullptr;
+        }
+        ani_object obj {};
+        if (env->Object_New(booleanCls, ctor, &obj, item) != ANI_OK) {
+            return nullptr;
+        }
+        if (ANI_OK != env->Array_Set_Ref(array, i, obj)) {
+            return array;
+        }
+    }
+    return static_cast<ani_ref>(array);
+}
+
+ani_ref ConvertToAniHandlerOfDoubleArr(ani_env* env, std::shared_ptr<NWebMessage> src)
+{
+    WVLOG_I("enter ConvertToAniHandlerOfDoubleArr");
+    if (!env || !src) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    std::vector<double> values = src->GetDoubleArray();
+    size_t valueSize = values.size();
+
+    ani_class doubleCls = nullptr;
+    if (ANI_OK != env->FindClass("Lstd/core/Double;", &doubleCls)) {
+        WVLOG_E("WebMessageExt find class failed.");
+        return nullptr;
+    }
+
+    ani_ref undefinedRef = nullptr;
+    if (ANI_OK != env->GetUndefined(&undefinedRef)) {
+        WVLOG_E("WebMessageExt GetUndefined Failed.");
+        return nullptr;
+    }
+
+    ani_array_ref array = nullptr;
+    if (ANI_OK != env->Array_New_Ref(doubleCls, values.size(), undefinedRef, &array)) {
+        WVLOG_E("WebMessageExt new array ref error.");
+        return array;
+    }
+
+    for (size_t i = 0; i < valueSize; i++) {
+        ani_double item = static_cast<ani_double>(values[i]);
+        ani_class cls {};
+        if (ANI_OK != env->FindClass("Lstd/core/Double;", &cls)) {
+            return nullptr;
+        }
+        ani_method ctor {};
+        if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", "d:", &ctor)) {
+            return nullptr;
+        }
+        ani_object obj {};
+        if (env->Object_New(cls, ctor, &obj, item) != ANI_OK) {
+            return nullptr;
+        }
+        if (ANI_OK != env->Array_Set_Ref(array, i, obj)) {
+            return array;
+        }
+    }
+    return static_cast<ani_ref>(array);
+}
+
+ani_ref ConvertToAniHandlerOfInt64Arr(ani_env* env, std::shared_ptr<NWebMessage> src)
+{
+    WVLOG_I("enter ConvertToAniHandlerOfInt64Arr");
+    if (!env || !src) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    std::vector<int64_t> values = src->GetInt64Array();
+    size_t valueSize = values.size();
+
+    ani_class longCls = nullptr;
+    if (ANI_OK != env->FindClass("Lstd/core/Long;", &longCls)) {
+        WVLOG_E("WebMessageExt find class failed.");
+        return nullptr;
+    }
+
+    ani_ref undefinedRef = nullptr;
+    if (ANI_OK != env->GetUndefined(&undefinedRef)) {
+        WVLOG_E("WebMessageExt GetUndefined Failed.");
+        return nullptr;
+    }
+
+    ani_array_ref array = nullptr;
+    if (ANI_OK != env->Array_New_Ref(longCls, values.size(), undefinedRef, &array)) {
+        WVLOG_E("WebMessageExt new array ref error.");
+        return array;
+    }
+
+    for (size_t i = 0; i < valueSize; i++) {
+        ani_long item = static_cast<ani_boolean>(values[i]);
+        ani_class cls {};
+        if (ANI_OK != env->FindClass("Lstd/core/Long;", &cls)) {
+            return nullptr;
+        }
+        ani_method ctor {};
+        if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", "l:", &ctor)) {
+            return nullptr;
+        }
+        ani_object obj {};
+        if (env->Object_New(cls, ctor, &obj, item) != ANI_OK) {
+            return nullptr;
+        }
+        if (ANI_OK != env->Array_Set_Ref(array, i, obj)) {
+            return array;
+        }
+    }
+    return static_cast<ani_ref>(array);
+}
+
+ani_ref AniParseUtils::ConvertNWebToAniValue(ani_env* env, std::shared_ptr<NWebMessage> src)
+{
+    WVLOG_I("enter ConvertNWebToNapiValue");
+    if (!src || !env) {
+        WVLOG_E("src of env is nullptr");
+        return nullptr;
+    }
+    NWebValue::Type type = src->GetType();
+    using ConvertNWebToAniValueHandler = std::function<ani_ref(ani_env*, std::shared_ptr<NWebMessage>)>;
+    static const std::unordered_map<NWebValue::Type, ConvertNWebToAniValueHandler> functionMap = {
+        { NWebValue::Type::STRING, ConvertToAniHandlerOfString },
+        { NWebValue::Type::BINARY, ConvertToAniHandlerOfBinary },
+        { NWebValue::Type::BOOLEAN, ConvertToAniHandlerOfBoolean },
+        { NWebValue::Type::INTEGER, ConvertToAniHandlerOfInteger },
+        { NWebValue::Type::DOUBLE, ConvertToAniHandlerOfDouble },
+        { NWebValue::Type::ERROR, ConvertToAniHandlerOfError },
+        { NWebValue::Type::STRINGARRAY, ConvertToAniHandlerOfStringArr },
+        { NWebValue::Type::BOOLEANARRAY, ConvertToAniHandlerOfBooleanArr },
+        { NWebValue::Type::DOUBLEARRAY, ConvertToAniHandlerOfDoubleArr },
+        { NWebValue::Type::INT64ARRAY, ConvertToAniHandlerOfInt64Arr }
+    };
+    auto it = functionMap.find(type);
+    if (it == functionMap.end()) {
+        WVLOG_E("This type not support");
+        std::string msgStr = "This type not support";
+        ani_string dstTemp;
+        env->String_NewUTF8(msgStr.c_str(), msgStr.size(), &dstTemp);
+        return static_cast<ani_ref>(dstTemp);
+    }
+    return it->second(env, src);
+}
+
+bool AniParseUtils::ParseArrayBuffer(ani_env* env, ani_object script, std::string& outValue)
+{
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    ani_boolean isArrayBuffer = false;
+    ani_class arrayBufferClass;
+    ani_status status;
+    if ((status = env->FindClass("Lescompat/ArrayBuffer;", &arrayBufferClass)) != ANI_OK) {
+        WVLOG_E("find buffer class error status : %{public}d", status);
+        return false;
+    }
+    if ((env->Object_InstanceOf(script, arrayBufferClass, &isArrayBuffer) != ANI_OK) || !isArrayBuffer) {
+        WVLOG_E("Object_InstanceOf error status : %{public}d", status);
+        return false;
+    }
+
+    char* arrBuf = nullptr;
+    size_t byteLength = 0;
+    if ((status = env->ArrayBuffer_GetInfo(
+             static_cast<ani_arraybuffer>(script), reinterpret_cast<void**>(&arrBuf), &byteLength)) != ANI_OK) {
+        WVLOG_E("ArrayBuffer_GetInfo error status : %{public}d", status);
+        return false;
+    }
+
+    outValue = std::string(arrBuf, byteLength);
     return true;
 }
 }
