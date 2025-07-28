@@ -416,7 +416,7 @@ public:
     ~NapiWebMessageExt() = default;
     static napi_value CreateBackForwardListTransfer(napi_env env, napi_callback_info info);
     static napi_value CreateWebMessagePortTransfer(napi_env env, napi_callback_info info);
-}
+};
 
 class NWebValueCallbackImpl : public NWebMessageValueCallback {
 public:

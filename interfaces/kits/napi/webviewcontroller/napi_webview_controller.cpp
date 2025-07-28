@@ -7387,7 +7387,7 @@ napi_value ArkWebTransfer::CreateBackForwardListTransfer(napi_env env, napi_call
 
     int32_t currentIndex = 0;
     int32_t size = 0;
-    int32_t addr = 0;
+    int64_t addr = 0;
     if (!NapiParseUtils::ParseInt32(env, argv[INTEGER_ZERO], currentIndex) ||
         !NapiParseUtils::ParseInt32(env, argv[INTEGER_ONE], size) ||
         !NapiParseUtils::ParseInt64(env, argv[INTEGER_TWO], addr)) {
@@ -7445,8 +7445,9 @@ napi_value ArkWebTransfer::CreateWebMessagePortTransfer(napi_env env, napi_callb
     }
 
     bool isExtentionType = false;
+    int64_t addr = 0;
     if (!NapiParseUtils::ParseBoolean(env, argv[INTEGER_ZERO], isExtentionType) ||
-        !NapiParseUtils::ParseInt64(env, argv[INTEGER_ONE], size)) {
+        !NapiParseUtils::ParseInt64(env, argv[INTEGER_ONE], addr)) {
         WVLOG_E("[CreateWebMessagePortTransfer] type of param is error");
         return result;
     }
