@@ -2814,14 +2814,42 @@ static void BackOrForward(ani_env* env, ani_object object, ani_int step)
     return;
 }
 
-static void SetWebDebuggingAccess(ani_env* env, ani_object object, ani_boolean webDebuggingAccess)
+static void SetWebDebuggingAccessSingle(ani_env* env, ani_object object, ani_boolean webDebuggingAccess)
 {
-    WVLOG_D("[WebviewCotr] SetWebDebuggingAccess");
+    WVLOG_D(" SetWebDebuggingAccess start");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
     }
     WebviewController::webDebuggingAccess_ = webDebuggingAccess;
+    return;
+}
+
+static void SetWebDebuggingAccessDouble(
+    ani_env* env, ani_object object, ani_boolean webDebuggingAccess, ani_object webDebuggingPort)
+{
+    WVLOG_D(" SetWebDebuggingAccess start");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    ani_boolean isUndefined = ANI_TRUE;
+    int32_t webDebuggingPortObj = 0;
+    if (env->Reference_IsUndefined(webDebuggingPort, &isUndefined) != ANI_OK) {
+        return;
+    }
+    int32_t kValidPortRangeStart = 1025;
+    int32_t kValidPortRangeEnd = 65535;
+    if (WebviewController::webDebuggingAccess_ != webDebuggingAccess ||
+        WebviewController::webDebuggingPort_ != webDebuggingPortObj) {
+        if (webDebuggingPortObj > kValidPortRangeStart || webDebuggingPortObj < kValidPortRangeEnd) {
+            NWebHelper::Instance().SetWebDebuggingAccessAndPort(webDebuggingAccess, webDebuggingPortObj);
+        } else {
+            NWebHelper::Instance().SetWebDebuggingAccess(webDebuggingAccess);
+        }
+    }
+    WebviewController::webDebuggingAccess_ = webDebuggingAccess;
+    WebviewController::webDebuggingPort_ = webDebuggingPortObj;
     return;
 }
 
@@ -3032,6 +3060,38 @@ static ani_object SerializeWebState(ani_env* env, ani_object object)
         return result;
     }
     return buffer;
+}
+
+static void RestoreWebState(ani_env* env, ani_object object, ani_object value)
+{
+    WVLOG_D("WebviewController RestoreWebState start.");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* webviewController = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!webviewController || !webviewController->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    char* data = nullptr;
+    size_t total = 0;
+    size_t offset = 0;
+    size_t length = 0;
+    if (env->ArrayBuffer_GetInfo(reinterpret_cast<ani_arraybuffer>(value), reinterpret_cast<void**>(&data), &total) !=
+        ANI_OK) {
+        WVLOG_E("ArrayBuffer_GetInfo failed");
+        return;
+    }
+    length = std::min<size_t>(length, total - offset);
+    std::vector<uint8_t> state(length);
+    int retCode = memcpy_s(state.data(), state.size(), &data[offset], length);
+    if (retCode != 0) {
+        return;
+    }
+    webviewController->RestoreWebState(state);
 }
 
 static void TrimMemoryByPressureLevel(ani_env *env, ani_object object, ani_double level)
@@ -4900,6 +4960,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void *>(SetServiceWorkerWebSchemeHandler) },
         ani_native_function { "runJavaScriptCallback", nullptr, reinterpret_cast<void *>(RunJavaScriptCallback) },
         ani_native_function { "runJavaScriptCallbackExt", nullptr, reinterpret_cast<void *>(RunJavaScriptCallbackExt) },
+        ani_native_function { "restoreWebState", nullptr, reinterpret_cast<void*>(RestoreWebState) },
     };
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
     if (status != ANI_OK) {
@@ -4923,7 +4984,10 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "setRenderProcessMode", nullptr, reinterpret_cast<void *>(SetRenderProcessMode) },
         ani_native_function { "getRenderProcessMode", nullptr, reinterpret_cast<void *>(GetRenderProcessMode) },
         ani_native_function { "setConnectionTimeout", nullptr, reinterpret_cast<void *>(SetConnectionTimeout) },
-        ani_native_function { "setWebDebuggingAccess", nullptr, reinterpret_cast<void *>(SetWebDebuggingAccess) },
+        ani_native_function {
+            "setWebDebuggingAccessSingle", nullptr, reinterpret_cast<void*>(SetWebDebuggingAccessSingle) },
+        ani_native_function {
+            "setWebDebuggingAccessDouble", nullptr, reinterpret_cast<void*>(SetWebDebuggingAccessDouble) },
         ani_native_function { "pauseAllTimers", nullptr, reinterpret_cast<void *>(PauseAllTimers) },
         ani_native_function { "resumeAllTimers", nullptr, reinterpret_cast<void *>(ResumeAllTimers) },
         ani_native_function { "trimMemoryByPressureLevel", nullptr,
