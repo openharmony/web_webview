@@ -64,6 +64,9 @@
 #include "web_scheme_handler_response.h"
 #include "web_download_item.h"
 #include "ani_webview_createpdf_execute_callback.h"
+#include "ani_web_scheme_handler_request.h"
+#include "web_scheme_handler_request.h"
+#include "arkweb_scheme_handler.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -431,6 +434,12 @@ static void Clean(ani_env *env, ani_object object)
         delete reinterpret_cast<WebDownloadManager *>(ptr);
     } else if (clsName == "WebMessagePort") {
         delete reinterpret_cast<WebMessagePort *>(ptr);
+    } else if (clsName == "WebSchemeHandler") {
+        delete reinterpret_cast<WebSchemeHandler*>(ptr);
+    } else if (clsName == "WebSchemeHandlerRequest") {
+        delete reinterpret_cast<WebSchemeHandlerRequest*>(ptr);
+    } else if (clsName == "WebResourceHandler") {
+        reinterpret_cast<WebResourceHandler*>(ptr)->DecStrongRef(reinterpret_cast<WebResourceHandler*>(ptr));
     } else {
         WVLOG_E("Clean unsupport className: %{public}s", clsName.c_str());
     }
@@ -2015,6 +2024,82 @@ static void ClearHistory(ani_env *env, ani_object object)
     controller->ClearHistory();
 }
 
+void SetWebSchemeHandler(ani_env* env, ani_object object, ani_string scheme, ani_object handlerObject)
+{   
+    WVLOG_I("setWebSchemeHandler start");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    std::string schemeStr = "";
+    if (!AniParseUtils::ParseString(env, scheme, schemeStr)) {
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "scheme", "string"));
+        return;
+    }
+    
+    WebSchemeHandler* handler = nullptr;
+    ani_long thisVar;
+    ani_status status = env->Object_GetFieldByName_Long(handlerObject, "nativePtr", &thisVar);
+    if (status != ANI_OK) {
+        WVLOG_E("AniUtils_Unwrap Object_GetFieldByName_Long status: %{public}d", status);
+        return;
+    }
+    handler = reinterpret_cast<WebSchemeHandler*>(thisVar);
+    if (!handler) {
+        WVLOG_E("AniWebviewController::SetWebSchemeHandler handler is null");
+        return;
+    }
+    if (!controller->SetWebSchemeHandler(schemeStr.c_str(), handler)) {
+        WVLOG_E("AniWebviewController::SetWebSchemeHandler failed");
+    }
+    return;
+}
+
+static void SetServiceWorkerWebSchemeHandler(
+    ani_env* env, ani_object object, ani_string scheme, ani_object handlerObject)
+{   
+    WVLOG_I("setServiceWorkerWebSchemeHandler start");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    std::string schemePtr = "";
+    if (!AniParseUtils::ParseString(env, scheme, schemePtr)) {
+        WVLOG_E("AniWebviewController::SetWebSchemeHandler parse scheme failed");
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "scheme", "string"));
+        return;
+    }
+
+    WebSchemeHandler* handler = nullptr;
+    ani_long thisVar;
+    ani_status status = env->Object_GetFieldByName_Long(handlerObject, "nativePtr", &thisVar);
+    if (status != ANI_OK) {
+        WVLOG_E("AniUtils_Unwrap Object_GetFieldByName_Long status: %{public}d", status);
+        return;
+    }
+    handler = reinterpret_cast<WebSchemeHandler*>(thisVar);
+    if (!handler) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        WVLOG_E("Unwrap WebSchemeHandler failed");
+        return;
+    }
+    if (ANI_OK != env->GlobalReference_Create(handlerObject, &handler->delegate_)) {
+        WVLOG_E("SetServiceWorkerWebSchemeHandler failed to create reference for callback");
+        return;
+    }
+    if (!WebviewController::SetWebServiveWorkerSchemeHandler(schemePtr.c_str(), handler)) {
+        WVLOG_E("AniWebviewController::SetWebSchemeHandler failed");
+    }
+    return;
+}
+
 static void ClearWebSchemeHandler(ani_env *env, ani_object object)
 {
     if (env == nullptr) {
@@ -2558,7 +2643,9 @@ static void SetPathAllowingUniversalAccess(ani_env* env, ani_object object, ani_
     controller->SetPathAllowingUniversalAccess(pathListArr, errorPath);
     if (!errorPath.empty()) {
         WVLOG_E("%{public}s is invalid.", errorPath.c_str());
-    return;
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString("BusinessError 401: Parameter error. Path: '%s' is invalid", errorPath.c_str()));
+        return;
     }
 }
 
@@ -3970,7 +4057,7 @@ ani_object ConvertToAniHandlerOfInt64Array(ani_env* env, std::shared_ptr<NWebMes
     }
 
     for (size_t i = 0; i < valueSize; i++) {
-        ani_long item = static_cast<ani_boolean>(values[i]);
+        ani_long item = static_cast<ani_long>(values[i]);
         ani_class cls {};
         if (ANI_OK != env->FindClass("Lstd/core/Long;", &cls)) {
             return nullptr;
@@ -4234,6 +4321,9 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "getMediaPlaybackState", nullptr, reinterpret_cast<void *>(GetMediaPlaybackState) },
         ani_native_function { "webPageSnapshot", nullptr, reinterpret_cast<void *>(WebPageSnapshot) },
         ani_native_function { "innerCompleteWindowNew", nullptr, reinterpret_cast<void *>(InnerCompleteWindowNew) },
+        ani_native_function { "setWebSchemeHandler", nullptr, reinterpret_cast<void *>(SetWebSchemeHandler) },
+        ani_native_function { "setServiceWorkerWebSchemeHandler", nullptr, 
+                              reinterpret_cast<void *>(SetServiceWorkerWebSchemeHandler) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
