@@ -627,6 +627,14 @@ export default namespace webview {
             }
             return this.precompileJavaScriptInternal(url,resScript,cacheOptions);
         }
+        native runJavaScriptCallback(script: string, callback: AsyncCallback<string>): void;
+        runJavaScript(script: string, callback: AsyncCallback<string>): void {
+            this.runJavaScriptCallback(script, callback);
+        }
+        native runJavaScriptCallbackExt(script: string | ArrayBuffer, callback: AsyncCallback<JsMessageExt>): void;
+        runJavaScriptExt(script: string | ArrayBuffer, callback: AsyncCallback<JsMessageExt>): void {
+            this.runJavaScriptCallbackExt(script, callback);
+        }
     }
 
     export class WebSchemeHandlerResponse {
@@ -1518,5 +1526,44 @@ export default namespace webview {
         native getArrayBuffer(): ArrayBuffer;
         native getArray(): Array<string | number | boolean>;
         native getError(): Error;
+    }
+
+    export enum JsMessageType {
+        NOT_SUPPORT,
+        STRING,
+        NUMBER,
+        BOOLEAN,
+        ARRAY_BUFFER,
+        ARRAY
+    }
+    export class JsMessageExt {
+        static {
+            loadLibrary("webview_ani.z");
+        }
+
+        private nativePtr: long = 0;
+        private cleaner?: Cleaner;
+
+        registerCleaner(ptr: long): void {
+            this.cleaner = new Cleaner(ptr, "JsMessageExt")
+            destroyRegister.register(this, this.cleaner!, unregisterToken);
+        }
+        unregisterCleaner(): void {
+            destroyRegister.unregister(unregisterToken);
+        }
+
+        bindNativePtr(ptr: long): void {
+            if (this.nativePtr == 0) {
+                this.nativePtr = ptr;
+                this.registerCleaner(this.nativePtr)
+            }
+        }
+
+        native getType(): JsMessageType;
+        native getString(): string;
+        native getNumber(): number;
+        native getBoolean(): boolean;
+        native getArrayBuffer(): ArrayBuffer;
+        native getArray(): Array<string | number | boolean>;
     }
 }
