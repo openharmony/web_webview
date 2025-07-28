@@ -66,6 +66,10 @@
 #include "web_scheme_handler_response.h"
 #include "web_download_item.h"
 #include "ani_webview_createpdf_execute_callback.h"
+#include "web_history_list.h"
+#include "web_message_port.h"
+#include "arkcompiler/runtime_core/static_core/plugins/ets/runtime/libani_helpers/interop_js/arkts_esvalue.h"
+#include "arkcompiler/runtime_core/static_core/plugins/ets/runtime/libani_helpers/interop_js/arkts_interop_js_api.h"
 #include "ohos_adapter_helper.h"
 #include "nweb_adapter_helper.h"
 
@@ -2100,6 +2104,63 @@ static ani_ref GetItemAtIndex(ani_env *env, ani_object object, ani_int aniIndex)
     return historyItemListObj;
 }
 
+static void TransferBackForwardListToStaticInner(ani_env* env, ani_class aniClass, ani_object output, ani_object input)
+{
+    if (env == nullptr) {
+        return;
+    }
+
+    std::string sizeName = "size";
+    std::string indexName = "currentIndex";
+    ani_string sizePropertyName {};
+    ani_string indexPropertyName {};
+    if ((env->String_NewUTF8(sizeName.c_str(), sizeName.size(), &sizePropertyName) != ANI_OK) ||
+        (env->String_NewUTF8(indexName.c_str(), indexName.size(), &indexPropertyName) != ANI_OK)) {
+        WVLOG_E("[TRANSFER] String_NewUTF8 failed");
+        return;
+    }
+
+    ani_ref sizeProperty {};
+    ani_ref indexProperty {};
+    if ((env->Object_CallMethodByName_Ref(input, "getPropertySafe", "C{std.core.String}:C{std:interop:ESValue}",
+            &sizeProperty, sizePropertyName) != ANI_OK) ||
+        (env->Object_CallMethodByName_Ref(input, "getPropertySafe", "C{std.core.String}:C{std:interop:ESValue}",
+            &indexProperty, indexPropertyName) != ANI_OK)) {
+        WVLOG_E("[TRANSFER] getPropertySafe failed");
+        return;
+    }
+
+    double sizeRef = 0;
+    double indexRef = 0;
+    if ((env->Object_CallMethodByName_Double(
+            static_cast<ani_object>(sizeProperty), "toNumber", ":D", &sizeRef) != ANI_OK) ||
+        (env->Object_CallMethodByName_Double(
+            static_cast<ani_object>(indexProperty), "toNumber", ":D", &indexRef) != ANI_OK)) {
+        WVLOG_E("[TRANSFER] ESValue toNumber failed");
+        return;
+    }
+
+    void* nativePtr = nullptr;
+    if (!arkts_esvalue_unwrap(env, input, &nativePtr) || nativePtr == nullptr) {
+        WVLOG_E("[TRANSFER] arkts_esvalue_unwrap failed");
+        return;
+    }
+    if (!AniParseUtils::Wrap(env, output, ANI_BACK_FORWARD_LIST_INNER_CLASS_NAME,
+                             reinterpret_cast<ani_long>(nativePtr))) {
+        WVLOG_E("[TRANSFER] BackForwardList wrap failed");
+        return;
+    }
+
+    int32_t size = static_cast<int32_t>(sizeRef);
+    int32_t currentIndex = static_cast<int32_t>(indexRef);
+    if (size >= 0) {
+        env->Object_SetPropertyByName_Int(output, "size", static_cast<ani_int>(size));
+    }
+    if (currentIndex >= 0) {
+        env->Object_SetPropertyByName_Int(output, "currentIndex", static_cast<ani_int>(currentIndex));
+    }
+}
+
 ani_status StsBackForwardListInit(ani_env *env)
 {
     ani_class backForwardListCls = nullptr;
@@ -2111,6 +2172,8 @@ ani_status StsBackForwardListInit(ani_env *env)
 
     std::array methodArray = {
         ani_native_function { "getItemAtIndex", nullptr, reinterpret_cast<void *>(GetItemAtIndex) },
+        ani_native_function { "transferBackForwardListToStaticInner", nullptr,
+                              reinterpret_cast<void *>(TransferBackForwardListToStaticInner) },
     };
 
     status = env->Class_BindNativeMethods(backForwardListCls, methodArray.data(), methodArray.size());
@@ -2141,6 +2204,37 @@ static void Close(ani_env* env, ani_object object)
     return;
 }
 
+static void TransferWebMessagePortToStaticInner(ani_env* env, ani_class aniClass, ani_object output,
+                                                ani_object input, ani_boolean extType)
+{
+    if (env == nullptr) {
+        WVLOG_E("[TRANSFER] env is nullptr");
+        return;
+    }
+
+    void* nativePtr = nullptr;
+    if (!arkts_esvalue_unwrap(env, input, &nativePtr) || nativePtr == nullptr) {
+        WVLOG_E("[TRANSFER] arkts_esvalue_unwrap failed");
+        return;
+    }
+
+    if (!AniParseUtils::Wrap(env, output, ANI_WEB_MESSAGE_PORT_INNER_CLASS_NAME,
+                             reinterpret_cast<ani_long>(nativePtr))) {
+        WVLOG_E("[TRANSFER] WebMessagePort wrap failed");
+        return;
+    }
+
+    bool isExtentionType = static_cast<bool>(extType);
+    ani_object jsType = {};
+    if (!AniParseUtils::CreateBoolean(env, isExtentionType, jsType)) {
+        return;
+    }
+    if (env->Object_SetPropertyByName_Ref(output, "isExtentionType", static_cast<ani_ref>(jsType)) != ANI_OK) {
+        WVLOG_E("[TRANSFER] set isExtentionType failed");
+        return;
+    }
+}
+
 ani_status StsWebMessagePortInit(ani_env* env)
 {
     ani_class webMessagePortCls = nullptr;
@@ -2151,6 +2245,8 @@ ani_status StsWebMessagePortInit(ani_env* env)
     }
     std::array methodArray = {
         ani_native_function { "close", nullptr, reinterpret_cast<void*>(Close) },
+        ani_native_function { "transferWebMessagePortToStaticInner", nullptr,
+                              reinterpret_cast<void *>(TransferWebMessagePortToStaticInner) },
     };
     status = env->Class_BindNativeMethods(webMessagePortCls, methodArray.data(), methodArray.size());
     if (status != ANI_OK) {

@@ -383,6 +383,9 @@ export default namespace webview {
     }
 
     export class BackForwardListinner implements BackForwardList {
+        static {
+            loadLibrary("webview_ani.z");
+        }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
         registerCleaner(ptr: long): void {
@@ -403,6 +406,34 @@ export default namespace webview {
         currentIndex: int = 0;
         size: int = 0;
         native getItemAtIndex(index: int): HistoryItem;
+
+        static transferBackForwardListToStatic(input: Any): Object {
+            let bflObject: BackForwardListinner = new BackForwardListinner();
+            if (input == undefined || input == null) {
+                throw new Error("input object is null or undefined");
+            }
+            let dyESValue = ESValue.wrap(input);
+            BackForwardListinner.transferBackForwardListToStaticInner(bflObject, dyESValue);
+            return bflObject as Object;
+        }
+        private static native transferBackForwardListToStaticInner(newDemo: BackForwardListinner, input: ESValue): void;
+
+        static transferBackForwardListToDynamic(input: Object): Any {
+            const staticRef = input as BackForwardListinner;
+            if (staticRef) {
+                let addr = staticRef.nativePtr;
+                let module = ESValue.load("@ohos.web.webview");
+                let initFunc = module.getProperty("__createBackForwardListTransfer__");
+                if (initFunc) {
+                    let dynamicRef = initFunc.invoke(
+                        ESValue.wrap(staticRef.currentIndex), ESValue.wrap(staticRef.size), ESValue.wrap(addr));
+                    return dynamicRef.unwrap();
+                }
+            } else {
+                console.error("invoke func not exit");
+            }
+            return undefined;
+        }
     }
 
     export class AsyncCallbackWrapper<T> {
@@ -1186,6 +1217,9 @@ export default namespace webview {
         close(): void;
     }
     export class WebMessagePortInner implements WebMessagePort {
+        static {
+            loadLibrary("webview_ani.z");
+        }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
         registerCleaner(ptr: long): void {
@@ -1203,6 +1237,38 @@ export default namespace webview {
         }
         isExtentionType?: boolean;
         native close(): void;
+
+        static transferWebMessagePortToStatic(input: Any): Object {
+            let wmpObject: WebMessagePortInner = new WebMessagePortInner();
+            if (input == undefined || input == null) {
+                throw new Error("input object is null or undefined");
+            }
+            let dyESValue = ESValue.wrap(input);
+            let isExtentionType = dyESValue.getProperty('isExtentionType').toBoolean();
+            WebMessagePortInner.transferWebMessagePortToStaticInner(wmpObject, dyESValue, isExtentionType);
+            return wmpObject as Object;
+        }
+        private static native transferWebMessagePortToStaticInner(newDemo: WebMessagePortInner, input: ESValue, extType: boolean): void;
+
+        static transferWebMessagePortToDynamic(input: Object): Any {
+            const staticRef = input as WebMessagePortInner;
+            let extType: boolean = false;
+            if (staticRef.isExtentionType === true) {
+                extType = true;
+            }
+            if (staticRef) {
+                let addr = staticRef.nativePtr;
+                let module = ESValue.load("@ohos.web.webview");
+                let initFunc = module.getProperty("__createWebMessagePortTransfer__");
+                if (initFunc) {
+                    let dynamicRef = initFunc.invoke(ESValue.wrap(extType), ESValue.wrap(addr));
+                    return dynamicRef.unwrap();
+                }
+            } else {
+                console.error("invoke func not exit");
+            }
+            return undefined;
+        }
     }
 
     export interface WebStorageOrigin {

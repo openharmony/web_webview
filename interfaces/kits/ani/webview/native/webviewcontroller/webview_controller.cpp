@@ -504,58 +504,6 @@ ErrCode WebviewController::PostWebMessage(std::string& message, std::vector<std:
     return NWebError::NO_ERROR;
 }
 
-WebMessagePort::WebMessagePort(int32_t nwebId, std::string& port, bool isExtentionType)
-    : nwebId_(nwebId), portHandle_(port), isExtentionType_(isExtentionType)
-{}
-
-ErrCode WebMessagePort::ClosePort()
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (!nweb_ptr) {
-        return INIT_ERROR;
-    }
-
-    nweb_ptr->ClosePort(portHandle_);
-    portHandle_.clear();
-    return NWebError::NO_ERROR;
-}
-
-ErrCode WebMessagePort::PostPortMessage(std::shared_ptr<NWebMessage> data)
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (!nweb_ptr) {
-        return INIT_ERROR;
-    }
-
-    if (portHandle_.empty()) {
-        WVLOG_E("can't post message, message port already closed");
-        return CAN_NOT_POST_MESSAGE;
-    }
-    nweb_ptr->PostPortMessage(portHandle_, data);
-    return NWebError::NO_ERROR;
-}
-
-ErrCode WebMessagePort::SetPortMessageCallback(
-    std::shared_ptr<NWebMessageValueCallback> callback)
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (!nweb_ptr) {
-        return INIT_ERROR;
-    }
-
-    if (portHandle_.empty()) {
-        WVLOG_E("can't register message port callback event, message port already closed");
-        return CAN_NOT_REGISTER_MESSAGE_EVENT;
-    }
-    nweb_ptr->SetPortMessageCallback(portHandle_, callback);
-    return NWebError::NO_ERROR;
-}
-
-std::string WebMessagePort::GetPortHandle() const
-{
-    return portHandle_;
-}
-
 std::shared_ptr<HitTestResult> WebviewController::GetHitTestValue()
 {
     std::shared_ptr<HitTestResult> nwebResult;
@@ -1069,25 +1017,6 @@ std::shared_ptr<NWebHistoryList> WebviewController::GetHistoryList()
         return nullptr;
     }
     return nweb_ptr->GetHistoryList();
-}
-
-std::shared_ptr<NWebHistoryItem> WebHistoryList::GetItem(int32_t index)
-{
-    if (!sptrHistoryList_) {
-        return nullptr;
-    }
-    return sptrHistoryList_->GetItem(index);
-}
-
-int32_t WebHistoryList::GetListSize()
-{
-    int32_t listSize = 0;
-
-    if (!sptrHistoryList_) {
-        return listSize;
-    }
-    listSize = sptrHistoryList_->GetListSize();
-    return listSize;
 }
 
 bool WebviewController::GetFavicon(
