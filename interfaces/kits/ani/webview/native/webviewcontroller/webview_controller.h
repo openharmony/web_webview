@@ -32,6 +32,7 @@
 #include "webview_javascript_result_callback.h"
 #include "print_manager_adapter.h"
 #include "arkweb_scheme_handler.h"
+#include "web_scheme_handler_request.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -303,6 +304,10 @@ public:
     void EnableIntelligentTrackingPrevention(bool enable);
 
     bool IsIntelligentTrackingPreventionEnabled() const;
+
+    bool SetWebSchemeHandler(const char* scheme, WebSchemeHandler* handler) const;
+
+    static bool SetWebServiveWorkerSchemeHandler(const char* scheme, WebSchemeHandler* handler);
 
     int32_t ClearWebSchemeHandler();
 
