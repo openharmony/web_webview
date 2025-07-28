@@ -2100,7 +2100,6 @@ static ani_ref GetItemAtIndex(ani_env *env, ani_object object, ani_int aniIndex)
 static void TransferBackForwardListToStaticInner(ani_env* env, ani_class aniClass, ani_object output, ani_object input)
 {
     if (env == nullptr) {
-        WVLOG_E("[TRANSFER] env is nullptr");
         return;
     }
 

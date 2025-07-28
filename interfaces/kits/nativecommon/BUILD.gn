@@ -18,8 +18,6 @@ ohos_shared_library("webview_common") {
     branch_protector_ret = "pac_ret"
   }
 
-  public_configs = [ ":web_public_config" ]
-
   include_dirs = [
     "../../../ohos_adapter/ohos_resource_adapter/include",
     "../../../ohos_adapter/system_properties_adapter/include",
