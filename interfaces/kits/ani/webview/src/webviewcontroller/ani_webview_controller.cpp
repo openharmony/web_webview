@@ -2191,7 +2191,7 @@ static ani_boolean TransferWebMessagePortToStaticInner(ani_env* env, ani_class a
         return ANI_FALSE;
     }
 
-    WebMessagePort* msgPort = reinterpret_cast<WebMessagePort>(nativePtr);
+    WebMessagePort* msgPort = reinterpret_cast<WebMessagePort *>(nativePtr);
     if (!AniParseUtils::Wrap(env, output, ANI_WEB_MESSAGE_PORT_INNER_CLASS_NAME,
                              reinterpret_cast<ani_long>(msgPort))) {
         WVLOG_E("[TRANSFER] WebMessagePort wrap failed");
