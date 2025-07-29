@@ -23,6 +23,7 @@ ohos_unittest("napi_common_test") {
   sources = [ "napi_parse_utils_unittest.cpp" ]
 
   include_dirs = [
+    "$webview_path/interfaces/kits/nativecommon",
     "$webview_path/interfaces/kits/napi/common",
     "$webview_path/interfaces/kits/napi/webadsblockmanager",
     "$webview_path/interfaces/kits/napi/webasynccontroller",

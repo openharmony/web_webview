@@ -222,16 +222,6 @@ public:
     ErrCode DeleteJavaScriptRegister(const std::string& objName,
         const std::vector<std::string>& methodList);
 
-    void RunJavaScriptCallback(const std::string &script, napi_env env, napi_ref jsCallback, bool extention);
-
-    void RunJavaScriptPromise(const std::string &script, napi_env env, napi_deferred deferred, bool extention);
-
-    void RunJavaScriptCallbackExt(
-        const int fd, const size_t scriptLength, napi_env env, napi_ref jsCallback, bool extention);
-
-    void RunJavaScriptPromiseExt(
-        const int fd, const size_t scriptLength, napi_env env, napi_deferred deferred, bool extention);
-
     std::string GetUrl();
 
     std::string GetOriginalUrl();
@@ -400,6 +390,9 @@ public:
     std::shared_ptr<HitTestResult> GetLastHitTest();
     
     void OnCreateNativeMediaPlayer(ani_vm *vm, ani_fn_object callback);
+
+    int32_t GetNWebId();
+    
 private:
     int ConverToWebHitTestType(int hitType);
 
@@ -427,31 +420,6 @@ private:
     std::string hapPath_ = "";
     std::string webTag_ = "";
     std::vector<std::string> moduleName_;
-};
-
-class WebMessagePort {
-public:
-    WebMessagePort(int32_t nwebId, std::string& port, bool isExtentionType);
-
-    ~WebMessagePort() = default;
-
-    ErrCode ClosePort();
-
-    ErrCode PostPortMessage(std::shared_ptr<NWebMessage> data);
-
-    ErrCode SetPortMessageCallback(std::shared_ptr<NWebMessageValueCallback> callback);
-
-    std::string GetPortHandle() const;
-
-    bool IsExtentionType()
-    {
-        return isExtentionType_;
-    }
-
-private:
-    int32_t nwebId_ = -1;
-    std::string portHandle_;
-    bool isExtentionType_;
 };
 
 class WebMessageExt {
@@ -552,22 +520,6 @@ public:
 private:
     int type_ = 0;
     std::shared_ptr<NWebMessage> data_;
-};
-
-class WebHistoryList {
-public:
-    explicit WebHistoryList(std::shared_ptr<NWebHistoryList> sptrHistoryList) : sptrHistoryList_(sptrHistoryList) {};
-    ~WebHistoryList() = default;
-
-    int32_t GetCurrentIndex();
-
-    std::shared_ptr<NWebHistoryItem> GetItem(int32_t index);
-
-    int32_t GetListSize();
-
-private:
-    OHOS::NWeb::NWeb* nweb_ = nullptr;
-    std::shared_ptr<NWebHistoryList> sptrHistoryList_ = nullptr;
 };
 
 class WebPrintDocument {

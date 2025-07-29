@@ -32,7 +32,6 @@
 #include "nweb_store_web_archive_callback.h"
 #include "web_errors.h"
 #include "webview_hasimage_callback.h"
-#include "webview_javascript_execute_callback.h"
 #include "webview_javascript_result_callback.h"
 #include "native_media_player_impl.h"
 
@@ -505,58 +504,6 @@ ErrCode WebviewController::PostWebMessage(std::string& message, std::vector<std:
     return NWebError::NO_ERROR;
 }
 
-WebMessagePort::WebMessagePort(int32_t nwebId, std::string& port, bool isExtentionType)
-    : nwebId_(nwebId), portHandle_(port), isExtentionType_(isExtentionType)
-{}
-
-ErrCode WebMessagePort::ClosePort()
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (!nweb_ptr) {
-        return INIT_ERROR;
-    }
-
-    nweb_ptr->ClosePort(portHandle_);
-    portHandle_.clear();
-    return NWebError::NO_ERROR;
-}
-
-ErrCode WebMessagePort::PostPortMessage(std::shared_ptr<NWebMessage> data)
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (!nweb_ptr) {
-        return INIT_ERROR;
-    }
-
-    if (portHandle_.empty()) {
-        WVLOG_E("can't post message, message port already closed");
-        return CAN_NOT_POST_MESSAGE;
-    }
-    nweb_ptr->PostPortMessage(portHandle_, data);
-    return NWebError::NO_ERROR;
-}
-
-ErrCode WebMessagePort::SetPortMessageCallback(
-    std::shared_ptr<NWebMessageValueCallback> callback)
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (!nweb_ptr) {
-        return INIT_ERROR;
-    }
-
-    if (portHandle_.empty()) {
-        WVLOG_E("can't register message port callback event, message port already closed");
-        return CAN_NOT_REGISTER_MESSAGE_EVENT;
-    }
-    nweb_ptr->SetPortMessageCallback(portHandle_, callback);
-    return NWebError::NO_ERROR;
-}
-
-std::string WebMessagePort::GetPortHandle() const
-{
-    return portHandle_;
-}
-
 std::shared_ptr<HitTestResult> WebviewController::GetHitTestValue()
 {
     std::shared_ptr<HitTestResult> nwebResult;
@@ -957,100 +904,6 @@ void WebviewController::RegisterJavaScriptProxy(RegisterJavaScriptProxyParam& pa
                                     std::vector<std::string>(), objId, param_tmp.permission);
 }
 
-void WebviewController::RunJavaScriptCallback(
-    const std::string& script, napi_env env, napi_ref jsCallback, bool extention)
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (!nweb_ptr) {
-        napi_value setResult[RESULT_COUNT] = {0};
-        setResult[PARAMZERO] = BusinessError::CreateError(env, NWebError::INIT_ERROR);
-        napi_get_null(env, &setResult[PARAMONE]);
-
-        napi_value args[RESULT_COUNT] = {setResult[PARAMZERO], setResult[PARAMONE]};
-        napi_value callback = nullptr;
-        napi_get_reference_value(env, jsCallback, &callback);
-        napi_value callbackResult = nullptr;
-        napi_call_function(env, nullptr, callback, RESULT_COUNT, args, &callbackResult);
-        napi_delete_reference(env, jsCallback);
-        return;
-    }
-
-    if (jsCallback == nullptr) {
-        return;
-    }
-
-    auto callbackImpl = std::make_shared<WebviewJavaScriptExecuteCallback>(env, jsCallback, nullptr, extention);
-    nweb_ptr->ExecuteJavaScript(script, callbackImpl, extention);
-}
-
-void WebviewController::RunJavaScriptPromise(const std::string &script, napi_env env,
-    napi_deferred deferred, bool extention)
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (!nweb_ptr) {
-        napi_value jsResult = nullptr;
-        jsResult = NWebError::BusinessError::CreateError(env, NWebError::INIT_ERROR);
-        napi_reject_deferred(env, deferred, jsResult);
-        return;
-    }
-
-    if (deferred == nullptr) {
-        return;
-    }
-
-    auto callbackImpl = std::make_shared<WebviewJavaScriptExecuteCallback>(env, nullptr, deferred, extention);
-    nweb_ptr->ExecuteJavaScript(script, callbackImpl, extention);
-}
-
-void WebviewController::RunJavaScriptCallbackExt(
-    const int fd, const size_t scriptLength, napi_env env, napi_ref jsCallback, bool extention)
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (!nweb_ptr) {
-        napi_value setResult[RESULT_COUNT] = {0};
-        setResult[PARAMZERO] = BusinessError::CreateError(env, NWebError::INIT_ERROR);
-        napi_get_null(env, &setResult[PARAMONE]);
-
-        napi_value args[RESULT_COUNT] = {setResult[PARAMZERO], setResult[PARAMONE]};
-        napi_value callback = nullptr;
-        napi_get_reference_value(env, jsCallback, &callback);
-        napi_value callbackResult = nullptr;
-        napi_call_function(env, nullptr, callback, RESULT_COUNT, args, &callbackResult);
-        napi_delete_reference(env, jsCallback);
-        close(fd);
-        return;
-    }
-
-    if (jsCallback == nullptr) {
-        close(fd);
-        return;
-    }
-
-    auto callbackImpl = std::make_shared<WebviewJavaScriptExecuteCallback>(env, jsCallback, nullptr, extention);
-    nweb_ptr->ExecuteJavaScriptExt(fd, scriptLength, callbackImpl, extention);
-}
-
-void WebviewController::RunJavaScriptPromiseExt(
-    const int fd, const size_t scriptLength, napi_env env, napi_deferred deferred, bool extention)
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (!nweb_ptr) {
-        napi_value jsResult = nullptr;
-        jsResult = NWebError::BusinessError::CreateError(env, NWebError::INIT_ERROR);
-        napi_reject_deferred(env, deferred, jsResult);
-        close(fd);
-        return;
-    }
-
-    if (deferred == nullptr) {
-        close(fd);
-        return;
-    }
-
-    auto callbackImpl = std::make_shared<WebviewJavaScriptExecuteCallback>(env, nullptr, deferred, extention);
-    nweb_ptr->ExecuteJavaScriptExt(fd, scriptLength, callbackImpl, extention);
-}
-
 void WebviewController::CreatePDFExt(
     std::shared_ptr<NWebPDFConfigArgs> pdfConfig, std::shared_ptr<NWebArrayBufferValueCallback> callbackImpl)
 {
@@ -1164,25 +1017,6 @@ std::shared_ptr<NWebHistoryList> WebviewController::GetHistoryList()
         return nullptr;
     }
     return nweb_ptr->GetHistoryList();
-}
-
-std::shared_ptr<NWebHistoryItem> WebHistoryList::GetItem(int32_t index)
-{
-    if (!sptrHistoryList_) {
-        return nullptr;
-    }
-    return sptrHistoryList_->GetItem(index);
-}
-
-int32_t WebHistoryList::GetListSize()
-{
-    int32_t listSize = 0;
-
-    if (!sptrHistoryList_) {
-        return listSize;
-    }
-    listSize = sptrHistoryList_->GetListSize();
-    return listSize;
 }
 
 bool WebviewController::GetFavicon(
@@ -2160,5 +1994,10 @@ void WebviewController::OnCreateNativeMediaPlayer(ani_vm* vm, ani_fn_object call
     }
     nweb_ptr->OnCreateNativeMediaPlayer(callbackImpl);
 }
+
+int32_t WebviewController::GetNWebId() {
+    return nwebId_;
+}
+
 } // namespace NWeb
 } // namespace OHOS

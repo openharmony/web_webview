@@ -29,6 +29,8 @@
 #include <ctime>
 #include <memory>
 #include <unordered_map>
+#include <cstddef>
+#include <cstdint>
 #include <securec.h>
 #include <regex>
 #include <vector>
@@ -67,6 +69,12 @@
 #include "ani_web_scheme_handler_request.h"
 #include "web_scheme_handler_request.h"
 #include "arkweb_scheme_handler.h"
+#include "web_history_list.h"
+#include "web_message_port.h"
+#include "arkcompiler/runtime_core/static_core/plugins/ets/runtime/libani_helpers/interop_js/arkts_esvalue.h"
+#include "arkcompiler/runtime_core/static_core/plugins/ets/runtime/libani_helpers/interop_js/arkts_interop_js_api.h"
+#include "ohos_adapter_helper.h"
+#include "nweb_adapter_helper.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -81,6 +89,9 @@ constexpr size_t MAX_RESOURCES_COUNT = 30;
 constexpr uint32_t URL_MAXIMUM = 2048;
 constexpr char URL_REGEXPR[] = "^http(s)?:\\/\\/.+";
 const char *INVOKE_METHOD_NAME = "invoke";
+const int CALLBACK_PARAM_LENGTH = 2;
+int32_t maxFdNum_ = -1;
+std::atomic<int32_t> usedFd_ { 0 };
 constexpr double A4_WIDTH = 8.27;
 constexpr double A4_HEIGHT = 11.69;
 constexpr double SCALE_MIN = 0.1;
@@ -2178,6 +2189,63 @@ static ani_ref GetItemAtIndex(ani_env *env, ani_object object, ani_int aniIndex)
     return historyItemListObj;
 }
 
+static void TransferBackForwardListToStaticInner(ani_env* env, ani_class aniClass, ani_object output, ani_object input)
+{
+    if (env == nullptr) {
+        return;
+    }
+
+    std::string sizeName = "size";
+    std::string indexName = "currentIndex";
+    ani_string sizePropertyName {};
+    ani_string indexPropertyName {};
+    if ((env->String_NewUTF8(sizeName.c_str(), sizeName.size(), &sizePropertyName) != ANI_OK) ||
+        (env->String_NewUTF8(indexName.c_str(), indexName.size(), &indexPropertyName) != ANI_OK)) {
+        WVLOG_E("[TRANSFER] String_NewUTF8 failed");
+        return;
+    }
+
+    ani_ref sizeProperty {};
+    ani_ref indexProperty {};
+    if ((env->Object_CallMethodByName_Ref(input, "getPropertySafe", "C{std.core.String}:C{std:interop:ESValue}",
+            &sizeProperty, sizePropertyName) != ANI_OK) ||
+        (env->Object_CallMethodByName_Ref(input, "getPropertySafe", "C{std.core.String}:C{std:interop:ESValue}",
+            &indexProperty, indexPropertyName) != ANI_OK)) {
+        WVLOG_E("[TRANSFER] getPropertySafe failed");
+        return;
+    }
+
+    double sizeRef = 0;
+    double indexRef = 0;
+    if ((env->Object_CallMethodByName_Double(
+            static_cast<ani_object>(sizeProperty), "toNumber", ":D", &sizeRef) != ANI_OK) ||
+        (env->Object_CallMethodByName_Double(
+            static_cast<ani_object>(indexProperty), "toNumber", ":D", &indexRef) != ANI_OK)) {
+        WVLOG_E("[TRANSFER] ESValue toNumber failed");
+        return;
+    }
+
+    void* nativePtr = nullptr;
+    if (!arkts_esvalue_unwrap(env, input, &nativePtr) || nativePtr == nullptr) {
+        WVLOG_E("[TRANSFER] arkts_esvalue_unwrap failed");
+        return;
+    }
+    if (!AniParseUtils::Wrap(env, output, ANI_BACK_FORWARD_LIST_INNER_CLASS_NAME,
+                             reinterpret_cast<ani_long>(nativePtr))) {
+        WVLOG_E("[TRANSFER] BackForwardList wrap failed");
+        return;
+    }
+
+    int32_t size = static_cast<int32_t>(sizeRef);
+    int32_t currentIndex = static_cast<int32_t>(indexRef);
+    if (size >= 0) {
+        env->Object_SetPropertyByName_Int(output, "size", static_cast<ani_int>(size));
+    }
+    if (currentIndex >= 0) {
+        env->Object_SetPropertyByName_Int(output, "currentIndex", static_cast<ani_int>(currentIndex));
+    }
+}
+
 ani_status StsBackForwardListInit(ani_env *env)
 {
     ani_class backForwardListCls = nullptr;
@@ -2189,6 +2257,8 @@ ani_status StsBackForwardListInit(ani_env *env)
 
     std::array methodArray = {
         ani_native_function { "getItemAtIndex", nullptr, reinterpret_cast<void *>(GetItemAtIndex) },
+        ani_native_function { "transferBackForwardListToStaticInner", nullptr,
+                              reinterpret_cast<void *>(TransferBackForwardListToStaticInner) },
     };
 
     status = env->Class_BindNativeMethods(backForwardListCls, methodArray.data(), methodArray.size());
@@ -2219,6 +2289,37 @@ static void Close(ani_env* env, ani_object object)
     return;
 }
 
+static void TransferWebMessagePortToStaticInner(ani_env* env, ani_class aniClass, ani_object output,
+                                                ani_object input, ani_boolean extType)
+{
+    if (env == nullptr) {
+        WVLOG_E("[TRANSFER] env is nullptr");
+        return;
+    }
+
+    void* nativePtr = nullptr;
+    if (!arkts_esvalue_unwrap(env, input, &nativePtr) || nativePtr == nullptr) {
+        WVLOG_E("[TRANSFER] arkts_esvalue_unwrap failed");
+        return;
+    }
+
+    if (!AniParseUtils::Wrap(env, output, ANI_WEB_MESSAGE_PORT_INNER_CLASS_NAME,
+                             reinterpret_cast<ani_long>(nativePtr))) {
+        WVLOG_E("[TRANSFER] WebMessagePort wrap failed");
+        return;
+    }
+
+    bool isExtentionType = static_cast<bool>(extType);
+    ani_object jsType = {};
+    if (!AniParseUtils::CreateBoolean(env, isExtentionType, jsType)) {
+        return;
+    }
+    if (env->Object_SetPropertyByName_Ref(output, "isExtentionType", static_cast<ani_ref>(jsType)) != ANI_OK) {
+        WVLOG_E("[TRANSFER] set isExtentionType failed");
+        return;
+    }
+}
+
 ani_status StsWebMessagePortInit(ani_env* env)
 {
     ani_class webMessagePortCls = nullptr;
@@ -2229,6 +2330,8 @@ ani_status StsWebMessagePortInit(ani_env* env)
     }
     std::array methodArray = {
         ani_native_function { "close", nullptr, reinterpret_cast<void*>(Close) },
+        ani_native_function { "transferWebMessagePortToStaticInner", nullptr,
+                              reinterpret_cast<void *>(TransferWebMessagePortToStaticInner) },
     };
     status = env->Class_BindNativeMethods(webMessagePortCls, methodArray.data(), methodArray.size());
     if (status != ANI_OK) {
@@ -4190,6 +4293,174 @@ ani_status StsWebMessageExtInit(ani_env* env)
     return status;
 }
 
+ErrCode ConstructFlowbuf(ani_env* env, ani_object script, int& fd, size_t& scriptLength)
+{
+    auto flowbufferAdapter = OhosAdapterHelper::GetInstance().CreateFlowbufferAdapter();
+    if (!flowbufferAdapter) {
+        return NWebError::NEW_OOM;
+    }
+    flowbufferAdapter->StartPerformanceBoost();
+    std::string scriptStr;
+    if (AniParseUtils::IsString(env, script)) {
+        if (!AniParseUtils::ParseString(env, script, scriptStr)) {
+            WVLOG_I("script is string constructstringflowbuf");
+            return AniParseUtils::ConstructStringFlowbuf(env, scriptStr, fd, scriptLength);
+        }
+    }
+    return AniParseUtils::ConstructArrayBufFlowbuf(env, script, fd, scriptLength);
+}
+
+static void RunJavaScriptInternal(
+    ani_env* env, ani_object object, const std::string& script, ani_object callback, bool extention)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    WVLOG_I("enter RunJavaScriptInternal");
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    ani_class functionClass;
+    env->FindClass("Lstd/core/Function;", &functionClass);
+    ani_boolean isFunction;
+    env->Object_InstanceOf(callback, functionClass, &isFunction);
+    if (!isFunction) {
+        WVLOG_I("callback is not fountion");
+        return;
+    }
+    int32_t nwebId = controller->GetNWebId();
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId);
+    if (!nweb_ptr) {
+        WVLOG_I("nweb_ptr is null");
+        ani_status status;
+        std::vector<ani_ref> resultRef(CALLBACK_PARAM_LENGTH);
+        resultRef[0] = OHOS::NWeb::CreateStsError(
+            env, static_cast<ani_int>(NWebError::INIT_ERROR), GetErrMsgByErrCode(INIT_ERROR));
+        env->GetNull(&resultRef[1]);
+        ani_ref jsCallback = nullptr;
+        env->GlobalReference_Create(callback, &jsCallback);
+        if (jsCallback) {
+            ani_ref fnReturnVal;
+            if ((status = env->FunctionalObject_Call(static_cast<ani_fn_object>(jsCallback), resultRef.size(),
+                     resultRef.data(), &fnReturnVal)) != ANI_OK) {
+                WVLOG_E("error callback FunctionalObject_Call Failed status : %{public}d!", status);
+            } else {
+                WVLOG_I("error callback FunctionalObject_Call Success!");
+            }
+        }
+        env->GlobalReference_Delete(jsCallback);
+        return;
+    }
+    if (callback) {
+        auto callbackImpl = std::make_shared<WebviewJavaScriptExecuteCallback>(env, callback, nullptr, extention);
+        nweb_ptr->ExecuteJavaScript(script, callbackImpl, extention);
+    }
+    return;
+}
+
+static void RunJSBackToOriginal(ani_env* env, ani_object object, ani_object script, ani_object callback, bool extention)
+{
+    std::string scriptStr;
+    bool parseResult = false;
+    if (AniParseUtils::IsString(env, script)) {
+        parseResult = AniParseUtils::ParseString(env, script, scriptStr);
+    }
+    WVLOG_I("in RunJSBackToOriginal parseResult : %{public}d", parseResult);
+
+    if (!parseResult) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    return RunJavaScriptInternal(env, object, scriptStr, callback, extention);
+}
+
+static void RunJavaScriptInternalExt(
+    ani_env* env, ani_object object, ani_object script, ani_object callbackObj, bool extention)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    int fd;
+    size_t scriptLength;
+    ErrCode constructResult = ConstructFlowbuf(env, script, fd, scriptLength);
+    if (constructResult != NO_ERROR) {
+        return RunJSBackToOriginal(env, object, script, callbackObj, extention);
+    }
+    usedFd_++;
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        close(fd);
+        usedFd_--;
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    int32_t nwebId = controller->GetNWebId();
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId);
+    if (!nweb_ptr) {
+        std::vector<ani_ref> resultRef(CALLBACK_PARAM_LENGTH);
+        resultRef[0] = OHOS::NWeb::CreateStsError(
+            env, static_cast<ani_int>(NWebError::INIT_ERROR), GetErrMsgByErrCode(INIT_ERROR));
+        env->GetNull(&resultRef[1]);
+        ani_ref jsCallback = nullptr;
+        env->GlobalReference_Create(callbackObj, &jsCallback);
+        if (jsCallback) {
+            ani_ref fnReturnVal;
+            env->FunctionalObject_Call(
+                static_cast<ani_fn_object>(jsCallback), resultRef.size(), resultRef.data(), &fnReturnVal);
+        }
+        env->GlobalReference_Delete(jsCallback);
+        return;
+    }
+    if (callbackObj) {
+        auto callbackImpl = std::make_shared<WebviewJavaScriptExecuteCallback>(env, callbackObj, nullptr, extention);
+        nweb_ptr->ExecuteJavaScriptExt(fd, scriptLength, callbackImpl, extention);
+    } else {
+        close(fd);
+    }
+    usedFd_--;
+    return;
+}
+
+static void RunJSCallback(ani_env* env, ani_object object, ani_object script, ani_object callbackObj, bool extention)
+{
+    WVLOG_I("enter RunJSCallback");
+    if (maxFdNum_ == -1) {
+        maxFdNum_ = std::atoi(NWebAdapterHelper::Instance().ParsePerfConfig("flowBufferConfig", "maxFdNumber").c_str());
+    }
+    if (usedFd_.load() < maxFdNum_) {
+        WVLOG_I("enter RunJavaScriptInternalExt in RunJSCallback");
+        return RunJavaScriptInternalExt(env, object, script, callbackObj, extention);
+    }
+
+    std::string scriptStr;
+    bool parseResult = (AniParseUtils::IsString(env, script)) ? AniParseUtils::ParseString(env, script, scriptStr)
+                                                              : AniParseUtils::ParseArrayBuffer(env, script, scriptStr);
+    if (!parseResult) {
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "script", "string"));
+        return;
+    }
+
+    WVLOG_I("enter RunJavaScriptInternal in RunJSCallback");
+    return RunJavaScriptInternal(env, object, scriptStr, callbackObj, extention);
+}
+
+static void RunJavaScriptCallback(ani_env* env, ani_object object, ani_object script, ani_object callbackObj)
+{
+    WVLOG_I("start RunJavaScriptCallback");
+    return RunJSCallback(env, object, script, callbackObj, false);
+}
+
+static void RunJavaScriptCallbackExt(ani_env* env, ani_object object, ani_object script, ani_object callbackObj)
+{
+    WVLOG_I("start RunJavaScriptCallback");
+    return RunJSCallback(env, object, script, callbackObj, true);
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     WVLOG_D("[DOWNLOAD] StsWebviewControllerInit");
@@ -4324,6 +4595,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "setWebSchemeHandler", nullptr, reinterpret_cast<void *>(SetWebSchemeHandler) },
         ani_native_function { "setServiceWorkerWebSchemeHandler", nullptr, 
                               reinterpret_cast<void *>(SetServiceWorkerWebSchemeHandler) },
+        ani_native_function { "runJavaScriptCallback", nullptr, reinterpret_cast<void *>(RunJavaScriptCallback) },
+        ani_native_function { "runJavaScriptCallbackExt", nullptr, reinterpret_cast<void *>(RunJavaScriptCallbackExt) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
