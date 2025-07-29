@@ -1244,7 +1244,7 @@ export default namespace webview {
 
         static transferWebMessagePortToStatic(input: Any): Object {
             let wmpObject: WebMessagePortInner = new WebMessagePortInner();
-            if (input == undefined || input == null) {
+            if (input === undefined || input === null) {
                 throw new Error("input object is null or undefined");
             }
             let dyESValue = ESValue.wrap(input);
