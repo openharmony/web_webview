@@ -100,6 +100,7 @@ std::unordered_map<pid_t, std::unordered_map<int32_t, ResSchedStatusAdapter>> g_
 std::unordered_map<int32_t, std::vector<pid_t>> g_nwebProcessMap;
 std::unordered_set<pid_t> g_processInUse;
 std::mutex g_windowIdMutex {};
+std::mutex g_processInUseMutex {};
 int32_t g_windowId = INVALID_NUMBER;
 int32_t g_nwebId = INVALID_NUMBER;
 pid_t g_lastPid = INVALID_PID;
@@ -236,9 +237,12 @@ void ReportStatusData(ResSchedStatusAdapter statusAdapter,
     }
 
     ProductDeviceType deviceType = SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType();
-    if (deviceType == ProductDeviceType::DEVICE_TYPE_MOBILE || g_processInUse.count(pid)) {
-        if (isSiteManage && IsSameSourceWebSiteActive(statusAdapter, pid, nwebId)) {
-            return;
+    {
+        std::lock_guard<std::mutex> lock(g_processInUseMutex);
+        if (deviceType == ProductDeviceType::DEVICE_TYPE_MOBILE || g_processInUse.count(pid)) {
+            if (isSiteManage && IsSameSourceWebSiteActive(statusAdapter, pid, nwebId)) {
+                return;
+            }
         }
     }
 
@@ -303,6 +307,7 @@ bool ResSchedClientAdapter::ReportKeyThread(
     }
 
     if (pid == tid && statusAdapter == ResSchedStatusAdapter::THREAD_DESTROYED) {
+        std::lock_guard<std::mutex> lock(g_processInUseMutex);
         g_processInUse.erase(pid);
     }
 
@@ -342,7 +347,10 @@ void ResSchedClientAdapter::ReportProcessInUse(pid_t pid)
         nwebId = g_pidNwebMap[pid].begin()->first;
     }
 
-    g_processInUse.insert(pid);
+    {
+        std::lock_guard<std::mutex> lock(g_processInUseMutex);
+        g_processInUse.insert(pid);
+    }
 
     if (nwebId != INVALID_NUMBER) {
         g_nwebProcessMap[nwebId].push_back(pid);
