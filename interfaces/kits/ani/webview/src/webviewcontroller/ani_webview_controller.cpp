@@ -68,8 +68,8 @@
 #include "ani_webview_createpdf_execute_callback.h"
 #include "web_history_list.h"
 #include "web_message_port.h"
-#include "arkcompiler/runtime_core/static_core/plugins/ets/runtime/libani_helpers/interop_js/arkts_esvalue.h"
-#include "arkcompiler/runtime_core/static_core/plugins/ets/runtime/libani_helpers/interop_js/arkts_interop_js_api.h"
+#include "interop_js/arkts_esvalue.h"
+#include "interop_js/arkts_interop_js_api.h"
 #include "ohos_adapter_helper.h"
 #include "nweb_adapter_helper.h"
 
@@ -427,7 +427,10 @@ static void Clean(ani_env *env, ani_object object)
     if (clsName == "WebviewController") {
         delete reinterpret_cast<WebviewController *>(ptr);
     } else if (clsName == "WebHistoryList") {
-        delete reinterpret_cast<WebHistoryList *>(ptr);
+        WebHistoryList *historyList = reinterpret_cast<WebHistoryList *>(ptr);
+        if (historyList && historyList->DecRefCount() <= 0) {
+            delete historyList;
+        }
     } else if (clsName == "ProxyConfig") {
         delete reinterpret_cast<ProxyConfig *>(ptr);
     } else if (clsName == "WebSchemeHandlerResponse") {
@@ -441,7 +444,10 @@ static void Clean(ani_env *env, ani_object object)
     } else if (clsName == "WebDownloadManager") {
         delete reinterpret_cast<WebDownloadManager *>(ptr);
     } else if (clsName == "WebMessagePort") {
-        delete reinterpret_cast<WebMessagePort *>(ptr);
+        WebMessagePort *msgPort = reinterpret_cast<WebMessagePort *>(ptr);
+        if (msgPort && msgPort->DecRefCount() <= 0) {
+            delete msgPort;
+        }
     } else {
         WVLOG_E("Clean unsupport className: %{public}s", clsName.c_str());
     }
@@ -1581,6 +1587,7 @@ static ani_ref GetBackForwardEntries(ani_env *env, ani_object object)
         webHistoryList = nullptr;
         return nullptr;
     }
+    webHistoryList->IncRefCount();
 
     env->Object_SetPropertyByName_Int(backForwardObj, "currentIndex", static_cast<ani_int>(currentIndex));
     env->Object_SetPropertyByName_Int(backForwardObj, "size", static_cast<ani_int>(size));
@@ -2104,61 +2111,27 @@ static ani_ref GetItemAtIndex(ani_env *env, ani_object object, ani_int aniIndex)
     return historyItemListObj;
 }
 
-static void TransferBackForwardListToStaticInner(ani_env* env, ani_class aniClass, ani_object output, ani_object input)
+static ani_boolean TransferBackForwardListToStaticInner(
+    ani_env* env, ani_class aniClass, ani_object output, ani_object input)
 {
     if (env == nullptr) {
-        return;
-    }
-
-    std::string sizeName = "size";
-    std::string indexName = "currentIndex";
-    ani_string sizePropertyName {};
-    ani_string indexPropertyName {};
-    if ((env->String_NewUTF8(sizeName.c_str(), sizeName.size(), &sizePropertyName) != ANI_OK) ||
-        (env->String_NewUTF8(indexName.c_str(), indexName.size(), &indexPropertyName) != ANI_OK)) {
-        WVLOG_E("[TRANSFER] String_NewUTF8 failed");
-        return;
-    }
-
-    ani_ref sizeProperty {};
-    ani_ref indexProperty {};
-    if ((env->Object_CallMethodByName_Ref(input, "getPropertySafe", "C{std.core.String}:C{std:interop:ESValue}",
-            &sizeProperty, sizePropertyName) != ANI_OK) ||
-        (env->Object_CallMethodByName_Ref(input, "getPropertySafe", "C{std.core.String}:C{std:interop:ESValue}",
-            &indexProperty, indexPropertyName) != ANI_OK)) {
-        WVLOG_E("[TRANSFER] getPropertySafe failed");
-        return;
-    }
-
-    double sizeRef = 0;
-    double indexRef = 0;
-    if ((env->Object_CallMethodByName_Double(
-            static_cast<ani_object>(sizeProperty), "toNumber", ":D", &sizeRef) != ANI_OK) ||
-        (env->Object_CallMethodByName_Double(
-            static_cast<ani_object>(indexProperty), "toNumber", ":D", &indexRef) != ANI_OK)) {
-        WVLOG_E("[TRANSFER] ESValue toNumber failed");
-        return;
+        return ANI_FALSE;
     }
 
     void* nativePtr = nullptr;
     if (!arkts_esvalue_unwrap(env, input, &nativePtr) || nativePtr == nullptr) {
         WVLOG_E("[TRANSFER] arkts_esvalue_unwrap failed");
-        return;
-    }
-    if (!AniParseUtils::Wrap(env, output, ANI_BACK_FORWARD_LIST_INNER_CLASS_NAME,
-                             reinterpret_cast<ani_long>(nativePtr))) {
-        WVLOG_E("[TRANSFER] BackForwardList wrap failed");
-        return;
+        return ANI_FALSE;
     }
 
-    int32_t size = static_cast<int32_t>(sizeRef);
-    int32_t currentIndex = static_cast<int32_t>(indexRef);
-    if (size >= 0) {
-        env->Object_SetPropertyByName_Int(output, "size", static_cast<ani_int>(size));
+    WebHistoryList *webHistoryList = reinterpret_cast<WebHistoryList *>(nativePtr)
+    if (!AniParseUtils::Wrap(env, output, ANI_BACK_FORWARD_LIST_INNER_CLASS_NAME,
+                             reinterpret_cast<ani_long>(webHistoryList))) {
+        WVLOG_E("[TRANSFER] BackForwardList wrap failed");
+        return ANI_FALSE;
     }
-    if (currentIndex >= 0) {
-        env->Object_SetPropertyByName_Int(output, "currentIndex", static_cast<ani_int>(currentIndex));
-    }
+    webHistoryList->IncRefCount();
+    return ANI_TRUE;
 }
 
 ani_status StsBackForwardListInit(ani_env *env)
@@ -2204,35 +2177,38 @@ static void Close(ani_env* env, ani_object object)
     return;
 }
 
-static void TransferWebMessagePortToStaticInner(ani_env* env, ani_class aniClass, ani_object output,
-                                                ani_object input, ani_boolean extType)
+static ani_boolean TransferWebMessagePortToStaticInner(ani_env* env, ani_class aniClass, ani_object output,
+                                                       ani_object input, ani_boolean extType)
 {
     if (env == nullptr) {
         WVLOG_E("[TRANSFER] env is nullptr");
-        return;
+        return ANI_FALSE;
     }
 
     void* nativePtr = nullptr;
     if (!arkts_esvalue_unwrap(env, input, &nativePtr) || nativePtr == nullptr) {
         WVLOG_E("[TRANSFER] arkts_esvalue_unwrap failed");
-        return;
+        return ANI_FALSE;
     }
 
+    WebMessagePort* msgPort = reinterpret_cast<WebMessagePort>(nativePtr)
     if (!AniParseUtils::Wrap(env, output, ANI_WEB_MESSAGE_PORT_INNER_CLASS_NAME,
-                             reinterpret_cast<ani_long>(nativePtr))) {
+                             reinterpret_cast<ani_long>(msgPort))) {
         WVLOG_E("[TRANSFER] WebMessagePort wrap failed");
-        return;
+        return ANI_FALSE;
     }
+    msgPort->IncRefCount();
 
     bool isExtentionType = static_cast<bool>(extType);
     ani_object jsType = {};
     if (!AniParseUtils::CreateBoolean(env, isExtentionType, jsType)) {
-        return;
+        return ANI_FALSE;
     }
     if (env->Object_SetPropertyByName_Ref(output, "isExtentionType", static_cast<ani_ref>(jsType)) != ANI_OK) {
         WVLOG_E("[TRANSFER] set isExtentionType failed");
-        return;
+        return ANI_FALSE;
     }
+    return ANI_TRUE;
 }
 
 ani_status StsWebMessagePortInit(ani_env* env)
@@ -2297,6 +2273,7 @@ static bool CreateWebMessagePortObj(
         webMessagePort = nullptr;
         return false;
     }
+    webMessagePort->IncRefCount();
     return true;
 }
 

@@ -19,11 +19,12 @@
 #include "web_errors.h"
 #include "nweb_helper.h"
 #include "nweb_log.h"
+#include "transfer_referenced_count.h"
 
 namespace OHOS {
 namespace NWeb {
 
-class WebMessagePort {
+class WebMessagePort : public TransferReferencedCount {
 public:
     WebMessagePort(int32_t nwebId, std::string& port, bool isExtentionType);
 
