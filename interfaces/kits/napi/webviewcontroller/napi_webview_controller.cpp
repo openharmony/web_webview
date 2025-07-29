@@ -2237,9 +2237,12 @@ napi_value NapiWebMessagePort::JsConstructor(napi_env env, napi_callback_info in
     NAPI_CALL(env, napi_wrap(env, thisVar, msgPort,
         [](napi_env env, void *data, void *hint) {
             WebMessagePort *msgPort = static_cast<WebMessagePort *>(data);
-            delete msgPort;
+            if (msgPort && msgPort->DecRefCount() <= 0) {
+                delete msgPort;
+            }
         },
         nullptr, nullptr));
+    msgPort->IncRefCount();
     return thisVar;
 }
 
@@ -4150,10 +4153,13 @@ napi_value NapiWebviewController::getBackForwardEntries(napi_env env, napi_callb
     NAPI_CALL(env, napi_wrap(env, result, webHistoryList,
         [](napi_env env, void *data, void *hint) {
             WebHistoryList *webHistoryList = static_cast<WebHistoryList *>(data);
-            delete webHistoryList;
+            if (webHistoryList && webHistoryList->DecRefCount() <= 0) {
+                delete webHistoryList;
+            }
         },
         nullptr, nullptr));
 
+    webHistoryList->IncRefCount();
     return result;
 }
 
@@ -7360,10 +7366,12 @@ static napi_value CreateBackForwardList(
     NAPI_CALL(env, napi_wrap(env, jsValue, webHistoryList,
         [](napi_env env, void *data, void *hint) {
             WebHistoryList *webHistoryList = static_cast<WebHistoryList *>(data);
-            delete webHistoryList;
+            if (webHistoryList && webHistoryList->DecRefCount() <= 0) {
+                delete webHistoryList;
+            }
         },
         nullptr, nullptr));
-    
+    webHistoryList->IncRefCount();
     napi_property_descriptor resultFuncs[] = {
         DECLARE_NAPI_FUNCTION("getItemAtIndex", NapiWebHistoryList::GetItem)
     };
@@ -7396,6 +7404,10 @@ napi_value ArkWebTransfer::CreateBackForwardListTransfer(napi_env env, napi_call
     }
 
     WebHistoryList* historyList =  reinterpret_cast<WebHistoryList*>(addr);
+    if (historyList == nullptr) {
+        WVLOG_E("[CreateBackForwardListTransfer] historyList is null");
+        return result;
+    }
     napi_value jsValue = CreateBackForwardList(env, historyList, currentIndex, size);
     if (jsValue) {
         return jsValue;
@@ -7415,9 +7427,12 @@ static napi_value CreateMessagePort(napi_env env, WebMessagePort* messagePort, b
     NAPI_CALL(env, napi_wrap(env, jsValue, messagePort,
         [](napi_env env, void *data, void *hint) {
             WebMessagePort *msgPort = static_cast<WebMessagePort *>(data);
-            delete msgPort;
+            if (msgPort && msgPort->DecRefCount() <= 0) {
+                delete msgPort;
+            }
         },
         nullptr, nullptr));
+    messagePort->IncRefCount();
     
     napi_property_descriptor resultFuncs[] = {
         DECLARE_NAPI_FUNCTION("close", NapiWebMessagePort::Close),
@@ -7453,6 +7468,10 @@ napi_value ArkWebTransfer::CreateWebMessagePortTransfer(napi_env env, napi_callb
     }
 
     WebMessagePort* messagePort =  reinterpret_cast<WebMessagePort*>(addr);
+    if (messagePort == nullptr) {
+        WVLOG_E("[CreateWebMessagePortTransfer] messagePort is null");
+        return result;
+    }
     napi_value jsValue = CreateMessagePort(env, messagePort, isExtentionType);
     if (jsValue) {
         return jsValue;
