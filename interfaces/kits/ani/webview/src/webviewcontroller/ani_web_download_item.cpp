@@ -553,11 +553,16 @@ ani_status StsWebDownLoadItemInit(ani_env* env)
         ani_native_function { "resume", nullptr, reinterpret_cast<void*>(Resume) },
         ani_native_function { "pause", nullptr, reinterpret_cast<void*>(Pause) },
         ani_native_function { "serializeInternal", nullptr, reinterpret_cast<void*>(SerializeInternal) },
-        ani_native_function { "deserializeInternal", nullptr, reinterpret_cast<void*>(DeserializeInternal) },
     };
     status = env->Class_BindNativeMethods(aniCls, allMethods.data(), allMethods.size());
     if (status != ANI_OK) {
         WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+        return ANI_ERROR;
+    }
+    ani_native_function staticMethod { "deserializeInternal", nullptr, reinterpret_cast<void*>(DeserializeInternal) };
+    status = env->Class_BindStaticNativeMethods(aniCls, &staticMethod, 1);
+    if (status != ANI_OK) {
+        WVLOG_E("Class_BindStaticNativeMethods failed status: %{public}d", status);
         return ANI_ERROR;
     }
     return ANI_OK;
