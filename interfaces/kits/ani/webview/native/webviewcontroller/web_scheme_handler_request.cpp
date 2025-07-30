@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -53,7 +53,11 @@ bool Wrap(ani_env* env, const ani_object& object, const char* className, const a
 }
 
 bool CreateObjectVoid(ani_env *env, const char *className, ani_object& object)
-{
+{   
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
     ani_class cls;
     ani_status status = env->FindClass(className, &cls);
     if (status != ANI_OK) {
@@ -130,7 +134,11 @@ void OnRequestStop(const ArkWeb_SchemeHandler* schemeHandler, const ArkWeb_Resou
 } // namespace
 
 WebSchemeHandlerRequest::WebSchemeHandlerRequest(ani_env* env) : env_(env)
-{
+{   
+    if (vm_ == nullptr) {
+        WVLOG_E("vm_ is nullptr");
+        return;
+    }
     if (env_->GetVM(&vm_) != ANI_OK) {
         WVLOG_E("Failed to get VM from env");
         return;
@@ -255,7 +263,7 @@ WebSchemeHandler* WebSchemeHandler::GetWebSchemeHandler(const ArkWeb_SchemeHandl
 
 WebSchemeHandler::WebSchemeHandler(ani_env* env) : vm_(nullptr)
 {
-    WVLOG_E("create WebSchemeHandler");
+    WVLOG_I("create WebSchemeHandler");
     if (!env) {
         WVLOG_E("create WebSchemeHandler env null");
         return;
@@ -280,6 +288,10 @@ WebSchemeHandler::WebSchemeHandler(ani_env* env) : vm_(nullptr)
 WebSchemeHandler::~WebSchemeHandler()
 {
     WVLOG_I("WebSchemeHandler::~WebSchemeHandler");
+    if (!request_start_callback_) {
+        WVLOG_E("WebSchemeHandler request_start_callback_ is null.");
+        return;
+    }
     GetEnv()->GlobalReference_Delete(request_start_callback_);
     GetEnv()->GlobalReference_Delete(request_stop_callback_);
     ArkWeb_SchemeHandler* handler = const_cast<ArkWeb_SchemeHandler*>(GetArkWebSchemeHandler(this));
@@ -398,7 +410,11 @@ void WebSchemeHandler::RequestStop(const ArkWeb_ResourceRequest* resourceRequest
 }
 
 void WebSchemeHandler::PutRequestStart(ani_env* env, ani_vm* vm, ani_fn_object callback)
-{
+{   
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
     WVLOG_I("WebSchemeHandler::PutRequestStart");
     if (!vm) {
         WVLOG_E("PutRequestStart vm null");
@@ -411,7 +427,11 @@ void WebSchemeHandler::PutRequestStart(ani_env* env, ani_vm* vm, ani_fn_object c
     }
 }
 void WebSchemeHandler::PutRequestStop(ani_env* env, ani_vm* vm, ani_fn_object callback)
-{
+{   
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
     WVLOG_I("WebSchemeHandler::PutRequestStop");
     if (!vm) {
         WVLOG_E("PutRequestStop vm null");
@@ -436,7 +456,7 @@ WebResourceHandler::WebResourceHandler(ani_env* env)
 WebResourceHandler::WebResourceHandler(ani_env* env, const ArkWeb_ResourceHandler* handler)
     : handler_(const_cast<ArkWeb_ResourceHandler*>(handler))
 {
-    WVLOG_E("create WebResourceHandler");
+    WVLOG_I("create WebResourceHandler");
     if (env->GetVM(&vm_) != ANI_OK) {
         WVLOG_E("Failed to get VM from env");
         return;
@@ -445,7 +465,7 @@ WebResourceHandler::WebResourceHandler(ani_env* env, const ArkWeb_ResourceHandle
 
 WebResourceHandler::~WebResourceHandler()
 {
-    WVLOG_E("~WebResourceHandler");
+    WVLOG_I("~WebResourceHandler");
 }
 
 int32_t WebResourceHandler::DidReceiveResponse(const ArkWeb_Response* response)
