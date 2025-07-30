@@ -83,12 +83,12 @@ static ani_boolean IsMainFrame(ani_env* env, ani_object object)
     WVLOG_I("isMainFrame start");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
-        return ANI_TRUE;
+        return ANI_FALSE;
     }
     auto* request = reinterpret_cast<WebSchemeHandlerRequest*>(AniParseUtils::Unwrap(env, object));
     if (!request) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
-        return ANI_TRUE;
+        return ANI_FALSE;
     }
     ani_boolean value = (request->IsMainFrame() ? 1 : 0);
     return value;
@@ -184,8 +184,12 @@ static ani_string GetRequestUrl(ani_env* env, ani_object object)
 }
 
 bool GetHeaderProcessItems(ani_env* env, std::vector<std::pair<std::string, std::string>> values, ani_array_ref& array)
-{
+{   
     WVLOG_I("GetHeaderProcessItems begin");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
     ani_class stringCls;
     if (ANI_OK != env->FindClass("L@ohos/web/webview/webview/GetHeaderWebHeader;", &stringCls)) {
         WVLOG_E("getHeader find class failed.");
@@ -242,7 +246,7 @@ static ani_ref GetHeader(ani_env* env, ani_object object)
     }
     ani_method personInfoCtor;
     if (ANI_OK != env->Class_FindMethod(stringCls, "<ctor>", nullptr, &personInfoCtor)) {
-        WVLOG_E("getHeader GetUndefined Failed.");
+        WVLOG_E("getHeader Class_FindMethod Failed.");
         return nullptr;
     }
 
