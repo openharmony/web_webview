@@ -52,7 +52,7 @@ bool AniParseUtils::ParseString(ani_env *env, ani_ref ref, std::string& outValue
 bool AniParseUtils::IsString(ani_env *env, const ani_object& object)
 {
     ani_class stringCls;
-    ani_status status = env->FindClass("Lstd/core/String;", &stringCls);
+    ani_status status = env->FindClass("std.core.String", &stringCls);
     if (status != ANI_OK) {
         WVLOG_E("AniUtils_IsString FindClass status: %{public}d", status);
         return false;
@@ -66,7 +66,7 @@ bool AniParseUtils::IsResource(ani_env *env, const ani_object& object)
 {
     ani_class resourceCls;
     ani_status status =
-        env->FindClass("Lglobal/resource/Resource;", &resourceCls);
+        env->FindClass("global.resource.Resource", &resourceCls);
     if (status != ANI_OK) {
         WVLOG_E("AniUtils_IsResource FindClass status: %{public}d", status);
         return false;
@@ -425,7 +425,6 @@ bool AniParseUtils::ParseJsLengthStringToInt(const std::string& input, PixelUnit
         }
         return false;
 }
-
 bool AniParseUtils::ParseInt32(ani_env* env, ani_ref ref, int32_t& outValue)
 {
     if (env == nullptr) {
