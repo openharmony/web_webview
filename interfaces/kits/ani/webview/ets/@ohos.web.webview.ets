@@ -887,37 +887,6 @@ export default namespace webview {
         native isEof(): boolean;
         native getSize():number;
 	    native getPosition():number;
-        native static initializeSync(): void;
-        initialize(): Promise<void> {
-            let pPromise = new Promise<void>((resolve: (v: undefined) => void,
-                                              reject: (error: Object) => void): void => {
-                let pPromise1 = taskpool.execute(():undefined => {
-                    WebHttpBodyStream.initializeSync();
-                    return undefined});
-                pPromise1.then((e :NullishType): void=>{
-                    resolve(undefined);
-                }, (err:Object): void => {
-                    reject(err);
-                });
-            });
-            return pPromise;
-        }
-        native static readSync(size: number): ArrayBuffer;
-        read(size: number): Promise<ArrayBuffer> {
-            let pPromise = new Promise<ArrayBuffer>((resolve: (v: ArrayBuffer) => void,
-            reject: (error: Error) => void) => {
-                let pPromise1 = taskpool.execute((): ArrayBuffer => {
-                    return WebHttpBodyStream.readSync(size);
-                });
-                pPromise1.then((e: NullishType) => {
-                    let r = e as ArrayBuffer;
-                    resolve(r);
-                }, (error: Error): void => {
-                    reject(error);
-                });
-            });
-            return pPromise;
-        }
     }
 
     export class WebDownloadItem {
