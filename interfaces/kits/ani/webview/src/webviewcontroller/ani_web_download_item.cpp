@@ -478,9 +478,9 @@ static ani_object DeserializeInternal(ani_env* env, ani_object object, ani_objec
     }
 
     std::string dataStr(length, '\0');
-    for (ani_size i = 0; i < length; i++) {
+    for (ani_int i = 0; i < length; i++) {
         ani_byte value;
-        status = env->Object_CallMethodByName_Byte(arrayObject, "at", "I:B", &value, static_cast<ani_int>(i));
+        status = env->Object_CallMethodByName_Byte(arrayObject, "at", "I:B", &value, i);
         if (status != ANI_OK) {
             WVLOG_E("[DOWNLOAD]arrayBufferObj at() failed, status is %{public}d.", status);
             return nullptr;
