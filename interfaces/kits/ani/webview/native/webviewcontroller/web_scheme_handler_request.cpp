@@ -288,10 +288,6 @@ WebSchemeHandler::WebSchemeHandler(ani_env* env) : vm_(nullptr)
 WebSchemeHandler::~WebSchemeHandler()
 {
     WVLOG_I("WebSchemeHandler::~WebSchemeHandler");
-    if (!request_start_callback_) {
-        WVLOG_E("WebSchemeHandler request_start_callback_ is null.");
-        return;
-    }
     GetEnv()->GlobalReference_Delete(request_start_callback_);
     GetEnv()->GlobalReference_Delete(request_stop_callback_);
     ArkWeb_SchemeHandler* handler = const_cast<ArkWeb_SchemeHandler*>(GetArkWebSchemeHandler(this));
