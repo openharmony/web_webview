@@ -207,6 +207,7 @@ bool GetHeaderProcessItems(ani_env* env, std::vector<std::pair<std::string, std:
         ani_status status = env->Object_New(stringCls, personInfoCtor, &webHeaderObj);
         if (status != ANI_OK) {
             WVLOG_E("getHeader new object error.");
+            return false;
         }
         env->String_NewUTF8(values[i].first.c_str(), values[i].first.size(), &headerKey);
         env->String_NewUTF8(values[i].second.c_str(), values[i].second.size(), &headerValue);
