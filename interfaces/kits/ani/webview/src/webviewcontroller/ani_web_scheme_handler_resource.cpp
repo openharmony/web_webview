@@ -90,7 +90,7 @@ static void JsDidFinish(ani_env* env, ani_object object)
 
 static void Constructor(ani_env* env, ani_object object)
 {
-    WVLOG_E("WebResourceHandler WebResourceHandler native Constructor");
+    WVLOG_I("WebResourceHandler WebResourceHandler native Constructor");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
