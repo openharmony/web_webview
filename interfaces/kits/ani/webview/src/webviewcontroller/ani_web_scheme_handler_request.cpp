@@ -33,8 +33,8 @@ namespace NWeb {
 
 using namespace NWebError;
 using NWebError::NO_ERROR;
-const char* WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME = "L@ohos/web/webview/webview/WebSchemeHandlerRequest;";
 namespace {
+const char* WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME = "L@ohos/web/webview/webview/WebSchemeHandlerRequest;";
 const char* ANI_CLASS_WEB_RESOURCETYPE = "L@ohos/web/webview/webview/WebResourceType;";
 } // namespace
 
