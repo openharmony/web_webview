@@ -48,6 +48,7 @@ ohos_shared_library("webview_ani") {
     "./src/common/ani_business_error.cpp",
     "./src/common/ani_parse_utils.cpp",
     "./src/common/ani_parse_utils.h",
+    "./src/common/ani_web_net_error_list.h",
     "./src/webstorage/ani_web_storage.cpp",
     "./src/webadsblockmanager/ani_web_adsblock_manager.h",
     "./src/webadsblockmanager/ani_web_adsblock_manager.cpp",
@@ -65,6 +66,8 @@ ohos_shared_library("webview_ani") {
     "./src/webviewcontroller/ani_web_scheme_handler.h",
     "./src/webviewcontroller/ani_web_scheme_handler_response.cpp",
     "./src/webviewcontroller/ani_web_scheme_handler_response.h",
+    "./src/webviewcontroller/ani_web_http_body_stream.cpp",
+    "./src/webviewcontroller/ani_web_http_body_stream.h",
     "./src/webviewcontroller/ani_web_download_delegate.cpp",
     "./src/webviewcontroller/ani_web_download_item.cpp",
     "./src/webviewcontroller/ani_web_download_manager.cpp",
@@ -153,6 +156,7 @@ generate_static_abc("web_webview") {
   base_url = "./ets"
   files = [
     "./ets/@ohos.web.webview.ets",
+    "./ets/@ohos.web.netErrorList.ets",
   ]
   is_boot_abc = "True"
   device_dst_file = "/system/framework/web_webview.abc"

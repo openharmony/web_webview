@@ -98,6 +98,7 @@ constexpr double SCALE_MIN = 0.1;
 constexpr double SCALE_MAX = 2.0;
 constexpr double HALF = 2.0;
 constexpr double TEN_MILLIMETER_TO_INCH = 0.39;
+const char* ANI_WEB_CUSTOM_SCHEME_CLASS = "L@ohos/web/webview/webview/WebCustomSchemeClass;";
 struct PDFMarginConfig {
     double top = TEN_MILLIMETER_TO_INCH;
     double bottom = TEN_MILLIMETER_TO_INCH;
@@ -111,6 +112,20 @@ struct SnapshotOptions {
     PixelUnit widthType = PixelUnit::NONE;
     PixelUnit heightType = PixelUnit::NONE;
     PixelUnit sizeType = PixelUnit::NONE;
+};
+
+
+struct Scheme {
+    std::string name;
+    bool isSupportCORS;
+    bool isSupportFetch;
+    bool isStandard;
+    bool isLocal;
+    bool isDisplayIsolated;
+    bool isSecure;
+    bool isCspBypassing;
+    bool isCodeCacheSupported;
+    int32_t option = 0;
 };
 
 bool ParsePrepareUrl(ani_env* env, ani_ref urlObj, std::string& url)
@@ -457,6 +472,8 @@ static void Clean(ani_env *env, ani_object object)
         delete reinterpret_cast<WebSchemeHandlerRequest*>(ptr);
     } else if (clsName == "WebResourceHandler") {
         reinterpret_cast<WebResourceHandler*>(ptr)->DecStrongRef(reinterpret_cast<WebResourceHandler*>(ptr));
+    } else if (clsName == "WebHttpBodyStream") {
+        delete reinterpret_cast<WebHttpBodyStream*>(ptr);
     } else {
         WVLOG_E("Clean unsupport className: %{public}s", clsName.c_str());
     }
@@ -2115,6 +2132,160 @@ static void SetServiceWorkerWebSchemeHandler(
     if (!WebviewController::SetWebServiveWorkerSchemeHandler(schemePtr.c_str(), handler)) {
         WVLOG_E("AniWebviewController::SetWebSchemeHandler failed");
     }
+    return;
+}
+
+bool CheckSchemeName(const std::string& schemeName)
+{
+    if (schemeName.empty() || schemeName.size() > MAX_CUSTOM_SCHEME_NAME_LENGTH) {
+        WVLOG_E("Invalid scheme name length");
+        return false;
+    }
+
+    for (auto it = schemeName.begin(); it != schemeName.end(); it++) {
+        char chr = *it;
+        if (!((chr >= 'a' && chr <= 'z') || (chr >= '0' && chr <= '9') || (chr == '.') || (chr == '+') ||
+                (chr == '-'))) {
+            WVLOG_E("invalid character %{public}c", chr);
+            return false;
+        }
+    }
+    return true;
+}
+
+void SetCustomizeSchemeOption(Scheme& scheme)
+{
+    std::map<int, std::function<bool(const Scheme&)>> schemeProperties = {
+        { 0, [](const Scheme& scheme) { return scheme.isStandard; } },
+        { 1, [](const Scheme& scheme) { return scheme.isLocal; } },
+        { 2, [](const Scheme& scheme) { return scheme.isDisplayIsolated; } },
+        { 3, [](const Scheme& scheme) { return scheme.isSecure; } },
+        { 4, [](const Scheme& scheme) { return scheme.isSupportCORS; } },
+        { 5, [](const Scheme& scheme) { return scheme.isCspBypassing; } },
+        { 6, [](const Scheme& scheme) { return scheme.isSupportFetch; } },
+        { 7, [](const Scheme& scheme) { return scheme.isCodeCacheSupported; } }
+    };
+    for (const auto& property : schemeProperties) {
+        if (property.second(scheme)) {
+            scheme.option += 1 << property.first;
+        }
+    }
+}
+
+bool SetCustomizeScheme(ani_env* env, ani_ref ref, Scheme& scheme)
+{
+    std::map<std::string, std::function<void(Scheme&, bool)>> schemeBooleanProperties = {
+        { "isSupportCORS", [](Scheme& scheme, bool value) { scheme.isSupportCORS = value; } },
+        { "isSupportFetch", [](Scheme& scheme, bool value) { scheme.isSupportFetch = value; } },
+        { "isStandard", [](Scheme& scheme, bool value) { scheme.isStandard = value; } },
+        { "isLocal", [](Scheme& scheme, bool value) { scheme.isLocal = value; } },
+        { "isDisplayIsolated", [](Scheme& scheme, bool value) { scheme.isDisplayIsolated = value; } },
+        { "isSecure", [](Scheme& scheme, bool value) { scheme.isSecure = value; } },
+        { "isCspBypassing", [](Scheme& scheme, bool value) { scheme.isCspBypassing = value; } },
+        { "isCodeCacheSupported", [](Scheme& scheme, bool value) { scheme.isCodeCacheSupported = value; } }
+    };
+
+    ani_ref schemePropertyRef = nullptr;
+    for (const auto& property : schemeBooleanProperties) {
+        ani_status status = ANI_OK;
+        WVLOG_I("property.first.c_str() : %{public}s", property.first.c_str());
+
+        status =
+            env->Object_GetPropertyByName_Ref(static_cast<ani_object>(ref), property.first.c_str(), &schemePropertyRef);
+        if (status != ANI_OK) {
+            WVLOG_I("Object_GetPropertyByName_Ref status != ANI_OK : %{public}s", property.first.c_str());
+            WVLOG_I("Object_GetPropertyByName_Ref fail status : %{public}d", status);
+        }
+        bool schemeProperty = false;
+        if (!AniParseUtils::ParseBoolean(env, schemePropertyRef, schemeProperty)) {
+            WVLOG_I("ParseBoolean schemeProperty %{public}d ", schemeProperty);
+            if (property.first == "isSupportCORS" || property.first == "isSupportFetch") {
+                return false;
+            }
+        }
+        if (!schemeProperty) {
+            WVLOG_I("schemeProperty status ");
+            if (property.first == "isSupportCORS" || property.first == "isSupportFetch") {
+                WVLOG_I("property.first.c_str() : %{public}s", property.first.c_str());
+                return false;
+            }
+        }
+
+        property.second(scheme, schemeProperty);
+    }
+    ani_ref schemeNameObj = nullptr;
+    if (env->Object_GetPropertyByName_Ref(static_cast<ani_object>(ref), "schemeName", &schemeNameObj) != ANI_OK) {
+        return false;
+    }
+    if (!AniParseUtils::ParseString(env, schemeNameObj, scheme.name)) {
+        return false;
+    }
+    if (!CheckSchemeName(scheme.name)) {
+        return false;
+    }
+    SetCustomizeSchemeOption(scheme);
+    return true;
+}
+
+int32_t CustomizeSchemesArrayDataHandler(ani_env* env, ani_ref array)
+{
+    uint32_t arrayLength = 0;
+    env->Array_GetLength(static_cast<ani_array>(array), &arrayLength);
+    if (arrayLength > MAX_CUSTOM_SCHEME_SIZE) {
+        WVLOG_E("PARAM_CHECK_ERROR");
+        return PARAM_CHECK_ERROR;
+    }
+    std::vector<Scheme> schemeVector;
+    ani_object obj = {};
+    if (AniParseUtils::CreateObjectVoid(env, ANI_WEB_CUSTOM_SCHEME_CLASS, obj) == false) {
+        WVLOG_E("Obj CreateObjectVoid failed");
+        return false;
+    }
+    ani_ref objRef = static_cast<ani_ref>(obj);
+    for (uint32_t i = 0; i < arrayLength; ++i) {
+        ani_status status;
+        status = env->Array_Get_Ref(static_cast<ani_array_ref>(array), i, &objRef);
+        if (status != ANI_OK) {
+            WVLOG_E("%{public}d", status);
+        }
+
+        Scheme scheme;
+        bool result = SetCustomizeScheme(env, objRef, scheme);
+        WVLOG_I("ljz 1 %{public}d", result);
+        if (!result) {
+            return PARAM_CHECK_ERROR;
+        }
+        schemeVector.push_back(scheme);
+    }
+    int32_t registerResult;
+    for (auto it = schemeVector.begin(); it != schemeVector.end(); ++it) {
+        registerResult = OH_ArkWeb_RegisterCustomSchemes(it->name.c_str(), it->option);
+        if (registerResult != NO_ERROR) {
+            return registerResult;
+        }
+    }
+    return NO_ERROR;
+}
+
+static void CustomizeSchemes(ani_env* env, ani_object object, ani_object schemes)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    if (WebviewController::existNweb_) {
+        WVLOG_E("There exist web component which has been already created.");
+    }
+    int32_t registerResult = CustomizeSchemesArrayDataHandler(env, schemes);
+    if (registerResult == NO_ERROR) {
+        return;
+    }
+    if (registerResult == PARAM_CHECK_ERROR) {
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "schemeName", "string"));
+        return;
+    }
+    AniBusinessError::ThrowErrorByErrCode(env, REGISTER_CUSTOM_SCHEME_FAILED);
     return;
 }
 
@@ -4545,6 +4716,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "webPageSnapshot", nullptr, reinterpret_cast<void *>(WebPageSnapshot) },
         ani_native_function { "innerCompleteWindowNew", nullptr, reinterpret_cast<void *>(InnerCompleteWindowNew) },
         ani_native_function { "setWebSchemeHandler", nullptr, reinterpret_cast<void *>(SetWebSchemeHandler) },
+        ani_native_function { "customizeSchemes", nullptr, reinterpret_cast<void *>(CustomizeSchemes) },
         ani_native_function { "setServiceWorkerWebSchemeHandler", nullptr, 
                               reinterpret_cast<void *>(SetServiceWorkerWebSchemeHandler) },
         ani_native_function { "runJavaScriptCallback", nullptr, reinterpret_cast<void *>(RunJavaScriptCallback) },

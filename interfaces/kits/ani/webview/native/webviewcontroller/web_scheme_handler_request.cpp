@@ -101,6 +101,83 @@ bool ParseBoolean(ani_env* env, ani_ref ref, bool& outValue)
     return true;
 }
 
+ani_object WrapBusinessError(ani_env* env, const std::string& msg)
+{
+    ani_class cls {};
+    ani_method method {};
+    ani_object obj = nullptr;
+    ani_status status = ANI_ERROR;
+    if (env == nullptr) {
+        WVLOG_E("null env");
+        return nullptr;
+    }
+
+    ani_string aniMsg = nullptr;
+    if ((status = env->String_NewUTF8(msg.c_str(), msg.size(), &aniMsg)) != ANI_OK) {
+        WVLOG_E("String_NewUTF8 failed %{public}d", status);
+        return nullptr;
+    }
+
+    ani_ref undefRef;
+    if ((status = env->GetUndefined(&undefRef)) != ANI_OK) {
+        WVLOG_E("GetUndefined failed %{public}d", status);
+        return nullptr;
+    }
+
+    if ((status = env->FindClass("Lescompat/Error;", &cls)) != ANI_OK) {
+        WVLOG_E("FindClass failed %{public}d", status);
+        return nullptr;
+    }
+    if ((status = env->Class_FindMethod(cls, "<ctor>", "Lstd/core/String;Lescompat/ErrorOptions;:V", &method)) !=
+        ANI_OK) {
+        WVLOG_E("Class_FindMethod failed %{public}d", status);
+        return nullptr;
+    }
+
+    if ((status = env->Object_New(cls, method, &obj, aniMsg, undefRef)) != ANI_OK) {
+        WVLOG_E("Object_New failed %{public}d", status);
+        return nullptr;
+    }
+    return obj;
+}
+
+ani_object CreateBusinessError(ani_env* env, ani_int code, const std::string& msg)
+{
+    ani_class cls {};
+    ani_method method {};
+    ani_object obj = nullptr;
+    ani_status status = ANI_ERROR;
+    if (env == nullptr) {
+        WVLOG_E("null env");
+        return nullptr;
+    }
+    if ((status = env->FindClass("L@ohos/base/BusinessError;", &cls)) != ANI_OK) {
+        WVLOG_E("FindClass failed %{public}d", status);
+        return nullptr;
+    }
+    if ((status = env->Class_FindMethod(cls, "<ctor>", "DLescompat/Error;:V", &method)) != ANI_OK) {
+        WVLOG_E("Class_FindMethod failed %{public}d", status);
+        return nullptr;
+    }
+    ani_object error = WrapBusinessError(env, msg);
+    if (error == nullptr) {
+        WVLOG_E("error nulll");
+        return nullptr;
+    }
+    ani_double dCode(code);
+    if ((status = env->Object_New(cls, method, &obj, dCode, error)) != ANI_OK) {
+        WVLOG_E("Object_New failed %{public}d", status);
+        return nullptr;
+    }
+    return obj;
+}
+
+ani_ref CreateError(ani_env* env, int32_t err)
+{
+    std::string errMsg = NWebError::GetErrMsgByErrCode(err);
+    return CreateBusinessError(env, err, errMsg);
+}
+
 void OnRequestStart(const ArkWeb_SchemeHandler* schemeHandler, ArkWeb_ResourceRequest* resourceRequest,
     const ArkWeb_ResourceHandler* resourceHandler, bool* intercept)
 {
@@ -518,6 +595,219 @@ void WebResourceHandler::DestoryArkWebResourceHandler()
         OH_ArkWebResourceHandler_Destroy(handler_);
         handler_ = nullptr;
     }
+}
+
+WebHttpBodyStream::WebHttpBodyStream(ani_env* env)
+{
+    WVLOG_D("WebHttpBodyStream::WebHttpBodyStream");
+    env_ = env;
+}
+
+WebHttpBodyStream::WebHttpBodyStream(ani_env* env, ArkWeb_HttpBodyStream* stream)
+{
+    WVLOG_I("WebHttpBodyStream::WebHttpBodyStream");
+    env_ = env;
+    stream_ = stream;
+    if (OH_ArkWebHttpBodyStream_SetUserData(stream_, this) != 0) {
+        WVLOG_E("OH_ArkWebHttpBodyStream_SetUserData failed");
+        return;
+    }
+    if (OH_ArkWebHttpBodyStream_SetReadCallback(stream_, &WebHttpBodyStream::HttpBodyStreamReadCallback) != 0) {
+        WVLOG_E("OH_ArkWebHttpBodyStream_SetReadCallback failed");
+        return;
+    }
+}
+
+WebHttpBodyStream::~WebHttpBodyStream()
+{
+    WVLOG_I("WebHttpBodyStream::~WebHttpBodyStream");
+    if (!stream_) {
+        OH_ArkWebResourceRequest_DestroyHttpBodyStream(stream_);
+        stream_ = nullptr;
+    }
+}
+
+void WebHttpBodyStream::HttpBodyStreamReadCallback(
+    const ArkWeb_HttpBodyStream* httpBodyStream, uint8_t* buffer, int bytesRead)
+{
+    WVLOG_I("WebHttpBodyStream::HttpBodyStreamReadCallback");
+    WebHttpBodyStream* stream =
+        reinterpret_cast<WebHttpBodyStream*>(OH_ArkWebHttpBodyStream_GetUserData(httpBodyStream));
+    if (!stream) {
+        WVLOG_E("OH_ArkWebHttpBodyStream_GetUserData is nullptr");
+        return;
+    }
+    stream->ExecuteRead(buffer, bytesRead);
+}
+void WebHttpBodyStream::HttpBodyStreamInitCallback(const ArkWeb_HttpBodyStream* httpBodyStream, ArkWeb_NetError result)
+{
+    WVLOG_I("WebHttpBodyStream::HttpBodyStreamInitCallback");
+    WebHttpBodyStream* stream =
+        reinterpret_cast<WebHttpBodyStream*>(OH_ArkWebHttpBodyStream_GetUserData(httpBodyStream));
+    if (!stream) {
+        WVLOG_E("OH_ArkWebHttpBodyStream_GetUserData is nullptr");
+        return;
+    }
+    stream->ExecuteInit(result);
+}
+
+void WebHttpBodyStream::Init(ani_ref jsCallback, ani_resolver initResolver)
+{
+    WVLOG_E("WebHttpBodyStream::Init");
+    if (!jsCallback && !initResolver) {
+        WVLOG_E("WebHttpBodyStream::InitCallback callback is nullptr");
+        return;
+    }
+    if (jsCallback) {
+        initJsCallback_ = std::move(jsCallback);
+    }
+    if (initResolver) {
+        initResolver_ = std::move(initResolver);
+    }
+    int ret = OH_ArkWebHttpBodyStream_Init(stream_, &WebHttpBodyStream::HttpBodyStreamInitCallback);
+    if (ret != 0) {
+        WVLOG_E("OH_ArkWebHttpBodyStream_Init failed");
+        return;
+    }
+}
+
+void WebHttpBodyStream::Read(int bufLen, ani_ref jsCallback, ani_resolver readResolver)
+{
+    WVLOG_I("WebHttpBodyStream::Read");
+    if (!jsCallback && !readResolver) {
+        WVLOG_E("WebHttpBodyStream::Read callback is nullptr");
+        return;
+    }
+    if (bufLen <= 0) {
+        return;
+    }
+    if (jsCallback) {
+        readJsCallback_ = std::move(jsCallback);
+    }
+    if (readResolver) {
+        readResolver_ = std::move(readResolver);
+    }
+    uint8_t* buffer = new (std::nothrow) uint8_t[bufLen];
+    if (buffer == nullptr) {
+        return;
+    }
+    OH_ArkWebHttpBodyStream_Read(stream_, buffer, bufLen);
+}
+
+void WebHttpBodyStream::ExecuteInit(ArkWeb_NetError result)
+{
+    WVLOG_I("WebHttpBodyStream::ExecuteInit");
+    if (!env_) {
+        WVLOG_E("WebHttpBodyStream::ExecuteInit env_ is nullptr");
+        return;
+    }
+
+    auto* asyncCtx = new InitAsyncCtx {
+        .env = env_,
+        .deferred = initResolver_,
+        .errCode = result,
+    };
+    if (asyncCtx == nullptr) {
+        WVLOG_I("WebHttpBodyStream::ExecuteInit");
+        return;
+    }
+    WVLOG_I("WebHttpBodyStream::ExecuteInit task started");
+
+    if (!asyncCtx || !asyncCtx->env) {
+        WVLOG_E("WebHttpBodyStream::ExecuteInit asyncCtx or env is nullptr");
+        delete asyncCtx;
+        return;
+    }
+
+    ani_ref resultRef;
+    asyncCtx->env->GetUndefined(&resultRef);
+
+    if (asyncCtx->errCode != 0) {
+        resultRef = CreateError(asyncCtx->env, NWebError::HTTP_BODY_STREAN_INIT_FAILED);
+    } else {
+        asyncCtx->env->GetUndefined(&resultRef);
+    }
+    std::vector<ani_ref> vec;
+    vec.push_back(resultRef);
+    if (asyncCtx->deferred) {
+        if (asyncCtx->errCode == 0) {
+            if (asyncCtx->env->PromiseResolver_Resolve(asyncCtx->deferred, resultRef) != ANI_OK) {
+                WVLOG_E("WebHttpBodyStream::ExecuteInit PromiseResolver_Resolve failed");
+            }
+        } else {
+            if (asyncCtx->env->PromiseResolver_Reject(asyncCtx->deferred, static_cast<ani_error>(resultRef)) !=
+                ANI_OK) {
+                WVLOG_E("WebHttpBodyStream::ExecuteInit PromiseResolver_Reject failed");
+            }
+        }
+    } else {
+        WVLOG_E("WebHttpBodyStream::ExecuteInit no deferred provided");
+    }
+    WVLOG_I("WebHttpBodyStream::ExecuteInit");
+    delete asyncCtx;
+}
+
+void WebHttpBodyStream::ExecuteRead(uint8_t* buffer, int bytesRead)
+{
+    WVLOG_I("WebHttpBodyStream::ExecuteRead");
+    if (!env_) {
+        return;
+    }
+    auto* asyncCtx = new ReadAsyncCtx {
+        .env = env_,
+        .deferred = initResolver_,
+        .buffer = buffer,
+    };
+    if (asyncCtx == nullptr) {
+        WVLOG_E("WebHttpBodyStream::ExecuteRead asyncCtx is nullptr");
+        return;
+    }
+    WVLOG_D("WebHttpBodyStream::ExecuteRead task started");
+    if (!asyncCtx || !asyncCtx->env) {
+        WVLOG_E("WebHttpBodyStream::ExecuteRead asyncCtx or env is nullptr");
+        delete asyncCtx;
+        return;
+    }
+    ani_ref resultRef;
+    asyncCtx->env->GetUndefined(&resultRef);
+    if (asyncCtx->buffer) {
+        delete asyncCtx->buffer;
+    }
+    if (asyncCtx->deferred) {
+        if (asyncCtx->env->PromiseResolver_Reject(asyncCtx->deferred, static_cast<ani_error>(resultRef)) != ANI_OK) {
+            WVLOG_E("WebHttpBodyStream::ExecuteInit PromiseResolver_Reject failed");
+        }
+    }
+    delete asyncCtx;
+}
+
+uint64_t WebHttpBodyStream::GetPostion() const
+{
+    return OH_ArkWebHttpBodyStream_GetPosition(stream_);
+}
+
+uint64_t WebHttpBodyStream::GetSize() const
+{
+    WVLOG_I("WebHttpBodyStream::GetSize");
+    return OH_ArkWebHttpBodyStream_GetSize(stream_);
+}
+
+bool WebHttpBodyStream::IsChunked() const
+{
+    WVLOG_I("WebHttpBodyStream::GetSize222");
+    return OH_ArkWebHttpBodyStream_IsChunked(stream_);
+}
+
+bool WebHttpBodyStream::IsEof()
+{
+    WVLOG_I("WebHttpBodyStream::GetSize333");
+    return OH_ArkWebHttpBodyStream_IsEof(stream_);
+}
+
+bool WebHttpBodyStream::IsInMemory()
+{
+    WVLOG_I("WebHttpBodyStream::GetSize444");
+    return OH_ArkWebHttpBodyStream_IsInMemory(stream_);
 }
 
 } // namespace OHOS::NWeb
