@@ -312,7 +312,7 @@ static ani_object GetHttpBodyStream(ani_env *env,ani_object object)
         delete stream;
         stream = nullptr;
     }
-    WVLOG_E("getHttpBodyStream: arkWebPostStream success");
+    WVLOG_I("getHttpBodyStream: arkWebPostStream success");
     return httpBodyStreamObject;
 }
 
