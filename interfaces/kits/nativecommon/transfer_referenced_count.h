@@ -13,33 +13,31 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_NWEB_NATIVE_COMMON_WEB_HISTORY_LIST_H
-#define OHOS_NWEB_NATIVE_COMMON_WEB_HISTORY_LIST_H
+#ifndef OHOS_NWEB_NATIVE_COMMON_TRANSFER_REFERENCED_COUNT_H
+#define OHOS_NWEB_NATIVE_COMMON_TRANSFER_REFERENCED_COUNT_H
 #include "nweb.h"
-#include "web_errors.h"
-#include "nweb_helper.h"
-#include "nweb_log.h"
-#include "transfer_referenced_count.h"
 
 namespace OHOS {
 namespace NWeb {
 
-class WebHistoryList : public TransferReferencedCount {
+class TransferReferencedCount {
 public:
-    explicit WebHistoryList(std::shared_ptr<NWebHistoryList> sptrHistoryList) : sptrHistoryList_(sptrHistoryList) {};
-    ~WebHistoryList() = default;
+    TransferReferencedCount() = default;
+    ~TransferReferencedCount() = default;
 
-    int32_t GetCurrentIndex();
+    void IncRefCount() { referencedCount_++; }
 
-    std::shared_ptr<NWebHistoryItem> GetItem(int32_t index);
+    int32_t DecRefCount() {
+        referencedCount_--;
+        return referencedCount_;
+    }
 
-    int32_t GetListSize();
+    int32_t RefCount() { return referencedCount_; }
 
 private:
-    OHOS::NWeb::NWeb* nweb_ = nullptr;
-    std::shared_ptr<NWebHistoryList> sptrHistoryList_ = nullptr;
+    int32_t referencedCount_ = 0;
 };
 
 } // namespace NWeb
 } // namespace OHOS
-#endif // OHOS_NWEB_NATIVE_COMMON_WEB_HISTORY_LIST_H
+#endif // OHOS_NWEB_NATIVE_COMMON_TRANSFER_REFERENCED_COUNT_H

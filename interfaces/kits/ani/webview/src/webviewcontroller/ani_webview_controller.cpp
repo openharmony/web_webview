@@ -71,8 +71,8 @@
 #include "arkweb_scheme_handler.h"
 #include "web_history_list.h"
 #include "web_message_port.h"
-#include "arkcompiler/runtime_core/static_core/plugins/ets/runtime/libani_helpers/interop_js/arkts_esvalue.h"
-#include "arkcompiler/runtime_core/static_core/plugins/ets/runtime/libani_helpers/interop_js/arkts_interop_js_api.h"
+#include "interop_js/arkts_esvalue.h"
+#include "interop_js/arkts_interop_js_api.h"
 #include "ohos_adapter_helper.h"
 #include "nweb_adapter_helper.h"
 
@@ -430,7 +430,10 @@ static void Clean(ani_env *env, ani_object object)
     if (clsName == "WebviewController") {
         delete reinterpret_cast<WebviewController *>(ptr);
     } else if (clsName == "WebHistoryList") {
-        delete reinterpret_cast<WebHistoryList *>(ptr);
+        WebHistoryList *historyList = reinterpret_cast<WebHistoryList *>(ptr);
+        if (historyList && historyList->DecRefCount() <= 0) {
+            delete historyList;
+        }
     } else if (clsName == "ProxyConfig") {
         delete reinterpret_cast<ProxyConfig *>(ptr);
     } else if (clsName == "WebSchemeHandlerResponse") {
@@ -1593,6 +1596,7 @@ static ani_ref GetBackForwardEntries(ani_env *env, ani_object object)
         webHistoryList = nullptr;
         return nullptr;
     }
+    webHistoryList->IncRefCount();
 
     env->Object_SetPropertyByName_Int(backForwardObj, "currentIndex", static_cast<ani_int>(currentIndex));
     env->Object_SetPropertyByName_Int(backForwardObj, "size", static_cast<ani_int>(size));
@@ -2192,61 +2196,27 @@ static ani_ref GetItemAtIndex(ani_env *env, ani_object object, ani_int aniIndex)
     return historyItemListObj;
 }
 
-static void TransferBackForwardListToStaticInner(ani_env* env, ani_class aniClass, ani_object output, ani_object input)
+static ani_boolean TransferBackForwardListToStaticInner(
+    ani_env* env, ani_class aniClass, ani_object output, ani_object input)
 {
     if (env == nullptr) {
-        return;
-    }
-
-    std::string sizeName = "size";
-    std::string indexName = "currentIndex";
-    ani_string sizePropertyName {};
-    ani_string indexPropertyName {};
-    if ((env->String_NewUTF8(sizeName.c_str(), sizeName.size(), &sizePropertyName) != ANI_OK) ||
-        (env->String_NewUTF8(indexName.c_str(), indexName.size(), &indexPropertyName) != ANI_OK)) {
-        WVLOG_E("[TRANSFER] String_NewUTF8 failed");
-        return;
-    }
-
-    ani_ref sizeProperty {};
-    ani_ref indexProperty {};
-    if ((env->Object_CallMethodByName_Ref(input, "getPropertySafe", "C{std.core.String}:C{std:interop:ESValue}",
-            &sizeProperty, sizePropertyName) != ANI_OK) ||
-        (env->Object_CallMethodByName_Ref(input, "getPropertySafe", "C{std.core.String}:C{std:interop:ESValue}",
-            &indexProperty, indexPropertyName) != ANI_OK)) {
-        WVLOG_E("[TRANSFER] getPropertySafe failed");
-        return;
-    }
-
-    double sizeRef = 0;
-    double indexRef = 0;
-    if ((env->Object_CallMethodByName_Double(
-            static_cast<ani_object>(sizeProperty), "toNumber", ":D", &sizeRef) != ANI_OK) ||
-        (env->Object_CallMethodByName_Double(
-            static_cast<ani_object>(indexProperty), "toNumber", ":D", &indexRef) != ANI_OK)) {
-        WVLOG_E("[TRANSFER] ESValue toNumber failed");
-        return;
+        return ANI_FALSE;
     }
 
     void* nativePtr = nullptr;
     if (!arkts_esvalue_unwrap(env, input, &nativePtr) || nativePtr == nullptr) {
         WVLOG_E("[TRANSFER] arkts_esvalue_unwrap failed");
-        return;
-    }
-    if (!AniParseUtils::Wrap(env, output, ANI_BACK_FORWARD_LIST_INNER_CLASS_NAME,
-                             reinterpret_cast<ani_long>(nativePtr))) {
-        WVLOG_E("[TRANSFER] BackForwardList wrap failed");
-        return;
+        return ANI_FALSE;
     }
 
-    int32_t size = static_cast<int32_t>(sizeRef);
-    int32_t currentIndex = static_cast<int32_t>(indexRef);
-    if (size >= 0) {
-        env->Object_SetPropertyByName_Int(output, "size", static_cast<ani_int>(size));
+    WebHistoryList *webHistoryList = reinterpret_cast<WebHistoryList *>(nativePtr);
+    if (!AniParseUtils::Wrap(env, output, ANI_BACK_FORWARD_LIST_INNER_CLASS_NAME,
+                             reinterpret_cast<ani_long>(webHistoryList))) {
+        WVLOG_E("[TRANSFER] BackForwardList wrap failed");
+        return ANI_FALSE;
     }
-    if (currentIndex >= 0) {
-        env->Object_SetPropertyByName_Int(output, "currentIndex", static_cast<ani_int>(currentIndex));
-    }
+    webHistoryList->IncRefCount();
+    return ANI_TRUE;
 }
 
 ani_status StsBackForwardListInit(ani_env *env)
@@ -2292,35 +2262,38 @@ static void Close(ani_env* env, ani_object object)
     return;
 }
 
-static void TransferWebMessagePortToStaticInner(ani_env* env, ani_class aniClass, ani_object output,
-                                                ani_object input, ani_boolean extType)
+static ani_boolean TransferWebMessagePortToStaticInner(ani_env* env, ani_class aniClass, ani_object output,
+                                                       ani_object input, ani_boolean extType)
 {
     if (env == nullptr) {
         WVLOG_E("[TRANSFER] env is nullptr");
-        return;
+        return ANI_FALSE;
     }
 
     void* nativePtr = nullptr;
     if (!arkts_esvalue_unwrap(env, input, &nativePtr) || nativePtr == nullptr) {
         WVLOG_E("[TRANSFER] arkts_esvalue_unwrap failed");
-        return;
+        return ANI_FALSE;
     }
 
+    WebMessagePort* msgPort = reinterpret_cast<WebMessagePort *>(nativePtr);
     if (!AniParseUtils::Wrap(env, output, ANI_WEB_MESSAGE_PORT_INNER_CLASS_NAME,
-                             reinterpret_cast<ani_long>(nativePtr))) {
+                             reinterpret_cast<ani_long>(msgPort))) {
         WVLOG_E("[TRANSFER] WebMessagePort wrap failed");
-        return;
+        return ANI_FALSE;
     }
+    msgPort->IncRefCount();
 
     bool isExtentionType = static_cast<bool>(extType);
     ani_object jsType = {};
     if (!AniParseUtils::CreateBoolean(env, isExtentionType, jsType)) {
-        return;
+        return ANI_FALSE;
     }
     if (env->Object_SetPropertyByName_Ref(output, "isExtentionType", static_cast<ani_ref>(jsType)) != ANI_OK) {
         WVLOG_E("[TRANSFER] set isExtentionType failed");
-        return;
+        return ANI_FALSE;
     }
+    return ANI_TRUE;
 }
 
 ani_status StsWebMessagePortInit(ani_env* env)
@@ -2385,6 +2358,7 @@ static bool CreateWebMessagePortObj(
         webMessagePort = nullptr;
         return false;
     }
+    webMessagePort->IncRefCount();
     return true;
 }
 
@@ -4481,7 +4455,6 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "<ctor>", nullptr, reinterpret_cast<void *>(Constructor) },
         ani_native_function { "_setNWebId", nullptr, reinterpret_cast<void *>(SetNWebId) },
         ani_native_function { "_setHapPath", nullptr, reinterpret_cast<void *>(SetHapPath) },
-        ani_native_function { "initializeWebEngine", nullptr, reinterpret_cast<void *>(InitializeWebEngine) },
         ani_native_function { "loadUrl", nullptr, reinterpret_cast<void *>(LoadUrl) },
         ani_native_function { "onActive", nullptr, reinterpret_cast<void *>(OnActive) },
         ani_native_function { "onInactive", nullptr, reinterpret_cast<void *>(OnInactive) },
@@ -4504,23 +4477,12 @@ ani_status StsWebviewControllerInit(ani_env *env)
             reinterpret_cast<void *>(IsAdsBlockEnabledForCurPage) },
         ani_native_function { "isIntelligentTrackingPreventionEnabled", nullptr,
             reinterpret_cast<void *>(IsIntelligentTrackingPreventionEnabled) },
-        ani_native_function { "addIntelligentTrackingPreventionBypassingList", nullptr,
-            reinterpret_cast<void *>(AddIntelligentTrackingPreventionBypassingList) },
-        ani_native_function { "removeIntelligentTrackingPreventionBypassingList", nullptr,
-            reinterpret_cast<void *>(RemoveIntelligentTrackingPreventionBypassingList) },
-        ani_native_function { "clearIntelligentTrackingPreventionBypassingList", nullptr,
-            reinterpret_cast<void *>(ClearIntelligentTrackingPreventionBypassingList) },
-        ani_native_function { "setHostIP", nullptr, reinterpret_cast<void *>(SetHostIP) },
-        ani_native_function { "clearHostIP", nullptr,reinterpret_cast<void *>(ClearHostIP) },
-        ani_native_function { "warmupServiceWorker", nullptr, reinterpret_cast<void *>(WarmupServiceWorker) },
         ani_native_function { "isSafeBrowsingEnabled", nullptr, reinterpret_cast<void *>(IsSafeBrowsingEnabled) },
-        ani_native_function { "prepareForPageLoad", nullptr, reinterpret_cast<void *>(PrepareForPageLoad) },
         ani_native_function { "getFavicon", nullptr, reinterpret_cast<void *>(GetFavicon) },
         ani_native_function { "setUrlTrustList", nullptr, reinterpret_cast<void *>(SetUrlTrustList) },
         ani_native_function { "enableIntelligentTrackingPrevention", nullptr,
                               reinterpret_cast<void *>(EnableIntelligentTrackingPrevention) },
         ani_native_function { "searchNext", nullptr, reinterpret_cast<void *>(SearchNext) },
-        ani_native_function { "getDefaultUserAgent", nullptr, reinterpret_cast<void *>(GetDefaultUserAgent) },
         ani_native_function { "zoomOut", nullptr, reinterpret_cast<void *>(ZoomOut) },
         ani_native_function { "zoomIn", nullptr, reinterpret_cast<void *>(ZoomIn) },
         ani_native_function { "getLastHitTest", nullptr, reinterpret_cast<void *>(GetLastHitTest) },
@@ -4533,7 +4495,6 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "setDownloadDelegate", nullptr, reinterpret_cast<void *>(SetDownloadDelegate) },
         ani_native_function { "getBackForwardEntries", nullptr, reinterpret_cast<void *>(GetBackForwardEntries) },
         ani_native_function { "accessStep", nullptr, reinterpret_cast<void *>(AccessStep) },
-        ani_native_function { "removeAllCache", nullptr, reinterpret_cast<void *>(RemoveAllCache) },
         ani_native_function { "isAdsBlockEnabled", nullptr, reinterpret_cast<void *>(IsAdsBlockEnabled) },
         ani_native_function { "enableAdsBlock", nullptr, reinterpret_cast<void *>(EnableAdsBlock) },
         ani_native_function { "postUrl", nullptr, reinterpret_cast<void *>(PostUrl) },
@@ -4554,32 +4515,20 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "clearHistory", nullptr, reinterpret_cast<void *>(ClearHistory) },
         ani_native_function { "clearWebSchemeHandler", nullptr, reinterpret_cast<void *>(ClearWebSchemeHandler) },
         ani_native_function { "terminateRenderProcess", nullptr, reinterpret_cast<void *>(TerminateRenderProcess) },
-        ani_native_function { "setRenderProcessMode", nullptr, reinterpret_cast<void *>(SetRenderProcessMode) },
-        ani_native_function { "getRenderProcessMode", nullptr, reinterpret_cast<void *>(GetRenderProcessMode) },
-        ani_native_function { "setConnectionTimeout", nullptr, reinterpret_cast<void *>(SetConnectionTimeout) },
         ani_native_function { "backOrForward", nullptr, reinterpret_cast<void *>(BackOrForward) },
-        ani_native_function { "setWebDebuggingAccess", nullptr, reinterpret_cast<void *>(SetWebDebuggingAccess) },
         ani_native_function { "enableSafeBrowsing", nullptr, reinterpret_cast<void *>(EnableSafeBrowsing) },
-        ani_native_function { "pauseAllTimers", nullptr, reinterpret_cast<void *>(PauseAllTimers) },
-        ani_native_function { "resumeAllTimers", nullptr, reinterpret_cast<void *>(ResumeAllTimers) },
         ani_native_function { "setCustomUserAgent", nullptr, reinterpret_cast<void *>(SetCustomUserAgent) },
         ani_native_function { "removeCache", nullptr, reinterpret_cast<void *>(RemoveCache) },
         ani_native_function { "setNetworkAvailable", nullptr, reinterpret_cast<void *>(SetNetworkAvailable) },
         ani_native_function { "isIncognitoMode", nullptr, reinterpret_cast<void *>(IsIncognitoMode) },
         ani_native_function { "serializeWebStateInternal", nullptr, reinterpret_cast<void *>(SerializeWebState) },
-        ani_native_function { "trimMemoryByPressureLevel", nullptr,
-                              reinterpret_cast<void *>(TrimMemoryByPressureLevel) },
         ani_native_function { "setPathAllowingUniversalAccess", nullptr,
                               reinterpret_cast<void *>(SetPathAllowingUniversalAccess) },
         ani_native_function { "onCreateNativeMediaPlayer", "Lstd/core/Function2;:V",
                               reinterpret_cast<void *>(OnCreateNativeMediaPlayer) },
         ani_native_function { "injectOfflineResourcesInternal", nullptr,
                               reinterpret_cast<void *>(InjectOfflineResources) },
-        ani_native_function { "clearPrefetchedResource", nullptr, reinterpret_cast<void *>(ClearPrefetchedResource) },
         ani_native_function { "precompileJavaScriptInternal", nullptr, reinterpret_cast<void *>(PrecompileJavaScript) },
-        ani_native_function { "prefetchResource", nullptr, reinterpret_cast<void *>(PrefetchResource) },
-        ani_native_function { "enableWholeWebPageDrawing", nullptr,
-                              reinterpret_cast<void *>(EnableWholeWebPageDrawing) },
         ani_native_function { "getSurfaceId", nullptr, reinterpret_cast<void *>(GetSurfaceId) },
         ani_native_function { "setPrintBackground", nullptr, reinterpret_cast<void*>(SetPrintBackground) },
         ani_native_function { "getPrintBackground", nullptr, reinterpret_cast<void*>(GetPrintBackground) },
@@ -4601,10 +4550,42 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "runJavaScriptCallback", nullptr, reinterpret_cast<void *>(RunJavaScriptCallback) },
         ani_native_function { "runJavaScriptCallbackExt", nullptr, reinterpret_cast<void *>(RunJavaScriptCallbackExt) },
     };
-
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
     if (status != ANI_OK) {
         WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+    }
+
+    std::array controllerStaticMethods = {
+        ani_native_function { "initializeWebEngine", nullptr, reinterpret_cast<void *>(InitializeWebEngine) },
+        ani_native_function { "addIntelligentTrackingPreventionBypassingList", nullptr,
+            reinterpret_cast<void *>(AddIntelligentTrackingPreventionBypassingList) },
+        ani_native_function { "removeIntelligentTrackingPreventionBypassingList", nullptr,
+            reinterpret_cast<void *>(RemoveIntelligentTrackingPreventionBypassingList) },
+        ani_native_function { "clearIntelligentTrackingPreventionBypassingList", nullptr,
+            reinterpret_cast<void *>(ClearIntelligentTrackingPreventionBypassingList) },
+        ani_native_function { "setHostIP", nullptr, reinterpret_cast<void *>(SetHostIP) },
+        ani_native_function { "clearHostIP", nullptr,reinterpret_cast<void *>(ClearHostIP) },
+        ani_native_function { "warmupServiceWorker", nullptr, reinterpret_cast<void *>(WarmupServiceWorker) },
+        ani_native_function { "prepareForPageLoad", nullptr, reinterpret_cast<void *>(PrepareForPageLoad) },
+        ani_native_function { "getDefaultUserAgent", nullptr, reinterpret_cast<void *>(GetDefaultUserAgent) },
+        ani_native_function { "removeAllCache", nullptr, reinterpret_cast<void *>(RemoveAllCache) },
+        ani_native_function { "setRenderProcessMode", nullptr, reinterpret_cast<void *>(SetRenderProcessMode) },
+        ani_native_function { "getRenderProcessMode", nullptr, reinterpret_cast<void *>(GetRenderProcessMode) },
+        ani_native_function { "setConnectionTimeout", nullptr, reinterpret_cast<void *>(SetConnectionTimeout) },
+        ani_native_function { "setWebDebuggingAccess", nullptr, reinterpret_cast<void *>(SetWebDebuggingAccess) },
+        ani_native_function { "pauseAllTimers", nullptr, reinterpret_cast<void *>(PauseAllTimers) },
+        ani_native_function { "resumeAllTimers", nullptr, reinterpret_cast<void *>(ResumeAllTimers) },
+        ani_native_function { "trimMemoryByPressureLevel", nullptr,
+                              reinterpret_cast<void *>(TrimMemoryByPressureLevel) },
+        ani_native_function { "clearPrefetchedResource", nullptr, reinterpret_cast<void *>(ClearPrefetchedResource) },
+        ani_native_function { "prefetchResource", nullptr, reinterpret_cast<void *>(PrefetchResource) },
+        ani_native_function { "enableWholeWebPageDrawing", nullptr,
+                              reinterpret_cast<void *>(EnableWholeWebPageDrawing) },
+    };
+    status = env->Class_BindStaticNativeMethods(webviewControllerCls, controllerStaticMethods.data(),
+        controllerStaticMethods.size());
+    if (status != ANI_OK) {
+        WVLOG_E("Class_BindStaticNativeMethods failed status: %{public}d", status);
     }
     return ANI_OK;
 }

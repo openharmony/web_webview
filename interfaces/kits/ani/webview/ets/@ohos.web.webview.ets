@@ -437,14 +437,18 @@ export default namespace webview {
 
         static transferBackForwardListToStatic(input: Any): Object {
             let bflObject: BackForwardListinner = new BackForwardListinner();
-            if (input == undefined || input == null) {
+            if (input === undefined || input === null) {
                 throw new Error("input object is null or undefined");
             }
             let dyESValue = ESValue.wrap(input);
-            BackForwardListinner.transferBackForwardListToStaticInner(bflObject, dyESValue);
+            bflObject.currentIndex = dyESValue.getProperty('currentIndex').toNumber() as int;
+            bflObject.size = dyESValue.getProperty('size').toNumber() as int;
+            if (!BackForwardListinner.transferBackForwardListToStaticInner(bflObject, dyESValue)) {
+                throw new Error("transfer failed");
+            }
             return bflObject as Object;
         }
-        private static native transferBackForwardListToStaticInner(newDemo: BackForwardListinner, input: ESValue): void;
+        private static native transferBackForwardListToStaticInner(newDemo: BackForwardListinner, input: ESValue): boolean;
 
         static transferBackForwardListToDynamic(input: Object): Any {
             const staticRef = input as BackForwardListinner;
@@ -456,9 +460,9 @@ export default namespace webview {
                     let dynamicRef = initFunc.invoke(
                         ESValue.wrap(staticRef.currentIndex), ESValue.wrap(staticRef.size), ESValue.wrap(addr));
                     return dynamicRef.unwrap();
+                } else {
+                    console.error("invoke func not exit");
                 }
-            } else {
-                console.error("invoke func not exit");
             }
             return undefined;
         }
@@ -1355,15 +1359,17 @@ export default namespace webview {
 
         static transferWebMessagePortToStatic(input: Any): Object {
             let wmpObject: WebMessagePortInner = new WebMessagePortInner();
-            if (input == undefined || input == null) {
+            if (input === undefined || input === null) {
                 throw new Error("input object is null or undefined");
             }
             let dyESValue = ESValue.wrap(input);
             let isExtentionType = dyESValue.getProperty('isExtentionType').toBoolean();
-            WebMessagePortInner.transferWebMessagePortToStaticInner(wmpObject, dyESValue, isExtentionType);
+            if (!WebMessagePortInner.transferWebMessagePortToStaticInner(wmpObject, dyESValue, isExtentionType)) {
+                throw new Error("transfer failed");
+            }
             return wmpObject as Object;
         }
-        private static native transferWebMessagePortToStaticInner(newDemo: WebMessagePortInner, input: ESValue, extType: boolean): void;
+        private static native transferWebMessagePortToStaticInner(newDemo: WebMessagePortInner, input: ESValue, extType: boolean): boolean;
 
         static transferWebMessagePortToDynamic(input: Object): Any {
             const staticRef = input as WebMessagePortInner;
@@ -1378,9 +1384,9 @@ export default namespace webview {
                 if (initFunc) {
                     let dynamicRef = initFunc.invoke(ESValue.wrap(extType), ESValue.wrap(addr));
                     return dynamicRef.unwrap();
+                } else {
+                    console.error("invoke func not exit");
                 }
-            } else {
-                console.error("invoke func not exit");
             }
             return undefined;
         }

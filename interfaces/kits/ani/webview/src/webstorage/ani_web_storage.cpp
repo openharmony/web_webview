@@ -275,9 +275,9 @@ ani_status StsWebStorageInit(ani_env *env)
         ani_native_function { "getOriginUsageSync", nullptr, reinterpret_cast<void *>(GetOriginUsageSync) },
     };
 
-    status = env->Class_BindNativeMethods(webStorageCls, storageMethods.data(), storageMethods.size());
+    status = env->Class_BindStaticNativeMethods(webStorageCls, storageMethods.data(), storageMethods.size());
     if (status != ANI_OK) {
-        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+        WVLOG_E("Class_BindStaticNativeMethods failed status: %{public}d", status);
         return ANI_ERROR;
     }
     return ANI_OK;
