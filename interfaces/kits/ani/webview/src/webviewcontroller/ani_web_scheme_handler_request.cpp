@@ -36,7 +36,7 @@ using NWebError::NO_ERROR;
 namespace {
 const char* ANI_CLASS_WEB_REQUESTTYPE = "L@ohos/web/webview/webview/WebSchemeHandlerRequest;";
 const char* ANI_CLASS_WEB_RESOURCETYPE = "L@ohos/web/webview/webview/WebResourceType;";
-const char* ANI_HTTP_BODY_STREAM ="L@ohos/web/webview/webview/WebHttpBodyStream;";
+const char* ANI_HTTP_BODY_STREAM = "L@ohos/web/webview/webview/WebHttpBodyStream;";
 } // namespace
 
 static ani_boolean JSHasGesture(ani_env* env, ani_object object)
