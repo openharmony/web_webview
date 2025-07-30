@@ -32,7 +32,9 @@ namespace NWeb {
 
 using namespace NWebError;
 using NWebError::NO_ERROR;
+namespace {
 const char* WEB_WEBSCHEME_HANDLER_CLASS_NAME = "L@ohos/web/webview/webview/WebSchemeHandler;";
+}
 static void OnRequestStart(ani_env* env, ani_object object, ani_fn_object callback)
 {
     WVLOG_I("SchemeHandler OnRequestStart");
