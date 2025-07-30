@@ -2243,8 +2243,7 @@ int32_t CustomizeSchemesArrayDataHandler(ani_env* env, ani_ref array)
     }
     ani_ref objRef = static_cast<ani_ref>(obj);
     for (uint32_t i = 0; i < arrayLength; ++i) {
-        ani_status status;
-        status = env->Array_Get_Ref(static_cast<ani_array_ref>(array), i, &objRef);
+        ani_status status = env->Array_Get_Ref(static_cast<ani_array_ref>(array), i, &objRef);
         if (status != ANI_OK) {
             WVLOG_E("%{public}d", status);
         }
