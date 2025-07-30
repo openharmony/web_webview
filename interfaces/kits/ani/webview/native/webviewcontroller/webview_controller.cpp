@@ -1308,6 +1308,34 @@ void WebPrintWriteResultCallbackAdapter::WriteResultCallback(std::string jobId, 
     cb_(jobId, code);
 }
 
+bool WebviewController::SetWebSchemeHandler(const char* scheme, WebSchemeHandler* handler) const
+{
+    if (!handler || !scheme) {
+        WVLOG_E("WebviewController::SetWebSchemeHandler handler or scheme is nullptr");
+        return false;
+    }
+
+    auto schemeHandler_ptr = WebSchemeHandler::GetArkWebSchemeHandler(handler);
+    if (!schemeHandler_ptr) {
+        WVLOG_E("WebviewController::SetWebSchemeHandler ArkWebSchemeHandler is nullptr");
+        return false;
+    }
+
+    ArkWeb_SchemeHandler* schemeHandler = const_cast<ArkWeb_SchemeHandler*>(schemeHandler_ptr);
+    return OH_ArkWeb_SetSchemeHandler(scheme, webTag_.c_str(), schemeHandler);
+}
+
+bool WebviewController::SetWebServiveWorkerSchemeHandler(const char* scheme, WebSchemeHandler* handler)
+{
+    auto schemeHandler_ptr = WebSchemeHandler::GetArkWebSchemeHandler(handler);
+    if (!schemeHandler_ptr) {
+        WVLOG_E("WebviewController::SetWebServiveWorkerSchemeHandler ArkWebSchemeHandler is nullptr");
+        return false;
+    }
+    ArkWeb_SchemeHandler* schemeHandler = const_cast<ArkWeb_SchemeHandler*>(schemeHandler_ptr);
+    return OH_ArkWebServiceWorker_SetSchemeHandler(scheme, schemeHandler);
+}
+
 int32_t WebviewController::ClearWebSchemeHandler()
 {
     return OH_ArkWeb_ClearSchemeHandlers(webTag_.c_str());

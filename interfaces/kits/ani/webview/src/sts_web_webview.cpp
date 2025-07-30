@@ -30,6 +30,9 @@
 #include "ani_web_adsblock_manager.h"
 #include "webview_javascript_execute_callback.h"
 #include "ani_webview_function.h"
+#include "ani_web_scheme_handler.h"
+#include "ani_web_scheme_handler_resource.h"
+#include "ani_web_scheme_handler_request.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -64,6 +67,9 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
     StsGeolocationPermissionInit(env);
     StsJsMessageExtInit(env);
     StsWebviewFunctionInit(env);
+    StsWebSchemeHandlerResourceInit(env);
+    StsWebSchemeHandlerRequestInit(env);
+    StsWebSchemeHandlerInit(env);
     *result = ANI_VERSION_1;
     return ANI_OK;
 }

@@ -161,6 +161,29 @@ export default namespace webview {
         VIDEO = 0,
         AUDIO = 1
     }
+    
+    export enum WebResourceType{
+        MAIN_FRAME = 0,
+        SUB_FRAME = 1,
+        STYLE_SHEET = 2,
+        SCRIPT = 3,
+        IMAGE = 4,
+        FONT_RESOURCE = 5,
+        SUB_RESOURCE = 6,
+        OBJECT = 7,
+        MEDIA = 8,
+        WORKER = 9,
+        SHARED_WORKER = 10,
+        PREFETCH = 11,
+        FAVICON = 12,
+        XHR = 13,
+        PING = 14,
+        SERVICE_WORKER = 15,
+        CSP_REPORT = 16,
+        PLUGIN_RESOURCE = 17,
+        NAVIGATION_PRELOAD_MAIN_FRAME = 19,
+        NAVIGATION_PRELOAD_SUB_FRAME = 20,
+    }
 
     export enum SourceType {
         URL = 0,
@@ -204,6 +227,11 @@ export default namespace webview {
     }
 
     export interface WebHeader {
+        headerKey: string;
+        headerValue: string;
+    }
+
+    export class GetHeaderWebHeader implements WebHeader {
         headerKey: string;
         headerValue: string;
     }
@@ -713,8 +741,95 @@ export default namespace webview {
          * @since 20
          */
         native getUrl(): string;
+        native setMimeType(type: string): void;
+        native getMimeType(): string;
+        native setEncoding(encoding: string): void;
+        native getEncoding(): string;
+        native setStatusText(text: string): void;
+        native getStatusText(): string;
+        native setStatus(code: number): void;
+        native getStatus(): number;
+        native setHeaderByName(name: string, value: string, overwrite: boolean): void;
+        native getHeaderByName(name: string): string;
+    }
+    
+     export class WebSchemeHandler {
+        private nativePtr: long = 0;
+        private cleaner?: Cleaner;
+
+        registerCleaner(ptr: long): void {
+            this.cleaner = new Cleaner(ptr, "WebSchemeHandler");
+            destroyRegister.register(this, this.cleaner!, unregisterToken);
+        }
+        unregisterCleaner(): void {
+            destroyRegister.unregister(unregisterToken);
+        }
+
+        bindNativePtr(ptr: long): void {
+            if (this.nativePtr == 0) {
+                this.nativePtr = ptr;
+                this.registerCleaner(this.nativePtr);
+            }
+        }
+
+        native constructor();
+        native onRequestStart(callback: (request: WebSchemeHandlerRequest, handler: WebResourceHandler) => boolean): void;
     }
 
+    export class WebSchemeHandlerRequest {
+        private nativePtr: long = 0;
+        private cleaner?: Cleaner;
+
+        registerCleaner(ptr: long): void {
+            this.cleaner = new Cleaner(ptr, "WebSchemeHandlerRequest");
+            destroyRegister.register(this, this.cleaner!, unregisterToken);
+        }
+        unregisterCleaner(): void {
+            destroyRegister.unregister(unregisterToken);
+        }
+
+        bindNativePtr(ptr: long): void {
+            if (this.nativePtr == 0) {
+                this.nativePtr = ptr;
+                this.registerCleaner(this.nativePtr);
+            }
+        }
+
+        native constructor();
+        native hasGesture(): boolean;
+        native getReferrer(): string;
+        native getFrameUrl(): string;
+        native getHeader(): Array<WebHeader>;
+        native getRequestResourceType(): WebResourceType;
+        native getRequestUrl(): string;
+        native isMainFrame(): boolean;
+        native getRequestMethod(): string;
+    }
+
+    export class WebResourceHandler {
+        private nativePtr: long = 0;
+        private cleaner?: Cleaner;
+
+        registerCleaner(ptr: long): void {
+            this.cleaner = new Cleaner(ptr, "WebResourceHandler");
+            destroyRegister.register(this, this.cleaner!, unregisterToken);
+        }
+        unregisterCleaner(): void {
+            destroyRegister.unregister(unregisterToken);
+        }
+
+        bindNativePtr(ptr: long): void {
+            if (this.nativePtr == 0) {
+                this.nativePtr = ptr;
+                this.registerCleaner(this.nativePtr);
+            }
+        }
+        native constructor();
+        
+        native didReceiveResponse(response: WebSchemeHandlerResponse): void;
+        native didFinish(): void;
+    }
+    
     export class WebDownloadItem {
         static {
             loadLibrary("webview_ani.z");
