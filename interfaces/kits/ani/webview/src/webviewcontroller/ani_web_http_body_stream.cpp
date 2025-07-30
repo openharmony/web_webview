@@ -86,80 +86,6 @@ static ani_boolean JsIsEof(ani_env* env, ani_object object)
     return stream->IsEof() ? ANI_TRUE : ANI_FALSE;
 }
 
-static void JSInitialize(ani_env* env, ani_object object)
-{
-    WVLOG_E("WebHttpBodyStream JSInitialize.");
-    if (env == nullptr) {
-        WVLOG_E("env is nullptr");
-        return;
-    }
-
-    auto* request = reinterpret_cast<WebSchemeHandlerRequest *>(AniParseUtils::Unwrap(env, object));
-    if (!request) {
-        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
-        WVLOG_E("WebHttpBodyStream JSInitialize.222");
-        return ;
-    }
-
-    ArkWeb_HttpBodyStream* arkWebPostStream = request->GetHttpBodyStream();
-    if (!arkWebPostStream) {
-        WVLOG_E("getHttpBodyStream: arkWebPostStream is nullptr");
-        return ;
-    }
-    WebHttpBodyStream* stream = new (std::nothrow) WebHttpBodyStream(env, arkWebPostStream);
-    if (!stream) {
-        WVLOG_E("stream is nullptr");
-        return;
-    }
-    WVLOG_E("stream creat success");
-    ani_resolver deferred {};
-    ani_object promise {};
-    ani_status status = env->Promise_New(&deferred, &promise);
-    if (status != ANI_OK) {
-        WVLOG_E("promise_new failed");
-        return;
-    }
-    if (promise && deferred) {
-        WVLOG_E("WebHttpBodyStream JSInitialize.httpBodyStream->Init");
-        stream->Init(nullptr, std::move(deferred));
-    }
-}
-
-static ani_object JsRead(ani_env* env, ani_object object, ani_double size)
-{
-    WVLOG_D("WebHttpBodyStream JsRead.");
-    ani_object arrayBufferObj = nullptr;
-    if (env == nullptr) {
-        WVLOG_E("env is nullptr");
-        return nullptr;
-    }
-
-    auto* stream = reinterpret_cast<WebHttpBodyStream*>(AniParseUtils::Unwrap(env, object));
-    if (!stream) {
-        WVLOG_E("stream is nullptr");
-        return nullptr;
-    }
-    std::shared_ptr<OHOS::NWeb::WebHttpBodyStream> httpBodyStream;
-    if (stream != nullptr) {
-        httpBodyStream = std::shared_ptr<OHOS::NWeb::WebHttpBodyStream>(stream, [](OHOS::NWeb::WebHttpBodyStream*) {});
-    }
-    if (httpBodyStream == nullptr) {
-        WVLOG_E("httpBodyStream is nullptr");
-        return nullptr;
-    }
-    ani_resolver deferred {};
-    ani_object promise {};
-    ani_status status = env->Promise_New(&deferred, &promise);
-    if (status != ANI_OK) {
-        WVLOG_E("promise_new failed");
-        return nullptr;
-    }
-    if (promise && deferred) {
-        httpBodyStream->Read(static_cast<int>(size), nullptr, std::move(deferred));
-    }
-    return arrayBufferObj;
-}
-
 static ani_double GetPosition(ani_env* env, ani_object object)
 {
     WVLOG_D("WebHttpBodyStream GetSize.");
@@ -231,8 +157,6 @@ ani_status StsWebHttpBodyStreamInit(ani_env* env)
         ani_native_function { "isChunked", nullptr, reinterpret_cast<void*>(JsIsChunked) },
         ani_native_function { "isInMemory", nullptr, reinterpret_cast<void*>(JsIsInMemory) },
         ani_native_function { "isEof", nullptr, reinterpret_cast<void*>(JsIsEof) },
-        ani_native_function { "initializeSync", nullptr, reinterpret_cast<void*>(JSInitialize) },
-        ani_native_function { "readSync", nullptr, reinterpret_cast<void*>(JsRead) },
         ani_native_function { "getPosition", nullptr, reinterpret_cast<void*>(GetPosition) },
         ani_native_function { "getSize", nullptr, reinterpret_cast<void*>(GetSize) },
     };
