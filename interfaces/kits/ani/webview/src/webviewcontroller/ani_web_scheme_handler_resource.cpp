@@ -32,7 +32,7 @@ namespace NWeb {
 
 using namespace NWebError;
 using NWebError::NO_ERROR;
-const char* WEB_RESOURCE_HANDLER_CLASS_NAME = "L@ohos/web/webview/webview/WebResourceHandler;";
+const char* ANI_WEB_RESOURCE_HANDLER_CLASS_NAME = "L@ohos/web/webview/webview/WebResourceHandler;";
 static void JSDidReceiveResponse(ani_env* env, ani_object object, ani_object response)
 {
     WVLOG_I("Enter aniwebResourceHandler JSDidReceiveResponse");
@@ -105,9 +105,9 @@ ani_status StsWebSchemeHandlerResourceInit(ani_env* env)
     }
 
     ani_class WebResourceCls = nullptr;
-    ani_status status = env->FindClass(WEB_RESOURCE_HANDLER_CLASS_NAME, &WebResourceCls);
+    ani_status status = env->FindClass(ANI_WEB_RESOURCE_HANDLER_CLASS_NAME, &WebResourceCls);
     if (status != ANI_OK || !WebResourceCls) {
-        WVLOG_E("find %{public}s class failed, status: %{public}d", WEB_RESOURCE_HANDLER_CLASS_NAME, status);
+        WVLOG_E("find %{public}s class failed, status: %{public}d", ANI_WEB_RESOURCE_HANDLER_CLASS_NAME, status);
         return ANI_ERROR;
     }
     std::array allMethods = {
