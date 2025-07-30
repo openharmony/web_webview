@@ -34,6 +34,7 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
+const char* ANI_CLASS_WEB_REQUESTTYPE = "L@ohos/web/webview/webview/WebSchemeHandlerRequest;";
 const char* ANI_CLASS_WEB_RESOURCETYPE = "L@ohos/web/webview/webview/WebResourceType;";
 } // namespace
 
@@ -285,9 +286,9 @@ ani_status StsWebSchemeHandlerRequestInit(ani_env* env)
     }
 
     ani_class WebSchemeHandlerRequestCls = nullptr;
-    ani_status status = env->FindClass("L@ohos/web/webview/webview/WebSchemeHandlerRequest;", &WebSchemeHandlerRequestCls);
+    ani_status status = env->FindClass(ANI_CLASS_WEB_REQUESTTYPE, &WebSchemeHandlerRequestCls);
     if (status != ANI_OK || !WebSchemeHandlerRequestCls) {
-        WVLOG_E("find %{public}s class failed, status: %{public}d", "L@ohos/web/webview/webview/WebSchemeHandlerRequest;", status);
+        WVLOG_E("find %{public}s class failed, status: %{public}d", ANI_CLASS_WEB_REQUESTTYPE, status);
         return ANI_ERROR;
     }
     std::array allMethods = {
