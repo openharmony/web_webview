@@ -794,19 +794,19 @@ uint64_t WebHttpBodyStream::GetSize() const
 
 bool WebHttpBodyStream::IsChunked() const
 {
-    WVLOG_I("WebHttpBodyStream::GetSize222");
+    WVLOG_I("WebHttpBodyStream::IsChunked");
     return OH_ArkWebHttpBodyStream_IsChunked(stream_);
 }
 
 bool WebHttpBodyStream::IsEof()
 {
-    WVLOG_I("WebHttpBodyStream::GetSize333");
+    WVLOG_I("WebHttpBodyStream::IsEof");
     return OH_ArkWebHttpBodyStream_IsEof(stream_);
 }
 
 bool WebHttpBodyStream::IsInMemory()
 {
-    WVLOG_I("WebHttpBodyStream::GetSize444");
+    WVLOG_I("WebHttpBodyStream::IsInMemory");
     return OH_ArkWebHttpBodyStream_IsInMemory(stream_);
 }
 
