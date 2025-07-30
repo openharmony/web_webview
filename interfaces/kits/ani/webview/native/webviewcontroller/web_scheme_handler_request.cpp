@@ -445,8 +445,12 @@ void WebSchemeHandler::PutRequestStop(ani_env* env, ani_vm* vm, ani_fn_object ca
 }
 
 WebResourceHandler::WebResourceHandler(ani_env* env)
-{
+{  
     WVLOG_I("create WebResourceHandler");
+    if (vm_ == nullptr) {
+        WVLOG_E("vm_ is nullptr");
+        return;
+    }
     if (env->GetVM(&vm_) != ANI_OK) {
         WVLOG_E("Failed to get VM from env");
         return;
@@ -455,8 +459,12 @@ WebResourceHandler::WebResourceHandler(ani_env* env)
 
 WebResourceHandler::WebResourceHandler(ani_env* env, const ArkWeb_ResourceHandler* handler)
     : handler_(const_cast<ArkWeb_ResourceHandler*>(handler))
-{
+{   
     WVLOG_I("create WebResourceHandler");
+    if (vm_ == nullptr) {
+        WVLOG_E("vm_ is nullptr");
+        return;
+    }
     if (env->GetVM(&vm_) != ANI_OK) {
         WVLOG_E("Failed to get VM from env");
         return;
