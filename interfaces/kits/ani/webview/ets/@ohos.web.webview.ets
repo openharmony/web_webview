@@ -754,7 +754,7 @@ export default namespace webview {
         private cleaner?: Cleaner;
 
         registerCleaner(ptr: long): void {
-            this.cleaner = new Cleaner(ptr, "WebSchemeHandler")
+            this.cleaner = new Cleaner(ptr, "WebSchemeHandler");
             destroyRegister.register(this, this.cleaner!, unregisterToken);
         }
         unregisterCleaner(): void {
@@ -764,7 +764,7 @@ export default namespace webview {
         bindNativePtr(ptr: long): void {
             if (this.nativePtr == 0) {
                 this.nativePtr = ptr;
-                this.registerCleaner(this.nativePtr)
+                this.registerCleaner(this.nativePtr);
             }
         }
 
@@ -777,7 +777,7 @@ export default namespace webview {
         private cleaner?: Cleaner;
 
         registerCleaner(ptr: long): void {
-            this.cleaner = new Cleaner(ptr, "WebSchemeHandlerRequest")
+            this.cleaner = new Cleaner(ptr, "WebSchemeHandlerRequest");
             destroyRegister.register(this, this.cleaner!, unregisterToken);
         }
         unregisterCleaner(): void {
@@ -787,7 +787,7 @@ export default namespace webview {
         bindNativePtr(ptr: long): void {
             if (this.nativePtr == 0) {
                 this.nativePtr = ptr;
-                this.registerCleaner(this.nativePtr)
+                this.registerCleaner(this.nativePtr);
             }
         }
 
@@ -807,7 +807,7 @@ export default namespace webview {
         private cleaner?: Cleaner;
 
         registerCleaner(ptr: long): void {
-            this.cleaner = new Cleaner(ptr, "WebResourceHandler")
+            this.cleaner = new Cleaner(ptr, "WebResourceHandler");
             destroyRegister.register(this, this.cleaner!, unregisterToken);
         }
         unregisterCleaner(): void {
@@ -817,7 +817,7 @@ export default namespace webview {
         bindNativePtr(ptr: long): void {
             if (this.nativePtr == 0) {
                 this.nativePtr = ptr;
-                this.registerCleaner(this.nativePtr)
+                this.registerCleaner(this.nativePtr);
             }
         }
         native constructor();
