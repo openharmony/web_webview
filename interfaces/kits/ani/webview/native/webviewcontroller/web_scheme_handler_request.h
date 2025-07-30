@@ -25,9 +25,6 @@
 
 namespace OHOS {
 namespace NWeb {
-extern const char* WEB_WEBSCHEME_HANDLER_CLASS_NAME;
-extern const char* WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME;
-extern const char* WEB_RESOURCE_HANDLER_CLASS_NAME;
 constexpr ani_size REFERENCES_MAX_NUMBER = 16;
 
 using WebHeaderList = std::vector<std::pair<std::string, std::string>>;
