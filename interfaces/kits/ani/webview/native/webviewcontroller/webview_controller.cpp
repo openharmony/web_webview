@@ -1309,7 +1309,6 @@ void WebPrintWriteResultCallbackAdapter::WriteResultCallback(std::string jobId, 
 }
 
 bool WebviewController::SetWebSchemeHandler(const char* scheme, WebSchemeHandler* handler) const
-
 {
     if (!handler || !scheme) {
         WVLOG_E("WebviewController::SetWebSchemeHandler handler or scheme is nullptr");
