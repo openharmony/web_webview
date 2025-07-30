@@ -444,7 +444,10 @@ static void Clean(ani_env *env, ani_object object)
     } else if (clsName == "WebDownloadManager") {
         delete reinterpret_cast<WebDownloadManager *>(ptr);
     } else if (clsName == "WebMessagePort") {
-        delete reinterpret_cast<WebMessagePort *>(ptr);
+        WebMessagePort *msgPort = reinterpret_cast<WebMessagePort *>(ptr);
+        if (msgPort && msgPort->DecRefCount() <= 0) {
+            delete msgPort;
+        }
     } else if (clsName == "WebSchemeHandler") {
         delete reinterpret_cast<WebSchemeHandler*>(ptr);
     } else if (clsName == "WebSchemeHandlerRequest") {
