@@ -346,7 +346,6 @@ WebSchemeHandler::WebSchemeHandler(ani_env* env) : vm_(nullptr)
         return;
     }
     env_ = env;
-    WVLOG_E("create WebSchemeHandler");
     ArkWeb_SchemeHandler* handler;
     OH_ArkWeb_CreateSchemeHandler(&handler);
     if (!handler) {
