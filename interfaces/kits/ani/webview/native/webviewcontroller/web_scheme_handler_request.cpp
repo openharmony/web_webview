@@ -406,7 +406,6 @@ void WebSchemeHandler::RequestStart(
     if (resourceHandler == nullptr) {
         WVLOG_E("RequestStart, new resourceHandler failed");
         delete schemeHandlerRequest;
-        resourceHandler->DecStrongRef(resourceHandler);
         env->DestroyLocalScope();
         return;
     }
