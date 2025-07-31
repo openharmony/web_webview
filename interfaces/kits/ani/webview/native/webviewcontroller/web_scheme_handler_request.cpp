@@ -653,7 +653,7 @@ void WebHttpBodyStream::HttpBodyStreamInitCallback(const ArkWeb_HttpBodyStream* 
 
 void WebHttpBodyStream::Init(ani_ref jsCallback, ani_resolver initResolver)
 {
-    WVLOG_E("WebHttpBodyStream::Init");
+    WVLOG_I("WebHttpBodyStream::Init");
     if (!jsCallback && !initResolver) {
         WVLOG_E("WebHttpBodyStream::InitCallback callback is nullptr");
         return;
