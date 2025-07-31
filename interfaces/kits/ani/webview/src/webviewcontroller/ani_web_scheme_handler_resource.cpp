@@ -48,7 +48,7 @@ static void JSDidReceiveResponse(ani_env* env, ani_object object, ani_object res
 
     auto* receiveResponse = reinterpret_cast<WebSchemeHandlerResponse*>(AniParseUtils::Unwrap(env, response));
     if (!receiveResponse) {
-        WVLOG_E("stream is nullptr");
+        WVLOG_E("receiveResponse is nullptr");
         return;
     }
 
