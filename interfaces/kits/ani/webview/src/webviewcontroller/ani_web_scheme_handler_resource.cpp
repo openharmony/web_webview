@@ -48,7 +48,7 @@ static void JSDidReceiveResponse(ani_env* env, ani_object object, ani_object res
 
     auto* receiveResponse = reinterpret_cast<WebSchemeHandlerResponse*>(AniParseUtils::Unwrap(env, response));
     if (!receiveResponse) {
-        WVLOG_E("stream is nullptr");
+        WVLOG_E("receiveResponse is nullptr");
         return;
     }
 
@@ -88,6 +88,66 @@ static void JsDidFinish(ani_env* env, ani_object object)
     return;
 }
 
+static void JsDidReceiveResponseBody(ani_env* env, ani_object object, ani_object arrayBufferObj)
+{
+    WVLOG_I("Enter aniwebResourceHandler JsDidReceiveResponseBody");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* resourceHandler = reinterpret_cast<WebResourceHandler*>(AniParseUtils::Unwrap(env, object));
+    if (!resourceHandler) {
+        WVLOG_E("resourceHandler is nullPtr");
+        return;
+    }
+
+    uint8_t* arrayBuffer = nullptr;
+    size_t byteLength = 0;
+    if (env->ArrayBuffer_GetInfo(reinterpret_cast<ani_arraybuffer>(arrayBufferObj),
+            reinterpret_cast<void**>(&arrayBuffer), &byteLength) != ANI_OK) {
+        WVLOG_E("ArrayBuffer_GetInfo failed");
+        return;
+    }
+    int32_t ret = resourceHandler->DidReceiveResponseBody(arrayBuffer, static_cast<int64_t>(byteLength));
+    if (ret != 0) {
+        WVLOG_E("JSDidReceiveResponseBody ret=%{public}d", ret);
+        AniBusinessError::ThrowErrorByErrCode(env, RESOURCE_HANDLER_INVALID);
+        return;
+    }
+    return;
+}
+
+static void JsDidFailWithError(ani_env* env, ani_object object, ani_enum_item errorCode)
+{
+    WVLOG_I("Enter aniwebResourceHandler JsDidFailWithError");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* rosourceHandler = reinterpret_cast<WebResourceHandler*>(AniParseUtils::Unwrap(env, object));
+    if (!rosourceHandler) {
+        WVLOG_E("rosourceHandler is nullptr");
+        return;
+    }
+    ani_int iCode;
+    if (env->EnumItem_GetValue_Int(errorCode, &iCode) != ANI_OK) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        WVLOG_E("EnumItem_GetValue_Int failed");
+        return;
+    }
+
+    int32_t codeInt = static_cast<int32_t>(iCode);
+    int32_t ret = rosourceHandler->DidFailWithError(static_cast<ArkWeb_NetError>(codeInt));
+    WVLOG_I("JSDidFailWithError ret=%{public}d", ret);
+    if (ret != 0) {
+        AniBusinessError::ThrowErrorByErrCode(env, RESOURCE_HANDLER_INVALID);
+        WVLOG_E("JSDidFailWithError ret=%{public}d", ret);
+    }
+    return;
+}
+
 static void Constructor(ani_env* env, ani_object object)
 {
     WVLOG_I("WebResourceHandler WebResourceHandler native Constructor");
@@ -114,6 +174,8 @@ ani_status StsWebSchemeHandlerResourceInit(ani_env* env)
         ani_native_function { "<ctor>", nullptr, reinterpret_cast<void*>(Constructor) },
         ani_native_function { "didFinish", nullptr, reinterpret_cast<void*>(JsDidFinish) },
         ani_native_function { "didReceiveResponse", nullptr, reinterpret_cast<void*>(JSDidReceiveResponse) },
+        ani_native_function { "didFail", nullptr, reinterpret_cast<void*>(JsDidFailWithError) },
+        ani_native_function { "didReceiveResponseBody", nullptr, reinterpret_cast<void*>(JsDidReceiveResponseBody) },
     };
 
     status = env->Class_BindNativeMethods(WebResourceCls, allMethods.data(), allMethods.size());

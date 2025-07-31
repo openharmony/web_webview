@@ -36,6 +36,7 @@ using NWebError::NO_ERROR;
 namespace {
 const char* ANI_CLASS_WEB_REQUESTTYPE = "L@ohos/web/webview/webview/WebSchemeHandlerRequest;";
 const char* ANI_CLASS_WEB_RESOURCETYPE = "L@ohos/web/webview/webview/WebResourceType;";
+const char* ANI_HTTP_BODY_STREAM = "L@ohos/web/webview/webview/WebHttpBodyStream;";
 } // namespace
 
 static ani_boolean JSHasGesture(ani_env* env, ani_object object)
@@ -269,6 +270,52 @@ static ani_ref GetHeader(ani_env* env, ani_object object)
     return array;
 }
 
+static ani_object GetHttpBodyStream(ani_env *env,ani_object object)
+{
+    WVLOG_I("getHttpBodyStream start");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    auto* request = reinterpret_cast<WebSchemeHandlerRequest *>(AniParseUtils::Unwrap(env, object));
+    if (!request) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return nullptr;
+    }
+
+    ArkWeb_HttpBodyStream* arkWebPostStream = request->GetHttpBodyStream();
+    if (!arkWebPostStream) {
+        WVLOG_E("getHttpBodyStream: arkWebPostStream is nullptr");
+        return nullptr;
+    }
+    ani_object httpBodyStreamObject;
+    WebHttpBodyStream* stream = new (std::nothrow) WebHttpBodyStream(env, arkWebPostStream);
+    if (stream == nullptr) {
+        WVLOG_E("stream is nullptr");
+        return nullptr;
+    }
+
+    ani_class cls;
+    ani_method ctor;
+    if (env->FindClass(ANI_HTTP_BODY_STREAM, &cls) != ANI_OK) {
+        return nullptr;
+    }
+    if (env->Class_FindMethod(cls, "<ctor>", nullptr, &ctor) != ANI_OK) {
+        return nullptr;
+    }
+    if (env->Object_New(cls, ctor, &httpBodyStreamObject) != ANI_OK) {
+            WVLOG_E("Object_New failed");
+        return nullptr;
+    }
+    if (!AniParseUtils::Wrap(env, httpBodyStreamObject, ANI_HTTP_BODY_STREAM, reinterpret_cast<ani_long>(stream))) {
+        WVLOG_E("webview controller wrap failed");
+        delete stream;
+        stream = nullptr;
+    }
+    WVLOG_I("getHttpBodyStream: arkWebPostStream success");
+    return httpBodyStreamObject;
+}
+
 static void Constructor(ani_env* env, ani_object object)
 {
     WVLOG_I("WebSchemeHandlerRequest native Constructor");
@@ -300,6 +347,7 @@ ani_status StsWebSchemeHandlerRequestInit(ani_env* env)
         ani_native_function { "getRequestResourceType", nullptr, reinterpret_cast<void*>(GetRequestResourceType) },
         ani_native_function { "getRequestUrl", nullptr, reinterpret_cast<void*>(GetRequestUrl) },
         ani_native_function { "isMainFrame", nullptr, reinterpret_cast<void*>(IsMainFrame) },
+        ani_native_function { "getHttpBodyStream", nullptr, reinterpret_cast<void *>(GetHttpBodyStream) },
         ani_native_function { "getRequestMethod", nullptr, reinterpret_cast<void*>(GetRequestMethod) },
     };
 

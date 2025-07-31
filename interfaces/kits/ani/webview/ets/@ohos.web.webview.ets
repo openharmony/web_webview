@@ -12,10 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { Resource } from 'global.resource';
 import type image from '@ohos.multimedia.image';
 import { AsyncCallback, BusinessError, Callback } from '@ohos.base';
+import { WebNetErrorList } from '@ohos.web.netErrorList';
 
 class Cleaner {
     private ptr: long = 0
@@ -287,6 +287,30 @@ export default namespace webview {
     export class SnapshotInfoClass implements SnapshotInfo {
         id?: string;
     }
+
+    export interface WebCustomScheme {
+        schemeName: string;
+        isSupportCORS: boolean;
+        isSupportFetch: boolean;
+        isStandard?: boolean;
+        isLocal?: boolean;
+        isDisplayIsolated?: boolean;
+        isSecure?: boolean;
+        isCspBypassing?: boolean;
+        isCodeCacheSupported?: boolean;
+  }
+
+    export class WebCustomSchemeClass implements WebCustomScheme {
+        schemeName: string;
+        isSupportCORS: boolean;
+        isSupportFetch: boolean;
+        isStandard?: boolean;
+        isLocal?: boolean;
+        isDisplayIsolated?: boolean;
+        isSecure?: boolean;
+        isCspBypassing?: boolean;
+        isCodeCacheSupported?: boolean;
+  }
 
     export interface RectEvent {
         x: double;
@@ -632,6 +656,9 @@ export default namespace webview {
         native accessBackward(): boolean;
         native loadData(data: string, mimeType: string, encoding: string, baseUrl?: string, historyUrl?: string): void;
         native clearHistory(): void;
+        native setWebSchemeHandler(scheme: string, handler: WebSchemeHandler): void;
+        native static customizeSchemes(schemes: Array<WebCustomScheme>): void;
+        native static setServiceWorkerWebSchemeHandler(scheme: string, handler: WebSchemeHandler): void;
         native clearWebSchemeHandler(): void;
         native terminateRenderProcess(): boolean;
         native static setConnectionTimeout(timeout: number): void;
@@ -756,6 +783,8 @@ export default namespace webview {
         native getStatus(): number;
         native setHeaderByName(name: string, value: string, overwrite: boolean): void;
         native getHeaderByName(name: string): string;
+        native setNetErrorCode(code: WebNetErrorList): void;
+        native getNetErrorCode(): WebNetErrorList;
     }
     
      export class WebSchemeHandler {
@@ -807,6 +836,7 @@ export default namespace webview {
         native getHeader(): Array<WebHeader>;
         native getRequestResourceType(): WebResourceType;
         native getRequestUrl(): string;
+        native getHttpBodyStream(): WebHttpBodyStream | null;
         native isMainFrame(): boolean;
         native getRequestMethod(): string;
     }
@@ -833,8 +863,37 @@ export default namespace webview {
         
         native didReceiveResponse(response: WebSchemeHandlerResponse): void;
         native didFinish(): void;
+        native didFail(code: WebNetErrorList): void;
+        native didReceiveResponseBody(data: ArrayBuffer): void;
     }
-    
+
+    export class WebHttpBodyStream {
+        private nativePtr: long = 0;
+        private cleaner?: Cleaner;
+
+        registerCleaner(ptr: long): void {
+            this.cleaner = new Cleaner(ptr, "WebHttpBodyStream");
+            destroyRegister.register(this, this.cleaner!, unregisterToken);
+        }
+        unregisterCleaner(): void {
+            destroyRegister.unregister(unregisterToken);
+        }
+
+        bindNativePtr(ptr: long): void {
+            if (this.nativePtr == 0) {
+                this.nativePtr = ptr;
+                this.registerCleaner(this.nativePtr);
+            }
+        }
+        
+        native constructor();
+        native isChunked(): boolean;
+        native isInMemory(): boolean;
+        native isEof(): boolean;
+        native getSize():number;
+	    native getPosition():number;
+    }
+
     export class WebDownloadItem {
         static {
             loadLibrary("webview_ani.z");
