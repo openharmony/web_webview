@@ -513,7 +513,12 @@ export default namespace webview {
             }
         }
 
-        native static pdfArrayBuffer(): Uint8Array;
+        native pdfArrayBufferInternal(): ArrayBuffer;
+        pdfArrayBuffer(): Uint8Array{
+            let buffer = this.pdfArrayBufferInternal();
+            let uint8Array = new Uint8Array(buffer);
+            return uint8Array;
+        }
     }
 
     export class WebviewController {

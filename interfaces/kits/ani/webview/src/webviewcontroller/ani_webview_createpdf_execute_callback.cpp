@@ -142,32 +142,42 @@ static ani_object GetArrayBuffer(ani_env* env, ani_object object)
     const char* pdfResult = webArrayBufferExt->GetPDFResult();
     const long size = webArrayBufferExt->GetPDFSize();
     if (pdfResult == nullptr || size <= 0) {
-        WVLOG_E("[CreatePDF] invalid PDF result or size");
+        WVLOG_E("invalid PDF result or size");
         return nullptr;
     }
     ani_arraybuffer arraybuffer;
     void* bufferData = nullptr;
     env->CreateArrayBuffer(size, &bufferData, &arraybuffer);
     if (bufferData == nullptr) {
-        WVLOG_E("[CreatePDF] bufferData is null after array buffer creation");
-        return nullptr;
-    }
-    if (memcpy_s(bufferData, size, pdfResult, size) != 0) {
-        WVLOG_E("[CreatePDF] memcpy failed");
+        WVLOG_E("bufferData is null after array buffer creation");
         return nullptr;
     }
 
     ani_class cls;
     ani_method ctor;
-    if (env->FindClass("Lstd/core/ArrayBuffer;", &cls) != ANI_OK) {
+    if (env->FindClass("Lescompat/ArrayBuffer;", &cls) != ANI_OK) {
         return result;
     }
     if (env->Class_FindMethod(cls, "<ctor>", "I:V", &ctor) != ANI_OK) {
         return result;
     }
 
-    ani_object arrayObject;
-    env->Object_New(cls, ctor, &arrayObject, arraybuffer);
+    ani_object arrayObject = nullptr;
+    ani_status status = env->Object_New(cls, ctor, &arrayObject, size);
+    if (status != ANI_OK) {
+        WVLOG_E("Object_New failed, status is %{public}d.", status);
+        return nullptr;
+    }
+
+    for (ani_size i = 0; i < size; i++) {
+        ani_int value = pdfResult[i];
+        status = env->Object_CallMethodByName_Void(
+            arrayObject, "set", "IB:V", static_cast<ani_int>(i), static_cast<ani_byte>(value));
+        if (status != ANI_OK) {
+            WVLOG_E("arrayObject set() failed, status is %{public}d.", status);
+            break;
+        }
+    }
     return arrayObject;
 }
 
@@ -184,7 +194,7 @@ ani_status StsPdfDataInit(ani_env* env)
        return ANI_ERROR;
    }
    std::array allMethods = {
-       ani_native_function { "pdfArrayBuffer", nullptr, reinterpret_cast<void*>(GetArrayBuffer) },
+       ani_native_function { "pdfArrayBufferInternal", nullptr, reinterpret_cast<void*>(GetArrayBuffer) },
    };
 
    status = env->Class_BindStaticNativeMethods(pdfDataCls, allMethods.data(), allMethods.size());
