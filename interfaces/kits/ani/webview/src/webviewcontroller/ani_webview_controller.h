@@ -22,6 +22,7 @@
 
 namespace OHOS {
 namespace NWeb {
+extern ani_boolean g_WebMessagePort;
 struct OfflineResourceValueAni {
     ani_ref urlListArray;
     ani_ref resourceArrayBuffer;

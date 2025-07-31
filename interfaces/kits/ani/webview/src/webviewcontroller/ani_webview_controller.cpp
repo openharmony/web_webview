@@ -49,6 +49,7 @@
 
 #include "nweb_precompile_callback.h"
 #include "nweb_cache_options_impl.h"
+#include "ani_nweb_value_callback_impl.h"
 
 #include "bundle_mgr_proxy.h"
 #include "if_system_ability_manager.h"
@@ -80,9 +81,13 @@ namespace OHOS {
 namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
+ani_boolean g_WebMessagePort = true;
 namespace {
 constexpr int32_t RESULT_COUNT = 2;
 ani_vm *g_vm = nullptr;
+ani_vm *g_vmWebMessagePort = nullptr;
+unsigned char DOUBLE_VALUE = 3;
+unsigned char INTEGER_VALUE = 2;
 constexpr size_t MAX_URL_TRUST_LIST_STR_LEN = 10 * 1024 * 1024; // 10M
 constexpr uint32_t SOCKET_MAXIMUM = 6;
 constexpr size_t MAX_RESOURCES_COUNT = 30;
@@ -2296,8 +2301,173 @@ static ani_boolean TransferWebMessagePortToStaticInner(ani_env* env, ani_class a
     return ANI_TRUE;
 }
 
+bool PostMessageEventMsgHandler(
+    ani_env* env, ani_object messageObj, bool isString, bool isArrayBuffer, std::shared_ptr<NWebMessage> webMsg)
+{
+    WVLOG_D("[WebMessagePort] PostMessageEventMsgHandler");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    if (isString) {
+        std::string message;
+        AniParseUtils::ParseString(env, messageObj, message);
+        webMsg->SetType(NWebValue::Type::STRING);
+        webMsg->SetString(message);
+    } else if (isArrayBuffer) {
+        size_t byteLength = 0;
+        uint8_t* arrayBuffer = nullptr;
+        if (auto status = env->ArrayBuffer_GetInfo(reinterpret_cast<ani_arraybuffer>(messageObj), (void**)&arrayBuffer,
+            &byteLength) != ANI_OK) {
+            WVLOG_E("[WebMessagePort] ArrayBuffer_GetInfo failed, status is : %{public}d", status);
+            return false;
+        }
+        std::vector<uint8_t> vecData(arrayBuffer, arrayBuffer + byteLength);
+        webMsg->SetType(NWebValue::Type::BINARY);
+        webMsg->SetBinary(vecData);
+    }
+    return true;
+}
+
+static void PostMessageEvent(ani_env* env, ani_object object, ani_object messageObj)
+{
+    WVLOG_D("[WebMessagePort] (PostMessageEvent) Start");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    ani_class arrayBufferClass;
+    if (auto status = env->FindClass("Lescompat/ArrayBuffer;", &arrayBufferClass) != ANI_OK) {
+        WVLOG_E("[WebMessagePort] Find class %{public}s failed, status is %{public}d.", "ArrayBuffer", status);
+        return;
+    }
+    ani_boolean isArrayBuffer;
+    if (auto status = env->Object_InstanceOf(messageObj, arrayBufferClass, &isArrayBuffer) != ANI_OK) {
+        WVLOG_E("[WebMessagePort] Find type %{public}s failed, status is %{public}d.", "ArrayBuffer", status);
+        return;
+    }
+    bool isString = AniParseUtils::IsString(env, messageObj);
+    if (!isString && !isArrayBuffer) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        WVLOG_E("[WebMessagePort] (PostMessageEvent) Type Error");
+        return;
+    }
+    auto webMsg = std::make_shared<OHOS::NWeb::NWebMessage>(NWebValue::Type::NONE);
+    if (!PostMessageEventMsgHandler(env, messageObj, isString, isArrayBuffer, webMsg)) {
+        WVLOG_E("[WebMessagePort] PostMessageEventMsgHandler failed");
+        return;
+    }
+    WebMessagePort* msgPort = reinterpret_cast<WebMessagePort*>(AniParseUtils::Unwrap(env, object));
+    if (msgPort == nullptr) {
+        WVLOG_E("[WebMessagePort] WebMessagePort failed");
+        return;
+    }
+    ErrCode ret = msgPort->PostPortMessage(webMsg);
+    if (ret != NO_ERROR) {
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+        return;
+    }
+}
+
+static void PostMessageEventExt(ani_env* env, ani_object object, ani_object messageObj)
+{
+    WVLOG_D("[WebMessagePort] (PostMessageEventExt) Start");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    ani_class cls;
+    if (auto status = env->FindClass("L@ohos/web/webview/webview/WebMessageExt;", &cls) != ANI_OK) {
+        WVLOG_E("[WebMessagePort] Find class %{public}s failed, status is %{public}d.", "WebMessageExt", status);
+        return;
+    }
+    ani_boolean isWebMessageExt;
+    if (auto status = env->Object_InstanceOf(messageObj, cls, &isWebMessageExt) != ANI_OK) {
+        WVLOG_E("[WebMessagePort] Find type %{public}s failed, status is %{public}d.", "WebMessageExt", status);
+        return;
+    }
+    if (!isWebMessageExt) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        WVLOG_E("[WebMessagePort] (PostMessageEventExt) Type Error");
+        return;
+    }
+
+    WebMessageExt* webMessageExt = reinterpret_cast<WebMessageExt*>(AniParseUtils::Unwrap(env, messageObj));
+    if (webMessageExt == nullptr) {
+        WVLOG_E("[WebMessagePort] WebMessageExt failed");
+        return;
+    }
+    WebMessagePort* msgPort = reinterpret_cast<WebMessagePort*>(AniParseUtils::Unwrap(env, object));
+    if (msgPort == nullptr) {
+        WVLOG_E("[WebMessagePort] WebMessagePort failed");
+        return;
+    }
+    if (!msgPort->IsExtentionType()) {
+        AniBusinessError::ThrowError(
+            env, PARAM_CHECK_ERROR, NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "message"));
+        return;
+    }
+    ErrCode ret = msgPort->PostPortMessage(webMessageExt->GetData());
+    if (ret != NO_ERROR) {
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+        return;
+    }
+}
+
+static void OnMessageEvent(ani_env* env, ani_object object, ani_fn_object callback)
+{
+    WVLOG_D("[WebMessagePort] (OnMessageEvent) callback");
+    if (env == nullptr) {
+        WVLOG_E("[WebMessagePort] env is nullptr");
+        return;
+    }
+
+    auto callbackImpl = std::make_shared<NWebValueCallbackImpl>(g_vmWebMessagePort, callback, false);
+    WebMessagePort* msgPort = reinterpret_cast<WebMessagePort*>(AniParseUtils::Unwrap(env, object));
+    if (msgPort == nullptr) {
+        WVLOG_E("[WebMessagePort] Onmessage Unwrap failed");
+        return;
+    }
+    ErrCode ret = msgPort->SetPortMessageCallback(callbackImpl);
+    if (ret != NO_ERROR) {
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+        return;
+    }
+}
+
+static void OnMessageEventExt(ani_env* env, ani_object object, ani_fn_object callback)
+{
+    WVLOG_D("[WebMessagePort] (OnMessageEventExt) callback");
+    if (env == nullptr) {
+        WVLOG_E("[WebMessagePort] env is nullptr");
+        return;
+    }
+
+    auto callbackImpl = std::make_shared<NWebValueCallbackImpl>(g_vmWebMessagePort, callback, true);
+    WebMessagePort* msgPort = reinterpret_cast<WebMessagePort*>(AniParseUtils::Unwrap(env, object));
+    if (msgPort == nullptr) {
+        WVLOG_E("[WebMessagePort] OnMessage Unwrap failed");
+        return;
+    }
+    ErrCode ret = msgPort->SetPortMessageCallback(callbackImpl);
+    if (ret != NO_ERROR) {
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+        return;
+    }
+}
+
 ani_status StsWebMessagePortInit(ani_env* env)
 {
+    WVLOG_D("[WebMessagePort] StsWebMessagePortInit");
+    if (env == nullptr) {
+        WVLOG_E("[WebMessagePort] env is nullptr");
+        return ANI_ERROR;
+    }
+    ani_vm* vm = nullptr;
+    env->GetVM(&vm);
+    g_vmWebMessagePort = vm;
     ani_class webMessagePortCls = nullptr;
     ani_status status = env->FindClass(ANI_WEB_MESSAGE_PORT_INNER_CLASS_NAME, &webMessagePortCls);
     if (status != ANI_OK || !webMessagePortCls) {
@@ -2306,6 +2476,10 @@ ani_status StsWebMessagePortInit(ani_env* env)
     }
     std::array methodArray = {
         ani_native_function { "close", nullptr, reinterpret_cast<void*>(Close) },
+        ani_native_function { "postMessageEvent", nullptr, reinterpret_cast<void*>(PostMessageEvent) },
+        ani_native_function { "onMessageEvent", nullptr, reinterpret_cast<void*>(OnMessageEvent) },
+        ani_native_function { "postMessageEventExt", nullptr, reinterpret_cast<void*>(PostMessageEventExt) },
+        ani_native_function { "onMessageEventExt", nullptr, reinterpret_cast<void*>(OnMessageEventExt) },
         ani_native_function { "transferWebMessagePortToStaticInner", nullptr,
                               reinterpret_cast<void *>(TransferWebMessagePortToStaticInner) },
     };
@@ -3554,21 +3728,23 @@ ani_object PrecompileJavaScript(
 
 static void ConstructorExt(ani_env* env, ani_object object)
 {
-    if (env == nullptr) {
-        WVLOG_E("env is nullptr");
-        return;
-    }
-
-    auto webMsg = std::make_shared<OHOS::NWeb::NWebMessage>(NWebValue::Type::NONE);
-    WebMessageExt* webMessageExt = new (std::nothrow) WebMessageExt(webMsg);
-    if (webMessageExt == nullptr) {
-        WVLOG_E("new webMessageExt failed");
-        return;
-    }
-    if (!AniParseUtils::Wrap(env, object, ANI_WEB_MESSAGE_EXT_NAME, reinterpret_cast<ani_long>(webMessageExt))) {
-        WVLOG_E("webview webMessageExt wrap failed");
-        delete webMessageExt;
-        webMessageExt = nullptr;
+    if (g_WebMessagePort) {
+        if (env == nullptr) {
+            WVLOG_E("env is nullptr");
+            return;
+        }
+        
+        auto webMsg = std::make_shared<OHOS::NWeb::NWebMessage>(NWebValue::Type::NONE);
+        WebMessageExt* webMessageExt = new (std::nothrow) WebMessageExt(webMsg);
+        if (webMessageExt == nullptr) {
+            WVLOG_E("new webMessageExt failed");
+            return;
+        }
+        if (!AniParseUtils::Wrap(env, object, ANI_WEB_MESSAGE_EXT_NAME, reinterpret_cast<ani_long>(webMessageExt))) {
+            WVLOG_E("webview webMessageExt wrap failed");
+            delete webMessageExt;
+            webMessageExt = nullptr;
+        }
     }
 }
 
@@ -3901,8 +4077,14 @@ static ani_double GetNumber(ani_env* env, ani_object object)
         WVLOG_E("message data is nullptr");
         return result;
     }
-    double numberMsg = message->GetDouble();
-    result = static_cast<ani_double>(numberMsg);
+    if (static_cast<int32_t>(message->GetType()) == DOUBLE_VALUE) {
+        double doubleMsg = message->GetDouble();
+        result = static_cast<ani_double>(doubleMsg);
+    } else if (static_cast<int32_t>(message->GetType()) == INTEGER_VALUE) {
+        int intMsg = message->GetInt64();
+        result = static_cast<ani_double>(intMsg);
+    }
+    
     return result;
 }
 

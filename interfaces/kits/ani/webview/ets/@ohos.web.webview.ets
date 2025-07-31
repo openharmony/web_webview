@@ -1339,6 +1339,10 @@ export default namespace webview {
     export interface WebMessagePort {
         isExtentionType?: boolean;
         close(): void;
+        postMessageEvent(message: WebMessage): void;
+        onMessageEvent(callback: (result: WebMessage) => void): void;
+        postMessageEventExt(message: WebMessageExt): void;
+        onMessageEventExt(callback: (result: WebMessageExt) => void): void;
     }
     export class WebMessagePortInner implements WebMessagePort {
         static {
@@ -1347,7 +1351,7 @@ export default namespace webview {
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
         registerCleaner(ptr: long): void {
-            this.cleaner = new Cleaner(ptr, "WebMessagePort")
+            this.cleaner = new Cleaner(ptr, "WebMessagePortInner");
             destroyRegister.register(this, this.cleaner!, unregisterToken);
         }
         unregisterCleaner(): void {
@@ -1359,8 +1363,14 @@ export default namespace webview {
                 this.registerCleaner(this.nativePtr)
             }
         }
+
+        constructor(){};
         isExtentionType?: boolean;
         native close(): void;
+        native postMessageEvent(message: WebMessage): void;
+        native onMessageEvent(callback: (result: WebMessage) => void): void;
+        native postMessageEventExt(message: WebMessageExt): void;
+        native onMessageEventExt(callback: (result: WebMessageExt) => void): void;
 
         static transferWebMessagePortToStatic(input: Any): Object {
             let wmpObject: WebMessagePortInner = new WebMessagePortInner();
