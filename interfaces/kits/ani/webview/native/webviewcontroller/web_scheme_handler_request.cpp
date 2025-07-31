@@ -499,6 +499,7 @@ void WebSchemeHandler::PutRequestStart(ani_env* env, ani_vm* vm, ani_fn_object c
         WVLOG_E("PutRequestStart create reference failed.");
     }
 }
+
 void WebSchemeHandler::PutRequestStop(ani_env* env, ani_vm* vm, ani_fn_object callback)
 {   
     if (env == nullptr) {
@@ -621,7 +622,7 @@ WebHttpBodyStream::WebHttpBodyStream(ani_env* env, ArkWeb_HttpBodyStream* stream
 WebHttpBodyStream::~WebHttpBodyStream()
 {
     WVLOG_I("WebHttpBodyStream::~WebHttpBodyStream");
-    if (!stream_) {
+    if (stream_) {
         OH_ArkWebResourceRequest_DestroyHttpBodyStream(stream_);
         stream_ = nullptr;
     }
@@ -639,6 +640,7 @@ void WebHttpBodyStream::HttpBodyStreamReadCallback(
     }
     stream->ExecuteRead(buffer, bytesRead);
 }
+
 void WebHttpBodyStream::HttpBodyStreamInitCallback(const ArkWeb_HttpBodyStream* httpBodyStream, ArkWeb_NetError result)
 {
     WVLOG_I("WebHttpBodyStream::HttpBodyStreamInitCallback");
@@ -713,7 +715,7 @@ void WebHttpBodyStream::ExecuteInit(ArkWeb_NetError result)
     }
     WVLOG_I("WebHttpBodyStream::ExecuteInit task started");
 
-    if (!asyncCtx || !asyncCtx->env) {
+    if (!asyncCtx->env) {
         WVLOG_E("WebHttpBodyStream::ExecuteInit asyncCtx or env is nullptr");
         delete asyncCtx;
         return;
@@ -763,7 +765,7 @@ void WebHttpBodyStream::ExecuteRead(uint8_t* buffer, int bytesRead)
         return;
     }
     WVLOG_D("WebHttpBodyStream::ExecuteRead task started");
-    if (!asyncCtx || !asyncCtx->env) {
+    if (!asyncCtx->env) {
         WVLOG_E("WebHttpBodyStream::ExecuteRead asyncCtx or env is nullptr");
         delete asyncCtx;
         return;
