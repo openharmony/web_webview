@@ -41,6 +41,7 @@ static void Constructor(ani_env* env, ani_object object)
         return;
     }
 }
+
 static ani_boolean JsIsChunked(ani_env* env, ani_object object)
 {
     WVLOG_D("WebHttpBodyStream JsIsChunked.");
