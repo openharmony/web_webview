@@ -2244,12 +2244,11 @@ int32_t CustomizeSchemesArrayDataHandler(ani_env* env, ani_ref array)
     for (uint32_t i = 0; i < arrayLength; ++i) {
         ani_status status = env->Array_Get_Ref(static_cast<ani_array_ref>(array), i, &objRef);
         if (status != ANI_OK) {
-            WVLOG_E("%{public}d", status);
+            WVLOG_E("Array_Get_Ref failed %{public}d", status);
         }
 
         Scheme scheme;
         bool result = SetCustomizeScheme(env, objRef, scheme);
-        WVLOG_I("ljz 1 %{public}d", result);
         if (!result) {
             return PARAM_CHECK_ERROR;
         }
