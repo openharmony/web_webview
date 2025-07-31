@@ -2193,8 +2193,7 @@ bool SetCustomizeScheme(ani_env* env, ani_ref ref, Scheme& scheme)
         status =
             env->Object_GetPropertyByName_Ref(static_cast<ani_object>(ref), property.first.c_str(), &schemePropertyRef);
         if (status != ANI_OK) {
-            WVLOG_I("Object_GetPropertyByName_Ref status != ANI_OK : %{public}s", property.first.c_str());
-            WVLOG_I("Object_GetPropertyByName_Ref fail status : %{public}d", status);
+            WVLOG_E("Object_GetPropertyByName_Ref status != ANI_OK : %{public}s", property.first.c_str());
         }
         bool schemeProperty = false;
         if (!AniParseUtils::ParseBoolean(env, schemePropertyRef, schemeProperty)) {
