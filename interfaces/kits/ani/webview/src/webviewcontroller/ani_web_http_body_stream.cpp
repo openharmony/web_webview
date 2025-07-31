@@ -165,6 +165,7 @@ ani_status StsWebHttpBodyStreamInit(ani_env* env)
     status = env->Class_BindNativeMethods(WebHttpBodyStreamCls, allMethods.data(), allMethods.size());
     if (status != ANI_OK) {
         WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+        return ANI_ERROR;
     }
     return ANI_OK;
 }
