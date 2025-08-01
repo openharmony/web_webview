@@ -219,6 +219,8 @@ public:
 
     void RegisterJavaScriptProxy(RegisterJavaScriptProxyParam& param);
 
+    void RegisterJavaScriptProxy(AniRegisterJavaScriptProxyParam& param);
+
     ErrCode DeleteJavaScriptRegister(const std::string& objName,
         const std::vector<std::string>& methodList);
 

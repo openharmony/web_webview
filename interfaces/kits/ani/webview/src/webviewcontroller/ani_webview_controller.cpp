@@ -3061,6 +3061,7 @@ static void SetPathAllowingUniversalAccess(ani_env* env, ani_object object, ani_
         WVLOG_E("SetPathAllowingUniversalAccess ParseStringArray fail");
         return;
     }
+
     std::string errorPath;
     controller->SetPathAllowingUniversalAccess(pathListArr, errorPath);
     if (!errorPath.empty()) {
@@ -4620,6 +4621,103 @@ ani_status StsWebMessageExtInit(ani_env* env)
     return status;
 }
 
+bool ParseRegisterJavaScriptProxyParam(ani_env* env, ani_object jsObject, ani_string name, ani_object methodList,
+    ani_object asyncMethodList, ani_object permission, AniRegisterJavaScriptProxyParam* param)
+{
+    std::string objName;
+    if (!AniParseUtils::ParseString(env, name, objName)) {
+        AniBusinessError::ThrowError(
+            env, PARAM_CHECK_ERROR, NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "name", "string"));
+        return false;
+    }
+
+    std::vector<std::string> jsMethodList;
+    if (!AniParseUtils::ParseStringArray(env, methodList, jsMethodList)) {
+        WVLOG_E("ParseRegisterJavaScriptProxyParam build jsMethodList error");
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return false;
+    }
+    WVLOG_I("jsMethodList size = %{public}d", jsMethodList.size());
+    std::vector<std::string> jsAsyncMethodList;
+    ani_boolean isUndefined = ANI_TRUE;
+    if (env->Reference_IsUndefined(asyncMethodList, &isUndefined) != ANI_OK) {
+        return false;
+    }
+    WVLOG_I("ParseRegisterJavaScriptProxyParam jsAsyncMethodList is undefined? : %{public}d", isUndefined);
+    if (!isUndefined && !AniParseUtils::ParseStringArray(env, asyncMethodList, jsAsyncMethodList)) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return false;
+    }
+    WVLOG_I("jsAsyncMethodList size = %{public}d", jsAsyncMethodList.size());
+    std::string jsPermission;
+    if (env->Reference_IsUndefined(permission, &isUndefined) != ANI_OK) {
+        return false;
+    }
+    WVLOG_I("ParseRegisterJavaScriptProxyParam Permission is undefined? : %{public}d", isUndefined);
+    if (!isUndefined && !AniParseUtils::ParseString(env, static_cast<ani_ref>(permission), jsPermission)) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return false;
+    }
+
+    param->env = env;
+    param->obj = jsObject;
+    param->objName = objName;
+    param->syncMethodList = jsMethodList;
+    param->asyncMethodList = jsAsyncMethodList;
+    param->permission = jsPermission;
+    return true;
+}
+
+static void RegisterJavaScriptProxy(ani_env* env, ani_object object, ani_object jsObject, ani_string name,
+    ani_object methodList, ani_object asyncMethodList, ani_object permission)
+{
+    WVLOG_I("enter RegisterJavaScriptProxy");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    AniRegisterJavaScriptProxyParam param;
+    if (!ParseRegisterJavaScriptProxyParam(env, jsObject, name, methodList, asyncMethodList, permission, &param)) {
+        WVLOG_E("bulid AniRegisterJavaScriptProxyParam error");
+        return;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    controller->SetNWebJavaScriptResultCallBack();
+    controller->RegisterJavaScriptProxy(param);
+    WVLOG_I("exit RegisterJavaScriptProxy");
+    return;
+}
+
+static void DeleteJavaScriptRegister(ani_env* env, ani_object object, ani_string name)
+{
+    std::string objName;
+    if (!AniParseUtils::ParseString(env, name, objName)) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    ErrCode ret = controller->DeleteJavaScriptRegister(objName, {});
+    if (ret != NO_ERROR) {
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+        return;
+    }
+    WVLOG_I("DeleteJavaScriptRegister successful!");
+    return;
+}
+
 ErrCode ConstructFlowbuf(ani_env* env, ani_object script, int& fd, size_t& scriptLength)
 {
     auto flowbufferAdapter = OhosAdapterHelper::GetInstance().CreateFlowbufferAdapter();
@@ -4898,6 +4996,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "customizeSchemes", nullptr, reinterpret_cast<void *>(CustomizeSchemes) },
         ani_native_function { "setServiceWorkerWebSchemeHandler", nullptr, 
                               reinterpret_cast<void *>(SetServiceWorkerWebSchemeHandler) },
+        ani_native_function { "registerJavaScriptProxy", nullptr, reinterpret_cast<void *>(RegisterJavaScriptProxy) },
+        ani_native_function { "deleteJavaScriptRegister", nullptr, reinterpret_cast<void *>(DeleteJavaScriptRegister) },
         ani_native_function { "runJavaScriptCallback", nullptr, reinterpret_cast<void *>(RunJavaScriptCallback) },
         ani_native_function { "runJavaScriptCallbackExt", nullptr, reinterpret_cast<void *>(RunJavaScriptCallbackExt) },
     };

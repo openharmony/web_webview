@@ -807,8 +807,23 @@ std::shared_ptr<JavaScriptOb> JavaScriptOb::CreateNamed(
 {
     return std::make_shared<JavaScriptOb>(env, containerScopeId, value, refCount);
 }
+
+std::shared_ptr<JavaScriptOb> JavaScriptOb::CreateNamed(
+    ani_env *env, int32_t containerScopeId, ani_object value, size_t refCount)
+{
+    return std::make_shared<JavaScriptOb>(env, containerScopeId, value, refCount);
+}
+
 std::shared_ptr<JavaScriptOb> JavaScriptOb::CreateTransient(
     napi_env env, int32_t containerScopeId, napi_value value, int32_t holder, size_t refCount)
+{
+    std::set<int32_t> holders;
+    holders.insert(holder);
+    return std::make_shared<JavaScriptOb>(env, containerScopeId, value, holders, refCount);
+}
+
+std::shared_ptr<JavaScriptOb> JavaScriptOb::CreateTransient(
+    ani_env *env, int32_t containerScopeId, ani_object value, int32_t holder, size_t refCount)
 {
     std::set<int32_t> holders;
     holders.insert(holder);
@@ -824,6 +839,25 @@ JavaScriptOb::JavaScriptOb(napi_env env, int32_t containerScopeId, napi_value va
     }
 }
 
+JavaScriptOb::JavaScriptOb(ani_env *env, int32_t containerScopeId, ani_object value, size_t refCount)
+    : vm_(nullptr), containerScopeId_(containerScopeId), isStrongRef_(refCount != 0), namesCount_(1)
+{
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    if (env->GetVM(&vm_) != ANI_OK) {
+        WVLOG_E("get vm from env error");
+        return;
+    }
+
+    if (env->GlobalReference_Create(value, &aniObjRef_) != ANI_OK) {
+        WVLOG_E("create reference javascript obj fail");
+        return;
+    }
+}
+
 JavaScriptOb::JavaScriptOb(
     napi_env env, int32_t containerScopeId, napi_value value, std::set<int32_t> holders, size_t refCount)
     : env_(env), containerScopeId_(containerScopeId), isStrongRef_(refCount != 0), namesCount_(0), holders_(holders)
@@ -832,6 +866,27 @@ JavaScriptOb::JavaScriptOb(
     napi_status s = napi_create_reference(env, value, refCount, &objRef_);
     if (s != napi_ok) {
         WVLOG_E("create javascript obj fail");
+    }
+}
+
+JavaScriptOb::JavaScriptOb(
+    ani_env *env, int32_t containerScopeId, ani_object value, std::set<int32_t> holders, size_t refCount)
+    : vm_(nullptr), containerScopeId_(containerScopeId), isStrongRef_(refCount != 0), namesCount_(0), holders_(holders)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    if (env->GetVM(&vm_) != ANI_OK) {
+        WVLOG_E("get vm from env error");
+        return;
+    }
+
+    if (env->GlobalReference_Create(value, &aniObjRef_) != ANI_OK) {
+        WVLOG_E("create reference javascript obj fail");
+        return;
     }
 }
 
@@ -1304,6 +1359,30 @@ bool WebviewJavaScriptResultCallBack::FindObjectIdInJsTd(
     return false;
 }
 
+bool WebviewJavaScriptResultCallBack::FindObjectIdInJsTd(
+    ani_env* env, ani_object object, JavaScriptOb::ObjectID* objectId)
+{
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    WVLOG_I("unorder_map objects_ size = %{public}d", static_cast<int>(objects_.size()));
+    *objectId = static_cast<JavaScriptOb::ObjectID>(JavaScriptOb::JavaScriptObjIdErrorCode::WEBVIEWCONTROLLERERROR);
+    for (const auto& pair : objects_) {
+        ani_boolean isEquals = ANI_TRUE;
+        if (env->Reference_StrictEquals(object, pair.second->GetAniValue(), &isEquals) != ANI_OK && !isEquals) {
+            WVLOG_E("WebviewJavaScriptResultCallBack::FindObjectIdInJsTd fail");
+            return false;
+        }
+        WVLOG_I("WebviewJavaScriptResultCallBack::FindObjectIdInJsTd isEqual : %{public}d", isEquals);
+        if (isEquals) {
+            *objectId = pair.first;
+            return true;
+        }
+    }
+    return false;
+}
+
 void ExecuteHasJavaScriptObjectMethods(
     napi_env env, napi_status status, WebviewJavaScriptResultCallBack::NapiJsCallBackParm* param)
 {
@@ -1695,12 +1774,30 @@ JavaScriptOb::ObjectID WebviewJavaScriptResultCallBack::AddObject(
                                      : JavaScriptOb::CreateTransient(env, containerScopeId, object, holder);
         objectId = nextObjectId_++;
         WVLOG_D(
-            "WebviewJavaScriptResultCallBack::AddObject objectId = "
-            "%{public}d",
+            "WebviewJavaScriptResultCallBack::AddObject objectId = %{public}d",
             static_cast<int32_t>(objectId));
         objects_[objectId] = new_object;
         retainedObjectSet_.insert(new_object);
     }
+    return objectId;
+}
+
+JavaScriptOb::ObjectID WebviewJavaScriptResultCallBack::AddObject(
+    ani_env* env, const ani_object& object, bool methodName, int32_t holder)
+{
+    JavaScriptOb::ObjectID objectId;
+    {
+        int32_t containerScopeId = Ace::ContainerScope::CurrentId();
+        auto new_object = methodName ? JavaScriptOb::CreateNamed(env, containerScopeId, object)
+                                     : JavaScriptOb::CreateTransient(env, containerScopeId, object, holder);
+        objectId = nextObjectId_++;
+        WVLOG_D("WebviewJavaScriptResultCallBack::AddObject objectId = "
+                "%{public}d",
+            static_cast<int32_t>(objectId));
+        objects_[objectId] = new_object;
+        retainedObjectSet_.insert(new_object);
+    }
+    WVLOG_I("WebviewJavaScriptResultCallBack::AddObject objectId : %{public}d", objectId);
     return objectId;
 }
 
@@ -1728,6 +1825,34 @@ JavaScriptOb::ObjectID WebviewJavaScriptResultCallBack::AddNamedObject(
         objectId = AddObject(env, obj, true, 0);
     }
     namedObjects_[objName] = objectId;
+    return objectId;
+}
+
+JavaScriptOb::ObjectID WebviewJavaScriptResultCallBack::AddNamedObject(
+    ani_env* env, ani_object& obj, const std::string& objName)
+{
+    WVLOG_I("enter WebviewJavaScriptResultCallBack::AddNamedObject");
+    JavaScriptOb::ObjectID objectId;
+    NamedObjectMap::iterator iter = namedObjects_.find(objName);
+    bool methodName = FindObjectIdInJsTd(env, obj, &objectId);
+    if (methodName && iter != namedObjects_.end() && iter->second == objectId) {
+        // Nothing to do.
+        WVLOG_D("WebviewJavaScriptResultCallBack::AddNamedObject obj and "
+                "objName(%{public}s) "
+                "already exist",
+            objName.c_str());
+        return objectId;
+    }
+    if (iter != namedObjects_.end()) {
+        RemoveNamedObject(iter->first);
+    }
+    if (methodName) {
+        objects_[objectId]->AddName();
+    } else {
+        objectId = AddObject(env, obj, true, 0);
+    }
+    namedObjects_[objName] = objectId;
+    WVLOG_I("WebviewJavaScriptResultCallBack::AddNamedObject : %{public}d", objectId);
     return objectId;
 }
 
@@ -1768,6 +1893,20 @@ JavaScriptOb::ObjectID WebviewJavaScriptResultCallBack::RegisterJavaScriptProxy(
     return objId;
 }
 
+JavaScriptOb::ObjectID WebviewJavaScriptResultCallBack::RegisterJavaScriptProxy(AniRegisterJavaScriptProxyParam& param)
+{
+    WVLOG_I("enter WebviewJavaScriptResultCallBack::RegisterJavaScriptProxy");
+    JavaScriptOb::ObjectID objId = AddNamedObject(param.env, param.obj, param.objName);
+    // set up named object method
+    if (namedObjects_.find(param.objName) != namedObjects_.end() && objects_[namedObjects_[param.objName]]) {
+        std::shared_ptr<OHOS::NWeb::JavaScriptOb> jsObj = objects_[namedObjects_[param.objName]];
+        jsObj->SetMethods(param.syncMethodList);
+        jsObj->SetAsyncMethods(param.asyncMethodList);
+        jsObj->SetPermission(param.permission);
+    }
+    return objId;
+}
+
 bool WebviewJavaScriptResultCallBack::RemoveNamedObject(const std::string& name)
 {
     WVLOG_D("WebviewJavaScriptResultCallBack::RemoveNamedObject called, "
@@ -1778,6 +1917,7 @@ bool WebviewJavaScriptResultCallBack::RemoveNamedObject(const std::string& name)
         return false;
     }
     if (objects_[iter->second]) {
+        WVLOG_I("delete object find by name");
         objects_[iter->second]->RemoveName();
     }
     namedObjects_.erase(iter);

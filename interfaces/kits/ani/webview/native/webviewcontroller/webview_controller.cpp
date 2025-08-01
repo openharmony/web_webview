@@ -904,6 +904,42 @@ void WebviewController::RegisterJavaScriptProxy(RegisterJavaScriptProxyParam& pa
                                     std::vector<std::string>(), objId, param_tmp.permission);
 }
 
+void WebviewController::RegisterJavaScriptProxy(AniRegisterJavaScriptProxyParam& param)
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        WVLOG_E("WebviewController::RegisterJavaScriptProxy nweb_ptr is null");
+        return;
+    }
+    JavaScriptOb::ObjectID objId =
+        static_cast<JavaScriptOb::ObjectID>(JavaScriptOb::JavaScriptObjIdErrorCode::WEBCONTROLLERERROR);
+
+    if (!javaScriptResultCb_) {
+        WVLOG_E("WebviewController::RegisterJavaScriptProxy javaScriptResultCb_ is null");
+        return;
+    }
+
+    if (param.syncMethodList.empty() && param.asyncMethodList.empty()) {
+        WVLOG_E("WebviewController::RegisterJavaScriptProxy all methodList are empty");
+        return;
+    }
+
+    std::vector<std::string> allMethodList;
+    std::merge(param.syncMethodList.begin(), param.syncMethodList.end(), param.asyncMethodList.begin(),
+        param.asyncMethodList.end(), std::back_inserter(allMethodList));
+
+    AniRegisterJavaScriptProxyParam tmp;
+    tmp.env = param.env;
+    tmp.obj = param.obj;
+    tmp.objName = param.objName;
+    tmp.syncMethodList = allMethodList;
+    tmp.asyncMethodList = param.asyncMethodList;
+    tmp.permission = param.permission;
+    objId = javaScriptResultCb_->RegisterJavaScriptProxy(tmp);
+
+    nweb_ptr->RegisterArkJSfunction(tmp.objName, tmp.syncMethodList, std::vector<std::string>(), objId, tmp.permission);
+}
+
 void WebviewController::CreatePDFExt(
     std::shared_ptr<NWebPDFConfigArgs> pdfConfig, std::shared_ptr<NWebArrayBufferValueCallback> callbackImpl)
 {
