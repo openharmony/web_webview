@@ -981,7 +981,7 @@ ani_ref ConvertToAniHandlerOfInteger(ani_env* env, std::shared_ptr<NWebMessage> 
 
     ani_class integer_cls;
     ani_status status;
-    if ((status = env->FindClass("Lstd/core/Boolean;", &integer_cls)) != ANI_OK) {
+    if ((status = env->FindClass("Lstd/core/Long;", &integer_cls)) != ANI_OK) {
         WVLOG_E("error in FindClass status : %{public}d", status);
         return nullptr;
     }
@@ -1007,13 +1007,13 @@ ani_ref ConvertToAniHandlerOfDouble(ani_env* env, std::shared_ptr<NWebMessage> s
 
     ani_class double_cls;
     ani_status status;
-    if ((status = env->FindClass("Lstd/core/Boolean;", &double_cls)) != ANI_OK) {
+    if ((status = env->FindClass("Lstd/core/Double;", &double_cls)) != ANI_OK) {
         WVLOG_E("error in FindClass status : %{public}d", status);
         return nullptr;
     }
 
     ani_method doubleInfoCtor;
-    if ((status = env->Class_FindMethod(double_cls, "<ctor>", "J:V", &doubleInfoCtor)) != ANI_OK) {
+    if ((status = env->Class_FindMethod(double_cls, "<ctor>", "D:V", &doubleInfoCtor)) != ANI_OK) {
         WVLOG_E("error in FindMethod status : %{public}d", status);
         return nullptr;
     }
@@ -1220,7 +1220,7 @@ ani_ref ConvertToAniHandlerOfInt64Arr(ani_env* env, std::shared_ptr<NWebMessage>
     }
 
     for (size_t i = 0; i < valueSize; i++) {
-        ani_long item = static_cast<ani_boolean>(values[i]);
+        ani_long item = static_cast<ani_long>(values[i]);
         ani_class cls {};
         if (ANI_OK != env->FindClass("Lstd/core/Long;", &cls)) {
             return nullptr;

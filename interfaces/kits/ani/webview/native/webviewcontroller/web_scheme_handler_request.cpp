@@ -156,7 +156,7 @@ ani_object CreateBusinessError(ani_env* env, ani_int code, const std::string& ms
         WVLOG_E("FindClass failed %{public}d", status);
         return nullptr;
     }
-    if ((status = env->Class_FindMethod(cls, "<ctor>", "DLescompat/Error;:V", &method)) != ANI_OK) {
+    if ((status = env->Class_FindMethod(cls, "<ctor>", "ILescompat/Error;:V", &method)) != ANI_OK) {
         WVLOG_E("Class_FindMethod failed %{public}d", status);
         return nullptr;
     }
@@ -165,7 +165,7 @@ ani_object CreateBusinessError(ani_env* env, ani_int code, const std::string& ms
         WVLOG_E("error nulll");
         return nullptr;
     }
-    ani_double dCode(code);
+    ani_int dCode(code);
     if ((status = env->Object_New(cls, method, &obj, dCode, error)) != ANI_OK) {
         WVLOG_E("Object_New failed %{public}d", status);
         return nullptr;
@@ -182,7 +182,7 @@ ani_ref CreateError(ani_env* env, int32_t err)
 void OnRequestStart(const ArkWeb_SchemeHandler* schemeHandler, ArkWeb_ResourceRequest* resourceRequest,
     const ArkWeb_ResourceHandler* resourceHandler, bool* intercept)
 {
-    WVLOG_I("SchemeHandler OnRequestStart");
+    WVLOG_D("SchemeHandler OnRequestStart");
     if (!schemeHandler) {
         WVLOG_E("OnRequestStart schemeHandler is nullptr");
         return;
@@ -197,7 +197,7 @@ void OnRequestStart(const ArkWeb_SchemeHandler* schemeHandler, ArkWeb_ResourceRe
 
 void OnRequestStop(const ArkWeb_SchemeHandler* schemeHandler, const ArkWeb_ResourceRequest* resourceRequest)
 {
-    WVLOG_I("SchemeHandler OnRequestStop");
+    WVLOG_D("SchemeHandler OnRequestStop");
     if (!schemeHandler) {
         WVLOG_E("OnRequestStop schemeHandler is nullptr");
         return;
@@ -213,6 +213,7 @@ void OnRequestStop(const ArkWeb_SchemeHandler* schemeHandler, const ArkWeb_Resou
 
 WebSchemeHandlerRequest::WebSchemeHandlerRequest(ani_env* env) : env_(env)
 {   
+    WVLOG_D("WebSchemeHandlerRequest::WebSchemeHandlerRequest");
     if (vm_ == nullptr) {
         WVLOG_E("vm_ is nullptr");
         return;
@@ -221,12 +222,11 @@ WebSchemeHandlerRequest::WebSchemeHandlerRequest(ani_env* env) : env_(env)
         WVLOG_E("Failed to get VM from env");
         return;
     }
-    WVLOG_I("WebSchemeHandlerRequest::WebSchemeHandlerRequest");
 }
 
 WebSchemeHandlerRequest::WebSchemeHandlerRequest(ani_env* env, const ArkWeb_ResourceRequest* request) : env_(env)
 {
-    WVLOG_I("WebSchemeHandlerRequest::WebSchemeHandlerRequest");
+    WVLOG_D("WebSchemeHandlerRequest::WebSchemeHandlerRequest");
     OH_ArkWebResourceRequest_GetUrl(request, &url_);
     OH_ArkWebResourceRequest_GetMethod(request, &method_);
     OH_ArkWebResourceRequest_GetReferrer(request, &referrer_);
@@ -266,7 +266,7 @@ WebSchemeHandlerRequest::WebSchemeHandlerRequest(ani_env* env, const ArkWeb_Reso
 
 WebSchemeHandlerRequest::~WebSchemeHandlerRequest()
 {
-    WVLOG_I("WebSchemeHandlerRequest::~WebSchemeHandlerRequest");
+    WVLOG_D("WebSchemeHandlerRequest::~WebSchemeHandlerRequest");
     OH_ArkWeb_ReleaseString(url_);
     OH_ArkWeb_ReleaseString(method_);
     OH_ArkWeb_ReleaseString(referrer_);
@@ -341,7 +341,7 @@ WebSchemeHandler* WebSchemeHandler::GetWebSchemeHandler(const ArkWeb_SchemeHandl
 
 WebSchemeHandler::WebSchemeHandler(ani_env* env) : vm_(nullptr)
 {
-    WVLOG_I("create WebSchemeHandler");
+    WVLOG_D("create WebSchemeHandler");
     if (!env) {
         WVLOG_E("create WebSchemeHandler env null");
         return;
@@ -364,7 +364,7 @@ WebSchemeHandler::WebSchemeHandler(ani_env* env) : vm_(nullptr)
 
 WebSchemeHandler::~WebSchemeHandler()
 {
-    WVLOG_I("WebSchemeHandler::~WebSchemeHandler");
+    WVLOG_D("WebSchemeHandler::~WebSchemeHandler");
     GetEnv()->GlobalReference_Delete(request_start_callback_);
     GetEnv()->GlobalReference_Delete(request_stop_callback_);
     ArkWeb_SchemeHandler* handler = const_cast<ArkWeb_SchemeHandler*>(GetArkWebSchemeHandler(this));
@@ -483,10 +483,12 @@ void WebSchemeHandler::RequestStopAfterWorkCb(RequestStopParam* param)
     }
     if (vm_ == nullptr) {
         WVLOG_E("RequestStopAfterWorkCb: nil vm");
+        delete param;
         return;
     }
     if (auto status = vm_->GetEnv(ANI_VERSION_1, &param->env_) != ANI_OK) {
         WVLOG_E("RequestStopAfterWorkCb: GetEnv status is : %{public}d", status);
+        delete param;
         return;
     }
     if (param->env_ == nullptr || !param->callbackRef_) {
@@ -505,11 +507,13 @@ void WebSchemeHandler::RequestStopAfterWorkCb(RequestStopParam* param)
     ani_object requestValue = {};
     if (!CreateObjectVoid(param->env_, WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME, requestValue)) {
         WVLOG_E("RequestStopAfterWorkCb: create requestValue failed");
+        delete param;
         return;
     }
     if (!Wrap(param->env_, requestValue, WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME,
             reinterpret_cast<ani_long>(param->request_))) {
         WVLOG_E("RequestStopAfterWorkCb: WebSchemeHandlerRequest wrap failed");
+        delete param;
         return;
     }
     std::vector<ani_ref> vec;
@@ -519,6 +523,11 @@ void WebSchemeHandler::RequestStopAfterWorkCb(RequestStopParam* param)
         reinterpret_cast<ani_fn_object>(callbackFunc), vec.size(), vec.data(), &fnReturnVal);
     if (status != ANI_OK) {
         WVLOG_E("RequestStopAfterWorkCb:FunctionalObject_Call failed.");
+        delete param;
+        return;    
+    }
+    if (callbackFunc != nullptr) {
+        env_->GlobalReference_Delete(callbackFunc);
     }
     WebResourceHandler* resourceHandler =
         reinterpret_cast<WebResourceHandler*>(OH_ArkWebResourceRequest_GetUserData(param->arkWebRequest_));
@@ -587,7 +596,7 @@ void WebSchemeHandler::PutRequestStart(ani_env* env, ani_vm* vm, ani_fn_object c
         WVLOG_E("env is nullptr");
         return;
     }
-    WVLOG_I("WebSchemeHandler::PutRequestStart");
+    WVLOG_D("WebSchemeHandler::PutRequestStart");
     if (!vm) {
         WVLOG_E("PutRequestStart vm null");
         return;
@@ -605,7 +614,7 @@ void WebSchemeHandler::PutRequestStop(ani_env* env, ani_vm* vm, ani_fn_object ca
         WVLOG_E("env is nullptr");
         return;
     }
-    WVLOG_I("WebSchemeHandler::PutRequestStop");
+    WVLOG_D("WebSchemeHandler::PutRequestStop");
     if (!vm) {
         WVLOG_E("PutRequestStop vm null");
         return;
@@ -619,7 +628,7 @@ void WebSchemeHandler::PutRequestStop(ani_env* env, ani_vm* vm, ani_fn_object ca
 
 WebResourceHandler::WebResourceHandler(ani_env* env)
 {  
-    WVLOG_I("create WebResourceHandler");
+    WVLOG_D("create WebResourceHandler");
     if (vm_ == nullptr) {
         WVLOG_E("vm_ is nullptr");
         return;
@@ -633,7 +642,7 @@ WebResourceHandler::WebResourceHandler(ani_env* env)
 WebResourceHandler::WebResourceHandler(ani_env* env, const ArkWeb_ResourceHandler* handler)
     : handler_(const_cast<ArkWeb_ResourceHandler*>(handler))
 {   
-    WVLOG_I("create WebResourceHandler");
+    WVLOG_D("create WebResourceHandler");
     if (vm_ == nullptr) {
         WVLOG_E("vm_ is nullptr");
         return;
@@ -646,7 +655,7 @@ WebResourceHandler::WebResourceHandler(ani_env* env, const ArkWeb_ResourceHandle
 
 WebResourceHandler::~WebResourceHandler()
 {
-    WVLOG_I("~WebResourceHandler");
+    WVLOG_D("~WebResourceHandler");
 }
 
 int32_t WebResourceHandler::DidReceiveResponse(const ArkWeb_Response* response)
@@ -705,7 +714,7 @@ WebHttpBodyStream::WebHttpBodyStream(ani_env* env)
 
 WebHttpBodyStream::WebHttpBodyStream(ani_env* env, ArkWeb_HttpBodyStream* stream)
 {
-    WVLOG_I("WebHttpBodyStream::WebHttpBodyStream");
+    WVLOG_D("WebHttpBodyStream::WebHttpBodyStream");
     env_ = env;
     stream_ = stream;
     if (OH_ArkWebHttpBodyStream_SetUserData(stream_, this) != 0) {
@@ -720,7 +729,7 @@ WebHttpBodyStream::WebHttpBodyStream(ani_env* env, ArkWeb_HttpBodyStream* stream
 
 WebHttpBodyStream::~WebHttpBodyStream()
 {
-    WVLOG_I("WebHttpBodyStream::~WebHttpBodyStream");
+    WVLOG_D("WebHttpBodyStream::~WebHttpBodyStream");
     if (stream_) {
         OH_ArkWebResourceRequest_DestroyHttpBodyStream(stream_);
         stream_ = nullptr;
@@ -730,7 +739,7 @@ WebHttpBodyStream::~WebHttpBodyStream()
 void WebHttpBodyStream::HttpBodyStreamReadCallback(
     const ArkWeb_HttpBodyStream* httpBodyStream, uint8_t* buffer, int bytesRead)
 {
-    WVLOG_I("WebHttpBodyStream::HttpBodyStreamReadCallback");
+    WVLOG_D("WebHttpBodyStream::HttpBodyStreamReadCallback");
     WebHttpBodyStream* stream =
         reinterpret_cast<WebHttpBodyStream*>(OH_ArkWebHttpBodyStream_GetUserData(httpBodyStream));
     if (!stream) {
@@ -742,7 +751,7 @@ void WebHttpBodyStream::HttpBodyStreamReadCallback(
 
 void WebHttpBodyStream::HttpBodyStreamInitCallback(const ArkWeb_HttpBodyStream* httpBodyStream, ArkWeb_NetError result)
 {
-    WVLOG_I("WebHttpBodyStream::HttpBodyStreamInitCallback");
+    WVLOG_D("WebHttpBodyStream::HttpBodyStreamInitCallback");
     WebHttpBodyStream* stream =
         reinterpret_cast<WebHttpBodyStream*>(OH_ArkWebHttpBodyStream_GetUserData(httpBodyStream));
     if (!stream) {
@@ -754,7 +763,7 @@ void WebHttpBodyStream::HttpBodyStreamInitCallback(const ArkWeb_HttpBodyStream* 
 
 void WebHttpBodyStream::Init(ani_ref jsCallback, ani_resolver initResolver)
 {
-    WVLOG_I("WebHttpBodyStream::Init");
+    WVLOG_D("WebHttpBodyStream::Init");
     if (!jsCallback && !initResolver) {
         WVLOG_E("WebHttpBodyStream::InitCallback callback is nullptr");
         return;
@@ -774,7 +783,7 @@ void WebHttpBodyStream::Init(ani_ref jsCallback, ani_resolver initResolver)
 
 void WebHttpBodyStream::Read(int bufLen, ani_ref jsCallback, ani_resolver readResolver)
 {
-    WVLOG_I("WebHttpBodyStream::Read");
+    WVLOG_D("WebHttpBodyStream::Read");
     if (!jsCallback && !readResolver) {
         WVLOG_E("WebHttpBodyStream::Read callback is nullptr");
         return;
@@ -797,7 +806,7 @@ void WebHttpBodyStream::Read(int bufLen, ani_ref jsCallback, ani_resolver readRe
 
 void WebHttpBodyStream::ExecuteInit(ArkWeb_NetError result)
 {
-    WVLOG_I("WebHttpBodyStream::ExecuteInit");
+    WVLOG_D("WebHttpBodyStream::ExecuteInit");
     if (!env_) {
         WVLOG_E("WebHttpBodyStream::ExecuteInit env_ is nullptr");
         return;
@@ -809,10 +818,10 @@ void WebHttpBodyStream::ExecuteInit(ArkWeb_NetError result)
         .errCode = result,
     };
     if (asyncCtx == nullptr) {
-        WVLOG_I("WebHttpBodyStream::ExecuteInit");
+        WVLOG_E("WebHttpBodyStream::ExecuteInit");
         return;
     }
-    WVLOG_I("WebHttpBodyStream::ExecuteInit task started");
+    WVLOG_D("WebHttpBodyStream::ExecuteInit task started");
 
     if (!asyncCtx->env) {
         WVLOG_E("WebHttpBodyStream::ExecuteInit asyncCtx or env is nullptr");
@@ -844,13 +853,13 @@ void WebHttpBodyStream::ExecuteInit(ArkWeb_NetError result)
     } else {
         WVLOG_E("WebHttpBodyStream::ExecuteInit no deferred provided");
     }
-    WVLOG_I("WebHttpBodyStream::ExecuteInit");
+    WVLOG_D("WebHttpBodyStream::ExecuteInit");
     delete asyncCtx;
 }
 
 void WebHttpBodyStream::ExecuteRead(uint8_t* buffer, int bytesRead)
 {
-    WVLOG_I("WebHttpBodyStream::ExecuteRead");
+    WVLOG_D("WebHttpBodyStream::ExecuteRead");
     if (!env_) {
         return;
     }
@@ -889,25 +898,25 @@ uint64_t WebHttpBodyStream::GetPostion() const
 
 uint64_t WebHttpBodyStream::GetSize() const
 {
-    WVLOG_I("WebHttpBodyStream::GetSize");
+    WVLOG_D("WebHttpBodyStream::GetSize");
     return OH_ArkWebHttpBodyStream_GetSize(stream_);
 }
 
 bool WebHttpBodyStream::IsChunked() const
 {
-    WVLOG_I("WebHttpBodyStream::IsChunked");
+    WVLOG_D("WebHttpBodyStream::IsChunked");
     return OH_ArkWebHttpBodyStream_IsChunked(stream_);
 }
 
 bool WebHttpBodyStream::IsEof()
 {
-    WVLOG_I("WebHttpBodyStream::IsEof");
+    WVLOG_D("WebHttpBodyStream::IsEof");
     return OH_ArkWebHttpBodyStream_IsEof(stream_);
 }
 
 bool WebHttpBodyStream::IsInMemory()
 {
-    WVLOG_I("WebHttpBodyStream::IsInMemory");
+    WVLOG_D("WebHttpBodyStream::IsInMemory");
     return OH_ArkWebHttpBodyStream_IsInMemory(stream_);
 }
 

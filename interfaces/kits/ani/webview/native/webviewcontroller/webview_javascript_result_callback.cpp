@@ -1369,10 +1369,9 @@ bool WebviewJavaScriptResultCallBack::FindObjectIdInJsTd(
     WVLOG_I("unorder_map objects_ size = %{public}d", static_cast<int>(objects_.size()));
     *objectId = static_cast<JavaScriptOb::ObjectID>(JavaScriptOb::JavaScriptObjIdErrorCode::WEBVIEWCONTROLLERERROR);
     for (const auto& pair : objects_) {
-        ani_boolean isEquals = ANI_TRUE;
+        ani_boolean isEquals = ANI_FALSE;
         if (env->Reference_StrictEquals(object, pair.second->GetAniValue(), &isEquals) != ANI_OK && !isEquals) {
             WVLOG_E("WebviewJavaScriptResultCallBack::FindObjectIdInJsTd fail");
-            return false;
         }
         WVLOG_I("WebviewJavaScriptResultCallBack::FindObjectIdInJsTd isEqual : %{public}d", isEquals);
         if (isEquals) {

@@ -682,13 +682,13 @@ export default namespace webview {
         native terminateRenderProcess(): boolean;
         native static setConnectionTimeout(timeout: number): void;
         native backOrForward(step: number): void;
-        native static setWebDebuggingAccessSingle(webDebuggingAccess: boolean): void;
+        native static SetWebDebuggingAccess(webDebuggingAccess: boolean): void;
         static setWebDebuggingAccess(webDebuggingAccess: boolean): void {
-            WebviewController.setWebDebuggingAccessSingle(webDebuggingAccess);
+            WebviewController.SetWebDebuggingAccess(webDebuggingAccess);
         }
-        native static setWebDebuggingAccessDouble(webDebuggingAccess: boolean, port: int): void;
-        static setWebDebuggingAccess(webDebuggingAccess: boolean, port: int): void {
-            WebviewController.setWebDebuggingAccessDouble(webDebuggingAccess, port);
+        native static setWebDebuggingAccessAndPort(webDebuggingAccess: boolean, port: number): void;
+        static setWebDebuggingAccess(webDebuggingAccess: boolean, port: number): void {
+            WebviewController.setWebDebuggingAccessAndPort(webDebuggingAccess, port);
         }
         native enableSafeBrowsing(enable: boolean): void;
         native static setRenderProcessMode(mode: RenderProcessMode): void;
@@ -756,9 +756,17 @@ export default namespace webview {
         runJavaScript(script: string, callback: AsyncCallback<string>): void {
             this.runJavaScriptCallback(script, callback);
         }
+        native runJavaScriptPromise(script: string): Promise<string>;
+        runJavaScript(script: string): Promise<string> {
+            return this.runJavaScriptPromise(script);
+        }
         native runJavaScriptCallbackExt(script: string | ArrayBuffer, callback: AsyncCallback<JsMessageExt>): void;
         runJavaScriptExt(script: string | ArrayBuffer, callback: AsyncCallback<JsMessageExt>): void {
             this.runJavaScriptCallbackExt(script, callback);
+        }
+        native runJavaScriptPromiseExt(script: string | ArrayBuffer): Promise<string>;
+        runJavaScriptExt(script: string | ArrayBuffer): Promise<string> {
+            return this.runJavaScriptPromiseExt(script);
         }
         native static enableBackForwardCache(features?: BackForwardCacheSupportedFeatures): void;
         native setBackForwardCacheOptions(options?: BackForwardCacheOptions): void;
@@ -777,6 +785,64 @@ export default namespace webview {
         native hasImagePromise(): Promise<boolean>;
         hasImage(): Promise<boolean> {
             return this.hasImagePromise();
+        }
+        native getCertificateInternal(): ArrayBuffer;
+        getCertificateSync(): Uint8Array{
+            let buffer = this.getCertificateInternal();
+            let uint8Array = new Uint8Array(buffer);
+            return uint8Array;
+        }
+        getCertificate(): Promise<Array<cert.X509Cert>> {
+            let certChainData = this.getCertificateSync();
+            return new Promise<Array<cert.X509Cert>>((resolve, reject) => {
+                let taskPromise = taskpool.execute(():undefined => {
+                    return undefined});
+                taskPromise.then(async (results: NullishType) => {
+                    const certs: Array<cert.X509Cert> = [];
+                    for (let i = 0; i < certChainData.length; i++) {
+                        const encodingBlob: cert.EncodingBlob = {
+                            data: new Uint8Array (certChainData[i]),
+                            encodingFormat: cert.EncodingFormat.FORMAT_DER
+                        };
+                        try {
+                            const x509Cert = await cert.createX509Cert(encodingBlob);
+                            certs.push(x509Cert);
+                        } catch (e) {
+                            console.error("Failed to parse certificate", e);
+                        }
+                        resolve(certs);
+                    }
+                })
+                .catch((error: Error) => {
+                    reject(error);
+                });
+            });
+        }
+        getCertificate(callback: AsyncCallback<Array<cert.X509Cert>>): void {
+            let certChainData = this.getCertificateSync();
+            let p = taskpool.execute(():undefined => {
+                    return undefined});
+            p.then((results : NullishType) => {
+                const certs: Array<cert.X509Cert> = [];
+                for (let i = 0; i < certChainData.length; i++) {
+                    const encodingBlob: cert.EncodingBlob = {
+                        data: new Uint8Array (certChainData[i]),
+                        encodingFormat: cert.EncodingFormat.FORMAT_DER
+                    };
+                    try {
+                        const x509Cert = await cert.createX509Cert(encodingBlob);
+                        certs.push(x509Cert);
+                    } catch (e) {
+                        console.error("Failed to parse certificate", e);
+                    }
+                }
+                let error = new BusinessError<void>();
+                callback(error, certs);
+            }).catch((error: Error) => {
+                let err = error as BusinessError<void>;
+                let data = new Array<cert.X509Cert>;
+                callback(err, data);
+            });
         }
     }
 
