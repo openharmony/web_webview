@@ -22,6 +22,9 @@
 
 #include "arkweb_scheme_handler.h"
 #include "refbase.h"
+#include "event_handler.h"
+#include "nweb_value_callback.h"
+#include "nweb_web_message.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -116,9 +119,10 @@ private:
         const ArkWeb_ResourceRequest* arkWebRequest_;
     } RequestStopParam;
 
-    static void RequestStopAfterWorkCb(RequestStopParam* param);
+    void RequestStopAfterWorkCb(RequestStopParam* param);
     ani_env* env_ = nullptr;
     ani_vm* vm_ = nullptr;
+    std::shared_ptr<AppExecFwk::EventHandler> mainHandler_;
     ArkWeb_OnRequestStart onRequestStart_ = nullptr;
     ArkWeb_OnRequestStop onRequestStop_ = nullptr;
     ani_ref request_start_callback_ = nullptr;

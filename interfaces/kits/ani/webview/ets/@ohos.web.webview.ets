@@ -808,6 +808,7 @@ export default namespace webview {
 
         native constructor();
         native onRequestStart(callback: (request: WebSchemeHandlerRequest, handler: WebResourceHandler) => boolean): void;
+        native onRequestStop(callback : (request: WebSchemeHandlerRequest) => void): void;
     }
 
     export class WebSchemeHandlerRequest {
@@ -892,6 +893,8 @@ export default namespace webview {
         native isEof(): boolean;
         native getSize():number;
 	    native getPosition():number;
+        native initialize(): Promise<void>;
+        native read(size: number): Promise<ArrayBuffer>;
     }
 
     export class WebDownloadItem {
