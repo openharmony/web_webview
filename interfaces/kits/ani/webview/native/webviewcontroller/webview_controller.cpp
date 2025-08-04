@@ -1341,6 +1341,11 @@ int32_t WebviewController::ClearWebSchemeHandler()
     return OH_ArkWeb_ClearSchemeHandlers(webTag_.c_str());
 }
 
+int32_t WebviewController::ClearWebServiceWorkerSchemeHandler()
+{
+    return OH_ArkWebServiceWorker_ClearSchemeHandlers();
+}
+
 ErrCode WebviewController::StartCamera()
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
