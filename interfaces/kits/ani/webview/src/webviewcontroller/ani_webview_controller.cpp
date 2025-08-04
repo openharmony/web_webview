@@ -104,6 +104,8 @@ constexpr double SCALE_MAX = 2.0;
 constexpr double HALF = 2.0;
 constexpr double TEN_MILLIMETER_TO_INCH = 0.39;
 const char* ANI_WEB_CUSTOM_SCHEME_CLASS = "L@ohos/web/webview/webview/WebCustomSchemeClass;";
+constexpr size_t BFCACHE_DEFAULT_SIZE = 1;
+constexpr size_t BFCACHE_DEFAULT_TIMETOLIVE = 600;
 struct PDFMarginConfig {
     double top = TEN_MILLIMETER_TO_INCH;
     double bottom = TEN_MILLIMETER_TO_INCH;
@@ -4788,6 +4790,60 @@ static void RunJavaScriptCallbackExt(ani_env* env, ani_object object, ani_object
     return RunJSCallback(env, object, script, callbackObj, true);
 }
 
+static void EnableBackForwardCache(ani_env *env, ani_object object, ani_object featuresObject)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    bool nativeEmbed = false;
+    bool mediaTakeOver = false;
+    ani_boolean embedObj = ANI_FALSE;
+    ani_boolean mediaObj = ANI_FALSE;
+    ani_boolean isUndefined = ANI_TRUE;
+    env->Reference_IsUndefined(featuresObject, &isUndefined);
+    if (isUndefined != ANI_TRUE) {
+        if (env->Object_GetFieldByName_Boolean(featuresObject, "nativeEmbed", &embedObj) == ANI_OK) {
+            nativeEmbed = static_cast<bool>(embedObj);
+        }
+
+        if (env->Object_GetFieldByName_Boolean(featuresObject, "mediaTakeOver", &mediaObj) == ANI_OK) {
+            mediaTakeOver = static_cast<bool>(mediaObj);
+        }
+    }
+    NWebHelper::Instance().EnableBackForwardCache(nativeEmbed, mediaTakeOver);
+    return;
+}
+
+static void SetBackForwardCacheOptions(ani_env *env, ani_object object, ani_object optionsObject)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("SetBackForwardCacheOptions: Init webview controller error.");
+        return;
+    }
+    int32_t size = BFCACHE_DEFAULT_SIZE;
+    int32_t timeToLive = BFCACHE_DEFAULT_TIMETOLIVE;
+    ani_double sizeObj;
+    ani_double timeToLiveObj;
+    ani_boolean isUndefined = ANI_TRUE;
+    env->Reference_IsUndefined(optionsObject, &isUndefined);
+    if (isUndefined != ANI_TRUE) {
+        if (env->Object_GetPropertyByName_Double(optionsObject, "size", &sizeObj) == ANI_OK) {
+            size = static_cast<int32_t>(sizeObj);
+        }
+        if (env->Object_GetPropertyByName_Double(optionsObject, "timeToLive", &timeToLiveObj) == ANI_OK) {
+            timeToLive = static_cast<int32_t>(timeToLiveObj);
+        }
+    }
+    controller->SetBackForwardCacheOptions(size, timeToLive);
+    return;
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     WVLOG_D("[DOWNLOAD] StsWebviewControllerInit");
@@ -4900,6 +4956,9 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void *>(SetServiceWorkerWebSchemeHandler) },
         ani_native_function { "runJavaScriptCallback", nullptr, reinterpret_cast<void *>(RunJavaScriptCallback) },
         ani_native_function { "runJavaScriptCallbackExt", nullptr, reinterpret_cast<void *>(RunJavaScriptCallbackExt) },
+        ani_native_function { "enableBackForwardCache", nullptr, reinterpret_cast<void *>(EnableBackForwardCache) },
+        ani_native_function { "setBackForwardCacheOptions", nullptr,
+                              reinterpret_cast<void *>(SetBackForwardCacheOptions) },
     };
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
     if (status != ANI_OK) {

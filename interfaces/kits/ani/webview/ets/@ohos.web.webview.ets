@@ -16,6 +16,7 @@ import { Resource } from 'global.resource';
 import type image from '@ohos.multimedia.image';
 import { AsyncCallback, BusinessError, Callback } from '@ohos.base';
 import { WebNetErrorList } from '@ohos.web.netErrorList';
+import type cert from '@ohos.security.cert';
 
 class Cleaner {
     private ptr: long = 0
@@ -730,6 +731,8 @@ export default namespace webview {
         runJavaScriptExt(script: string | ArrayBuffer, callback: AsyncCallback<JsMessageExt>): void {
             this.runJavaScriptCallbackExt(script, callback);
         }
+        native static enableBackForwardCache(features?: BackForwardCacheSupportedFeatures): void;
+        native setBackForwardCacheOptions(options?: BackForwardCacheOptions): void;
     }
 
     export class WebSchemeHandlerResponse {
