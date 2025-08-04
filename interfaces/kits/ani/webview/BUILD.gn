@@ -115,6 +115,7 @@ ohos_shared_library("webview_ani") {
     "native/webviewcontroller/web_scheme_handler_request.h",
     "native/webviewcontroller/webview_controller.cpp",
     "native/webviewcontroller/webview_hasimage_callback.cpp",
+    "native/webviewcontroller/webview_hasimage_callback.h",
     #"native/webviewcontroller/webview_javascript_execute_callback.cpp",
     "native/webviewcontroller/webview_javascript_result_callback.cpp",
   ]

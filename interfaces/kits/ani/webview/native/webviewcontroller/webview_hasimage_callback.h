@@ -19,31 +19,26 @@
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "nweb_value_callback.h"
+#include "event_handler.h"
+#include "ani.h"
 
 namespace OHOS::NWeb {
 class WebviewHasImageCallback : public NWebBoolValueCallback {
 public:
-    explicit WebviewHasImageCallback(napi_env env, napi_ref callbackRef, napi_deferred deferred)
-        : env_(env), callbackRef_(callbackRef), deferred_(deferred) {}
-    ~WebviewHasImageCallback() = default;
+    explicit WebviewHasImageCallback(ani_vm* vm, ani_ref callback, ani_resolver deferred)
+        : vm_(vm), callback_(callback), deferred_(deferred) {}
+    ~WebviewHasImageCallback();
     void OnReceiveValue(bool result) override;
 
 private:
-    struct HasImageParam {
-        napi_env env_;
-        napi_ref callbackRef_;
-        napi_deferred deferred_;
-        bool result_;
-    };
+    ani_vm* vm_ = nullptr;
+    ani_ref callback_ = nullptr;
+    ani_resolver deferred_ = nullptr;
+    std::mutex mainHandlerMutex;
 
-    napi_env env_ = nullptr;
-    napi_ref callbackRef_ = nullptr;
-    napi_deferred deferred_ = nullptr;
-
-    static void UvAfterWorkCb(uv_work_t* work, int status);
-    static void UvAfterWorkCbAsync(napi_env env, napi_ref callbackRef, bool result);
-    static void UvAfterWorkCbPromise(napi_env env, napi_deferred deferred, bool result);
+    void AfterWorkCb(bool result);
+    void AfterWorkCbAsync(ani_env* env, bool result);
+    void AfterWorkCbPromise(ani_env* env, bool result);
 };
-
 }
 #endif

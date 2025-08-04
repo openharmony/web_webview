@@ -957,20 +957,44 @@ void WebviewController::PutNetworkAvailable(bool available)
     }
 }
 
-ErrCode WebviewController::HasImagesCallback(napi_env env, napi_ref jsCallback)
+ErrCode WebviewController::HasImagesCallback(ani_vm *vm, ani_ref jsCallback)
 {
+    if (vm == nullptr) {
+        WVLOG_E("vm is nullptr");
+        return NWebError::INIT_ERROR;
+    }
+    ani_env* env = nullptr;
+    if (vm->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
+        return NWebError::INIT_ERROR;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return NWebError::INIT_ERROR;
+    }
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
     if (!nweb_ptr) {
-        napi_value setResult[RESULT_COUNT] = {0};
-        setResult[PARAMZERO] = BusinessError::CreateError(env, NWebError::INIT_ERROR);
-        napi_get_null(env, &setResult[PARAMONE]);
-
-        napi_value args[RESULT_COUNT] = {setResult[PARAMZERO], setResult[PARAMONE]};
-        napi_value callback = nullptr;
-        napi_get_reference_value(env, jsCallback, &callback);
-        napi_value callbackResult = nullptr;
-        napi_call_function(env, nullptr, callback, RESULT_COUNT, args, &callbackResult);
-        napi_delete_reference(env, jsCallback);
+        std::vector<ani_ref> vec;
+        ani_ref errorValue = AniBusinessErrorError::CreateError(env, NWebError::INIT_ERROR);
+        ani_ref dataValue = nullptr;
+        auto status = env->GetNull(&dataValue);
+        if (status != ANI_OK) {
+            WVLOG_E("get null failed, status is : %{public}d", status);
+            return NWebError::INIT_ERROR;
+        }
+        if (errorValue == nullptr || dataValue == nullptr) {
+            WVLOG_E("errorValue or dataValue is nullptr");
+            return NWebError::INIT_ERROR;
+        }
+        vec.push_back(errorValue);
+        vec.push_back(dataValue);
+        ani_ref callbackResult = nullptr;
+        auto stat = env->FunctionalObject_Call(
+            reinterpret_cast<ani_fn_object>(jsCallback), vec.size(), vec.data(), &callbackResult);
+        if (stat != ANI_OK) {
+            WVLOG_E("FunctionalObject_Call failed, status is : %{public}d", stat);
+            return NWebError::INIT_ERROR;
+        }
+        env->GlobalReference_Delete(jsCallback);
         return NWebError::INIT_ERROR;
     }
 
@@ -978,18 +1002,34 @@ ErrCode WebviewController::HasImagesCallback(napi_env env, napi_ref jsCallback)
         return NWebError::PARAM_CHECK_ERROR;
     }
 
-    auto callbackImpl = std::make_shared<WebviewHasImageCallback>(env, jsCallback, nullptr);
+    auto callbackImpl = std::make_shared<WebviewHasImageCallback>(vm, jsCallback, nullptr);
     nweb_ptr->HasImages(callbackImpl);
     return NWebError::NO_ERROR;
 }
 
-ErrCode WebviewController::HasImagesPromise(napi_env env, napi_deferred deferred)
+ErrCode WebviewController::HasImagesPromise(ani_vm *vm, ani_resolver deferred)
 {
+    if (vm == nullptr) {
+        WVLOG_E("vm is nullptr");
+        return NWebError::INIT_ERROR;
+    }
+    ani_env* env = nullptr;
+    if (vm->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
+        return NWebError::INIT_ERROR;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return NWebError::INIT_ERROR;
+    }
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
     if (!nweb_ptr) {
-        napi_value jsResult = nullptr;
-        jsResult = NWebError::BusinessError::CreateError(env, NWebError::INIT_ERROR);
-        napi_reject_deferred(env, deferred, jsResult);
+        ani_ref jsResult = nullptr;
+        jsResult = AniBusinessErrorError::CreateError(env, NWebError::INIT_ERROR);
+        auto status = env->PromiseResolver_Reject(deferred, static_cast<ani_error>(jsResult));
+        if (status != ANI_OK) {
+            WVLOG_E("PromiseResolver_Reject failed, status is : %{public}d", status);
+            return NWebError::INIT_ERROR;
+        }
         return NWebError::INIT_ERROR;
     }
 
@@ -997,7 +1037,7 @@ ErrCode WebviewController::HasImagesPromise(napi_env env, napi_deferred deferred
         return NWebError::PARAM_CHECK_ERROR;
     }
 
-    auto callbackImpl = std::make_shared<WebviewHasImageCallback>(env, nullptr, deferred);
+    auto callbackImpl = std::make_shared<WebviewHasImageCallback>(vm, nullptr, deferred);
     nweb_ptr->HasImages(callbackImpl);
     return NWebError::NO_ERROR;
 }
