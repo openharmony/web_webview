@@ -311,6 +311,8 @@ public:
 
     int32_t ClearWebSchemeHandler();
 
+    static int32_t ClearWebServiceWorkerSchemeHandler();
+
     ErrCode StartCamera();
 
     ErrCode StopCamera();
