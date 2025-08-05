@@ -90,6 +90,7 @@ std::unordered_map<int32_t, WebviewController*> g_webview_controller_map;
 std::string WebviewController::customeSchemeCmdLine_ = "";
 bool WebviewController::existNweb_ = false;
 bool WebviewController::webDebuggingAccess_ = OHOS::system::GetBoolParameter("web.debug.devtools", false);
+int32_t WebviewController::webDebuggingPort_ = 0;
 std::set<std::string> WebviewController::webTagSet_;
 int32_t WebviewController::webTagStrId_ = 0;
 
