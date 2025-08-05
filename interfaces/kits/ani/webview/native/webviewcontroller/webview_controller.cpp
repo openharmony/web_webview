@@ -976,7 +976,7 @@ ErrCode WebviewController::HasImagesCallback(ani_vm *vm, ani_ref jsCallback)
         std::vector<ani_ref> vec;
         ani_ref errorValue = AniBusinessErrorError::CreateError(env, NWebError::INIT_ERROR);
         ani_ref dataValue = nullptr;
-        auto status = env->GetNull(&dataValue);
+        auto status = env->GetUndefined(&dataValue);
         if (status != ANI_OK) {
             WVLOG_E("get null failed, status is : %{public}d", status);
             return NWebError::INIT_ERROR;
