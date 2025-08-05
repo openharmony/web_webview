@@ -38,7 +38,7 @@
  using NWebError::NO_ERROR;
  
  namespace {
- const char* GEOLOCATION_PERMISSSION_CLASS_NAME = "L@ohos/web/webview/webview/GeolocationPermissions;";
+ const char* GEOLOCATION_PERMISSSION_CLASS_NAME = "@ohos.web.webview.webview.GeolocationPermissions";
  } // namespace
  
  static bool GetStringPara(ani_env* env, ani_string dataStr)

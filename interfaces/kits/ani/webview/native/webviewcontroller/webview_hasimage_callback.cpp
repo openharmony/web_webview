@@ -31,7 +31,7 @@ ani_ref createBooleanObject(ani_env* env, ani_boolean status)
         WVLOG_E("env is nullptr");
         return nullptr;
     }
-    static constexpr const char* className = "Lstd/core/Boolean;";
+    static constexpr const char* className = "std.core.Boolean";
     ani_status stat = ANI_ERROR;
     ani_class booleanCls {};
     stat = env->FindClass(className, &booleanCls);

@@ -30,7 +30,7 @@ namespace NWeb {
 using namespace NWebError;
 
 namespace {
-const char* WEB_WEBVIEW_NAMESPACE_NAME = "L@ohos/web/webview/webview;";
+const char* WEB_WEBVIEW_NAMESPACE_NAME = "@ohos.web.webview.webview";
 }
 
 void RegisterWebInitedCallback(ani_env* env, ani_ref callback)
@@ -65,7 +65,7 @@ static void JsOnce(ani_env* env, ani_string type, ani_object callback)
 
     std::string argvType = "";
     ani_class functionClass;
-    if (env->FindClass("Lstd/core/Function;", &functionClass) != ANI_OK) {
+    if (env->FindClass("std.core.Function", &functionClass) != ANI_OK) {
         AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
         return;
     }

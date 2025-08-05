@@ -96,7 +96,7 @@ bool AniParseUtils::Wrap(ani_env *env, const ani_object& object, const char *cla
         return false;
     }
     ani_method innerWrapMethod;
-    if ((status = env->Class_FindMethod(cls, "bindNativePtr", "J:V", &innerWrapMethod)) != ANI_OK) {
+    if ((status = env->Class_FindMethod(cls, "bindNativePtr", "l:", &innerWrapMethod)) != ANI_OK) {
         WVLOG_E("AniUtils_Wrap Class_FindMethod status: %{public}d", status);
         return false;
     }
@@ -110,7 +110,7 @@ bool AniParseUtils::Wrap(ani_env *env, const ani_object& object, const char *cla
 bool AniParseUtils::ParseDouble_t(ani_env* env, ani_ref ref, double& outValue)
 {
     ani_class doubleClass;
-    if (env->FindClass("Lstd/core/Double;", &doubleClass) != ANI_OK) {
+    if (env->FindClass("std.core.Double", &doubleClass) != ANI_OK) {
         WVLOG_E("ParseDouble failed - invalid FindClass type");
         return false;
     }
@@ -133,7 +133,7 @@ bool AniParseUtils::ParseDouble_t(ani_env* env, ani_ref ref, double& outValue)
 bool AniParseUtils::ParseBoolean_t(ani_env* env, ani_ref ref, bool& outValue)
 {
     ani_class boolClass;
-    if (env->FindClass("Lstd/core/Boolean;", &boolClass) != ANI_OK) {
+    if (env->FindClass("std.core.Boolean", &boolClass) != ANI_OK) {
         WVLOG_E("ParseBoolean failed - invalid FindClass type");
         return false;
     }
@@ -243,7 +243,7 @@ bool AniParseUtils::ParseStringArray(ani_env* env, ani_object argv, std::vector<
     ani_boolean isArray = ANI_FALSE;
     ani_int arrayLength;
     ani_array arrayRef;
-    env->FindClass("Lescompat/Array;", &cls);
+    env->FindClass("escompat.Array", &cls);
     env->Object_InstanceOf(argv, cls, &isArray);
     if (!isArray) {
         WVLOG_E("argv must be array");
@@ -278,7 +278,7 @@ bool AniParseUtils::ParseStringArrayMap(ani_env* env, ani_object argv, std::map<
     ani_boolean isArray = ANI_FALSE;
     ani_array arrayRef;
     ani_double arrayLength;
-    env->FindClass("Lescompat/Array;", &cls);
+    env->FindClass("escompat.Array", &cls);
     env->Object_InstanceOf(argv, cls, &isArray);
     if (!isArray) {
         WVLOG_E("argv must be array");
@@ -319,7 +319,7 @@ bool AniParseUtils::EnumParseInt32_t(ani_env* env, ani_enum_item enum_item, int3
     }
     
     ani_class doubleObject;
-    if (env->FindClass("Lstd/core/Object;", &doubleObject) != ANI_OK) {
+    if (env->FindClass("std.core.Object", &doubleObject) != ANI_OK) {
         WVLOG_E("EnumParseInt32 failed - invalid FindClass type");
         return false;
     }
@@ -348,7 +348,7 @@ bool AniParseUtils::GetStringList(ani_env *env, ani_object array, std::vector<st
     }
     for (int32_t i = 0; i < static_cast<int32_t>(arrayLength); ++i) {
         ani_ref elementRef;
-        if (env->Object_CallMethodByName_Ref(array, "$_get", "I:Lstd/core/Object;", &elementRef, 
+        if (env->Object_CallMethodByName_Ref(array, "$_get", "i:C{std.core.Object}", &elementRef, 
             static_cast<ani_int>(i)) != ANI_OK) {
             WVLOG_E("Failed to get element at index %d", i);
             return false;
@@ -465,7 +465,7 @@ bool AniParseUtils::ParseInt32(ani_env* env, ani_ref ref, int32_t& outValue)
         return false;
     }
     ani_class intClass;
-    if (env->FindClass("Lstd/core/Int;", &intClass) != ANI_OK) {
+    if (env->FindClass("std.core.Int", &intClass) != ANI_OK) {
         WVLOG_E("ParseInt32 failed - invalid FindClass type");
         return false;
     }
@@ -476,7 +476,7 @@ bool AniParseUtils::ParseInt32(ani_env* env, ani_ref ref, int32_t& outValue)
     }
 
     ani_int value = 0;
-    if (env->Object_CallMethodByName_Int(static_cast<ani_object>(ref), "unboxed", ":I", &value) != ANI_OK) {
+    if (env->Object_CallMethodByName_Int(static_cast<ani_object>(ref), "unboxed", ":i", &value) != ANI_OK) {
         WVLOG_E("ParseInt32 failed");
         return false;
     }
@@ -491,7 +491,7 @@ bool AniParseUtils::IsFunction(ani_env* env, const ani_object& object)
         return false;
     }
     ani_class functionCls;
-    ani_status status = env->FindClass("Lstd/core/Function;", &functionCls);
+    ani_status status = env->FindClass("std.core.Function", &functionCls);
     if (status != ANI_OK) {
         WVLOG_E("AniUtils_IsFunction FindClass status: %{public}d", status);
         return false;
@@ -512,7 +512,7 @@ bool AniParseUtils::IsDouble(ani_env* env, const ani_object& object)
         return false;
     }
     ani_class doubleCls;
-    ani_status status = env->FindClass("Lstd/core/Double;", &doubleCls);
+    ani_status status = env->FindClass("std.core.Double", &doubleCls);
     if (status != ANI_OK) {
         WVLOG_E("AniUtils_IsDouble FindClass status: %{public}d", status);
         return false;
@@ -533,7 +533,7 @@ bool AniParseUtils::IsObject(ani_env* env, const ani_object& object)
         return false;
     }
     ani_class objectCls;
-    ani_status status = env->FindClass("Lstd/core/Object;", &objectCls);
+    ani_status status = env->FindClass("std.core.Object", &objectCls);
     if (status != ANI_OK) {
         WVLOG_E("AniUtils_IsObject FindClass status: %{public}d", status);
         return false;
@@ -553,7 +553,7 @@ bool AniParseUtils::CreateBoolean(ani_env *env, bool src, ani_object& aniObj)
         WVLOG_E("env is nullptr");
         return false;
     }
-    static const char *className = "Lstd/core/Boolean;";
+    static const char *className = "std.core.Boolean";
     ani_class cls;
     ani_status status = env->FindClass(className, &cls);
     if (status != ANI_OK) {
@@ -561,7 +561,7 @@ bool AniParseUtils::CreateBoolean(ani_env *env, bool src, ani_object& aniObj)
         return false;
     }
     ani_method ctor;
-    status = env->Class_FindMethod(cls, "<ctor>","Z:V", &ctor);
+    status = env->Class_FindMethod(cls, "<ctor>","z:", &ctor);
     if (status != ANI_OK) {
         WVLOG_E("get %{public}s ctor method failed, status: %{public}d", className, status);
         return false;
@@ -655,7 +655,7 @@ bool AniParseUtils::ParseBoolean(ani_env* env, ani_ref ref, bool& outValue)
         return false;
     }
     ani_class booleanClass;
-    if (env->FindClass("Lstd/core/Boolean;", &booleanClass) != ANI_OK) {
+    if (env->FindClass("std.core.Boolean", &booleanClass) != ANI_OK) {
         WVLOG_E("ParseBoolean failed - invalid FindClass type");
         return false;
     }
@@ -667,7 +667,7 @@ bool AniParseUtils::ParseBoolean(ani_env* env, ani_ref ref, bool& outValue)
     }
 
     ani_boolean boolValue;
-    env->Object_CallMethodByName_Boolean(static_cast<ani_object>(ref), "unboxed", ":Z", &boolValue);
+    env->Object_CallMethodByName_Boolean(static_cast<ani_object>(ref), "unboxed", ":z", &boolValue);
     outValue = static_cast<bool>(boolValue);
     return true;
 }
@@ -679,7 +679,7 @@ bool AniParseUtils::ParseInt64(ani_env* env, ani_ref ref, int64_t& outValue)
         return false;
     }
     ani_class longClass;
-    if (env->FindClass("Lstd/core/Long;", &longClass) != ANI_OK) {
+    if (env->FindClass("std.core.Long", &longClass) != ANI_OK) {
         WVLOG_E("ParseInt64 failed - invalid FindClass type");
         return false;
     }
@@ -690,7 +690,7 @@ bool AniParseUtils::ParseInt64(ani_env* env, ani_ref ref, int64_t& outValue)
     }
 
     ani_long value;
-    env->Object_CallMethodByName_Long(static_cast<ani_object>(ref), "unboxed", ":J", &value);
+    env->Object_CallMethodByName_Long(static_cast<ani_object>(ref), "unboxed", ":l", &value);
     outValue = static_cast<int64_t>(value);
     return true;
 }
@@ -702,7 +702,7 @@ bool AniParseUtils::ParseDouble(ani_env* env, ani_ref ref, double& outValue)
         return false;
     }
     ani_class doubleClass;
-    if (env->FindClass("Lstd/core/Double;", &doubleClass) != ANI_OK) {
+    if (env->FindClass("std.core.Double", &doubleClass) != ANI_OK) {
         WVLOG_E("ParseDouble failed - invalid FindClass type");
         return false;
     }
@@ -714,7 +714,7 @@ bool AniParseUtils::ParseDouble(ani_env* env, ani_ref ref, double& outValue)
     }
 
     ani_double value;
-    env->Object_CallMethodByName_Double(static_cast<ani_object>(ref), "unboxed", ":D", &value);
+    env->Object_CallMethodByName_Double(static_cast<ani_object>(ref), "unboxed", ":d", &value);
     outValue = static_cast<double>(value);
     return true;
 }
@@ -726,7 +726,7 @@ bool AniParseUtils::IsBoolean(ani_env* env, const ani_object& object)
         return false;
     }
     ani_class booleanCls;
-    ani_status status = env->FindClass("Lstd/core/Boolean;", &booleanCls);
+    ani_status status = env->FindClass("std.core.Boolean", &booleanCls);
     if (status != ANI_OK) {
         WVLOG_E("AniUtils_IsBoolean FindClass status: %{public}d", status);
         return false;
@@ -747,7 +747,7 @@ bool AniParseUtils::IsInteger(ani_env* env, const ani_object& object)
         return false;
     }
     ani_class longCls;
-    ani_status status = env->FindClass("Lstd/core/Long;", &longCls);
+    ani_status status = env->FindClass("std.core.Long", &longCls);
     if (status != ANI_OK) {
         WVLOG_E("AniUtils_IsINTEGER FindClass status: %{public}d", status);
         return false;
@@ -771,7 +771,7 @@ bool AniParseUtils::ParseInt64Array(ani_env* env, ani_object argv, std::vector<i
     ani_boolean isArray = ANI_FALSE;
     ani_int arrayLength;
     ani_array arrayRef;
-    env->FindClass("Lescompat/Array;", &cls);
+    env->FindClass("escompat.Array", &cls);
     env->Object_InstanceOf(argv, cls, &isArray);
     if (!isArray) {
         WVLOG_E("argv must be array");
@@ -801,7 +801,7 @@ bool AniParseUtils::ParseBooleanArray(ani_env* env, ani_object argv, std::vector
     ani_boolean isArray = ANI_FALSE;
     ani_int arrayLength;
     ani_array arrayRef;
-    env->FindClass("Lescompat/Array;", &cls);
+    env->FindClass("escompat.Array", &cls);
     env->Object_InstanceOf(argv, cls, &isArray);
     if (!isArray) {
         WVLOG_E("argv must be array");
@@ -831,7 +831,7 @@ bool AniParseUtils::ParseDoubleArray(ani_env* env, ani_object argv, std::vector<
     ani_boolean isArray = ANI_FALSE;
     ani_int arrayLength;
     ani_array arrayRef;
-    env->FindClass("Lescompat/Array;", &cls);
+    env->FindClass("escompat.Array", &cls);
     env->Object_InstanceOf(argv, cls, &isArray);
     if (!isArray) {
         WVLOG_E("argv must be array");
@@ -896,7 +896,7 @@ ErrCode AniParseUtils::ConstructArrayBufFlowbuf(ani_env* env, const ani_object s
     ani_boolean isArrayBuffer = false;
     ani_class arrayBufferClass;
     ani_status status;
-    if ((status = env->FindClass("Lescompat/ArrayBuffer;", &arrayBufferClass)) != ANI_OK) {
+    if ((status = env->FindClass("escompat.ArrayBuffer", &arrayBufferClass)) != ANI_OK) {
         WVLOG_E("find buffer class error status : %{public}d", status);
         return NWebError::PARAM_CHECK_ERROR;
     }
@@ -977,13 +977,13 @@ ani_ref ConvertToAniHandlerOfBoolean(ani_env* env, std::shared_ptr<NWebMessage> 
 
     ani_class bool_cls;
     ani_status status;
-    if ((status = env->FindClass("Lstd/core/Boolean;", &bool_cls)) != ANI_OK) {
+    if ((status = env->FindClass("std.core.Boolean", &bool_cls)) != ANI_OK) {
         WVLOG_E("error in FindClass status : %{public}d", status);
         return nullptr;
     }
 
     ani_method boolInfoCtor;
-    if ((status = env->Class_FindMethod(bool_cls, "<ctor>", "Z:V", &boolInfoCtor)) != ANI_OK) {
+    if ((status = env->Class_FindMethod(bool_cls, "<ctor>", "z:", &boolInfoCtor)) != ANI_OK) {
         WVLOG_E("error in FindMethod status : %{public}d", status);
         return nullptr;
     }
@@ -1003,13 +1003,13 @@ ani_ref ConvertToAniHandlerOfInteger(ani_env* env, std::shared_ptr<NWebMessage> 
 
     ani_class integer_cls;
     ani_status status;
-    if ((status = env->FindClass("Lstd/core/Long;", &integer_cls)) != ANI_OK) {
+    if ((status = env->FindClass("std.core.Long", &integer_cls)) != ANI_OK) {
         WVLOG_E("error in FindClass status : %{public}d", status);
         return nullptr;
     }
 
     ani_method integerInfoCtor;
-    if ((status = env->Class_FindMethod(integer_cls, "<ctor>", "J:V", &integerInfoCtor)) != ANI_OK) {
+    if ((status = env->Class_FindMethod(integer_cls, "<ctor>", "l:", &integerInfoCtor)) != ANI_OK) {
         WVLOG_E("error in FindMethod status : %{public}d", status);
         return nullptr;
     }
@@ -1029,13 +1029,13 @@ ani_ref ConvertToAniHandlerOfDouble(ani_env* env, std::shared_ptr<NWebMessage> s
 
     ani_class double_cls;
     ani_status status;
-    if ((status = env->FindClass("Lstd/core/Double;", &double_cls)) != ANI_OK) {
+    if ((status = env->FindClass("std.core.Double", &double_cls)) != ANI_OK) {
         WVLOG_E("error in FindClass status : %{public}d", status);
         return nullptr;
     }
 
     ani_method doubleInfoCtor;
-    if ((status = env->Class_FindMethod(double_cls, "<ctor>", "D:V", &doubleInfoCtor)) != ANI_OK) {
+    if ((status = env->Class_FindMethod(double_cls, "<ctor>", "d:", &doubleInfoCtor)) != ANI_OK) {
         WVLOG_E("error in FindMethod status : %{public}d", status);
         return nullptr;
     }
@@ -1061,7 +1061,7 @@ ani_ref ConvertToAniHandlerOfError(ani_env* env, std::shared_ptr<NWebMessage> sr
 
     ani_class errCls;
     ani_status status;
-    if ((status = env->FindClass("Lstd/core/NullPointerError;", &errCls)) != ANI_OK) {
+    if ((status = env->FindClass("std.core.NullPointerError", &errCls)) != ANI_OK) {
         WVLOG_E("error in FindClass status : %{public}d", status);
         return nullptr;
     }
@@ -1135,7 +1135,7 @@ ani_ref ConvertToAniHandlerOfBooleanArr(ani_env* env, std::shared_ptr<NWebMessag
     for (size_t i = 0; i < valueSize; i++) {
         ani_boolean item = static_cast<ani_boolean>(values[i]);
         ani_class booleanCls {};
-        if (ANI_OK != env->FindClass("Lstd/core/Boolean;", &booleanCls)) {
+        if (ANI_OK != env->FindClass("std.core.Boolean", &booleanCls)) {
             return nullptr;
         }
         ani_method ctor {};
@@ -1178,7 +1178,7 @@ ani_ref ConvertToAniHandlerOfDoubleArr(ani_env* env, std::shared_ptr<NWebMessage
     for (size_t i = 0; i < valueSize; i++) {
         ani_double item = static_cast<ani_double>(values[i]);
         ani_class cls {};
-        if (ANI_OK != env->FindClass("Lstd/core/Double;", &cls)) {
+        if (ANI_OK != env->FindClass("std.core.Double", &cls)) {
             return nullptr;
         }
         ani_method ctor {};
@@ -1221,7 +1221,7 @@ ani_ref ConvertToAniHandlerOfInt64Arr(ani_env* env, std::shared_ptr<NWebMessage>
     for (size_t i = 0; i < valueSize; i++) {
         ani_long item = static_cast<ani_long>(values[i]);
         ani_class cls {};
-        if (ANI_OK != env->FindClass("Lstd/core/Long;", &cls)) {
+        if (ANI_OK != env->FindClass("std.core.Long", &cls)) {
             return nullptr;
         }
         ani_method ctor {};
@@ -1280,7 +1280,7 @@ bool AniParseUtils::ParseArrayBuffer(ani_env* env, ani_object script, std::strin
     ani_boolean isArrayBuffer = false;
     ani_class arrayBufferClass;
     ani_status status;
-    if ((status = env->FindClass("Lescompat/ArrayBuffer;", &arrayBufferClass)) != ANI_OK) {
+    if ((status = env->FindClass("escompat.ArrayBuffer", &arrayBufferClass)) != ANI_OK) {
         WVLOG_E("find buffer class error status : %{public}d", status);
         return false;
     }

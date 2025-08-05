@@ -27,7 +27,7 @@ namespace OHOS::NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace name {
-const char* JS_EXT_ARR_CLASS_NAME = "L@ohos/web/webview/webview/PdfData;";
+const char* JS_EXT_ARR_CLASS_NAME = "@ohos.web.webview.webview.PdfData";
 } // namespace name
 
 WebviewCreatePDFExecuteCallback::WebviewCreatePDFExecuteCallback(ani_env *env,
@@ -159,10 +159,10 @@ static ani_object GetArrayBuffer(ani_env* env, ani_object object)
 
     ani_class cls;
     ani_method ctor;
-    if (env->FindClass("Lescompat/ArrayBuffer;", &cls) != ANI_OK) {
+    if (env->FindClass("escompat.ArrayBuffer", &cls) != ANI_OK) {
         return result;
     }
-    if (env->Class_FindMethod(cls, "<ctor>", "I:V", &ctor) != ANI_OK) {
+    if (env->Class_FindMethod(cls, "<ctor>", "i:", &ctor) != ANI_OK) {
         return result;
     }
 
@@ -176,7 +176,7 @@ static ani_object GetArrayBuffer(ani_env* env, ani_object object)
     for (ani_int i = 0; i < size; i++) {
         ani_int value = pdfResult[i];
         status = env->Object_CallMethodByName_Void(
-            arrayObject, "set", "IB:V", i, static_cast<ani_byte>(value));
+            arrayObject, "set", "ib:", i, static_cast<ani_byte>(value));
         if (status != ANI_OK) {
             WVLOG_E("arrayObject set() failed, status is %{public}d.", status);
             break;

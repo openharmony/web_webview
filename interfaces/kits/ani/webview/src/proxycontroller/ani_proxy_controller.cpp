@@ -32,7 +32,7 @@ using namespace NWebError;
 using NWebError::NO_ERROR;
 
 namespace {
-const char* WEB_PROXY_CONTROLLER_CLASS_NAME = "L@ohos/web/webview/webview/ProxyController;";
+const char* WEB_PROXY_CONTROLLER_CLASS_NAME = "@ohos.web.webview.webview.ProxyController";
 const int ZERO = 0;
 } // namespace
 

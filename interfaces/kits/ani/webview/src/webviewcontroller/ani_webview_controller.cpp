@@ -104,10 +104,10 @@ constexpr double SCALE_MIN = 0.1;
 constexpr double SCALE_MAX = 2.0;
 constexpr double HALF = 2.0;
 constexpr double TEN_MILLIMETER_TO_INCH = 0.39;
-const char* ANI_WEB_CUSTOM_SCHEME_CLASS = "L@ohos/web/webview/webview/WebCustomSchemeClass;";
+const char* ANI_WEB_CUSTOM_SCHEME_CLASS = "@ohos.web.webview.webview.WebCustomSchemeClass";
 constexpr size_t BFCACHE_DEFAULT_SIZE = 1;
 constexpr size_t BFCACHE_DEFAULT_TIMETOLIVE = 600;
-const char* WEB_CONTROLLER_SECURITY_LEVEL_ENUM_NAME = "L@ohos/web/webview/webview/SecurityLevel;";
+const char* WEB_CONTROLLER_SECURITY_LEVEL_ENUM_NAME = "@ohos.web.webview.webview.SecurityLevel";
 using WebPrintWriteResultCallback = std::function<void(const std::string&, uint32_t)>;
 struct PDFMarginConfig {
     double top = TEN_MILLIMETER_TO_INCH;
@@ -195,7 +195,7 @@ bool ParseResourceRawfileUrl(ani_env *env, const ani_object& object, std::string
     }
     ani_object paramsObj = reinterpret_cast<ani_object>(paramsRef);
     ani_ref fileNameRef;
-    if (env->Object_CallMethodByName_Ref(paramsObj, "$_get", "I:Lstd/core/Object;", &fileNameRef, 0) != ANI_OK) {
+    if (env->Object_CallMethodByName_Ref(paramsObj, "$_get", "i:C{std.core.Object}", &fileNameRef, 0) != ANI_OK) {
         return false;
     }
     if (env->Reference_IsUndefined(fileNameRef, &isUndefined) != ANI_OK || isUndefined) {
@@ -222,7 +222,7 @@ bool ParseResourceUrl(ani_env *env, ani_object urlObject, std::string& url, Webv
         return false;
     }
     ani_int typeInt;
-    if (env->Object_CallMethodByName_Int(static_cast<ani_object>(typeRef), "unboxed", ":I",
+    if (env->Object_CallMethodByName_Int(static_cast<ani_object>(typeRef), "unboxed", ":i",
                                          &typeInt) != ANI_OK) {
         return false;
     }
@@ -362,7 +362,7 @@ static bool GetWebHeaders(ani_env *env, ani_object headersArrayObj, std::map<std
     }
     for (int i = 0; i < int(headersLength); i++) {
         ani_ref webHeaderRef;
-        if (env->Object_CallMethodByName_Ref(headersArrayObj, "$_get", "I:Lstd/core/Object;",
+        if (env->Object_CallMethodByName_Ref(headersArrayObj, "$_get", "i:C{std.core.Object}",
                                              &webHeaderRef, (ani_int)i) != ANI_OK) {
             return false;
         }
@@ -806,7 +806,7 @@ bool AsyncCallback(ani_env *env, ani_ref call, ani_object stsErrCode, ani_object
 {
     ani_status status = ANI_ERROR;
     ani_class clsCall {};
-    if ((status = env->FindClass("L@ohos/web/webview/webview/AsyncCallbackWrapper;", &clsCall)) != ANI_OK) {
+    if ((status = env->FindClass("@ohos.web.webview.webview.AsyncCallbackWrapper", &clsCall)) != ANI_OK) {
         WVLOG_E("FindClass fail, status: %{public}d", status);
         return false;
     }
@@ -1723,7 +1723,7 @@ bool GetSendPorts(ani_env* env, ani_object portsArrayObj, std::vector<std::strin
     for (uint32_t i = 0; i < static_cast<uint32_t>(arrayLen); i++) {
         ani_ref webMessagePortRef;
         if (env->Object_CallMethodByName_Ref(
-                portsArrayObj, "$_get", "I:Lstd/core/Object;", &webMessagePortRef, (ani_int)i) != ANI_OK) {
+                portsArrayObj, "$_get", "i:C{std.core.Object}", &webMessagePortRef, (ani_int)i) != ANI_OK) {
             return false;
         }
         ani_object portsObj = reinterpret_cast<ani_object>(webMessagePortRef);
@@ -2659,7 +2659,7 @@ static void PostMessageEvent(ani_env* env, ani_object object, ani_object message
     }
 
     ani_class arrayBufferClass;
-    if (auto status = env->FindClass("Lescompat/ArrayBuffer;", &arrayBufferClass) != ANI_OK) {
+    if (auto status = env->FindClass("escompat.ArrayBuffer", &arrayBufferClass) != ANI_OK) {
         WVLOG_E("[WebMessagePort] Find class %{public}s failed, status is %{public}d.", "ArrayBuffer", status);
         return;
     }
@@ -2700,7 +2700,7 @@ static void PostMessageEventExt(ani_env* env, ani_object object, ani_object mess
     }
 
     ani_class cls;
-    if (auto status = env->FindClass("L@ohos/web/webview/webview/WebMessageExt;", &cls) != ANI_OK) {
+    if (auto status = env->FindClass("@ohos.web.webview.webview.WebMessageExt", &cls) != ANI_OK) {
         WVLOG_E("[WebMessagePort] Find class %{public}s failed, status is %{public}d.", "WebMessageExt", status);
         return;
     }
@@ -2877,12 +2877,12 @@ static ani_object CreateWebMessagePortsObj(
 
     ani_object arrayObj = nullptr;
     ani_class arrayCls = nullptr;
-    if (env->FindClass("Lescompat/Array;", &arrayCls) != ANI_OK) {
+    if (env->FindClass("escompat.Array", &arrayCls) != ANI_OK) {
         WVLOG_E("find class escompat/Array; failed");
         return nullptr;
     }
     ani_method arrayCtor;
-    if (env->Class_FindMethod(arrayCls, "<ctor>", "I:V", &arrayCtor) != ANI_OK) {
+    if (env->Class_FindMethod(arrayCls, "<ctor>", "i:", &arrayCtor) != ANI_OK) {
         WVLOG_E("get ctor method failed");
         return nullptr;
     }
@@ -2901,7 +2901,7 @@ static ani_object CreateWebMessagePortsObj(
             WVLOG_E("set NWebWeMessagePort failed");
             return nullptr;
         }
-        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "ILstd/core/Object;:V", i, obj) != ANI_OK) {
+        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "iC{std.core.Object}:", i, obj) != ANI_OK) {
             WVLOG_E("Object_CallMethodByName_Void failed");
             return nullptr;
         }
@@ -5015,7 +5015,7 @@ static void RunJavaScriptInternal(
         return;
     }
     ani_class functionClass;
-    env->FindClass("Lstd/core/Function;", &functionClass);
+    env->FindClass("std.core.Function", &functionClass);
     ani_boolean isFunction;
     env->Object_InstanceOf(callback, functionClass, &isFunction);
     if (!isFunction) {
@@ -5595,11 +5595,11 @@ static ani_object GetCertificateSync(ani_env* env, ani_object object)
         return certificateObj;
     }
     ani_class cls;
-    if (env->FindClass("Lescompat/Array;", &cls) != ANI_OK) {
+    if (env->FindClass("escompat.Array", &cls) != ANI_OK) {
         return certificateObj;
     }
     ani_method arrayCtor;
-    if (env->Class_FindMethod(cls, "<ctor>", "I:V", &arrayCtor) != ANI_OK) {
+    if (env->Class_FindMethod(cls, "<ctor>", "i:", &arrayCtor) != ANI_OK) {
         return certificateObj;
     }
     if (env->Object_New(cls, arrayCtor, &certificateObj, certChainDerData.size()) != ANI_OK) {
@@ -5662,14 +5662,14 @@ static ani_ref CreateWebPrintDocumentAdapter(ani_env* env, ani_object object, an
 
     ani_object printDocumentAdapterObj = {};
     if (AniParseUtils::CreateObjectVoid(
-            env, "L@ohos/web/webview/webview/PrintDocumentAdapterInner;", printDocumentAdapterObj) == false) {
+            env, "@ohos.web.webview.webview.PrintDocumentAdapterInner", printDocumentAdapterObj) == false) {
         WVLOG_E("[printDocumentAdapter] CreateObjectVoid failed");
         delete webPrintDoc;
         webPrintDoc = nullptr;
         return nullptr;
     }
 
-    if (!AniParseUtils::Wrap(env, printDocumentAdapterObj, "L@ohos/web/webview/webview/PrintDocumentAdapterInner;",
+    if (!AniParseUtils::Wrap(env, printDocumentAdapterObj, "@ohos.web.webview.webview.PrintDocumentAdapterInner",
             reinterpret_cast<ani_long>(webPrintDoc))) {
         WVLOG_E("[printDocumentAdapter] WebDownloadDelegate wrap failed");
         delete webPrintDoc;
@@ -5730,7 +5730,7 @@ WebPrintWriteResultCallback ParseWebPrintWriteResultCallback(ani_env* env, ani_o
         }
         ani_enum_item stateEnum;
         if (AniParseUtils::GetEnumItemByIndex(
-                env, "L@ohos/print/print/PrintFileCreationState;", static_cast<int32_t>(state), stateEnum)) {
+                env, "@ohos.print.print.PrintFileCreationState", static_cast<int32_t>(state), stateEnum)) {
             argv.push_back(static_cast<ani_ref>(stateEnum));
         }
         ani_ref fnReturnVal = nullptr;

@@ -27,7 +27,7 @@ namespace OHOS::NWeb {
 
 namespace {
 const std::string TASK_ID = "PostMessageTask";
-static const char* ANI_WEB_MESSAGE_EXT_NAME = "L@ohos/web/webview/webview/WebMessageExt;";
+static const char* ANI_WEB_MESSAGE_EXT_NAME = "@ohos.web.webview.webview.WebMessageExt";
 
 bool Wrap(ani_env* env, const ani_object& object, const char* className, const ani_long& thisVar)
 {
@@ -42,7 +42,7 @@ bool Wrap(ani_env* env, const ani_object& object, const char* className, const a
         return false;
     }
     ani_method innerWrapMethod;
-    if ((status = env->Class_FindMethod(cls, "bindNativePtr", "J:V", &innerWrapMethod)) != ANI_OK) {
+    if ((status = env->Class_FindMethod(cls, "bindNativePtr", "l:", &innerWrapMethod)) != ANI_OK) {
         WVLOG_E("AniUtils_Wrap Class_FindMethod status: %{public}d", status);
         return false;
     }

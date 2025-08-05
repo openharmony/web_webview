@@ -32,7 +32,7 @@ namespace NWeb {
 
 using namespace NWebError;
 using NWebError::NO_ERROR;
-const char* ANI_WEB_RESOURCE_HANDLER_CLASS_NAME = "L@ohos/web/webview/webview/WebResourceHandler;";
+const char* ANI_WEB_RESOURCE_HANDLER_CLASS_NAME = "@ohos.web.webview.webview.WebResourceHandler";
 static void JSDidReceiveResponse(ani_env* env, ani_object object, ani_object response)
 {
     WVLOG_I("Enter aniwebResourceHandler JSDidReceiveResponse");

@@ -38,13 +38,13 @@ const double MAX_PLAYBACK_RATE = 10.0;
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-const char* NATIVE_MEDIA_PLAYER_HANDLER_INNER_CLASS_NAME = "L@ohos/web/webview/webview/NativeMediaPlayerHandlerinner;";
+const char* NATIVE_MEDIA_PLAYER_HANDLER_INNER_CLASS_NAME = "@ohos.web.webview.webview.NativeMediaPlayerHandlerinner";
 }
 
 bool EnumParseInt32_t(ani_env* env, ani_enum_item enum_item, int32_t& outValue)
 {
     ani_class doubleObject;
-    if (env->FindClass("Lstd/core/Object;", &doubleObject) != ANI_OK) {
+    if (env->FindClass("std.core.Object", &doubleObject) != ANI_OK) {
         WVLOG_E("EnumParseInt32 failed - invalid FindClass type");
         return false;
     }
@@ -66,7 +66,7 @@ bool EnumParseInt32_t(ani_env* env, ani_enum_item enum_item, int32_t& outValue)
 bool ParseDouble_t(ani_env* env, ani_ref ref, double& outValue)
 {
     ani_class doubleClass;
-    if (env->FindClass("Lstd/core/Double;", &doubleClass) != ANI_OK) {
+    if (env->FindClass("std.core.Double", &doubleClass) != ANI_OK) {
         WVLOG_E("ParseDouble failed - invalid FindClass type");
         return false;
     }
@@ -89,7 +89,7 @@ bool ParseDouble_t(ani_env* env, ani_ref ref, double& outValue)
 bool ParseBoolean_t(ani_env* env, ani_ref ref, bool& outValue)
 {
     ani_class boolClass;
-    if (env->FindClass("Lstd/core/Boolean;", &boolClass) != ANI_OK) {
+    if (env->FindClass("std.core.Boolean", &boolClass) != ANI_OK) {
         WVLOG_E("ParseBoolean failed - invalid FindClass type");
         return false;
     }
@@ -110,7 +110,7 @@ bool ParseBoolean_t(ani_env* env, ani_ref ref, bool& outValue)
 
 ani_object createObjectDouble(ani_env* env, ani_double status)
 {
-    static constexpr const char* className = "Lstd/core/Double;";
+    static constexpr const char* className = "std.core.Double";
     ani_class doubleCls {};
     env->FindClass(className, &doubleCls);
     ani_method ctor {};
@@ -125,7 +125,7 @@ ani_object createObjectDouble(ani_env* env, ani_double status)
 
 ani_object createObjectBoolean(ani_env* env, ani_boolean status)
 {
-    static constexpr const char* className = "Lstd/core/Boolean;";
+    static constexpr const char* className = "std.core.Boolean";
     ani_class booleanCls {};
     env->FindClass(className, &booleanCls);
     ani_method ctor {};

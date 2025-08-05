@@ -29,15 +29,15 @@ constexpr int INTEGER_ZERO = 0;
 constexpr int INTEGER_ONE = 1;
 
 namespace {
-const char* NATIVE_MEDIA_PLAYER_HANDLER_INNER = "L@ohos/web/webview/webview/NativeMediaPlayerHandlerinner;";
-const char* MEDIA_INFO_INNER = "L@ohos/web/webview/webview/MediaInfoinner;";
-const char* RECT_EVENT_INNER = "L@ohos/web/webview/webview/RectEventinner;";
-const char* CLASS_MEDIA_SOURCE_INFO = "L@ohos/web/webview/webview/MediaSourceInfo;";
-const char* NATIVE_MEDIA_PLAYER_SURFACE_INFO = "L@ohos/web/webview/webview/NativeMediaPlayerSurfaceInfo;";
-const char* ANI_ENUM_MEDIA_TYPE = "L@ohos/web/webview/webview/MediaType;";
-const char* ANI_ENUM_PRELOAD = "L@ohos/web/webview/webview/Preload;";
-const char* ANI_ENUM_SOURCE_TYPE = "L@ohos/web/webview/webview/SourceType;";
-const char* ANI_ENUM_SUSPEND_TYPE = "L@ohos/web/webview/webview/SuspendType;";
+const char* NATIVE_MEDIA_PLAYER_HANDLER_INNER = "@ohos.web.webview.webview.NativeMediaPlayerHandlerinner";
+const char* MEDIA_INFO_INNER = "@ohos.web.webview.webview.MediaInfoinner";
+const char* RECT_EVENT_INNER = "@ohos.web.webview.webview.RectEventinner";
+const char* CLASS_MEDIA_SOURCE_INFO = "@ohos.web.webview.webview.MediaSourceInfo";
+const char* NATIVE_MEDIA_PLAYER_CLASS_NAME = "@ohos.web.webview.webview.NativeMediaPlayerSurfaceInfo";
+const char* ANI_ENUM_MEDIA_TYPE = "@ohos.web.webview.webview.MediaType";
+const char* ANI_ENUM_PRELOAD = "@ohos.web.webview.webview.Preload";
+const char* ANI_ENUM_SOURCE_TYPE = "@ohos.web.webview.webview.SourceType";
+const char* ANI_ENUM_SUSPEND_TYPE = "@ohos.web.webview.webview.SuspendType";
 } // namespace
 
 bool Wrap(ani_env* env, const ani_object& object, const char* className, const ani_long& thisVar)
@@ -49,7 +49,7 @@ bool Wrap(ani_env* env, const ani_object& object, const char* className, const a
         return false;
     }
     ani_method innerWrapMethod;
-    if ((status = env->Class_FindMethod(cls, "bindNativePtr", "J:V", &innerWrapMethod)) != ANI_OK) {
+    if ((status = env->Class_FindMethod(cls, "bindNativePtr", "l:", &innerWrapMethod)) != ANI_OK) {
         WVLOG_E("AniUtils_Wrap Class_FindMethod status: %{public}d", status);
         return false;
     }
@@ -467,11 +467,11 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructHeaders(const std::
         return nullptr;
     }
     ani_object object = nullptr;
-    if (!CreateObjectVoid(env, "Lescompat/Record;", object) || object == nullptr) {
+    if (!CreateObjectVoid(env, "escompat.Record", object) || object == nullptr) {
         return nullptr;
     }
     ani_class cls;
-    ani_status status = env->FindClass("Lescompat/Record;", &cls);
+    ani_status status = env->FindClass("escompat.Record", &cls);
     if (status != ANI_OK) {
         WVLOG_E("find class failed, status: %{public}d", status);
         return nullptr;
@@ -502,11 +502,11 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructAttributes(
         return nullptr;
     }
     ani_object object = nullptr;
-    if (!CreateObjectVoid(env, "Lescompat/Record;", object) || object == nullptr) {
+    if (!CreateObjectVoid(env, "escompat.Record", object) || object == nullptr) {
         return nullptr;
     }
     ani_class cls;
-    ani_status status = env->FindClass("Lescompat/Record;", &cls);
+    ani_status status = env->FindClass("escompat.Record", &cls);
     if (status != ANI_OK) {
         WVLOG_E("find class failed, status: %{public}d", status);
         return nullptr;
@@ -657,7 +657,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructSurfaceInfo(
         return nullptr;
     }
     ani_object object;
-    if (!CreateObjectVoid(env, NATIVE_MEDIA_PLAYER_SURFACE_INFO, object)) {
+    if (!CreateObjectVoid(env, NATIVE_MEDIA_PLAYER_CLASS_NAME, object)) {
         return nullptr;
     }
 

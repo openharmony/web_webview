@@ -24,8 +24,8 @@
 #include "web_errors.h"
 
 namespace OHOS::NWeb {
-const char* WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME = "L@ohos/web/webview/webview/WebSchemeHandlerRequest;";
-const char* WEB_RESOURCE_HANDLER_CLASS_NAME = "L@ohos/web/webview/webview/WebResourceHandler;";
+const char* WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME = "@ohos.web.webview.webview.WebSchemeHandlerRequest";
+const char* WEB_RESOURCE_HANDLER_CLASS_NAME = "@ohos.web.webview.webview.WebResourceHandler";
 namespace {
 const std::string TASK_ID = "PostMessageTask";
 
@@ -42,7 +42,7 @@ bool Wrap(ani_env* env, const ani_object& object, const char* className, const a
         return false;
     }
     ani_method innerWrapMethod;
-    if ((status = env->Class_FindMethod(cls, "bindNativePtr", "J:V", &innerWrapMethod)) != ANI_OK) {
+    if ((status = env->Class_FindMethod(cls, "bindNativePtr", "l:", &innerWrapMethod)) != ANI_OK) {
         WVLOG_E("AniUtils_Wrap Class_FindMethod status: %{public}d", status);
         return false;
     }
@@ -84,7 +84,7 @@ bool ParseBoolean(ani_env* env, ani_ref ref, bool& outValue)
         return false;
     }
     ani_class booleanClass;
-    ani_status status = env->FindClass("Lstd/core/Boolean;", &booleanClass);
+    ani_status status = env->FindClass("std.core.Boolean", &booleanClass);
     if (status != ANI_OK) {
         WVLOG_E("ParseBoolean FindClass status: %{public}d", status);
         return false;
@@ -97,7 +97,7 @@ bool ParseBoolean(ani_env* env, ani_ref ref, bool& outValue)
     }
 
     ani_boolean boolValue;
-    env->Object_CallMethodByName_Boolean(static_cast<ani_object>(ref), "unboxed", ":Z", &boolValue);
+    env->Object_CallMethodByName_Boolean(static_cast<ani_object>(ref), "unboxed", ":z", &boolValue);
     outValue = static_cast<bool>(boolValue);
     return true;
 }
@@ -125,11 +125,11 @@ ani_object WrapBusinessError(ani_env* env, const std::string& msg)
         return nullptr;
     }
 
-    if ((status = env->FindClass("Lescompat/Error;", &cls)) != ANI_OK) {
+    if ((status = env->FindClass("escompat.Error", &cls)) != ANI_OK) {
         WVLOG_E("FindClass failed %{public}d", status);
         return nullptr;
     }
-    if ((status = env->Class_FindMethod(cls, "<ctor>", "Lstd/core/String;Lescompat/ErrorOptions;:V", &method)) !=
+    if ((status = env->Class_FindMethod(cls, "<ctor>", "C{std.core.String}C{escompat.ErrorOptions}:", &method)) !=
         ANI_OK) {
         WVLOG_E("Class_FindMethod failed %{public}d", status);
         return nullptr;
@@ -152,11 +152,11 @@ ani_object CreateBusinessError(ani_env* env, ani_int code, const std::string& ms
         WVLOG_E("null env");
         return nullptr;
     }
-    if ((status = env->FindClass("L@ohos/base/BusinessError;", &cls)) != ANI_OK) {
+    if ((status = env->FindClass("C{@ohos.base.BusinessError}", &cls)) != ANI_OK) {
         WVLOG_E("FindClass failed %{public}d", status);
         return nullptr;
     }
-    if ((status = env->Class_FindMethod(cls, "<ctor>", "ILescompat/Error;:V", &method)) != ANI_OK) {
+    if ((status = env->Class_FindMethod(cls, "<ctor>", "iC{escompat.Error}:", &method)) != ANI_OK) {
         WVLOG_E("Class_FindMethod failed %{public}d", status);
         return nullptr;
     }
