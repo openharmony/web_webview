@@ -16,6 +16,7 @@ import { Resource } from 'global.resource';
 import type image from '@ohos.multimedia.image';
 import { AsyncCallback, BusinessError, Callback } from '@ohos.base';
 import { WebNetErrorList } from '@ohos.web.netErrorList';
+import type cert from '@ohos.security.cert';
 
 class Cleaner {
     private ptr: long = 0
@@ -119,6 +120,13 @@ export default namespace webview {
         Map,
         Phone,
         Unknown
+    }
+
+    export enum SecurityLevel {
+        NONE = 0,
+        SECURE,
+        WARNING,
+        DANGEROUS
     }
 
     export enum RenderProcessMode{
@@ -252,6 +260,12 @@ export default namespace webview {
     export class HitTestValueInner implements HitTestValue {
         type: WebHitTestType = WebHitTestType.Unknown;
         extra: string = "";
+    }
+
+    enum SecureDnsMode {
+        OFF = 0,
+        AUTO,
+        SECURE_ONLY
     }
 
     export interface HistoryItem {
@@ -650,6 +664,11 @@ export default namespace webview {
         native getUserAgent(): string;
         native getCustomUserAgent(): string;
         native getLastJavascriptProxyCallingFrameUrl(): string;
+        native getSecurityLevel(): SecurityLevel;
+        native prefetchPage(url: string, additionalHeaders?: Array<WebHeader>): void;
+        native static setHttpDns(secureDnsMode: SecureDnsMode, secureDnsConfig: string): void;
+        native searchAllAsync(searchString: string): void;
+        native static clearServiceWorkerWebSchemeHandler(): void;
         native forward(): void;
         native backward(): void;
         native accessForward(): boolean;
@@ -663,7 +682,14 @@ export default namespace webview {
         native terminateRenderProcess(): boolean;
         native static setConnectionTimeout(timeout: number): void;
         native backOrForward(step: number): void;
-        native static setWebDebuggingAccess(webDebuggingAccess: boolean): void;
+        native static setWebDebuggingAccessSingle(webDebuggingAccess: boolean): void;
+        static setWebDebuggingAccess(webDebuggingAccess: boolean): void {
+            WebviewController.setWebDebuggingAccessSingle(webDebuggingAccess);
+        }
+        native static setWebDebuggingAccessDouble(webDebuggingAccess: boolean, port: int): void;
+        static setWebDebuggingAccess(webDebuggingAccess: boolean, port: int): void {
+            WebviewController.setWebDebuggingAccessDouble(webDebuggingAccess, port);
+        }
         native enableSafeBrowsing(enable: boolean): void;
         native static setRenderProcessMode(mode: RenderProcessMode): void;
         native static getRenderProcessMode(): RenderProcessMode;
@@ -679,6 +705,7 @@ export default namespace webview {
             let uint8Array = new Uint8Array(buffer);
             return uint8Array;
         }
+        native restoreWebState(state: Uint8Array): void;
         native static trimMemoryByPressureLevel(level: PressureLevel): void;
         native setPathAllowingUniversalAccess(pathList: Array<string>): void;
         native onCreateNativeMediaPlayer(callback: (handler: NativeMediaPlayerHandler, mediaInfo: MediaInfo) => NativeMediaPlayerBridge): void;
@@ -1075,6 +1102,9 @@ export default namespace webview {
         native static isCookieAllowed(): boolean;
         native static clearSessionCookieSync(): void;
         native static configCookieSync(url: string, value: string, incognito: boolean, includeHttpOnly: boolean): void;
+        native static putAcceptCookieEnabled(accept: boolean): void;
+        native static putAcceptThirdPartyCookieEnabled(accept: boolean): void;
+        native static isThirdPartyCookieAllowed(): boolean;
 
         native static configCookieSyncInternal(url: string, value: string, incognito?: boolean): void;
 
@@ -1353,7 +1383,7 @@ export default namespace webview {
         private cleaner?: Cleaner;
 
         registerCleaner(ptr: long): void {
-            this.cleaner = new Cleaner(ptr, "ProxyConfig")
+            this.cleaner = new Cleaner(ptr, "ProxyConfig");
             destroyRegister.register(this, this.cleaner!, unregisterToken);
         }
         unregisterCleaner(): void {
@@ -1363,7 +1393,7 @@ export default namespace webview {
         bindNativePtr(ptr: long): void {
             if (this.nativePtr == 0) {
                 this.nativePtr = ptr;
-                this.registerCleaner(this.nativePtr)
+                this.registerCleaner(this.nativePtr);
             }
         }
 
@@ -1400,6 +1430,13 @@ export default namespace webview {
          * @since 20
          */
         native getProxyRules(): Array<ProxyRule>;
+        native insertBypassRule(bypassRule: string): void;
+        native insertDirectRule(schemeFilter?: ProxySchemeFilter): void;
+        native bypassHostnamesWithoutPeriod(): void;
+        native clearImplicitRules(): void;
+        native enableReverseBypass(reverse: boolean): void;
+        native getBypassRules(): Array<string>;
+        native isReverseBypassEnabled(): boolean;
     }
 
     type WebMessage = ArrayBuffer | string;
@@ -1834,5 +1871,30 @@ export default namespace webview {
         native getBoolean(): boolean;
         native getArrayBuffer(): ArrayBuffer;
         native getArray(): Array<string | number | boolean>;
+    }
+    type OnProxyConfigChangeCallback = () => void;
+    export class ProxyController {
+        private nativePtr: long = 0;
+        private cleaner?: Cleaner;
+
+        registerCleaner(ptr: long): void {
+            this.cleaner = new Cleaner(ptr, "ProxyController");
+            destroyRegister.register(this, this.cleaner!, unregisterToken);
+        }
+        unregisterCleaner(): void {
+            destroyRegister.unregister(unregisterToken);
+        }
+
+        bindNativePtr(ptr: long): void {
+            if (this.nativePtr == 0) {
+                this.nativePtr = ptr;
+                this.registerCleaner(this.nativePtr);
+            }
+        }
+
+        native constructor();
+
+        native static applyProxyOverride(proxyConfig: ProxyConfig, callback: OnProxyConfigChangeCallback): void;
+        native static removeProxyOverride(callback: OnProxyConfigChangeCallback): void;
     }
 }
