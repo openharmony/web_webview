@@ -760,6 +760,14 @@ export default namespace webview {
         runJavaScriptExt(script: string | ArrayBuffer, callback: AsyncCallback<JsMessageExt>): void {
             this.runJavaScriptCallbackExt(script, callback);
         }
+        native storeWebArchiveCallback(baseName: string, autoName: boolean, callback: AsyncCallback<string>): void;
+        storeWebArchive(baseName: string, autoName: boolean, callback: AsyncCallback<string>): void {
+            this.storeWebArchiveCallback(baseName, autoName, callback);
+        }
+        native storeWebArchivePromise(baseName: string, autoName: boolean): Promise<string>;
+        storeWebArchive(baseName: string, autoName: boolean): Promise<string> {
+            return this.storeWebArchivePromise(baseName, autoName);
+        }
         native hasImageCallback(callback: AsyncCallback<boolean>): void;
         hasImage(callback: AsyncCallback<boolean>): void {
             this.hasImageCallback(callback);

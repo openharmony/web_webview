@@ -50,6 +50,7 @@
 #include "nweb_precompile_callback.h"
 #include "nweb_cache_options_impl.h"
 #include "ani_nweb_value_callback_impl.h"
+#include "nweb_store_web_archive_callback.h"
 
 #include "bundle_mgr_proxy.h"
 #include "if_system_ability_manager.h"
@@ -5071,6 +5072,158 @@ static void RunJavaScriptCallbackExt(ani_env* env, ani_object object, ani_object
     return RunJSCallback(env, object, script, callbackObj, true);
 }
 
+static void StoreWebArchiveCallbackInternal(
+    ani_env* env, std::string baseNameStr, bool autoNameStr, ani_ref jsCallback, int32_t nwebId)
+{
+    if (!env) {
+        return;
+    }
+    if (jsCallback == nullptr) {
+        return;
+    }
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId);
+    if (!nweb_ptr) {
+        std::vector<ani_ref> resultRef;
+        ani_ref tmp = NWebError::AniBusinessError::CreateError(env, INVALID_RESOURCE);
+        resultRef.push_back(tmp);
+        env->GetNull(&tmp);
+        resultRef.push_back(tmp);
+        ani_ref fnReturnVal;
+        env->FunctionalObject_Call(
+            static_cast<ani_fn_object>(jsCallback), resultRef.size(), resultRef.data(), &fnReturnVal);
+        env->GlobalReference_Delete(jsCallback);
+        return;
+    }
+
+    auto callbackImpl = std::make_shared<OHOS::NWeb::NWebStoreWebArchiveCallback>();
+    callbackImpl->SetCallBack([env, jCallback = std::move(jsCallback)](std::string result) {
+        if (!env) {
+            return;
+        }
+        std::vector<ani_ref> resultRef;
+        if (!result.empty()) {
+            ani_ref tmp;
+            env->GetNull(&tmp);
+            ani_string str {};
+            env->String_NewUTF8(result.c_str(), result.size(), &str);
+            resultRef.push_back(tmp);
+            resultRef.push_back(str);
+        } else {
+            ani_ref tmp = NWebError::AniBusinessError::CreateError(env, INVALID_RESOURCE);
+            resultRef.push_back(tmp);
+            env->GetNull(&tmp);
+            resultRef.push_back(tmp);
+        }
+        ani_ref fnReturnVal;
+        env->FunctionalObject_Call(
+            static_cast<ani_fn_object>(jCallback), resultRef.size(), resultRef.data(), &fnReturnVal);
+        env->GlobalReference_Delete(jCallback);
+    });
+    nweb_ptr->StoreWebArchive(baseNameStr, autoNameStr, callbackImpl);
+}
+
+static void StoreWebArchiveCallback(
+    ani_env* env, ani_object object, ani_string baseName, ani_boolean autoName, ani_fn_object callbackObj)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    ani_boolean isUndefined = ANI_TRUE;
+    if (env->Reference_IsUndefined(baseName, &isUndefined) != ANI_OK || isUndefined == ANI_TRUE) {
+        WVLOG_E("baseName is undefined");
+        return;
+    }
+    std::string baseNameStr;
+    if (!AniParseUtils::ParseString(env, baseName, baseNameStr)) {
+        WVLOG_E("Parse baseName failed");
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "baseName", "string"));
+        return;
+    }
+    bool autoNameStr = static_cast<bool>(autoName);
+
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("controller is null");
+        return;
+    }
+    int32_t nwebId_ = controller->GetWebId();
+
+    ani_ref jsCallback = nullptr;
+    env->GlobalReference_Create(callbackObj, &jsCallback);
+    return StoreWebArchiveCallbackInternal(env, baseNameStr, autoNameStr, jsCallback, nwebId_);
+}
+
+static void StoreWebArchivePromiseInternal(
+    ani_env* env, std::string baseNameStr, bool autoNameStr, ani_resolver deferred, int32_t nwebId)
+{
+    if (!env) {
+        return;
+    }
+    if (deferred == nullptr) {
+        return;
+    }
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId);
+    if (!nweb_ptr) {
+        WVLOG_E("nweb_ptr is nullptr");
+        ani_ref jsResult = nullptr;
+        jsResult = NWebError::AniBusinessError::CreateError(env, INIT_ERROR);
+        env->PromiseResolver_Reject(deferred, reinterpret_cast<ani_error>(jsResult));
+        return;
+    }
+    
+    auto callbackImpl = std::make_shared<OHOS::NWeb::NWebStoreWebArchiveCallback>();
+    callbackImpl->SetCallBack([env, deferred](std::string result) {
+        if (!env) {
+            return;
+        }
+        std::vector<ani_ref> resultRef(RESULT_COUNT);
+        resultRef[0] = NWebError::AniBusinessError::CreateError(env, INVALID_RESOURCE);
+        ani_string str {};
+        env->String_NewUTF8(result.c_str(), result.size(), &str);
+        resultRef[1] = static_cast<ani_ref>(str);
+        if (!result.empty()) {
+            env->PromiseResolver_Resolve(deferred, resultRef[1]);
+        } else {
+            env->PromiseResolver_Reject(deferred, reinterpret_cast<ani_error>(resultRef[0]));
+        }
+    });
+    nweb_ptr->StoreWebArchive(baseNameStr, autoNameStr, callbackImpl);
+}
+
+static ani_object StoreWebArchivePromise(ani_env* env, ani_object object, ani_string baseName, ani_boolean autoName)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    ani_boolean isUndefined = ANI_TRUE;
+    if (env->Reference_IsUndefined(baseName, &isUndefined) != ANI_OK || isUndefined == ANI_TRUE) {
+        WVLOG_E("baseName is undefined");
+        return nullptr;
+    }
+    std::string baseNameStr;
+    if (!AniParseUtils::ParseString(env, baseName, baseNameStr)) {
+        WVLOG_E("Parse baseName failed");
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "baseName", "string"));
+        return nullptr;
+    }
+    bool autoNameStr = static_cast<bool>(autoName);
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("controller is null");
+        return nullptr;
+    }
+    int32_t nwebId_ = controller->GetWebId();
+    ani_object promise;
+    ani_resolver deferred;
+    env->Promise_New(&deferred, &promise);
+    StoreWebArchivePromiseInternal(env, baseNameStr, autoNameStr, deferred, nwebId_);
+    return promise;
+}
+
 static void HasImageCallback(ani_env* env, ani_object object, ani_fn_object callback)
 {
     WVLOG_D("HasImageCallback begin");
@@ -5271,6 +5424,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "deleteJavaScriptRegister", nullptr, reinterpret_cast<void *>(DeleteJavaScriptRegister) },
         ani_native_function { "runJavaScriptCallback", nullptr, reinterpret_cast<void *>(RunJavaScriptCallback) },
         ani_native_function { "runJavaScriptCallbackExt", nullptr, reinterpret_cast<void *>(RunJavaScriptCallbackExt) },
+        ani_native_function { "storeWebArchiveCallback", nullptr, reinterpret_cast<void *>(StoreWebArchiveCallback) },
+        ani_native_function { "storeWebArchivePromise", nullptr, reinterpret_cast<void *>(StoreWebArchivePromise) },
         ani_native_function { "hasImageCallback", nullptr, reinterpret_cast<void *>(HasImageCallback) },
         ani_native_function { "hasImagePromise", nullptr, reinterpret_cast<void *>(HasImagePromise) },
         ani_native_function { "restoreWebState", nullptr, reinterpret_cast<void*>(RestoreWebState) },
