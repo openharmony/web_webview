@@ -749,6 +749,9 @@ export default namespace webview {
             }
             return this.precompileJavaScriptInternal(url,resScript,cacheOptions);
         }
+        native registerJavaScriptProxy(object: object, name: string, methodList: Array<string>,
+                                        asyncMethodList?: Array<string>, permission?: string): void;
+        native deleteJavaScriptRegister(name: string): void;
         native runJavaScriptCallback(script: string, callback: AsyncCallback<string>): void;
         runJavaScript(script: string, callback: AsyncCallback<string>): void {
             this.runJavaScriptCallback(script, callback);
@@ -759,6 +762,14 @@ export default namespace webview {
         }
         native static enableBackForwardCache(features?: BackForwardCacheSupportedFeatures): void;
         native setBackForwardCacheOptions(options?: BackForwardCacheOptions): void;
+        native storeWebArchiveCallback(baseName: string, autoName: boolean, callback: AsyncCallback<string>): void;
+        storeWebArchive(baseName: string, autoName: boolean, callback: AsyncCallback<string>): void {
+            this.storeWebArchiveCallback(baseName, autoName, callback);
+        }
+        native storeWebArchivePromise(baseName: string, autoName: boolean): Promise<string>;
+        storeWebArchive(baseName: string, autoName: boolean): Promise<string> {
+            return this.storeWebArchivePromise(baseName, autoName);
+        }
         native hasImageCallback(callback: AsyncCallback<boolean>): void;
         hasImage(callback: AsyncCallback<boolean>): void {
             this.hasImageCallback(callback);
