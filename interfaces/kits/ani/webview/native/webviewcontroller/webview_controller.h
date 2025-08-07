@@ -232,9 +232,9 @@ public:
 
     bool HasImage(std::shared_ptr<NWebBoolValueCallback> callback);
 
-    ErrCode HasImagesCallback(napi_env env, napi_ref jsCallback);
+    ErrCode HasImagesCallback(ani_vm *vm, ani_ref jsCallback);
 
-    ErrCode HasImagesPromise(napi_env env, napi_deferred deferred);
+    ErrCode HasImagesPromise(ani_vm *vm, ani_resolver deferred);
 
     void RemoveCache(bool includeDiskFiles);
 
@@ -310,6 +310,8 @@ public:
     static bool SetWebServiveWorkerSchemeHandler(const char* scheme, WebSchemeHandler* handler);
 
     int32_t ClearWebSchemeHandler();
+
+    static int32_t ClearWebServiceWorkerSchemeHandler();
 
     ErrCode StartCamera();
 
@@ -410,6 +412,7 @@ public:
     static std::string customeSchemeCmdLine_;
     static bool existNweb_;
     static bool webDebuggingAccess_;
+    static int32_t webDebuggingPort_;
     static std::set<std::string> webTagSet_;
     static int32_t webTagStrId_;
 

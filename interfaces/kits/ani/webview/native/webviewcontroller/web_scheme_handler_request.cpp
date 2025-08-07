@@ -27,6 +27,7 @@ namespace OHOS::NWeb {
 const char* WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME = "L@ohos/web/webview/webview/WebSchemeHandlerRequest;";
 const char* WEB_RESOURCE_HANDLER_CLASS_NAME = "L@ohos/web/webview/webview/WebResourceHandler;";
 namespace {
+const std::string TASK_ID = "PostMessageTask";
 
 bool Wrap(ani_env* env, const ani_object& object, const char* className, const ani_long& thisVar)
 {
@@ -474,10 +475,110 @@ void WebSchemeHandler::RequestStart(
     }
 }
 
-void WebSchemeHandler::RequestStop(const ArkWeb_ResourceRequest* resourceRequest)
+void WebSchemeHandler::RequestStopAfterWorkCb(RequestStopParam* param)
 {
-    WVLOG_I("WebSchemeHandler::RequestStop");
-    return;
+    if (!param) {
+        WVLOG_E("RequestStopAfterWorkCb: param is null");
+        return;
+    }
+    if (vm_ == nullptr) {
+        WVLOG_E("RequestStopAfterWorkCb: nil vm");
+        return;
+    }
+    if (auto status = vm_->GetEnv(ANI_VERSION_1, &param->env_) != ANI_OK) {
+        WVLOG_E("RequestStopAfterWorkCb: GetEnv status is : %{public}d", status);
+        return;
+    }
+    if (param->env_ == nullptr || !param->callbackRef_) {
+        WVLOG_E("RequestStopAfterWorkCb: callbackRef_ or env_ is null");
+        delete param;
+        return;
+    }
+    ani_ref callbackFunc = nullptr;
+    ani_status status =
+        param->env_->GlobalReference_Create(reinterpret_cast<ani_ref>(param->callbackRef_), &callbackFunc);
+    if (status != ANI_OK || callbackFunc == nullptr) {
+        WVLOG_E("RequestStopAfterWorkCb: GlobalReference_Create failed");
+        delete param;
+        return;
+    }
+    ani_object requestValue = {};
+    if (!CreateObjectVoid(param->env_, WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME, requestValue)) {
+        WVLOG_E("RequestStopAfterWorkCb: create requestValue failed");
+        return;
+    }
+    if (!Wrap(param->env_, requestValue, WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME,
+            reinterpret_cast<ani_long>(param->request_))) {
+        WVLOG_E("RequestStopAfterWorkCb: WebSchemeHandlerRequest wrap failed");
+        return;
+    }
+    std::vector<ani_ref> vec;
+    vec.push_back(static_cast<ani_object>(requestValue));
+    ani_ref fnReturnVal;
+    status = param->env_->FunctionalObject_Call(
+        reinterpret_cast<ani_fn_object>(callbackFunc), vec.size(), vec.data(), &fnReturnVal);
+    if (status != ANI_OK) {
+        WVLOG_E("RequestStopAfterWorkCb:FunctionalObject_Call failed.");
+    }
+    WebResourceHandler* resourceHandler =
+        reinterpret_cast<WebResourceHandler*>(OH_ArkWebResourceRequest_GetUserData(param->arkWebRequest_));
+    if (resourceHandler) {
+        resourceHandler->SetFinishFlag();
+        resourceHandler->DecStrongRef(resourceHandler);
+    }
+    delete param;
+    param = nullptr;
+}
+
+void WebSchemeHandler::RequestStop(const ArkWeb_ResourceRequest* resourceRequest)
+{   
+    if (vm_ == nullptr) {
+        WVLOG_E("RequestStop: RequestStop nil vm");
+        return;
+    }
+    ani_env* env = nullptr;
+    ani_options aniArgs { 0, nullptr };
+    if (auto status = vm_->AttachCurrentThread(&aniArgs, ANI_VERSION_1, &env) != ANI_OK) {
+        WVLOG_E("RequestStop: AttachCurrentThread status is : %{public}d", status);
+        return;
+    }
+    if (env == nullptr) {
+        WVLOG_E("RequestStop: env is nullptr");
+        return;
+    }
+     if (!mainHandler_) {
+        std::shared_ptr<AppExecFwk::EventRunner> runner = AppExecFwk::EventRunner::GetMainEventRunner();
+        if (!runner) {
+            WVLOG_E("RequestStop: GetMainEventRunner failed");
+            return;
+        }
+        mainHandler_ = std::make_shared<AppExecFwk::EventHandler>(runner);
+    }
+    if (mainHandler_ == nullptr) {
+        WVLOG_E("RequestStop: mainHandler_ is null.");
+        return;
+    }
+    if (!request_stop_callback_) {
+        WVLOG_E("RequestStop: request_stop_callback is null");
+        return;
+    }
+    WebSchemeHandlerRequest* request = new (std::nothrow) WebSchemeHandlerRequest(env_, resourceRequest);
+    if (request == nullptr) {
+        WVLOG_E("RequestStop: failed to create WebSchemeHandlerRequest");
+        return;
+    }
+    RequestStopParam* param = new (std::nothrow) RequestStopParam();
+    if (param == nullptr) {
+        WVLOG_E("RequestStop: RequestStop failed to create RequestStopParam");
+        delete request;
+        return;
+    }
+    param->env_ = env;
+    param->callbackRef_ = request_stop_callback_;
+    param->request_ = request;
+    param->arkWebRequest_ = resourceRequest;
+    auto task = [this, param]() { WebSchemeHandler::RequestStopAfterWorkCb(param); };
+        mainHandler_->PostTask(task, TASK_ID);
 }
 
 void WebSchemeHandler::PutRequestStart(ani_env* env, ani_vm* vm, ani_fn_object callback)

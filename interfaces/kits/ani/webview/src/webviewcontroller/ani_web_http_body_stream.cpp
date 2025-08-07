@@ -87,6 +87,54 @@ static ani_boolean JsIsEof(ani_env* env, ani_object object)
     return stream->IsEof() ? ANI_TRUE : ANI_FALSE;
 }
 
+ani_object JSInitialize(ani_env* env, ani_object object)
+{
+    WVLOG_D("WebHttpBodyStream JSInitialize start.");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    auto* stream = reinterpret_cast<WebHttpBodyStream*>(AniParseUtils::Unwrap(env, object));
+    ani_resolver deferred {};
+    ani_object promise {};
+    ani_status status = env->Promise_New(&deferred, &promise);
+    if (status != ANI_OK) {
+        WVLOG_E("promise_new failed");
+        return nullptr;
+    }
+    if (promise && deferred) {
+        WVLOG_E("WebHttpBodyStream JSInitialize.httpBodyStream->Init");
+        stream->Init(nullptr, std::move(deferred));
+    }
+    return promise;
+}
+
+static ani_object JsRead(ani_env* env, ani_object object, ani_double size)
+{
+    WVLOG_D("WebHttpBodyStream JsRead start.");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+
+    auto* stream = reinterpret_cast<WebHttpBodyStream*>(AniParseUtils::Unwrap(env, object));
+    if (!stream) {
+        WVLOG_E("stream is nullptr");
+        return nullptr;
+    }
+    ani_resolver deferred {};
+    ani_object promise {};
+    ani_status status = env->Promise_New(&deferred, &promise);
+    if (status != ANI_OK) {
+        WVLOG_E("promise_new failed");
+        return nullptr;
+    }
+    if (promise && deferred) {
+        stream->Read(static_cast<int32_t>(size), nullptr, std::move(deferred));
+    }
+    return promise;
+}
+
 static ani_double GetPosition(ani_env* env, ani_object object)
 {
     WVLOG_D("WebHttpBodyStream GetSize.");
@@ -158,6 +206,8 @@ ani_status StsWebHttpBodyStreamInit(ani_env* env)
         ani_native_function { "isChunked", nullptr, reinterpret_cast<void*>(JsIsChunked) },
         ani_native_function { "isInMemory", nullptr, reinterpret_cast<void*>(JsIsInMemory) },
         ani_native_function { "isEof", nullptr, reinterpret_cast<void*>(JsIsEof) },
+        ani_native_function { "initialize", nullptr, reinterpret_cast<void*>(JSInitialize) },
+        ani_native_function { "read", nullptr, reinterpret_cast<void*>(JsRead) },
         ani_native_function { "getPosition", nullptr, reinterpret_cast<void*>(GetPosition) },
         ani_native_function { "getSize", nullptr, reinterpret_cast<void*>(GetSize) },
     };

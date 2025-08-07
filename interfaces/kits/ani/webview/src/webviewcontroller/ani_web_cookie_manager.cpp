@@ -190,6 +190,36 @@ static void JsSetCookieSync(ani_env *env, ani_object aniClass, ani_string url, a
     }
 }
 
+static void JsPutAcceptCookieEnabled(ani_env *env, ani_object aniClass, ani_boolean accept)
+{
+    WVLOG_D("[COOKIE] JsPutAcceptCookieEnabled");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
+        OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
+    if (cookieManager != nullptr) {
+        cookieManager->PutAcceptCookieEnabled(accept);
+    }
+    return;
+}
+
+static void JsPutAcceptThirdPartyCookieEnabled(ani_env* env, ani_object aniClass, ani_boolean accept)
+{
+    WVLOG_D("[COOKIE] JsPutAcceptThirdPartyCookieEnabled");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
+        OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
+    if (cookieManager != nullptr) {
+        cookieManager->PutAcceptThirdPartyCookieEnabled(accept);
+    }
+    return;
+}
+
 static ani_string JsFetchCookieSync(ani_env *env, ani_object aniClass, ani_string url, ani_object incognito)
 {
     WVLOG_D("[COOKIE] JsFetchCookieSync.");
@@ -238,6 +268,23 @@ static ani_string JsFetchCookieSync(ani_env *env, ani_object aniClass, ani_strin
     }
     env->String_NewUTF8(cookieContent.c_str(), cookieContent.size(), &result);
     return result;
+}
+
+static ani_boolean JsIsThirdPartyCookieAllowed(ani_env *env, ani_object aniClass)
+{
+    WVLOG_D("[COOKIE] JsIsThirdPartyCookieAllowed");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+    std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
+        OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
+    if (cookieManager != nullptr) {
+        return static_cast<ani_boolean>(cookieManager->IsThirdPartyCookieAllowed());
+    } else {
+        WVLOG_E("cookieManager is nullptr");
+        return ANI_FALSE;
+    }
 }
 
 static void JsClearAllCookiesSync(ani_env *env, ani_object aniClass, ani_object incognito)
@@ -297,6 +344,11 @@ ani_status StsWebCookieManagerInit(ani_env *env)
         ani_native_function { "configCookieSyncInternal", nullptr, reinterpret_cast<void *>(JsSetCookieSyncThree) },
         ani_native_function { "configCookieSync", "Lstd/core/String;Lstd/core/String;ZZ:V",
                               reinterpret_cast<void *>(JsSetCookieSync) },
+        ani_native_function { "putAcceptCookieEnabled", nullptr, reinterpret_cast<void *>(JsPutAcceptCookieEnabled) },
+        ani_native_function {"putAcceptThirdPartyCookieEnabled", nullptr,
+            reinterpret_cast<void *>(JsPutAcceptThirdPartyCookieEnabled) },
+        ani_native_function { "isThirdPartyCookieAllowed",
+            nullptr, reinterpret_cast<void *>(JsIsThirdPartyCookieAllowed) },
         ani_native_function { "fetchCookieSync", nullptr, reinterpret_cast<void *>(JsFetchCookieSync) },
         ani_native_function { "saveCookieSync", nullptr, reinterpret_cast<void *>(JsSaveCookieSync) },
         ani_native_function { "clearAllCookiesSync", nullptr, reinterpret_cast<void *>(JsClearAllCookiesSync) },
