@@ -749,6 +749,9 @@ export default namespace webview {
             }
             return this.precompileJavaScriptInternal(url,resScript,cacheOptions);
         }
+        native registerJavaScriptProxy(object: object, name: string, methodList: Array<string>,
+                                        asyncMethodList?: Array<string>, permission?: string): void;
+        native deleteJavaScriptRegister(name: string): void;
         native runJavaScriptCallback(script: string, callback: AsyncCallback<string>): void;
         runJavaScript(script: string, callback: AsyncCallback<string>): void {
             this.runJavaScriptCallback(script, callback);
