@@ -80,12 +80,6 @@ void WebviewHasImageCallback::OnReceiveValue(bool result)
         WVLOG_E("vm is nullptr");
         return;
     }
-    ani_env* env = nullptr;
-    auto status = vm_->GetEnv(ANI_VERSION_1, &env);
-    if (status != ANI_OK) {
-        WVLOG_E("GetEnv status is : %{public}d", status);
-        return;
-    }
 
     auto task = [this, result]() { WebviewHasImageCallback::AfterWorkCb(result); };
     task();
