@@ -765,6 +765,14 @@ export default namespace webview {
         storeWebArchive(baseName: string, autoName: boolean): Promise<string> {
             return this.storeWebArchivePromise(baseName, autoName);
         }
+        native hasImageCallback(callback: AsyncCallback<boolean>): void;
+        hasImage(callback: AsyncCallback<boolean>): void {
+            this.hasImageCallback(callback);
+        }
+        native hasImagePromise(): Promise<boolean>;
+        hasImage(): Promise<boolean> {
+            return this.hasImagePromise();
+        }
     }
 
     export class WebSchemeHandlerResponse {
