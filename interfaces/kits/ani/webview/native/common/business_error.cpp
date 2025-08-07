@@ -94,6 +94,10 @@ ani_object CreateBusinessError(ani_env *env, ani_int code, const std::string& ms
 
 ani_status AniBusinessErrorError::ThrowError(ani_env *env, int32_t errorCode, const std::string& error_message)
 {
+    if (env == nullptr) {
+        WVLOG_E("null env");
+        return ANI_ERROR;
+    }
     ani_object err = CreateBusinessError(env, errorCode, error_message);
     if (err == nullptr) {
         WVLOG_E("err null");
