@@ -311,6 +311,8 @@ public:
 
     int32_t ClearWebSchemeHandler();
 
+    static int32_t ClearWebServiceWorkerSchemeHandler();
+
     ErrCode StartCamera();
 
     ErrCode StopCamera();
@@ -410,6 +412,7 @@ public:
     static std::string customeSchemeCmdLine_;
     static bool existNweb_;
     static bool webDebuggingAccess_;
+    static int32_t webDebuggingPort_;
     static std::set<std::string> webTagSet_;
     static int32_t webTagStrId_;
 

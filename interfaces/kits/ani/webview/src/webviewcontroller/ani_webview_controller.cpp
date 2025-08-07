@@ -105,6 +105,7 @@ constexpr double SCALE_MAX = 2.0;
 constexpr double HALF = 2.0;
 constexpr double TEN_MILLIMETER_TO_INCH = 0.39;
 const char* ANI_WEB_CUSTOM_SCHEME_CLASS = "L@ohos/web/webview/webview/WebCustomSchemeClass;";
+const char* WEB_CONTROLLER_SECURITY_LEVEL_ENUM_NAME = "L@ohos/web/webview/webview/SecurityLevel;";
 struct PDFMarginConfig {
     double top = TEN_MILLIMETER_TO_INCH;
     double bottom = TEN_MILLIMETER_TO_INCH;
@@ -1872,6 +1873,38 @@ static ani_string GetLastJavascriptProxyCallingFrameUrl(ani_env *env, ani_object
     return lastCallingFrameUrl;
 }
 
+static void SearchAllAsync(ani_env *env, ani_object object, ani_object searchStringObj)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    std::string searchString;
+    if (!AniParseUtils::ParseString(env, searchStringObj, searchString)) {
+        return;
+    }
+    controller->SearchAllAsync(searchString);
+    return;
+}
+static void ClearServiceWorkerWebSchemeHandler(ani_env *env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    int32_t ret = WebviewController::ClearWebServiceWorkerSchemeHandler();
+    if (ret != 0) {
+        WVLOG_E("ClearServiceWorkerWebSchemeHandler ret=%{public}d", ret);
+        return;
+    }
+    return;
+}
+
 static void Forward(ani_env *env, ani_object object)
 {
     if (env == nullptr) {
@@ -2289,6 +2322,98 @@ static void CustomizeSchemes(ani_env* env, ani_object object, ani_object schemes
         return;
     }
     AniBusinessError::ThrowErrorByErrCode(env, REGISTER_CUSTOM_SCHEME_FAILED);
+    return;
+}
+
+static ani_enum_item GetSecurityLevel(ani_env* env, ani_object object)
+{
+    ani_enum_item result = nullptr;
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return result;
+    }
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        return result;
+    }
+    ani_enum enumType;
+    env->FindEnum(WEB_CONTROLLER_SECURITY_LEVEL_ENUM_NAME, &enumType);
+    ani_int securityLevel = controller->GetSecurityLevel();
+    env->Enum_GetEnumItemByIndex(enumType, securityLevel, &result);
+    return result;
+}
+
+static void PrefetchPage(ani_env *env, ani_object object, ani_string url, ani_object additionalHeadersObj)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    std::string urlStr;
+    if (!AniParseUtils::ParseString(env, url, urlStr)) {
+        WVLOG_E("Parse url failed.");
+        return;
+    }
+    
+    ErrCode ret;
+    std::map<std::string, std::string> additionalHttpHeaders;
+    ani_boolean isUndefined = true;
+    if (env->Reference_IsUndefined(additionalHeadersObj, &isUndefined) != ANI_OK || isUndefined) {
+        ret = controller->PrefetchPage(urlStr, additionalHttpHeaders);
+    } else if (GetWebHeaders(env, additionalHeadersObj, additionalHttpHeaders)){
+        ret = controller->PrefetchPage(urlStr, additionalHttpHeaders);
+    } else {
+        return;
+    }
+    WVLOG_I("PrefetchPage ret: %{public}d", ret);
+    if (ret != NO_ERROR) {
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+    }
+    return;
+}
+
+static void SetHttpDns(ani_env* env, ani_object object, ani_enum_item secureDnsMode, ani_string secureDnsConfig)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    ani_boolean isUndefined = ANI_FALSE;
+    if (env->Reference_IsUndefined(secureDnsMode, &isUndefined) != ANI_OK || isUndefined) {
+        return;
+    }
+
+    ani_int dohMode;
+    if (env->EnumItem_GetValue_Int(secureDnsMode, &dohMode) != ANI_OK) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    if(dohMode < static_cast<int>(SecureDnsModeType::OFF) ||
+            dohMode > static_cast<int>(SecureDnsModeType::SECURE_ONLY)) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    std::string dohConfig;
+    if (!AniParseUtils::ParseString(env, secureDnsConfig, dohConfig)) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    if(dohConfig.rfind("https", 0) != 0 && dohConfig.rfind("HTTPS", 0) != 0) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    std::shared_ptr<NWebDOHConfigImpl> config = std::make_shared<NWebDOHConfigImpl>();
+    config->SetMode(dohMode);
+    config->SetConfig(dohConfig);
+    WVLOG_I("set http dns mode:%{public}d doh_config:%{public}s", dohMode, dohConfig.c_str());
+
+    NWebHelper::Instance().SetHttpDns(config);
     return;
 }
 
@@ -2815,14 +2940,42 @@ static void BackOrForward(ani_env* env, ani_object object, ani_int step)
     return;
 }
 
-static void SetWebDebuggingAccess(ani_env* env, ani_object object, ani_boolean webDebuggingAccess)
+static void SetWebDebuggingAccessSingle(ani_env* env, ani_object object, ani_boolean webDebuggingAccess)
 {
-    WVLOG_D("[WebviewCotr] SetWebDebuggingAccess");
+    WVLOG_D(" SetWebDebuggingAccess start");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
     }
     WebviewController::webDebuggingAccess_ = webDebuggingAccess;
+    return;
+}
+
+static void SetWebDebuggingAccessDouble(
+    ani_env* env, ani_object object, ani_boolean webDebuggingAccess, ani_object webDebuggingPort)
+{
+    WVLOG_D(" SetWebDebuggingAccess start");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    ani_boolean isUndefined = ANI_TRUE;
+    int32_t webDebuggingPortObj = 0;
+    if (env->Reference_IsUndefined(webDebuggingPort, &isUndefined) != ANI_OK) {
+        return;
+    }
+    int32_t kValidPortRangeStart = 1025;
+    int32_t kValidPortRangeEnd = 65535;
+    if (WebviewController::webDebuggingAccess_ != webDebuggingAccess ||
+        WebviewController::webDebuggingPort_ != webDebuggingPortObj) {
+        if (webDebuggingPortObj > kValidPortRangeStart || webDebuggingPortObj < kValidPortRangeEnd) {
+            NWebHelper::Instance().SetWebDebuggingAccessAndPort(webDebuggingAccess, webDebuggingPortObj);
+        } else {
+            NWebHelper::Instance().SetWebDebuggingAccess(webDebuggingAccess);
+        }
+    }
+    WebviewController::webDebuggingAccess_ = webDebuggingAccess;
+    WebviewController::webDebuggingPort_ = webDebuggingPortObj;
     return;
 }
 
@@ -3033,6 +3186,38 @@ static ani_object SerializeWebState(ani_env* env, ani_object object)
         return result;
     }
     return buffer;
+}
+
+static void RestoreWebState(ani_env* env, ani_object object, ani_object value)
+{
+    WVLOG_D("WebviewController RestoreWebState start.");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* webviewController = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!webviewController || !webviewController->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    char* data = nullptr;
+    size_t total = 0;
+    size_t offset = 0;
+    size_t length = 0;
+    if (env->ArrayBuffer_GetInfo(reinterpret_cast<ani_arraybuffer>(value), reinterpret_cast<void**>(&data), &total) !=
+        ANI_OK) {
+        WVLOG_E("ArrayBuffer_GetInfo failed");
+        return;
+    }
+    length = std::min<size_t>(length, total - offset);
+    std::vector<uint8_t> state(length);
+    int retCode = memcpy_s(state.data(), state.size(), &data[offset], length);
+    if (retCode != 0) {
+        return;
+    }
+    webviewController->RestoreWebState(state);
 }
 
 static void TrimMemoryByPressureLevel(ani_env *env, ani_object object, ani_double level)
@@ -5009,6 +5194,12 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "getCustomUserAgent", nullptr, reinterpret_cast<void *>(GetCustomUserAgent) },
         ani_native_function { "getLastJavascriptProxyCallingFrameUrl", nullptr,
                               reinterpret_cast<void *>(GetLastJavascriptProxyCallingFrameUrl) },
+        ani_native_function { "getSecurityLevel", nullptr, reinterpret_cast<void *>(GetSecurityLevel) },
+        ani_native_function { "prefetchPage", nullptr, reinterpret_cast<void *>(PrefetchPage) },
+        ani_native_function { "setHttpDns", nullptr, reinterpret_cast<void *>(SetHttpDns) },
+        ani_native_function { "searchAllAsync", nullptr, reinterpret_cast<void *>(SearchAllAsync) },
+        ani_native_function { "clearServiceWorkerWebSchemeHandler", nullptr,
+                              reinterpret_cast<void *>(ClearServiceWorkerWebSchemeHandler) },
         ani_native_function { "forward", nullptr, reinterpret_cast<void *>(Forward) },
         ani_native_function { "createWebMessagePorts", nullptr, reinterpret_cast<void *>(CreateWebMessagePorts) },
         ani_native_function { "backward", nullptr, reinterpret_cast<void *>(Backward) },
@@ -5055,6 +5246,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "runJavaScriptCallbackExt", nullptr, reinterpret_cast<void *>(RunJavaScriptCallbackExt) },
         ani_native_function { "storeWebArchiveCallback", nullptr, reinterpret_cast<void *>(StoreWebArchiveCallback) },
         ani_native_function { "storeWebArchivePromise", nullptr, reinterpret_cast<void *>(StoreWebArchivePromise) },
+        ani_native_function { "restoreWebState", nullptr, reinterpret_cast<void*>(RestoreWebState) },
     };
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
     if (status != ANI_OK) {
@@ -5078,7 +5270,10 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "setRenderProcessMode", nullptr, reinterpret_cast<void *>(SetRenderProcessMode) },
         ani_native_function { "getRenderProcessMode", nullptr, reinterpret_cast<void *>(GetRenderProcessMode) },
         ani_native_function { "setConnectionTimeout", nullptr, reinterpret_cast<void *>(SetConnectionTimeout) },
-        ani_native_function { "setWebDebuggingAccess", nullptr, reinterpret_cast<void *>(SetWebDebuggingAccess) },
+        ani_native_function {
+            "setWebDebuggingAccessSingle", nullptr, reinterpret_cast<void*>(SetWebDebuggingAccessSingle) },
+        ani_native_function {
+            "setWebDebuggingAccessDouble", nullptr, reinterpret_cast<void*>(SetWebDebuggingAccessDouble) },
         ani_native_function { "pauseAllTimers", nullptr, reinterpret_cast<void *>(PauseAllTimers) },
         ani_native_function { "resumeAllTimers", nullptr, reinterpret_cast<void *>(ResumeAllTimers) },
         ani_native_function { "trimMemoryByPressureLevel", nullptr,
