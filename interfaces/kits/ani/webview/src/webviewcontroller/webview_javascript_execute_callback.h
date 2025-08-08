@@ -38,9 +38,10 @@ enum class JsMessageType : int {
 
 ani_ref CreateStsError(ani_env* env, ani_int code, const std::string& msg);
 
-class WebviewJavaScriptExecuteCallback : public NWebMessageValueCallback {
+class WebviewJavaScriptExecuteCallback : public std::enable_shared_from_this<WebviewJavaScriptExecuteCallback>,
+                                         public NWebMessageValueCallback {
 public:
-    explicit WebviewJavaScriptExecuteCallback(ani_env* env, ani_ref callbackRef, ani_resolver deferred, bool extention);
+    explicit WebviewJavaScriptExecuteCallback(ani_env* env, ani_ref callbackRef, ani_resolver resolver, bool extention);
     ~WebviewJavaScriptExecuteCallback();
     void SetJavaScriptCallBackRef(ani_object callback);
     void OnReceiveValue(std::shared_ptr<NWebMessage> result) override;
@@ -60,14 +61,14 @@ public:
         return extention_;
     }
     
-    bool GetResolver() {
-        return deferred_;
+    ani_resolver GetResolver() {
+        return resolver_;
     }
 
 private:
     ani_vm* vm_ = nullptr;
     ani_ref callbackRef_ = nullptr;
-    ani_resolver deferred_ = nullptr;
+    ani_resolver resolver_ = nullptr;
     std::shared_ptr<AppExecFwk::EventHandler> mainHandler_;
     bool extention_ = false;
 };

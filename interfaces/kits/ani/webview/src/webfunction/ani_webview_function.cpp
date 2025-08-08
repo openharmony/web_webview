@@ -74,11 +74,9 @@ static void JsOnce(ani_env* env, ani_string type, ani_object callback)
 
     if (!(AniParseUtils::ParseString(env, type, argvType)) || !isFunction ||
         (onceType.find(argvType) == onceType.end())) {
-        WVLOG_I("JsOnce TypeError : %{public}s", argvType.c_str());
         AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
         return;
     }
-    WVLOG_I("JsOnce Type : %{public}s", argvType.c_str());
 
     auto foundCallback = onceType.find(argvType);
     if (foundCallback != onceType.end()) {
