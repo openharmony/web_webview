@@ -247,7 +247,7 @@ static ani_string JsFetchCookieSync(ani_env *env, ani_object aniClass, ani_strin
     env->Reference_IsUndefined(incognito, &isUndefined);
     if (isUndefined != ANI_TRUE) {
         ani_boolean bIncognito;
-        if (env->Object_CallMethodByName_Boolean(incognito, "booleanValue", nullptr, &bIncognito) != ANI_OK) {
+        if (env->Object_CallMethodByName_Boolean(incognito, "unboxed", ":Z", &bIncognito) != ANI_OK) {
             AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
                 NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
             return result;
