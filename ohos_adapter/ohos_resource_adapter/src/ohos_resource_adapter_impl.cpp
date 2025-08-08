@@ -486,14 +486,14 @@ std::string OhosResourceAdapterImpl::GetArkWebVersion()
     for (const auto& hapPath : hapPaths) {
         OHOS::AbilityBase::Extractor extractor(hapPath);
         if (!extractor.Init()) {
-            WVLOG_W("Failed to initialize extractor for HAP file: %{public}s", hapPath.c_str());
+            WVLOG_E("Failed to initialize extractor for HAP file: %{public}s", hapPath.c_str());
             continue;
         }
 
         std::ostringstream contentStream;
         bool ret = extractor.ExtractByName(packInfoPath, contentStream);
         if (!ret) {
-            WVLOG_W("Failed to extract pack.info from HAP: %{public}s", hapPath.c_str());
+            WVLOG_E("Failed to extract pack.info from HAP: %{public}s", hapPath.c_str());
             continue;
         }
 
@@ -502,7 +502,7 @@ std::string OhosResourceAdapterImpl::GetArkWebVersion()
         Json::Value root;
         Json::Reader reader;
         if (!reader.parse(configContent, root)) {
-            WVLOG_W("Failed to parse pack.info from HAP: %{public}s", hapPath.c_str());
+            WVLOG_E("Failed to parse pack.info from HAP: %{public}s", hapPath.c_str());
             continue;
         }
 
@@ -513,10 +513,10 @@ std::string OhosResourceAdapterImpl::GetArkWebVersion()
             return root["summary"]["app"]["version"]["name"].asString();
         }
 
-        WVLOG_W("Version information not found in pack.info from HAP: %{public}s", hapPath.c_str());
+        WVLOG_E("Version information not found in pack.info from HAP: %{public}s", hapPath.c_str());
     }
 
-    WVLOG_W("Failed to get ArkWeb version from any of the specified paths");
+    WVLOG_E("Failed to get ArkWeb version from any of the specified paths");
     return "";
 }
 
