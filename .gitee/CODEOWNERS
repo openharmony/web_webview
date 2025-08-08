@@ -8,5 +8,17 @@ ohos_interface/ohos_glue/ @zhangyanchuan @defeng2020 @fredranking @leezheng_hz @
 ohos_interface/BUILD.gn @zhangyanchuan
 ohos_interface/.gitignore @zhangyanchuan
 
+[ArkTS1.1 files]
+interfaces/kits/cj/ @zhushengle
+interfaces/kits/napi/ @zhushengle
+interfaces/kits/nativecommon/ @zhushengle
+interfaces/native/ @zhushengle
+ohos_adapter/ @zhushengle
+ohos_glue/ @zhushengle
+ohos_interface/ @zhushengle
+ohos_nweb/ @zhushengle
+ohos_wrapper/ @zhushengle
+sa/ @zhushengle
+
 [OpenHarmony adapter]
 interfaces/kits/cj/ @arkwebbuild
