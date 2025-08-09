@@ -18,6 +18,7 @@
 
 #include "napi/native_api.h"
 #include "nweb_native_media_player.h"
+#include "napi_native_mediaplayer_handler_impl.h"
 
 namespace OHOS::NWeb {
 
@@ -54,46 +55,6 @@ private:
     int32_t nwebId_ = -1;
     napi_env env_ = nullptr;
     napi_value value_ = nullptr;
-};
-
-class NapiNativeMediaPlayerHandlerImpl {
-public:
-    NapiNativeMediaPlayerHandlerImpl(int32_t nwebId, std::shared_ptr<NWebNativeMediaPlayerHandler> handler);
-    ~NapiNativeMediaPlayerHandlerImpl() = default;
-
-    void HandleStatusChanged(PlaybackStatus status);
-
-    void HandleVolumeChanged(double volume);
-
-    void HandleMutedChanged(bool isMuted);
-
-    void HandlePlaybackRateChanged(double playbackRate);
-
-    void HandleDurationChanged(double duration);
-
-    void HandleTimeUpdate(double playTime);
-
-    void HandleBufferedEndTimeChanged(double bufferedEndTime);
-
-    void HandleEnded();
-
-    void HandleNetworkStateChanged(NetworkState state);
-
-    void HandleReadyStateChanged(ReadyState state);
-
-    void HandleFullScreenChanged(bool isFullScreen);
-
-    void HandleSeeking();
-
-    void HandleSeekFinished();
-
-    void HandleError(MediaError error, const std::string& message);
-
-    void HandleVideoSizeChanged(double width, double height);
-
-private:
-    int32_t nwebId_ = -1;
-    std::shared_ptr<NWebNativeMediaPlayerHandler> handler_ = nullptr;
 };
 
 class NWebCreateNativeMediaPlayerCallbackImpl : public NWebCreateNativeMediaPlayerCallback {

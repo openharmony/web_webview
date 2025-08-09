@@ -30,6 +30,13 @@ void NapiNativeMediaPlayerHandler::Init(napi_env env, napi_value value)
 {
     WVLOG_I("begin to init native media player napi properties");
 
+    napi_property_descriptor transferDesc[] = {
+        DECLARE_NAPI_FUNCTION("__createNativeMediaPlayerHandlerTransfer__",
+            MediaPlayerTransfer::CreateNativeMediaPlayerHandlerTransfer),
+    };
+
+    napi_define_properties(env, value, sizeof(transferDesc) / sizeof(transferDesc[0]), transferDesc);
+
     NAPI_CALL_RETURN_VOID(env, ExportEnumPreload(env, &value));
 
     NAPI_CALL_RETURN_VOID(env, ExportEnumMediaType(env, &value));
@@ -269,6 +276,7 @@ napi_value NapiNativeMediaPlayerHandler::HandleStatusChanged(napi_env env, napi_
         return nullptr;
     }
 
+    WVLOG_D("handle_status_changed status is %{public}d", status);
     handler->HandleStatusChanged(static_cast<PlaybackStatus>(status));
     return nullptr;
 }
@@ -307,6 +315,7 @@ napi_value NapiNativeMediaPlayerHandler::HandleVolumeChanged(napi_env env, napi_
         return nullptr;
     }
 
+    WVLOG_D("handle_volume_changed volume  is %{public}f", volume);
     handler->HandleVolumeChanged(volume);
     return nullptr;
 }
@@ -339,6 +348,7 @@ napi_value NapiNativeMediaPlayerHandler::HandleMutedChanged(napi_env env, napi_c
         return nullptr;
     }
 
+    WVLOG_D("handle_muted_changed flag  is %{public}d", flag);
     handler->HandleMutedChanged(flag);
     return nullptr;
 }
@@ -377,6 +387,7 @@ napi_value NapiNativeMediaPlayerHandler::HandlePlaybackRateChanged(napi_env env,
         return nullptr;
     }
 
+    WVLOG_D("handle_playback_rate_changed rate is %{public}f", rate);
     handler->HandlePlaybackRateChanged(rate);
     return nullptr;
 }
@@ -415,6 +426,7 @@ napi_value NapiNativeMediaPlayerHandler::HandleDurationChanged(napi_env env, nap
         return nullptr;
     }
 
+    WVLOG_D("handle_duration_changed  is %{public}f", duration);
     handler->HandleDurationChanged(duration);
     return nullptr;
 }
@@ -451,6 +463,7 @@ napi_value NapiNativeMediaPlayerHandler::HandleTimeUpdate(napi_env env, napi_cal
         return nullptr;
     }
 
+    WVLOG_D("HandleTimeUpdate  time is %{public}f", time);
     handler->HandleTimeUpdate(time);
     return nullptr;
 }
@@ -489,6 +502,7 @@ napi_value NapiNativeMediaPlayerHandler::HandleBufferedEndTimeChanged(napi_env e
         return nullptr;
     }
 
+    WVLOG_D("handle_buffered_end_time_changed time is %{public}f", time);
     handler->HandleBufferedEndTimeChanged(time);
     return nullptr;
 }
@@ -545,6 +559,7 @@ napi_value NapiNativeMediaPlayerHandler::HandleNetworkStateChanged(napi_env env,
         return nullptr;
     }
 
+    WVLOG_D("handle_network_state_changed state is %{public}d", state);
     handler->HandleNetworkStateChanged(static_cast<NetworkState>(state));
     return nullptr;
 }
@@ -584,6 +599,7 @@ napi_value NapiNativeMediaPlayerHandler::HandleReadyStateChanged(napi_env env, n
         return nullptr;
     }
 
+    WVLOG_D("handle_ready_state_changed state is %{public}d", state);
     handler->HandleReadyStateChanged(static_cast<ReadyState>(state));
     return nullptr;
 }
@@ -616,6 +632,7 @@ napi_value NapiNativeMediaPlayerHandler::HandleFullScreenChanged(napi_env env, n
         return nullptr;
     }
 
+    WVLOG_D("handle_full_screen_changed flag is %{public}d", flag);
     handler->HandleFullScreenChanged(flag);
     return nullptr;
 }
@@ -736,8 +753,73 @@ napi_value NapiNativeMediaPlayerHandler::HandleVideoSizeChanged(napi_env env, na
         return nullptr;
     }
 
+    WVLOG_D("HandleVideoSizeChanged width is %{public}f, heigh is %{public}f",
+        width, height);
     handler->HandleVideoSizeChanged(width, height);
     return nullptr;
 }
 
+static napi_value CreateNativeMediaPlayerHandler(napi_env env, NapiNativeMediaPlayerHandlerImpl* handler)
+{
+    WVLOG_I("CreateNativeMedisPlayerHandler enter");
+    napi_value jsValue = nullptr;
+    napi_create_object(env, &jsValue);
+
+    NAPI_CALL(env, napi_wrap(env, jsValue, handler,
+        [](napi_env env, void *data, void *hint) {
+            NapiNativeMediaPlayerHandlerImpl *handler = static_cast<NapiNativeMediaPlayerHandlerImpl *>(data);
+            delete handler;
+        },
+        nullptr, nullptr));
+    handler->IncRefCount();
+
+    napi_property_descriptor properties[] = {
+        DECLARE_NAPI_FUNCTION("handleStatusChanged", NapiNativeMediaPlayerHandler::HandleStatusChanged),
+        DECLARE_NAPI_FUNCTION("handleVolumeChanged", NapiNativeMediaPlayerHandler::HandleVolumeChanged),
+        DECLARE_NAPI_FUNCTION("handleMutedChanged", NapiNativeMediaPlayerHandler::HandleMutedChanged),
+        DECLARE_NAPI_FUNCTION("handlePlaybackRateChanged", NapiNativeMediaPlayerHandler::HandlePlaybackRateChanged),
+        DECLARE_NAPI_FUNCTION("handleDurationChanged", NapiNativeMediaPlayerHandler::HandleDurationChanged),
+        DECLARE_NAPI_FUNCTION("handleTimeUpdate", NapiNativeMediaPlayerHandler::HandleTimeUpdate),
+        DECLARE_NAPI_FUNCTION(
+            "handleBufferedEndTimeChanged", NapiNativeMediaPlayerHandler::HandleBufferedEndTimeChanged),
+        DECLARE_NAPI_FUNCTION("handleEnded", NapiNativeMediaPlayerHandler::HandleEnded),
+        DECLARE_NAPI_FUNCTION("handleNetworkStateChanged", NapiNativeMediaPlayerHandler::HandleNetworkStateChanged),
+        DECLARE_NAPI_FUNCTION("handleReadyStateChanged", NapiNativeMediaPlayerHandler::HandleReadyStateChanged),
+        DECLARE_NAPI_FUNCTION("handleFullscreenChanged", NapiNativeMediaPlayerHandler::HandleFullScreenChanged),
+        DECLARE_NAPI_FUNCTION("handleSeeking", NapiNativeMediaPlayerHandler::HandleSeeking),
+        DECLARE_NAPI_FUNCTION("handleSeekFinished", NapiNativeMediaPlayerHandler::HandleSeekFinished),
+        DECLARE_NAPI_FUNCTION("handleError", NapiNativeMediaPlayerHandler::HandleError),
+        DECLARE_NAPI_FUNCTION("handleVideoSizeChanged", NapiNativeMediaPlayerHandler::HandleVideoSizeChanged),
+    };
+
+    NAPI_CALL(env, napi_define_properties(env, jsValue, sizeof(properties) / sizeof(properties[0]), properties));
+    return jsValue;
+}
+
+napi_value MediaPlayerTransfer::CreateNativeMediaPlayerHandlerTransfer(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    napi_value result;
+    napi_get_undefined(env, &result);
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (argc != INTEGER_ONE) {
+        WVLOG_E("[CreateNativeMediaPlayerHandlerTransfer] number of params is invalid");
+        return result;
+    }
+
+    int64_t addr = 0;
+    if (!NapiParseUtils::ParseInt64(env, argv[INTEGER_ZERO], addr)) {
+        WVLOG_E("[CreateNativeMediaPlayerHandlerTransfer] type of param is error");
+        return result;
+    }
+
+    NapiNativeMediaPlayerHandlerImpl* handler =  reinterpret_cast<NapiNativeMediaPlayerHandlerImpl*>(addr);
+    napi_value jsValue = CreateNativeMediaPlayerHandler(env, handler);
+    if (jsValue) {
+        return jsValue;
+    }
+    return result;
+}
 } // namespace OHOS::NWeb

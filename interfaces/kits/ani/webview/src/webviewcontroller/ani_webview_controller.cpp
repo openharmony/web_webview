@@ -75,6 +75,7 @@
 #include "web_message_port.h"
 #include "interop_js/arkts_esvalue.h"
 #include "interop_js/arkts_interop_js_api.h"
+#include "napi_native_mediaplayer_handler_impl.h"
 #include "ohos_adapter_helper.h"
 #include "nweb_adapter_helper.h"
 
@@ -457,6 +458,13 @@ static void Clean(ani_env *env, ani_object object)
         WebHistoryList *historyList = reinterpret_cast<WebHistoryList *>(ptr);
         if (historyList && historyList->DecRefCount() <= 0) {
             delete historyList;
+        }
+    } else if (clsName == "NativeMediaPlayerHandlerinner") {
+        NapiNativeMediaPlayerHandlerImpl *napiNativeMediaPlayerHandlerImpl
+            = reinterpret_cast<NapiNativeMediaPlayerHandlerImpl *>(ptr);
+        if (napiNativeMediaPlayerHandlerImpl && 
+            napiNativeMediaPlayerHandlerImpl->DecRefCount() <= 0) {
+            delete napiNativeMediaPlayerHandlerImpl;
         }
     } else if (clsName == "ProxyConfig") {
         delete reinterpret_cast<ProxyConfig *>(ptr);
