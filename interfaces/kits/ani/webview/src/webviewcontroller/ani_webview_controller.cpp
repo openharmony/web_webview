@@ -5499,14 +5499,14 @@ ani_object HasImagePromise(ani_env* env, ani_object object)
     return promise;
 }
 
-static ani_object getCertificateInternal(ani_env *env, ani_object object)
+static ani_object GetCertificateSync(ani_env* env, ani_object object)
 {
     ani_object certificateObj = nullptr;
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return certificateObj;
     }
-    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
     if (!controller || !controller->IsInit()) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return certificateObj;
@@ -5516,39 +5516,38 @@ static ani_object getCertificateInternal(ani_env *env, ani_object object)
         WVLOG_E("GetCertificateSync failed");
         return certificateObj;
     }
-
     ani_class cls;
-    ani_status status = env->FindClass("Lescompat/ArrayBuffer;", &cls);
-    if (status != ANI_OK) {
-        WVLOG_E("testTag Find class %{public}s failed, status is %{public}d.", "Lescompat/ArrayBuffer", status);
-        return nullptr;
+    if (env->FindClass("Lescompat/Array;", &cls) != ANI_OK) {
+        return certificateObj;
     }
-    size_t length = certChainDerData.size();
-
-    ani_method ctor;
-    status = env->Class_FindMethod(cls, "<ctor>", "I:V", &ctor);
-    if (status != ANI_OK) {
-        WVLOG_E("testTag Find function %{public}s failed, status is %{public}d.", "<ctor>", status);
-        return nullptr;
+    ani_method arrayCtor;
+    if (env->Class_FindMethod(cls, "<ctor>", "I:V", &arrayCtor) != ANI_OK) {
+        return certificateObj;
     }
-
-    ani_object arrayBufferObj = nullptr;
-    status = env->Object_New(cls, ctor, &arrayBufferObj, length);
-    if (status != ANI_OK) {
-        WVLOG_E("testTag Object_New failed, status is %{public}d.", status);
-        return nullptr;
+    if (env->Object_New(cls, arrayCtor, &certificateObj, certChainDerData.size()) != ANI_OK) {
+        return certificateObj;
     }
-
-    for (ani_size i = 0; i < length; i++) {
-        auto value = certChainDerData[i].data();
-        status = env->Object_CallMethodByName_Void(
-            arrayBufferObj, "set", "IB:V", static_cast<ani_int>(i),value);
-        if (status != ANI_OK) {
-            WVLOG_E("testTag arrayBufferObj set() failed, status is %{public}d.", status);
+    ani_status status;
+    for (uint8_t i = 0; i < certChainDerData.size(); ++i) {
+        if (i == UINT8_MAX) {
+            WVLOG_E("error, cert chain data array reach max");
             break;
         }
+        void* data = nullptr;
+        ani_arraybuffer buffer = nullptr;
+        env->CreateArrayBuffer(certChainDerData[i].size(), &data, &buffer);
+        int retCode =
+            memcpy_s(data, certChainDerData[i].size(), certChainDerData[i].data(), certChainDerData[i].size());
+        if (retCode != 0) {
+            return certificateObj;
+        }
+        if ((status = env->Array_Set_Ref(
+                 static_cast<ani_array_ref>(certificateObj), i, static_cast<ani_ref>(buffer))) != ANI_OK) {
+            WVLOG_E("error in set element");
+            return certificateObj;
+        }
     }
-    return arrayBufferObj;
+    return certificateObj;
 }
 
 ani_status StsWebviewControllerInit(ani_env *env)
@@ -5685,7 +5684,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "hasImageCallback", nullptr, reinterpret_cast<void *>(HasImageCallback) },
         ani_native_function { "hasImagePromise", nullptr, reinterpret_cast<void *>(HasImagePromise) },
         ani_native_function { "restoreWebState", nullptr, reinterpret_cast<void*>(RestoreWebState) },
-        ani_native_function { "getCertificateInternal", nullptr, reinterpret_cast<void*>(getCertificateInternal) },
+        ani_native_function { "getCertificateSync", nullptr, reinterpret_cast<void*>(GetCertificateSync) },
     };
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
     if (status != ANI_OK) {

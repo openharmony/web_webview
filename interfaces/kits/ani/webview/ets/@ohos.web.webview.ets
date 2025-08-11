@@ -786,12 +786,7 @@ export default namespace webview {
         hasImage(): Promise<boolean> {
             return this.hasImagePromise();
         }
-        native getCertificateInternal(): ArrayBuffer;
-        getCertificateSync(): Uint8Array{
-            let buffer = this.getCertificateInternal();
-            let uint8Array = new Uint8Array(buffer);
-            return uint8Array;
-        }
+        native getCertificateSync(): Array<ArrayBuffer>;    
         getCertificate(): Promise<Array<cert.X509Cert>> {
             let certChainData = this.getCertificateSync();
             return new Promise<Array<cert.X509Cert>>((resolve, reject) => {
@@ -800,8 +795,9 @@ export default namespace webview {
                 taskPromise.then(async (results: NullishType) => {
                     const certs: Array<cert.X509Cert> = [];
                     for (let i = 0; i < certChainData.length; i++) {
+                        let certsUint8Array = new Uint8Array(certChainData[i]);
                         const encodingBlob: cert.EncodingBlob = {
-                            data: new Uint8Array (certChainData[i]),
+                            data: certsUint8Array,
                             encodingFormat: cert.EncodingFormat.FORMAT_DER
                         };
                         try {
@@ -810,8 +806,8 @@ export default namespace webview {
                         } catch (e) {
                             console.error("Failed to parse certificate", e);
                         }
-                        resolve(certs);
                     }
+                    resolve(certs);
                 })
                 .catch((error: Error) => {
                     reject(error);
@@ -825,8 +821,9 @@ export default namespace webview {
             p.then((results : NullishType) => {
                 const certs: Array<cert.X509Cert> = [];
                 for (let i = 0; i < certChainData.length; i++) {
+                    let certsUint8Array = new Uint8Array(certChainData[i]);
                     const encodingBlob: cert.EncodingBlob = {
-                        data: new Uint8Array (certChainData[i]),
+                        data: certsUint8Array,
                         encodingFormat: cert.EncodingFormat.FORMAT_DER
                     };
                     try {
