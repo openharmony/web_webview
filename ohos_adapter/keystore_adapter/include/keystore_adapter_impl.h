@@ -16,10 +16,10 @@
 #ifndef KEYSTORE_ADAPTER_IMPL_H
 #define KEYSTORE_ADAPTER_IMPL_H
 
-#include "keystore_adapter.h"
-#include "hks_param.h"
 #include "hks_api.h"
+#include "hks_param.h"
 #include "hks_type.h"
+#include "keystore_adapter.h"
 
 namespace OHOS::NWeb {
 
@@ -31,10 +31,7 @@ public:
 
     std::string EncryptKey(const std::string alias, const std::string plainData) override;
     std::string DecryptKey(const std::string alias, const std::string encryptedData) override;
-    int32_t InitParamSet(
-        struct HksParamSet **paramSet,
-        const struct HksParam *params,
-        uint32_t paramCount);
+    int32_t InitParamSet(struct HksParamSet** paramSet, const struct HksParam* params, uint32_t paramCount);
     std::string AssetQuery(const std::string assetHandle) override;
 
 private:
@@ -43,8 +40,11 @@ private:
     KeystoreAdapterImpl(const KeystoreAdapterImpl& other) = delete;
 
     KeystoreAdapterImpl& operator=(const KeystoreAdapterImpl&) = delete;
+
+    bool PrepareHuksInternal(struct HksParamSet** genParamSet, const struct HksBlob* keyAlias,
+        struct HksParamSet** workParamSet, struct HksParam* workParams, size_t workParamCount);
 };
 
-}  // namespace OHOS::NWeb
+} // namespace OHOS::NWeb
 
-#endif  // KEYSTORE_ADAPTER_IMPL_H
+#endif // KEYSTORE_ADAPTER_IMPL_H

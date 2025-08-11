@@ -13,13 +13,11 @@
  * limitations under the License.
  */
 
-#include <cstring>
 #include <cstdint>
+#include <cstring>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-
-#define private public
 #include "keystore_adapter_impl.h"
 
 using namespace testing;
@@ -28,9 +26,7 @@ using namespace testing::ext;
 namespace OHOS {
 namespace NWeb {
 
-namespace {
-
-}
+namespace {}
 
 class KeystoreAdapterImplTest : public testing::Test {
 public:
@@ -40,17 +36,13 @@ public:
     void TearDown();
 };
 
-void KeystoreAdapterImplTest::SetUpTestCase(void)
-{}
+void KeystoreAdapterImplTest::SetUpTestCase(void) {}
 
-void KeystoreAdapterImplTest::TearDownTestCase(void)
-{}
+void KeystoreAdapterImplTest::TearDownTestCase(void) {}
 
-void KeystoreAdapterImplTest::SetUp(void)
-{}
+void KeystoreAdapterImplTest::SetUp(void) {}
 
-void KeystoreAdapterImplTest::TearDown(void)
-{}
+void KeystoreAdapterImplTest::TearDown(void) {}
 
 /**
  * @tc.name: KeystoreAdapterImplTest_InitParamSet_001
@@ -60,37 +52,24 @@ void KeystoreAdapterImplTest::TearDown(void)
  */
 HWTEST_F(KeystoreAdapterImplTest, KeystoreAdapterImplTest_InitParamSet_001, TestSize.Level1)
 {
-    struct HksParamSet *paramSet;
-    struct HksParam decryptParams[] = {
-        {
-            .tag = HKS_TAG_ALGORITHM,
-            .uint32Param = HKS_ALG_AES
-        }, {
-            .tag = HKS_TAG_PURPOSE,
-            .uint32Param = HKS_KEY_PURPOSE_DECRYPT
-        }, {
-            .tag = HKS_TAG_KEY_SIZE,
-            .uint32Param = HKS_AES_KEY_SIZE_256
-        }, {
-            .tag = HKS_TAG_PADDING,
-            .uint32Param = HKS_PADDING_NONE
-        }, {
-            .tag = HKS_TAG_BLOCK_MODE,
-            .uint32Param = HKS_MODE_CBC
-        }
-    };
+    struct HksParamSet* paramSet;
+    struct HksParam decryptParams[] = { { .tag = HKS_TAG_ALGORITHM, .uint32Param = HKS_ALG_AES },
+        { .tag = HKS_TAG_PURPOSE, .uint32Param = HKS_KEY_PURPOSE_DECRYPT },
+        { .tag = HKS_TAG_KEY_SIZE, .uint32Param = HKS_AES_KEY_SIZE_256 },
+        { .tag = HKS_TAG_PADDING, .uint32Param = HKS_PADDING_NONE },
+        { .tag = HKS_TAG_BLOCK_MODE, .uint32Param = HKS_MODE_CBC } };
 
-    int32_t result = KeystoreAdapterImpl::GetInstance().InitParamSet(nullptr, decryptParams,
-        sizeof(decryptParams) / sizeof(HksParam));
+    int32_t result = KeystoreAdapterImpl::GetInstance().InitParamSet(
+        nullptr, decryptParams, sizeof(decryptParams) / sizeof(HksParam));
     EXPECT_NE(result, 0);
     result =
         KeystoreAdapterImpl::GetInstance().InitParamSet(nullptr, nullptr, sizeof(decryptParams) / sizeof(HksParam));
     EXPECT_NE(result, 0);
-    result = KeystoreAdapterImpl::GetInstance().InitParamSet(&paramSet, nullptr,
-        sizeof(decryptParams) / sizeof(HksParam));
+    result =
+        KeystoreAdapterImpl::GetInstance().InitParamSet(&paramSet, nullptr, sizeof(decryptParams) / sizeof(HksParam));
     EXPECT_NE(result, 0);
-    result = KeystoreAdapterImpl::GetInstance().InitParamSet(&paramSet, decryptParams,
-        sizeof(decryptParams) / sizeof(HksParam));
+    result = KeystoreAdapterImpl::GetInstance().InitParamSet(
+        &paramSet, decryptParams, sizeof(decryptParams) / sizeof(HksParam));
     EXPECT_EQ(result, 0);
 }
 
@@ -125,6 +104,52 @@ HWTEST_F(KeystoreAdapterImplTest, KeystoreAdapterImplTest_EncryptKey_002, TestSi
     EXPECT_TRUE(nullEncrypt.empty());
     nullDecrypt = KeystoreAdapterImpl::GetInstance().DecryptKey(long_str_alias, "test");
     EXPECT_TRUE(DecryptString.empty());
+
+    std::string keyAlias(16, 'a');
+    std::string keyPlain(32, 0x1c);
+    const int prefixSize = 3 + 16; // len("V10") + IV size
+    std::string result = KeystoreAdapterImpl::GetInstance().EncryptKey(keyAlias, keyPlain);
+    EXPECT_FALSE(result.empty());
+    EXPECT_EQ(result.length(), keyPlain.length() + prefixSize);
+    std::string plainText = KeystoreAdapterImpl::GetInstance().DecryptKey(keyAlias, result);
+    EXPECT_EQ(keyPlain, plainText);
+}
+
+/**
+ * @tc.name: KeystoreAdapterImplTest_DecryptKey_001
+ * @tc.desc: Encrypt and Decrypt
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(KeystoreAdapterImplTest, KeystoreAdapterImplTest_DecryptKey_001, TestSize.Level1)
+{
+    const int prefixSize = 3 + 16; // len("V10") + IV size
+    std::string alias = "test";
+    std::string encryptString = "fake_web_test";
+    std::string plainString = KeystoreAdapterImpl::GetInstance().DecryptKey(alias, encryptString);
+    EXPECT_TRUE(plainString.empty());
+
+    encryptString = "V10abcdefghijklmnopABCDEFGHIJKLMNOPQRSTUVWXYZ123456";
+    plainString = KeystoreAdapterImpl::GetInstance().DecryptKey(alias, encryptString);
+    EXPECT_FALSE(plainString.empty());
+    EXPECT_EQ(plainString.length(), encryptString.length() - prefixSize);
+
+    std::string nullAlias = "";
+    encryptString = "";
+    plainString = KeystoreAdapterImpl::GetInstance().DecryptKey(nullAlias, encryptString);
+    EXPECT_TRUE(plainString.empty());
+
+    std::string long_str_alias(2048, 'a');
+    plainString = KeystoreAdapterImpl::GetInstance().DecryptKey(long_str_alias, "test");
+    EXPECT_TRUE(plainString.empty());
+
+    std::string keyAlias(16, 'a');
+    std::string keyPlain(32, 'x');
+    std::string result = KeystoreAdapterImpl::GetInstance().EncryptKey(keyAlias, keyPlain);
+    EXPECT_FALSE(result.empty());
+    EXPECT_EQ(result.length(), keyPlain.length() + prefixSize);
+    plainString = KeystoreAdapterImpl::GetInstance().DecryptKey(keyAlias, result);
+    EXPECT_EQ(keyPlain, plainString);
 }
 
 /**
@@ -143,5 +168,5 @@ HWTEST_F(KeystoreAdapterImplTest, KeystoreAdapterImplTest_AssetQuery_003, TestSi
     std::string nullEncrypt = KeystoreAdapterImpl::GetInstance().AssetQuery(nullAlias);
     EXPECT_TRUE(nullEncrypt.empty());
 }
-}
 } // namespace NWeb
+} // namespace OHOS
