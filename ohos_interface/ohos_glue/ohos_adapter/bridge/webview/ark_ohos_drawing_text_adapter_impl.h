@@ -24,22 +24,22 @@ namespace OHOS::ArkWeb {
 
 class ArkOhosDrawingTextFontAdapterImpl : public ArkOhosDrawingTextFontAdapter {
 public:
-   ArkOhosDrawingTextFontAdapterImpl(NWeb::OhosDrawingTextFontAdapter&);
+    ArkOhosDrawingTextFontAdapterImpl(NWeb::OhosDrawingTextFontAdapter&);
 
-   int GetSystemFontFullNamesByType(int32_t systemFontType, void** drawingArray) override;
+    int GetSystemFontFullNamesByType(int32_t systemFontType, void** drawingArray) override;
 
-   int GetFontDescriptorByFullName(void* drawingString, int32_t systemFontType, void** drawingFontDescriptor) override;
+    int GetFontDescriptorByFullName(void* drawingString, int32_t systemFontType, void** drawingFontDescriptor) override;
 
-   int GetSystemFontFullNameByIndex(void* drawingArray, int32_t indexOfFullName, const void** drawingString) override;
+    int GetSystemFontFullNameByIndex(void* drawingArray, int32_t indexOfFullName, const void** drawingString) override;
 
-   void DestroySystemFontFullNames(void* drawingArray) override;
+    void DestroySystemFontFullNames(void* drawingArray) override;
 
-   void DestroyFontDescriptor(void* descriptor) override;
+    void DestroyFontDescriptor(void* descriptor) override;
 
 private:
-   OHOS::NWeb::OhosDrawingTextFontAdapter& real_;
+    OHOS::NWeb::OhosDrawingTextFontAdapter& real_;
 
-   IMPLEMENT_REFCOUNTING(ArkOhosDrawingTextFontAdapterImpl);
+    IMPLEMENT_REFCOUNTING(ArkOhosDrawingTextFontAdapterImpl);
 };
 
 class ArkOhosDrawingTextTypographyAdapterImpl : public ArkOhosDrawingTextTypographyAdapter {
