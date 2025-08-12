@@ -1455,8 +1455,8 @@ static ani_ref GetFaviconByHistoryItem(ani_env *env, std::shared_ptr<NWebHistory
 
     ani_ref result = nullptr;
     void *data = nullptr;
-    int32_t width = 0;
-    int32_t height = 0;
+    int width = 0;
+    int height = 0;
     ImageColorType colorType = ImageColorType::COLOR_TYPE_UNKNOWN;
     ImageAlphaType alphaType = ImageAlphaType::ALPHA_TYPE_UNKNOWN;
     bool isGetFavicon = item->GetFavicon(&data, width, height, colorType, alphaType);
