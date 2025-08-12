@@ -107,6 +107,7 @@ HWTEST_F(GraphicAdapterTest, GraphicAdapterTest_RequestVsync_001, TestSize.Level
     adapter.OnVsync(1, client);
     client = &vsyncAdapter;
     adapter.OnVsync(1, client);
+    adapter.VsyncCallbackInner(0);
     adapter.VsyncCallbackInner(1);
     int64_t period = adapter.GetVSyncPeriod();
     EXPECT_EQ(period, 0);

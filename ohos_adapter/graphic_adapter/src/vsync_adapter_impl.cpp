@@ -33,7 +33,6 @@ const std::string APS_CLIENT_SO = "/system/lib64/libaps_client.z.so";
 }
 
 void (*VSyncAdapterImpl::callback_)() = nullptr;
-void (*VSyncAdapterImpl::onVsyncEndCallback_)() = nullptr;
 
 VSyncAdapterImpl::~VSyncAdapterImpl()
 {
@@ -127,13 +126,7 @@ void VSyncAdapterImpl::OnVsync(int64_t timestamp, void* client)
 {
     auto vsyncClient = static_cast<VSyncAdapterImpl*>(client);
     if (vsyncClient) {
-        if (callback_) {
-            callback_();
-        }
         vsyncClient->VsyncCallbackInner(timestamp);
-        if (onVsyncEndCallback_) {
-            onVsyncEndCallback_();
-        }
     } else {
         WVLOG_E("VsyncClient is null");
     }
@@ -143,6 +136,10 @@ void VSyncAdapterImpl::VsyncCallbackInner(int64_t timestamp)
 {
     std::unordered_map<void*, NWebVSyncCb> vsyncCallbacks;
     std::lock_guard<std::mutex> lock(mtx_);
+    if (callback_) {
+        callback_();
+    }
+
     vsyncCallbacks = vsyncCallbacks_;
     vsyncCallbacks_.clear();
 
@@ -199,13 +196,12 @@ void VSyncAdapterImpl::SetFramePreferredRate(int32_t preferredRate)
 void VSyncAdapterImpl::SetOnVsyncCallback(void (*callback)())
 {
     WVLOG_D("callback function: %{public}ld", (long)callback);
+    std::lock_guard<std::mutex> lock(mtx_);
     callback_ = callback;
 }
 
 void VSyncAdapterImpl::SetOnVsyncEndCallback(void (*onVsyncEndCallback)())
 {
-    WVLOG_D("onVsyncEndCallback function: %{public}ld", (long)onVsyncEndCallback);
-    onVsyncEndCallback_ = onVsyncEndCallback;
 }
 
 void VSyncAdapterImpl::SetIsGPUProcess(bool isGPU)
