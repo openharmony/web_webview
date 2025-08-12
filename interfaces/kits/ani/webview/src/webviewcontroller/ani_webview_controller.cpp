@@ -83,6 +83,7 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 ani_boolean g_WebMessagePort = true;
+bool g_inWebPageSnapshot = false;
 namespace {
 constexpr int32_t RESULT_COUNT = 2;
 ani_vm *g_vm = nullptr;
@@ -3740,20 +3741,33 @@ void OnCreateNativeMediaPlayer(ani_env* env, ani_object object, ani_fn_object ca
     controller->OnCreateNativeMediaPlayer(g_vm, callback);
 }
 
+bool ParseJsLengthDoubleToInt(ani_env* env, ani_ref ref, int32_t& outValue)
+{   
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    ani_double value = 0;
+    ani_status status = env->Object_CallMethodByName_Double(static_cast<ani_object>(ref), "unboxed", ":D", &value);
+    if (status != ANI_OK) {
+        WVLOG_E("ParseJsLengthDoubleToInt failed status: %{public}d ",status);
+        return false;
+    }
+    outValue = static_cast<int32_t>(value);
+    return true;
+}
+
 bool ParseJsLengthResourceToInt(ani_env* env, ani_object jsLength, PixelUnit& type, int32_t& result)
 {
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return false;
     }
-    ani_ref resIdObj = nullptr;
-    int32_t resId;
-    if ((env->Object_GetPropertyByName_Ref(jsLength, "id", &resIdObj) != ANI_OK)) {
+    ani_double resIdDouble;
+    if ((env->Object_GetPropertyByName_Double(jsLength, "id", &resIdDouble) != ANI_OK)) {
         return false;
     }
-    if (!AniParseUtils::ParseInt32(env, resIdObj, resId)) {
-        return false;
-    }
+    int32_t resId = static_cast<int32_t>(resIdDouble);
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
         AbilityRuntime::ApplicationContext::GetApplicationContext();
     if (!context) {
@@ -3769,7 +3783,7 @@ bool ParseJsLengthResourceToInt(ani_env* env, ani_object jsLength, PixelUnit& ty
     env->Object_GetPropertyByName_Ref(jsLength, "type", &jsResourceType);
     if (AniParseUtils::IsDouble(env, static_cast<ani_object>(jsResourceType))) {
         int32_t resourceTypeNum;
-        AniParseUtils::ParseInt32(env, jsResourceType, resourceTypeNum);
+        ParseJsLengthDoubleToInt(env, jsResourceType, resourceTypeNum);
         std::string resourceString;
         switch (resourceTypeNum) {
             case static_cast<int>(ResourceType::INTEGER):
@@ -3798,13 +3812,13 @@ bool ParseJsLengthToInt(ani_env* env, ani_object jsLength, PixelUnit& type, int3
         WVLOG_E("env is nullptr");
         return false;
     }
-    if ((!AniParseUtils::IsObject(env, jsLength)) && (!AniParseUtils::IsString(env, jsLength)) &&
+    if ((!AniParseUtils::IsResource(env, jsLength)) && (!AniParseUtils::IsString(env, jsLength)) &&
         (!AniParseUtils::IsDouble(env, jsLength))) {
         WVLOG_E("WebPageSnapshot Unable to parse js length object.");
         return false;
     }
     if (AniParseUtils::IsDouble(env, jsLength)) {
-        AniParseUtils::ParseInt32(env, jsLength, result);
+         ParseJsLengthDoubleToInt(env, jsLength, result);
         type = PixelUnit::VP;
         return true;
     }
@@ -3816,7 +3830,7 @@ bool ParseJsLengthToInt(ani_env* env, ani_object jsLength, PixelUnit& type, int3
         }
         return true;
     }
-    if (AniParseUtils::IsObject(env, jsLength)) {
+    if (AniParseUtils::IsResource(env, jsLength)) {
         return ParseJsLengthResourceToInt(env, jsLength, type, result);
     }
     return false;
@@ -3838,7 +3852,30 @@ static void JsErrorCallback(ani_env* env, ani_ref jsCallback, int32_t err)
     env->FunctionalObject_Call(callbackFn, ani_size(RESULT_COUNT), vec.data(), &fnReturnVal);
 }
 
-std::atomic<bool> g_inWebPageSnapshot { false };
+bool CreateSizeObject(ani_env* env, const char* className, ani_object& object, ani_int size)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    ani_class cls;
+    ani_status status = env->FindClass(className, &cls);
+    if (status != ANI_OK) {
+        WVLOG_E("find %{public}s class failed, status: %{public}d", className, status);
+        return false;
+    }
+    ani_method ctor;
+    if ((status = env->Class_FindMethod(cls, "<ctor>", "i:", &ctor)) != ANI_OK) {
+        WVLOG_E("get %{public}s ctor method failed, status: %{public}d", className, status);
+        return false;
+    }
+    if ((status = env->Object_New(cls, ctor, &object, size)) != ANI_OK) {
+        WVLOG_E("new %{public}s failed, status: %{public}d", className, status);
+        return false;
+    }
+    return true;
+}
+
 WebSnapshotCallback CreateWebPageSnapshotResultCallback(
     ani_env* env, ani_ref jsCallback, bool check, int32_t inputWidth, int32_t inputHeight)
 {
@@ -3868,6 +3905,49 @@ WebSnapshotCallback CreateWebPageSnapshotResultCallback(
             WVLOG_E("WebPageSnapshot create pixel map error");
         }
         env->Object_SetPropertyByName_Ref(jsResult, "imagePixelMap", jsPixelMap);
+        int returnJsWidth = 0;
+        int returnJsHeight = 0;
+        if (radio > 0) {
+            returnJsWidth = returnWidth / radio;
+            returnJsHeight = returnHeight / radio;
+        }
+        if (check) {
+            if (std::abs(returnJsWidth - inputWidth) < INTEGER_THREE) {
+                returnJsWidth = inputWidth;
+            }
+
+            if (std::abs(returnJsHeight - inputHeight) < INTEGER_THREE) {
+                returnJsHeight = inputHeight;
+            }
+        }
+        ani_object jsSzieObj = {};
+        if (AniParseUtils::CreateObjectVoid(env, ANI_SIZE_OPTIONS_CLASS_NAME, jsSzieObj) == false) {
+            WVLOG_E("jsResult CreateObjectVoid failed");
+            return;
+        }
+        ani_object jsWidthObj = {};
+        if (CreateSizeObject(env, "Lstd/core/Int;", jsWidthObj, static_cast<ani_int>(returnJsWidth)) == false) {
+            WVLOG_E("jsWidthObj CreateSizeObject failed");
+            return;
+        }
+        ani_object jsHeightObj = {};
+        if (CreateSizeObject(env, "Lstd/core/Int;", jsHeightObj, static_cast<ani_int>(returnJsHeight)) == false) {
+            WVLOG_E("jsHeightObj CreateSizeObject failed");
+            return;
+        }
+        auto status = env->Object_SetPropertyByName_Ref(jsSzieObj, "width", static_cast<ani_ref>(jsWidthObj));
+        if (status != ANI_OK) {
+            WVLOG_E("returnJsWidth set failed : %{public}d", status);
+            return;
+        }
+        if (env->Object_SetPropertyByName_Ref(jsSzieObj, "height", static_cast<ani_ref>(jsHeightObj)) != ANI_OK) {
+            WVLOG_E("returnJsHeight set failed");
+            return;
+        }
+        if (env->Object_SetPropertyByName_Ref(jsResult, "size", jsSzieObj) != ANI_OK) {
+            WVLOG_E("jsSzieObj set failed");
+            return;
+        }
         ani_string jsId = nullptr;
         env->String_NewUTF8(returnId, strlen(returnId), &jsId);
         env->Object_SetPropertyByName_Ref(jsResult, "id", jsId);
