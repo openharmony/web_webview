@@ -14,6 +14,7 @@
  */
 
 #include "ani_native_media_player_handler.h"
+#include "napi_native_mediaplayer_handler_impl.h"
 
 #include <array>
 #include <iostream>
@@ -26,6 +27,8 @@
 #include "nweb_log.h"
 #include "securec.h"
 #include "web_errors.h"
+#include "interop_js/arkts_esvalue.h"
+#include "interop_js/arkts_interop_js_api.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -158,8 +161,8 @@ static void HandleStatusChanged(ani_env* env, ani_object object, ani_enum_item s
         return;
     }
 
-    AniNativeMediaPlayerHandlerImpl* handler =
-        reinterpret_cast<AniNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
+    NapiNativeMediaPlayerHandlerImpl* handler =
+        reinterpret_cast<NapiNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
     if (!handler) {
         WVLOG_E("native media player handler is null");
         return;
@@ -192,8 +195,8 @@ static void HandleVolumeChanged(ani_env* env, ani_object object, ani_double volu
         NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
         return;
     }
-    AniNativeMediaPlayerHandlerImpl* handler =
-        reinterpret_cast<AniNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
+    NapiNativeMediaPlayerHandlerImpl* handler =
+        reinterpret_cast<NapiNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
     if (!handler) {
         WVLOG_E("native media player handler is null");
         return;
@@ -221,8 +224,8 @@ static void HandleMutedChanged(ani_env* env, ani_object object, ani_boolean mute
         NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
         return;
     }
-    AniNativeMediaPlayerHandlerImpl* handler =
-        reinterpret_cast<AniNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
+    NapiNativeMediaPlayerHandlerImpl* handler =
+        reinterpret_cast<NapiNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
     if (!handler) {
         WVLOG_E("native media player handler is null");
         return;
@@ -255,8 +258,8 @@ static void HandlePlaybackRateChanged(ani_env* env, ani_object object, ani_doubl
         NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
         return;
     }
-    AniNativeMediaPlayerHandlerImpl* handler =
-        reinterpret_cast<AniNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
+    NapiNativeMediaPlayerHandlerImpl* handler =
+        reinterpret_cast<NapiNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
     if (!handler) {
         WVLOG_E("native media player handler is null");
         return;
@@ -289,8 +292,8 @@ static void HandleDurationChanged(ani_env* env, ani_object object, ani_double du
         NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
         return;
     }
-    AniNativeMediaPlayerHandlerImpl* handler =
-        reinterpret_cast<AniNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
+    NapiNativeMediaPlayerHandlerImpl* handler =
+        reinterpret_cast<NapiNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
     if (!handler) {
         WVLOG_E("native media player handler is null");
         return;
@@ -323,8 +326,8 @@ static void HandleTimeUpdate(ani_env* env, ani_object object, ani_double current
         NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
         return;
     }
-    AniNativeMediaPlayerHandlerImpl* handler =
-        reinterpret_cast<AniNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
+    NapiNativeMediaPlayerHandlerImpl* handler =
+        reinterpret_cast<NapiNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
     if (!handler) {
         WVLOG_E("native media player handler is null");
         return;
@@ -357,8 +360,8 @@ static void HandleBufferedEndTimeChanged(ani_env* env, ani_object object, ani_do
         NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
         return;
     }
-    AniNativeMediaPlayerHandlerImpl* handler =
-        reinterpret_cast<AniNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
+    NapiNativeMediaPlayerHandlerImpl* handler =
+        reinterpret_cast<NapiNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
     if (!handler) {
         WVLOG_E("native media player handler is null");
         return;
@@ -375,8 +378,8 @@ static void HandleEnded(ani_env* env, ani_object object)
         WVLOG_E("env is nullptr");
         return;
     }
-    AniNativeMediaPlayerHandlerImpl* handler =
-        reinterpret_cast<AniNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
+    NapiNativeMediaPlayerHandlerImpl* handler =
+        reinterpret_cast<NapiNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
     if (!handler) {
         WVLOG_E("native media player handler is null");
         return;
@@ -404,8 +407,8 @@ static void HandleNetworkStateChanged(ani_env* env, ani_object object, ani_enum_
         NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::TYPE_NOT_MATCH_WITCH_VALUE);
         return;
     }
-    AniNativeMediaPlayerHandlerImpl* handler =
-        reinterpret_cast<AniNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
+    NapiNativeMediaPlayerHandlerImpl* handler =
+        reinterpret_cast<NapiNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
     if (!handler) {
         WVLOG_E("native media player handler is null");
         return;
@@ -434,8 +437,8 @@ static void HandleReadyStateChanged(ani_env* env, ani_object object, ani_enum_it
         NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::TYPE_NOT_MATCH_WITCH_VALUE);
         return;
     }
-    AniNativeMediaPlayerHandlerImpl* handler =
-        reinterpret_cast<AniNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
+    NapiNativeMediaPlayerHandlerImpl* handler =
+        reinterpret_cast<NapiNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
     if (!handler) {
         WVLOG_E("native media player handler is null");
         return;
@@ -463,8 +466,8 @@ static void HandleFullScreenChanged(ani_env* env, ani_object object, ani_boolean
         NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
         return;
     }
-    AniNativeMediaPlayerHandlerImpl* handler =
-        reinterpret_cast<AniNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
+    NapiNativeMediaPlayerHandlerImpl* handler =
+        reinterpret_cast<NapiNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
     if (!handler) {
         WVLOG_E("native media player handler is null");
         return;
@@ -481,8 +484,8 @@ static void HandleSeeking(ani_env* env, ani_object object)
         WVLOG_E("env is nullptr");
         return;
     }
-    AniNativeMediaPlayerHandlerImpl* handler =
-        reinterpret_cast<AniNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
+    NapiNativeMediaPlayerHandlerImpl* handler =
+        reinterpret_cast<NapiNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
     if (!handler) {
         WVLOG_E("native media player handler is null");
         return;
@@ -498,8 +501,8 @@ static void HandleSeekFinished(ani_env* env, ani_object object)
         WVLOG_E("env is nullptr");
         return;
     }
-    AniNativeMediaPlayerHandlerImpl* handler =
-        reinterpret_cast<AniNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
+    NapiNativeMediaPlayerHandlerImpl* handler =
+        reinterpret_cast<NapiNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
     if (!handler) {
         WVLOG_E("native media player handler is null");
         return;
@@ -534,8 +537,8 @@ static void HandleError(ani_env* env, ani_object object, ani_enum_item error, an
         NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
         return;
     }
-    AniNativeMediaPlayerHandlerImpl* handler =
-        reinterpret_cast<AniNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
+    NapiNativeMediaPlayerHandlerImpl* handler =
+        reinterpret_cast<NapiNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
     if (!handler) {
         WVLOG_E("native media player handler is null");
         return;
@@ -575,14 +578,41 @@ static void HandleVideoSizeChanged(ani_env* env, ani_object object, ani_double w
         NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
         return;
     }
-    AniNativeMediaPlayerHandlerImpl* handler =
-        reinterpret_cast<AniNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
+    NapiNativeMediaPlayerHandlerImpl* handler =
+        reinterpret_cast<NapiNativeMediaPlayerHandlerImpl*>(AniParseUtils::Unwrap(env, object));
     if (!handler) {
         WVLOG_E("native media player handler is null");
         return;
     }
-    WVLOG_I("handle_video_size_changed is called, width is %{public}f, height is %{public}f", widthStr, heightStr);
+    WVLOG_I("handle_video_size_changed is called, width is %{public}f, height is %{public}f",
+        widthStr, heightStr);
     handler->HandleVideoSizeChanged(widthStr, heightStr);
+}
+
+static ani_boolean TransferNativeMediaPlayerHandlerToStaticInner(ani_env* env, ani_class aniClass,
+    ani_object output, ani_object input)
+{
+    if (env == nullptr) {
+        WVLOG_E("[TRANSFER] env is nullptr");
+        return ANI_FALSE;
+    }
+
+    void* nativePtr = nullptr;
+    if (!arkts_esvalue_unwrap(env, input, &nativePtr) || nativePtr == nullptr) {
+        WVLOG_E("[TRANSFER] arkts_esvalue_unwrap failed");
+        return ANI_FALSE;
+    }
+
+    NapiNativeMediaPlayerHandlerImpl *handler =
+        reinterpret_cast<NapiNativeMediaPlayerHandlerImpl*>(nativePtr);
+    if (!AniParseUtils::Wrap(env, output, NATIVE_MEDIA_PLAYER_HANDLER_INNER_CLASS_NAME,
+                             reinterpret_cast<ani_long>(handler))) {
+        WVLOG_E("[TRANSFER] NapiNativeMediaPlayerHandlerImpl wrap failed");
+        return ANI_FALSE;
+    }
+
+    handler->IncRefCount();
+    return ANI_TRUE;
 }
 
 ani_status StsNativeMediaPlayerHandlerinnerInit(ani_env* env)
@@ -618,6 +648,8 @@ ani_status StsNativeMediaPlayerHandlerinnerInit(ani_env* env)
         ani_native_function { "handleSeekFinished", nullptr, reinterpret_cast<void*>(HandleSeekFinished) },
         ani_native_function { "handleError", nullptr, reinterpret_cast<void*>(HandleError) },
         ani_native_function { "handleVideoSizeChanged", nullptr, reinterpret_cast<void*>(HandleVideoSizeChanged) },
+        ani_native_function { "transferNativeMediaPlayerHandlerToStaticInner", nullptr,
+            reinterpret_cast<void*>(TransferNativeMediaPlayerHandlerToStaticInner) },
     };
 
     status = env->Class_BindNativeMethods(nativeMediaPlayerHandlerinnerCls, allMethods.data(), allMethods.size());
