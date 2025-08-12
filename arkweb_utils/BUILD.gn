@@ -49,6 +49,7 @@ ohos_shared_library("libarkweb_utils") {
   external_deps = [
     "init:libbegetutil",
     "hilog:libhilog",
+    "ability_runtime:app_context",
     "jsoncpp:jsoncpp",
   ]
 

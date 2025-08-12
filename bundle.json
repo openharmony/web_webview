@@ -168,9 +168,6 @@
                         "header_base": "${root_gen_dir}/base/web/webview/ohos_interface/ohos_glue/base/include"
                     },
                     "name": "//base/web/webview/ohos_glue:ohos_base_glue_source"
-                },
-                {
-                    "name": "//base/web/webview/arkweb_utils:libarkweb_utils"
                 }
             ],
             "test": [
@@ -360,7 +357,6 @@
                 "//base/web/webview/test/unittest/ohos_adapter/print_manager_adapter_impl_test:unittest",
                 "//base/web/webview/test/unittest/audio_adapter_impl_test:unittest",
                 "//base/web/webview/test/unittest/app_fwk_update_client_test:unittest",
-                "//base/web/webview/test/unittest/arkweb_utils_test:unittest",
                 "//base/web/webview/test/unittest/net_connect_callback_impl_test:unittest",
                 "//base/web/webview/test/unittest/net_connect_adapter_impl_test:unittest",
                 "//base/web/webview/test/unittest/nweb_surface_adapter_test:unittest",
