@@ -194,10 +194,6 @@ bool ParseResourceRawfileUrl(ani_env *env, const ani_object& object, std::string
         return false;
     }
     ani_object paramsObj = reinterpret_cast<ani_object>(paramsRef);
-    ani_double paramsLength;
-    if (env->Object_GetPropertyByName_Double(paramsObj, "length", &paramsLength) != ANI_OK) {
-        return false;
-    }
     ani_ref fileNameRef;
     if (env->Object_CallMethodByName_Ref(paramsObj, "$_get", "I:Lstd/core/Object;", &fileNameRef, 0) != ANI_OK) {
         return false;
@@ -225,9 +221,9 @@ bool ParseResourceUrl(ani_env *env, ani_object urlObject, std::string& url, Webv
     if (env->Object_GetPropertyByName_Ref(urlObject, "type", &typeRef) != ANI_OK) {
         return false;
     }
-    double typeDouble;
-    if (env->Object_CallMethodByName_Double(static_cast<ani_object>(typeRef), "unboxed", ":D",
-                                            &typeDouble) != ANI_OK) {
+    ani_int typeInt;
+    if (env->Object_CallMethodByName_Int(static_cast<ani_object>(typeRef), "unboxed", ":I",
+                                         &typeInt) != ANI_OK) {
         return false;
     }
     std::string bundleName;
@@ -236,7 +232,7 @@ bool ParseResourceUrl(ani_env *env, ani_object urlObject, std::string& url, Webv
         !AniParseUtils::ParseString(env, moduleNameRef, moduleName)) {
         return false;
     }
-    int type = static_cast<int>(std::round(typeDouble));
+    int type = static_cast<int>(typeInt);
     if (type == static_cast<int>(ResourceType::RAWFILE)) {
         std::string fileName;
         if (!ParseResourceRawfileUrl(env, urlObject, fileName)) {
