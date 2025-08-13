@@ -427,7 +427,7 @@ static ani_object SerializeInternal(ani_env* env, ani_object object)
         return nullptr;
     }
 
-    for (ani_size i = 0; i < length; i++) {
+    for (size_t i = 0; i < length; i++) {
         ani_int value = webDownloadValue[i];
         status = env->Object_CallMethodByName_Void(
             arrayBufferObj, "set", "IB:V", static_cast<ani_int>(i), static_cast<ani_byte>(value));

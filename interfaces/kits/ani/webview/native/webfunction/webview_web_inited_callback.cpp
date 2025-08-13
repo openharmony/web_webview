@@ -59,6 +59,7 @@ void UvWebInitedCallbackThreadWoker(WebRunInitedCallbackImpl* obj)
 } // namespace
 
 WebInitedCallbackParam::WebInitedCallbackParam(ani_env* env, ani_ref callback)
+    : vm_(nullptr), webInitedCallback_(nullptr)
 {
     WVLOG_I("enter WebInitedCallbackParam");
     if (!env || !callback) {
