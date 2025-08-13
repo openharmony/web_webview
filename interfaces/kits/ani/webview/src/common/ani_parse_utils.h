@@ -51,6 +51,7 @@ public:
     static bool IsFunction(ani_env *env, const ani_object& object);
     static bool IsDouble(ani_env *env, const ani_object& object);
     static bool IsObject(ani_env *env, const ani_object& object);
+    static ani_string StringToAniStr(ani_env* env, const std::string& str);
     static bool CreateBoolean(ani_env *env, bool src, ani_object& aniObj);
     static ani_object CreateDouble(ani_env *env, ani_double val); 
     static ani_object CreateInt(ani_env *env, ani_int val);

@@ -16,6 +16,7 @@ import("//build/ohos.gni")
 config("web_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
+    "../nativecommon",
     "common",
     "proxycontroller",
     "webadsblockmanager",
@@ -45,7 +46,6 @@ ohos_shared_library("webview_napi_back") {
     "common/business_error.cpp",
     "common/napi_parse_utils.cpp",
     "common/napi_webview_native_module.cpp",
-    "common/web_errors.cpp",
     "proxycontroller/napi_proxy_config.cpp",
     "proxycontroller/napi_proxy_config.h",
     "proxycontroller/napi_proxy_controller.cpp",
@@ -116,6 +116,7 @@ ohos_shared_library("webview_napi_back") {
   ]
 
   deps = [
+    "../nativecommon:webview_common",
     "../../../ohos_adapter:nweb_ohos_adapter",
     "../../../ohos_nweb:libnweb",
     "../../native:ohweb",

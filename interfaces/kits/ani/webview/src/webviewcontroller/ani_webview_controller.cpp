@@ -44,6 +44,10 @@
 #include "webview_hasimage_callback.h"
 #include "webview_javascript_execute_callback.h"
 #include "webview_javascript_result_callback.h"
+#include "web_history_list.h"
+#include "web_message_port.h"
+#include "interop_js/arkts_esvalue.h"
+#include "interop_js/arkts_interop_js_api.h"
 
 #include "nweb_precompile_callback.h"
 #include "nweb_cache_options_impl.h"
@@ -416,7 +420,10 @@ static void Clean(ani_env *env, ani_object object)
     if (clsName == "WebviewController") {
         delete reinterpret_cast<WebviewController *>(ptr);
     } else if (clsName == "WebHistoryList") {
-        delete reinterpret_cast<WebHistoryList *>(ptr);
+        WebHistoryList *historyList = reinterpret_cast<WebHistoryList *>(ptr);
+        if (historyList && historyList->DecRefCount() <= 0) {
+            delete historyList;
+        }
     } else if (clsName == "ProxyConfig") {
         delete reinterpret_cast<ProxyConfig *>(ptr);
     } else if (clsName == "WebSchemeHandlerResponse") {
@@ -430,7 +437,10 @@ static void Clean(ani_env *env, ani_object object)
     } else if (clsName == "WebDownloadManager") {
         delete reinterpret_cast<WebDownloadManager *>(ptr);
     } else if (clsName == "WebMessagePort") {
-        delete reinterpret_cast<WebMessagePort *>(ptr);
+        WebMessagePort *msgPort = reinterpret_cast<WebMessagePort *>(ptr);
+        if (msgPort && msgPort->DecRefCount() <= 0) {
+            delete msgPort;
+        }
     } else {
         WVLOG_E("Clean unsupport className: %{public}s", clsName.c_str());
     }
@@ -1570,6 +1580,7 @@ static ani_ref GetBackForwardEntries(ani_env *env, ani_object object)
         webHistoryList = nullptr;
         return nullptr;
     }
+    webHistoryList->IncRefCount();
 
     env->Object_SetPropertyByName_Int(backForwardObj, "currentIndex", static_cast<ani_int>(currentIndex));
     env->Object_SetPropertyByName_Int(backForwardObj, "size", static_cast<ani_int>(size));
@@ -2093,6 +2104,29 @@ static ani_ref GetItemAtIndex(ani_env *env, ani_object object, ani_int aniIndex)
     return historyItemListObj;
 }
 
+static ani_boolean TransferBackForwardListToStaticInner(
+    ani_env* env, ani_class aniClass, ani_object output, ani_object input)
+{
+    if (env == nullptr) {
+        return ANI_FALSE;
+    }
+
+    void* nativePtr = nullptr;
+    if (!arkts_esvalue_unwrap(env, input, &nativePtr) || nativePtr == nullptr) {
+        WVLOG_E("[TRANSFER] arkts_esvalue_unwrap failed");
+        return ANI_FALSE;
+    }
+
+    WebHistoryList *webHistoryList = reinterpret_cast<WebHistoryList *>(nativePtr);
+    if (!AniParseUtils::Wrap(env, output, ANI_BACK_FORWARD_LIST_INNER_CLASS_NAME,
+                             reinterpret_cast<ani_long>(webHistoryList))) {
+        WVLOG_E("[TRANSFER] BackForwardList wrap failed");
+        return ANI_FALSE;
+    }
+    webHistoryList->IncRefCount();
+    return ANI_TRUE;
+}
+
 ani_status StsBackForwardListInit(ani_env *env)
 {
     ani_class backForwardListCls = nullptr;
@@ -2104,6 +2138,8 @@ ani_status StsBackForwardListInit(ani_env *env)
 
     std::array methodArray = {
         ani_native_function { "getItemAtIndex", nullptr, reinterpret_cast<void *>(GetItemAtIndex) },
+        ani_native_function { "transferBackForwardListToStaticInner", nullptr,
+                              reinterpret_cast<void *>(TransferBackForwardListToStaticInner) },
     };
 
     status = env->Class_BindNativeMethods(backForwardListCls, methodArray.data(), methodArray.size());
@@ -2134,6 +2170,40 @@ static void Close(ani_env* env, ani_object object)
     return;
 }
 
+static ani_boolean TransferWebMessagePortToStaticInner(ani_env* env, ani_class aniClass, ani_object output,
+                                                       ani_object input, ani_boolean extType)
+{
+    if (env == nullptr) {
+        WVLOG_E("[TRANSFER] env is nullptr");
+        return ANI_FALSE;
+    }
+
+    void* nativePtr = nullptr;
+    if (!arkts_esvalue_unwrap(env, input, &nativePtr) || nativePtr == nullptr) {
+        WVLOG_E("[TRANSFER] arkts_esvalue_unwrap failed");
+        return ANI_FALSE;
+    }
+
+    WebMessagePort* msgPort = reinterpret_cast<WebMessagePort *>(nativePtr);
+    if (!AniParseUtils::Wrap(env, output, ANI_WEB_MESSAGE_PORT_INNER_CLASS_NAME,
+                             reinterpret_cast<ani_long>(msgPort))) {
+        WVLOG_E("[TRANSFER] WebMessagePort wrap failed");
+        return ANI_FALSE;
+    }
+    msgPort->IncRefCount();
+
+    bool isExtentionType = static_cast<bool>(extType);
+    ani_object jsType = {};
+    if (!AniParseUtils::CreateBoolean(env, isExtentionType, jsType)) {
+        return ANI_FALSE;
+    }
+    if (env->Object_SetPropertyByName_Ref(output, "isExtentionType", static_cast<ani_ref>(jsType)) != ANI_OK) {
+        WVLOG_E("[TRANSFER] set isExtentionType failed");
+        return ANI_FALSE;
+    }
+    return ANI_TRUE;
+}
+
 ani_status StsWebMessagePortInit(ani_env* env)
 {
     ani_class webMessagePortCls = nullptr;
@@ -2144,6 +2214,8 @@ ani_status StsWebMessagePortInit(ani_env* env)
     }
     std::array methodArray = {
         ani_native_function { "close", nullptr, reinterpret_cast<void*>(Close) },
+        ani_native_function { "transferWebMessagePortToStaticInner", nullptr,
+                              reinterpret_cast<void *>(TransferWebMessagePortToStaticInner) },
     };
     status = env->Class_BindNativeMethods(webMessagePortCls, methodArray.data(), methodArray.size());
     if (status != ANI_OK) {
@@ -2194,6 +2266,7 @@ static bool CreateWebMessagePortObj(
         webMessagePort = nullptr;
         return false;
     }
+    webMessagePort->IncRefCount();
     return true;
 }
 

@@ -424,31 +424,6 @@ private:
     std::vector<std::string> moduleName_;
 };
 
-class WebMessagePort {
-public:
-    WebMessagePort(int32_t nwebId, std::string& port, bool isExtentionType);
-
-    ~WebMessagePort() = default;
-
-    ErrCode ClosePort();
-
-    ErrCode PostPortMessage(std::shared_ptr<NWebMessage> data);
-
-    ErrCode SetPortMessageCallback(std::shared_ptr<NWebMessageValueCallback> callback);
-
-    std::string GetPortHandle() const;
-
-    bool IsExtentionType()
-    {
-        return isExtentionType_;
-    }
-
-private:
-    int32_t nwebId_ = -1;
-    std::string portHandle_;
-    bool isExtentionType_;
-};
-
 class WebMessageExt {
 public:
     explicit WebMessageExt(std::shared_ptr<NWebMessage> data) : data_(data) {};
@@ -547,22 +522,6 @@ public:
 private:
     int type_ = 0;
     std::shared_ptr<NWebMessage> data_;
-};
-
-class WebHistoryList {
-public:
-    explicit WebHistoryList(std::shared_ptr<NWebHistoryList> sptrHistoryList) : sptrHistoryList_(sptrHistoryList) {};
-    ~WebHistoryList() = default;
-
-    int32_t GetCurrentIndex();
-
-    std::shared_ptr<NWebHistoryItem> GetItem(int32_t index);
-
-    int32_t GetListSize();
-
-private:
-    OHOS::NWeb::NWeb* nweb_ = nullptr;
-    std::shared_ptr<NWebHistoryList> sptrHistoryList_ = nullptr;
 };
 
 class WebPrintDocument {
