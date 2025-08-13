@@ -416,6 +416,8 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructHandler(
     ani_object object = nullptr;
     if (!CreateObjectVoid(env, NATIVE_MEDIA_PLAYER_HANDLER_INNER, object)) {
         WVLOG_E("new NapiNativeMediaPlayerHandlerImpl createobject failed");
+        delete napiNativeMediaPlayerHandlerImpl;
+        napiNativeMediaPlayerHandlerImpl = nullptr;
         return nullptr;
     }
 

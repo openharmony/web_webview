@@ -257,7 +257,7 @@ bool AniParseUtils::ParseStringArray(ani_env* env, ani_object argv, std::vector<
         return false;
     }
     WVLOG_I("stringArray size = %{public}d", static_cast<int>(arrayLength));
-    for (ani_double i = 0; i < arrayLength; i++) {
+    for (ani_int i = 0; i < arrayLength; i++) {
         ani_ref arrayItem = nullptr;
         env->Array_Get_Ref(arrayRef, i, &arrayItem);
         std::string str;
@@ -747,7 +747,7 @@ bool AniParseUtils::ParseInt64Array(ani_env* env, ani_object argv, std::vector<i
     }
     ani_class cls;
     ani_boolean isArray = ANI_FALSE;
-    ani_double arrayLength;
+    ani_int arrayLength;
     ani_array_ref arrayRef;
     env->FindClass("Lescompat/Array;", &cls);
     env->Object_InstanceOf(argv, cls, &isArray);
@@ -757,8 +757,8 @@ bool AniParseUtils::ParseInt64Array(ani_env* env, ani_object argv, std::vector<i
     }
 
     arrayRef = static_cast<ani_array_ref>(argv);
-    env->Object_GetPropertyByName_Double(argv, "length", &arrayLength);
-    for (ani_double i = 0; i < arrayLength; i++) {
+    env->Object_GetPropertyByName_Int(argv, "length", &arrayLength);
+    for (ani_int i = 0; i < arrayLength; i++) {
         ani_ref arrayItem = nullptr;
         env->Array_Get_Ref(arrayRef, i, &arrayItem);
         int64_t value;
@@ -777,7 +777,7 @@ bool AniParseUtils::ParseBooleanArray(ani_env* env, ani_object argv, std::vector
     }
     ani_class cls;
     ani_boolean isArray = ANI_FALSE;
-    ani_double arrayLength;
+    ani_int arrayLength;
     ani_array_ref arrayRef;
     env->FindClass("Lescompat/Array;", &cls);
     env->Object_InstanceOf(argv, cls, &isArray);
@@ -787,8 +787,8 @@ bool AniParseUtils::ParseBooleanArray(ani_env* env, ani_object argv, std::vector
     }
 
     arrayRef = static_cast<ani_array_ref>(argv);
-    env->Object_GetPropertyByName_Double(argv, "length", &arrayLength);
-    for (ani_double i = 0; i < arrayLength; i++) {
+    env->Object_GetPropertyByName_Int(argv, "length", &arrayLength);
+    for (ani_int i = 0; i < arrayLength; i++) {
         ani_ref arrayItem = nullptr;
         env->Array_Get_Ref(arrayRef, i, &arrayItem);
         bool value;
@@ -807,7 +807,7 @@ bool AniParseUtils::ParseDoubleArray(ani_env* env, ani_object argv, std::vector<
     }
     ani_class cls;
     ani_boolean isArray = ANI_FALSE;
-    ani_double arrayLength;
+    ani_int arrayLength;
     ani_array_ref arrayRef;
     env->FindClass("Lescompat/Array;", &cls);
     env->Object_InstanceOf(argv, cls, &isArray);
@@ -817,8 +817,8 @@ bool AniParseUtils::ParseDoubleArray(ani_env* env, ani_object argv, std::vector<
     }
 
     arrayRef = static_cast<ani_array_ref>(argv);
-    env->Object_GetPropertyByName_Double(argv, "length", &arrayLength);
-    for (ani_double i = 0; i < arrayLength; i++) {
+    env->Object_GetPropertyByName_Int(argv, "length", &arrayLength);
+    for (ani_int i = 0; i < arrayLength; i++) {
         ani_ref arrayItem = nullptr;
         env->Array_Get_Ref(arrayRef, i, &arrayItem);
         double value;
