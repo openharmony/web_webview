@@ -31,7 +31,6 @@ ArkWebAdapterWebcoreBridgeHelper::ArkWebAdapterWebcoreBridgeHelper()
 
 void ArkWebAdapterWebcoreBridgeHelper::Init()
 {
-    CHECK(LoadLibFile(RTLD_LAZY, kAdapterLibFileName, false));
 
     memberCheckFunc_ =
         reinterpret_cast<ArkWebMemberCheckFunc>(LoadFuncSymbol("ark_web_adapter_webview_check_func_static", false));
