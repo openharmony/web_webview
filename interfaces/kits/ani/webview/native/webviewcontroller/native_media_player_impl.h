@@ -23,46 +23,6 @@
 
 namespace OHOS::NWeb {
 
-class AniNativeMediaPlayerHandlerImpl {
-public:
-    AniNativeMediaPlayerHandlerImpl(int32_t nwebId, std::shared_ptr<NWebNativeMediaPlayerHandler> handler);
-    ~AniNativeMediaPlayerHandlerImpl() = default;
-
-    void HandleStatusChanged(PlaybackStatus status);
-
-    void HandleVolumeChanged(double volume);
-
-    void HandleMutedChanged(bool isMuted);
-
-    void HandlePlaybackRateChanged(double playbackRate);
-
-    void HandleDurationChanged(double duration);
-
-    void HandleTimeUpdate(double playTime);
-
-    void HandleBufferedEndTimeChanged(double bufferedEndTime);
-
-    void HandleEnded();
-
-    void HandleNetworkStateChanged(NetworkState state);
-
-    void HandleReadyStateChanged(ReadyState state);
-
-    void HandleFullScreenChanged(bool isFullScreen);
-
-    void HandleSeeking();
-
-    void HandleSeekFinished();
-
-    void HandleError(MediaError error, const std::string& message);
-
-    void HandleVideoSizeChanged(double width, double height);
-
-private:
-    int32_t nwebId_ = -1;
-    std::shared_ptr<NWebNativeMediaPlayerHandler> handler_ = nullptr;
-};
-
 class NWebNativeMediaPlayerBridgeImpl : public NWebNativeMediaPlayerBridge {
 public:
     NWebNativeMediaPlayerBridgeImpl(int32_t nwebId, ani_vm* vm, ani_ref value);

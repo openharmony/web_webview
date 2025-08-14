@@ -30,6 +30,8 @@ ohos_shared_library("webview_common") {
     "web_message_port.h",
     "web_errors.cpp",
     "transfer_referenced_count.h",
+    "napi_native_mediaplayer_handler_impl.cpp",
+    "napi_native_mediaplayer_handler_impl.h",
   ]
 
   deps = [
