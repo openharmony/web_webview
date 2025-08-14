@@ -47,6 +47,8 @@
 #include "arkweb_scheme_handler.h"
 #include "web_scheme_handler_request.h"
 #include "system_properties_adapter_impl.h"
+#include "web_history_list.h"
+#include "web_message_port.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -587,6 +589,13 @@ thread_local napi_ref g_webMsgExtClassRef;
 thread_local napi_ref g_webPrintDocClassRef;
 napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
 {
+    napi_property_descriptor transferDesc[] = {
+        DECLARE_NAPI_FUNCTION("__createBackForwardListTransfer__",
+            ArkWebTransfer::CreateBackForwardListTransfer),
+        DECLARE_NAPI_FUNCTION("__createWebMessagePortTransfer__",
+            ArkWebTransfer::CreateWebMessagePortTransfer),
+    };
+    napi_define_properties(env, exports, sizeof(transferDesc) / sizeof(transferDesc[0]), transferDesc);
     napi_property_descriptor properties[] = {
         DECLARE_NAPI_STATIC_FUNCTION("initializeWebEngine", NapiWebviewController::InitializeWebEngine),
         DECLARE_NAPI_STATIC_FUNCTION("setHttpDns", NapiWebviewController::SetHttpDns),
@@ -2228,9 +2237,12 @@ napi_value NapiWebMessagePort::JsConstructor(napi_env env, napi_callback_info in
     NAPI_CALL(env, napi_wrap(env, thisVar, msgPort,
         [](napi_env env, void *data, void *hint) {
             WebMessagePort *msgPort = static_cast<WebMessagePort *>(data);
-            delete msgPort;
+            if (msgPort && msgPort->DecRefCount() <= 0) {
+                delete msgPort;
+            }
         },
         nullptr, nullptr));
+    msgPort->IncRefCount();
     return thisVar;
 }
 
@@ -4141,10 +4153,13 @@ napi_value NapiWebviewController::getBackForwardEntries(napi_env env, napi_callb
     NAPI_CALL(env, napi_wrap(env, result, webHistoryList,
         [](napi_env env, void *data, void *hint) {
             WebHistoryList *webHistoryList = static_cast<WebHistoryList *>(data);
-            delete webHistoryList;
+            if (webHistoryList && webHistoryList->DecRefCount() <= 0) {
+                delete webHistoryList;
+            }
         },
         nullptr, nullptr));
 
+    webHistoryList->IncRefCount();
     return result;
 }
 
@@ -7331,6 +7346,136 @@ napi_value NapiWebviewController::GetErrorPageEnabled(napi_env env, napi_callbac
 
     bool GetErrorPageEnabled = controller->GetErrorPageEnabled();
     NAPI_CALL(env, napi_get_boolean(env, GetErrorPageEnabled, &result));
+    return result;
+}
+
+static napi_value CreateBackForwardList(
+    napi_env env, WebHistoryList* webHistoryList, int32_t currentIndex, int32_t size)
+{
+    napi_value jsValue = nullptr;
+    napi_create_object(env, &jsValue);
+
+    napi_value jsCurrentIndex;
+    napi_create_int32(env, currentIndex, &jsCurrentIndex);
+    napi_set_named_property(env, jsValue, "currentIndex", jsCurrentIndex);
+
+    napi_value jsSize;
+    napi_create_int32(env, size, &jsSize);
+    napi_set_named_property(env, jsValue, "size", jsSize);
+
+    NAPI_CALL(env, napi_wrap(env, jsValue, webHistoryList,
+        [](napi_env env, void *data, void *hint) {
+            WebHistoryList *webHistoryList = static_cast<WebHistoryList *>(data);
+            if (webHistoryList && webHistoryList->DecRefCount() <= 0) {
+                delete webHistoryList;
+            }
+        },
+        nullptr, nullptr));
+    webHistoryList->IncRefCount();
+    napi_property_descriptor resultFuncs[] = {
+        DECLARE_NAPI_FUNCTION("getItemAtIndex", NapiWebHistoryList::GetItem)
+    };
+
+    NAPI_CALL(env, napi_define_properties(env, jsValue, sizeof(resultFuncs) / sizeof(resultFuncs[0]), resultFuncs));
+    return jsValue;
+}
+
+napi_value ArkWebTransfer::CreateBackForwardListTransfer(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    napi_value result;
+    napi_get_undefined(env, &result);
+    size_t argc = INTEGER_THREE;
+    napi_value argv[INTEGER_THREE] = { 0 };
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (argc != INTEGER_THREE) {
+        WVLOG_E("[CreateBackForwardListTransfer] number of params is invalid");
+        return result;
+    }
+
+    int32_t currentIndex = 0;
+    int32_t size = 0;
+    int64_t addr = 0;
+    if (!NapiParseUtils::ParseInt32(env, argv[INTEGER_ZERO], currentIndex) ||
+        !NapiParseUtils::ParseInt32(env, argv[INTEGER_ONE], size) ||
+        !NapiParseUtils::ParseInt64(env, argv[INTEGER_TWO], addr)) {
+        WVLOG_E("[CreateBackForwardListTransfer] type of param is error");
+        return result;
+    }
+
+    WebHistoryList* historyList =  reinterpret_cast<WebHistoryList*>(addr);
+    if (historyList == nullptr) {
+        WVLOG_E("[CreateBackForwardListTransfer] historyList is null");
+        return result;
+    }
+    napi_value jsValue = CreateBackForwardList(env, historyList, currentIndex, size);
+    if (jsValue) {
+        return jsValue;
+    }
+    return result;
+}
+
+static napi_value CreateMessagePort(napi_env env, WebMessagePort* messagePort, bool isExtentionType)
+{
+    napi_value jsValue = nullptr;
+    napi_create_object(env, &jsValue);
+
+    napi_value jsExtention;
+    napi_get_boolean(env, isExtentionType, &jsExtention);
+    napi_set_named_property(env, jsValue, "isExtentionType", jsExtention);
+
+    NAPI_CALL(env, napi_wrap(env, jsValue, messagePort,
+        [](napi_env env, void *data, void *hint) {
+            WebMessagePort *msgPort = static_cast<WebMessagePort *>(data);
+            if (msgPort && msgPort->DecRefCount() <= 0) {
+                delete msgPort;
+            }
+        },
+        nullptr, nullptr));
+    messagePort->IncRefCount();
+
+    napi_property_descriptor resultFuncs[] = {
+        DECLARE_NAPI_FUNCTION("close", NapiWebMessagePort::Close),
+        DECLARE_NAPI_FUNCTION("postMessageEvent", NapiWebMessagePort::PostMessageEvent),
+        DECLARE_NAPI_FUNCTION("onMessageEvent", NapiWebMessagePort::OnMessageEvent),
+        DECLARE_NAPI_FUNCTION("postMessageEventExt", NapiWebMessagePort::PostMessageEventExt),
+        DECLARE_NAPI_FUNCTION("onMessageEventExt", NapiWebMessagePort::OnMessageEventExt)
+    };
+
+    NAPI_CALL(env, napi_define_properties(env, jsValue, sizeof(resultFuncs) / sizeof(resultFuncs[0]), resultFuncs));
+    return jsValue;
+}
+
+napi_value ArkWebTransfer::CreateWebMessagePortTransfer(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    napi_value result;
+    napi_get_undefined(env, &result);
+    size_t argc = INTEGER_TWO;
+    napi_value argv[INTEGER_TWO] = { 0 };
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (argc != INTEGER_TWO) {
+        WVLOG_E("[CreateWebMessagePortTransfer] number of params is invalid");
+        return result;
+    }
+
+    bool isExtentionType = false;
+    int64_t addr = 0;
+    if (!NapiParseUtils::ParseBoolean(env, argv[INTEGER_ZERO], isExtentionType) ||
+        !NapiParseUtils::ParseInt64(env, argv[INTEGER_ONE], addr)) {
+        WVLOG_E("[CreateWebMessagePortTransfer] type of param is error");
+        return result;
+    }
+
+    WebMessagePort* messagePort =  reinterpret_cast<WebMessagePort*>(addr);
+    if (messagePort == nullptr) {
+        WVLOG_E("[CreateWebMessagePortTransfer] messagePort is null");
+        return result;
+    }
+    napi_value jsValue = CreateMessagePort(env, messagePort, isExtentionType);
+    if (jsValue) {
+        return jsValue;
+    }
     return result;
 }
 } // namespace NWeb

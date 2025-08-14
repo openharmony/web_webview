@@ -574,7 +574,7 @@ ani_object AniParseUtils::CreateInt(ani_env *env, ani_int val)
     return obj;
 }
 
-ani_string StringToAniStr(ani_env* env, const std::string& str)
+ani_string AniParseUtils::StringToAniStr(ani_env* env, const std::string& str)
 {
     ani_string result {};
     if (ANI_OK != env->String_NewUTF8(str.c_str(), str.size(), &result)) {
