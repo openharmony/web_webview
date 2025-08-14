@@ -321,6 +321,9 @@ export default namespace webview {
     }
 
     export class NativeMediaPlayerHandlerinner implements NativeMediaPlayerHandler {
+        static {
+            loadLibrary("webview_ani.z");
+        }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
 
@@ -356,6 +359,37 @@ export default namespace webview {
         native handleSeekFinished(): void
         native handleError(error: MediaError, errorMessage: string): void
         native handleVideoSizeChanged(width: double, height: double): void
+
+
+        static transferNativeMediaPlayerHandlerToStatic(input: Any): Object {
+            let nmphObject: NativeMediaPlayerHandlerinner = new NativeMediaPlayerHandlerinner();
+            if (input == undefined || input == null) {
+                throw new Error("input object is null or undefined");
+            }
+            let dyESValue = ESValue.wrap(input);
+
+            if (!NativeMediaPlayerHandlerinner.transferNativeMediaPlayerHandlerToStaticInner(nmphObject, dyESValue)) {
+                throw new Error("transfer failed");
+            }
+            return nmphObject as Object;
+        }
+        private static native transferNativeMediaPlayerHandlerToStaticInner(newDemo: NativeMediaPlayerHandlerinner, input: ESValue): boolean;
+
+        static transferNativeMediaPlayerHandlerToDynamic(input: Object): Any {
+            const staticRef = input as NativeMediaPlayerHandlerinner;
+            if (staticRef) {
+                let addr = staticRef.nativePtr;
+                let module = ESValue.load("@ohos.web.webview");
+                let initFunc = module.getProperty("__createNativeMediaPlayerHandlerTransfer__");
+                if (initFunc) {
+                    let dynamicRef = initFunc.invoke(ESValue.wrap(addr));
+                    return dynamicRef.unwrap();
+                }
+            } else {
+                console.error("invoke func not exit");
+            }
+            return undefined;
+        }
     }
 
     export interface NativeMediaPlayerBridge {

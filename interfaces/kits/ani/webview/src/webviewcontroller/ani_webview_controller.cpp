@@ -68,6 +68,7 @@
 #include "web_scheme_handler_response.h"
 #include "web_download_item.h"
 #include "ani_webview_createpdf_execute_callback.h"
+#include "napi_native_mediaplayer_handler_impl.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -423,6 +424,13 @@ static void Clean(ani_env *env, ani_object object)
         WebHistoryList *historyList = reinterpret_cast<WebHistoryList *>(ptr);
         if (historyList && historyList->DecRefCount() <= 0) {
             delete historyList;
+        }
+    } else if (clsName == "NativeMediaPlayerHandlerinner") {
+        NapiNativeMediaPlayerHandlerImpl *napiNativeMediaPlayerHandlerImpl
+            = reinterpret_cast<NapiNativeMediaPlayerHandlerImpl *>(ptr);
+        if (napiNativeMediaPlayerHandlerImpl &&
+            napiNativeMediaPlayerHandlerImpl->DecRefCount() <= 0) {
+            delete napiNativeMediaPlayerHandlerImpl;
         }
     } else if (clsName == "ProxyConfig") {
         delete reinterpret_cast<ProxyConfig *>(ptr);
