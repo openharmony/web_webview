@@ -61,7 +61,7 @@ namespace OHOS::Webview {
         };
         ~WebHttpBodyStreamImpl()
         {
-            if (!stream_) {
+            if (stream_) {
                 OH_ArkWebResourceRequest_DestroyHttpBodyStream(stream_);
                 stream_ = nullptr;
             }
