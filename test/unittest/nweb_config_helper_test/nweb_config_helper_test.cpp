@@ -29,13 +29,24 @@
 #include "nweb_config_helper.h"
 #include "nweb_helper.h"
 #include "nweb_init_params.h"
+#include "application_context.h"
 
 
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::NWeb;
+using namespace OHOS::AbilityRuntime;
 
 namespace OHOS {
+
+namespace AbilityRuntime {
+std::shared_ptr<ApplicationContext> g_applicationContext = nullptr;
+std::shared_ptr<ApplicationContext> Context::GetApplicationContext()
+{
+    return g_applicationContext;
+}
+} // namespace AbilityRuntime
+
 namespace NWebConfig {
 
 const auto XML_ATTR_NAME = "name";
@@ -50,6 +61,11 @@ public:
         std::shared_ptr<NWebEngineInitArgsImpl> initArgs));
     MOCK_METHOD2(ParseWebConfigXml, void(const std::string& configFilePath,
         std::shared_ptr<NWebEngineInitArgsImpl> initArgs));
+};
+
+class ApplicationContextMock : public AbilityRuntime::ApplicationContext {
+public:
+    MOCK_CONST_METHOD0(GetBundleName, std::string());
 };
 
 class NWebConfigHelperTest : public ::testing::Test {
@@ -317,13 +333,32 @@ HWTEST_F(NWebConfigHelperTest,
  */
 HWTEST_F(NWebConfigHelperTest,
     ParseWindowOrientationConfig_WhenBundleNameMatchesAndOrientationIsTure, TestSize.Level0) {
-    xmlNodePtr nodePtr = xmlNewNode(nullptr, BAD_CAST "testNode");
-    EXPECT_NE(nodePtr, nullptr);
-    xmlNewProp(nodePtr, BAD_CAST(XML_BUNDLE_NAME), BAD_CAST("testBundleName"));
-    xmlNewProp(nodePtr, BAD_CAST(XML_ENABLE_WINDOW_ORIENTATION), BAD_CAST("true"));
+    xmlNodePtr rootNode = xmlNewNode(nullptr, BAD_CAST "root");
+    xmlNodePtr configNode = xmlNewNode(nullptr, BAD_CAST "window_orientation");
+    EXPECT_NE(rootNode, nullptr);
+    EXPECT_NE(configNode, nullptr);
+    xmlAddChild(rootNode, configNode);
+    xmlNewProp(configNode, BAD_CAST(XML_BUNDLE_NAME), BAD_CAST("testBundleName"));
+    xmlNewProp(configNode, BAD_CAST(XML_ENABLE_WINDOW_ORIENTATION), BAD_CAST("true"));
+
+    g_applicationContext.reset();
+    ApplicationContextMock* contextMock = new ApplicationContextMock();
+    EXPECT_NE(contextMock, nullptr);
+    EXPECT_CALL(*contextMock, GetBundleName()).Times(1).WillRepeatedly(::testing::Return("testBundleName"));
+    EXPECT_EQ(g_applicationContext, nullptr);
+    g_applicationContext.reset(contextMock);
+    EXPECT_NE(g_applicationContext, nullptr);
+
     std::shared_ptr<NWebEngineInitArgsImpl> initArgs = std::make_shared<NWebEngineInitArgsImpl>();
-    NWebConfigHelper::Instance().ParseWindowOrientationConfig(nodePtr, initArgs);
-    EXPECT_EQ(initArgs->GetArgsToAdd().size(), 0);
+    NWebConfigHelper::Instance().ParseWindowOrientationConfig(rootNode, initArgs);
+    const auto& args = initArgs->GetArgsToAdd();
+    EXPECT_EQ(args.size(), 1);
+    EXPECT_EQ(args.front(), "--enable-blink-features=OrientationEvent");
+
+    g_applicationContext.reset();
+    EXPECT_EQ(g_applicationContext, nullptr);
+    xmlFreeNode(rootNode);
+    xmlFreeNode(configNode);
 }
 
 /**
@@ -334,13 +369,32 @@ HWTEST_F(NWebConfigHelperTest,
  */
 HWTEST_F(NWebConfigHelperTest,
     ParseWindowOrientationConfig_WhenBundleNameMatchesAndOrientationIsFalse, TestSize.Level0) {
-    xmlNodePtr nodePtr = xmlNewNode(nullptr, BAD_CAST "testNode");
-    EXPECT_NE(nodePtr, nullptr);
-    xmlNewProp(nodePtr, BAD_CAST(XML_BUNDLE_NAME), BAD_CAST "testBundleName");
-    xmlNewProp(nodePtr, BAD_CAST(XML_ENABLE_WINDOW_ORIENTATION), BAD_CAST("false"));
+    xmlNodePtr rootNode = xmlNewNode(nullptr, BAD_CAST "root");
+    xmlNodePtr configNode = xmlNewNode(nullptr, BAD_CAST "window_orientation");
+    EXPECT_NE(rootNode, nullptr);
+    EXPECT_NE(configNode, nullptr);
+    xmlAddChild(rootNode, configNode);
+    xmlNewProp(configNode, BAD_CAST(XML_BUNDLE_NAME), BAD_CAST("testBundleName"));
+    xmlNewProp(configNode, BAD_CAST(XML_ENABLE_WINDOW_ORIENTATION), BAD_CAST("false"));
+
+    g_applicationContext.reset();
+    ApplicationContextMock* contextMock = new ApplicationContextMock();
+    EXPECT_NE(contextMock, nullptr);
+    EXPECT_CALL(*contextMock, GetBundleName()).Times(1).WillRepeatedly(::testing::Return("testBundleName"));
+    EXPECT_EQ(g_applicationContext, nullptr);
+    g_applicationContext.reset(contextMock);
+    EXPECT_NE(g_applicationContext, nullptr);
+
     std::shared_ptr<NWebEngineInitArgsImpl> initArgs = std::make_shared<NWebEngineInitArgsImpl>();
-    NWebConfigHelper::Instance().ParseWindowOrientationConfig(nodePtr, initArgs);
-    EXPECT_EQ(initArgs->GetArgsToAdd().size(), 0);
+    NWebConfigHelper::Instance().ParseWindowOrientationConfig(rootNode, initArgs);
+    const auto& args = initArgs->GetArgsToAdd();
+    EXPECT_EQ(args.size(), 1);
+    EXPECT_EQ(args.front(), "--disable-blink-features=OrientationEvent");
+
+    g_applicationContext.reset();
+    EXPECT_EQ(g_applicationContext, nullptr);
+    xmlFreeNode(rootNode);
+    xmlFreeNode(configNode);
 }
 
 /**
@@ -351,13 +405,31 @@ HWTEST_F(NWebConfigHelperTest,
  */
 HWTEST_F(NWebConfigHelperTest,
     ParseWindowOrientationConfig_WhenBundleNameMatchesAndOrientationIsInvalid, TestSize.Level0) {
-    xmlNodePtr nodePtr = xmlNewNode(nullptr, BAD_CAST "testNode");
-    EXPECT_NE(nodePtr, nullptr);
-    xmlNewProp(nodePtr, BAD_CAST(XML_BUNDLE_NAME), BAD_CAST("testBundleName"));
-    xmlNewProp(nodePtr, BAD_CAST(XML_ENABLE_WINDOW_ORIENTATION), BAD_CAST("invalidValue"));
+    xmlNodePtr rootNode = xmlNewNode(nullptr, BAD_CAST "root");
+    xmlNodePtr configNode = xmlNewNode(nullptr, BAD_CAST "window_orientation");
+    EXPECT_NE(rootNode, nullptr);
+    EXPECT_NE(configNode, nullptr);
+    xmlAddChild(rootNode, configNode);
+    xmlNewProp(configNode, BAD_CAST(XML_BUNDLE_NAME), BAD_CAST("testBundleName"));
+    xmlNewProp(configNode, BAD_CAST(XML_ENABLE_WINDOW_ORIENTATION), BAD_CAST("invalidValue"));
+
+    g_applicationContext.reset();
+    ApplicationContextMock* contextMock = new ApplicationContextMock();
+    EXPECT_NE(contextMock, nullptr);
+    EXPECT_CALL(*contextMock, GetBundleName()).Times(1).WillRepeatedly(::testing::Return("testBundleName"));
+    EXPECT_EQ(g_applicationContext, nullptr);
+    g_applicationContext.reset(contextMock);
+    EXPECT_NE(g_applicationContext, nullptr);
+
     std::shared_ptr<NWebEngineInitArgsImpl> initArgs = std::make_shared<NWebEngineInitArgsImpl>();
-    NWebConfigHelper::Instance().ParseWindowOrientationConfig(nodePtr, initArgs);
-    EXPECT_EQ(initArgs->GetArgsToAdd().size(), 0);
+    NWebConfigHelper::Instance().ParseWindowOrientationConfig(rootNode, initArgs);
+    const auto& args = initArgs->GetArgsToAdd();
+    EXPECT_EQ(args.size(), 0);
+
+    g_applicationContext.reset();
+    EXPECT_EQ(g_applicationContext, nullptr);
+    xmlFreeNode(rootNode);
+    xmlFreeNode(configNode);
 }
 
 /**
