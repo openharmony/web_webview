@@ -65,9 +65,6 @@
         <flowBufferConfig>
             <maxFdNumber>0</maxFdNumber>
         </flowBufferConfig>
-        <TCPConnectedSocketConfig>
-            <initialCongestionWindowSize>10</initialCongestionWindowSize>
-        </TCPConnectedSocketConfig>
     </performanceConfig>
     <baseWebConfig>
         <factoryConfig>
