@@ -90,6 +90,10 @@ void WebviewCreatePDFExecuteCallback::OnReceiveValue(const char* value, const lo
         }
     }
 
+    if (size < 0 || size > (LONG_MAX - 1)) {
+        WVLOG_E("CreatePdf OnReceiveValue size is out of range");
+        return;
+    }
     result_ = new (std::nothrow) char[size + 1];
     if (result_ == nullptr) {
         WVLOG_E("new char failed");
