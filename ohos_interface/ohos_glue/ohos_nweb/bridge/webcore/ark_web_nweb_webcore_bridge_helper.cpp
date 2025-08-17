@@ -31,7 +31,6 @@ ArkWebNWebWebcoreBridgeHelper::ArkWebNWebWebcoreBridgeHelper()
 
 void ArkWebNWebWebcoreBridgeHelper::Init()
 {
-    CHECK(LoadLibFile(RTLD_LAZY, NWEB_LIB_FILE_NAME, false));
 
     memberCheckFunc_ =
         reinterpret_cast<ArkWebMemberCheckFunc>(LoadFuncSymbol("ark_web_nweb_webview_check_func_static", false));
