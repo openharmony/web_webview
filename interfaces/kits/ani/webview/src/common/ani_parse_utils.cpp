@@ -242,7 +242,7 @@ bool AniParseUtils::ParseStringArray(ani_env* env, ani_object argv, std::vector<
     ani_class cls;
     ani_boolean isArray = ANI_FALSE;
     ani_int arrayLength;
-    ani_array_ref arrayRef;
+    ani_array arrayRef;
     env->FindClass("Lescompat/Array;", &cls);
     env->Object_InstanceOf(argv, cls, &isArray);
     if (!isArray) {
@@ -250,7 +250,7 @@ bool AniParseUtils::ParseStringArray(ani_env* env, ani_object argv, std::vector<
         return false;
     }
 
-    arrayRef = static_cast<ani_array_ref>(argv);
+    arrayRef = static_cast<ani_array>(argv);
     ani_status status;
     if ((status = env->Object_GetPropertyByName_Int(argv, "length", &arrayLength)) != ANI_OK) {
         WVLOG_E("string array get length error status = %{public}d", status);
@@ -259,7 +259,7 @@ bool AniParseUtils::ParseStringArray(ani_env* env, ani_object argv, std::vector<
     WVLOG_I("stringArray size = %{public}d", static_cast<int>(arrayLength));
     for (ani_int i = 0; i < arrayLength; i++) {
         ani_ref arrayItem = nullptr;
-        env->Array_Get_Ref(arrayRef, i, &arrayItem);
+        env->Array_Get(arrayRef, i, &arrayItem);
         std::string str;
         if (ParseString(env, arrayItem, str)) {
             outValue.push_back(str);
@@ -276,7 +276,7 @@ bool AniParseUtils::ParseStringArrayMap(ani_env* env, ani_object argv, std::map<
     }
     ani_class cls;
     ani_boolean isArray = ANI_FALSE;
-    ani_array_ref arrayRef;
+    ani_array arrayRef;
     ani_double arrayLength;
     env->FindClass("Lescompat/Array;", &cls);
     env->Object_InstanceOf(argv, cls, &isArray);
@@ -285,11 +285,11 @@ bool AniParseUtils::ParseStringArrayMap(ani_env* env, ani_object argv, std::map<
         return false;
     }
 
-    arrayRef = static_cast<ani_array_ref>(argv);
+    arrayRef = static_cast<ani_array>(argv);
     env->Object_GetPropertyByName_Double(argv, "length", &arrayLength);
     for (ani_double i = 0; i < arrayLength; i++) {
         ani_ref arrayItem = nullptr;
-        env->Array_Get_Ref(arrayRef, i, &arrayItem);
+        env->Array_Get(arrayRef, i, &arrayItem);
         ani_ref keyObj = nullptr;
         ani_ref valueObj = nullptr;
         env->Object_GetPropertyByName_Ref(static_cast<ani_object>(arrayItem), "headerKey", &keyObj);
@@ -600,26 +600,20 @@ ani_ref AniParseUtils::CreateAniStringArray(ani_env* env, const std::vector<std:
         WVLOG_E("env is nullptr");
         return nullptr;
     }
-    ani_class stringCls = nullptr;
-    static const char* className = "Lstd/core/String;";
-    ani_status status = env->FindClass(className, &stringCls);
-    if (status != ANI_OK) {
-        WVLOG_E("find %{public}s class failed, status: %{public}d", className, status);
-        return nullptr;
-    }
+
     ani_ref undefinedRef = nullptr;
     if (ANI_OK != env->GetUndefined(&undefinedRef)) {
         WVLOG_E("GetUndefined Failed.");
         return nullptr;
     }
-    ani_array_ref array;
-    if (ANI_OK != env->Array_New_Ref(stringCls, paths.size(), undefinedRef, &array)) {
+    ani_array array;
+    if (ANI_OK != env->Array_New(paths.size(), undefinedRef, &array)) {
         WVLOG_E("new array ref error.");
         return nullptr;
     }
     for (size_t i = 0; i < paths.size(); ++i) {
         auto item = AniParseUtils::StringToAniStr(env, paths[i]);
-        if (ANI_OK != env->Array_Set_Ref(array, i, item)) {
+        if (ANI_OK != env->Array_Set(array, i, item)) {
             return nullptr;
         }
     }
@@ -748,7 +742,7 @@ bool AniParseUtils::ParseInt64Array(ani_env* env, ani_object argv, std::vector<i
     ani_class cls;
     ani_boolean isArray = ANI_FALSE;
     ani_int arrayLength;
-    ani_array_ref arrayRef;
+    ani_array arrayRef;
     env->FindClass("Lescompat/Array;", &cls);
     env->Object_InstanceOf(argv, cls, &isArray);
     if (!isArray) {
@@ -756,11 +750,11 @@ bool AniParseUtils::ParseInt64Array(ani_env* env, ani_object argv, std::vector<i
         return false;
     }
 
-    arrayRef = static_cast<ani_array_ref>(argv);
+    arrayRef = static_cast<ani_array>(argv);
     env->Object_GetPropertyByName_Int(argv, "length", &arrayLength);
     for (ani_int i = 0; i < arrayLength; i++) {
         ani_ref arrayItem = nullptr;
-        env->Array_Get_Ref(arrayRef, i, &arrayItem);
+        env->Array_Get(arrayRef, i, &arrayItem);
         int64_t value;
         if (ParseInt64(env, arrayItem, value)) {
             outValue.push_back(value);
@@ -778,7 +772,7 @@ bool AniParseUtils::ParseBooleanArray(ani_env* env, ani_object argv, std::vector
     ani_class cls;
     ani_boolean isArray = ANI_FALSE;
     ani_int arrayLength;
-    ani_array_ref arrayRef;
+    ani_array arrayRef;
     env->FindClass("Lescompat/Array;", &cls);
     env->Object_InstanceOf(argv, cls, &isArray);
     if (!isArray) {
@@ -786,11 +780,11 @@ bool AniParseUtils::ParseBooleanArray(ani_env* env, ani_object argv, std::vector
         return false;
     }
 
-    arrayRef = static_cast<ani_array_ref>(argv);
+    arrayRef = static_cast<ani_array>(argv);
     env->Object_GetPropertyByName_Int(argv, "length", &arrayLength);
     for (ani_int i = 0; i < arrayLength; i++) {
         ani_ref arrayItem = nullptr;
-        env->Array_Get_Ref(arrayRef, i, &arrayItem);
+        env->Array_Get(arrayRef, i, &arrayItem);
         bool value;
         if (ParseBoolean(env, arrayItem, value)) {
             outValue.push_back(value);
@@ -808,7 +802,7 @@ bool AniParseUtils::ParseDoubleArray(ani_env* env, ani_object argv, std::vector<
     ani_class cls;
     ani_boolean isArray = ANI_FALSE;
     ani_int arrayLength;
-    ani_array_ref arrayRef;
+    ani_array arrayRef;
     env->FindClass("Lescompat/Array;", &cls);
     env->Object_InstanceOf(argv, cls, &isArray);
     if (!isArray) {
@@ -816,11 +810,11 @@ bool AniParseUtils::ParseDoubleArray(ani_env* env, ani_object argv, std::vector<
         return false;
     }
 
-    arrayRef = static_cast<ani_array_ref>(argv);
+    arrayRef = static_cast<ani_array>(argv);
     env->Object_GetPropertyByName_Int(argv, "length", &arrayLength);
     for (ani_int i = 0; i < arrayLength; i++) {
         ani_ref arrayItem = nullptr;
-        env->Array_Get_Ref(arrayRef, i, &arrayItem);
+        env->Array_Get(arrayRef, i, &arrayItem);
         double value;
         if (ParseDouble(env, arrayItem, value)) {
             outValue.push_back(value);
@@ -1063,11 +1057,6 @@ ani_ref ConvertToAniHandlerOfStringArr(ani_env* env, std::shared_ptr<NWebMessage
         return nullptr;
     }
     std::vector<std::string> values = src->GetStringArray();
-    ani_class stringCls = nullptr;
-    if (ANI_OK != env->FindClass("Lstd/core/String;", &stringCls)) {
-        WVLOG_E("WebMessageExt find class failed.");
-        return nullptr;
-    }
 
     ani_ref undefinedRef = nullptr;
     if (ANI_OK != env->GetUndefined(&undefinedRef)) {
@@ -1075,8 +1064,8 @@ ani_ref ConvertToAniHandlerOfStringArr(ani_env* env, std::shared_ptr<NWebMessage
         return nullptr;
     }
 
-    ani_array_ref array = nullptr;
-    if (ANI_OK != env->Array_New_Ref(stringCls, values.size(), undefinedRef, &array)) {
+    ani_array array = nullptr;
+    if (ANI_OK != env->Array_New(values.size(), undefinedRef, &array)) {
         WVLOG_E("WebMessageExt new array ref error.");
         return array;
     }
@@ -1086,7 +1075,7 @@ ani_ref ConvertToAniHandlerOfStringArr(ani_env* env, std::shared_ptr<NWebMessage
         if (ANI_OK != env->String_NewUTF8(values[i].c_str(), values[i].size(), &result)) {
             continue;
         }
-        if (ANI_OK != env->Array_Set_Ref(array, i, result)) {
+        if (ANI_OK != env->Array_Set(array, i, result)) {
             return array;
         }
     }
@@ -1103,20 +1092,14 @@ ani_ref ConvertToAniHandlerOfBooleanArr(ani_env* env, std::shared_ptr<NWebMessag
     std::vector<bool> values = src->GetBooleanArray();
     size_t valueSize = values.size();
 
-    ani_class boolCls = nullptr;
-    if (ANI_OK != env->FindClass("Lstd/core/Boolean;", &boolCls)) {
-        WVLOG_E("WebMessageExt find class failed.");
-        return nullptr;
-    }
-
     ani_ref undefinedRef = nullptr;
     if (ANI_OK != env->GetUndefined(&undefinedRef)) {
         WVLOG_E("WebMessageExt GetUndefined Failed.");
         return nullptr;
     }
 
-    ani_array_ref array = nullptr;
-    if (ANI_OK != env->Array_New_Ref(boolCls, values.size(), undefinedRef, &array)) {
+    ani_array array = nullptr;
+    if (ANI_OK != env->Array_New(values.size(), undefinedRef, &array)) {
         WVLOG_E("WebMessageExt new array ref error.");
         return array;
     }
@@ -1135,7 +1118,7 @@ ani_ref ConvertToAniHandlerOfBooleanArr(ani_env* env, std::shared_ptr<NWebMessag
         if (env->Object_New(booleanCls, ctor, &obj, item) != ANI_OK) {
             return nullptr;
         }
-        if (ANI_OK != env->Array_Set_Ref(array, i, obj)) {
+        if (ANI_OK != env->Array_Set(array, i, obj)) {
             return array;
         }
     }
@@ -1152,20 +1135,14 @@ ani_ref ConvertToAniHandlerOfDoubleArr(ani_env* env, std::shared_ptr<NWebMessage
     std::vector<double> values = src->GetDoubleArray();
     size_t valueSize = values.size();
 
-    ani_class doubleCls = nullptr;
-    if (ANI_OK != env->FindClass("Lstd/core/Double;", &doubleCls)) {
-        WVLOG_E("WebMessageExt find class failed.");
-        return nullptr;
-    }
-
     ani_ref undefinedRef = nullptr;
     if (ANI_OK != env->GetUndefined(&undefinedRef)) {
         WVLOG_E("WebMessageExt GetUndefined Failed.");
         return nullptr;
     }
 
-    ani_array_ref array = nullptr;
-    if (ANI_OK != env->Array_New_Ref(doubleCls, values.size(), undefinedRef, &array)) {
+    ani_array array = nullptr;
+    if (ANI_OK != env->Array_New(values.size(), undefinedRef, &array)) {
         WVLOG_E("WebMessageExt new array ref error.");
         return array;
     }
@@ -1184,7 +1161,7 @@ ani_ref ConvertToAniHandlerOfDoubleArr(ani_env* env, std::shared_ptr<NWebMessage
         if (env->Object_New(cls, ctor, &obj, item) != ANI_OK) {
             return nullptr;
         }
-        if (ANI_OK != env->Array_Set_Ref(array, i, obj)) {
+        if (ANI_OK != env->Array_Set(array, i, obj)) {
             return array;
         }
     }
@@ -1201,20 +1178,14 @@ ani_ref ConvertToAniHandlerOfInt64Arr(ani_env* env, std::shared_ptr<NWebMessage>
     std::vector<int64_t> values = src->GetInt64Array();
     size_t valueSize = values.size();
 
-    ani_class longCls = nullptr;
-    if (ANI_OK != env->FindClass("Lstd/core/Long;", &longCls)) {
-        WVLOG_E("WebMessageExt find class failed.");
-        return nullptr;
-    }
-
     ani_ref undefinedRef = nullptr;
     if (ANI_OK != env->GetUndefined(&undefinedRef)) {
         WVLOG_E("WebMessageExt GetUndefined Failed.");
         return nullptr;
     }
 
-    ani_array_ref array = nullptr;
-    if (ANI_OK != env->Array_New_Ref(longCls, values.size(), undefinedRef, &array)) {
+    ani_array array = nullptr;
+    if (ANI_OK != env->Array_New(values.size(), undefinedRef, &array)) {
         WVLOG_E("WebMessageExt new array ref error.");
         return array;
     }
@@ -1233,7 +1204,7 @@ ani_ref ConvertToAniHandlerOfInt64Arr(ani_env* env, std::shared_ptr<NWebMessage>
         if (env->Object_New(cls, ctor, &obj, item) != ANI_OK) {
             return nullptr;
         }
-        if (ANI_OK != env->Array_Set_Ref(array, i, obj)) {
+        if (ANI_OK != env->Array_Set(array, i, obj)) {
             return array;
         }
     }

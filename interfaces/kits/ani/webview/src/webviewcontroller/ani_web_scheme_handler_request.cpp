@@ -184,7 +184,7 @@ static ani_string GetRequestUrl(ani_env* env, ani_object object)
     return value;
 }
 
-bool GetHeaderProcessItems(ani_env* env, std::vector<std::pair<std::string, std::string>> values, ani_array_ref& array)
+bool GetHeaderProcessItems(ani_env* env, std::vector<std::pair<std::string, std::string>> values, ani_array& array)
 {   
     WVLOG_I("GetHeaderProcessItems begin");
     if (env == nullptr) {
@@ -222,7 +222,7 @@ bool GetHeaderProcessItems(ani_env* env, std::vector<std::pair<std::string, std:
             WVLOG_E("getHeader Get headerValue failed");
             return false;
         }
-        env->Array_Set_Ref(array, i, webHeaderObj);
+        env->Array_Set(array, i, webHeaderObj);
     }
     return true;
 }
@@ -241,24 +241,14 @@ static ani_ref GetHeader(ani_env* env, ani_object object)
     }
 
     std::vector<std::pair<std::string, std::string>> values = request->GetHeader();
-    ani_class stringCls;
-    if (ANI_OK != env->FindClass("L@ohos/web/webview/webview/GetHeaderWebHeader;", &stringCls)) {
-        WVLOG_E("getHeader find class failed.");
-        return nullptr;
-    }
-    ani_method personInfoCtor;
-    if (ANI_OK != env->Class_FindMethod(stringCls, "<ctor>", nullptr, &personInfoCtor)) {
-        WVLOG_E("getHeader Class_FindMethod Failed.");
-        return nullptr;
-    }
 
     ani_ref undefinedRef = nullptr;
     if (ANI_OK != env->GetUndefined(&undefinedRef)) {
         WVLOG_E("getHeader GetUndefined Failed.");
         return nullptr;
     }
-    ani_array_ref array = nullptr;
-    if (ANI_OK != env->Array_New_Ref(stringCls, values.size(), undefinedRef, &array)) {
+    ani_array array = nullptr;
+    if (ANI_OK != env->Array_New(values.size(), undefinedRef, &array)) {
         WVLOG_E("getHeader new array ref error.");
         return nullptr;
     }
