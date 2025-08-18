@@ -7372,6 +7372,7 @@ napi_value NapiWebviewController::AvoidVisibleViewportBottom(napi_env env, napi_
 {
     if (IS_CALLING_FROM_M114()) {
         WVLOG_W("AvoidVisibleViewportBottom unsupported engine version: M114");
+        BusinessError::ThrowErrorByErrcode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
         return nullptr;
     }
     napi_value thisVar = nullptr;
