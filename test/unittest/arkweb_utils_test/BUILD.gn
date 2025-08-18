@@ -24,6 +24,8 @@ config("module_private_config") {
     "$webview_path/arkweb_utils",
     "../../../ohos_nweb/include/",
     "../../../ohos_adapter/hiviewdfx_adapter/include/",
+    "../../../ohos_adapter/system_properties_adapter/include",
+    "../../../ohos_interface/include/ohos_adapter",
   ]
 }
 
@@ -32,8 +34,10 @@ ohos_unittest("arkweb_utils_test") {
   sources = [ "arkweb_utils_test.cpp" ]
   configs = [ ":module_private_config" ]
 
-  deps = [ "$webview_path/arkweb_utils:libarkweb_utils" ]
-
+  deps = [ 
+    "$webview_path/arkweb_utils:libarkweb_utils",
+    "$webview_path/ohos_adapter:nweb_ohos_adapter"
+  ]
   external_deps = [
     "ability_runtime:app_context",
     "ability_runtime:app_manager",
