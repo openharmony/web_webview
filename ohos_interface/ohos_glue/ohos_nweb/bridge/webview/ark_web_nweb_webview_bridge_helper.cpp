@@ -34,7 +34,7 @@ bool ArkWebNWebWebviewBridgeHelper::Init(bool runMode, const std::string& bundle
         return true;
     }
 
-    void* libFileHandler = ArkWebBridgeHelperSharedInit(false, runMode);
+    void* libFileHandler = ArkWebBridgeHelperSharedInit(runMode);
     if (!libFileHandler) {
         ARK_WEB_BRIDGE_ERROR_LOG("library resources loaded failed");
         return false;
@@ -75,7 +75,7 @@ void ArkWebNWebWebviewBridgeHelper::PreDlopenLibFile(const std::string& bundlePa
         return;
     }
 
-    libFileHandler_ = ArkWebBridgeHelperSharedInit(true);
+    libFileHandler_ = ArkWebBridgeHelperSharedInit();
 }
 
 } // namespace OHOS::ArkWeb
