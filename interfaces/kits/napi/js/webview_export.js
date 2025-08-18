@@ -79,9 +79,9 @@ function takePhoto(param, selectResult) {
       .then((pickerResult) => {
         selectResult.handleFileList([pickerResult.resultUri]);
       }).catch((error) => {
-      console.log('selectFile error:' + JSON.stringify(error));
-      throw error;
-    });
+        console.log('selectFile error:' + JSON.stringify(error));
+        throw error;
+      });
 
   } catch (error) {
     console.log('the pick call failed, error code' + JSON.stringify(error));
@@ -116,9 +116,9 @@ function selectFile(param, result) {
           let filePath = documentSelectResult;
           result.handleFileList(filePath);
         }).catch((error) => {
-        console.log('selectFile error: ' + JSON.stringify(error));
-        throw error;
-      });
+          console.log('selectFile error: ' + JSON.stringify(error));
+          throw error;
+        });
     } else {
       documentPicker.save(createDocumentSaveOptions(param))
         .then((documentSaveResult) => {
