@@ -133,10 +133,10 @@ function selectFile(param, result) {
 
             let watcher = fileIo.createWatcher(tempPath, 0x4, () => {
               fileIo.copy(tempUri, filePaths[0]).then(() => {
-                console.log('Web save file succeeded in copying.');
+                console.log('Web save file succeeded in copying. ');
                 fileIo.unlink(tempPath);
               }).catch((err) => {
-                console.error(`Web save file failed to copy: ${JSON.stringify(err)}.`);
+                console.error(`Web save file failed to copy: ${JSON.stringify(err)}`);
               }).finally(() => {
                 watcher.stop();
               });
@@ -145,9 +145,9 @@ function selectFile(param, result) {
           }
           result.handleFileList([tempUri]);
         }).catch((error) => {
-        console.log('saveFile error: ' + JSON.stringify(error));
-        throw error;
-      });
+          console.log('saveFile error: ' + JSON.stringify(error));
+          throw error;
+        });
     }
   } catch (error) {
     console.log('picker error: ' + JSON.stringify(error));
@@ -496,7 +496,7 @@ Object.defineProperty(webview.WebviewController.prototype, 'fileSelectorShowFrom
           console.error(`openCustomDialog error code is ${error.code}, message is ${error.message}`);
         });
     } else if (callback.fileparam.isCapture() &&
-      (isContainImageMimeType(callback.fileparam.getAcceptType()) || isContainVideoMimeType(callback.fileparam.getAcceptType()))) {
+        (isContainImageMimeType(callback.fileparam.getAcceptType()) || isContainVideoMimeType(callback.fileparam.getAcceptType()))) {
       console.log('take photo will be directly invoked due to the capture property');
       takePhoto(callback.fileparam, callback.fileresult);
     } else {
