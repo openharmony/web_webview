@@ -38,6 +38,7 @@ const char* ANI_ENUM_MEDIA_PLAY_BACK_STATE = "L@ohos/web/webview/webview/MediaPl
 const char* ANI_SNAPSHOT_RESULT_CLASS_NAME = "L@ohos/web/webview/webview/SnapshotResultClass;";
 const char* ANI_PDF_DATA_CLASS_NAME = "L@ohos/web/webview/webview/PdfData;";
 const char* ANI_CLASS_WEB_RESOURCETYPE = "L@ohos/web/webview/webview/WebResourceType;";
+const char* ANI_PRINT_DOCUMENT_ADAPTER_INNER_CLASS_NAME = "L@ohos/web/webview/webview/PrintDocumentAdapterInner;";
 
 } // namespace NWeb
 } // namespace OHOS
