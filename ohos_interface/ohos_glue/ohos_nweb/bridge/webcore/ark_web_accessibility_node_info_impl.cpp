@@ -289,11 +289,6 @@ ArkWebString ArkWebAccessibilityNodeInfoImpl::GetAccessibilityText()
     return ArkWebStringClassToStruct(nweb_accessibility_node_info_->GetAccessibilityText());
 }
 
-ArkWebString ArkWebAccessibilityNodeInfoImpl::GetHtmlElementId()
-{
-    return ArkWebStringClassToStruct(nweb_accessibility_node_info_->GetHtmlElementId());
-}
-
 ArkWebString ArkWebAccessibilityNodeInfoImpl::GetComponentTypeDescription()
 {
     return ArkWebStringClassToStruct(nweb_accessibility_node_info_->GetComponentTypeDescription());
@@ -307,5 +302,10 @@ int32_t ArkWebAccessibilityNodeInfoImpl::GetCheckboxGroupSelectedStatus()
 ArkWebString ArkWebAccessibilityNodeInfoImpl::GetExpandedState()
 {
     return ArkWebStringClassToStruct(nweb_accessibility_node_info_->GetExpandedState());
+}
+
+ArkWebString ArkWebAccessibilityNodeInfoImpl::GetHtmlElementId()
+{
+    return ArkWebStringClassToStruct(nweb_accessibility_node_info_->GetHtmlElementId());
 }
 } // namespace OHOS::ArkWeb
