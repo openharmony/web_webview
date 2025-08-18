@@ -95,8 +95,8 @@ enum class SecurityLevel : int {
 enum class CoreSecurityLevel : int {
     NONE = 0,
     SECURE = 3,
-    DANGEROUS = 5,
-    WARNING = 6
+    WARNING = 6,
+    DANGEROUS = 5
 };
 
 enum class OfflineResourceType : int {
@@ -118,13 +118,13 @@ enum class UrlListSetResult : int {
     SET_OK = 0,
 };
 
+enum class ScrollType : int {
+    EVENT = 0,
+};
+
 enum class PressureLevel : int {
     MEMORY_PRESSURE_LEVEL_MODERATE = 1,
     MEMORY_PRESSURE_LEVEL_CRITICAL = 2,
-};
-
-enum class ScrollType : int {
-    EVENT = 0,
 };
 
 enum class AttachState : int {
@@ -311,7 +311,7 @@ public:
     bool GetScrollable() const;
 
     void InnerSetHapPath(const std::string &hapPath);
- 
+
     void InnerSetFavicon(napi_env env, napi_value favicon);
 
     napi_value InnerGetFavicon(napi_env env);
@@ -326,19 +326,17 @@ public:
 
     ErrCode PostUrl(std::string& url, std::vector<char>& postData);
 
-    int GetSecurityLevel();
-
     void EnableSafeBrowsing(bool enable);
 
     bool IsSafeBrowsingEnabled() const;
+
+    int GetSecurityLevel();
 
     bool IsIncognitoMode() const;
 
     void SetPrintBackground(bool enable);
 
     bool GetPrintBackground() const;
-
-    std::string GetLastJavascriptProxyCallingFrameUrl();
 
     static std::string GenerateWebTag();
 
@@ -351,15 +349,7 @@ public:
 
     static int32_t ClearWebServiceWorkerSchemeHandler();
 
-    void CloseAllMediaPresentations();
-
-    void StopAllMedia();
-
-    void ResumeAllMedia();
-
-    void PauseAllMedia();
-
-    int GetMediaPlaybackState();
+    std::string GetLastJavascriptProxyCallingFrameUrl();
 
     void EnableIntelligentTrackingPrevention(bool enable);
 
@@ -370,6 +360,16 @@ public:
     ErrCode StopCamera();
 
     ErrCode CloseCamera();
+
+    void CloseAllMediaPresentations();
+
+    void StopAllMedia();
+
+    void ResumeAllMedia();
+
+    void PauseAllMedia();
+
+    int GetMediaPlaybackState();
 
     void OnCreateNativeMediaPlayer(napi_env env, napi_ref callback);
 
@@ -399,15 +399,12 @@ public:
 
     ErrCode SetUrlTrustList(const std::string& urlTrustList, std::string& detailErrMsg);
 
+    std::string GetSurfaceId();
     void EnableAdsBlock(bool enable);
 
     bool IsAdsBlockEnabled() const;
 
     bool IsAdsBlockEnabledForCurPage() const;
-
-    std::string GetSurfaceId();
-
-    void UpdateInstanceId(int32_t newId);
 
     bool ParseJsLengthToInt(napi_env env,
                             napi_value jsLength,
@@ -420,14 +417,18 @@ public:
                             int32_t height,
                             const WebSnapshotCallback callback);
 
+    void UpdateInstanceId(int32_t newId);
+
+    void SetBackForwardCacheOptions(int32_t size, int32_t timeToLive);
+
     void SetPathAllowingUniversalAccess(const std::vector<std::string>& pathList,
                                         std::string& errorPath);
+
+    bool ScrollByWithResult(float deltaX, float deltaY) const;
 
     void ScrollToWithAnime(float x, float y, int32_t duration) ;
 
     void ScrollByWithAnime(float deltaX, float deltaY, int32_t duration) ;
-
-    void SetBackForwardCacheOptions(int32_t size, int32_t timeToLive);
 
     void GetScrollOffset(float* offset_x, float* offset_y);
 
@@ -438,8 +439,6 @@ public:
 
     void CreatePDFPromiseExt(
         napi_env env, std::shared_ptr<NWebPDFConfigArgs> pdfConfig, napi_deferred deferred);
-
-    bool ScrollByWithResult(float deltaX, float deltaY) const;
 
     std::shared_ptr<HitTestResult> GetLastHitTest();
 

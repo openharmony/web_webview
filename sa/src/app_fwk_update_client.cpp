@@ -98,14 +98,15 @@ sptr<IAppFwkUpdateService> AppFwkUpdateClient::GetFwkUpdateProxy()
     return fwkUpdateProxy;
 }
 
-void AppFwkUpdateClient::NotifyArkWebInstallSuccess(const std::string& bundleName)
+void AppFwkUpdateClient::NotifyFWKAfterBmsStart()
 {
+    WVLOG_I("NotifyFWKAfterBmsStart received message");
     auto proxy = GetFwkUpdateProxy();
     if (proxy == nullptr) {
-        WVLOG_E("NotifyArkWebInstallSuccess failed, proxy is null");
+        WVLOG_E("NotifyFWKAfterBmsStart failed, proxy is null");
         return;
     }
-    proxy->NotifyArkWebInstallSuccess(bundleName);
+    proxy->NotifyFWKAfterBmsStart();
 }
 
 int AppFwkUpdateClient::VerifyPackageInstall(const std::string& bundleName, const std::string& hapPath)

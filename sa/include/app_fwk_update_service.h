@@ -50,7 +50,7 @@ public:
     ~AppFwkUpdateService();
 
     ErrCode VerifyPackageInstall(const std::string& bundleName, const std::string& hapPath, int32_t& success) override;
-    ErrCode NotifyArkWebInstallSuccess(const std::string& bundleName) override;
+    ErrCode NotifyFWKAfterBmsStart() override;
     void SubscribePackageChangedEvent();
     void OnPackageChangedEvent(const std::string& bunldeName, const std::string& hapPath);
 

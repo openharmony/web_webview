@@ -1404,15 +1404,13 @@ public:
         std::shared_ptr<NWebSpanstringConvertHtmlCallback> callback) {}
 
     /**
-     * @brief Web send key event.
-     *
+     * Web send key event.
      * @param key_code code value.
      * @param key_action action value.
-     * @param pressesCodes pressedCodes value.
+     * @param pressedCodes pressedCodes value.
      */
     /*--ark web()--*/
-    virtual bool WebSendKeyEvent(int32_t keyCode, int32_t keyAction,
-                                 const std::vector<int32_t>& pressedCodes) {
+    virtual bool WebSendKeyEvent(int32_t keyCode, int32_t keyAction, const std::vector<int32_t>& pressedCodes) {
         return false;
     }
 

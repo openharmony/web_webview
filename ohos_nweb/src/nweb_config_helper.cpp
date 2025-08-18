@@ -575,6 +575,12 @@ void NWebConfigHelper::ParseWindowOrientationConfig(xmlNodePtr nodePtr,
         char* orientationPtr = (char *)xmlGetProp(curNodePtr,BAD_CAST(XML_ENABLE_WINDOW_ORIENTATION));
         if (!bundleNamePtr || !orientationPtr) {
             WVLOG_E("invalid bundleNamePtr or orientationPtr!");
+            if (bundleNamePtr) {
+                xmlFree(bundleNamePtr);
+            }
+            if (orientationPtr) {
+                xmlFree(orientationPtr);
+            }
             continue;
         }
         std::string bundleName(bundleNamePtr);

@@ -51,8 +51,8 @@ bool ConvertToLongLong(const std::string& str, long long& value)
 
 int64_t GetValueInt64(const std::string& input, const std::string& key1, const std::string& key2)
 {
-    std::string key = "";
     long long result = 0;
+    std::string key = "";
     if(key2 == key) {
         std::string::size_type keyPosition1 = input.find(key1, 0);
         if (keyPosition1 != std::string::npos) {
@@ -89,7 +89,7 @@ const static std::string PAGE_LOAD_KEY_LISTS[] = {
     "CONNECT_START",
     "SECURE_CONNECT_START",
     "CONNECT_END",
-    "REQUESR_START",
+    "REQUEST_START",
     "RESPONSE_START",
     "RESPONSE_END",
     "DOM_INTERACTIVE",
@@ -193,7 +193,7 @@ int ProcessEventPageLoadTime(const std::string& eventName, HiSysEventAdapter::Ev
     const std::int64_t value21 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[20], PAGE_LOAD_KEY_LISTS[21]);
     const std::int64_t value22 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[21], PAGE_LOAD_KEY_LISTS[22]);
     const std::int64_t value23 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[22], PAGE_LOAD_KEY_LISTS[23]);
-    const std::int64_t value24 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[23], "");
+    const bool value24 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[23], "");
 
     auto newData = std::make_tuple(
         PAGE_LOAD_KEY_LISTS[0], value1, PAGE_LOAD_KEY_LISTS[1], value2,
@@ -251,7 +251,7 @@ int HiSysEventAdapterImpl::Write(const std::string& eventName, EventType type,
     const std::tuple<const std::string, const std::string>& data)
 {
     const std::string eventNamePageLoadTime = "PAGE_LOAD_TIME";
-    const std::string eventNameFirstMeaningfulPaintDone = "PAGE_LOAD_TIME";
+    const std::string eventNameFirstMeaningfulPaintDone = "FIRST_MEANINGFUL_PAINT_DONE";
     if (eventName == eventNamePageLoadTime) {
         return ProcessEventPageLoadTime(eventName, type, data);
     }

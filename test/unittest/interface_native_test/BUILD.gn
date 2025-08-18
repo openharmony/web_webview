@@ -103,14 +103,13 @@ ohos_unittest("native_interface_arkweb_test") {
 
   include_dirs = [
     "../common",
-    "$webview_path/ohos_adapter/system_properties_adapter/include",
     "$webview_path/interfaces/native"
   ]
 
   deps = [
+    "$webview_path/arkweb_utils:libarkweb_utils",
     "$webview_path/interfaces/native:ohweb",
     "$webview_path/ohos_nweb:web_configs",
-    "$webview_path/ohos_adapter:nweb_ohos_adapter"
   ]
 
   external_deps = [
@@ -122,6 +121,7 @@ ohos_unittest("native_interface_arkweb_test") {
     "googletest:gtest_main",
     "graphic_2d:librender_service_client",
     "hilog:libhilog",
+    "init:libbegetutil",
     "webview:libnweb",
     "window_manager:libwm",
   ]

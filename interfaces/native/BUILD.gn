@@ -40,7 +40,6 @@ ohos_shared_library("ohweb") {
   include_dirs = [
     "${target_gen_dir}/../../ohos_nweb/include",
     "../../ohos_nweb/include",
-    "${target_gen_dir}/../../ohos_adapter/system_properties_adapter/include"
   ]
 
   sources = [
@@ -54,6 +53,7 @@ ohos_shared_library("ohweb") {
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
+    "init:libbegetutil",
     "napi:ace_napi",
     "ability_runtime:ability_connect_callback_stub",
     "eventhandler:libeventhandler",
@@ -62,7 +62,6 @@ ohos_shared_library("ohweb") {
   deps = [
     "../../arkweb_utils:libarkweb_utils",
     "../../ohos_nweb:libnweb",
-    "../../ohos_adapter:nweb_ohos_adapter"
   ]
   relative_install_dir = "ndk"
   part_name = "webview"

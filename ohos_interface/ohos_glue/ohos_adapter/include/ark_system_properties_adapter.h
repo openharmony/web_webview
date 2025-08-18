@@ -91,7 +91,7 @@ public:
     virtual ArkWebString GetOOPGPUStatus() = 0;
 
     /*--ark web()--*/
-    virtual bool IsLTPODynamicApp(const ArkWebString& bundleName) = 0;
+    virtual bool IsLTPODynamicApp(ArkWebString bundleName) = 0;
 
     /*--ark web()--*/
     virtual int32_t GetLTPOStrategy() = 0;

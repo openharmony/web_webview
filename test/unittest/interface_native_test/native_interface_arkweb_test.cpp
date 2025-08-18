@@ -17,10 +17,13 @@
 #include <gmock/gmock.h>
 #include <securec.h>
 
+#include "parameter.h"
+#include "parameters.h"
+
 #define private public
+#include "arkweb_utils.h"
 #include "base/web/webview/interfaces/native/native_javascript_execute_callback.h"
 #include "native_interface_arkweb.h"
-#include "system_properties_adapter_impl.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -138,14 +141,21 @@ HWTEST_F(NativeInterfaceArkWebTest,
  * @tc.desc  : Test OH_NativeArkWeb_GetBlanklessInfoWithKey
  */
  HWTEST_F(NativeInterfaceArkWebTest, OH_NativeArkWeb_GetBlanklessInfoWithKey_01, TestSize.Level1) {
-    ProductDeviceType deviceType = SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType();
-    bool isMobile = deviceType == ProductDeviceType::DEVICE_TYPE_MOBILE;
-    auto info = OH_NativeArkWeb_GetBlanklessInfoWithKey("", "");
-    EXPECT_EQ(info.errCode, isMobile ? ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_INVALID_ARGS
-        : ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_DEVICE_NOT_SUPPORT);
-    auto info1 = OH_NativeArkWeb_GetBlanklessInfoWithKey("", "OH_NativeArkWeb_GetBlanklessInfoWithKey");
-    EXPECT_EQ(info1.errCode, isMobile ? ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_UNKNOWN
-        : ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_DEVICE_NOT_SUPPORT);
+    bool enabled = OHOS::system::GetBoolParameter("web.blankless.enabled", false);
+
+    OHOS::system::SetParameter("web.blankless.enabled", "true");
+    auto info1 = OH_NativeArkWeb_GetBlanklessInfoWithKey("", "");
+    EXPECT_EQ(info1.errCode, ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_INVALID_ARGS);
+    auto info2 = OH_NativeArkWeb_GetBlanklessInfoWithKey("", "OH_NativeArkWeb_GetBlanklessInfoWithKey");
+    EXPECT_EQ(info2.errCode, ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_UNKNOWN);
+
+    OHOS::system::SetParameter("web.blankless.enabled", "false");
+    auto info3 = OH_NativeArkWeb_GetBlanklessInfoWithKey("", "");
+    EXPECT_EQ(info3.errCode, ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_DEVICE_NOT_SUPPORT);
+    auto info4 = OH_NativeArkWeb_GetBlanklessInfoWithKey("", "OH_NativeArkWeb_GetBlanklessInfoWithKey");
+    EXPECT_EQ(info4.errCode,  ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_DEVICE_NOT_SUPPORT);
+
+    OHOS::system::SetParameter("web.blankless.enabled", enabled ? "true" : "false");
 }
 
 /**
@@ -153,14 +163,21 @@ HWTEST_F(NativeInterfaceArkWebTest,
  * @tc.desc  : Test OH_NativeArkWeb_SetBlanklessLoadingWithKey
  */
 HWTEST_F(NativeInterfaceArkWebTest, OH_NativeArkWeb_SetBlanklessLoadingWithKey_01, TestSize.Level1) {
-    ProductDeviceType deviceType = SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType();
-    bool isMobile = deviceType == ProductDeviceType::DEVICE_TYPE_MOBILE;
-    auto errCode = OH_NativeArkWeb_SetBlanklessLoadingWithKey("", "", true);
-    EXPECT_EQ(errCode, isMobile ? ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_INVALID_ARGS
-        : ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_DEVICE_NOT_SUPPORT);
-    auto errCode1 = OH_NativeArkWeb_SetBlanklessLoadingWithKey("", "OH_NativeArkWeb_SetBlanklessLoadingWithKey", false);
-    EXPECT_EQ(errCode1, isMobile ? ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_UNKNOWN
-        : ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_DEVICE_NOT_SUPPORT);
+    bool enabled = OHOS::system::GetBoolParameter("web.blankless.enabled", false);
+
+    OHOS::system::SetParameter("web.blankless.enabled", "true");
+    auto errCode1 = OH_NativeArkWeb_SetBlanklessLoadingWithKey("", "", true);
+    EXPECT_EQ(errCode1, ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_INVALID_ARGS);
+    auto errCode2 = OH_NativeArkWeb_SetBlanklessLoadingWithKey("", "OH_NativeArkWeb_SetBlanklessLoadingWithKey", false);
+    EXPECT_EQ(errCode2, ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_UNKNOWN);
+    
+    OHOS::system::SetParameter("web.blankless.enabled", "false");
+    auto errCode3 = OH_NativeArkWeb_SetBlanklessLoadingWithKey("", "", true);
+    EXPECT_EQ(errCode3, ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_DEVICE_NOT_SUPPORT);
+    auto errCode4 = OH_NativeArkWeb_SetBlanklessLoadingWithKey("", "OH_NativeArkWeb_SetBlanklessLoadingWithKey", false);
+    EXPECT_EQ(errCode4, ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_DEVICE_NOT_SUPPORT);
+    
+    OHOS::system::SetParameter("web.blankless.enabled", enabled ? "true" : "false");
 }
 
 /**
@@ -168,6 +185,12 @@ HWTEST_F(NativeInterfaceArkWebTest, OH_NativeArkWeb_SetBlanklessLoadingWithKey_0
  * @tc.desc  : Test OH_NativeArkWeb_ClearBlanklessLoadingCache
  */
 HWTEST_F(NativeInterfaceArkWebTest, OH_NativeArkWeb_ClearBlanklessLoadingCache_01, TestSize.Level1) {
+    bool enabled = OHOS::system::GetBoolParameter("web.blankless.enabled", false);
+
+    OHOS::system::SetParameter("web.blankless.enabled", "false");
+    OH_NativeArkWeb_ClearBlanklessLoadingCache(nullptr, 0);
+
+    OHOS::system::SetParameter("web.blankless.enabled", "true");
     OH_NativeArkWeb_ClearBlanklessLoadingCache(nullptr, 0);
 
     const char* keys1[] = {};
@@ -175,6 +198,7 @@ HWTEST_F(NativeInterfaceArkWebTest, OH_NativeArkWeb_ClearBlanklessLoadingCache_0
     OH_NativeArkWeb_ClearBlanklessLoadingCache(keys1, 0);
 
     std::string longStr;
+    // Test for key length over MAX_KEY_LENGTH, which is 2048.
     for (uint32_t idx = 0; idx < 3000; idx++) {
         longStr += "0";
     }
@@ -186,6 +210,7 @@ HWTEST_F(NativeInterfaceArkWebTest, OH_NativeArkWeb_ClearBlanklessLoadingCache_0
     OH_NativeArkWeb_ClearBlanklessLoadingCache(keys2, 3);
 
     const char* keys3[101];
+    // Test for key length over MAX_KEY_COUNT, which is 100.
     for (uint32_t idx = 0; idx < 101; idx++) {
         keys3[idx] = "test";
     }
@@ -195,6 +220,8 @@ HWTEST_F(NativeInterfaceArkWebTest, OH_NativeArkWeb_ClearBlanklessLoadingCache_0
     const char* keys4[] = { nullptr };
     EXPECT_EQ(sizeof(keys4) / sizeof(const char*), 1);
     OH_NativeArkWeb_ClearBlanklessLoadingCache(keys4, 1);
+
+    OHOS::system::SetParameter("web.blankless.enabled", enabled ? "true" : "false");
 }
 
 /**
@@ -202,12 +229,47 @@ HWTEST_F(NativeInterfaceArkWebTest, OH_NativeArkWeb_ClearBlanklessLoadingCache_0
  * @tc.desc  : Test OH_NativeArkWeb_SetBlanklessLoadingCacheCapacity
  */
 HWTEST_F(NativeInterfaceArkWebTest, OH_NativeArkWeb_SetBlanklessLoadingCacheCapacity_01, TestSize.Level1) {
-    ProductDeviceType deviceType = SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType();
-    bool isMobile = deviceType == ProductDeviceType::DEVICE_TYPE_MOBILE;
+    bool enabled = OHOS::system::GetBoolParameter("web.blankless.enabled", false);
+
+    OHOS::system::SetParameter("web.blankless.enabled", "true");
     EXPECT_EQ(OH_NativeArkWeb_SetBlanklessLoadingCacheCapacity(0), 0);
-    EXPECT_EQ(OH_NativeArkWeb_SetBlanklessLoadingCacheCapacity(20), isMobile ? 20 : 0);
-    EXPECT_EQ(OH_NativeArkWeb_SetBlanklessLoadingCacheCapacity(100), isMobile ? 100 : 0);
-    EXPECT_EQ(OH_NativeArkWeb_SetBlanklessLoadingCacheCapacity(1000), isMobile ? 100 : 0);
+    EXPECT_EQ(OH_NativeArkWeb_SetBlanklessLoadingCacheCapacity(20), 20);
+    EXPECT_EQ(OH_NativeArkWeb_SetBlanklessLoadingCacheCapacity(100), 100);
+    EXPECT_EQ(OH_NativeArkWeb_SetBlanklessLoadingCacheCapacity(1000), 100);
+
+    OHOS::system::SetParameter("web.blankless.enabled", "false");
+    EXPECT_EQ(OH_NativeArkWeb_SetBlanklessLoadingCacheCapacity(0), 0);
+    EXPECT_EQ(OH_NativeArkWeb_SetBlanklessLoadingCacheCapacity(20), 0);
+    EXPECT_EQ(OH_NativeArkWeb_SetBlanklessLoadingCacheCapacity(100), 0);
+    EXPECT_EQ(OH_NativeArkWeb_SetBlanklessLoadingCacheCapacity(1000), 0);
+
+    OHOS::system::SetParameter("web.blankless.enabled", enabled ? "true" : "false");
+}
+
+/**
+ * @tc.name  : OH_NativeArkWeb_Blankless_Dual_Core_01
+ * @tc.desc  : Test OH_NativeArkWeb_Blankless_Dual_Core
+ */
+HWTEST_F(NativeInterfaceArkWebTest, OH_NativeArkWeb_Blankless_Dual_Core_01, TestSize.Level1) {
+    auto version = ArkWeb::getActiveWebEngineVersion();
+
+    ArkWeb::setActiveWebEngineVersion(ArkWeb::ArkWebEngineVersion::M114);
+    auto info = OH_NativeArkWeb_GetBlanklessInfoWithKey("", "");
+    EXPECT_EQ(info.errCode, ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_DEVICE_NOT_SUPPORT);
+    auto errCode = OH_NativeArkWeb_SetBlanklessLoadingWithKey("", "", true);
+    EXPECT_EQ(errCode, ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_DEVICE_NOT_SUPPORT);
+    OH_NativeArkWeb_ClearBlanklessLoadingCache(nullptr, 0);
+    EXPECT_EQ(OH_NativeArkWeb_SetBlanklessLoadingCacheCapacity(20), 0);
+
+    ArkWeb::setActiveWebEngineVersion(ArkWeb::ArkWebEngineVersion::M132);
+    info = OH_NativeArkWeb_GetBlanklessInfoWithKey("", "");
+    EXPECT_EQ(info.errCode, ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_INVALID_ARGS);
+    errCode = OH_NativeArkWeb_SetBlanklessLoadingWithKey("", "", true);
+    EXPECT_EQ(errCode, ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_INVALID_ARGS);
+    OH_NativeArkWeb_ClearBlanklessLoadingCache(nullptr, 0);
+    EXPECT_EQ(OH_NativeArkWeb_SetBlanklessLoadingCacheCapacity(20), 20);
+
+    ArkWeb::setActiveWebEngineVersion(version);
 }
 
 /**

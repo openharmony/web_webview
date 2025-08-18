@@ -164,7 +164,7 @@ ArkWebString ArkSystemPropertiesAdapterImpl::GetOOPGPUStatus()
     return ArkWebStringClassToStruct(str);
 }
 
-bool ArkSystemPropertiesAdapterImpl::IsLTPODynamicApp(const ArkWebString& bundleName)
+bool ArkSystemPropertiesAdapterImpl::IsLTPODynamicApp(ArkWebString bundleName)
 {
     return real_.IsLTPODynamicApp(ArkWebStringStructToClass(bundleName));
 }

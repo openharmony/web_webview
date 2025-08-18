@@ -25,15 +25,6 @@ namespace OHOS::ArkWeb {
 
 int g_ark_web_init_addr = 1;
 
-#if defined(IS_ASAN) && defined(webview_arm64)
-ArkWebBridgeHelper::ArkWebBridgeHelper()
-{
-    if (!(access(WEBVIEW_RELATIVE_SANDBOX_PATH_FOR_LIBRARY.c_str(), F_OK) == 0)) {
-        WEBVIEW_RELATIVE_PATH_FOR_BUNDLE = "arkwebcore/libs/arm64";
-    }
-}
-#endif
-
 ArkWebBridgeHelper::~ArkWebBridgeHelper()
 {
     UnloadLibFile();

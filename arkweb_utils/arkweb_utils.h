@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+#ifndef WEB_WEBVIEW_ARKWEB_UTILS_ARKWEB_UTILS_H
+#define WEB_WEBVIEW_ARKWEB_UTILS_ARKWEB_UTILS_H
+
 #pragma once
 
 #include <climits>
@@ -26,7 +29,7 @@
 #define RETURN_IF_UNSUPPORTED_ENGINE(minVersion, funName)                   \
 do {                                                                        \
     auto engineVersion = OHOS::ArkWeb::getActiveWebEngineVersion();         \
-    if (engineVersion < minVersion) {    \
+    if (engineVersion < (minVersion)) {    \
         OHOS::ArkWeb::LogForUnsupportedFunc(engineVersion, funName);        \
         return;                                                             \
     }                                                                       \
@@ -61,11 +64,11 @@ namespace OHOS::ArkWeb {
 enum class ArkWebEngineVersion {
     SYSTEM_DEFAULT = 0,
     M114 = 1,
-    M132 = 2
+    M132 = 2,
+    SYSTEM_EVERGREEN = 99999
 };
 
 enum class ArkWebEngineType {
-    SYSTEM_DEFAULT = 0,
     LEGACY = static_cast<int>(ArkWebEngineVersion::M114),
     EVERGREEN = static_cast<int>(ArkWebEngineVersion::M132),
 };
@@ -74,6 +77,7 @@ ARKWEB_EXPORT void setActiveWebEngineVersion(ArkWebEngineVersion version);
 ARKWEB_EXPORT ArkWebEngineVersion getActiveWebEngineVersion();
 ARKWEB_EXPORT ArkWebEngineType getActiveWebEngineType();
 ARKWEB_EXPORT ArkWebEngineVersion getAppWebEngineVersion();
+ARKWEB_EXPORT bool IsActiveWebEngineEvergreen();
 
 ARKWEB_EXPORT std::string GetArkwebLibPath();
 ARKWEB_EXPORT std::string GetArkwebNameSpace();
@@ -82,7 +86,9 @@ ARKWEB_EXPORT std::string GetArkwebRelativePathForMock();
 ARKWEB_EXPORT std::string GetArkwebInstallPath();
 ARKWEB_EXPORT void PreloadArkWebLibForBrowser();
 
-ARKWEB_EXPORT void LogForUnsupportedFunc(ArkWebEngineVersion miniVersion, const char* msg);
+ARKWEB_EXPORT void LogForUnsupportedFunc(ArkWebEngineVersion version, const char* msg);
 
 ARKWEB_EXPORT void* ArkWebBridgeHelperSharedInit(bool isPreDlopen, bool runMode = true);
 } // namespace OHOS::ArkWeb
+
+#endif // WEB_WEBVIEW_ARKWEB_UTILS_ARKWEB_UTILS_H

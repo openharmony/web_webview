@@ -43,7 +43,7 @@ public:
     ArkWebString GetUserAgentOSName() override;
 
     ArkWebString GetUserAgentOSVersion() override;
-    
+
     ArkWebString GetUserAgentBaseOSName() override;
 
     int32_t GetSoftwareMajorVersion() override;
@@ -72,7 +72,7 @@ public:
 
     ArkWebString GetOOPGPUStatus() override;
 
-    bool IsLTPODynamicApp(const ArkWebString& settingName) override;
+    bool IsLTPODynamicApp(ArkWebString settingName) override;
 
     int32_t GetLTPOStrategy() override;
 

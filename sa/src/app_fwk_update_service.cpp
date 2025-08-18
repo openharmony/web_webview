@@ -89,8 +89,14 @@ AppFwkUpdateService::AppFwkUpdateService(int32_t saId, bool runOnCreate) : Syste
 
 AppFwkUpdateService::~AppFwkUpdateService() {}
 
-ErrCode AppFwkUpdateService::NotifyArkWebInstallSuccess(const std::string& bundleName)
+ErrCode AppFwkUpdateService::NotifyFWKAfterBmsStart()
 {
+    const std::string bundleName = OHOS::system::GetParameter(PERSIST_ARKWEBCORE_PACKAGE_NAME, "");
+    if (bundleName.empty()) {
+        WVLOG_E("NotifyFWKAfterBmsStart bundleName is empty");
+        return ERR_INVALID_VALUE;
+    }
+    WVLOG_I("NotifyFWKAfterBmsStart bundleName: %{public}s", bundleName.c_str());
     int ret = SendAppSpawnMessage(bundleName, MSG_LOAD_WEBLIB_IN_APPSPAWN);
     if (ret != 0) {
         return ERR_INVALID_VALUE;

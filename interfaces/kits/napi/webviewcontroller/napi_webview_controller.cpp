@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <uv.h>
 
+#include "arkweb_utils.h"
 #include "application_context.h"
 #include "business_error.h"
 #include "napi_parse_utils.h"
@@ -769,6 +770,9 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_FUNCTION("isPrivateNetworkAccessEnabled",
             NapiWebviewController::IsPrivateNetworkAccessEnabled),
         DECLARE_NAPI_STATIC_FUNCTION("setWebDestroyMode", NapiWebviewController::SetWebDestroyMode),
+        DECLARE_NAPI_STATIC_FUNCTION("setActiveWebEngineVersion", NapiWebviewController::SetActiveWebEngineVersion),
+        DECLARE_NAPI_STATIC_FUNCTION("getActiveWebEngineVersion", NapiWebviewController::GetActiveWebEngineVersion),
+        DECLARE_NAPI_STATIC_FUNCTION("isActiveWebEngineEvergreen", NapiWebviewController::IsActiveWebEngineEvergreen),
     };
     napi_value constructor = nullptr;
     napi_define_class(env, WEBVIEW_CONTROLLER_CLASS_NAME.c_str(), WEBVIEW_CONTROLLER_CLASS_NAME.length(),
@@ -901,6 +905,22 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         NapiParseUtils::CreateEnumConstructor, nullptr, sizeof(secureDnsModeProperties) /
         sizeof(secureDnsModeProperties[0]), secureDnsModeProperties, &secureDnsModeEnum);
     napi_set_named_property(env, exports, WEB_SECURE_DNS_MODE_ENUM_NAME.c_str(), secureDnsModeEnum);
+
+    napi_value webEngineVersionEnum = nullptr;
+    napi_property_descriptor webEngineVersionProperties[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("SYSTEM_DEFAULT", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(ArkWeb::ArkWebEngineVersion::SYSTEM_DEFAULT))),
+        DECLARE_NAPI_STATIC_PROPERTY("M114", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(ArkWeb::ArkWebEngineVersion::M114))),
+        DECLARE_NAPI_STATIC_PROPERTY("M132", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(ArkWeb::ArkWebEngineVersion::M132))),
+        DECLARE_NAPI_STATIC_PROPERTY("SYSTEM_EVERGREEN", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(ArkWeb::ArkWebEngineVersion::SYSTEM_EVERGREEN))),
+    };
+    napi_define_class(env, WEB_ENGINE_VERSION_ENUM_NAME.c_str(), WEB_ENGINE_VERSION_ENUM_NAME.length(),
+        NapiParseUtils::CreateEnumConstructor, nullptr, sizeof(webEngineVersionProperties) /
+        sizeof(webEngineVersionProperties[0]), webEngineVersionProperties, &webEngineVersionEnum);
+    napi_set_named_property(env, exports, WEB_ENGINE_VERSION_ENUM_NAME.c_str(), webEngineVersionEnum);
 
     napi_value historyList = nullptr;
     napi_property_descriptor historyListProperties[] = {
@@ -7177,7 +7197,7 @@ napi_value NapiWebviewController::WaitForAttached(napi_env env, napi_callback_in
 napi_value NapiWebviewController::GetBlanklessInfoWithKey(napi_env env, napi_callback_info info)
 {
     if (!SystemPropertiesAdapterImpl::GetInstance().GetBoolParameter("web.blankless.enabled", false) ||
-        ArkWeb::getActiveWebEngineVersion() != ArkWeb::ArkWebEngineVersion::M132) {
+        IS_CALLING_FROM_M114()) {
         WVLOG_E("blankless GetBlanklessInfoWithKey capability not supported.");
         BusinessError::ThrowErrorByErrcode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
         return nullptr;
@@ -7220,7 +7240,7 @@ napi_value NapiWebviewController::GetBlanklessInfoWithKey(napi_env env, napi_cal
 napi_value NapiWebviewController::SetBlanklessLoadingWithKey(napi_env env, napi_callback_info info)
 {
     if (!SystemPropertiesAdapterImpl::GetInstance().GetBoolParameter("web.blankless.enabled", false) ||
-        ArkWeb::getActiveWebEngineVersion() != ArkWeb::ArkWebEngineVersion::M132) {
+        IS_CALLING_FROM_M114()) {
         WVLOG_E("blankless SetBlanklessLoadingWithKey capability not supported.");
         BusinessError::ThrowErrorByErrcode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
         return nullptr;
@@ -7271,7 +7291,7 @@ napi_value NapiWebviewController::SetBlanklessLoadingWithKey(napi_env env, napi_
 napi_value NapiWebviewController::SetBlanklessLoadingCacheCapacity(napi_env env, napi_callback_info info)
 {
     if (!SystemPropertiesAdapterImpl::GetInstance().GetBoolParameter("web.blankless.enabled", false) ||
-        ArkWeb::getActiveWebEngineVersion() != ArkWeb::ArkWebEngineVersion::M132) {
+        IS_CALLING_FROM_M114()) {
         WVLOG_E("blankless SetBlanklessLoadingCacheCapacity capability not supported.");
         BusinessError::ThrowErrorByErrcode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
         return nullptr;
@@ -7311,7 +7331,7 @@ napi_value NapiWebviewController::SetBlanklessLoadingCacheCapacity(napi_env env,
 napi_value NapiWebviewController::ClearBlanklessLoadingCache(napi_env env, napi_callback_info info)
 {
     if (!SystemPropertiesAdapterImpl::GetInstance().GetBoolParameter("web.blankless.enabled", false) ||
-        ArkWeb::getActiveWebEngineVersion() != ArkWeb::ArkWebEngineVersion::M132) {
+        IS_CALLING_FROM_M114()) {
         WVLOG_E("blankless ClearBlanklessLoadingCache capability not supported.");
         BusinessError::ThrowErrorByErrcode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
         return nullptr;
@@ -7663,6 +7683,48 @@ napi_value NapiWebviewController::SetWebDestroyMode(napi_env env, napi_callback_
     }
  
     NWebHelper::Instance().SetWebDestroyMode(static_cast<WebDestroyMode>(destroyMode));
+    return result;
+}
+
+napi_value NapiWebviewController::SetActiveWebEngineVersion(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE];
+    int webEngineVersion;
+
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
+        return result;
+    }
+
+    if (!NapiParseUtils::ParseInt32(env, argv[INTEGER_ZERO], webEngineVersion)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "webEngineVersion", "WebEngineVersion"));
+            return result;
+    }
+
+    OHOS::ArkWeb::setActiveWebEngineVersion(static_cast<OHOS::ArkWeb::ArkWebEngineVersion>(webEngineVersion));
+    NAPI_CALL(env, napi_get_undefined(env, &result));
+    return result;
+}
+
+napi_value NapiWebviewController::GetActiveWebEngineVersion(napi_env env, napi_callback_info info)
+{
+    napi_value result = nullptr;
+    int return_value = static_cast<int>(OHOS::ArkWeb::getActiveWebEngineVersion());
+    napi_create_int32(env, return_value, &result);
+    return result;
+}
+
+napi_value NapiWebviewController::IsActiveWebEngineEvergreen(napi_env env, napi_callback_info info)
+{
+    napi_value result = nullptr;
+    bool isEvergreen = OHOS::ArkWeb::IsActiveWebEngineEvergreen();
+    NAPI_CALL(env, napi_get_boolean(env, isEvergreen, &result));
     return result;
 }
 } // namespace NWeb

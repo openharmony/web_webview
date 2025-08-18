@@ -19,7 +19,6 @@
 #include <cstdint>
 #include <memory>
 #include <sys/types.h>
-#include <vector>
 
 namespace OHOS::NWeb {
 

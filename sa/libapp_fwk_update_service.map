@@ -3,7 +3,7 @@
     extern "C++" {
       OHOS::NWeb::AppFwkUpdateClient::GetInstance*;
       OHOS::NWeb::AppFwkUpdateClient::VerifyPackageInstall*;
-      OHOS::NWeb::AppFwkUpdateClient::NotifyArkWebInstallSuccess*;
+      OHOS::NWeb::AppFwkUpdateClient::NotifyFWKAfterBmsStart*;
     };
   local:
     *;

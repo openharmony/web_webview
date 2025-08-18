@@ -256,6 +256,7 @@ std::string KeystoreAdapterImpl::AssetQuery(const std::string assetHandle)
             return localKey;
         }
     }
+    OH_Asset_FreeResultSet(&resultSet);
     WVLOG_E("hks finish invoke, query ret: %d", ret);
     return std::string();
 }

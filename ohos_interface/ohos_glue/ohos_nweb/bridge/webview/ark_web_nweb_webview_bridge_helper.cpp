@@ -16,6 +16,7 @@
 #include "ohos_nweb/bridge/ark_web_nweb_webview_bridge_helper.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
+#include "arkweb_utils.h"
 
 namespace OHOS::ArkWeb {
 
@@ -28,20 +29,18 @@ ArkWebNWebWebviewBridgeHelper::ArkWebNWebWebviewBridgeHelper()
 
 bool ArkWebNWebWebviewBridgeHelper::Init(bool runMode, const std::string& bundlePath)
 {
-    std::string libDirPath;
-    if (runMode) {
-        libDirPath = bundlePath + "/" + WEBVIEW_RELATIVE_PATH_FOR_BUNDLE;
-    } else {
-        libDirPath = bundlePath + "/" + WEBVIEW_RELATIVE_PATH_FOR_MOCK;
+    if (libFileHandler_) {
+        ARK_WEB_BRIDGE_INFO_LOG("library resources have been loaded");
+        return true;
     }
 
-#ifdef __MUSL__
-    if (!LoadLibFile(RTLD_NOW | RTLD_GLOBAL, "nweb_ns", libDirPath, NWEB_LIB_FILE_NAME)) {
-#else
-    if (!LoadLibFile(RTLD_NOW, libDirPath + "/" + NWEB_LIB_FILE_NAME)) {
-#endif
+    void* libFileHandler = ArkWebBridgeHelperSharedInit(false, runMode);
+    if (!libFileHandler) {
+        ARK_WEB_BRIDGE_ERROR_LOG("library resources loaded failed");
         return false;
     }
+
+    libFileHandler_ = libFileHandler;
 
     memberCheckFunc_ =
         reinterpret_cast<ArkWebMemberCheckFunc>(LoadFuncSymbol("ark_web_nweb_webcore_check_func_static"));
@@ -61,9 +60,9 @@ void ArkWebNWebWebviewBridgeHelper::PreloadLibFile(bool runMode, const std::stri
 {
     std::string libFilePath;
     if (runMode) {
-        libFilePath = bundlePath + "/" + WEBVIEW_RELATIVE_PATH_FOR_BUNDLE + "/" + NWEB_LIB_FILE_NAME;
+        libFilePath = bundlePath + "/" + GetArkwebRelativePathForBundle() + "/" + NWEB_LIB_FILE_NAME;
     } else {
-        libFilePath = bundlePath + "/" + WEBVIEW_RELATIVE_PATH_FOR_MOCK + "/" + NWEB_LIB_FILE_NAME;
+        libFilePath = bundlePath + "/" + GetArkwebRelativePathForMock() + "/" + NWEB_LIB_FILE_NAME;
     }
 
     ArkWebBridgeHelper::PrereadLibFile(libFilePath);
@@ -71,12 +70,12 @@ void ArkWebNWebWebviewBridgeHelper::PreloadLibFile(bool runMode, const std::stri
 
 void ArkWebNWebWebviewBridgeHelper::PreDlopenLibFile(const std::string& bundlePath)
 {
-    std::string libDirPath = bundlePath + "/" + WEBVIEW_RELATIVE_PATH_FOR_BUNDLE;
-#ifdef __MUSL__
-    LoadLibFile(RTLD_NOW | RTLD_GLOBAL, "nweb_ns", libDirPath, NWEB_LIB_FILE_NAME);
-#else
-    LoadLibFile(RTLD_NOW, libDirPath + "/" + NWEB_LIB_FILE_NAME);
-#endif
+    if (libFileHandler_) {
+        ARK_WEB_BRIDGE_INFO_LOG("library resources have been loaded");
+        return;
+    }
+
+    libFileHandler_ = ArkWebBridgeHelperSharedInit(true);
 }
 
 } // namespace OHOS::ArkWeb

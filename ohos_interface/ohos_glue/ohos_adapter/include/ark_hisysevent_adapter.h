@@ -27,7 +27,7 @@ class ArkHiSysEventAdapter : public virtual ArkWebBaseRefCounted {
 public:
     /*--ark web()--*/
     virtual int Write(
-        const ArkWebString& eventName, uint32_t type, const ArkWebString key1, const ArkWebString value1) = 0;
+        const ArkWebString& eventName, uint32_t type, const ArkWebString key0, const ArkWebString value0) = 0;
 
     /*--ark web()--*/
     virtual int Write(const ArkWebString& eventName, uint32_t type, const ArkWebString key1, const ArkWebString value1,

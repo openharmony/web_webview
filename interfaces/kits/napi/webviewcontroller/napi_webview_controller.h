@@ -36,6 +36,7 @@ const std::string WEB_HITTESTTYPE_V9_ENUM_NAME = "HitTestTypeV9";
 const std::string WEB_HITTESTTYPE_ENUM_NAME = "WebHitTestType";
 const std::string WEB_HISTORY_LIST_CLASS_NAME = "WebHistoryList";
 const std::string WEB_SECURE_DNS_MODE_ENUM_NAME = "SecureDnsMode";
+const std::string WEB_ENGINE_VERSION_ENUM_NAME = "ArkWebEngineVersion";
 const std::string WEB_PRINT_DOCUMENT_CLASS_NAME = "WebPrintDocument";
 const std::string WEB_SECURITY_LEVEL_ENUM_NAME = "WebSecurityLevel";
 const std::string WEB_RENDER_PROCESS_MODE_ENUM_NAME = "RenderProcessMode";
@@ -413,6 +414,9 @@ private:
     static napi_value EnablePrivateNetworkAccess(napi_env env, napi_callback_info info);
     static napi_value IsPrivateNetworkAccessEnabled(napi_env env, napi_callback_info info);
     static napi_value SetWebDestroyMode(napi_env env, napi_callback_info info);
+    static napi_value SetActiveWebEngineVersion(napi_env env, napi_callback_info info);
+    static napi_value GetActiveWebEngineVersion(napi_env env, napi_callback_info info);
+    static napi_value IsActiveWebEngineEvergreen(napi_env env, napi_callback_info info);
 };
 
 class ArkWebTransfer {

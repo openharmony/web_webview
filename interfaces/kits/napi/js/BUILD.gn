@@ -13,13 +13,39 @@
 
 import("//build/config/components/ets_frontend/es2abc_config.gni")
 import("//build/ohos.gni")
-import("//build/templates/abc/ohos_abc.gni")
 
-ohos_abc("webview_abc") {
-  sources = [ "webview_export.js" ]
-  output_name = "webview"
-  install_images = [ "system" ]
-  module_install_dir = "etc/abc/web"
+es2abc_gen_abc("gen_webview_export_abc") {
+  src_js = rebase_path("webview_export.js")
+  dst_file = rebase_path(target_out_dir + "/webview_export.abc")
+  in_puts = [ "webview_export.js" ]
+  out_puts = [ target_out_dir + "/webview_export.abc" ]
+  extra_args = [ "--module" ]
+}
+
+gen_js_obj("webview_export_js") {
+  input = "webview_export.js"
+  output = target_out_dir + "/webview_export.o"
+}
+
+gen_js_obj("webview_export_abc") {
+  input = get_label_info(":gen_webview_export_abc", "target_out_dir") +
+          "/webview_export.abc"
+  output = target_out_dir + "/webview_export_abc.o"
+  dep = ":gen_webview_export_abc"
+}
+
+ohos_source_set("webview_register") {
+  sources = [ "webview_export_module.cpp" ]
+  external_deps = [ "napi:ace_napi" ]
+
   part_name = "webview"
   subsystem_name = "web"
+}
+
+group("js_export") {
+  public_deps = [
+    ":webview_export_abc",
+    ":webview_export_js",
+    ":webview_register",
+  ]
 }

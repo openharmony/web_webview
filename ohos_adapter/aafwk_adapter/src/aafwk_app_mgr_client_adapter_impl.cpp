@@ -19,6 +19,7 @@
 #include <thread>
 
 #include "aafwk_render_scheduler_impl.h"
+#include "arkweb_utils.h"
 #include "nweb_log.h"
 
 namespace {
@@ -127,7 +128,12 @@ int AafwkAppMgrClientAdapterImpl::StartChildProcess(
     int retryCnt = 0;
     int ret;
     do {
-        ret = appMgrClient_->StartRenderProcess(renderParam, ipcFd, sharedFd, crashFd, renderPid, isGPU);
+        int appEngineVersion = static_cast<int>(OHOS::ArkWeb::getAppWebEngineVersion());
+        const std::string renderParamNew =
+            renderParam + APP_ENGINE_VERSION_PREFIX + std::to_string(appEngineVersion);
+        WVLOG_I("AafwkAppMgrClientAdapterImpl::StartChildProcess, renderParamNew = %{public}s, renderPid = %{public}d",
+            renderParamNew.c_str(), renderPid);
+        ret = appMgrClient_->StartRenderProcess(renderParamNew, ipcFd, sharedFd, crashFd, renderPid, isGPU);
         if (ret == RET_ALREADY_EXIST_RENDER) {
             WVLOG_E("app mgr client start %{public}s process failed, process already exist.", processType.c_str());
             std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_FOR_MILLI_SECONDS_CNT));

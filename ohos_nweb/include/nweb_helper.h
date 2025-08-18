@@ -60,7 +60,7 @@ public:
     void NotifyApplicationBackground() override;
     std::shared_ptr<NWeb> nweb_ = nullptr;
     bool isRegistered = false;
-private: 
+private:
     WebApplicationStateChangeCallback() = default;
 };
 
@@ -117,6 +117,7 @@ public:
     void WarmupServiceWorker(const std::string& url);
 
     void EnableWholeWebPageDrawing();
+
     std::shared_ptr<NWebAdsBlockManager> GetAdsBlockManager();
 
     void EnableBackForwardCache(bool enableNativeEmbed, bool enableMediaTakeOver);
@@ -130,17 +131,17 @@ public:
                           const std::vector<std::string>& bypassRules,
                           const bool& reverseBypass,
                           std::shared_ptr<NWebProxyChangedCallback> callback);
-
+ 
     void RemoveProxyOverride(std::shared_ptr<NWebProxyChangedCallback> callback);
+
+    void SetWebDebuggingAccess(bool isEnableDebug);
+    void SetWebDebuggingAccessAndPort(bool isEnableDebug, int32_t port);
 
     bool HasLoadWebEngine();
 
     void SaveSchemeVector(const char* name, int32_t option);
 
     bool RegisterCustomSchemes();
-
-    void SetWebDebuggingAccess(bool isEnableDebug);
-    void SetWebDebuggingAccessAndPort(bool isEnableDebug, int32_t port);
 
     void SetBlanklessLoadingCacheCapacity(int32_t capacity);
 

@@ -25,6 +25,7 @@
 #include <fstream>
 #include <json/json.h>
 
+#include "arkweb_utils.h"
 #include "application_context.h"
 #include "bundle_mgr_proxy.h"
 #include "extractor.h"
@@ -147,8 +148,7 @@ std::string GetArkWebHapPath(const std::string& arkWebCoreHapPathOverride,
         WVLOG_E("GetWebPlayGroundHapPath file not found, %{public}s", webPlayGround.c_str());
     }
 
-    std::string installPath = OhosResourceAdapterImpl::ConvertToSandboxPath(
-        OHOS::system::GetParameter(PERSIST_ARKWEBCORE_INSTALL_PATH, ""), prefixPath);
+    std::string installPath = OHOS::ArkWeb::GetArkwebInstallPath();
     if (access(installPath.c_str(), F_OK) == 0) {
         WVLOG_D("exit install_path,%{public}s", installPath.c_str());
         return installPath;

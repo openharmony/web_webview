@@ -33,7 +33,7 @@ config("web_public_config") {
   ]
 }
 
-ohos_shared_library("webview_napi_back") {
+ohos_shared_library("webview_napi") {
   if (target_cpu == "arm64") {
     branch_protector_ret = "pac_ret"
   }
@@ -122,8 +122,10 @@ ohos_shared_library("webview_napi_back") {
     "../../../ohos_adapter:nweb_ohos_adapter",
     "../../../ohos_nweb:libnweb",
     "../../native:ohweb",
+    "js:js_export",
     "protos:proto_gen",
     "../../../ohos_glue:ohos_base_glue_source",
+    "//base/web/webview/arkweb_utils:libarkweb_utils"
   ]
 
   relative_install_dir = "module/web"

@@ -16,6 +16,7 @@
 #include "ohos_adapter/bridge/ark_web_adapter_webview_bridge_helper.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
+#include "arkweb_utils.h"
 
 namespace OHOS::ArkWeb {
 
@@ -30,15 +31,18 @@ ArkWebAdapterWebviewBridgeHelper::ArkWebAdapterWebviewBridgeHelper()
 
 void ArkWebAdapterWebviewBridgeHelper::Init()
 {
-    std::string libDirPath = WEBVIEW_RELATIVE_PATH_FOR_BUNDLE;
-
-#ifdef __MUSL__
-    if (!LoadLibFile(RTLD_NOW | RTLD_GLOBAL, "nweb_ns", libDirPath, ADAPTER_LIB_FILE_NAME)) {
-#else
-    if (!LoadLibFile(RTLD_NOW, libDirPath + "/" + ADAPTER_LIB_FILE_NAME)) {
-#endif
+    if (libFileHandler_) {
+        ARK_WEB_BRIDGE_INFO_LOG("library resources have been loaded");
         return;
     }
+
+    void* libFileHandler = ArkWebBridgeHelperSharedInit(false);
+    if (!libFileHandler) {
+        ARK_WEB_BRIDGE_ERROR_LOG("library resources loaded failed");
+        return;
+    }
+
+    libFileHandler_ = libFileHandler;
 
     memberCheckFunc_ =
         reinterpret_cast<ArkWebMemberCheckFunc>(LoadFuncSymbol("ark_web_adapter_webcore_check_func_static"));

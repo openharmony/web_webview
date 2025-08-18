@@ -1149,6 +1149,7 @@ ohos_shared_library("ohos_nweb_glue_source") {
   deps = [
     ":ohos_base_glue_source",
     ":ohos_glue_nweb_prepare",
+    "//base/web/webview/arkweb_utils:libarkweb_utils"
   ]
 
   external_deps = [
@@ -1171,6 +1172,7 @@ ohos_shared_library("ohos_adapter_glue_source") {
     ":ohos_base_glue_source",
     ":ohos_glue_adapter_prepare",
     "../ohos_adapter:nweb_ohos_adapter",
+    "//base/web/webview/arkweb_utils:libarkweb_utils"
   ]
 
   external_deps = [

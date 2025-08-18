@@ -566,8 +566,8 @@ void DrmAdapterImpl::GetKeyRequest(MediaKeySession* drmKeySession, uint8_t* info
 Drm_ErrCode DrmAdapterImpl::SessionEventCallBackWithObj(
     MediaKeySession* mediaKeySession, DRM_EventType eventType, uint8_t* info, int32_t infoLen, char* extra)
 {
-    WVLOG_I("[DRM]DrmAdapterImpl::SessionEventCallBackWithObj: %{public}d, infoLen = %{public}d", (int32_t)eventType,
-        infoLen);
+    WVLOG_I("[DRM]DrmAdapterImpl::SessionEventCallBackWithObj: %{public}d, infoLen = %{public}d",
+        static_cast<int32_t>(eventType), infoLen);
     switch (eventType) {
         case EVENT_KEY_REQUIRED:
             GetKeyRequest(mediaKeySession, info, infoLen);
@@ -1140,7 +1140,7 @@ int32_t DrmAdapterImpl::CloseSession(uint32_t promiseId, const std::string& emeI
         }
         return static_cast<int32_t>(DrmResult::DRM_RESULT_ERROR);
     }
-    if(keySystemType_ == KeySystemType::WIDEVINE) {
+    if (keySystemType_ == KeySystemType::WIDEVINE) {
         MediaKeySession* drmKeySession = GetMediaKeySession(emeId);
         if (!drmKeySession) {
             return static_cast<int32_t>(DrmResult::DRM_RESULT_ERROR);

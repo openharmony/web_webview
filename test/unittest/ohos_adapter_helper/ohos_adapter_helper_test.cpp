@@ -99,9 +99,9 @@ HWTEST_F(OhosAdapterHelperTest, OhosAdapterHelper_GetCookieManager_001, TestSize
     auto cook = helper->GetCookieManager();
     EXPECT_EQ(cook, nullptr);
     auto base = helper->GetDataBase();
-    EXPECT_NE(base, nullptr);
+    EXPECT_EQ(base, nullptr);
     auto storage = helper->GetWebStorage();
-    EXPECT_NE(storage, nullptr);
+    EXPECT_EQ(storage, nullptr);
     auto nweb = helper->GetNWeb(nweb_id);
     EXPECT_EQ(nweb, nullptr);
     std::shared_ptr<NWebDOHConfigImpl> config = std::make_shared<NWebDOHConfigImpl>();
@@ -192,9 +192,9 @@ HWTEST_F(OhosAdapterHelperTest, OhosAdapterHelper_GetDataBase_003, TestSize.Leve
     auto cook = helper->GetCookieManager();
     EXPECT_EQ(cook, nullptr);
     auto base = helper->GetDataBase();
-    EXPECT_NE(base, nullptr);
+    EXPECT_EQ(base, nullptr);
     auto storage = helper->GetWebStorage();
-    EXPECT_NE(storage, nullptr);
+    EXPECT_EQ(storage, nullptr);
     auto nweb = helper->GetNWeb(nweb_id);
     EXPECT_EQ(nweb, nullptr);
 }
