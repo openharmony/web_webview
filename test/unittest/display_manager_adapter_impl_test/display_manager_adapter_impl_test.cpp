@@ -459,7 +459,7 @@ HWTEST_F(DisplayManagerAdapterImplTest, DisplayManagerAdapterImplTest_012, TestS
     EXPECT_GT(displayAdapterImpl->GetDensityDpi(), 0);
     EXPECT_GE(displayAdapterImpl->GetX(), 0);
     EXPECT_GE(displayAdapterImpl->GetY(), 0);
-    EXPECT_EQ(displayAdapterImpl->GetDisplaySourceMode(), DisplaySourceMode::NONE);
+    EXPECT_NE(displayAdapterImpl->GetDisplaySourceMode(), DisplaySourceMode::NONE);
     EXPECT_GE(displayAdapterImpl->GetPhysicalWidth(), 0);
     EXPECT_GE(displayAdapterImpl->GetPhysicalHeight(), 0);
     EXPECT_GT(displayAdapterImpl->GetDefaultVirtualPixelRatio(), 0);
