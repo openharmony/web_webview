@@ -665,7 +665,7 @@ WebHttpBodyStream::WebHttpBodyStream(napi_env env,
 WebHttpBodyStream::~WebHttpBodyStream()
 {
     WVLOG_D("WebHttpBodyStream::~WebHttpBodyStream");
-    if (!stream_) {
+    if (stream_) {
         OH_ArkWebResourceRequest_DestroyHttpBodyStream(stream_);
         stream_ = nullptr;
     }
