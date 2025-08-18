@@ -1758,6 +1758,30 @@ public:
     ArkWebRefPtr<ArkWebPrintDocumentAdapterAdapter> CreateWebPrintDocumentAdapterV2(
         const ArkWebString& job_name) override;
 
+    /**
+     * @brief Handle stylus touch press event.
+     * @param stylus_touch_point_info The stylus touch point information containing detailed parameters.
+     * @param from_overlay Indicates whether the event comes from an overlay layer.
+     */
+    void OnStylusTouchPress(
+        ArkWebRefPtr<ArkWebStylusTouchPointInfo> stylus_touch_point_info, bool from_overlay) override;
+
+    /**
+     * @brief Handle stylus touch release event.
+     * @param stylus_touch_point_info The stylus touch point information containing detailed parameters.
+     * @param from_overlay Indicates whether the event comes from an overlay layer.
+     */
+    void OnStylusTouchRelease(
+        ArkWebRefPtr<ArkWebStylusTouchPointInfo> stylus_touch_point_info, bool from_overlay) override;
+
+    /**
+     * @brief Handle stylus touch move event.
+     * @param stylus_touch_point_infos The collection of stylus touch point information.
+     * @param from_overlay Indicates whether the event comes from an overlay layer.
+     */
+    void OnStylusTouchMove(
+        const ArkWebStylusTouchPointInfoVector& stylus_touch_point_infos, bool from_overlay) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

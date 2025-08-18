@@ -1,0 +1,51 @@
+/*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or wrapperied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef ARK_WEB_STYLUS_TOUCH_POINT_INFO_WRAPPER_H_
+#define ARK_WEB_STYLUS_TOUCH_POINT_INFO_WRAPPER_H_
+#pragma once
+
+#include "include/nweb.h"
+#include "ohos_nweb/include/ark_web_stylus_touch_point_info.h"
+
+#include "base/include/ark_web_types.h"
+
+namespace OHOS::ArkWeb {
+
+using ArkWebSourceTool = OHOS::NWeb::SourceTool;
+
+class ArkWebStylusTouchPointInfoWrapper : public OHOS::NWeb::NWebStylusTouchPointInfo {
+public:
+    ArkWebStylusTouchPointInfoWrapper(ArkWebRefPtr<ArkWebStylusTouchPointInfo> ark_web_stylus_touch_point_info);
+    ~ArkWebStylusTouchPointInfoWrapper() = default;
+
+    int32_t GetId() override;
+    double GetX() override;
+    double GetY() override;
+    float GetForce() override;
+    float GetTiltX() override;
+    float GetTiltY() override;
+    float GetRollAngle() override;
+    int32_t GetWidth() override;
+    int32_t GetHeight() override;
+    ArkWebSourceTool GetSourceTool() override;
+
+private:
+    ArkWebRefPtr<ArkWebStylusTouchPointInfo> ark_web_stylus_touch_point_info_;
+};
+
+} // namespace OHOS::ArkWeb
+
+#endif // ARK_WEB_STYLUS_TOUCH_POINT_INFO_WRAPPER_H_
