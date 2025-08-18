@@ -65,7 +65,6 @@ private:
     };
     std::shared_ptr<Rosen::RSFrameRateLinker> frameRateLinker_;
     static void (*callback_)();
-    static void (*onVsyncEndCallback_)();
     bool frameRateLinkerEnable_ = false;
     bool isGPUProcess_ = false;
     std::string pkgName_ {""};
