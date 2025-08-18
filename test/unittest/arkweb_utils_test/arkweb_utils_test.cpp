@@ -19,8 +19,6 @@
 #include <vector>
 
 #include "arkweb_utils.h"
-#include "nweb_config_helper.h"
-#include "nweb_log.h"
 #include "parameters.h"
 #include "system_properties_adapter_impl.h"
 
@@ -232,8 +230,9 @@ TEST(arkweb_utils_test, GetArkwebInstallPath001) {
 
     auto aclPath = GetArkwebInstallPath();
     bool res = (aclPath == SANDBOX_LEGACY_HAP_PATH || aclPath == PRECONFIG_LEGACY_HAP_PATH);
-    NWeb::ProductDeviceType result = NWeb::SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType();
-    if (result == NWeb::ProductDeviceType::DEVICE_TYPE_UNKNOWN) {
+    // rk is default
+    std::string deviceType = OHOS::system::GetDeviceType();
+    if (deviceType == "default") {
         EXPECT_FALSE(res);
     } else {
         EXPECT_TRUE(res);
@@ -249,8 +248,9 @@ TEST(arkweb_utils_test, GetArkwebInstallPath002) {
 
     auto aclPath = GetArkwebInstallPath();
     bool res = (aclPath == SANDBOX_EVERGREEN_HAP_PATH || aclPath == PRECONFIG_EVERGREEN_HAP_PATH);
-    NWeb::ProductDeviceType result = NWeb::SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType();
-    if (result == NWeb::ProductDeviceType::DEVICE_TYPE_UNKNOWN) {
+    std::string deviceType = OHOS::system::GetDeviceType();
+    // rk is default
+    if (deviceType == "default") {
         EXPECT_FALSE(res);
     } else {
         EXPECT_TRUE(res);
