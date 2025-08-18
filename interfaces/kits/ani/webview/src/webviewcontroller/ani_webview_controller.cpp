@@ -89,6 +89,7 @@ constexpr double SCALE_MIN = 0.1;
 constexpr double SCALE_MAX = 2.0;
 constexpr double HALF = 2.0;
 constexpr double TEN_MILLIMETER_TO_INCH = 0.39;
+using WebPrintWriteResultCallback = std::function<void(const std::string&, uint32_t)>;
 struct PDFMarginConfig {
     double top = TEN_MILLIMETER_TO_INCH;
     double bottom = TEN_MILLIMETER_TO_INCH;
@@ -447,6 +448,8 @@ static void Clean(ani_env *env, ani_object object)
         if (msgPort && msgPort->DecRefCount() <= 0) {
             delete msgPort;
         }
+    } else if (clsName == "PrintDocumentAdapterInner") {
+        delete reinterpret_cast<WebPrintDocument*>(ptr);
     } else {
         WVLOG_E("Clean unsupport className: %{public}s", clsName.c_str());
     }
@@ -4182,6 +4185,367 @@ ani_status StsWebMessageExtInit(ani_env* env)
     return status;
 }
 
+static ani_ref CreateWebPrintDocumentAdapter(ani_env* env, ani_object object, ani_string jobName)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    std::string jobNameString;
+    if (!AniParseUtils::ParseString(env, jobName, jobNameString)) {
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "jopName", "string"));
+        return nullptr;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return nullptr;
+    }
+
+    void* webPrintDocument = controller->CreateWebPrintDocumentAdapter(jobNameString);
+    if (!webPrintDocument) {
+        WVLOG_E("failed to Unwrap webPrintDocument");
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return nullptr;
+    }
+
+    WebPrintDocument* webPrintDoc = new (std::nothrow) WebPrintDocument(webPrintDocument);
+    if (webPrintDoc == nullptr) {
+        WVLOG_E("new web print failed");
+        return nullptr;
+    }
+
+    ani_object printDocumentAdapterObj = {};
+    if (AniParseUtils::CreateObjectVoid(
+            env, "L@ohos/web/webview/webview/PrintDocumentAdapterInner;", printDocumentAdapterObj) == false) {
+        WVLOG_E("[printDocumentAdapter] CreateObjectVoid failed");
+        delete webPrintDoc;
+        webPrintDoc = nullptr;
+        return nullptr;
+    }
+
+    if (!AniParseUtils::Wrap(env, printDocumentAdapterObj, "L@ohos/web/webview/webview/PrintDocumentAdapterInner;",
+            reinterpret_cast<ani_long>(webPrintDoc))) {
+        WVLOG_E("[printDocumentAdapter] WebDownloadDelegate wrap failed");
+        delete webPrintDoc;
+        webPrintDoc = nullptr;
+        return nullptr;
+    }
+    return printDocumentAdapterObj;
+}
+
+static void OnJobStateChanged(ani_env* env, ani_object object, ani_string jobId, ani_enum_item state)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    WebPrintDocument* webPrintDocument = reinterpret_cast<WebPrintDocument*>(AniParseUtils::Unwrap(env, object));
+    if (!webPrintDocument) {
+        WVLOG_E("failed to Unwrap webPrintDocument");
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    std::string jobIDString;
+    if (!AniParseUtils::ParseString(env, jobId, jobIDString)) {
+        WVLOG_E("failed to parse jobId");
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    int32_t stateInt = 0;
+    if (!AniParseUtils::EnumParseInt32_t(env, state, stateInt)) {
+        WVLOG_E("failed to parse state");
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    webPrintDocument->OnJobStateChanged(jobIDString, stateInt);
+    return;
+}
+
+WebPrintWriteResultCallback ParseWebPrintWriteResultCallback(ani_env* env, ani_object object, ani_fn_object callback)
+{
+    WVLOG_D("ParseWebPrintWriteResultCallback");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+
+    ani_ref callbackRef;
+
+    if (env->GlobalReference_Create(static_cast<ani_ref>(callback), &callbackRef) != ANI_OK) {
+        WVLOG_E("failed to create reference for callback");
+        return nullptr;
+    }
+
+    auto pCallback = [env, cbRef = std::move(callbackRef)](std::string jobId, uint32_t state) {
+        std::vector<ani_ref> argv;
+        ani_string jobIdString = nullptr;
+        if (env->String_NewUTF8(jobId.c_str(), jobId.size(), &jobIdString) == ANI_OK) {
+            argv.push_back(static_cast<ani_ref>(jobIdString));
+        }
+        ani_enum_item stateEnum;
+        if (AniParseUtils::GetEnumItemByIndex(
+                env, "L@ohos/print/print/PrintFileCreationState;", static_cast<int32_t>(state), stateEnum)) {
+            argv.push_back(static_cast<ani_ref>(stateEnum));
+        }
+        ani_ref fnReturnVal = nullptr;
+        env->FunctionalObject_Call(reinterpret_cast<ani_fn_object>(cbRef), argv.size(), argv.data(), &fnReturnVal);
+        env->GlobalReference_Delete(cbRef);
+    };
+    return pCallback;
+}
+
+static void ParsePrintRangeAdapter(ani_env* env, ani_object pageRange, PrintAttributesAdapter& printAttr)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    if (!pageRange) {
+        WVLOG_E("ParsePrintRangeAdapter failed.");
+        return;
+    }
+    ani_int startPage = 0;
+    ani_int endPage = 0;
+    ani_ref pages = nullptr;
+    if (env->Object_GetPropertyByName_Int(pageRange, "startPage", &startPage) != ANI_OK) {
+        WVLOG_E("ParsePrintRangeAdapter failed to get startPage");
+    }
+
+    if (env->Object_GetPropertyByName_Int(pageRange, "endPage", &endPage) != ANI_OK) {
+        WVLOG_E("ParsePrintRangeAdapter failed to get endPage");
+    }
+
+    if (env->Object_GetPropertyByName_Ref(pageRange, "pages", &pages) != ANI_OK) {
+        WVLOG_E("ParsePrintRangeAdapter failed to get pages");
+    }
+    ani_array_int pagesArrayInt = static_cast<ani_array_int>(pages);
+
+    printAttr.pageRange.startPage = static_cast<int>(startPage);
+
+    printAttr.pageRange.endPage = static_cast<int>(endPage);
+    WVLOG_D("printAttr.pageRange.startPage is %{public}d,printAttr.pageRange.endPage is %{public}d",
+        printAttr.pageRange.startPage, printAttr.pageRange.endPage);
+
+    ani_size length = 0;
+    env->Array_GetLength(pagesArrayInt, &length);
+    for (uint32_t i = 0; i < length; ++i) {
+        ani_int pagesInt;
+        env->Array_GetRegion_Int(pagesArrayInt, i, 1, &pagesInt);
+        int pagesNum = static_cast<int>(pagesInt);
+        printAttr.pageRange.pages.push_back(pagesNum);
+    }
+}
+
+static void ParsePrintPageSizeAdapter(ani_env* env, ani_object pageSize, PrintAttributesAdapter& printAttr)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    if (!pageSize) {
+        WVLOG_E("ParsePrintPageSizeAdapter failed.");
+        return;
+    }
+
+    ani_int width = 0;
+    ani_int height = 0;
+    if (env->Object_GetPropertyByName_Int(pageSize, "width", &width) != ANI_OK) {
+        WVLOG_E("ParsePrintPageSizeAdapter failed to get width");
+    }
+    if (env->Object_GetPropertyByName_Int(pageSize, "height", &height) != ANI_OK) {
+        WVLOG_E("ParsePrintPageSizeAdapter failed to get height");
+    }
+
+    printAttr.pageSize.width = static_cast<int>(width);
+    printAttr.pageSize.height = static_cast<int>(height);
+    WVLOG_D("width is %{public}d,height is %{public}d", printAttr.pageSize.width, printAttr.pageSize.height);
+}
+
+static void ParsePrintMarginAdapter(ani_env* env, ani_object margin, PrintAttributesAdapter& printAttr)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    if (!margin) {
+        WVLOG_E("ParsePrintMarginAdapter failed.");
+        return;
+    }
+
+    ani_int top = 0;
+    ani_int bottom = 0;
+    ani_int left = 0;
+    ani_int right = 0;
+    if (env->Object_GetPropertyByName_Int(margin, "top", &top) != ANI_OK) {
+        WVLOG_D("ParsePrintMarginAdapter failed to get top");
+    }
+    if (env->Object_GetPropertyByName_Int(margin, "bottom", &bottom) != ANI_OK) {
+        WVLOG_D("ParsePrintMarginAdapter failed to get bottom");
+    }
+    if (env->Object_GetPropertyByName_Int(margin, "left", &left) != ANI_OK) {
+        WVLOG_D("ParsePrintMarginAdapter failed to get left");
+    }
+    if (env->Object_GetPropertyByName_Int(margin, "right", &right) != ANI_OK) {
+        WVLOG_D("ParsePrintMarginAdapter failed to get right");
+    }
+
+    printAttr.margin.top = static_cast<int>(top);
+    printAttr.margin.bottom = static_cast<int>(bottom);
+    printAttr.margin.left = static_cast<int>(left);
+    printAttr.margin.right = static_cast<int>(right);
+    WVLOG_D("top is %{public}d,bottom is %{public}d,left is %{public}d,right is %{public}d", printAttr.margin.top,
+        printAttr.margin.bottom, printAttr.margin.left, printAttr.margin.right);
+}
+
+static bool ParseWebPrintAttrParams(ani_env* env, ani_object obj, PrintAttributesAdapter& printAttr)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+
+    if (!obj) {
+        WVLOG_E("ParseWebPrintAttrParams failed.");
+        return false;
+    }
+    ani_ref copyNumber_ref = nullptr;
+    ani_ref pageRange_ref = nullptr;
+    ani_ref isSequential_ref = nullptr;
+    ani_ref pageSize_ref = nullptr;
+    ani_ref isLandscape_ref = nullptr;
+    ani_ref colorMode_ref = nullptr;
+    ani_ref duplexMode_ref = nullptr;
+    ani_ref margin = nullptr;
+
+    int32_t copyNumber = 0;
+    if (AniParseUtils::GetRefProperty(env, obj, "copyNumber", copyNumber_ref)) {
+        AniParseUtils::ParseInt32(env, copyNumber_ref, copyNumber);
+    }
+
+    if (AniParseUtils::GetRefProperty(env, obj, "pageRange", pageRange_ref)) {
+        ParsePrintRangeAdapter(env, static_cast<ani_object>(pageRange_ref), printAttr);
+    }
+
+    bool isSequential = false;
+    if (AniParseUtils::GetRefProperty(env, obj, "isSequential", isSequential_ref)) {
+        AniParseUtils::ParseBoolean(env, isSequential_ref, isSequential);
+    }
+
+    if (AniParseUtils::GetRefProperty(env, obj, "pageSize", pageSize_ref)) {
+        ParsePrintPageSizeAdapter(env, static_cast<ani_object>(pageSize_ref), printAttr);
+    }
+
+    bool isLandscape = false;
+    if (AniParseUtils::GetRefProperty(env, obj, "isLandscape", isLandscape_ref)) {
+        AniParseUtils::ParseBoolean(env, isLandscape_ref, isLandscape);
+    }
+
+    int32_t colorMode = 0;
+    if (AniParseUtils::GetRefProperty(env, obj, "colorMode", colorMode_ref)) {
+        AniParseUtils::ParseInt32(env, colorMode_ref, colorMode);
+    }
+
+    int32_t duplexMode = 0;
+    if (AniParseUtils::GetRefProperty(env, obj, "duplexMode", duplexMode_ref)) {
+        AniParseUtils::ParseInt32(env, duplexMode_ref, duplexMode);
+    }
+
+    if (AniParseUtils::GetRefProperty(env, obj, "margin", margin)) {
+        ParsePrintMarginAdapter(env, static_cast<ani_object>(margin), printAttr);
+    }
+
+    printAttr.copyNumber = static_cast<uint32_t>(copyNumber);
+    printAttr.isSequential = static_cast<bool>(isSequential);
+    printAttr.isLandscape = static_cast<bool>(isLandscape);
+    printAttr.colorMode = static_cast<uint32_t>(colorMode);
+    printAttr.duplexMode = static_cast<uint32_t>(duplexMode);
+    WVLOG_D("copyNumber is %{public}d,isSequential is %{public}d,isLandscape is %{public}d,colorMode is "
+            "%{public}d,duplexMode is %{public}d",
+        printAttr.copyNumber, printAttr.isSequential, printAttr.isLandscape, printAttr.colorMode, printAttr.duplexMode);
+
+    return true;
+}
+
+static void OnStartLayoutWrite(ani_env* env, ani_object object, ani_string jobId, ani_object oldPrintAttr,
+    ani_object newPrintAttr, ani_int fd, ani_fn_object callback)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    WebPrintDocument* webPrintDocument = reinterpret_cast<WebPrintDocument*>(AniParseUtils::Unwrap(env, object));
+    if (!webPrintDocument) {
+        WVLOG_E("failed to Unwrap webPrintDocument");
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    std::string jobIDString;
+    if (!AniParseUtils::ParseString(env, jobId, jobIDString)) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+
+    if (fd < 0) {
+            WVLOG_E("invalid file descriptor: %d", fd);
+            AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+            return;
+    }
+
+    uint32_t fdUint = static_cast<uint32_t>(fd);
+    PrintAttributesAdapter oldPA;
+    if (!ParseWebPrintAttrParams(env, oldPrintAttr, oldPA)) {
+        WVLOG_E("failed to ParseWebPrintAttrParams oldPrintAttr");
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    PrintAttributesAdapter newPA;
+    if (!ParseWebPrintAttrParams(env, newPrintAttr, newPA)) {
+        WVLOG_E("failed to ParseWebPrintAttrParams newPrintAttr");
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    WebPrintWriteResultCallback writeResultCallback = nullptr;
+    writeResultCallback = ParseWebPrintWriteResultCallback(env, object, callback);
+     if (writeResultCallback == nullptr) {
+        WVLOG_E("failed to ParseWebPrintWriteResultCallback");
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    webPrintDocument->OnStartLayoutWrite(jobIDString, oldPA, newPA, fdUint, writeResultCallback);
+    return;
+}
+
+ani_status StsPrintDocumentAdapterInit(ani_env* env)
+{
+    ani_class printDocumentAdapterCls = nullptr;
+    ani_status status = env->FindClass(ANI_PRINT_DOCUMENT_ADAPTER_INNER_CLASS_NAME, &printDocumentAdapterCls);
+    if (status != ANI_OK || !printDocumentAdapterCls) {
+        WVLOG_E(
+            "find %{public}s class failed, status: %{public}d", ANI_PRINT_DOCUMENT_ADAPTER_INNER_CLASS_NAME, status);
+        return ANI_ERROR;
+    }
+
+    std::array methodArray = {
+        ani_native_function { "onStartLayoutWrite", nullptr, reinterpret_cast<void*>(OnStartLayoutWrite) },
+        ani_native_function { "onJobStateChanged", nullptr, reinterpret_cast<void*>(OnJobStateChanged) },
+    };
+
+    status = env->Class_BindNativeMethods(printDocumentAdapterCls, methodArray.data(), methodArray.size());
+    if (status != ANI_OK) {
+        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+    }
+
+    return ANI_OK;
+}
+
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     WVLOG_D("[DOWNLOAD] StsWebviewControllerInit");
@@ -4300,6 +4664,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void *>(EnableWholeWebPageDrawing) },
         ani_native_function { "getSurfaceId", nullptr, reinterpret_cast<void *>(GetSurfaceId) },
         ani_native_function { "setPrintBackground", nullptr, reinterpret_cast<void*>(SetPrintBackground) },
+        ani_native_function {
+            "createWebPrintDocumentAdapter", nullptr, reinterpret_cast<void*>(CreateWebPrintDocumentAdapter) },
         ani_native_function { "getPrintBackground", nullptr, reinterpret_cast<void*>(GetPrintBackground) },
         ani_native_function { "startCamera", nullptr, reinterpret_cast<void *>(StartCamera) },
         ani_native_function { "closeAllMediaPresentations", nullptr,

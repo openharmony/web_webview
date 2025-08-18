@@ -62,6 +62,7 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
     StsPdfDataInit(env);
     StsGeolocationPermissionInit(env);
     StsWebviewFunctionInit(env);
+    StsPrintDocumentAdapterInit(env);
     *result = ANI_VERSION_1;
     return ANI_OK;
 }
