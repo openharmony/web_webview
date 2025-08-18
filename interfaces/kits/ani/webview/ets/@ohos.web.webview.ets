@@ -513,8 +513,8 @@ export default namespace webview {
                 throw new Error("input object is null or undefined");
             }
             let dyESValue = ESValue.wrap(input);
-            bflObject.currentIndex = dyESValue.getProperty('currentIndex').toNumber() as int;
-            bflObject.size = dyESValue.getProperty('size').toNumber() as int;
+            bflObject.currentIndex = dyESValue.getProperty('currentIndex').toNumber().toInt();
+            bflObject.size = dyESValue.getProperty('size').toNumber().toInt();
             if (!BackForwardListinner.transferBackForwardListToStaticInner(bflObject, dyESValue)) {
                 throw new Error("transfer failed");
             }
