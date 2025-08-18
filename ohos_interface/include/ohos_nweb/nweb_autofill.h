@@ -54,8 +54,6 @@ const std::string NWEB_AUTOFILL_TEL_COUNTRY_CODE = "tel-country-code";
 const std::string NWEB_AUTOFILL_EMAIL = "email";
 const std::string NWEB_AUTOFILL_CC_NUMBER = "cc-number";
 const std::string NWEB_AUTOFILL_ID_CARD_NUMBER = "id-card-number";
-const std::string NWEB_AUTOFILL_DETAIL_INFO_WITHOUT_STREET = "detail-info-without-street";
-const std::string NWEB_AUTOFILL_FORMAT_ADDRESS = "format-address";
 const std::string NWEB_AUTOFILL_NICKNAME = "nickname";
 const std::string NWEB_AUTOFILL_USERNAME = "username";
 const std::string NWEB_AUTOFILL_PASSWORD = "password";
@@ -72,6 +70,8 @@ const std::string NWEB_AUTOFILL_LICENSE_FILE_NUMBER = "license-file-number";
 const std::string NWEB_AUTOFILL_LICENSE_PLATE = "license-plate";
 const std::string NWEB_AUTOFILL_ENGINE_NUMBER = "engine-number";
 const std::string NWEB_AUTOFILL_LICENSE_CHASSIS_NUMBER = "license-chassis-number";
+const std::string NWEB_AUTOFILL_DETAIL_INFO_WITHOUT_STREET = "detail-info-without-street";
+const std::string NWEB_AUTOFILL_FORMAT_ADDRESS = "format-address";
 
 enum NWebAutofillEvent {
     UNKNOWN = 0,
