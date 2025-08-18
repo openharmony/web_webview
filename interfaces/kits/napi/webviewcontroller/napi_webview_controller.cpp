@@ -6916,6 +6916,7 @@ napi_value NapiWebviewController::GetPageOffset(napi_env env,
     if (!webviewController) {
         return nullptr;
     }
+    webviewController->GetPageOffset(&offsetX, &offsetY);
     napi_create_object(env, &result);
     napi_create_double(env, static_cast<double>(offsetX), &horizontal);
     napi_create_double(env, static_cast<double>(offsetY), &vertical);
