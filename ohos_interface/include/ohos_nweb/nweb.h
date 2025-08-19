@@ -2061,6 +2061,14 @@ public:
     {
         return WebDestroyMode::NORMAL_MODE;
     }
+
+    /**
+     * @brief Record the blankless frame size of the web.
+     *
+     * @param width The width of the blankless frame.
+     * @param height The height of the blankless frame.
+     */
+    virtual void RecordBlanklessFrameSize(uint32_t width, uint32_t height) {}
 };
 
 } // namespace OHOS::NWeb

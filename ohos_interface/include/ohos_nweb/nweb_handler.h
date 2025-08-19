@@ -1255,6 +1255,15 @@ public:
     virtual void OnPdfLoadEvent(int32_t result, const std::string& url) {}
 
     virtual void OnTakeFocus(std::shared_ptr<NWebKeyEvent> event) {}
+
+    /**
+     * @brief Notify the web client to insert blankless frame with size.
+     *
+     * @param pathToFrame The file used to insert frame.
+     * @param width The width of the blankless frame.
+     * @param height The height of the blankless frame.
+     */
+    virtual void OnInsertBlanklessFrameWithSize(const std::string& pathToFrame, uint32_t width, uint32_t height) {}
 };
 
 } // namespace OHOS::NWeb

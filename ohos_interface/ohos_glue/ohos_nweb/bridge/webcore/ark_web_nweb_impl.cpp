@@ -1548,4 +1548,8 @@ void ArkWebNWebImpl::FillAutofillDataV2(ArkWebRefPtr<ArkWebRomValue> data)
     nweb_nweb_->FillAutofillDataV2(std::make_shared<ArkWebRomValueWrapper>(data));
 }
 
+void ArkWebNWebImpl::RecordBlanklessFrameSize(uint32_t width, uint32_t height)
+{
+    nweb_nweb_->RecordBlanklessFrameSize(width, height);
+}
 } // namespace OHOS::ArkWeb

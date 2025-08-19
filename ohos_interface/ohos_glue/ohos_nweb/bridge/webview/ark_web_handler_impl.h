@@ -697,6 +697,17 @@ public:
     void OnPdfLoadEvent(int32_t result, const ArkWebString& url) override;
 
     void OnTakeFocus(ArkWebRefPtr<ArkWebKeyEvent> event) override;
+
+    /**
+     * @brief Notify the web client to do something for blankless.
+     *
+     * @param pathToFrame The file used to insert frame.
+     * @param width The width of the blankless frame.
+     * @param height The height of the blankless frame.
+     */
+    void OnInsertBlanklessFrameWithSize(const ArkWebString& pathToFrame,
+                                        uint32_t width,
+                                        uint32_t height) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };
