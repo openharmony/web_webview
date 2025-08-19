@@ -49,6 +49,7 @@ public:
                                                const char *keyName, std::string keyValue);
     static std::shared_ptr<CacheOptions> ParseCacheOptions(ani_env* env, ani_object cacheOptions);
     static bool ParseStringArray(ani_env* env, ani_object argv, std::vector<std::string>& outValue);
+    static bool EnumParseInt32_t(ani_env* env, ani_enum_item enum_item, int32_t& outValue);
     static bool ParseStringArrayMap(ani_env* env, ani_object argv, std::map<std::string, std::string>& outValue);
     static bool GetStringList(ani_env *env, ani_object array, std::vector<std::string>& outValue);
     static bool ParseIP(ani_env *env, ani_object urlObj, std::string& ip);
@@ -78,6 +79,7 @@ public:
                                             int& fd, size_t& scriptLength);
     static ani_ref ConvertNWebToAniValue(ani_env *env, std::shared_ptr<NWebMessage> src);
     static bool ParseArrayBuffer(ani_env *env, ani_object script, std::string& outValue);
+    static bool GetRefProperty(ani_env* env, ani_object param, const char* name, ani_ref& value);
 };
 } // namespace NWeb
 } // namespace OHOS

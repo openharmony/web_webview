@@ -311,6 +311,30 @@ bool AniParseUtils::ParseStringArrayMap(ani_env* env, ani_object argv, std::map<
     return true;
 }
 
+bool AniParseUtils::EnumParseInt32_t(ani_env* env, ani_enum_item enum_item, int32_t& outValue)
+{
+    if (env == nullptr) {
+        WVLOG_E("null env");
+        return false;
+    }
+    
+    ani_class doubleObject;
+    if (env->FindClass("Lstd/core/Object;", &doubleObject) != ANI_OK) {
+        WVLOG_E("EnumParseInt32 failed - invalid FindClass type");
+        return false;
+    }
+    ani_boolean isObject;
+    if (env->Object_InstanceOf(static_cast<ani_object>(enum_item), doubleObject, &isObject) != ANI_OK ||
+        isObject != ANI_TRUE) {
+        WVLOG_E("EnumParseInt32 failed - invalid int type");
+        return false;
+    }
+    ani_int number = 0;
+    env->EnumItem_GetValue_Int(enum_item, &number);
+    outValue = static_cast<int32_t>(number);
+    return true;
+}
+
 bool AniParseUtils::GetStringList(ani_env *env, ani_object array, std::vector<std::string>& outValue)
 {
     ani_double arrayLength;
@@ -1299,6 +1323,30 @@ bool AniParseUtils::ParseArrayBuffer(ani_env* env, ani_object script, std::strin
     }
 
     outValue = std::string(arrBuf, byteLength);
+    return true;
+}
+
+bool AniParseUtils::GetRefProperty(ani_env* env, ani_object param, const char* name, ani_ref& value)
+{
+    if (env == nullptr) {
+        WVLOG_E("null env");
+        return false;
+    }
+
+    ani_status status;
+    ani_boolean isUndefined = true;
+
+    if ((status = env->Object_GetPropertyByName_Ref(param, name, &value)) != ANI_OK) {
+        WVLOG_E("status: %{public}d, name : %{public}s", status, name);
+        return false;
+    }
+    if ((status = env->Reference_IsUndefined(value, &isUndefined)) != ANI_OK) {
+        WVLOG_E("status: %{public}d, name : %{public}s", status, name);
+        return false;
+    }
+    if (isUndefined) {
+        return false;
+    }
     return true;
 }
 }
