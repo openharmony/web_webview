@@ -38,6 +38,7 @@ ohos_unittest("arkweb_utils_test") {
     "$webview_path/arkweb_utils:libarkweb_utils",
     "$webview_path/ohos_adapter:nweb_ohos_adapter"
   ]
+
   external_deps = [
     "ability_runtime:app_context",
     "ability_runtime:app_manager",
