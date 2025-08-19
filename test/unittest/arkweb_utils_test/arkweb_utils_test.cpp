@@ -20,6 +20,7 @@
 
 #include "arkweb_utils.h"
 #include "parameters.h"
+#include "system_properties_adapter_impl.h"
 
 using namespace testing::ext;
 
@@ -229,7 +230,14 @@ TEST(arkweb_utils_test, GetArkwebInstallPath001) {
 
     auto aclPath = GetArkwebInstallPath();
     bool res = (aclPath == SANDBOX_LEGACY_HAP_PATH || aclPath == PRECONFIG_LEGACY_HAP_PATH);
-    EXPECT_TRUE(res);
+    // rk is default
+    std::string deviceType = OHOS::system::GetDeviceType();
+    if (deviceType == "default") {
+        EXPECT_FALSE(res);
+    } else {
+        EXPECT_TRUE(res);
+    }
+
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
 }
 
@@ -240,7 +248,14 @@ TEST(arkweb_utils_test, GetArkwebInstallPath002) {
 
     auto aclPath = GetArkwebInstallPath();
     bool res = (aclPath == SANDBOX_EVERGREEN_HAP_PATH || aclPath == PRECONFIG_EVERGREEN_HAP_PATH);
-    EXPECT_TRUE(res);
+    // rk is default
+    std::string deviceType = OHOS::system::GetDeviceType();
+    if (deviceType == "default") {
+        EXPECT_FALSE(res);
+    } else {
+        EXPECT_TRUE(res);
+    }
+
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
 }
 } // namespace OHOS::NWeb
