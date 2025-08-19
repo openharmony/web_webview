@@ -248,8 +248,8 @@ TEST(arkweb_utils_test, GetArkwebInstallPath002) {
 
     auto aclPath = GetArkwebInstallPath();
     bool res = (aclPath == SANDBOX_EVERGREEN_HAP_PATH || aclPath == PRECONFIG_EVERGREEN_HAP_PATH);
-    std::string deviceType = OHOS::system::GetDeviceType();
     // rk is default
+    std::string deviceType = OHOS::system::GetDeviceType();
     if (deviceType == "default") {
         EXPECT_FALSE(res);
     } else {
