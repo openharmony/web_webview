@@ -390,7 +390,7 @@ void* ArkWebBridgeHelperLoadLibFile(int openMode, const std::string& libNsName,
     return libFileHandler;
 }
 
-void* ArkWebBridgeHelperSharedInit(bool isPreDlopen, bool runMode)
+void* ArkWebBridgeHelperSharedInit(bool runMode)
 {
     std::string libFileName = "libarkweb_engine.so";
 
@@ -411,7 +411,7 @@ void* ArkWebBridgeHelperSharedInit(bool isPreDlopen, bool runMode)
     libFileHandler = ArkWebBridgeHelperLoadLibFile(RTLD_NOW, libDirPath + "/" + libFileName)
 #endif
 
-    if (!isPreDlopen && libFileHandler != nullptr) {
+    if (libFileHandler != nullptr) {
         g_webEngineInitFlag = true;
         WVLOG_I("g_webEngineInitFlag set to true. setActiveWebEngineVersion will be ignored.");
     }
