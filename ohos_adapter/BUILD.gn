@@ -59,6 +59,11 @@ ohos_shared_library("nweb_ohos_adapter") {
     "WEBVIEW_SANDBOX_PATH=\"${webview_sandbox_path}\"",
   ]
 
+  if (use_hwasan) {
+    defines += [
+      "WEBVIEW_SANDBOX_LIB_PATH_ASAN=\"${asan_webview_sandbox_lib_path}\"",
+    ]
+  }
   sources = [
     "aafwk_adapter/src/aafwk_app_mgr_client_adapter_impl.cpp",
     "aafwk_adapter/src/aafwk_browser_client_adapter_impl.cpp",

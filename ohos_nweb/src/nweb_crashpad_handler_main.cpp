@@ -48,17 +48,22 @@ std::optional<std::string> GetEngineType(int argc, char* argv[]) {
 int main(int argc, char* argv[])
 {
     std::string libCrashpadHandler;
+    std::string webPath = WEBVIEW_SANDBOX_LIB_PATH;
+#if defined(IS_ASAN) && defined(webview_arm64)
+    if (access(std::string(WEBVIEW_SANDBOX_LIB_PATH_ASAN).c_str(), F_OK) == 0) {
+        webPath = WEBVIEW_SANDBOX_LIB_PATH_ASAN;
+    }
+#endif
     if (auto engineType = GetEngineType(argc, argv); engineType.has_value() && engineType.value() == "LEGACY") {
         libCrashpadHandler = std::string(LEGACY_WEBVIEW_SANDBOX_LIB_PATH) + "/"
                                             + std::string(WEBVIEW_CRASHPAD_HANDLER_SO);
     } else {
-        libCrashpadHandler = std::string(WEBVIEW_SANDBOX_LIB_PATH) + "/"
-                                            + std::string(WEBVIEW_CRASHPAD_HANDLER_SO);
+        libCrashpadHandler = webPath + "/" + std::string(WEBVIEW_CRASHPAD_HANDLER_SO);
     }
 
     Dl_namespace dlns;
     dlns_init(&dlns, "nweb_ns");
-    dlns_create(&dlns, std::string(WEBVIEW_SANDBOX_LIB_PATH).c_str());
+    dlns_create(&dlns, webPath.c_str());
 
     Dl_namespace ndkns;
     dlns_get("ndk", &ndkns);
