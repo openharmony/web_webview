@@ -41,10 +41,12 @@
 #include "ohos_nweb/bridge/ark_web_screen_lock_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_spanstring_convert_html_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_string_value_callback_wrapper.h"
+#include "ohos_nweb/bridge/ark_web_stylus_touch_point_info_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_system_configuration_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_print_document_adapter_adapter_impl.h"
 #include "ohos_nweb/ctocpp/ark_web_js_proxy_callback_vector_ctocpp.h"
 #include "ohos_nweb/ctocpp/ark_web_rom_value_vector_ctocpp.h"
+#include "ohos_nweb/ctocpp/ark_web_stylus_touch_point_info_vector_ctocpp.h"
 #include "ohos_nweb/ctocpp/ark_web_touch_point_info_vector_ctocpp.h"
 #include "ohos_nweb/ctocpp/ark_web_value_vector_ctocpp.h"
 
@@ -1546,6 +1548,37 @@ void ArkWebNWebImpl::FillAutofillDataV2(ArkWebRefPtr<ArkWebRomValue> data)
     }
 
     nweb_nweb_->FillAutofillDataV2(std::make_shared<ArkWebRomValueWrapper>(data));
+}
+
+void ArkWebNWebImpl::OnStylusTouchPress(
+    ArkWebRefPtr<ArkWebStylusTouchPointInfo> stylus_touch_point_info, bool from_overlay)
+{
+    if (CHECK_REF_PTR_IS_NULL(stylus_touch_point_info)) {
+        nweb_nweb_->OnStylusTouchPress(nullptr, from_overlay);
+        return;
+    }
+
+    nweb_nweb_->OnStylusTouchPress(
+        std::make_shared<ArkWebStylusTouchPointInfoWrapper>(stylus_touch_point_info), from_overlay);
+}
+
+void ArkWebNWebImpl::OnStylusTouchRelease(
+    ArkWebRefPtr<ArkWebStylusTouchPointInfo> stylus_touch_point_info, bool from_overlay)
+{
+    if (CHECK_REF_PTR_IS_NULL(stylus_touch_point_info)) {
+        nweb_nweb_->OnStylusTouchRelease(nullptr, from_overlay);
+        return;
+    }
+
+    nweb_nweb_->OnStylusTouchRelease(
+        std::make_shared<ArkWebStylusTouchPointInfoWrapper>(stylus_touch_point_info), from_overlay);
+}
+
+void ArkWebNWebImpl::OnStylusTouchMove(
+    const ArkWebStylusTouchPointInfoVector& stylus_touch_point_infos, bool from_overlay)
+{
+    nweb_nweb_->OnStylusTouchMove(
+        ArkWebStylusTouchPointInfoVectorStructToClass(stylus_touch_point_infos), from_overlay);
 }
 
 } // namespace OHOS::ArkWeb

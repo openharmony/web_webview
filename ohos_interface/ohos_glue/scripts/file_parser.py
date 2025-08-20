@@ -438,6 +438,9 @@ _simpletypes = {
     'CefWindowHandle': ['cef_window_handle_t', 'kNullWindowHandle'],
     'WebSnapshotCallback':['WebSnapshotCallback', 'NULL'],
     'ArkDisplayAdapterVector': ['ArkDisplayAdapterVector', '{0}'],
+    'ArkWebStylusTouchPointInfoVector': [
+        'ArkWebStylusTouchPointInfoVector', 'ark_web_stylus_touch_point_info_vector_default'
+    ],
 }
 
 
