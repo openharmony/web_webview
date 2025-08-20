@@ -25,7 +25,7 @@ ArkOhosDrawingTextFontAdapterWrapper::ArkOhosDrawingTextFontAdapterWrapper(
 
 int ArkOhosDrawingTextFontAdapterWrapper::GetSystemFontFullNamesByType(int32_t systemFontType, void** drawingArray)
 {
-    if (!ctocpp_) {
+     if (!ctocpp_) {
         WVLOG_E("ArkOhosDrawingTextFontAdapterWrapper::GetSystemFontFullNamesByType, ctocpp_ is null.");
         return -1;
     }
@@ -90,7 +90,7 @@ int ArkOhosDrawingTextTypographyAdapterWrapper::GetDrawingArraySize(void* drawin
         WVLOG_E("ArkOhosDrawingTextTypographyAdapterWrapper::GetDrawingArraySize, ctocpp_ is null.");
         return -1;
     }
-   return ctocpp_->GetDrawingArraySize(drawingArray, sizeOfArray);
+    return ctocpp_->GetDrawingArraySize(drawingArray, sizeOfArray);
 }
 
 void ArkOhosDrawingTextTypographyAdapterWrapper::DestroySystemFontConfigInfo(void* fontConfigInfo)
@@ -101,4 +101,4 @@ void ArkOhosDrawingTextTypographyAdapterWrapper::DestroySystemFontConfigInfo(voi
     }
     ctocpp_->DestroySystemFontConfigInfo(fontConfigInfo);
 }
-} //namespace OHOS::ArkWeb
+} // namespace OHOS::ArkWeb
