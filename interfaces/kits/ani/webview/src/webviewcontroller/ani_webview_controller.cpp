@@ -3933,12 +3933,12 @@ WebSnapshotCallback CreateWebPageSnapshotResultCallback(
             return;
         }
         ani_object jsWidthObj = {};
-        if (CreateSizeObject(env, "Lstd/core/Int;", jsWidthObj, static_cast<ani_int>(returnJsWidth)) == false) {
+        if (CreateSizeObject(env, "std.core.Int", jsWidthObj, static_cast<ani_int>(returnJsWidth)) == false) {
             WVLOG_E("jsWidthObj CreateSizeObject failed");
             return;
         }
         ani_object jsHeightObj = {};
-        if (CreateSizeObject(env, "Lstd/core/Int;", jsHeightObj, static_cast<ani_int>(returnJsHeight)) == false) {
+        if (CreateSizeObject(env, "std.core.Int", jsHeightObj, static_cast<ani_int>(returnJsHeight)) == false) {
             WVLOG_E("jsHeightObj CreateSizeObject failed");
             return;
         }
