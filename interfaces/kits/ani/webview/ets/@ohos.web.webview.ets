@@ -17,9 +17,9 @@ import type image from '@ohos.multimedia.image';
 import { AsyncCallback, BusinessError, Callback } from '@ohos.base';
 import { WebNetErrorList } from '@ohos.web.netErrorList';
 import type cert from '@ohos.security.cert';
+import print from '@ohos.print'
 import {SizeOptions} from '@ohos.arkui.component';
 declare type Length = string | number | Resource;
-import print from '@ohos.print'
 
 class Cleaner {
     private ptr: long = 0
