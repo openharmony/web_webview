@@ -1024,6 +1024,18 @@ public:
 
     /*--ark web()--*/
     virtual void OnTakeFocus(ArkWebRefPtr<ArkWebKeyEvent> event) = 0;
+
+    /**
+     * @brief Notify the web client to insert blankless frame with size.
+     *
+     * @param pathToFrame The file used to insert frame.
+     * @param width The width of the blankless frame.
+     * @param height The height of the blankless frame.
+     */
+    /*--ark web()--*/
+    virtual void OnInsertBlanklessFrameWithSize(const ArkWebString& pathToFrame,
+                                                uint32_t width,
+                                                uint32_t height) = 0;
 };
 
 } // namespace OHOS::ArkWeb

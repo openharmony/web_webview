@@ -1100,4 +1100,11 @@ void ArkWebHandlerImpl::OnTakeFocus(ArkWebRefPtr<ArkWebKeyEvent> event)
 
     nweb_handler_->OnTakeFocus(std::make_shared<ArkWebKeyEventWrapper>(event));
 }
+
+void ArkWebHandlerImpl::OnInsertBlanklessFrameWithSize(const ArkWebString& pathToFrame,
+                                                       uint32_t width,
+                                                       uint32_t height)
+{
+    nweb_handler_->OnInsertBlanklessFrameWithSize(ArkWebStringStructToClass(pathToFrame), width, height);
+}
 } // namespace OHOS::ArkWeb

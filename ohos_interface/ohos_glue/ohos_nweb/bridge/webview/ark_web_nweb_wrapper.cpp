@@ -1856,4 +1856,8 @@ void ArkWebNWebWrapper::OnStylusTouchMove(
     ArkWebStylusTouchPointInfoVectorStructRelease(st_stylus_point_infos);
 }
 
+void ArkWebNWebWrapper::RecordBlanklessFrameSize(uint32_t width, uint32_t height)
+{
+    ark_web_nweb_->RecordBlanklessFrameSize(width, height);
+}
 } // namespace OHOS::ArkWeb

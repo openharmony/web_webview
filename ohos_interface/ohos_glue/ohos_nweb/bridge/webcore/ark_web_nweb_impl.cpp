@@ -1581,4 +1581,8 @@ void ArkWebNWebImpl::OnStylusTouchMove(
         ArkWebStylusTouchPointInfoVectorStructToClass(stylus_touch_point_infos), from_overlay);
 }
 
+void ArkWebNWebImpl::RecordBlanklessFrameSize(uint32_t width, uint32_t height)
+{
+    nweb_nweb_->RecordBlanklessFrameSize(width, height);
+}
 } // namespace OHOS::ArkWeb

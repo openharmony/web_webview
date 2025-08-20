@@ -2026,6 +2026,14 @@ public:
     /*--ark web()--*/
     virtual void OnStylusTouchMove(
         const ArkWebStylusTouchPointInfoVector& stylus_touch_point_infos, bool from_overlay) = 0;
+
+    /**
+     * @brief Record the blankless frame size of the web.
+     * @param width The width of the blankless frame.
+     * @param height The height of the blankless frame.
+     */
+    /*--ark web()--*/
+    virtual void RecordBlanklessFrameSize(uint32_t width, uint32_t height) = 0; 
 };
 
 } // namespace OHOS::ArkWeb

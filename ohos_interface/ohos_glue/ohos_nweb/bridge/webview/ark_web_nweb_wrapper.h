@@ -1796,6 +1796,12 @@ public:
         const std::vector<std::shared_ptr<OHOS::NWeb::NWebStylusTouchPointInfo>>& stylus_touch_point_infos,
         bool from_overlay) override;
 
+    /**
+     * @brief Record the blankless frame size of the web.
+     * @param width The width of the blankless frame.
+     * @param height The height of the blankless frame.
+     */
+    void RecordBlanklessFrameSize(uint32_t width, uint32_t height) override; 
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };
