@@ -43,6 +43,8 @@
 #include "ohos_nweb/include/ark_web_screen_lock_callback.h"
 #include "ohos_nweb/include/ark_web_spanstring_convert_html_callback.h"
 #include "ohos_nweb/include/ark_web_string_value_callback.h"
+#include "ohos_nweb/include/ark_web_stylus_touch_point_info.h"
+#include "ohos_nweb/include/ark_web_stylus_touch_point_info_vector.h"
 #include "ohos_nweb/include/ark_web_system_configuration.h"
 #include "ohos_nweb/include/ark_web_touch_point_info_vector.h"
 #include "ohos_nweb/include/ark_web_print_document_adapter_adapter.h"
@@ -1994,6 +1996,36 @@ public:
     /*--ark web()--*/
     virtual ArkWebRefPtr<ArkWebPrintDocumentAdapterAdapter> CreateWebPrintDocumentAdapterV2(
         const ArkWebString& job_name) = 0;
+
+    /**
+     * @brief Handle stylus touch press event.
+     * @param stylus_touch_point_info The stylus touch point information object containing all necessary data
+     *                                (including id, coordinates, and stylus properties).
+     * @param from_overlay Indicates whether the event comes from an overlay layer.
+     */
+    /*--ark web()--*/
+    virtual void OnStylusTouchPress(
+        ArkWebRefPtr<ArkWebStylusTouchPointInfo> stylus_touch_point_info, bool from_overlay) = 0;
+
+    /**
+     * @brief Handle stylus touch release event.
+     * @param stylus_touch_point_info The stylus touch point information object containing all necessary data
+     *                                (including id, coordinates, and stylus properties).
+     * @param from_overlay Indicates whether the event comes from an overlay layer.
+     */
+    /*--ark web()--*/
+    virtual void OnStylusTouchRelease(
+        ArkWebRefPtr<ArkWebStylusTouchPointInfo> stylus_touch_point_info, bool from_overlay) = 0;
+
+    /**
+     * @brief Handle stylus touch move event.
+     * @param stylus_touch_point_infos The collection of stylus touch point information containing all necessary data
+     *                                 (including multiple points with their ids, coordinates, and properties).
+     * @param from_overlay Indicates whether the event comes from an overlay layer.
+     */
+    /*--ark web()--*/
+    virtual void OnStylusTouchMove(
+        const ArkWebStylusTouchPointInfoVector& stylus_touch_point_infos, bool from_overlay) = 0;
 
     /**
      * @brief Record the blankless frame size of the web.

@@ -1772,6 +1772,31 @@ public:
         const std::string& job_name) override;
 
     /**
+     * @brief Handle stylus touch press event.
+     * @param stylus_touch_point_info The NWeb stylus touch point information object.
+     * @param from_overlay Indicates whether the event comes from an overlay layer.
+     */
+    void OnStylusTouchPress(
+        std::shared_ptr<OHOS::NWeb::NWebStylusTouchPointInfo> stylus_touch_point_info, bool from_overlay) override;
+
+    /**
+     * @brief Handle stylus touch release event.
+     * @param stylus_touch_point_info The NWeb stylus touch point information object.
+     * @param from_overlay Indicates whether the event comes from an overlay layer.
+     */
+    void OnStylusTouchRelease(
+        std::shared_ptr<OHOS::NWeb::NWebStylusTouchPointInfo> stylus_touch_point_info, bool from_overlay) override;
+
+    /**
+     * @brief Handle stylus touch move event.
+     * @param stylus_touch_point_infos The vector of NWeb stylus touch point information objects.
+     * @param from_overlay Indicates whether the event comes from an overlay layer.
+     */
+    void OnStylusTouchMove(
+        const std::vector<std::shared_ptr<OHOS::NWeb::NWebStylusTouchPointInfo>>& stylus_touch_point_infos,
+        bool from_overlay) override;
+
+    /**
      * @brief Record the blankless frame size of the web.
      * @param width The width of the blankless frame.
      * @param height The height of the blankless frame.

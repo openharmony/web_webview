@@ -40,11 +40,13 @@
 #include "ohos_nweb/bridge/ark_web_screen_lock_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_spanstring_convert_html_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_string_value_callback_impl.h"
+#include "ohos_nweb/bridge/ark_web_stylus_touch_point_info_impl.h"
 #include "ohos_nweb/bridge/ark_web_system_configuration_impl.h"
 #include "ohos_nweb/bridge/ark_web_view_struct_utils.h"
 #include "ohos_nweb/bridge/ark_web_print_document_adapter_adapter_wrapper.h"
 #include "ohos_nweb/cpptoc/ark_web_js_proxy_callback_vector_cpptoc.h"
 #include "ohos_nweb/cpptoc/ark_web_rom_value_vector_cpptoc.h"
+#include "ohos_nweb/cpptoc/ark_web_stylus_touch_point_info_vector_cpptoc.h"
 #include "ohos_nweb/cpptoc/ark_web_touch_point_info_vector_cpptoc.h"
 #include "ohos_nweb/cpptoc/ark_web_value_vector_cpptoc.h"
 
@@ -1818,6 +1820,40 @@ void ArkWebNWebWrapper::FillAutofillDataV2(std::shared_ptr<OHOS::NWeb::NWebRomVa
     }
 
     ark_web_nweb_->FillAutofillDataV2(new ArkWebRomValueImpl(data));
+}
+
+void ArkWebNWebWrapper::OnStylusTouchPress(
+    std::shared_ptr<OHOS::NWeb::NWebStylusTouchPointInfo> stylus_touch_point_info, bool from_overlay)
+{
+    if (CHECK_SHARED_PTR_IS_NULL(stylus_touch_point_info)) {
+        ark_web_nweb_->OnStylusTouchPress(nullptr, from_overlay);
+        return;
+    }
+
+    ark_web_nweb_->OnStylusTouchPress(new ArkWebStylusTouchPointInfoImpl(stylus_touch_point_info), from_overlay);
+}
+
+void ArkWebNWebWrapper::OnStylusTouchRelease(
+    std::shared_ptr<OHOS::NWeb::NWebStylusTouchPointInfo> stylus_touch_point_info, bool from_overlay)
+{
+    if (CHECK_SHARED_PTR_IS_NULL(stylus_touch_point_info)) {
+        ark_web_nweb_->OnStylusTouchRelease(nullptr, from_overlay);
+        return;
+    }
+
+    ark_web_nweb_->OnStylusTouchRelease(new ArkWebStylusTouchPointInfoImpl(stylus_touch_point_info), from_overlay);
+}
+
+void ArkWebNWebWrapper::OnStylusTouchMove(
+    const std::vector<std::shared_ptr<OHOS::NWeb::NWebStylusTouchPointInfo>>& stylus_touch_point_infos,
+    bool from_overlay)
+{
+    ArkWebStylusTouchPointInfoVector st_stylus_point_infos =
+        ArkWebStylusTouchPointInfoVectorClassToStruct(stylus_touch_point_infos);
+
+    ark_web_nweb_->OnStylusTouchMove(st_stylus_point_infos, from_overlay);
+
+    ArkWebStylusTouchPointInfoVectorStructRelease(st_stylus_point_infos);
 }
 
 void ArkWebNWebWrapper::RecordBlanklessFrameSize(uint32_t width, uint32_t height)

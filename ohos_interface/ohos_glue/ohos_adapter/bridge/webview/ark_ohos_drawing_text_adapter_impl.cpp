@@ -54,7 +54,7 @@ ArkOhosDrawingTextTypographyAdapterImpl::ArkOhosDrawingTextTypographyAdapterImpl
     NWeb::OhosDrawingTextTypographyAdapter& ref) : real_(ref) {}
 
 int ArkOhosDrawingTextTypographyAdapterImpl::GetSystemFontConfigInfo(void* fontConfigInfoErrorCode,
-                                                                     void** fontConfigInfo)
+    void** fontConfigInfo)
 {
     return real_.GetSystemFontConfigInfo(fontConfigInfoErrorCode, fontConfigInfo);
 }

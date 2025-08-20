@@ -1207,7 +1207,8 @@ napi_value NapiWebviewController::SetWebDebuggingAccess(napi_env env, napi_callb
       }
     }
 
-    if (ArkWeb::getActiveWebEngineVersion() < ArkWeb::ArkWebEngineVersion::M132) {
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_W("SetWebDebuggingAccess unsupported engine version: M114");
         webDebuggingPort = 0;
     }
 
@@ -2919,7 +2920,9 @@ napi_value NapiWebviewController::GetTitle(napi_env env, napi_callback_info info
 
 napi_value NapiWebviewController::GetProgress(napi_env env, napi_callback_info info)
 {
-    if (ArkWeb::getActiveWebEngineVersion() < ArkWeb::ArkWebEngineVersion::M132) {
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_W("GetProgress unsupported engine version: M114");
+        BusinessError::ThrowErrorByErrcode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
         return nullptr;
     }
 
@@ -6189,7 +6192,8 @@ napi_value NapiWebviewController::SetBackForwardCacheOptions(napi_env env, napi_
 
 napi_value NapiWebviewController::SetAppCustomUserAgent(napi_env env, napi_callback_info info)
 {
-    if (ArkWeb::getActiveWebEngineVersion() < ArkWeb::ArkWebEngineVersion::M132) {
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_W("SetAppCustomUserAgent unsupported engine version: M114");
         return nullptr;
     }
 
@@ -6219,7 +6223,8 @@ napi_value NapiWebviewController::SetAppCustomUserAgent(napi_env env, napi_callb
 
 napi_value NapiWebviewController::SetUserAgentForHosts(napi_env env, napi_callback_info info)
 {
-    if (ArkWeb::getActiveWebEngineVersion() < ArkWeb::ArkWebEngineVersion::M132) {
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_W("SetUserAgentForHosts unsupported engine version: M114");
         return nullptr;
     }
 
@@ -7374,6 +7379,7 @@ napi_value NapiWebviewController::AvoidVisibleViewportBottom(napi_env env, napi_
 {
     if (IS_CALLING_FROM_M114()) {
         WVLOG_W("AvoidVisibleViewportBottom unsupported engine version: M114");
+        BusinessError::ThrowErrorByErrcode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
         return nullptr;
     }
     napi_value thisVar = nullptr;
@@ -7416,7 +7422,8 @@ napi_value NapiWebviewController::AvoidVisibleViewportBottom(napi_env env, napi_
 
 napi_value NapiWebviewController::SetErrorPageEnabled(napi_env env, napi_callback_info info)
 {
-    if (ArkWeb::getActiveWebEngineVersion() < ArkWeb::ArkWebEngineVersion::M132) {
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_W("SetErrorPageEnabled unsupported engine version: M114");
         return nullptr;
     }
 
@@ -7458,7 +7465,8 @@ napi_value NapiWebviewController::GetErrorPageEnabled(napi_env env, napi_callbac
 {
     napi_value result = nullptr;
     bool getErrorPageEnabled = false;
-    if (ArkWeb::getActiveWebEngineVersion() < ArkWeb::ArkWebEngineVersion::M132) {
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_W("GetErrorPageEnabled unsupported engine version: M114");
         NAPI_CALL(env, napi_get_boolean(env, getErrorPageEnabled, &result));
         return result;
     }
@@ -7608,6 +7616,7 @@ napi_value ArkWebTransfer::CreateWebMessagePortTransfer(napi_env env, napi_callb
 napi_value NapiWebviewController::EnablePrivateNetworkAccess(napi_env env, napi_callback_info info)
 {
     if (IS_CALLING_FROM_M114()) {
+        WVLOG_W("EnablePrivateNetworkAccess unsupported engine version: M114");
         return nullptr;
     }
 
@@ -7640,7 +7649,8 @@ napi_value NapiWebviewController::IsPrivateNetworkAccessEnabled(napi_env env, na
 {
     napi_value result = nullptr;
     bool pnaEnabled = false;
-    if (ArkWeb::getActiveWebEngineVersion() < ArkWeb::ArkWebEngineVersion::M132) {
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_W("IsPrivateNetworkAccessEnabled unsupported engine version: M114");
         NAPI_CALL(env, napi_get_boolean(env, pnaEnabled, &result));
         return result;
     }

@@ -76,6 +76,20 @@ enum class ImageAlphaType {
     ALPHA_TYPE_POSTMULTIPLIED = 2,
 };
 
+enum class SourceTool : int32_t {
+    UNKNOWN = 0,
+    FINGER = 1,
+    PEN = 2,
+    RUBBER = 3,
+    BRUSH = 4,
+    PENCIL = 5,
+    AIRBRUSH = 6,
+    MOUSE = 7,
+    LENS = 8,
+    TOUCHPAD = 9,
+    JOYSTICK = 10,
+};
+
 class OHOS_NWEB_EXPORT NWebEngineInitArgs {
 public:
     virtual ~NWebEngineInitArgs() = default;
@@ -162,6 +176,18 @@ public:
     virtual int GetId() = 0;
     virtual double GetX() = 0;
     virtual double GetY() = 0;
+};
+
+class NWebStylusTouchPointInfo : public NWebTouchPointInfo {
+public:
+    virtual ~NWebStylusTouchPointInfo() = default;
+    virtual float GetForce() = 0;
+    virtual float GetTiltX() = 0;
+    virtual float GetTiltY() = 0;
+    virtual float GetRollAngle() = 0;
+    virtual int32_t GetWidth() = 0;
+    virtual int32_t GetHeight() = 0;
+    virtual SourceTool GetSourceTool() = 0;
 };
 
 enum class NestedScrollMode : int32_t {
@@ -2063,8 +2089,32 @@ public:
     }
 
     /**
+     * @brief Handle stylus touch press event.
+     * @param stylus_touch_point_info The stylus touch point information containing comprehensive parameters.
+     * @param from_overlay Indicates whether the event comes from an overlay layer.
+     */
+    virtual void OnStylusTouchPress(
+        std::shared_ptr<NWebStylusTouchPointInfo> stylus_touch_point_info, bool from_overlay) = 0;
+
+    /**
+     * @brief Handle stylus touch release event.
+     * @param stylus_touch_point_info The stylus touch point information containing comprehensive parameters.
+     * @param from_overlay Indicates whether the event comes from an overlay layer.
+     */
+    virtual void OnStylusTouchRelease(
+        std::shared_ptr<NWebStylusTouchPointInfo> stylus_touch_point_info, bool from_overlay) = 0;
+
+    /**
+     * @brief Handle batch stylus touch move events.
+     * @param stylus_touch_point_infos The vector containing multiple stylus touch points,
+     *                                 each is a shared pointer to NWebStylusTouchPointInfo.
+     * @param from_overlay Indicates whether the events come from an overlay layer.
+     */
+    virtual void OnStylusTouchMove(
+        const std::vector<std::shared_ptr<NWebStylusTouchPointInfo>>& stylus_touch_point_infos, bool from_overlay) = 0;
+
+    /**
      * @brief Record the blankless frame size of the web.
-     *
      * @param width The width of the blankless frame.
      * @param height The height of the blankless frame.
      */
