@@ -330,7 +330,11 @@ bool AniParseUtils::EnumParseInt32_t(ani_env* env, ani_enum_item enum_item, int3
         return false;
     }
     ani_int number = 0;
-    env->EnumItem_GetValue_Int(enum_item, &number);
+    ani_status status = env->EnumItem_GetValue_Int(enum_item, &number);
+    if (status != ANI_OK) {
+        WVLOG_E("EnumParseInt32 failed - EnumItem_GetValue_Int failed");
+        return false;
+    }
     outValue = static_cast<int32_t>(number);
     return true;
 }
