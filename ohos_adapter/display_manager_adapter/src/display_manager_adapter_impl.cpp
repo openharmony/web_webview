@@ -70,7 +70,7 @@ bool DisplayListenerAdapterImpl::CheckOnlyRefreshRateDecreased(DisplayId id)
     auto nwebDisplayInfo =  ConvertDisplayInfo(*displayInfo);
     if (nwebDisplayInfo == cachedDisplayedInfo_ &&
         nwebDisplayInfo.refreshRate_ != cachedDisplayedInfo_.refreshRate_) {
-        WVLOG_I("refresh rate change is intercepted, previous refresh rate: %{public}u, after: %{public}u",
+        WVLOG_D("refresh rate change is intercepted, previous refresh rate: %{public}u, after: %{public}u",
             cachedDisplayedInfo_.refreshRate_, nwebDisplayInfo.refreshRate_);
         cachedDisplayedInfo_ = nwebDisplayInfo;
         return true;
