@@ -73,8 +73,8 @@ private:
     ani_vm *aniVm_ = nullptr;
     ani_ref callbackRef_ = nullptr;
     PdfCallbackFunc callback_ = nullptr;
-    char* result_;
-    long size_;
+    char* result_ = nullptr;
+    long size_ = 0;
 
     void ThreadAfterCb(ani_env *env);
     void ReleaseBuffer();

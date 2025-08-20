@@ -19,6 +19,7 @@ import { WebNetErrorList } from '@ohos.web.netErrorList';
 import type cert from '@ohos.security.cert';
 import {SizeOptions} from '@ohos.arkui.component';
 declare type Length = string | number | Resource;
+import print from '@ohos.print'
 
 class Cleaner {
     private ptr: long = 0
@@ -398,6 +399,9 @@ export default namespace webview {
     }
 
     export class NativeMediaPlayerHandlerinner implements NativeMediaPlayerHandler {
+        static {
+            loadLibrary("webview_ani.z");
+        }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
 
@@ -433,6 +437,37 @@ export default namespace webview {
         native handleSeekFinished(): void
         native handleError(error: MediaError, errorMessage: string): void
         native handleVideoSizeChanged(width: double, height: double): void
+
+
+        static transferNativeMediaPlayerHandlerToStatic(input: Any): Object {
+            let nmphObject: NativeMediaPlayerHandlerinner = new NativeMediaPlayerHandlerinner();
+            if (input == undefined || input == null) {
+                throw new Error("input object is null or undefined");
+            }
+            let dyESValue = ESValue.wrap(input);
+
+            if (!NativeMediaPlayerHandlerinner.transferNativeMediaPlayerHandlerToStaticInner(nmphObject, dyESValue)) {
+                throw new Error("transfer failed");
+            }
+            return nmphObject as Object;
+        }
+        private static native transferNativeMediaPlayerHandlerToStaticInner(newDemo: NativeMediaPlayerHandlerinner, input: ESValue): boolean;
+
+        static transferNativeMediaPlayerHandlerToDynamic(input: Object): Any {
+            const staticRef = input as NativeMediaPlayerHandlerinner;
+            if (staticRef) {
+                let addr = staticRef.nativePtr;
+                let module = ESValue.load("@ohos.web.webview");
+                let initFunc = module.getProperty("__createNativeMediaPlayerHandlerTransfer__");
+                if (initFunc) {
+                    let dynamicRef = initFunc.invoke(ESValue.wrap(addr));
+                    return dynamicRef.unwrap();
+                }
+            } else {
+                console.error("invoke func not exit");
+            }
+            return undefined;
+        }
     }
 
     export interface NativeMediaPlayerBridge {
@@ -490,8 +525,8 @@ export default namespace webview {
                 throw new Error("input object is null or undefined");
             }
             let dyESValue = ESValue.wrap(input);
-            bflObject.currentIndex = dyESValue.getProperty('currentIndex').toNumber() as int;
-            bflObject.size = dyESValue.getProperty('size').toNumber() as int;
+            bflObject.currentIndex = dyESValue.getProperty('currentIndex').toNumber().toInt();
+            bflObject.size = dyESValue.getProperty('size').toNumber().toInt();
             if (!BackForwardListinner.transferBackForwardListToStaticInner(bflObject, dyESValue)) {
                 throw new Error("transfer failed");
             }
@@ -724,6 +759,7 @@ export default namespace webview {
         native getSurfaceId(): string;
         native static enableWholeWebPageDrawing(): void;
         native setPrintBackground(enable: boolean): void;
+        native createWebPrintDocumentAdapter(jobName: string): print.PrintDocumentAdapter;
         native getPrintBackground(): boolean;
         native webPageSnapshot(info: SnapshotInfo, callback: AsyncCallback<SnapshotResult>): void;
         native injectOfflineResourcesInternal(resourceMaps: Array<OfflineResourceMapInternal>) : void;
@@ -797,12 +833,7 @@ export default namespace webview {
         hasImage(): Promise<boolean> {
             return this.hasImagePromise();
         }
-        native getCertificateInternal(): ArrayBuffer;
-        getCertificateSync(): Uint8Array{
-            let buffer = this.getCertificateInternal();
-            let uint8Array = new Uint8Array(buffer);
-            return uint8Array;
-        }
+        native getCertificateSync(): Array<ArrayBuffer>;    
         getCertificate(): Promise<Array<cert.X509Cert>> {
             let certChainData = this.getCertificateSync();
             return new Promise<Array<cert.X509Cert>>((resolve, reject) => {
@@ -811,8 +842,9 @@ export default namespace webview {
                 taskPromise.then(async (results: NullishType) => {
                     const certs: Array<cert.X509Cert> = [];
                     for (let i = 0; i < certChainData.length; i++) {
+                        let certsUint8Array = new Uint8Array(certChainData[i]);
                         const encodingBlob: cert.EncodingBlob = {
-                            data: new Uint8Array (certChainData[i]),
+                            data: certsUint8Array,
                             encodingFormat: cert.EncodingFormat.FORMAT_DER
                         };
                         try {
@@ -821,8 +853,8 @@ export default namespace webview {
                         } catch (e) {
                             console.error("Failed to parse certificate", e);
                         }
-                        resolve(certs);
                     }
+                    resolve(certs);
                 })
                 .catch((error: Error) => {
                     reject(error);
@@ -836,8 +868,9 @@ export default namespace webview {
             p.then((results : NullishType) => {
                 const certs: Array<cert.X509Cert> = [];
                 for (let i = 0; i < certChainData.length; i++) {
+                    let certsUint8Array = new Uint8Array(certChainData[i]);
                     const encodingBlob: cert.EncodingBlob = {
-                        data: new Uint8Array (certChainData[i]),
+                        data: certsUint8Array,
                         encodingFormat: cert.EncodingFormat.FORMAT_DER
                     };
                     try {
@@ -1989,5 +2022,33 @@ export default namespace webview {
 
         native static applyProxyOverride(proxyConfig: ProxyConfig, callback: OnProxyConfigChangeCallback): void;
         native static removeProxyOverride(callback: OnProxyConfigChangeCallback): void;
+    }
+
+    export class PrintDocumentAdapterInner implements print.PrintDocumentAdapter{
+        static {
+            loadLibrary("webview_ani.z");
+        }
+        private nativePtr: long = 0;
+            private cleaner?: Cleaner;
+
+            registerCleaner(ptr: long): void {
+                this.cleaner = new Cleaner(ptr, "PrintDocumentAdapterInner");
+                destroyRegister.register(this, this.cleaner!, unregisterToken);
+            }
+            unregisterCleaner(): void {
+                destroyRegister.unregister(unregisterToken);
+            }
+
+            bindNativePtr(ptr: long): void {
+                if (this.nativePtr == 0) {
+                    this.nativePtr = ptr;
+                    this.registerCleaner(this.nativePtr)
+                }
+            }
+
+        native onStartLayoutWrite(jobId: string, oldAttrs: print.PrintAttributes, newAttrs: print.PrintAttributes, fd: int,
+                    writeResultCallback: (jobId: string, writeResult: print.PrintFileCreationState) => void): void;
+
+        native onJobStateChanged(jobId: string, state: print.PrintDocumentAdapterState): void;
     }
 }

@@ -14,6 +14,7 @@
  */
 
 #include "native_media_player_impl.h"
+#include "napi_native_mediaplayer_handler_impl.h"
 
 #include <ani.h>
 
@@ -104,168 +105,6 @@ ani_string StringToAniStr(ani_env* env, const std::string& str)
     return result;
 }
 
-AniNativeMediaPlayerHandlerImpl::AniNativeMediaPlayerHandlerImpl(
-    int32_t nwebId, std::shared_ptr<NWebNativeMediaPlayerHandler> handler)
-    : nwebId_(nwebId), handler_(handler)
-{}
-
-void AniNativeMediaPlayerHandlerImpl::HandleStatusChanged(PlaybackStatus status)
-{
-    WVLOG_I("begin to handle status changed, nweb id is %{public}d", nwebId_);
-
-    if (handler_) {
-        WVLOG_I("begin to handle status changed, nweb id is %{public}d, status is %{public}d", nwebId_,
-            static_cast<int>(status));
-        handler_->HandleStatusChanged(status);
-    }
-}
-
-void AniNativeMediaPlayerHandlerImpl::HandleVolumeChanged(double volume)
-{
-    WVLOG_I("begin to handle volume changed, nweb id is %{public}d", nwebId_);
-
-    if (handler_) {
-        WVLOG_I("begin to handle volume changed, nweb id is %{public}d, volume is %{public}f", nwebId_, volume);
-        handler_->HandleVolumeChanged(volume);
-    }
-}
-
-void AniNativeMediaPlayerHandlerImpl::HandleMutedChanged(bool isMuted)
-{
-    WVLOG_I("begin to handle muted changed, nweb id is %{public}d", nwebId_);
-
-    if (handler_) {
-        WVLOG_I("begin to handle muted changed, nweb id is %{public}d, isMuted is %{public}d", nwebId_, isMuted);
-        handler_->HandleMutedChanged(isMuted);
-    }
-}
-
-void AniNativeMediaPlayerHandlerImpl::HandlePlaybackRateChanged(double playbackRate)
-{
-    WVLOG_I("begin to handle playback rate changed, nweb id is %{public}d", nwebId_);
-
-    if (handler_) {
-        WVLOG_I("begin to handle playback rate changed, nweb id is %{public}d, playbackRate is %{public}f", nwebId_,
-            playbackRate);
-        handler_->HandlePlaybackRateChanged(playbackRate);
-    }
-}
-
-void AniNativeMediaPlayerHandlerImpl::HandleDurationChanged(double duration)
-{
-    WVLOG_I("begin to handle duration changed, nweb id is %{public}d", nwebId_);
-
-    if (handler_) {
-        WVLOG_I("begin to handle duration changed, nweb id is %{public}d, duration is %{public}f", nwebId_, duration);
-        handler_->HandleDurationChanged(duration);
-    }
-}
-
-void AniNativeMediaPlayerHandlerImpl::HandleTimeUpdate(double playTime)
-{
-    WVLOG_I("begin to handle time update, nweb id is %{public}d", nwebId_);
-
-    if (handler_) {
-        WVLOG_I("begin to handle time update, nweb id is %{public}d, playTime is %{public}f", nwebId_, playTime);
-        handler_->HandleTimeUpdate(playTime);
-    }
-}
-
-void AniNativeMediaPlayerHandlerImpl::HandleBufferedEndTimeChanged(double bufferedEndTime)
-{
-    WVLOG_I("begin to handle buffered end time changed, nweb id is %{public}d", nwebId_);
-
-    if (handler_) {
-        WVLOG_I("begin to handle buffered end time changed, nweb id is %{public}d, bufferedEndTime is %{public}f",
-            nwebId_, bufferedEndTime);
-        handler_->HandleBufferedEndTimeChanged(bufferedEndTime);
-    }
-}
-
-void AniNativeMediaPlayerHandlerImpl::HandleEnded()
-{
-    WVLOG_I("begin to handle end, nweb id is %{public}d", nwebId_);
-
-    if (handler_) {
-        WVLOG_I("begin to handle end, nweb id is %{public}d", nwebId_);
-        handler_->HandleEnded();
-    }
-}
-
-void AniNativeMediaPlayerHandlerImpl::HandleNetworkStateChanged(NetworkState state)
-{
-    WVLOG_I("begin to handle network state changed, nweb id is %{public}d", nwebId_);
-
-    if (handler_) {
-        WVLOG_I("begin to handle network state changed, nweb id is %{public}d, state is %{public}d", nwebId_,
-            static_cast<int>(state));
-        handler_->HandleNetworkStateChanged(state);
-    }
-}
-
-void AniNativeMediaPlayerHandlerImpl::HandleReadyStateChanged(ReadyState state)
-{
-    WVLOG_I("begin to handle ready state changed, nweb id is %{public}d", nwebId_);
-
-    if (handler_) {
-        WVLOG_I("begin to handle ready state changed, nweb id is %{public}d, state is %{public}d", nwebId_,
-            static_cast<int>(state));
-        handler_->HandleReadyStateChanged(state);
-    }
-}
-
-void AniNativeMediaPlayerHandlerImpl::HandleFullScreenChanged(bool isFullScreen)
-{
-    WVLOG_I("begin to handle full screen changed, nweb id is %{public}d", nwebId_);
-
-    if (handler_) {
-        WVLOG_I("begin to handle full screen changed, nweb id is %{public}d, isFullScreen is %{public}d", nwebId_,
-            isFullScreen);
-        handler_->HandleFullScreenChanged(isFullScreen);
-    }
-}
-
-void AniNativeMediaPlayerHandlerImpl::HandleSeeking()
-{
-    WVLOG_I("begin to handle seeking, nweb id is %{public}d", nwebId_);
-
-    if (handler_) {
-        WVLOG_I("begin to handle seeking, nweb id is %{public}d", nwebId_);
-        handler_->HandleSeeking();
-    }
-}
-
-void AniNativeMediaPlayerHandlerImpl::HandleSeekFinished()
-{
-    WVLOG_I("begin to handle seek finished, nweb id is %{public}d", nwebId_);
-
-    if (handler_) {
-        WVLOG_I("begin to handle seek finished, nweb id is %{public}d", nwebId_);
-        handler_->HandleSeekFinished();
-    }
-}
-
-void AniNativeMediaPlayerHandlerImpl::HandleError(MediaError error, const std::string& message)
-{
-    WVLOG_I("begin to handle error, nweb id is %{public}d", nwebId_);
-
-    if (handler_) {
-        WVLOG_I("begin to handle error, nweb id is %{public}d, error is %{public}d, message is %{public}s", nwebId_,
-            static_cast<int>(error), message.c_str());
-        handler_->HandleError(error, message);
-    }
-}
-
-void AniNativeMediaPlayerHandlerImpl::HandleVideoSizeChanged(double width, double height)
-{
-    WVLOG_I("begin to handle video size changed, nweb id is %{public}d", nwebId_);
-
-    if (handler_) {
-        WVLOG_I("begin to handle video size changed, nweb id is %{public}d, width is %{public}f, height is %{public}f",
-            nwebId_, width, height);
-        handler_->HandleVideoSizeChanged(width, height);
-    }
-}
 
 NWebNativeMediaPlayerBridgeImpl::NWebNativeMediaPlayerBridgeImpl(int32_t nwebId, ani_vm* vm, ani_ref value)
     : nwebId_(nwebId), vm_(vm)
@@ -567,26 +406,29 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructHandler(
         return nullptr;
     }
 
-    AniNativeMediaPlayerHandlerImpl* aniNativeMediaPlayerHandlerImpl =
-        new AniNativeMediaPlayerHandlerImpl(nwebId_, handler);
-    if (aniNativeMediaPlayerHandlerImpl == nullptr) {
-        WVLOG_E("new aniNativeMediaPlayerHandlerImpl failed");
+    NapiNativeMediaPlayerHandlerImpl* napiNativeMediaPlayerHandlerImpl =
+        new NapiNativeMediaPlayerHandlerImpl(nwebId_, handler);
+    if (napiNativeMediaPlayerHandlerImpl == nullptr) {
+        WVLOG_E("new napiNativeMediaPlayerHandlerImpl failed");
         return nullptr;
     }
 
     ani_object object = nullptr;
     if (!CreateObjectVoid(env, NATIVE_MEDIA_PLAYER_HANDLER_INNER, object)) {
-        WVLOG_E("new aniNativeMediaPlayerHandlerImpl createobject failed");
+        WVLOG_E("new NapiNativeMediaPlayerHandlerImpl createobject failed");
+        delete napiNativeMediaPlayerHandlerImpl;
+        napiNativeMediaPlayerHandlerImpl = nullptr;
         return nullptr;
     }
 
     if (!Wrap(env, object, NATIVE_MEDIA_PLAYER_HANDLER_INNER,
-            reinterpret_cast<ani_long>(aniNativeMediaPlayerHandlerImpl))) {
+            reinterpret_cast<ani_long>(napiNativeMediaPlayerHandlerImpl))) {
         WVLOG_E("aniNativeMediaPlayerHandlerImpl wrap failed");
-        delete aniNativeMediaPlayerHandlerImpl;
-        aniNativeMediaPlayerHandlerImpl = nullptr;
+        delete napiNativeMediaPlayerHandlerImpl;
+        napiNativeMediaPlayerHandlerImpl = nullptr;
         return nullptr;
     }
+    napiNativeMediaPlayerHandlerImpl->IncRefCount();
     return object;
 }
 

@@ -257,7 +257,7 @@ bool AniParseUtils::ParseStringArray(ani_env* env, ani_object argv, std::vector<
         return false;
     }
     WVLOG_I("stringArray size = %{public}d", static_cast<int>(arrayLength));
-    for (ani_double i = 0; i < arrayLength; i++) {
+    for (ani_int i = 0; i < arrayLength; i++) {
         ani_ref arrayItem = nullptr;
         env->Array_Get_Ref(arrayRef, i, &arrayItem);
         std::string str;
@@ -308,6 +308,30 @@ bool AniParseUtils::ParseStringArrayMap(ani_env* env, ani_object argv, std::map<
         outValue[keyString] = valueString;
     }
 
+    return true;
+}
+
+bool AniParseUtils::EnumParseInt32_t(ani_env* env, ani_enum_item enum_item, int32_t& outValue)
+{
+    if (env == nullptr) {
+        WVLOG_E("null env");
+        return false;
+    }
+    
+    ani_class doubleObject;
+    if (env->FindClass("Lstd/core/Object;", &doubleObject) != ANI_OK) {
+        WVLOG_E("EnumParseInt32 failed - invalid FindClass type");
+        return false;
+    }
+    ani_boolean isObject;
+    if (env->Object_InstanceOf(static_cast<ani_object>(enum_item), doubleObject, &isObject) != ANI_OK ||
+        isObject != ANI_TRUE) {
+        WVLOG_E("EnumParseInt32 failed - invalid int type");
+        return false;
+    }
+    ani_int number = 0;
+    env->EnumItem_GetValue_Int(enum_item, &number);
+    outValue = static_cast<int32_t>(number);
     return true;
 }
 
@@ -747,7 +771,7 @@ bool AniParseUtils::ParseInt64Array(ani_env* env, ani_object argv, std::vector<i
     }
     ani_class cls;
     ani_boolean isArray = ANI_FALSE;
-    ani_double arrayLength;
+    ani_int arrayLength;
     ani_array_ref arrayRef;
     env->FindClass("Lescompat/Array;", &cls);
     env->Object_InstanceOf(argv, cls, &isArray);
@@ -757,8 +781,8 @@ bool AniParseUtils::ParseInt64Array(ani_env* env, ani_object argv, std::vector<i
     }
 
     arrayRef = static_cast<ani_array_ref>(argv);
-    env->Object_GetPropertyByName_Double(argv, "length", &arrayLength);
-    for (ani_double i = 0; i < arrayLength; i++) {
+    env->Object_GetPropertyByName_Int(argv, "length", &arrayLength);
+    for (ani_int i = 0; i < arrayLength; i++) {
         ani_ref arrayItem = nullptr;
         env->Array_Get_Ref(arrayRef, i, &arrayItem);
         int64_t value;
@@ -777,7 +801,7 @@ bool AniParseUtils::ParseBooleanArray(ani_env* env, ani_object argv, std::vector
     }
     ani_class cls;
     ani_boolean isArray = ANI_FALSE;
-    ani_double arrayLength;
+    ani_int arrayLength;
     ani_array_ref arrayRef;
     env->FindClass("Lescompat/Array;", &cls);
     env->Object_InstanceOf(argv, cls, &isArray);
@@ -787,8 +811,8 @@ bool AniParseUtils::ParseBooleanArray(ani_env* env, ani_object argv, std::vector
     }
 
     arrayRef = static_cast<ani_array_ref>(argv);
-    env->Object_GetPropertyByName_Double(argv, "length", &arrayLength);
-    for (ani_double i = 0; i < arrayLength; i++) {
+    env->Object_GetPropertyByName_Int(argv, "length", &arrayLength);
+    for (ani_int i = 0; i < arrayLength; i++) {
         ani_ref arrayItem = nullptr;
         env->Array_Get_Ref(arrayRef, i, &arrayItem);
         bool value;
@@ -807,7 +831,7 @@ bool AniParseUtils::ParseDoubleArray(ani_env* env, ani_object argv, std::vector<
     }
     ani_class cls;
     ani_boolean isArray = ANI_FALSE;
-    ani_double arrayLength;
+    ani_int arrayLength;
     ani_array_ref arrayRef;
     env->FindClass("Lescompat/Array;", &cls);
     env->Object_InstanceOf(argv, cls, &isArray);
@@ -817,8 +841,8 @@ bool AniParseUtils::ParseDoubleArray(ani_env* env, ani_object argv, std::vector<
     }
 
     arrayRef = static_cast<ani_array_ref>(argv);
-    env->Object_GetPropertyByName_Double(argv, "length", &arrayLength);
-    for (ani_double i = 0; i < arrayLength; i++) {
+    env->Object_GetPropertyByName_Int(argv, "length", &arrayLength);
+    for (ani_int i = 0; i < arrayLength; i++) {
         ani_ref arrayItem = nullptr;
         env->Array_Get_Ref(arrayRef, i, &arrayItem);
         double value;
@@ -1299,6 +1323,30 @@ bool AniParseUtils::ParseArrayBuffer(ani_env* env, ani_object script, std::strin
     }
 
     outValue = std::string(arrBuf, byteLength);
+    return true;
+}
+
+bool AniParseUtils::GetRefProperty(ani_env* env, ani_object param, const char* name, ani_ref& value)
+{
+    if (env == nullptr) {
+        WVLOG_E("null env");
+        return false;
+    }
+
+    ani_status status;
+    ani_boolean isUndefined = true;
+
+    if ((status = env->Object_GetPropertyByName_Ref(param, name, &value)) != ANI_OK) {
+        WVLOG_E("status: %{public}d, name : %{public}s", status, name);
+        return false;
+    }
+    if ((status = env->Reference_IsUndefined(value, &isUndefined)) != ANI_OK) {
+        WVLOG_E("status: %{public}d, name : %{public}s", status, name);
+        return false;
+    }
+    if (isUndefined) {
+        return false;
+    }
     return true;
 }
 }
