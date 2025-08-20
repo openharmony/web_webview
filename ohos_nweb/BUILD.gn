@@ -81,6 +81,7 @@ ohos_shared_library("web_configs") {
     "ipc:ipc_core",
     "libxml2:libxml2",
     "ability_runtime:ability_connect_callback_stub",
+    "samgr:samgr_proxy",
   ]
 
   part_name = "webview"
