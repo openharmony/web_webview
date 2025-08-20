@@ -69,9 +69,9 @@ int32_t ArkWebStylusTouchPointInfoWrapper::GetHeight()
     return ark_web_stylus_touch_point_info_->GetHeight();
 }
 
-SourceTool ArkWebStylusTouchPointInfoWrapper::GetSourceTool()
+ArkWebSourceTool ArkWebStylusTouchPointInfoWrapper::GetSourceTool()
 {
-    return static_cast<SourceTool>(ark_web_stylus_touch_point_info_->GetSourceTool());
+    return static_cast<ArkWebSourceTool>(ark_web_stylus_touch_point_info_->GetSourceTool());
 }
 
 } // namespace OHOS::ArkWeb
