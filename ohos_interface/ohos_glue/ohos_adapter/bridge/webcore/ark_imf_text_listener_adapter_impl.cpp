@@ -128,4 +128,9 @@ void ArkIMFTextListenerAdapterImpl::KeyboardUpperRightCornerHide()
 {
     real_->KeyboardUpperRightCornerHide();
 }
+
+void ArkIMFTextListenerAdapterImpl::WebSetImeShow(bool visible)
+{
+    real_->WebSetImeShow(visible);
+}
 } // namespace OHOS::ArkWeb

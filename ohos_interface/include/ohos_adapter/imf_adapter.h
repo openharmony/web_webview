@@ -173,7 +173,9 @@ public:
     virtual void AutoFillWithIMFEvent(bool isUsername, bool isOtherAccount, bool isNewPassword,
         const std::string& content) {}
 
-    virtual void KeyboardUpperRightCornerHide() {};
+    virtual void KeyboardUpperRightCornerHide() {}
+
+    virtual void WebSetImeShow(bool visible) {}
 };
 
 class IMFAdapter {

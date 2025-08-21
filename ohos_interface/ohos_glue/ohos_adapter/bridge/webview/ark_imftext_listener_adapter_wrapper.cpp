@@ -143,4 +143,8 @@ void ArkIMFTextListenerAdapterWrapper::KeyboardUpperRightCornerHide()
     ctocpp_->KeyboardUpperRightCornerHide();
 }
 
+void ArkIMFTextListenerAdapterWrapper::WebSetImeShow(bool visible)
+{
+    ctocpp_->WebSetImeShow(visible);
+}
 } // namespace OHOS::ArkWeb

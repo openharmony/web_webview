@@ -65,6 +65,7 @@ public:
 
     void KeyboardUpperRightCornerHide() override;
 
+    void WebSetImeShow(bool visible) override;
 private:
     ArkWebRefPtr<ArkIMFTextListenerAdapter> ctocpp_;
 };

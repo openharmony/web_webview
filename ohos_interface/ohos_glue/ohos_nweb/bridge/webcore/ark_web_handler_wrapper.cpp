@@ -1271,4 +1271,9 @@ void ArkWebHandlerWrapper::OnInsertBlanklessFrameWithSize(const std::string& pat
     ark_web_handler_->OnInsertBlanklessFrameWithSize(pathToFrame_, width, height);
     ArkWebStringStructRelease(pathToFrame_);
 }
+
+void ArkWebHandlerWrapper::SetImeShow(bool visible)
+{
+    ark_web_handler_->SetImeShow(visible);
+}
 } // namespace OHOS::ArkWeb
