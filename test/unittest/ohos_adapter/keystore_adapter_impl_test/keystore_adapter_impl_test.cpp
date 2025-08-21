@@ -123,16 +123,34 @@ HWTEST_F(KeystoreAdapterImplTest, KeystoreAdapterImplTest_EncryptKey_002, TestSi
  */
 HWTEST_F(KeystoreAdapterImplTest, KeystoreAdapterImplTest_DecryptKey_001, TestSize.Level1)
 {
-    const int prefixSize = 3 + 16; // len("V10") + IV size
-    std::string alias = "test";
-    std::string encryptString = "fake_web_test";
-    std::string plainString = KeystoreAdapterImpl::GetInstance().DecryptKey(alias, encryptString);
-    EXPECT_TRUE(plainString.empty());
+    const int prefixSize = 3 + 16;                    // len("V10") + IV size
+    std::string absentKeyAlias = "absent_alias_test"; // Do not use absent key to encrypt anything!
+    std::string legacyAlias = "legacy_alias";
 
+    // Legacy mode testing.
+    std::string plainData = "legacy_key_test_16_bytes_aligned";
+    std::string encryptString = KeystoreAdapterImpl::GetInstance().EncryptKey(legacyAlias, plainData);
+    EXPECT_FALSE(encryptString.empty());
+    EXPECT_EQ(encryptString.length(), plainData.length() + prefixSize);
+    std::string plainString = KeystoreAdapterImpl::GetInstance().DecryptKey(legacyAlias, encryptString);
+    EXPECT_FALSE(plainString.empty());
+    EXPECT_EQ(plainString, plainData);
+    encryptString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456";
+    plainString = KeystoreAdapterImpl::GetInstance().DecryptKey(legacyAlias, encryptString);
+    EXPECT_FALSE(plainString.empty());
+    EXPECT_EQ(plainString.length(), encryptString.length()); // in/out data was 16-bytes aligned
     encryptString = "V10abcdefghijklmnopABCDEFGHIJKLMNOPQRSTUVWXYZ123456";
-    plainString = KeystoreAdapterImpl::GetInstance().DecryptKey(alias, encryptString);
+    plainString = KeystoreAdapterImpl::GetInstance().DecryptKey(legacyAlias, encryptString);
     EXPECT_FALSE(plainString.empty());
     EXPECT_EQ(plainString.length(), encryptString.length() - prefixSize);
+
+    // Absent key testing.
+    encryptString = "fake_web_test";
+    plainString = KeystoreAdapterImpl::GetInstance().DecryptKey(absentKeyAlias, encryptString);
+    EXPECT_TRUE(plainString.empty());
+    encryptString = "V10abcdefghijklmnopABCDEFGHIJKLMNOPQRSTUVWXYZ123456";
+    plainString = KeystoreAdapterImpl::GetInstance().DecryptKey(absentKeyAlias, encryptString);
+    EXPECT_TRUE(plainString.empty());
 
     std::string nullAlias = "";
     encryptString = "";
