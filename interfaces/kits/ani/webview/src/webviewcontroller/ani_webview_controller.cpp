@@ -3755,7 +3755,7 @@ bool ParseJsLengthDoubleToInt(ani_env* env, ani_ref ref, int32_t& outValue)
         return false;
     }
     ani_double value = 0;
-    ani_status status = env->Object_CallMethodByName_Double(static_cast<ani_object>(ref), "unboxed", ":D", &value);
+    ani_status status = env->Object_CallMethodByName_Double(static_cast<ani_object>(ref), "unboxed", ":d", &value);
     if (status != ANI_OK) {
         WVLOG_E("ParseJsLengthDoubleToInt failed status: %{public}d ",status);
         return false;
