@@ -251,8 +251,9 @@ HWTEST_F(NativeInterfaceArkWebTest, OH_NativeArkWeb_SetBlanklessLoadingCacheCapa
  * @tc.desc  : Test OH_NativeArkWeb_Blankless_Dual_Core
  */
 HWTEST_F(NativeInterfaceArkWebTest, OH_NativeArkWeb_Blankless_Dual_Core_01, TestSize.Level1) {
+    bool defaultStatus = OHOS::system::GetBoolParameter("web.blankless.enabled", false);
+    OHOS::system::SetParameter("web.blankless.enabled", "true");
     auto version = ArkWeb::getActiveWebEngineVersion();
-
     ArkWeb::setActiveWebEngineVersion(ArkWeb::ArkWebEngineVersion::M114);
     auto info = OH_NativeArkWeb_GetBlanklessInfoWithKey("", "");
     EXPECT_EQ(info.errCode, ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_DEVICE_NOT_SUPPORT);
@@ -270,6 +271,7 @@ HWTEST_F(NativeInterfaceArkWebTest, OH_NativeArkWeb_Blankless_Dual_Core_01, Test
     EXPECT_EQ(OH_NativeArkWeb_SetBlanklessLoadingCacheCapacity(20), 20);
 
     ArkWeb::setActiveWebEngineVersion(version);
+    OHOS::system::SetParameter("web.blankless.enabled", defaultStatus ? "true" : "false");
 }
 
 /**
