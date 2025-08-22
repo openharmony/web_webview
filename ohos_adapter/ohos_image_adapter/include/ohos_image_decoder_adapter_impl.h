@@ -52,6 +52,7 @@ public:
     void ReleasePixelMap() override;
     Media::PixelMap* GetPixelMap() { return pixelMap_.get(); }
     void* GetDecodeData() override;
+    bool DecodeByPath(const std::string& path, AllocatorType type) override { return false; };
 
 private:
     Media::ImageInfo imageInfo_;
