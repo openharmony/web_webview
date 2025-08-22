@@ -65,6 +65,8 @@ public:
 
     void KeyboardUpperRightCornerHide() override;
 
+    void WebSetImeShow(bool visible) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::IMFTextListenerAdapter> real_;
 

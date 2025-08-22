@@ -486,10 +486,12 @@ bool IMFAdapterImpl::AttachParamsCheck(std::shared_ptr<IMFTextListenerAdapter> l
 
 void IMFTextListenerAdapterImpl::NotifyPanelStatusInfo(const MiscServices::PanelStatusInfo& info)
 {
+    WVLOG_I("IMFTextListenerAdapterImpl::NotifyPanelStatusInfo, visible:%{public}d", info.visible);
     MiscServices::Trigger triggerFrom = info.trigger;
     if (listener_ && (triggerFrom == MiscServices::Trigger::IME_APP)) {
         WVLOG_I("IMFTextListenerAdapterImpl::NotifyPanelStatusInfo, info.IME_APP");
         listener_->KeyboardUpperRightCornerHide();
     }
+    listener_->WebSetImeShow(info.visible);
 }
 } // namespace OHOS::NWeb

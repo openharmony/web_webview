@@ -147,6 +147,9 @@ public:
         
     /*--ark web()--*/
     virtual void KeyboardUpperRightCornerHide() = 0;
+
+    /*--ark web()--*/
+    virtual void WebSetImeShow(bool visible) = 0;
 };
 
 /*--ark web(source=webview)--*/

@@ -174,6 +174,8 @@ public:
         const std::string& content) {}
 
     virtual void KeyboardUpperRightCornerHide() {}
+
+    virtual void WebSetImeShow(bool visible) {}
 };
 
 class IMFAdapter {

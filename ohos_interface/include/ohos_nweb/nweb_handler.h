@@ -1264,6 +1264,15 @@ public:
      * @param height The height of the blankless frame.
      */
     virtual void OnInsertBlanklessFrameWithSize(const std::string& pathToFrame, uint32_t width, uint32_t height) {}
+
+    /**
+     * @brief Notify the web client to set the soft keyboard panel status.
+     *
+     * @param visible the soft keyboard panel status. If true, it represents the keyboard display;
+     *        If it is false, it indicates that the keyboard is hidden.
+     *
+     */
+    virtual void SetImeShow(bool visible) {}
 };
 
 } // namespace OHOS::NWeb

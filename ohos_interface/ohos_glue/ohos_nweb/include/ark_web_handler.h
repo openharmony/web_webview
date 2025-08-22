@@ -1036,6 +1036,16 @@ public:
     virtual void OnInsertBlanklessFrameWithSize(const ArkWebString& pathToFrame,
                                                 uint32_t width,
                                                 uint32_t height) = 0;
+
+    /**
+     * @brief Notify the web client to set the soft keyboard panel status.
+     *
+     * @param visible the soft keyboard panel status. If true, it represents the keyboard display;
+     *        If it is false, it indicates that the keyboard is hidden.
+     *
+     */
+    /*--ark web()--*/
+    virtual void SetImeShow(bool visible) = 0;
 };
 
 } // namespace OHOS::ArkWeb
