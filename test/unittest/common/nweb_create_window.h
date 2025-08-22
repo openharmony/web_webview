@@ -52,6 +52,18 @@ public:
     {}
     void OnTouchCancel() override
     {}
+    void OnStylusTouchPress(
+        std::shared_ptr<NWebStylusTouchPointInfo> stylus_touch_point_info, 
+        bool fromOverlay = false) override
+    {}
+    void OnStylusTouchRelease(
+        std::shared_ptr<NWebStylusTouchPointInfo> stylus_touch_point_info, 
+        bool fromOverlay = false) override
+    {}
+    void OnStylusTouchMove(
+        const std::vector<std::shared_ptr<NWebStylusTouchPointInfo>>& stylus_touch_point_infos, 
+        bool fromOverlay = false) override
+    {}
     void OnNavigateBack() override
     {}
     bool SendKeyEvent(int32_t keyCode, int32_t keyAction) override

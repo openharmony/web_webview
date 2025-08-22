@@ -37,6 +37,13 @@ defines += [
   "WEBVIEW_ENGINE_SO=\"${webview_engine_so}\"",
 ]
 
+if (use_hwasan) {
+  defines += [
+    "IS_ASAN",
+    "WEBVIEW_SANDBOX_LIB_PATH_ASAN=\"${asan_webview_sandbox_lib_path}\"",
+  ]
+}
+
 config("nweb_config") {
   include_dirs = [ "${target_gen_dir}/include" ]
   include_dirs += [ "include" ]

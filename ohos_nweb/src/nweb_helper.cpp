@@ -707,7 +707,6 @@ bool NWebHelper::GetWebEngine(bool fromArk)
 bool NWebHelper::InitWebEngine()
 {
     if (initFlag_) {
-        WVLOG_I("web engine has been initialized");
         return true;
     }
 

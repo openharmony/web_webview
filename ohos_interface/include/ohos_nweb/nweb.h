@@ -2094,7 +2094,7 @@ public:
      * @param from_overlay Indicates whether the event comes from an overlay layer.
      */
     virtual void OnStylusTouchPress(
-        std::shared_ptr<NWebStylusTouchPointInfo> stylus_touch_point_info, bool from_overlay) = 0;
+        std::shared_ptr<NWebStylusTouchPointInfo> stylus_touch_point_info, bool from_overlay) {}
 
     /**
      * @brief Handle stylus touch release event.
@@ -2102,7 +2102,7 @@ public:
      * @param from_overlay Indicates whether the event comes from an overlay layer.
      */
     virtual void OnStylusTouchRelease(
-        std::shared_ptr<NWebStylusTouchPointInfo> stylus_touch_point_info, bool from_overlay) = 0;
+        std::shared_ptr<NWebStylusTouchPointInfo> stylus_touch_point_info, bool from_overlay) {}
 
     /**
      * @brief Handle batch stylus touch move events.
@@ -2111,7 +2111,7 @@ public:
      * @param from_overlay Indicates whether the events come from an overlay layer.
      */
     virtual void OnStylusTouchMove(
-        const std::vector<std::shared_ptr<NWebStylusTouchPointInfo>>& stylus_touch_point_infos, bool from_overlay) = 0;
+        const std::vector<std::shared_ptr<NWebStylusTouchPointInfo>>& stylus_touch_point_infos, bool from_overlay) {}
 
     /**
      * @brief Record the blankless frame size of the web.

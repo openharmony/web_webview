@@ -111,6 +111,12 @@ ErrCode AppFwkUpdateService::VerifyPackageInstall(
         return ERR_INVALID_VALUE;
     }
     int ret = 0;
+    ret = SendAppSpawnMessage(bundleName, MSG_UNLOAD_WEBLIB_IN_APPSPAWN);
+    if (ret != 0) {
+        WVLOG_I("SendAppSpawnMessage MSG_UNLOAD_WEBLIB_IN_APPSPAWN happened error: %{public}d", isSuccess);
+        return ERR_INVALID_VALUE;
+    }
+
     isSuccess = 0;
     if (OHOS::system::GetParameter("persist.arkwebcore.install_path", "") == hapPath) {
         WVLOG_I("OnPackageChangedEvent install path not changed.");
@@ -193,6 +199,7 @@ int AppFwkUpdateService::SendAppSpawnMessage(const std::string& bundleName, AppS
     int retryCount = 0;
     AppSpawnClientHandle clientHandle = nullptr;
     AppSpawnReqMsgHandle reqHandle = 0;
+    AppSpawnResult result = {};
     do {
         ret = AppSpawnClientInit(APPSPAWN_SERVER_NAME, &clientHandle);
         if (ret != 0) {
@@ -204,10 +211,13 @@ int AppFwkUpdateService::SendAppSpawnMessage(const std::string& bundleName, AppS
             WVLOG_I("Failed to create req,retry count = %{public}d.", retryCount);
             continue;
         }
-        AppSpawnResult result = {};
         ret = AppSpawnClientSendMsg(clientHandle, reqHandle, &result);
     } while (++retryCount < RETRY_COUNT && ret != 0);
     AppSpawnClientDestroy(clientHandle);
+    if (result.result != 0) {
+        WVLOG_E("recv apsppawn result msg, result: %{public}d", result.result);
+        return result.result;
+    }
     WVLOG_I("Send appspawn message success.");
     return ret;
 }
