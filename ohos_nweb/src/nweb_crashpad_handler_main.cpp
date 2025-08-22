@@ -34,8 +34,9 @@ const std::string CRASHPAD_HANDLER_PATH = "unsupport";
 const std::string LIB_CRASHPAD_HANDLER = "libchrome_crashpad_handler.so";
 }
 
-std::optional<std::string> GetEngineType(int argc, char* argv[]) {
-    constexpr std::string_view prefix = "--engine-type";
+std::optional<std::string> GetEngineType(int argc, char* argv[])
+{
+    constexpr std::string_view prefix = "--engine-type=";
     for (int i = 0; i < argc; ++i) {
         std::string_view arg = argv[i];
         if (arg.size() > prefix.size() && arg.substr(0, prefix.size()) == prefix) {
@@ -55,9 +56,11 @@ int main(int argc, char* argv[])
     }
 #endif
     if (auto engineType = GetEngineType(argc, argv); engineType.has_value() && engineType.value() == "LEGACY") {
+        WVLOG_I("crashpad handler start from legacy");
         libCrashpadHandler = std::string(LEGACY_WEBVIEW_SANDBOX_LIB_PATH) + "/"
                                             + std::string(WEBVIEW_CRASHPAD_HANDLER_SO);
     } else {
+        WVLOG_I("crashpad handler start from default");
         libCrashpadHandler = webPath + "/" + std::string(WEBVIEW_CRASHPAD_HANDLER_SO);
     }
 
