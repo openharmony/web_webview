@@ -110,7 +110,7 @@ const char* ANI_WEB_CUSTOM_SCHEME_CLASS = "L@ohos/web/webview/webview/WebCustomS
 constexpr size_t BFCACHE_DEFAULT_SIZE = 1;
 constexpr size_t BFCACHE_DEFAULT_TIMETOLIVE = 600;
 const char* WEB_CONTROLLER_SECURITY_LEVEL_ENUM_NAME = "L@ohos/web/webview/webview/SecurityLevel;";
-using WebPrintWriteResultCallback = std::function<void(std::string, uint32_t)>;
+using WebPrintWriteResultCallback = std::function<void(const std::string&, uint32_t)>;
 struct PDFMarginConfig {
     double top = TEN_MILLIMETER_TO_INCH;
     double bottom = TEN_MILLIMETER_TO_INCH;
@@ -5673,6 +5673,8 @@ static ani_ref CreateWebPrintDocumentAdapter(ani_env* env, ani_object object, an
     if (AniParseUtils::CreateObjectVoid(
             env, "L@ohos/web/webview/webview/PrintDocumentAdapterInner;", printDocumentAdapterObj) == false) {
         WVLOG_E("[printDocumentAdapter] CreateObjectVoid failed");
+        delete webPrintDoc;
+        webPrintDoc = nullptr;
         return nullptr;
     }
 
@@ -5766,7 +5768,7 @@ static void ParsePrintRangeAdapter(ani_env* env, ani_object pageRange, PrintAttr
     }
 
     if (env->Object_GetPropertyByName_Int(pageRange, "endPage", &endPage) != ANI_OK) {
-        WVLOG_E("ParsePrintRangeAdapter failed to get startPage");
+        WVLOG_E("ParsePrintRangeAdapter failed to get endPage");
     }
 
     if (env->Object_GetPropertyByName_Ref(pageRange, "pages", &pages) != ANI_OK) {
@@ -5784,7 +5786,7 @@ static void ParsePrintRangeAdapter(ani_env* env, ani_object pageRange, PrintAttr
     env->Array_GetLength(pagesArrayInt, &length);
     for (uint32_t i = 0; i < length; ++i) {
         ani_int pagesInt;
-        env->Array_GetRegion_Int(pagesArrayInt, i, length, &pagesInt);
+        env->Array_GetRegion_Int(pagesArrayInt, i, 1, &pagesInt);
         int pagesNum = static_cast<int>(pagesInt);
         printAttr.pageRange.pages.push_back(pagesNum);
     }
@@ -5807,7 +5809,7 @@ static void ParsePrintPageSizeAdapter(ani_env* env, ani_object pageSize, PrintAt
     if (env->Object_GetPropertyByName_Int(pageSize, "width", &width) != ANI_OK) {
         WVLOG_E("ParsePrintPageSizeAdapter failed to get width");
     }
-    if (env->Object_GetPropertyByName_Int(pageSize, "height", &height)) {
+    if (env->Object_GetPropertyByName_Int(pageSize, "height", &height) != ANI_OK) {
         WVLOG_E("ParsePrintPageSizeAdapter failed to get height");
     }
 
@@ -5892,7 +5894,7 @@ static bool ParseWebPrintAttrParams(ani_env* env, ani_object obj, PrintAttribute
     }
 
     bool isLandscape = false;
-    if (AniParseUtils::GetRefProperty(env, obj, "isSequential", isLandscape_ref)) {
+    if (AniParseUtils::GetRefProperty(env, obj, "isLandscape", isLandscape_ref)) {
         AniParseUtils::ParseBoolean(env, isLandscape_ref, isLandscape);
     }
 
@@ -5942,7 +5944,13 @@ static void OnStartLayoutWrite(ani_env* env, ani_object object, ani_string jobId
         return;
     }
 
-    int32_t fdUint = static_cast<uint32_t>(fd);
+    if (fd < 0) {
+        WVLOG_E("invalid file descriptor: %d", fd);
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+
+    uint32_t fdUint = static_cast<uint32_t>(fd);
     PrintAttributesAdapter oldPA;
     if (!ParseWebPrintAttrParams(env, oldPrintAttr, oldPA)) {
         WVLOG_E("failed to ParseWebPrintAttrParams oldPrintAttr");
@@ -5957,6 +5965,11 @@ static void OnStartLayoutWrite(ani_env* env, ani_object object, ani_string jobId
     }
     WebPrintWriteResultCallback writeResultCallback = nullptr;
     writeResultCallback = ParseWebPrintWriteResultCallback(env, object, callback);
+    if (writeResultCallback == nullptr) {
+        WVLOG_E("failed to ParseWebPrintWriteResultCallback");
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
     webPrintDocument->OnStartLayoutWrite(jobIDString, oldPA, newPA, fdUint, writeResultCallback);
     return;
 }
