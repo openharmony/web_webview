@@ -66,7 +66,7 @@ public:
     virtual void* GetDecodeData() = 0;
 
     // decode heic by path
-    virtual bool DecodeByPath(const std::string& path, AllocatorType type) = 0;
+    virtual bool DecodeByPath(const std::string& path, AllocatorType type) { return false; };
 };
 
 }  // namespace OHOS::NWeb
