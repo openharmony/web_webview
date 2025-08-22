@@ -105,11 +105,11 @@ enum class ContainerFormatTypeAdapter : int32_t {
 };
 
 enum class ScreenCaptureStateCodeAdapter : int32_t {
-    /* Screen capture state INVLID */
+    /* Screen capture state INVALID */
     SCREEN_CAPTURE_STATE_INVLID = -1,
-    /* Screen capture state started by user */
+    /* Screen capture started by user */
     SCREEN_CAPTURE_STATE_STARTED = 0,
-    /* Screen capture state canceled by user */
+    /* Screen capture canceled by user */
     SCREEN_CAPTURE_STATE_CANCELED = 1,
     /* ScreenCapture stopped by user */
     SCREEN_CAPTURE_STATE_STOPPED_BY_USER = 2,
@@ -125,7 +125,7 @@ enum class ScreenCaptureStateCodeAdapter : int32_t {
     SCREEN_CAPTURE_STATE_MIC_UNMUTED_BY_USER = 7,
     /* Current captured screen has private window */
     SCREEN_CAPTURE_STATE_ENTER_PRIVATE_SCENE = 8,
-    /* Private window disappeared on current captured screen */
+    /* Private window disappeared on current captured screen*/
     SCREEN_CAPTURE_STATE_EXIT_PRIVATE_SCENE = 9,
 };
 
