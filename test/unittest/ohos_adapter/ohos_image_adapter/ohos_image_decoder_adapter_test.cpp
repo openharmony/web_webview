@@ -537,5 +537,18 @@ HWTEST_F(OhosImageAdapterTest, OhosImageAdapterTest_GetDecodeData_013, TestSize.
     imageDecoderAdapterImpl.ReleasePixelMap();
 }
 
+/**
+ * @tc.name: OhosImageAdapterTest_DecodeByPath_014
+ * @tc.desc: DecodeByPath.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(OhosImageAdapterTest, OhosImageAdapterTest_DecodeByPath_014, TestSize.Level1)
+{
+    OhosImageDecoderAdapterImpl imageDecoderAdapterImpl;
+    bool ret = imageDecoderAdapterImpl.DecodeByPath(IMAGE_FILE_PATH, AllocatorType::kDmaAlloc);
+    EXPECT_FALSE(ret);
+}
+
 } // namespace NWeb
 } // namespace OHOS

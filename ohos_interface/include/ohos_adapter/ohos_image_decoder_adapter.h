@@ -64,6 +64,9 @@ public:
                               bool useYuv) = 0;
 
     virtual void* GetDecodeData() = 0;
+
+    // decode heic by path
+    virtual bool DecodeByPath(const std::string& path, AllocatorType type) = 0;
 };
 
 }  // namespace OHOS::NWeb
