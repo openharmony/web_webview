@@ -5865,9 +5865,9 @@ static void OnStartLayoutWrite(ani_env* env, ani_object object, ani_string jobId
     }
 
     if (fd < 0) {
-            WVLOG_E("invalid file descriptor: %d", fd);
-            AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
-            return;
+        WVLOG_E("invalid file descriptor: %d", fd);
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
     }
 
     uint32_t fdUint = static_cast<uint32_t>(fd);
