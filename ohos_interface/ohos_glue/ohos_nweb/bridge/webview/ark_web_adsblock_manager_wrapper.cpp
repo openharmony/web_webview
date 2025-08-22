@@ -19,57 +19,63 @@
 
 namespace OHOS::ArkWeb {
 
-ArkWebAdsBlockManagerWrapper::ArkWebAdsBlockManagerWrapper(
-    ArkWebRefPtr<ArkWebAdsBlockManager> ark_web_adsblock_manager)
-    : ark_web_adsblock_manager_(ark_web_adsblock_manager) {
+ArkWebAdsBlockManagerWrapper::ArkWebAdsBlockManagerWrapper(ArkWebRefPtr<ArkWebAdsBlockManager> ark_web_adsblock_manager)
+    : ark_web_adsblock_manager_(ark_web_adsblock_manager)
+{}
+
+void ArkWebAdsBlockManagerWrapper::SetAdsBlockRules(const std::string& rulesFile, bool replace)
+{
+    ArkWebString stRulesFile = ArkWebStringClassToStruct(rulesFile);
+
+    ark_web_adsblock_manager_->SetAdsBlockRules(stRulesFile, replace);
+
+    ArkWebStringStructRelease(stRulesFile);
 }
 
-void ArkWebAdsBlockManagerWrapper::SetAdsBlockRules(const std::string &rulesFile, bool replace) {
-  ArkWebString stRulesFile = ArkWebStringClassToStruct(rulesFile);
+void ArkWebAdsBlockManagerWrapper::AddAdsBlockDisallowedList(const std::vector<std::string>& domainSuffixes)
+{
+    ArkWebStringVector stDomainSuffixes = ArkWebStringVectorClassToStruct(domainSuffixes);
 
-  ark_web_adsblock_manager_->SetAdsBlockRules(stRulesFile, replace);
+    ark_web_adsblock_manager_->AddAdsBlockDisallowedList(stDomainSuffixes);
 
-  ArkWebStringStructRelease(stRulesFile);
+    ArkWebStringVectorStructRelease(stDomainSuffixes);
 }
 
-void ArkWebAdsBlockManagerWrapper::AddAdsBlockDisallowedList(const std::vector<std::string> &domainSuffixes) {
-  ArkWebStringVector stDomainSuffixes = ArkWebStringVectorClassToStruct(domainSuffixes);
+void ArkWebAdsBlockManagerWrapper::RemoveAdsBlockDisallowedList(const std::vector<std::string>& domainSuffixes)
+{
+    ArkWebStringVector stDomainSuffixes = ArkWebStringVectorClassToStruct(domainSuffixes);
 
-  ark_web_adsblock_manager_->AddAdsBlockDisallowedList(stDomainSuffixes);
+    ark_web_adsblock_manager_->RemoveAdsBlockDisallowedList(stDomainSuffixes);
 
-  ArkWebStringVectorStructRelease(stDomainSuffixes);
+    ArkWebStringVectorStructRelease(stDomainSuffixes);
 }
 
-void ArkWebAdsBlockManagerWrapper::RemoveAdsBlockDisallowedList(const std::vector<std::string> &domainSuffixes) {
-  ArkWebStringVector stDomainSuffixes = ArkWebStringVectorClassToStruct(domainSuffixes);
-
-  ark_web_adsblock_manager_->RemoveAdsBlockDisallowedList(stDomainSuffixes);
-
-  ArkWebStringVectorStructRelease(stDomainSuffixes);
+void ArkWebAdsBlockManagerWrapper::ClearAdsBlockDisallowedList()
+{
+    ark_web_adsblock_manager_->ClearAdsBlockDisallowedList();
 }
 
-void ArkWebAdsBlockManagerWrapper::ClearAdsBlockDisallowedList() {
-  ark_web_adsblock_manager_->ClearAdsBlockDisallowedList();
+void ArkWebAdsBlockManagerWrapper::AddAdsBlockAllowedList(const std::vector<std::string>& domainSuffixes)
+{
+    ArkWebStringVector stDomainSuffixes = ArkWebStringVectorClassToStruct(domainSuffixes);
+
+    ark_web_adsblock_manager_->AddAdsBlockAllowedList(stDomainSuffixes);
+
+    ArkWebStringVectorStructRelease(stDomainSuffixes);
 }
 
-void ArkWebAdsBlockManagerWrapper::AddAdsBlockAllowedList(const std::vector<std::string> &domainSuffixes) {
-  ArkWebStringVector stDomainSuffixes = ArkWebStringVectorClassToStruct(domainSuffixes);
+void ArkWebAdsBlockManagerWrapper::RemoveAdsBlockAllowedList(const std::vector<std::string>& domainSuffixes)
+{
+    ArkWebStringVector stDomainSuffixes = ArkWebStringVectorClassToStruct(domainSuffixes);
 
-  ark_web_adsblock_manager_->AddAdsBlockAllowedList(stDomainSuffixes);
+    ark_web_adsblock_manager_->RemoveAdsBlockAllowedList(stDomainSuffixes);
 
-  ArkWebStringVectorStructRelease(stDomainSuffixes);
+    ArkWebStringVectorStructRelease(stDomainSuffixes);
 }
 
-void ArkWebAdsBlockManagerWrapper::RemoveAdsBlockAllowedList(const std::vector<std::string> &domainSuffixes) {
-  ArkWebStringVector stDomainSuffixes = ArkWebStringVectorClassToStruct(domainSuffixes);
-
-  ark_web_adsblock_manager_->RemoveAdsBlockAllowedList(stDomainSuffixes);
-
-  ArkWebStringVectorStructRelease(stDomainSuffixes);
-}
-
-void ArkWebAdsBlockManagerWrapper::ClearAdsBlockAllowedList() {
-  ark_web_adsblock_manager_->ClearAdsBlockAllowedList();
+void ArkWebAdsBlockManagerWrapper::ClearAdsBlockAllowedList()
+{
+    ark_web_adsblock_manager_->ClearAdsBlockAllowedList();
 }
 
 } // namespace OHOS::ArkWeb
