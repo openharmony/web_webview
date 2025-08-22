@@ -4219,7 +4219,7 @@ static ani_ref CreateWebPrintDocumentAdapter(ani_env* env, ani_object object, an
 
     ani_object printDocumentAdapterObj = {};
     if (AniParseUtils::CreateObjectVoid(
-            env, "L@ohos/web/webview/webview/PrintDocumentAdapterInner;", printDocumentAdapterObj) == false) {
+        env, "L@ohos/web/webview/webview/PrintDocumentAdapterInner;", printDocumentAdapterObj) == false) {
         WVLOG_E("[printDocumentAdapter] CreateObjectVoid failed");
         delete webPrintDoc;
         webPrintDoc = nullptr;
@@ -4227,7 +4227,7 @@ static ani_ref CreateWebPrintDocumentAdapter(ani_env* env, ani_object object, an
     }
 
     if (!AniParseUtils::Wrap(env, printDocumentAdapterObj, "L@ohos/web/webview/webview/PrintDocumentAdapterInner;",
-            reinterpret_cast<ani_long>(webPrintDoc))) {
+        reinterpret_cast<ani_long>(webPrintDoc))) {
         WVLOG_E("[printDocumentAdapter] WebDownloadDelegate wrap failed");
         delete webPrintDoc;
         webPrintDoc = nullptr;
@@ -4287,7 +4287,7 @@ WebPrintWriteResultCallback ParseWebPrintWriteResultCallback(ani_env* env, ani_o
         }
         ani_enum_item stateEnum;
         if (AniParseUtils::GetEnumItemByIndex(
-                env, "L@ohos/print/print/PrintFileCreationState;", static_cast<int32_t>(state), stateEnum)) {
+            env, "L@ohos/print/print/PrintFileCreationState;", static_cast<int32_t>(state), stateEnum)) {
             argv.push_back(static_cast<ani_ref>(stateEnum));
         }
         ani_ref fnReturnVal = nullptr;
@@ -4513,7 +4513,7 @@ static void OnStartLayoutWrite(ani_env* env, ani_object object, ani_string jobId
     }
     WebPrintWriteResultCallback writeResultCallback = nullptr;
     writeResultCallback = ParseWebPrintWriteResultCallback(env, object, callback);
-     if (writeResultCallback == nullptr) {
+    if (writeResultCallback == nullptr) {
         WVLOG_E("failed to ParseWebPrintWriteResultCallback");
         AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
         return;
