@@ -316,8 +316,8 @@ static bool GetUrl(ani_env *env, ani_object urlObject, std::string& url, Webview
 
 static bool GetWebHeaders(ani_env *env, ani_object headersArrayObj, std::map<std::string, std::string>& webHeaders)
 {
-    ani_double headersLength;
-    if (env->Object_GetPropertyByName_Double(headersArrayObj, "length", &headersLength) != ANI_OK) {
+    ani_int headersLength;
+    if (env->Object_GetPropertyByName_Int(headersArrayObj, "length", &headersLength) != ANI_OK) {
         AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
         return false;
     }
