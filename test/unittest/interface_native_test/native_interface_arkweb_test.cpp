@@ -170,13 +170,13 @@ HWTEST_F(NativeInterfaceArkWebTest, OH_NativeArkWeb_SetBlanklessLoadingWithKey_0
     EXPECT_EQ(errCode1, ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_INVALID_ARGS);
     auto errCode2 = OH_NativeArkWeb_SetBlanklessLoadingWithKey("", "OH_NativeArkWeb_SetBlanklessLoadingWithKey", false);
     EXPECT_EQ(errCode2, ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_UNKNOWN);
-    
+
     OHOS::system::SetParameter("web.blankless.enabled", "false");
     auto errCode3 = OH_NativeArkWeb_SetBlanklessLoadingWithKey("", "", true);
     EXPECT_EQ(errCode3, ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_DEVICE_NOT_SUPPORT);
     auto errCode4 = OH_NativeArkWeb_SetBlanklessLoadingWithKey("", "OH_NativeArkWeb_SetBlanklessLoadingWithKey", false);
     EXPECT_EQ(errCode4, ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_DEVICE_NOT_SUPPORT);
-    
+
     OHOS::system::SetParameter("web.blankless.enabled", enabled ? "true" : "false");
 }
 
@@ -210,7 +210,7 @@ HWTEST_F(NativeInterfaceArkWebTest, OH_NativeArkWeb_ClearBlanklessLoadingCache_0
     OH_NativeArkWeb_ClearBlanklessLoadingCache(keys2, 3);
 
     const char* keys3[101];
-    // Test for key length over MAX_KEY_COUNT, which is 100.
+    // Test for key size over MAX_KEY_COUNT, which is 100.
     for (uint32_t idx = 0; idx < 101; idx++) {
         keys3[idx] = "test";
     }
