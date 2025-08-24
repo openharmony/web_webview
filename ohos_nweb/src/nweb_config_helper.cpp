@@ -43,6 +43,8 @@ const std::string BASE_WEB_CONFIG = "baseWebConfig";
 const std::string WEB_ANIMATION_DYNAMIC_SETTING_CONFIG = "property_animation_dynamic_settings";
 const std::string WEB_ANIMATION_DYNAMIC_APP = "dynamic_apps";
 const std::string WEB_LTPO_STRATEGY = "ltpo_strategy";
+const std::string WEB_DVSYNC_CONFIG = "dvsync_config";
+const std::string WEB_DVSYNC_SWITCH = "dvsync_switch";
 const std::string WEB_WINDOW_ORIENTATION_CONFIG = "window_orientation_config";
 const std::string WEB_ALL_BUNDLE_NAME = "*";
 const auto XML_ATTR_NAME = "name";
@@ -184,6 +186,7 @@ NWebConfigHelper::NWebConfigHelper()
         }
     }
     web_play_ground_enabled_ = isDebugApp && hasPlayGround && isDeveloperMode;
+    dvsyncSwitch_ = false;
 
     if (web_play_ground_enabled_) {
         #define XPM_KICKER (0x6a6974)
@@ -377,6 +380,13 @@ void NWebConfigHelper::ParseWebConfigXml(const std::string& configFilePath,
         }
     }
 
+    if (!dvsyncSwitch_) {
+        xmlNodePtr dvsyncConfigNodePtr = GetChildrenNode(rootPtr, WEB_DVSYNC_CONFIG);
+        if (dvsyncConfigNodePtr != nullptr) {
+            ParseNWebDvsync(dvsyncConfigNodePtr);
+        }
+    }
+
     xmlNodePtr windowOrientationNodePtr = GetChildrenNode(rootPtr, WEB_WINDOW_ORIENTATION_CONFIG);
     if (windowOrientationNodePtr != nullptr) {
         WVLOG_D("read config from window orientation node");
@@ -462,6 +472,38 @@ bool NWebConfigHelper::IsLTPODynamicApp(const std::string& bundleName)
 int32_t NWebConfigHelper::GetLTPOStrategy()
 {
     return ltpoStrategy_;
+}
+
+void NWebConfigHelper::ParseNWebDvsync(xmlNodePtr nodePtr)
+{
+    for (xmlNodePtr curNodePtr = nodePtr->xmlChildrenNode; curNodePtr; curNodePtr = curNodePtr->next) {
+        if (curNodePtr->name == nullptr || curNodePtr->type == XML_COMMENT_NODE) {
+            WVLOG_E("invalid node!");
+            continue;
+        }
+        char* namePtr = (char*)xmlGetProp(curNodePtr, BAD_CAST(XML_ATTR_NAME));
+        if (!namePtr) {
+            WVLOG_E("invalid node!");
+            continue;
+        }
+        std::string settingName(namePtr);
+        xmlFree(namePtr);
+        if (settingName == WEB_DVSYNC_SWITCH) {
+            ParseNWebDvsyncSwitch(curNodePtr);
+            continue;
+        }
+    }
+}
+
+void NWebConfigHelper::ParseNWebDvsyncSwitch(xmlNodePtr nodePtr)
+{
+    dvsyncSwitch_ = atoi((char*)xmlNodeGetContent(NodePtr)) == 1;
+    WVLOG_D("dvsync switch is: %{public}d", dvsyncSwitch_);
+}
+
+bool NWebConfigHelper::GetNWebDvsyncSwitch()
+{
+    return dvsyncSwitch_;
 }
 
 std::vector<FrameRateSetting> NWebConfigHelper::GetPerfConfig(const std::string& settingName)

@@ -40,6 +40,7 @@ public:
     int safeGetPropAsInt(xmlNode* node, const xmlChar* propName, int defaultValue);
     std::string GetBundleName();
     void SetBundleName(const std::string& bundleName);
+    bool GetNWebDvsyncSwitch();
     bool IsWebPlayGroundEnable();
     const std::string& GetWebPlayGroundInitArg();
     const std::string& GetWebPlayGroundHapPath();
@@ -56,6 +57,8 @@ private:
     void ParseDeleteConfig(const xmlNodePtr &rootPtr, std::shared_ptr<NWebEngineInitArgsImpl> initArgs);
     void ParseNWebLTPOApp(xmlNodePtr nodePtr);
     void ParseNWebLTPOStrategy(xmlNodePtr nodePtr);
+    void ParseNWebDvsync(xmlNodePtr nodePtr);
+    void ParseNWebDvsyncSwitch(xmlNodePtr nodePtr);
     void ParseWindowOrientationConfig(xmlNodePtr nodePtr, std::shared_ptr<NWebEngineInitArgsImpl> initArgs);
     bool IsDeveloperModeEnabled();
     bool IsPerfConfigEmpty();
@@ -65,6 +68,7 @@ private:
     std::set<std::string> ltpoAllowedApps_ {};
     int32_t ltpoStrategy_ {0};
     std::string bundleName_;
+    bool dvsyncSwitch_;
     mutable std::mutex lock_;
 
     // add for web play ground
