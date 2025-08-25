@@ -16,6 +16,7 @@
 import { Resource } from 'global.resource';
 import type image from '@ohos.multimedia.image';
 import { AsyncCallback, BusinessError, Callback } from '@ohos.base';
+import print from '@ohos.print'
 
 class Cleaner {
     private ptr: long = 0
@@ -665,6 +666,7 @@ export default namespace webview {
         native getSurfaceId(): string;
         native static enableWholeWebPageDrawing(): void;
         native setPrintBackground(enable: boolean): void;
+        native createWebPrintDocumentAdapter(jobName: string): print.PrintDocumentAdapter;
         native getPrintBackground(): boolean;
         native webPageSnapshot(info: SnapshotInfo, callback: AsyncCallback<SnapshotResult>): void;
         native injectOfflineResourcesInternal(resourceMaps: Array<OfflineResourceMapInternal>) : void;
@@ -1629,5 +1631,34 @@ export default namespace webview {
         native getArrayBuffer(): ArrayBuffer;
         native getArray(): Array<string | number | boolean>;
         native getError(): Error;
+    }
+
+
+    export class PrintDocumentAdapterInner implements print.PrintDocumentAdapter{
+        static {
+            loadLibrary("webview_ani.z");
+        }
+        private nativePtr: long = 0;
+            private cleaner?: Cleaner;
+
+            registerCleaner(ptr: long): void {
+                this.cleaner = new Cleaner(ptr, "PrintDocumentAdapterInner");
+                destroyRegister.register(this, this.cleaner!, unregisterToken);
+            }
+            unregisterCleaner(): void {
+                destroyRegister.unregister(unregisterToken);
+            }
+
+            bindNativePtr(ptr: long): void {
+                if (this.nativePtr == 0) {
+                    this.nativePtr = ptr;
+                    this.registerCleaner(this.nativePtr)
+                }
+            }
+
+        native onStartLayoutWrite(jobId: string, oldAttrs: print.PrintAttributes, newAttrs: print.PrintAttributes, fd: int,
+                    writeResultCallback: (jobId: string, writeResult: print.PrintFileCreationState) => void): void;
+
+        native onJobStateChanged(jobId: string, state: print.PrintDocumentAdapterState): void;
     }
 }
