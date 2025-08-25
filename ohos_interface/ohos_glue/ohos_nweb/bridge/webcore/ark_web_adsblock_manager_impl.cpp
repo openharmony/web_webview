@@ -53,7 +53,8 @@ void ArkWebAdsBlockManagerImpl::RemoveAdsBlockAllowedList(const ArkWebStringVect
   nweb_adsblock_manager_->RemoveAdsBlockAllowedList(ArkWebStringVectorStructToClass(domainSuffixes));
 }
 
-void ArkWebAdsBlockManagerImpl::ClearAdsBlockAllowedList() {
+void ArkWebAdsBlockManagerImpl::ClearAdsBlockAllowedList()
+{
   nweb_adsblock_manager_->ClearAdsBlockAllowedList();
 }
 
