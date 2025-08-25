@@ -23,26 +23,26 @@
 namespace OHOS::ArkWeb {
 
 class ArkWebCustomKeyboardHandlerImpl : public ArkWebCustomKeyboardHandler {
-  IMPLEMENT_REFCOUNTING(ArkWebCustomKeyboardHandlerImpl);
+    IMPLEMENT_REFCOUNTING(ArkWebCustomKeyboardHandlerImpl);
 
  public:
-  ArkWebCustomKeyboardHandlerImpl(
-      std::shared_ptr<OHOS::NWeb::NWebCustomKeyboardHandler> nweb_custom_keyboard_handler) :
-      nweb_custom_keyboard_handler_(nweb_custom_keyboard_handler) {}
-  ~ArkWebCustomKeyboardHandlerImpl() = default;
+    ArkWebCustomKeyboardHandlerImpl(
+        std::shared_ptr<OHOS::NWeb::NWebCustomKeyboardHandler> nweb_custom_keyboard_handler)
+        : nweb_custom_keyboard_handler_(nweb_custom_keyboard_handler) {}
+    ~ArkWebCustomKeyboardHandlerImpl() = default;
 
-  void InsertText(const ArkWebString &text) override;
+    void InsertText(const ArkWebString &text) override;
 
-  void DeleteForward(int32_t length) override;
+    void DeleteForward(int32_t length) override;
 
-  void DeleteBackward(int32_t length) override;
+    void DeleteBackward(int32_t length) override;
 
-  void SendFunctionKey(int32_t key) override;
+    void SendFunctionKey(int32_t key) override;
 
-  void Close() override;
+    void Close() override;
 
  private:
-  std::shared_ptr<OHOS::NWeb::NWebCustomKeyboardHandler> nweb_custom_keyboard_handler_;
+    std::shared_ptr<OHOS::NWeb::NWebCustomKeyboardHandler> nweb_custom_keyboard_handler_;
 };
 
 }  // namespace OHOS::ArkWeb
