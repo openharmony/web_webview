@@ -497,7 +497,7 @@ void NWebConfigHelper::ParseNWebDvsync(xmlNodePtr nodePtr)
 
 void NWebConfigHelper::ParseNWebDvsyncSwitch(xmlNodePtr nodePtr)
 {
-    dvsyncSwitch_ = atoi((char*)xmlNodeGetContent(NodePtr)) == 1;
+    dvsyncSwitch_ = atoi((char*)xmlNodeGetContent(nodePtr)) == 1;
     WVLOG_D("dvsync switch is: %{public}d", dvsyncSwitch_);
 }
 
