@@ -169,7 +169,7 @@ public:
 
     virtual std::unique_ptr<ScreenlockManagerAdapter> CreateScreenlockManagerAdapter() = 0;
 
-    virtual std::unique_ptr<CertManagerAdapter> GetCertManagerAdapter() {return nullptr;};
+    virtual std::unique_ptr<CertManagerAdapter> GetCertManagerAdapter() {return nullptr;}
 };
 
 } // namespace OHOS::NWeb
