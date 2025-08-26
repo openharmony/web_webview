@@ -4936,6 +4936,12 @@ napi_value NapiWebviewController::PrefetchPage(napi_env env, napi_callback_info 
         return PrefetchPageWithHttpHeadersAndPrefetchOptions(env, url,
             argc, argv, webviewController);
     }
+    ErrCode ret = webviewController->PrefetchPage(url, additionalHttpHeaders);
+    if (ret != NO_ERROR) {
+        WVLOG_E("PrefetchPage failed, error code: %{public}d", ret);
+        BusinessError::ThrowErrorByErrcode(env, ret);
+        return nullptr;
+    }
     NAPI_CALL(env, napi_get_undefined(env, &result));
     return result;
 }
