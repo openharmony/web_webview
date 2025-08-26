@@ -1868,8 +1868,12 @@ void ArkWebNWebWrapper::PrefetchPageV2(
     ArkWebString stUrl = ArkWebStringClassToStruct(url);
     ArkWebStringMap stHeaders = ArkWebStringMapClassToStruct(additional_http_headers);
 
-    ark_web_nweb_->PrefetchPageV2(stUrl, stHeaders, 
+    ark_web_nweb_->PrefetchPageV2(stUrl, stHeaders,
         minTimeBetweenPrefetchesMs, ignoreCacheControlNoStore);
+    
+    if (ArkWebGetErrno() != RESULT_OK) {
+        ark_web_nweb_->PrefetchPage(stUrl, stHeaders);
+    }
 
     ArkWebStringStructRelease(stUrl);
     ArkWebStringMapStructRelease(stHeaders);

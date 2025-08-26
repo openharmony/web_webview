@@ -4951,16 +4951,16 @@ napi_value NapiWebviewController::PrefetchPageWithHttpHeadersAndPrefetchOptions(
 {
     std::map<std::string, std::string> additionalHttpHeaders;
     napi_value result = nullptr;
-    
     napi_value array = argv[INTEGER_ONE];
     napi_value Options = argv[INTEGER_ONE];
     bool isArray = false;
     napi_is_array(env, array, &isArray);
+
     if (isArray) {
         additionalHttpHeaders = GetPrefetchPageWithHttpHeaders(env, array);
-        if(argc == INTEGER_THREE){
+        if (argc == INTEGER_THREE && !IS_CALLING_FROM_M114()) {
             Options = argv[INTEGER_TWO];
-        }else {
+        } else {
             ErrCode ret = webviewController->PrefetchPage(url, additionalHttpHeaders);
             if (ret != NO_ERROR) {
                 WVLOG_E("PrefetchPage failed, error code: %{public}d", ret);
@@ -4970,7 +4970,7 @@ napi_value NapiWebviewController::PrefetchPageWithHttpHeadersAndPrefetchOptions(
             NAPI_CALL(env, napi_get_undefined(env, &result));
             return result;
         }
-    } 
+    }
  
     std::shared_ptr<NWebPrefetchOptions> prefetchOptions = GetPrefetchOptions(env, Options);
     ErrCode ret = webviewController->PrefetchPage(url, additionalHttpHeaders, prefetchOptions);
