@@ -759,7 +759,9 @@ bool NWebHelper::InitWebEngine()
       WVLOG_D("apiTargetVersion: %{public}s", apiVersion.c_str());
     }
 
-    initArgs->AddArg(std::string("--auto-preconnect=").append(std::to_string(autopreconnectenabled_)));
+    if (!autoPreconnectEnabled_) {
+        initArgs->AddArg(std::string("--disable-auto-preconnect"));
+    }
 
     nwebEngine_->InitializeWebEngine(initArgs);
     initFlag_ = true;
@@ -1215,8 +1217,9 @@ std::shared_ptr<NWeb> NWebAdapterHelper::CreateNWeb(sptr<Surface> surface,
         return nullptr;
     }
     initArgs->AddArg(NWebConfigHelper::Instance().GetWebPlayGroundInitArg());
-    initArgs->AddArg(
-        std::string("--auto-preconnect=").append(std::to_string(NWebHelper::Instance().IsAutoPreconnectEnabled())));
+    if (!NWebHelper::Instance().IsAutoPreconnectEnabled()) {
+        initArgs->AddArg(std::string("--disable-auto-preconnect"));
+    }
     auto createInfo = NWebSurfaceAdapter::Instance().GetCreateInfo(surface, initArgs, width, height, incognitoMode);
     NWebConfigHelper::Instance().ParseConfig(initArgs);
 
@@ -1252,8 +1255,9 @@ std::shared_ptr<NWeb> NWebAdapterHelper::CreateNWeb(void* enhanceSurfaceInfo,
         return nullptr;
     }
     initArgs->AddArg(NWebConfigHelper::Instance().GetWebPlayGroundInitArg());
-    initArgs->AddArg(
-        std::string("--auto-preconnect=").append(std::to_string(NWebHelper::Instance().IsAutoPreconnectEnabled())));
+    if (!NWebHelper::Instance().IsAutoPreconnectEnabled()) {
+        initArgs->AddArg(std::string("--disable-auto-preconnect"));
+    }
     auto createInfo =
         NWebEnhanceSurfaceAdapter::Instance().GetCreateInfo(enhanceSurfaceInfo, initArgs, width, height, incognitoMode);
     auto nweb = NWebHelper::Instance().CreateNWeb(createInfo);
@@ -1363,12 +1367,12 @@ void NWebHelper::SetWebDestroyMode(WebDestroyMode mode)
 
 void NWebHelper::SetAutoPreconnect(bool enable)
 {
-    autopreconnectenabled_ = enable;
+    autoPreconnectEnabled_ = enable;
 }
 
 bool NWebHelper::IsAutoPreconnectEnabled()
 {
-    return autopreconnectenabled_;
+    return autoPreconnectEnabled_;
 }
 
 } // namespace OHOS::NWeb
