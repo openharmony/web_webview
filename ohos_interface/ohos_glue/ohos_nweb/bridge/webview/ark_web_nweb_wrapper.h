@@ -1801,7 +1801,19 @@ public:
      * @param width The width of the blankless frame.
      * @param height The height of the blankless frame.
      */
-    void RecordBlanklessFrameSize(uint32_t width, uint32_t height) override; 
+    void RecordBlanklessFrameSize(uint32_t width, uint32_t height) override;
+
+    /**
+     * @brief Prefetch the resources required by the page, but will not execute js or
+     *        render the page.
+     * @param url:  String: Which url to preresolve/preconnect.
+     * @param additional_http_headers: Additional HTTP request header of the URL.
+     * @param minTimeBetweenPrefetchesMs: djusting the throttling interval.
+     * @param ignoreCacheControlNoStore:  true if ignoring Cache-Control: no-store.
+     */
+    void PrefetchPageV2(
+        const std::string& url, const std::map<std::string, std::string>& additional_http_headers,
+        int32_t minTimeBetweenPrefetchesMs, bool ignoreCacheControlNoStore) override;
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };

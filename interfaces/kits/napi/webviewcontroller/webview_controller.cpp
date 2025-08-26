@@ -1390,6 +1390,19 @@ ErrCode WebviewController::PrefetchPage(std::string& url, std::map<std::string, 
     return NWebError::NO_ERROR;
 }
 
+ErrCode WebviewController::PrefetchPage(std::string& url, std::map<std::string, std::string> additionalHttpHeaders,
+                                        std::shared_ptr<NWebPrefetchOptions> prefetchOptions)
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return NWebError::INIT_ERROR;
+    }
+
+    nweb_ptr->PrefetchPageV2(url, additionalHttpHeaders,
+        prefetchOptions->GetminTimeBetweenPrefetchesMs(), prefetchOptions->GetignoreCacheControlNoStore());
+    return NWebError::NO_ERROR;
+}
+
 bool WebPrintAttributes::GetBool(uint32_t attrId)
 {
     switch (attrId) {

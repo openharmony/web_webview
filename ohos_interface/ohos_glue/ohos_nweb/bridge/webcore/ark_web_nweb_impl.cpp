@@ -1585,4 +1585,12 @@ void ArkWebNWebImpl::RecordBlanklessFrameSize(uint32_t width, uint32_t height)
 {
     nweb_nweb_->RecordBlanklessFrameSize(width, height);
 }
+
+void ArkWebNWebImpl::PrefetchPageV2(const ArkWebString& url, const ArkWebStringMap& additional_http_headers,
+    int32_t minTimeBetweenPrefetchesMs, bool ignoreCacheControlNoStore)
+{
+    nweb_nweb_->PrefetchPageV2(ArkWebStringStructToClass(url), ArkWebStringMapStructToClass(additional_http_headers),
+        minTimeBetweenPrefetchesMs, ignoreCacheControlNoStore);
+}
+
 } // namespace OHOS::ArkWeb

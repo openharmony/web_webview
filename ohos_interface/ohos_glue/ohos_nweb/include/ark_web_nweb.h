@@ -2033,7 +2033,19 @@ public:
      * @param height The height of the blankless frame.
      */
     /*--ark web()--*/
-    virtual void RecordBlanklessFrameSize(uint32_t width, uint32_t height) = 0; 
+    virtual void RecordBlanklessFrameSize(uint32_t width, uint32_t height) = 0;
+
+    /**
+     * @brief Prefetch the resources required by the page, but will not execute js or
+     *        render the page.
+     * @param url:  String: Which url to preresolve/preconnect.
+     * @param additional_http_headers: Additional HTTP request header of the URL.
+     * @param minTimeBetweenPrefetchesMs: djusting the throttling interval.
+     * @param ignoreCacheControlNoStore:  true if ignoring Cache-Control: no-store.
+     */
+    /*--ark web()--*/
+    virtual void PrefetchPageV2(const ArkWebString& url, const ArkWebStringMap& additional_http_headers,
+        int32_t minTimeBetweenPrefetchesMs, bool ignoreCacheControlNoStore) = 0;
 };
 
 } // namespace OHOS::ArkWeb

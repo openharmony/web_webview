@@ -223,6 +223,14 @@ public:
     virtual std::string GetFormData() = 0;
 };
 
+class OHOS_NWEB_EXPORT NWebPrefetchOptions {
+public:
+    virtual ~NWebPrefetchOptions() = default;
+
+    virtual int32_t GetminTimeBetweenPrefetchesMs() = 0;
+    virtual bool GetignoreCacheControlNoStore() = 0;
+};
+
 class OHOS_NWEB_EXPORT NWebPDFConfigArgs {
 public:
     virtual ~NWebPDFConfigArgs() = default;
@@ -2119,6 +2127,18 @@ public:
      * @param height The height of the blankless frame.
      */
     virtual void RecordBlanklessFrameSize(uint32_t width, uint32_t height) {}
+
+    /**
+     * @brief Prefetch the resources required by the page, but will not execute js or
+     *        render the page.
+     * @param url:  String: Which url to preresolve/preconnect.
+     * @param additional_http_headers: Additional HTTP request header of the URL.
+     * @param minTimeBetweenPrefetchesMs: djusting the throttling interval.
+     * @param ignoreCacheControlNoStore:  true if ignoring Cache-Control: no-store.
+     */
+    virtual void PrefetchPageV2(
+        const std::string& url, const std::map<std::string, std::string>& additionalHttpHeaders,
+        int32_t minTimeBetweenPrefetchesMs, bool ignoreCacheControlNoStore) {}
 };
 
 } // namespace OHOS::NWeb

@@ -1860,4 +1860,19 @@ void ArkWebNWebWrapper::RecordBlanklessFrameSize(uint32_t width, uint32_t height
 {
     ark_web_nweb_->RecordBlanklessFrameSize(width, height);
 }
+
+void ArkWebNWebWrapper::PrefetchPageV2(
+    const std::string& url, const std::map<std::string, std::string>& additional_http_headers,
+    int32_t minTimeBetweenPrefetchesMs, bool ignoreCacheControlNoStore)
+{
+    ArkWebString stUrl = ArkWebStringClassToStruct(url);
+    ArkWebStringMap stHeaders = ArkWebStringMapClassToStruct(additional_http_headers);
+
+    ark_web_nweb_->PrefetchPageV2(stUrl, stHeaders, 
+        minTimeBetweenPrefetchesMs, ignoreCacheControlNoStore);
+
+    ArkWebStringStructRelease(stUrl);
+    ArkWebStringMapStructRelease(stHeaders);
+}
+
 } // namespace OHOS::ArkWeb

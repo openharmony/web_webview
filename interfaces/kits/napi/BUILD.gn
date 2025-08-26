@@ -67,6 +67,8 @@ ohos_shared_library("webview_napi") {
     "webstorage/napi_web_storage.cpp",
     "webviewcontroller/napi_back_forward_cache_options.cpp",
     "webviewcontroller/napi_back_forward_cache_options.h",
+    "webviewcontroller/napi_prefetch_options.cpp",
+    "webviewcontroller/napi_prefetch_options.h",
     "webviewcontroller/napi_native_media_player.cpp",
     "webviewcontroller/napi_native_media_player.h",
     "webviewcontroller/napi_web_download_delegate.cpp",

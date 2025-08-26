@@ -275,6 +275,39 @@ private:
     std::string form_data_;
 };
 
+class NWebPrefetchOptionsImpl : public NWebPrefetchOptions {
+public:
+    NWebPrefetchOptionsImpl(int32_t minTimeBetweenPrefetchesMs, bool ignoreCacheControlNoStore)
+        : minTimeBetweenPrefetchesMs_(minTimeBetweenPrefetchesMs), ignoreCacheControlNoStore_(ignoreCacheControlNoStore)
+    {}
+ 
+    ~NWebPrefetchOptionsImpl() = default;
+    
+    void SetminTimeBetweenPrefetchesMs(int32_t minTimeBetweenPrefetchesMs)
+    {
+        minTimeBetweenPrefetchesMs_ = minTimeBetweenPrefetchesMs;
+    }
+ 
+    int32_t GetminTimeBetweenPrefetchesMs() override
+    {
+        return minTimeBetweenPrefetchesMs_;
+    }
+ 
+    void SetignoreCacheControlNoStore(bool ignoreCacheControlNoStore)
+    {
+        ignoreCacheControlNoStore_ = ignoreCacheControlNoStore;
+    }
+ 
+    bool GetignoreCacheControlNoStore() override
+    {
+        return ignoreCacheControlNoStore_;
+    }
+ 
+private:
+    int32_t minTimeBetweenPrefetchesMs_ = 500;
+    bool ignoreCacheControlNoStore_ = false;
+};
+
 class NWebPDFConfigArgsImpl : public NWebPDFConfigArgs {
 public:
     NWebPDFConfigArgsImpl(const double width, const double height, const double scale, const double marginTop,
