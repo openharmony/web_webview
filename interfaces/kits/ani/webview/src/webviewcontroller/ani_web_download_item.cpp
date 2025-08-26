@@ -39,8 +39,30 @@ using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
 const char* ANI_CLASS_WEB_DOWNLOAD_ITEM = "L@ohos/web/webview/webview/WebDownloadItem;";
-const ani_double ERROR_NUM = -1;
 } // namespace
+
+static ani_string GetUrl(ani_env* env, ani_object object)
+{
+    WVLOG_D("[DOWNLOAD] WebDownloadItem::GetUrl");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    auto* webDownloadItem = reinterpret_cast<WebDownloadItem*>(AniParseUtils::Unwrap(env, object));
+    if (!webDownloadItem) {
+        WVLOG_E("[DOWNLOAD]unwrap webDownloadItem failed");
+        return nullptr;
+    }
+
+    std::string url = webDownloadItem->url;
+    ani_string result;
+    if (env->String_NewUTF8(url.c_str(), url.size(), &result) != ANI_OK) {
+        WVLOG_E("creat stringObj error");
+        return nullptr;
+    }
+    return result;
+}
+
 static ani_string GetGuid(ani_env* env, ani_object object)
 {
     WVLOG_D("[DOWNLOAD] WebDownloadItem::GetGuid");
@@ -63,19 +85,20 @@ static ani_string GetGuid(ani_env* env, ani_object object)
     return result;
 }
 
-static ani_double GetPercentComplete(ani_env* env, ani_object object)
+static ani_int GetPercentComplete(ani_env* env, ani_object object)
 {
     WVLOG_D("[DOWNLOAD] WebDownloadItem::GetPercentComplete");
+    ani_int result = 0;
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
-        return ERROR_NUM;
+        return result;
     }
     auto* webDownloadItem = reinterpret_cast<WebDownloadItem*>(AniParseUtils::Unwrap(env, object));
     if (!webDownloadItem) {
         WVLOG_E("[DOWNLOAD]unwrap webDownloadItem failed");
-        return ERROR_NUM;
+        return result;
     }
-    ani_double value = static_cast<ani_double>(webDownloadItem->percentComplete);
+    ani_int value = static_cast<ani_int>(webDownloadItem->percentComplete);
     return value;
 }
 
@@ -122,40 +145,40 @@ static ani_string GetMethod(ani_env* env, ani_object object)
     return methodValue;
 }
 
-static ani_double GetCurrentSpeed(ani_env* env, ani_object object)
+static ani_int GetCurrentSpeed(ani_env* env, ani_object object)
 {
     int32_t currentSpeed = 0;
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
-        return static_cast<ani_double>(currentSpeed);
+        return static_cast<ani_int>(currentSpeed);
     }
 
     auto* webDownloadItem = reinterpret_cast<WebDownloadItem*>(AniParseUtils::Unwrap(env, object));
     if (!webDownloadItem) {
         WVLOG_E("GetCurrentSpeed webDownloadItem is null");
-        return static_cast<ani_double>(currentSpeed);
+        return static_cast<ani_int>(currentSpeed);
     }
 
     currentSpeed = webDownloadItem->currentSpeed;
-    return static_cast<ani_double>(currentSpeed);
+    return static_cast<ani_int>(currentSpeed);
 }
 
-static ani_double GetReceivedBytes(ani_env* env, ani_object object)
+static ani_long GetReceivedBytes(ani_env* env, ani_object object)
 {
     int64_t receivedBytes = 0;
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
-        return static_cast<ani_double>(receivedBytes);
+        return static_cast<ani_long>(receivedBytes);
     }
 
     auto* webDownloadItem = reinterpret_cast<WebDownloadItem*>(AniParseUtils::Unwrap(env, object));
     if (!webDownloadItem) {
         WVLOG_E("GetReceivedBytes webDownloadItem is null");
-        return static_cast<ani_double>(receivedBytes);
+        return static_cast<ani_long>(receivedBytes);
     }
 
     receivedBytes = webDownloadItem->receivedBytes;
-    return static_cast<ani_double>(receivedBytes);
+    return static_cast<ani_long>(receivedBytes);
 }
 
 static ani_string GetFullPath(ani_env* env, ani_object object)
@@ -179,22 +202,22 @@ static ani_string GetFullPath(ani_env* env, ani_object object)
     return fullPath;
 }
 
-static ani_double GetTotalBytes(ani_env* env, ani_object object)
+static ani_long GetTotalBytes(ani_env* env, ani_object object)
 {
-    int64_t totalBytes = -1;
+    int64_t totalBytes = 0;
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
-        return static_cast<ani_double>(totalBytes);
+        return static_cast<ani_long>(totalBytes);
     }
 
     auto* webDownloadItem = reinterpret_cast<WebDownloadItem*>(AniParseUtils::Unwrap(env, object));
     if (!webDownloadItem) {
         WVLOG_E("GetTotalBytes webDownloadItem is null");
-        return static_cast<ani_double>(totalBytes);
+        return static_cast<ani_long>(totalBytes);
     }
 
     totalBytes = static_cast<int64_t>(webDownloadItem->totalBytes);
-    return static_cast<ani_double>(totalBytes);
+    return static_cast<ani_long>(totalBytes);
 }
 
 static ani_enum_item GetLastErrorCode(ani_env* env, ani_object object)
@@ -538,6 +561,7 @@ ani_status StsWebDownLoadItemInit(ani_env* env)
     }
     std::array allMethods = {
         ani_native_function { "<ctor>", nullptr, reinterpret_cast<void*>(Constructor) },
+        ani_native_function { "getUrl", nullptr, reinterpret_cast<void*>(GetUrl) },
         ani_native_function { "getGuid", nullptr, reinterpret_cast<void*>(GetGuid) },
         ani_native_function { "getPercentComplete", nullptr, reinterpret_cast<void*>(GetPercentComplete) },
         ani_native_function { "getSuggestedFileName", nullptr, reinterpret_cast<void*>(GetSuggestedFileName) },

@@ -109,7 +109,7 @@ ani_object JSInitialize(ani_env* env, ani_object object)
     return promise;
 }
 
-static ani_object JsRead(ani_env* env, ani_object object, ani_double size)
+static ani_object JsRead(ani_env* env, ani_object object, ani_int size)
 {
     WVLOG_D("WebHttpBodyStream JsRead start.");
     if (env == nullptr) {
@@ -135,20 +135,18 @@ static ani_object JsRead(ani_env* env, ani_object object, ani_double size)
     return promise;
 }
 
-static ani_double GetPosition(ani_env* env, ani_object object)
+static ani_long GetPosition(ani_env* env, ani_object object)
 {
     WVLOG_D("WebHttpBodyStream GetSize.");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
-        return -1;
+        return static_cast<ani_long>(-1);
     }
-
-    ani_double position;
 
     auto* stream = reinterpret_cast<WebHttpBodyStream*>(AniParseUtils::Unwrap(env, object));
     if (!stream) {
         WVLOG_E("stream is nullptr");
-        return -1;
+        return static_cast<ani_long>(-1);
     }
     std::shared_ptr<OHOS::NWeb::WebHttpBodyStream> httpBodyStream;
     if (stream != nullptr) {
@@ -156,26 +154,24 @@ static ani_double GetPosition(ani_env* env, ani_object object)
     }
     if (httpBodyStream == nullptr) {
         WVLOG_E("httpBodyStream is nullptr");
-        return -1;
+        return static_cast<ani_long>(-1);
     }
-    position = static_cast<ani_double>(httpBodyStream->GetSize());
-    return position;
+
+    return static_cast<ani_long>(httpBodyStream->GetSize());
 }
 
-static ani_double GetSize(ani_env* env, ani_object object)
+static ani_long GetSize(ani_env* env, ani_object object)
 {
     WVLOG_D("WebHttpBodyStream GetSize.");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
-        return -1;
+        return static_cast<ani_long>(0);
     }
-
-    ani_double size;
 
     auto* stream = reinterpret_cast<WebHttpBodyStream*>(AniParseUtils::Unwrap(env, object));
     if (!stream) {
         WVLOG_E("stream is nullptr");
-        return -1;
+        return static_cast<ani_long>(0);
     }
     std::shared_ptr<OHOS::NWeb::WebHttpBodyStream> httpBodyStream;
     if (stream != nullptr) {
@@ -183,10 +179,10 @@ static ani_double GetSize(ani_env* env, ani_object object)
     }
     if (httpBodyStream == nullptr) {
         WVLOG_E("httpBodyStream is nullptr");
-        return -1;
+        return static_cast<ani_long>(0);
     }
-    size = static_cast<ani_double>(httpBodyStream->GetSize());
-    return size;
+
+    return static_cast<ani_long>(httpBodyStream->GetSize());
 }
 
 ani_status StsWebHttpBodyStreamInit(ani_env* env)

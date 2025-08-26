@@ -412,42 +412,32 @@ static ani_string GetString(ani_env* env, ani_object object)
     return result;
 }
 
-static ani_double GetNumber(ani_env* env, ani_object object)
+static ani_object GetNumber(ani_env* env, ani_object object)
 {
     WVLOG_I("GetNumber webJsMessageExt start");
-    ani_double result = 0.0;
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
-        return result;
+        return nullptr;
     }
 
     WebJsMessageExt* webJsMessageExt = reinterpret_cast<WebJsMessageExt*>(AniParseUtils::Unwrap(env, object));
     if (webJsMessageExt == nullptr) {
         WVLOG_E("unwrap webJsMessageExt failed.");
-        return result;
+        return nullptr;
     }
 
     if (webJsMessageExt->GetType() != static_cast<int32_t>(JsMessageType::NUMBER)) {
         AniBusinessError::ThrowErrorByErrCode(env, TYPE_NOT_MATCH_WITCH_VALUE);
-        return result;
+        return nullptr;
     }
 
     auto message = webJsMessageExt->GetJsMsgResult();
     if (message == nullptr) {
         WVLOG_E("message failed.");
-        return result;
+        return nullptr;
     }
-    NWebValue::Type type = message->GetType();
-    if (type == NWebValue::Type::INTEGER) {
-        int64_t value = message->GetInt64();
-        result = static_cast<ani_long>(value);
-        WVLOG_I("GetString value = %{public}d", static_cast<int>(value));
-    }
-    if (type == NWebValue::Type::DOUBLE) {
-        double value = message->GetDouble();
-        result = static_cast<ani_double>(value);
-    }
-    return result;
+
+    return static_cast<ani_object>(AniParseUtils::ConvertNWebToAniValue(env, message));
 }
 
 static ani_boolean GetBoolean(ani_env* env, ani_object object)

@@ -696,7 +696,7 @@ bool AniParseUtils::ParseInt64(ani_env* env, ani_ref ref, int64_t& outValue)
     }
 
     ani_long value;
-    env->Object_CallMethodByName_Long(static_cast<ani_object>(ref), "unboxed", ":L", &value);
+    env->Object_CallMethodByName_Long(static_cast<ani_object>(ref), "unboxed", ":J", &value);
     outValue = static_cast<int64_t>(value);
     return true;
 }

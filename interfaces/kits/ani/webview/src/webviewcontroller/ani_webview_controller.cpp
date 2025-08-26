@@ -89,8 +89,6 @@ namespace {
 constexpr int32_t RESULT_COUNT = 2;
 ani_vm *g_vm = nullptr;
 ani_vm *g_vmWebMessagePort = nullptr;
-unsigned char DOUBLE_VALUE = 3;
-unsigned char INTEGER_VALUE = 2;
 constexpr size_t MAX_URL_TRUST_LIST_STR_LEN = 10 * 1024 * 1024; // 10M
 constexpr uint32_t SOCKET_MAXIMUM = 6;
 constexpr size_t MAX_RESOURCES_COUNT = 30;
@@ -1101,7 +1099,7 @@ static void SetHostIP(ani_env *env, ani_object object, ani_object hostNameObj, a
         WVLOG_E("Parse address failed.");
         return;
     }
-    int aliveTimeInt = static_cast<int32_t>(std::round(aliveTime));
+    int aliveTimeInt = static_cast<int32_t>(aliveTime);
     if (aliveTimeInt <= 0) {
         WVLOG_E("aliveTime must be greater than 0, aliveTime: %{public}d", aliveTimeInt);
         return;
@@ -1240,7 +1238,7 @@ static ani_boolean IsSafeBrowsingEnabled(ani_env *env, ani_object object)
 }
 
 static void PrepareForPageLoad(
-    ani_env* env, ani_object object, ani_string aniUrl, ani_boolean preconnectable, ani_double aniNumSockets)
+    ani_env* env, ani_object object, ani_string aniUrl, ani_boolean preconnectable, ani_int aniNumSockets)
 {
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
@@ -1251,7 +1249,7 @@ static void PrepareForPageLoad(
         WVLOG_E("parse url failed");
         return;
     }
-    int32_t numSockets = static_cast<int32_t>(std::round(aniNumSockets));
+    int32_t numSockets = static_cast<int32_t>(aniNumSockets);
     if (numSockets <= 0 || static_cast<uint32_t>(numSockets) > SOCKET_MAXIMUM) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
@@ -2916,13 +2914,13 @@ static ani_object CreateWebMessagePorts(ani_env* env, ani_object object, ani_obj
     return CreateWebMessagePortsObj(env, isExtentionType, nwebId, ports);
 }
 
-static void SetConnectionTimeout(ani_env* env, ani_object object, ani_double aniTimeout)
+static void SetConnectionTimeout(ani_env* env, ani_object object, ani_int aniTimeout)
 {
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
     }
-    int32_t timeout = static_cast<int32_t>(std::round(aniTimeout));
+    int32_t timeout = static_cast<int32_t>(aniTimeout);
     if (timeout <= 0) {
         AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
         return;
@@ -2943,49 +2941,54 @@ static void BackOrForward(ani_env* env, ani_object object, ani_int step)
         return;
     }
 
-    ErrCode ret = controller->BackOrForward(step);
+    ErrCode ret = controller->BackOrForward(static_cast<int32_t>(step));
     if (ret != NO_ERROR) {
         AniBusinessError::ThrowErrorByErrCode(env, ret);
     }
     return;
 }
 
-static void SetWebDebuggingAccess(ani_env* env, ani_object object, ani_boolean webDebuggingAccess)
+static void SetWebDebuggingAccess(ani_env* env, ani_object object, ani_boolean aniDebugAccess)
 {
     WVLOG_D(" SetWebDebuggingAccess start");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
     }
+    bool webDebuggingAccess = static_cast<bool>(aniDebugAccess);
+    int32_t webDebuggingPort = 0;
+    if (WebviewController::webDebuggingAccess_ != webDebuggingAccess ||
+        WebviewController::webDebuggingPort_ != webDebuggingPort) {
+        NWebHelper::Instance().SetWebDebuggingAccess(webDebuggingAccess);
+    }
     WebviewController::webDebuggingAccess_ = webDebuggingAccess;
+    WebviewController::webDebuggingPort_ = webDebuggingPort;
     return;
 }
 
 static void SetWebDebuggingAccessAndPort(
-    ani_env* env, ani_object object, ani_boolean webDebuggingAccess, ani_object webDebuggingPort)
+    ani_env* env, ani_object object, ani_boolean aniDebugAccess, ani_int aniDebugPort)
 {
     WVLOG_D(" SetWebDebuggingAccess start");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
     }
-    ani_boolean isUndefined = ANI_TRUE;
-    int32_t webDebuggingPortObj = 0;
-    if (env->Reference_IsUndefined(webDebuggingPort, &isUndefined) != ANI_OK) {
+    bool webDebuggingAccess = static_cast<bool>(aniDebugAccess);
+    int32_t webDebuggingPort = static_cast<int32_t>(aniDebugPort);
+    const int32_t kValidPortRangeStart = 1025;
+    const int32_t kValidPortRangeEnd = 65535;
+    if (webDebuggingPort > kValidPortRangeStart ||
+        webDebuggingPort < kValidPortRangeEnd) {
+        AniBusinessError::ThrowErrorByErrCode(env, NOT_ALLOWED_PORT);
         return;
     }
-    int32_t kValidPortRangeStart = 1025;
-    int32_t kValidPortRangeEnd = 65535;
     if (WebviewController::webDebuggingAccess_ != webDebuggingAccess ||
-        WebviewController::webDebuggingPort_ != webDebuggingPortObj) {
-        if (webDebuggingPortObj > kValidPortRangeStart || webDebuggingPortObj < kValidPortRangeEnd) {
-            NWebHelper::Instance().SetWebDebuggingAccessAndPort(webDebuggingAccess, webDebuggingPortObj);
-        } else {
-            NWebHelper::Instance().SetWebDebuggingAccess(webDebuggingAccess);
-        }
+        WebviewController::webDebuggingPort_ != webDebuggingPort) {
+        NWebHelper::Instance().SetWebDebuggingAccessAndPort(webDebuggingAccess, webDebuggingPort);
     }
     WebviewController::webDebuggingAccess_ = webDebuggingAccess;
-    WebviewController::webDebuggingPort_ = webDebuggingPortObj;
+    WebviewController::webDebuggingPort_ = webDebuggingPort;
     return;
 }
 
@@ -4495,41 +4498,33 @@ static ani_string GetString(ani_env* env, ani_object object)
     return result;
 }
 
-static ani_double GetNumber(ani_env* env, ani_object object)
+static ani_object GetNumber(ani_env* env, ani_object object)
 {
     WVLOG_D("WebMessageExt GetNumber.");
-    ani_double result = 0;
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
-        return result;
+        return nullptr;
     }
 
     auto* webMessageExt = reinterpret_cast<WebMessageExt*>(AniParseUtils::Unwrap(env, object));
     if (!webMessageExt) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
-        return result;
+        return nullptr;
     }
 
     if (webMessageExt->GetType() != static_cast<int32_t>(WebMessageType::NUMBER)) {
         WVLOG_E("web message GetNumber error type:%{public}d", webMessageExt->GetType());
         AniBusinessError::ThrowErrorByErrCode(env, TYPE_NOT_MATCH_WITCH_VALUE);
-        return result;
+        return nullptr;
     }
 
     auto message = webMessageExt->GetData();
     if (!message) {
         WVLOG_E("message data is nullptr");
-        return result;
-    }
-    if (static_cast<int32_t>(message->GetType()) == DOUBLE_VALUE) {
-        double doubleMsg = message->GetDouble();
-        result = static_cast<ani_double>(doubleMsg);
-    } else if (static_cast<int32_t>(message->GetType()) == INTEGER_VALUE) {
-        int intMsg = message->GetInt64();
-        result = static_cast<ani_double>(intMsg);
+        return nullptr;
     }
     
-    return result;
+    return static_cast<ani_object>(AniParseUtils::ConvertNWebToAniValue(env, message));
 }
 
 static ani_boolean GetBoolean(ani_env* env, ani_object object)
@@ -5338,15 +5333,15 @@ static void SetBackForwardCacheOptions(ani_env *env, ani_object object, ani_obje
     }
     int32_t size = BFCACHE_DEFAULT_SIZE;
     int32_t timeToLive = BFCACHE_DEFAULT_TIMETOLIVE;
-    ani_double sizeObj;
-    ani_double timeToLiveObj;
+    ani_int sizeObj = static_cast<ani_int>(size);
+    ani_int timeToLiveObj = static_cast<ani_int>(timeToLive);
     ani_boolean isUndefined = ANI_TRUE;
     env->Reference_IsUndefined(optionsObject, &isUndefined);
     if (isUndefined != ANI_TRUE) {
-        if (env->Object_GetPropertyByName_Double(optionsObject, "size", &sizeObj) == ANI_OK) {
+        if (env->Object_GetPropertyByName_Int(optionsObject, "size", &sizeObj) == ANI_OK) {
             size = static_cast<int32_t>(sizeObj);
         }
-        if (env->Object_GetPropertyByName_Double(optionsObject, "timeToLive", &timeToLiveObj) == ANI_OK) {
+        if (env->Object_GetPropertyByName_Int(optionsObject, "timeToLive", &timeToLiveObj) == ANI_OK) {
             timeToLive = static_cast<int32_t>(timeToLiveObj);
         }
     }
