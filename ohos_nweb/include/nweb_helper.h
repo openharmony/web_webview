@@ -155,6 +155,10 @@ public:
 
     void SetWebDestroyMode(WebDestroyMode mode);
 
+    void SetAutoPreconnect(bool enable);
+
+    bool IsAutoPreconnectEnabled();
+
 private:
     NWebHelper() = default;
     bool GetWebEngine(bool fromArk);
@@ -163,6 +167,7 @@ private:
 private:
     int coreApiLevel_ = 0;
     bool initFlag_ = false;
+    bool autopreconnectenabled_ = true;
     std::string bundlePath_;
     std::string customSchemeCmdLine_;
     std::shared_ptr<NWebEngine> nwebEngine_ = nullptr;
