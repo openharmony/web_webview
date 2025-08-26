@@ -72,58 +72,22 @@ const std::string SANDBOX_EVERGREEN_HAP_PATH = "/data/storage/el1/bundle/arkwebc
 const std::string JSON_CONFIG_PATH =
     "/data/service/el1/public/update/param_service/install/system/etc/ArkWebSafeBrowsing/generic/ArkWebCoreCfg.json";
 
-TEST(arkweb_utils_test, setActiveWebEngineVersion001) {
-    setActiveWebEngineVersion(ArkWebEngineVersion::SYSTEM_DEFAULT);
+TEST(arkweb_utils_test, SetActiveWebEngineVersionInner001) {
+    SetActiveWebEngineVersionInner(ArkWebEngineVersion::SYSTEM_DEFAULT);
 
-    EXPECT_EQ(getAppWebEngineVersion(), ArkWebEngineVersion::SYSTEM_DEFAULT);
+    EXPECT_EQ(getActiveWebEngineVersion(), ArkWebEngineVersion::SYSTEM_DEFAULT);
 }
 
-TEST(arkweb_utils_test, setActiveWebEngineVersion002) {
-    setActiveWebEngineVersion(ArkWebEngineVersion::M114);
+TEST(arkweb_utils_test, SetActiveWebEngineVersionInner002) {
+    SetActiveWebEngineVersionInner(ArkWebEngineVersion::M114);
 
-    EXPECT_EQ(getAppWebEngineVersion(), ArkWebEngineVersion::M114);
+    EXPECT_EQ(getActiveWebEngineVersion(), ArkWebEngineVersion::M114);
 }
 
-TEST(arkweb_utils_test, setActiveWebEngineVersion003) {
-    setActiveWebEngineVersion(ArkWebEngineVersion::M132);
+TEST(arkweb_utils_test, SetActiveWebEngineVersionInner003) {
+    SetActiveWebEngineVersionInner(ArkWebEngineVersion::M132);
 
-    EXPECT_EQ(getAppWebEngineVersion(), ArkWebEngineVersion::M132);
-}
-
-TEST(arkweb_utils_test, setActiveWebEngineVersion004) {
-    setActiveWebEngineVersion(ArkWebEngineVersion::SYSTEM_DEFAULT);
-    setActiveWebEngineVersion(static_cast<ArkWebEngineVersion>(3));
-
-    EXPECT_EQ(getAppWebEngineVersion(), ArkWebEngineVersion::SYSTEM_DEFAULT);
-}
-
-TEST(arkweb_utils_test, getActiveWebEngineVersion001) {
-    int webEngineEnforce = OHOS::system::GetIntParameter("web.engine.enforce", 0);
-    OHOS::system::SetParameter("web.engine.enforce", std::to_string(1));
-
-    auto res = getActiveWebEngineVersion();
-    EXPECT_EQ(res, ArkWebEngineVersion::M132);
-    OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
-}
-
-TEST(arkweb_utils_test, getActiveWebEngineVersion002) {
-    int webEngineEnforce = OHOS::system::GetIntParameter("web.engine.enforce", 0);
-    OHOS::system::SetParameter("web.engine.enforce", std::to_string(0));
-    setActiveWebEngineVersion(ArkWebEngineVersion::SYSTEM_DEFAULT);
-
-    auto res = getActiveWebEngineVersion();
-    EXPECT_EQ(res, ArkWebEngineVersion::M132);
-    OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
-}
-
-TEST(arkweb_utils_test, getActiveWebEngineVersion003) {
-    int webEngineEnforce = OHOS::system::GetIntParameter("web.engine.enforce", 0);
-    OHOS::system::SetParameter("web.engine.enforce", std::to_string(0));
-    setActiveWebEngineVersion(ArkWebEngineVersion::M114);
-
-    auto res = getActiveWebEngineVersion();
-    EXPECT_EQ(res, ArkWebEngineVersion::M114);
-    OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
+    EXPECT_EQ(getActiveWebEngineVersion(), ArkWebEngineVersion::M132);
 }
 
 TEST(arkweb_utils_test, getActiveWebEngineType001) {
@@ -256,6 +220,26 @@ TEST(arkweb_utils_test, GetArkwebInstallPath002) {
         EXPECT_TRUE(res);
     }
 
+    OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
+}
+
+TEST(arkweb_utils_test, SelectWebcoreBeforeProcessRun001) {
+    std::string appBundleName = "com.example.app";
+    int webEngineEnforce = OHOS::system::GetIntParameter("web.engine.enforce", 0);
+    OHOS::system::SetParameter("web.engine.enforce", std::to_string(0));
+
+    SelectWebcoreBeforeProcessRun(appBundleName);
+    EXPECT_EQ(getActiveWebEngineVersion(), ArkWebEngineVersion::M132);
+    OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
+}
+
+TEST(arkweb_utils_test, SelectWebcoreBeforeProcessRun002) {
+    std::string appBundleName = "com.example.app2";
+    int webEngineEnforce = OHOS::system::GetIntParameter("web.engine.enforce", 0);
+    OHOS::system::SetParameter("web.engine.enforce", std::to_string(0));
+
+    SelectWebcoreBeforeProcessRun(appBundleName);
+    EXPECT_EQ(getActiveWebEngineVersion(), ArkWebEngineVersion::M132);
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
 }
 } // namespace OHOS::NWeb

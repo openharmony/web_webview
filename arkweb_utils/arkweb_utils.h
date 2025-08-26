@@ -76,8 +76,9 @@ enum class ArkWebEngineType {
 ARKWEB_EXPORT void setActiveWebEngineVersion(ArkWebEngineVersion version);
 ARKWEB_EXPORT ArkWebEngineVersion getActiveWebEngineVersion();
 ARKWEB_EXPORT ArkWebEngineType getActiveWebEngineType();
-ARKWEB_EXPORT ArkWebEngineVersion getAppWebEngineVersion();
+ARKWEB_EXPORT void SetActiveWebEngineVersionInner(ArkWebEngineVersion version);
 ARKWEB_EXPORT bool IsActiveWebEngineEvergreen();
+ARKWEB_EXPORT void SelectWebcoreBeforeProcessRun(const std::string& appBundleName);
 
 ARKWEB_EXPORT std::string GetArkwebLibPath();
 ARKWEB_EXPORT std::string GetArkwebNameSpace();
