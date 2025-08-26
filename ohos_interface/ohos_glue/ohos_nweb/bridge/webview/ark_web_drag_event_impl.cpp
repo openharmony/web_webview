@@ -38,4 +38,19 @@ int ArkWebDragEventImpl::GetAction()
     return static_cast<int>(nweb_drag_event_->GetAction());
 }
 
+int ArkWebDragEventImpl::GetDragOperation()
+{
+    return static_cast<int>(nweb_drag_event_->GetDragOperation());
+}
+
+int ArkWebDragEventImpl::GetAllowedDragOperation()
+{
+    return static_cast<int>(nweb_drag_event_->GetAllowedDragOperation());
+}
+
+bool ArkWebDragEventImpl::IsDragOpValid()
+{
+    return nweb_drag_event_->IsDragOpValid();
+}
+
 } // namespace OHOS::ArkWeb

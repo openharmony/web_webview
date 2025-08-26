@@ -38,4 +38,19 @@ ArkWebDragAction ArkWebDragEventWrapper::GetAction()
     return static_cast<ArkWebDragAction>(ark_web_drag_event_->GetAction());
 }
 
+ArkWebDragOperation ArkWebDragEventWrapper::GetDragOperation() const
+{
+    return static_cast<ArkWebDragOperation>(ark_web_drag_event_->GetDragOperation());
+}
+
+ArkWebDragOperationsMask ArkWebDragEventWrapper::GetAllowedDragOperation() const
+{
+    return static_cast<ArkWebDragOperationsMask>(ark_web_drag_event_->GetAllowedDragOperation());
+}
+
+bool ArkWebDragEventWrapper::IsDragOpValid() const
+{
+    return ark_web_drag_event_->IsDragOpValid();
+}
+
 } // namespace OHOS::ArkWeb

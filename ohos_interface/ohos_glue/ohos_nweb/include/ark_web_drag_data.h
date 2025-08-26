@@ -121,6 +121,12 @@ public:
      */
     /*--ark web()--*/
     virtual bool IsDragNewStyle() = 0;
+
+    /**
+     * @Description: get allowed drag operation mask.
+     */
+    /*--ark web()--*/
+    virtual int GetAllowedDragOperation() = 0;
 };
 
 } // namespace OHOS::ArkWeb

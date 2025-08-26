@@ -107,6 +107,16 @@ public:
      */
     bool IsDragNewStyle() override;
 
+    /**
+     * @brief get allowed drag operation mask for current drag.
+     */
+    OHOS::NWeb::NWebDragData::DragOperationsMask GetAllowedDragOperation() const override;
+
+    /**
+     * @brief set allowed drag operation mask.
+     */
+    void SetAllowedDragOperation(DragOperationsMask allowed_op) override {}
+
 private:
     ArkWebRefPtr<ArkWebDragData> ark_web_drag_data_;
 };

@@ -109,6 +109,11 @@ public:
      */
     bool IsDragNewStyle() override;
 
+    /**
+     * @brief get allowed drag operation mask for current drag.
+     */
+    int GetAllowedDragOperation() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebDragData> nweb_drag_data_;
 };

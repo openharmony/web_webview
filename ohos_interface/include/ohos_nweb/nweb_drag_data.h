@@ -40,6 +40,17 @@ public:
         DRAG_OPERATION_DELETE = 32,
         DRAG_OPERATION_EVERY = UINT_MAX
     };
+
+    // Mask of the allowed drag-and-drop operations.
+    // These constants match their equivalents in NSDragOperation and
+    // should not be renumbered.
+    enum class DragOperationsMask {
+        DRAG_ALLOW_NONE = 0,
+        DRAG_ALLOW_COPY = 1,
+        DRAG_ALLOW_LINK = 2,
+        DRAG_ALLOW_MOVE = 16,
+        DRAG_ALLOW_EVERY = UINT_MAX
+    };
     NWebDragData() = default;
     virtual ~NWebDragData() = default;
 
@@ -92,6 +103,12 @@ public:
     virtual bool IsDragNewStyle() {
         return false;
     }
+
+    // get allowed drag operation mask for current drag.
+    virtual DragOperationsMask GetAllowedDragOperation() const = 0;
+
+    // set allowed drag operation for current drag.
+    virtual void SetAllowedDragOperation(DragOperationsMask allowed_op) = 0;
 };
 
 } // namespace OHOS::NWeb
