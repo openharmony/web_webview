@@ -703,6 +703,22 @@ export default namespace webview {
             }
             return this.precompileJavaScriptInternal(url,resScript,cacheOptions);
         }
+        native runJavaScriptCallback(script: string, callback: AsyncCallback<string>): void;
+        runJavaScript(script: string, callback: AsyncCallback<string>): void {
+            this.runJavaScriptCallback(script, callback);
+        }
+        native runJavaScriptPromise(script: string): Promise<string>;
+        runJavaScript(script: string): Promise<string> {
+            return this.runJavaScriptPromise(script);
+        }
+        native runJavaScriptCallbackExt(script: string | ArrayBuffer, callback: AsyncCallback<JsMessageExt>): void;
+        runJavaScriptExt(script: string | ArrayBuffer, callback: AsyncCallback<JsMessageExt>): void {
+            this.runJavaScriptCallbackExt(script, callback);
+        }
+        native runJavaScriptPromiseExt(script: string | ArrayBuffer): Promise<string>;
+        runJavaScriptExt(script: string | ArrayBuffer): Promise<string> {
+            return this.runJavaScriptPromiseExt(script);
+        }
     }
 
     export class WebSchemeHandlerResponse {
@@ -1633,6 +1649,44 @@ export default namespace webview {
         native getError(): Error;
     }
 
+    export enum JsMessageType {
+        NOT_SUPPORT,
+        STRING,
+        NUMBER,
+        BOOLEAN,
+        ARRAY_BUFFER,
+        ARRAY
+    }
+    export class JsMessageExt {
+        static {
+            loadLibrary("webview_ani.z");
+        }
+
+        private nativePtr: long = 0;
+        private cleaner?: Cleaner;
+
+        registerCleaner(ptr: long): void {
+            this.cleaner = new Cleaner(ptr, "JsMessageExt")
+            destroyRegister.register(this, this.cleaner!, unregisterToken);
+        }
+        unregisterCleaner(): void {
+            destroyRegister.unregister(unregisterToken);
+        }
+
+        bindNativePtr(ptr: long): void {
+            if (this.nativePtr == 0) {
+                this.nativePtr = ptr;
+                this.registerCleaner(this.nativePtr)
+            }
+        }
+
+        native getType(): JsMessageType;
+        native getString(): string;
+        native getNumber(): number;
+        native getBoolean(): boolean;
+        native getArrayBuffer(): ArrayBuffer;
+        native getArray(): Array<string | number | boolean>;
+    }
 
     export class PrintDocumentAdapterInner implements print.PrintDocumentAdapter{
         static {
