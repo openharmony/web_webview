@@ -417,6 +417,8 @@ private:
     static napi_value SetActiveWebEngineVersion(napi_env env, napi_callback_info info);
     static napi_value GetActiveWebEngineVersion(napi_env env, napi_callback_info info);
     static napi_value IsActiveWebEngineEvergreen(napi_env env, napi_callback_info info);
+    static napi_value SetAutoPreconnect(napi_env env, napi_callback_info info);
+    static napi_value IsAutoPreconnectEnabled(napi_env env, napi_callback_info info);
 };
 
 class ArkWebTransfer {

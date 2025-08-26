@@ -773,6 +773,8 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_FUNCTION("setActiveWebEngineVersion", NapiWebviewController::SetActiveWebEngineVersion),
         DECLARE_NAPI_STATIC_FUNCTION("getActiveWebEngineVersion", NapiWebviewController::GetActiveWebEngineVersion),
         DECLARE_NAPI_STATIC_FUNCTION("isActiveWebEngineEvergreen", NapiWebviewController::IsActiveWebEngineEvergreen),
+        DECLARE_NAPI_STATIC_FUNCTION("setAutoPreconnect", NapiWebviewController::SetAutoPreconnect),
+        DECLARE_NAPI_STATIC_FUNCTION("isAutoPreconnectEnabled", NapiWebviewController::IsAutoPreconnectEnabled),
     };
     napi_value constructor = nullptr;
     napi_define_class(env, WEBVIEW_CONTROLLER_CLASS_NAME.c_str(), WEBVIEW_CONTROLLER_CLASS_NAME.length(),
@@ -7737,6 +7739,52 @@ napi_value NapiWebviewController::IsActiveWebEngineEvergreen(napi_env env, napi_
     napi_value result = nullptr;
     bool isEvergreen = OHOS::ArkWeb::IsActiveWebEngineEvergreen();
     NAPI_CALL(env, napi_get_boolean(env, isEvergreen, &result));
+    return result;
+}
+
+napi_value NapiWebviewController::SetAutoPreconnect(napi_env env, napi_callback_info info)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_W("SetAutoPreconnect unsupported engine version: M114");
+        return nullptr;
+    }
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+
+    NAPI_CALL(env, napi_get_undefined(env, &result));
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
+        return result;
+    }
+
+    bool AutoPreconnectEnabled = true;
+    if (!NapiParseUtils::ParseBoolean(env, argv[0], AutoPreconnectEnabled)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "enable", "boolean"));
+        return result;
+    }
+
+    NWebHelper::Instance().SetAutoPreconnect(AutoPreconnectEnabled);
+    return result;
+}
+
+napi_value NapiWebviewController::IsAutoPreconnectEnabled(napi_env env, napi_callback_info info)
+{
+    bool AutoPreconnectEnabled = true;
+    napi_value result = nullptr;
+
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_W("IsPrivateNetworkAccessEnabled unsupported engine version: M114");
+        NAPI_CALL(env, napi_get_boolean(env, AutoPreconnectEnabled, &result));
+        return result;
+    }
+
+    AutoPreconnectEnabled = NWebHelper::Instance().IsAutoPreconnectEnabled();
+    NAPI_CALL(env, napi_get_boolean(env, AutoPreconnectEnabled, &result));
     return result;
 }
 } // namespace NWeb

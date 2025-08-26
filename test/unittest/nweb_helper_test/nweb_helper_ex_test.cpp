@@ -293,6 +293,7 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetConfigPath_005, TestSize.Level1)
     NWebHelper::Instance().EnableBackForwardCache(true, true);
     NWebHelper::Instance().SetCustomSchemeCmdLine("single-process");
     NWebHelper::Instance().SetBundlePath(INSTALLATION_DIR);
+    NWebHelper::Instance().SetAutoPreconnect(true);
     bool result = NWebHelper::Instance().InitAndRun(false);
     EXPECT_FALSE(result);
     NWebHelper::Instance().SetConnectionTimeout(1);
@@ -959,6 +960,23 @@ HWTEST_F(NwebHelperTest, NWebHelper_IsPrivateNetworkAccessEnabled_001, TestSize.
     NWebHelper::Instance().nwebEngine_ = nwebengineMock;
     NWebHelper::Instance().IsPrivateNetworkAccessEnabled();
     EXPECT_NE(NWebHelper::Instance().nwebEngine_, nullptr);
+}
+
+/**
+ * @tc.name: NWebHelper_SetAutoPreconnect_001
+ * @tc.desc: SetAutoPreconnect..
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_SetAutoPreconnect_001, TestSize.Level1)
+{
+    int32_t nweb_id = 1;
+    auto nwebHelper = NWebHelper::Instance().GetNWeb(nweb_id);
+    EXPECT_EQ(nwebHelper, nullptr);
+
+    NWebHelper::Instance().SetAutoPreconnect(true);
+    NWebHelper::Instance().SetAutoPreconnect(false);
+    EXPECT_EQ(NWebHelper::Instance().autopreconnectenabled_, false);
 }
 } // namespace OHOS::NWeb
 }
