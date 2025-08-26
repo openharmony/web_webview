@@ -1956,7 +1956,7 @@ public:
     virtual std::unique_ptr<NWebPrintDocumentAdapterAdapter> CreateWebPrintDocumentAdapterV2(
         const std::string& jobName) {
         return nullptr;
-    };
+    }
 
     /*
      * @brief Set unique key of current page for insert frame.
