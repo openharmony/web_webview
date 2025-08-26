@@ -2139,6 +2139,12 @@ public:
     virtual void PrefetchPageV2(
         const std::string& url, const std::map<std::string, std::string>& additionalHttpHeaders,
         int32_t minTimeBetweenPrefetchesMs, bool ignoreCacheControlNoStore) {}
+
+    /**
+     * @brief Set web should ignore zoom limit.
+     */
+    /*--ark web()--*/
+    virtual void SetForceEnableZoom(bool forceEnableZoom) const {}
 };
 
 } // namespace OHOS::NWeb

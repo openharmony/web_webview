@@ -1814,6 +1814,11 @@ public:
     void PrefetchPageV2(
         const std::string& url, const std::map<std::string, std::string>& additional_http_headers,
         int32_t minTimeBetweenPrefetchesMs, bool ignoreCacheControlNoStore) override;
+
+    /**
+     * @brief Set web should ignore zoom limit.
+     */
+    void SetForceEnableZoom(bool forceEnableZoom) const override;
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };

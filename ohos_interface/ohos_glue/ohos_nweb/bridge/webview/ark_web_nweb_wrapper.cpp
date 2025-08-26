@@ -1880,4 +1880,9 @@ void ArkWebNWebWrapper::PrefetchPageV2(
     ArkWebStringMapStructRelease(stHeaders);
 }
 
+void ArkWebNWebWrapper::SetForceEnableZoom(bool forceEnableZoom) const
+{
+    WVLOG_E("forceEnableZoom = %{public}d", forceEnableZoom);
+    ark_web_nweb_->SetForceEnableZoom(forceEnableZoom);
+}
 } // namespace OHOS::ArkWeb
