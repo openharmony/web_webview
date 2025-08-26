@@ -42,7 +42,7 @@ private:
     KeystoreAdapterImpl& operator=(const KeystoreAdapterImpl&) = delete;
 
     bool PrepareHuksInternal(struct HksParamSet** genParamSet, const struct HksBlob* keyAlias,
-        struct HksParamSet** workParamSet, struct HksParam* workParams, size_t workParamCount);
+        struct HksParamSet** workParamSet, struct HksParam* workParams, size_t workParamCount, bool mayGenerateKey);
 };
 
 } // namespace OHOS::NWeb

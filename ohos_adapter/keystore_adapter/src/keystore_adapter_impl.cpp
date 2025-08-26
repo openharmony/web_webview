@@ -87,11 +87,20 @@ int32_t KeystoreAdapterImpl::InitParamSet(
 }
 
 bool KeystoreAdapterImpl::PrepareHuksInternal(struct HksParamSet** genParamSet, const struct HksBlob* keyAlias,
-    struct HksParamSet** workParamSet, struct HksParam* workParams, size_t workParamCount)
+    struct HksParamSet** workParamSet, struct HksParam* workParams, size_t workParamCount, bool mayGenerateKey)
 {
     int32_t result = InitParamSet(genParamSet, g_genEncDecParams, sizeof(g_genEncDecParams) / sizeof(HksParam));
     if (result != HKS_SUCCESS) {
         WVLOG_E("init gen param set failed, error code: %d", result);
+        return false;
+    }
+    result = HksKeyExist(keyAlias, *genParamSet);
+    if (result != HKS_SUCCESS && mayGenerateKey) {
+        result = HksGenerateKey(keyAlias, *genParamSet, nullptr);
+        WVLOG_I("key absent, generate key result: %{public}d", result);
+    }
+    if (result != HKS_SUCCESS) {
+        WVLOG_E("hks key is not exist, error code: %d", result);
         HksFreeParamSet(genParamSet);
         return false;
     }
@@ -99,14 +108,6 @@ bool KeystoreAdapterImpl::PrepareHuksInternal(struct HksParamSet** genParamSet, 
     if (result != HKS_SUCCESS) {
         WVLOG_E("init work param set failed, error code: %d", result);
         HksFreeParamSet(genParamSet);
-        HksFreeParamSet(workParamSet);
-        return false;
-    }
-    result = HksKeyExist(keyAlias, *genParamSet);
-    if (result != HKS_SUCCESS) {
-        WVLOG_E("hks key is not exist, error code: %d", result);
-        HksFreeParamSet(genParamSet);
-        HksFreeParamSet(workParamSet);
         return false;
     }
     return true;
@@ -133,7 +134,7 @@ std::string KeystoreAdapterImpl::EncryptKey(const std::string alias, const std::
         { .tag = HKS_TAG_BLOCK_MODE, .uint32Param = HKS_MODE_CBC },
         { .tag = HKS_TAG_IV, .blob = { .size = IV_SIZE, .data = iv.data() } } };
     if (!PrepareHuksInternal(
-            &genParamSet, &keyAlias, &encryptParamSet, encryptParams, sizeof(encryptParams) / sizeof(HksParam))) {
+            &genParamSet, &keyAlias, &encryptParamSet, encryptParams, sizeof(encryptParams) / sizeof(HksParam), true)) {
         return std::string();
     }
 
@@ -189,8 +190,8 @@ std::string KeystoreAdapterImpl::DecryptKey(const std::string alias, const std::
         { .tag = HKS_TAG_IV,
             .blob = { .size = IV_SIZE, .data = ivStr.empty() ? (uint8_t*)IV : (uint8_t*)ivStr.c_str() } } };
     struct HksBlob cipherText = { cipherStr.length(), (uint8_t*)cipherStr.c_str() };
-    if (!PrepareHuksInternal(
-            &genParamSet, &keyAlias, &decryptParamSet, decryptParams, sizeof(decryptParams) / sizeof(HksParam))) {
+    if (!PrepareHuksInternal(&genParamSet, &keyAlias, &decryptParamSet, decryptParams,
+            sizeof(decryptParams) / sizeof(HksParam), false)) {
         return std::string();
     }
 
