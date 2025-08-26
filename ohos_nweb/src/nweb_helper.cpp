@@ -601,16 +601,6 @@ NWebHelper& NWebHelper::Instance()
     return helper;
 }
 
-void NWebHelper::TryPreReadLib(bool isFirstTimeStartUpWeb, const std::string& bundlePath)
-{
-    if (isFirstTimeStartUpWeb) {
-        WVLOG_D("first time startup, need to wait until the nweb init stage");
-        return;
-    }
-
-    ArkWeb::ArkWebNWebWebviewBridgeHelper::GetInstance().PreDlopenLibFile(bundlePath);
-}
-
 bool NWebHelper::Init(bool from_ark)
 {
     return LoadWebEngine(from_ark, false);

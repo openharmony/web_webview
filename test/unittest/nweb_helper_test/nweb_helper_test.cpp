@@ -300,35 +300,6 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetDataBase_003, TestSize.Level1)
 }
 
 /**
- * @tc.name: NWebHelper_TryPreReadLib_004
- * @tc.desc: TryPreReadLib.
- * @tc.type: FUNC
- * @tc.require: AR000GGHJ8
- */
-HWTEST_F(NwebHelperTest, NWebHelper_TryPreReadLib_004, TestSize.Level1)
-{
-    std::string hapPath = "";
-    if (access(MOCK_NWEB_INSTALLATION_DIR.c_str(), F_OK) == 0) {
-        hapPath = MOCK_NWEB_INSTALLATION_DIR;
-    }
-    NWebHelper::Instance().TryPreReadLib(false, hapPath);
-    NWebHelper::Instance().TryPreReadLib(true, hapPath);
-    bool result = NWebHelper::Instance().Init(false);
-    EXPECT_TRUE(result);
-    sptr<Surface> surface = nullptr;
-    std::shared_ptr<NWeb> nweb =
-        NWebAdapterHelper::Instance().CreateNWeb(surface, GetInitArgs(),
-        DEFAULT_WIDTH, DEFAULT_HEIGHT);
-    EXPECT_EQ(nweb, nullptr);
-    nweb = NWebAdapterHelper::Instance().CreateNWeb(g_surface, GetInitArgs(),
-                                                    DEFAULT_WIDTH, NWEB_MAX_WIDTH);
-    EXPECT_EQ(nweb, nullptr);
-    nweb = NWebAdapterHelper::Instance().CreateNWeb(g_surface, GetInitArgs(),
-                                                    NWEB_MAX_WIDTH, DEFAULT_HEIGHT);
-    EXPECT_EQ(nweb, nullptr);
-}
-
-/**
  * @tc.name: NWebHelper_GetConfigPath_005
  * @tc.desc: GetConfigPath.
  * @tc.type: FUNC
