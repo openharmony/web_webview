@@ -124,7 +124,7 @@ export default namespace webview {
 
     export class WebviewController {
         static {
-            loadLibrary("webview_ani.z");
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
         }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
@@ -597,7 +597,7 @@ export default namespace webview {
 
     export class WebStorage {
         static {
-            loadLibrary("webview_ani.z");
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
         }
         native static getOriginsSync(): Array<WebStorageOrigin>;
         native static getOriginQuotaSync(origin: string): number;
