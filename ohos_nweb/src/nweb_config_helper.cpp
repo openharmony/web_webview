@@ -121,6 +121,10 @@ const std::unordered_map<std::string_view, std::function<std::string(std::string
         [](std::string& contentStr) {
             return contentStr == "true" ? std::string("--ohos-enable-calc-tablet-mode") : std::string();
         } },
+    { "settingConfig/disableMobileStyleSheet",
+        [](std::string& contentStr) {
+            return contentStr == "true" ? std::string("--ohos-disable-mobile-style-sheet") : std::string();
+        } },
     { "outOfProcessGPUConfig/enableOopGpu",
         [](std::string& contentStr) { return contentStr == "true" ? std::string("--in-process-gpu") : std::string(); } }
 };
