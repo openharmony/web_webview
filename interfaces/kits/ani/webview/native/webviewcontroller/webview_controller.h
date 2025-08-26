@@ -221,16 +221,6 @@ public:
     ErrCode DeleteJavaScriptRegister(const std::string& objName,
         const std::vector<std::string>& methodList);
 
-    void RunJavaScriptCallback(const std::string &script, napi_env env, napi_ref jsCallback, bool extention);
-
-    void RunJavaScriptPromise(const std::string &script, napi_env env, napi_deferred deferred, bool extention);
-
-    void RunJavaScriptCallbackExt(
-        const int fd, const size_t scriptLength, napi_env env, napi_ref jsCallback, bool extention);
-
-    void RunJavaScriptPromiseExt(
-        const int fd, const size_t scriptLength, napi_env env, napi_deferred deferred, bool extention);
-
     std::string GetUrl();
 
     std::string GetOriginalUrl();
@@ -395,6 +385,9 @@ public:
     std::shared_ptr<HitTestResult> GetLastHitTest();
     
     void OnCreateNativeMediaPlayer(ani_vm *vm, ani_fn_object callback);
+
+    int32_t GetNWebId();
+
 private:
     int ConverToWebHitTestType(int hitType);
 
