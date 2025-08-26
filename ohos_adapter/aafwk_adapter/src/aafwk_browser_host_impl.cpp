@@ -157,6 +157,10 @@ void AafwkBrowserHostImpl::PassSurface(sptr<Surface> surface, int64_t surface_id
         WVLOG_E("get surfaceUtils failed.");
         return;
     }
+    if (!surfaceTmp) {
+        WVLOG_E("surface is nullptr");
+        return;
+    }
     surface_map_.emplace(surface_id, surfaceTmp);
     utils->Add(surface_id, surfaceTmp);
 }
