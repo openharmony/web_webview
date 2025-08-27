@@ -492,6 +492,57 @@ bool ParseRegisterJavaScriptProxyParam(napi_env env, size_t argc, napi_value* ar
     return true;
 }
 
+std::map<std::string, std::string> GetPrefetchPageWithHttpHeaders(napi_env env, napi_value array)
+{
+    std::map<std::string, std::string> additionalHttpHeaders;
+    uint32_t arrayLength = INTEGER_ZERO;
+    napi_get_array_length(env, array, &arrayLength);
+    for (uint32_t i = 0; i < arrayLength; ++i) {
+        std::string key;
+        std::string value;
+        napi_value obj = nullptr;
+        napi_value keyObj = nullptr;
+        napi_value valueObj = nullptr;
+        napi_get_element(env, array, i, &obj);
+        if (napi_get_named_property(env, obj, "headerKey", &keyObj) != napi_ok) {
+            continue;
+        }
+        if (napi_get_named_property(env, obj, "headerValue", &valueObj) != napi_ok) {
+            continue;
+        }
+        NapiParseUtils::ParseString(env, keyObj, key);
+        NapiParseUtils::ParseString(env, valueObj, value);
+        additionalHttpHeaders[key] = value;
+    }
+    
+    return additionalHttpHeaders;
+}
+ 
+std::shared_ptr<NWebPrefetchOptions> GetPrefetchOptions(napi_env env, napi_value Options)
+{
+    napi_value minTimeBetweenPrefetchesMsObj = nullptr;
+    int32_t minTimeBetweenPrefetchesMs = 500;
+    napi_get_named_property(env, Options, "minTimeBetweenPrefetchesMs", &minTimeBetweenPrefetchesMsObj);
+    if (!NapiParseUtils::ParseInt32(env, minTimeBetweenPrefetchesMsObj, minTimeBetweenPrefetchesMs)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "minTimeBetweenPrefetches", "number"));
+        return nullptr;
+    }
+ 
+    napi_value ignoreCacheControlNoStoreObj = nullptr;
+    bool ignoreCacheControlNoStore = false;
+    napi_get_named_property(env, Options, "ignoreCacheControlNoStore", &ignoreCacheControlNoStoreObj);
+    if (!NapiParseUtils::ParseBoolean(env, ignoreCacheControlNoStoreObj, ignoreCacheControlNoStore)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "ignoreCacheControlNoStore", "number"));
+        return nullptr;
+    }
+ 
+    std::shared_ptr<NWebPrefetchOptions> prefetchOptions = std::make_shared<NWebPrefetchOptionsImpl>(
+        minTimeBetweenPrefetchesMs, ignoreCacheControlNoStore);
+    return prefetchOptions;
+}
+
 napi_value RemoveDownloadDelegateRef(napi_env env, napi_value thisVar)
 {
     WebviewController *webviewController = nullptr;
@@ -4864,12 +4915,12 @@ napi_value NapiWebviewController::PrefetchPage(napi_env env, napi_callback_info 
 {
     napi_value thisVar = nullptr;
     napi_value result = nullptr;
-    size_t argc = INTEGER_TWO;
-    napi_value argv[INTEGER_TWO];
+    size_t argc = INTEGER_THREE;
+    napi_value argv[INTEGER_THREE];
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
-    if ((argc != INTEGER_ONE) && (argc != INTEGER_TWO)) {
+    if ((argc != INTEGER_ONE) && (argc != INTEGER_TWO) && (argc != INTEGER_THREE)) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
         return nullptr;
     }
@@ -4883,53 +4934,48 @@ napi_value NapiWebviewController::PrefetchPage(napi_env env, napi_callback_info 
         return nullptr;
     }
     std::map<std::string, std::string> additionalHttpHeaders;
-    if (argc == INTEGER_ONE) {
-        ErrCode ret = webviewController->PrefetchPage(url, additionalHttpHeaders);
-        if (ret != NO_ERROR) {
-            WVLOG_E("PrefetchPage failed, error code: %{public}d", ret);
-            BusinessError::ThrowErrorByErrcode(env, ret);
-            return nullptr;
-        }
-        NAPI_CALL(env, napi_get_undefined(env, &result));
-        return result;
+    if (argc != INTEGER_ONE) {
+        return PrefetchPageWithHttpHeadersAndPrefetchOptions(env, url,
+            argc, argv, webviewController);
     }
-    return PrefetchPageWithHttpHeaders(env, info, url, argv, webviewController);
-}
-
-napi_value NapiWebviewController::PrefetchPageWithHttpHeaders(napi_env env, napi_callback_info info, std::string& url,
-    const napi_value* argv, WebviewController* webviewController)
-{
-    napi_value result = nullptr;
-    std::map<std::string, std::string> additionalHttpHeaders;
-    napi_value array = argv[INTEGER_ONE];
-    bool isArray = false;
-    napi_is_array(env, array, &isArray);
-    if (isArray) {
-        uint32_t arrayLength = INTEGER_ZERO;
-        napi_get_array_length(env, array, &arrayLength);
-        for (uint32_t i = 0; i < arrayLength; ++i) {
-            std::string key;
-            std::string value;
-            napi_value obj = nullptr;
-            napi_value keyObj = nullptr;
-            napi_value valueObj = nullptr;
-            napi_get_element(env, array, i, &obj);
-            if (napi_get_named_property(env, obj, "headerKey", &keyObj) != napi_ok) {
-                continue;
-            }
-            if (napi_get_named_property(env, obj, "headerValue", &valueObj) != napi_ok) {
-                continue;
-            }
-            NapiParseUtils::ParseString(env, keyObj, key);
-            NapiParseUtils::ParseString(env, valueObj, value);
-            additionalHttpHeaders[key] = value;
-        }
-    } else {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+    ErrCode ret = webviewController->PrefetchPage(url, additionalHttpHeaders);
+    if (ret != NO_ERROR) {
+        WVLOG_E("PrefetchPage failed, error code: %{public}d", ret);
+        BusinessError::ThrowErrorByErrcode(env, ret);
         return nullptr;
     }
+    NAPI_CALL(env, napi_get_undefined(env, &result));
+    return result;
+}
 
-    ErrCode ret = webviewController->PrefetchPage(url, additionalHttpHeaders);
+napi_value NapiWebviewController::PrefetchPageWithHttpHeadersAndPrefetchOptions(napi_env env, std::string& url,
+    size_t argc, const napi_value* argv, WebviewController* webviewController)
+{
+    std::map<std::string, std::string> additionalHttpHeaders;
+    napi_value result = nullptr;
+    napi_value array = argv[INTEGER_ONE];
+    napi_value Options = argv[INTEGER_ONE];
+    bool isArray = false;
+    napi_is_array(env, array, &isArray);
+
+    if (isArray) {
+        additionalHttpHeaders = GetPrefetchPageWithHttpHeaders(env, array);
+        if (argc == INTEGER_THREE && !IS_CALLING_FROM_M114()) {
+            Options = argv[INTEGER_TWO];
+        } else {
+            ErrCode ret = webviewController->PrefetchPage(url, additionalHttpHeaders);
+            if (ret != NO_ERROR) {
+                WVLOG_E("PrefetchPage failed, error code: %{public}d", ret);
+                BusinessError::ThrowErrorByErrcode(env, ret);
+                return nullptr;
+            }
+            NAPI_CALL(env, napi_get_undefined(env, &result));
+            return result;
+        }
+    }
+ 
+    std::shared_ptr<NWebPrefetchOptions> prefetchOptions = GetPrefetchOptions(env, Options);
+    ErrCode ret = webviewController->PrefetchPage(url, additionalHttpHeaders, prefetchOptions);
     if (ret != NO_ERROR) {
         WVLOG_E("PrefetchPage failed, error code: %{public}d", ret);
         BusinessError::ThrowErrorByErrcode(env, ret);
