@@ -254,25 +254,6 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetDataBase_003, TestSize.Level1)
 }
 
 /**
- * @tc.name: NWebHelper_TryPreReadLib_004
- * @tc.desc: TryPreReadLib.
- * @tc.type: FUNC
- * @tc.require: AR000GGHJ8
- */
-HWTEST_F(NwebHelperTest, NWebHelper_TryPreReadLib_004, TestSize.Level1)
-{
-    std::string hapPath = "";
-    if (access(INSTALLATION_DIR.c_str(), F_OK) == 0) {
-        hapPath = INSTALLATION_DIR;
-    }
-    NWebHelper::Instance().TryPreReadLib(false, hapPath);
-    NWebHelper::Instance().TryPreReadLib(true, hapPath);
-    NWebHelper::Instance().SetBundlePath(INSTALLATION_DIR);
-    bool result = NWebAdapterHelper::Instance().Init(false);
-    EXPECT_FALSE(result);
-}
-
-/**
  * @tc.name: NWebHelper_GetConfigPath_005
  * @tc.desc: GetConfigPath.
  * @tc.type: FUNC

@@ -72,7 +72,6 @@ public:
     bool InitAndRun(bool from_ark = true);
     bool LoadWebEngine(bool fromArk, bool runFlag);
     void* LoadFuncSymbol(const char* funcName);
-    static void TryPreReadLib(bool isFirstTimeStartUpWeb, const std::string& bundlePath);
 
     std::shared_ptr<NWeb> CreateNWeb(std::shared_ptr<NWebCreateInfo> create_info);
     std::shared_ptr<NWebCookieManager> GetCookieManager();
