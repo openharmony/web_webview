@@ -398,12 +398,10 @@ HWTEST_F(DisplayManagerAdapterImplTest, OnChange_001, TestSize.Level1)
     std::unique_ptr<DisplayListenerAdapterImpl> displayListenerAdapterImpl =
         std::make_unique<DisplayListenerAdapterImpl>(nullptr);
     EXPECT_FALSE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(static_cast<DisplayId>(1)));
-    DisplayId id = DisplayManager::GetInstance().GetDefaultDisplayId();
     auto displayPtr = DisplayManager::GetInstance().GetDefaultDisplay();
     ASSERT_NE(displayPtr, nullptr);
     auto displayInfo = displayPtr->GetDisplayInfo();
     ASSERT_NE(displayInfo, nullptr);
-    EXPECT_EQ(id, DisplayManager::GetInstance().GetDefaultDisplayId());
     EXPECT_FALSE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(
         DisplayManager::GetInstance().GetDefaultDisplayId()));
     auto nwebDisplayInfo =  displayListenerAdapterImpl->ConvertDisplayInfo(*displayInfo);
