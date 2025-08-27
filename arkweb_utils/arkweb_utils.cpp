@@ -26,6 +26,8 @@ namespace OHOS::ArkWeb {
 
 static int g_appEngineVersion = static_cast<int>(ArkWebEngineVersion::SYSTEM_DEFAULT);
 static bool g_webEngineInitFlag = false;
+static ArkWebEngineVersion g_activeEngineVersion = ArkWebEngineVersion::SYSTEM_DEFAULT;
+static std::string g_appBundleName = "";
 
 #if defined(webview_arm64)
 const std::string ARK_WEB_CORE_MOCK_HAP_LIB_PATH =
@@ -83,6 +85,9 @@ const std::string SANDBOX_EVERGREEN_HAP_PATH = "/data/storage/el1/bundle/arkwebc
 const std::string JSON_CONFIG_PATH =
     "/data/service/el1/public/update/param_service/install/system/etc/ArkWebSafeBrowsing/generic/ArkWebCoreCfg.json";
 const std::string WEB_PARAM_PREFIX = "web.engine.";
+
+// 前向声明
+static ArkWebEngineVersion CalculateActiveWebEngineVersion();
 
 static bool validateSpecialParams(const std::string& key, int value)
 {
@@ -157,6 +162,12 @@ static void updateCfgToSystemParam()
     processJsonConfig(root);
 }
 
+void SelectWebcoreBeforeProcessRun(const std::string& appBundleName)
+{
+    g_appBundleName = appBundleName;
+    g_activeEngineVersion = CalculateActiveWebEngineVersion();
+}
+
 void PreloadArkWebLibForBrowser()
 {
     updateCfgToSystemParam();
@@ -169,6 +180,7 @@ void PreloadArkWebLibForBrowser()
                     static_cast<int>(ArkWebEngineType::EVERGREEN));
         }
     }
+    g_activeEngineVersion = CalculateActiveWebEngineVersion();
     return;
 }
 
@@ -187,24 +199,31 @@ void setActiveWebEngineVersion(ArkWebEngineVersion version)
         return;
     }
     g_appEngineVersion = static_cast<int>(version);
-    WVLOG_I("set appEngineVersion: %{public}d", g_appEngineVersion);
+    WVLOG_I("app setActiveWebEngineVersion: %{public}d", g_appEngineVersion);
+    g_activeEngineVersion = CalculateActiveWebEngineVersion();
 }
 
-ArkWebEngineVersion getAppWebEngineVersion()
+void SetActiveWebEngineVersionInner(ArkWebEngineVersion version)
 {
-    return static_cast<ArkWebEngineVersion>(g_appEngineVersion);
+    g_activeEngineVersion = version;
 }
 
 ArkWebEngineVersion getActiveWebEngineVersion()
 {
+    WVLOG_I("getActiveWebEngineVersion: %{public}d", g_activeEngineVersion);
+    return g_activeEngineVersion;
+}
+
+ArkWebEngineVersion CalculateActiveWebEngineVersion()
+{
     int webEngineEnforce = OHOS::system::GetIntParameter("web.engine.enforce", 0);
     if (webEngineEnforce == static_cast<int>(ArkWebEngineType::EVERGREEN)) {
-        WVLOG_I("WebEngineVersionResult, enforce EVERGREEN");
+        WVLOG_I("CalculateActiveWebEngineVersion, enforce EVERGREEN");
         return static_cast<ArkWebEngineVersion>(ArkWebEngineType::EVERGREEN);
     }
 
     if (g_appEngineVersion != static_cast<int>(ArkWebEngineVersion::SYSTEM_DEFAULT)) {
-        WVLOG_I("get appEngineVersion: %{public}d", g_appEngineVersion);
+        WVLOG_I("CalculateActiveWebEngineVersion appEngineVersion: %{public}d", g_appEngineVersion);
         if (g_appEngineVersion == static_cast<int>(ArkWebEngineVersion::SYSTEM_EVERGREEN)) {
             return static_cast<ArkWebEngineVersion>(ArkWebEngineType::EVERGREEN);
         }
@@ -215,11 +234,16 @@ ArkWebEngineVersion getActiveWebEngineVersion()
         static_cast<int>(ArkWebEngineType::EVERGREEN));
     if (webEngineDefault != static_cast<int>(ArkWebEngineType::LEGACY) &&
       webEngineDefault != static_cast<int>(ArkWebEngineType::EVERGREEN)) {
-        WVLOG_E("webEngineDefault is not EVERGREEN or LEGACY: %{public}d", webEngineDefault);
+        WVLOG_E("CalculateActiveWebEngineVersion, webEngineDefault error: %{public}d", webEngineDefault);
         return static_cast<ArkWebEngineVersion>(ArkWebEngineType::EVERGREEN);
     }
 
-    WVLOG_I("get webEngineDefault: %{public}d", webEngineDefault);
+    if (webEngineDefault == static_cast<int>(ArkWebEngineVersion::M114) &&
+      g_appBundleName == "com.example.app2") {
+        return static_cast<ArkWebEngineVersion>(ArkWebEngineType::EVERGREEN);
+    }
+
+    WVLOG_I("CalculateActiveWebEngineVersion webEngineDefault: %{public}d", webEngineDefault);
     return static_cast<ArkWebEngineVersion>(webEngineDefault);
 }
 
