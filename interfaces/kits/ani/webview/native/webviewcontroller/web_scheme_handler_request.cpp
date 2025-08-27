@@ -895,7 +895,7 @@ void WebHttpBodyStream::ExecuteRead(uint8_t* buffer, int bytesRead)
         delete asyncCtx->buffer;
     }
     if (asyncCtx->deferred) {
-     if (asyncCtx->env->PromiseResolver_Resolve(asyncCtx->deferred, arraybuffer) != ANI_OK) {
+        if (asyncCtx->env->PromiseResolver_Resolve(asyncCtx->deferred, arraybuffer) != ANI_OK) {
             WVLOG_E("WebHttpBodyStream::ExecuteInit PromiseResolver_Resolve failed");
         }
     }
