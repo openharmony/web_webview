@@ -1593,4 +1593,10 @@ void ArkWebNWebImpl::PrefetchPageV2(const ArkWebString& url, const ArkWebStringM
         minTimeBetweenPrefetchesMs, ignoreCacheControlNoStore);
 }
 
+void ArkWebNWebImpl::SetForceEnableZoom(bool forceEnableZoom)
+{
+    WVLOG_E("forceEnableZoom = %{public}d", forceEnableZoom);
+    nweb_nweb_->SetForceEnableZoom(forceEnableZoom);
+}
+
 } // namespace OHOS::ArkWeb

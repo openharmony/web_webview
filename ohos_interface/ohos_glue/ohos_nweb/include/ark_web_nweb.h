@@ -2046,6 +2046,12 @@ public:
     /*--ark web()--*/
     virtual void PrefetchPageV2(const ArkWebString& url, const ArkWebStringMap& additional_http_headers,
         int32_t minTimeBetweenPrefetchesMs, bool ignoreCacheControlNoStore) = 0;
+
+    /**
+     * @brief Set web should ignore zoom limit.
+     */
+    /*--ark web()--*/
+    virtual void SetForceEnableZoom(bool forceEnableZoom) {}
 };
 
 } // namespace OHOS::ArkWeb

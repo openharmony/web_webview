@@ -1800,6 +1800,12 @@ public:
      */
     void PrefetchPageV2(const ArkWebString& url, const ArkWebStringMap& additional_http_headers,
         int32_t minTimeBetweenPrefetchesMs, bool ignoreCacheControlNoStore) override;
+
+    /**
+     * @brief Set web should ignore zoom limit.
+     */
+    /*--ark web()--*/
+    void SetForceEnableZoom(bool forceEnableZoom) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };
