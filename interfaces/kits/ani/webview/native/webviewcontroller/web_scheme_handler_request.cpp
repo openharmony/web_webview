@@ -801,6 +801,11 @@ void WebHttpBodyStream::Read(int bufLen, ani_ref jsCallback, ani_resolver readRe
     if (buffer == nullptr) {
         return;
     }
+    if (!stream_) {
+        delete[] buffer;
+        buffer = nullptr;
+        return;
+    }
     OH_ArkWebHttpBodyStream_Read(stream_, buffer, bufLen);
 }
 
@@ -867,6 +872,7 @@ void WebHttpBodyStream::ExecuteRead(uint8_t* buffer, int bytesRead)
         .env = env_,
         .deferred = initResolver_,
         .buffer = buffer,
+        .bytesRead = bytesRead,
     };
     if (asyncCtx == nullptr) {
         WVLOG_E("WebHttpBodyStream::ExecuteRead asyncCtx is nullptr");
@@ -878,14 +884,19 @@ void WebHttpBodyStream::ExecuteRead(uint8_t* buffer, int bytesRead)
         delete asyncCtx;
         return;
     }
-    ani_ref resultRef;
-    asyncCtx->env->GetUndefined(&resultRef);
+    ani_arraybuffer arraybuffer;
+    void* bufferData = nullptr;
+    env_->CreateArrayBuffer(asyncCtx->bytesRead, &bufferData, &arraybuffer);
+    if (memcpy_s(bufferData, asyncCtx->bytesRead, asyncCtx->buffer, asyncCtx->bytesRead) != 0 &&
+        asyncCtx->bytesRead > 0) {
+        WVLOG_E("WebHttpBodyStream::ExecuteRead memcpy failed");
+    }
     if (asyncCtx->buffer) {
         delete asyncCtx->buffer;
     }
     if (asyncCtx->deferred) {
-        if (asyncCtx->env->PromiseResolver_Reject(asyncCtx->deferred, static_cast<ani_error>(resultRef)) != ANI_OK) {
-            WVLOG_E("WebHttpBodyStream::ExecuteInit PromiseResolver_Reject failed");
+     if (asyncCtx->env->PromiseResolver_Resolve(asyncCtx->deferred, arraybuffer) != ANI_OK) {
+            WVLOG_E("WebHttpBodyStream::ExecuteInit PromiseResolver_Resolve failed");
         }
     }
     delete asyncCtx;

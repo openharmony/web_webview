@@ -157,6 +157,7 @@ private:
         ani_env* env = nullptr;
         ani_resolver deferred;
         uint8_t* buffer = nullptr;
+        int bytesRead = 0;
     };
     ani_ref initJsCallback_ = nullptr;
     ani_resolver initResolver_ = nullptr;
