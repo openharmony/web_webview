@@ -39,6 +39,7 @@ public:
     enum ContextMenuMediaType {
         CM_MT_NONE,
         CM_MT_IMAGE,
+        CM_MT_TEXT,
     };
 
     enum ContextMenuEditStateFlags {
@@ -62,6 +63,7 @@ public:
         CM_ST_NONE = 0,
         CM_ST_MOUSE = 1,
         CM_ST_LONG_PRESS = 2,
+        CM_ST_LONG_TAP = 3,
     };
 
     virtual ~NWebContextMenuParams() = default;
