@@ -51,6 +51,7 @@
 #include "ohos_nweb/cpptoc/ark_web_value_vector_cpptoc.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
+#include "../../base/include/ark_web_errno.h"
 
 namespace OHOS::ArkWeb {
 
