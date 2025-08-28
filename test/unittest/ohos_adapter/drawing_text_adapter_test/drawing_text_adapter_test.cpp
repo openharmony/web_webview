@@ -257,5 +257,78 @@ HWTEST_F(DrawingTextAdapterImplTest, DrawingTextAdapterImplTest_011, TestSize.Le
     auto& instance2 = drawingTextFontAdapter->GetInstance();
     EXPECT_EQ(&instance1, &instance2);
 }
+
+/**
+* @tc.name  : DrawingTextAdapterImplTest_012
+* @tc.number: Test GetSystemFontFullNamesByType function when drawingArray is nullptr
+* @tc.desc  : FUNC
+*/
+HWTEST_F(DrawingTextAdapterImplTest, DrawingTextAdapterImplTest_012, TestSize.Level1)
+{
+    std::shared_ptr<OhosDrawingTextFontAdapterImpl> drawingTextFontAdapter =
+    std::make_shared<OhosDrawingTextFontAdapterImpl>();
+    ArkWeb_Drawing_SystemFontType systemFontType = ArkWeb_Drawing_SystemFontType::GENERIC;
+    void** drawingArray = nullptr;
+    int32_t errorCode = drawingTextFontAdapter->GetSystemFontFullNamesByType(
+        systemFontType, drawingArray);
+    EXPECT_EQ(errorCode, NWEB_ERROR);
+}
+
+/**
+ * @tc.name: DrawingTextAdapterImplTest_013.
+ * @tc.desc: test GetFontDescriptorByFullName when drawingFontDescriptor is nullptr
+ * @tc.type: FUNC.
+ * @tc.require:
+ */
+HWTEST_F(DrawingTextAdapterImplTest, DrawingTextAdapterImplTest_013, TestSize.Level1)
+{
+    std::shared_ptr<OhosDrawingTextFontAdapterImpl> drawingTextFontAdapter =
+        std::make_shared<OhosDrawingTextFontAdapterImpl>();
+    EXPECT_TRUE(drawingTextFontAdapter != nullptr);
+
+    void* drawingString = nullptr;
+    ArkWeb_Drawing_SystemFontType systemFontType = ArkWeb_Drawing_SystemFontType::GENERIC;
+    void** drawingFontDescriptor = nullptr;
+    int32_t errorCode = drawingTextFontAdapter->GetFontDescriptorByFullName(
+        drawingString, systemFontType, drawingFontDescriptor);
+    EXPECT_EQ(errorCode, NWEB_ERROR);
+}
+
+/*
+ * @tc.name: DrawingTextAdapterImplTest_014.
+ * @tc.desc: test GetSystemFontFullNameByIndex when drawingString is nullptr
+ * @tc.type: FUNC.
+ * @tc.require:
+ */
+HWTEST_F(DrawingTextAdapterImplTest, DrawingTextAdapterImplTest_014, TestSize.Level1)
+{
+    std::shared_ptr<OhosDrawingTextFontAdapterImpl> drawingTextFontAdapter =
+        std::make_shared<OhosDrawingTextFontAdapterImpl>();
+
+    void* drawingArray = nullptr;
+    int32_t indexOfFullName = 0;
+    const void** drawingString = nullptr;
+    int32_t errorCode = drawingTextFontAdapter->GetSystemFontFullNameByIndex(
+        drawingArray, indexOfFullName, drawingString);
+    EXPECT_EQ(errorCode, NWEB_ERROR);
+}
+
+/**
+ * @tc.name: DrawingTextAdapterImplTest_015.
+ * @tc.desc: test GetSystemFontConfigInfo when fontConfigInfo is nullptr.
+ * @tc.type: FUNC.
+ * @tc.require:
+ */
+HWTEST_F(DrawingTextAdapterImplTest, DrawingTextAdapterImplTest_015, TestSize.Level1)
+{
+    std::shared_ptr<OhosDrawingTextTypographyAdapterImpl> drawingTextTypographyAdapter =
+        std::make_shared<OhosDrawingTextTypographyAdapterImpl>();
+
+    void* fontConfigInfoErrorCode = nullptr;
+    void** fontConfigInfo = nullptr;
+    int32_t errorCode = drawingTextTypographyAdapter->GetSystemFontConfigInfo(
+        fontConfigInfoErrorCode,fontConfigInfo);
+    EXPECT_EQ(errorCode, NWEB_ERROR);
+}
 } // namespace NWeb
 } // namespace OHOS
