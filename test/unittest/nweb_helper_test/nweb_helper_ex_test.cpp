@@ -956,8 +956,9 @@ HWTEST_F(NwebHelperTest, NWebHelper_SetAutoPreconnect_001, TestSize.Level1)
     EXPECT_EQ(nwebHelper, nullptr);
 
     NWebHelper::Instance().SetAutoPreconnect(true);
+    EXPECT_EQ(NWebHelper::Instance().autoPreconnectEnabled_, true);
     NWebHelper::Instance().SetAutoPreconnect(false);
-    EXPECT_EQ(NWebHelper::Instance().autopreconnectenabled_, false);
+    EXPECT_EQ(NWebHelper::Instance().autoPreconnectEnabled_, false);
 }
 } // namespace OHOS::NWeb
 }
