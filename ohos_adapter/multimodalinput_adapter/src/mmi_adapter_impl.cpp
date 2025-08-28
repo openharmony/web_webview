@@ -54,7 +54,7 @@ MMIInputListenerAdapterImpl::~MMIInputListenerAdapterImpl()
 
 void MMIInputListenerAdapterImpl::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const
 {
-    if (!listener_) {
+    if (!listener_ || !keyEvent) {
         return;
     }
     if (keyEvent->GetKeyAction() != MMI::KeyEvent::KEY_ACTION_DOWN &&
@@ -81,14 +81,24 @@ int32_t MMIAdapterImpl::RegisterMMIInputListener(std::shared_ptr<MMIInputListene
         return -1;
     }
     inputListener_ = std::make_shared<MMIInputListenerAdapterImpl>(eventCallback);
-    int32_t id = InputManager::GetInstance()->AddMonitor(inputListener_);
+    auto manager = InputManager::GetInstance();
+    if (!manager) {
+        WVLOG_E("InputManager::GetInstance failed");
+        return -1;
+    }
+    int32_t id = manager->AddMonitor(inputListener_);
     WVLOG_D("RegisterMMIInputListener id = %{public}d", id);
     return id;
 };
 
 void MMIAdapterImpl::UnregisterMMIInputListener(int32_t monitorId)
 {
-    InputManager::GetInstance()->RemoveMonitor(monitorId);
+    auto manager = InputManager::GetInstance();
+    if (!manager) {
+        WVLOG_E("InputManager::GetInstance failed");
+        return;
+    }
+    manager->RemoveMonitor(monitorId);
 };
 
 int32_t MMIAdapterImpl::RegisterDevListener(std::string type, std::shared_ptr<MMIListenerAdapter> listener)
@@ -98,24 +108,44 @@ int32_t MMIAdapterImpl::RegisterDevListener(std::string type, std::shared_ptr<MM
         return -1;
     }
     devListener_ = std::make_shared<MMIListenerAdapterImpl>(listener);
-    return InputManager::GetInstance()->RegisterDevListener(type, devListener_);
+    auto manager = InputManager::GetInstance();
+    if (!manager) {
+        WVLOG_E("InputManager::GetInstance failed");
+        return -1;
+    }
+    return manager->RegisterDevListener(type, devListener_);
 };
 
 int32_t MMIAdapterImpl::UnregisterDevListener(std::string type)
 {
-    return InputManager::GetInstance()->UnregisterDevListener(type, devListener_);
+    auto manager = InputManager::GetInstance();
+    if (!manager) {
+        WVLOG_E("InputManager::GetInstance failed");
+        return -1;
+    }
+    return manager->UnregisterDevListener(type, devListener_);
 };
 
 int32_t MMIAdapterImpl::GetKeyboardType(int32_t deviceId, int32_t& type)
 {
+    auto manager = InputManager::GetInstance();
+    if (!manager) {
+        WVLOG_E("InputManager::GetInstance failed");
+        return -1;
+    }
     std::function<void(int32_t)> callback = [&type](int32_t param) { type = param; };
-    return InputManager::GetInstance()->GetKeyboardType(deviceId, callback);
+    return manager->GetKeyboardType(deviceId, callback);
 };
 
 int32_t MMIAdapterImpl::GetDeviceIds(std::vector<int32_t>& ids)
 {
+    auto manager = InputManager::GetInstance();
+    if (!manager) {
+        WVLOG_E("InputManager::GetInstance failed");
+        return -1;
+    }
     std::function<void(std::vector<int32_t>&)> callback = [&ids](std::vector<int32_t>& param) { ids = param; };
-    return InputManager::GetInstance()->GetDeviceIds(callback);
+    return manager->GetDeviceIds(callback);
 };
 
 int32_t MMIAdapterImpl::GetDeviceInfo(int32_t deviceId, std::shared_ptr<MMIDeviceInfoAdapter> info)
@@ -139,8 +169,12 @@ int32_t MMIAdapterImpl::GetDeviceInfo(int32_t deviceId, std::shared_ptr<MMIDevic
             info->SetUniq(device->GetUniq());
         }
     };
-
-    int32_t ret = InputManager::GetInstance()->GetDevice(
+    auto manager = InputManager::GetInstance();
+    if (!manager) {
+        WVLOG_E("InputManager::GetInstance failed");
+        return -1;
+    }
+    int32_t ret = manager->GetDevice(
         deviceId, [&callback](std::shared_ptr<MMI::InputDevice> device) { callback(device); });
     if (ret != 0) {
         WVLOG_E("InputManager GetDevice failed, ret: %{public}d", ret);
@@ -151,7 +185,12 @@ int32_t MMIAdapterImpl::GetDeviceInfo(int32_t deviceId, std::shared_ptr<MMIDevic
 int32_t MMIAdapterImpl::GetMaxTouchPoints()
 {
     int32_t pointNum { 0 };
-    int32_t ret = MMI::InputManager::GetInstance()->GetMaxMultiTouchPointNum(pointNum);
+    auto manager = MMI::InputManager::GetInstance();
+    if (!manager) {
+        WVLOG_E("InputManager::GetInstance failed");
+        return -1;
+    }
+    int32_t ret = manager->GetMaxMultiTouchPointNum(pointNum);
     WVLOG_D("MMIAdapterImpl::GetMaxTouchPoints, pointNum: %{public}d", pointNum);
     if (ret != 0) {
         WVLOG_E("InputManager GetMaxTouchPoints failed, ret: %{public}d", ret);
