@@ -17,6 +17,8 @@ import { Resource } from 'global.resource';
 import type image from '@ohos.multimedia.image';
 import { AsyncCallback, BusinessError, Callback } from '@ohos.base';
 import print from '@ohos.print'
+import {SizeOptions} from '@ohos.arkui.component';
+declare type Length = string | number | Resource;
 
 class Cleaner {
     private ptr: long = 0
@@ -245,22 +247,31 @@ export default namespace webview {
         id?: string;
         status?: boolean;
         imagePixelMap?: image.PixelMap;
+        size: SizeOptions;
     }
  
     export class SnapshotResultClass implements SnapshotResult {
         id?: string;
         status?: boolean;
         imagePixelMap?: image.PixelMap;
+        size: SizeOptions;
     }
  
     export interface SnapshotInfo {
         id?: string;
+        size: SizeOptions;
     }
  
     export class SnapshotInfoClass implements SnapshotInfo {
         id?: string;
+        size: SizeOptions;
     }
 
+    export class SizeOptionsClass implements SizeOptions{
+        width?: Length;
+        height?: Length;
+    }
+    
     export interface RectEvent {
         x: double;
         y: double;
