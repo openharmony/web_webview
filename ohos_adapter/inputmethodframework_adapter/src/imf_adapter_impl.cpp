@@ -262,7 +262,12 @@ bool IMFAdapterImpl::Attach(std::shared_ptr<IMFTextListenerAdapter> listener, bo
             return false;
         }
     }
-    int32_t ret = MiscServices::InputMethodController::GetInstance()->Attach(textListener_, isShowKeyboard);
+    auto controller = MiscServices::InputMethodController::GetInstance();
+    if (!controller) {
+        WVLOG_E("MiscServices::InputMethodController::GetInstance failed");
+        return false;
+    }
+    int32_t ret = controller->Attach(textListener_, isShowKeyboard);
     if (ret != 0) {
         WVLOG_E("inputmethod attach failed, errcode=%{public}d", ret);
         return false;
@@ -281,30 +286,10 @@ void ReportImfErrorEvent(int32_t ret, bool isShowKeyboard)
 bool IMFAdapterImpl::Attach(std::shared_ptr<IMFTextListenerAdapter> listener, bool isShowKeyboard,
     const std::shared_ptr<IMFTextConfigAdapter> config, bool isResetListener)
 {
-    if (!listener) {
-        WVLOG_E("the listener is nullptr");
-        ReportImfErrorEvent(IMF_LISTENER_NULL_POINT, isShowKeyboard);
+    if (!AttachParamsCheck(listener, isShowKeyboard, config, isResetListener)) {
         return false;
     }
-    if (!config || !(config->GetInputAttribute()) || !(config->GetCursorInfo())) {
-        WVLOG_E("the config is nullptr");
-        ReportImfErrorEvent(IMF_TEXT_CONFIG_NULL_POINT, isShowKeyboard);
-        return false;
-    }
-
-    if ((textListener_ != nullptr) && isResetListener) {
-        textListener_ = nullptr;
-        WVLOG_I("attach node is changed, need reset listener");
-    }
-
-    if (!textListener_) {
-        textListener_ = new (std::nothrow) IMFTextListenerAdapterImpl(listener);
-        if (!textListener_) {
-            WVLOG_E("new textListener failed");
-            ReportImfErrorEvent(IMF_LISTENER_NULL_POINT, isShowKeyboard);
-            return false;
-        }
-    }
+    
     MiscServices::InputAttribute inputAttribute = { .inputPattern = config->GetInputAttribute()->GetInputPattern(),
         .enterKeyType = config->GetInputAttribute()->GetEnterKeyType(),
         .isTextPreviewSupported = true };
@@ -323,7 +308,12 @@ bool IMFAdapterImpl::Attach(std::shared_ptr<IMFTextListenerAdapter> listener, bo
         "web inputmethod attach, isShowKeyboard=%{public}d, textConfig=%{public}s",
         isShowKeyboard,
         textConfig.ToString().c_str());
-    int32_t ret = MiscServices::InputMethodController::GetInstance()->Attach(textListener_, isShowKeyboard, textConfig);
+    auto controller = MiscServices::InputMethodController::GetInstance();
+    if (!controller) {
+        WVLOG_E("MiscServices::InputMethodController::GetInstance failed");
+        return false;
+    }
+    int32_t ret = controller->Attach(textListener_, isShowKeyboard, textConfig);
     if (ret != 0) {
         WVLOG_E("inputmethod attach failed, errcode=%{public}d", ret);
         ReportImfErrorEvent(ret, isShowKeyboard);
@@ -362,7 +352,12 @@ bool IMFAdapterImpl::AttachWithRequestKeyboardReason(std::shared_ptr<IMFTextList
         isShowKeyboard,
         requestKeyboardReason,
         textConfig.ToString().c_str());
-    int32_t ret = MiscServices::InputMethodController::GetInstance()->Attach(textListener_, attachOptions, textConfig);
+    auto controller = MiscServices::InputMethodController::GetInstance();
+    if (!controller) {
+        WVLOG_E("MiscServices::InputMethodController::GetInstance failed");
+        return false;
+    }
+    int32_t ret = controller->Attach(textListener_, attachOptions, textConfig);
     if (ret != 0) {
         WVLOG_E("inputmethod attach failed, errcode=%{public}d", ret);
         ReportImfErrorEvent(ret, isShowKeyboard);
@@ -379,18 +374,33 @@ void IMFAdapterImpl::ShowCurrentInput(const IMFAdapterTextInputType& inputType)
     } else {
         config.SetTextInputType(MiscServices::TextInputType::TEXT);
     }
-    MiscServices::InputMethodController::GetInstance()->OnConfigurationChange(config);
-    MiscServices::InputMethodController::GetInstance()->ShowCurrentInput();
+    auto controller = MiscServices::InputMethodController::GetInstance();
+    if (!controller) {
+        WVLOG_E("MiscServices::InputMethodController::GetInstance failed");
+        return;
+    }
+    controller->OnConfigurationChange(config);
+    controller->ShowCurrentInput();
 }
 
 void IMFAdapterImpl::HideTextInput()
 {
-    MiscServices::InputMethodController::GetInstance()->HideTextInput();
+    auto controller = MiscServices::InputMethodController::GetInstance();
+    if (!controller) {
+        WVLOG_E("MiscServices::InputMethodController::GetInstance failed");
+        return;
+    }
+    controller->HideTextInput();
 }
 
 void IMFAdapterImpl::Close()
 {
-    MiscServices::InputMethodController::GetInstance()->Close();
+    auto controller = MiscServices::InputMethodController::GetInstance();
+    if (!controller) {
+        WVLOG_E("MiscServices::InputMethodController::GetInstance failed");
+        return;
+    }
+    controller->Close();
 }
 
 void IMFAdapterImpl::OnCursorUpdate(const std::shared_ptr<IMFCursorInfoAdapter> cursorInfo)
@@ -406,12 +416,22 @@ void IMFAdapterImpl::OnCursorUpdate(const std::shared_ptr<IMFCursorInfoAdapter> 
         .height = cursorInfo->GetHeight() };
     WVLOG_D("imfInfo left = %{public}f, top = %{public}f, width = %{public}f, height = %{public}f", imfInfo.left,
         imfInfo.top, imfInfo.width, imfInfo.height);
-    MiscServices::InputMethodController::GetInstance()->OnCursorUpdate(imfInfo);
+    auto controller = MiscServices::InputMethodController::GetInstance();
+    if (!controller) {
+        WVLOG_E("MiscServices::InputMethodController::GetInstance failed");
+        return;
+    }
+    controller->OnCursorUpdate(imfInfo);
 }
 
 void IMFAdapterImpl::OnSelectionChange(std::u16string text, int start, int end)
 {
-    MiscServices::InputMethodController::GetInstance()->OnSelectionChange(text, start, end);
+    auto controller = MiscServices::InputMethodController::GetInstance();
+    if (!controller) {
+        WVLOG_E("MiscServices::InputMethodController::GetInstance failed");
+        return;
+    }
+    controller->OnSelectionChange(text, start, end);
 }
 
 bool IMFAdapterImpl::SendPrivateCommand(const std::string& commandKey, const std::string& commandValue)
@@ -419,7 +439,12 @@ bool IMFAdapterImpl::SendPrivateCommand(const std::string& commandKey, const std
     if (commandKey == AUTO_FILL_CANCEL_PRIVATE_COMMAND) {
         std::unordered_map<std::string, MiscServices::PrivateDataValue> privateCommand;
         ParseFillContentJsonValue(commandValue, privateCommand);
-        int32_t ret = MiscServices::InputMethodController::GetInstance()->SendPrivateCommand(privateCommand);
+        auto controller = MiscServices::InputMethodController::GetInstance();
+        if (!controller) {
+            WVLOG_E("MiscServices::InputMethodController::GetInstance failed");
+            return false;
+        }
+        int32_t ret = controller->SendPrivateCommand(privateCommand);
         if (ret != 0) {
             WVLOG_E("inputmethod SendPrivateCommand failed, errcode=%{public}d", ret);
             return false;
