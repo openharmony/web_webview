@@ -1046,6 +1046,12 @@ public:
      */
     /*--ark web()--*/
     virtual void SetImeShow(bool visible) = 0;
+
+    /**
+     * @brief Called when you click on caret.
+     */
+    /*--ark web()--*/
+    virtual bool IsShowHandle() { return false; }
 };
 
 } // namespace OHOS::ArkWeb

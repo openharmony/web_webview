@@ -754,6 +754,11 @@ public:
      *
      */
     void SetImeShow(bool visible) override;
+
+    /**
+     * @brief Called when you click on caret.
+     */
+    virtual bool IsShowHandle() override;
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };

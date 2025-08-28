@@ -1112,4 +1112,9 @@ void ArkWebHandlerImpl::SetImeShow(bool visible)
 {
     nweb_handler_->SetImeShow(visible);
 }
+
+bool ArkWebHandlerImpl::IsShowHandle()
+{
+    return nweb_handler_->IsShowHandle();
+}
 } // namespace OHOS::ArkWeb

@@ -1273,6 +1273,11 @@ public:
      *
      */
     virtual void SetImeShow(bool visible) {}
+
+    /**
+     * @brief Called when you click on caret.
+     */
+    virtual bool IsShowHandle() { return false; }
 };
 
 } // namespace OHOS::NWeb

@@ -1276,4 +1276,9 @@ void ArkWebHandlerWrapper::SetImeShow(bool visible)
 {
     ark_web_handler_->SetImeShow(visible);
 }
+
+bool ArkWebHandlerWrapper::IsShowHandle()
+{
+    return ark_web_handler_->IsShowHandle();
+}
 } // namespace OHOS::ArkWeb
