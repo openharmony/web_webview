@@ -575,6 +575,23 @@ static ani_int GetWebId(ani_env *env, ani_object object)
     return static_cast<ani_int>(webId);
 }
 
+static ani_int InnerGetWebId(ani_env *env, ani_object object)
+{
+    int32_t webId = -1;
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return static_cast<ani_int>(webId);
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        WVLOG_E("conrtroller is nullptr or not init");
+        return static_cast<ani_int>(webId);
+    }
+
+    webId = controller->GetWebId();
+    return static_cast<ani_int>(webId);
+}
+
 static ani_boolean GetScrollable(ani_env *env, ani_object object)
 {
     if (env == nullptr) {
@@ -6019,6 +6036,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "onActive", nullptr, reinterpret_cast<void *>(OnActive) },
         ani_native_function { "onInactive", nullptr, reinterpret_cast<void *>(OnInactive) },
         ani_native_function { "getWebId", nullptr, reinterpret_cast<void *>(GetWebId) },
+        ani_native_function { "innerGetWebId", nullptr, reinterpret_cast<void *>(InnerGetWebId) },
         ani_native_function { "getScrollable", nullptr, reinterpret_cast<void *>(GetScrollable) },
         ani_native_function { "requestFocus", nullptr, reinterpret_cast<void *>(RequestFocus) },
         ani_native_function { "clearClientAuthenticationCache", nullptr,
