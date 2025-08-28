@@ -231,9 +231,9 @@ public:
 
     bool HasImage(std::shared_ptr<NWebBoolValueCallback> callback);
 
-    ErrCode HasImagesCallback(napi_env env, napi_ref jsCallback);
+    ErrCode HasImagesCallback(ani_vm *vm, ani_ref jsCallback);
 
-    ErrCode HasImagesPromise(napi_env env, napi_deferred deferred);
+    ErrCode HasImagesPromise(ani_vm *vm, ani_resolver deferred);
 
     void RemoveCache(bool includeDiskFiles);
 
