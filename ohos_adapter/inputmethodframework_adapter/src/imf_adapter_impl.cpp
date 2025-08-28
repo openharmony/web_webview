@@ -513,10 +513,12 @@ void IMFTextListenerAdapterImpl::NotifyPanelStatusInfo(const MiscServices::Panel
 {
     WVLOG_I("IMFTextListenerAdapterImpl::NotifyPanelStatusInfo, visible:%{public}d", info.visible);
     MiscServices::Trigger triggerFrom = info.trigger;
-    if (listener_ && (triggerFrom == MiscServices::Trigger::IME_APP)) {
-        WVLOG_I("IMFTextListenerAdapterImpl::NotifyPanelStatusInfo, info.IME_APP");
-        listener_->KeyboardUpperRightCornerHide();
+    if (listener_) {
+        listener_->WebSetImeShow(info.visible);
+        if (triggerFrom == MiscServices::Trigger::IME_APP) {
+            WVLOG_I("IMFTextListenerAdapterImpl::NotifyPanelStatusInfo, info.IME_APP");
+            listener_->KeyboardUpperRightCornerHide();
+        }
     }
-    listener_->WebSetImeShow(info.visible);
 }
 } // namespace OHOS::NWeb
