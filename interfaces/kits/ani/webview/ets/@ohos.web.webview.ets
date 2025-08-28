@@ -246,17 +246,17 @@ export default namespace webview {
         status?: boolean;
         imagePixelMap?: image.PixelMap;
     }
- 
+
     export class SnapshotResultClass implements SnapshotResult {
         id?: string;
         status?: boolean;
         imagePixelMap?: image.PixelMap;
     }
- 
+
     export interface SnapshotInfo {
         id?: string;
     }
- 
+
     export class SnapshotInfoClass implements SnapshotInfo {
         id?: string;
     }
@@ -560,6 +560,7 @@ export default namespace webview {
         native onActive(): void;
         native onInactive(): void;
         native getWebId(): int;
+        native innerGetWebId(): int;
         native getScrollable(): boolean;
         native requestFocus(): void;
         native clearClientAuthenticationCache(): void;
@@ -673,7 +674,7 @@ export default namespace webview {
         injectOfflineResources(resourceMaps: Array<OfflineResourceMap>): void {
             let res = resourceMaps.map((map) => ({
                 urlList: map.urlList,
-                resource: map.resource.buffer, 
+                resource: map.resource.buffer,
                 responseHeaders: map.responseHeaders,
                 type: map.type} as OfflineResourceMapInternal));
             this.injectOfflineResourcesInternal(res);
@@ -785,7 +786,7 @@ export default namespace webview {
                 this.registerCleaner(this.nativePtr)
             }
         }
-        
+
         native constructor();
 
         native getGuid(): string;
@@ -849,7 +850,7 @@ export default namespace webview {
         native onDownloadUpdated(callback : (item: WebDownloadItem) => void): void;
         native onDownloadFailed(callback : (item: WebDownloadItem) => void): void;
     }
-    
+
     export class WebDownloadManager {
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
@@ -1639,7 +1640,7 @@ export default namespace webview {
         native setArrayBuffer(message: ArrayBuffer): void;
         native setArray(message: Array<string | number | boolean>): void;
         native setError(message: Error): void;
-        
+
         native getType(): WebMessageType;
         native getString(): string;
         native getNumber(): number;
