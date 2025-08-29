@@ -476,6 +476,8 @@ static void Clean(ani_env *env, ani_object object)
         delete reinterpret_cast<WebDownloadItem *>(ptr);
     } else if (clsName == "WebDownloadManager") {
         delete reinterpret_cast<WebDownloadManager *>(ptr);
+    } else if (clsName == "PdfData") {
+        delete reinterpret_cast<WebJsArrayBufferExt *>(ptr);
     } else if (clsName == "WebMessagePort") {
         WebMessagePort *msgPort = reinterpret_cast<WebMessagePort *>(ptr);
         if (msgPort && msgPort->DecRefCount() <= 0) {
@@ -1589,8 +1591,8 @@ static ani_ref GetFavicon(ani_env* env, ani_object object)
     }
 
     Media::InitializationOptions opt;
-    opt.size.width = width;
-    opt.size.height = height;
+    opt.size.width = static_cast<int>(width);
+    opt.size.height = static_cast<int>(height);
     opt.pixelFormat = getColorType(colorType);
     opt.alphaType = getAlphaType(alphaType);
     opt.editable = true;
