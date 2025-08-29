@@ -260,4 +260,38 @@ HWTEST_F(SystemPropertiesAdapterTest, SystemPropertiesAdapterTest_GetPRPPreloadM
     value = SystemPropertiesAdapterImpl::GetInstance().GetPRPPreloadMode();
     EXPECT_EQ(value, "preload");
 }
+
+/**
+ * @tc.name: SystemPropertiesAdapterTest_GetInitialCongestionWindowSize_001
+ * @tc.desc: GetInstance unittest.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(SystemPropertiesAdapterTest, SystemPropertiesAdapterTest_GetInitialCongestionWindowSize_001, TestSize.Level1)
+{
+    NWebConfigHelper::Instance().perfConfig_.emplace("TCPConnectedSocketConfig/initialCongestionWindowSize", "invalid");
+    auto value = SystemPropertiesAdapterImpl::GetInstance().GetInitialCongestionWindowSize();
+    EXPECT_EQ(value, -1);
+    NWebConfigHelper::Instance().perfConfig_.clear();
+
+    NWebConfigHelper::Instance().perfConfig_.emplace("TCPConnectedSocketConfig/initialCongestionWindowSize", "");
+    value = SystemPropertiesAdapterImpl::GetInstance().GetInitialCongestionWindowSize();
+    EXPECT_EQ(value, -1);
+    NWebConfigHelper::Instance().perfConfig_.clear();
+
+    NWebConfigHelper::Instance().perfConfig_.emplace("TCPConnectedSocketConfig/initialCongestionWindowSize", "-1");
+    value = SystemPropertiesAdapterImpl::GetInstance().GetInitialCongestionWindowSize();
+    EXPECT_EQ(value, -1);
+    NWebConfigHelper::Instance().perfConfig_.clear();
+
+    NWebConfigHelper::Instance().perfConfig_.emplace("TCPConnectedSocketConfig/initialCongestionWindowSize", "0");
+    value = SystemPropertiesAdapterImpl::GetInstance().GetInitialCongestionWindowSize();
+    EXPECT_EQ(value, 0);
+    NWebConfigHelper::Instance().perfConfig_.clear();
+
+    NWebConfigHelper::Instance().perfConfig_.emplace("TCPConnectedSocketConfig/initialCongestionWindowSize", "150");
+    value = SystemPropertiesAdapterImpl::GetInstance().GetInitialCongestionWindowSize();
+    EXPECT_EQ(value, 150);
+    NWebConfigHelper::Instance().perfConfig_.clear();
+}
 } // namespace OHOS
