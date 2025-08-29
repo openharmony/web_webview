@@ -4881,7 +4881,7 @@ static void HasImageCallback(ani_env* env, ani_object object, ani_fn_object call
     if (!webviewController || !webviewController->IsInit()) {
         WVLOG_E("Unwrap failed");
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
-        return; 
+        return;
     }
 
     ani_ref jsCallback = nullptr;
@@ -4920,7 +4920,7 @@ ani_object HasImagePromise(ani_env* env, ani_object object)
     if (!webviewController || !webviewController->IsInit()) {
         WVLOG_E("Unwrap failed");
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
-        return nullptr; 
+        return nullptr;
     }
     ani_resolver deferred = nullptr;
     ani_object promise = nullptr;
