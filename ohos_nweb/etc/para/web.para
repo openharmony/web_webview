@@ -26,4 +26,4 @@ web.ohos.vulkan = None
 web.prppreload.mode = preload
 web.ohos.dvsync = false
 web.ohos.enableCWNDSetting = false
-web.TCPConnectedSocket.initialCongestionWindowSize = 10
+web.TCPConnectedSocket.initialCongestionWindowSize = -1

@@ -251,7 +251,7 @@ int32_t SystemPropertiesAdapterImpl::GetInitialCongestionWindowSize()
 {
     std::string init_cwnd_str = NWebConfigHelper::Instance()
         .ParsePerfConfig("TCPConnectedSocketConfig", "initialCongestionWindowSize");
-    if (init_cwnd_str.size() > 0 && init_cwnd_str.size() < INT_MAX_LEN - 1 ) {
+    if (init_cwnd_str.size() > 0 && init_cwnd_str.size() < INT_MAX_LEN) {
         for (char character : init_cwnd_str) {
             if (!std::isdigit(character, std::locale::classic())) {
                 WVLOG_E("parse initialCongestionWindowSize failed: invalid argument");
