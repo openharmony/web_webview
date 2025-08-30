@@ -192,7 +192,7 @@ static void JsSetAdsBlockRules(ani_env* env, ani_object aniClass, ani_object rul
     replaceMode = static_cast<bool>(replace);
     std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> adsBlockManager =
         OHOS::NWeb::NWebHelper::Instance().GetAdsBlockManager();
-    if (adsBlockManager != nullptr) {
+    if (adsBlockManager) {
         adsBlockManager->SetAdsBlockRules(rulesFileStr, replaceMode);
     }
     return;

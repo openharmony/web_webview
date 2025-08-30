@@ -109,6 +109,17 @@ ani_object JSInitialize(ani_env* env, ani_object object)
     return promise;
 }
 
+bool checkReadBufLen(ani_env* env, const int32_t bufLen)
+{
+    if (bufLen <= 0) {
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            "BusinessError 401: Parameter error. The value of size must be a number greater than 0.");
+        WVLOG_E("NapiWebHttpBodyStream::JS_Read parse failed");
+        return false;
+    }
+    return true;
+}
+
 static ani_object JsRead(ani_env* env, ani_object object, ani_int size)
 {
     WVLOG_D("WebHttpBodyStream JsRead start.");
@@ -122,6 +133,10 @@ static ani_object JsRead(ani_env* env, ani_object object, ani_int size)
         WVLOG_E("stream is nullptr");
         return nullptr;
     }
+    int32_t bufLen = static_cast<int32_t>(size);
+    if (!checkReadBufLen(env, bufLen)) {
+        return nullptr;
+    }
     ani_resolver deferred {};
     ani_object promise {};
     ani_status status = env->Promise_New(&deferred, &promise);
@@ -130,7 +145,7 @@ static ani_object JsRead(ani_env* env, ani_object object, ani_int size)
         return nullptr;
     }
     if (promise && deferred) {
-        stream->Read(static_cast<int32_t>(size), nullptr, std::move(deferred));
+        stream->Read(bufLen, nullptr, std::move(deferred));
     }
     return promise;
 }

@@ -474,6 +474,8 @@ static void Clean(ani_env *env, ani_object object)
         delete reinterpret_cast<WebDownloadItem *>(ptr);
     } else if (clsName == "WebDownloadManager") {
         delete reinterpret_cast<WebDownloadManager *>(ptr);
+    } else if (clsName == "PdfData") {
+        delete reinterpret_cast<WebJsArrayBufferExt *>(ptr);
     } else if (clsName == "WebMessagePort") {
         WebMessagePort *msgPort = reinterpret_cast<WebMessagePort *>(ptr);
         if (msgPort && msgPort->DecRefCount() <= 0) {
@@ -566,6 +568,23 @@ static ani_int GetWebId(ani_env *env, ani_object object)
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
     if (!controller || !controller->IsInit()) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return static_cast<ani_int>(webId);
+    }
+
+    webId = controller->GetWebId();
+    return static_cast<ani_int>(webId);
+}
+
+static ani_int InnerGetWebId(ani_env *env, ani_object object)
+{
+    int32_t webId = -1;
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return static_cast<ani_int>(webId);
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        WVLOG_E("conrtroller is nullptr or not init");
         return static_cast<ani_int>(webId);
     }
 
@@ -1570,8 +1589,8 @@ static ani_ref GetFavicon(ani_env* env, ani_object object)
     }
 
     Media::InitializationOptions opt;
-    opt.size.width = width;
-    opt.size.height = height;
+    opt.size.width = static_cast<int>(width);
+    opt.size.height = static_cast<int>(height);
     opt.pixelFormat = getColorType(colorType);
     opt.alphaType = getAlphaType(alphaType);
     opt.editable = true;
@@ -6014,6 +6033,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "onActive", nullptr, reinterpret_cast<void *>(OnActive) },
         ani_native_function { "onInactive", nullptr, reinterpret_cast<void *>(OnInactive) },
         ani_native_function { "getWebId", nullptr, reinterpret_cast<void *>(GetWebId) },
+        ani_native_function { "innerGetWebId", nullptr, reinterpret_cast<void *>(InnerGetWebId) },
         ani_native_function { "getScrollable", nullptr, reinterpret_cast<void *>(GetScrollable) },
         ani_native_function { "requestFocus", nullptr, reinterpret_cast<void *>(RequestFocus) },
         ani_native_function { "clearClientAuthenticationCache", nullptr,
