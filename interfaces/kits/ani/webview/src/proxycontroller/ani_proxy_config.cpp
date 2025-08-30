@@ -34,7 +34,6 @@ namespace {
 const char* WEB_PROXY_CONFIG_CLASS_NAME = "@ohos.web.webview.webview.ProxyConfig";
 const char* WEB_PROXY_RULE_CLASS_NAME = "@ohos.web.webview.webview.ProxyRule";
 const char* WEB_PROXY_SCHEME_FILTER_ENUM_NAME = "@ohos.web.webview.webview.ProxySchemeFilter";
-static const char* CLASS_NAME_STRING = "Lstd/core/String;";
 }
 
 static void JsInsertProxyRule(ani_env *env, ani_object object, ani_string url, ani_enum_item schemeFilter)
@@ -283,20 +282,14 @@ static ani_object CreateAniStringArray(ani_env* env, const std::vector<std::stri
         return nullptr;
     }
 
-    ani_class stringCls = nullptr;
-    if (ANI_OK != env->FindClass(CLASS_NAME_STRING, &stringCls)) {
-        WVLOG_E("find class %{public}s failed", CLASS_NAME_STRING);
-        return nullptr;
-    }
-
     ani_ref undefinedRef = nullptr;
     if (ANI_OK != env->GetUndefined(&undefinedRef)) {
         WVLOG_E("GetUndefined Failed.");
         return nullptr;
     }
 
-    ani_array_ref array;
-    if (ANI_OK != env->Array_New_Ref(stringCls, arr.size(), undefinedRef, &array)) {
+    ani_array array;
+    if (ANI_OK != env->Array_New(arr.size(), undefinedRef, &array)) {
         WVLOG_E("new array ref error.");
         return array;
     }
@@ -305,7 +298,7 @@ static ani_object CreateAniStringArray(ani_env* env, const std::vector<std::stri
         if (ANI_OK != env->String_NewUTF8(arr[i].c_str(), arr[i].size(), &result)) {
             continue;
         }
-        if (ANI_OK != env->Array_Set_Ref(array, i, result)) {
+        if (ANI_OK != env->Array_Set(array, i, result)) {
             return array;
         }
     }

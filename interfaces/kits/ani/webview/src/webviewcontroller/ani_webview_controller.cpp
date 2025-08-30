@@ -2310,7 +2310,7 @@ int32_t CustomizeSchemesArrayDataHandler(ani_env* env, ani_ref array)
     }
     ani_ref objRef = static_cast<ani_ref>(obj);
     for (ani_size i = 0; i < arrayLength; ++i) {
-        ani_status status = env->Array_Get_Ref(static_cast<ani_array_ref>(array), i, &objRef);
+        ani_status status = env->Array_Get(static_cast<ani_array>(array), i, &objRef);
         if (status != ANI_OK) {
             WVLOG_E("Array_Get_Ref failed %{public}d", status);
         }
@@ -3386,7 +3386,7 @@ static void AddResourceToMemoryCache(ani_env* env, ani_object object, OfflineRes
 static void AddResourcesToMemoryCache(
     ani_env* env, ani_object object, ani_int resourceMapsCount, ani_object resourceMaps)
 {
-    ani_array_ref resourceMapsRef;
+    ani_array resourceMapsRef;
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
@@ -3395,10 +3395,10 @@ static void AddResourcesToMemoryCache(
         WVLOG_E("object is nullptr");
         return;
     }
-    resourceMapsRef = static_cast<ani_array_ref>(resourceMaps);
+    resourceMapsRef = static_cast<ani_array>(resourceMaps);
     for (ani_int i = 0; i < resourceMapsCount; i++) {
         ani_ref resourceMapItem = nullptr;
-        env->Array_Get_Ref(resourceMapsRef, i, &resourceMapItem);
+        env->Array_Get(resourceMapsRef, i, &resourceMapItem);
         ani_ref urlListArray = nullptr;
         ani_ref resourceArrayBuffer = nullptr;
         ani_ref responseHeadersArray = nullptr;
@@ -3472,14 +3472,14 @@ static void ClearPrefetchedResource(ani_env* env, ani_object aniClass, ani_objec
         return;
     }
 
-    ani_array_ref cacheKeyStr = nullptr;
-    cacheKeyStr = static_cast<ani_array_ref>(cacheKey);
+    ani_array cacheKeyStr = nullptr;
+    cacheKeyStr = static_cast<ani_array>(cacheKey);
     ani_double cacheKeyCount;
     env->Object_GetPropertyByName_Double(cacheKey, "length", &cacheKeyCount);
     std::vector<std::string> cacheKeyList;
     for (ani_double i = 0; i < cacheKeyCount; i++) {
         ani_ref pathItem = nullptr;
-        env->Array_Get_Ref(cacheKeyStr, i, &pathItem);
+        env->Array_Get(cacheKeyStr, i, &pathItem);
         std::string path;
         if (!AniParseUtils::ParseString(env, pathItem, path)) {
             AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
@@ -4398,7 +4398,7 @@ static void SetArray(ani_env* env, ani_object object, ani_object array)
     }
 
     ani_ref element = nullptr;
-    if (env->Array_Get_Ref(static_cast<ani_array_ref>(array), 0, &element) != ANI_OK) {
+    if (env->Array_Get(static_cast<ani_array>(array), 0, &element) != ANI_OK) {
         WVLOG_E("WebMessageExt get element from array error");
         return;
     }
@@ -4628,11 +4628,6 @@ ani_object ConvertToAniHandlerOfStringArray(ani_env* env, std::shared_ptr<NWebMe
         return nullptr;
     }
     std::vector<std::string> values = src->GetStringArray();
-    ani_class stringCls = nullptr;
-    if (ANI_OK != env->FindClass("std.core.String", &stringCls)) {
-        WVLOG_E("WebMessageExt find class failed.");
-        return nullptr;
-    }
 
     ani_ref undefinedRef = nullptr;
     if (ANI_OK != env->GetUndefined(&undefinedRef)) {
@@ -4640,8 +4635,8 @@ ani_object ConvertToAniHandlerOfStringArray(ani_env* env, std::shared_ptr<NWebMe
         return nullptr;
     }
 
-    ani_array_ref array = nullptr;
-    if (ANI_OK != env->Array_New_Ref(stringCls, values.size(), undefinedRef, &array)) {
+    ani_array array = nullptr;
+    if (ANI_OK != env->Array_New(values.size(), undefinedRef, &array)) {
         WVLOG_E("WebMessageExt new array ref error.");
         return array;
     }
@@ -4651,7 +4646,7 @@ ani_object ConvertToAniHandlerOfStringArray(ani_env* env, std::shared_ptr<NWebMe
         if (ANI_OK != env->String_NewUTF8(values[i].c_str(), values[i].size(), &result)) {
             continue;
         }
-        if (ANI_OK != env->Array_Set_Ref(array, i, result)) {
+        if (ANI_OK != env->Array_Set(array, i, result)) {
             return array;
         }
     }
@@ -4667,20 +4662,14 @@ ani_object ConvertToAniHandlerOfBooleanArray(ani_env* env, std::shared_ptr<NWebM
     std::vector<bool> values = src->GetBooleanArray();
     size_t valueSize = values.size();
 
-    ani_class boolCls = nullptr;
-    if (ANI_OK != env->FindClass("std.core.Boolean", &boolCls)) {
-        WVLOG_E("WebMessageExt find class failed.");
-        return nullptr;
-    }
-
     ani_ref undefinedRef = nullptr;
     if (ANI_OK != env->GetUndefined(&undefinedRef)) {
         WVLOG_E("WebMessageExt GetUndefined Failed.");
         return nullptr;
     }
 
-    ani_array_ref array = nullptr;
-    if (ANI_OK != env->Array_New_Ref(boolCls, values.size(), undefinedRef, &array)) {
+    ani_array array = nullptr;
+    if (ANI_OK != env->Array_New(values.size(), undefinedRef, &array)) {
         WVLOG_E("WebMessageExt new array ref error.");
         return array;
     }
@@ -4699,7 +4688,7 @@ ani_object ConvertToAniHandlerOfBooleanArray(ani_env* env, std::shared_ptr<NWebM
         if (env->Object_New(booleanCls, ctor, &obj, item) != ANI_OK) {
             return nullptr;
         }
-        if (ANI_OK != env->Array_Set_Ref(array, i, obj)) {
+        if (ANI_OK != env->Array_Set(array, i, obj)) {
             return array;
         }
     }
@@ -4715,20 +4704,14 @@ ani_object ConvertToAniHandlerOfDoubleArray(ani_env* env, std::shared_ptr<NWebMe
     std::vector<double> values = src->GetDoubleArray();
     size_t valueSize = values.size();
 
-    ani_class doubleCls = nullptr;
-    if (ANI_OK != env->FindClass("std.core.Double", &doubleCls)) {
-        WVLOG_E("WebMessageExt find class failed.");
-        return nullptr;
-    }
-
     ani_ref undefinedRef = nullptr;
     if (ANI_OK != env->GetUndefined(&undefinedRef)) {
         WVLOG_E("WebMessageExt GetUndefined Failed.");
         return nullptr;
     }
 
-    ani_array_ref array = nullptr;
-    if (ANI_OK != env->Array_New_Ref(doubleCls, values.size(), undefinedRef, &array)) {
+    ani_array array = nullptr;
+    if (ANI_OK != env->Array_New(values.size(), undefinedRef, &array)) {
         WVLOG_E("WebMessageExt new array ref error.");
         return array;
     }
@@ -4747,7 +4730,7 @@ ani_object ConvertToAniHandlerOfDoubleArray(ani_env* env, std::shared_ptr<NWebMe
         if (env->Object_New(cls, ctor, &obj, item) != ANI_OK) {
             return nullptr;
         }
-        if (ANI_OK != env->Array_Set_Ref(array, i, obj)) {
+        if (ANI_OK != env->Array_Set(array, i, obj)) {
             return array;
         }
     }
@@ -4763,20 +4746,14 @@ ani_object ConvertToAniHandlerOfInt64Array(ani_env* env, std::shared_ptr<NWebMes
     std::vector<int64_t> values = src->GetInt64Array();
     size_t valueSize = values.size();
 
-    ani_class longCls = nullptr;
-    if (ANI_OK != env->FindClass("std.core.Long", &longCls)) {
-        WVLOG_E("WebMessageExt find class failed.");
-        return nullptr;
-    }
-
     ani_ref undefinedRef = nullptr;
     if (ANI_OK != env->GetUndefined(&undefinedRef)) {
         WVLOG_E("WebMessageExt GetUndefined Failed.");
         return nullptr;
     }
 
-    ani_array_ref array = nullptr;
-    if (ANI_OK != env->Array_New_Ref(longCls, values.size(), undefinedRef, &array)) {
+    ani_array array = nullptr;
+    if (ANI_OK != env->Array_New(values.size(), undefinedRef, &array)) {
         WVLOG_E("WebMessageExt new array ref error.");
         return array;
     }
@@ -4795,7 +4772,7 @@ ani_object ConvertToAniHandlerOfInt64Array(ani_env* env, std::shared_ptr<NWebMes
         if (env->Object_New(cls, ctor, &obj, item) != ANI_OK) {
             return nullptr;
         }
-        if (ANI_OK != env->Array_Set_Ref(array, i, obj)) {
+        if (ANI_OK != env->Array_Set(array, i, obj)) {
             return array;
         }
     }
@@ -5647,8 +5624,8 @@ static ani_object GetCertificateSync(ani_env* env, ani_object object)
         if (retCode != 0) {
             return certificateObj;
         }
-        if ((status = env->Array_Set_Ref(
-                 static_cast<ani_array_ref>(certificateObj), i, static_cast<ani_ref>(buffer))) != ANI_OK) {
+        if ((status = env->Array_Set(
+                 static_cast<ani_array>(certificateObj), i, static_cast<ani_ref>(buffer))) != ANI_OK) {
             WVLOG_E("error in set element");
             return certificateObj;
         }

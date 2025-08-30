@@ -536,7 +536,7 @@ static ani_object GetArray(ani_env* env, ani_object object)
         return nullptr;
     }
 
-    ani_array_ref arr = nullptr;
+    ani_array arr = nullptr;
     auto message = webJsMessageExt->GetJsMsgResult();
     if (message == nullptr) {
         WVLOG_E("message failed.");
@@ -544,13 +544,13 @@ static ani_object GetArray(ani_env* env, ani_object object)
     }
     NWebValue::Type type = message->GetType();
     if (type == NWebValue::Type::STRINGARRAY) {
-        arr = static_cast<ani_array_ref>(OHOS::NWeb::ConvertToAniHandlerOfStringArr(env, message));
+        arr = static_cast<ani_array>(OHOS::NWeb::ConvertToAniHandlerOfStringArr(env, message));
     } else if (type == NWebValue::Type::BOOLEANARRAY) {
-        arr = static_cast<ani_array_ref>(OHOS::NWeb::ConvertToAniHandlerOfBooleanArr(env, message));
+        arr = static_cast<ani_array>(OHOS::NWeb::ConvertToAniHandlerOfBooleanArr(env, message));
     } else if (type == NWebValue::Type::DOUBLEARRAY) {
-        arr = static_cast<ani_array_ref>(OHOS::NWeb::ConvertToAniHandlerOfDoubleArr(env, message));
+        arr = static_cast<ani_array>(OHOS::NWeb::ConvertToAniHandlerOfDoubleArr(env, message));
     } else if (type == NWebValue::Type::INT64ARRAY) {
-        arr = static_cast<ani_array_ref>(OHOS::NWeb::ConvertToAniHandlerOfInt64Arr(env, message));
+        arr = static_cast<ani_array>(OHOS::NWeb::ConvertToAniHandlerOfInt64Arr(env, message));
     }
     return arr;
 }

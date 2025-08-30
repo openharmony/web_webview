@@ -34,7 +34,6 @@ const char* MEDIA_INFO_INNER = "L@ohos/web/webview/webview/MediaInfoinner;";
 const char* RECT_EVENT_INNER = "L@ohos/web/webview/webview/RectEventinner;";
 const char* CLASS_MEDIA_SOURCE_INFO = "L@ohos/web/webview/webview/MediaSourceInfo;";
 const char* NATIVE_MEDIA_PLAYER_SURFACE_INFO = "L@ohos/web/webview/webview/NativeMediaPlayerSurfaceInfo;";
-const char* CLASS_NAME_STRING = "Lstd/core/String;";
 const char* ANI_ENUM_MEDIA_TYPE = "L@ohos/web/webview/webview/MediaType;";
 const char* ANI_ENUM_PRELOAD = "L@ohos/web/webview/webview/Preload;";
 const char* ANI_ENUM_SOURCE_TYPE = "L@ohos/web/webview/webview/SourceType;";
@@ -440,25 +439,20 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructControls(const std:
         return nullptr;
     }
 
-    ani_class stringCls = nullptr;
-    if (ANI_OK != env->FindClass(CLASS_NAME_STRING, &stringCls)) {
-        WVLOG_E("FindClass failed");
-        return nullptr;
-    }
     ani_ref undefinedRef = nullptr;
     if (ANI_OK != env->GetUndefined(&undefinedRef)) {
         WVLOG_E("GetUndefined failed");
         return nullptr;
     }
-    ani_array_ref array;
-    if (ANI_OK != env->Array_New_Ref(stringCls, controls.size(), undefinedRef, &array)) {
+    ani_array array;
+    if (ANI_OK != env->Array_New(controls.size(), undefinedRef, &array)) {
         WVLOG_E("ConstructControls failed");
         return nullptr;
     }
 
     for (size_t i = 0; i < controls.size(); i++) {
         auto item = StringToAniStr(env, controls[i]);
-        env->Array_Set_Ref(array, i, item);
+        env->Array_Set(array, i, item);
     }
 
     return static_cast<ani_object>(array);
@@ -616,18 +610,14 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructSourceInfos(
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return nullptr;
     }
-    ani_class stringCls = nullptr;
-    if (ANI_OK != env->FindClass(CLASS_MEDIA_SOURCE_INFO, &stringCls)) {
-        WVLOG_E("FindClass failed");
-        return nullptr;
-    }
+
     ani_ref undefinedRef = nullptr;
     if (ANI_OK != env->GetUndefined(&undefinedRef)) {
         WVLOG_E("GetUndefined failed");
         return nullptr;
     }
-    ani_array_ref array;
-    if (ANI_OK != env->Array_New_Ref(stringCls, sourceInfos.size(), undefinedRef, &array)) {
+    ani_array array;
+    if (ANI_OK != env->Array_New(sourceInfos.size(), undefinedRef, &array)) {
         WVLOG_E("ConstructSourceInfos failed");
         return nullptr;
     }
@@ -653,7 +643,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructSourceInfos(
         if (formatref == nullptr) { return nullptr; }
         env->Object_SetPropertyByName_Ref(sourceInfo, "format", formatref);
 
-        env->Array_Set_Ref(array, i, static_cast<ani_ref>(sourceInfo));
+        env->Array_Set(array, i, static_cast<ani_ref>(sourceInfo));
     }
     return static_cast<ani_object>(array);
 }
