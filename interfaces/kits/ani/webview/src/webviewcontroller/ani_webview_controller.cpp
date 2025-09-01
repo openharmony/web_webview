@@ -5047,6 +5047,85 @@ ani_status StsPrintDocumentAdapterInit(ani_env* env)
     return ANI_OK;
 }
 
+static void HasImageCallback(ani_env* env, ani_object object, ani_fn_object callback)
+{
+    WVLOG_D("HasImageCallback begin");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    ani_vm* vm = nullptr;
+    env->GetVM(&vm);
+    if (vm == nullptr) {
+        WVLOG_E("vm is nullptr");
+        return;
+    }
+
+    WebviewController* webviewController = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!webviewController || !webviewController->IsInit()) {
+        WVLOG_E("Unwrap failed");
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    ani_ref jsCallback = nullptr;
+    auto status = env->GlobalReference_Create(callback, &jsCallback);
+    if (status != ANI_OK) {
+        WVLOG_E("GlobalReference_Create failed, status is : %{public}d", status);
+        return;
+    }
+    if (jsCallback) {
+        ErrCode ret = webviewController->HasImagesCallback(vm, jsCallback);
+        if (ret == NWEB_ERROR) {
+            AniBusinessError::ThrowErrorByErrCode(env, ret);
+            return;
+        } else if (ret != NO_ERROR) {
+            AniBusinessError::ThrowErrorByErrCode(env, ret);
+            return;
+        }
+    }
+}
+
+ani_object HasImagePromise(ani_env* env, ani_object object)
+{
+    WVLOG_D("HasImagePromise begin");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    ani_vm* vm = nullptr;
+    env->GetVM(&vm);
+    if (vm == nullptr) {
+        WVLOG_E("vm is nullptr");
+        return nullptr;
+    }
+
+    WebviewController* webviewController = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!webviewController || !webviewController->IsInit()) {
+        WVLOG_E("Unwrap failed");
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return nullptr;
+    }
+    ani_resolver deferred = nullptr;
+    ani_object promise = nullptr;
+    auto status = env->Promise_New(&deferred, &promise);
+    if (status != ANI_OK) {
+        WVLOG_E("Promise_New failed, status is : %{public}d", status);
+        return nullptr;
+    }
+
+    if (promise && deferred) {
+        ErrCode ret = webviewController->HasImagesPromise(vm, deferred);
+        if (ret == NWEB_ERROR) {
+            AniBusinessError::ThrowErrorByErrCode(env, ret);
+            return nullptr;
+        } else if (ret != NO_ERROR) {
+            AniBusinessError::ThrowErrorByErrCode(env, ret);
+            return nullptr;
+        }
+    }
+    return promise;
+}
 
 ani_status StsWebviewControllerInit(ani_env *env)
 {
@@ -5189,6 +5268,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "setWebSchemeHandler", nullptr, reinterpret_cast<void *>(SetWebSchemeHandler) },
         ani_native_function { "setServiceWorkerWebSchemeHandler", nullptr,
                               reinterpret_cast<void *>(SetServiceWorkerWebSchemeHandler) },
+        ani_native_function { "hasImageCallback", nullptr, reinterpret_cast<void *>(HasImageCallback) },
+        ani_native_function { "hasImagePromise", nullptr, reinterpret_cast<void *>(HasImagePromise) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
