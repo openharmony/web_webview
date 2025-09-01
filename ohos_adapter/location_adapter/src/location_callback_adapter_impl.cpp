@@ -55,7 +55,7 @@ int LocationCallbackImpl::OnRemoteRequest(uint32_t code,
         }
         default: {
             WVLOG_E("locationCallback receive error code:%{public}u", code);
-            break;
+            return -1;
         }
     }
     return 0;
@@ -64,6 +64,10 @@ int LocationCallbackImpl::OnRemoteRequest(uint32_t code,
 void LocationCallbackImpl::OnLocationReport(
     const std::unique_ptr<OHOS::Location::Location>& location)
 {
+    if (location == nullptr) {
+        WVLOG_E("OnLocationReport location is nullptr");
+        return;
+    }
     std::unique_ptr<OHOS::Location::Location> tempLocation =
         std::make_unique<OHOS::Location::Location>(*location);
     std::shared_ptr<LocationInfo> locationInfo =
