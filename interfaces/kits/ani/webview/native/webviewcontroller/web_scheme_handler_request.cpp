@@ -336,7 +336,7 @@ void WebSchemeHandler::RequestStop(const ArkWeb_ResourceRequest* resourceRequest
 
 void WebSchemeHandler::PutRequestStart(ani_env* env, ani_vm* vm, ani_fn_object callback)
 {
-    if (env == nullptr) {
+    if (!env) {
         WVLOG_E("env is nullptr");
         return;
     }
@@ -353,7 +353,7 @@ void WebSchemeHandler::PutRequestStart(ani_env* env, ani_vm* vm, ani_fn_object c
 }
 void WebSchemeHandler::PutRequestStop(ani_env* env, ani_vm* vm, ani_fn_object callback)
 {
-    if (env == nullptr) {
+    if (!env) {
         WVLOG_E("env is nullptr");
         return;
     }
