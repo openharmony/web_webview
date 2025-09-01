@@ -731,6 +731,14 @@ export default namespace webview {
         runJavaScriptExt(script: string | ArrayBuffer): Promise<string> {
             return this.runJavaScriptPromiseExt(script);
         }
+        native hasImageCallback(callback: AsyncCallback<boolean>): void;
+        hasImage(callback: AsyncCallback<boolean>): void {
+            this.hasImageCallback(callback);
+        }
+        native hasImagePromise(): Promise<boolean>;
+        hasImage(): Promise<boolean> {
+            return this.hasImagePromise();
+        }
     }
 
     export class WebSchemeHandlerResponse {

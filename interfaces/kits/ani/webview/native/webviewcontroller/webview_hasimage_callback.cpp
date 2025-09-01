@@ -18,111 +18,148 @@
 #include "business_error.h"
 #include "napi_parse_utils.h"
 #include "nweb_log.h"
+#include "webview_controller.h"
 #include "nweb_napi_scope.h"
 #include "web_errors.h"
 
 namespace OHOS::NWeb {
 using namespace NWebError;
 
+ani_ref createBooleanObject(ani_env* env, ani_boolean status)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    static constexpr const char* className = "Lstd/core/Boolean;";
+    ani_status stat = ANI_ERROR;
+    ani_class booleanCls {};
+    stat = env->FindClass(className, &booleanCls);
+    if (stat != ANI_OK) {
+        WVLOG_E("createObjectBoolean findClass failed, status is : %{public}d", stat);
+        return nullptr;
+    }
+    ani_method ctor {};
+    stat = env->Class_FindMethod(booleanCls, "<ctor>", "z:", &ctor);
+    if (stat != ANI_OK) {
+        WVLOG_E("createObjectBoolean findMethod failed, status is : %{public}d", stat);
+        return nullptr;
+    }
+    ani_object obj {};
+    stat = env->Object_New(booleanCls, ctor, &obj, status);
+    if (stat != ANI_OK) {
+        WVLOG_E("createObjectBoolean failed, status is : %{public}d", stat);
+        return nullptr;
+    }
+    return static_cast<ani_ref>(obj);
+}
+
+WebviewHasImageCallback::~WebviewHasImageCallback()
+{
+    if (vm_ == nullptr) {
+        WVLOG_E("vm is nullptr");
+        return;
+    }
+    ani_env* env = nullptr;
+    auto status = vm_->GetEnv(ANI_VERSION_1, &env);
+    if (status != ANI_OK) {
+        WVLOG_E("GetEnv status is : %{public}d", status);
+        return;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    env->GlobalReference_Delete(callback_);
+}
+
 void WebviewHasImageCallback::OnReceiveValue(bool result)
 {
-    uv_loop_s *loop = nullptr;
-    uv_work_t *work = nullptr;
-
-    napi_get_uv_event_loop(env_, &loop);
-    if (loop == nullptr) {
-        return;
-    }
-    work = new (std::nothrow) uv_work_t;
-    if (work == nullptr) {
+    WVLOG_D("WebviewHasImageCallback::OnReceiveValue() Start");
+    if (vm_ == nullptr) {
+        WVLOG_E("vm is nullptr");
         return;
     }
 
-    HasImageParam *param = new (std::nothrow) HasImageParam();
-    if (param == nullptr) {
-        delete work;
-        work = nullptr;
-        return;
-    }
-    param->env_ = env_;
-    param->callbackRef_ = callbackRef_;
-    param->deferred_ = deferred_;
-    param->result_ = result;
-
-    work->data = reinterpret_cast<void*>(param);
-
-    int ret = uv_queue_work_with_qos(loop, work, [](uv_work_t *work) {}, UvAfterWorkCb, uv_qos_user_initiated);
-    if (ret != 0) {
-        if (param != nullptr) {
-            delete param;
-            param = nullptr;
-        }
-        if (work != nullptr) {
-            delete work;
-            work = nullptr;
-        }
-    }
+    auto task = [this, result]() { WebviewHasImageCallback::AfterWorkCb(result); };
+    task();
+    vm_->DetachCurrentThread();
 }
 
-void WebviewHasImageCallback::UvAfterWorkCb(uv_work_t* work, int status)
+void WebviewHasImageCallback::AfterWorkCb(bool result)
 {
-    (void)status;
-    if (!work) {
+    WVLOG_D("AfterWorkCb Start");
+    if (vm_ == nullptr) {
+        WVLOG_E("vm is nullptr");
         return;
     }
-    HasImageParam *param = reinterpret_cast<HasImageParam*>(work->data);
-    if (!param) {
-        delete work;
-        work = nullptr;
+    ani_env* env = nullptr;
+    auto status = vm_->GetEnv(ANI_VERSION_1, &env);
+    if (status != ANI_OK) {
+        WVLOG_E("GetEnv status is : %{public}d", status);
         return;
     }
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(param->env_, &scope);
-    if (scope == nullptr) {
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
         return;
     }
 
-    if (param->callbackRef_) {
-        UvAfterWorkCbAsync(param->env_, param->callbackRef_, param->result_);
-    } else if (param->deferred_) {
-        UvAfterWorkCbPromise(param->env_, param->deferred_, param->result_);
+    if (callback_) {
+        WebviewHasImageCallback::AfterWorkCbAsync(env, result);
+    } else if (deferred_) {
+        WebviewHasImageCallback::AfterWorkCbPromise(env, result);
+    } else {
+        WVLOG_E("callback and deferred is failed");
+        return;
     }
-
-    napi_close_handle_scope(param->env_, scope);
-    delete param;
-    param = nullptr;
-    delete work;
-    work = nullptr;
 }
 
-void WebviewHasImageCallback::UvAfterWorkCbAsync(napi_env env, napi_ref callbackRef,
-    bool result)
+void WebviewHasImageCallback::AfterWorkCbAsync(ani_env* env, bool result)
 {
-    OHOS::NApiScope scope(env);
-    napi_value setResult[INTEGER_TWO] = {0};
-    napi_get_undefined(env, &setResult[INTEGER_ZERO]);
-    napi_status getBooleanResult = napi_get_boolean(env, result, &setResult[INTEGER_ONE]);
-    if (getBooleanResult != napi_ok) {
-        napi_get_boolean(env, false, &setResult[INTEGER_ONE]);
+    WVLOG_D("AfterWorkCbAsync Start");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
     }
-    napi_value args[INTEGER_TWO] = {setResult[INTEGER_ZERO], setResult[INTEGER_ONE]};
-    napi_value callback = nullptr;
-    napi_get_reference_value(env, callbackRef, &callback);
-    napi_value callbackResult = nullptr;
-    napi_call_function(env, nullptr, callback, INTEGER_TWO, args, &callbackResult);
-
-    napi_delete_reference(env, callbackRef);
+    std::vector<ani_ref> vec;
+    ani_ref valueError = nullptr;
+    ani_ref valueData = createBooleanObject(env, static_cast<ani_boolean>(result));
+    auto status = env->GetNull(&valueError);
+    if (status != ANI_OK) {
+        WVLOG_E("get null failed, status is : %{public}d", status);
+        return;
+    }
+    if (valueError == nullptr || valueData == nullptr) {
+        WVLOG_E("valueError or valueData is nullptr");
+        return;
+    }
+    vec.push_back(valueError);
+    vec.push_back(valueData);
+    ani_ref callbackResult = nullptr;
+    auto stat = env->FunctionalObject_Call(
+        reinterpret_cast<ani_fn_object>(callback_), vec.size(), vec.data(), &callbackResult);
+    if (stat != ANI_OK) {
+        WVLOG_E("FunctionalObject_Call failed, status is : %{public}d", stat);
+        return;
+    }
 }
 
-void WebviewHasImageCallback::UvAfterWorkCbPromise(napi_env env, napi_deferred deferred,
-    bool result)
+void WebviewHasImageCallback::AfterWorkCbPromise(ani_env* env, bool result)
 {
-    napi_value setResult;
-    napi_status getBooleanResult = napi_get_boolean(env, result, &setResult);
-    if (getBooleanResult != napi_ok) {
-        napi_get_boolean(env, false, &setResult);
+    WVLOG_D("AfterWorkCbPromise Start");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
     }
-    napi_resolve_deferred(env, deferred, setResult);
+    ani_ref setResult = createBooleanObject(env, static_cast<ani_boolean>(result));
+    if (setResult == nullptr) {
+        WVLOG_E("setResult is nullptr");
+        return;
+    }
+    auto status = env->PromiseResolver_Resolve(deferred_, static_cast<ani_string>(setResult));
+    if (status != ANI_OK) {
+        WVLOG_E("PromiseResolver_Resolve failed, status is : %{public}d", status);
+        return;
+    }
 }
-
 } // namespace NWeb
