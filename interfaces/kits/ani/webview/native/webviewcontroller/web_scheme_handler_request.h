@@ -137,7 +137,7 @@ public:
     ~WebHttpBodyStream();
     void Init(ani_ref jsCallback, ani_resolver initResolver);
     void Read(int bufLen, ani_ref jsCallback, ani_resolver readResolver);
-    uint64_t GetPostion() const;
+    uint64_t GetPosition() const;
     uint64_t GetSize() const;
     bool IsChunked() const;
     bool IsEof();

@@ -2997,8 +2997,8 @@ static void SetWebDebuggingAccessAndPort(
     int32_t webDebuggingPort = static_cast<int32_t>(aniDebugPort);
     const int32_t kValidPortRangeStart = 1025;
     const int32_t kValidPortRangeEnd = 65535;
-    if (webDebuggingPort > kValidPortRangeStart ||
-        webDebuggingPort < kValidPortRangeEnd) {
+    if (webDebuggingPort < kValidPortRangeStart ||
+        webDebuggingPort > kValidPortRangeEnd) {
         AniBusinessError::ThrowErrorByErrCode(env, NOT_ALLOWED_PORT);
         return;
     }
@@ -5341,6 +5341,7 @@ static void SetBackForwardCacheOptions(ani_env *env, ani_object object, ani_obje
             timeToLive = static_cast<int32_t>(timeToLiveObj);
         }
     }
+    WVLOG_D("SetBackForwardCacheOptions size:%{public}d, timeToLive:%{public}d", size, timeToLive);
     controller->SetBackForwardCacheOptions(size, timeToLive);
     return;
 }
