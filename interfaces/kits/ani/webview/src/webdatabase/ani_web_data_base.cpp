@@ -13,13 +13,15 @@
  * limitations under the License.
  */
 
+ #include "ani_web_data_base.h"
+
 #include <array>
 #include <iostream>
 #include <string>
 
 #include "ani_business_error.h"
 #include "ani_parse_utils.h"
-#include "ani_web_data_base.h"
+
 #include "nweb_helper.h"
 #include "nweb_log.h"
 #include "securec.h"
@@ -28,14 +30,14 @@
 namespace {
 constexpr int32_t MAX_STRING_LENGTH = 40960;
 constexpr int32_t MAX_PWD_LENGTH = 256;
-} // namespace
+}  // namespace
 namespace OHOS {
 namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
 const char* WEB_DATA_BASE_CLASS_NAME = "L@ohos/web/webview/webview/WebDataBase;";
-} // namespace
+}  // namespace
 
 bool GetStringPara(ani_env* env, ani_string dataStr)
 {

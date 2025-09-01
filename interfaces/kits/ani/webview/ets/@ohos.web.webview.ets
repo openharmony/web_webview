@@ -1756,7 +1756,6 @@ export default namespace webview {
         }
 
         native constructor();
-
         native static existHttpAuthCredentials(): boolean;
         native static deleteHttpAuthCredentials(): void;
         native static getHttpAuthCredentials(host: string, realm: string): Array<string>;
