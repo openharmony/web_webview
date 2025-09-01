@@ -160,7 +160,7 @@ public:
 
     int32_t SetSiteIsolationMode(SiteIsolationMode mode);
 
-    SiteIsolationMode GetSiteIsolationMode() override;
+    SiteIsolationMode GetSiteIsolationMode();
 
 private:
     NWebHelper() = default;
