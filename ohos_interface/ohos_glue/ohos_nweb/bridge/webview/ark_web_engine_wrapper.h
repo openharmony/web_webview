@@ -24,6 +24,8 @@
 namespace OHOS::ArkWeb {
 using ArkWebRenderProcessMode = OHOS::NWeb::RenderProcessMode;
 
+using ArkWebSiteIsolationMode = OHOS::NWeb::SiteIsolationMode;
+
 class ArkWebEngineWrapper : public OHOS::NWeb::NWebEngine {
 public:
     ArkWebEngineWrapper(ArkWebRefPtr<ArkWebEngine> ark_web_engine);
@@ -118,6 +120,10 @@ public:
     bool IsPrivateNetworkAccessEnabled() override;
 
     void SetWebDestroyMode(OHOS::NWeb::WebDestroyMode mode) override;
+
+    int32_t SetSiteIsolationMode(ArkWebSiteIsolationMode mode) override;
+
+    ArkWebSiteIsolationMode GetSiteIsolationMode() override;
 
 private:
     ArkWebRefPtr<ArkWebEngine> ark_web_engine_;

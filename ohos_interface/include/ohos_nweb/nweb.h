@@ -169,6 +169,11 @@ enum class RenderProcessMode : int32_t {
     MULTIPLE_MODE = 1,
 };
 
+enum class SiteIsolationMode {
+    PARTIAL,
+    STRICT,
+};
+
 class NWebTouchPointInfo {
 public:
     virtual ~NWebTouchPointInfo() = default;

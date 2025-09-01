@@ -775,6 +775,8 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_FUNCTION("clearPrefetchedResource", NapiWebviewController::ClearPrefetchedResource),
         DECLARE_NAPI_STATIC_FUNCTION("setRenderProcessMode", NapiWebviewController::SetRenderProcessMode),
         DECLARE_NAPI_STATIC_FUNCTION("getRenderProcessMode", NapiWebviewController::GetRenderProcessMode),
+        DECLARE_NAPI_STATIC_FUNCTION("setSiteIsolationMode", NapiWebviewController::SetSiteIsolationMode),
+        DECLARE_NAPI_STATIC_FUNCTION("getSiteIsolationMode", NapiWebviewController::GetSiteIsolationMode),
         DECLARE_NAPI_FUNCTION("precompileJavaScript", NapiWebviewController::PrecompileJavaScript),
         DECLARE_NAPI_FUNCTION("injectOfflineResources", NapiWebviewController::InjectOfflineResources),
         DECLARE_NAPI_STATIC_FUNCTION("setHostIP", NapiWebviewController::SetHostIP),
@@ -1091,6 +1093,18 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         sizeof(webDestroyModeProperties) / sizeof(webDestroyModeProperties[0]), webDestroyModeProperties,
         &webDestroyModeEnum);
     napi_set_named_property(env, exports, WEB_DESTROY_MODE_ENUM_NAME.c_str(), webDestroyModeEnum);
+
+    napi_value siteIsolationModeEnum = nullptr;
+    napi_property_descriptor siteIsolationModeProperties[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("PARTIAL", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(SiteIsolationMode::PARTIAL))),
+        DECLARE_NAPI_STATIC_PROPERTY("STRICT", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(SiteIsolationMode::STRICT))),
+    };
+    napi_define_class(env, WEB_SITE_ISOLATION_MODE_ENUM_NAME.c_str(), WEB_SITE_ISOLATION_MODE_ENUM_NAME.length(),
+        NapiParseUtils::CreateEnumConstructor, nullptr, sizeof(siteIsolationModeProperties) /
+        sizeof(siteIsolationModeProperties[0]), siteIsolationModeProperties, &siteIsolationModeEnum);
+    napi_set_named_property(env, exports, WEB_SITE_ISOLATION_MODE_ENUM_NAME.c_str(), siteIsolationModeEnum);
 
     WebviewJavaScriptExecuteCallback::InitJSExcute(env, exports);
     WebviewCreatePDFExecuteCallback::InitJSExcute(env, exports);
@@ -7831,6 +7845,71 @@ napi_value NapiWebviewController::IsAutoPreconnectEnabled(napi_env env, napi_cal
 
     autoPreconnectEnabled = NWebHelper::Instance().IsAutoPreconnectEnabled();
     NAPI_CALL(env, napi_get_boolean(env, autoPreconnectEnabled, &result));
+    return result;
+}
+
+napi_value NapiWebviewController::SetSiteIsolationMode(
+    napi_env env, napi_callback_info info)
+{
+    WVLOG_I("set site isolation mode.");
+
+    napi_value result = nullptr;
+    napi_value thisVar = nullptr;
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+
+    NAPI_CALL(env, napi_get_undefined(env, &result));
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            "BusinessError 401: Parameter error. The number of params must be one.");
+        return result;
+    }
+
+    int32_t mode = 0;
+    if (!NapiParseUtils::ParseInt32(env, argv[INTEGER_ZERO], mode)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            "BusinessError 401: Parameter error. The type of 'mode' must be int.");
+        return result;
+    }
+    WVLOG_I("NapiWebviewController::SetSiteIsolationMode: %{public}d", mode);
+
+    if (mode < static_cast<int>(SiteIsolationMode::PARTIAL) ||
+        mode > static_cast<int>(SiteIsolationMode::STRICT)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "mode"));
+        return result;
+    }
+
+    int32_t res = NWebHelper::Instance().SetSiteIsolationMode(
+        static_cast<SiteIsolationMode>(mode));
+
+    WVLOG_I("NapiWebviewController::SetSiteIsolationMode res: %{public}d", res);
+    if (res == 4) {
+        BusinessError::ThrowErrorByErrcode(env, INIT_ERROR,
+            "InitError 17100001: Site Isolation mode already set by developer");
+        return result;
+    }
+
+    if (res == 2) {
+        BusinessError::ThrowErrorByErrcode(env, INIT_ERROR,
+            "InitError 17100001: cannot change (AdvancedSecurityMode active)");
+        return result;
+    }
+
+    return result;
+}
+
+napi_value NapiWebviewController::GetSiteIsolationMode(
+    napi_env env, napi_callback_info info)
+{
+    WVLOG_I("get site isolation mode.");
+    napi_value result = nullptr;
+
+    int32_t mode = static_cast<int32_t>(NWebHelper::Instance().GetSiteIsolationMode());
+    NAPI_CALL(env, napi_create_int32(env, mode, &result));
+    WVLOG_I("NapiWebviewController::GetSiteIsolationMode result: %{public}d", mode);
     return result;
 }
 } // namespace NWeb

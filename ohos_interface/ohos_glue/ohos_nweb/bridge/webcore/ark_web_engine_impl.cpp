@@ -31,6 +31,8 @@
 namespace OHOS::ArkWeb {
 using ArkWebRenderProcessMode = OHOS::NWeb::RenderProcessMode;
 
+using ArkWebSiteIsolationMode = OHOS::NWeb::SiteIsolationMode;
+
 ArkWebEngineImpl::ArkWebEngineImpl(std::shared_ptr<OHOS::NWeb::NWebEngine> nweb_engine) : nweb_engine_(nweb_engine) {}
 
 ArkWebRefPtr<ArkWebEngine> ArkWebEngine::GetInstance()
@@ -313,6 +315,16 @@ bool ArkWebEngineImpl::IsPrivateNetworkAccessEnabled()
 void ArkWebEngineImpl::SetWebDestroyMode(int32_t mode)
 {
     nweb_engine_->SetWebDestroyMode(static_cast<OHOS::NWeb::WebDestroyMode>(mode));
+}
+
+int32_t ArkWebEngineImpl::SetSiteIsolationMode(int32_t mode)
+{
+    return static_cast<int32_t>(nweb_engine_->SetSiteIsolationMode(static_cast<ArkWebSiteIsolationMode>(mode)));
+}
+
+int32_t ArkWebEngineImpl::GetSiteIsolationMode()
+{
+    return static_cast<int32_t>(nweb_engine_->GetSiteIsolationMode());
 }
 
 } // namespace OHOS::ArkWeb

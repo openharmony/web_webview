@@ -120,6 +120,10 @@ public:
 
     void SetWebDestroyMode(int32_t mode) override;
 
+    int32_t SetSiteIsolationMode(int32_t mode) override;
+
+    int32_t GetSiteIsolationMode() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebEngine> nweb_engine_;
 };
