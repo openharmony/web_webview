@@ -1373,7 +1373,7 @@ bool WebviewJavaScriptResultCallBack::FindObjectIdInJsTd(
         if (env->Reference_StrictEquals(object, pair.second->GetAniValue(), &isEquals) != ANI_OK && !isEquals) {
             WVLOG_E("WebviewJavaScriptResultCallBack::FindObjectIdInJsTd fail");
         }
-        WVLOG_I("WebviewJavaScriptResultCallBack::FindObjectIdInJsTd isEqual : %{public}d", isEquals);
+        WVLOG_D("WebviewJavaScriptResultCallBack::FindObjectIdInJsTd isEqual : %{public}d", isEquals);
         if (isEquals) {
             *objectId = pair.first;
             return true;

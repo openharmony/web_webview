@@ -54,7 +54,7 @@ bool Wrap(ani_env* env, const ani_object& object, const char* className, const a
 }
 
 bool CreateObjectVoid(ani_env *env, const char *className, ani_object& object)
-{   
+{
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return false;
@@ -165,8 +165,7 @@ ani_object CreateBusinessError(ani_env* env, ani_int code, const std::string& ms
         WVLOG_E("error nulll");
         return nullptr;
     }
-    ani_int dCode(code);
-    if ((status = env->Object_New(cls, method, &obj, dCode, error)) != ANI_OK) {
+    if ((status = env->Object_New(cls, method, &obj, code, error)) != ANI_OK) {
         WVLOG_E("Object_New failed %{public}d", status);
         return nullptr;
     }
@@ -212,7 +211,7 @@ void OnRequestStop(const ArkWeb_SchemeHandler* schemeHandler, const ArkWeb_Resou
 } // namespace
 
 WebSchemeHandlerRequest::WebSchemeHandlerRequest(ani_env* env) : env_(env)
-{   
+{
     WVLOG_D("WebSchemeHandlerRequest::WebSchemeHandlerRequest");
     if (vm_ == nullptr) {
         WVLOG_E("vm_ is nullptr");
@@ -524,7 +523,7 @@ void WebSchemeHandler::RequestStopAfterWorkCb(RequestStopParam* param)
     if (status != ANI_OK) {
         WVLOG_E("RequestStopAfterWorkCb:FunctionalObject_Call failed.");
         delete param;
-        return;    
+        return;
     }
     if (callbackFunc != nullptr) {
         env_->GlobalReference_Delete(callbackFunc);
@@ -540,7 +539,7 @@ void WebSchemeHandler::RequestStopAfterWorkCb(RequestStopParam* param)
 }
 
 void WebSchemeHandler::RequestStop(const ArkWeb_ResourceRequest* resourceRequest)
-{   
+{
     if (vm_ == nullptr) {
         WVLOG_E("RequestStop: RequestStop nil vm");
         return;
@@ -591,7 +590,7 @@ void WebSchemeHandler::RequestStop(const ArkWeb_ResourceRequest* resourceRequest
 }
 
 void WebSchemeHandler::PutRequestStart(ani_env* env, ani_vm* vm, ani_fn_object callback)
-{   
+{
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
@@ -609,7 +608,7 @@ void WebSchemeHandler::PutRequestStart(ani_env* env, ani_vm* vm, ani_fn_object c
 }
 
 void WebSchemeHandler::PutRequestStop(ani_env* env, ani_vm* vm, ani_fn_object callback)
-{   
+{
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
@@ -627,7 +626,7 @@ void WebSchemeHandler::PutRequestStop(ani_env* env, ani_vm* vm, ani_fn_object ca
 }
 
 WebResourceHandler::WebResourceHandler(ani_env* env)
-{  
+{
     WVLOG_D("create WebResourceHandler");
     if (vm_ == nullptr) {
         WVLOG_E("vm_ is nullptr");
@@ -641,7 +640,7 @@ WebResourceHandler::WebResourceHandler(ani_env* env)
 
 WebResourceHandler::WebResourceHandler(ani_env* env, const ArkWeb_ResourceHandler* handler)
     : handler_(const_cast<ArkWeb_ResourceHandler*>(handler))
-{   
+{
     WVLOG_D("create WebResourceHandler");
     if (vm_ == nullptr) {
         WVLOG_E("vm_ is nullptr");
