@@ -42,6 +42,9 @@ ani_status StsWebCookieManagerInit(ani_env *env);
 ani_status StsNativeMediaPlayerHandlerinnerInit(ani_env *env);
 ani_status StsJsMessageExtInit(ani_env *env);
 ani_status StsPrintDocumentAdapterInit(ani_env* env);
+ani_status StsWebSchemeHandlerResourceInit(ani_env *env);
+ani_status StsWebSchemeHandlerRequestInit(ani_env *env);
+ani_status StsWebSchemeHandlerInit(ani_env *env);
 } // namespace NWeb
 } // namespace OHOS
 #endif // OHOS_NWEB_ANI_WEBVIEW_CONTROLLER_H

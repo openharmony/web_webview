@@ -460,20 +460,19 @@ bool AniParseUtils::ParseInt32(ani_env* env, ani_ref ref, int32_t& outValue)
         WVLOG_E("env is nullptr");
         return false;
     }
-    ani_class doubleClass;
-    if (env->FindClass("Lstd/core/Double;", &doubleClass) != ANI_OK) {
+    ani_class intClass;
+    if (env->FindClass("Lstd/core/Int;", &intClass) != ANI_OK) {
         WVLOG_E("ParseInt32 failed - invalid FindClass type");
         return false;
     }
-    ani_boolean isDouble;
-    if (env->Object_InstanceOf(static_cast<ani_object>(ref), doubleClass, &isDouble) != ANI_OK ||
-        isDouble != ANI_TRUE) {
-        WVLOG_E("ParseInt32 failed - invalid double type");
+    ani_boolean isInt;
+    if (env->Object_InstanceOf(static_cast<ani_object>(ref), intClass, &isInt) != ANI_OK || isInt != ANI_TRUE) {
+        WVLOG_E("ParseInt32 failed - invalid int type");
         return false;
     }
 
-    ani_double value = 0;
-    if (env->Object_CallMethodByName_Double(static_cast<ani_object>(ref), "unboxed", ":d", &value) != ANI_OK) {
+    ani_int value = 0;
+    if (env->Object_CallMethodByName_Int(static_cast<ani_object>(ref), "unboxed", ":I", &value) != ANI_OK) {
         WVLOG_E("ParseInt32 failed");
         return false;
     }
@@ -608,6 +607,10 @@ ani_object AniParseUtils::CreateInt(ani_env *env, ani_int val)
 
 ani_string AniParseUtils::StringToAniStr(ani_env* env, const std::string& str)
 {
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
     ani_string result {};
     if (ANI_OK != env->String_NewUTF8(str.c_str(), str.size(), &result)) {
         return nullptr;
@@ -639,7 +642,7 @@ ani_ref AniParseUtils::CreateAniStringArray(ani_env* env, const std::vector<std:
         return nullptr;
     }
     for (size_t i = 0; i < paths.size(); ++i) {
-        auto item = StringToAniStr(env, paths[i]);
+        auto item = AniParseUtils::StringToAniStr(env, paths[i]);
         if (ANI_OK != env->Array_Set_Ref(array, i, item)) {
             return nullptr;
         }
@@ -684,7 +687,7 @@ bool AniParseUtils::ParseInt64(ani_env* env, ani_ref ref, int64_t& outValue)
     }
     ani_boolean isLong;
     if (env->Object_InstanceOf(static_cast<ani_object>(ref), longClass, &isLong) != ANI_OK || isLong != ANI_TRUE) {
-        WVLOG_E("ParseInt64 failed - invalid double type");
+        WVLOG_E("ParseInt64 failed - invalid long type");
         return false;
     }
 
