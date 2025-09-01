@@ -22,84 +22,13 @@
 #include "business_error.h"
 #include "nweb_log.h"
 #include "web_errors.h"
+#include "ani_parse_utils.h"
+#include "ani_business_error.h"
 
 namespace OHOS::NWeb {
 const char* WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME = "L@ohos/web/webview/webview/WebSchemeHandlerRequest;";
 const char* WEB_RESOURCE_HANDLER_CLASS_NAME = "L@ohos/web/webview/webview/WebResourceHandler;";
 namespace {
-
-bool Wrap(ani_env* env, const ani_object& object, const char* className, const ani_long& thisVar)
-{
-    if (env == nullptr) {
-        WVLOG_E("env is nullptr");
-        return false;
-    }
-    ani_status status;
-    ani_class cls;
-    if ((status = env->FindClass(className, &cls)) != ANI_OK) {
-        WVLOG_E("AniUtils_Wrap FindClass status: %{public}d", status);
-        return false;
-    }
-    ani_method innerWrapMethod;
-    if ((status = env->Class_FindMethod(cls, "bindNativePtr", "J:V", &innerWrapMethod)) != ANI_OK) {
-        WVLOG_E("AniUtils_Wrap Class_FindMethod status: %{public}d", status);
-        return false;
-    }
-    if ((status = env->Object_CallMethod_Void(object, innerWrapMethod, thisVar)) != ANI_OK) {
-        WVLOG_E("AniUtils_Wrap Object_CallMethod_Void status: %{public}d", status);
-        return false;
-    }
-    return true;
-}
-
-bool CreateObjectVoid(ani_env *env, const char *className, ani_object& object)
-{
-    if (env == nullptr) {
-        WVLOG_E("env is nullptr");
-        return false;
-    }
-    ani_class cls;
-    ani_status status = env->FindClass(className, &cls);
-    if (status != ANI_OK) {
-        WVLOG_E("find %{public}s class failed, status: %{public}d", className, status);
-        return false;
-    }
-    ani_method ctor;
-    if ((status = env->Class_FindMethod(cls, "<ctor>", nullptr, &ctor)) != ANI_OK) {
-        WVLOG_E("get %{public}s ctor method failed, status: %{public}d", className, status);
-        return false;
-    }
-    if ((status = env->Object_New(cls, ctor, &object)) != ANI_OK) {
-        WVLOG_E("new %{public}s failed, status: %{public}d", className, status);
-        return false;
-    }
-    return true;
-}
-
-bool ParseBoolean(ani_env* env, ani_ref ref, bool& outValue)
-{
-    if (env == nullptr) {
-        WVLOG_E("env is nullptr");
-        return false;
-    }
-    ani_class booleanClass;
-    ani_status status = env->FindClass("Lstd/core/Boolean;", &booleanClass);
-    if (status != ANI_OK) {
-        WVLOG_E("ParseBoolean FindClass status: %{public}d", status);
-        return false;
-    }
-    ani_boolean isBoolean;
-    if (env->Object_InstanceOf(static_cast<ani_object>(ref), booleanClass, &isBoolean) != ANI_OK ||
-        isBoolean != ANI_TRUE) {
-        WVLOG_E("ParseBoolean failed - invalid boolean type");
-        return false;
-    }
-
-    ani_boolean boolValue;
-    env->Object_CallMethodByName_Boolean(static_cast<ani_object>(ref), "unboxed", ":Z", &boolValue);
-    outValue = static_cast<bool>(boolValue);
-    return true;
-}
 
 void OnRequestStart(const ArkWeb_SchemeHandler* schemeHandler, ArkWeb_ResourceRequest* resourceRequest,
     const ArkWeb_ResourceHandler* resourceHandler, bool* intercept)
