@@ -264,7 +264,7 @@ void WebSchemeHandler::RequestStart(
     }
 
     ani_object requestObject = {};
-    if (!CreateObjectVoid(env, WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME, requestObject)) {
+    if (!AniParseUtils::CreateObjectVoid(env, WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME, requestObject)) {
         WVLOG_E("[SchemeHandler] CreaterequestObject failed");
         delete schemeHandlerRequest;
         resourceHandler->DecStrongRef(resourceHandler);
@@ -273,7 +273,7 @@ void WebSchemeHandler::RequestStart(
     }
 
     ani_object resourceObject = {};
-    if (!CreateObjectVoid(env, WEB_RESOURCE_HANDLER_CLASS_NAME, resourceObject)) {
+    if (!AniParseUtils::CreateObjectVoid(env, WEB_RESOURCE_HANDLER_CLASS_NAME, resourceObject)) {
         WVLOG_E("[SchemeHandler] CreateresourceObject Failed");
         delete schemeHandlerRequest;
         resourceHandler->DecStrongRef(resourceHandler);
@@ -285,7 +285,7 @@ void WebSchemeHandler::RequestStart(
     } else {
         resourceHandler->IncStrongRef(nullptr);
     }
-    if (!Wrap(env, requestObject, WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME,
+    if (!AniParseUtils::Wrap(env, requestObject, WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME,
         reinterpret_cast<ani_long>(schemeHandlerRequest))) {
         WVLOG_E("[SchemeHandler] WebSchemeHandlerRequest wrap failed");
         delete schemeHandlerRequest;
@@ -294,7 +294,7 @@ void WebSchemeHandler::RequestStart(
         return;
     }
 
-    if (!Wrap(env, resourceObject, WEB_RESOURCE_HANDLER_CLASS_NAME,
+    if (!AniParseUtils::Wrap(env, resourceObject, WEB_RESOURCE_HANDLER_CLASS_NAME,
               reinterpret_cast<ani_long>(resourceHandler.GetRefPtr()))) {
         WVLOG_E("[SchemeHandler] WebResourceHandler wrap failed");
         resourceHandler->DecStrongRef(resourceHandler);
@@ -317,7 +317,7 @@ void WebSchemeHandler::RequestStart(
     if (status != ANI_OK) {
         WVLOG_E("scheme handler call onRequestStart failed.");
     }
-    if (!ParseBoolean(env, fnReturnVal, *intercept)) {
+    if (!AniParseUtils::ParseBoolean(env, fnReturnVal, *intercept)) {
         WVLOG_E("scheme handler onRequestStart intercept parse failed");
         *intercept = false;
     }
