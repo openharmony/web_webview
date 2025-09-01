@@ -295,7 +295,7 @@ void WebSchemeHandler::RequestStart(
     }
 
     if (!AniParseUtils::Wrap(env, resourceObject, WEB_RESOURCE_HANDLER_CLASS_NAME,
-              reinterpret_cast<ani_long>(resourceHandler.GetRefPtr()))) {
+        reinterpret_cast<ani_long>(resourceHandler.GetRefPtr()))) {
         WVLOG_E("[SchemeHandler] WebResourceHandler wrap failed");
         resourceHandler->DecStrongRef(resourceHandler);
         resourceHandler = nullptr;
