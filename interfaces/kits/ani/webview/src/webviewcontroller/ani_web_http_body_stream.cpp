@@ -152,7 +152,7 @@ static ani_object JsRead(ani_env* env, ani_object object, ani_int size)
 
 static ani_long GetPosition(ani_env* env, ani_object object)
 {
-    WVLOG_D("WebHttpBodyStream GetSize.");
+    WVLOG_D("WebHttpBodyStream GetPosition.");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return static_cast<ani_long>(-1);
@@ -172,7 +172,7 @@ static ani_long GetPosition(ani_env* env, ani_object object)
         return static_cast<ani_long>(-1);
     }
 
-    return static_cast<ani_long>(httpBodyStream->GetSize());
+    return static_cast<ani_long>(httpBodyStream->GetPosition());
 }
 
 static ani_long GetSize(ani_env* env, ani_object object)

@@ -902,7 +902,7 @@ void WebHttpBodyStream::ExecuteRead(uint8_t* buffer, int bytesRead)
     delete asyncCtx;
 }
 
-uint64_t WebHttpBodyStream::GetPostion() const
+uint64_t WebHttpBodyStream::GetPosition() const
 {
     return OH_ArkWebHttpBodyStream_GetPosition(stream_);
 }
