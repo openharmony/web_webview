@@ -7886,13 +7886,13 @@ napi_value NapiWebviewController::SetSiteIsolationMode(
         static_cast<SiteIsolationMode>(mode));
 
     WVLOG_I("NapiWebviewController::SetSiteIsolationMode res: %{public}d", res);
-    if (res == 4) {
+    if (res == INTEGER_FOUR) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR,
             "InitError 17100001: Site Isolation mode already set by developer");
         return result;
     }
 
-    if (res == 2) {
+    if (res == INTEGER_TWO) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR,
             "InitError 17100001: cannot change (AdvancedSecurityMode active)");
         return result;
