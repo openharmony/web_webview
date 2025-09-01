@@ -84,8 +84,7 @@ ani_object CreateBusinessError(ani_env *env, ani_int code, const std::string& ms
         WVLOG_E("error nulll");
         return nullptr;
     }
-    ani_int dCode(code);
-    if ((status = env->Object_New(cls, method, &obj, dCode, error)) != ANI_OK) {
+    if ((status = env->Object_New(cls, method, &obj, code, error)) != ANI_OK) {
         WVLOG_E("Object_New failed %{public}d", status);
         return nullptr;
     }
