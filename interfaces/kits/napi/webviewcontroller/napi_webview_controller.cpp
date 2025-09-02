@@ -7892,6 +7892,12 @@ napi_value NapiWebviewController::SetSiteIsolationMode(
         return result;
     }
 
+    if (res == INTEGER_THREE) {
+        BusinessError::ThrowErrorByErrcode(env, INIT_ERROR,
+            "InitError 17100001: Site Isolation mode cannot be strict when single render");
+        return result;
+    }
+
     if (res == INTEGER_TWO) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR,
             "InitError 17100001: cannot change (AdvancedSecurityMode active)");
