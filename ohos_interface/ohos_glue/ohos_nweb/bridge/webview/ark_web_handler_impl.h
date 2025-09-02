@@ -717,6 +717,11 @@ public:
      *
      */
     void SetImeShow(bool visible) override;
+
+    /**
+     * @brief Called when you click on caret.
+     */
+    virtual bool IsShowHandle() override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };
