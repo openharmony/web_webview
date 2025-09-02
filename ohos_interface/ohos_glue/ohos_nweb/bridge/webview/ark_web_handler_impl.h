@@ -722,6 +722,14 @@ public:
      * @brief Called when you click on caret.
      */
     virtual bool IsShowHandle() override;
+
+    /**
+     * @brief Called when params of the native object are changed.
+     *
+     * @param data_info The information containing the set of all changed params for the native object.
+     *
+     */
+    void OnNativeEmbedObjectParamChange(ArkWebRefPtr<ArkWebNativeEmbedParamDataInfo> data_info) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };

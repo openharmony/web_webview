@@ -43,6 +43,7 @@
 #include "ohos_nweb/bridge/ark_web_native_embed_data_info_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_native_embed_touch_event_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_native_embed_mouse_event_wrapper.h"
+#include "ohos_nweb/bridge/ark_web_native_embed_param_data_info_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_nweb_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_quick_menu_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_quick_menu_params_wrapper.h"
@@ -1116,5 +1117,15 @@ void ArkWebHandlerImpl::SetImeShow(bool visible)
 bool ArkWebHandlerImpl::IsShowHandle()
 {
     return nweb_handler_->IsShowHandle();
+}
+
+void ArkWebHandlerImpl::OnNativeEmbedObjectParamChange(ArkWebRefPtr<ArkWebNativeEmbedParamDataInfo> data_info)
+{
+    if (CHECK_REF_PTR_IS_NULL(data_info)) {
+        nweb_handler_->OnNativeEmbedObjectParamChange(nullptr);
+        return;
+    }
+
+    nweb_handler_->OnNativeEmbedObjectParamChange(std::make_shared<ArkWebNativeEmbedParamDataInfoWrapper>(data_info));
 }
 } // namespace OHOS::ArkWeb

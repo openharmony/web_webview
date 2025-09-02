@@ -45,6 +45,7 @@
 #include "ohos_nweb/include/ark_web_native_embed_data_info.h"
 #include "ohos_nweb/include/ark_web_native_embed_touch_event.h"
 #include "ohos_nweb/include/ark_web_native_embed_mouse_event.h"
+#include "ohos_nweb/include/ark_web_native_embed_param_data_info.h"
 #include "ohos_nweb/include/ark_web_nweb.h"
 #include "ohos_nweb/include/ark_web_quick_menu_callback.h"
 #include "ohos_nweb/include/ark_web_quick_menu_params.h"
@@ -1052,6 +1053,15 @@ public:
      */
     /*--ark web()--*/
     virtual bool IsShowHandle() { return false; }
+
+    /**
+     * @brief Called when params of the native object are changed.
+     *
+     * @param data_info The information containing the set of all changed params for the native object.
+     *
+     */
+    /*--ark web()--*/
+    virtual void OnNativeEmbedObjectParamChange(ArkWebRefPtr<ArkWebNativeEmbedParamDataInfo> data_info) = 0;
 };
 
 } // namespace OHOS::ArkWeb

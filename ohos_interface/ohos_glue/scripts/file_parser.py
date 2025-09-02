@@ -441,6 +441,9 @@ _simpletypes = {
     'ArkWebStylusTouchPointInfoVector': [
         'ArkWebStylusTouchPointInfoVector', 'ark_web_stylus_touch_point_info_vector_default'
     ],
+    'ArkWebNativeEmbedParamItemVector': [
+        'ArkWebNativeEmbedParamItemVector', 'ark_web_native_embed_param_item_vector_default'
+    ],
 }
 
 
