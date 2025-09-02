@@ -58,7 +58,7 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":OnVideoBufferAvailableFuzzTest",
+    ":SetCaptureCallbackFuzzTest",
   ]
 }
 ###############################################################################
