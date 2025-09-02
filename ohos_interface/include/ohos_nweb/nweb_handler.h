@@ -355,6 +355,36 @@ public:
     virtual std::shared_ptr<NWebMouseEventResult> GetResult() = 0;
 };
 
+enum class NativeEmbedParamStatus {
+    ADD,
+    UPDATE,
+    DELETE,
+};
+
+class NWebNativeEmbedParamItem {
+public:
+    virtual ~NWebNativeEmbedParamItem() = default;
+
+    virtual NativeEmbedParamStatus GetStatus() = 0;
+
+    virtual std::string GetId() = 0;
+
+    virtual std::string GetName() = 0;
+
+    virtual std::string GetValue() = 0;
+};
+
+class NWebNativeEmbedParamDataInfo {
+public:
+    virtual ~NWebNativeEmbedParamDataInfo() = default;
+
+    virtual std::string GetEmbedId() = 0;
+
+    virtual std::string GetObjectAttributeId() = 0;
+
+    virtual std::vector<std::shared_ptr<NWebNativeEmbedParamItem>> GetParamItems() = 0;
+};
+
 class OHOS_NWEB_EXPORT NWebHandler {
 public:
     NWebHandler() = default;
@@ -1278,6 +1308,14 @@ public:
      * @brief Called when you click on caret.
      */
     virtual bool IsShowHandle() { return false; }
+
+    /**
+     * @brief Called when params of the native object are changed.
+     *
+     * @param paramDataInfo The information containing the set of all changed params for the native object.
+     *
+     */
+    virtual void OnNativeEmbedObjectParamChange(std::shared_ptr<NWebNativeEmbedParamDataInfo> paramDataInfo) {}
 };
 
 } // namespace OHOS::NWeb
