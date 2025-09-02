@@ -5127,6 +5127,57 @@ ani_object HasImagePromise(ani_env* env, ani_object object)
     return promise;
 }
 
+static ani_object GetCertificateSync(ani_env* env, ani_object object)
+{
+    ani_object certificateObj = nullptr;
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return certificateObj;
+    }
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return certificateObj;
+    }
+    std::vector<std::string> certChainDerData;
+    if (!controller->GetCertChainDerData(certChainDerData)) {
+        WVLOG_E("GetCertificateSync failed");
+        return certificateObj;
+    }
+    ani_class cls;
+    if (env->FindClass("Lescompat/Array;", &cls) != ANI_OK) {
+        return certificateObj;
+    }
+    ani_method arrayCtor;
+    if (env->Class_FindMethod(cls, "<ctor>", "I:V", &arrayCtor) != ANI_OK) {
+        return certificateObj;
+    }
+    if (env->Object_New(cls, arrayCtor, &certificateObj, certChainDerData.size()) != ANI_OK) {
+        return certificateObj;
+    }
+    ani_status status;
+    for (uint8_t i = 0; i < certChainDerData.size(); ++i) {
+        if (i == UINT8_MAX) {
+            WVLOG_E("error, cert chain data array reach max");
+            break;
+        }
+        void* data = nullptr;
+        ani_arraybuffer buffer = nullptr;
+        env->CreateArrayBuffer(certChainDerData[i].size(), &data, &buffer);
+        int retCode =
+            memcpy_s(data, certChainDerData[i].size(), certChainDerData[i].data(), certChainDerData[i].size());
+        if (retCode != 0) {
+            return certificateObj;
+        }
+        if ((status = env->Array_Set_Ref(
+            static_cast<ani_array_ref>(certificateObj), i, static_cast<ani_ref>(buffer))) != ANI_OK) {
+            WVLOG_E("error in set element");
+            return certificateObj;
+        }
+    }
+    return certificateObj;
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     WVLOG_D("[DOWNLOAD] StsWebviewControllerInit");
@@ -5270,6 +5321,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void *>(SetServiceWorkerWebSchemeHandler) },
         ani_native_function { "hasImageCallback", nullptr, reinterpret_cast<void *>(HasImageCallback) },
         ani_native_function { "hasImagePromise", nullptr, reinterpret_cast<void *>(HasImagePromise) },
+        ani_native_function { "getCertificateSync", nullptr, reinterpret_cast<void*>(GetCertificateSync) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
