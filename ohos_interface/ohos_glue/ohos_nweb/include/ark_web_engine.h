@@ -194,6 +194,12 @@ public:
 
     /*--ark web()--*/
     virtual void SetWebDestroyMode(int32_t mode) = 0;
+
+    /*--ark web()--*/
+    virtual int32_t SetSiteIsolationMode(int32_t mode) = 0;
+
+    /*--ark web()--*/
+    virtual int32_t GetSiteIsolationMode() = 0;
 };
 
 } // namespace OHOS::ArkWeb

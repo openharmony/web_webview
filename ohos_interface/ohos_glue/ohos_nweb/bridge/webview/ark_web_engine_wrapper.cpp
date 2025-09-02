@@ -372,4 +372,15 @@ void ArkWebEngineWrapper::SetWebDestroyMode(OHOS::NWeb::WebDestroyMode mode)
     ark_web_engine_->SetWebDestroyMode(static_cast<int32_t>(mode));
 }
 
+int32_t ArkWebEngineWrapper::SetSiteIsolationMode(ArkWebSiteIsolationMode mode)
+{
+    return static_cast<int32_t>(ark_web_engine_->SetSiteIsolationMode(static_cast<int32_t>(mode)));
+}
+
+ArkWebSiteIsolationMode ArkWebEngineWrapper::GetSiteIsolationMode()
+{
+    int32_t res = ark_web_engine_->GetSiteIsolationMode();
+    return static_cast<ArkWebSiteIsolationMode>(res);
+}
+
 } // namespace OHOS::ArkWeb

@@ -158,6 +158,10 @@ public:
 
     bool IsAutoPreconnectEnabled();
 
+    int32_t SetSiteIsolationMode(SiteIsolationMode mode);
+
+    SiteIsolationMode GetSiteIsolationMode();
+
 private:
     NWebHelper() = default;
     bool GetWebEngine(bool fromArk);

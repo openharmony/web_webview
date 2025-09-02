@@ -72,6 +72,10 @@ public:
 
     virtual RenderProcessMode GetRenderProcessMode() = 0;
 
+    virtual int32_t SetSiteIsolationMode(SiteIsolationMode mode) { return 0; }
+
+    virtual SiteIsolationMode GetSiteIsolationMode() { return SiteIsolationMode::PARTIAL; }
+
     virtual void ClearPrefetchedResource(const std::vector<std::string>& cache_key_list) = 0;
 
     virtual void WarmupServiceWorker(const std::string& url) = 0;

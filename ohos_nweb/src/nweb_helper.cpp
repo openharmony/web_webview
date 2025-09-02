@@ -1018,6 +1018,26 @@ RenderProcessMode NWebHelper::GetRenderProcessMode()
     return nwebEngine_->GetRenderProcessMode();
 }
 
+int32_t NWebHelper::SetSiteIsolationMode(SiteIsolationMode mode)
+{
+    if (nwebEngine_ == nullptr) {
+        WVLOG_E("web engine is nullptr");
+        return -1;
+    }
+
+    return nwebEngine_->SetSiteIsolationMode(mode);
+}
+
+SiteIsolationMode NWebHelper::GetSiteIsolationMode()
+{
+    if (nwebEngine_ == nullptr) {
+        WVLOG_E("web engine is nullptr");
+        return SiteIsolationMode::PARTIAL;
+    }
+
+    return nwebEngine_->GetSiteIsolationMode();
+}
+
 void NWebHelper::SetHostIP(const std::string& hostName, const std::string& address, int32_t aliveTime)
 {
     if (nwebEngine_ == nullptr) {
