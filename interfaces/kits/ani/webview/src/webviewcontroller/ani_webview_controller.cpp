@@ -467,6 +467,8 @@ static void Clean(ani_env *env, ani_object object)
         delete reinterpret_cast<WebSchemeHandlerRequest*>(ptr);
     } else if (clsName == "WebResourceHandler") {
         reinterpret_cast<WebResourceHandler*>(ptr)->DecStrongRef(reinterpret_cast<WebResourceHandler*>(ptr));
+    } else if (clsName == "JsMessageExt") {
+        delete reinterpret_cast<WebJsMessageExt*>(ptr);
     } else {
         WVLOG_E("Clean unsupport className: %{public}s", clsName.c_str());
     }
@@ -4385,7 +4387,7 @@ ErrCode ConstructFlowbuf(ani_env* env, ani_object script, int& fd, size_t& scrip
     flowbufferAdapter->StartPerformanceBoost();
     std::string scriptStr;
     if (AniParseUtils::IsString(env, script)) {
-        if (!AniParseUtils::ParseString(env, script, scriptStr)) {
+        if (AniParseUtils::ParseString(env, script, scriptStr)) {
             WVLOG_I("script is string constructstringflowbuf");
             return AniParseUtils::ConstructStringFlowbuf(env, scriptStr, fd, scriptLength);
         }
@@ -4608,7 +4610,6 @@ static ani_object RunJavaScriptInternalPromiseExt(ani_env* env, ani_object objec
     }
     auto callbackImpl = std::make_shared<WebviewJavaScriptExecuteCallback>(env, nullptr, resolver, extention);
     nweb_ptr->ExecuteJavaScriptExt(fd, scriptLength, callbackImpl, extention);
-    close(fd);
     usedFd_--;
     return promise;
 }
