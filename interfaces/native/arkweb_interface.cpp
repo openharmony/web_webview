@@ -102,7 +102,7 @@ static void LoadFunction(const char* functionName, Fn* fnOut)
 static bool LoadComponentAPI()
 {
     if (g_ComponentImpl) {
-        WVLOG_I("NativeArkWeb component api already loaded");
+        WVLOG_D("NativeArkWeb component api already loaded");
         return true;
     }
     g_ComponentImpl = new (std::nothrow) ArkWeb_ComponentAPI();
@@ -126,7 +126,7 @@ static bool LoadComponentAPI()
 static bool LoadComponentGlobalAPI()
 {
     if (g_ComponentGlobalImpl) {
-        WVLOG_I("NativeArkWeb component api already loaded");
+        WVLOG_D("NativeArkWeb component api already loaded");
         return true;
     }
 
@@ -152,7 +152,7 @@ static bool LoadComponentGlobalAPI()
 static bool LoadControllerAPI()
 {
     if (g_ControllerImpl) {
-        WVLOG_I("NativeArkWeb controller api already loaded");
+        WVLOG_D("NativeArkWeb controller api already loaded");
         return true;
     }
     g_ControllerImpl = new (std::nothrow) ArkWeb_ControllerAPI();
