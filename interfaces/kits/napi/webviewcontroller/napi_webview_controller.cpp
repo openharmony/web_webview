@@ -7852,6 +7852,12 @@ napi_value NapiWebviewController::SetSiteIsolationMode(
     napi_env env, napi_callback_info info)
 {
     WVLOG_I("set site isolation mode.");
+    if(IS_CALLING_FROM_M114()){
+        WVLOG_W("SetSiteIsolationMode unsupported engine version: M114");
+        BusinessError::ThrowErrorByErrcode(env, INIT_ERROR,
+            "InitError 17100001: function SetSiteIsolationMode isn't existing");
+        return nullptr;
+    }
 
     napi_value result = nullptr;
     napi_value thisVar = nullptr;
@@ -7911,6 +7917,10 @@ napi_value NapiWebviewController::GetSiteIsolationMode(
     napi_env env, napi_callback_info info)
 {
     WVLOG_I("get site isolation mode.");
+    if(IS_CALLING_FROM_M114()){
+        WVLOG_W("GetSiteIsolationMode unsupported engine version: M114");
+        return nullptr;
+    }
     napi_value result = nullptr;
 
     int32_t mode = static_cast<int32_t>(NWebHelper::Instance().GetSiteIsolationMode());
