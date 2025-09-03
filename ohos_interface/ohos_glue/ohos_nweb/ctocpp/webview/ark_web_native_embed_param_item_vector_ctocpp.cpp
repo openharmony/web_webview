@@ -35,7 +35,7 @@ std::vector<std::shared_ptr<OHOS::NWeb::NWebNativeEmbedParamItem>> ArkWebNativeE
     return class_value;
 }
 
-void ArkWebNativeEmbedParamItemVectorStructRelease(ArkWebNativeEmbedParamItemVector& struct_value)
+ARK_WEB_NO_SANITIZE void ArkWebNativeEmbedParamItemVectorStructRelease(ArkWebNativeEmbedParamItemVector& struct_value)
 {
     struct_value.size = 0;
     SAFE_FREE(struct_value.value, struct_value.ark_web_mem_free_func);
