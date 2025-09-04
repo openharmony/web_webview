@@ -174,6 +174,12 @@ enum class SiteIsolationMode {
     STRICT,
 };
 
+enum class SetSiteIsolationModeErr : int32_t {
+    ALREADY_SET_ERR = 4,
+    SINGLE_RENDER_SET_STRICT_ERR = 3,
+    ADVANCED_SECURITY_SET_ERR = 2,
+};
+
 class NWebTouchPointInfo {
 public:
     virtual ~NWebTouchPointInfo() = default;

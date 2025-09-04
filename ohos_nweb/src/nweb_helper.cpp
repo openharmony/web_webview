@@ -1022,7 +1022,7 @@ int32_t NWebHelper::SetSiteIsolationMode(SiteIsolationMode mode)
 {
     if (nwebEngine_ == nullptr) {
         WVLOG_E("web engine is nullptr");
-        return -1;
+        return 0;
     }
 
     return nwebEngine_->SetSiteIsolationMode(mode);

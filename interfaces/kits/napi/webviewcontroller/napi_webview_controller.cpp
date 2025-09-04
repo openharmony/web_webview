@@ -7852,6 +7852,12 @@ napi_value NapiWebviewController::SetSiteIsolationMode(
     napi_env env, napi_callback_info info)
 {
     WVLOG_I("set site isolation mode.");
+    if(IS_CALLING_FROM_M114()) {
+        WVLOG_W("SetSiteIsolationMode unsupported engine version: M114");
+        BusinessError::ThrowErrorByErrcode(env, INIT_ERROR,
+            "InitError 17100001: function SetSiteIsolationMode isn't existing");
+        return nullptr;
+    }
 
     napi_value result = nullptr;
     napi_value thisVar = nullptr;
@@ -7873,7 +7879,6 @@ napi_value NapiWebviewController::SetSiteIsolationMode(
             "BusinessError 401: Parameter error. The type of 'mode' must be int.");
         return result;
     }
-    WVLOG_I("NapiWebviewController::SetSiteIsolationMode: %{public}d", mode);
 
     if (mode < static_cast<int>(SiteIsolationMode::PARTIAL) ||
         mode > static_cast<int>(SiteIsolationMode::STRICT)) {
@@ -7886,22 +7891,19 @@ napi_value NapiWebviewController::SetSiteIsolationMode(
         static_cast<SiteIsolationMode>(mode));
 
     WVLOG_I("NapiWebviewController::SetSiteIsolationMode res: %{public}d", res);
-    if (res == INTEGER_FOUR) {
+    if (res == static_cast<int32_t>(SetSiteIsolationModeErr::ALREADY_SET_ERR)) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR,
             "InitError 17100001: Site Isolation mode already set by developer");
-        return result;
     }
 
-    if (res == INTEGER_THREE) {
+    if (res == static_cast<int32_t>(SetSiteIsolationModeErr::SINGLE_RENDER_SET_STRICT_ERR)) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR,
             "InitError 17100001: Site Isolation mode cannot be strict when single render");
-        return result;
     }
 
-    if (res == INTEGER_TWO) {
+    if (res == static_cast<int32_t>(SetSiteIsolationModeErr::ADVANCED_SECURITY_SET_ERR)) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR,
             "InitError 17100001: cannot change (AdvancedSecurityMode active)");
-        return result;
     }
 
     return result;
@@ -7911,6 +7913,10 @@ napi_value NapiWebviewController::GetSiteIsolationMode(
     napi_env env, napi_callback_info info)
 {
     WVLOG_I("get site isolation mode.");
+    if(IS_CALLING_FROM_M114()){
+        WVLOG_W("GetSiteIsolationMode unsupported engine version: M114");
+        return nullptr;
+    }
     napi_value result = nullptr;
 
     int32_t mode = static_cast<int32_t>(NWebHelper::Instance().GetSiteIsolationMode());
