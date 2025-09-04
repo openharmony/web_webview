@@ -7852,7 +7852,7 @@ napi_value NapiWebviewController::SetSiteIsolationMode(
     napi_env env, napi_callback_info info)
 {
     WVLOG_I("set site isolation mode.");
-    if(IS_CALLING_FROM_M114()){
+    if(IS_CALLING_FROM_M114()) {
         WVLOG_W("SetSiteIsolationMode unsupported engine version: M114");
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR,
             "InitError 17100001: function SetSiteIsolationMode isn't existing");
@@ -7879,7 +7879,6 @@ napi_value NapiWebviewController::SetSiteIsolationMode(
             "BusinessError 401: Parameter error. The type of 'mode' must be int.");
         return result;
     }
-    WVLOG_I("NapiWebviewController::SetSiteIsolationMode: %{public}d", mode);
 
     if (mode < static_cast<int>(SiteIsolationMode::PARTIAL) ||
         mode > static_cast<int>(SiteIsolationMode::STRICT)) {
@@ -7895,19 +7894,16 @@ napi_value NapiWebviewController::SetSiteIsolationMode(
     if (res == INTEGER_FOUR) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR,
             "InitError 17100001: Site Isolation mode already set by developer");
-        return result;
     }
 
     if (res == INTEGER_THREE) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR,
             "InitError 17100001: Site Isolation mode cannot be strict when single render");
-        return result;
     }
 
     if (res == INTEGER_TWO) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR,
             "InitError 17100001: cannot change (AdvancedSecurityMode active)");
-        return result;
     }
 
     return result;
