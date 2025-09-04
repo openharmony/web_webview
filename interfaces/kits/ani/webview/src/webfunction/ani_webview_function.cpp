@@ -74,7 +74,7 @@ static void JsOnce(ani_env* env, ani_string type, ani_object callback)
 
     if (!(AniParseUtils::ParseString(env, type, argvType)) || !isFunction ||
         (onceType.find(argvType) == onceType.end())) {
-        WVLOG_I("JsOnce TypeError : %{public}s", argvType.c_str());
+        WVLOG_E("JsOnce argvType(%{public}s) error", argvType.c_str());
         AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
         return;
     }
@@ -84,25 +84,24 @@ static void JsOnce(ani_env* env, ani_string type, ani_object callback)
     if (foundCallback != onceType.end()) {
         foundCallback->second(env, callback);
     } else {
-        WVLOG_I("error");
+        WVLOG_E("argvType(%{public}s) not found", argvType.c_str());
         AniBusinessError::ThrowErrorByErrCode(env, TYPE_NOT_MATCH_WITCH_VALUE);
         return;
     }
-    WVLOG_I("exit JsOnce");
 }
 
 ani_status StsWebviewFunctionInit(ani_env* env)
 {
     WVLOG_I("enter StsWebviewFunctionInit");
     ani_namespace ns;
-    if (ANI_OK != env->FindNamespace(WEB_WEBVIEW_NAMESPACE_NAME, &ns)) {
+    if (env->FindNamespace(WEB_WEBVIEW_NAMESPACE_NAME, &ns) != ANI_OK) {
         WVLOG_E("StsWebviewFunctionInit find namespace failed");
         return ANI_ERROR;
     }
     std::array methods = {
         ani_native_function { "once", nullptr, reinterpret_cast<void*>(JsOnce) },
     };
-    if (ANI_OK != env->Namespace_BindNativeFunctions(ns, methods.data(), methods.size())) {
+    if (env->Namespace_BindNativeFunctions(ns, methods.data(), methods.size()) != ANI_OK) {
         WVLOG_E("StsWebviewFunctionInit bind native function failed");
         return ANI_ERROR;
     }
