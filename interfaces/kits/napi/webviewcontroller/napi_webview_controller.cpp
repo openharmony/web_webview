@@ -7891,17 +7891,17 @@ napi_value NapiWebviewController::SetSiteIsolationMode(
         static_cast<SiteIsolationMode>(mode));
 
     WVLOG_I("NapiWebviewController::SetSiteIsolationMode res: %{public}d", res);
-    if (res == INTEGER_FOUR) {
+    if (res == static_cast<int>(SetSiteIsolationModeErr::ALREADY_SET_ERR)) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR,
             "InitError 17100001: Site Isolation mode already set by developer");
     }
 
-    if (res == INTEGER_THREE) {
+    if (res == static_cast<int>(SetSiteIsolationModeErr::SINGLE_RENDER_SET_STRICT_ERR)) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR,
             "InitError 17100001: Site Isolation mode cannot be strict when single render");
     }
 
-    if (res == INTEGER_TWO) {
+    if (res == static_cast<int>(SetSiteIsolationModeErr::ADVANCED_SECURITY_SET_ERR)) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR,
             "InitError 17100001: cannot change (AdvancedSecurityMode active)");
     }
