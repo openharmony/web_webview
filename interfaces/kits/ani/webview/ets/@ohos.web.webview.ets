@@ -680,6 +680,8 @@ export default namespace webview {
         native accessBackward(): boolean;
         native loadData(data: string, mimeType: string, encoding: string, baseUrl?: string, historyUrl?: string): void;
         native clearHistory(): void;
+        native setWebSchemeHandler(scheme: string, handler: WebSchemeHandler): void;
+        native static setServiceWorkerWebSchemeHandler(scheme: string, handler: WebSchemeHandler): void;
         native clearWebSchemeHandler(): void;
         native terminateRenderProcess(): boolean;
         native static setConnectionTimeout(timeout: number): void;
