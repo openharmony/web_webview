@@ -17,6 +17,7 @@
 #define LOCATION_PROXY_ADAPTER_IMPL_H
 
 #include <map>
+#include <mutex>
 
 #if defined(NWEB_LOCATION_ENABLE)
 #include "i_locator_callback.h"
@@ -100,6 +101,7 @@ private:
     static StartLocatingFuncType startLocatingFunc_;
     static StopLocatingFuncType stopLocatingFunc_;
     LocatorCallbackMap reg_;
+    std::mutex count_mutex_;
 #endif
 };
 }

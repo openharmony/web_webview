@@ -25,7 +25,7 @@
 
 using namespace OHOS::Location;
 namespace {
-#if defined (__aarch64__) || defined(__x86_64__)
+#if defined (__aarch64__) || defined (__x86_64__)
 const std::string NWEB_WRAPPER_SO_PATH = "/system/lib64/libnweb_ohos_wrapper.z.so";
 const std::string ARKWEB_WRAPPER_SO_PATH = "/system/lib64/libarkweb_os_wrapper.z.so";
 #else
@@ -34,7 +34,7 @@ const std::string ARKWEB_WRAPPER_SO_PATH = "/system/lib/libarkweb_os_wrapper.z.s
 #endif
 int32_t ConvertScenario(int32_t scenario)
 {
-    int32_t ret = OHOS::NWeb::LocationRequestConfig::Scenario::UNSET;
+    int32_t ret = OHOS::Location::SCENE_UNSET;
     switch (scenario) {
         case OHOS::NWeb::LocationRequestConfig::Scenario::UNSET:
             ret = OHOS::Location::SCENE_UNSET;
@@ -55,6 +55,7 @@ int32_t ConvertScenario(int32_t scenario)
             ret = OHOS::Location::SCENE_NO_POWER;
             break;
         default:
+            ret = OHOS::Location::SCENE_UNSET;
             break;
     }
     return ret;
@@ -62,7 +63,7 @@ int32_t ConvertScenario(int32_t scenario)
 
 int32_t ConvertPriority(int32_t priority)
 {
-    int32_t ret = OHOS::NWeb::LocationRequestConfig::Priority::PRIORITY_UNSET;
+    int32_t ret = OHOS::Location::PRIORITY_UNSET;
     switch (priority) {
         case OHOS::NWeb::LocationRequestConfig::Priority::PRIORITY_UNSET:
             ret = OHOS::Location::PRIORITY_UNSET;
@@ -77,6 +78,7 @@ int32_t ConvertPriority(int32_t priority)
             ret = OHOS::Location::PRIORITY_FAST_FIRST_FIX;
             break;
         default:
+            ret = OHOS::Location::PRIORITY_UNSET;
             break;
     }
     return ret;
@@ -277,9 +279,12 @@ int32_t LocationProxyAdapterImpl::StartLocating(
         return id;
     }
 
-    id = count++;
-    if (count < 0) {
-        count = 0;
+    {
+        std::lock_guard<std::mutex> lock(count_mutex_);
+        id = count++;
+        if (count < 0) {
+            count = 0;
+        }
     }
     reg_.emplace(std::make_pair(id, iCallback));
     return id;
