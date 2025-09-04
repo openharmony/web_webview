@@ -367,6 +367,16 @@ std::string WebviewController::GetTitle()
     return title;
 }
 
+int32_t WebviewController::GetProgress()
+{
+    int32_t progress = 0;
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (nweb_ptr) {
+        progress = nweb_ptr->PageLoadProgress();
+    }
+    return progress;
+}
+
 int32_t WebviewController::GetPageHeight()
 {
     int32_t pageHeight = 0;
