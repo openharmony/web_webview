@@ -662,13 +662,10 @@ AudioDecoderAdapterCode AudioCodecDecoderAdapterImpl::GetOutputFormatDec(
         return AudioDecoderAdapterCode::DECODER_ERROR;
     }
     AudioDecoderAdapterCode ret = GetParamFromAVFormat(avFormat, format);
-    if (ret != AudioDecoderAdapterCode::DECODER_OK) {
-        return ret;
-    }
     OH_AVFormat_Destroy(avFormat);
     avFormat = nullptr;
 
-    return AudioDecoderAdapterCode::DECODER_OK;
+    return ret;
 }
 
 AudioDecoderAdapterCode AudioCodecDecoderAdapterImpl::ReleaseOutputBufferDec(uint32_t index)
