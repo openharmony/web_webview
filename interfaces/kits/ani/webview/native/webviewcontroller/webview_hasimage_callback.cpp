@@ -81,8 +81,7 @@ void WebviewHasImageCallback::OnReceiveValue(bool result)
         return;
     }
 
-    auto task = [this, result]() { WebviewHasImageCallback::AfterWorkCb(result); };
-    task();
+    WebviewHasImageCallback::AfterWorkCb(result);
     vm_->DetachCurrentThread();
 }
 

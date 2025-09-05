@@ -13,15 +13,13 @@
  * limitations under the License.
  */
 
- #include "ani_web_data_base.h"
-
+#include "ani_web_data_base.h"
 #include <array>
 #include <iostream>
 #include <string>
 
 #include "ani_business_error.h"
 #include "ani_parse_utils.h"
-
 #include "nweb_helper.h"
 #include "nweb_log.h"
 #include "securec.h"

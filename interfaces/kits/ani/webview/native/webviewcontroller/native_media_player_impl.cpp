@@ -112,7 +112,14 @@ NWebNativeMediaPlayerBridgeImpl::NWebNativeMediaPlayerBridgeImpl(int32_t nwebId,
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
     }
-    env->GlobalReference_Create(value, &value_);
+    if (env == nullptr) {
+        WVLOG_E("env is nulptr");
+        return;
+    }
+    ani_status status = env->GlobalReference_Create(value, &value_);
+    if (status != ANI_OK) {
+        WVLOG_E("nwebNativeMediaPlayerBridgeImpl create reference failed.");
+    }
 }
 
 NWebNativeMediaPlayerBridgeImpl::~NWebNativeMediaPlayerBridgeImpl()
@@ -121,12 +128,19 @@ NWebNativeMediaPlayerBridgeImpl::~NWebNativeMediaPlayerBridgeImpl()
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
     }
-    env->GlobalReference_Delete(value_);
+    if (env == nullptr) {
+        WVLOG_E("env is nulptr");
+        return;
+    }
+    ani_status status = env->GlobalReference_Delete(value_);
+    if (status != ANI_OK) {
+        WVLOG_E("nwebNativeMediaPlayerBridgeImpl delete reference failed.");
+    }
 }
 
 void NWebNativeMediaPlayerBridgeImpl::UpdateRect(double x, double y, double width, double height)
 {
-    WVLOG_I("begin to update rect, nweb id is %{public}d", nwebId_);
+    WVLOG_D("begin to update rect, nweb id is %{public}d", nwebId_);
 
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
@@ -144,7 +158,7 @@ void NWebNativeMediaPlayerBridgeImpl::UpdateRect(double x, double y, double widt
 
 void NWebNativeMediaPlayerBridgeImpl::Play()
 {
-    WVLOG_I("begin to play, nweb id is %{public}d", nwebId_);
+    WVLOG_D("begin to play, nweb id is %{public}d", nwebId_);
 
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
@@ -157,7 +171,7 @@ void NWebNativeMediaPlayerBridgeImpl::Play()
 
 void NWebNativeMediaPlayerBridgeImpl::Pause()
 {
-    WVLOG_I("begin to pause, nweb id is %{public}d", nwebId_);
+    WVLOG_D("begin to pause, nweb id is %{public}d", nwebId_);
 
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
@@ -170,7 +184,7 @@ void NWebNativeMediaPlayerBridgeImpl::Pause()
 
 void NWebNativeMediaPlayerBridgeImpl::Seek(double time)
 {
-    WVLOG_I("begin to seek, nweb id is %{public}d, time is %{public}f", nwebId_, time);
+    WVLOG_D("begin to seek, nweb id is %{public}d, time is %{public}f", nwebId_, time);
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
@@ -184,7 +198,7 @@ void NWebNativeMediaPlayerBridgeImpl::Seek(double time)
 
 void NWebNativeMediaPlayerBridgeImpl::SetVolume(double volume)
 {
-    WVLOG_I("begin to set volume, nweb id is %{public}d, volume is %{public}f", nwebId_, volume);
+    WVLOG_D("begin to set volume, nweb id is %{public}d, volume is %{public}f", nwebId_, volume);
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
@@ -198,7 +212,7 @@ void NWebNativeMediaPlayerBridgeImpl::SetVolume(double volume)
 
 void NWebNativeMediaPlayerBridgeImpl::SetMuted(bool isMuted)
 {
-    WVLOG_I("begin to set muted, nweb id is %{public}d, muted flag is %{public}d", nwebId_, isMuted);
+    WVLOG_D("begin to set muted, nweb id is %{public}d, muted flag is %{public}d", nwebId_, isMuted);
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
@@ -212,7 +226,7 @@ void NWebNativeMediaPlayerBridgeImpl::SetMuted(bool isMuted)
 
 void NWebNativeMediaPlayerBridgeImpl::SetPlaybackRate(double playbackRate)
 {
-    WVLOG_I("begin to set playback rate, nweb id is %{public}d, playback rate is %{public}f", nwebId_, playbackRate);
+    WVLOG_D("begin to set playback rate, nweb id is %{public}d, playback rate is %{public}f", nwebId_, playbackRate);
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
@@ -226,7 +240,7 @@ void NWebNativeMediaPlayerBridgeImpl::SetPlaybackRate(double playbackRate)
 
 void NWebNativeMediaPlayerBridgeImpl::Release()
 {
-    WVLOG_I("begin to release, nweb id is %{public}d", nwebId_);
+    WVLOG_D("begin to release, nweb id is %{public}d", nwebId_);
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
@@ -238,7 +252,7 @@ void NWebNativeMediaPlayerBridgeImpl::Release()
 
 void NWebNativeMediaPlayerBridgeImpl::EnterFullScreen()
 {
-    WVLOG_I("begin to enter full screen, nweb id is %{public}d", nwebId_);
+    WVLOG_D("begin to enter full screen, nweb id is %{public}d", nwebId_);
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
@@ -250,7 +264,7 @@ void NWebNativeMediaPlayerBridgeImpl::EnterFullScreen()
 
 void NWebNativeMediaPlayerBridgeImpl::ExitFullScreen()
 {
-    WVLOG_I("begin to exit full screen, nweb id is %{public}d", nwebId_);
+    WVLOG_D("begin to exit full screen, nweb id is %{public}d", nwebId_);
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
@@ -262,7 +276,7 @@ void NWebNativeMediaPlayerBridgeImpl::ExitFullScreen()
 
 void NWebNativeMediaPlayerBridgeImpl::ResumeMediaPlayer()
 {
-    WVLOG_I("begin to resume media player, nweb id is %{public}d", nwebId_);
+    WVLOG_D("begin to resume media player, nweb id is %{public}d", nwebId_);
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
@@ -283,7 +297,7 @@ void NWebNativeMediaPlayerBridgeImpl::ResumeMediaPlayer()
 
 void NWebNativeMediaPlayerBridgeImpl::SuspendMediaPlayer(SuspendType type)
 {
-    WVLOG_I("begin to suspend media player, nweb id is %{public}d %{public}d", nwebId_, static_cast<int>(type));
+    WVLOG_D("begin to suspend media player, nweb id is %{public}d %{public}d", nwebId_, static_cast<int>(type));
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
@@ -307,6 +321,7 @@ void NWebNativeMediaPlayerBridgeImpl::SuspendMediaPlayer(SuspendType type)
     if (env->FunctionalObject_Call(static_cast<ani_fn_object>(suspendRef), ani_size(INTEGER_ONE), argv, &ref) !=
         ANI_OK) {
         WVLOG_E("SuspendMediaPlayer failed");
+        return;
     }
 }
 
@@ -318,7 +333,10 @@ NWebCreateNativeMediaPlayerCallbackImpl::NWebCreateNativeMediaPlayerCallbackImpl
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
     }
-    env->GlobalReference_Create(static_cast<ani_ref>(callback), &callback_);
+    if (env->GlobalReference_Create(static_cast<ani_ref>(callback), &callback_) != ANI_OK) {
+        WVLOG_E("nwebCreateNativeMediaPlayerCallbackImpl failed");
+        return;
+    }
 }
 
 NWebCreateNativeMediaPlayerCallbackImpl::~NWebCreateNativeMediaPlayerCallbackImpl()
@@ -327,13 +345,16 @@ NWebCreateNativeMediaPlayerCallbackImpl::~NWebCreateNativeMediaPlayerCallbackImp
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
     }
-    env->GlobalReference_Delete(callback_);
+    if (env->GlobalReference_Delete(callback_) != ANI_OK) {
+        WVLOG_E("nwebCreateNativeMediaPlayerCallbackImpl failed");
+        return;
+    }
 }
 
 std::shared_ptr<NWebNativeMediaPlayerBridge> NWebCreateNativeMediaPlayerCallbackImpl::OnCreate(
     std::shared_ptr<NWebNativeMediaPlayerHandler> handler, std::shared_ptr<NWebMediaInfo> mediaInfo)
 {
-    WVLOG_I("begin to create native media player, nweb id is %{public}d", nwebId_);
+    WVLOG_D("begin to create native media player, nweb id is %{public}d", nwebId_);
 
     if (!callback_) {
         WVLOG_E("callback is null, nweb id is %{public}d", nwebId_);
@@ -372,7 +393,7 @@ std::shared_ptr<NWebNativeMediaPlayerBridge> NWebCreateNativeMediaPlayerCallback
 ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructRect(
     std::shared_ptr<NWebNativeMediaPlayerSurfaceInfo> surfaceInfo)
 {
-    WVLOG_I("ConstructRect start");
+    WVLOG_D("ConstructRect start");
 
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
@@ -398,7 +419,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructRect(
 ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructHandler(
     std::shared_ptr<NWebNativeMediaPlayerHandler> handler)
 {
-    WVLOG_I("ConstructHandler start");
+    WVLOG_D("ConstructHandler start");
 
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
@@ -433,7 +454,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructHandler(
 
 ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructControls(const std::vector<std::string>& controls)
 {
-    WVLOG_I("ConstructControls start");
+    WVLOG_D("ConstructControls start");
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return nullptr;
@@ -460,7 +481,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructControls(const std:
 
 ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructHeaders(const std::map<std::string, std::string>& headers)
 {
-    WVLOG_I("ConstructHeaders start");
+    WVLOG_D("ConstructHeaders start");
 
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
@@ -496,7 +517,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructHeaders(const std::
 ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructAttributes(
     const std::map<std::string, std::string>& attributes)
 {
-    WVLOG_I("ConstructAttributes start");
+    WVLOG_D("ConstructAttributes start");
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return nullptr;
@@ -530,7 +551,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructAttributes(
 
 ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructMediaInfo(std::shared_ptr<NWebMediaInfo> mediaInfo)
 {
-    WVLOG_I("ConstructMediaInfo start");
+    WVLOG_D("ConstructMediaInfo start");
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return nullptr;
@@ -605,7 +626,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructMediaInfo(std::shar
 ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructSourceInfos(
     const std::vector<std::shared_ptr<NWebMediaSourceInfo>>& sourceInfos)
 {
-    WVLOG_I("ConstructSourceInfos start");
+    WVLOG_D("ConstructSourceInfos start");
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return nullptr;
@@ -651,7 +672,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructSourceInfos(
 ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructSurfaceInfo(
     std::shared_ptr<NWebNativeMediaPlayerSurfaceInfo> surfaceInfo)
 {
-    WVLOG_I("ConstructSurfaceInfo start");
+    WVLOG_D("ConstructSurfaceInfo start");
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return nullptr;
