@@ -22,6 +22,10 @@
 #include <dlfcn.h>
 #include <fstream>
 
+#if (defined(webview_arm64) && !defined(ASAN_DETECTOR))
+#include "ace_forward_compatibility.h"
+#endif
+
 namespace OHOS::ArkWeb {
 
 static int g_appEngineVersion = static_cast<int>(ArkWebEngineVersion::SYSTEM_DEFAULT);
@@ -85,6 +89,13 @@ const std::string SANDBOX_EVERGREEN_HAP_PATH = "/data/storage/el1/bundle/arkwebc
 const std::string JSON_CONFIG_PATH =
     "/data/service/el1/public/update/param_service/install/system/etc/ArkWebSafeBrowsing/generic/ArkWebCoreCfg.json";
 const std::string WEB_PARAM_PREFIX = "web.engine.";
+
+#if (defined(webview_arm64) && !defined(ASAN_DETECTOR))
+const int MAX_DLCLOSE_COUNT = 10;
+const std::string LIB_ARKWEB_ENGINE = "libarkweb_engine.so";
+const std::string PERSIST_ARKWEBCORE_PACKAGE_NAME = "persist.arkwebcore.package_name";
+const std::string EL1_BUNDLE_PUBLIC = "/data/app/el1/bundle/public/";
+#endif
 
 // 前向声明
 static ArkWebEngineVersion CalculateActiveWebEngineVersion();
@@ -441,5 +452,65 @@ void* ArkWebBridgeHelperSharedInit(bool runMode)
     }
 
     return libFileHandler;
+}
+
+void DlopenArkWebLib()
+{
+#if (defined(webview_arm64) && !defined(ASAN_DETECTOR))
+    const std::string bundleName = OHOS::system::GetParameter(PERSIST_ARKWEBCORE_PACKAGE_NAME, "");
+    const std::string arkwebLibPath = EL1_BUNDLE_PUBLIC + bundleName + "/" + ARK_WEB_CORE_PATH_FOR_MOCK +
+        ":" + ARK_WEB_CORE_HAP_LIB_PATH;
+    WVLOG_I("DlopenArkWebLib arkwebLibPath: %{public}s", arkwebLibPath.c_str());
+    void* libFileHandler = ArkWebBridgeHelperLoadLibFile(
+        RTLD_NOW | RTLD_GLOBAL,
+        "nweb_ns",
+        arkwebLibPath.c_str(),
+        LIB_ARKWEB_ENGINE.c_str()
+    );
+    if (libFileHandler != nullptr) {
+        WVLOG_I("DlopenArkWebLib Start reclaim file cache");
+        OHOS::Ace::AceForwardCompatibility::ReclaimFileCache(getpid());
+    }
+#endif
+}
+
+#if (defined(webview_arm64) && !defined(ASAN_DETECTOR))
+static bool IsNWebLibLoaded(Dl_namespace dlns)
+{
+    void* handler = dlopen_ns(&dlns, LIB_ARKWEB_ENGINE.c_str(), RTLD_NOW | RTLD_NOLOAD);
+    if (handler) {
+        dlclose(handler);
+        return true;
+    }
+    return false;
+}
+#endif
+
+int DlcloseArkWebLib()
+{
+#if (defined(webview_arm64) && !defined(ASAN_DETECTOR))
+    Dl_namespace dlns;
+    if (dlns_get("nweb_ns", &dlns) != 0) {
+        WVLOG_I("Failed to get nweb_ns");
+        return 0;
+    }
+
+    void* webEngineHandle = dlopen_ns(&dlns, LIB_ARKWEB_ENGINE.c_str(), RTLD_NOW | RTLD_NOLOAD);
+    if (!webEngineHandle) {
+        WVLOG_E("FAILED to find %{public}s", LIB_ARKWEB_ENGINE.c_str(), dlerror());
+        return 0;
+    }
+
+    int cnt = MAX_DLCLOSE_COUNT;
+    do {
+        cnt--;
+        dlclose(webEngineHandle);
+    } while (cnt > 0 && IsNWebLibLoaded(dlns));
+
+    if (cnt == 0 && IsNWebLibLoaded(dlns)) {
+        return -1;
+    }
+#endif
+    return 0;
 }
 }

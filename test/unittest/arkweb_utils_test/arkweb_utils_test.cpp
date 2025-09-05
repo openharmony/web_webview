@@ -242,4 +242,11 @@ TEST(arkweb_utils_test, SelectWebcoreBeforeProcessRun002) {
     EXPECT_EQ(getActiveWebEngineVersion(), ArkWebEngineVersion::M132);
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
 }
+
+#if (defined(webview_arm64) && !defined(ASAN_DETECTOR))
+TEST(arkweb_utils_test, DlcloseArkWebLib001) {
+    int ret = DlcloseArkWebLib();
+    EXPECT_EQ(ret, 0);
+}
+#endif
 } // namespace OHOS::NWeb
