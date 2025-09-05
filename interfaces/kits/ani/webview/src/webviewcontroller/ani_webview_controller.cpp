@@ -1816,6 +1816,22 @@ static ani_string GetTitle(ani_env *env, ani_object object)
     return title;
 }
 
+static ani_int GetProgress(ani_env* env, ani_object object)
+{
+    ani_int progress = 0;
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return progress;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        WVLOG_E("GetProgress: get controller failed");
+        return progress;
+    }
+    return static_cast<ani_int>(controller->GetProgress());
+}
+
 static ani_string GetOriginalUrl(ani_env *env, ani_object object)
 {
     ani_string originUrl = nullptr;
@@ -2459,8 +2475,9 @@ static void ClearWebSchemeHandler(ani_env *env, ani_object object)
 
     if (controller->ClearWebSchemeHandler() != 0) {
         WVLOG_E("AniWebviewController::ClearWebSchemeHandler failed");
+    } else {
+        WVLOG_I("AniWebviewController::ClearWebSchemeHandler successful");
     }
-    WVLOG_I("AniWebviewController::ClearWebSchemeHandler successful");
 }
 
 static ani_ref GetItemAtIndex(ani_env *env, ani_object object, ani_int aniIndex)
@@ -5344,6 +5361,44 @@ static void SetBackForwardCacheOptions(ani_env *env, ani_object object, ani_obje
     return;
 }
 
+static void SetAppCustomUserAgent(ani_env* env, ani_object object, ani_object aniUA)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    std::string userAgent;
+    if (!AniParseUtils::ParseString(env, aniUA, userAgent)) {
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "userAgent", "string"));
+        return;
+    }
+    NWebHelper::Instance().SetAppCustomUserAgent(userAgent);
+}
+
+static void SetUserAgentForHosts(ani_env* env, ani_object object, ani_object aniUA, ani_object aniHosts)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    std::string userAgent;
+    if (!AniParseUtils::ParseString(env, aniUA, userAgent)) {
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "userAgent", "string"));
+        return;
+    }
+    std::vector<std::string> hosts;
+    if (!AniParseUtils::ParseStringArray(env, aniHosts, hosts)) {
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "hosts", "array"));
+        return;
+    }
+    NWebHelper::Instance().SetUserAgentForHosts(userAgent, hosts);
+}
+
 static void StoreWebArchiveCallbackInternal(
     ani_env* env, std::string baseNameStr, bool autoNameStr, ani_ref jsCallback, int32_t nwebId)
 {
@@ -6052,6 +6107,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "postMessage", nullptr, reinterpret_cast<void *>(PostMessage) },
         ani_native_function { "getUrl", nullptr, reinterpret_cast<void *>(GetUrlAni) },
         ani_native_function { "getTitle", nullptr, reinterpret_cast<void *>(GetTitle) },
+        ani_native_function { "getProgress", nullptr, reinterpret_cast<void *>(GetProgress) },
         ani_native_function { "getOriginalUrl", nullptr, reinterpret_cast<void *>(GetOriginalUrl) },
         ani_native_function { "getUserAgent", nullptr, reinterpret_cast<void *>(GetUserAgent) },
         ani_native_function { "getCustomUserAgent", nullptr, reinterpret_cast<void *>(GetCustomUserAgent) },
@@ -6120,6 +6176,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "enableBackForwardCache", nullptr, reinterpret_cast<void *>(EnableBackForwardCache) },
         ani_native_function { "setBackForwardCacheOptions", nullptr,
                               reinterpret_cast<void *>(SetBackForwardCacheOptions) },
+        ani_native_function { "setAppCustomUserAgent", nullptr, reinterpret_cast<void *>(SetAppCustomUserAgent) },
+        ani_native_function { "setUserAgentForHosts", nullptr, reinterpret_cast<void *>(SetUserAgentForHosts) },
         ani_native_function { "storeWebArchiveCallback", nullptr, reinterpret_cast<void *>(StoreWebArchiveCallback) },
         ani_native_function { "storeWebArchivePromise", nullptr, reinterpret_cast<void *>(StoreWebArchivePromise) },
         ani_native_function { "hasImageCallback", nullptr, reinterpret_cast<void *>(HasImageCallback) },

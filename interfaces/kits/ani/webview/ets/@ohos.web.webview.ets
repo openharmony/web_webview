@@ -707,6 +707,7 @@ export default namespace webview {
         native postMessage(name: string, ports: Array<WebMessagePort>, uri: string): void;
         native getUrl(): string;
         native getTitle(): string;
+        native getProgress(): int;
         native getOriginalUrl(): string;
         native getUserAgent(): string;
         native getCustomUserAgent(): string;
@@ -818,6 +819,8 @@ export default namespace webview {
         }
         native static enableBackForwardCache(features?: BackForwardCacheSupportedFeatures): void;
         native setBackForwardCacheOptions(options?: BackForwardCacheOptions): void;
+        native static setAppCustomUserAgent(userAgent: string): void;
+        native static setUserAgentForHosts(userAgent: string, hosts: Array<string>): void
         native storeWebArchiveCallback(baseName: string, autoName: boolean, callback: AsyncCallback<string>): void;
         storeWebArchive(baseName: string, autoName: boolean, callback: AsyncCallback<string>): void {
             this.storeWebArchiveCallback(baseName, autoName, callback);
