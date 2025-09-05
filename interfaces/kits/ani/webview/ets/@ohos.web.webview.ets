@@ -612,7 +612,7 @@ export default namespace webview {
         native slideScroll(vx: double, vy: double): void;
         native zoom(factor: double): void;
         native isSafeBrowsingEnabled(): boolean;
-        native static prepareForPageLoad(url: string, preconnectable: boolean, numSockets: number): void;
+        native static prepareForPageLoad(url: string, preconnectable: boolean, numSockets: int): void;
         native getFavicon(): image.PixelMap;
         native pageDown(bottom: boolean): void;
         native pageUp(top: boolean): void;
@@ -644,7 +644,7 @@ export default namespace webview {
             });
             return p;
         }
-        native static setHostIP(hostName: string, address: string, aliveTime: number): void;
+        native static setHostIP(hostName: string, address: string, aliveTime: int): void;
         native static clearHostIP(hostName: string): void;
         native static warmupServiceWorker(url: string): void;
         native zoomOut(): void;
@@ -663,7 +663,7 @@ export default namespace webview {
         native searchNext(forward: boolean): void;
         native static getDefaultUserAgent(): string;
         native static removeAllCache(clearRom: boolean): void;
-        native accessStep(step: number): boolean;
+        native accessStep(step: int): boolean;
         native isAdsBlockEnabled(): boolean;
         native enableAdsBlock(enable: boolean): void;
         native postUrl(url: string, postData: ArrayBuffer): void;
@@ -682,8 +682,8 @@ export default namespace webview {
         native clearHistory(): void;
         native clearWebSchemeHandler(): void;
         native terminateRenderProcess(): boolean;
-        native static setConnectionTimeout(timeout: number): void;
-        native backOrForward(step: number): void;
+        native static setConnectionTimeout(timeout: int): void;
+        native backOrForward(step: int): void;
         native static setWebDebuggingAccess(webDebuggingAccess: boolean): void;
         native enableSafeBrowsing(enable: boolean): void;
         native static setRenderProcessMode(mode: RenderProcessMode): void;
@@ -873,8 +873,8 @@ export default namespace webview {
         native getEncoding(): string;
         native setStatusText(text: string): void;
         native getStatusText(): string;
-        native setStatus(code: number): void;
-        native getStatus(): number;
+        native setStatus(code: int): void;
+        native getStatus(): int;
         native setHeaderByName(name: string, value: string, overwrite: boolean): void;
         native getHeaderByName(name: string): string;
     }
@@ -980,15 +980,16 @@ export default namespace webview {
 
         native constructor();
 
+        native getUrl(): string;
         native getGuid(): string;
-        native getPercentComplete(): number;
+        native getPercentComplete(): int;
         native getSuggestedFileName(): string;
 
         native getMethod(): string;
-        native getCurrentSpeed(): number;
-        native getReceivedBytes(): number;
+        native getCurrentSpeed(): int;
+        native getReceivedBytes(): long;
         native getFullPath(): string;
-        native getTotalBytes(): number;
+        native getTotalBytes(): long;
         native getLastErrorCode(): WebDownloadErrorCode;
         native getState(): WebDownloadState;
 
@@ -1092,28 +1093,10 @@ export default namespace webview {
     }
 
     export class BackForwardCacheOptions {
-        /**
-         * Set the maximum size of pages that can cache.
-         * Default is 1, max is 50.
-         *
-         * @type { number }
-         * @syscap SystemCapability.Web.Webview.Core
-         * @since 20
-         */
-        size: number;
-        /**
-         * Set the lifetime in seconds in the BackForwardCache.
-         * Default is 600.
-         *
-         * @type { number }
-         * @syscap SystemCapability.Web.Webview.Core
-         * @since 20
-         */
-        timeToLive: number;
-        /**
-         * @syscap SystemCapability.Web.Webview.Core
-         * @since 20
-         */
+
+        size: int;
+        timeToLive: int;
+
         constructor() {};
     }
 
@@ -1826,18 +1809,18 @@ export default namespace webview {
 
         native setType(type: WebMessageType): void;
         native setString(message: string): void;
-        native setNumber(message: number): void;
+        native setNumber(message: double): void;
         native setBoolean(message: boolean): void;
         native setArrayBuffer(message: ArrayBuffer): void;
-        native setArray(message: Array<string | number | boolean>): void;
+        native setArray(message: Array<string | double | long | boolean>): void;
         native setError(message: Error): void;
 
         native getType(): WebMessageType;
         native getString(): string;
-        native getNumber(): number;
+        native getNumber(): double | long;
         native getBoolean(): boolean;
         native getArrayBuffer(): ArrayBuffer;
-        native getArray(): Array<string | number | boolean>;
+        native getArray(): Array<string | double | long | boolean>;
         native getError(): Error;
     }
 
@@ -1874,10 +1857,10 @@ export default namespace webview {
 
         native getType(): JsMessageType;
         native getString(): string;
-        native getNumber(): number;
+        native getNumber(): double | long;
         native getBoolean(): boolean;
         native getArrayBuffer(): ArrayBuffer;
-        native getArray(): Array<string | number | boolean>;
+        native getArray(): Array<string | double | long | boolean>;
     }
 
     export class PrintDocumentAdapterInner implements print.PrintDocumentAdapter{

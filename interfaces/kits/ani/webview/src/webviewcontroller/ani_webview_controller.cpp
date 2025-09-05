@@ -1094,7 +1094,7 @@ static void SetHostIP(ani_env *env, ani_object object, ani_object hostNameObj, a
         WVLOG_E("Parse address failed.");
         return;
     }
-    int aliveTimeInt = static_cast<int32_t>(std::round(aliveTime));
+    int aliveTimeInt = static_cast<int32_t>(aliveTime);
     if (aliveTimeInt <= 0) {
         WVLOG_E("aliveTime must be greater than 0, aliveTime: %{public}d", aliveTimeInt);
         return;
@@ -1233,7 +1233,7 @@ static ani_boolean IsSafeBrowsingEnabled(ani_env *env, ani_object object)
 }
 
 static void PrepareForPageLoad(
-    ani_env* env, ani_object object, ani_string aniUrl, ani_boolean preconnectable, ani_double aniNumSockets)
+    ani_env* env, ani_object object, ani_string aniUrl, ani_boolean preconnectable, ani_int aniNumSockets)
 {
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
@@ -1244,7 +1244,7 @@ static void PrepareForPageLoad(
         WVLOG_E("parse url failed");
         return;
     }
-    int32_t numSockets = static_cast<int32_t>(std::round(aniNumSockets));
+    int32_t numSockets = static_cast<int32_t>(aniNumSockets);
     if (numSockets <= 0 || static_cast<uint32_t>(numSockets) > SOCKET_MAXIMUM) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
@@ -2465,13 +2465,13 @@ static ani_object CreateWebMessagePorts(ani_env* env, ani_object object, ani_obj
     return CreateWebMessagePortsObj(env, isExtentionType, nwebId, ports);
 }
 
-static void SetConnectionTimeout(ani_env* env, ani_object object, ani_double aniTimeout)
+static void SetConnectionTimeout(ani_env* env, ani_object object, ani_int aniTimeout)
 {
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
     }
-    int32_t timeout = static_cast<int32_t>(std::round(aniTimeout));
+    int32_t timeout = static_cast<int32_t>(aniTimeout);
     if (timeout <= 0) {
         AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
         return;
@@ -2492,21 +2492,28 @@ static void BackOrForward(ani_env* env, ani_object object, ani_int step)
         return;
     }
 
-    ErrCode ret = controller->BackOrForward(step);
+    ErrCode ret = controller->BackOrForward(static_cast<int32_t>(step));
     if (ret != NO_ERROR) {
         AniBusinessError::ThrowErrorByErrCode(env, ret);
     }
     return;
 }
 
-static void SetWebDebuggingAccess(ani_env* env, ani_object object, ani_boolean webDebuggingAccess)
+static void SetWebDebuggingAccess(ani_env* env, ani_object object, ani_boolean aniDebugAccess)
 {
-    WVLOG_D("[WebviewCotr] SetWebDebuggingAccess");
+    WVLOG_D(" SetWebDebuggingAccess start");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
     }
+    bool webDebuggingAccess = static_cast<bool>(aniDebugAccess);
+    int32_t webDebuggingPort = 0;
+    if (WebviewController::webDebuggingAccess_ != webDebuggingAccess ||
+        WebviewController::webDebuggingPort_ != webDebuggingPort) {
+        NWebHelper::Instance().SetWebDebuggingAccess(webDebuggingAccess);
+    }
     WebviewController::webDebuggingAccess_ = webDebuggingAccess;
+    WebviewController::webDebuggingPort_ = webDebuggingPort;
     return;
 }
 
@@ -3981,35 +3988,32 @@ static ani_string GetString(ani_env* env, ani_object object)
     return result;
 }
 
-static ani_double GetNumber(ani_env* env, ani_object object)
+static ani_object GetNumber(ani_env* env, ani_object object)
 {
     WVLOG_D("WebMessageExt GetNumber.");
-    ani_double result = 0;
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
-        return result;
+        return nullptr;
     }
 
     auto* webMessageExt = reinterpret_cast<WebMessageExt*>(AniParseUtils::Unwrap(env, object));
     if (!webMessageExt) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
-        return result;
+        return nullptr;
     }
 
     if (webMessageExt->GetType() != static_cast<int32_t>(WebMessageType::NUMBER)) {
         WVLOG_E("web message GetNumber error type:%{public}d", webMessageExt->GetType());
         AniBusinessError::ThrowErrorByErrCode(env, TYPE_NOT_MATCH_WITCH_VALUE);
-        return result;
+        return nullptr;
     }
 
     auto message = webMessageExt->GetData();
     if (!message) {
         WVLOG_E("message data is nullptr");
-        return result;
+        return nullptr;
     }
-    double numberMsg = message->GetDouble();
-    result = static_cast<ani_double>(numberMsg);
-    return result;
+    return static_cast<ani_object>(AniParseUtils::ConvertNWebToAniValue(env, message));
 }
 
 static ani_boolean GetBoolean(ani_env* env, ani_object object)
