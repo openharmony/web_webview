@@ -1128,4 +1128,14 @@ void ArkWebHandlerImpl::OnNativeEmbedObjectParamChange(ArkWebRefPtr<ArkWebNative
 
     nweb_handler_->OnNativeEmbedObjectParamChange(std::make_shared<ArkWebNativeEmbedParamDataInfoWrapper>(data_info));
 }
+
+void ArkWebHandlerImpl::OnSafeBrowsingCheckFinish(int threat_type)
+{
+    nweb_handler_->OnSafeBrowsingCheckFinish(threat_type);
+}
+
+void ArkWebHandlerImpl::OnRefreshAccessedHistoryV2(const ArkWebString& url, bool isReload, bool isMainFrame)
+{
+    nweb_handler_->OnRefreshAccessedHistoryV2(ArkWebStringStructToClass(url), isReload, isMainFrame);
+}
 } // namespace OHOS::ArkWeb

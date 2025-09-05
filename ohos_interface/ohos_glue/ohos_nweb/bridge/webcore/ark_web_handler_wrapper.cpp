@@ -1293,4 +1293,18 @@ void ArkWebHandlerWrapper::OnNativeEmbedObjectParamChange(
 
     ark_web_handler_->OnNativeEmbedObjectParamChange(new ArkWebNativeEmbedParamDataInfoImpl(paramDataInfo));
 }
+
+void ArkWebHandlerWrapper::OnSafeBrowsingCheckFinish(int threat_type)
+{
+    ark_web_handler_->OnSafeBrowsingCheckFinish(threat_type);
+}
+
+void ArkWebHandlerWrapper::OnRefreshAccessedHistoryV2(const std::string& url, bool is_reload, bool isMainFrame)
+{
+    ArkWebString stUrl = ArkWebStringClassToStruct(url);
+
+    ark_web_handler_->OnRefreshAccessedHistoryV2(stUrl, is_reload, isMainFrame);
+
+    ArkWebStringStructRelease(stUrl);
+}
 } // namespace OHOS::ArkWeb

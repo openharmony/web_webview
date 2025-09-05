@@ -1062,6 +1062,24 @@ public:
      */
     /*--ark web()--*/
     virtual void OnNativeEmbedObjectParamChange(ArkWebRefPtr<ArkWebNativeEmbedParamDataInfo> data_info) = 0;
+
+    /**
+     * @brief Called when received website security risk check finish.
+     *
+     * @param threat_type The threat type of website.
+     */
+    /*--ark web()--*/
+    virtual void OnSafeBrowsingCheckFinish(int threat_type) = 0;
+
+    /**
+     * @brief inform application to update its visited links database.
+     *
+     * @param url the url being visited.
+     * @param isReload true if the url is being reload.
+     * @param isMainFrame true if the request is for the main frame.
+     */
+    /*--ark web()--*/
+    virtual void OnRefreshAccessedHistoryV2(const ArkWebString& url, bool isReload, bool isMainFrame) = 0;
 };
 
 } // namespace OHOS::ArkWeb

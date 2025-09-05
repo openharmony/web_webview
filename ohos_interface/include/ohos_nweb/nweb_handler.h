@@ -1316,6 +1316,21 @@ public:
      *
      */
     virtual void OnNativeEmbedObjectParamChange(std::shared_ptr<NWebNativeEmbedParamDataInfo> paramDataInfo) {}
+
+    /**
+     * @brief Called when received website security risk check finish.
+     * @param threat_type The threat type of website.
+     */
+    virtual void OnSafeBrowsingCheckFinish(int threat_type) {}
+
+    /**
+     * @brief inform application to update its visited links database.
+     *
+     * @param url the url being visited.
+     * @param isReload true if the url is being reload.
+     * @param isMainFrame true if the request is for the main frame.
+     */
+    virtual void OnRefreshAccessedHistoryV2(const std::string& url, bool isReload, bool isMainFrame) {}
 };
 
 } // namespace OHOS::NWeb

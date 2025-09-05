@@ -768,6 +768,22 @@ public:
      */
     void OnNativeEmbedObjectParamChange(
         std::shared_ptr<OHOS::NWeb::NWebNativeEmbedParamDataInfo> paramDataInfo) override;
+
+    /**
+     * @brief Called when received website security risk check finish.
+     *
+     * @param threat_type The threat type of website.
+     */
+    void OnSafeBrowsingCheckFinish(int threat_type) override;
+
+    /**
+     * @brief inform application to update its visited links database.
+     *
+     * @param url the url being visited.
+     * @param isReload true if the url is being reload.
+     * @param isMainFrame true if the request is for the main frame.
+     */
+    void OnRefreshAccessedHistoryV2(const std::string& url, bool isReload, bool isMainFrame) override;
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };
