@@ -41,12 +41,11 @@ void UvWebInitedCallbackThreadWoker(WebRunInitedCallbackImpl* obj)
         if ((status = env->FunctionalObject_Call(
                  static_cast<ani_fn_object>(obj->param_->webInitedCallback_), 0, {}, &fnReturnVal)) != ANI_OK) {
             WVLOG_E("UvWebInitedCallbackThreadWoker callback execute failed status : %{public}d", status);
+            env->DestroyLocalScope();
             return;
-        } else {
-            WVLOG_I("UvWebInitedCallbackThreadWoker callback execute success!");
         }
     } else {
-        WVLOG_E("callback is nullptr");
+        WVLOG_E("webInitedCallback_ is nullptr");
         env->DestroyLocalScope();
         return;
     }
@@ -85,7 +84,7 @@ void WebRunInitedCallbackImpl::RunInitedCallback()
 {
     WVLOG_I("enter RunInitedCallback");
     if (!param_->webInitedCallback_) {
-        WVLOG_I("callback is null");
+        WVLOG_E("webInitedCallback_ is null");
         return;
     }
     UvWebInitedCallbackThreadWoker(this);
