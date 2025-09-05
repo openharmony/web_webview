@@ -629,7 +629,8 @@ ani_status StsNativeMediaPlayerHandlerinnerInit(ani_env* env)
             "find %{public}s class failed, status: %{public}d", NATIVE_MEDIA_PLAYER_HANDLER_INNER_CLASS_NAME, status);
         return ANI_ERROR;
     }
-    std::array allMethods = {
+
+    std::array instanceMethods = {
         ani_native_function { "handleStatusChanged", nullptr, reinterpret_cast<void*>(HandleStatusChanged) },
         ani_native_function { "handleVolumeChanged", nullptr, reinterpret_cast<void*>(HandleVolumeChanged) },
         ani_native_function { "handleMutedChanged", nullptr, reinterpret_cast<void*>(HandleMutedChanged) },
@@ -648,16 +649,24 @@ ani_status StsNativeMediaPlayerHandlerinnerInit(ani_env* env)
         ani_native_function { "handleSeekFinished", nullptr, reinterpret_cast<void*>(HandleSeekFinished) },
         ani_native_function { "handleError", nullptr, reinterpret_cast<void*>(HandleError) },
         ani_native_function { "handleVideoSizeChanged", nullptr, reinterpret_cast<void*>(HandleVideoSizeChanged) },
+    };
+    status = env->Class_BindNativeMethods(
+        nativeMediaPlayerHandlerinnerCls, instanceMethods.data(), instanceMethods.size());
+    if (status != ANI_OK) {
+        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+        return status;
+    }
+
+    std::array staticMethods = {
         ani_native_function { "transferNativeMediaPlayerHandlerToStaticInner", nullptr,
             reinterpret_cast<void*>(TransferNativeMediaPlayerHandlerToStaticInner) },
     };
-
-    status = env->Class_BindNativeMethods(nativeMediaPlayerHandlerinnerCls, allMethods.data(), allMethods.size());
+    status = env->Class_BindStaticNativeMethods(
+        nativeMediaPlayerHandlerinnerCls, staticMethods.data(), staticMethods.size());
     if (status != ANI_OK) {
-        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
-        return ANI_ERROR;
+        WVLOG_E("Class_BindStaticNativeMethods failed status: %{public}d", status);
     }
-    return ANI_OK;
+    return status;
 }
 
 } // namespace NWeb

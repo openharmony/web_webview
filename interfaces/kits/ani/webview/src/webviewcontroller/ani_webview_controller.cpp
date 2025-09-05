@@ -2554,18 +2554,24 @@ ani_status StsBackForwardListInit(ani_env *env)
         return ANI_ERROR;
     }
 
-    std::array methodArray = {
+    std::array instanceMethods = {
         ani_native_function { "getItemAtIndex", nullptr, reinterpret_cast<void *>(GetItemAtIndex) },
+    };
+    status = env->Class_BindNativeMethods(backForwardListCls, instanceMethods.data(), instanceMethods.size());
+    if (status != ANI_OK) {
+        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+        return status;
+    }
+
+    std::array staticMethods = {
         ani_native_function { "transferBackForwardListToStaticInner", nullptr,
                               reinterpret_cast<void *>(TransferBackForwardListToStaticInner) },
     };
-
-    status = env->Class_BindNativeMethods(backForwardListCls, methodArray.data(), methodArray.size());
+    status = env->Class_BindStaticNativeMethods(backForwardListCls, staticMethods.data(), staticMethods.size());
     if (status != ANI_OK) {
-        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+        WVLOG_E("Class_BindStaticNativeMethods failed status: %{public}d", status);
     }
-
-    return ANI_OK;
+    return status;
 }
 
 static void Close(ani_env* env, ani_object object)
@@ -2795,21 +2801,29 @@ ani_status StsWebMessagePortInit(ani_env* env)
         WVLOG_E("find %{public}s class failed, status: %{public}d", ANI_WEB_MESSAGE_PORT_INNER_CLASS_NAME, status);
         return ANI_ERROR;
     }
-    std::array methodArray = {
+
+    std::array instanceMethods = {
         ani_native_function { "close", nullptr, reinterpret_cast<void*>(Close) },
         ani_native_function { "postMessageEvent", nullptr, reinterpret_cast<void*>(PostMessageEvent) },
         ani_native_function { "onMessageEvent", nullptr, reinterpret_cast<void*>(OnMessageEvent) },
         ani_native_function { "postMessageEventExt", nullptr, reinterpret_cast<void*>(PostMessageEventExt) },
         ani_native_function { "onMessageEventExt", nullptr, reinterpret_cast<void*>(OnMessageEventExt) },
+    };
+    status = env->Class_BindNativeMethods(webMessagePortCls, instanceMethods.data(), instanceMethods.size());
+    if (status != ANI_OK) {
+        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+        return status;
+    }
+
+    std::array staticMethods = {
         ani_native_function { "transferWebMessagePortToStaticInner", nullptr,
                               reinterpret_cast<void *>(TransferWebMessagePortToStaticInner) },
     };
-    status = env->Class_BindNativeMethods(webMessagePortCls, methodArray.data(), methodArray.size());
+    status = env->Class_BindStaticNativeMethods(webMessagePortCls, staticMethods.data(), staticMethods.size());
     if (status != ANI_OK) {
-        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
-        return ANI_ERROR;
+        WVLOG_E("Class_BindStaticNativeMethods failed status: %{public}d", status);
     }
-    return ANI_OK;
+    return status;
 }
 
 ani_status StsCleanerInit(ani_env *env)
@@ -6059,17 +6073,10 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void *>(GetLastJavascriptProxyCallingFrameUrl) },
         ani_native_function { "getSecurityLevel", nullptr, reinterpret_cast<void *>(GetSecurityLevel) },
         ani_native_function { "prefetchPage", nullptr, reinterpret_cast<void *>(PrefetchPage) },
-        ani_native_function { "setHttpDns", nullptr, reinterpret_cast<void *>(SetHttpDns) },
         ani_native_function { "searchAllAsync", nullptr, reinterpret_cast<void *>(SearchAllAsync) },
-        ani_native_function { "clearServiceWorkerWebSchemeHandler", nullptr,
-                              reinterpret_cast<void *>(ClearServiceWorkerWebSchemeHandler) },
         ani_native_function { "forward", nullptr, reinterpret_cast<void *>(Forward) },
         ani_native_function { "createWebMessagePorts", nullptr, reinterpret_cast<void *>(CreateWebMessagePorts) },
         ani_native_function { "backward", nullptr, reinterpret_cast<void *>(Backward) },
-        ani_native_function {
-            "SetWebDebuggingAccess", nullptr, reinterpret_cast<void*>(SetWebDebuggingAccess) },
-        ani_native_function {
-            "setWebDebuggingAccessAndPort", nullptr, reinterpret_cast<void*>(SetWebDebuggingAccessAndPort) },
         ani_native_function { "accessForward", nullptr, reinterpret_cast<void *>(AccessForward) },
         ani_native_function { "accessBackward", nullptr, reinterpret_cast<void *>(AccessBackward) },
         ani_native_function { "loadData", nullptr, reinterpret_cast<void *>(LoadData) },
@@ -6108,16 +6115,12 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "webPageSnapshot", nullptr, reinterpret_cast<void *>(WebPageSnapshot) },
         ani_native_function { "innerCompleteWindowNew", nullptr, reinterpret_cast<void *>(InnerCompleteWindowNew) },
         ani_native_function { "setWebSchemeHandler", nullptr, reinterpret_cast<void *>(SetWebSchemeHandler) },
-        ani_native_function { "customizeSchemes", nullptr, reinterpret_cast<void *>(CustomizeSchemes) },
-        ani_native_function { "setServiceWorkerWebSchemeHandler", nullptr,
-                              reinterpret_cast<void *>(SetServiceWorkerWebSchemeHandler) },
         ani_native_function { "registerJavaScriptProxy", nullptr, reinterpret_cast<void *>(RegisterJavaScriptProxy) },
         ani_native_function { "deleteJavaScriptRegister", nullptr, reinterpret_cast<void *>(DeleteJavaScriptRegister) },
         ani_native_function { "runJavaScriptCallback", nullptr, reinterpret_cast<void *>(RunJavaScriptCallback) },
         ani_native_function { "runJavaScriptPromise", nullptr, reinterpret_cast<void *>(RunJavaScriptPromise) },
         ani_native_function { "runJavaScriptCallbackExt", nullptr, reinterpret_cast<void *>(RunJavaScriptCallbackExt) },
         ani_native_function { "runJavaScriptPromiseExt", nullptr, reinterpret_cast<void *>(RunJavaScriptPromiseExt) },
-        ani_native_function { "enableBackForwardCache", nullptr, reinterpret_cast<void *>(EnableBackForwardCache) },
         ani_native_function { "setBackForwardCacheOptions", nullptr,
                               reinterpret_cast<void *>(SetBackForwardCacheOptions) },
         ani_native_function { "storeWebArchiveCallback", nullptr, reinterpret_cast<void *>(StoreWebArchiveCallback) },
@@ -6157,6 +6160,17 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "prefetchResource", nullptr, reinterpret_cast<void *>(PrefetchResource) },
         ani_native_function { "enableWholeWebPageDrawing", nullptr,
                               reinterpret_cast<void *>(EnableWholeWebPageDrawing) },
+        ani_native_function { "setHttpDns", nullptr, reinterpret_cast<void *>(SetHttpDns) },
+        ani_native_function { "clearServiceWorkerWebSchemeHandler", nullptr,
+                              reinterpret_cast<void *>(ClearServiceWorkerWebSchemeHandler) },
+        ani_native_function { "customizeSchemes", nullptr, reinterpret_cast<void *>(CustomizeSchemes) },
+        ani_native_function { "setServiceWorkerWebSchemeHandler", nullptr,
+                              reinterpret_cast<void *>(SetServiceWorkerWebSchemeHandler) },
+        ani_native_function {
+            "SetWebDebuggingAccess", nullptr, reinterpret_cast<void*>(SetWebDebuggingAccess) },
+        ani_native_function {
+            "setWebDebuggingAccessAndPort", nullptr, reinterpret_cast<void*>(SetWebDebuggingAccessAndPort) },
+        ani_native_function { "enableBackForwardCache", nullptr, reinterpret_cast<void *>(EnableBackForwardCache) },
     };
     status = env->Class_BindStaticNativeMethods(webviewControllerCls, controllerStaticMethods.data(),
         controllerStaticMethods.size());
