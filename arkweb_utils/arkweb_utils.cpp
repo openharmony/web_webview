@@ -210,7 +210,6 @@ void SetActiveWebEngineVersionInner(ArkWebEngineVersion version)
 
 ArkWebEngineVersion getActiveWebEngineVersion()
 {
-    WVLOG_I("getActiveWebEngineVersion: %{public}d", g_activeEngineVersion);
     return g_activeEngineVersion;
 }
 
@@ -243,7 +242,6 @@ ArkWebEngineVersion CalculateActiveWebEngineVersion()
         return static_cast<ArkWebEngineVersion>(ArkWebEngineType::EVERGREEN);
     }
 
-    WVLOG_I("CalculateActiveWebEngineVersion webEngineDefault: %{public}d", webEngineDefault);
     return static_cast<ArkWebEngineVersion>(webEngineDefault);
 }
 
@@ -352,7 +350,6 @@ std::string GetArkwebInstallPath()
     if (installPath == "") {
         WVLOG_E("failed to find hap path");
     }
-    WVLOG_I("get arkweb install path: %{public}s", installPath.c_str());
     return installPath;
 }
 
