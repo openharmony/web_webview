@@ -124,7 +124,6 @@ void LoadSchemeHandlerApi(SchemeHandlerApi* api)
 bool EnsureSdkLoaded()
 {
     if (g_SchemeHandlerApi) {
-        WVLOG_I("SchemeHandlerApi had loaded.");
         return true;
     }
 
