@@ -860,7 +860,12 @@ ErrCode AniParseUtils::ConstructStringFlowbuf(ani_env *env, const std::string sc
         return NWebError::PARAM_CHECK_ERROR;
     }
 
-    scriptLength = script.size();
+    ani_string string = nullptr;
+    env->String_NewUTF8(script.c_str(), script.size(), &string);
+    if (env->String_GetUTF8Size(string, &scriptLength) != ANI_OK) {
+        WVLOG_E("runjs GetUTF8Size error");
+        return NWebError::NEW_OOM;
+    }
     if (scriptLength + 1 > MAX_FLOWBUF_DATA_SIZE) {
         WVLOG_E("String length is too long");
         return NWebError::PARAM_CHECK_ERROR;
@@ -877,15 +882,13 @@ ErrCode AniParseUtils::ConstructStringFlowbuf(ani_env *env, const std::string sc
         return NWebError::NEW_OOM;
     }
 
-    ani_string string = nullptr;
-    env->String_NewUTF8(script.c_str(), scriptLength, &string);
-    ani_size result = 0U;
-    env->String_GetUTF8Size(string, &result);
-    if (result != scriptLength) {
-        close(fd);
-        WVLOG_E("Write js string failed, the length values are different");
-        return NWebError::PARAM_CHECK_ERROR;
+    // write to ashmem
+    if (memcpy_s(ashmem, scriptLength + 1, script.c_str(), scriptLength) != EOK) {
+        WVLOG_E("runjs ConstructArrayBufFlowbuf, memory copy failed");
+        return NWebError::NEW_OOM;
     }
+    static_cast<char*>(ashmem)[scriptLength] = '\0';
+    WVLOG_D("ConstructStringFlowbuf successful");
     return NWebError::NO_ERROR;
 }
 

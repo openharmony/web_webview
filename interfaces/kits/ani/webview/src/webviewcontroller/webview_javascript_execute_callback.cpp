@@ -120,8 +120,8 @@ ani_ref CreateStsError(ani_env* env, ani_int code, const std::string& msg)
     return reinterpret_cast<ani_ref>(obj);
 }
 
-bool CreateArgs(
-    WebviewJavaScriptExecuteCallback* jsObj, std::shared_ptr<NWebMessage> result, std::vector<ani_ref>& resultRef)
+bool CreateArgs(std::shared_ptr<WebviewJavaScriptExecuteCallback> jsObj, std::shared_ptr<NWebMessage> result,
+    std::vector<ani_ref>& resultRef)
 {
     ani_env* env = jsObj->GetEnv();
     if (!env || !jsObj) {
@@ -169,8 +169,8 @@ bool CreateArgs(
     return true;
 }
 
-static void UvAfterWorkCbPromise(
-    WebviewJavaScriptExecuteCallback* jsObj, std::shared_ptr<NWebMessage> result, std::vector<ani_ref>& resultRef)
+static void UvAfterWorkCbPromise(std::shared_ptr<WebviewJavaScriptExecuteCallback> jsObj,
+    std::shared_ptr<NWebMessage> result, std::vector<ani_ref>& resultRef)
 {
     WVLOG_D("enter UvAfterWorkCbPromise");
     ani_env* env;
@@ -181,7 +181,6 @@ static void UvAfterWorkCbPromise(
     ani_status status;
     resultRef[0] = CreateStsError(env, static_cast<ani_int>(NWebError::INVALID_RESOURCE), result->GetErrMsg());
     if (!(jsObj->GetExtention())) {
-        WVLOG_E("TriggerJsCallback extention is false");
         resultRef[1] = OHOS::NWeb::AniParseUtils::ConvertNWebToAniValue(env, result);
     } else {
         WebJsMessageExt* webJsMessageExt = new (std::nothrow) WebJsMessageExt(result);
@@ -217,7 +216,7 @@ static void UvAfterWorkCbPromise(
     }
 }
 
-void TriggerJsCallback(WebviewJavaScriptExecuteCallback* jsObj, std::shared_ptr<NWebMessage> result)
+void TriggerJsCallback(std::shared_ptr<WebviewJavaScriptExecuteCallback> jsObj, std::shared_ptr<NWebMessage> result)
 {
     WVLOG_D("WebviewJavaScriptExecuteCallback::TriggerJsCallback");
     if (!jsObj) {
@@ -254,16 +253,8 @@ void TriggerJsCallback(WebviewJavaScriptExecuteCallback* jsObj, std::shared_ptr<
 
 void WebviewJavaScriptExecuteCallback::OnReceiveValue(std::shared_ptr<NWebMessage> result)
 {
-    WVLOG_D("WebviewJavaScriptExecuteCallback::OnReceiveValue");
-    std::weak_ptr<WebviewJavaScriptExecuteCallback> weakThis = weak_from_this();
-    auto ensureMainHandler = [weakThis, result]() {
-        if (auto sharedThis = weakThis.lock()) {
-            TriggerJsCallback(sharedThis.get(), result);
-        } else {
-            WVLOG_E("object destory before task execution");
-            return;
-        }
-    };
+    WVLOG_I("WebviewJavaScriptExecuteCallback::OnReceiveValue");
+    std::shared_ptr<WebviewJavaScriptExecuteCallback> sharedThis = shared_from_this();
 
     if (!mainHandler_) {
         std::shared_ptr<OHOS::AppExecFwk::EventRunner> runner = OHOS::AppExecFwk::EventRunner::GetMainEventRunner();
@@ -278,7 +269,14 @@ void WebviewJavaScriptExecuteCallback::OnReceiveValue(std::shared_ptr<NWebMessag
         return;
     }
 
-    mainHandler_->PostTask(std::move(ensureMainHandler), TASK_ID, 0, OHOS::AppExecFwk::EventQueue::Priority::HIGH, {});
+    auto task = [sharedThis, result] () { TriggerJsCallback(sharedThis, result); };
+    bool postResult = false;
+    postResult = mainHandler_->PostTask(std::move(task), TASK_ID, 0, OHOS::AppExecFwk::EventQueue::Priority::HIGH, {});
+    if (postResult) {
+        WVLOG_D("PostTask success");
+    } else {
+        WVLOG_E("ostTask failed");
+    }
 }
 
 int32_t WebJsMessageExt::ConvertToJsType(NWebValue::Type type)
