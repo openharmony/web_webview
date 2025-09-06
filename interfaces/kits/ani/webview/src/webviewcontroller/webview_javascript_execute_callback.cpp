@@ -39,9 +39,9 @@ WebviewJavaScriptExecuteCallback::WebviewJavaScriptExecuteCallback(
     ani_env* env, ani_ref callback, ani_resolver resolver, bool extention)
     : vm_(nullptr), callbackRef_(nullptr), resolver_(resolver), extention_(extention)
 {
-    WVLOG_I("WebviewJavaScriptExecuteCallback::WebviewJavaScriptExecuteCallback");
+    WVLOG_D("WebviewJavaScriptExecuteCallback::WebviewJavaScriptExecuteCallback");
     if (!env) {
-        WVLOG_I("env is nullptr");
+        WVLOG_E("env is nullptr");
         return;
     }
     env->GetVM(&vm_);
@@ -52,7 +52,7 @@ WebviewJavaScriptExecuteCallback::WebviewJavaScriptExecuteCallback(
 
 WebviewJavaScriptExecuteCallback::~WebviewJavaScriptExecuteCallback()
 {
-    WVLOG_I("WebviewJavaScriptExecuteCallback::~WebviewJavaScriptExecuteCallback");
+    WVLOG_D("WebviewJavaScriptExecuteCallback::~WebviewJavaScriptExecuteCallback");
     ani_env* env = GetEnv();
     if (env && callbackRef_) {
         env->GlobalReference_Delete(callbackRef_);
@@ -67,7 +67,7 @@ ani_object WrapStsError(ani_env* env, const std::string& msg)
     ani_method method {};
     ani_object obj = nullptr;
     ani_status status = ANI_ERROR;
-    if (env == nullptr) {
+    if (!env) {
         return nullptr;
     }
 
@@ -108,13 +108,12 @@ ani_ref CreateStsError(ani_env* env, ani_int code, const std::string& msg)
         return nullptr;
     }
     ani_object error = WrapStsError(env, msg);
-    if (error == nullptr) {
+    if (!error) {
         WVLOG_E("error is nullptr");
         return nullptr;
     }
     ani_object obj = nullptr;
-    ani_int dCode(code);
-    if ((status = env->Object_New(cls, ctor, &obj, dCode, error)) != ANI_OK) {
+    if ((status = env->Object_New(cls, ctor, &obj, code, error)) != ANI_OK) {
         WVLOG_E("object_new error status : %{public}d", status);
         return nullptr;
     }
@@ -143,12 +142,11 @@ bool CreateArgs(
             return false;
         }
         if (!(jsObj->GetExtention())) {
-            WVLOG_I("TriggerJsCallback extention is false");
+            WVLOG_E("TriggerJsCallback extention is false");
             resultRef[1] = OHOS::NWeb::AniParseUtils::ConvertNWebToAniValue(env, result);
         } else {
-            WVLOG_I("TriggerJsCallback extention is true");
             WebJsMessageExt* webJsMessageExt = new (std::nothrow) WebJsMessageExt(result);
-            if (webJsMessageExt == nullptr) {
+            if (!webJsMessageExt) {
                 WVLOG_E("new WebJsMessageExt failed.");
                 return false;
             }
@@ -174,7 +172,7 @@ bool CreateArgs(
 static void UvAfterWorkCbPromise(
     WebviewJavaScriptExecuteCallback* jsObj, std::shared_ptr<NWebMessage> result, std::vector<ani_ref>& resultRef)
 {
-    WVLOG_I("enter UvAfterWorkCbPromise");
+    WVLOG_D("enter UvAfterWorkCbPromise");
     ani_env* env;
     if (!jsObj || !(env = jsObj->GetEnv())) {
         WVLOG_E("env or jsObj is nullptr");
@@ -183,12 +181,11 @@ static void UvAfterWorkCbPromise(
     ani_status status;
     resultRef[0] = CreateStsError(env, static_cast<ani_int>(NWebError::INVALID_RESOURCE), result->GetErrMsg());
     if (!(jsObj->GetExtention())) {
-        WVLOG_I("TriggerJsCallback extention is false");
+        WVLOG_E("TriggerJsCallback extention is false");
         resultRef[1] = OHOS::NWeb::AniParseUtils::ConvertNWebToAniValue(env, result);
     } else {
-        WVLOG_I("TriggerJsCallback extention is true");
         WebJsMessageExt* webJsMessageExt = new (std::nothrow) WebJsMessageExt(result);
-        if (webJsMessageExt == nullptr) {
+        if (!webJsMessageExt) {
             WVLOG_E("new WebJsMessageExt failed.");
             return;
         }
@@ -212,28 +209,24 @@ static void UvAfterWorkCbPromise(
         if ((status = env->PromiseResolver_Reject(jsObj->GetResolver(), reinterpret_cast<ani_error>(resultRef[0]))) !=
             ANI_OK) {
             WVLOG_E("UvAfterWorkCbPromise error in reject promise");
-        } else {
-            WVLOG_I("UvAfterWorkCbPromise reject success");
         }
     } else {
         if ((status = env->PromiseResolver_Resolve(jsObj->GetResolver(), resultRef[1])) != ANI_OK) {
             WVLOG_E("UvAfterWorkCbPromise error in resolve promise");
-        } else {
-            WVLOG_I("UvAfterWorkCbPromise resolve success");
         }
     }
 }
 
 void TriggerJsCallback(WebviewJavaScriptExecuteCallback* jsObj, std::shared_ptr<NWebMessage> result)
 {
-    WVLOG_I("WebviewJavaScriptExecuteCallback::TriggerJsCallback");
-    if (jsObj == nullptr) {
+    WVLOG_D("WebviewJavaScriptExecuteCallback::TriggerJsCallback");
+    if (!jsObj) {
         WVLOG_E("jsObj is null.");
         return;
     }
 
     ani_env* env = jsObj->GetEnv();
-    if (env == nullptr) {
+    if (!env) {
         WVLOG_E("jsObj->GetEnv is null.");
         return;
     }
@@ -245,8 +238,6 @@ void TriggerJsCallback(WebviewJavaScriptExecuteCallback* jsObj, std::shared_ptr<
             if ((status = jsObj->GetEnv()->FunctionalObject_Call(static_cast<ani_fn_object>(jsObj->GetCallBackRef()),
                 resultRef.size(), resultRef.data(), &fnReturnVal)) != ANI_OK) {
                 WVLOG_E("TriggerJsCallback FunctionalObject_Call Failed status : %{public}d!", status);
-            } else {
-                WVLOG_I("TriggerJsCallback FunctionalObject_Call Success!");
             }
         } else {
             WVLOG_E("create args error");
@@ -255,7 +246,6 @@ void TriggerJsCallback(WebviewJavaScriptExecuteCallback* jsObj, std::shared_ptr<
         return;
     }
 
-    WVLOG_I("resolver");
     if (jsObj->GetResolver()) {
         UvAfterWorkCbPromise(jsObj, result, resultRef);
         return;
@@ -264,7 +254,7 @@ void TriggerJsCallback(WebviewJavaScriptExecuteCallback* jsObj, std::shared_ptr<
 
 void WebviewJavaScriptExecuteCallback::OnReceiveValue(std::shared_ptr<NWebMessage> result)
 {
-    WVLOG_I("WebviewJavaScriptExecuteCallback::OnReceiveValue");
+    WVLOG_D("WebviewJavaScriptExecuteCallback::OnReceiveValue");
     std::weak_ptr<WebviewJavaScriptExecuteCallback> weakThis = weak_from_this();
     auto ensureMainHandler = [weakThis, result]() {
         if (auto sharedThis = weakThis.lock()) {
@@ -283,7 +273,7 @@ void WebviewJavaScriptExecuteCallback::OnReceiveValue(std::shared_ptr<NWebMessag
         mainHandler_ = std::make_shared<OHOS::AppExecFwk::EventHandler>(runner);
     }
 
-    if (mainHandler_ == nullptr) {
+    if (!mainHandler_) {
         WVLOG_E("mainHandler_ is null.");
         return;
     }
@@ -355,15 +345,15 @@ bool WebJsMessageExt::GetBoolean()
 
 static ani_enum_item GetType(ani_env* env, ani_object object)
 {
-    WVLOG_I("JsMessageExt GetType start");
-    if (env == nullptr) {
+    WVLOG_D("JsMessageExt GetType start");
+    if (!env) {
         WVLOG_E("env is nullptr");
         return nullptr;
     }
 
     WebJsMessageExt* webJsMessageExt = reinterpret_cast<WebJsMessageExt*>(AniParseUtils::Unwrap(env, object));
     if (!webJsMessageExt) {
-        WVLOG_I("webJsMessageExt GetType.");
+        WVLOG_E("Get webJsMessageExt failed.");
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return nullptr;
     }
@@ -382,15 +372,15 @@ static ani_enum_item GetType(ani_env* env, ani_object object)
 
 static ani_string GetString(ani_env* env, ani_object object)
 {
-    WVLOG_I("GetString webJsMessageExt start");
+    WVLOG_D("GetString webJsMessageExt start");
     ani_string result = nullptr;
-    if (env == nullptr) {
+    if (!env) {
         WVLOG_E("env is nullptr");
         return result;
     }
 
     WebJsMessageExt* webJsMessageExt = reinterpret_cast<WebJsMessageExt*>(AniParseUtils::Unwrap(env, object));
-    if (webJsMessageExt == nullptr) {
+    if (!webJsMessageExt) {
         WVLOG_E("unwrap webJsMessageExt failed.");
         return result;
     }
@@ -401,7 +391,7 @@ static ani_string GetString(ani_env* env, ani_object object)
     }
 
     auto message = webJsMessageExt->GetJsMsgResult();
-    if (message == nullptr) {
+    if (!message) {
         WVLOG_E("message failed.");
         return result;
     }
@@ -420,7 +410,7 @@ static ani_object GetNumber(ani_env* env, ani_object object)
     }
 
     WebJsMessageExt* webJsMessageExt = reinterpret_cast<WebJsMessageExt*>(AniParseUtils::Unwrap(env, object));
-    if (webJsMessageExt == nullptr) {
+    if (!webJsMessageExt) {
         WVLOG_E("unwrap webJsMessageExt failed.");
         return nullptr;
     }
@@ -431,7 +421,7 @@ static ani_object GetNumber(ani_env* env, ani_object object)
     }
 
     auto message = webJsMessageExt->GetJsMsgResult();
-    if (message == nullptr) {
+    if (!message) {
         WVLOG_E("message failed.");
         return nullptr;
     }
@@ -440,14 +430,14 @@ static ani_object GetNumber(ani_env* env, ani_object object)
 
 static ani_boolean GetBoolean(ani_env* env, ani_object object)
 {
-    WVLOG_I("GetBoolean webJsMessageExt start");
-    if (env == nullptr) {
+    WVLOG_D("GetBoolean webJsMessageExt start");
+    if (!env) {
         WVLOG_E("env is nullptr");
         return ANI_FALSE;
     }
 
     WebJsMessageExt* webJsMessageExt = reinterpret_cast<WebJsMessageExt*>(AniParseUtils::Unwrap(env, object));
-    if (webJsMessageExt == nullptr) {
+    if (!webJsMessageExt) {
         WVLOG_E("unwrap webJsMessageExt failed.");
         return ANI_FALSE;
     }
@@ -458,7 +448,7 @@ static ani_boolean GetBoolean(ani_env* env, ani_object object)
     }
 
     auto message = webJsMessageExt->GetJsMsgResult();
-    if (message == nullptr) {
+    if (!message) {
         WVLOG_E("message failed.");
         return ANI_FALSE;
     }
@@ -469,14 +459,14 @@ static ani_boolean GetBoolean(ani_env* env, ani_object object)
 
 static ani_object GetArrayBuffer(ani_env* env, ani_object object)
 {
-    WVLOG_I("GetArrayBuffer webJsMessageExt start");
-    if (env == nullptr) {
+    WVLOG_D("GetArrayBuffer webJsMessageExt start");
+    if (!env) {
         WVLOG_E("env is nullptr");
         return nullptr;
     }
 
     WebJsMessageExt* webJsMessageExt = reinterpret_cast<WebJsMessageExt*>(AniParseUtils::Unwrap(env, object));
-    if (webJsMessageExt == nullptr) {
+    if (!webJsMessageExt) {
         WVLOG_E("unwrap webJsMessageExt failed.");
         return nullptr;
     }
@@ -487,7 +477,7 @@ static ani_object GetArrayBuffer(ani_env* env, ani_object object)
     }
 
     auto message = webJsMessageExt->GetJsMsgResult();
-    if (message == nullptr) {
+    if (!message) {
         WVLOG_E("message failed.");
         return nullptr;
     }
@@ -507,14 +497,14 @@ static ani_object GetArrayBuffer(ani_env* env, ani_object object)
 
 static ani_object GetArray(ani_env* env, ani_object object)
 {
-    WVLOG_I("GetArray webJsMessageExt start");
-    if (env == nullptr) {
+    WVLOG_D("GetArray webJsMessageExt start");
+    if (!env) {
         WVLOG_E("env is nullptr");
         return nullptr;
     }
 
     WebJsMessageExt* webJsMessageExt = reinterpret_cast<WebJsMessageExt*>(AniParseUtils::Unwrap(env, object));
-    if (webJsMessageExt == nullptr) {
+    if (!webJsMessageExt) {
         WVLOG_E("unwrap webJsMessageExt failed.");
         return nullptr;
     }
@@ -526,7 +516,7 @@ static ani_object GetArray(ani_env* env, ani_object object)
 
     ani_array_ref arr = nullptr;
     auto message = webJsMessageExt->GetJsMsgResult();
-    if (message == nullptr) {
+    if (!message) {
         WVLOG_E("message failed.");
         return arr;
     }
@@ -545,7 +535,7 @@ static ani_object GetArray(ani_env* env, ani_object object)
 
 ani_status StsJsMessageExtInit(ani_env* env)
 {
-    if (env == nullptr) {
+    if (!env) {
         WVLOG_E("env is nullptr");
         return ANI_ERROR;
     }
