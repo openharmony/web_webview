@@ -57,6 +57,8 @@
 #include "ohos_nweb/bridge/ark_web_url_resource_request_impl.h"
 #include "ohos_nweb/bridge/ark_web_url_resource_response_impl.h"
 #include "ohos_nweb/cpptoc/ark_web_date_time_suggestion_vector_cpptoc.h"
+#include "ohos_nweb/bridge/ark_web_native_message_callback_impl.h"
+#include "ohos_nweb/bridge/ark_web_runtime_connect_info_impl.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
 
@@ -1292,5 +1294,30 @@ void ArkWebHandlerWrapper::OnNativeEmbedObjectParamChange(
     }
 
     ark_web_handler_->OnNativeEmbedObjectParamChange(new ArkWebNativeEmbedParamDataInfoImpl(paramDataInfo));
+}
+
+void ArkWebHandlerWrapper::OnExtensionDisconnect(int32_t connectId)
+{
+    ark_web_handler_->OnExtensionDisconnect(connectId);
+}
+
+std::string ArkWebHandlerWrapper::OnWebNativeMessage(std::shared_ptr<OHOS::NWeb::NWebRuntimeConnectInfo> info,
+    std::shared_ptr<OHOS::NWeb::NWebNativeMessageCallback> callback)
+{
+    ArkWebRefPtr<ArkWebRuntimeConnectInfo> nweb_connect_info = nullptr;
+    if (!CHECK_SHARED_PTR_IS_NULL(info)) {
+        nweb_connect_info = new ArkWebRuntimeConnectInfoImpl(info);
+    }
+
+    if (CHECK_SHARED_PTR_IS_NULL(callback)) {
+        ark_web_handler_->OnWebNativeMessage(nweb_connect_info, nullptr);
+        return "";
+    }
+
+    ArkWebString result =
+        ark_web_handler_->OnWebNativeMessage(nweb_connect_info, new ArkWebNativeMessageCallbackImpl(callback));
+    std::string connectInfo = ArkWebStringStructToClass(result);
+    ArkWebStringStructRelease(result);
+    return connectInfo;
 }
 } // namespace OHOS::ArkWeb

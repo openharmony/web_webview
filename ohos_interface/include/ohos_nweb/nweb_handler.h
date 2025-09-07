@@ -48,6 +48,8 @@
 #include "nweb_url_resource_error.h"
 #include "nweb_url_resource_request.h"
 #include "nweb_url_resource_response.h"
+#include "nweb_native_message_callback.h"
+#include "nweb_runtime_connect_info.h"
 
 namespace OHOS::NWeb {
 
@@ -1316,6 +1318,26 @@ public:
      *
      */
     virtual void OnNativeEmbedObjectParamChange(std::shared_ptr<NWebNativeEmbedParamDataInfo> paramDataInfo) {}
+
+    /**
+     * @brief Triggered when the webExtensions-native host connection terminates.
+     *
+     * @param connectId The id of the connection.
+     */
+    virtual void OnExtensionDisconnect(int32_t connectId) {}
+
+    /**
+     * @brief Initiates webExtensions-native messaging requests and handles corresponding callbacks
+     *
+     * @param info The runtime's message connect info.
+     * @param callback Response handler for processing asynchronous replies from native host.
+     * @return Returns connection status.
+     */
+    virtual std::string OnWebNativeMessage(
+        std::shared_ptr<NWebRuntimeConnectInfo> info, std::shared_ptr<NWebNativeMessageCallback> callback)
+    {
+        return "";
+    }
 };
 
 } // namespace OHOS::NWeb

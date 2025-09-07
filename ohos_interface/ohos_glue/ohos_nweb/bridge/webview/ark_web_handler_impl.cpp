@@ -58,7 +58,8 @@
 #include "ohos_nweb/bridge/ark_web_url_resource_response_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_view_struct_utils.h"
 #include "ohos_nweb/ctocpp/ark_web_date_time_suggestion_vector_ctocpp.h"
-
+#include "ohos_nweb/bridge/ark_web_native_message_callback_wrapper.h"
+#include "ohos_nweb/bridge/ark_web_runtime_connect_info_wrapper.h"
 #include "base/bridge/ark_web_bridge_macros.h"
 
 namespace OHOS::ArkWeb {
@@ -1127,5 +1128,24 @@ void ArkWebHandlerImpl::OnNativeEmbedObjectParamChange(ArkWebRefPtr<ArkWebNative
     }
 
     nweb_handler_->OnNativeEmbedObjectParamChange(std::make_shared<ArkWebNativeEmbedParamDataInfoWrapper>(data_info));
+}
+
+void ArkWebHandlerImpl::OnExtensionDisconnect(int32_t connectId)
+{
+    nweb_handler_->OnExtensionDisconnect(connectId);
+}
+
+ArkWebString ArkWebHandlerImpl::OnWebNativeMessage(
+    ArkWebRefPtr<ArkWebRuntimeConnectInfo> info, ArkWebRefPtr<ArkWebNativeMessageCallback> callback)
+{
+    std::shared_ptr<OHOS::NWeb::NWebRuntimeConnectInfo> nweb_connect_info = nullptr;
+    if (!CHECK_REF_PTR_IS_NULL(info)) {
+        nweb_connect_info = std::make_shared<ArkWebRuntimeConnectInfoWrapper>(info);
+    }
+    if (CHECK_REF_PTR_IS_NULL(callback)) {
+        return ArkWebStringClassToStruct(nweb_handler_->OnWebNativeMessage(nweb_connect_info, nullptr));
+    }
+    return ArkWebStringClassToStruct(nweb_handler_->OnWebNativeMessage(
+        nweb_connect_info, std::make_shared<ArkWebNativeMessageCallbackWrapper>(callback)));
 }
 } // namespace OHOS::ArkWeb

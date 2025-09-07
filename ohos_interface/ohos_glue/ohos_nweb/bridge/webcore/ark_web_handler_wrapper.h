@@ -768,6 +768,24 @@ public:
      */
     void OnNativeEmbedObjectParamChange(
         std::shared_ptr<OHOS::NWeb::NWebNativeEmbedParamDataInfo> paramDataInfo) override;
+
+    /**
+     * @brief Triggered when the webExtensions-native host connection terminates.
+     *
+     * @param connectId The id of the connection.
+     */
+    void OnExtensionDisconnect(int32_t connectId) override;
+
+    /**
+     * @brief Initiates webExtensions-native messaging requests and handles corresponding callbacks
+     *
+     * @param info The runtime's message connect info.
+     * @param callback Response handler for processing asynchronous replies from native host.
+     * @return Returns connection status.
+     */
+    std::string OnWebNativeMessage(std::shared_ptr<OHOS::NWeb::NWebRuntimeConnectInfo> info,
+        std::shared_ptr<OHOS::NWeb::NWebNativeMessageCallback> callback) override;
+
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };

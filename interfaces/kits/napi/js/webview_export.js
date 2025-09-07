@@ -24,6 +24,9 @@ let camera = requireNapi('multimedia.camera');
 let accessControl = requireNapi('abilityAccessCtrl');
 let deviceinfo = requireInternal('deviceInfo');
 let promptAction = requireNapi('promptAction');
+let dataShare = requireNapi('data.dataShare');
+let webNativeMessagingExtensionManager = requireNapi('web.webnativemessagingextensionmanager_napi');
+
 const PARAM_CHECK_ERROR = 401;
 
 const ERROR_MSG_INVALID_PARAM = 'Invalid input parameter';
@@ -438,6 +441,29 @@ function selectPicture(param, selectResult) {
   }
 }
 
+function getManifestData(bundleName, callback) {
+
+  dataShare.createDataProxyHandle().then((dsProxyHelper) => {
+    const urisToGet =
+      [`datashareproxy://${bundleName}/browserNativeMessagingHosts`];
+    const config = {
+      type: dataShare.DataProxyType.SHARED_CONFIG,
+    };
+    dsProxyHelper.get(urisToGet, config).then((results) => {
+      results.forEach((result) => {
+        callback(result.value);
+      });
+    }).catch((error) => {
+      callback(undefined);
+      console.error('getManifestData, error getting config:', JSON.stringify(error));
+    });
+  }).catch((error) => {
+    callback(undefined);
+    console.error('getManifestData, error creating DataProxyHandle:', JSON.stringify(error));
+  });
+}
+
+
 Object.defineProperty(webview.WebviewController.prototype, 'getCertificate', {
   value: function (callback) {
     if (arguments.length !== 0 && arguments.length !== 1) {
@@ -550,6 +576,66 @@ Object.defineProperty(webview.WebviewController.prototype, 'openAppLink', {
         callback.result.continueLoad();
       }, 1);
     }
+  }
+});
+
+Object.defineProperty(webview.WebviewController.prototype, 'innerWebNativeMessageManager', {
+  value: function (callback) {
+    console.info('Web deal native messaging ');
+    try {
+      getManifestData(callback.bundleName, (result) => {
+        if (!result) {
+          callback.result.onFailed(4001);
+          return;
+        }
+        const infoByJson = JSON.parse(result);
+        if (!infoByJson || !infoByJson.allowed_origins) {
+          callback.result.onFailed(infoByJson ? 4002 : 4101);
+          return;
+        }
+        if (!infoByJson.allowed_origins.includes(callback.extensionOrigin)) {
+          callback.result.onFailed(4003);
+          return;
+        }
+        const pathByJson = JSON.parse(infoByJson.path);
+        if (!pathByJson) {
+          callback.result.onFailed(4102);
+          return;
+        }
+        let wantInfo = {
+          bundleName: pathByJson.bundleName,
+          abilityName: pathByJson.abilityName,
+          parameters: {
+            'ohos.arkweb.messageReadPipe': { 'type': 'FD', 'value': callback.readPipe },
+            'ohos.arkweb.messageWritePipe': { 'type': 'FD', 'value': callback.writePipe },
+            'ohos.arkweb.extensionOrigin': callback.extensionOrigin
+          },
+        };
+        let options = {
+          onConnect(connection) {
+            callback.result.onConnect(connection.connectionId);
+          },
+          onDisconnect(connection) {
+            callback.result.onDisconnect(connection.connectionId);
+          },
+          onFailed(code) {
+            console.error(`messaging onFailed callback, code: ${code}`);
+            callback.result.onFailed(code);
+          }
+        };
+        webNativeMessagingExtensionManager.connectNative(getContext(this), wantInfo, options);
+      });
+    } catch (err) {
+      console.log(`messaging error : ${JSON.stringify(err)}`);
+    }
+  }
+});
+
+Object.defineProperty(webview.WebviewController.prototype, 'innerNativeMessageDisconnect', {
+  value: function (callback) {
+    let connectId = callback.connectId;
+    console.log(`Messaging disconnect connectId= ${connectId}`);
+    webNativeMessagingExtensionManager.disconnectNative(connectId);
   }
 });
 
