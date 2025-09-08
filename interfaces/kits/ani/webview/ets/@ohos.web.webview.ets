@@ -796,7 +796,7 @@ export default namespace webview {
             } else if (script instanceof Uint8Array) {
                 resScript = script.buffer as ArrayBuffer;
             }
-            return this.precompileJavaScriptInternal(url,resScript,cacheOptions);
+            return this.precompileJavaScriptInternal(url, resScript, cacheOptions);
         }
         native registerJavaScriptProxy(object: object, name: string, methodList: Array<string>,
                                         asyncMethodList?: Array<string>, permission?: string): void;

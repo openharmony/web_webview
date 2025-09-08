@@ -577,6 +577,10 @@ bool AniParseUtils::CreateBoolean(ani_env *env, bool src, ani_object& aniObj)
 
 ani_object AniParseUtils::CreateDouble(ani_env* env, ani_double val)
 {
+    if (!env) {
+        WVLOG_E("env is null");
+        return nullptr;
+    }
     static constexpr const char* className = "std.core.Double";
     ani_class doubleCls {};
     env->FindClass(className, &doubleCls);
