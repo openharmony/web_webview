@@ -1128,4 +1128,9 @@ void ArkWebHandlerImpl::OnNativeEmbedObjectParamChange(ArkWebRefPtr<ArkWebNative
 
     nweb_handler_->OnNativeEmbedObjectParamChange(std::make_shared<ArkWebNativeEmbedParamDataInfoWrapper>(data_info));
 }
+
+void ArkWebHandlerImpl::OnSafeBrowsingCheckFinish(int threat_type)
+{
+    nweb_handler_->OnSafeBrowsingCheckFinish(threat_type);
+}
 } // namespace OHOS::ArkWeb
