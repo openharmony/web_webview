@@ -137,6 +137,8 @@ public:
     }
 
     virtual void SetWebDestroyMode(WebDestroyMode mode) {}
+
+    virtual void SetSocketIdleTimeout(int32_t timeout) {}
 };
 
 } // namespace OHOS::NWeb
