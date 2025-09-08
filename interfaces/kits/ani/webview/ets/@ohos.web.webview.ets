@@ -1820,8 +1820,6 @@ export default namespace webview {
             GeolocationPermissions.allowGeolocation_inner(origin,incognitoMode);
         }
 
-
-
         static getStoredGeolocation(incognito?: boolean):Promise<Array<string>>{
             let incognitoMode:boolean = false;
             if(incognito !== undefined)
