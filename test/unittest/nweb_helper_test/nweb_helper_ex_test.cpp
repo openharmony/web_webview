@@ -167,6 +167,8 @@ public:
         return false;
     }
 
+    void SetSocketIdleTimeout(int32_t timeout) {}
+
     MOCK_METHOD(void, SetWebDebuggingAccessAndPort,
         (bool isEnableDebug, int32_t port), (override));
 
@@ -945,7 +947,7 @@ HWTEST_F(NwebHelperTest, NWebHelper_IsPrivateNetworkAccessEnabled_001, TestSize.
 
 /**
  * @tc.name: NWebHelper_SetAutoPreconnect_001
- * @tc.desc: SetAutoPreconnect..
+ * @tc.desc: SetAutoPreconnect.
  * @tc.type: FUNC
  * @tc.require:
  */
@@ -959,6 +961,75 @@ HWTEST_F(NwebHelperTest, NWebHelper_SetAutoPreconnect_001, TestSize.Level1)
     EXPECT_EQ(NWebHelper::Instance().autoPreconnectEnabled_, true);
     NWebHelper::Instance().SetAutoPreconnect(false);
     EXPECT_EQ(NWebHelper::Instance().autoPreconnectEnabled_, false);
+}
+
+/**
+ * @tc.name: NWebHelper_IsAutoPreconnectEnabled_001
+ * @tc.desc: IsAutoPreconnectEnabled.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_IsAutoPreconnectEnabled_001, TestSize.Level1)
+{
+    int32_t nweb_id = 1;
+    auto nwebHelper = NWebHelper::Instance().GetNWeb(nweb_id);
+    EXPECT_EQ(nwebHelper, nullptr);
+
+    NWebHelper::Instance().autoPreconnectEnabled_ = true;
+    EXPECT_EQ(NWebHelper::Instance().IsAutoPreconnectEnabled(), true);
+    NWebHelper::Instance().autoPreconnectEnabled_ = false;
+    EXPECT_EQ(NWebHelper::Instance().IsAutoPreconnectEnabled(), false);
+}
+
+/**
+ * @tc.name: NWebHelper_SetSocketIdleTimeout_001
+ * @tc.desc: SetSocketIdleTimeout.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_SetSocketIdleTimeout_001, TestSize.Level1)
+{
+    int32_t nweb_id = 1;
+    auto nwebHelper = NWebHelper::Instance().GetNWeb(nweb_id);
+    NWebHelper::Instance().nwebEngine_ = nullptr;
+    EXPECT_EQ(NWebHelper::Instance().nwebEngine_, nullptr);
+
+    NWebHelper::Instance().SetSocketIdleTimeout(100);
+    EXPECT_EQ(NWebHelper::Instance().socketIdleTimeout_, 100);
+}
+
+/**
+ * @tc.name: NWebHelper_SetSocketIdleTimeout_002
+ * @tc.desc: SetSocketIdleTimeout.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_SetSocketIdleTimeout_002, TestSize.Level1)
+{
+    int32_t nweb_id = 1;
+    auto nwebHelper = NWebHelper::Instance().GetNWeb(nweb_id);
+    auto nwebEngineMock = std::make_shared();
+    NWebHelper::Instance().nwebEngine_ = nwebEngineMock;
+    EXPECT_NE(NWebHelper::Instance().nwebEngine_, nullptr);
+
+    NWebHelper::Instance().SetSocketIdleTimeout(100);
+    EXPECT_EQ(NWebHelper::Instance().socketIdleTimeout_, 300);
+}
+
+/**
+ * @tc.name: NWebHelper_GetSocketIdleTimeout_001
+ * @tc.desc: GetSocketIdleTimeout.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_GetSocketIdleTimeout_001, TestSize.Level1)
+{
+    int32_t nweb_id = 1;
+    auto nwebHelper = NWebHelper::Instance().GetNWeb(nweb_id);
+    EXPECT_EQ(nwebHelper, nullptr);
+
+    NWebHelper::Instance().SetSocketIdleTimeout(100);
+    EXPECT_EQ(NWebHelper::Instance().GetSocketIdleTimeout(), 100);
 }
 } // namespace OHOS::NWeb
 }

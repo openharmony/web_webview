@@ -383,4 +383,9 @@ ArkWebSiteIsolationMode ArkWebEngineWrapper::GetSiteIsolationMode()
     return static_cast<ArkWebSiteIsolationMode>(res);
 }
 
+void ArkWebEngineWrapper::SetSocketIdleTimeout(int32_t timeout)
+{
+    ark_web_engine_->SetSocketIdleTimeout(timeout);
+}
+
 } // namespace OHOS::ArkWeb

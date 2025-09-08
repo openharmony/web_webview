@@ -81,6 +81,8 @@ constexpr double SCALE_MAX = 2.0;
 constexpr double HALF = 2.0;
 constexpr double TEN_MILLIMETER_TO_INCH = 0.39;
 constexpr const char* EVENT_ATTACH_STATE_CHANGE = "controllerAttachStateChange";
+constexpr int32_t MIN_SOCKET_IDLE_TIMEOUT = 30;
+constexpr int32_t MAX_SOCKET_IDLE_TIMEOUT = 300;
 using WebPrintWriteResultCallback = std::function<void(std::string, uint32_t)>;
 
 bool ParsePrepareUrl(napi_env env, napi_value urlObj, std::string& url)
@@ -828,6 +830,7 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_FUNCTION("isActiveWebEngineEvergreen", NapiWebviewController::IsActiveWebEngineEvergreen),
         DECLARE_NAPI_STATIC_FUNCTION("setAutoPreconnect", NapiWebviewController::SetAutoPreconnect),
         DECLARE_NAPI_STATIC_FUNCTION("isAutoPreconnectEnabled", NapiWebviewController::IsAutoPreconnectEnabled),
+        DECLARE_NAPI_STATIC_FUNCTION("setSocketIdleTimeout", NapiWebviewController::SetSocketIdleTimeout),
     };
     napi_value constructor = nullptr;
     napi_define_class(env, WEBVIEW_CONTROLLER_CLASS_NAME.c_str(), WEBVIEW_CONTROLLER_CLASS_NAME.length(),
@@ -7808,13 +7811,14 @@ napi_value NapiWebviewController::SetAutoPreconnect(napi_env env, napi_callback_
         WVLOG_W("SetAutoPreconnect unsupported engine version: M114");
         return nullptr;
     }
+
     napi_value thisVar = nullptr;
     napi_value result = nullptr;
     size_t argc = INTEGER_ONE;
     napi_value argv[INTEGER_ONE] = { 0 };
-
     NAPI_CALL(env, napi_get_undefined(env, &result));
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+
     if (argc != INTEGER_ONE) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
@@ -7922,6 +7926,38 @@ napi_value NapiWebviewController::GetSiteIsolationMode(
     int32_t mode = static_cast<int32_t>(NWebHelper::Instance().GetSiteIsolationMode());
     NAPI_CALL(env, napi_create_int32(env, mode, &result));
     WVLOG_I("NapiWebviewController::GetSiteIsolationMode result: %{public}d", mode);
+    return result;
+}
+
+napi_value NapiWebviewController::SetSocketIdleTimeout(napi_env env, napi_callback_info info)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_W("SetSocketIdleTimeout unsupported engine version: M114");
+        return nullptr;
+    }
+
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+    NAPI_CALL(env, napi_get_undefined(env, &result));
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
+        return result;
+    }
+
+    int32_t socketIdleTimeout = 0;
+    if (!NapiParseUtils::ParseInt32(env, argv[0], socketIdleTimeout)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "socketIdleTimeout", "number"));
+        return result;
+    }
+
+    socketIdleTimeout = std::clamp(socketIdleTimeout, MIN_SOCKET_IDLE_TIMEOUT, MAX_SOCKET_IDLE_TIMEOUT);
+    NWebHelper::Instance().SetSocketIdleTimeout(socketIdleTimeout);
     return result;
 }
 } // namespace NWeb
