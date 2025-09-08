@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -40,7 +40,7 @@
  namespace {
  const char* GEOLOCATION_PERMISSSION_CLASS_NAME = "L@ohos/web/webview/webview/GeolocationPermissions;";
  } // namespace
- 
+
  static bool GetStringPara(ani_env* env, ani_string dataStr)
  {
      if (env == nullptr) {
@@ -51,11 +51,12 @@
      ani_size bufferSize = 0;
      env->String_GetUTF8Size(dataStr, &bufferSize);
      if (bufferSize > MAX_STRING_LENGTH) {
+         WVLOG_E("buffer exceed MAX_STRING_LENGTH");
          return false;
      }
      return true;
  }
- 
+
  static void ProcessActionByType(
      ani_env* env, ani_object object, ani_string origin, ani_boolean incognito, int32_t operationType)
  {
@@ -83,14 +84,14 @@
      if (operationType == ALLOW_PERMISSION_OPERATION) {
          if (dataBase->SetPermissionByOrigin(origin_new, OHOS::NWeb::NWebDataBase::WebPermissionType::GEOLOCATION_TYPE,
                  true, incognito) == NWebError::INVALID_ORIGIN) {
-             AniBusinessError::ThrowError(env, NWebError::INVALID_ORIGIN, "Origin is wrong");
+             AniBusinessError::ThrowError(env, NWebError::INVALID_ORIGIN, "SetOrigin is wrong");
              return;
          }
      } else if (operationType == DELETE_PERMISSION_OPERATION) {
          if (dataBase->ClearPermissionByOrigin(origin_new,
                  OHOS::NWeb::NWebDataBase::WebPermissionType::GEOLOCATION_TYPE,
                  incognito) == NWebError::INVALID_ORIGIN) {
-             AniBusinessError::ThrowError(env, NWebError::INVALID_ORIGIN, "Origin is wrong");
+             AniBusinessError::ThrowError(env, NWebError::INVALID_ORIGIN, "ClearOrigin is wrong");
              return;
          }
      }

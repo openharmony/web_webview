@@ -15,6 +15,8 @@
 
 #include "ani_nweb_value_callback_impl.h"
 
+#include <securec.h>
+
 #include "ani_parse_utils.h"
 #include "ani_webview_controller.h"
 #include "business_error.h"

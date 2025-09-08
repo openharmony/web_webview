@@ -3618,7 +3618,6 @@ static void StartCamera(ani_env* env, ani_object object)
         AniBusinessError::ThrowErrorByErrCode(env, ret);
         return;
     }
-    return;
 }
 
 static void CloseAllMediaPresentations(ani_env* env, ani_object object)
@@ -3650,7 +3649,6 @@ static void StopAllMedia(ani_env* env, ani_object object)
         return;
     }
     controller->StopAllMedia();
-    return;
 }
 
 static void StopCamera(ani_env* env, ani_object object)
@@ -3670,7 +3668,6 @@ static void StopCamera(ani_env* env, ani_object object)
         AniBusinessError::ThrowErrorByErrCode(env, ret);
         return;
     }
-    return;
 }
 
 static void CloseCamera(ani_env* env, ani_object object)
@@ -3690,7 +3687,6 @@ static void CloseCamera(ani_env* env, ani_object object)
         AniBusinessError::ThrowErrorByErrCode(env, ret);
         return;
     }
-    return;
 }
 
 static void PauseAllMedia(ani_env* env, ani_object object)
@@ -3706,7 +3702,6 @@ static void PauseAllMedia(ani_env* env, ani_object object)
         return;
     }
     controller->PauseAllMedia();
-    return;
 }
 
 static void ResumeAllMedia(ani_env* env, ani_object object)
@@ -3722,7 +3717,6 @@ static void ResumeAllMedia(ani_env* env, ani_object object)
         return;
     }
     controller->ResumeAllMedia();
-    return;
 }
 
 static void SetAudioMuted(ani_env* env, ani_object object,ani_boolean mute)
@@ -3742,7 +3736,6 @@ static void SetAudioMuted(ani_env* env, ani_object object,ani_boolean mute)
         AniBusinessError::ThrowErrorByErrCode(env, ret);
         return;
     }
-    return;
 }
 
 static ani_enum_item GetMediaPlaybackState(ani_env* env, ani_object object)
@@ -5768,7 +5761,7 @@ WebPrintWriteResultCallback ParseWebPrintWriteResultCallback(ani_env* env, ani_o
         return nullptr;
     }
 
-    ani_ref callbackRef;
+    ani_ref callbackRef = nullptr;
 
     if (env->GlobalReference_Create(static_cast<ani_ref>(callback), &callbackRef) != ANI_OK) {
         WVLOG_E("failed to create reference for callback");
@@ -5781,7 +5774,7 @@ WebPrintWriteResultCallback ParseWebPrintWriteResultCallback(ani_env* env, ani_o
         if (env->String_NewUTF8(jobId.c_str(), jobId.size(), &jobIdString) == ANI_OK) {
             argv.push_back(static_cast<ani_ref>(jobIdString));
         }
-        ani_enum_item stateEnum;
+        ani_enum_item stateEnum = nullptr;
         if (AniParseUtils::GetEnumItemByIndex(
                 env, "L@ohos/print/print/PrintFileCreationState;", static_cast<int32_t>(state), stateEnum)) {
             argv.push_back(static_cast<ani_ref>(stateEnum));
@@ -5829,7 +5822,7 @@ static void ParsePrintRangeAdapter(ani_env* env, ani_object pageRange, PrintAttr
     ani_size length = 0;
     env->Array_GetLength(pagesArrayInt, &length);
     for (uint32_t i = 0; i < length; ++i) {
-        ani_int pagesInt;
+        ani_int pagesInt = 0;
         env->Array_GetRegion_Int(pagesArrayInt, i, 1, &pagesInt);
         int pagesNum = static_cast<int>(pagesInt);
         printAttr.pageRange.pages.push_back(pagesNum);

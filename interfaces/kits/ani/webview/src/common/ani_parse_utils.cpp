@@ -323,7 +323,7 @@ bool AniParseUtils::EnumParseInt32_t(ani_env* env, ani_enum_item enum_item, int3
         WVLOG_E("EnumParseInt32 failed - invalid FindClass type");
         return false;
     }
-    ani_boolean isObject;
+    ani_boolean isObject = ANI_FALSE;
     if (env->Object_InstanceOf(static_cast<ani_object>(enum_item), doubleObject, &isObject) != ANI_OK ||
         isObject != ANI_TRUE) {
         WVLOG_E("EnumParseInt32 failed - invalid int type");
