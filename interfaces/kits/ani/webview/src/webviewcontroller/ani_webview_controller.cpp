@@ -3325,7 +3325,10 @@ static ani_string GetSurfaceId(ani_env* env, ani_object object)
         return result;
     }
     std::string surfaceId = controller->GetSurfaceId();
-    env->String_NewUTF8(surfaceId.c_str(), surfaceId.size(), &result);
+    if (env->String_NewUTF8(surfaceId.c_str(), surfaceId.size(), &result) != ANI_OK) {
+        WVLOG_E("create ani_string failed");
+        return result;
+    }
     return result;
 }
 
@@ -3811,6 +3814,7 @@ bool ParseJsLengthResourceToInt(ani_env* env, ani_object jsLength, PixelUnit& ty
     }
     ani_double resIdDouble;
     if ((env->Object_GetPropertyByName_Double(jsLength, "id", &resIdDouble) != ANI_OK)) {
+        WVLOG_E("Object_GetPropertyByName_Double failed");
         return false;
     }
     int32_t resId = static_cast<int32_t>(resIdDouble);
@@ -3895,7 +3899,9 @@ static void JsErrorCallback(ani_env* env, ani_ref jsCallback, int32_t err)
     vec.push_back(jsError);
     vec.push_back(jsResult);
     ani_ref fnReturnVal;
-    env->FunctionalObject_Call(callbackFn, ani_size(RESULT_COUNT), vec.data(), &fnReturnVal);
+    if (env->FunctionalObject_Call(callbackFn, ani_size(RESULT_COUNT), vec.data(), &fnReturnVal) != ANI_OK) {
+        WVLOG_E("FunctionalObject_Call failed");
+    }
 }
 
 bool CreateSizeObject(ani_env* env, const char* className, ani_object& object, ani_int size)
@@ -3950,7 +3956,10 @@ WebSnapshotCallback CreateWebPageSnapshotResultCallback(
         } else {
             WVLOG_E("WebPageSnapshot create pixel map error");
         }
-        env->Object_SetPropertyByName_Ref(jsResult, "imagePixelMap", jsPixelMap);
+        if (env->Object_SetPropertyByName_Ref(jsResult, "imagePixelMap", jsPixelMap) != ANI_OK) {
+            WVLOG_E("Object_SetPropertyByName_Ref failed");
+            return;
+        }
         int returnJsWidth = 0;
         int returnJsHeight = 0;
         if (radio > 0) {
@@ -3995,10 +4004,14 @@ WebSnapshotCallback CreateWebPageSnapshotResultCallback(
             return;
         }
         ani_string jsId = nullptr;
-        env->String_NewUTF8(returnId, strlen(returnId), &jsId);
+        if (env->String_NewUTF8(returnId, strlen(returnId), &jsId) != ANI_OK) {
+            WVLOG_E("String_NewUTF8 failed");
+            return;
+        }
         env->Object_SetPropertyByName_Ref(jsResult, "id", jsId);
         ani_object jsStatus = {};
         if (!AniParseUtils::CreateBoolean(env, returnStatus, jsStatus)) {
+            WVLOG_E("CreateBoolean failed");
             return;
         }
         env->Object_SetPropertyByName_Ref(jsResult, "status", jsStatus);
@@ -4008,8 +4021,14 @@ WebSnapshotCallback CreateWebPageSnapshotResultCallback(
         vec.push_back(jsError);
         vec.push_back(jsResult);
         ani_fn_object callbackFn = static_cast<ani_fn_object>(jCallback);
-        env->FunctionalObject_Call(callbackFn, ani_size(RESULT_COUNT), vec.data(), &callbackResult);
-        env->GlobalReference_Delete(jCallback);
+        if (env->FunctionalObject_Call(callbackFn, ani_size(RESULT_COUNT), vec.data(), &callbackResult) != ANI_OK) {
+            WVLOG_E("execute callFunction failed");
+            return;
+        }
+        if (env->GlobalReference_Delete(jCallback) != ANI_OK) {
+            WVLOG_E("delete global Ref failed");
+            return;
+        }
         g_inWebPageSnapshot = false;
     };
 }
@@ -4025,7 +4044,10 @@ bool ParseSnapshotOptions(ani_env* env, ani_object info, SnapshotOptions& option
     ani_ref snapshotSizeWidth = nullptr;
     ani_ref snapshotSizeHeight = nullptr;
     if (env->Object_GetPropertyByName_Ref(info, "id", &snapshotId) == ANI_OK) {
-        AniParseUtils::ParseString(env, snapshotId, options.id);
+        if (!AniParseUtils::ParseString(env, snapshotId, options.id)) {
+            WVLOG_E("ParseString failed");
+            return false;
+        }
     }
     if (env->Object_GetPropertyByName_Ref(info, "size", &snapshotSize) == ANI_OK) {
         ani_object snapshotSizeObj = static_cast<ani_object>(snapshotSize);
@@ -4066,6 +4088,7 @@ static void WebPageSnapshot(ani_env* env, ani_object object, ani_object info, an
         return;
     }
     if (!AniParseUtils::IsFunction(env, callback)) {
+        WVLOG_E("callback is not function");
         return;
     }
     auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
@@ -4080,6 +4103,7 @@ static void WebPageSnapshot(ani_env* env, ani_object object, ani_object info, an
     g_inWebPageSnapshot = true;
     SnapshotOptions options;
     if (!ParseSnapshotOptions(env, info, options)) {
+        WVLOG_E("ParseSnapshotOptions failed");
         JsErrorCallback(env, std::move(callback), PARAM_CHECK_ERROR);
         g_inWebPageSnapshot = false;
         return;

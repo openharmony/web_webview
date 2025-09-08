@@ -54,6 +54,7 @@ bool GetSize(ani_env* env, ani_string pwd, ani_size& outValue)
     ani_size bufferSize = 0;
     env->String_GetUTF8Size(pwd, &bufferSize);
     if (bufferSize > MAX_PWD_LENGTH) {
+        WVLOG_E("bufferSize exceed MAX_PWD_LENGTH");
         return false;
     }
     outValue = bufferSize;
