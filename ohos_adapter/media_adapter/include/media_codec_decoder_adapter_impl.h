@@ -90,7 +90,7 @@ public:
 private:
     OH_AVCodec* decoder_ = nullptr;
     std::shared_ptr<DecoderCallbackAdapter> callback_ = nullptr;
-    std::map<uint32_t, OH_AVBuffer*> bufferMap_;
+    std::map<uint32_t, OH_AVBuffer*> bufferMap_; // To manage the input buffer.
     std::mutex bufferMutex_;
     bool isHardwareDecode_ = true;
     bool isSecure_ = false;
