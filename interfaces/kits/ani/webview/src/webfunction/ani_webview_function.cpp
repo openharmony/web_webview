@@ -35,7 +35,7 @@ const char* WEB_WEBVIEW_NAMESPACE_NAME = "L@ohos/web/webview/webview;";
 
 void RegisterWebInitedCallback(ani_env* env, ani_ref callback)
 {
-    WVLOG_I("enter RegisterWebInitedCallback");
+    WVLOG_D("enter RegisterWebInitedCallback");
     WebInitedCallbackParam* param = new (std::nothrow) WebInitedCallbackParam(env, callback);
     if (param == nullptr) {
         return;
@@ -46,7 +46,7 @@ void RegisterWebInitedCallback(ani_env* env, ani_ref callback)
         delete param;
         return;
     }
-    WVLOG_I("success in RegisterWebInitedCallback");
+    WVLOG_D("success in RegisterWebInitedCallback");
     OhosAdapterHelper::GetInstance().GetInitWebAdapter()->SetRunWebInitedCallback(std::move(runWebInitedCallbackObj));
 }
 
@@ -57,7 +57,7 @@ std::unordered_map<std::string, std::function<void(ani_env*, ani_ref)>> onceType
 // type:string
 static void JsOnce(ani_env* env, ani_string type, ani_object callback)
 {
-    WVLOG_I("enter JsOnce");
+    WVLOG_D("enter JsOnce");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
@@ -70,7 +70,10 @@ static void JsOnce(ani_env* env, ani_string type, ani_object callback)
         return;
     }
     ani_boolean isFunction;
-    env->Object_InstanceOf(callback, functionClass, &isFunction);
+    if (env->Object_InstanceOf(callback, functionClass, &isFunction) != ANI_OK) {
+        WVLOG_E("JsOnce Object_InstanceOf failed");
+        return;
+    }
 
     if (!(AniParseUtils::ParseString(env, type, argvType)) || !isFunction ||
         (onceType.find(argvType) == onceType.end())) {
@@ -91,7 +94,7 @@ static void JsOnce(ani_env* env, ani_string type, ani_object callback)
 
 ani_status StsWebviewFunctionInit(ani_env* env)
 {
-    WVLOG_I("enter StsWebviewFunctionInit");
+    WVLOG_D("enter StsWebviewFunctionInit");
     ani_namespace ns;
     if (env->FindNamespace(WEB_WEBVIEW_NAMESPACE_NAME, &ns) != ANI_OK) {
         WVLOG_E("StsWebviewFunctionInit find namespace failed");
@@ -104,7 +107,7 @@ ani_status StsWebviewFunctionInit(ani_env* env)
         WVLOG_E("StsWebviewFunctionInit bind native function failed");
         return ANI_ERROR;
     }
-    WVLOG_I("exit StsWebviewFunctionInit");
+    WVLOG_D("exit StsWebviewFunctionInit");
     return ANI_OK;
 }
 
