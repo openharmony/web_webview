@@ -112,9 +112,15 @@ ani_object createObjectDouble(ani_env* env, ani_double status)
 {
     static constexpr const char* className = "Lstd/core/Double;";
     ani_class doubleCls {};
-    env->FindClass(className, &doubleCls);
+    if (env->FindClass(className, &doubleCls) != ANI_OK) {
+        WVLOG_E("createObjectDouble failed - invalid FindClass type");
+        return nullptr;
+    }
     ani_method ctor {};
-    env->Class_FindMethod(doubleCls, "<ctor>", "d:", &ctor);
+    if (env->Class_FindMethod(doubleCls, "<ctor>", "d:", &ctor) != ANI_OK) {
+        WVLOG_E("createObjectDouble findMethod Failed.");
+        return nullptr;
+    }
     ani_object obj {};
     if (env->Object_New(doubleCls, ctor, &obj, status) != ANI_OK) {
         WVLOG_E("createObjectDouble failed");
@@ -127,9 +133,15 @@ ani_object createObjectBoolean(ani_env* env, ani_boolean status)
 {
     static constexpr const char* className = "Lstd/core/Boolean;";
     ani_class booleanCls {};
-    env->FindClass(className, &booleanCls);
+    if (env->FindClass(className, &booleanCls) != ANI_OK) {
+        WVLOG_E("createObjectBoolean failed - invalid FindClass type");
+        return nullptr;
+    }
     ani_method ctor {};
-    env->Class_FindMethod(booleanCls, "<ctor>", "z:", &ctor);
+    if (env->Class_FindMethod(booleanCls, "<ctor>", "z:", &ctor) != ANI_OK) {
+        WVLOG_E("createObjectBoolean findMethod Failed.");
+        return nullptr;
+    }
     ani_object obj {};
     if (env->Object_New(booleanCls, ctor, &obj, status) != ANI_OK) {
         WVLOG_E("createObjectBoolean failed");
@@ -140,7 +152,7 @@ ani_object createObjectBoolean(ani_env* env, ani_boolean status)
 
 static void HandleStatusChanged(ani_env* env, ani_object object, ani_enum_item status)
 {
-    WVLOG_I("handle_status_changed is called");
+    WVLOG_D("handle_status_changed is called");
 
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
@@ -167,13 +179,13 @@ static void HandleStatusChanged(ani_env* env, ani_object object, ani_enum_item s
         WVLOG_E("native media player handler is null");
         return;
     }
-    WVLOG_I("handle_status_changed is called, status is %{public}d", statusStr);
+    WVLOG_D("handle_status_changed is called, status is %{public}d", statusStr);
     handler->HandleStatusChanged(static_cast<PlaybackStatus>(statusStr));
 }
 
 static void HandleVolumeChanged(ani_env* env, ani_object object, ani_double volume)
 {
-    WVLOG_I("handle_volume_changed is called");
+    WVLOG_D("handle_volume_changed is called");
 
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
@@ -201,13 +213,13 @@ static void HandleVolumeChanged(ani_env* env, ani_object object, ani_double volu
         WVLOG_E("native media player handler is null");
         return;
     }
-    WVLOG_I("handle_volume_changed is called, volume is %{public}f", volumeStr);
+    WVLOG_D("handle_volume_changed is called, volume is %{public}f", volumeStr);
     handler->HandleVolumeChanged(volumeStr);
 }
 
 static void HandleMutedChanged(ani_env* env, ani_object object, ani_boolean muted)
 {
-    WVLOG_I("handle_muted_changed is called");
+    WVLOG_D("handle_muted_changed is called");
 
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
@@ -230,13 +242,13 @@ static void HandleMutedChanged(ani_env* env, ani_object object, ani_boolean mute
         WVLOG_E("native media player handler is null");
         return;
     }
-    WVLOG_I("handle_muted_changed is called, muted is %{public}d", mutedStr);
+    WVLOG_D("handle_muted_changed is called, muted is %{public}d", mutedStr);
     handler->HandleMutedChanged(mutedStr);
 }
 
 static void HandlePlaybackRateChanged(ani_env* env, ani_object object, ani_double playbackRate)
 {
-    WVLOG_I("handle_playback_rate_changed is called");
+    WVLOG_D("handle_playback_rate_changed is called");
 
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
@@ -264,13 +276,13 @@ static void HandlePlaybackRateChanged(ani_env* env, ani_object object, ani_doubl
         WVLOG_E("native media player handler is null");
         return;
     }
-    WVLOG_I("handle_playback_rate_changed is called, playbackRate is %{public}f", playbackRateStr);
+    WVLOG_D("handle_playback_rate_changed is called, playbackRate is %{public}f", playbackRateStr);
     handler->HandlePlaybackRateChanged(playbackRateStr);
 }
 
 static void HandleDurationChanged(ani_env* env, ani_object object, ani_double duration)
 {
-    WVLOG_I("handle_duration_changed is called");
+    WVLOG_D("handle_duration_changed is called");
 
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
@@ -298,13 +310,13 @@ static void HandleDurationChanged(ani_env* env, ani_object object, ani_double du
         WVLOG_E("native media player handler is null");
         return;
     }
-    WVLOG_I("handle_duration_changed is called, duration is %{public}f", durationStr);
+    WVLOG_D("handle_duration_changed is called, duration is %{public}f", durationStr);
     handler->HandleDurationChanged(durationStr);
 }
 
 static void HandleTimeUpdate(ani_env* env, ani_object object, ani_double currentPlayTime)
 {
-    WVLOG_I("handle_time_update is called");
+    WVLOG_D("handle_time_update is called");
 
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
@@ -332,13 +344,13 @@ static void HandleTimeUpdate(ani_env* env, ani_object object, ani_double current
         WVLOG_E("native media player handler is null");
         return;
     }
-    WVLOG_I("handle_time_update is called, currentPlayTime is %{public}f", currentPlayTimeStr);
+    WVLOG_D("handle_time_update is called, currentPlayTime is %{public}f", currentPlayTimeStr);
     handler->HandleTimeUpdate(currentPlayTimeStr);
 }
 
 static void HandleBufferedEndTimeChanged(ani_env* env, ani_object object, ani_double bufferedEndTime)
 {
-    WVLOG_I("handle_buffered_end_time_changed is called");
+    WVLOG_D("handle_buffered_end_time_changed is called");
 
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
@@ -366,13 +378,13 @@ static void HandleBufferedEndTimeChanged(ani_env* env, ani_object object, ani_do
         WVLOG_E("native media player handler is null");
         return;
     }
-    WVLOG_I("handle_buffered_end_time_changed is called, bufferedEndTime is %{public}f", bufferedEndTimeStr);
+    WVLOG_D("handle_buffered_end_time_changed is called, bufferedEndTime is %{public}f", bufferedEndTimeStr);
     handler->HandleBufferedEndTimeChanged(bufferedEndTimeStr);
 }
 
 static void HandleEnded(ani_env* env, ani_object object)
 {
-    WVLOG_I("handle_ended is called");
+    WVLOG_D("handle_ended is called");
 
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
@@ -389,7 +401,7 @@ static void HandleEnded(ani_env* env, ani_object object)
 
 static void HandleNetworkStateChanged(ani_env* env, ani_object object, ani_enum_item state)
 {
-    WVLOG_I("handle_network_state_changed is called");
+    WVLOG_D("handle_network_state_changed is called");
 
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
@@ -413,13 +425,13 @@ static void HandleNetworkStateChanged(ani_env* env, ani_object object, ani_enum_
         WVLOG_E("native media player handler is null");
         return;
     }
-    WVLOG_I("handle_network_state_changed is called, state is %{public}d", stateStr);
+    WVLOG_D("handle_network_state_changed is called, state is %{public}d", stateStr);
     handler->HandleNetworkStateChanged(static_cast<NetworkState>(stateStr));
 }
 
 static void HandleReadyStateChanged(ani_env* env, ani_object object, ani_enum_item state)
 {
-    WVLOG_I("handle_ready_state_changed is called");
+    WVLOG_D("handle_ready_state_changed is called");
 
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
@@ -443,13 +455,13 @@ static void HandleReadyStateChanged(ani_env* env, ani_object object, ani_enum_it
         WVLOG_E("native media player handler is null");
         return;
     }
-    WVLOG_I("handle_ready_state_changed is called, state is %{public}d", stateStr);
+    WVLOG_D("handle_ready_state_changed is called, state is %{public}d", stateStr);
     handler->HandleReadyStateChanged(static_cast<ReadyState>(stateStr));
 }
 
 static void HandleFullScreenChanged(ani_env* env, ani_object object, ani_boolean fullscreen)
 {
-    WVLOG_I("handle_full_screen_changed is called");
+    WVLOG_D("handle_full_screen_changed is called");
 
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
@@ -472,13 +484,13 @@ static void HandleFullScreenChanged(ani_env* env, ani_object object, ani_boolean
         WVLOG_E("native media player handler is null");
         return;
     }
-    WVLOG_I("handle_full_screen_changed is called, fullscreen is %{public}d", fullscreenStr);
+    WVLOG_D("handle_full_screen_changed is called, fullscreen is %{public}d", fullscreenStr);
     handler->HandleFullScreenChanged(fullscreenStr);
 }
 
 static void HandleSeeking(ani_env* env, ani_object object)
 {
-    WVLOG_I("handle_seeking is called");
+    WVLOG_D("handle_seeking is called");
 
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
@@ -495,7 +507,7 @@ static void HandleSeeking(ani_env* env, ani_object object)
 
 static void HandleSeekFinished(ani_env* env, ani_object object)
 {
-    WVLOG_I("handle_seek_finished is called");
+    WVLOG_D("handle_seek_finished is called");
 
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
@@ -512,7 +524,7 @@ static void HandleSeekFinished(ani_env* env, ani_object object)
 
 static void HandleError(ani_env* env, ani_object object, ani_enum_item error, ani_string errorMessage)
 {
-    WVLOG_I("handle_error is called");
+    WVLOG_D("handle_error is called");
 
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
@@ -543,14 +555,14 @@ static void HandleError(ani_env* env, ani_object object, ani_enum_item error, an
         WVLOG_E("native media player handler is null");
         return;
     }
-    WVLOG_I(
+    WVLOG_D(
         "handle_error is called, error is %{public}d, errorMessage is %{public}s", errorStr, errorMessageStr.c_str());
     handler->HandleError(static_cast<MediaError>(errorStr), errorMessageStr);
 }
 
 static void HandleVideoSizeChanged(ani_env* env, ani_object object, ani_double width, ani_double height)
 {
-    WVLOG_I("handle_video_size_changed is called");
+    WVLOG_D("handle_video_size_changed is called");
 
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
@@ -584,7 +596,7 @@ static void HandleVideoSizeChanged(ani_env* env, ani_object object, ani_double w
         WVLOG_E("native media player handler is null");
         return;
     }
-    WVLOG_I("handle_video_size_changed is called, width is %{public}f, height is %{public}f",
+    WVLOG_D("handle_video_size_changed is called, width is %{public}f, height is %{public}f",
         widthStr, heightStr);
     handler->HandleVideoSizeChanged(widthStr, heightStr);
 }

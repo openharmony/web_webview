@@ -119,20 +119,20 @@ struct SnapshotOptions {
 bool ParsePrepareUrl(ani_env* env, ani_ref urlObj, std::string& url)
 {
     if (AniParseUtils::ParseString(env, urlObj, url)) {
-        if (url.size() > URL_MAXIMUM) {
-            WVLOG_E("The URL exceeds the maximum length of %{public}d", URL_MAXIMUM);
-            return false;
-        }
-
-        if (!regex_match(url, std::regex(URL_REGEXPR, std::regex_constants::icase))) {
-            WVLOG_E("ParsePrepareUrl error");
-            return false;
-        }
-        return true;
+        WVLOG_E("urlObj convert to string failed");
+        return false;
     }
 
-    WVLOG_E("Unable to parse type from url object.");
-    return false;
+    if (url.size() > URL_MAXIMUM) {
+        WVLOG_E("The URL exceeds the maximum length of %{public}d", URL_MAXIMUM);
+        return false;
+    }
+
+    if (!regex_match(url, std::regex(URL_REGEXPR, std::regex_constants::icase))) {
+        WVLOG_E("ParsePrepareUrl error");
+        return false;
+    }
+    return true;
 }
 
 bool ParsePrepareRequestMethod(ani_env* env, ani_ref methodObj, std::string& method)
@@ -2796,7 +2796,10 @@ static ani_string GetSurfaceId(ani_env* env, ani_object object)
         return result;
     }
     std::string surfaceId = controller->GetSurfaceId();
-    env->String_NewUTF8(surfaceId.c_str(), surfaceId.size(), &result);
+    if (env->String_NewUTF8(surfaceId.c_str(), surfaceId.size(), &result) != ANI_OK) {
+        WVLOG_E("create ani_string failed");
+        return result;
+    }
     return result;
 }
 
@@ -3070,7 +3073,6 @@ static void PrefetchResource(ani_env* env, ani_object object, ani_object request
         return;
     }
     NWebHelper::Instance().PrefetchResource(prefetchArgs, additionalHttpHeadersObj, cacheKeyObj, cacheValidTimeObj);
-    return;
 }
 
 static void StartCamera(ani_env* env, ani_object object)
@@ -3090,7 +3092,6 @@ static void StartCamera(ani_env* env, ani_object object)
         AniBusinessError::ThrowErrorByErrCode(env, ret);
         return;
     }
-    return;
 }
 
 static void CloseAllMediaPresentations(ani_env* env, ani_object object)
@@ -3106,7 +3107,6 @@ static void CloseAllMediaPresentations(ani_env* env, ani_object object)
         return;
     }
     controller->CloseAllMediaPresentations();
-    return;
 }
 
 static void StopAllMedia(ani_env* env, ani_object object)
@@ -3122,7 +3122,6 @@ static void StopAllMedia(ani_env* env, ani_object object)
         return;
     }
     controller->StopAllMedia();
-    return;
 }
 
 static void StopCamera(ani_env* env, ani_object object)
@@ -3142,7 +3141,6 @@ static void StopCamera(ani_env* env, ani_object object)
         AniBusinessError::ThrowErrorByErrCode(env, ret);
         return;
     }
-    return;
 }
 
 static void CloseCamera(ani_env* env, ani_object object)
@@ -3162,7 +3160,6 @@ static void CloseCamera(ani_env* env, ani_object object)
         AniBusinessError::ThrowErrorByErrCode(env, ret);
         return;
     }
-    return;
 }
 
 static void PauseAllMedia(ani_env* env, ani_object object)
@@ -3178,7 +3175,6 @@ static void PauseAllMedia(ani_env* env, ani_object object)
         return;
     }
     controller->PauseAllMedia();
-    return;
 }
 
 static void ResumeAllMedia(ani_env* env, ani_object object)
@@ -3194,7 +3190,6 @@ static void ResumeAllMedia(ani_env* env, ani_object object)
         return;
     }
     controller->ResumeAllMedia();
-    return;
 }
 
 static void SetAudioMuted(ani_env* env, ani_object object,ani_boolean mute)
@@ -3214,7 +3209,6 @@ static void SetAudioMuted(ani_env* env, ani_object object,ani_boolean mute)
         AniBusinessError::ThrowErrorByErrCode(env, ret);
         return;
     }
-    return;
 }
 
 static ani_enum_item GetMediaPlaybackState(ani_env* env, ani_object object)
@@ -3226,7 +3220,10 @@ static ani_enum_item GetMediaPlaybackState(ani_env* env, ani_object object)
     }
     ani_int mediaPlaybackState = 0;
     ani_enum enumType;
-    env->FindEnum(ANI_ENUM_MEDIA_PLAY_BACK_STATE, &enumType);
+    if ((env->FindEnum(ANI_ENUM_MEDIA_PLAY_BACK_STATE, &enumType)) != ANI_OK) {
+        WVLOG_E("findEnum is error");
+        return nullptr;
+    }
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
     if (!controller || !controller->IsInit()) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
@@ -3234,7 +3231,10 @@ static ani_enum_item GetMediaPlaybackState(ani_env* env, ani_object object)
     }
     mediaPlaybackState = static_cast<ani_int>(controller->GetMediaPlaybackState());
     ani_enum_item state;
-    env->Enum_GetEnumItemByIndex(enumType, mediaPlaybackState, &state);
+    if ((env->Enum_GetEnumItemByIndex(enumType, mediaPlaybackState, &state)) != ANI_OK) {
+        WVLOG_E("getEnum is error");
+        return nullptr;
+    }
     return state;
 }
 
@@ -3246,7 +3246,10 @@ void OnCreateNativeMediaPlayer(ani_env* env, ani_object object, ani_fn_object ca
     }
 
     ani_vm *vm = nullptr;
-    env->GetVM(&vm);
+    if (env->GetVM(&vm) != ANI_OK) {
+        WVLOG_E("Failed to get VM from env");
+        return;
+    }
     g_vm = vm;
     WVLOG_D("put on_create_native_media_player callback");
 
@@ -3282,6 +3285,7 @@ bool ParseJsLengthResourceToInt(ani_env* env, ani_object jsLength, PixelUnit& ty
     }
     ani_double resIdDouble;
     if ((env->Object_GetPropertyByName_Double(jsLength, "id", &resIdDouble) != ANI_OK)) {
+        WVLOG_E("Object_GetPropertyByName_Double failed");
         return false;
     }
     int32_t resId = static_cast<int32_t>(resIdDouble);
@@ -3366,7 +3370,9 @@ static void JsErrorCallback(ani_env* env, ani_ref jsCallback, int32_t err)
     vec.push_back(jsError);
     vec.push_back(jsResult);
     ani_ref fnReturnVal;
-    env->FunctionalObject_Call(callbackFn, ani_size(RESULT_COUNT), vec.data(), &fnReturnVal);
+    if (env->FunctionalObject_Call(callbackFn, ani_size(RESULT_COUNT), vec.data(), &fnReturnVal) != ANI_OK) {
+        WVLOG_E("FunctionalObject_Call failed");
+    }
 }
 
 bool CreateSizeObject(ani_env* env, const char* className, ani_object& object, ani_int size)
@@ -3421,7 +3427,10 @@ WebSnapshotCallback CreateWebPageSnapshotResultCallback(
         } else {
             WVLOG_E("WebPageSnapshot create pixel map error");
         }
-        env->Object_SetPropertyByName_Ref(jsResult, "imagePixelMap", jsPixelMap);
+        if (env->Object_SetPropertyByName_Ref(jsResult, "imagePixelMap", jsPixelMap) != ANI_OK) {
+            WVLOG_E("Object_SetPropertyByName_Ref failed");
+            return;
+        }
         int returnJsWidth = 0;
         int returnJsHeight = 0;
         if (radio > 0) {
@@ -3466,10 +3475,14 @@ WebSnapshotCallback CreateWebPageSnapshotResultCallback(
             return;
         }
         ani_string jsId = nullptr;
-        env->String_NewUTF8(returnId, strlen(returnId), &jsId);
+        if (env->String_NewUTF8(returnId, strlen(returnId), &jsId) != ANI_OK) {
+            WVLOG_E("String_NewUTF8 failed");
+            return;
+        }
         env->Object_SetPropertyByName_Ref(jsResult, "id", jsId);
         ani_object jsStatus = {};
         if (!AniParseUtils::CreateBoolean(env, returnStatus, jsStatus)) {
+            WVLOG_E("CreateBoolean failed");
             return;
         }
         env->Object_SetPropertyByName_Ref(jsResult, "status", jsStatus);
@@ -3479,8 +3492,14 @@ WebSnapshotCallback CreateWebPageSnapshotResultCallback(
         vec.push_back(jsError);
         vec.push_back(jsResult);
         ani_fn_object callbackFn = static_cast<ani_fn_object>(jCallback);
-        env->FunctionalObject_Call(callbackFn, ani_size(RESULT_COUNT), vec.data(), &callbackResult);
-        env->GlobalReference_Delete(jCallback);
+        if (env->FunctionalObject_Call(callbackFn, ani_size(RESULT_COUNT), vec.data(), &callbackResult) != ANI_OK) {
+            WVLOG_E("execute callFunction failed");
+            return;
+        }
+        if (env->GlobalReference_Delete(jCallback) != ANI_OK) {
+            WVLOG_E("delete global Ref failed");
+            return;
+        }
         g_inWebPageSnapshot = false;
     };
 }
@@ -3496,7 +3515,10 @@ bool ParseSnapshotOptions(ani_env* env, ani_object info, SnapshotOptions& option
     ani_ref snapshotSizeWidth = nullptr;
     ani_ref snapshotSizeHeight = nullptr;
     if (env->Object_GetPropertyByName_Ref(info, "id", &snapshotId) == ANI_OK) {
-        AniParseUtils::ParseString(env, snapshotId, options.id);
+        if (!AniParseUtils::ParseString(env, snapshotId, options.id)) {
+            WVLOG_E("ParseString failed");
+            return false;
+        }
     }
     if (env->Object_GetPropertyByName_Ref(info, "size", &snapshotSize) == ANI_OK) {
         ani_object snapshotSizeObj = static_cast<ani_object>(snapshotSize);
@@ -3537,6 +3559,7 @@ static void WebPageSnapshot(ani_env* env, ani_object object, ani_object info, an
         return;
     }
     if (!AniParseUtils::IsFunction(env, callback)) {
+        WVLOG_E("callback is not function");
         return;
     }
     auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
@@ -3551,6 +3574,7 @@ static void WebPageSnapshot(ani_env* env, ani_object object, ani_object info, an
     g_inWebPageSnapshot = true;
     SnapshotOptions options;
     if (!ParseSnapshotOptions(env, info, options)) {
+        WVLOG_E("ParseSnapshotOptions failed");
         JsErrorCallback(env, std::move(callback), PARAM_CHECK_ERROR);
         g_inWebPageSnapshot = false;
         return;
@@ -4790,7 +4814,7 @@ WebPrintWriteResultCallback ParseWebPrintWriteResultCallback(ani_env* env, ani_o
         return nullptr;
     }
 
-    ani_ref callbackRef;
+    ani_ref callbackRef = nullptr;
 
     if (env->GlobalReference_Create(static_cast<ani_ref>(callback), &callbackRef) != ANI_OK) {
         WVLOG_E("failed to create reference for callback");
@@ -4803,7 +4827,7 @@ WebPrintWriteResultCallback ParseWebPrintWriteResultCallback(ani_env* env, ani_o
         if (env->String_NewUTF8(jobId.c_str(), jobId.size(), &jobIdString) == ANI_OK) {
             argv.push_back(static_cast<ani_ref>(jobIdString));
         }
-        ani_enum_item stateEnum;
+        ani_enum_item stateEnum = nullptr;
         if (AniParseUtils::GetEnumItemByIndex(
             env, "L@ohos/print/print/PrintFileCreationState;", static_cast<int32_t>(state), stateEnum)) {
             argv.push_back(static_cast<ani_ref>(stateEnum));
@@ -4851,7 +4875,7 @@ static void ParsePrintRangeAdapter(ani_env* env, ani_object pageRange, PrintAttr
     ani_size length = 0;
     env->Array_GetLength(pagesArrayInt, &length);
     for (uint32_t i = 0; i < length; ++i) {
-        ani_int pagesInt;
+        ani_int pagesInt = 0;
         env->Array_GetRegion_Int(pagesArrayInt, i, 1, &pagesInt);
         int pagesNum = static_cast<int>(pagesInt);
         printAttr.pageRange.pages.push_back(pagesNum);
@@ -5071,7 +5095,10 @@ static void HasImageCallback(ani_env* env, ani_object object, ani_fn_object call
         return;
     }
     ani_vm* vm = nullptr;
-    env->GetVM(&vm);
+    if (env->GetVM(&vm) != ANI_OK) {
+        WVLOG_E("Failed to get VM from env");
+        return;
+    }
     if (!vm) {
         WVLOG_E("vm is nullptr");
         return;
@@ -5110,7 +5137,10 @@ ani_object HasImagePromise(ani_env* env, ani_object object)
         return nullptr;
     }
     ani_vm* vm = nullptr;
-    env->GetVM(&vm);
+    if (env->GetVM(&vm) != ANI_OK) {
+        WVLOG_E("Failed to get VM from env");
+        return nullptr;
+    }
     if (!vm) {
         WVLOG_E("vm is nullptr");
         return nullptr;
