@@ -152,6 +152,7 @@ static bool LoadComponentGlobalAPI()
 static bool LoadControllerAPI()
 {
     if (g_ControllerImpl) {
+        WVLOG_D("NativeArkWeb controller api already loaded");
         return true;
     }
     g_ControllerImpl = new (std::nothrow) ArkWeb_ControllerAPI();
