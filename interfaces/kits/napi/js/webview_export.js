@@ -283,7 +283,9 @@ function fileSelectorListItem(callback, sysResource, text, func) {
       right: 16
     });
     Row.create();
-    Row.width(deviceinfo.deviceType.toLowerCase() === '2in1' ? 312 : 240);
+    Row.margin({
+      right: 36
+    });
     Row.border({ width: { bottom: 0.5 }, color: '#33000000' });
     Text.create(text);
     Text.fontSize(16);
@@ -293,6 +295,7 @@ function fileSelectorListItem(callback, sysResource, text, func) {
       top: 13,
       bottom: 13
     });
+    Text.width('100%');
     Text.pop();
     Row.pop();
     Row.pop();
@@ -328,7 +331,6 @@ function fileSelectorDialog(callback) {
 function fileSelectorDialogForPC(callback) {
   Column.create();
   Column.height(272);
-  Column.width(400);
   fileSelectorDialog(callback);
   Row.create();
   Row.onClick(() => {
@@ -343,7 +345,7 @@ function fileSelectorDialogForPC(callback) {
       console.error(`closeCustomDialog error code is ${code}, message is ${message}`);
     }
   });
-  Row.width(368);
+  Row.width('92%');
   Row.height(40);
   Row.margin(16);
   Row.borderRadius(5);
