@@ -1008,7 +1008,7 @@ HWTEST_F(NwebHelperTest, NWebHelper_SetSocketIdleTimeout_002, TestSize.Level1)
 {
     int32_t nweb_id = 1;
     auto nwebHelper = NWebHelper::Instance().GetNWeb(nweb_id);
-    auto nwebengineMock = std::make_shared<MockNWebEngine>();
+    auto nwebEngineMock = std::make_shared<MockNWebEngine>();
     NWebHelper::Instance().nwebEngine_ = nwebEngineMock;
     EXPECT_NE(NWebHelper::Instance().nwebEngine_, nullptr);
 
