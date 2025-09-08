@@ -162,6 +162,10 @@ public:
 
     SiteIsolationMode GetSiteIsolationMode();
 
+    void SetSocketIdleTimeout(int32_t timeout);
+
+    int32_t GetSocketIdleTimeout();
+
 private:
     NWebHelper() = default;
     bool GetWebEngine(bool fromArk);
@@ -169,6 +173,7 @@ private:
 
 private:
     int coreApiLevel_ = 0;
+    int32_t socketIdleTimeout_ = 300;
     bool initFlag_ = false;
     bool autoPreconnectEnabled_ = true;
     std::string bundlePath_;
