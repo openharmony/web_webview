@@ -332,7 +332,7 @@ public:
                                      const std::string &url, const std::string &script,
                                      std::shared_ptr<CacheOptions> cacheOptions);
 
-    int32_t PrecompileJavaScript(std::string url, std::string script,
+    int32_t PrecompileJavaScript(const std::string& url, const std::string& script,
         std::shared_ptr<OHOS::NWeb::CacheOptions> cacheOptions,
         std::shared_ptr<OHOS::NWeb::NWebMessageValueCallback> callbackImpl);
 

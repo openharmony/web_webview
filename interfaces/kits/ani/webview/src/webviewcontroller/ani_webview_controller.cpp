@@ -141,20 +141,20 @@ struct Scheme {
 bool ParsePrepareUrl(ani_env* env, ani_ref urlObj, std::string& url)
 {
     if (AniParseUtils::ParseString(env, urlObj, url)) {
-        if (url.size() > URL_MAXIMUM) {
-            WVLOG_E("The URL exceeds the maximum length of %{public}d", URL_MAXIMUM);
-            return false;
-        }
-
-        if (!regex_match(url, std::regex(URL_REGEXPR, std::regex_constants::icase))) {
-            WVLOG_E("ParsePrepareUrl error");
-            return false;
-        }
-        return true;
+        WVLOG_E("urlObj convert to string failed");
+        return false;
     }
 
-    WVLOG_E("Unable to parse type from url object.");
-    return false;
+    if (url.size() > URL_MAXIMUM) {
+        WVLOG_E("The URL exceeds the maximum length of %{public}d", URL_MAXIMUM);
+        return false;
+    }
+
+    if (!regex_match(url, std::regex(URL_REGEXPR, std::regex_constants::icase))) {
+        WVLOG_E("ParsePrepareUrl error");
+        return false;
+    }
+    return true;
 }
 
 bool ParsePrepareRequestMethod(ani_env* env, ani_ref methodObj, std::string& method)
@@ -3599,7 +3599,6 @@ static void PrefetchResource(ani_env* env, ani_object object, ani_object request
         return;
     }
     NWebHelper::Instance().PrefetchResource(prefetchArgs, additionalHttpHeadersObj, cacheKeyObj, cacheValidTimeObj);
-    return;
 }
 
 static void StartCamera(ani_env* env, ani_object object)

@@ -1557,12 +1557,13 @@ void WebviewController::PrecompileJavaScriptPromise(
     nweb_ptr->PrecompileJavaScript(url, script, cacheOptions, callbackImpl);
 }
 
-int32_t WebviewController::PrecompileJavaScript(std::string url, std::string script,
+int32_t WebviewController::PrecompileJavaScript(const std::string& url, const std::string& script,
     std::shared_ptr<OHOS::NWeb::CacheOptions> cacheOptions,
     std::shared_ptr<OHOS::NWeb::NWebMessageValueCallback> callbackImpl)
 {
     WVLOG_D("PrecompDleJavaScript begin");
     if (url.empty() || script.empty()) {
+        WVLOG_E("url or script is empty");
         return NWebError::PARAM_CHECK_ERROR;
     }
     if (!callbackImpl) {
@@ -1572,6 +1573,7 @@ int32_t WebviewController::PrecompileJavaScript(std::string url, std::string scr
 
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
     if (!nweb_ptr) {
+        WVLOG_E("nweb_ptr is null");
         return NWebError::INIT_ERROR;
     }
     nweb_ptr->PrecompileJavaScript(url, script, cacheOptions, callbackImpl);
