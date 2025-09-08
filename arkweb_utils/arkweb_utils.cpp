@@ -494,7 +494,7 @@ int DlcloseArkWebLib()
 
     void* webEngineHandle = dlopen_ns(&dlns, LIB_ARKWEB_ENGINE.c_str(), RTLD_NOW | RTLD_NOLOAD);
     if (!webEngineHandle) {
-        WVLOG_E("FAILED to find %{public}s", LIB_ARKWEB_ENGINE.c_str(), dlerror());
+        WVLOG_E("FAILED to find %{public}s, error: %{public}s", LIB_ARKWEB_ENGINE.c_str(), dlerror());
         return 0;
     }
 
