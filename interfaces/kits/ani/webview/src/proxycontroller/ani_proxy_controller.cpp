@@ -159,17 +159,25 @@ ani_status StsProxyControllerInit(ani_env *env)
         WVLOG_E("find %{public}s class failed, status: %{public}d", WEB_PROXY_CONTROLLER_CLASS_NAME, status);
         return ANI_ERROR;
     }
-    std::array allMethods = {
+
+    std::array instanceMethods = {
         ani_native_function { "<ctor>", nullptr, reinterpret_cast<void*>(JsConstructor) },
+    };
+    status = env->Class_BindNativeMethods(proxyControllerCls, instanceMethods.data(), instanceMethods.size());
+    if (status != ANI_OK) {
+        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+        return status;
+    }
+
+    std::array staticMethods = {
         ani_native_function { "applyProxyOverride", nullptr, reinterpret_cast<void *>(JsApplyProxyOverride) },
         ani_native_function { "removeProxyOverride", nullptr, reinterpret_cast<void *>(JsRemoveProxyOverride) },
     };
-
-    status = env->Class_BindNativeMethods(proxyControllerCls, allMethods.data(), allMethods.size());
+    status = env->Class_BindStaticNativeMethods(proxyControllerCls, staticMethods.data(), staticMethods.size());
     if (status != ANI_OK) {
-        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+        WVLOG_E("Class_BindStaticNativeMethods failed status: %{public}d", status);
     }
-    return ANI_OK;
+    return status;
 }
 
 
