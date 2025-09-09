@@ -60,7 +60,7 @@ using namespace NWebError;
 using NWebError::NO_ERROR;
 
 namespace {
-constexpr uint32_t URL_MAXIMUM = 2048;
+constexpr uint32_t URL_MAXIMUM = 2 * 1024 * 1024;
 constexpr int32_t MAX_WAIT_FOR_ATTACH_TIMEOUT = 300000;
 constexpr uint32_t SOCKET_MAXIMUM = 6;
 constexpr char URL_REGEXPR[] = "^http(s)?:\\/\\/.+";

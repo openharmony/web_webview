@@ -59,7 +59,7 @@ const std::string MODULE_NAME_PREFIX = "moduleName:";
 namespace OHOS {
 namespace NWeb {
 namespace {
-constexpr uint32_t URL_MAXIMUM = 2048;
+constexpr uint32_t URL_MAXIMUM = 2 * 1024 * 1024;
 const std::string EVENT_CONTROLLER_ATTACH_STATE_CHANGE = "controllerAttachStateChange";
 const std::string EVENT_WAIT_FOR_ATTACH = "waitForAttach";
 
