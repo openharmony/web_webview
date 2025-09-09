@@ -90,6 +90,10 @@ ARKWEB_EXPORT void PreloadArkWebLibForBrowser();
 ARKWEB_EXPORT void LogForUnsupportedFunc(ArkWebEngineVersion version, const char* msg);
 
 ARKWEB_EXPORT void* ArkWebBridgeHelperSharedInit(bool runMode = true);
+
+ARKWEB_EXPORT void DlopenArkWebLib();
+ARKWEB_EXPORT int DlcloseArkWebLib();
+
 } // namespace OHOS::ArkWeb
 
 #endif // WEB_WEBVIEW_ARKWEB_UTILS_ARKWEB_UTILS_H

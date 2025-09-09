@@ -400,8 +400,7 @@ DecoderAdapterCode MediaCodecDecoderAdapterImpl::ReleaseOutputBufferDec(uint32_t
         WVLOG_E("MediaCodecDecoder release buffer[%{public}u] fail.", index);
         return DecoderAdapterCode::DECODER_ERROR;
     }
-    std::unique_lock<std::mutex> lock(bufferMutex_);
-    bufferMap_.erase(index);
+
     return DecoderAdapterCode::DECODER_OK;
 }
 

@@ -124,10 +124,8 @@ void LoadSchemeHandlerApi(SchemeHandlerApi* api)
 bool EnsureSdkLoaded()
 {
     if (g_SchemeHandlerApi) {
-        WVLOG_I("SchemeHandlerApi had loaded.");
         return true;
     }
-
     auto* schemeHandlerApi = new (std::nothrow) SchemeHandlerApi();
     if (schemeHandlerApi == nullptr) {
         WVLOG_I("schemeHandlerApi is nullptr.");
@@ -135,6 +133,7 @@ bool EnsureSdkLoaded()
     }
     LoadSchemeHandlerApi(schemeHandlerApi);
     g_SchemeHandlerApi = schemeHandlerApi;
+    WVLOG_I("SchemeHandlerApi had loaded.");
     return true;
 }
 #undef FOR_EACH_API_FN

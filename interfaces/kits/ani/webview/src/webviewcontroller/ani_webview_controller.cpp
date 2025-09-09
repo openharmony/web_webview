@@ -68,6 +68,9 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
+constexpr int32_t MIN_SOCKET_IDLE_TIMEOUT = 30;
+constexpr int32_t MAX_SOCKET_IDLE_TIMEOUT = 300;
+
 bool ParseResourceRawfileUrl(ani_env *env, const ani_object& object, std::string& fileName)
 {
     ani_ref paramsRef;
@@ -1379,6 +1382,18 @@ static void InnerCompleteWindowNew(ani_env* env, ani_object object, ani_int pare
     controller->InnerCompleteWindowNew(parentNWebId);
 }
 
+static void SetSocketIdleTimeout(ani_env* env, ani_object object, ani_int timeout)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    int32_t socketIdleTimeout =
+        std::clamp(static_cast<int32_t>(timeout), MIN_SOCKET_IDLE_TIMEOUT, MAX_SOCKET_IDLE_TIMEOUT);
+    NWebHelper::Instance().SetSocketIdleTimeout(socketIdleTimeout);
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     if (env == nullptr) {
@@ -1436,6 +1451,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "clearHistory", nullptr, reinterpret_cast<void *>(ClearHistory) },
         ani_native_function { "clearWebSchemeHandler", nullptr, reinterpret_cast<void *>(ClearWebSchemeHandler) },
         ani_native_function { "innerCompleteWindowNew", nullptr, reinterpret_cast<void *>(InnerCompleteWindowNew) },
+        ani_native_function { "setSocketIdleTimeout", nullptr, reinterpret_cast<void *>(SetSocketIdleTimeout) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());

@@ -125,6 +125,8 @@ public:
 
     ArkWebSiteIsolationMode GetSiteIsolationMode() override;
 
+    void SetSocketIdleTimeout(int32_t timeout) override;
+
 private:
     ArkWebRefPtr<ArkWebEngine> ark_web_engine_;
 };
