@@ -1316,6 +1316,12 @@ public:
      *
      */
     virtual void OnNativeEmbedObjectParamChange(std::shared_ptr<NWebNativeEmbedParamDataInfo> paramDataInfo) {}
+
+    /**
+     * @brief Called when received website security risk check finish.
+     * @param threat_type The threat type of website.
+     */
+    virtual void OnSafeBrowsingCheckFinish(int threat_type) {}
 };
 
 } // namespace OHOS::NWeb

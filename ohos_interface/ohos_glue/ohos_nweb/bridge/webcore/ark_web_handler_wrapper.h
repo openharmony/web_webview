@@ -768,6 +768,13 @@ public:
      */
     void OnNativeEmbedObjectParamChange(
         std::shared_ptr<OHOS::NWeb::NWebNativeEmbedParamDataInfo> paramDataInfo) override;
+
+    /**
+     * @brief Called when received website security risk check finish.
+     *
+     * @param threat_type The threat type of website.
+     */
+    void OnSafeBrowsingCheckFinish(int threat_type) override;
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };
