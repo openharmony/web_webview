@@ -732,11 +732,19 @@ public:
     void OnNativeEmbedObjectParamChange(ArkWebRefPtr<ArkWebNativeEmbedParamDataInfo> data_info) override;
 
     /**
+     * @brief Called when received website security risk check finish.
+     *
+     * @param threat_type The threat type of website.
+     */
+    void OnSafeBrowsingCheckFinish(int threat_type) override;
+
+    /**
      * @brief Triggered when the webExtensions-native host connection terminates.
      *
      * @param connectId The id of the connection.
      */
     void OnExtensionDisconnect(int32_t connectId) override;
+
     /**
      * @brief Initiates webExtensions-native messaging requests and handles corresponding callbacks
      *
@@ -746,7 +754,6 @@ public:
      */
     ArkWebString OnWebNativeMessage(
         ArkWebRefPtr<ArkWebRuntimeConnectInfo> info, ArkWebRefPtr<ArkWebNativeMessageCallback> callback) override;
-
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };

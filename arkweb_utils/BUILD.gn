@@ -25,6 +25,7 @@ ohos_shared_library("libarkweb_utils") {
 
   sources = [
     "arkweb_utils.cpp",
+    "arkweb_preload.cpp",
   ]
 
   cflags = [
@@ -46,10 +47,15 @@ ohos_shared_library("libarkweb_utils") {
     defines += [ "webview_x86_64" ]
   }
 
+  if (asan_detector || is_asan) {
+    defines += [ "ASAN_DETECTOR" ]
+  }
+
   external_deps = [
     "init:libbegetutil",
     "hilog:libhilog",
     "jsoncpp:jsoncpp",
+    "ace_engine:ace_forward_compatibility",
   ]
 
   include_dirs = [

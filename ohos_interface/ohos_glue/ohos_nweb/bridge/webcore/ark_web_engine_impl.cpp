@@ -327,4 +327,9 @@ int32_t ArkWebEngineImpl::GetSiteIsolationMode()
     return static_cast<int32_t>(nweb_engine_->GetSiteIsolationMode());
 }
 
+void ArkWebEngineImpl::SetSocketIdleTimeout(int32_t timeout)
+{
+    nweb_engine_->SetSocketIdleTimeout(timeout);
+}
+
 } // namespace OHOS::ArkWeb

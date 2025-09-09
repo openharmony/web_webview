@@ -1296,6 +1296,11 @@ void ArkWebHandlerWrapper::OnNativeEmbedObjectParamChange(
     ark_web_handler_->OnNativeEmbedObjectParamChange(new ArkWebNativeEmbedParamDataInfoImpl(paramDataInfo));
 }
 
+void ArkWebHandlerWrapper::OnSafeBrowsingCheckFinish(int threat_type)
+{
+    ark_web_handler_->OnSafeBrowsingCheckFinish(threat_type);
+}
+
 void ArkWebHandlerWrapper::OnExtensionDisconnect(int32_t connectId)
 {
     ark_web_handler_->OnExtensionDisconnect(connectId);

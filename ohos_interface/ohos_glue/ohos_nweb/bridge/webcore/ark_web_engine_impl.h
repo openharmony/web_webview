@@ -124,6 +124,8 @@ public:
 
     int32_t GetSiteIsolationMode() override;
 
+    void SetSocketIdleTimeout(int32_t timeout) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebEngine> nweb_engine_;
 };

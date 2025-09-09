@@ -189,6 +189,7 @@ export default namespace webview {
         native clearHistory(): void;
         native clearWebSchemeHandler(): void;
         native innerCompleteWindowNew(parentNwebId:int): void;
+        native setSocketIdleTimeout(timeout: int): void;
         innerGetThisVar(): long {
             return this.nativePtr;
         }

@@ -1066,12 +1066,21 @@ public:
     virtual void OnNativeEmbedObjectParamChange(ArkWebRefPtr<ArkWebNativeEmbedParamDataInfo> data_info) = 0;
 
     /**
+     * @brief Called when received website security risk check finish.
+     *
+     * @param threat_type The threat type of website.
+     */
+    /*--ark web()--*/
+    virtual void OnSafeBrowsingCheckFinish(int threat_type) = 0;
+
+    /**
      * @brief Triggered when the webExtensions-native host connection terminates.
      *
      * @param connectId The id of the connection.
      */
     /*--ark web()--*/
     virtual void OnExtensionDisconnect(int32_t connectId) = 0;
+
     /**
      * @brief Initiates webExtensions-native messaging requests and handles corresponding callbacks
      *

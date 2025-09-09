@@ -753,6 +753,8 @@ bool NWebHelper::InitWebEngine()
         initArgs->AddArg(std::string("--disable-auto-preconnect"));
     }
 
+    initArgs->AddArg(std::string("--socket-idle-timeout=").append(std::to_string(socketIdleTimeout_)));
+
     nwebEngine_->InitializeWebEngine(initArgs);
     initFlag_ = true;
 
@@ -1230,6 +1232,8 @@ std::shared_ptr<NWeb> NWebAdapterHelper::CreateNWeb(sptr<Surface> surface,
     if (!NWebHelper::Instance().IsAutoPreconnectEnabled()) {
         initArgs->AddArg(std::string("--disable-auto-preconnect"));
     }
+    std::string socketIdleTimeout = std::to_string(NWebHelper::Instance().GetSocketIdleTimeout());
+    initArgs->AddArg(std::string("--socket-idle-timeout=").append(socketIdleTimeout));
     auto createInfo = NWebSurfaceAdapter::Instance().GetCreateInfo(surface, initArgs, width, height, incognitoMode);
     NWebConfigHelper::Instance().ParseConfig(initArgs);
 
@@ -1268,6 +1272,8 @@ std::shared_ptr<NWeb> NWebAdapterHelper::CreateNWeb(void* enhanceSurfaceInfo,
     if (!NWebHelper::Instance().IsAutoPreconnectEnabled()) {
         initArgs->AddArg(std::string("--disable-auto-preconnect"));
     }
+    std::string socketIdleTimeout = std::to_string(NWebHelper::Instance().GetSocketIdleTimeout());
+    initArgs->AddArg(std::string("--socket-idle-timeout=").append(socketIdleTimeout));
     auto createInfo =
         NWebEnhanceSurfaceAdapter::Instance().GetCreateInfo(enhanceSurfaceInfo, initArgs, width, height, incognitoMode);
     auto nweb = NWebHelper::Instance().CreateNWeb(createInfo);
@@ -1383,6 +1389,22 @@ void NWebHelper::SetAutoPreconnect(bool enable)
 bool NWebHelper::IsAutoPreconnectEnabled()
 {
     return autoPreconnectEnabled_;
+}
+
+void NWebHelper::SetSocketIdleTimeout(int32_t timeout)
+{
+    if (nwebEngine_ == nullptr) {
+        WVLOG_E("web engine is nullptr");
+        socketIdleTimeout_ = timeout;
+        return;
+    }
+
+    nwebEngine_->SetSocketIdleTimeout(timeout);
+}
+
+int32_t NWebHelper::GetSocketIdleTimeout()
+{
+    return socketIdleTimeout_;
 }
 
 } // namespace OHOS::NWeb
