@@ -246,7 +246,7 @@ static ani_string JsGetStatusText(ani_env* env, ani_object object)
     return statusText;
 }
 
-static void JsSetStatus(ani_env* env, ani_object object, ani_double statusValue)
+static void JsSetStatus(ani_env* env, ani_object object, ani_int statusValue)
 {
     WVLOG_D("WebSchemeHandlerResponse JsSetStatus.");
     if (env == nullptr) {
@@ -258,13 +258,13 @@ static void JsSetStatus(ani_env* env, ani_object object, ani_double statusValue)
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
-    schemeHandler->SetStatus(static_cast<double>(statusValue));
+    schemeHandler->SetStatus(static_cast<int32_t>(statusValue));
 }
 
-static ani_double JsGetStatus(ani_env* env, ani_object object)
+static ani_int JsGetStatus(ani_env* env, ani_object object)
 {
     WVLOG_D("WebSchemeHandlerResponse JsGetStatus.");
-    ani_double result = 0;
+    ani_int result = 0;
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return result;
@@ -274,8 +274,8 @@ static ani_double JsGetStatus(ani_env* env, ani_object object)
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return result;
     }
-    double value = schemeHandler->GetStatus();
-    result = static_cast<ani_double>(value);
+
+    result = static_cast<ani_int>(schemeHandler->GetStatus());
     return result;
 }
 
