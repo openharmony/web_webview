@@ -18,6 +18,7 @@
 #include <gmock/gmock.h>
 #include <securec.h>
 #include <unordered_map>
+#include "hilog/log.h"
 
 #define private public
 #include "nweb.h"
@@ -45,6 +46,15 @@ const uint32_t MAX_URLS_COUNT = 100;
 const std::string INSTALLATION_DIR = "/data/app/el1/bundle/public/com.ohos.arkwebcore";
 std::shared_ptr<AbilityRuntime::ApplicationContext> g_applicationContext = nullptr;
 } // namespace
+
+namespace {
+    std::string g_errlog;
+    void MyLogCallback(const LogType type, const LogLevel level, const unsigned int domain, const char* tag,
+        const char* msg)
+    {
+        g_errlog += msg;
+    }
+}
 
 namespace AbilityRuntime {
 std::shared_ptr<ApplicationContext> Context::GetApplicationContext()
@@ -920,11 +930,18 @@ HWTEST_F(NwebHelperTest, NWebHelper_EnablePrivateNetworkAccess_001, TestSize.Lev
     auto nwebHelper = NWebHelper::Instance().GetNWeb(nweb_id);
     EXPECT_EQ(nwebHelper, nullptr);
 
+    g_errlog.clear();
+    LOG_SetCallback(MyLogCallback);
+    NWebHelper::Instance().nwebEngine_ = nullptr;
+    NWebHelper::Instance().EnablePrivateNetworkAccess(true);
+    EXPECT_TRUE(g_errlog.find("web engine is nullptr") != std::string::npos);
+
     auto nwebengineMock = std::make_shared<MockNWebEngine>();
     NWebHelper::Instance().nwebEngine_ = nwebengineMock;
     NWebHelper::Instance().EnablePrivateNetworkAccess(true);
     NWebHelper::Instance().EnablePrivateNetworkAccess(false);
     EXPECT_NE(NWebHelper::Instance().nwebEngine_, nullptr);
+    LOG_SetCallback(nullptr);
 }
 
 /**
@@ -939,10 +956,17 @@ HWTEST_F(NwebHelperTest, NWebHelper_IsPrivateNetworkAccessEnabled_001, TestSize.
     auto nwebHelper = NWebHelper::Instance().GetNWeb(nweb_id);
     EXPECT_EQ(nwebHelper, nullptr);
 
+    g_errlog.clear();
+    LOG_SetCallback(MyLogCallback);
+    NWebHelper::Instance().nwebEngine_ = nullptr;
+    NWebHelper::Instance().IsPrivateNetworkAccessEnabled();
+    EXPECT_TRUE(g_errlog.find("web engine is nullptr") != std::string::npos);
+
     auto nwebengineMock = std::make_shared<MockNWebEngine>();
     NWebHelper::Instance().nwebEngine_ = nwebengineMock;
     NWebHelper::Instance().IsPrivateNetworkAccessEnabled();
     EXPECT_NE(NWebHelper::Instance().nwebEngine_, nullptr);
+    LOG_SetCallback(nullptr);
 }
 
 /**
@@ -1030,6 +1054,60 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetSocketIdleTimeout_001, TestSize.Level1)
 
     NWebHelper::Instance().SetSocketIdleTimeout(100);
     EXPECT_EQ(NWebHelper::Instance().GetSocketIdleTimeout(), 100);
+}
+
+/**
+ * @tc.name: NWebHelper_CreateNWeb
+ * @tc.desc: CreateNWeb
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_CreateNWeb, TestSize.Level1)
+{
+    g_errlog.clear();
+    LOG_SetCallback(MyLogCallback); 
+    RSSurfaceNodeConfig config;
+    config.SurfaceNodeName = "webTestSurfaceName";
+    auto surfaceNode = RSSurfaceNode::Create(config, false);
+    ASSERT_NE(surfaceNode, nullptr);
+    sptr<Surface> surPtr = surfaceNode->GetSurface();
+    ASSERT_NE(surPtr, nullptr);
+    ASSERT_NE(GetInitArgs(), nullptr);
+    uint32_t width = 7880;
+    uint32_t height = 7880;
+    std::shared_ptr<NWeb> nweb = 
+        NWebAdapterHelper::Instance().CreateNWeb(surPtr, GetInitArgs(), width, height);
+    EXPECT_TRUE(g_errlog.find("is invalid") != std::string::npos);
+    EXPECT_EQ(nweb, nullptr);
+
+    g_errlog.clear();
+    width = 780;
+    nweb = NWebAdapterHelper::Instance().CreateNWeb(surPtr, GetInitArgs(), width, height);
+    EXPECT_TRUE(g_errlog.find("is invalid") != std::string::npos);
+    EXPECT_EQ(nweb, nullptr);
+
+    g_errlog.clear();
+    width = 7880;
+    height = 780;
+    nweb = NWebAdapterHelper::Instance().CreateNWeb(surPtr, GetInitArgs(), width, height);
+    EXPECT_TRUE(g_errlog.find("is invalid") != std::string::npos);
+    EXPECT_EQ(nweb, nullptr);
+
+    g_errlog.clear();
+    bool ret = NWebHelper::Instance().autoPreconnectEnabled_;
+    width = 780;
+    height = 780;
+    NWebHelper::Instance().autoPreconnectEnabled_ = false;
+    nweb = NWebAdapterHelper::Instance().CreateNWeb(surPtr, GetInitArgs(), width, height);
+    EXPECT_FALSE(g_errlog.find("is invalid") != std::string::npos);
+
+    g_errlog.clear();
+    NWebHelper::Instance().autoPreconnectEnabled_ = true;
+    nweb = NWebAdapterHelper::Instance().CreateNWeb(surPtr, GetInitArgs(), width, height);
+    EXPECT_FALSE(g_errlog.find("is invalid") != std::string::npos);
+
+    NWebHelper::Instance().autoPreconnectEnabled_ = ret;
+    LOG_SetCallback(nullptr);
 }
 } // namespace OHOS::NWeb
 }
