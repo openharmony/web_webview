@@ -283,9 +283,7 @@ function fileSelectorListItem(callback, sysResource, text, func) {
       right: 16
     });
     Row.create();
-    Row.margin({
-      right: 36
-    });
+    Row.margin({ right: 36 });
     Row.border({ width: { bottom: 0.5 }, color: '#33000000' });
     Text.create(text);
     Text.fontSize(16);
