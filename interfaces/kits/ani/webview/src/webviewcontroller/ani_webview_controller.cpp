@@ -138,6 +138,37 @@ struct Scheme {
     int32_t option = 0;
 };
 
+ani_ref g_intCls {};
+
+ani_method unboxInt {};
+
+template<typename T>
+ani_status unbox(ani_env *env, ani_object obj, T *result)
+{
+    return ANI_INVALID_TYPE;
+}
+
+template<>
+ani_status unbox<ani_int>(ani_env *env, ani_object obj, ani_int *result)
+{
+    if (g_intCls == nullptr) {
+        ani_class intCls {};
+        auto status = env->FindClass("std.core.Intrger", &intCls);
+        if (status != ANI_OK) {
+            return status;
+        }
+        status = env->GlobalReference_Create(intCls, &g_intCls);
+        if (status != ANI_OK) {
+            return status;
+        }
+        status = env->Class_FindMethod(intCls,"unboxed", ":i", &unboxInt);
+        if (status != ANI_OK) {
+            return status;
+        }
+    }
+    return env->Object_CallMethod_Int(obj, unboxInt, result);
+}
+
 bool ParsePrepareUrl(ani_env* env, ani_ref urlObj, std::string& url)
 {
     if (AniParseUtils::ParseString(env, urlObj, url)) {
@@ -5820,7 +5851,7 @@ static void ParsePrintRangeAdapter(ani_env* env, ani_object pageRange, PrintAttr
     if (env->Object_GetPropertyByName_Ref(pageRange, "pages", &pages) != ANI_OK) {
         WVLOG_E("ParsePrintRangeAdapter failed to get pages");
     }
-    ani_array_int pagesArrayInt = static_cast<ani_array_int>(pages);
+    ani_array pagesArrayInt = static_cast<ani_array>(pages);
 
     printAttr.pageRange.startPage = static_cast<int>(startPage);
 
@@ -5832,7 +5863,15 @@ static void ParsePrintRangeAdapter(ani_env* env, ani_object pageRange, PrintAttr
     env->Array_GetLength(pagesArrayInt, &length);
     for (uint32_t i = 0; i < length; ++i) {
         ani_int pagesInt = 0;
-        env->Array_GetRegion_Int(pagesArrayInt, i, 1, &pagesInt);
+        ani_ref intRef {};
+        auto status = env->Array_Get(pagesArrayInt, i, &intRef);
+        if (status != ANI_OK) {
+            WVLOG_E("Array_Get failed, status: %{public}d", status);
+        }
+        status = unbox(env, static_cast<ani_object>(intRef), &pagesInt);
+        if (status != ANI_OK) {
+            WVLOG_E("Unbox failed, status: %{public}d", status);
+        }
         int pagesNum = static_cast<int>(pagesInt);
         printAttr.pageRange.pages.push_back(pagesNum);
     }
