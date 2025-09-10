@@ -1050,8 +1050,11 @@ ErrCode WebviewController::HasImagesCallback(ani_vm *vm, ani_ref jsCallback)
     }
 
     auto callbackImpl = std::make_shared<WebviewHasImageCallback>(vm, jsCallback, nullptr);
-    nweb_ptr->HasImages(callbackImpl);
-    return NWebError::NO_ERROR;
+    if (callbackImpl) {
+        nweb_ptr->HasImages(callbackImpl);
+        return NWebError::NO_ERROR;
+    }
+    return NWebError::PARAM_CHECK_ERROR;
 }
 
 ErrCode WebviewController::HasImagesPromise(ani_vm *vm, ani_resolver deferred)
@@ -1085,8 +1088,11 @@ ErrCode WebviewController::HasImagesPromise(ani_vm *vm, ani_resolver deferred)
     }
 
     auto callbackImpl = std::make_shared<WebviewHasImageCallback>(vm, nullptr, deferred);
-    nweb_ptr->HasImages(callbackImpl);
-    return NWebError::NO_ERROR;
+    if (callbackImpl) {
+        nweb_ptr->HasImages(callbackImpl);
+        return NWebError::NO_ERROR;
+    }
+    return NWebError::PARAM_CHECK_ERROR;
 }
 
 void WebviewController::RemoveCache(bool includeDiskFiles)

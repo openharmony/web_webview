@@ -3770,7 +3770,10 @@ static ani_enum_item GetMediaPlaybackState(ani_env* env, ani_object object)
     }
     ani_int mediaPlaybackState = 0;
     ani_enum enumType;
-    env->FindEnum(ANI_ENUM_MEDIA_PLAY_BACK_STATE, &enumType);
+    if ((env->FindEnum(ANI_ENUM_MEDIA_PLAY_BACK_STATE, &enumType)) != ANI_OK) {
+        WVLOG_E("findEnum is error");
+        return nullptr;
+    }
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
     if (!controller || !controller->IsInit()) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
@@ -3778,7 +3781,10 @@ static ani_enum_item GetMediaPlaybackState(ani_env* env, ani_object object)
     }
     mediaPlaybackState = static_cast<ani_int>(controller->GetMediaPlaybackState());
     ani_enum_item state;
-    env->Enum_GetEnumItemByIndex(enumType, mediaPlaybackState, &state);
+    if ((env->Enum_GetEnumItemByIndex(enumType, mediaPlaybackState, &state)) != ANI_OK) {
+        WVLOG_E("getEnum is error");
+        return nullptr;
+    }
     return state;
 }
 
@@ -3790,7 +3796,10 @@ void OnCreateNativeMediaPlayer(ani_env* env, ani_object object, ani_fn_object ca
     }
 
     ani_vm *vm = nullptr;
-    env->GetVM(&vm);
+    if (env->GetVM(&vm) != ANI_OK) {
+        WVLOG_E("Failed to get VM from env");
+        return;
+    }
     g_vm = vm;
     WVLOG_D("put on_create_native_media_player callback");
 
@@ -5574,7 +5583,10 @@ static void HasImageCallback(ani_env* env, ani_object object, ani_fn_object call
         return;
     }
     ani_vm* vm = nullptr;
-    env->GetVM(&vm);
+    if (env->GetVM(&vm) != ANI_OK) {
+        WVLOG_E("Failed to get VM from env");
+        return;
+    }
     if (!vm) {
         WVLOG_E("vm is nullptr");
         return;
@@ -5613,7 +5625,10 @@ ani_object HasImagePromise(ani_env* env, ani_object object)
         return nullptr;
     }
     ani_vm* vm = nullptr;
-    env->GetVM(&vm);
+    if (env->GetVM(&vm) != ANI_OK) {
+        WVLOG_E("Failed to get VM from env");
+        return nullptr;
+    }
     if (!vm) {
         WVLOG_E("vm is nullptr");
         return nullptr;
