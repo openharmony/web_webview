@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,21 +12,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_NWEB_ERROR_ANI_BUSINESS_ERROR_H
-#define OHOS_NWEB_ERROR_ANI_BUSINESS_ERROR_H
 
-#include <ani.h>
-#include <string>
+#ifndef OHOS_NWEB_ANI_WEBVIEW_FUNCTION_H
+#define OHOS_NWEB_ANI_WEBVIEW_FUNCTION_H
+
+#include <functional>
+#include <unordered_map>
+
+#include "ani.h"
+#include "napi/native_api.h"
+#include "napi/native_common.h"
+#include "napi/native_node_api.h"
+#include "ohos_adapter_helper.h"
+#include "webview_controller.h"
+#include "webview_web_inited_callback.h"
 
 namespace OHOS {
-namespace NWebError {
-class AniBusinessError {
-public:
-    static ani_status ThrowError(ani_env *env, int32_t errorCode, const std::string& error_message);
+namespace NWeb {
 
-    static ani_status ThrowErrorByErrCode(ani_env *env, int32_t errorCode);
-    static ani_ref CreateError(ani_env *env, int32_t err);
-};
-}
-}
-#endif
+ani_status StsWebviewFunctionInit(ani_env* env);
+
+} // namespace NWeb
+} // namespace OHOS
+
+#endif // OHOS_NWEB_ANI_WEBVIEW_FUNCTION_H

@@ -12,21 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_NWEB_ERROR_ANI_BUSINESS_ERROR_H
-#define OHOS_NWEB_ERROR_ANI_BUSINESS_ERROR_H
 
-#include <ani.h>
-#include <string>
-
-namespace OHOS {
-namespace NWebError {
-class AniBusinessError {
-public:
-    static ani_status ThrowError(ani_env *env, int32_t errorCode, const std::string& error_message);
-
-    static ani_status ThrowErrorByErrCode(ani_env *env, int32_t errorCode);
-    static ani_ref CreateError(ani_env *env, int32_t err);
-};
-}
-}
-#endif
+ #ifndef OHOS_NWEB_ANI_WEB_DATA_BASE_H
+ #define OHOS_NWEB_ANI_WEB_DATA_BASE_H
+ 
+ #include <ani.h>
+ 
+ namespace OHOS {
+ namespace NWeb {
+ ani_status StsWebDataBaseInit(ani_env *env);
+ } // namespace NWeb
+ } // namespace OHOS
+ #endif // OHOS_NWEB_ANI_WEB_DATA_BASE_H

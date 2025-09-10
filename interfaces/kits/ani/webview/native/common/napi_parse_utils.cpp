@@ -449,20 +449,6 @@ bool NapiParseUtils::ConvertNWebToNapiValue(napi_env env, std::shared_ptr<NWebMe
     return it->second(env, src, dst);
 }
 
-int32_t GetNumFromString(const std::string &input)
-{
-    int32_t value;
-
-    try {
-        value = std::stoi(input);
-    } catch (std::out_of_range&) {
-        WVLOG_E("value trans failed: out of range");
-        value = 0;
-    }
-
-    return value;
-}
-
 bool NapiParseUtils::ParseJsLengthStringToInt(const std::string &input, PixelUnit &type, int32_t &value)
 {
     return false;
