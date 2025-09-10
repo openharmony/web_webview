@@ -744,7 +744,7 @@ export default namespace webview {
             } else if (script instanceof Uint8Array) {
                 resScript = script.buffer as ArrayBuffer;
             }
-            return this.precompileJavaScriptInternal(url,resScript,cacheOptions);
+            return this.precompileJavaScriptInternal(url, resScript, cacheOptions);
         }
         native runJavaScriptCallback(script: string, callback: AsyncCallback<string>): void;
         runJavaScript(script: string, callback: AsyncCallback<string>): void {
@@ -1638,7 +1638,6 @@ export default namespace webview {
         }
 
         native constructor();
-
         native static existHttpAuthCredentials(): boolean;
         native static deleteHttpAuthCredentials(): void;
         native static getHttpAuthCredentials(host: string, realm: string): Array<string>;
@@ -1699,8 +1698,6 @@ export default namespace webview {
             }
             GeolocationPermissions.allowGeolocation_inner(origin,incognitoMode);
         }
-
-
 
         static getStoredGeolocation(incognito?: boolean):Promise<Array<string>>{
             let incognitoMode:boolean = false;

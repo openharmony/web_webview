@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
+#include "ani_web_data_base.h"
 #include <array>
 #include <iostream>
 #include <string>
 
 #include "ani_business_error.h"
 #include "ani_parse_utils.h"
-#include "ani_web_data_base.h"
 #include "nweb_helper.h"
 #include "nweb_log.h"
 #include "securec.h"
@@ -52,6 +52,7 @@ bool GetSize(ani_env* env, ani_string pwd, ani_size& outValue)
     ani_size bufferSize = 0;
     env->String_GetUTF8Size(pwd, &bufferSize);
     if (bufferSize > MAX_PWD_LENGTH) {
+        WVLOG_E("bufferSize exceed MAX_PWD_LENGTH");
         return false;
     }
     outValue = bufferSize;
