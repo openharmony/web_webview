@@ -58,6 +58,8 @@
 #include "ohos_nweb/include/ark_web_url_resource_error.h"
 #include "ohos_nweb/include/ark_web_url_resource_request.h"
 #include "ohos_nweb/include/ark_web_url_resource_response.h"
+#include "ohos_nweb/include/ark_web_native_message_callback.h"
+#include "ohos_nweb/include/ark_web_runtime_connect_info.h"
 
 namespace OHOS::ArkWeb {
 
@@ -1070,6 +1072,25 @@ public:
      */
     /*--ark web()--*/
     virtual void OnSafeBrowsingCheckFinish(int threat_type) = 0;
+
+    /**
+     * @brief Triggered when the webExtensions-native host connection terminates.
+     *
+     * @param connectId The id of the connection.
+     */
+    /*--ark web()--*/
+    virtual void OnExtensionDisconnect(int32_t connectId) = 0;
+
+    /**
+     * @brief Initiates webExtensions-native messaging requests and handles corresponding callbacks
+     *
+     * @param info The runtime's message connect info.
+     * @param callback Response handler for processing asynchronous replies from native host.
+     * @return Returns connection status.
+     */
+    /*--ark web()--*/
+    virtual ArkWebString OnWebNativeMessage(
+        ArkWebRefPtr<ArkWebRuntimeConnectInfo> info, ArkWebRefPtr<ArkWebNativeMessageCallback> callback) = 0;
 };
 
 } // namespace OHOS::ArkWeb
