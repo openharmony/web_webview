@@ -488,6 +488,8 @@ HWTEST_F(NwebHelperTest, NWebHelper_LoadWebEngine_008, TestSize.Level1)
     NWebHelper::Instance().PauseAllTimers();
     NWebHelper::Instance().ResumeAllTimers();
     NWebHelper::Instance().SetWebDestroyMode(WebDestroyMode::NORMAL_MODE);
+    NWebHelper::Instance().SetSiteIsolationMode(SiteIsolationMode::PARTIAL);
+    NWebHelper::Instance().GetSiteIsolationMode();
     EXPECT_NE(NWebHelper::Instance().nwebEngine_, nullptr);
     NWebHelper::Instance().LoadWebEngine(true, false);
     bool result = NWebHelper::Instance().GetWebEngine(true);
@@ -510,6 +512,8 @@ HWTEST_F(NwebHelperTest, NWebHelper_LoadWebEngine_008, TestSize.Level1)
     NWebHelper::Instance().PauseAllTimers();
     NWebHelper::Instance().ResumeAllTimers();
     NWebHelper::Instance().SetWebDestroyMode(WebDestroyMode::NORMAL_MODE);
+    NWebHelper::Instance().SetSiteIsolationMode(SiteIsolationMode::PARTIAL);
+    NWebHelper::Instance().GetSiteIsolationMode();
     NWebHelper::Instance().SetWebDebuggingAccess(true);
     NWebHelper::Instance().SetWebDebuggingAccessAndPort(true, 80);
     NWebHelper::Instance().SaveSchemeVector("web_test", 8080);
