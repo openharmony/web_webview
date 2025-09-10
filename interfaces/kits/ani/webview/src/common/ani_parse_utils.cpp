@@ -392,6 +392,7 @@ bool IsFormatStringOfLength(const std::string& str)
 bool IsNumberOfLength(const std::string& value)
 {
     if (value.empty()) {
+        WVLOG_E("vlaue is empty");
         return false;
     }
     return std::all_of(value.begin(), value.end(), [](char i) { return isdigit(i); });
@@ -400,6 +401,7 @@ bool IsNumberOfLength(const std::string& value)
 bool TransStringToInt(const std::string& str, int32_t& value)
 {
     if (str.empty()) {
+        WVLOG_E("str is empty");
         return false;
     }
     int64_t tempValue = std::stoll(str);
@@ -415,9 +417,11 @@ bool TransStringToInt(const std::string& str, int32_t& value)
 bool AniParseUtils::ParseJsLengthStringToInt(const std::string& input, PixelUnit& type, int32_t& value)
 {
         if (input.empty() || input.size() > MAX_STRING_TO_INT32_LENGTH) {
+            WVLOG_E("invalid input");
             return false;
         }
         if (!IsFormatStringOfLength(input)) {
+            WVLOG_E("IsFormatStringOfLength failed");
             return false;
         }
         if (IsNumberOfLength(input)) {
@@ -433,16 +437,18 @@ bool AniParseUtils::ParseJsLengthStringToInt(const std::string& input, PixelUnit
                 if (TransStringToInt(trans, value)) {
                     type = PixelUnit::PERCENTAGE;
                     return true;
-                }
+                } 
             }
             return false;
         }
         if (input.length() < PARSE_THREE) {
+            WVLOG_E("input.leng below PARSE_THREE");
             return false;
         }
         std::string lastTwo = input.substr(input.length() - PARSE_TWO);
         std::string trans = input.substr(0, input.length() - PARSE_TWO);
         if (!IsNumberOfLength(trans)) {
+            WVLOG_E("IsNumberOfLength failed");
             return false;
         }
         if (lastTwo == "px") {
@@ -456,6 +462,7 @@ bool AniParseUtils::ParseJsLengthStringToInt(const std::string& input, PixelUnit
                 return true;
             }
         }
+        WVLOG_E("invaild lastTwo");
         return false;
 }
 bool AniParseUtils::ParseInt32(ani_env* env, ani_ref ref, int32_t& outValue)
