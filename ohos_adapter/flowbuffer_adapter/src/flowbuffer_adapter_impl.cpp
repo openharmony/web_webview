@@ -65,7 +65,7 @@ void FlowbufferAdapterImpl::StartPerformanceBoost()
 
 void* FlowbufferAdapterImpl::CreateAshmem(size_t size, int mapType, int& fd)
 {
-    fd = AshmemCreate(nullptr, size);
+    fd = AshmemCreate("WebFlowBuffer", size);
     if (fd < 0) {
         WVLOG_E("Create ashmem failed, fd: %{public}d", fd);
         return nullptr;
