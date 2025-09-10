@@ -739,6 +739,23 @@ public:
     void OnSafeBrowsingCheckFinish(int threat_type) override;
 
     /**
+     * @brief Triggered when the webExtensions-native host connection terminates.
+     *
+     * @param connectId The id of the connection.
+     */
+    void OnExtensionDisconnect(int32_t connectId) override;
+
+    /**
+     * @brief Initiates webExtensions-native messaging requests and handles corresponding callbacks
+     *
+     * @param info The runtime's message connect info.
+     * @param callback Response handler for processing asynchronous replies from native host.
+     * @return Returns connection status.
+     */
+    ArkWebString OnWebNativeMessage(
+        ArkWebRefPtr<ArkWebRuntimeConnectInfo> info, ArkWebRefPtr<ArkWebNativeMessageCallback> callback) override;
+
+    /**
      * @brief inform application to update its visited links database.
      *
      * @param url the url being visited.
