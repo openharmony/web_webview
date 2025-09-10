@@ -118,7 +118,7 @@ struct SnapshotOptions {
 
 bool ParsePrepareUrl(ani_env* env, ani_ref urlObj, std::string& url)
 {
-    if (AniParseUtils::ParseString(env, urlObj, url)) {
+    if (!AniParseUtils::ParseString(env, urlObj, url)) {
         WVLOG_E("urlObj convert to string failed");
         return false;
     }
