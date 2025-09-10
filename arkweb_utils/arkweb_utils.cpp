@@ -144,9 +144,8 @@ static void ProcessEnforceParam(const Json::Value& value)
     int intValue = value.asInt();
     if (intValue != static_cast<int>(ArkWebEngineType::EVERGREEN)) {
         WVLOG_E("Invalid value for web.engine.enforce: %{public}d, "
-            "must be LEGACY(%{public}d) or EVERGREEN(%{public}d)",
+            "must be EVERGREEN(%{public}d)",
             intValue,
-            static_cast<int>(ArkWebEngineType::LEGACY),
             static_cast<int>(ArkWebEngineType::EVERGREEN));
         return;
     }
@@ -228,7 +227,7 @@ static void ParseCloudCfg()
 
 void SelectWebcoreBeforeProcessRun(const std::string& appBundleName)
 {
-    WVLOG_I("Calculate CloudEnableAppVersion for app %{public}s.", appBundleName.c_str());
+    WVLOG_I("SelectWebcoreBeforeProcessRun for app %{public}s.", appBundleName.c_str());
     g_appBundleName = appBundleName;
 
     if (g_legacyApp && g_legacyApp->find(appBundleName) != g_legacyApp->end()) {
@@ -301,8 +300,7 @@ ArkWebEngineVersion CalculateActiveWebEngineVersion()
         return static_cast<ArkWebEngineVersion>(g_appEngineVersion);
     }
     
-    if (g_cloudEnableAppVersion == static_cast<int>(ArkWebEngineType::LEGACY) ||
-        g_cloudEnableAppVersion == static_cast<int>(ArkWebEngineType::EVERGREEN)) {
+    if (g_cloudEnableAppVersion == static_cast<int>(ArkWebEngineType::LEGACY)) {
         WVLOG_I("CalculateActiveWebEngineVersion CloudEnableAppVersion: %{public}d", g_cloudEnableAppVersion);
         return static_cast<ArkWebEngineVersion>(g_cloudEnableAppVersion);
     }
