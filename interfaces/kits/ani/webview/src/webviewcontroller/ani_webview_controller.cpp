@@ -2601,12 +2601,22 @@ static ani_enum_item GetRenderProcessMode(ani_env* env, ani_object object)
 {
     ani_int renderProcessMode = 0;
     ani_enum enumType;
-    env->FindEnum("L@ohos/web/webview/webview/RenderProcessMode;", &enumType);
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    if (env->FindEnum("@ohos.web.webview.webview.RenderProcessMode", &enumType) != ANI_OK) {
+        WVLOG_E("env find enum failed");
+        return nullptr;
+    }
 
     renderProcessMode = static_cast<ani_int>(NWebHelper::Instance().GetRenderProcessMode());
-    WVLOG_I("getRenderProcessMode mode = %{public}d", static_cast<int32_t>(renderProcessMode));
+    WVLOG_D("getRenderProcessMode mode = %{public}d", static_cast<int32_t>(renderProcessMode));
     ani_enum_item mode;
-    env->Enum_GetEnumItemByIndex(enumType, renderProcessMode, &mode);
+    if (env->Enum_GetEnumItemByIndex(enumType, renderProcessMode, &mode) != ANI_OK) {
+        WVLOG_E("env enum_GetEnumItemByIndex failed");
+        return nullptr;
+    }
     return mode;
 }
 
@@ -2616,7 +2626,7 @@ static void PauseAllTimers(ani_env* env, ani_object object)
         WVLOG_E("env is nullptr");
         return;
     }
-    WVLOG_I("PauseAllTimers");
+    WVLOG_D("PauseAllTimers");
     NWebHelper::Instance().PauseAllTimers();
     return;
 }
@@ -2719,7 +2729,10 @@ static ani_object SerializeWebState(ani_env* env, ani_object object)
     auto webState = controller->SerializeWebState();
 
     size_t length = webState.size();
-    env->CreateArrayBuffer(length, &data, &buffer);
+    if (env->CreateArrayBuffer(length, &data, &buffer) != ANI_OK) {
+        WVLOG_E("createArrayBuffer failed");
+        return result;
+    }
 
     int retCode = memcpy_s(data, length, webState.data(), length);
     if (retCode != 0) {
