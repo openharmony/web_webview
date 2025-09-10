@@ -21,6 +21,7 @@
 #include <cstring>
 #include <dlfcn.h>
 #include <fstream>
+#include <unordered_set>
 
 #if (defined(webview_arm64) && !defined(ASAN_DETECTOR))
 #include "ace_forward_compatibility.h"
@@ -32,6 +33,8 @@ static int g_appEngineVersion = static_cast<int>(ArkWebEngineVersion::SYSTEM_DEF
 static bool g_webEngineInitFlag = false;
 static ArkWebEngineVersion g_activeEngineVersion = ArkWebEngineVersion::SYSTEM_DEFAULT;
 static std::string g_appBundleName = "";
+static int g_cloudEnableAppVersion = static_cast<int>(ArkWebEngineVersion::SYSTEM_DEFAULT);
+static std::unique_ptr<std::unordered_set<std::string>> g_legacyApp = nullptr;
 
 #if defined(webview_arm64)
 const std::string ARK_WEB_CORE_MOCK_HAP_LIB_PATH =
@@ -100,63 +103,114 @@ const std::string EL1_BUNDLE_PUBLIC = "/data/app/el1/bundle/public/";
 // 前向声明
 static ArkWebEngineVersion CalculateActiveWebEngineVersion();
 
-static bool validateSpecialParams(const std::string& key, int value)
+static void SetIntParameter(const std::string& key, const int& intValue)
 {
-    if (key == "web.engine.default") {
-        if (value != static_cast<int>(ArkWebEngineType::EVERGREEN) &&
-            value != static_cast<int>(ArkWebEngineType::LEGACY)) {
-            WVLOG_E("Invalid value for %{public}s: %{public}d, must be EVERGREEN or LEGACY",
-                key.c_str(), value);
-            return false;
-        }
-    } 
-    else if (key == "web.engine.enforce") {
-        if (value != static_cast<int>(ArkWebEngineType::EVERGREEN)) {
-            WVLOG_E("Invalid value for %{public}s: %{public}d, must be EVERGREEN", 
-                key.c_str(), value);
-            return false;
-        }
+    std::string valueStr = std::to_string(intValue);
+    if (OHOS::system::SetParameter(key, valueStr)) {
+        WVLOG_I("Successfully set integer param %{public}s with %{public}s", key.c_str(), valueStr.c_str());
+    } else {
+        WVLOG_E("Failed to set integer param %{public}s with %{public}s", key.c_str(), valueStr.c_str());
     }
-    return true;
 }
 
-static void processJsonConfig(const Json::Value& root)
+static void ProcessDefaultParam(const Json::Value& value)
+{
+    if (!value.isInt()) {
+        WVLOG_E("Unsupported type for param web.engine.default, must be integer");
+        return;
+    }
+
+    int intValue = value.asInt();
+    if (intValue != static_cast<int>(ArkWebEngineType::LEGACY) &&
+        intValue != static_cast<int>(ArkWebEngineType::EVERGREEN)) {
+        WVLOG_E("Invalid value for web.engine.default: %{public}d, "
+            "must be LEGACY(%{public}d) or EVERGREEN(%{public}d)",
+            intValue,
+            static_cast<int>(ArkWebEngineType::LEGACY),
+            static_cast<int>(ArkWebEngineType::EVERGREEN));
+        return;
+    }
+
+    SetIntParameter("web.engine.default", intValue);
+}
+
+static void ProcessEnforceParam(const Json::Value& value)
+{
+    if (!value.isInt()) {
+        WVLOG_E("Unsupported type for param web.engine.enforce, must be integer");
+        return;
+    }
+
+    int intValue = value.asInt();
+    if (intValue != static_cast<int>(ArkWebEngineType::EVERGREEN)) {
+        WVLOG_E("Invalid value for web.engine.enforce: %{public}d, "
+            "must be LEGACY(%{public}d) or EVERGREEN(%{public}d)",
+            intValue,
+            static_cast<int>(ArkWebEngineType::LEGACY),
+            static_cast<int>(ArkWebEngineType::EVERGREEN));
+        return;
+    }
+
+    SetIntParameter("web.engine.enforce", intValue);
+}
+
+static void ProcessLegacyAppParam(const Json::Value& value)
+{
+    if (!value.isArray()) {
+        WVLOG_E("Unsupported type for param web.engine.legacyApp, must be array");
+        return;
+    }
+
+    auto appSet = std::make_unique<std::unordered_set<std::string>>();
+    for (const auto& item : value) {
+        if (item.isString()) {
+            appSet->insert(item.asString());
+        } else {
+            WVLOG_E("Non-string item found in array for web.engine.legacyApp, skipping.");
+        }
+    }
+
+    g_legacyApp = std::move(appSet);
+    WVLOG_I("Successfully stored legacyApp in heap memory using smart pointer.");
+}
+
+static void ProcessParamItem(const std::string& key, const Json::Value& value)
+{
+    if (key.find(WEB_PARAM_PREFIX) != 0) {
+        WVLOG_E("Skipping param with incorrect prefix %{public}s", key.c_str());
+        return;
+    }
+
+    if (key == "web.engine.default") {
+        ProcessDefaultParam(value);
+    } else if (key == "web.engine.enforce") {
+        ProcessEnforceParam(value);
+    } else if (key == "web.engine.legacyApp") {
+        ProcessLegacyAppParam(value);
+    } else {
+        WVLOG_E("Unsupported key for param %{public}s", key.c_str());
+    }
+}
+
+static void ProcessJsonConfig(const Json::Value& root)
 {
     if (!root.isObject()) {
-        WVLOG_E("Not a JSON object");
+        WVLOG_E("Root element is not a JSON object");
         return;
     }
 
     Json::Value::Members keys = root.getMemberNames();
     for (const auto& key : keys) {
         const Json::Value& value = root[key];
-        if (!value.isInt() || key.rfind(WEB_PARAM_PREFIX, 0) != 0) {
-            WVLOG_E("Invalid param %{public}s", key.c_str());
-            continue;
-        }
-
-        int intValue = value.asInt();
-        
-        // 验证特殊参数
-        if (!validateSpecialParams(key, intValue)) {
-            continue;  // 跳过非法值
-        }
-
-        // 设置有效参数
-        std::string valueStr = std::to_string(intValue);
-        if (OHOS::system::SetParameter(key, valueStr)) {
-            WVLOG_I("Set param %{public}s with %{public}s", key.c_str(), valueStr.c_str());
-        } else {
-            WVLOG_E("Set param %{public}s with %{public}s failed", key.c_str(), valueStr.c_str());
-        }
+        ProcessParamItem(key, value);
     }
 }
 
-static void updateCfgToSystemParam()
+static void ParseCloudCfg()
 {
     std::ifstream jsonFile(JSON_CONFIG_PATH.c_str());
     if (!jsonFile.is_open()) {
-        WVLOG_E("Failed to open file reason: %{public}s", strerror(errno));
+        WVLOG_E("Failed to open file %{public}s, reason: %{public}s", JSON_CONFIG_PATH.c_str(), strerror(errno));
         return;
     }
 
@@ -164,24 +218,31 @@ static void updateCfgToSystemParam()
     Json::CharReaderBuilder readerBuilder;
     std::string parseErrors;
     bool parsingSuccessful = Json::parseFromStream(readerBuilder, jsonFile, &root, &parseErrors);
-
     if (!parsingSuccessful) {
-        WVLOG_E("JSON parse failed, parseErrors:%{public}s", parseErrors.c_str());
+        WVLOG_E("JSON parse failed, parseErrors: %{public}s", parseErrors.c_str());
         return;
     }
 
-    processJsonConfig(root);
+    ProcessJsonConfig(root);
 }
 
 void SelectWebcoreBeforeProcessRun(const std::string& appBundleName)
 {
+    WVLOG_I("Calculate CloudEnableAppVersion for app %{public}s.", appBundleName.c_str());
     g_appBundleName = appBundleName;
+
+    if (g_legacyApp && g_legacyApp->find(appBundleName) != g_legacyApp->end()) {
+        g_cloudEnableAppVersion = static_cast<int>(ArkWebEngineType::LEGACY);
+    }
+
     g_activeEngineVersion = CalculateActiveWebEngineVersion();
+
+    g_legacyApp.reset();
 }
 
 void PreloadArkWebLibForBrowser()
 {
-    updateCfgToSystemParam();
+    ParseCloudCfg();
     if (!(access(PRECONFIG_LEGACY_HAP_PATH.c_str(), F_OK) == 0)) {
         if (OHOS::system::SetParameter("web.engine.enforce",
                 std::to_string(static_cast<int>(ArkWebEngineType::EVERGREEN)))) {
@@ -238,6 +299,12 @@ ArkWebEngineVersion CalculateActiveWebEngineVersion()
             return static_cast<ArkWebEngineVersion>(ArkWebEngineType::EVERGREEN);
         }
         return static_cast<ArkWebEngineVersion>(g_appEngineVersion);
+    }
+    
+    if (g_cloudEnableAppVersion == static_cast<int>(ArkWebEngineType::LEGACY) ||
+        g_cloudEnableAppVersion == static_cast<int>(ArkWebEngineType::EVERGREEN)) {
+        WVLOG_I("CalculateActiveWebEngineVersion CloudEnableAppVersion: %{public}d", g_cloudEnableAppVersion);
+        return static_cast<ArkWebEngineVersion>(g_cloudEnableAppVersion);
     }
 
     int webEngineDefault = OHOS::system::GetIntParameter("web.engine.default",
