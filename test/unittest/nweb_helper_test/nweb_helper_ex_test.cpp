@@ -500,6 +500,30 @@ HWTEST_F(NwebHelperTest, NWebHelper_ParseNWebLTPOConfig_001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: NWebHelper_GetSiteIsolationMode_001
+ * @tc.desc: GetSiteIsolationMode.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_GetSiteIsolationMode_001, TestSize.Level1)
+{
+    NWebHelper::Instance().nwebEngine_ = nullptr;
+    NWebHelper::Instance().bundlePath_ = "";
+    std::shared_ptr<NWebCreateInfoImpl> create_info = std::make_shared<NWebCreateInfoImpl>();
+    std::shared_ptr<NWeb> nweb = NWebHelper::Instance().CreateNWeb(create_info);
+    EXPECT_EQ(nweb, nullptr);
+    nweb = NWebHelper::Instance().GetNWeb(1);
+    EXPECT_EQ(nweb, nullptr);
+    auto manager = NWebHelper::Instance().GetSiteIsolationMode();
+    EXPECT_EQ(manager, nullptr);
+    auto nwebengineMock = std::make_shared<MockNWebEngine>();
+    NWebHelper::Instance().nwebEngine_ = nwebengineMock;
+    auto manager1 = NWebHelper::Instance().GetSiteIsolationMode();
+    EXPECT_EQ(manager1, nullptr);
+    NWebHelper::Instance().nwebEngine_ = nullptr;
+}
+
+/**
  * @tc.name: NWebHelper_SetHostIP_001
  * @tc.desc: SetHostIP.
  * @tc.type: FUNC
@@ -945,6 +969,24 @@ HWTEST_F(NwebHelperTest, NWebHelper_IsPrivateNetworkAccessEnabled_001, TestSize.
     NWebHelper::Instance().nwebEngine_ = nwebengineMock;
     NWebHelper::Instance().IsPrivateNetworkAccessEnabled();
     EXPECT_NE(NWebHelper::Instance().nwebEngine_, nullptr);
+}
+
+/**
+ * @tc.name: NWebHelper_SetAutoPreconnect_001
+ * @tc.desc: SetAutoPreconnect..
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_SetAutoPreconnect_001, TestSize.Level1)
+{
+    int32_t nweb_id = 1;
+    auto nwebHelper = NWebHelper::Instance().GetNWeb(nweb_id);
+    EXPECT_EQ(nwebHelper, nullptr);
+
+    NWebHelper::Instance().SetAutoPreconnect(true);
+    EXPECT_EQ(NWebHelper::Instance().autoPreconnectEnabled_, true);
+    NWebHelper::Instance().SetAutoPreconnect(false);
+    EXPECT_EQ(NWebHelper::Instance().autoPreconnectEnabled_, false);
 }
 
 /**
