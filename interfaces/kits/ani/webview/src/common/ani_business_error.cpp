@@ -48,7 +48,7 @@ ani_object WrapBusinessError(ani_env *env, const std::string& msg)
         WVLOG_E("FindClass failed %{public}d", status);
         return nullptr;
     }
-    if ((status = env->Class_FindMethod(cls, "<ctor>", "Lstd/core/String;Lescompat/ErrorOptions;:V", &method)) !=
+    if ((status = env->Class_FindMethod(cls, "<ctor>", "C{std.core.String}C{escompat.ErrorOptions}:", &method)) !=
         ANI_OK) {
         WVLOG_E("Class_FindMethod failed %{public}d", status);
         return nullptr;
@@ -75,7 +75,7 @@ ani_object CreateBusinessError(ani_env *env, ani_int code, const std::string& ms
         WVLOG_E("FindClass failed %{public}d", status);
         return nullptr;
     }
-    if ((status = env->Class_FindMethod(cls, "<ctor>", "ILescompat/Error;:V", &method)) != ANI_OK) {
+    if ((status = env->Class_FindMethod(cls, "<ctor>", "iC{escompat.Error}:", &method)) != ANI_OK) {
         WVLOG_E("Class_FindMethod failed %{public}d", status);
         return nullptr;
     }

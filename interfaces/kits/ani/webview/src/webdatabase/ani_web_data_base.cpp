@@ -34,7 +34,7 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-const char* WEB_DATA_BASE_CLASS_NAME = "L@ohos/web/webview/webview/WebDataBase;";
+const char* WEB_DATA_BASE_CLASS_NAME = "@ohos.web.webview.webview.WebDataBase";
 }  // namespace
 
 bool GetStringPara(ani_env* env, ani_string dataStr)

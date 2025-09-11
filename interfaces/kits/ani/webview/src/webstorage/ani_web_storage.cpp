@@ -172,7 +172,7 @@ static ani_object GetOriginsSync(ani_env *env, ani_object obj)
         return nullptr;
     }
     ani_method arrayCtor;
-    if (env->Class_FindMethod(arrayCls, "<ctor>", "I:V", &arrayCtor) != ANI_OK) {
+    if (env->Class_FindMethod(arrayCls, "<ctor>", "i:", &arrayCtor) != ANI_OK) {
         WVLOG_E("find class escompat/Array; failed");
         return nullptr;
     }
@@ -194,7 +194,7 @@ static ani_object GetOriginsSync(ani_env *env, ani_object obj)
             WVLOG_E("obj is nullptr");
             break;
         }
-        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "ILstd/core/Object;:V", index, obj) != ANI_OK) {
+        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "iC{std.core.Object}:", index, obj) != ANI_OK) {
             WVLOG_E("Object_CallMethodByName_Void failed");
             break;
         }

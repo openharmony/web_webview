@@ -34,9 +34,9 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-const char* ANI_CLASS_WEB_REQUESTTYPE = "L@ohos/web/webview/webview/WebSchemeHandlerRequest;";
-const char* ANI_CLASS_WEB_RESOURCETYPE = "L@ohos/web/webview/webview/WebResourceType;";
-const char* ANI_HTTP_BODY_STREAM = "L@ohos/web/webview/webview/WebHttpBodyStream;";
+const char* ANI_CLASS_WEB_REQUESTTYPE = "@ohos.web.webview.webview.WebSchemeHandlerRequest";
+const char* ANI_CLASS_WEB_RESOURCETYPE = "@ohos.web.webview.webview.WebResourceType";
+const char* ANI_HTTP_BODY_STREAM = "@ohos.web.webview.webview.WebHttpBodyStream";
 } // namespace
 
 static ani_boolean JSHasGesture(ani_env* env, ani_object object)
@@ -192,7 +192,7 @@ bool GetHeaderProcessItems(ani_env* env, std::vector<std::pair<std::string, std:
         return false;
     }
     ani_class stringCls;
-    if (ANI_OK != env->FindClass("L@ohos/web/webview/webview/GetHeaderWebHeader;", &stringCls)) {
+    if (ANI_OK != env->FindClass("@ohos.web.webview.webview.GetHeaderWebHeader", &stringCls)) {
         WVLOG_E("getHeader find class failed.");
         return false;
     }

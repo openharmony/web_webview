@@ -30,7 +30,7 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-const char* WEB_HTTP_BODY_STREAM_CLASS_NAME = "L@ohos/web/webview/webview/WebHttpBodyStream;";
+const char* WEB_HTTP_BODY_STREAM_CLASS_NAME = "@ohos.web.webview.webview.WebHttpBodyStream";
 }
 
 static void Constructor(ani_env* env, ani_object object)

@@ -32,7 +32,7 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-const char* WEB_SCHEME_HANDLER_RESPONSE_CLASS_NAME = "L@ohos/web/webview/webview/WebSchemeHandlerResponse;";
+const char* WEB_SCHEME_HANDLER_RESPONSE_CLASS_NAME = "@ohos.web.webview.webview.WebSchemeHandlerResponse";
 }
 
 static void JsSetUrl(ani_env *env, ani_object object, ani_object urlObject)
@@ -357,7 +357,7 @@ static ani_enum_item JsGetNetErrorCode(ani_env* env, ani_object object)
     }
     ani_int result = 0;
     ani_enum enumType;
-    ani_status status = env->FindEnum("L@ohos/web/netErrorList/WebNetErrorList;", &enumType);
+    ani_status status = env->FindEnum("@ohos.web.netErrorList.WebNetErrorList", &enumType);
     if (status != ANI_OK) {
         WVLOG_E("JsGetNetErrorCode FindEnum error");
         return nullptr;

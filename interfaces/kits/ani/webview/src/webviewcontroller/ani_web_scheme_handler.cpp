@@ -33,7 +33,7 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-const char* WEB_WEBSCHEME_HANDLER_CLASS_NAME = "L@ohos/web/webview/webview/WebSchemeHandler;";
+const char* WEB_WEBSCHEME_HANDLER_CLASS_NAME = "@ohos.web.webview.webview.WebSchemeHandler";
 }
 static void OnRequestStart(ani_env* env, ani_object object, ani_fn_object callback)
 {
@@ -107,7 +107,7 @@ ani_status StsWebSchemeHandlerInit(ani_env* env)
     }
     std::array allMethods = {
         ani_native_function { "<ctor>", nullptr, reinterpret_cast<void*>(Constructor) },
-        ani_native_function { "onRequestStart", "Lstd/core/Function2;:V", reinterpret_cast<void*>(OnRequestStart) },
+        ani_native_function { "onRequestStart", "C{std.core.Function2}:", reinterpret_cast<void*>(OnRequestStart) },
         ani_native_function { "onRequestStop", nullptr, reinterpret_cast<void*>(OnRequestStop) },
     };
 

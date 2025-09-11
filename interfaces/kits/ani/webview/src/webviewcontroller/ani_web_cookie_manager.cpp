@@ -26,7 +26,7 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-const char* WEB_COOKIE_MANAGER_CLASS_NAME = "L@ohos/web/webview/webview/WebCookieManager;";
+const char* WEB_COOKIE_MANAGER_CLASS_NAME = "@ohos.web.webview.webview.WebCookieManager";
 }
 static void ClearSessionCookieSync(ani_env *env, ani_object aniClass)
 {
@@ -247,7 +247,7 @@ static ani_string JsFetchCookieSync(ani_env *env, ani_object aniClass, ani_strin
     env->Reference_IsUndefined(incognito, &isUndefined);
     if (isUndefined != ANI_TRUE) {
         ani_boolean bIncognito;
-        if (env->Object_CallMethodByName_Boolean(incognito, "unboxed", ":Z", &bIncognito) != ANI_OK) {
+        if (env->Object_CallMethodByName_Boolean(incognito, "unboxed", ":z", &bIncognito) != ANI_OK) {
             AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
                 NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
             return result;
@@ -342,7 +342,7 @@ ani_status StsWebCookieManagerInit(ani_env *env)
         ani_native_function { "existCookie", nullptr, reinterpret_cast<void *>(JsExistCookie) },
         ani_native_function { "isCookieAllowed", nullptr, reinterpret_cast<void *>(JsIsCookieAllowed) },
         ani_native_function { "configCookieSyncInternal", nullptr, reinterpret_cast<void *>(JsSetCookieSyncThree) },
-        ani_native_function { "configCookieSync", "Lstd/core/String;Lstd/core/String;ZZ:V",
+        ani_native_function { "configCookieSync", "C{std.core.String}C{std.core.String}zz:",
                               reinterpret_cast<void *>(JsSetCookieSync) },
         ani_native_function { "putAcceptCookieEnabled", nullptr, reinterpret_cast<void *>(JsPutAcceptCookieEnabled) },
         ani_native_function {"putAcceptThirdPartyCookieEnabled", nullptr,

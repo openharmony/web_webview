@@ -38,7 +38,7 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-const char* ANI_CLASS_WEB_DOWNLOAD_ITEM = "L@ohos/web/webview/webview/WebDownloadItem;";
+const char* ANI_CLASS_WEB_DOWNLOAD_ITEM = "@ohos.web.webview.webview.WebDownloadItem";
 } // namespace
 
 static ani_string GetUrl(ani_env* env, ani_object object)
@@ -235,7 +235,7 @@ static ani_enum_item GetLastErrorCode(ani_env* env, ani_object object)
     }
 
     ani_enum enumType;
-    ani_status status = env->FindEnum("L@ohos/web/webview/webview/WebDownloadErrorCode;", &enumType);
+    ani_status status = env->FindEnum("@ohos.web.webview.webview.WebDownloadErrorCode", &enumType);
     if (status != ANI_OK) {
         return errorCode;
     }
@@ -263,7 +263,7 @@ static ani_enum_item GetState(ani_env* env, ani_object object)
     }
 
     ani_enum enumType;
-    ani_status status = env->FindEnum("L@ohos/web/webview/webview/WebDownloadState;", &enumType);
+    ani_status status = env->FindEnum("@ohos.web.webview.webview.WebDownloadState", &enumType);
     if (status != ANI_OK) {
         return state;
     }
@@ -430,14 +430,14 @@ static ani_object SerializeInternal(ani_env* env, ani_object object)
     size_t length = webDownloadValue.length();
 
     ani_class cls;
-    ani_status status = env->FindClass("Lescompat/ArrayBuffer;", &cls);
+    ani_status status = env->FindClass("escompat.ArrayBuffer", &cls);
     if (status != ANI_OK) {
         WVLOG_E("[DOWNLOAD] Find class %{public}s failed, status is %{public}d.", "Lescompat/ArrayBuffer", status);
         return nullptr;
     }
 
     ani_method ctor;
-    status = env->Class_FindMethod(cls, "<ctor>", "I:V", &ctor);
+    status = env->Class_FindMethod(cls, "<ctor>", "i:", &ctor);
     if (status != ANI_OK) {
         WVLOG_E("[DOWNLOAD] Find function %{public}s failed, status is %{public}d.", "<ctor>", status);
         return nullptr;
@@ -453,7 +453,7 @@ static ani_object SerializeInternal(ani_env* env, ani_object object)
     for (size_t i = 0; i < length; i++) {
         ani_int value = webDownloadValue[i];
         status = env->Object_CallMethodByName_Void(
-            arrayBufferObj, "set", "IB:V", static_cast<ani_int>(i), static_cast<ani_byte>(value));
+            arrayBufferObj, "set", "ib:", static_cast<ani_int>(i), static_cast<ani_byte>(value));
         if (status != ANI_OK) {
             WVLOG_E("[DOWNLOAD]arrayBufferObj set() failed, status is %{public}d.", status);
             break;
@@ -494,7 +494,7 @@ static ani_object DeserializeInternal(ani_env* env, ani_object object, ani_objec
     }
 
     ani_int length;
-    ani_status status = env->Object_CallMethodByName_Int(arrayObject, "getByteLength", ":I", &length);
+    ani_status status = env->Object_CallMethodByName_Int(arrayObject, "getByteLength", ":i", &length);
     if (status != ANI_OK || length <= 0) {
         WVLOG_E("[DOWNLOAD]Object_CallMethodByName_Int getByteLength() failed, status is %{public}d.", status);
         return nullptr;
@@ -503,7 +503,7 @@ static ani_object DeserializeInternal(ani_env* env, ani_object object, ani_objec
     std::string dataStr(length, '\0');
     for (ani_int i = 0; i < length; i++) {
         ani_byte value;
-        status = env->Object_CallMethodByName_Byte(arrayObject, "at", "I:B", &value, i);
+        status = env->Object_CallMethodByName_Byte(arrayObject, "at", "i:b", &value, i);
         if (status != ANI_OK) {
             WVLOG_E("[DOWNLOAD]arrayBufferObj at() failed, status is %{public}d.", status);
             return nullptr;

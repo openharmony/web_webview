@@ -29,7 +29,7 @@
 namespace OHOS::NWeb {
 using namespace NWebError;
 namespace {
-const char* ANI_JSMESSAGEEXT_CLASS_NAME = "L@ohos/web/webview/webview/JsMessageExt;";
+const char* ANI_JSMESSAGEEXT_CLASS_NAME = "@ohos.web.webview.webview.JsMessageExt";
 }
 thread_local ani_ref g_jsMsgExtClassRef;
 
@@ -83,10 +83,10 @@ ani_object WrapStsError(ani_env* env, const std::string& msg)
         return nullptr;
     }
 
-    if ((status = env->FindClass("Lescompat/Error;", &cls)) != ANI_OK) {
+    if ((status = env->FindClass("escompat.Error", &cls)) != ANI_OK) {
         return nullptr;
     }
-    if ((status = env->Class_FindMethod(cls, "<ctor>", "Lstd/core/String;Lescompat/ErrorOptions;:V", &method)) !=
+    if ((status = env->Class_FindMethod(cls, "<ctor>", "C{std.core.String}C{escompat.ErrorOptions}:", &method)) !=
         ANI_OK) {
         return nullptr;
     }
@@ -101,11 +101,11 @@ ani_ref CreateStsError(ani_env* env, ani_int code, const std::string& msg)
 {
     ani_class cls;
     ani_status status = ANI_OK;
-    if ((status = env->FindClass("L@ohos/base/BusinessError;", &cls)) != ANI_OK) {
+    if ((status = env->FindClass("@ohos.base.BusinessError", &cls)) != ANI_OK) {
         return nullptr;
     }
     ani_method ctor;
-    if ((status = env->Class_FindMethod(cls, "<ctor>", "ILescompat/Error;:V", &ctor)) != ANI_OK) {
+    if ((status = env->Class_FindMethod(cls, "<ctor>", "iC{escompat.Error}:", &ctor)) != ANI_OK) {
         return nullptr;
     }
     ani_object error = WrapStsError(env, msg);
@@ -360,7 +360,7 @@ static ani_enum_item GetType(ani_env* env, ani_object object)
     }
     ani_int typeMode = 0;
     ani_enum enumType;
-    if ((env->FindEnum("L@ohos/web/webview/webview/JsMessageType;", &enumType)) != ANI_OK) {
+    if ((env->FindEnum("@ohos.web.webview.webview.JsMessageType", &enumType)) != ANI_OK) {
         WVLOG_E("FindEnum failed");
         return nullptr;
     }

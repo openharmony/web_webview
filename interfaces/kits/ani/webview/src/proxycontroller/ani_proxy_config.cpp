@@ -87,7 +87,7 @@ static ani_ref GetProxyRulesInternal(ani_env *env, ProxyConfig* proxyConfig,
     size_t rulesSize = proxyRules.size();
 
     ani_method arrayCtor;
-    if (env->Class_FindMethod(arrayCls, "<ctor>", "I:V", &arrayCtor) != ANI_OK) {
+    if (env->Class_FindMethod(arrayCls, "<ctor>", "i:", &arrayCtor) != ANI_OK) {
         WVLOG_E("[PROXYCONTROLLER] FindClass Lescompat/Array; Failed.");
         return nullptr;
     }
@@ -101,7 +101,7 @@ static ani_ref GetProxyRulesInternal(ani_env *env, ProxyConfig* proxyConfig,
     for (size_t i = 0; i < rulesSize; i++) {
         ani_method ctor;
         if ((status = env->Class_FindMethod(itemCls, "<ctor>",
-            "Lstd/core/String;L@ohos/web/webview/webview/ProxySchemeFilter;:V", &ctor)) != ANI_OK) {
+            "C{std.core.String}C{@ohos.web.webview.webview.ProxySchemeFilter}:", &ctor)) != ANI_OK) {
             WVLOG_E("[PROXYCONTROLLER] Class_FindMethod status: %{public}d", status);
             return arrayObj;
         }
@@ -126,7 +126,7 @@ static ani_ref GetProxyRulesInternal(ani_env *env, ProxyConfig* proxyConfig,
             return arrayObj;
         }
 
-        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "ILstd/core/Object;:V", i, inputObject) != ANI_OK) {
+        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "iC{std.core.Object}:", i, inputObject) != ANI_OK) {
             WVLOG_E("[PROXYCONTROLLER] Object_New status: %{public}d", status);
             return arrayObj;
         }

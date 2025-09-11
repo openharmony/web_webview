@@ -30,7 +30,7 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-const char* WEB_DOWNLOAD_MANAGER_CLASS_NAME = "L@ohos/web/webview/webview/WebDownloadManager;";
+const char* WEB_DOWNLOAD_MANAGER_CLASS_NAME = "@ohos.web.webview.webview.WebDownloadManager";
 }
 
 static void ResumeDownload(ani_env* env, ani_object object, ani_object webDownloadItem)
