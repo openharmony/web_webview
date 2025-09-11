@@ -18,6 +18,8 @@
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
+#include "ani.h"
+#include "nweb_log.h"
 
 namespace OHOS {
 namespace NWebError {
@@ -33,6 +35,14 @@ static napi_value CreateError(napi_env env, int32_t err);
 static void ThrowErrorByErrcode(napi_env env, int32_t errCode);
 
 static void ThrowErrorByErrcode(napi_env env, int32_t errCode, const std::string& errorMsg);
+};
+
+class AniBusinessErrorError {
+public:
+    static ani_status ThrowError(ani_env *env, int32_t errorCode, const std::string& error_message);
+
+    static ani_status ThrowErrorByErrCode(ani_env *env, int32_t errorCode);
+    static ani_ref CreateError(ani_env *env, int32_t err);
 };
 }
 }

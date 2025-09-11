@@ -16,6 +16,7 @@
 #ifndef NWEB_WEBVIEW_CONTROLLER_H
 #define NWEB_WEBVIEW_CONTROLLER_H
 
+#include "ani.h"
 #include <filesystem>
 #include <memory>
 #include <string>
@@ -31,6 +32,7 @@
 #include "webview_javascript_result_callback.h"
 #include "print_manager_adapter.h"
 #include "arkweb_scheme_handler.h"
+#include "web_scheme_handler_request.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -220,16 +222,6 @@ public:
     ErrCode DeleteJavaScriptRegister(const std::string& objName,
         const std::vector<std::string>& methodList);
 
-    void RunJavaScriptCallback(const std::string &script, napi_env env, napi_ref jsCallback, bool extention);
-
-    void RunJavaScriptPromise(const std::string &script, napi_env env, napi_deferred deferred, bool extention);
-
-    void RunJavaScriptCallbackExt(
-        const int fd, const size_t scriptLength, napi_env env, napi_ref jsCallback, bool extention);
-
-    void RunJavaScriptPromiseExt(
-        const int fd, const size_t scriptLength, napi_env env, napi_deferred deferred, bool extention);
-
     std::string GetUrl();
 
     std::string GetOriginalUrl();
@@ -240,9 +232,9 @@ public:
 
     bool HasImage(std::shared_ptr<NWebBoolValueCallback> callback);
 
-    ErrCode HasImagesCallback(napi_env env, napi_ref jsCallback);
+    ErrCode HasImagesCallback(ani_vm *vm, ani_ref jsCallback);
 
-    ErrCode HasImagesPromise(napi_env env, napi_deferred deferred);
+    ErrCode HasImagesPromise(ani_vm *vm, ani_resolver deferred);
 
     void RemoveCache(bool includeDiskFiles);
 
@@ -313,6 +305,10 @@ public:
 
     bool IsIntelligentTrackingPreventionEnabled() const;
 
+    bool SetWebSchemeHandler(const char* scheme, WebSchemeHandler* handler) const;
+
+    static bool SetWebServiveWorkerSchemeHandler(const char* scheme, WebSchemeHandler* handler);
+
     int32_t ClearWebSchemeHandler();
 
     ErrCode StartCamera();
@@ -329,6 +325,10 @@ public:
                                      napi_deferred deferred,
                                      const std::string &url, const std::string &script,
                                      std::shared_ptr<CacheOptions> cacheOptions);
+
+    int32_t PrecompileJavaScript(const std::string& url, const std::string& script,
+        std::shared_ptr<OHOS::NWeb::CacheOptions> cacheOptions,
+        std::shared_ptr<OHOS::NWeb::NWebMessageValueCallback> callbackImpl);
 
     bool ParseResponseHeaders(napi_env env,
                               napi_value value,
@@ -379,11 +379,8 @@ public:
 
     void GetScrollOffset(float* offset_x, float* offset_y);
 
-    void CreatePDFCallbackExt(
-        napi_env env, std::shared_ptr<NWebPDFConfigArgs> pdfConfig, napi_ref pdfCallback);
-
-    void CreatePDFPromiseExt(
-        napi_env env, std::shared_ptr<NWebPDFConfigArgs> pdfConfig, napi_deferred deferred);
+    void CreatePDFExt(
+        std::shared_ptr<NWebPDFConfigArgs> pdfConfig, std::shared_ptr<NWebArrayBufferValueCallback> callbackImpl);
 
     bool ScrollByWithResult(float deltaX, float deltaY) const;
 
@@ -391,6 +388,11 @@ public:
         const std::string& bundleName, const std::string& moduleName, std::string &result) const;
 
     std::shared_ptr<HitTestResult> GetLastHitTest();
+    
+    void OnCreateNativeMediaPlayer(ani_vm *vm, ani_fn_object callback);
+
+    int32_t GetNWebId();
+
 private:
     int ConverToWebHitTestType(int hitType);
 
@@ -408,6 +410,7 @@ public:
     static std::string customeSchemeCmdLine_;
     static bool existNweb_;
     static bool webDebuggingAccess_;
+    static int32_t webDebuggingPort_;
     static std::set<std::string> webTagSet_;
     static int32_t webTagStrId_;
 

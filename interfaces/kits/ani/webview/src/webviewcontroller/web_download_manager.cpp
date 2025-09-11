@@ -62,15 +62,56 @@ void DownloadBeforeStart(NWebDownloadItem *downloadItem, WebBeforeDownloadCallba
     WebDownloadItem_Destroy(downloadItem);
     webDownloadItem->before_download_callback = wrapper;
     webDownloadDelegate->DownloadBeforeStart(webDownloadItem);
-    if (webDownloadItem) {
-        delete webDownloadItem;
-        webDownloadItem = nullptr;
-    }
 }
 
 void DownloadDidUpdate(NWebDownloadItem *downloadItem, WebDownloadItemCallbackWrapper *wrapper)
 {
     WVLOG_D("[DOWNLOAD] DownloadDidUpdate.");
+    if (wrapper == nullptr) {
+        WVLOG_E("[DOWNLOAD] WebBeforeDownloadCallbackWrapper is null");
+        return;
+    }
+
+    int32_t nwebId = WebDownloadItem_NWebId(downloadItem);
+
+    WebDownloadDelegate *webDownloadDelegate = GetWebDownloadDelegate(nwebId);
+    if (!webDownloadDelegate) {
+        WVLOG_D("[DOWNLOAD] didn't find delegate for nweb.");
+        webDownloadDelegate = g_default_delegate.get();
+    }
+
+    if (!webDownloadDelegate) {
+        WVLOG_E("[DOWNLOAD] webDownloadDelegate is null");
+        return;
+    }
+    WebDownloadItem *webDownloadItem = new WebDownloadItem(webDownloadDelegate->GetEnv(), downloadItem);
+    // destroy download_item since copied content from download_item.
+    WebDownloadItem_Destroy(downloadItem);
+    webDownloadItem->download_item_callback = wrapper;
+    switch (webDownloadItem->state) {
+        case NWebDownloadItemState::PENDING:
+            //  When in PENDING state, chromium call downloadDidUpdate
+            //  while file path is temporary file, just stop calling ui.
+            delete webDownloadItem;
+            webDownloadItem = nullptr;
+            break;
+        case NWebDownloadItemState::IN_PROGRESS:
+        case NWebDownloadItemState::PAUSED:
+            webDownloadDelegate->DownloadDidUpdate(webDownloadItem);
+            break;
+        case NWebDownloadItemState::INTERRUPTED:
+        case NWebDownloadItemState::CANCELED:
+            webDownloadDelegate->DownloadDidFail(webDownloadItem);
+            break;
+        case NWebDownloadItemState::COMPLETE:
+            webDownloadDelegate->DownloadDidFinish(webDownloadItem);
+            break;
+        case NWebDownloadItemState::MAX_DOWNLOAD_STATE:
+        default:
+            delete webDownloadItem;
+            webDownloadItem = nullptr;
+            break;
+    }
 }
 } // namespace
 

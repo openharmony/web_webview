@@ -19,10 +19,11 @@
 
 #include "ani_business_error.h"
 #include "ani_parse_utils.h"
-#include "web_errors.h"
 #include "nweb_c_api.h"
 #include "nweb_log.h"
 #include "web_download_manager.h"
+#include "web_errors.h"
+
 
 namespace OHOS {
 namespace NWeb {
@@ -31,9 +32,8 @@ const char* WEB_DOWNLOAD_ITEM_CLASS_NAME = "L@ohos/web/webview/webview/WebDownlo
 }
 
 WebDownloadDelegate::WebDownloadDelegate(ani_env* env)
-    : delegate_(nullptr),
-      download_before_start_callback_(nullptr),
-      env_(env)
+    : delegate_(nullptr), download_before_start_callback_(nullptr), download_did_update_callback_(nullptr),
+      download_did_finish_callback_(nullptr), download_did_fail_callback_(nullptr), env_(env)
 {
     WVLOG_D("WebDownloadDelegate::WebDownloadDelegate");
 }
@@ -43,6 +43,15 @@ WebDownloadDelegate::~WebDownloadDelegate()
     WVLOG_D("[DOWNLOAD] WebDownloadDelegate::~WebDownloadDelegate");
     if (download_before_start_callback_) {
         env_->GlobalReference_Delete(download_before_start_callback_);
+    }
+    if (download_did_update_callback_) {
+        env_->GlobalReference_Delete(download_did_update_callback_);
+    }
+    if (download_did_finish_callback_) {
+        env_->GlobalReference_Delete(download_did_finish_callback_);
+    }
+    if (download_did_fail_callback_) {
+        env_->GlobalReference_Delete(download_did_fail_callback_);
     }
     WebDownloadManager::RemoveDownloadDelegate(this);
 }
@@ -55,57 +64,179 @@ void WebDownloadDelegate::RemoveSelfRef()
     }
 }
 
-void WebDownloadDelegate::DownloadBeforeStart(WebDownloadItem *webDownloadItem)
+void WebDownloadDelegate::DownloadBeforeStart(WebDownloadItem* webDownloadItem)
 {
     WVLOG_D("[DOWNLOAD] WebDownloadDelegate::DownloadBeforeStart");
-    if (env_ == nullptr) {
-        WVLOG_E("[DOWNLOAD] WebDownloadDelegate::DownloadBeforeStart nil env");
-        return;
+    bool success = false;
+    do {
+        if (env_ == nullptr) {
+            WVLOG_E("[DOWNLOAD] WebDownloadDelegate::DownloadBeforeStart nil env");
+            break;
+        }
+        if (!download_before_start_callback_ || !webDownloadItem) {
+            WVLOG_E("[DOWNLOAD] download_before_start_callback_ or webDownloadItem is null.");
+            break;
+        }
+        ani_object webItemObj = {};
+        if (!AniParseUtils::CreateObjectVoid(env_, WEB_DOWNLOAD_ITEM_CLASS_NAME, webItemObj)) {
+            WVLOG_E("[DOWNLOAD] webItemObj is null");
+            break;
+        }
+        if (!AniParseUtils::Wrap(
+                env_, webItemObj, WEB_DOWNLOAD_ITEM_CLASS_NAME, reinterpret_cast<ani_long>(webDownloadItem))) {
+            WVLOG_E("[DOWNLOAD] WebDownloadItem wrap failed");
+            break;
+        }
+        success = true;
+        std::vector<ani_ref> vec;
+        vec.push_back(webItemObj);
+        ani_ref result = nullptr;
+        if (env_->FunctionalObject_Call(reinterpret_cast<ani_fn_object>(download_before_start_callback_), vec.size(),
+                vec.data(), &result) != ANI_OK) {
+            WVLOG_E("FunctionalObject_Call failed");
+        }
+    } while (false);
+    if (!success && webDownloadItem) {
+        delete webDownloadItem;
     }
+}
 
-    if (!download_before_start_callback_ || !webDownloadItem) {
-        WVLOG_E("[DOWNLOAD] download_before_start_callback_ or webDownloadItem is null.");
-        return;
+void WebDownloadDelegate::DownloadDidUpdate(WebDownloadItem* webDownloadItem)
+{
+    WVLOG_D("[DOWNLOAD] WebDownloadDelegate::DownloadDidUpdate");
+    bool success = false;
+    do {
+        if (env_ == nullptr) {
+            WVLOG_E("[DOWNLOAD] WebDownloadDelegate::DownloadDidUpdate nil env.");
+            break;
+        }
+        if (!download_did_update_callback_ || !webDownloadItem) {
+            WVLOG_E("[DOWNLOAD] download_did_update_callback_ or webDownloadItem is null.");
+            break;
+        }
+        ani_object webItemObj = {};
+        if (!AniParseUtils::CreateObjectVoid(env_, WEB_DOWNLOAD_ITEM_CLASS_NAME, webItemObj)) {
+            WVLOG_E("[DOWNLOAD] aniDownloadItem is null");
+            break;
+        }
+        if (!AniParseUtils::Wrap(
+                env_, webItemObj, WEB_DOWNLOAD_ITEM_CLASS_NAME, reinterpret_cast<ani_long>(webDownloadItem))) {
+            WVLOG_E("[DOWNLOAD] WebDownloadItem wrap failed");
+            break;
+        }
+        success = true;
+        std::vector<ani_ref> vec;
+        vec.push_back(webItemObj);
+        ani_ref result = nullptr;
+        if (env_->FunctionalObject_Call(reinterpret_cast<ani_fn_object>(download_did_update_callback_), vec.size(),
+                vec.data(), &result) != ANI_OK) {
+            WVLOG_E("FunctionalObject_Call failed");
+        }
+    } while (false);
+    if (!success && webDownloadItem) {
+        delete webDownloadItem;
+        webDownloadItem = nullptr;
     }
+}
 
-    ani_class cls;
-    ani_status status;
-    if ((status = env_->FindClass(WEB_DOWNLOAD_ITEM_CLASS_NAME, &cls)) != ANI_OK) {
-        WVLOG_E("[DOWNLOAD] FindClass status: %{public}d", status);
-        return;
+void WebDownloadDelegate::DownloadDidFail(WebDownloadItem* webDownloadItem)
+{
+    WVLOG_D("[DOWNLOAD] WebDownloadDelegate::DownloadDidFail");
+    bool success = false;
+    do {
+        if (env_ == nullptr) {
+            WVLOG_E("[DOWNLOAD] WebDownloadDelegate::DownloadDidFail nil env");
+            break;
+        }
+        if (!download_did_fail_callback_ || !webDownloadItem) {
+            WVLOG_E("[DOWNLOAD] download_did_fail_callback_ or webDownloadItem is null.");
+            break;
+        }
+        ani_object webItemObj = {};
+        if (!AniParseUtils::CreateObjectVoid(env_, WEB_DOWNLOAD_ITEM_CLASS_NAME, webItemObj)) {
+            WVLOG_E("[DOWNLOAD] aniDownloadItem is null");
+            break;
+        }
+        if (!AniParseUtils::Wrap(
+                env_, webItemObj, WEB_DOWNLOAD_ITEM_CLASS_NAME, reinterpret_cast<ani_long>(webDownloadItem))) {
+            WVLOG_E("[DOWNLOAD] WebDownloadItem wrap failed");
+            break;
+        }
+        success = true;
+        std::vector<ani_ref> vec;
+        vec.push_back(webItemObj);
+        ani_ref result = nullptr;
+        if (env_->FunctionalObject_Call(reinterpret_cast<ani_fn_object>(download_did_fail_callback_), vec.size(),
+                vec.data(), &result) != ANI_OK) {
+            WVLOG_E("FunctionalObject_Call failed");
+        }
+    } while (false);
+    if (!success && webDownloadItem) {
+        delete webDownloadItem;
+        webDownloadItem = nullptr;
     }
-    ani_method ctor;
-    if ((status = env_->Class_FindMethod(cls, "<ctor>", "Lstd/core/String;:V", &ctor)) != ANI_OK) {
-        WVLOG_E("[DOWNLOAD] Class_FindMethod status: %{public}d", status);
-        return;
-    }
-    ani_string result_string{};
-    if ((status = env_->String_NewUTF8(webDownloadItem->url.c_str(), webDownloadItem->url.size(), &result_string)) !=
-        ANI_OK) {
-        WVLOG_E("[DOWNLOAD] String_NewUTF8 status: %{public}d", status);
-        return;
-    }
-    ani_object inputObject = nullptr;
-    if ((status = env_->Object_New(cls, ctor, &inputObject, result_string)) != ANI_OK) {
-        WVLOG_E("[DOWNLOAD] Object_New status: %{public}d", status);
-        return;
-    }
-    if (inputObject == nullptr) {
-        WVLOG_E("[DOWNLOAD] inputObject is null");
-        return;
-    }
+}
 
-    std::vector<ani_ref> vec;
-    vec.push_back(static_cast<ani_object>(inputObject));
-    ani_ref fnReturnVal;
-    env_->FunctionalObject_Call(reinterpret_cast<ani_fn_object>(download_before_start_callback_),
-                                vec.size(), vec.data(), &fnReturnVal);
+void WebDownloadDelegate::DownloadDidFinish(WebDownloadItem* webDownloadItem)
+{
+    WVLOG_D("[DOWNLOAD] WebDownloadDelegate::DownloadDidFinish");
+    bool success = false;
+    do {
+        if (env_ == nullptr) {
+            WVLOG_E("[DOWNLOAD] WebDownloadDelegate::DownloadDidFinish nil env");
+            break;
+        }
+        if (!download_did_finish_callback_ || !webDownloadItem) {
+            WVLOG_E("[DOWNLOAD] download_did_finish_callback_ or webDownloadItem is null.");
+            break;
+        }
+        ani_object webItemObj = {};
+        if (!AniParseUtils::CreateObjectVoid(env_, WEB_DOWNLOAD_ITEM_CLASS_NAME, webItemObj)) {
+            WVLOG_E("[DOWNLOAD] aniDownloadItem is null");
+            break;
+        }
+        if (!AniParseUtils::Wrap(
+                env_, webItemObj, WEB_DOWNLOAD_ITEM_CLASS_NAME, reinterpret_cast<ani_long>(webDownloadItem))) {
+            WVLOG_E("[DOWNLOAD] WebDownloadItem wrap failed");
+            break;
+        }
+        success = true;
+        std::vector<ani_ref> vec;
+        vec.push_back(webItemObj);
+        ani_ref result = nullptr;
+        if (env_->FunctionalObject_Call(reinterpret_cast<ani_fn_object>(download_did_finish_callback_), vec.size(),
+                vec.data(), &result) != ANI_OK) {
+            WVLOG_E("FunctionalObject_Call failed");
+        }
+    } while (false);
+    if (!success && webDownloadItem) {
+        delete webDownloadItem;
+        webDownloadItem = nullptr;
+    }
 }
 
 void WebDownloadDelegate::PutDownloadBeforeStart(ani_fn_object callback)
 {
     WVLOG_I("[DOWNLOAD] WebDownloadDelegate::PutDownloadBeforeStart");
     env_->GlobalReference_Create(reinterpret_cast<ani_ref>(callback), &download_before_start_callback_);
+}
+
+void WebDownloadDelegate::PutDownloadDidUpdate(ani_fn_object callback)
+{
+    WVLOG_I("[DOWNLOAD] WebDownloadDelegate::PutDownloadDidUpdate");
+    env_->GlobalReference_Create(reinterpret_cast<ani_ref>(callback), &download_did_update_callback_);
+}
+
+void WebDownloadDelegate::PutDownloadDidFinish(ani_fn_object callback)
+{
+    WVLOG_I("[DOWNLOAD] WebDownloadDelegate::PutDownloadDidFinish");
+    env_->GlobalReference_Create(reinterpret_cast<ani_ref>(callback), &download_did_finish_callback_);
+}
+
+void WebDownloadDelegate::PutDownloadDidFail(ani_fn_object callback)
+{
+    WVLOG_I("[DOWNLOAD] WebDownloadDelegate::PutDownloadDidFail");
+    env_->GlobalReference_Create(reinterpret_cast<ani_ref>(callback), &download_did_fail_callback_);
 }
 
 int32_t WebDownloadDelegate::GetNWebId() const

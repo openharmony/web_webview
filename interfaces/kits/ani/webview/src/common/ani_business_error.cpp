@@ -75,7 +75,7 @@ ani_object CreateBusinessError(ani_env *env, ani_int code, const std::string& ms
         WVLOG_E("FindClass failed %{public}d", status);
         return nullptr;
     }
-    if ((status = env->Class_FindMethod(cls, "<ctor>", "DLescompat/Error;:V", &method)) != ANI_OK) {
+    if ((status = env->Class_FindMethod(cls, "<ctor>", "ILescompat/Error;:V", &method)) != ANI_OK) {
         WVLOG_E("Class_FindMethod failed %{public}d", status);
         return nullptr;
     }
@@ -84,8 +84,7 @@ ani_object CreateBusinessError(ani_env *env, ani_int code, const std::string& ms
         WVLOG_E("error nulll");
         return nullptr;
     }
-    ani_double dCode(code);
-    if ((status = env->Object_New(cls, method, &obj, dCode, error)) != ANI_OK) {
+    if ((status = env->Object_New(cls, method, &obj, code, error)) != ANI_OK) {
         WVLOG_E("Object_New failed %{public}d", status);
         return nullptr;
     }
@@ -107,6 +106,12 @@ ani_status AniBusinessError::ThrowError(ani_env *env, int32_t errorCode, const s
 ani_status AniBusinessError::ThrowErrorByErrCode(ani_env *env, int32_t errorCode)
 {
     return ThrowError(env, errorCode, GetErrMsgByErrCode(errorCode));
+}
+
+ani_ref AniBusinessError::CreateError(ani_env* env, int32_t err)
+{
+    std::string errMsg = GetErrMsgByErrCode(err);
+    return CreateBusinessError(env, err, errMsg);
 }
 }
 }

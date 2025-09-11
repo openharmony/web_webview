@@ -1813,4 +1813,23 @@ void WebviewJavaScriptResultCallBack::UpdateInstanceId(int32_t newId)
     }
 }
 
+void WebviewJavaScriptResultCallBack::GetJavaScriptResultV2(
+    const std::vector<std::shared_ptr<NWebHapValue>>& args,
+    const std::string& method,
+    const std::string& objectName, int32_t routingId, int32_t objectId,
+    std::shared_ptr<NWebHapValue> result)
+{
+}
+
+void WebviewJavaScriptResultCallBack::GetJavaScriptResultFlowbufV2(
+    const std::vector<std::shared_ptr<NWebHapValue>>& args, const std::string& method,
+    const std::string& objectName, int fd, int32_t routingId, int32_t objectId,
+    std::shared_ptr<NWebHapValue> result)
+{
+}
+
+void WebviewJavaScriptResultCallBack::GetJavaScriptObjectMethodsV2(
+    int32_t objectId, std::shared_ptr<NWebHapValue> result)
+{
+}
 } // namespace OHOS::NWeb

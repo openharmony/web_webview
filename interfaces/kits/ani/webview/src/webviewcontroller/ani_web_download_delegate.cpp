@@ -33,9 +33,9 @@ namespace {
 const char* WEB_DOWNLOAD_DELEGATE_CLASS_NAME = "L@ohos/web/webview/webview/WebDownloadDelegate;";
 }
 
-static void JsDownloadBeforeStart(ani_env *env, ani_object object, ani_fn_object callback)
+static void OnBeforeDownload(ani_env* env, ani_object object, ani_fn_object callback)
 {
-    WVLOG_D("[DOWNLOAD] JsDownloadBeforeStart");
+    WVLOG_D("[DOWNLOAD] OnBeforeDownload() enter");
     if (env == nullptr) {
         WVLOG_E("[DOWNLOAD] env is nullptr");
         return;
@@ -49,9 +49,57 @@ static void JsDownloadBeforeStart(ani_env *env, ani_object object, ani_fn_object
     webDownloadDelegate->PutDownloadBeforeStart(callback);
 }
 
-static void Constructor(ani_env *env, ani_object object)
+static void OnDownloadFinish(ani_env* env, ani_object object, ani_fn_object callback)
 {
-    WVLOG_D("[DOWNLOAD] WebDownloadDelegate native Constructor");
+    WVLOG_D("[DOWNLOAD] OnDownloadFinish() enter");
+    if (env == nullptr) {
+        WVLOG_E("[DOWNLOAD] env is nullptr");
+        return;
+    }
+
+    auto* webDownloadDelegate = reinterpret_cast<WebDownloadDelegate*>(AniParseUtils::Unwrap(env, object));
+    if (!webDownloadDelegate) {
+        WVLOG_E("[DOWNLOAD] webDownloadDelegate is null");
+        return;
+    }
+    webDownloadDelegate->PutDownloadDidFinish(callback);
+}
+
+static void OnDownloadUpdated(ani_env* env, ani_object object, ani_fn_object callback)
+{
+    WVLOG_D("[DOWNLOAD] OnDownloadUpdated() enter");
+    if (env == nullptr) {
+        WVLOG_E("[DOWNLOAD] env is nullptr");
+        return;
+    }
+
+    auto* webDownloadDelegate = reinterpret_cast<WebDownloadDelegate*>(AniParseUtils::Unwrap(env, object));
+    if (!webDownloadDelegate) {
+        WVLOG_E("[DOWNLOAD] webDownloadDelegate is null");
+        return;
+    }
+    webDownloadDelegate->PutDownloadDidUpdate(callback);
+}
+
+static void OnDownloadFailed(ani_env* env, ani_object object, ani_fn_object callback)
+{
+    WVLOG_D("[DOWNLOAD] OnDownloadFailed() enter");
+    if (env == nullptr) {
+        WVLOG_E("[DOWNLOAD] env is nullptr");
+        return;
+    }
+
+    auto* webDownloadDelegate = reinterpret_cast<WebDownloadDelegate*>(AniParseUtils::Unwrap(env, object));
+    if (!webDownloadDelegate) {
+        WVLOG_E("[DOWNLOAD] webDownloadDelegate is null");
+        return;
+    }
+    webDownloadDelegate->PutDownloadDidFail(callback);
+}
+
+static void Constructor(ani_env* env, ani_object object)
+{
+    WVLOG_D("[DOWNLOAD] AniWebDownloadDelegate native Constructor");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
@@ -62,8 +110,8 @@ static void Constructor(ani_env *env, ani_object object)
         WVLOG_E("new WebDownloadDelegate failed");
         return;
     }
-    if (!AniParseUtils::Wrap(env, object, WEB_DOWNLOAD_DELEGATE_CLASS_NAME,
-                             reinterpret_cast<ani_long>(webDownloadDelegate))) {
+    if (!AniParseUtils::Wrap(
+            env, object, WEB_DOWNLOAD_DELEGATE_CLASS_NAME, reinterpret_cast<ani_long>(webDownloadDelegate))) {
         WVLOG_E("WebDownloadDelegate wrap failed");
         delete webDownloadDelegate;
         webDownloadDelegate = nullptr;
@@ -72,6 +120,7 @@ static void Constructor(ani_env *env, ani_object object)
 
 ani_status StsWebDownloadDelegateInit(ani_env *env)
 {
+    WVLOG_D("[DOWNLOAD] StsWebDownloadDelegateInit");
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return ANI_ERROR;
@@ -83,14 +132,17 @@ ani_status StsWebDownloadDelegateInit(ani_env *env)
         return ANI_ERROR;
     }
     std::array allMethods = {
-        ani_native_function { "<ctor>", nullptr, reinterpret_cast<void *>(Constructor) },
-        ani_native_function { "onBeforeDownload", "Lstd/core/Function1;:V",
-                              reinterpret_cast<void *>(JsDownloadBeforeStart) },
+        ani_native_function { "<ctor>", nullptr, reinterpret_cast<void*>(Constructor) },
+        ani_native_function { "onBeforeDownload", nullptr, reinterpret_cast<void*>(OnBeforeDownload) },
+        ani_native_function { "onDownloadFinish", nullptr, reinterpret_cast<void*>(OnDownloadFinish) },
+        ani_native_function { "onDownloadUpdated", nullptr, reinterpret_cast<void*>(OnDownloadUpdated) },
+        ani_native_function { "onDownloadFailed", nullptr, reinterpret_cast<void*>(OnDownloadFailed) },
     };
 
     status = env->Class_BindNativeMethods(webDownloadDelagateCls, allMethods.data(), allMethods.size());
     if (status != ANI_OK) {
         WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+        return ANI_ERROR;
     }
     return ANI_OK;
 }

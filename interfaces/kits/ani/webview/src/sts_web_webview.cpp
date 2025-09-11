@@ -19,10 +19,20 @@
 #include <ctime>
 #include <iostream>
 
+#include "ani_native_media_player_handler.h"
 #include "ani_webview_controller.h"
 #include "ani_proxy_config.h"
 #include "ani_web_storage.h"
+#include "ani_web_data_base.h"
+#include "ani_webview_createpdf_execute_callback.h"
 #include "nweb_log.h"
+#include "ani_geolocation_permission.h"
+#include "ani_web_adsblock_manager.h"
+#include "ani_webview_function.h"
+#include "webview_javascript_execute_callback.h"
+#include "ani_web_scheme_handler.h"
+#include "ani_web_scheme_handler_resource.h"
+#include "ani_web_scheme_handler_request.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -39,13 +49,28 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
     }
 
     StsWebviewControllerInit(env);
+    StsWebMessageExtInit(env);
     StsBackForwardListInit(env);
+    StsWebMessagePortInit(env);
     StsWebSchemeHandlerResponseInit(env);
     StsWebDownloadDelegateInit(env);
+    StsWebDownLoadItemInit(env);
+    StsWebDownloadManagerInit(env);
     StsWebCookieManagerInit(env);
     StsWebProxyConfigInit(env);
     StsCleanerInit(env);
     StsWebStorageInit(env);
+    StsNativeMediaPlayerHandlerinnerInit(env);
+    StsWebAdsBlockManagerInit(env);
+    StsWebDataBaseInit(env);
+    StsPdfDataInit(env);
+    StsGeolocationPermissionInit(env);
+    StsJsMessageExtInit(env);
+    StsWebviewFunctionInit(env);
+    StsPrintDocumentAdapterInit(env);
+    StsWebSchemeHandlerResourceInit(env);
+    StsWebSchemeHandlerRequestInit(env);
+    StsWebSchemeHandlerInit(env);
     *result = ANI_VERSION_1;
     return ANI_OK;
 }

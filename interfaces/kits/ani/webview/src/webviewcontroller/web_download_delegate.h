@@ -30,8 +30,14 @@ public:
     ~WebDownloadDelegate();
 
     void DownloadBeforeStart(WebDownloadItem *webDownloadItem);
+    void DownloadDidUpdate(WebDownloadItem *webDownloadItem);
+    void DownloadDidFail(WebDownloadItem *webDownloadItem);
+    void DownloadDidFinish(WebDownloadItem *webDownloadItem);
 
     void PutDownloadBeforeStart(ani_fn_object callback);
+    void PutDownloadDidUpdate(ani_fn_object callback);
+    void PutDownloadDidFinish(ani_fn_object callback);
+    void PutDownloadDidFail(ani_fn_object callback);
 
     int32_t GetNWebId() const;
     void SetNWebId(int32_t nwebId);
@@ -46,6 +52,10 @@ private:
     int32_t nwebId_ = -1;
 
     ani_ref download_before_start_callback_;
+    ani_ref download_did_update_callback_;
+    ani_ref download_did_finish_callback_;
+    ani_ref download_did_fail_callback_;
+
     ani_env* env_ = nullptr;
 };
 } // namespace NWeb

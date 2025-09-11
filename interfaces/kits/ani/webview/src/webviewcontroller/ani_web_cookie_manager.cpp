@@ -28,6 +28,167 @@ using NWebError::NO_ERROR;
 namespace {
 const char* WEB_COOKIE_MANAGER_CLASS_NAME = "L@ohos/web/webview/webview/WebCookieManager;";
 }
+static void ClearSessionCookieSync(ani_env *env, ani_object aniClass)
+{
+    WVLOG_D("[COOKIE] ClearSessionCookieSync");
+    std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
+        OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
+    if (cookieManager == nullptr) {
+        WVLOG_E("cookieManager is nullptr");
+        return;
+    }
+    cookieManager->DeleteSessionCookies(nullptr);
+}
+
+static ani_boolean JsExistCookie(ani_env *env, ani_object aniClass, ani_object incognito)
+{
+    WVLOG_D("[COOKIE] JsExistCookie");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+    ani_boolean isUndefined = ANI_TRUE;
+    bool incognitoMode = false;
+    isUndefined = ANI_TRUE;
+    env->Reference_IsUndefined(incognito, &isUndefined);
+    if (isUndefined != ANI_TRUE) {
+        ani_boolean bIncognito;
+        if (env->Object_CallMethodByName_Boolean(incognito, "booleanValue", nullptr, &bIncognito) != ANI_OK) {
+            AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
+            return ANI_FALSE;
+        }
+        incognitoMode = static_cast<bool>(bIncognito);
+    }
+
+    std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
+        OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
+    if (cookieManager == nullptr) {
+        WVLOG_E("cookieManager is nullptr");
+        return ANI_FALSE;
+    }
+    return static_cast<ani_boolean>(cookieManager->ExistCookies(incognitoMode));
+}
+
+static ani_boolean JsIsCookieAllowed(ani_env *env, ani_object aniClass)
+{
+    WVLOG_D("[COOKIE] JsIsCookieAllowed");
+    std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
+        OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
+    if (cookieManager == nullptr) {
+        WVLOG_E("cookieManager is nullptr");
+        return ANI_FALSE;
+    }
+    return static_cast<ani_boolean>(cookieManager->IsAcceptCookieAllowed());
+}
+
+static void SetCookieSyncParseString(ani_env *env, ani_string url, ani_string value, std::string& urlStr, std::string& valueStr)
+{
+    if (!AniParseUtils::ParseString(env, url, urlStr)) {
+        WVLOG_E("Parse url failed.");
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "url", "string"));
+        return;
+    }
+    if (!AniParseUtils::ParseString(env, value, valueStr)) {
+        WVLOG_E("Parse value failed.");
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "value", "string"));
+        return;
+    }
+}
+
+static void JsSetCookieSyncThree(ani_env *env, ani_object aniClass, ani_string url, ani_string value,
+    ani_object incognito)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    ani_boolean isUndefined = ANI_TRUE;
+    env->Reference_IsUndefined(url, &isUndefined);
+    if (isUndefined == ANI_TRUE) {
+        WVLOG_E("url is undefined");
+        WVLOG_E("is undefined");
+        return;
+    }
+    isUndefined = ANI_TRUE;
+    env->Reference_IsUndefined(value, &isUndefined);
+    if (isUndefined == ANI_TRUE) {
+        WVLOG_E("value is undefined");
+        WVLOG_E("is undefined");
+        return;
+    }
+    std::string urlStr;
+    std::string valueStr;
+    SetCookieSyncParseString(env, url, value, urlStr, valueStr);
+    bool incognitoMode = false;
+    isUndefined = ANI_TRUE;
+    env->Reference_IsUndefined(incognito, &isUndefined);
+    if (isUndefined != ANI_TRUE) {
+        ani_boolean bIncognito = ANI_FALSE;
+        if (env->Object_CallMethodByName_Boolean(incognito, "unboxed", nullptr, &bIncognito) != ANI_OK) {
+            AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
+            return;
+        }
+        incognitoMode = static_cast<bool>(bIncognito);
+    }
+    int isSet = -1;
+    std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
+        OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
+    if (cookieManager != nullptr) {
+        isSet = cookieManager->SetCookieSync(urlStr, valueStr, incognitoMode , false);
+    }
+    if (isSet == NWebError::INVALID_URL) {
+        AniBusinessError::ThrowErrorByErrCode(env, NWebError::INVALID_URL);
+        return;
+    } else if (isSet == NWebError::INVALID_COOKIE_VALUE) {
+        AniBusinessError::ThrowErrorByErrCode(env, NWebError::INVALID_COOKIE_VALUE);
+        return;
+    }
+}
+
+static void JsSetCookieSync(ani_env *env, ani_object aniClass, ani_string url, ani_string value,
+    ani_boolean incognito, ani_boolean includeHttpOnly)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    ani_boolean isUndefined = ANI_TRUE;
+    env->Reference_IsUndefined(url, &isUndefined);
+    if (isUndefined == ANI_TRUE) {
+        WVLOG_E("url is undefined");
+        WVLOG_E("is undefined");
+        return;
+    }
+    isUndefined = ANI_TRUE;
+    env->Reference_IsUndefined(value, &isUndefined);
+    if (isUndefined == ANI_TRUE) {
+        WVLOG_E("value is undefined");
+        WVLOG_E("is undefined");
+        return;
+    }
+    std::string urlStr;
+    std::string valueStr;
+    SetCookieSyncParseString(env, url, value, urlStr, valueStr);
+    bool incognitoMode = static_cast<bool>(incognito);
+    bool bIncludeHttpOnly = static_cast<bool>(includeHttpOnly);
+    int isSet = -1;
+    std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
+        OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
+    if (cookieManager != nullptr) {
+        isSet = cookieManager->SetCookieSync(urlStr, valueStr, incognitoMode , bIncludeHttpOnly);
+    }
+    if (isSet == NWebError::INVALID_URL) {
+        AniBusinessError::ThrowErrorByErrCode(env, NWebError::INVALID_URL);
+        return;
+    } else if (isSet == NWebError::INVALID_COOKIE_VALUE) {
+        AniBusinessError::ThrowErrorByErrCode(env, NWebError::INVALID_COOKIE_VALUE);
+        return;
+    }
+}
 
 static ani_string JsFetchCookieSync(ani_env *env, ani_object aniClass, ani_string url, ani_object incognito)
 {
@@ -130,6 +291,12 @@ ani_status StsWebCookieManagerInit(ani_env *env)
         return ANI_ERROR;
     }
     std::array allMethods = {
+        ani_native_function { "clearSessionCookieSync", nullptr, reinterpret_cast<void *>(ClearSessionCookieSync) },
+        ani_native_function { "existCookie", nullptr, reinterpret_cast<void *>(JsExistCookie) },
+        ani_native_function { "isCookieAllowed", nullptr, reinterpret_cast<void *>(JsIsCookieAllowed) },
+        ani_native_function { "configCookieSyncInternal", nullptr, reinterpret_cast<void *>(JsSetCookieSyncThree) },
+        ani_native_function { "configCookieSync", "Lstd/core/String;Lstd/core/String;ZZ:V",
+                              reinterpret_cast<void *>(JsSetCookieSync) },
         ani_native_function { "fetchCookieSync", nullptr, reinterpret_cast<void *>(JsFetchCookieSync) },
         ani_native_function { "saveCookieSync", nullptr, reinterpret_cast<void *>(JsSaveCookieSync) },
         ani_native_function { "clearAllCookiesSync", nullptr, reinterpret_cast<void *>(JsClearAllCookiesSync) },
