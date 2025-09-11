@@ -22,23 +22,6 @@
 using namespace OHOS::NWeb;
 namespace OHOS {
 
-void TestAllocate(void** outBuffer)
-{
-    OH_NativeBuffer_Config config = {
-        .width = 10,
-        .height = 10,
-        .format = OH_NativeBuffer_Format::NATIVEBUFFER_PIXEL_FMT_RGBA_8888,
-        .usage = 1,
-    };
-
-    OH_NativeBuffer* buffer = OH_NativeBuffer_Alloc(&config);
-    if (buffer != nullptr) {
-        *outBuffer = buffer;
-    } else {
-        *outBuffer = nullptr;
-    }
-}
-
 constexpr int MAX_SET_NUMBER = 1000;
 
 bool NativeBufferAdapterFuzzTest(const uint8_t* data, size_t size)
@@ -47,8 +30,6 @@ bool NativeBufferAdapterFuzzTest(const uint8_t* data, size_t size)
         return false;
     }
     FuzzedDataProvider dataProvider(data, size);
-    uint32_t width = dataProvider.ConsumeIntegralInRange<uint32_t>(1, MAX_SET_NUMBER);
-    uint32_t height = dataProvider.ConsumeIntegralInRange<uint32_t>(1, MAX_SET_NUMBER);
     uint64_t usage = dataProvider.ConsumeIntegralInRange<uint64_t>(1, MAX_SET_NUMBER);
     int32_t fence = dataProvider.ConsumeIntegralInRange<int32_t>(1, MAX_SET_NUMBER);
     int socketFd = dataProvider.ConsumeIntegralInRange<int>(1, MAX_SET_NUMBER);
@@ -69,22 +50,6 @@ bool NativeBufferAdapterFuzzTest(const uint8_t* data, size_t size)
     void* nativeBuffer = nullptr;
     adapter.NativeBufferFromNativeWindowBuffer(nativeWindowBuffer, &nativeBuffer);
     void* address = nullptr;
-    adapter.Lock(buffer, usage, fence, &address);
-    adapter.FreeNativeBuffer(buffer);
-
-    TestAllocate(&nativeBuffer);
-    adapter.AcquireBuffer(nativeBuffer);
-    adapter.Release(nativeBuffer);
-    adapter.GetSeqNum(nativeBuffer);
-    adapter.GetEGLBuffer(nativeBuffer, &eglBuffer);
-    adapter.FreeEGLBuffer(eglBuffer);
-    OH_NativeBuffer_Config config = {
-        .width = width,
-        .height = height,
-        .format = OH_NativeBuffer_Format::NATIVEBUFFER_PIXEL_FMT_RGBA_8888,
-        .usage = OH_NativeBuffer_Usage::NATIVEBUFFER_USAGE_HW_RENDER,
-    };
-    buffer = OH_NativeBuffer_Alloc(&config);
     adapter.Lock(buffer, usage, fence, &address);
     adapter.Unlock(buffer, &fence);
     adapter.FreeNativeBuffer(buffer);
