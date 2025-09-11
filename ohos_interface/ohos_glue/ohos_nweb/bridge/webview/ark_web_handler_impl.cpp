@@ -1153,4 +1153,9 @@ ArkWebString ArkWebHandlerImpl::OnWebNativeMessage(
     return ArkWebStringClassToStruct(nweb_handler_->OnWebNativeMessage(
         nweb_connect_info, std::make_shared<ArkWebNativeMessageCallbackWrapper>(callback)));
 }
+
+void ArkWebHandlerImpl::OnRefreshAccessedHistoryV2(const ArkWebString& url, bool isReload, bool isMainFrame)
+{
+    nweb_handler_->OnRefreshAccessedHistoryV2(ArkWebStringStructToClass(url), isReload, isMainFrame);
+}
 } // namespace OHOS::ArkWeb

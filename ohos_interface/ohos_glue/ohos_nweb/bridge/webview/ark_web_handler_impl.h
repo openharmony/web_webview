@@ -754,6 +754,15 @@ public:
      */
     ArkWebString OnWebNativeMessage(
         ArkWebRefPtr<ArkWebRuntimeConnectInfo> info, ArkWebRefPtr<ArkWebNativeMessageCallback> callback) override;
+
+    /**
+     * @brief inform application to update its visited links database.
+     *
+     * @param url the url being visited.
+     * @param isReload true if the url is being reload.
+     * @param isMainFrame true if the request is for the main frame.
+     */
+    void OnRefreshAccessedHistoryV2(const ArkWebString& url, bool isReload, bool isMainFrame) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };

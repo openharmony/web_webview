@@ -1091,6 +1091,16 @@ public:
     /*--ark web()--*/
     virtual ArkWebString OnWebNativeMessage(
         ArkWebRefPtr<ArkWebRuntimeConnectInfo> info, ArkWebRefPtr<ArkWebNativeMessageCallback> callback) = 0;
+
+    /**
+     * @brief inform application to update its visited links database.
+     *
+     * @param url the url being visited.
+     * @param isReload true if the url is being reload.
+     * @param isMainFrame true if the request is for the main frame.
+     */
+    /*--ark web()--*/
+    virtual void OnRefreshAccessedHistoryV2(const ArkWebString& url, bool isReload, bool isMainFrame) = 0;
 };
 
 } // namespace OHOS::ArkWeb
