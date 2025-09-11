@@ -175,9 +175,9 @@ enum class SiteIsolationMode {
 };
 
 enum class SetSiteIsolationModeErr : int32_t {
-    ALREADY_SET_ERR = 4,
-    SINGLE_RENDER_SET_STRICT_ERR = 3,
     ADVANCED_SECURITY_SET_ERR = 2,
+    SINGLE_RENDER_SET_STRICT_ERR = 3,
+    ALREADY_SET_ERR = 4,
 };
 
 class NWebTouchPointInfo {
