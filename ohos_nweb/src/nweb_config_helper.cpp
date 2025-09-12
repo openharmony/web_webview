@@ -460,7 +460,13 @@ void NWebConfigHelper::ParseNWebLTPOApp(xmlNodePtr nodePtr)
 
 void NWebConfigHelper::ParseNWebLTPOStrategy(xmlNodePtr nodePtr)
 {
-    ltpoStrategy_ = atoi((char *)xmlNodeGetContent(nodePtr));
+    xmlChar *content = xmlNodeGetContent(nodePtr);
+    if (content == nullptr) {
+        WVLOG_E("read ltpo xml node error");
+        return;
+    }
+    ltpoStrategy_ = atoi((char *)content);
+    xmlFree(content);
     WVLOG_D("ltpo strategy is: %{public}d", ltpoStrategy_);
 }
 
@@ -497,7 +503,13 @@ void NWebConfigHelper::ParseNWebDvsync(xmlNodePtr nodePtr)
 
 void NWebConfigHelper::ParseNWebDvsyncSwitch(xmlNodePtr nodePtr)
 {
-    dvsyncSwitch_ = atoi((char*)xmlNodeGetContent(nodePtr)) == 1;
+    xmlChar *content = xmlNodeGetContent(nodePtr);
+    if (content == nullptr) {
+        WVLOG_E("read dvsyncSwitch xml node error");
+        return;
+    }
+    dvsyncSwitch_ = atoi((char*)content) == 1;
+    xmlFree(content);
     WVLOG_D("dvsync switch is: %{public}d", dvsyncSwitch_);
 }
 
