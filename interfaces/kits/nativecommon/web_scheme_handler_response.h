@@ -13,23 +13,19 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_NWEB_ANI_SCHEME_HANDLER_RESPONSE_H
-#define OHOS_NWEB_ANI_SCHEME_HANDLER_RESPONSE_H
-
+#ifndef OHOS_NWEB_NATIVE_COMMON_WEB_SCHEME_HANDLER_RESPONSE_H
+#define OHOS_NWEB_NATIVE_COMMON_WEB_SCHEME_HANDLER_RESPONSE_H
 #include <string>
-#include <uv.h>
-#include <ani.h>
 
 #include "arkweb_scheme_handler.h"
-#include "refbase.h"
 
 namespace OHOS {
 namespace NWeb {
 
 class WebSchemeHandlerResponse {
 public:
-    explicit WebSchemeHandlerResponse(ani_env* env);
-    WebSchemeHandlerResponse(ani_env* env, ArkWeb_Response* response);
+    explicit WebSchemeHandlerResponse();
+    WebSchemeHandlerResponse(ArkWeb_Response* response);
     ~WebSchemeHandlerResponse();
 
     char* GetUrl();
@@ -51,10 +47,9 @@ public:
         return response_;
     }
 private:
-    ani_env* env_;
     ArkWeb_Response* response_ = nullptr;
 };
 
 } // namespace NWeb
 } // namespace OHOS
-#endif // OHOS_NWEB_ANI_SCHEME_HANDLER_RESPONSE_H
+#endif // OHOS_NWEB_NATIVE_COMMON_WEB_SCHEME_HANDLER_RESPONSE_H

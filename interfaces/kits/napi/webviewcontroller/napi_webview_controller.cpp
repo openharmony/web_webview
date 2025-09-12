@@ -45,7 +45,8 @@
 #include "web_download_delegate.h"
 #include "web_download_manager.h"
 #include "arkweb_scheme_handler.h"
-#include "web_scheme_handler_request.h"
+#include "web_scheme_handler.h"
+#include "napi_web_scheme_handler_request.h"
 #include "system_properties_adapter_impl.h"
 #include "web_history_list.h"
 #include "web_message_port.h"
@@ -594,6 +595,10 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
             ArkWebTransfer::CreateBackForwardListTransfer),
         DECLARE_NAPI_FUNCTION("__createWebMessagePortTransfer__",
             ArkWebTransfer::CreateWebMessagePortTransfer),
+        DECLARE_NAPI_FUNCTION("__createWebResourceHandlerTransfer__",
+            ArkWebTransfer::CreateWebResourceHandlerTransfer),
+        DECLARE_NAPI_FUNCTION("__createWebSchemeHandlerRequestTransfer__",
+            ArkWebTransfer::CreateWebSchemeHandlerRequestTransfer),
     };
     napi_define_properties(env, exports, sizeof(transferDesc) / sizeof(transferDesc[0]), transferDesc);
     napi_property_descriptor properties[] = {
@@ -7473,6 +7478,126 @@ napi_value ArkWebTransfer::CreateWebMessagePortTransfer(napi_env env, napi_callb
         return result;
     }
     napi_value jsValue = CreateMessagePort(env, messagePort, isExtentionType);
+    if (jsValue) {
+        return jsValue;
+    }
+    return result;
+}
+
+static napi_value CreateWebResourceHandler(napi_env env, WebResourceHandler* resourceHandler)
+{
+    napi_value jsValue = nullptr;
+    napi_create_object(env, &jsValue);
+
+    NAPI_CALL(env, napi_wrap(env, jsValue, resourceHandler,
+        [](napi_env env, void *data, void *hint) {
+            WebResourceHandler *handler = static_cast<WebResourceHandler *>(data);
+            if (handler) {
+                handler->DecStrongRef(handler);
+            }
+        },
+        nullptr, nullptr));
+    resourceHandler->IncStrongRef(nullptr);
+    
+    napi_property_descriptor resultFuncs[] = {
+        DECLARE_NAPI_FUNCTION("didReceiveResponse", NapiWebResourceHandler::JS_DidReceiveResponse),
+        DECLARE_NAPI_FUNCTION("didReceiveResponseBody", NapiWebResourceHandler::JS_DidReceiveResponseBody),
+        DECLARE_NAPI_FUNCTION("didFinish", NapiWebResourceHandler::JS_DidFinish),
+        DECLARE_NAPI_FUNCTION("didFail", NapiWebResourceHandler::JS_DidFailWithError),
+    };
+
+    NAPI_CALL(env, napi_define_properties(env, jsValue, sizeof(resultFuncs) / sizeof(resultFuncs[0]), resultFuncs));
+    return jsValue;
+}
+
+napi_value ArkWebTransfer::CreateWebResourceHandlerTransfer(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    napi_value result;
+    napi_get_undefined(env, &result);
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (argc != INTEGER_ONE) {
+        WVLOG_E("[CreateWebResourceHandlerTransfer] number of params is invalid");
+        return result;
+    }
+
+    int64_t addr = 0;
+    if (!NapiParseUtils::ParseInt64(env, argv[INTEGER_ZERO], addr)) {
+        WVLOG_E("[CreateWebResourceHandlerTransfer] type of param is error");
+        return result;
+    }
+
+    WebResourceHandler* resourceHandler =  reinterpret_cast<WebResourceHandler*>(addr);
+    if (resourceHandler == nullptr) {
+        WVLOG_E("[CreateWebResourceHandlerTransfer] resourceHandler is null");
+        return result;
+    }
+    napi_value jsValue = CreateWebResourceHandler(env, resourceHandler);
+    if (jsValue) {
+        return jsValue;
+    }
+    return result;
+}
+
+static napi_value CreateWebSchemeHandlerRequest(napi_env env, WebSchemeHandlerRequest* schemeHandlerRequest)
+{
+    napi_value jsValue = nullptr;
+    napi_create_object(env, &jsValue);
+
+    NAPI_CALL(env, napi_wrap(env, jsValue, schemeHandlerRequest,
+        [](napi_env env, void *data, void *hint) {
+            WebSchemeHandlerRequest *handler = static_cast<WebSchemeHandlerRequest *>(data);
+            if (handler) {
+                handler->DecStrongRef(handler);
+            }
+        },
+        nullptr, nullptr));
+    schemeHandlerRequest->IncStrongRef(nullptr);
+    
+    napi_property_descriptor resultFuncs[] = {
+        DECLARE_NAPI_FUNCTION("getHeader", NapiWebSchemeHandlerRequest::JS_GetHeader),
+        DECLARE_NAPI_FUNCTION("getRequestUrl", NapiWebSchemeHandlerRequest::JS_GetRequestUrl),
+        DECLARE_NAPI_FUNCTION("getRequestMethod", NapiWebSchemeHandlerRequest::JS_GetRequestMethod),
+        DECLARE_NAPI_FUNCTION("getReferrer", NapiWebSchemeHandlerRequest::JS_GetReferrer),
+        DECLARE_NAPI_FUNCTION("isRedirect", NapiWebSchemeHandlerRequest::JS_IsRedirect),
+        DECLARE_NAPI_FUNCTION("isMainFrame", NapiWebSchemeHandlerRequest::JS_IsMainFrame),
+        DECLARE_NAPI_FUNCTION("hasGesture", NapiWebSchemeHandlerRequest::JS_HasGesture),
+        DECLARE_NAPI_FUNCTION("getHttpBodyStream", NapiWebSchemeHandlerRequest::JS_HttpBodyStream),
+        DECLARE_NAPI_FUNCTION("getRequestResourceType", NapiWebSchemeHandlerRequest::JS_GetRequestResourceType),
+        DECLARE_NAPI_FUNCTION("getFrameUrl", NapiWebSchemeHandlerRequest::JS_GetFrameUrl),
+    };
+
+    NAPI_CALL(env, napi_define_properties(env, jsValue, sizeof(resultFuncs) / sizeof(resultFuncs[0]), resultFuncs));
+    return jsValue;
+}
+
+napi_value ArkWebTransfer::CreateWebSchemeHandlerRequestTransfer(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    napi_value result;
+    napi_get_undefined(env, &result);
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (argc != INTEGER_TWO) {
+        WVLOG_E("[CreateWebSchemeHandlerRequestTransfer] number of params is invalid");
+        return result;
+    }
+
+    int64_t addr = 0;
+    if (!NapiParseUtils::ParseInt64(env, argv[INTEGER_ZERO], addr)) {
+        WVLOG_E("[CreateWebSchemeHandlerRequestTransfer] type of param is error");
+        return result;
+    }
+
+    WebSchemeHandlerRequest* schemeHandlerRequest =  reinterpret_cast<WebSchemeHandlerRequest*>(addr);
+    if (schemeHandlerRequest == nullptr) {
+        WVLOG_E("[CreateWebSchemeHandlerRequestTransfer] messagePort is null");
+        return result;
+    }
+    napi_value jsValue = CreateWebSchemeHandlerRequest(env, schemeHandlerRequest);
     if (jsValue) {
         return jsValue;
     }

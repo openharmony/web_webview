@@ -406,7 +406,7 @@ static void Constructor(ani_env *env, ani_object object)
         return;
     }
 
-    WebSchemeHandlerResponse* schemeHandler = new (std::nothrow) WebSchemeHandlerResponse(env);
+    WebSchemeHandlerResponse* schemeHandler = new (std::nothrow) WebSchemeHandlerResponse();
     if (schemeHandler == nullptr) {
         WVLOG_E("new webview controller failed");
         return;

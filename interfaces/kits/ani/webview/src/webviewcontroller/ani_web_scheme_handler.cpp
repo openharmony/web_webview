@@ -25,7 +25,7 @@
 #include "nweb_log.h"
 #include "securec.h"
 #include "web_errors.h"
-#include "web_scheme_handler_request.h"
+#include "web_scheme_handler.h"
 
 namespace OHOS {
 namespace NWeb {
