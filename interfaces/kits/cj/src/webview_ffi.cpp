@@ -1258,7 +1258,7 @@ extern "C" {
 
     int32_t FfiOHOSWebviewCtlSetHostIP(char* hostname, char* address, int32_t aliveTime)
     {
-        if (strlen(hostname) + 1 > UINT_MAX || strlen(hostname) + 1 > UINT_MAX || aliveTime <= 0) {
+        if (strlen(hostname) + 1 > UINT_MAX || strlen(address) + 1 > UINT_MAX || aliveTime <= 0) {
             return NWebError::PARAM_CHECK_ERROR;
         }
         unsigned char buf[sizeof(in6_addr)];
