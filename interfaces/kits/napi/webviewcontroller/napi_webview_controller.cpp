@@ -524,24 +524,27 @@ std::shared_ptr<NWebPrefetchOptions> GetPrefetchOptions(napi_env env, napi_value
 {
     napi_value minTimeBetweenPrefetchesMsObj = nullptr;
     int32_t minTimeBetweenPrefetchesMs = 500;
-    napi_get_named_property(env, Options, "minTimeBetweenPrefetchesMs", &minTimeBetweenPrefetchesMsObj);
-    if (!NapiParseUtils::ParseInt32(env, minTimeBetweenPrefetchesMsObj, minTimeBetweenPrefetchesMs)) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "minTimeBetweenPrefetches", "number"));
-        return nullptr;
-    }
- 
     napi_value ignoreCacheControlNoStoreObj = nullptr;
     bool ignoreCacheControlNoStore = false;
-    napi_get_named_property(env, Options, "ignoreCacheControlNoStore", &ignoreCacheControlNoStoreObj);
-    if (!NapiParseUtils::ParseBoolean(env, ignoreCacheControlNoStoreObj, ignoreCacheControlNoStore)) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "ignoreCacheControlNoStore", "number"));
-        return nullptr;
-    }
- 
+    
     std::shared_ptr<NWebPrefetchOptions> prefetchOptions = std::make_shared<NWebPrefetchOptionsImpl>(
         minTimeBetweenPrefetchesMs, ignoreCacheControlNoStore);
+
+    if (napi_get_named_property(env, Options, "minTimeBetweenPrefetchesMs",
+            &minTimeBetweenPrefetchesMsObj) == napi_ok) {
+        if (!NapiParseUtils::ParseInt32(env, minTimeBetweenPrefetchesMsObj, minTimeBetweenPrefetchesMs)) {
+            WVLOG_E("wrong Param type.");
+        }
+    }
+
+    if (napi_get_named_property(env, Options, "ignoreCacheControlNoStore",
+            &ignoreCacheControlNoStoreObj) == napi_ok) {
+        if (!NapiParseUtils::ParseBoolean(env, ignoreCacheControlNoStoreObj, ignoreCacheControlNoStore)) {
+            WVLOG_E("wrong Param type.");
+        }
+    }
+ 
+    prefetchOptions = std::make_shared<NWebPrefetchOptionsImpl>(minTimeBetweenPrefetchesMs, ignoreCacheControlNoStore);
     return prefetchOptions;
 }
 
