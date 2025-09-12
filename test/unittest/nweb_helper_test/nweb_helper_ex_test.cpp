@@ -1017,8 +1017,6 @@ HWTEST_F(NwebHelperTest, NWebHelper_IsAutoPreconnectEnabled_001, TestSize.Level1
  */
 HWTEST_F(NwebHelperTest, NWebHelper_SetSocketIdleTimeout_001, TestSize.Level1)
 {
-    int32_t nweb_id = 1;
-    auto nwebHelper = NWebHelper::Instance().GetNWeb(nweb_id);
     NWebHelper::Instance().nwebEngine_ = nullptr;
     EXPECT_EQ(NWebHelper::Instance().nwebEngine_, nullptr);
 
@@ -1034,14 +1032,12 @@ HWTEST_F(NwebHelperTest, NWebHelper_SetSocketIdleTimeout_001, TestSize.Level1)
  */
 HWTEST_F(NwebHelperTest, NWebHelper_SetSocketIdleTimeout_002, TestSize.Level1)
 {
-    int32_t nweb_id = 1;
-    auto nwebHelper = NWebHelper::Instance().GetNWeb(nweb_id);
     auto nwebEngineMock = std::make_shared<MockNWebEngine>();
     NWebHelper::Instance().nwebEngine_ = nwebEngineMock;
     EXPECT_NE(NWebHelper::Instance().nwebEngine_, nullptr);
 
-    NWebHelper::Instance().SetSocketIdleTimeout(100);
-    EXPECT_EQ(NWebHelper::Instance().socketIdleTimeout_, 300);
+    NWebHelper::Instance().SetSocketIdleTimeout(200);
+    EXPECT_EQ(NWebHelper::Instance().socketIdleTimeout_, 100);
 }
 
 /**
