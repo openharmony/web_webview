@@ -4580,7 +4580,7 @@ bool SetCustomizeScheme(napi_env env, napi_value obj, Scheme& scheme)
     return true;
 }
 
-int32_t CustomizeSchemesArrayDataHandler(napi_env env, napi_value array)
+int32_t CustomizeSchemesArrayDataHandler(napi_env env, napi_value array, bool lazyInitWebEngine)
 {
     uint32_t arrayLength = 0;
     napi_get_array_length(env, array, &arrayLength);
@@ -4600,9 +4600,13 @@ int32_t CustomizeSchemesArrayDataHandler(napi_env env, napi_value array)
     }
     int32_t registerResult;
     for (auto it = schemeVector.begin(); it != schemeVector.end(); ++it) {
-        registerResult = OH_ArkWeb_RegisterCustomSchemes(it->name.c_str(), it->option);
-        if (registerResult != NO_ERROR) {
-            return registerResult;
+        if (lazyInitWebEngine && OHOS::NWeb::NWebHelper::Instance().HasLoadWebEngine() == false) {
+            OHOS::NWeb::NWebHelper::Instance().SaveSchemeVector(it->name.c_str(), it->option);
+        } else {
+            registerResult = OH_ArkWeb_RegisterCustomSchemes(it->name.c_str(), it->option);
+            if (registerResult != NO_ERROR) {
+                return registerResult;
+            }
         }
     }
     return NO_ERROR;
@@ -4616,12 +4620,12 @@ napi_value NapiWebviewController::CustomizeSchemes(napi_env env, napi_callback_i
 
     napi_value result = nullptr;
     napi_value thisVar = nullptr;
-    size_t argc = INTEGER_ONE;
-    napi_value argv[INTEGER_ONE];
+    size_t argc = INTEGER_TWO;
+    napi_value argv[INTEGER_TWO];
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
-    if (argc != INTEGER_ONE) {
+    if ((argc != INTEGER_ONE) && (argc != INTEGER_TWO)) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_TWO, "one", "two"));
         return nullptr;
     }
     napi_value array = argv[INTEGER_ZERO];
@@ -4632,7 +4636,15 @@ napi_value NapiWebviewController::CustomizeSchemes(napi_env env, napi_callback_i
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "schemes", "array"));
         return nullptr;
     }
-    int32_t registerResult = CustomizeSchemesArrayDataHandler(env, array);
+    
+    bool lazyInitWebEngine = false;
+    if (argc == INTEGER_TWO && !NapiParseUtils::ParseBoolean(env, argv[INTEGER_ONE], lazyInitWebEngine)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "lazyInitWebEngine", "boolean"));
+        return nullptr;
+    }
+
+    int32_t registerResult = CustomizeSchemesArrayDataHandler(env, array, lazyInitWebEngine);
     if (registerResult == NO_ERROR) {
         NAPI_CALL(env, napi_get_undefined(env, &result));
         return result;
