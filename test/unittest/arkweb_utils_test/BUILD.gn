@@ -57,6 +57,7 @@ ohos_unittest("arkweb_utils_test") {
     "init:libbegetutil",
     "webview:libnweb",
     "window_manager:libwm",
+    "ace_engine:ace_forward_compatibility",
   ]
 }
 
