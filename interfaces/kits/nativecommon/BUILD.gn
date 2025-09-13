@@ -19,6 +19,7 @@ ohos_shared_library("webview_common") {
   }
 
   include_dirs = [
+    "../../native",
     "../../../ohos_adapter/ohos_resource_adapter/include",
     "../../../ohos_adapter/system_properties_adapter/include",
   ]
@@ -32,6 +33,12 @@ ohos_shared_library("webview_common") {
     "transfer_referenced_count.h",
     "napi_native_mediaplayer_handler_impl.cpp",
     "napi_native_mediaplayer_handler_impl.h",
+    "web_resource_handler.cpp",
+    "web_resource_handler.h",
+    "web_scheme_handler_request.cpp",
+    "web_scheme_handler_request.h",
+    "web_scheme_handler_response.cpp",
+    "web_scheme_handler_response.h",
   ]
 
   deps = [

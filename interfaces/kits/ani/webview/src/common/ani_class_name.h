@@ -21,6 +21,7 @@
 namespace OHOS {
 namespace NWeb {
 
+namespace {
 static const char* ANI_CLASS_CLEANER = "@ohos.web.webview.Cleaner";
 static const char* ANI_CLASS_WEBVIEW_CONTROLLER = "@ohos.web.webview.webview.WebviewController";
 static const char* ANI_WEB_MESSAGE_EXT_NAME = "@ohos.web.webview.webview.WebMessageExt";
@@ -37,9 +38,14 @@ const char* ANI_WEB_MESSAGE_PORT_INNER_CLASS_NAME = "@ohos.web.webview.webview.W
 const char* ANI_ENUM_MEDIA_PLAY_BACK_STATE = "@ohos.web.webview.webview.MediaPlaybackState";
 const char* ANI_SNAPSHOT_RESULT_CLASS_NAME = "@ohos.web.webview.webview.SnapshotResultClass";
 const char* ANI_PDF_DATA_CLASS_NAME = "@ohos.web.webview.webview.PdfData";
+const char* ANI_CLASS_WEB_REQUESTTYPE = "@ohos.web.webview.webview.WebSchemeHandlerRequest";
 const char* ANI_CLASS_WEB_RESOURCETYPE = "@ohos.web.webview.webview.WebResourceType";
+const char* ANI_HTTP_BODY_STREAM = "@ohos.web.webview.webview.WebHttpBodyStream";
 const char* ANI_SIZE_OPTIONS_CLASS_NAME = "@ohos.web.webview.webview.SizeOptionsClass";
 const char* ANI_PRINT_DOCUMENT_ADAPTER_INNER_CLASS_NAME = "@ohos.web.webview.webview.PrintDocumentAdapterInner";
+const char* ANI_WEB_RESOURCE_HANDLER_CLASS_NAME = "@ohos.web.webview.webview.WebResourceHandler";
+const char* ANI_WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME = "@ohos.web.webview.webview.WebSchemeHandlerRequest";
+}
 
 } // namespace NWeb
 } // namespace OHOS

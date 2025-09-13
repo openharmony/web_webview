@@ -32,7 +32,7 @@
 #include "webview_javascript_result_callback.h"
 #include "print_manager_adapter.h"
 #include "arkweb_scheme_handler.h"
-#include "web_scheme_handler_request.h"
+#include "web_scheme_handler.h"
 
 namespace OHOS {
 namespace NWeb {

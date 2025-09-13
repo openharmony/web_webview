@@ -69,7 +69,7 @@
 #include "web_download_item.h"
 #include "ani_webview_createpdf_execute_callback.h"
 #include "ani_web_scheme_handler_request.h"
-#include "web_scheme_handler_request.h"
+#include "web_scheme_handler.h"
 #include "arkweb_scheme_handler.h"
 #include "web_history_list.h"
 #include "web_message_port.h"
@@ -515,7 +515,10 @@ static void Clean(ani_env *env, ani_object object)
     } else if (clsName == "WebSchemeHandler") {
         delete reinterpret_cast<WebSchemeHandler*>(ptr);
     } else if (clsName == "WebSchemeHandlerRequest") {
-        delete reinterpret_cast<WebSchemeHandlerRequest*>(ptr);
+        WebSchemeHandlerRequest *handler = reinterpret_cast<WebSchemeHandlerRequest *>(ptr);
+        if (handler) {
+            handler->DecStrongRef(handler);
+        }
     } else if (clsName == "WebResourceHandler") {
         reinterpret_cast<WebResourceHandler*>(ptr)->DecStrongRef(reinterpret_cast<WebResourceHandler*>(ptr));
     } else if (clsName == "WebHttpBodyStream") {

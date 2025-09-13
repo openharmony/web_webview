@@ -915,25 +915,7 @@ export default namespace webview {
 
         native constructor();
 
-        /**
-         * Set the resolved URL after redirects or changed as a result of HSTS.
-         *
-         * @param { string } url - Set response url for redirects.
-         * @throws { BusinessError } 401 - Parameter error. Possible causes: 1. Incorrect parameter types.
-         * @syscap SystemCapability.Web.Webview.Core
-         * @atomicservice
-         * @since 20
-         */
         native setUrl(url: string): void;
-
-        /**
-         * Get the resolved URL after redirects or changed as a result of HSTS.
-         *
-         * @returns { string } Return response url for redirects.
-         * @syscap SystemCapability.Web.Webview.Core
-         * @atomicservice
-         * @since 20
-         */
         native getUrl(): string;
         native setMimeType(type: string): void;
         native getMimeType(): string;
@@ -974,6 +956,9 @@ export default namespace webview {
     }
 
     export class WebSchemeHandlerRequest {
+        static {
+            loadLibrary("webview_ani.z");
+        }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
 
@@ -1002,9 +987,41 @@ export default namespace webview {
         native getHttpBodyStream(): WebHttpBodyStream | null;
         native isMainFrame(): boolean;
         native getRequestMethod(): string;
+
+        static transferWebSchemeHandlerRequestToStatic(input: Any): Object {
+            let wshrObject: WebSchemeHandlerRequest = new WebSchemeHandlerRequest();
+            if (input === undefined || input === null) {
+                throw new Error("input object is null or undefined");
+            }
+            let dyESValue = ESValue.wrap(input);
+            if (!WebSchemeHandlerRequest.transferWebSchemeHandlerRequestToStaticInner(wshrObject, dyESValue)) {
+                throw new Error("transfer failed");
+            }
+            return wshrObject as Object;
+        }
+        private static native transferWebSchemeHandlerRequestToStaticInner(newDemo: WebSchemeHandlerRequest, input: ESValue): boolean;
+
+        static transferWebSchemeHandlerRequestToDynamic(input: Object): Any {
+            const staticRef = input as WebSchemeHandlerRequest;
+            if (staticRef) {
+                let addr = staticRef.nativePtr;
+                let module = ESValue.load("@ohos.web.webview");
+                let initFunc = module.getProperty("__createWebSchemeHandlerRequestTransfer__");
+                if (initFunc) {
+                    let dynamicRef = initFunc.invoke(ESValue.wrap(addr));
+                    return dynamicRef.unwrap();
+                } else {
+                    console.error("invoke func not exit");
+                }
+            }
+            return undefined;
+        }
     }
 
     export class WebResourceHandler {
+        static {
+            loadLibrary("webview_ani.z");
+        }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
 
@@ -1028,6 +1045,35 @@ export default namespace webview {
         native didFinish(): void;
         native didFail(code: WebNetErrorList): void;
         native didReceiveResponseBody(data: ArrayBuffer): void;
+
+        static transferWebResourceHandlerToStatic(input: Any): Object {
+            let wrhObject: WebResourceHandler = new WebResourceHandler();
+            if (input === undefined || input === null) {
+                throw new Error("input object is null or undefined");
+            }
+            let dyESValue = ESValue.wrap(input);
+            if (!WebResourceHandler.transferWebResourceHandlerToStaticInner(wrhObject, dyESValue)) {
+                throw new Error("transfer failed");
+            }
+            return wrhObject as Object;
+        }
+        private static native transferWebResourceHandlerToStaticInner(newDemo: WebResourceHandler, input: ESValue): boolean;
+
+        static transferWebResourceHandlerToDynamic(input: Object): Any {
+            const staticRef = input as WebResourceHandler;
+            if (staticRef) {
+                let addr = staticRef.nativePtr;
+                let module = ESValue.load("@ohos.web.webview");
+                let initFunc = module.getProperty("__createWebResourceHandlerTransfer__");
+                if (initFunc) {
+                    let dynamicRef = initFunc.invoke(ESValue.wrap(addr));
+                    return dynamicRef.unwrap();
+                } else {
+                    console.error("invoke func not exit");
+                }
+            }
+            return undefined;
+        }
     }
 
     export class WebHttpBodyStream {

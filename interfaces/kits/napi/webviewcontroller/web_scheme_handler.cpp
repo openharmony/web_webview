@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "web_scheme_handler_request.h"
+#include "web_scheme_handler.h"
 
 #include <securec.h>
 #include <mutex>
@@ -70,234 +70,6 @@ void OnRequestStop(const ArkWeb_SchemeHandler* schemeHandler,
     }
     handler->RequestStop(resourceRequest);
 }
-}
-
-WebSchemeHandlerRequest::WebSchemeHandlerRequest(napi_env env)
-    : env_(env)
-{
-    WVLOG_D("WebSchemeHandlerRequest::WebSchemeHandlerRequest");
-}
-
-WebSchemeHandlerRequest::WebSchemeHandlerRequest(napi_env env,
-    const ArkWeb_ResourceRequest* request)
-{
-    env_ = env;
-    OH_ArkWebResourceRequest_GetUrl(request, &url_);
-    OH_ArkWebResourceRequest_GetMethod(request, &method_);
-    OH_ArkWebResourceRequest_GetReferrer(request, &referrer_);
-    isRedirect_ = OH_ArkWebResourceRequest_IsRedirect(request);
-    isMainFrame_ = OH_ArkWebResourceRequest_IsMainFrame(request);
-    hasGesture_ = OH_ArkWebResourceRequest_HasGesture(request);
-    OH_ArkWebResourceRequest_GetHttpBodyStream(request, &stream_);
-    requestResourceType_ = OH_ArkWebResourceRequest_GetResourceType(request);
-    OH_ArkWebResourceRequest_GetFrameUrl(request, &frameUrl_);
-
-    ArkWeb_RequestHeaderList* arkWebHeaderlist = nullptr;
-    OH_ArkWebResourceRequest_GetRequestHeaders(request, &arkWebHeaderlist);
-    if (!arkWebHeaderlist) {
-        WVLOG_E("OH_ArkWebRequestHeaderList_Create failed");
-        return;
-    }
-    int32_t size = OH_ArkWebRequestHeaderList_GetSize(arkWebHeaderlist);
-    if (size <= 0) {
-        WVLOG_E("OH_ArkWebRequestHeaderList_GetSize:%{public}d", size);
-        return;
-    }
-    for (int32_t index = 0; index < size; index++) {
-        char* key;
-        char* value;
-        OH_ArkWebRequestHeaderList_GetHeader(arkWebHeaderlist, index, &key, &value);
-        if (!key || !value) {
-            continue;
-        }
-        std::string strKey(key);
-        std::string strValue(value);
-        headerList_.emplace_back(std::make_pair(strKey, strValue));
-        OH_ArkWeb_ReleaseString(key);
-        OH_ArkWeb_ReleaseString(value);
-    }
-    OH_ArkWebRequestHeaderList_Destroy(arkWebHeaderlist);
-}
-
-WebSchemeHandlerRequest::~WebSchemeHandlerRequest()
-{
-    WVLOG_D("WebSchemeHandlerRequest::~WebSchemeHandlerRequest");
-    OH_ArkWeb_ReleaseString(url_);
-    OH_ArkWeb_ReleaseString(method_);
-    OH_ArkWeb_ReleaseString(referrer_);
-}
-
-char* WebSchemeHandlerRequest::GetRequestUrl()
-{
-    return url_;
-}
-
-char* WebSchemeHandlerRequest::GetMethod()
-{
-    return method_;
-}
-
-char* WebSchemeHandlerRequest::GetReferrer()
-{
-    return referrer_;
-}
-
-bool WebSchemeHandlerRequest::IsRedirect()
-{
-    return isRedirect_;
-}
-
-bool WebSchemeHandlerRequest::IsMainFrame()
-{
-    return isMainFrame_;
-}
-
-bool WebSchemeHandlerRequest::HasGesture()
-{
-    return hasGesture_;
-}
-
-const WebHeaderList& WebSchemeHandlerRequest::GetHeader()
-{
-    return headerList_;
-}
-
-ArkWeb_HttpBodyStream* WebSchemeHandlerRequest::GetHttpBodyStream()
-{
-    return stream_;
-}
-
-int32_t WebSchemeHandlerRequest::GetRequestResourceType()
-{
-    return requestResourceType_;
-}
-
-char* WebSchemeHandlerRequest::GetFrameUrl()
-{
-    return frameUrl_;
-}
-
-WebSchemeHandlerResponse::WebSchemeHandlerResponse(napi_env env)
-    : env_(env)
-{
-    WVLOG_D("WebSchemeHandlerResponse::WebSchemeHandlerResponse");
-    OH_ArkWeb_CreateResponse(&response_);
-}
-
-WebSchemeHandlerResponse::WebSchemeHandlerResponse(napi_env env,
-    ArkWeb_Response* response)
-    : env_(env), response_(response)
-{
-    WVLOG_D("WebSchemeHandlerResponse::WebSchemeHandlerResponse");
-}
-
-WebSchemeHandlerResponse::~WebSchemeHandlerResponse()
-{
-    WVLOG_I("WebSchemeHandlerResponse::~WebSchemeHandlerResponse");
-    (void)env_;
-    (void)response_;
-    OH_ArkWeb_DestroyResponse(response_);
-}
-
-char* WebSchemeHandlerResponse::GetUrl()
-{
-    if (!response_) {
-        WVLOG_E("WebSchemeHandlerResponse is nullptr");
-        return nullptr;
-    }
-    char* url;
-    OH_ArkWebResponse_GetUrl(response_, &url);
-    return url;
-}
-
-int32_t WebSchemeHandlerResponse::SetUrl(const char* url)
-{
-    return OH_ArkWebResponse_SetUrl(response_, url);
-}
-
-int32_t WebSchemeHandlerResponse::GetStatus() const
-{
-    return OH_ArkWebResponse_GetStatus(response_);
-}
-
-int32_t WebSchemeHandlerResponse::SetStatus(int32_t status)
-{
-    return OH_ArkWebResponse_SetStatus(response_, status);
-}
-
-char* WebSchemeHandlerResponse::GetStatusText()
-{
-    if (!response_) {
-        WVLOG_E("WebSchemeHandlerResponse is nullptr");
-        return nullptr;
-    }
-    char *statusText;
-    OH_ArkWebResponse_GetStatusText(response_, &statusText);
-    return statusText;
-}
-
-int32_t WebSchemeHandlerResponse::SetStatusText(const char* statusText)
-{
-    return OH_ArkWebResponse_SetStatusText(response_, statusText);
-}
-
-char* WebSchemeHandlerResponse::GetMimeType()
-{
-    if (!response_) {
-        WVLOG_E("WebSchemeHandlerResponse is nullptr");
-        return nullptr;
-    }
-    char *mimeType;
-    OH_ArkWebResponse_GetMimeType(response_, &mimeType);
-    return mimeType;
-}
-
-int32_t WebSchemeHandlerResponse::SetMimeType(const char* mimeType)
-{
-    return OH_ArkWebResponse_SetMimeType(response_, mimeType);
-}
-
-char* WebSchemeHandlerResponse::GetEncoding() const
-{
-    if (!response_) {
-        WVLOG_E("WebSchemeHandlerResponse is nullptr");
-        return nullptr;
-    }
-    char *encoding;
-    OH_ArkWebResponse_GetCharset(response_, &encoding);
-    return encoding;
-}
-
-int32_t WebSchemeHandlerResponse::SetEncoding(const char* encoding)
-{
-    return OH_ArkWebResponse_SetCharset(response_, encoding);
-}
-
-char* WebSchemeHandlerResponse::GetHeaderByName(const char* name)
-{
-    if (!response_) {
-        WVLOG_E("WebSchemeHandlerResponse is nullptr");
-        return nullptr;
-    }
-    char *value;
-    OH_ArkWebResponse_GetHeaderByName(response_, name, &value);
-    return value;
-}
-
-int32_t WebSchemeHandlerResponse::SetHeaderByName(
-    const char* name, const char* value, bool overwrite)
-{
-    return OH_ArkWebResponse_SetHeaderByName(response_, name, value, overwrite);
-}
-
-int32_t WebSchemeHandlerResponse::GetErrorCode()
-{
-    return static_cast<int32_t>(OH_ArkWebResponse_GetError(response_));
-}
-
-int32_t WebSchemeHandlerResponse::SetErrorCode(int32_t code)
-{
-    return OH_ArkWebResponse_SetError(response_, static_cast<ArkWeb_NetError>(code));
 }
 
 const ArkWeb_SchemeHandler* WebSchemeHandler::GetArkWebSchemeHandler(
@@ -395,12 +167,12 @@ void WebSchemeHandler::RequestStart(ArkWeb_ResourceRequest* request,
     napi_value requestValue[2] = {0};
     napi_create_object(env_, &requestValue[0]);
     napi_create_object(env_, &requestValue[1]);
-    WebSchemeHandlerRequest* schemeHandlerRequest = new (std::nothrow) WebSchemeHandlerRequest(env_, request);
+    WebSchemeHandlerRequest* schemeHandlerRequest = new (std::nothrow) WebSchemeHandlerRequest(request);
     if (schemeHandlerRequest == nullptr) {
         WVLOG_E("RequestStart, new schemeHandlerRequest failed");
         return;
     }
-    sptr<WebResourceHandler> resourceHandler = new (std::nothrow) WebResourceHandler(env_, ArkWeb_ResourceHandler);
+    sptr<WebResourceHandler> resourceHandler = new (std::nothrow) WebResourceHandler(ArkWeb_ResourceHandler);
     if (resourceHandler == nullptr) {
         WVLOG_E("RequestStart, new resourceHandler failed");
         delete schemeHandlerRequest;
@@ -524,7 +296,7 @@ void WebSchemeHandler::RequestStop(const ArkWeb_ResourceRequest* resourceRequest
     }
     param->env_ = env_;
     param->callbackRef_ = request_stop_callback_;
-    param->request_ = new (std::nothrow) WebSchemeHandlerRequest(param->env_, resourceRequest);
+    param->request_ = new (std::nothrow) WebSchemeHandlerRequest(resourceRequest);
     if (param->request_ == nullptr) {
         delete work;
         delete param;
@@ -570,72 +342,6 @@ void WebSchemeHandler::DeleteReference(WebSchemeHandler* schemehandler)
     if (handler && schemehandler->delegate_) {
         napi_delete_reference(schemehandler->env_, schemehandler->delegate_);
         schemehandler->delegate_ = nullptr;
-    }
-}
-
-WebResourceHandler::WebResourceHandler(napi_env env)
-    : env_(env)
-{
-    WVLOG_D("create WebResourceHandler");
-}
-
-WebResourceHandler::WebResourceHandler(napi_env env, const ArkWeb_ResourceHandler* handler)
-    : handler_(const_cast<ArkWeb_ResourceHandler*>(handler))
-{
-    WVLOG_D("create WebResourceHandler");
-    env_ = env;
-}
-
-WebResourceHandler::~WebResourceHandler()
-{
-    WVLOG_D("~WebResourceHandler");
-}
-
-int32_t WebResourceHandler::DidReceiveResponse(const ArkWeb_Response* response)
-{
-    if (isFinished_) {
-        return ArkWeb_ErrorCode::ARKWEB_ERROR_UNKNOWN;
-    }
-    return OH_ArkWebResourceHandler_DidReceiveResponse(handler_, response);
-}
-
-int32_t WebResourceHandler::DidReceiveResponseBody(const uint8_t* buffer, int64_t buflen)
-{
-    if (isFinished_) {
-        return ArkWeb_ErrorCode::ARKWEB_ERROR_UNKNOWN;
-    }
-    return OH_ArkWebResourceHandler_DidReceiveData(handler_, buffer, buflen);
-}
-
-int32_t WebResourceHandler::DidFinish()
-{
-    if (isFinished_) {
-        return ArkWeb_ErrorCode::ARKWEB_ERROR_UNKNOWN;
-    }
-    int32_t ret = OH_ArkWebResourceHandler_DidFinish(handler_);
-    if (ret == 0) {
-        isFinished_ = true;
-    }
-    return ret;
-}
-
-int32_t WebResourceHandler::DidFailWithError(ArkWeb_NetError errorCode, bool completeIfNoResponse)
-{
-    if (isFinished_) {
-        return ArkWeb_ErrorCode::ARKWEB_ERROR_UNKNOWN;
-    }
-    int32_t ret = OH_ArkWebResourceHandler_DidFailWithErrorV2(handler_, errorCode, completeIfNoResponse);
-    if (ret == 0) {
-        isFinished_ = true;
-    }
-    return ret;
-}
-
-void WebResourceHandler::DestoryArkWebResourceHandler()
-{
-    if (handler_) {
-        OH_ArkWebResourceHandler_Destroy(handler_);
-        handler_ = nullptr;
     }
 }
 
