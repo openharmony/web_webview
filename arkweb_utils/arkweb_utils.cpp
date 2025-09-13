@@ -230,7 +230,7 @@ static bool GetVersionString(const std::string& versionFilePath, std::string& ve
 
 static bool HandleVersionString(const std::string& versionStr, long long& versionNum)
 {
-    std::regex pattern(R"(version\s{0,1}=\s{0,1})(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3}))");
+    std::regex pattern(R"(version\s{0,1}=\s{0,1}(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3}))");
     std::smatch matches;
     if (std::regex_match(versionStr, matches, pattern)) {
         std::ostringstream versionStream;
