@@ -37,12 +37,28 @@ const std::string ARK_WEB_CORE_ASAN_PATH_FOR_BUNDLE = "arkwebcore_asan/libs/arm"
 #endif
 #endif
 
+class FileProcessor {
+public:
+    static void WriteFile(const std::string& fileName, const std::string& content)
+    {
+        std::ofstream file(fileName);
+        if(!file.is_open()) {
+            return;
+        }
+
+        file << content;
+    }
+};
+
 class ArkWebUtilsTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
+
+    std::string systemTmpVersionFile_ = "system_version_tmp.txt";
+    std::string updateTmpVersionFile_ = "update_version_tmp.txt";
 };
 
 void ArkWebUtilsTest::SetUpTestCase(void)
@@ -377,5 +393,35 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ProcessParamItem_005, TestSize.Level1)
     ProcessParamItem(key, value);
     EXPECT_NE(g_legacyApp, nullptr);
     EXPECT_EQ(g_legacyApp->find(appBundleName) != g_legacyApp->end(), true);
+}
+
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetVersionString_001, TestSize.Level1)
+{
+    std::string systemParamVersionPath = "system_version_tmp_not_exist.txt";
+    std::string systemParamVersionStr;
+    EXPECT_EQ(GetVersionString(systemParamVersionPath, systemParamVersionStr), false);
+}
+
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_CheckCloudCfgVersion_001, TestSize.Level1)
+{
+    EXPECT_EQ(CheckCloudCfgVersion(systemTmpVersionFile_, updateTmpVersionFile_), false);
+
+    std::string wrongVersionTxt = "version=1000.00.0.0";
+    FileProcessor::WriteFile(systemTmpVersionFile_, wrongVersionTxt);
+    EXPECT_EQ(CheckCloudCfgVersion(systemTmpVersionFile_, updateTmpVersionFile_), false);
+
+    FileProcessor::WriteFile(updateTmpVersionFile_, wrongVersionTxt);
+    EXPECT_EQ(CheckCloudCfgVersion(systemTmpVersionFile_, updateTmpVersionFile_), false);
+
+    std::string versionTxt = "version=1.10.25.100";
+    FileProcessor::WriteFile(systemTmpVersionFile_, versionTxt);
+    EXPECT_EQ(CheckCloudCfgVersion(systemTmpVersionFile_, updateTmpVersionFile_), false);
+
+    FileProcessor::WriteFile(updateTmpVersionFile_, versionTxt);
+    EXPECT_EQ(CheckCloudCfgVersion(systemTmpVersionFile_, updateTmpVersionFile_), true);
+
+    std::string higherVersionTxt = "version=1.10.25.101";
+    FileProcessor::WriteFile(systemTmpVersionFile_, higherVersionTxt);
+    EXPECT_EQ(CheckCloudCfgVersion(systemTmpVersionFile_, updateTmpVersionFile_), false);
 }
 } // namespace OHOS::NWeb

@@ -22,6 +22,8 @@
 #include <dlfcn.h>
 #include <fstream>
 #include <unordered_set>
+#include <regex>
+#include <iomanip>
 
 #if (defined(webview_arm64) && !defined(ASAN_DETECTOR))
 #include "ace_forward_compatibility.h"
@@ -92,6 +94,11 @@ const std::string SANDBOX_EVERGREEN_HAP_PATH = "/data/storage/el1/bundle/arkwebc
 const std::string JSON_CONFIG_PATH =
     "/data/service/el1/public/update/param_service/install/system/etc/ArkWebSafeBrowsing/generic/ArkWebCoreCfg.json";
 const std::string WEB_PARAM_PREFIX = "web.engine.";
+const std::string SYSTEM_PARAM_VERSION_PATH =
+    "/system/etc/ArkWebSafeBrowsing/generic/version.txt";
+const std::string UPDATE_PARAM_VERSION_PATH =
+    "/data/service/el1/public/update/param_service/install/system/etc/ArkWebSafeBrowsing/generic/version.txt";
+const int VERSION_TAG_LEN = 3;
 
 #if (defined(webview_arm64) && !defined(ASAN_DETECTOR))
 const int MAX_DLCLOSE_COUNT = 10;
@@ -205,11 +212,77 @@ static void ProcessJsonConfig(const Json::Value& root)
     }
 }
 
+static bool GetVersionString(const std::string& versionFilePath, std::string& versionStr)
+{
+    std::ifstream file(versionFilePath);
+    if(!file.is_open()) {
+        WVLOG_E("can not open version file: %{public}s", versionFilePath.c_str());
+        return false;
+    }
+
+    if (std::getline(file, versionStr)) {
+        return true;
+    }
+
+    WVLOG_E("%{public}s is empty.", versionFilePath.c_str());
+    return false;
+}
+
+static bool HandleVersionString(const std::string& versionStr, long long& versionNum)
+{
+    std::regex pattern(R"(version\s{0,1}=\s{0,1})(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3}))");
+    std::smatch matches;
+    if (std::regex_match(versionStr, matches, pattern)) {
+        std::ostringstream versionStream;
+        for (size_t i = 1; i < matches.size(); ++i) {
+            int num = std::stoi(matches[i].str());
+            versionStream << std::setw(VERSION_TAG_LEN) << std::setfill('0') << num;
+        }
+        versionNum = std::stoll(versionStream.str());
+        return true;
+    }
+
+    WVLOG_E("incorrect version format, must be aa.bb.xx.yy: %{public}s", versionStr.c_str());
+    return false;
+}
+
+static bool CheckCloudCfgVersion(const std::string& systemParamVersionPath,
+    const std::string& updateParamVersionPath)
+{
+    std::string systemParamVersionStr;
+    std::string updateParamVersionStr;
+    if (!GetVersionString(systemParamVersionPath, systemParamVersionStr) ||
+        !GetVersionString(updateParamVersionPath, updateParamVersionStr)) {
+        return false;
+    }
+
+    long long systemParamVersionNum;
+    long long updateParamVersionNum;
+    if (!HandleVersionString(systemParamVersionStr, systemParamVersionNum) ||
+        !HandleVersionString(updateParamVersionStr, updateParamVersionNum)) {
+        return false;
+    }
+
+    if (updateParamVersionNum >= systemParamVersionNum) {
+        WVLOG_I("web param update version %{public}lld is more than system version %{public}lld, update valid.",
+            updateParamVersionNum, systemParamVersionNum);
+        return true;
+    } else {
+        WVLOG_I("web param update version %{public}lld is not more than system version %{public}lld, update invalid.",
+            updateParamVersionNum, systemParamVersionNum);
+        return false;
+    }
+}
+
 static void ParseCloudCfg()
 {
     std::ifstream jsonFile(JSON_CONFIG_PATH.c_str());
     if (!jsonFile.is_open()) {
         WVLOG_E("Failed to open file %{public}s, reason: %{public}s", JSON_CONFIG_PATH.c_str(), strerror(errno));
+        return;
+    }
+
+    if (!CheckCloudCfgVersion(SYSTEM_PARAM_VERSION_PATH, UPDATE_PARAM_VERSION_PATH)) {
         return;
     }
 
