@@ -36,6 +36,7 @@ class MockAppFwkUpdateService : public NWeb::IAppFwkUpdateService {
 public:
     MOCK_METHOD3(VerifyPackageInstall, ErrCode(const std::string&, const std::string&, int32_t&));
     MOCK_METHOD0(NotifyFWKAfterBmsStart, ErrCode());
+    MOCK_METHOD0(NotifyArkWebInstallSuccess, ErrCode());
     MOCK_METHOD0(RefPtrCallback, void());
     MOCK_METHOD1(OnFirstStrongRef, void(const void*));
     MOCK_METHOD1(OnLastStrongRef, void(const void*));

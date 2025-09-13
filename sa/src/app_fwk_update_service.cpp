@@ -104,6 +104,20 @@ ErrCode AppFwkUpdateService::NotifyFWKAfterBmsStart()
     return ERR_OK;
 }
 
+ErrCode AppFwkUpdateService::NotifyArkWebInstallSuccess()
+{
+    int preloadMode = OHOS::system::GetIntParameter("const.startup.nwebspawn.preloadMode", 0);
+    WVLOG_I("NwebSpawn preload render lib mode: %{public}d", preloadMode);
+    if (preloadMode) {
+        auto ret = OHOS::system::SetParameter("web.engine.install.completed", "true");
+        if (!ret) {
+            WVLOG_E("Set parameter web.engine.install.completed failed");
+            return ERR_INVALID_VALUE;
+        }
+    }
+    return ERR_OK;
+}
+
 ErrCode AppFwkUpdateService::VerifyPackageInstall(
     const std::string& bundleName, const std::string& hapPath, int32_t& isSuccess)
 {
