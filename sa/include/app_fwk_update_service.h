@@ -51,6 +51,7 @@ public:
 
     ErrCode VerifyPackageInstall(const std::string& bundleName, const std::string& hapPath, int32_t& success) override;
     ErrCode NotifyFWKAfterBmsStart() override;
+    ErrCode NotifyArkWebInstallSuccess() override;
     void SubscribePackageChangedEvent();
     void OnPackageChangedEvent(const std::string& bunldeName, const std::string& hapPath);
 

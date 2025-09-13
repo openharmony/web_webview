@@ -15,4 +15,5 @@
 interface OHOS.NWeb.IAppFwkUpdateService {
     void VerifyPackageInstall([in] String bundleName, [in] String hapPath, [out]int success);
     [oneway] void NotifyFWKAfterBmsStart();
+    void NotifyArkWebInstallSuccess();
 }

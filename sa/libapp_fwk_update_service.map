@@ -4,6 +4,7 @@
       OHOS::NWeb::AppFwkUpdateClient::GetInstance*;
       OHOS::NWeb::AppFwkUpdateClient::VerifyPackageInstall*;
       OHOS::NWeb::AppFwkUpdateClient::NotifyFWKAfterBmsStart*;
+      OHOS::NWeb::AppFwkUpdateClient::NotifyArkWebInstallSuccess*;
     };
   local:
     *;

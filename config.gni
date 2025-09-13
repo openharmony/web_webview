@@ -27,6 +27,7 @@ declare_args() {
   webview_sensors_sensor_enable = true
   webview_enable_heif_decoder = false
   webview_drm_enable = true
+  webview_preload_render_lib = true
 
   if (defined(global_parts_info) &&
       !defined(global_parts_info.resourceschedule_soc_perf)) {

@@ -109,6 +109,16 @@ void AppFwkUpdateClient::NotifyFWKAfterBmsStart()
     proxy->NotifyFWKAfterBmsStart();
 }
 
+void AppFwkUpdateClient::NotifyArkWebInstallSuccess()
+{
+    auto proxy = GetFwkUpdateProxy();
+    if (proxy == nullptr) {
+        WVLOG_E("NotifyArkWebInstallSuccess failed, proxy is null");
+        return;
+    }
+    proxy->NotifyArkWebInstallSuccess();
+}
+
 int AppFwkUpdateClient::VerifyPackageInstall(const std::string& bundleName, const std::string& hapPath)
 {
     WVLOG_I("verify package install callingUid: %{public}d", IPCSkeleton::GetCallingUid());
