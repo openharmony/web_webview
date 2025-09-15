@@ -42,6 +42,14 @@ public:
         CM_MT_TEXT,
     };
 
+    enum ContextMenuDataMediaType {
+        CMD_MT_NONE,
+        CMD_MT_IMAGE,
+        CMD_MT_VIDEO,
+        CMD_MT_AUDIO,
+        CMD_MT_CANVAS,
+    };
+
     enum ContextMenuEditStateFlags {
         CM_ES_NONE = 0,
         CM_ES_CAN_CUT = 1 << 0,
@@ -101,6 +109,8 @@ public:
     virtual void GetImageRect(int& x, int& y, int& w, int& h) {}
 
     virtual bool IsAILink() { return false; }
+
+    virtual ContextMenuDataMediaType GetContextMenuMediaType() { return ContextMenuDataMediaType::CMD_MT_NONE; }
 };
 
 class OHOS_NWEB_EXPORT NWebQuickMenuParams {

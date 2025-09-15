@@ -25,6 +25,7 @@ namespace OHOS::ArkWeb {
 using ArkWebMediaType = OHOS::NWeb::NWebContextMenuParams::ContextMenuMediaType;
 using ArkWebSourceType = OHOS::NWeb::NWebContextMenuParams::ContextMenuSourceType;
 using ArkWebInputFieldType = OHOS::NWeb::NWebContextMenuParams::ContextMenuInputFieldType;
+using ArkWebDataMediaType = OHOS::NWeb::NWebContextMenuParams::ContextMenuDataMediaType;
 
 class ArkWebContextMenuParamsWrapper : public OHOS::NWeb::NWebContextMenuParams {
 public:
@@ -64,6 +65,8 @@ public:
     void GetImageRect(int& x, int& y, int& w, int& h) override;
 
     bool IsAILink() override;
+
+    ArkWebDataMediaType GetContextMenuMediaType() override;
 private:
     ArkWebRefPtr<ArkWebContextMenuParams> ark_web_context_menu_params_;
 };
