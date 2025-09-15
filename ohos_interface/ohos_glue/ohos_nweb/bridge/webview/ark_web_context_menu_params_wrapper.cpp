@@ -133,4 +133,9 @@ bool ArkWebContextMenuParamsWrapper::IsAILink()
     return ark_web_context_menu_params_->IsAILink();
 }
 
+ArkWebDataMediaType ArkWebContextMenuParamsWrapper::GetContextMenuMediaType()
+{
+    return static_cast<ArkWebDataMediaType>(ark_web_context_menu_params_->GetContextMenuMediaType());
+}
+
 } // namespace OHOS::ArkWeb
