@@ -1334,4 +1334,9 @@ void ArkWebHandlerWrapper::OnRefreshAccessedHistoryV2(const std::string& url, bo
 
     ArkWebStringStructRelease(stUrl);
 }
+
+void ArkWebHandlerWrapper::OnRemoveBlanklessFrameWithAnimation(int delayTime)
+{
+    ark_web_handler_->OnRemoveBlanklessFrameWithAnimation(delayTime);
+}
 } // namespace OHOS::ArkWeb

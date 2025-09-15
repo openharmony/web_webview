@@ -1158,4 +1158,9 @@ void ArkWebHandlerImpl::OnRefreshAccessedHistoryV2(const ArkWebString& url, bool
 {
     nweb_handler_->OnRefreshAccessedHistoryV2(ArkWebStringStructToClass(url), isReload, isMainFrame);
 }
+
+void ArkWebHandlerImpl::OnRemoveBlanklessFrameWithAnimation(int delayTime)
+{
+    nweb_handler_->OnRemoveBlanklessFrameWithAnimation(delayTime);
+}
 } // namespace OHOS::ArkWeb

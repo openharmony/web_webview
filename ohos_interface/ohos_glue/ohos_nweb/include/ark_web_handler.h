@@ -1101,6 +1101,14 @@ public:
      */
     /*--ark web()--*/
     virtual void OnRefreshAccessedHistoryV2(const ArkWebString& url, bool isReload, bool isMainFrame) = 0;
+
+    /**
+     * brief Notify the web client to remove blankless frame with animation.
+     *
+     * @param delayTime The delayTime for web client to remove blankless frame.
+     */
+    /*--ark web()--*/
+    virtual void OnRemoveBlanklessFrameWithAnimation(int delayTime) = 0;
 };
 
 } // namespace OHOS::ArkWeb

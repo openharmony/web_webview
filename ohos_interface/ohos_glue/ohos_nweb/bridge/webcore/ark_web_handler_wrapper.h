@@ -801,6 +801,13 @@ public:
      * @param isMainFrame true if the request is for the main frame.
      */
     void OnRefreshAccessedHistoryV2(const std::string& url, bool isReload, bool isMainFrame) override;
+
+    /**
+     * brief Notify the web client to remove blankless frame with animation.
+     *
+     * @param delayTime The delayTime for web client to remove blankless frame.
+     */
+    void OnRemoveBlanklessFrameWithAnimation(int delayTime) override;
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };
