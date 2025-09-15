@@ -1353,6 +1353,13 @@ public:
      * @param isMainFrame true if the request is for the main frame.
      */
     virtual void OnRefreshAccessedHistoryV2(const std::string& url, bool isReload, bool isMainFrame) {}
+
+    /**
+     * brief Notify the web client to remove blankless frame with animation.
+     *
+     * @param delayTime The delayTime for web client to remove blankless frame.
+     */
+    virtual void OnRemoveBlanklessFrameWithAnimation(int delayTime) {}
 };
 
 } // namespace OHOS::NWeb
