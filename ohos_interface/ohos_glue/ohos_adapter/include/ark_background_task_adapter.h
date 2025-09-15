@@ -18,14 +18,32 @@
 #pragma once
 
 #include "base/include/ark_web_base_ref_counted.h"
+#include "base/include/ark_web_types.h"
 
 namespace OHOS::ArkWeb {
+
+/*--ark web(source=webcore)--*/
+class ArkBackgroundStateChangeCallbackAdapter : public virtual ArkWebBaseRefCounted {
+public:
+    /*--ark web()--*/
+    virtual void NotifyApplicationForeground() = 0;
+
+    /*--ark web()--*/
+    virtual void NotifyApplicationBackground() = 0;
+}
 
 /*--ark web(source=webview)--*/
 class ArkBackgroundTaskAdapter : public virtual ArkWebBaseRefCounted {
 public:
     /*--ark web()--*/
     static bool RequestBackgroundRunning(bool running, int32_t bgMode);
+
+    /*--ark web()--*/
+    virtual bool RequestBackgroundTaskRunning(bool running, int32_t bgMode) = 0;
+
+    /*--ark web()--*/
+    virtual void RegisterBackgroundTaskPolicyCallback(
+        ArkWebRefPtr<ArkBackgroundStateChangeCallbackAdapter> callback) = 0;
 };
 
 } // namespace OHOS::ArkWeb

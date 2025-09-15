@@ -155,6 +155,7 @@ ohos_shared_library("nweb_ohos_adapter") {
     "soc_perf_adapter/include",
     "system_properties_adapter/include",
     "sensor_adapter/include",
+    "background_task_adapter/include",
   ]
 
   if (target_cpu == "arm" || target_cpu == "arm64" || target_cpu == "x86_64") {
