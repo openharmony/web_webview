@@ -17,7 +17,7 @@ import("//build/config/features.gni")
 import("//build/test.gni")
 
 ##############################fuzztest##########################################
-ohos_fuzztest("SetWebDebuggingAccessAndPortFuzzTest") {
+ohos_fuzztest("SetWebDebugFuzzTest") {
   module_out_path = webview_fuzz_test_path
   fuzz_config_file = "$webview_path/test/fuzztest/ohos_nweb/setwebdebug_fuzzer"
 
@@ -48,7 +48,7 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":SetWebDebuggingAccessAndPortFuzzTest",
+    ":SetWebDebugFuzzTest",
   ]
 }
 ###############################################################################
