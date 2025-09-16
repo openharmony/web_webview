@@ -49,7 +49,7 @@ RetDataCString FfiWebSchemeHandlerResponseGetUrl(int64_t id)
     }
     char* url = nativeWebSchemeHandlerResponse->GetUrl();
     ret.code = NWebError::NO_ERROR;
-    ret.data = MallocCString(url);
+    ret.data = url ? MallocCString(url) : nullptr;
     OH_ArkWeb_ReleaseString(url);
     return ret;
 }
@@ -63,7 +63,7 @@ RetDataCString FfiWebSchemeHandlerResponseGetStatusText(int64_t id)
     }
     char* statusText = nativeWebSchemeHandlerResponse->GetStatusText();
     ret.code = NWebError::NO_ERROR;
-    ret.data = MallocCString(statusText);
+    ret.data = statusText ? MallocCString(statusText) : nullptr;
     OH_ArkWeb_ReleaseString(statusText);
     return ret;
 }
@@ -77,7 +77,7 @@ RetDataCString FfiWebSchemeHandlerResponseGetMimeType(int64_t id)
     }
     char* mimeType = nativeWebSchemeHandlerResponse->GetMimeType();
     ret.code = NWebError::NO_ERROR;
-    ret.data = MallocCString(mimeType);
+    ret.data = mimeType ? MallocCString(mimeType) : nullptr;
     OH_ArkWeb_ReleaseString(mimeType);
     return ret;
 }
@@ -91,7 +91,7 @@ RetDataCString FfiWebSchemeHandlerResponseGetEncoding(int64_t id)
     }
     char* encoding = nativeWebSchemeHandlerResponse->GetEncoding();
     ret.code = NWebError::NO_ERROR;
-    ret.data = MallocCString(encoding);
+    ret.data = encoding ? MallocCString(encoding) : nullptr;
     OH_ArkWeb_ReleaseString(encoding);
     return ret;
 }
@@ -106,7 +106,7 @@ RetDataCString FfiWebSchemeHandlerResponseGetHeaderByName(int64_t id, const char
     }
     char* header = nativeWebSchemeHandlerResponse->GetHeaderByName(cname.c_str());
     ret.code = NWebError::NO_ERROR;
-    ret.data = MallocCString(header);
+    ret.data = header ? MallocCString(header) : nullptr;
     OH_ArkWeb_ReleaseString(header);
     return ret;
 }
