@@ -37,7 +37,7 @@ bool ArkBackgroundTaskAdapterImpl::RequestBackgroundTaskRunning(bool running, in
 }
 
 void ArkBackgroundTaskAdapterImpl::RegisterBackgroundTaskPolicyCallback(
-        const ArkWebRefPtr<ArkBackgroundStateChangeCallbackAdapter> callback)
+    const ArkWebRefPtr<ArkBackgroundStateChangeCallbackAdapter> callback)
 {
     if (CHECK_REF_PTR_IS_NULL(callback)) {
         return ;
