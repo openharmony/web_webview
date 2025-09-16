@@ -30,6 +30,8 @@ static inline void ThrowError(napi_env env, int32_t err, const std::string& msg)
 
 static napi_value CreateError(napi_env env, int32_t err);
 
+static napi_value CreateError(napi_env env, int32_t err, const std::string& errorMsg);
+
 static void ThrowErrorByErrcode(napi_env env, int32_t errCode);
 
 static void ThrowErrorByErrcode(napi_env env, int32_t errCode, const std::string& errorMsg);

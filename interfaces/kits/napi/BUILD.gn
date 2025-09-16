@@ -26,10 +26,13 @@ config("web_public_config") {
     "webfunction",
     "webstorage",
     "webviewcontroller",
+    "web_native_messaging_extension_manager",
     "$target_gen_dir/protos",
     "../../native",
     "../../../ohos_adapter/ohos_resource_adapter/include",
     "../../../ohos_adapter/system_properties_adapter/include",
+    "../../../sa/web_native_messaging/client",
+    "../../../sa/web_native_messaging/common"
   ]
 }
 
@@ -149,6 +152,50 @@ ohos_shared_library("neterrorlist_napi") {
   ]
 
   external_deps = [ "napi:ace_napi" ]
+
+  relative_install_dir = "module/web"
+
+  part_name = "webview"
+  subsystem_name = "web"
+}
+
+ohos_shared_library("webnativemessagingextensionmanager_napi") {
+  if (target_cpu == "arm64") {
+    branch_protector_ret = "pac_ret"
+  }
+
+  public_configs = [ ":web_public_config" ]
+
+  sources = [
+    "common/business_error.cpp",
+    "common/napi_parse_utils.cpp",
+    "common/napi_extension_manager_init.cpp",
+    "web_native_messaging_extension_manager/napi_web_native_messaging_extension_manager.cpp",
+    "../../../sa/web_native_messaging/common/web_native_messaging_common.cpp"
+  ]
+
+  use_exceptions = true
+
+  external_deps = [
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:ability_context_native",
+    "ability_runtime:app_context",
+    "ability_runtime:napi_base_context",
+    "ability_runtime:napi_common",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+
+  deps = [
+    "../nativecommon:webview_common",
+    "../../../arkweb_utils:libarkweb_utils",
+    "../../../ohos_adapter:nweb_ohos_adapter",
+    "../../../ohos_nweb:libnweb",
+    "../../../sa/web_native_messaging:web_native_messaging_kit",
+    "../../native:ohweb",
+  ]
 
   relative_install_dir = "module/web"
 

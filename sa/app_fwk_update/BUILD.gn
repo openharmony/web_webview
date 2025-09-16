@@ -56,18 +56,18 @@ ohos_shared_library("app_fwk_update_service") {
   version_script = "libapp_fwk_update_service.map"
   output_values = get_target_outputs(":app_fwk_update_service_interface")
   sources = [
-    "../sa/include/app_fwk_update_service.h",
-    "../sa/src/app_fwk_update_client.cpp",
-    "../sa/src/app_fwk_update_load_callback.cpp",
-    "../sa/src/app_fwk_update_service.cpp",
+    "../app_fwk_update/include/app_fwk_update_service.h",
+    "../app_fwk_update/src/app_fwk_update_client.cpp",
+    "../app_fwk_update/src/app_fwk_update_load_callback.cpp",
+    "../app_fwk_update/src/app_fwk_update_service.cpp",
   ]
   sources += filter_include(output_values, [ "*.cpp" ])
   deps = [ ":app_fwk_update_service_interface" ]
   public_configs = [ ":web_sa_interface" ]
   include_dirs = [
-    "../sa/include",
-    "${target_gen_dir}/../ohos_nweb/include",
-    "../ohos_nweb/include",
+    "../app_fwk_update/include",
+    "${target_gen_dir}/../../ohos_nweb/include",
+    "../../ohos_nweb/include",
     "${target_gen_dir}",
   ]
 
