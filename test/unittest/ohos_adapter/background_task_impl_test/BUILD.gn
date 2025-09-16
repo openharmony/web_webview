@@ -19,7 +19,10 @@ module_output_path = "webview/webview"
 config("module_private_config") {
   visibility = [ ":*" ]
 
-  include_dirs = [ "$webview_path/ohos_adapter/interfaces" ]
+  include_dirs = [
+    "$webview_path/ohos_adapter/interfaces",
+    "$webview_path/ohos_adapter/background_task_adapter/include",
+  ]
 }
 
 ohos_unittest("background_task_impl_test") {

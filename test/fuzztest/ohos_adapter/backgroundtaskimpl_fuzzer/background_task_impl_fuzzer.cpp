@@ -22,7 +22,7 @@
 
 using namespace OHOS::NWeb;
 
-class BackgroundStateChangeCallbackAdapterMock : public class BackgroundStateChangeCallbackAdapter {
+class BackgroundStateChangeCallbackAdapterMock : public BackgroundStateChangeCallbackAdapter {
 public:
     BackgroundStateChangeCallbackAdapterMock() = default;
     void NotifyApplicationForeground() {}
