@@ -30,7 +30,7 @@ public:
 
     /*--ark web()--*/
     virtual void NotifyApplicationBackground() = 0;
-}
+};
 
 /*--ark web(source=webview)--*/
 class ArkBackgroundTaskAdapter : public virtual ArkWebBaseRefCounted {

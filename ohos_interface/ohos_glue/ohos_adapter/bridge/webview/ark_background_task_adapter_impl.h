@@ -25,7 +25,7 @@ namespace OHOS::ArkWeb {
 class ArkBackgroundTaskAdapterImpl : public ArkBackgroundTaskAdapter {
 public:
     explicit ArkBackgroundTaskAdapterImpl(
-        std::shared_ptr<std::shared_ptr<OHOS::NWeb::BackgroundTaskAdapter> ref);
+        std::shared_ptr<OHOS::NWeb::BackgroundTaskAdapter> ref);
 
     bool RequestBackgroundTaskRunning(bool running, int32_t bgMode) override;
     void RegisterBackgroundTaskPolicyCallback(

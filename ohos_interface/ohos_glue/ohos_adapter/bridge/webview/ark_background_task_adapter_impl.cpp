@@ -28,7 +28,7 @@ bool ArkBackgroundTaskAdapter::RequestBackgroundRunning(bool running, int32_t bg
 }
 
 ArkBackgroundTaskAdapterImpl::ArkBackgroundTaskAdapterImpl(
-    std::shared_ptr<std::shared_ptr<OHOS::NWeb::BackgroundTaskAdapter> ref) : real_(ref)
+    std::shared_ptr<OHOS::NWeb::BackgroundTaskAdapter> ref) : real_(ref)
 {}
 
 bool ArkBackgroundTaskAdapterImpl::RequestBackgroundTaskRunning(bool running, int32_t bgMode)
@@ -43,7 +43,7 @@ void ArkBackgroundTaskAdapterImpl::RegisterBackgroundTaskPolicyCallback(
         return ;
     }
 
-    real_.RegisterBackgroundTaskPolicyCallback(
+    real_->RegisterBackgroundTaskPolicyCallback(
         std::make_shared<ArkBackgroundStateChangeCallbackAdapterWrapper>(callback));
 }
 } // namespace OHOS::ArkWeb

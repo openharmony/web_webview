@@ -95,7 +95,7 @@ BackgroundTaskAdapterImpl::BackgroundTaskAdapterImpl()
     WVLOG_D("BackgroundTaskAdapterImpl::BackgroundTaskAdapterImpl is called.");
 }
 
-bool BackgroundTaskAdapterImpl:RequestBackgroundTaskRunning(bool running, BackgroundModeAdapter bgMode)
+bool BackgroundTaskAdapterImpl::RequestBackgroundTaskRunning(bool running, BackgroundModeAdapter bgMode)
 {
     auto uid = getuid();
     WVLOG_I("RequestBackgroundTaskRunning uid: %{public}d, running: %{public}d", uid, running);
@@ -108,7 +108,7 @@ bool BackgroundTaskAdapterImpl:RequestBackgroundTaskRunning(bool running, Backgr
     return true;
 }
 
- void BackgroundTaskAdapterImpl::RegisterBackgroundTaskPolicyCallback(
+void BackgroundTaskAdapterImpl::RegisterBackgroundTaskPolicyCallback(
     std::shared_ptr<BackgroundStateChangeCallbackAdapter> callback)
 {
     if (callback == nullptr) {
