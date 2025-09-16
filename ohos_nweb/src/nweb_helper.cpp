@@ -1387,4 +1387,13 @@ int32_t NWebHelper::GetSocketIdleTimeout()
     return socketIdleTimeout_;
 }
 
+void NWebHelper::SetSoftKeyboardBehaviorMode(WebSoftKeyboardBehaviorMode mode)
+{
+    if (nwebEngine_ == nullptr) {
+        WVLOG_E("web engine is nullptr");
+        return;
+    }
+    nwebEngine_->SetSoftKeyboardBehaviorMode(mode);
+}
+
 } // namespace OHOS::NWeb
