@@ -119,7 +119,7 @@ void BackgroundTaskAdapterImpl::RegisterBackgroundTaskPolicyCallback(
     if (ctx) {
         applicationStateChangeCallback_ = std::make_shared<ApplicationStateChangeCallbackImpl>(callback);
         ctx->RegisterApplicationStateChangeCallback(applicationStateChangeCallback_);
-        WVLOG_I("BackgroundTaskAdapterImpl::RegisterBackgroundTaskPolicyCallback: applicationStateChangeCallback_ is registered.");
+        WVLOG_I("BackgroundTaskAdapterImpl::applicationStateChangeCallback_ is registered.");
     } else {
         WVLOG_E("BackgroundTaskAdapterImpl::failed to get application context.");
         return;
