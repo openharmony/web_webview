@@ -88,7 +88,8 @@
                 "drivers_peripheral_display",
                 "selinux_adapter",
                 "runtime_core",
-                "jsoncpp"
+                "jsoncpp",
+                "os_account"
             ]
         },
         "build": {
@@ -97,14 +98,17 @@
                 "//base/web/webview/interfaces/kits/cj:cj_webview_ffi",
                 "//base/web/webview/interfaces/kits/napi:webview_napi",
                 "//base/web/webview/interfaces/kits/napi:neterrorlist_napi",
+                "//base/web/webview/interfaces/kits/napi:webnativemessagingextensionmanager_napi",
                 "//base/web/webview/interfaces/native:webview_ndk",
+                "//base/web/webview/interfaces/native/web_native_messaging_extension:web_native_messaging_extension",
                 "//base/web/webview/ohos_glue:ohos_base_glue_source",
                 "//base/web/webview/ohos_nweb:chrome_crashpad_handler",
                 "//base/web/webview/ohos_nweb:libnweb",
                 "//base/web/webview/ohos_nweb:nweb_hap",
                 "//base/web/webview/ohos_adapter:nweb_ohos_adapter",
                 "//base/web/webview/ohos_wrapper:nweb_ohos_wrapper",
-                "//base/web/webview/sa:app_fwk_update_service",
+                "//base/web/webview/sa/app_fwk_update:app_fwk_update_service",
+                "//base/web/webview/sa/web_native_messaging:web_native_messaging",
                 "//base/web/webview/arkweb_utils:libarkweb_utils"
             ],
             "inner_kits": [
@@ -142,9 +146,18 @@
                         "header_files": [
                             "app_fwk_update_client.h"
                         ],
-                        "header_base": "//base/web/webview/sa/include"
+                        "header_base": "//base/web/webview/sa/app_fwk_update/include"
                     },
-                    "name": "//base/web/webview/sa:app_fwk_update_service"
+                    "name": "//base/web/webview/sa/app_fwk_update:app_fwk_update_service"
+                },
+                {
+                    "header": {
+                        "header_files": [
+                            "web_native_messaging_client.h"
+                        ],
+                        "header_base": "//base/web/webview/sa/web_native_messaging/client"
+                    },
+                    "name": "//base/web/webview/sa/web_native_messaging:web_native_messaging"
                 },
                 {
                     "header": {

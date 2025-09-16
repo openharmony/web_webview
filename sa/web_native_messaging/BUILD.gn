@@ -1,0 +1,156 @@
+# Copyright (c) 2025 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import("//build/config/components/idl_tool/idl.gni")
+import("//build/ohos.gni")
+
+group("web_native_messaging") {
+  deps = [
+    ":web_native_messaging_kit",
+    ":web_native_messaging_service",
+    ":web_native_messaging_service_cfg",
+    ":web_native_messaging_service_profile",
+  ]
+}
+
+config("web_native_messaging_interface") {
+  include_dirs = [
+    "client/",
+    "common/",
+    "${target_gen_dir}",
+  ]
+}
+
+idl_interface_sources = [
+  "${target_gen_dir}/web_native_messaging_service_proxy.cpp",
+  "${target_gen_dir}/web_native_messaging_service_stub.cpp",
+]
+
+idl_gen_interface("web_native_messaging_service_interface") {
+  src_idl = rebase_path("IWebNativeMessagingService.idl")
+  dst_file = string_join(",", idl_interface_sources)
+}
+
+ohos_sa_profile("web_native_messaging_service_profile") {
+  sources = [ "8610.json" ]
+  part_name = "webview"
+}
+
+ohos_prebuilt_etc("web_native_messaging_service_cfg") {
+  source = "web_native_messaging_service.cfg"
+  relative_install_dir = "init"
+  subsystem_name = "web"
+  part_name = "webview"
+}
+
+ohos_shared_library("web_native_messaging_service") {
+  defines = [ "HILOG_TAG=\"web_native_messaging_service\"" ]
+  shlib_type = "sa"
+  version_script = "libweb_native_messaging_service.map"
+  output_values = get_target_outputs(":web_native_messaging_service_interface")
+  sources = [
+    "../web_native_messaging/common/connection_native_info_parcel.cpp",
+    "../web_native_messaging/service/connect_native_request.cpp",
+    "../web_native_messaging/service/extension_ipc_connection.cpp",
+    "../web_native_messaging/service/service_delay_exit_task.cpp",
+    "../web_native_messaging/service/service_event_handler.cpp",
+    "../web_native_messaging/service/web_extension_connection_callback_proxy.cpp",
+    "../web_native_messaging/service/web_native_messaging_manager.cpp",
+    "../web_native_messaging/service/web_native_messaging_service.cpp",
+    "../../interfaces/native/web_native_messaging_extension/extension_client/src/web_native_messaging_extension_proxy.cpp",
+    "../../interfaces/native/web_native_messaging_extension/extension/src/web_native_messaging_extension_connect_info.cpp"
+  ]
+  sources += filter_include(output_values, [ "*.cpp" ])
+  deps = [ ":web_native_messaging_service_interface" ]
+  include_dirs = [
+    "./common",
+    "./service",
+    "${target_gen_dir}",
+    "${target_gen_dir}/../../ohos_nweb/include",
+    "../../interfaces/native/web_native_messaging_extension/extension/include/",
+    "../../interfaces/native/web_native_messaging_extension/extension_client/include/",
+    "../../ohos_nweb/include",
+  ]
+
+  cflags = [
+    "-Wall",
+    "-Werror",
+    "-g3",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_manager",
+    "ability_runtime:ability_context_native",
+    "ability_runtime:ability_start_options",
+    "ability_runtime:napi_common",
+    "access_token:libaccesstoken_sdk",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  #innerapi_tags = [ "platformsdk" ]
+  subsystem_name = "web"
+  part_name = "webview"
+}
+
+ohos_shared_library("web_native_messaging_kit") {
+  output_values = get_target_outputs(":web_native_messaging_service_interface")
+  sources = [
+    "../web_native_messaging/client/web_native_messaging_client.cpp",
+    "../web_native_messaging/client/web_native_messaging_load_callback.cpp",
+    "../web_native_messaging/client/web_extension_connection_callback.cpp",
+    "../web_native_messaging/client/web_extension_connection_callback_stub.cpp",
+    "../web_native_messaging/common/connection_native_info_parcel.cpp",
+  ]
+  sources += filter_include(output_values, [ "*.cpp" ])
+  deps = [ ":web_native_messaging_service_interface" ]
+  public_configs = [ ":web_native_messaging_interface" ]
+  include_dirs = [
+    "./client",
+    "./common",
+    "${target_gen_dir}",
+    "${target_gen_dir}/../../ohos_nweb/include",
+    "../../ohos_nweb/include",
+  ]
+
+  cflags = [
+    "-Wall",
+    "-Werror",
+    "-g3",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_manager",
+    "ability_runtime:ability_start_options",
+    "ability_runtime:napi_common",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
+  ]
+
+  innerapi_tags = [ "platformsdk" ]
+  subsystem_name = "web"
+  part_name = "webview"
+}

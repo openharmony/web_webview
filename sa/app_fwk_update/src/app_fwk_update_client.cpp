@@ -30,8 +30,8 @@
 #include "nweb_log.h"
 #include "system_ability_definition.h"
 
-#include "base/web/webview/sa/app_fwk_update_service_proxy.h"
-#include "base/web/webview/sa/iapp_fwk_update_service.h"
+#include "base/web/webview/sa/app_fwk_update/app_fwk_update_service_proxy.h"
+#include "base/web/webview/sa/app_fwk_update/iapp_fwk_update_service.h"
 
 namespace OHOS::NWeb {
 namespace {

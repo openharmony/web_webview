@@ -31,17 +31,17 @@ ohos_unittest("app_fwk_update_client_test") {
   module_out_path = module_output_path
   sources = [ "app_fwk_update_client_test.cpp" ]
   sources += [
-    "${target_gen_dir}/../../../sa/app_fwk_update_service_proxy.cpp",
-    "${target_gen_dir}/../../../sa/app_fwk_update_service_stub.cpp",
-    "${webview_path}/sa/src/app_fwk_update_client.cpp",
-    "${webview_path}/sa/src/app_fwk_update_load_callback.cpp",
-    "${webview_path}/sa/src/app_fwk_update_service.cpp",
+    "${target_gen_dir}/../../../sa/app_fwk_update/app_fwk_update_service_proxy.cpp",
+    "${target_gen_dir}/../../../sa/app_fwk_update/app_fwk_update_service_stub.cpp",
+    "${webview_path}/sa/app_fwk_update/src/app_fwk_update_client.cpp",
+    "${webview_path}/sa/app_fwk_update/src/app_fwk_update_load_callback.cpp",
+    "${webview_path}/sa/app_fwk_update/src/app_fwk_update_service.cpp",
   ]
   configs = [ ":module_private_config" ]
 
   deps = [
-    "${webview_path}/sa:app_fwk_update_service",
-    "${webview_path}/sa:app_fwk_update_service_interface",
+    "${webview_path}/sa/app_fwk_update:app_fwk_update_service",
+    "${webview_path}/sa/app_fwk_update:app_fwk_update_service_interface",
   ]
 
   external_deps = [
@@ -72,17 +72,17 @@ ohos_unittest("app_fwk_update_service_test") {
   module_out_path = module_output_path
   sources = [ "app_fwk_update_service_test.cpp" ]
   sources += [
-    "${target_gen_dir}/../../../sa/app_fwk_update_service_proxy.cpp",
-    "${target_gen_dir}/../../../sa/app_fwk_update_service_stub.cpp",
-    "${webview_path}/sa/src/app_fwk_update_client.cpp",
-    "${webview_path}/sa/src/app_fwk_update_load_callback.cpp",
-    "${webview_path}/sa/src/app_fwk_update_service.cpp",
+    "${target_gen_dir}/../../../sa/app_fwk_update/app_fwk_update_service_proxy.cpp",
+    "${target_gen_dir}/../../../sa/app_fwk_update/app_fwk_update_service_stub.cpp",
+    "${webview_path}/sa/app_fwk_update/src/app_fwk_update_client.cpp",
+    "${webview_path}/sa/app_fwk_update/src/app_fwk_update_load_callback.cpp",
+    "${webview_path}/sa/app_fwk_update/src/app_fwk_update_service.cpp",
   ]
   configs = [ ":module_private_config" ]
 
   deps = [
-    "${webview_path}/sa:app_fwk_update_service",
-    "${webview_path}/sa:app_fwk_update_service_interface",
+    "${webview_path}/sa/app_fwk_update:app_fwk_update_service",
+    "${webview_path}/sa/app_fwk_update:app_fwk_update_service_interface",
   ]
 
   external_deps = [
