@@ -128,6 +128,8 @@ public:
 
     std::unique_ptr<NWeb::ScreenlockManagerAdapter> CreateScreenlockManagerAdapter() override;
 
+    std::unique_ptr<NWeb::BackgroundTaskAdapter> CreateBackgroundTaskAdapter() override;
+
 private:
     ArkWebRefPtr<ArkOhosAdapterHelper> ctocpp_;
 };
