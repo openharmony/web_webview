@@ -24,12 +24,12 @@ ArkBackgroundStateChangeCallbackAdapterImpl::ArkBackgroundStateChangeCallbackAda
 
 void ArkBackgroundStateChangeCallbackAdapterImpl::NotifyApplicationForeground()
 {
-    real_.NotifyApplicationForeground();
+    real_->NotifyApplicationForeground();
 }
 
 void ArkBackgroundStateChangeCallbackAdapterImpl::NotifyApplicationBackground()
 {
-    real_.NotifyApplicationBackground();
+    real_->NotifyApplicationBackground();
 }
 
 } // namespace OHOS::ArkWeb

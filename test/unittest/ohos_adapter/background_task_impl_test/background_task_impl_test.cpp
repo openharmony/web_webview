@@ -149,4 +149,22 @@ HWTEST_F(BackgroundTaskImplTest, BackgroundTaskImplTest_BackgroundTaskAdapter_00
     result = adapter->RequestBackgroundTaskRunning(true, static_cast<BackgroundModeAdapter>(0));
     EXPECT_FALSE(result);
 }
+
+/**
+ * @tc.name: BackgroundTaskImplTest_BackgroundTaskAdapter_004
+ * @tc.desc: BackgroundTaskAdapter.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(BackgroundTaskImplTest, BackgroundTaskImplTest_BackgroundTaskAdapter_004, TestSize.Level1)
+{
+    std::shared_ptr<BackgroundStateChangeCallbackAdapter> callback =
+        std::make_shared<BackgroundStateChangeCallbackAdapterMock>();
+    EXPECT_NE(callback, nullptr);
+
+    std::shared_ptr<ApplicationStateChangeCallbackImpl> testCallback =
+        std::make_shared<ApplicationStateChangeCallbackImpl>(callback);
+    testCallback->NotifyApplicationForeground();
+    testCallback->NotifyApplicationBackground();
+}
 } // namespace OHOS
