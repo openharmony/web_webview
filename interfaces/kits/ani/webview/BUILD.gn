@@ -116,6 +116,7 @@ ohos_shared_library("webview_ani") {
   ]
 
   deps = [
+    "../../../../arkweb_utils:libarkweb_utils",
     "../../nativecommon:webview_common",
     "../../../../ohos_adapter:nweb_ohos_adapter",
     "../../../../ohos_nweb:libnweb",

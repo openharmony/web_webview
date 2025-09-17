@@ -40,6 +40,7 @@
 
 #include "native_arkweb_utils.h"
 #include "native_interface_arkweb.h"
+#include "arkweb_utils.h"
 
 #include "nweb_log.h"
 #include "web_errors.h"
@@ -956,6 +957,32 @@ static ani_object GetScrollOffset(ani_env *env, ani_object object)
     float offsetX = 0;
     float offsetY = 0;
     controller->GetScrollOffset(&offsetX, &offsetY);
+
+    if (AniParseUtils::CreateObjectVoid(env, ANI_CLASS_SCROLL_OFFSET_INNER, offset)) {
+        env->Object_SetPropertyByName_Double(offset, "x", static_cast<ani_double>(offsetX));
+        env->Object_SetPropertyByName_Double(offset, "y", static_cast<ani_double>(offsetY));
+    }
+    return offset;
+}
+static ani_object GetPageOffset(ani_env *env, ani_object object)
+{
+    if (IS_CALLING_FROM_M114()) {
+        AniBusinessError::ThrowErrorByErrCode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
+        return nullptr;
+    }
+    ani_object offset = {};
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return offset;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return offset;
+    }
+    float offsetX = 0;
+    float offsetY = 0;
+    controller->GetPageOffset(&offsetX, &offsetY);
 
     if (AniParseUtils::CreateObjectVoid(env, ANI_CLASS_SCROLL_OFFSET_INNER, offset)) {
         env->Object_SetPropertyByName_Double(offset, "x", static_cast<ani_double>(offsetX));
@@ -5257,6 +5284,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "scrollTo", nullptr, reinterpret_cast<void *>(ScrollTo) },
         ani_native_function { "scrollBy", nullptr, reinterpret_cast<void *>(ScrollBy) },
         ani_native_function { "getScrollOffset", nullptr, reinterpret_cast<void *>(GetScrollOffset) },
+        ani_native_function { "getPageOffset", nullptr, reinterpret_cast<void *>(GetPageOffset) },
         ani_native_function { "slideScroll", nullptr, reinterpret_cast<void *>(SlideScroll) },
         ani_native_function { "zoom", nullptr, reinterpret_cast<void *>(Zoom) },
         ani_native_function { "pageDown", nullptr, reinterpret_cast<void *>(PageDown) },

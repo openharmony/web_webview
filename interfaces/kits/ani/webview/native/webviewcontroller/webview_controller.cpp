@@ -1909,6 +1909,14 @@ void WebviewController::GetScrollOffset(float* offset_x, float* offset_y)
     }
 }
 
+void WebviewController::GetPageOffset(float* offsetX, float* offsetY)
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (nweb_ptr) {
+        nweb_ptr->GetPageOffset(offsetX, offsetY);
+    }
+}
+
 bool WebviewController::ScrollByWithResult(float deltaX, float deltaY) const
 {
     bool enabled = false;
