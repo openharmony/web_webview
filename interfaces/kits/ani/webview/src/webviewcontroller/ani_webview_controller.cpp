@@ -5233,7 +5233,7 @@ ani_object CreateBlanklessInfo(ani_env* env, int32_t errCode, double similarity,
     ani_object result = {};
     if (!AniParseUtils::CreateObjectVoid(env, ANI_CLASS_BLANKLESS_INFO_INNER, result)) {
         WVLOG_E("CreateBlanklessInfo FAILED");
-        return;
+        return result;
     }
     ani_enum_item errCodeType;
     if (AniParseUtils::GetEnumItemByIndex(env, ANI_ENUM_WEB_BLANKLESS_ERROR_CODE, std::abs(errCode), errCodeType)) {
