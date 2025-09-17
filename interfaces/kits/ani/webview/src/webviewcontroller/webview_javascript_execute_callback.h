@@ -41,7 +41,7 @@ ani_ref CreateStsError(ani_env* env, ani_int code, const std::string& msg);
 class WebviewJavaScriptExecuteCallback : public std::enable_shared_from_this<WebviewJavaScriptExecuteCallback>,
                                          public NWebMessageValueCallback {
 public:
-    explicit WebviewJavaScriptExecuteCallback(ani_env* env, ani_ref callbackRef, ani_resolver resolver, bool extention);
+    explicit WebviewJavaScriptExecuteCallback(ani_env* env, ani_ref callbackRef, ani_resolver resolver, bool extension);
     ~WebviewJavaScriptExecuteCallback();
     void SetJavaScriptCallBackRef(ani_object callback);
     void OnReceiveValue(std::shared_ptr<NWebMessage> result) override;
@@ -57,8 +57,9 @@ public:
         return callbackRef_;
     }
 
-    bool GetExtention() {
-        return extention_;
+    bool GetExtension()
+    {
+        return extension_;
     }
     
     ani_resolver GetResolver() {
@@ -70,7 +71,7 @@ private:
     ani_ref callbackRef_ = nullptr;
     ani_resolver resolver_ = nullptr;
     std::shared_ptr<AppExecFwk::EventHandler> mainHandler_;
-    bool extention_ = false;
+    bool extension_ = false;
 };
 
 class WebJsMessageExt {

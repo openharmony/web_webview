@@ -171,7 +171,7 @@ ani_status unbox<ani_int>(ani_env *env, ani_object obj, ani_int *result)
 
 bool ParsePrepareUrl(ani_env* env, ani_ref urlObj, std::string& url)
 {
-    if (AniParseUtils::ParseString(env, urlObj, url)) {
+    if (!AniParseUtils::ParseString(env, urlObj, url)) {
         WVLOG_E("urlObj convert to string failed");
         return false;
     }
@@ -526,6 +526,8 @@ static void Clean(ani_env *env, ani_object object)
     } else if (clsName == "PrintDocumentAdapterInner") {
         delete reinterpret_cast<WebPrintDocument*>(ptr);
     } else if (clsName == "WebJsMessageExt") {
+        delete reinterpret_cast<WebJsMessageExt*>(ptr);
+    } else if (clsName == "JsMessageExt") {
         delete reinterpret_cast<WebJsMessageExt*>(ptr);
     } else {
         WVLOG_E("Clean unsupport className: %{public}s", clsName.c_str());
@@ -1745,8 +1747,8 @@ bool GetSendPorts(ani_env* env, ani_object portsArrayObj, std::vector<std::strin
         WVLOG_E("env is nullptr");
         return false;
     }
-    ani_double arrayLen = 0;
-    if (env->Object_GetPropertyByName_Double(portsArrayObj, "length", &arrayLen) != ANI_OK) {
+    ani_int arrayLen = 0;
+    if (env->Object_GetPropertyByName_Int(portsArrayObj, "length", &arrayLen) != ANI_OK) {
         AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
         return false;
     }
@@ -5094,7 +5096,7 @@ ErrCode ConstructFlowbuf(ani_env* env, ani_object script, int& fd, size_t& scrip
     flowbufferAdapter->StartPerformanceBoost();
     std::string scriptStr;
     if (AniParseUtils::IsString(env, script)) {
-        if (!AniParseUtils::ParseString(env, script, scriptStr)) {
+        if (AniParseUtils::ParseString(env, script, scriptStr)) {
             WVLOG_I("script is string constructstringflowbuf");
             return AniParseUtils::ConstructStringFlowbuf(env, scriptStr, fd, scriptLength);
         }

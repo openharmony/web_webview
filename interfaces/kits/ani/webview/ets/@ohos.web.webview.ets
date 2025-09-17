@@ -1133,8 +1133,8 @@ export default namespace webview {
         native getGuid(): string;
         native getPercentComplete(): int;
         native getSuggestedFileName(): string;
-
         native getMethod(): string;
+        native getMimeType(): string;
         native getCurrentSpeed(): int;
         native getReceivedBytes(): long;
         native getFullPath(): string;
