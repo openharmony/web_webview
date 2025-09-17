@@ -5338,7 +5338,7 @@ static ani_int SetBlanklessLoadingCacheCapacity(ani_env* env, ani_object object,
         capacity = MAX_DATABASE_SIZE_IN_MB;
     }
     NWebHelper::Instance().SetBlanklessLoadingCacheCapacity(capacity);
-    return static_cast<ani_int>(capacity); 
+    return static_cast<ani_int>(capacity);
 }
 
 static void ClearBlanklessLoadingCache(ani_env* env, ani_object object, ani_object keysObj)
@@ -5365,7 +5365,7 @@ static void ClearBlanklessLoadingCache(ani_env* env, ani_object object, ani_obje
         NWebHelper::Instance().ClearBlanklessLoadingCache(keys);
         return;
     }
-    if(!AniParseUtils::GetStringList(env, keysObj, keys)) {
+    if (!AniParseUtils::GetStringList(env, keysObj, keys)) {
         WVLOG_E("GetStringList failed.");
         return;
     }
