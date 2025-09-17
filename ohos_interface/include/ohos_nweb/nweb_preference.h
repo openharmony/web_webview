@@ -693,6 +693,11 @@ public:
      * Set the gesture focus mode.
      */
     virtual void SetGestureFocusMode(int32_t mode) {}
+
+    /**
+     * Sets whether the Web supports zooming using Ctrl.
+     */
+    virtual void PutZoomControlAccess(bool zoomControlAccess) {}
 };
 
 } // namespace OHOS::NWeb

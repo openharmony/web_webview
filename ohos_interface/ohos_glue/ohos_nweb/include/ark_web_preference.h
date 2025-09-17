@@ -785,6 +785,12 @@ public:
      */
     /*--ark web()--*/
     virtual void SetGestureFocusMode(int32_t mode) = 0;
+
+    /**
+     * @brief Sets whether the Web supports zooming using Ctrl.
+     */
+    /*--ark web()--*/
+    virtual void PutZoomControlAccess(bool zoomControlAccess) = 0;
 };
 
 } // namespace OHOS::ArkWeb
