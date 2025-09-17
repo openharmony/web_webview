@@ -100,6 +100,15 @@ export default namespace webview {
         UNKNOWN
     }
 
+    export enum WebBlanklessErrorCode {
+        SUCCESS = 0,
+        ERR_UNKNOWN = -1,
+        ERR_INVALID_PARAM = -2,
+        ERR_CONTROLLER_NOT_INITED = -3,
+        ERR_KEY_NOT_MATCH = -4,
+        ERR_SIGNIFICANT_CHANGE = -5
+    }
+
     export interface OfflineResourceMap {
         urlList: Array<string>,
         resource: Uint8Array,
@@ -247,6 +256,17 @@ export default namespace webview {
     export class ScrollOffsetInner implements ScrollOffset {
         x: double = 0;
         y: double = 0;
+    }
+
+    export interface BlanklessInfo {
+        errCode: WebBlanklessErrorCode;
+        similarity: double;
+        loadingTime: int;
+    }
+    export class BlanklessInfoInner implements BlanklessInfo {
+        errCode: WebBlanklessErrorCode = WebBlanklessErrorCode.ERR_INVALID_PARAM;
+        similarity: double = 0.0;
+        loadingTime: int = 0;
     }
 
     export interface HitTestValue {
@@ -772,6 +792,10 @@ export default namespace webview {
         }
 
         native getCertificateSync(): Array<ArrayBuffer>;
+        native getBlanklessInfoWithKey(key: string): BlanklessInfo;
+        native setBlanklessLoadingWithKey(key: string, is_start: boolean): WebBlanklessErrorCode;
+        native static clearBlanklessLoadingCache(keys?: Array<string>): void;
+        native static setBlanklessLoadingCacheCapacity(capacity: int): int;        
     }
 
     export class WebSchemeHandlerResponse {

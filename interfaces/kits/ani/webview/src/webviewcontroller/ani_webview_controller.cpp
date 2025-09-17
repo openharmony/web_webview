@@ -76,6 +76,7 @@
 #include "ani_web_scheme_handler_request.h"
 #include "web_scheme_handler_request.h"
 #include "arkweb_scheme_handler.h"
+#include "system_properties_adapter_impl.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -89,6 +90,9 @@ constexpr size_t MAX_URL_TRUST_LIST_STR_LEN = 10 * 1024 * 1024; // 10M
 constexpr uint32_t SOCKET_MAXIMUM = 6;
 constexpr size_t MAX_RESOURCES_COUNT = 30;
 constexpr uint32_t URL_MAXIMUM = 2048;
+constexpr int32_t BLANKLESS_ERR_INVALID_ARGS = 2;
+constexpr int32_t BLANKLESS_ERR_NOT_INITED = 3;
+constexpr int32_t MAX_DATABASE_SIZE_IN_MB = 100;
 constexpr char URL_REGEXPR[] = "^http(s)?:\\/\\/.+";
 const char *INVOKE_METHOD_NAME = "invoke";
 const int CALLBACK_PARAM_LENGTH = 2;
@@ -5224,6 +5228,150 @@ static ani_object GetCertificateSync(ani_env* env, ani_object object)
     return certificateObj;
 }
 
+ani_object CreateBlanklessInfo(ani_env* env, int32_t errCode, double similarity, int32_t loadingTime)
+{
+    ani_object result = {};
+    if (!AniParseUtils::CreateObjectVoid(env, ANI_CLASS_BLANKLESS_INFO_INNER, result)) {
+        WVLOG_E("CreateBlanklessInfo FAILED");
+        return;
+    }
+    ani_enum_item errCodeType;
+    if (AniParseUtils::GetEnumItemByIndex(env, ANI_ENUM_WEB_BLANKLESS_ERROR_CODE, std::abs(errCode), errCodeType)) {
+        env->Object_SetPropertyByName_Ref(result, "errCode", errCodeType);
+    }
+    env->Object_SetPropertyByName_Double(result, "similarity", static_cast<ani_double>(similarity));
+    env->Object_SetPropertyByName_Int(result, "loadingTime", static_cast<ani_int>(loadingTime));
+    return result;
+}
+
+ani_object GetBlanklessInfoWithKey(ani_env* env, ani_object object, ani_object keyObj)
+{
+    ProductDeviceType deviceType = SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType();
+    if (deviceType != ProductDeviceType::DEVICE_TYPE_MOBILE) {
+        WVLOG_E("GetBlanklessInfoWithKey capability not supported.");
+        AniBusinessError::ThrowErrorByErrCode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
+        return nullptr;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("webviewController is nullptr.");
+        return nullptr;
+    }
+    
+    std::string key;
+    if (!AniParseUtils::ParseString(env, keyObj, key)) {
+        WVLOG_E("GetBlanklessInfoWithKey ParseString failed");
+        return CreateBlanklessInfo(env, BLANKLESS_ERR_INVALID_ARGS, 0.0, 0);
+    }
+
+    if (!controller->IsInit()) {
+        WVLOG_E("GetBlanklessInfoWithKey controller is not inited");
+        return CreateBlanklessInfo(env, BLANKLESS_ERR_NOT_INITED, 0.0, 0);
+    }
+
+    double similarity = 0.0;
+    int32_t loadingTime = 0;
+    int32_t errCode = controller->GetBlanklessInfoWithKey(key, &similarity, &loadingTime);
+    return CreateBlanklessInfo(env, errCode, similarity, loadingTime);
+}
+
+ani_enum_item SetBlanklessLoadingWithKey(ani_env* env, ani_object object, ani_object keyObj, ani_boolean is_start)
+{
+    ProductDeviceType deviceType = SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType();
+    if (deviceType != ProductDeviceType::DEVICE_TYPE_MOBILE) {
+        WVLOG_E("SetBlanklessLoadingWithKey capability not supported.");
+        AniBusinessError::ThrowErrorByErrCode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
+        return nullptr;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("webviewController is nullptr.");
+        return nullptr;
+    }
+    
+    ani_enum_item result;
+    std::string key;
+    if (!AniParseUtils::ParseString(env, keyObj, key)) {
+        WVLOG_E("SetBlanklessLoadingWithKey ParseString failed");
+        AniParseUtils::GetEnumItemByIndex(env, ANI_ENUM_WEB_BLANKLESS_ERROR_CODE, BLANKLESS_ERR_INVALID_ARGS, result);
+        return result;
+    }
+
+    if (!controller->IsInit()) {
+        WVLOG_E("SetBlanklessLoadingWithKey controller is not inited");
+        AniParseUtils::GetEnumItemByIndex(env, ANI_ENUM_WEB_BLANKLESS_ERROR_CODE, BLANKLESS_ERR_NOT_INITED, result);
+        return result;
+    }
+
+    auto errCode = controller->SetBlanklessLoadingWithKey(key, static_cast<bool>(is_start));
+    AniParseUtils::GetEnumItemByIndex(env, ANI_ENUM_WEB_BLANKLESS_ERROR_CODE, std::abs(errCode), result);
+    return result;
+}
+
+static ani_int SetBlanklessLoadingCacheCapacity(ani_env* env, ani_object object, ani_int capacityObj)
+{
+    ProductDeviceType deviceType = SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType();
+    if (deviceType != ProductDeviceType::DEVICE_TYPE_MOBILE) {
+        WVLOG_E("SetBlanklessLoadingCacheCapacity capability not supported.");
+        AniBusinessError::ThrowErrorByErrCode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
+        return static_cast<ani_int>(0);
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return static_cast<ani_int>(0);
+    }
+
+    int32_t capacity = static_cast<int32_t>(capacityObj);
+    if (capacity < 0) {
+        capacity = 0;
+    }
+
+    if (capacity > MAX_DATABASE_SIZE_IN_MB) {
+        capacity = MAX_DATABASE_SIZE_IN_MB;
+    }
+    NWebHelper::Instance().SetBlanklessLoadingCacheCapacity(capacity);
+    return static_cast<ani_int>(capacity); 
+}
+
+static void ClearBlanklessLoadingCache(ani_env* env, ani_object object, ani_object keysObj)
+{
+    ProductDeviceType deviceType = SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType();
+    if (deviceType != ProductDeviceType::DEVICE_TYPE_MOBILE) {
+        WVLOG_E("ClearBlanklessLoadingCache capability not supported.");
+        AniBusinessError::ThrowErrorByErrCode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
+        return;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    ani_boolean isUndefined;
+    if (env->Reference_IsUndefined(keysObj, &isUndefined) != ANI_OK) {
+        WVLOG_E("ClearBlanklessLoadingCache Reference_IsUndefined failed.");
+        return;
+    }
+
+    std::vector<std::string> keys;
+    if (isUndefined) {
+        NWebHelper::Instance().ClearBlanklessLoadingCache(keys);
+        return;
+    }
+    if(!AniParseUtils::GetStringList(env, keysObj, keys)) {
+        WVLOG_E("GetStringList failed.");
+        return;
+    }
+    NWebHelper::Instance().ClearBlanklessLoadingCache(keys);
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     WVLOG_D("[DOWNLOAD] StsWebviewControllerInit");
@@ -5368,6 +5516,10 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "hasImageCallback", nullptr, reinterpret_cast<void *>(HasImageCallback) },
         ani_native_function { "hasImagePromise", nullptr, reinterpret_cast<void *>(HasImagePromise) },
         ani_native_function { "getCertificateSync", nullptr, reinterpret_cast<void*>(GetCertificateSync) },
+        ani_native_function { "getBlanklessInfoWithKey", nullptr, reinterpret_cast<void*>(GetBlanklessInfoWithKey) },
+        ani_native_function { "setBlanklessLoadingWithKey", nullptr, reinterpret_cast<void*>(SetBlanklessLoadingWithKey) },
+        ani_native_function { "clearBlanklessLoadingCache", nullptr, reinterpret_cast<void*>(ClearBlanklessLoadingCache) },
+        ani_native_function { "setBlanklessLoadingCacheCapacity", nullptr, reinterpret_cast<void*>(SetBlanklessLoadingCacheCapacity) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
