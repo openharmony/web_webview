@@ -5517,9 +5517,12 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "hasImagePromise", nullptr, reinterpret_cast<void *>(HasImagePromise) },
         ani_native_function { "getCertificateSync", nullptr, reinterpret_cast<void*>(GetCertificateSync) },
         ani_native_function { "getBlanklessInfoWithKey", nullptr, reinterpret_cast<void*>(GetBlanklessInfoWithKey) },
-        ani_native_function { "setBlanklessLoadingWithKey", nullptr, reinterpret_cast<void*>(SetBlanklessLoadingWithKey) },
-        ani_native_function { "clearBlanklessLoadingCache", nullptr, reinterpret_cast<void*>(ClearBlanklessLoadingCache) },
-        ani_native_function { "setBlanklessLoadingCacheCapacity", nullptr, reinterpret_cast<void*>(SetBlanklessLoadingCacheCapacity) },
+        ani_native_function { "setBlanklessLoadingWithKey", nullptr,
+                              reinterpret_cast<void*>(SetBlanklessLoadingWithKey) },
+        ani_native_function { "clearBlanklessLoadingCache", nullptr,
+                              reinterpret_cast<void*>(ClearBlanklessLoadingCache) },
+        ani_native_function { "setBlanklessLoadingCacheCapacity", nullptr,
+                              reinterpret_cast<void*>(SetBlanklessLoadingCacheCapacity) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
