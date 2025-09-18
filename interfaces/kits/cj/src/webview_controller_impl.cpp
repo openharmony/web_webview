@@ -745,6 +745,10 @@ namespace OHOS::Webview {
         NWeb::ImageColorType &colorType, NWeb::ImageAlphaType &alphaType) const
     {
         bool isGetFavicon = false;
+        if (!data) {
+            WEBVIEWLOGE("WebviewControllerImpl::GetFavicon data is nullptr");
+            return isGetFavicon;
+        }
         auto nweb_ptr = NWeb::NWebHelper::Instance().GetNWeb(nwebId_);
         if (nweb_ptr) {
             isGetFavicon = nweb_ptr->GetFavicon(data, width, height, colorType, alphaType);
@@ -1353,6 +1357,10 @@ namespace OHOS::Webview {
 
     bool WebviewControllerImpl::SetWebServiceWorkerSchemeHandler(const char* scheme, WebSchemeHandlerImpl* handler)
     {
+        if (!handler || !scheme) {
+            WEBVIEWLOGE("WebviewControllerImpl::SetWebServiceWorkerSchemeHandler schemeHandler or scheme is nullptr");
+            return false;
+        }
         ArkWeb_SchemeHandler* schemeHandler =
             const_cast<ArkWeb_SchemeHandler*>(WebSchemeHandlerImpl::GetArkWebSchemeHandler(handler));
         return OH_ArkWebServiceWorker_SetSchemeHandler(scheme, schemeHandler);
@@ -1391,6 +1399,10 @@ namespace OHOS::Webview {
     int32_t WebviewControllerImpl::WebPageSnapshot(const char* id, NWeb::PixelUnit type,
         int32_t width, int32_t height, const NWeb::WebSnapshotCallback callback)
     {
+        if (!id) {
+             WEBVIEWLOGE(" WebviewControllerImpl::WebPageSnapshot id is nullptr");
+            return NWebError::INIT_ERROR;
+        }
         auto nweb_ptr = NWeb::NWebHelper::Instance().GetNWeb(nwebId_);
         if (!nweb_ptr) {
             return NWebError::INIT_ERROR;
@@ -1507,6 +1519,10 @@ namespace OHOS::Webview {
 
     void WebviewControllerImpl::GetScrollOffset(float* offset_x, float* offset_y)
     {
+        if (!offset_x || !offset_y) {
+            WEBVIEWLOGE("WebviewControllerImpl::GetScrollOffset offset_x or offset_y is nullptr");
+            return;
+        }
         auto nweb_ptr = NWeb::NWebHelper::Instance().GetNWeb(nwebId_);
         if (nweb_ptr) {
             nweb_ptr->GetScrollOffset(offset_x, offset_y);
