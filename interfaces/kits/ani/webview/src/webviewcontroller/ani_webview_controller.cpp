@@ -153,7 +153,7 @@ ani_status unbox<ani_int>(ani_env *env, ani_object obj, ani_int *result)
 {
     if (g_intCls == nullptr) {
         ani_class intCls {};
-        auto status = env->FindClass("std.core.Intrger", &intCls);
+        auto status = env->FindClass("std.core.Int", &intCls);
         if (status != ANI_OK) {
             return status;
         }
