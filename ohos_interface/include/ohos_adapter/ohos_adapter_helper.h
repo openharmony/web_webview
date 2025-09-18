@@ -61,7 +61,6 @@
 #include "soc_perf_client_adapter.h"
 #include "system_properties_adapter.h"
 #include "sensor_adapter.h"
-#include "background_task_adapter.h"
 
 namespace OHOS::NWeb {
 
@@ -171,8 +170,6 @@ public:
     virtual std::unique_ptr<ScreenlockManagerAdapter> CreateScreenlockManagerAdapter() = 0;
 
     virtual std::unique_ptr<CertManagerAdapter> GetCertManagerAdapter() {return nullptr;}
-
-    virtual std::unique_ptr<BackgroundTaskAdapter> CreateBackgroundTaskAdapter() = 0;
 };
 
 } // namespace OHOS::NWeb

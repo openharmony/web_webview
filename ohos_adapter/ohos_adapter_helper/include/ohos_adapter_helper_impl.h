@@ -130,8 +130,6 @@ public:
     std::unique_ptr<MigrationManagerAdapter> CreateMigrationMgrAdapter() override;
 
     std::unique_ptr<ScreenlockManagerAdapter> CreateScreenlockManagerAdapter() override;
-
-    std::unique_ptr<BackgroundTaskAdapter> CreateBackgroundTaskAdapter() override;
 };
 } // namespace OHOS::NWeb
 

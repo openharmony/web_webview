@@ -750,6 +750,44 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetBundleName_001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: WebApplicationStateChangeCallback_NotifyApplicationForeground_001
+ * @tc.desc: NotifyApplicationForeground.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest,
+          WebApplicationStateChangeCallback_NotifyApplicationForeground_001, TestSize.Level1)
+{
+    std::shared_ptr<WebApplicationStateChangeCallback> webApplicationStateCallback_ =
+        WebApplicationStateChangeCallback::GetInstance();
+    EXPECT_NE(webApplicationStateCallback_, nullptr);
+    std::shared_ptr<NWebCreateInfoImpl> create_info = std::make_shared<NWebCreateInfoImpl>();
+    std::shared_ptr<NWeb> nweb = NWebHelper::Instance().CreateNWeb(create_info);
+    EXPECT_EQ(nweb, nullptr);
+    webApplicationStateCallback_->nweb_ = nweb;
+    webApplicationStateCallback_->NotifyApplicationForeground();
+}
+
+/**
+ * @tc.name: WebApplicationStateChangeCallback_NotifyApplicationBackground_001
+ * @tc.desc: NotifyApplicationBackground.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest,
+          WebApplicationStateChangeCallback_NotifyApplicationBackground_001, TestSize.Level1)
+{
+    std::shared_ptr<WebApplicationStateChangeCallback> webApplicationStateCallback_ =
+        WebApplicationStateChangeCallback::GetInstance();
+    EXPECT_NE(webApplicationStateCallback_, nullptr);
+    std::shared_ptr<NWebCreateInfoImpl> create_info = std::make_shared<NWebCreateInfoImpl>();
+    std::shared_ptr<NWeb> nweb = NWebHelper::Instance().CreateNWeb(create_info);
+    EXPECT_EQ(nweb, nullptr);
+    webApplicationStateCallback_->nweb_ = nweb;
+    webApplicationStateCallback_->NotifyApplicationBackground();
+}
+
+/**
  * @tc.name: SetWebDebuggingAccess
  * @tc.desc: SetWebDebuggingAccess and SetWebDebuggingAccessAndPort.
  * @tc.type: FUNC

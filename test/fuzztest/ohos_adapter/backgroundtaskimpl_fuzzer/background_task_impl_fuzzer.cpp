@@ -18,42 +18,30 @@
 #include <unistd.h>
 #include <memory>
 #include "background_task_adapter.h"
-#include "background_task_impl.h"
 
-using namespace OHOS::NWeb;
+using namespace OHOS::NWeb;  
 
-class BackgroundStateChangeCallbackAdapterMock : public BackgroundStateChangeCallbackAdapter {
-public:
-    BackgroundStateChangeCallbackAdapterMock() = default;
-    void NotifyApplicationForeground() {}
-    void NotifyApplicationBackground() {}
-};
+namespace OHOS {  
+    bool BackgroundTaskRequestFuzzTest(const uint8_t* data, size_t size)  
+    {  
+        if ((data == nullptr) || (size < sizeof(bool) + sizeof(BackgroundModeAdapter))) {  
+            return false;  
+        }  
 
-namespace OHOS {
-    bool BackgroundTaskRequestFuzzTest(const uint8_t* data, size_t size)
-    {
-        if ((data == nullptr) || (size < sizeof(bool) + sizeof(BackgroundModeAdapter))) {
-            return false;
-        }
+        bool running = static_cast<bool>(data[0]);  
+        BackgroundModeAdapter bgMode = static_cast<BackgroundModeAdapter>(data[1]);  
+        std::shared_ptr<BackgroundTaskAdapter> taskAdapter = std::make_shared<BackgroundTaskAdapter>();  
+        
+        taskAdapter->RequestBackgroundRunning(running, bgMode);  
 
-        bool running = static_cast<bool>(data[0]);
-        BackgroundModeAdapter bgMode = static_cast<BackgroundModeAdapter>(data[1]);
-        BackgroundTaskAdapter::RequestBackgroundRunning(running, bgMode);
+        return true;  
+    }  
+}  
 
-        std::shared_ptr<BackgroundStateChangeCallbackAdapter> callback =
-            std::make_shared<BackgroundStateChangeCallbackAdapterMock>();
-        std::shared_ptr<BackgroundTaskAdapterImpl> adapter =
-            std::make_shared<BackgroundTaskAdapterImpl>();
-        adapter->RegisterBackgroundTaskPolicyCallback(callback);
-        adapter->RequestBackgroundTaskRunning(running, bgMode);
-        return true;
-    }
-}
-
-/* Fuzzer entry point */
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
-{
-    /* Run your code on data */
-    OHOS::BackgroundTaskRequestFuzzTest(data, size);
-    return 0;
+/* Fuzzer entry point */  
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)  
+{  
+    /* Run your code on data */  
+    OHOS::BackgroundTaskRequestFuzzTest(data, size);  
+    return 0;  
 }

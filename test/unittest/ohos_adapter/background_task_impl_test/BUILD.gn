@@ -19,10 +19,7 @@ module_output_path = "webview/webview"
 config("module_private_config") {
   visibility = [ ":*" ]
 
-  include_dirs = [
-    "$webview_path/ohos_adapter/interfaces",
-    "$webview_path/ohos_adapter/background_task_adapter/include",
-  ]
+  include_dirs = [ "$webview_path/ohos_adapter/interfaces" ]
 }
 
 ohos_unittest("background_task_impl_test") {
@@ -36,7 +33,6 @@ ohos_unittest("background_task_impl_test") {
 
   external_deps = [
     "ability_runtime:wantagent_innerkits",
-    "ability_runtime:ability_connect_callback_stub",
     "background_task_mgr:bgtaskmgr_innerkits",
     "c_utils:utils",
     "googletest:gmock_main",
