@@ -163,7 +163,8 @@
                     "header": {
                         "header_files": [
                             "webview_controller_impl.h",
-                            "web_cookie_manager.h"
+                            "web_cookie_manager.h",
+                            "webview_ffi.h"
                         ],
                         "header_base": "//base/web/webview/interfaces/kits/cj/include"
                     },
