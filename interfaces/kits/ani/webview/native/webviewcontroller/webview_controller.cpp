@@ -2049,5 +2049,22 @@ int32_t WebviewController::GetNWebId()
     return nwebId_;
 }
 
+int32_t WebviewController::GetBlanklessInfoWithKey(const std::string& key, double* similarity, int32_t* loadingTime)
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (nweb_ptr) {
+        return nweb_ptr->GetBlanklessInfoWithKey(key, similarity, loadingTime);
+    }
+    return -1;
+}
+
+int32_t WebviewController::SetBlanklessLoadingWithKey(const std::string& key, bool isStart)
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (nweb_ptr) {
+        return nweb_ptr->SetBlanklessLoadingWithKey(key, isStart);
+    }
+    return -1;
+}
 } // namespace NWeb
 } // namespace OHOS
