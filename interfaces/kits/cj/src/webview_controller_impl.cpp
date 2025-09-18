@@ -1404,7 +1404,7 @@ namespace OHOS::Webview {
         int32_t width, int32_t height, const NWeb::WebSnapshotCallback callback)
     {
         if (!id) {
-             WEBVIEWLOGE(" WebviewControllerImpl::WebPageSnapshot id is nullptr");
+            WEBVIEWLOGE(" WebviewControllerImpl::WebPageSnapshot id is nullptr");
             return NWebError::INIT_ERROR;
         }
         auto nweb_ptr = NWeb::NWebHelper::Instance().GetNWeb(nwebId_);
