@@ -694,6 +694,11 @@ public:
      */
     void SetGestureFocusMode(int32_t mode) override;
 
+    /**
+     * @brief Sets whether the Web supports zooming using Ctrl.
+     */
+    void PutZoomControlAccess(bool zoomControlAccess) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebPreference> nweb_preference_;
 };
