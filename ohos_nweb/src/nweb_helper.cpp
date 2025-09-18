@@ -1176,6 +1176,26 @@ void NWebHelper::ClearBlanklessLoadingCache(const std::vector<std::string>& urls
     nwebEngine_->ClearBlanklessLoadingCache(urls);
 }
 
+void WebApplicationStateChangeCallback::NotifyApplicationForeground()
+{
+    WVLOG_I("WebApplicationStateChangeCallback::NotifyApplicationForeground is called.");
+    if (!nweb_) {
+        WVLOG_E("WebApplicationStateChangeCallback::nweb is nullptr.");
+        return;
+    }
+    nweb_->OnBrowserForeground();
+}
+
+void WebApplicationStateChangeCallback::NotifyApplicationBackground()
+{
+    WVLOG_I("WebApplicationStateChangeCallback::NotifyApplicationBackground is called.");
+    if (!nweb_) {
+        WVLOG_E("WebApplicationStateChangeCallback::nweb is nullptr.");
+        return;
+    }
+    nweb_->OnBrowserBackground();
+}
+
 NWebAdapterHelper& NWebAdapterHelper::Instance()
 {
     static NWebAdapterHelper helper;

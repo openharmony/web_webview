@@ -19,7 +19,6 @@
 #include "background_mode.h"
 #include "background_task_adapter.h"
 #include "background_task_mgr_helper.h"
-#include "background_task_impl.h"
 #include "nweb_log.h"
 
 namespace OHOS::NWeb {
@@ -62,67 +61,5 @@ bool BackgroundTaskAdapter::RequestBackgroundRunning(bool running, BackgroundMod
         return false;
     }
     return true;
-}
-
-ApplicationStateChangeCallbackImpl::ApplicationStateChangeCallbackImpl(
-    std::shared_ptr<BackgroundStateChangeCallbackAdapter> cb) : cb_(cb)
-{
-    WVLOG_D("ApplicationStateChangeCallbackImpl::ApplicationStateChangeCallbackImpl is called.");
-}
-
-void ApplicationStateChangeCallbackImpl::NotifyApplicationForeground()
-{
-    if (cb_) {
-        cb_->NotifyApplicationForeground();
-        WVLOG_I("ApplicationStateChangeCallbackImpl::NotifyApplicationForeground is called.");
-    } else {
-        WVLOG_E("ApplicationStateChangeCallbackImpl::NotifyApplicationForeground::cb_ is nullptr.");
-    }
-}
-
-void ApplicationStateChangeCallbackImpl::NotifyApplicationBackground()
-{
-    if (cb_) {
-        cb_->NotifyApplicationBackground();
-        WVLOG_I("ApplicationStateChangeCallbackImpl::NotifyApplicationBackground is called.");
-    } else {
-        WVLOG_E("ApplicationStateChangeCallbackImpl::NotifyApplicationBackground::cb_ is nullptr.");
-    }
-}
-
-BackgroundTaskAdapterImpl::BackgroundTaskAdapterImpl()
-{
-    WVLOG_D("BackgroundTaskAdapterImpl::BackgroundTaskAdapterImpl is called.");
-}
-
-bool BackgroundTaskAdapterImpl::RequestBackgroundTaskRunning(bool running, BackgroundModeAdapter bgMode)
-{
-    auto uid = getuid();
-    WVLOG_I("RequestBackgroundTaskRunning uid: %{public}d, running: %{public}d", uid, running);
-    ContinuousTaskParamForInner taskParam { uid, ConvertBackgroundMode(bgMode), running };
-    ErrCode errCode = BackgroundTaskMgrHelper::RequestBackgroundRunningForInner(taskParam);
-    if (errCode != ERR_OK) {
-        WVLOG_I("RequestBackgroundTaskRunning failed, error code: %{public}d", errCode);
-        return false;
-    }
-    return true;
-}
-
-void BackgroundTaskAdapterImpl::RegisterBackgroundTaskPolicyCallback(
-    std::shared_ptr<BackgroundStateChangeCallbackAdapter> callback)
-{
-    if (callback == nullptr) {
-        WVLOG_E("BackgroundTaskAdapterImpl::backgroundstate change callback is nullptr.");
-        return;
-    }
-    auto ctx = AbilityRuntime::ApplicationContext::GetApplicationContext();
-    if (ctx) {
-        applicationStateChangeCallback_ = std::make_shared<ApplicationStateChangeCallbackImpl>(callback);
-        ctx->RegisterApplicationStateChangeCallback(applicationStateChangeCallback_);
-        WVLOG_I("BackgroundTaskAdapterImpl::applicationStateChangeCallback_ is registered.");
-    } else {
-        WVLOG_E("BackgroundTaskAdapterImpl::failed to get application context.");
-        return;
-    }
 }
 } // namespace OHOS::NWeb

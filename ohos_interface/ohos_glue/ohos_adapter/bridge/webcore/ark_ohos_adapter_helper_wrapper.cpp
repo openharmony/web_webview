@@ -70,7 +70,6 @@
 #include "ohos_adapter/bridge/ark_vsync_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_web_timezone_info_wrapper.h"
 #include "ohos_adapter/bridge/ark_window_adapter_wrapper.h"
-#include "ohos_adapter/bridge/ark_background_task_adapter_wrapper.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
 
@@ -547,14 +546,4 @@ std::unique_ptr<NWeb::ScreenlockManagerAdapter> ArkOhosAdapterHelperWrapper::Cre
     return std::make_unique<ArkScreenlockManagerAdapterWrapper>(adapter);
 }
 
-std::unique_ptr<NWeb::BackgroundTaskAdapter> ArkOhosAdapterHelperWrapper::CreateBackgroundTaskAdapter()
-{
-    ArkWebRefPtr<ArkBackgroundTaskAdapter> adapter = ctocpp_->CreateBackgroundTaskAdapter();
-
-    if (CHECK_REF_PTR_IS_NULL(adapter)) {
-        return nullptr;
-    }
-
-    return std::make_unique<ArkBackgroundTaskAdapterWrapper>(adapter);
-}
 } // namespace OHOS::ArkWeb
