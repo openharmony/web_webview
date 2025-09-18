@@ -1,0 +1,72 @@
+# Copyright (c) 2025 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/config/components/ets_frontend/es2abc_config.gni")
+import("//build/ohos.gni")
+
+es2abc_gen_abc("gen_web_native_messaging_extension_context_abc") {
+    src_js = rebase_path("web_native_messaging_extension_context.js")
+    dst_file =
+        rebase_path(target_out_dir + "/web_native_messaging_extension_context.abc")
+    in_puts = [ "web_native_messaging_extension_context.js" ]
+    out_puts = [ target_out_dir + "/web_native_messaging_extension_context.abc" ]
+    extra_args = [
+        "--module",
+        "--source-file=web_native_messaging_extension_context",
+        "--module-record-field-name=web_native_messaging_extension_context"
+    ]
+}
+
+gen_js_obj("web_native_messaging_extension_context_js") {
+    input = "web_native_messaging_extension_context.js"
+    output = target_out_dir + "/web_native_messaging_extension_context.o"
+}
+
+gen_js_obj("web_native_messaging_extension_context_abc") {
+    input =
+        get_label_info(":gen_web_native_messaging_extension_context_abc",
+                       "target_out_dir") + "/web_native_messaging_extension_context.abc"
+    output = target_out_dir + "/web_native_messaging_extension_context_abc.o"
+    dep = ":gen_web_native_messaging_extension_context_abc"
+}
+
+ohos_shared_library("webnativemessagingextensioncontext_napi") {
+    sanitize = {
+        integer_overflow = true
+        ubsan = true
+        boundary_sanitize = true
+        cfi = true
+        cfi_cross_dso =  true
+        cfi_vcall_icall_only = true
+        debug = false
+    }
+    branch_protector_ret = "pac_ret"
+    sources = [ "web_native_messaging_extension_context_module.cpp" ]
+
+    deps = [
+        ":web_native_messaging_extension_context_abc",
+        ":web_native_messaging_extension_context_js",
+    ]
+
+    external_deps = [ "napi:ace_napi" ]
+
+    cflags = [
+        "-fstack-protector-strong",
+        "-D_FORTIFY_SOURCE=2",
+        "-O2"
+    ]
+
+    relative_install_dir = "module/web"
+    subsystem_name = "web"
+    part_name = "webview"
+}

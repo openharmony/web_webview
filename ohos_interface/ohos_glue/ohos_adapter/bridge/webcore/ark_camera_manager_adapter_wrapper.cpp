@@ -68,7 +68,7 @@ int32_t ArkCameraManagerAdapterWrapper::GetExposureModes(std::vector<NWeb::Expos
     if (!ctocpp_) {
         return -1;
     }
-    ArkWebInt32Vector vec;
+    ArkWebInt32Vector vec = {0, nullptr, nullptr};
     int32_t result = ctocpp_->GetExposureModes(vec);
     for (int count = 0; count < vec.size; count++) {
         exposureModesAdapter.push_back((NWeb::ExposureModeAdapter)vec.value[count]);

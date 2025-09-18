@@ -42,6 +42,7 @@ ohos_shared_library("webview_ani") {
     "$target_gen_dir/../../napi/protos",
     "../../../native",
     "../../../../ohos_adapter/ohos_resource_adapter/include",
+    "../../../../ohos_adapter/system_properties_adapter/include",
   ]
 
   sources = [

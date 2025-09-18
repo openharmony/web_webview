@@ -21,12 +21,17 @@ namespace OHOS {
 namespace NWebError {
 napi_value BusinessError::CreateError(napi_env env, int32_t err)
 {
+    return CreateError(env, err, GetErrMsgByErrCode(err));
+}
+
+napi_value BusinessError::CreateError(napi_env env, int32_t err, const std::string& errorMsg)
+{
     napi_value businessError = nullptr;
     NAPI_CALL(env, napi_create_object(env, &businessError));
     napi_value errorCode = nullptr;
     NAPI_CALL(env, napi_create_int32(env, err, &errorCode));
     napi_value errorMessage = nullptr;
-    NAPI_CALL(env, napi_create_string_utf8(env, GetErrMsgByErrCode(err).c_str(), NAPI_AUTO_LENGTH, &errorMessage));
+    NAPI_CALL(env, napi_create_string_utf8(env, errorMsg.c_str(), NAPI_AUTO_LENGTH, &errorMessage));
     NAPI_CALL(env, napi_set_named_property(env, businessError, "code", errorCode));
     NAPI_CALL(env, napi_set_named_property(env, businessError, "message", errorMessage));
     return businessError;

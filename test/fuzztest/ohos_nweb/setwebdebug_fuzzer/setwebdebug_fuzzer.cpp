@@ -27,7 +27,7 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
-bool SetWebDebuggingAccessAndPortFuzzTest(const uint8_t* data, size_t size)
+bool SetWebDebugFuzzTest(const uint8_t* data, size_t size)
 {
     if ((data == nullptr) || (size < sizeof(int))) {
         return false;
@@ -52,6 +52,6 @@ bool SetWebDebuggingAccessAndPortFuzzTest(const uint8_t* data, size_t size)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     /* Run your code on data */
-    OHOS::SetWebDebuggingAccessAndPortFuzzTest(data, size);
+    OHOS::SetWebDebugFuzzTest(data, size);
     return 0;
 }
