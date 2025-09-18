@@ -49,7 +49,7 @@
 #include "web_history_list.h"
 #include "web_message_port.h"
 #include "interop_js/arkts_esvalue.h"
-// #include "interop_js/arkts_interop_js_api.h"
+#include "interop_js/arkts_interop_js_api.h"
 
 #include "nweb_precompile_callback.h"
 #include "nweb_cache_options_impl.h"
@@ -2233,10 +2233,10 @@ static ani_boolean TransferBackForwardListToStaticInner(
     }
 
     void* nativePtr = nullptr;
-    // if (!arkts_esvalue_unwrap(env, input, &nativePtr) || !nativePtr) {
-    //     WVLOG_E("[TRANSFER] arkts_esvalue_unwrap failed");
-    //     return ANI_FALSE;
-    // }
+    if (!arkts_esvalue_unwrap(env, input, &nativePtr) || !nativePtr) {
+        WVLOG_E("[TRANSFER] arkts_esvalue_unwrap failed");
+        return ANI_FALSE;
+    }
 
     WebHistoryList *webHistoryList = reinterpret_cast<WebHistoryList *>(nativePtr);
     if (!AniParseUtils::Wrap(env, output, ANI_BACK_FORWARD_LIST_INNER_CLASS_NAME,
@@ -2300,10 +2300,10 @@ static ani_boolean TransferWebMessagePortToStaticInner(ani_env* env, ani_class a
     }
 
     void* nativePtr = nullptr;
-    // if (!arkts_esvalue_unwrap(env, input, &nativePtr) || !nativePtr) {
-    //     WVLOG_E("[TRANSFER] arkts_esvalue_unwrap failed");
-    //     return ANI_FALSE;
-    // }
+    if (!arkts_esvalue_unwrap(env, input, &nativePtr) || !nativePtr) {
+        WVLOG_E("[TRANSFER] arkts_esvalue_unwrap failed");
+        return ANI_FALSE;
+    }
 
     WebMessagePort* msgPort = reinterpret_cast<WebMessagePort *>(nativePtr);
     if (!AniParseUtils::Wrap(env, output, ANI_WEB_MESSAGE_PORT_INNER_CLASS_NAME,

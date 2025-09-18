@@ -28,7 +28,7 @@
 #include "securec.h"
 #include "web_errors.h"
 #include "interop_js/arkts_esvalue.h"
-// #include "interop_js/arkts_interop_js_api.h"
+#include "interop_js/arkts_interop_js_api.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -610,10 +610,10 @@ static ani_boolean TransferNativeMediaPlayerHandlerToStaticInner(ani_env* env, a
     }
 
     void* nativePtr = nullptr;
-    // if (!arkts_esvalue_unwrap(env, input, &nativePtr) || nativePtr == nullptr) {
-    //    WVLOG_E("[TRANSFER] arkts_esvalue_unwrap failed");
-    //    return ANI_FALSE;
-    // }
+    if (!arkts_esvalue_unwrap(env, input, &nativePtr) || nativePtr == nullptr) {
+        WVLOG_E("[TRANSFER] arkts_esvalue_unwrap failed");
+        return ANI_FALSE;
+    }
 
     NapiNativeMediaPlayerHandlerImpl *handler =
         reinterpret_cast<NapiNativeMediaPlayerHandlerImpl*>(nativePtr);
