@@ -846,6 +846,10 @@ namespace OHOS::Webview {
             WEBVIEWLOGE("WebviewControllerImpl::RegisterJavaScriptProxy methodList is empty");
             return;
         }
+        if (!permission) {
+            WEBVIEWLOGE("WebviewControllerImpl::RegisterJavaScriptProxy permission is nullptr");
+            return;
+        }
 
         objId = javaScriptResultCb_->RegisterJavaScriptProxy(cjFuncs, objName, methodList);
 
