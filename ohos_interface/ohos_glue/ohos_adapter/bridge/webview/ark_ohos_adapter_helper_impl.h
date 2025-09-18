@@ -128,6 +128,8 @@ public:
 
     ArkWebRefPtr<ArkScreenlockManagerAdapter> CreateScreenlockManagerAdapter() override;
 
+    ArkWebRefPtr<ArkBackgroundTaskAdapter> CreateBackgroundTaskAdapter() override;
+
 private:
     NWeb::OhosAdapterHelper& real_;
 

@@ -60,6 +60,7 @@
 #include "ohos_adapter/include/ark_sensor_adapter.h"
 #include "ohos_adapter/include/ark_soc_perf_client_adapter.h"
 #include "ohos_adapter/include/ark_system_properties_adapter.h"
+#include "ohos_adapter/include/ark_background_task_adapter.h"
 
 namespace OHOS::ArkWeb {
 
@@ -226,6 +227,9 @@ public:
 
     /*--ark web()--*/
     virtual ArkWebRefPtr<ArkCertManagerAdapter> GetCertManagerAdapter() = 0;
+
+    /*--ark web()--*/
+    virtual ArkWebRefPtr<ArkBackgroundTaskAdapter> CreateBackgroundTaskAdapter() = 0;
 };
 
 } // namespace OHOS::ArkWeb
