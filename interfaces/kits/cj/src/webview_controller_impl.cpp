@@ -1341,6 +1341,7 @@ namespace OHOS::Webview {
             const_cast<ArkWeb_SchemeHandler*>(WebSchemeHandlerImpl::GetArkWebSchemeHandler(handler));
         if (schemeHandler == nullptr) {
             WEBVIEWLOGE("schemeHandler is nullptr");
+            return false;
         }
         return OH_ArkWeb_SetSchemeHandler(scheme, webTag_.c_str(), schemeHandler);
     }
