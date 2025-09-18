@@ -87,6 +87,9 @@ public:
      */
     /*--ark web()--*/
     virtual bool IsAILink() = 0;
+
+    /*--ark web()--*/
+    virtual int GetContextMenuMediaType() = 0;
 };
 
 } // namespace OHOS::ArkWeb

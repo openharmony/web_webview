@@ -63,6 +63,7 @@ public:
 
     bool IsAILink() override;
 
+    int GetContextMenuMediaType() override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebContextMenuParams> nweb_context_menu_params_;
 };
