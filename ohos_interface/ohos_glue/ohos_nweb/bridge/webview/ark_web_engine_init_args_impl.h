@@ -44,6 +44,8 @@ public:
     bool GetIsMultiRendererProcess() override;
     ArkWebString GetSharedRenderProcessToken() override;
 
+    bool GetEmulateTouchFromMouseEvent() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebEngineInitArgs> nweb_engine_init_args_;
 };

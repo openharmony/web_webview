@@ -233,6 +233,15 @@ public:
         return sharedRenderProcessToken_;
     }
 
+    void SetEmulateTouchFromMouseEvent(bool emulateTouchFromMouseEvent)
+    {
+        emulateTouchFromMouseEvent_ = emulateTouchFromMouseEvent;
+    }
+
+    bool GetEmulateTouchFromMouseEvent() override
+    {
+        return emulateTouchFromMouseEvent_;
+    }
 private:
     std::string dumpPath_;
 
@@ -244,6 +253,7 @@ private:
     std::list<std::string> argsToAdd_;
     std::list<std::string> argsToDelete_;
     std::string sharedRenderProcessToken_;
+    bool emulateTouchFromMouseEvent_ = false;
 };
 
 class NWebEnginePrefetchArgsImpl : public NWebEnginePrefetchArgs {
