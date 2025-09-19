@@ -17,6 +17,7 @@
 #define BACKGROUND_TASK_ADAPTER_H
 
 #include <cstdint>
+#include <memory>
 
 namespace OHOS::NWeb {
 
@@ -32,6 +33,14 @@ enum class BackgroundModeAdapter : int32_t {
     TASK_KEEPING,
 };
 
+class BackgroundStateChangeCallbackAdapter {
+public:
+    BackgroundStateChangeCallbackAdapter() = default;
+    virtual ~BackgroundStateChangeCallbackAdapter() = default;
+    virtual void NotifyApplicationForeground() = 0;
+    virtual void NotifyApplicationBackground() = 0;
+};
+
 class BackgroundTaskAdapter {
 public:
     BackgroundTaskAdapter() = default;
@@ -39,6 +48,11 @@ public:
     virtual ~BackgroundTaskAdapter() = default;
 
     static bool RequestBackgroundRunning(bool running, BackgroundModeAdapter bgMode);
+
+    virtual bool RequestBackgroundTaskRunning(bool running, BackgroundModeAdapter bgMode) = 0;
+
+    virtual void RegisterBackgroundTaskPolicyCallback(
+        std::shared_ptr<BackgroundStateChangeCallbackAdapter> callback) = 0;
 };
 
 } // namespace OHOS::NWeb
