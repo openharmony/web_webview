@@ -629,6 +629,7 @@ export default namespace webview {
         native scrollTo(x: double, y: double, duration?: int): void;
         native scrollBy(deltaX: double, deltaY: double, duration?: int): void;
         native getScrollOffset(): ScrollOffset;
+        native getPageOffset(): ScrollOffset;
         native slideScroll(vx: double, vy: double): void;
         native zoom(factor: double): void;
         native isSafeBrowsingEnabled(): boolean;
