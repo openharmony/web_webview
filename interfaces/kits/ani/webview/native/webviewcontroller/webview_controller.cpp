@@ -2049,6 +2049,35 @@ int32_t WebviewController::GetNWebId()
     return nwebId_;
 }
 
+int32_t WebviewController::GetProgress()
+{
+    int32_t progress = 0;
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (nweb_ptr) {
+        progress = nweb_ptr->PageLoadProgress();
+    }
+    return progress;
+}
+
+ErrCode WebviewController::SetErrorPageEnabled(bool enable)
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return INIT_ERROR;
+    }
+    nweb_ptr->SetErrorPageEnabled(enable);
+    return NWebError::NO_ERROR;
+}
+
+bool WebviewController::GetErrorPageEnabled()
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return false;
+    }
+    return nweb_ptr->GetErrorPageEnabled();
+}
+
 int32_t WebviewController::GetBlanklessInfoWithKey(const std::string& key, double* similarity, int32_t* loadingTime)
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);

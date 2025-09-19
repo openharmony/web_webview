@@ -122,6 +122,7 @@ ohos_shared_library("webview_ani") {
     "../../../../ohos_nweb:libnweb",
     "../../../native:ohweb",
     "../../napi/protos:proto_gen",
+    "//base/web/webview/arkweb_utils:libarkweb_utils",
   ]
   external_deps = [
     "ability_base:extractortool",

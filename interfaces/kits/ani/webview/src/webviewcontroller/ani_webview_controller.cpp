@@ -76,6 +76,7 @@
 #include "ani_web_scheme_handler_request.h"
 #include "web_scheme_handler_request.h"
 #include "arkweb_scheme_handler.h"
+#include "arkweb_utils.h"
 #include "system_properties_adapter_impl.h"
 
 namespace OHOS {
@@ -86,6 +87,8 @@ bool g_inWebPageSnapshot = false;
 namespace {
 constexpr int32_t RESULT_COUNT = 2;
 ani_vm *g_vm = nullptr;
+constexpr int32_t MIN_SOCKET_IDLE_TIMEOUT = 30;
+constexpr int32_t MAX_SOCKET_IDLE_TIMEOUT = 300;
 constexpr size_t MAX_URL_TRUST_LIST_STR_LEN = 10 * 1024 * 1024; // 10M
 constexpr uint32_t SOCKET_MAXIMUM = 6;
 constexpr size_t MAX_RESOURCES_COUNT = 30;
@@ -5228,6 +5231,161 @@ static ani_object GetCertificateSync(ani_env* env, ani_object object)
     return certificateObj;
 }
 
+static void SetSocketIdleTimeout(ani_env* env, ani_object object, ani_int timeout)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_E("SetSocketIdleTimeout unsupported engine version: M114");
+        return;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    int32_t socketIdleTimeout =
+        std::clamp(static_cast<int32_t>(timeout), MIN_SOCKET_IDLE_TIMEOUT, MAX_SOCKET_IDLE_TIMEOUT);
+    NWebHelper::Instance().SetSocketIdleTimeout(socketIdleTimeout);
+}
+
+static ani_int GetProgress(ani_env* env, ani_object object)
+{
+    ani_int progress = 0;
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_E("GetProgress unsupported engine version: M114");
+        return progress;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return progress;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        WVLOG_E("GetProgress: get controller failed");
+        return progress;
+    }
+    return static_cast<ani_int>(controller->GetProgress());
+}
+
+static void SetAppCustomUserAgent(ani_env* env, ani_object object, ani_object aniUA)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_E("SetAppCustomUserAgent unsupported engine version: M114");
+        return;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    std::string userAgent;
+    if (!AniParseUtils::ParseString(env, aniUA, userAgent)) {
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "userAgent", "string"));
+        return;
+    }
+    NWebHelper::Instance().SetAppCustomUserAgent(userAgent);
+}
+
+static void SetUserAgentForHosts(ani_env* env, ani_object object, ani_object aniUA, ani_object aniHosts)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_E("SetUserAgentForHosts unsupported engine version: M114");
+        return;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    std::string userAgent;
+    if (!AniParseUtils::ParseString(env, aniUA, userAgent)) {
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "userAgent", "string"));
+        return;
+    }
+    std::vector<std::string> hosts;
+    if (!AniParseUtils::ParseStringArray(env, aniHosts, hosts)) {
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "hosts", "array"));
+        return;
+    }
+    NWebHelper::Instance().SetUserAgentForHosts(userAgent, hosts);
+}
+
+static void EnablePrivateNetworkAccess(ani_env* env, ani_object object, ani_boolean aniEnable)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_E("EnablePrivateNetworkAccess unsupported engine version: M114");
+        return;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    WVLOG_D("EnablePrivateNetworkAccess start");
+    bool enable = static_cast<bool>(aniEnable);
+    NWebHelper::Instance().EnablePrivateNetworkAccess(enable);
+}
+
+static ani_boolean IsPrivateNetworkAccessEnabled(ani_env* env, ani_object object)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_E("IsPrivateNetworkAccessEnabled unsupported engine version: M114");
+        return ANI_FALSE;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+
+    WVLOG_D("IsPrivateNetworkAccessEnabled start");
+    return static_cast<ani_boolean>(NWebHelper::Instance().IsPrivateNetworkAccessEnabled());
+}
+
+static void SetErrorPageEnabled(ani_env* env, ani_object object, ani_boolean aniEnable)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_E("SetErrorPageEnabled unsupported engine version: M114");
+        return;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    WVLOG_D("SetErrorPageEnabled start");
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    bool enable = static_cast<bool>(aniEnable);
+    ErrCode ret = controller->SetErrorPageEnabled(enable);
+    if (ret != NO_ERROR) {
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+    }
+}
+
+static ani_boolean GetErrorPageEnabled(ani_env* env, ani_object object)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_E("GetErrorPageEnabled unsupported engine version: M114");
+        return ANI_FALSE;
+    }
+
+    WVLOG_D("GetErrorPageEnabled start");
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return ANI_FALSE;
+    }
+
+    return static_cast<ani_boolean>(controller->GetErrorPageEnabled());
+}
+
 ani_object CreateBlanklessInfo(ani_env* env, int32_t errCode, double similarity, int32_t loadingTime)
 {
     ani_object result = {};
@@ -5516,6 +5674,16 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "hasImageCallback", nullptr, reinterpret_cast<void *>(HasImageCallback) },
         ani_native_function { "hasImagePromise", nullptr, reinterpret_cast<void *>(HasImagePromise) },
         ani_native_function { "getCertificateSync", nullptr, reinterpret_cast<void*>(GetCertificateSync) },
+        ani_native_function { "setSocketIdleTimeout", nullptr, reinterpret_cast<void *>(SetSocketIdleTimeout) },
+        ani_native_function { "getProgress", nullptr, reinterpret_cast<void*>(GetProgress) },
+        ani_native_function { "setAppCustomUserAgent", nullptr, reinterpret_cast<void *>(SetAppCustomUserAgent) },
+        ani_native_function { "setUserAgentForHosts", nullptr, reinterpret_cast<void *>(SetUserAgentForHosts) },
+        ani_native_function { "enablePrivateNetworkAccess", nullptr,
+                              reinterpret_cast<void*>(EnablePrivateNetworkAccess) },
+        ani_native_function { "isPrivateNetworkAccessEnabled", nullptr,
+                              reinterpret_cast<void*>(IsPrivateNetworkAccessEnabled) },
+        ani_native_function { "setErrorPageEnabled", nullptr, reinterpret_cast<void*>(SetErrorPageEnabled) },
+        ani_native_function { "getErrorPageEnabled", nullptr, reinterpret_cast<void*>(GetErrorPageEnabled) },
         ani_native_function { "getBlanklessInfoWithKey", nullptr, reinterpret_cast<void*>(GetBlanklessInfoWithKey) },
         ani_native_function { "setBlanklessLoadingWithKey", nullptr,
                               reinterpret_cast<void*>(SetBlanklessLoadingWithKey) },

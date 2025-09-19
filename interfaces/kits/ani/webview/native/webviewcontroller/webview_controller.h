@@ -393,6 +393,12 @@ public:
 
     int32_t GetNWebId();
 
+    int32_t GetProgress();
+
+    ErrCode SetErrorPageEnabled(bool enable);
+
+    bool GetErrorPageEnabled();
+
     int32_t GetBlanklessInfoWithKey(const std::string& key, double* similarity, int32_t* loadingTime);
 
     int32_t SetBlanklessLoadingWithKey(const std::string& key, bool isStart);
