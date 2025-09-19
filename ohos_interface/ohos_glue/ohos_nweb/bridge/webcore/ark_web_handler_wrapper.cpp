@@ -1339,4 +1339,14 @@ void ArkWebHandlerWrapper::OnRemoveBlanklessFrameWithAnimation(int delayTime)
 {
     ark_web_handler_->OnRemoveBlanklessFrameWithAnimation(delayTime);
 }
+
+void ArkWebHandlerWrapper::OnDetectedBlankScreen(
+    const std::string& url, int32_t blankScreenReason, int32_t detectedContentfulNodesCount)
+{
+    ArkWebString stUrl = ArkWebStringClassToStruct(url);
+
+    ark_web_handler_->OnDetectedBlankScreen(stUrl, blankScreenReason, detectedContentfulNodesCount);
+
+    ArkWebStringStructRelease(stUrl);
+}
 } // namespace OHOS::ArkWeb

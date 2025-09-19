@@ -1885,4 +1885,16 @@ void ArkWebNWebWrapper::SetForceEnableZoom(bool forceEnableZoom) const
     WVLOG_E("forceEnableZoom = %{public}d", forceEnableZoom);
     ark_web_nweb_->SetForceEnableZoom(forceEnableZoom);
 }
+
+void ArkWebNWebWrapper::SetBlankScreenDetectionConfig(bool enable, const std::vector<double>& detectionTiming,
+    const std::vector<int32_t>& detectionMethods, int32_t contentfulNodesCountThreshold)
+{
+    ArkWebDoubleVector dTiming = ArkWebBasicVectorClassToStruct<double, ArkWebDoubleVector>(detectionTiming);
+    ArkWebInt32Vector dMethods = ArkWebBasicVectorClassToStruct<int32_t, ArkWebInt32Vector>(detectionMethods);
+
+    ark_web_nweb_->SetBlankScreenDetectionConfig(enable, dTiming, dMethods, contentfulNodesCountThreshold);
+
+    ArkWebBasicVectorStructRelease<ArkWebDoubleVector>(dTiming);
+    ArkWebBasicVectorStructRelease<ArkWebInt32Vector>(dMethods);
+}
 } // namespace OHOS::ArkWeb

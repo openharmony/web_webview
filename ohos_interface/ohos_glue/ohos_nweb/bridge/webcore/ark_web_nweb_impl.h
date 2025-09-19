@@ -1806,6 +1806,19 @@ public:
      */
     /*--ark web()--*/
     void SetForceEnableZoom(bool forceEnableZoom) override;
+
+    /**
+     * @brief Set the config for blank screen detection.
+     *
+     * @param enable Whether the blank screen detection is enabled.
+     * @param detectionTiming The timing of the blank screen detection.
+     * @param detectionMethods The methods of the blank screen detection.
+     * @param contentfulNodesCountThreshold The contentful nodes count threshold of the blank screen detection.
+     */
+    /*--ark web()--*/
+    void SetBlankScreenDetectionConfig(bool enable, const ArkWebDoubleVector& detectionTiming,
+        const ArkWebInt32Vector& detectionMethods, int32_t contentfulNodesCountThreshold) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };
