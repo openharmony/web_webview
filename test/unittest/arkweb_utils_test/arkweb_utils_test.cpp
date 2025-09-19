@@ -224,6 +224,18 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetArkwebInstallPath_002, TestSize.Lev
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
 }
 
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_IsActiveWebEngineEvergreen_001, TestSize.Level1)
+{
+    setActiveWebEngineVersion(ArkWebEngineVersion::M114);
+    EXPECT_FALSE(IsActiveWebEngineEvergreen());
+    setActiveWebEngineVersion(ArkWebEngineVersion::M132);
+    EXPECT_TRUE(IsActiveWebEngineEvergreen());
+    setActiveWebEngineVersion(ArkWebEngineVersion::M114);
+    EXPECT_FALSE(IsActiveWebEngineEvergreen());
+    setActiveWebEngineVersion(ArkWebEngineVersion::SYSTEM_EVERGREEN);
+    EXPECT_TRUE(IsActiveWebEngineEvergreen());
+}
+
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_SelectWebcoreBeforeProcessRun_001, TestSize.Level1) {
     std::string appBundleName = "com.example.app";
     int webEngineEnforce = OHOS::system::GetIntParameter("web.engine.enforce", 0);
@@ -423,5 +435,15 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_CheckCloudCfgVersion_001, TestSize.Lev
     std::string higherVersionTxt = "version=1.10.25.101";
     FileProcessor::WriteFile(systemTmpVersionFile_, higherVersionTxt);
     EXPECT_EQ(CheckCloudCfgVersion(systemTmpVersionFile_, updateTmpVersionFile_), false);
+}
+
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetArkwebLibPathForMock_001, TestSize.Level1)
+{
+    std::string res;
+    res = GetArkwebLibPathForMock("");
+    EXPECT_EQ(res, ARK_WEB_CORE_MOCK_HAP_LIB_PATH);
+    std::string bundlePath = "/data/app/el1/bundle/public/com.huawei.hmos.arkwebcore";
+    res = GetArkwebLibPathForMock(bundlePath);
+    EXPECT_EQ(res, bundlePath + "/" + ARK_WEB_CORE_PATH_FOR_MOCK);
 }
 } // namespace OHOS::NWeb
