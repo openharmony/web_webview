@@ -612,4 +612,11 @@ void ArkWebPreferenceWrapper::SetGestureFocusMode(int32_t mode)
         ark_web_preference_->SetGestureFocusMode(mode);
     }
 }
+
+void ArkWebPreferenceWrapper::PutZoomControlAccess(bool zoomControlAccess)
+{
+    if (ark_web_preference_) {
+        ark_web_preference_->PutZoomControlAccess(zoomControlAccess);
+    }
+}
 } // namespace OHOS::ArkWeb

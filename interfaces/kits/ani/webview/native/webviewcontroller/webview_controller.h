@@ -379,6 +379,8 @@ public:
 
     void GetScrollOffset(float* offset_x, float* offset_y);
 
+    void GetPageOffset(float* offsetX, float* offsetY);
+
     void CreatePDFExt(
         std::shared_ptr<NWebPDFConfigArgs> pdfConfig, std::shared_ptr<NWebArrayBufferValueCallback> callbackImpl);
 

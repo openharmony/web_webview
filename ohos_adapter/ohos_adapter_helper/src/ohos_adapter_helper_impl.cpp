@@ -81,6 +81,7 @@
 #include "audio_codec_decoder_adapter_impl.h"
 #include "drm_adapter_impl.h"
 #endif
+#include "background_task_impl.h"
 
 namespace OHOS::NWeb {
 // static
@@ -395,5 +396,10 @@ std::unique_ptr<MigrationManagerAdapter> OhosAdapterHelperImpl::CreateMigrationM
 std::unique_ptr<ScreenlockManagerAdapter> OhosAdapterHelperImpl::CreateScreenlockManagerAdapter()
 {
     return std::make_unique<ScreenlockManagerAdapterImpl>();
+}
+
+std::unique_ptr<BackgroundTaskAdapter> OhosAdapterHelperImpl::CreateBackgroundTaskAdapter()
+{
+    return std::make_unique<BackgroundTaskAdapterImpl>();
 }
 } // namespace OHOS::NWeb

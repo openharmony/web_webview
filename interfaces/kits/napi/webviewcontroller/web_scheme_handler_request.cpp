@@ -760,7 +760,8 @@ void WebHttpBodyStream::ExecuteInit(ArkWeb_NetError result)
 {
     WVLOG_D("WebHttpBodyStream::ExecuteInit");
     if (!env_) {
-        return ;
+        DeleteInitJsCallbackRef();
+        return;
     }
     InitParam *param = new (std::nothrow) InitParam {
         .env = env_,
@@ -770,6 +771,7 @@ void WebHttpBodyStream::ExecuteInit(ArkWeb_NetError result)
         .result = result,
     };
     if (param == nullptr) {
+        DeleteInitJsCallbackRef();
         return;
     }
     napi_value resourceName = nullptr;
@@ -878,6 +880,7 @@ void WebHttpBodyStream::DeleteReadJsCallbackRef()
 void WebHttpBodyStream::ExecuteRead(uint8_t* buffer, int bytesRead)
 {
     if (!env_) {
+        DeleteReadJsCallbackRef();
         return;
     }
     ReadParam *param = new (std::nothrow) ReadParam {
@@ -889,6 +892,7 @@ void WebHttpBodyStream::ExecuteRead(uint8_t* buffer, int bytesRead)
         .bytesRead = bytesRead,
     };
     if (param == nullptr) {
+        DeleteReadJsCallbackRef();
         return;
     }
     napi_value resourceName = nullptr;

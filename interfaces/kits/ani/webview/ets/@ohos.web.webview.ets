@@ -40,7 +40,7 @@ let unregisterToken = new object()
 
 export default namespace webview {
     static {
-        loadLibrary("webview_ani.z");
+        loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
     }
     export native function once(type: string, callback: Callback<void>): void;
 
@@ -383,7 +383,7 @@ export default namespace webview {
 
     export class NativeMediaPlayerHandlerinner implements NativeMediaPlayerHandler {
         static {
-            loadLibrary("webview_ani.z");
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
         }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
@@ -479,7 +479,7 @@ export default namespace webview {
 
     export class BackForwardListinner implements BackForwardList {
         static {
-            loadLibrary("webview_ani.z");
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
         }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
@@ -560,7 +560,7 @@ export default namespace webview {
 
     export class PdfData {
         static {
-            loadLibrary("webview_ani.z");
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
         }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
@@ -629,6 +629,7 @@ export default namespace webview {
         native scrollTo(x: double, y: double, duration?: int): void;
         native scrollBy(deltaX: double, deltaY: double, duration?: int): void;
         native getScrollOffset(): ScrollOffset;
+        native getPageOffset(): ScrollOffset;
         native slideScroll(vx: double, vy: double): void;
         native zoom(factor: double): void;
         native isSafeBrowsingEnabled(): boolean;
@@ -923,14 +924,13 @@ export default namespace webview {
             }
         }
         native constructor();
-        
         native didReceiveResponse(response: WebSchemeHandlerResponse): void;
         native didFinish(): void;
     }
-    
+
     export class WebDownloadItem {
         static {
-            loadLibrary("webview_ani.z");
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
         }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
@@ -987,7 +987,7 @@ export default namespace webview {
 
     export class WebDownloadDelegate {
         static {
-            loadLibrary("webview_ani.z");
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
         }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
@@ -1418,7 +1418,7 @@ export default namespace webview {
     }
     export class WebMessagePortInner implements WebMessagePort {
         static {
-            loadLibrary("webview_ani.z");
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
         }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
@@ -1576,7 +1576,7 @@ export default namespace webview {
 
     export class AdsBlockManager {
         static {
-            loadLibrary("webview_ani.z");
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
         }
 
         native static clearAdsBlockAllowedList(): void;
@@ -1616,7 +1616,7 @@ export default namespace webview {
 
     export class GeolocationPermissions {
         static {
-            loadLibrary("webview_ani.z");
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
         }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
@@ -1803,7 +1803,7 @@ export default namespace webview {
     }
     export class JsMessageExt {
         static {
-            loadLibrary("webview_ani.z");
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
         }
 
         private nativePtr: long = 0;
@@ -1834,7 +1834,7 @@ export default namespace webview {
 
     export class PrintDocumentAdapterInner implements print.PrintDocumentAdapter{
         static {
-            loadLibrary("webview_ani.z");
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
         }
         private nativePtr: long = 0;
             private cleaner?: Cleaner;

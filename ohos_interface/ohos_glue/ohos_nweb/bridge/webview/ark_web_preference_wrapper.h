@@ -691,6 +691,11 @@ public:
      */
     void SetGestureFocusMode(int32_t mode) override;
 
+    /**
+     * @brief Sets whether the Web supports zooming using Ctrl.
+     */
+    void PutZoomControlAccess(bool zoomControlAccess) override;
+
 private:
     ArkWebRefPtr<ArkWebPreference> ark_web_preference_;
 };
