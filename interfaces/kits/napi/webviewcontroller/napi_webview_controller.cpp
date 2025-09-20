@@ -817,6 +817,7 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
             NapiWebviewController::GetBlanklessInfoWithKey),
         DECLARE_NAPI_FUNCTION("setBlanklessLoadingWithKey",
             NapiWebviewController::SetBlanklessLoadingWithKey),
+        DECLARE_NAPI_FUNCTION("setSoftKeyboardBehaviorMode", NapiWebviewController::SetSoftKeyboardBehaviorMode),
         DECLARE_NAPI_STATIC_FUNCTION("setBlanklessLoadingCacheCapacity",
             NapiWebviewController::SetBlanklessLoadingCacheCapacity),
         DECLARE_NAPI_STATIC_FUNCTION("clearBlanklessLoadingCache",
@@ -1111,6 +1112,22 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         NapiParseUtils::CreateEnumConstructor, nullptr, sizeof(siteIsolationModeProperties) /
         sizeof(siteIsolationModeProperties[0]), siteIsolationModeProperties, &siteIsolationModeEnum);
     napi_set_named_property(env, exports, WEB_SITE_ISOLATION_MODE_ENUM_NAME.c_str(), siteIsolationModeEnum);
+
+    napi_value webBehaviorModeEnum = nullptr;
+    napi_property_descriptor webBehaviorModeProperties[] = {
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "DEFAULT", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(WebSoftKeyboardBehaviorMode::DEFAULT))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "DISABLE_AUTO_KEYBOARD_ON_ACTIVE", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(WebSoftKeyboardBehaviorMode::DISABLE_AUTO_KEYBOARD_ON_ACTIVE))),
+    };
+    napi_define_class(env, WEB_SOFT_KEYBOARD_BEHAVIOR_MODE_ENUM_NAME.c_str(),
+        WEB_SOFT_KEYBOARD_BEHAVIOR_MODE_ENUM_NAME.length(),
+        NapiParseUtils::CreateEnumConstructor, nullptr,
+        sizeof(webBehaviorModeProperties) / sizeof(webBehaviorModeProperties[0]), webBehaviorModeProperties,
+        &webBehaviorModeEnum);
+    napi_set_named_property(env, exports, WEB_SOFT_KEYBOARD_BEHAVIOR_MODE_ENUM_NAME.c_str(), webBehaviorModeEnum);
 
     WebviewJavaScriptExecuteCallback::InitJSExcute(env, exports);
     WebviewCreatePDFExecuteCallback::InitJSExcute(env, exports);
@@ -7971,5 +7988,42 @@ napi_value NapiWebviewController::SetSocketIdleTimeout(napi_env env, napi_callba
     NWebHelper::Instance().SetSocketIdleTimeout(socketIdleTimeout);
     return result;
 }
+
+napi_value NapiWebviewController::SetSoftKeyboardBehaviorMode(napi_env env, napi_callback_info info)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_W("SetSoftKeyboardBehaviorMode unsupported engine version: M114");
+        return nullptr;
+    }
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+    NAPI_CALL(env, napi_get_undefined(env, &result));
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
+        return result;
+    }
+ 
+    int32_t mode = false;
+    if (!NapiParseUtils::ParseInt32(env, argv[INTEGER_ZERO], mode)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "mode", "WebSoftKeyboardBehaviorMode"));
+        return result;
+    }
+ 
+    if (mode < static_cast<int>(WebSoftKeyboardBehaviorMode::DEFAULT) ||
+        mode > static_cast<int>(WebSoftKeyboardBehaviorMode::DISABLE_AUTO_KEYBOARD_ON_ACTIVE)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "mode"));
+        return result;
+    }
+    NWebHelper::Instance().SetSoftKeyboardBehaviorMode(static_cast<WebSoftKeyboardBehaviorMode>(mode));
+    return result;
+}
+
 } // namespace NWeb
 } // namespace OHOS

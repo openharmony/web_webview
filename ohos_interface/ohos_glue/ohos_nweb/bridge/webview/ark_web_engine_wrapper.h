@@ -126,6 +126,8 @@ public:
     ArkWebSiteIsolationMode GetSiteIsolationMode() override;
 
     void SetSocketIdleTimeout(int32_t timeout) override;
+    
+    void SetSoftKeyboardBehaviorMode(OHOS::NWeb::WebSoftKeyboardBehaviorMode mode) override;
 
 private:
     ArkWebRefPtr<ArkWebEngine> ark_web_engine_;

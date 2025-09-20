@@ -139,6 +139,8 @@ public:
     virtual void SetWebDestroyMode(WebDestroyMode mode) {}
 
     virtual void SetSocketIdleTimeout(int32_t timeout) {}
+
+    virtual void SetSoftKeyboardBehaviorMode(WebSoftKeyboardBehaviorMode mode) {}
 };
 
 } // namespace OHOS::NWeb
