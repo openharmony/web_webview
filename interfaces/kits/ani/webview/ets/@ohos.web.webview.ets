@@ -793,10 +793,64 @@ export default namespace webview {
         }
 
         native getCertificateSync(): Array<ArrayBuffer>;
+        getCertificate(): Promise<Array<cert.X509Cert>> {
+            let certChainData = this.getCertificateSync();
+            return new Promise<Array<cert.X509Cert>>((resolve, reject) => {
+                let taskPromise = taskpool.execute(():undefined => {
+                    return undefined});
+                taskPromise.then(async (results: NullishType) => {
+                    const certs: Array<cert.X509Cert> = [];
+                    for (let i = 0; i < certChainData.length; i++) {
+                        let certsUint8Array = new Uint8Array(certChainData[i]);
+                        const encodingBlob: cert.EncodingBlob = {
+                            data: certsUint8Array,
+                            encodingFormat: cert.EncodingFormat.FORMAT_DER
+                        };
+                        try {
+                            const x509Cert = await cert.createX509Cert(encodingBlob);
+                            certs.push(x509Cert);
+                        } catch (e) {
+                            console.error("Failed to parse certificate", e);
+                        }
+                    }
+                    resolve(certs);
+                })
+                .catch((error: Error) => {
+                    reject(error);
+                });
+            });
+        }
+        getCertificate(callback: AsyncCallback<Array<cert.X509Cert>>): void {
+            let certChainData = this.getCertificateSync();
+            let p = taskpool.execute(():undefined => {
+                    return undefined});
+            p.then((results : NullishType) => {
+                const certs: Array<cert.X509Cert> = [];
+                for (let i = 0; i < certChainData.length; i++) {
+                    let certsUint8Array = new Uint8Array(certChainData[i]);
+                    const encodingBlob: cert.EncodingBlob = {
+                        data: certsUint8Array,
+                        encodingFormat: cert.EncodingFormat.FORMAT_DER
+                    };
+                    try {
+                        const x509Cert = await cert.createX509Cert(encodingBlob);
+                        certs.push(x509Cert);
+                    } catch (e) {
+                        console.error("Failed to parse certificate", e);
+                    }
+                }
+                let error = new BusinessError<void>();
+                callback(error, certs);
+            }).catch((error: Error) => {
+                let err = error as BusinessError<void>;
+                let data = new Array<cert.X509Cert>;
+                callback(err, data);
+            });
+        }
         native getBlanklessInfoWithKey(key: string): BlanklessInfo;
         native setBlanklessLoadingWithKey(key: string, is_start: boolean): WebBlanklessErrorCode;
         native static clearBlanklessLoadingCache(keys?: Array<string>): void;
-        native static setBlanklessLoadingCacheCapacity(capacity: int): int;        
+        native static setBlanklessLoadingCacheCapacity(capacity: int): int;
     }
 
     export class WebSchemeHandlerResponse {
