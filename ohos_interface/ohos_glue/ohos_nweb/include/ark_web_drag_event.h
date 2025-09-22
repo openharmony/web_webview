@@ -32,15 +32,6 @@ public:
 
     /*--ark web()--*/
     virtual int GetAction() = 0;
-
-    /*--ark web()--*/
-    virtual int GetDragOperation() = 0;
-
-    /*--ark web()--*/
-    virtual int GetAllowedDragOperation() = 0;
-
-    /*--ark web()--*/
-    virtual bool IsDragOpValid() = 0;
 };
 
 } // namespace OHOS::ArkWeb
