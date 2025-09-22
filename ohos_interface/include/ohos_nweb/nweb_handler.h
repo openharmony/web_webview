@@ -1371,6 +1371,13 @@ public:
     virtual void OnDetectedBlankScreen(
         const std::string& url, int32_t blankScreenReason, int32_t detectedContentfulNodesCount)
     {}
+
+    /**
+     * @brief Update focus status to textFieldManager and VirtualKeyBoardShow to webpattern.
+     *
+     * @param showkeyboard The status of showkeyboard.
+     */
+    virtual void UpdateTextFieldStatus(bool isShowKeyboard, bool isAttachIME) {}
 };
 
 } // namespace OHOS::NWeb

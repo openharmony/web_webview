@@ -1120,6 +1120,9 @@ public:
     /*--ark web()--*/
     virtual void OnDetectedBlankScreen(
         const ArkWebString& url, int32_t blankScreenReason, int32_t detectedContentfulNodesCount) = 0;
+
+    /*--ark web()--*/
+    virtual void UpdateTextFieldStatus(bool isShowKeyboard, bool isAttachIME) = 0;
 };
 
 } // namespace OHOS::ArkWeb
