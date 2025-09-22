@@ -197,6 +197,7 @@
                 "//base/web/webview/test/fuzztest/ontouchpress_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ontouchrelease_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/registerarkjsfunction_fuzzer:fuzztest",
+                "//base/web/webview/test/fuzztest/verifypackageinstall_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/zoom_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ohos_adapter/camera_adapter/formatadapter_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ohos_adapter/camera_adapter/videocapturerangeadapter_fuzzer:fuzztest",
