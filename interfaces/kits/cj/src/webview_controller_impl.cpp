@@ -829,6 +829,10 @@ namespace OHOS::Webview {
     void WebviewControllerImpl::RegisterJavaScriptProxyEx(const std::vector<std::function<char*(const char*)>>& cjFuncs,
         const std::string& objName, const std::vector<std::string>& methodList, char* permission)
     {
+        if (!permission) {
+            WEBVIEWLOGE("WebviewControllerImpl::RegisterJavaScriptProxy permission is nullptr");
+            return;
+        }
         auto nweb_ptr = NWeb::NWebHelper::Instance().GetNWeb(nwebId_);
         if (!nweb_ptr) {
             WEBVIEWLOGE("WebviewControllerImpl::RegisterJavaScriptProxy nweb_ptr is null");
@@ -846,11 +850,6 @@ namespace OHOS::Webview {
             WEBVIEWLOGE("WebviewControllerImpl::RegisterJavaScriptProxy methodList is empty");
             return;
         }
-        if (!permission) {
-            WEBVIEWLOGE("WebviewControllerImpl::RegisterJavaScriptProxy permission is nullptr");
-            return;
-        }
-
         objId = javaScriptResultCb_->RegisterJavaScriptProxy(cjFuncs, objName, methodList);
 
         nweb_ptr->RegisterArkJSfunction(objName, methodList, std::vector<std::string>(),
