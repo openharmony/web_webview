@@ -847,6 +847,15 @@ export default namespace webview {
                 callback(err, data);
             });
         }
+
+        native setSocketIdleTimeout(timeout: int): void;
+        native getProgress(): int;
+        native static setAppCustomUserAgent(userAgent: string): void;
+        native static setUserAgentForHosts(userAgent: string, hosts: Array<string>): void;
+        native static enablePrivateNetworkAccess(enable: boolean): void;
+        native static isPrivateNetworkAccessEnabled(): boolean;
+        native setErrorPageEnabled(enable: boolean): void;
+        native getErrorPageEnabled(): boolean;
         native getBlanklessInfoWithKey(key: string): BlanklessInfo;
         native setBlanklessLoadingWithKey(key: string, is_start: boolean): WebBlanklessErrorCode;
         native static clearBlanklessLoadingCache(keys?: Array<string>): void;
