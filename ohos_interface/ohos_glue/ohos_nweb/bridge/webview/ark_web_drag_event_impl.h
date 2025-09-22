@@ -35,12 +35,6 @@ public:
 
     int GetAction() override;
 
-    int GetDragOperation() override;
-
-    int GetAllowedDragOperation() override;
-
-    bool IsDragOpValid() override;
-
 private:
     std::shared_ptr<OHOS::NWeb::NWebDragEvent> nweb_drag_event_;
 };

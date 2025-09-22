@@ -25,8 +25,6 @@
 namespace OHOS::ArkWeb {
 
 using ArkWebDragAction = OHOS::NWeb::DragAction;
-using ArkWebDragOperation = OHOS::NWeb::NWebDragData::DragOperation;
-using ArkWebDragOperationsMask = OHOS::NWeb::NWebDragData::DragOperationsMask;
 
 class ArkWebDragEventWrapper : public OHOS::NWeb::NWebDragEvent {
 public:
@@ -38,12 +36,6 @@ public:
     double GetY() override;
 
     ArkWebDragAction GetAction() override;
-
-    ArkWebDragOperation GetDragOperation() const override;
-
-    ArkWebDragOperationsMask GetAllowedDragOperation() const override;
-
-    bool IsDragOpValid() const override;
 
 private:
     ArkWebRefPtr<ArkWebDragEvent> ark_web_drag_event_;
