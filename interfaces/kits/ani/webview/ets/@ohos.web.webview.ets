@@ -40,7 +40,7 @@ let unregisterToken = new object()
 
 export default namespace webview {
     static {
-        loadLibrary("webview_ani.z");
+        loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
     }
     export native function once(type: string, callback: Callback<void>): void;
 
@@ -383,7 +383,7 @@ export default namespace webview {
 
     export class NativeMediaPlayerHandlerinner implements NativeMediaPlayerHandler {
         static {
-            loadLibrary("webview_ani.z");
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
         }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
@@ -479,7 +479,7 @@ export default namespace webview {
 
     export class BackForwardListinner implements BackForwardList {
         static {
-            loadLibrary("webview_ani.z");
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
         }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
@@ -560,7 +560,7 @@ export default namespace webview {
 
     export class PdfData {
         static {
-            loadLibrary("webview_ani.z");
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
         }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
@@ -629,6 +629,7 @@ export default namespace webview {
         native scrollTo(x: double, y: double, duration?: int): void;
         native scrollBy(deltaX: double, deltaY: double, duration?: int): void;
         native getScrollOffset(): ScrollOffset;
+        native getPageOffset(): ScrollOffset;
         native slideScroll(vx: double, vy: double): void;
         native zoom(factor: double): void;
         native isSafeBrowsingEnabled(): boolean;
@@ -792,6 +793,61 @@ export default namespace webview {
         }
 
         native getCertificateSync(): Array<ArrayBuffer>;
+        getCertificate(): Promise<Array<cert.X509Cert>> {
+            let certChainData = this.getCertificateSync();
+            return new Promise<Array<cert.X509Cert>>((resolve, reject) => {
+                let taskPromise = taskpool.execute(():undefined => {
+                    return undefined});
+                taskPromise.then(async (results: NullishType) => {
+                    const certs: Array<cert.X509Cert> = [];
+                    for (let i = 0; i < certChainData.length; i++) {
+                        let certsUint8Array = new Uint8Array(certChainData[i]);
+                        const encodingBlob: cert.EncodingBlob = {
+                            data: certsUint8Array,
+                            encodingFormat: cert.EncodingFormat.FORMAT_DER
+                        };
+                        try {
+                            const x509Cert = await cert.createX509Cert(encodingBlob);
+                            certs.push(x509Cert);
+                        } catch (e) {
+                            console.error("Failed to parse certificate", e);
+                        }
+                    }
+                    resolve(certs);
+                })
+                .catch((error: Error) => {
+                    reject(error);
+                });
+            });
+        }
+        getCertificate(callback: AsyncCallback<Array<cert.X509Cert>>): void {
+            let certChainData = this.getCertificateSync();
+            let p = taskpool.execute(():undefined => {
+                    return undefined});
+            p.then((results : NullishType) => {
+                const certs: Array<cert.X509Cert> = [];
+                for (let i = 0; i < certChainData.length; i++) {
+                    let certsUint8Array = new Uint8Array(certChainData[i]);
+                    const encodingBlob: cert.EncodingBlob = {
+                        data: certsUint8Array,
+                        encodingFormat: cert.EncodingFormat.FORMAT_DER
+                    };
+                    try {
+                        const x509Cert = await cert.createX509Cert(encodingBlob);
+                        certs.push(x509Cert);
+                    } catch (e) {
+                        console.error("Failed to parse certificate", e);
+                    }
+                }
+                let error = new BusinessError<void>();
+                callback(error, certs);
+            }).catch((error: Error) => {
+                let err = error as BusinessError<void>;
+                let data = new Array<cert.X509Cert>;
+                callback(err, data);
+            });
+        }
+
         native setSocketIdleTimeout(timeout: int): void;
         native getProgress(): int;
         native static setAppCustomUserAgent(userAgent: string): void;
@@ -803,7 +859,7 @@ export default namespace webview {
         native getBlanklessInfoWithKey(key: string): BlanklessInfo;
         native setBlanklessLoadingWithKey(key: string, is_start: boolean): WebBlanklessErrorCode;
         native static clearBlanklessLoadingCache(keys?: Array<string>): void;
-        native static setBlanklessLoadingCacheCapacity(capacity: int): int;        
+        native static setBlanklessLoadingCacheCapacity(capacity: int): int;
     }
 
     export class WebSchemeHandlerResponse {
@@ -931,14 +987,13 @@ export default namespace webview {
             }
         }
         native constructor();
-        
         native didReceiveResponse(response: WebSchemeHandlerResponse): void;
         native didFinish(): void;
     }
-    
+
     export class WebDownloadItem {
         static {
-            loadLibrary("webview_ani.z");
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
         }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
@@ -995,7 +1050,7 @@ export default namespace webview {
 
     export class WebDownloadDelegate {
         static {
-            loadLibrary("webview_ani.z");
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
         }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
@@ -1426,7 +1481,7 @@ export default namespace webview {
     }
     export class WebMessagePortInner implements WebMessagePort {
         static {
-            loadLibrary("webview_ani.z");
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
         }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
@@ -1584,7 +1639,7 @@ export default namespace webview {
 
     export class AdsBlockManager {
         static {
-            loadLibrary("webview_ani.z");
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
         }
 
         native static clearAdsBlockAllowedList(): void;
@@ -1624,7 +1679,7 @@ export default namespace webview {
 
     export class GeolocationPermissions {
         static {
-            loadLibrary("webview_ani.z");
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
         }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
@@ -1811,7 +1866,7 @@ export default namespace webview {
     }
     export class JsMessageExt {
         static {
-            loadLibrary("webview_ani.z");
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
         }
 
         private nativePtr: long = 0;
@@ -1842,7 +1897,7 @@ export default namespace webview {
 
     export class PrintDocumentAdapterInner implements print.PrintDocumentAdapter{
         static {
-            loadLibrary("webview_ani.z");
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
         }
         private nativePtr: long = 0;
             private cleaner?: Cleaner;

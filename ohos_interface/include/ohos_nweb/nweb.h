@@ -326,6 +326,11 @@ enum class SystemThemeFlags : uint8_t {
     THEME_FONT = 1 << 0,
 };
 
+enum class WebSoftKeyboardBehaviorMode : int32_t {
+    DEFAULT = 0,
+    DISABLE_AUTO_KEYBOARD_ON_ACTIVE,
+};
+
 class NWebSystemConfiguration {
     public:
     virtual ~NWebSystemConfiguration() = default;

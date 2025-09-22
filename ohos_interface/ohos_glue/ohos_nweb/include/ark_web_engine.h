@@ -203,6 +203,9 @@ public:
 
     /*--ark web()--*/
     virtual void SetSocketIdleTimeout(int32_t timeout) = 0;
+
+    /*--ark web()--*/
+    virtual void SetSoftKeyboardBehaviorMode(int32_t mode) = 0;
 };
 
 } // namespace OHOS::ArkWeb

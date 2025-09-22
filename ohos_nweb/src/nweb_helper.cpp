@@ -1176,26 +1176,6 @@ void NWebHelper::ClearBlanklessLoadingCache(const std::vector<std::string>& urls
     nwebEngine_->ClearBlanklessLoadingCache(urls);
 }
 
-void WebApplicationStateChangeCallback::NotifyApplicationForeground()
-{
-    WVLOG_I("WebApplicationStateChangeCallback::NotifyApplicationForeground is called.");
-    if (!nweb_) {
-        WVLOG_E("WebApplicationStateChangeCallback::nweb is nullptr.");
-        return;
-    }
-    nweb_->OnBrowserForeground();
-}
-
-void WebApplicationStateChangeCallback::NotifyApplicationBackground()
-{
-    WVLOG_I("WebApplicationStateChangeCallback::NotifyApplicationBackground is called.");
-    if (!nweb_) {
-        WVLOG_E("WebApplicationStateChangeCallback::nweb is nullptr.");
-        return;
-    }
-    nweb_->OnBrowserBackground();
-}
-
 NWebAdapterHelper& NWebAdapterHelper::Instance()
 {
     static NWebAdapterHelper helper;
@@ -1405,6 +1385,15 @@ void NWebHelper::SetSocketIdleTimeout(int32_t timeout)
 int32_t NWebHelper::GetSocketIdleTimeout()
 {
     return socketIdleTimeout_;
+}
+
+void NWebHelper::SetSoftKeyboardBehaviorMode(WebSoftKeyboardBehaviorMode mode)
+{
+    if (nwebEngine_ == nullptr) {
+        WVLOG_E("web engine is nullptr");
+        return;
+    }
+    nwebEngine_->SetSoftKeyboardBehaviorMode(mode);
 }
 
 } // namespace OHOS::NWeb

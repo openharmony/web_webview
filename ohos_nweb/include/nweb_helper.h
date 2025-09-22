@@ -43,27 +43,6 @@ struct FrameRateSetting {
     int32_t preferredFrameRate_ { 0 };
 };
 
-class WebApplicationStateChangeCallback : public AbilityRuntime::ApplicationStateChangeCallback {
-public:
-    static std::shared_ptr<WebApplicationStateChangeCallback> GetInstance()
-    {
-        static std::shared_ptr<WebApplicationStateChangeCallback> instance(
-        new WebApplicationStateChangeCallback,
-        [](WebApplicationStateChangeCallback*) {}
-        );
-        return instance;
-    }
-    WebApplicationStateChangeCallback(const WebApplicationStateChangeCallback&) = delete;
-    WebApplicationStateChangeCallback& operator=(const WebApplicationStateChangeCallback&) = delete;
-    ~WebApplicationStateChangeCallback() = default;
-    void NotifyApplicationForeground() override;
-    void NotifyApplicationBackground() override;
-    std::shared_ptr<NWeb> nweb_ = nullptr;
-    bool isRegistered = false;
-private:
-    WebApplicationStateChangeCallback() = default;
-};
-
 class OHOS_NWEB_EXPORT NWebHelper {
 public:
     static NWebHelper& Instance();
@@ -165,6 +144,8 @@ public:
     void SetSocketIdleTimeout(int32_t timeout);
 
     int32_t GetSocketIdleTimeout();
+    
+    void SetSoftKeyboardBehaviorMode(WebSoftKeyboardBehaviorMode mode);
 
 private:
     NWebHelper() = default;
@@ -181,7 +162,6 @@ private:
     std::shared_ptr<NWebEngine> nwebEngine_ = nullptr;
     std::vector<NwebScheme> schemeVector_;
     std::vector<std::string> backForwardCacheCmdLine_;
-    std::shared_ptr<WebApplicationStateChangeCallback> webApplicationStateCallback_;
     mutable std::mutex lock_;
 };
 } // namespace OHOS::NWeb

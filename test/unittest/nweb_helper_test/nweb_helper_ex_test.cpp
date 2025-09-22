@@ -484,6 +484,35 @@ HWTEST_F(NwebHelperTest, NWebHelper_LoadWebEngine_008, TestSize.Level1)
 }
 
 /**
+ * @tc.name: NWebHelper_LoadWebEngine_009
+ * @tc.desc: LoadWebEngine.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_LoadWebEngine_009, TestSize.Level1)
+{
+    NWebHelper::Instance().nwebEngine_ = nullptr;
+    std::shared_ptr<NWebCreateInfoImpl> create_info = std::make_shared<NWebCreateInfoImpl>();
+    std::shared_ptr<NWeb> nweb = NWebHelper::Instance().CreateNWeb(create_info);
+    EXPECT_EQ(nweb, nullptr);
+    nweb = NWebHelper::Instance().GetNWeb(1);
+    EXPECT_EQ(nweb, nullptr);
+    NWebHelper::Instance().SetWebTag(1, "webtag");
+    NWebHelper::Instance().SetSoftKeyboardBehaviorMode(WebSoftKeyboardBehaviorMode::DISABLE_AUTO_KEYBOARD_ON_ACTIVE);
+
+    auto nwebEngineMock = std::make_shared<MockNWebEngine>();
+    NWebHelper::Instance().nwebEngine_ = nwebEngineMock;
+    NWebHelper::Instance().SetSoftKeyboardBehaviorMode(WebSoftKeyboardBehaviorMode::DISABLE_AUTO_KEYBOARD_ON_ACTIVE);
+    EXPECT_NE(NWebHelper::Instance().nwebEngine_, nullptr);
+    NWebHelper::Instance().LoadWebEngine(true, false);
+    bool result = NWebHelper::Instance().GetWebEngine(true);
+    EXPECT_TRUE(result);
+    NWebHelper::Instance().SetWebTag(1, "webtag");
+    result = NWebHelper::Instance().HasLoadWebEngine();
+    EXPECT_TRUE(result);
+}
+
+/**
  * @tc.name: NWebHelper_GetPerfConfig_001
  * @tc.desc: GetPerfConfig.
  * @tc.type: FUNC
@@ -747,44 +776,6 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetBundleName_001, TestSize.Level1)
     NWebConfigHelper::Instance().SetBundleName("testBundleName");
     bundleName = NWebAdapterHelper::Instance().GetBundleName();
     EXPECT_FALSE(bundleName.empty());
-}
-
-/**
- * @tc.name: WebApplicationStateChangeCallback_NotifyApplicationForeground_001
- * @tc.desc: NotifyApplicationForeground.
- * @tc.type: FUNC
- * @tc.require:
- */
-HWTEST_F(NwebHelperTest,
-          WebApplicationStateChangeCallback_NotifyApplicationForeground_001, TestSize.Level1)
-{
-    std::shared_ptr<WebApplicationStateChangeCallback> webApplicationStateCallback_ =
-        WebApplicationStateChangeCallback::GetInstance();
-    EXPECT_NE(webApplicationStateCallback_, nullptr);
-    std::shared_ptr<NWebCreateInfoImpl> create_info = std::make_shared<NWebCreateInfoImpl>();
-    std::shared_ptr<NWeb> nweb = NWebHelper::Instance().CreateNWeb(create_info);
-    EXPECT_EQ(nweb, nullptr);
-    webApplicationStateCallback_->nweb_ = nweb;
-    webApplicationStateCallback_->NotifyApplicationForeground();
-}
-
-/**
- * @tc.name: WebApplicationStateChangeCallback_NotifyApplicationBackground_001
- * @tc.desc: NotifyApplicationBackground.
- * @tc.type: FUNC
- * @tc.require:
- */
-HWTEST_F(NwebHelperTest,
-          WebApplicationStateChangeCallback_NotifyApplicationBackground_001, TestSize.Level1)
-{
-    std::shared_ptr<WebApplicationStateChangeCallback> webApplicationStateCallback_ =
-        WebApplicationStateChangeCallback::GetInstance();
-    EXPECT_NE(webApplicationStateCallback_, nullptr);
-    std::shared_ptr<NWebCreateInfoImpl> create_info = std::make_shared<NWebCreateInfoImpl>();
-    std::shared_ptr<NWeb> nweb = NWebHelper::Instance().CreateNWeb(create_info);
-    EXPECT_EQ(nweb, nullptr);
-    webApplicationStateCallback_->nweb_ = nweb;
-    webApplicationStateCallback_->NotifyApplicationBackground();
 }
 
 /**
