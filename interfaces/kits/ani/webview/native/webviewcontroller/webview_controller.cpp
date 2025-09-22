@@ -1273,6 +1273,16 @@ int WebviewController::GetMediaPlaybackState()
     return nweb_ptr->GetMediaPlaybackState();
 }
 
+ErrCode WebviewController::AvoidVisibleViewportBottom(int32_t avoidHeight)
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return INIT_ERROR;
+    }
+    nweb_ptr->AvoidVisibleViewportBottom(avoidHeight);
+    return NWebError::NO_ERROR;
+}
+
 int WebviewController::GetSecurityLevel()
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);

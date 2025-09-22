@@ -301,6 +301,8 @@ public:
 
     int GetMediaPlaybackState();
 
+    ErrCode AvoidVisibleViewportBottom(int32_t avoidHeight);
+
     void EnableIntelligentTrackingPrevention(bool enable);
 
     bool IsIntelligentTrackingPreventionEnabled() const;

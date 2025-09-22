@@ -3295,6 +3295,25 @@ void OnCreateNativeMediaPlayer(ani_env* env, ani_object object, ani_fn_object ca
     controller->OnCreateNativeMediaPlayer(g_vm, callback);
 }
 
+static void AvoidVisibleViewportBottom(ani_env* env, ani_object object, ani_int avoidHeight)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    ErrCode ret = controller->AvoidVisibleViewportBottom(avoidHeight);
+    if (ret != NO_ERROR) {
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+    }
+    return;
+}
+
 bool ParseJsLengthDoubleToInt(ani_env* env, ani_ref ref, int32_t& outValue)
 {
     if (!env) {
@@ -5690,6 +5709,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "resumeAllMedia", nullptr, reinterpret_cast<void *>(ResumeAllMedia) },
         ani_native_function { "setAudioMuted", nullptr, reinterpret_cast<void *>(SetAudioMuted) },
         ani_native_function { "getMediaPlaybackState", nullptr, reinterpret_cast<void *>(GetMediaPlaybackState) },
+        ani_native_function { "avoidVisibleViewportBottom", nullptr,
+                              reinterpret_cast<void *>(AvoidVisibleViewportBottom) },
         ani_native_function { "webPageSnapshot", nullptr, reinterpret_cast<void *>(WebPageSnapshot) },
         ani_native_function { "innerCompleteWindowNew", nullptr, reinterpret_cast<void *>(InnerCompleteWindowNew) },
         ani_native_function { "runJavaScriptCallback", nullptr, reinterpret_cast<void *>(RunJavaScriptCallback) },

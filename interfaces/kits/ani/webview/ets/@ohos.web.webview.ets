@@ -753,6 +753,7 @@ export default namespace webview {
         native resumeAllMedia(): void;
         native setAudioMuted(mute: boolean): void;
         native getMediaPlaybackState(): MediaPlaybackState;
+        native avoidVisibleViewportBottom(avoidHeight: int): void;
         native innerCompleteWindowNew(parentNwebId:int): void;
         innerGetThisVar(): long {
             return this.nativePtr;
