@@ -6255,18 +6255,25 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "setWebSchemeHandler", nullptr, reinterpret_cast<void *>(SetWebSchemeHandler) },
         ani_native_function { "registerJavaScriptProxy", nullptr, reinterpret_cast<void *>(RegisterJavaScriptProxy) },
         ani_native_function { "deleteJavaScriptRegister", nullptr, reinterpret_cast<void *>(DeleteJavaScriptRegister) },
-        ani_native_function { "runJavaScriptCallback", nullptr, reinterpret_cast<void *>(RunJavaScriptCallback) },
-        ani_native_function { "runJavaScriptPromise", nullptr, reinterpret_cast<void *>(RunJavaScriptPromise) },
-        ani_native_function { "runJavaScriptCallbackExt", nullptr, reinterpret_cast<void *>(RunJavaScriptCallbackExt) },
-        ani_native_function { "runJavaScriptPromiseExt", nullptr, reinterpret_cast<void *>(RunJavaScriptPromiseExt) },
+        ani_native_function {
+            "runJavaScriptCallback", "C{std.core.Function2}:", reinterpret_cast<void *>(RunJavaScriptCallback) },
+        ani_native_function {
+            "runJavaScriptPromise", "C{std.core.Function2}:", reinterpret_cast<void *>(RunJavaScriptPromise) },
+        ani_native_function {
+            "runJavaScriptCallbackExt", "C{std.core.Function2}:", reinterpret_cast<void *>(RunJavaScriptCallbackExt) },
+        ani_native_function {
+            "runJavaScriptPromiseExt", "C{std.core.Function2}:", reinterpret_cast<void *>(RunJavaScriptPromiseExt) },
         ani_native_function { "setBackForwardCacheOptions", nullptr,
                               reinterpret_cast<void *>(SetBackForwardCacheOptions) },
         ani_native_function { "setAppCustomUserAgent", nullptr, reinterpret_cast<void *>(SetAppCustomUserAgent) },
         ani_native_function { "setUserAgentForHosts", nullptr, reinterpret_cast<void *>(SetUserAgentForHosts) },
-        ani_native_function { "storeWebArchiveCallback", nullptr, reinterpret_cast<void *>(StoreWebArchiveCallback) },
-        ani_native_function { "storeWebArchivePromise", nullptr, reinterpret_cast<void *>(StoreWebArchivePromise) },
-        ani_native_function { "hasImageCallback", nullptr, reinterpret_cast<void *>(HasImageCallback) },
-        ani_native_function { "hasImagePromise", nullptr, reinterpret_cast<void *>(HasImagePromise) },
+        ani_native_function {
+            "storeWebArchiveCallback", "C{std.core.Function2}:", reinterpret_cast<void *>(StoreWebArchiveCallback) },
+        ani_native_function {
+            "storeWebArchivePromise", "C{std.core.Function2}:", reinterpret_cast<void *>(StoreWebArchivePromise) },
+        ani_native_function {
+            "hasImageCallback", "C{std.core.Function2}:", reinterpret_cast<void *>(HasImageCallback) },
+        ani_native_function { "hasImagePromise", "C{std.core.Function2}:", reinterpret_cast<void *>(HasImagePromise) },
         ani_native_function { "restoreWebState", nullptr, reinterpret_cast<void*>(RestoreWebState) },
         ani_native_function { "getCertificateSync", nullptr, reinterpret_cast<void*>(GetCertificateSync) },
     };
