@@ -1819,6 +1819,18 @@ public:
      * @brief Set web should ignore zoom limit.
      */
     void SetForceEnableZoom(bool forceEnableZoom) const override;
+
+    /**
+     * @brief Set the config for blank screen detection.
+     *
+     * @param enable Whether the blank screen detection is enabled.
+     * @param detectionTiming The timing of the blank screen detection.
+     * @param detectionMethods The methods of the blank screen detection.
+     * @param contentfulNodesCountThreshold The contentful nodes count threshold of the blank screen detection.
+     */
+    void SetBlankScreenDetectionConfig(bool enable, const std::vector<double>& detectionTiming,
+        const std::vector<int32_t>& detectionMethods, int32_t contentfulNodesCountThreshold) override;
+
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };
