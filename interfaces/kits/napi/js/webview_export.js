@@ -285,6 +285,7 @@ function fileSelectorListItem(callback, sysResource, text, func) {
     SymbolGlyph.margin({
       right: 16
     });
+    SymbolGlyph.fontColor([{ 'id': -1, 'type': -1, param: ['sys.color.icon_primary'], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' }]);
     Row.create();
     Row.margin({ right: 36 });
     Row.border({ width: { bottom: 0.5 }, color: '#33000000' });
@@ -494,13 +495,16 @@ Object.defineProperty(webview.WebviewController.prototype, 'fileSelectorShowFrom
   value: function (callback) {
     let currentDevice = deviceinfo.deviceType.toLowerCase();
     if (needShowDialog(callback.fileparam)) {
+      promptAction.closeCustomDialog(customDialogComponentId);
       promptAction.openCustomDialog({
         builder: () => {
+          Scroll.create();
           if (currentDevice === '2in1') {
             fileSelectorDialogForPC(callback);
           } else {
             fileSelectorDialogForPhone(callback);
           }
+          Scroll.pop();
         },
         onWillDismiss: (dismissDialogAction) => {
           console.info('reason' + JSON.stringify(dismissDialogAction.reason));
@@ -513,7 +517,8 @@ Object.defineProperty(webview.WebviewController.prototype, 'fileSelectorShowFrom
             callback.fileresult.handleFileList([]);
             dismissDialogAction.dismiss();
           }
-        }
+        },
+        showInSubWindow: currentDevice === '2in1'
       }).then((dialogId) => {
         customDialogComponentId = dialogId;
       })
