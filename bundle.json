@@ -387,7 +387,8 @@
                 "//base/web/webview/test/unittest/napi_common_test:unittest",
                 "//base/web/webview/test/unittest/ohos_adapter/native_buffer_adapter_test:unittest",
                 "//base/web/webview/test/unittest/ohos_adapter/drawing_text_adapter_test:unittest",
-                "//base/web/webview/test/unittest/webview_value_test:unittest"
+                "//base/web/webview/test/unittest/webview_value_test:unittest",
+                "//base/web/webview/test/unittest/web_native_messaging_client_test:unittest"
             ]
         }
     }

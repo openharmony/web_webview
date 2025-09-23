@@ -16,128 +16,16 @@ import("../../../web_aafwk.gni")
 
 module_output_path = "webview/webview"
 
-ohos_unittest("arkweb_scheme_handler_test") {
+ohos_unittest("web_native_messaging_client_test") {
   module_out_path = module_output_path
-
-  sources = [ "arkweb_scheme_handler_test.cpp" ]
-
-  include_dirs = [ "../common" ]
-
-  deps = [
-    "$webview_path/interfaces/native:ohweb",
-    "$webview_path/ohos_nweb:web_configs",
-  ]
-
-  external_deps = [
-    "ability_runtime:app_context",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
-    "c_utils:utils",
-    "googletest:gmock_main",
-    "googletest:gtest_main",
-    "graphic_2d:librender_service_client",
-    "hilog:libhilog",
-    "libxml2:libxml2",
-    "webview:libnweb",
-    "window_manager:libwm",
-  ]
-}
-
-ohos_unittest("arkweb_interface_test") {
-  module_out_path = module_output_path
-
-  sources = [ "arkweb_interface_test.cpp" ]
-
-  include_dirs = [ "../common" ]
-
-  deps = [
-    "$webview_path/interfaces/native:ohweb",
-    "$webview_path/ohos_nweb:web_configs",
-  ]
-
-  external_deps = [
-    "ability_runtime:app_context",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
-    "c_utils:utils",
-    "googletest:gmock_main",
-    "googletest:gtest_main",
-    "graphic_2d:librender_service_client",
-    "hilog:libhilog",
-    "libxml2:libxml2",
-    "webview:libnweb",
-    "window_manager:libwm",
-  ]
-}
-
-ohos_unittest("native_javascript_execute_callback_test") {
-  module_out_path = module_output_path
-
-  sources = [ "native_javascript_execute_callback_test.cpp" ]
-
-  include_dirs = [ "../common" ]
-
-  deps = [
-    "$webview_path/interfaces/native:ohweb",
-    "$webview_path/ohos_nweb:web_configs",
-  ]
-
-  external_deps = [
-    "ability_runtime:app_context",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
-    "c_utils:utils",
-    "googletest:gmock_main",
-    "googletest:gtest_main",
-    "graphic_2d:librender_service_client",
-    "hilog:libhilog",
-    "webview:libnweb",
-    "window_manager:libwm",
-  ]
-}
-
-ohos_unittest("native_interface_arkweb_test") {
-  module_out_path = module_output_path
-
-  sources = [ "native_interface_arkweb_test.cpp" ]
-
-  include_dirs = [
-    "../common",
-    "$webview_path/interfaces/native"
-  ]
-
-  deps = [
-    "$webview_path/arkweb_utils:libarkweb_utils",
-    "$webview_path/interfaces/native:ohweb",
-    "$webview_path/ohos_nweb:web_configs",
-  ]
-
-  external_deps = [
-    "ability_runtime:app_context",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
-    "c_utils:utils",
-    "googletest:gmock_main",
-    "googletest:gtest_main",
-    "graphic_2d:librender_service_client",
-    "hilog:libhilog",
-    "init:libbegetutil",
-    "webview:libnweb",
-    "window_manager:libwm",
-  ]
-}
-
-ohos_unittest("web_native_messaging_extension_context_info_test") {
-  module_out_path = module_output_path
-
-  sources = [ 
-    "web_native_messaging_extension_context_info_test.cpp"
+  sources = [
+    "web_native_messaging_client_test.cpp",
   ]
 
   include_dirs = [
-    "../common",
     "$webview_path/interfaces/native/web_native_messaging_extension/extension/include",
     "$webview_path/sa/web_native_messaging/common",
+    "$webview_path/sa/web_native_messaging/client",
   ]
 
   deps = [
@@ -148,14 +36,10 @@ ohos_unittest("web_native_messaging_extension_context_info_test") {
 
   external_deps = [
     "ability_base:want",
-    "ability_runtime:app_context",
-    "ability_runtime:appkit_native",
-    "ability_runtime:napi_common",
-    "ability_runtime:ability_start_options",
-    "ability_runtime:ability_context_native",
-    "ability_runtime:extensionkit_native",
+    "ability_base:zuri",
     "ability_runtime:ability_manager",
-    "ability_runtime:runtime",
+    "ability_runtime:ability_start_options",
+    "ability_runtime:napi_common",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
@@ -169,17 +53,16 @@ ohos_unittest("web_native_messaging_extension_context_info_test") {
   ]
 }
 
-ohos_unittest("web_native_messaging_extension_context_test") {
+ohos_unittest("web_extension_connection_callback_test") {
   module_out_path = module_output_path
-
-  sources = [ 
-    "web_native_messaging_extension_context_test.cpp"
+  sources = [
+    "web_extension_connection_callback_test.cpp",
   ]
 
   include_dirs = [
-    "../common",
     "$webview_path/interfaces/native/web_native_messaging_extension/extension/include",
     "$webview_path/sa/web_native_messaging/common",
+    "$webview_path/sa/web_native_messaging/client",
   ]
 
   deps = [
@@ -190,14 +73,84 @@ ohos_unittest("web_native_messaging_extension_context_test") {
 
   external_deps = [
     "ability_base:want",
-    "ability_runtime:app_context",
-    "ability_runtime:appkit_native",
-    "ability_runtime:napi_common",
-    "ability_runtime:ability_start_options",
-    "ability_runtime:ability_context_native",
-    "ability_runtime:extensionkit_native",
+    "ability_base:zuri",
     "ability_runtime:ability_manager",
-    "ability_runtime:runtime",
+    "ability_runtime:ability_start_options",
+    "ability_runtime:napi_common",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+    "webview:libnweb",
+    "window_manager:libwm",
+  ]
+}
+
+ohos_unittest("web_extension_connection_callback_stub_test") {
+  module_out_path = module_output_path
+  sources = [
+    "web_extension_connection_callback_stub_test.cpp",
+  ]
+
+  include_dirs = [
+    "$webview_path/interfaces/native/web_native_messaging_extension/extension/include",
+    "$webview_path/sa/web_native_messaging/common",
+    "$webview_path/sa/web_native_messaging/client",
+  ]
+
+  deps = [
+    "$webview_path/interfaces/native/web_native_messaging_extension/extension:web_extension",
+    "$webview_path/sa/web_native_messaging:web_native_messaging_kit",
+    "$webview_path/ohos_nweb:web_configs",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_manager",
+    "ability_runtime:ability_start_options",
+    "ability_runtime:napi_common",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+    "webview:libnweb",
+    "window_manager:libwm",
+  ]
+}
+
+ohos_unittest("web_native_messaging_load_callback_test") {
+  module_out_path = module_output_path
+  sources = [
+    "web_native_messaging_load_callback_test.cpp",
+  ]
+
+  include_dirs = [
+    "$webview_path/interfaces/native/web_native_messaging_extension/extension/include",
+    "$webview_path/sa/web_native_messaging/common",
+    "$webview_path/sa/web_native_messaging/client",
+  ]
+
+  deps = [
+    "$webview_path/interfaces/native/web_native_messaging_extension/extension:web_extension",
+    "$webview_path/sa/web_native_messaging:web_native_messaging_kit",
+    "$webview_path/ohos_nweb:web_configs",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_manager",
+    "ability_runtime:ability_start_options",
+    "ability_runtime:napi_common",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
@@ -214,11 +167,9 @@ ohos_unittest("web_native_messaging_extension_context_test") {
 group("unittest") {
   testonly = true
   deps = [
-    ":arkweb_interface_test",
-    ":arkweb_scheme_handler_test",
-    ":native_interface_arkweb_test",
-    ":native_javascript_execute_callback_test",
-    ":web_native_messaging_extension_context_info_test",
-    ":web_native_messaging_extension_context_test",
+    ":web_native_messaging_client_test",
+    ":web_extension_connection_callback_test",
+    ":web_extension_connection_callback_stub_test",
+    ":web_native_messaging_load_callback_test",
   ]
 }
