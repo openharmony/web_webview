@@ -30,6 +30,13 @@ void NapiNativeMediaPlayerHandler::Init(napi_env env, napi_value value)
 {
     WVLOG_I("begin to init native media player napi properties");
 
+    napi_property_descriptor transferDesc[] = {
+        DECLARE_NAPI_FUNCTION("__createNativeMediaPlayerHandlerTransfer__",
+            MediaPlayerTransfer::CreateNativeMediaPlayerHandlerTransfer),
+    };
+
+    napi_define_properties(env, value, sizeof(transferDesc) / sizeof(transferDesc[0]), transferDesc);
+
     NAPI_CALL_RETURN_VOID(env, ExportEnumPreload(env, &value));
 
     NAPI_CALL_RETURN_VOID(env, ExportEnumMediaType(env, &value));
@@ -740,4 +747,69 @@ napi_value NapiNativeMediaPlayerHandler::HandleVideoSizeChanged(napi_env env, na
     return nullptr;
 }
 
+static napi_value CreateNativeMediaPlayerHandler(napi_env env, NapiNativeMediaPlayerHandlerImpl* handler)
+{
+    WVLOG_I("CreateNativeMedisPlayerHandler enter");
+    napi_value jsValue = nullptr;
+    napi_create_object(env, &jsValue);
+
+    NAPI_CALL(env, napi_wrap(env, jsValue, handler,
+        [](napi_env env, void *data, void *hint) {
+            NapiNativeMediaPlayerHandlerImpl *handlerImpl = static_cast<NapiNativeMediaPlayerHandlerImpl *>(data);
+            if (handlerImpl  && handlerImpl->DecRefCount() <= 0) {
+                delete handlerImpl;
+            }
+        },
+        nullptr, nullptr));
+    handler->IncRefCount();
+
+    napi_property_descriptor properties[] = {
+        DECLARE_NAPI_FUNCTION("handleStatusChanged", NapiNativeMediaPlayerHandler::HandleStatusChanged),
+        DECLARE_NAPI_FUNCTION("handleVolumeChanged", NapiNativeMediaPlayerHandler::HandleVolumeChanged),
+        DECLARE_NAPI_FUNCTION("handleMutedChanged", NapiNativeMediaPlayerHandler::HandleMutedChanged),
+        DECLARE_NAPI_FUNCTION("handlePlaybackRateChanged", NapiNativeMediaPlayerHandler::HandlePlaybackRateChanged),
+        DECLARE_NAPI_FUNCTION("handleDurationChanged", NapiNativeMediaPlayerHandler::HandleDurationChanged),
+        DECLARE_NAPI_FUNCTION("handleTimeUpdate", NapiNativeMediaPlayerHandler::HandleTimeUpdate),
+        DECLARE_NAPI_FUNCTION(
+            "handleBufferedEndTimeChanged", NapiNativeMediaPlayerHandler::HandleBufferedEndTimeChanged),
+        DECLARE_NAPI_FUNCTION("handleEnded", NapiNativeMediaPlayerHandler::HandleEnded),
+        DECLARE_NAPI_FUNCTION("handleNetworkStateChanged", NapiNativeMediaPlayerHandler::HandleNetworkStateChanged),
+        DECLARE_NAPI_FUNCTION("handleReadyStateChanged", NapiNativeMediaPlayerHandler::HandleReadyStateChanged),
+        DECLARE_NAPI_FUNCTION("handleFullscreenChanged", NapiNativeMediaPlayerHandler::HandleFullScreenChanged),
+        DECLARE_NAPI_FUNCTION("handleSeeking", NapiNativeMediaPlayerHandler::HandleSeeking),
+        DECLARE_NAPI_FUNCTION("handleSeekFinished", NapiNativeMediaPlayerHandler::HandleSeekFinished),
+        DECLARE_NAPI_FUNCTION("handleError", NapiNativeMediaPlayerHandler::HandleError),
+        DECLARE_NAPI_FUNCTION("handleVideoSizeChanged", NapiNativeMediaPlayerHandler::HandleVideoSizeChanged),
+    };
+
+    NAPI_CALL(env, napi_define_properties(env, jsValue, sizeof(properties) / sizeof(properties[0]), properties));
+    return jsValue;
+}
+
+napi_value MediaPlayerTransfer::CreateNativeMediaPlayerHandlerTransfer(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    napi_value result;
+    napi_get_undefined(env, &result);
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (argc != INTEGER_ONE) {
+        WVLOG_E("[CreateNativeMediaPlayerHandlerTransfer] number of params is invalid");
+        return result;
+    }
+
+    int64_t addr = 0;
+    if (!NapiParseUtils::ParseInt64(env, argv[INTEGER_ZERO], addr)) {
+        WVLOG_E("[CreateNativeMediaPlayerHandlerTransfer] type of param is error");
+        return result;
+    }
+
+    NapiNativeMediaPlayerHandlerImpl* handler =  reinterpret_cast<NapiNativeMediaPlayerHandlerImpl*>(addr);
+    napi_value jsValue = CreateNativeMediaPlayerHandler(env, handler);
+    if (jsValue) {
+        return jsValue;
+    }
+    return result;
+}
 } // namespace OHOS::NWeb

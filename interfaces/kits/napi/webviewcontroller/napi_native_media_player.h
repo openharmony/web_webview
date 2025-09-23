@@ -29,7 +29,6 @@ public:
 
     static napi_status DefineProperties(napi_env env, napi_value* value);
 
-private:
     static napi_status ExportEnumPreload(napi_env env, napi_value* value);
 
     static napi_status ExportEnumMediaType(napi_env env, napi_value* value);
@@ -75,6 +74,13 @@ private:
     static napi_value HandleError(napi_env env, napi_callback_info info);
 
     static napi_value HandleVideoSizeChanged(napi_env env, napi_callback_info info);
+};
+
+class MediaPlayerTransfer {
+public:
+    MediaPlayerTransfer() = default;
+    ~MediaPlayerTransfer() = default;
+    static napi_value CreateNativeMediaPlayerHandlerTransfer(napi_env env, napi_callback_info info);
 };
 
 } // namespace OHOS::NWeb
