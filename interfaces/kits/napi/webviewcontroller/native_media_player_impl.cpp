@@ -243,13 +243,17 @@ void NWebCreateNativeMediaPlayerCallbackImpl::ConstructHandler(
 {
     NAPI_CALL_RETURN_VOID(env_, napi_create_object(env_, value));
 
+    NapiNativeMediaPlayerHandlerImpl* handlerImpl = new NapiNativeMediaPlayerHandlerImpl(nwebId_, handler);
     napi_wrap(
-        env_, *value, new NapiNativeMediaPlayerHandlerImpl(nwebId_, handler),
+        env_, *value, handlerImpl,
         [](napi_env /*env*/, void* data, void* /*hint*/) {
             NapiNativeMediaPlayerHandlerImpl* handler = (NapiNativeMediaPlayerHandlerImpl*)data;
-            delete handler;
+	    if (handler && handler->DecRefCount() <= 0) {
+                delete handler;
+            }
         },
         nullptr, nullptr);
+    handlerImpl->IncRefCount();
     NAPI_CALL_RETURN_VOID(env_, NapiNativeMediaPlayerHandler::DefineProperties(env_, value));
 }
 
