@@ -153,6 +153,10 @@ const std::unordered_map<std::string_view, std::function<std::string(std::string
     { "disableDrdcConfig/disableDrdc",
         [](std::string& contentStr) {
             return contentStr == "true" ? std::string("--ohos-enable-drdc") : std::string(); 
+        } },
+    { "settingConfig/disableNextPreviousFlag",
+        [](std::string& contentStr) {
+            return contentStr == "true" ? std::string("--ohos-disable-next-previous-flag") : std::string();
         } }
 };
 } // namespace
