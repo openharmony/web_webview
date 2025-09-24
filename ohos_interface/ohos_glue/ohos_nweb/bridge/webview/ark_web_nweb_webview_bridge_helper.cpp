@@ -35,7 +35,7 @@ bool ArkWebNWebWebviewBridgeHelper::Init(bool runMode, const std::string& bundle
         return true;
     }
 
-    void* libFileHandler = ArkWebBridgeHelperSharedInit(runMode);
+    void* libFileHandler = ArkWebBridgeHelperSharedInit(runMode, bundlePath);
     if (!libFileHandler) {
         ARK_WEB_BRIDGE_ERROR_LOG("library resources loaded failed");
         return false;

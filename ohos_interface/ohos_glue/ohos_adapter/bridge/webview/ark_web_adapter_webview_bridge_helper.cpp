@@ -36,7 +36,7 @@ void ArkWebAdapterWebviewBridgeHelper::Init()
         return;
     }
 
-    void* libFileHandler = ArkWebBridgeHelperSharedInit();
+    void* libFileHandler = ArkWebBridgeHelperSharedInit(true);
     if (!libFileHandler) {
         ARK_WEB_BRIDGE_ERROR_LOG("library resources loaded failed");
         return;

@@ -89,7 +89,7 @@ ARKWEB_EXPORT void PreloadArkWebLibForBrowser();
 
 ARKWEB_EXPORT void LogForUnsupportedFunc(ArkWebEngineVersion version, const char* msg);
 
-ARKWEB_EXPORT void* ArkWebBridgeHelperSharedInit(bool runMode = true);
+ARKWEB_EXPORT void* ArkWebBridgeHelperSharedInit(bool runMode, const std::string& mockBundlePath = "");
 
 ARKWEB_EXPORT void DlopenArkWebLib();
 ARKWEB_EXPORT int DlcloseArkWebLib();
