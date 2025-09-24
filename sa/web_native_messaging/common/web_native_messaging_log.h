@@ -22,37 +22,36 @@
 
 #define LOG_WEB_NATIVE_MESSAGING_DOMAIN 0xD004500
 #define WNM_HILOG_TAG  "webNativeMessaging"
-#define WNM_FILE_NAME (__builtin_strrchr("/" __FILE__, '/') + 1)
-#define WNM_FUNC_LINE_FMT "[%{public}s:%{public}d] "
+#define WNM_FUNC_FMT "%{public}s: "
 
 #define WNMLOG_D(fmt, ...) do {                                                   \
     uint32_t domain = LOG_WEB_NATIVE_MESSAGING_DOMAIN;                            \
-    HILOG_IMPL(LOG_CORE, LOG_DEBUG, domain, WNM_HILOG_TAG, WNM_FUNC_LINE_FMT fmt, \
-               WNM_FILE_NAME, __LINE__, ##__VA_ARGS__);                           \
+    HILOG_IMPL(LOG_CORE, LOG_DEBUG, domain, WNM_HILOG_TAG,                        \
+               WNM_FUNC_FMT fmt, __func__, ##__VA_ARGS__);                        \
 } while (0)
 
 #define WNMLOG_I(fmt, ...) do {                                                   \
     uint32_t domain = LOG_WEB_NATIVE_MESSAGING_DOMAIN;                            \
-    HILOG_IMPL(LOG_CORE, LOG_INFO, domain, WNM_HILOG_TAG, WNM_FUNC_LINE_FMT fmt,  \
-               WNM_FILE_NAME, __LINE__, ##__VA_ARGS__);                           \
+    HILOG_IMPL(LOG_CORE, LOG_INFO, domain, WNM_HILOG_TAG,                         \
+               WNM_FUNC_FMT fmt, __func__, ##__VA_ARGS__);                        \
 } while (0)
 
 #define WNMLOG_W(fmt, ...) do {                                                   \
     uint32_t domain = LOG_WEB_NATIVE_MESSAGING_DOMAIN;                            \
-    HILOG_IMPL(LOG_CORE, LOG_WARN, domain, WNM_HILOG_TAG, WNM_FUNC_LINE_FMT fmt,  \
-               WNM_FILE_NAME, __LINE__, ##__VA_ARGS__);                           \
+    HILOG_IMPL(LOG_CORE, LOG_WARN, domain, WNM_HILOG_TAG,                         \
+               WNM_FUNC_FMT fmt, __func__, ##__VA_ARGS__);                        \
 } while (0)
 
 #define WNMLOG_E(fmt, ...) do {                                                   \
     uint32_t domain = LOG_WEB_NATIVE_MESSAGING_DOMAIN;                            \
-    HILOG_IMPL(LOG_CORE, LOG_ERROR, domain, WNM_HILOG_TAG, WNM_FUNC_LINE_FMT fmt, \
-               WNM_FILE_NAME, __LINE__, ##__VA_ARGS__);                           \
+    HILOG_IMPL(LOG_CORE, LOG_ERROR, domain, WNM_HILOG_TAG,                        \
+               WNM_FUNC_FMT fmt, __func__, ##__VA_ARGS__);                        \
 } while (0)
 
 #define WNMLOG_F(fmt, ...) do {                                                   \
     uint32_t domain = LOG_WEB_NATIVE_MESSAGING_DOMAIN;                            \
-    HILOG_IMPL(LOG_CORE, LOG_FATAL, domain, WNM_HILOG_TAG, WNM_FUNC_LINE_FMT fmt, \
-               WNM_FILE_NAME, __LINE__, ##__VA_ARGS__);                           \
+    HILOG_IMPL(LOG_CORE, LOG_FATAL, domain, WNM_HILOG_TAG,                        \
+               WNM_FUNC_FMT fmt, __func__, ##__VA_ARGS__);                        \
 } while (0)
 
 #endif // WEB_NATIVE_MESSAGING_LOG_H
