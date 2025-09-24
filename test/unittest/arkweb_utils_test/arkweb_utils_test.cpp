@@ -442,7 +442,7 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetArkwebLibPathForMock_001, TestSize.
     std::string res;
     res = GetArkwebLibPathForMock("");
     EXPECT_EQ(res, ARK_WEB_CORE_MOCK_HAP_LIB_PATH);
-    std::string bundlePath = "/data/app/el1/bundle/public/com.huawei.hmos.arkwebcore";
+    std::string bundlePath = "/data/app/el1/bundle/public/com.ohos.arkwebcore";
     res = GetArkwebLibPathForMock(bundlePath);
     EXPECT_EQ(res, bundlePath + "/" + ARK_WEB_CORE_PATH_FOR_MOCK);
 }
