@@ -211,6 +211,42 @@ ohos_unittest("web_native_messaging_extension_context_test") {
   ]
 }
 
+ohos_unittest("web_native_messaging_extension_proxy_test") {
+  module_out_path = module_output_path
+
+  sources = [
+    "web_native_messaging_extension_proxy_test.cpp"
+  ]
+
+  include_dirs = [
+    "../common",
+    "$webview_path/interfaces/native/web_native_messaging_extension/extension/include"
+  ]
+
+  deps = [
+    "$webview_path/arkweb_utils:libarkweb_utils",
+    "$webview_path/interfaces/native:ohweb",
+    "$webview_path/ohos_nweb:web_configs",
+    "$webview_path/interfaces/native/web_native_messaging_extension/extension:connect_info",
+    "$webview_path/interfaces/native/web_native_messaging_extension/extension_client:web_extension_client",
+  ]
+
+  external_deps = [
+    "ability_runtime:app_context",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+    "graphic_2d:librender_service_client",
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "webview:libnweb",
+    "window_manager:libwm",
+    "napi:ace_napi"
+  ]
+}
+
 group("unittest") {
   testonly = true
   deps = [
@@ -220,5 +256,6 @@ group("unittest") {
     ":native_javascript_execute_callback_test",
     ":web_native_messaging_extension_context_info_test",
     ":web_native_messaging_extension_context_test",
+    ":web_native_messaging_extension_proxy_test"
   ]
 }
