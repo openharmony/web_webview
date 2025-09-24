@@ -2716,7 +2716,7 @@ static void PostMessageEvent(ani_env* env, ani_object object, ani_object message
     }
 
     ani_class arrayBufferClass;
-    if (auto status = env->FindClass("escompat.ArrayBuffer", &arrayBufferClass) != ANI_OK) {
+    if (auto status = env->FindClass("std.core.ArrayBuffer", &arrayBufferClass) != ANI_OK) {
         WVLOG_E("[WebMessagePort] Find class %{public}s failed, status is %{public}d.", "ArrayBuffer", status);
         return;
     }
@@ -4263,7 +4263,7 @@ ani_object PrecompileJavaScript(
     auto cacheOptionsPtr = AniParseUtils::ParseCacheOptions(env, cacheOptions);
 
     ani_class ArrayBufferCls;
-    env->FindClass("escompat.ArrayBuffer", &ArrayBufferCls);
+    env->FindClass("std.core.ArrayBuffer", &ArrayBufferCls);
     ani_boolean isArrayBuffer;
     std::string scriptStr;
     ani_status res = env->Object_InstanceOf(script, ArrayBufferCls, &isArrayBuffer);
