@@ -478,45 +478,43 @@ std::shared_ptr<OhosFileMapper> OhosResourceAdapterImpl::GetRawFileMapper(
 
 std::string OhosResourceAdapterImpl::GetArkWebVersion()
 {
-    const std::string hapPaths[] = {
-        "/system/app/com.ohos.arkwebcore/ArkWebCore.hap"
-    };
     const std::string packInfoPath = "pack.info";
+    std::vector<std::pair<std::string, int>> errorMessage;
 
-    for (const auto& hapPath : hapPaths) {
-        OHOS::AbilityBase::Extractor extractor(hapPath);
-        if (!extractor.Init()) {
-            WVLOG_E("Failed to initialize extractor for HAP file: %{public}s", hapPath.c_str());
-            continue;
-        }
+    std::string hapPath = GetArkWebHapPath("", errorMessage);
 
-        std::ostringstream contentStream;
-        bool ret = extractor.ExtractByName(packInfoPath, contentStream);
-        if (!ret) {
-            WVLOG_E("Failed to extract pack.info from HAP: %{public}s", hapPath.c_str());
-            continue;
-        }
-
-        std::string configContent = contentStream.str();
-        
-        Json::Value root;
-        Json::Reader reader;
-        if (!reader.parse(configContent, root)) {
-            WVLOG_E("Failed to parse pack.info from HAP: %{public}s", hapPath.c_str());
-            continue;
-        }
-
-        if (root.isMember("summary") && 
-            root["summary"].isMember("app") && 
-            root["summary"]["app"].isMember("version") && 
-            root["summary"]["app"]["version"].isMember("name")) {
-            return root["summary"]["app"]["version"]["name"].asString();
-        }
-
-        WVLOG_E("Version information not found in pack.info from HAP: %{public}s", hapPath.c_str());
+    for (const auto& err : errorMessage) {
+        WVLOG_D("%{public}s, errno(%{public}d): %{public}s", err.first.c_str(), err.second, strerror(err.second));
     }
 
-    WVLOG_E("Failed to get ArkWeb version from any of the specified paths");
+    if (hapPath.empty()) {
+        return "";
+    }
+
+    OHOS::AbilityBase::Extractor extractor(hapPath);
+    if (!extractor.Init()) {
+        return "";
+    }
+
+    std::ostringstream contentStream;
+    bool ret = extractor.ExtractByName(packInfoPath, contentStream);
+    if (!ret) {
+        return "";
+    }
+
+    std::string configContent = contentStream.str();
+    Json::Value root;
+    Json::Reader reader;
+    if (!reader.parse(configContent, root)) {
+        return "";
+    }
+
+    if (root.isMember("summary") && root["summary"].isMember("app") && root["summary"]["app"].isMember("version") &&
+        root["summary"]["app"]["version"].isMember("name")) {
+        std::string version = root["summary"]["app"]["version"]["name"].asString();
+        return version;
+    }
+
     return "";
 }
 
