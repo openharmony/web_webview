@@ -5465,7 +5465,7 @@ ani_object GetBlanklessInfoWithKey(ani_env* env, ani_object object, ani_object k
         WVLOG_E("webviewController is nullptr.");
         return nullptr;
     }
-    
+
     std::string key;
     if (!AniParseUtils::ParseString(env, keyObj, key)) {
         WVLOG_E("GetBlanklessInfoWithKey ParseString failed");
@@ -5500,7 +5500,7 @@ ani_enum_item SetBlanklessLoadingWithKey(ani_env* env, ani_object object, ani_ob
         WVLOG_E("webviewController is nullptr.");
         return nullptr;
     }
-    
+
     ani_enum_item result;
     std::string key;
     if (!AniParseUtils::ParseString(env, keyObj, key)) {
@@ -5604,6 +5604,146 @@ static void SetSoftKeyboardBehaviorMode(ani_env *env, ani_object object, ani_enu
         return;
     }
     controller->SetSoftKeyboardBehaviorMode(static_cast<int>(modeInt));
+}
+
+static ani_enum_item GetAttachState(ani_env *env, ani_object object)
+{
+    WVLOG_D("Entry GetAttachState");
+
+    ani_enum_item result = nullptr;
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return result;
+    }
+
+    auto *controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("controller is nullptr");
+        return result;
+    }
+
+    ani_enum enumType;
+    if (env->FindEnum("@ohos.web.webview.webview.ControllerAttachState", &enumType) != ANI_OK) {
+        WVLOG_E("Find enumType failed");
+        return result;
+    }
+
+    ani_int attachState = controller->GetAttachState();
+    if (env->Enum_GetEnumItemByIndex(enumType, attachState, &result) != ANI_OK) {
+        WVLOG_E("Convert attachState(%{public}d) failed", attachState);
+    }
+
+    WVLOG_I("Get attachState = %{public}d", attachState);
+    return result;
+}
+
+static void OnControllerAttachStateChange(ani_env *env, ani_object object, ani_object callback)
+{
+    WVLOG_D("Entry OnControllerAttachStateChange");
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto *controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("controller is nullptr");
+        return;
+    }
+
+    ani_boolean isUndefined = ANI_FALSE;
+    if (env->Reference_IsUndefined(callback, &isUndefined) != ANI_OK || isUndefined) {
+        WVLOG_E("Callback para error");
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+
+    if (!AniParseUtils::IsFunction(env, callback)) {
+        WVLOG_E("Callback type error");
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+
+    controller->RegisterStateChangeCallback(env, CONTROLLER_ATTACH_STATE_CHANGE, callback);
+    return;
+}
+
+static void OffControllerAttachStateChange(ani_env *env, ani_object object, ani_object callback)
+{
+    WVLOG_D("Entry OffControllerAttachStateChange");
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto *controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("controller is nullptr");
+        return;
+    }
+
+    ani_boolean isUndefined = ANI_FALSE;
+    if (env->Reference_IsUndefined(callback, &isUndefined) != ANI_OK) {
+        WVLOG_E("Callback para error");
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+
+    if (!isUndefined && !AniParseUtils::IsFunction(env, callback)) {
+        WVLOG_E("Callback type error");
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+
+    controller->UnregisterStateChangeCallback(env, CONTROLLER_ATTACH_STATE_CHANGE, isUndefined ? nullptr : callback);
+    return;
+}
+
+static ani_object WaitForAttachedPromise(ani_env *env, ani_object object, ani_int timeout)
+{
+    WVLOG_D("Entry WaitForAttachedPromise");
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+
+    auto *controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("controller is nullptr");
+        return nullptr;
+    }
+
+    ani_object promise = nullptr;
+    ani_resolver resolver = nullptr;
+    ani_status status = ANI_ERROR;
+    if ((status = env->Promise_New(&resolver, &promise)) != ANI_OK) {
+        WVLOG_E("Promise_New failed, status: %{public}d", status);
+        return nullptr;
+    }
+
+    if (promise && resolver) {
+        controller->WaitForAttachedInternal(env, timeout, resolver);
+    }
+    return promise;
+}
+
+static void SetWebDetach(ani_env *env, ani_object object, ani_int nwebId)
+{
+    WVLOG_D("Entry SetWebDetach nwebId: %{public}d", nwebId);
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto *controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("controller is nullptr");
+        return;
+    }
+
+    auto id = static_cast<int32_t>(nwebId);
+    controller->SetWebDetach(id);
+    return;
 }
 
 ani_status StsWebviewControllerInit(ani_env *env)
@@ -5772,6 +5912,13 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void*>(SetBlanklessLoadingCacheCapacity) },
         ani_native_function { "setSoftKeyboardBehaviorMode", nullptr,
                               reinterpret_cast<void *>(SetSoftKeyboardBehaviorMode) },
+        ani_native_function { "getAttachState", nullptr, reinterpret_cast<void *>(GetAttachState) },
+        ani_native_function { "onControllerAttachStateChange", nullptr,
+                              reinterpret_cast<void *>(OnControllerAttachStateChange) },
+        ani_native_function { "offControllerAttachStateChange", nullptr,
+                              reinterpret_cast<void *>(OffControllerAttachStateChange) },
+        ani_native_function { "waitForAttachedPromise", nullptr, reinterpret_cast<void *>(WaitForAttachedPromise) },
+        ani_native_function { "setWebDetach", nullptr, reinterpret_cast<void *>(SetWebDetach) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
