@@ -105,10 +105,12 @@ public:
     }
 
     // get allowed drag operation mask for current drag.
-    virtual DragOperationsMask GetAllowedDragOperation() const = 0;
+    virtual DragOperationsMask GetAllowedDragOperation() const {
+        return DragOperationsMask::DRAG_ALLOW_EVERY;
+    }
 
     // set allowed drag operation for current drag.
-    virtual void SetAllowedDragOperation(DragOperationsMask allowed_op) = 0;
+    virtual void SetAllowedDragOperation(DragOperationsMask allowed_op) {};
 };
 
 } // namespace OHOS::NWeb
