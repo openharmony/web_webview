@@ -37,13 +37,17 @@ bool AniParseUtils::ParseString(ani_env *env, ani_ref ref, std::string& outValue
     ani_size strSize;
     auto status = env->String_GetUTF8Size(str, &strSize);
     if (status != ANI_OK) {
-        WVLOG_E("AniUtils_ParseString String_GetUTF8Size status: %{public}d", status);
+        WVLOG_E("AniUtils_ParseString String_GetUTF8Size failed, status: %{public}d", status);
         return false;
     }
     std::vector<char> buffer(strSize + 1);
     char* utfBuffer = buffer.data();
     ani_size bytes_written = 0;
-    env->String_GetUTF8(str, utfBuffer, strSize + 1, &bytes_written);
+    status = env->String_GetUTF8(str, utfBuffer, strSize + 1, &bytes_written);
+    if (status != ANI_OK) {
+        WVLOG_E("AniUtils_ParseString String_GetUTF8 failed, status: %{public}d", status);
+        return false;
+    }
     utfBuffer[bytes_written] = '\0';
     outValue = std::string(utfBuffer, strSize);
     return true;
@@ -312,7 +316,7 @@ bool AniParseUtils::EnumParseInt32_t(ani_env* env, ani_enum_item enum_item, int3
         WVLOG_E("null env");
         return false;
     }
-    
+
     ani_class doubleObject;
     if (env->FindClass("Lstd/core/Object;", &doubleObject) != ANI_OK) {
         WVLOG_E("EnumParseInt32 failed - invalid FindClass type");
@@ -343,7 +347,7 @@ bool AniParseUtils::GetStringList(ani_env *env, ani_object array, std::vector<st
     }
     for (int32_t i = 0; i < static_cast<int32_t>(arrayLength); ++i) {
         ani_ref elementRef;
-        if (env->Object_CallMethodByName_Ref(array, "$_get", "I:Lstd/core/Object;", &elementRef, 
+        if (env->Object_CallMethodByName_Ref(array, "$_get", "I:Lstd/core/Object;", &elementRef,
             static_cast<ani_int>(i)) != ANI_OK) {
             WVLOG_E("Failed to get element at index %d", i);
             return false;
@@ -383,7 +387,7 @@ bool IsFormatStringOfLength(const std::string& str)
     std::regex pattern("^\\d+(px|vp|%)?$");
     return std::regex_match(str, pattern);
 }
- 
+
 bool IsNumberOfLength(const std::string& value)
 {
     if (value.empty()) {
@@ -392,7 +396,7 @@ bool IsNumberOfLength(const std::string& value)
     }
     return std::all_of(value.begin(), value.end(), [](char i) { return isdigit(i); });
 }
- 
+
 bool TransStringToInt(const std::string& str, int32_t& value)
 {
     if (str.empty()) {
@@ -408,7 +412,7 @@ bool TransStringToInt(const std::string& str, int32_t& value)
     value = static_cast<int32_t>(tempValue);
     return true;
 }
- 
+
 bool AniParseUtils::ParseJsLengthStringToInt(const std::string& input, PixelUnit& type, int32_t& value)
 {
         if (input.empty() || input.size() > MAX_STRING_TO_INT32_LENGTH) {
@@ -507,7 +511,7 @@ bool AniParseUtils::IsFunction(ani_env* env, const ani_object& object)
     }
     return isFunction;
 }
- 
+
 bool AniParseUtils::IsDouble(ani_env* env, const ani_object& object)
 {
     if (env == nullptr) {
@@ -528,7 +532,7 @@ bool AniParseUtils::IsDouble(ani_env* env, const ani_object& object)
     }
     return isDouble;
 }
- 
+
 bool AniParseUtils::IsObject(ani_env* env, const ani_object& object)
 {
     if (env == nullptr) {
@@ -549,9 +553,9 @@ bool AniParseUtils::IsObject(ani_env* env, const ani_object& object)
     }
     return isObject;
 }
- 
+
 bool AniParseUtils::CreateBoolean(ani_env *env, bool src, ani_object& aniObj)
-{   
+{
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return false;
