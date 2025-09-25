@@ -33,6 +33,8 @@ public:
     virtual void PassSurface(int64_t surface_id) = 0;
 
     virtual void DestroyRenderSurface(int32_t surface_id) = 0;
+
+    virtual void DestroyPassedSurface(int64_t surface_id) = 0;
 };
 } // namespace OHOS::NWeb
 

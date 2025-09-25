@@ -44,10 +44,12 @@ const uint32_t IPC_G2B_CODE_QUERY_WINDOW = 10002;
 const uint32_t IPC_G2B_CODE_DESTROY_WINDOW = 10003;
 const uint32_t IPC_G2B_CODE_PASS_WINDOW = 10004;
 const uint32_t IPC_G2B_CODE_QUERY_BOOL = 10005;
+const uint32_t IPC_G2B_CODE_DESTROY_PASSED_WINDOW = 10006;
 OHIPCRemoteProxy* g_remote_proxy = nullptr;
 std::shared_ptr<AafwkBrowserHostAdapter> g_browser_host_adapter = nullptr;
 std::mutex mtx;
 std::condition_variable cv;
+std::unordered_map<uint64_t, OHNativeWindow*> g_passed_window_map;
 } // namespace
 
 int AafwkAppMgrClientAdapterImpl::StartRenderProcess(
@@ -124,9 +126,37 @@ int OnRemoteRequestForGpuProcess(uint32_t code, const OHIPCParcel* data, OHIPCPa
             WVLOG_E("failed to read window");
             return -1;
         }
+        // Once received native window by OH_NativeWindow_ReadFromParcel,
+        // the relationship between window and surfaceId is established
+        // and automatically saved, so we need to do nothing here to pass
+        // the native window forward.
+        // We just need to save the native window by surfaceId, so that
+        // we can UNREF the native window when web is released, since
+        // OH_NativeWindow_ReadFromParcel has done a REF for native window.
+        uint64_t surfaceId {0};
+        int32_t ret = OH_NativeWindow_GetSurfaceId(window, &surfaceId);
+        if (ret == 0) {
+            WVLOG_D("successfully received native window from gpu process, surfaceId=%{public}llu", surfaceId);
+            g_passed_window_map.emplace(surfaceId, window);
+        }
         return 0;
     } else if (code == IPC_G2B_CODE_QUERY_BOOL) {
         return QueryBoolFromBrowserProcess(data, reply);
+    } else if (code == IPC_G2B_CODE_DESTROY_PASSED_WINDOW) {
+        // UNREF the native window passed from GPU process before.
+        int64_t surfaceId {0};
+        if (OH_IPCParcel_ReadInt64(data, &surfaceId) != 0) {
+            WVLOG_E("failed to read passed surfaceId");
+            return -1;
+        }
+        auto it = g_passed_window_map.find(surfaceId);
+        if (it != g_passed_window_map.end()) {
+            WVLOG_D("receive IPC_G2B_CODE_DESTROY_PASSED_WINDOW, surfaceId=%{public}llu", surfaceId);
+            if (OH_NativeWindow_NativeObjectUnreference(it->second) == 0) {
+                g_passed_window_map.erase(it);
+            }
+        }
+        return 0;
     } else {
         WVLOG_E("unknow code from GPU process, code=%{public}d", code);
         return -1;
@@ -257,7 +287,7 @@ int AafwkAppMgrClientAdapterImpl::StartChildProcess(
         }
         return 0;
     }
-    
+
     // for Render process
     const char* entry = "libweb_engine.so:NWebRenderMain";
 
