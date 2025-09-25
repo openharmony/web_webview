@@ -407,6 +407,8 @@ public:
 
     int32_t SetBlanklessLoadingWithKey(const std::string& key, bool isStart);
 
+    void SetSoftKeyboardBehaviorMode(int32_t mode);
+
 private:
     int ConverToWebHitTestType(int hitType);
 

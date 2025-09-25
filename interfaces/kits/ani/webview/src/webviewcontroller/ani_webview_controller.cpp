@@ -5576,6 +5576,36 @@ static void ClearBlanklessLoadingCache(ani_env* env, ani_object object, ani_obje
     NWebHelper::Instance().ClearBlanklessLoadingCache(keys);
 }
 
+static void SetSoftKeyboardBehaviorMode(ani_env *env, ani_object object, ani_enum_item mode)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    ani_boolean isUndefined = ANI_FALSE;
+    if (env->Reference_IsUndefined(mode, &isUndefined) != ANI_OK || isUndefined) {
+        return;
+    }
+
+    ani_int modeInt;
+    if (env->EnumItem_GetValue_Int(mode, &modeInt) != ANI_OK) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    if (modeInt < static_cast<int>(WebSoftKeyboardBehaviorMode::DEFAULT) ||
+            modeInt > static_cast<int>(WebSoftKeyboardBehaviorMode::DISABLE_AUTO_KEYBOARD_ON_ACTIVE)) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    controller->SetSoftKeyboardBehaviorMode(static_cast<int>(modeInt));
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     WVLOG_D("[DOWNLOAD] StsWebviewControllerInit");
@@ -5740,6 +5770,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void*>(ClearBlanklessLoadingCache) },
         ani_native_function { "setBlanklessLoadingCacheCapacity", nullptr,
                               reinterpret_cast<void*>(SetBlanklessLoadingCacheCapacity) },
+        ani_native_function { "setSoftKeyboardBehaviorMode", nullptr,
+                              reinterpret_cast<void *>(SetSoftKeyboardBehaviorMode) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());

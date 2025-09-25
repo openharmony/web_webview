@@ -47,6 +47,11 @@ export default namespace webview {
     export enum ScrollType {
         EVENT
     }
+    
+    export enum WebSoftKeyboardBehaviorMode {
+        DEFAULT = 0,
+        DISABLE_AUTO_KEYBOARD_ON_ACTIVE = 1
+    }
 
     export interface CacheOptions {
         responseHeaders: Array<WebHeader>;
@@ -861,6 +866,7 @@ export default namespace webview {
         native setBlanklessLoadingWithKey(key: string, is_start: boolean): WebBlanklessErrorCode;
         native static clearBlanklessLoadingCache(keys?: Array<string>): void;
         native static setBlanklessLoadingCacheCapacity(capacity: int): int;
+        native setSoftKeyboardBehaviorMode(mode: WebSoftKeyboardBehaviorMode): void;
     }
 
     export class WebSchemeHandlerResponse {

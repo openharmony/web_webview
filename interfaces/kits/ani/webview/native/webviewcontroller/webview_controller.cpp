@@ -1950,6 +1950,11 @@ void WebviewController::SetScrollable(bool enable, int32_t scrollType)
     return setting->SetScrollable(enable, scrollType);
 }
 
+void WebviewController::SetSoftKeyboardBehaviorMode(int32_t mode)
+{
+    NWebHelper::Instance().SetSoftKeyboardBehaviorMode(static_cast<WebSoftKeyboardBehaviorMode>(mode));
+}
+
 void WebMessageExt::SetType(int type)
 {
     type_ = type;
