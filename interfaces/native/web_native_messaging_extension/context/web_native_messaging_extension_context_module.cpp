@@ -23,7 +23,7 @@ extern const char _binary_web_native_messaging_extension_context_abc_end[];
 static napi_module _module = {
     .nm_version = 0,
     .nm_filename = "libwebnativemessagingextensioncontext_napi.z.so/web_native_messaging_extension_context.js",
-    .nm_modname = "web.webNativeMessagingExtensionContext",
+    .nm_modname = "web.WebNativeMessagingExtensionContext",
 };
 
 extern "C" __attribute__((constructor))
@@ -33,7 +33,7 @@ void NAPI_WebNativeMessagingExtensionContext_AutoRegister()
 }
 
 extern "C" __attribute__((visibility("default")))
-void NAPI_web_webNativeMessagingExtensionContext_GetJSCode(const char **buf, int *bufLen)
+void NAPI_web_WebNativeMessagingExtensionContext_GetJSCode(const char **buf, int *bufLen)
 {
     if (buf != nullptr) {
         *buf = _binary_web_native_messaging_extension_context_js_start;
@@ -46,7 +46,7 @@ void NAPI_web_webNativeMessagingExtensionContext_GetJSCode(const char **buf, int
 }
 
 extern "C" __attribute__((visibility("default")))
-void NAPI_web_webNativeMessagingExtensionContext_GetABCCode(const char **buf, int *bufLen)
+void NAPI_web_WebNativeMessagingExtensionContext_GetABCCode(const char **buf, int *bufLen)
 {
     if (buf != nullptr) {
         *buf = _binary_web_native_messaging_extension_context_abc_start;

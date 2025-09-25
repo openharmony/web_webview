@@ -42,7 +42,7 @@ napi_value AttachWebNativeMessagingExtensionContext(napi_env env, void* value, v
         return nullptr;
     }
     napi_value object = CreateJsWebNativeMessagingExtensionContext(env, ptr);
-    auto sysModule = JsRuntime::LoadSystemModuleByEngine(env, "web.webNativeMessagingExtensionContext", &object, 1);
+    auto sysModule = JsRuntime::LoadSystemModuleByEngine(env, "web.WebNativeMessagingExtensionContext", &object, 1);
     if (sysModule == nullptr) {
         WNMLOG_E("null sysModule");
         return nullptr;
@@ -127,7 +127,7 @@ void JsWebNativeMessagingExtension::BindContext(napi_env env, napi_value obj)
     }
     napi_value contextObj = CreateJsWebNativeMessagingExtensionContext(env, context);
     shellContextRef_ =
-        JsRuntime::LoadSystemModuleByEngine(env, "web.webNativeMessagingExtensionContext", &contextObj, ARGC_ONE);
+        JsRuntime::LoadSystemModuleByEngine(env, "web.WebNativeMessagingExtensionContext", &contextObj, ARGC_ONE);
     if (shellContextRef_ == nullptr) {
         WNMLOG_E("null shellContextRef");
         return;
