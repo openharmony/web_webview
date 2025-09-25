@@ -44,6 +44,7 @@ ohos_unittest("system_properties_adapter_test") {
     "libxml2:libxml2",
     "webview:libnweb",
     "ability_runtime:ability_connect_callback_stub",
+    "bundle_framework:appexecfwk_core",
   ]
 }
 
