@@ -781,6 +781,13 @@ public:
     void OnDetectedBlankScreen(
         const ArkWebString& url, int32_t blankScreenReason, int32_t detectedContentfulNodesCount) override;
 
+    /**
+     * @brief Update focus status to textFieldManager and VirtualKeyBoardShow to webpattern.
+     *
+     * @param showkeyboard The status of showkeyboard.
+     */
+    void UpdateTextFieldStatus(bool isShowKeyboard, bool isAttachIME) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };

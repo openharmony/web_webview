@@ -1170,4 +1170,9 @@ void ArkWebHandlerImpl::OnDetectedBlankScreen(
     nweb_handler_->OnDetectedBlankScreen(
         ArkWebStringStructToClass(url), blankScreenReason, detectedContentfulNodesCount);
 }
+
+void ArkWebHandlerImpl::UpdateTextFieldStatus(bool isShowKeyboard, bool isAttachIME)
+{
+    nweb_handler_->UpdateTextFieldStatus(isShowKeyboard, isAttachIME);
+}
 } // namespace OHOS::ArkWeb

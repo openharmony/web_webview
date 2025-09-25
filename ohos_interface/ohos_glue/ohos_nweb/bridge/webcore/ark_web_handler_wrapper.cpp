@@ -1349,4 +1349,9 @@ void ArkWebHandlerWrapper::OnDetectedBlankScreen(
 
     ArkWebStringStructRelease(stUrl);
 }
+
+void ArkWebHandlerWrapper::UpdateTextFieldStatus(bool isShowKeyboard, bool isAttachIME)
+{
+    ark_web_handler_->UpdateTextFieldStatus(isShowKeyboard, isAttachIME);
+}
 } // namespace OHOS::ArkWeb

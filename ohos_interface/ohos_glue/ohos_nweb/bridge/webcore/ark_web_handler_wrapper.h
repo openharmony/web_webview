@@ -819,6 +819,14 @@ public:
     void OnDetectedBlankScreen(
         const std::string& url, int32_t blankScreenReason, int32_t detectedContentfulNodesCount) override;
 
+    /**
+     * @brief Update focus status to textFieldManager and VirtualKeyBoardStates to webpattern.
+     *
+     * @param isShowKeyboard The status of VirtualKeyBoardStates.
+     * @param isAttachIME The status of attach to inputmethod.
+     */
+    virtual UpdateTextFieldStatus(bool isShowKeyboard, bool isAttachIME) override;
+
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };
