@@ -825,7 +825,7 @@ public:
      * @param isShowKeyboard The status of VirtualKeyBoardStates.
      * @param isAttachIME The status of attach to inputmethod.
      */
-    virtual UpdateTextFieldStatus(bool isShowKeyboard, bool isAttachIME) override;
+    void UpdateTextFieldStatus(bool isShowKeyboard, bool isAttachIME) override;
 
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
