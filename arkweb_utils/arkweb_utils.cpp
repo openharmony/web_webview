@@ -26,7 +26,7 @@
 #include <iomanip>
 
 #if (defined(webview_arm64) && !defined(ASAN_DETECTOR))
-#include "ace_forward_compatibility.h"
+#include <sys/mount.h>
 #endif
 
 namespace OHOS::ArkWeb {
@@ -105,6 +105,7 @@ const int MAX_DLCLOSE_COUNT = 10;
 const std::string LIB_ARKWEB_ENGINE = "libarkweb_engine.so";
 const std::string PERSIST_ARKWEBCORE_PACKAGE_NAME = "persist.arkwebcore.package_name";
 const std::string EL1_BUNDLE_PUBLIC = "/data/app/el1/bundle/public/";
+const std::string SANDBOX_REAL_PATH = "/data/storage/el1/bundle/arkwebcore";
 #endif
 
 // 前向声明
@@ -589,23 +590,52 @@ void* ArkWebBridgeHelperSharedInit(bool runMode)
     return libFileHandler;
 }
 
+#if (defined(webview_arm64) && !defined(ASAN_DETECTOR))
+bool CreateRealSandboxPath()
+{
+    namespace fs = std::filesystem;
+    if (fs::exists(SANDBOX_REAL_PATH)) {
+        WVLOG_I("CreateRealSandboxPath %{public}s already exists", SANDBOX_REAL_PATH.c_str());
+        return true;
+    }
+
+    if (fs::create_directories(SANDBOX_REAL_PATH)) {
+        return true;
+    }
+
+    WVLOG_E("CreateRealSandboxPath create_directories failed");
+    return false;
+}
+
+#endif
 void DlopenArkWebLib()
 {
 #if (defined(webview_arm64) && !defined(ASAN_DETECTOR))
     const std::string bundleName = OHOS::system::GetParameter(PERSIST_ARKWEBCORE_PACKAGE_NAME, "");
-    const std::string arkwebLibPath = EL1_BUNDLE_PUBLIC + bundleName + "/" + ARK_WEB_CORE_PATH_FOR_MOCK +
-        ":" + ARK_WEB_CORE_HAP_LIB_PATH;
-    WVLOG_I("DlopenArkWebLib arkwebLibPath: %{public}s", arkwebLibPath.c_str());
-    void* libFileHandler = ArkWebBridgeHelperLoadLibFile(
+    if (bundleName.empty()) {
+        WVLOG_E("DlopenArkWebLib bundleName is null");
+        return;
+    }
+
+    if (!CreateRealSandboxPath()) {
+        return;
+    }
+
+    const std::string realPath = EL1_BUNDLE_PUBLIC + bundleName;
+    WVLOG_I("DlopenArkWebLib realPath: %{public}s, SANDBOX_REAL_PATH: %{public}s",
+        realPath.c_str(),
+        SANDBOX_REAL_PATH.c_str());
+    if (mount(realPath.c_str(), SANDBOX_REAL_PATH.c_str(), nullptr, MS_BIND | MS_REC, nullptr) != 0) {
+        WVLOG_E("DlopenArkWebLib mount error: %{public}s", strerror(errno));
+        return;
+    }
+
+    ArkWebBridgeHelperLoadLibFile(
         RTLD_NOW | RTLD_GLOBAL,
         "nweb_ns",
-        arkwebLibPath.c_str(),
+        ARK_WEB_CORE_HAP_LIB_PATH.c_str(),
         LIB_ARKWEB_ENGINE.c_str()
     );
-    if (libFileHandler != nullptr) {
-        WVLOG_I("DlopenArkWebLib Start reclaim file cache");
-        OHOS::Ace::AceForwardCompatibility::ReclaimFileCache(getpid());
-    }
 #endif
 }
 

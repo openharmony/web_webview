@@ -58,7 +58,6 @@ ohos_shared_library("libarkweb_utils") {
     "init:libbegetutil",
     "hilog:libhilog",
     "jsoncpp:jsoncpp",
-    "ace_engine:ace_forward_compatibility",
   ]
 
   include_dirs = [
