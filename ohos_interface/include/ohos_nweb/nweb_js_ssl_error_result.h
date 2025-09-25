@@ -33,6 +33,10 @@ public:
      * @brief Handle the result if the user cancelled the url request.
      */
     virtual void HandleCancel() = 0;
+    /**
+     * @brief Handle the result if the user cancelled the url request.
+     */
+    virtual void HandleCancelV2(bool abortLoading) {}
 };
 
 class OHOS_NWEB_EXPORT NWebJSAllSslErrorResult {
