@@ -58,7 +58,7 @@ private:
     };
 
 private:
-    std::function<void()> deathCallback_;
+    std::function<void()> deathCallback_ = nullptr;
     std::condition_variable loadSaCondition_;
     std::mutex loadSaMutex_;
     bool loadSaFinished_ { false };
