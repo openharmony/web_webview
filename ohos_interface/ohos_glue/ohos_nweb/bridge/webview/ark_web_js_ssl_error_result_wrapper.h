@@ -40,6 +40,11 @@ public:
      */
     void HandleConfirm() override;
 
+    /**
+     * @brief Handle the result if the user cancelled the url request.
+     */
+    void HandleCancelV2(bool abortLoading) override;
+
 private:
     ArkWebRefPtr<ArkWebJsSslErrorResult> ark_web_js_ssl_error_result_;
 };

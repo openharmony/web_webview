@@ -34,6 +34,11 @@ void ArkWebJsSslErrorResultImpl::HandleConfirm()
     nweb_js_ssl_error_result_->HandleConfirm();
 }
 
+void ArkWebJsSslErrorResultImpl::HandleCancelV2(bool abortLoading)
+{
+    nweb_js_ssl_error_result_->HandleCancelV2(abortLoading);
+}
+
 ArkWebJsAllSslErrorResultImpl::ArkWebJsAllSslErrorResultImpl(
     std::shared_ptr<OHOS::NWeb::NWebJSAllSslErrorResult> nweb_js_all_ssl_error_result)
     : nweb_js_all_ssl_error_result_(nweb_js_all_ssl_error_result)
