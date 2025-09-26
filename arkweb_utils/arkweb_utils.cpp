@@ -386,11 +386,6 @@ ArkWebEngineVersion CalculateActiveWebEngineVersion()
         return static_cast<ArkWebEngineVersion>(ArkWebEngineType::EVERGREEN);
     }
 
-    if (webEngineDefault == static_cast<int>(ArkWebEngineVersion::M114) &&
-      g_appBundleName == "com.example.app2") {
-        return static_cast<ArkWebEngineVersion>(ArkWebEngineType::EVERGREEN);
-    }
-
     return static_cast<ArkWebEngineVersion>(webEngineDefault);
 }
 
