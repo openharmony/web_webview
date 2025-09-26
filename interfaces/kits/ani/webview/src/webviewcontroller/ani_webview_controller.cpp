@@ -6153,7 +6153,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         return ANI_ERROR;
     }
     std::array controllerMethods = {
-        ani_native_function { "<ctor>", nullptr, reinterpret_cast<void *>(Constructor) },
+        ani_native_function { "<ctor>", "C{std.core.String}:", reinterpret_cast<void *>(Constructor) },
         ani_native_function { "_setNWebId", nullptr, reinterpret_cast<void *>(SetNWebId) },
         ani_native_function { "_setHapPath", nullptr, reinterpret_cast<void *>(SetHapPath) },
         ani_native_function { "loadUrl", nullptr, reinterpret_cast<void *>(LoadUrl) },
@@ -6265,8 +6265,6 @@ ani_status StsWebviewControllerInit(ani_env *env)
             "runJavaScriptPromiseExt", "C{std.core.Function2}:", reinterpret_cast<void *>(RunJavaScriptPromiseExt) },
         ani_native_function { "setBackForwardCacheOptions", nullptr,
                               reinterpret_cast<void *>(SetBackForwardCacheOptions) },
-        ani_native_function { "setAppCustomUserAgent", nullptr, reinterpret_cast<void *>(SetAppCustomUserAgent) },
-        ani_native_function { "setUserAgentForHosts", nullptr, reinterpret_cast<void *>(SetUserAgentForHosts) },
         ani_native_function {
             "storeWebArchiveCallback", "C{std.core.Function2}:", reinterpret_cast<void *>(StoreWebArchiveCallback) },
         ani_native_function {
@@ -6318,6 +6316,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function {
             "setWebDebuggingAccessAndPort", nullptr, reinterpret_cast<void*>(SetWebDebuggingAccessAndPort) },
         ani_native_function { "enableBackForwardCache", nullptr, reinterpret_cast<void *>(EnableBackForwardCache) },
+        ani_native_function { "setAppCustomUserAgent", nullptr, reinterpret_cast<void *>(SetAppCustomUserAgent) },
+        ani_native_function { "setUserAgentForHosts", nullptr, reinterpret_cast<void *>(SetUserAgentForHosts) },
     };
     status = env->Class_BindStaticNativeMethods(webviewControllerCls, controllerStaticMethods.data(),
         controllerStaticMethods.size());

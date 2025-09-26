@@ -360,13 +360,21 @@ ani_status StsWebSchemeHandlerRequestInit(ani_env* env)
         ani_native_function { "isMainFrame", nullptr, reinterpret_cast<void*>(IsMainFrame) },
         ani_native_function { "getHttpBodyStream", nullptr, reinterpret_cast<void *>(GetHttpBodyStream) },
         ani_native_function { "getRequestMethod", nullptr, reinterpret_cast<void*>(GetRequestMethod) },
-        ani_native_function { "transferWebSchemeHandlerRequestToStaticInner",
-                              nullptr, reinterpret_cast<void*>(TransferWebSchemeHandlerRequestToStaticInner) },
     };
-
     status = env->Class_BindNativeMethods(WebSchemeHandlerRequestCls, allMethods.data(), allMethods.size());
     if (status != ANI_OK) {
         WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+        return status;
+    }
+
+    std::array allStaticMethods = {
+        ani_native_function { "transferWebSchemeHandlerRequestToStaticInner",
+                              nullptr, reinterpret_cast<void*>(TransferWebSchemeHandlerRequestToStaticInner) },
+    };
+    status = env->Class_BindStaticNativeMethods(WebSchemeHandlerRequestCls,
+        allStaticMethods.data(), allStaticMethods.size());
+    if (status != ANI_OK) {
+        WVLOG_E("Class_BindStaticNativeMethods failed status: %{public}d", status);
     }
     return ANI_OK;
 }

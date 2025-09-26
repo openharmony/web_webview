@@ -202,13 +202,20 @@ ani_status StsWebSchemeHandlerResourceInit(ani_env* env)
         ani_native_function { "didReceiveResponse", nullptr, reinterpret_cast<void*>(JSDidReceiveResponse) },
         ani_native_function { "didFail", nullptr, reinterpret_cast<void*>(JsDidFailWithError) },
         ani_native_function { "didReceiveResponseBody", nullptr, reinterpret_cast<void*>(JsDidReceiveResponseBody) },
-        ani_native_function { "transferWebResourceHandlerToStaticInner",
-                              nullptr, reinterpret_cast<void*>(TransferWebResourceHandlerToStaticInner) },
     };
-
     status = env->Class_BindNativeMethods(WebResourceCls, allMethods.data(), allMethods.size());
     if (status != ANI_OK) {
         WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+        return status;
+    }
+
+    std::array allStaticMethods = {
+        ani_native_function { "transferWebResourceHandlerToStaticInner",
+                              nullptr, reinterpret_cast<void*>(TransferWebResourceHandlerToStaticInner) },
+    };
+    status = env->Class_BindStaticNativeMethods(WebResourceCls, allStaticMethods.data(), allStaticMethods.size());
+    if (status != ANI_OK) {
+        WVLOG_E("Class_BindStaticNativeMethods failed status: %{public}d", status);
     }
     return ANI_OK;
 }
