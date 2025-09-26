@@ -525,6 +525,8 @@ static void Clean(ani_env *env, ani_object object)
         delete reinterpret_cast<WebHttpBodyStream*>(ptr);
     } else if (clsName == "PrintDocumentAdapterInner") {
         delete reinterpret_cast<WebPrintDocument*>(ptr);
+    } else if (clsName == "WebJsMessageExt") {
+        delete reinterpret_cast<WebJsMessageExt*>(ptr);
     } else {
         WVLOG_E("Clean unsupport className: %{public}s", clsName.c_str());
     }
@@ -5893,8 +5895,8 @@ static void ParsePrintRangeAdapter(ani_env* env, ani_object pageRange, PrintAttr
         WVLOG_E("ParsePrintRangeAdapter failed.");
         return;
     }
-    ani_int startPage = 0;
-    ani_int endPage = 0;
+    int startPage = 0;
+    int endPage = 0;
     ani_ref pages = nullptr;
     if (env->Object_GetPropertyByName_Int(pageRange, "startPage", &startPage) != ANI_OK) {
         WVLOG_E("ParsePrintRangeAdapter failed to get startPage");
@@ -5945,8 +5947,8 @@ static void ParsePrintPageSizeAdapter(ani_env* env, ani_object pageSize, PrintAt
         return;
     }
 
-    ani_int width = 0;
-    ani_int height = 0;
+    int width = 0;
+    int height = 0;
     if (env->Object_GetPropertyByName_Int(pageSize, "width", &width) != ANI_OK) {
         WVLOG_E("ParsePrintPageSizeAdapter failed to get width");
     }
@@ -5971,10 +5973,10 @@ static void ParsePrintMarginAdapter(ani_env* env, ani_object margin, PrintAttrib
         return;
     }
 
-    ani_int top = 0;
-    ani_int bottom = 0;
-    ani_int left = 0;
-    ani_int right = 0;
+    int top = 0;
+    int bottom = 0;
+    int left = 0;
+    int right = 0;
     if (env->Object_GetPropertyByName_Int(margin, "top", &top) != ANI_OK) {
         WVLOG_D("ParsePrintMarginAdapter failed to get top");
     }

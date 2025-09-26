@@ -95,6 +95,10 @@ ani_object JSInitialize(ani_env* env, ani_object object)
         return nullptr;
     }
     auto* stream = reinterpret_cast<WebHttpBodyStream*>(AniParseUtils::Unwrap(env, object));
+    if (!stream) {
+        WVLOG_E("stream is null");
+        return ANI_FALSE;
+    }
     ani_resolver deferred {};
     ani_object promise {};
     ani_status status = env->Promise_New(&deferred, &promise);

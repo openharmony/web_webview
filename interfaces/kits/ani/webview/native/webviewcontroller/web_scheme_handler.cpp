@@ -104,8 +104,17 @@ WebSchemeHandler::WebSchemeHandler(ani_env* env) : vm_(nullptr)
 WebSchemeHandler::~WebSchemeHandler()
 {
     WVLOG_D("WebSchemeHandler::~WebSchemeHandler");
-    GetEnv()->GlobalReference_Delete(request_start_callback_);
-    GetEnv()->GlobalReference_Delete(request_stop_callback_);
+    ani_env* env = GetEnv();
+    if (env && request_start_callback_ && request_stop_callback_) {
+        if (env->GlobalReference_Delete(request_start_callback_) != ANI_OK) {
+            WVLOG_E("delete reference obj fail");
+            return;
+        }
+        if (env->GlobalReference_Delete(request_stop_callback_) != ANI_OK) {
+            WVLOG_E("delete reference obj fail");
+            return;
+        }
+    }
     ArkWeb_SchemeHandler* handler = const_cast<ArkWeb_SchemeHandler*>(GetArkWebSchemeHandler(this));
     if (!handler) {
         WVLOG_E("~WebSchemeHandler not found ArkWeb_SchemeHandler");
@@ -466,6 +475,10 @@ void WebHttpBodyStream::Read(int bufLen, ani_ref jsCallback, ani_resolver readRe
         return;
     }
     OH_ArkWebHttpBodyStream_Read(stream_, buffer, bufLen);
+    if (buffer) {
+        delete[] buffer;
+        buffer = nullptr;
+    }
 }
 
 void WebHttpBodyStream::ExecuteInit(ArkWeb_NetError result)

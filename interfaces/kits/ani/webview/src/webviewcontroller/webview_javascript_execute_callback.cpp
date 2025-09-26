@@ -174,8 +174,8 @@ static void UvAfterWorkCbPromise(
     WebviewJavaScriptExecuteCallback* jsObj, std::shared_ptr<NWebMessage> result, std::vector<ani_ref>& resultRef)
 {
     WVLOG_D("enter UvAfterWorkCbPromise");
-    ani_env* env;
-    if (!jsObj || !(env = jsObj->GetEnv())) {
+    ani_env* env = jsObj->GetEnv();
+    if (!env || !jsObj) {
         WVLOG_E("env or jsObj is nullptr");
         return;
     }
