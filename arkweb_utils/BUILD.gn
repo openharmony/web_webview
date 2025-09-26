@@ -26,7 +26,6 @@ ohos_shared_library("libarkweb_utils") {
 
   sources = [
     "arkweb_utils.cpp",
-    "arkweb_preload.cpp",
   ]
 
   sources += ["arkweb_preload_common.cpp"]

@@ -249,6 +249,11 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_DlcloseArkWebLib_001, TestSize.Level1)
     int ret = DlcloseArkWebLib();
     EXPECT_EQ(ret, 0);
 }
+
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_CreateRealSandboxPath_001, TestSize.Level1) {
+    int res = CreateRealSandboxPath();
+    EXPECT_TRUE(res);
+}
 #endif
 
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ProcessDefaultParam_001, TestSize.Level1)
