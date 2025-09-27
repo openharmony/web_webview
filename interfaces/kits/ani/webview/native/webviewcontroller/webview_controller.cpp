@@ -233,6 +233,7 @@ void WebviewController::SetWebDetach(int32_t nwebId)
     }
 
     if (attachState_ != AttachState::NOT_ATTACHED) {
+        std::unique_lock<std::mutex> attachLock(attachMtx_);
         attachState_ = AttachState::NOT_ATTACHED;
         TriggerStateChangeCallback(CONTROLLER_ATTACH_STATE_CHANGE);
     }
