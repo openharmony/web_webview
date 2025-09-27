@@ -43,6 +43,7 @@ ohos_shared_library("webview_ani") {
     "../../../native",
     "../../../../ohos_adapter/ohos_resource_adapter/include",
     "../../../../ohos_adapter/system_properties_adapter/include",
+    "../../../../ohos_interface/ohos_glue/base/include",
   ]
 
   sources = [
@@ -123,6 +124,7 @@ ohos_shared_library("webview_ani") {
     "../../../../ohos_nweb:libnweb",
     "../../../native:ohweb",
     "../../napi/protos:proto_gen",
+    "../../../../ohos_glue:ohos_base_glue_source",
     "//base/web/webview/arkweb_utils:libarkweb_utils",
   ]
   external_deps = [

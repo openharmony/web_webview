@@ -18,6 +18,7 @@
 #pragma once
 
 #include "include/nweb.h"
+#include "include/nweb_snapshot_callback.h"
 #include "ohos_nweb/include/ark_web_nweb.h"
 
 namespace OHOS::ArkWeb {
@@ -1830,6 +1831,23 @@ public:
      */
     void SetBlankScreenDetectionConfig(bool enable, const std::vector<double>& detectionTiming,
         const std::vector<int32_t>& detectionMethods, int32_t contentfulNodesCountThreshold) override;
+
+    /**
+     * @brief Get Web page snapshot V2
+     *
+     * @param id Request id.
+     * @param type Request snapshot pixel unit.
+     * @param width Request SnapShot width.
+     * @param height Request SnapShot height.
+     * @param callback SnapShot result callback.
+     * @return ture if succuess request snapshot to renderer.
+     */
+    /*--ark web()--*/
+    bool WebPageSnapshotV2(const char* id,
+                           ArkPixelUnit type,
+                           int width,
+                           int height,
+                           std::shared_ptr<OHOS::NWeb::NWebSnapshotCallback> callback) override;
 
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
