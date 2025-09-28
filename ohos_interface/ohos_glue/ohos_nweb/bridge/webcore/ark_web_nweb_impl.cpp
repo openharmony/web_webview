@@ -1618,4 +1618,10 @@ bool ArkWebNWebImpl::WebPageSnapshotV2(const char* id,
     return nweb_nweb_->WebPageSnapshotV2(id, static_cast<ArkPixelUnit>(type), width, height,
                                          std::make_shared<ArkWebSnapshotCallbackWrapper>(callback));
 }
+
+void ArkWebNWebImpl::StopFling()
+{
+    WVLOG_D("ArkWebNWebImpl::StopFling");
+    nweb_nweb_->StopFling();
+}
 } // namespace OHOS::ArkWeb

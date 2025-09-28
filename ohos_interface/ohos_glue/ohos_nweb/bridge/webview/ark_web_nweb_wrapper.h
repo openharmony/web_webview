@@ -1849,6 +1849,12 @@ public:
                            int height,
                            std::shared_ptr<OHOS::NWeb::NWebSnapshotCallback> callback) override;
 
+    /**
+     * @brief Set web should stop fling.
+     */
+    /*--ark web()--*/
+    void StopFling() override;
+
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };
