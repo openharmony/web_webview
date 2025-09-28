@@ -598,6 +598,13 @@ export default namespace webview {
         }
     }
 
+    export enum ArkWebEngineVersion {
+        SYSTEM_DEFAULT = 0,
+        ARKWEB_M114 = 1,
+        ARKWEB_M132 = 2,
+        ARKWEB_EVERGREEN = 99999
+    }
+
     export class WebviewController {
         static {
             loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
