@@ -149,6 +149,9 @@ public:
     virtual double GetX() = 0;
     virtual double GetY() = 0;
     virtual DragAction GetAction() = 0;
+    virtual OHOS::NWeb::NWebDragData::DragOperation GetDragOperation() const = 0;
+    virtual OHOS::NWeb::NWebDragData::DragOperationsMask GetAllowedDragOperation() const = 0;
+    virtual bool IsDragOpValid() const = 0;
 };
 
 enum class BlurReason : int32_t {
@@ -324,6 +327,11 @@ using WebSnapshotCallback = std::function<void(const char*, bool, float, void*, 
 enum class SystemThemeFlags : uint8_t {
     NONE = 0,
     THEME_FONT = 1 << 0,
+};
+
+enum class WebSoftKeyboardBehaviorMode : int32_t {
+    DEFAULT = 0,
+    DISABLE_AUTO_KEYBOARD_ON_ACTIVE,
 };
 
 class NWebSystemConfiguration {
@@ -2156,6 +2164,18 @@ public:
      */
     /*--ark web()--*/
     virtual void SetForceEnableZoom(bool forceEnableZoom) const {}
+
+    /**
+     * @brief Set the config for blank screen detection.
+     *
+     * @param enable Whether the blank screen detection is enabled.
+     * @param detectionTiming The timing of the blank screen detection.
+     * @param detectionMethods The methods of the blank screen detection.
+     * @param contentfulNodesCountThreshold The contentful nodes count threshold of the blank screen detection.
+     */
+    virtual void SetBlankScreenDetectionConfig(bool enable, const std::vector<double>& detectionTiming,
+        const std::vector<int32_t>& detectionMethods, int32_t contentfulNodesCountThreshold)
+    {}
 };
 
 } // namespace OHOS::NWeb

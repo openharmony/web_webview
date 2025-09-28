@@ -1360,6 +1360,24 @@ public:
      * @param delayTime The delayTime for web client to remove blankless frame.
      */
     virtual void OnRemoveBlanklessFrameWithAnimation(int delayTime) {}
+
+    /**
+     * @brief Notify a detected blank screen.
+     *
+     * @param url The url of the blank screen.
+     * @param blankScreenReason The reason of the blank screen.
+     * @param detectedContentfulNodesCount The detected contentful nodes count of the blank screen.
+     */
+    virtual void OnDetectedBlankScreen(
+        const std::string& url, int32_t blankScreenReason, int32_t detectedContentfulNodesCount)
+    {}
+
+    /**
+     * @brief Update focus status to textFieldManager and VirtualKeyBoardShow to webpattern.
+     *
+     * @param showkeyboard The status of showkeyboard.
+     */
+    virtual void UpdateTextFieldStatus(bool isShowKeyboard, bool isAttachIME) {}
 };
 
 } // namespace OHOS::NWeb

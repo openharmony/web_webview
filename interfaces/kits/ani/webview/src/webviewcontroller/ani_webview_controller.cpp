@@ -77,6 +77,7 @@
 #include "ani_web_scheme_handler_request.h"
 #include "web_scheme_handler_request.h"
 #include "arkweb_scheme_handler.h"
+#include "arkweb_utils.h"
 #include "system_properties_adapter_impl.h"
 
 namespace OHOS {
@@ -87,6 +88,8 @@ bool g_inWebPageSnapshot = false;
 namespace {
 constexpr int32_t RESULT_COUNT = 2;
 ani_vm *g_vm = nullptr;
+constexpr int32_t MIN_SOCKET_IDLE_TIMEOUT = 30;
+constexpr int32_t MAX_SOCKET_IDLE_TIMEOUT = 300;
 constexpr size_t MAX_URL_TRUST_LIST_STR_LEN = 10 * 1024 * 1024; // 10M
 constexpr uint32_t SOCKET_MAXIMUM = 6;
 constexpr size_t MAX_RESOURCES_COUNT = 30;
@@ -3292,6 +3295,25 @@ void OnCreateNativeMediaPlayer(ani_env* env, ani_object object, ani_fn_object ca
     controller->OnCreateNativeMediaPlayer(g_vm, callback);
 }
 
+static void AvoidVisibleViewportBottom(ani_env* env, ani_object object, ani_int avoidHeight)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    ErrCode ret = controller->AvoidVisibleViewportBottom(avoidHeight);
+    if (ret != NO_ERROR) {
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+    }
+    return;
+}
+
 bool ParseJsLengthDoubleToInt(ani_env* env, ani_ref ref, int32_t& outValue)
 {
     if (!env) {
@@ -5255,6 +5277,161 @@ static ani_object GetCertificateSync(ani_env* env, ani_object object)
     return certificateObj;
 }
 
+static void SetSocketIdleTimeout(ani_env* env, ani_object object, ani_int timeout)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_E("SetSocketIdleTimeout unsupported engine version: M114");
+        return;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    int32_t socketIdleTimeout =
+        std::clamp(static_cast<int32_t>(timeout), MIN_SOCKET_IDLE_TIMEOUT, MAX_SOCKET_IDLE_TIMEOUT);
+    NWebHelper::Instance().SetSocketIdleTimeout(socketIdleTimeout);
+}
+
+static ani_int GetProgress(ani_env* env, ani_object object)
+{
+    ani_int progress = 0;
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_E("GetProgress unsupported engine version: M114");
+        return progress;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return progress;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        WVLOG_E("GetProgress: get controller failed");
+        return progress;
+    }
+    return static_cast<ani_int>(controller->GetProgress());
+}
+
+static void SetAppCustomUserAgent(ani_env* env, ani_object object, ani_object aniUA)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_E("SetAppCustomUserAgent unsupported engine version: M114");
+        return;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    std::string userAgent;
+    if (!AniParseUtils::ParseString(env, aniUA, userAgent)) {
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "userAgent", "string"));
+        return;
+    }
+    NWebHelper::Instance().SetAppCustomUserAgent(userAgent);
+}
+
+static void SetUserAgentForHosts(ani_env* env, ani_object object, ani_object aniUA, ani_object aniHosts)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_E("SetUserAgentForHosts unsupported engine version: M114");
+        return;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    std::string userAgent;
+    if (!AniParseUtils::ParseString(env, aniUA, userAgent)) {
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "userAgent", "string"));
+        return;
+    }
+    std::vector<std::string> hosts;
+    if (!AniParseUtils::ParseStringArray(env, aniHosts, hosts)) {
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "hosts", "array"));
+        return;
+    }
+    NWebHelper::Instance().SetUserAgentForHosts(userAgent, hosts);
+}
+
+static void EnablePrivateNetworkAccess(ani_env* env, ani_object object, ani_boolean aniEnable)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_E("EnablePrivateNetworkAccess unsupported engine version: M114");
+        return;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    WVLOG_D("EnablePrivateNetworkAccess start");
+    bool enable = static_cast<bool>(aniEnable);
+    NWebHelper::Instance().EnablePrivateNetworkAccess(enable);
+}
+
+static ani_boolean IsPrivateNetworkAccessEnabled(ani_env* env, ani_object object)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_E("IsPrivateNetworkAccessEnabled unsupported engine version: M114");
+        return ANI_FALSE;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+
+    WVLOG_D("IsPrivateNetworkAccessEnabled start");
+    return static_cast<ani_boolean>(NWebHelper::Instance().IsPrivateNetworkAccessEnabled());
+}
+
+static void SetErrorPageEnabled(ani_env* env, ani_object object, ani_boolean aniEnable)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_E("SetErrorPageEnabled unsupported engine version: M114");
+        return;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    WVLOG_D("SetErrorPageEnabled start");
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    bool enable = static_cast<bool>(aniEnable);
+    ErrCode ret = controller->SetErrorPageEnabled(enable);
+    if (ret != NO_ERROR) {
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+    }
+}
+
+static ani_boolean GetErrorPageEnabled(ani_env* env, ani_object object)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_E("GetErrorPageEnabled unsupported engine version: M114");
+        return ANI_FALSE;
+    }
+
+    WVLOG_D("GetErrorPageEnabled start");
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return ANI_FALSE;
+    }
+
+    return static_cast<ani_boolean>(controller->GetErrorPageEnabled());
+}
+
 ani_object CreateBlanklessInfo(ani_env* env, int32_t errCode, double similarity, int32_t loadingTime)
 {
     ani_object result = {};
@@ -5288,7 +5465,7 @@ ani_object GetBlanklessInfoWithKey(ani_env* env, ani_object object, ani_object k
         WVLOG_E("webviewController is nullptr.");
         return nullptr;
     }
-    
+
     std::string key;
     if (!AniParseUtils::ParseString(env, keyObj, key)) {
         WVLOG_E("GetBlanklessInfoWithKey ParseString failed");
@@ -5323,7 +5500,7 @@ ani_enum_item SetBlanklessLoadingWithKey(ani_env* env, ani_object object, ani_ob
         WVLOG_E("webviewController is nullptr.");
         return nullptr;
     }
-    
+
     ani_enum_item result;
     std::string key;
     if (!AniParseUtils::ParseString(env, keyObj, key)) {
@@ -5397,6 +5574,176 @@ static void ClearBlanklessLoadingCache(ani_env* env, ani_object object, ani_obje
         return;
     }
     NWebHelper::Instance().ClearBlanklessLoadingCache(keys);
+}
+
+static void SetSoftKeyboardBehaviorMode(ani_env *env, ani_object object, ani_enum_item mode)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    ani_boolean isUndefined = ANI_FALSE;
+    if (env->Reference_IsUndefined(mode, &isUndefined) != ANI_OK || isUndefined) {
+        return;
+    }
+
+    ani_int modeInt;
+    if (env->EnumItem_GetValue_Int(mode, &modeInt) != ANI_OK) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    if (modeInt < static_cast<int>(WebSoftKeyboardBehaviorMode::DEFAULT) ||
+            modeInt > static_cast<int>(WebSoftKeyboardBehaviorMode::DISABLE_AUTO_KEYBOARD_ON_ACTIVE)) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    controller->SetSoftKeyboardBehaviorMode(static_cast<int>(modeInt));
+}
+
+static ani_enum_item GetAttachState(ani_env *env, ani_object object)
+{
+    WVLOG_D("Entry GetAttachState");
+
+    ani_enum_item result = nullptr;
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return result;
+    }
+
+    auto *controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("controller is nullptr");
+        return result;
+    }
+
+    ani_enum enumType;
+    if (env->FindEnum("@ohos.web.webview.webview.ControllerAttachState", &enumType) != ANI_OK) {
+        WVLOG_E("Find enumType failed");
+        return result;
+    }
+
+    ani_int attachState = controller->GetAttachState();
+    if (env->Enum_GetEnumItemByIndex(enumType, attachState, &result) != ANI_OK) {
+        WVLOG_E("Convert attachState(%{public}d) failed", attachState);
+    }
+
+    WVLOG_I("Get attachState = %{public}d", attachState);
+    return result;
+}
+
+static void OnControllerAttachStateChange(ani_env *env, ani_object object, ani_object callback)
+{
+    WVLOG_D("Entry OnControllerAttachStateChange");
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto *controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("controller is nullptr");
+        return;
+    }
+
+    ani_boolean isUndefined = ANI_FALSE;
+    if (env->Reference_IsUndefined(callback, &isUndefined) != ANI_OK || isUndefined) {
+        WVLOG_E("Callback para error");
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+
+    if (!AniParseUtils::IsFunction(env, callback)) {
+        WVLOG_E("Callback type error");
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+
+    controller->RegisterStateChangeCallback(env, CONTROLLER_ATTACH_STATE_CHANGE, callback);
+    return;
+}
+
+static void OffControllerAttachStateChange(ani_env *env, ani_object object, ani_object callback)
+{
+    WVLOG_D("Entry OffControllerAttachStateChange");
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto *controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("controller is nullptr");
+        return;
+    }
+
+    ani_boolean isUndefined = ANI_FALSE;
+    if (env->Reference_IsUndefined(callback, &isUndefined) != ANI_OK) {
+        WVLOG_E("Callback para error");
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+
+    if (!isUndefined && !AniParseUtils::IsFunction(env, callback)) {
+        WVLOG_E("Callback type error");
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+
+    controller->UnregisterStateChangeCallback(env, CONTROLLER_ATTACH_STATE_CHANGE, isUndefined ? nullptr : callback);
+    return;
+}
+
+static ani_object WaitForAttachedPromise(ani_env *env, ani_object object, ani_int timeout)
+{
+    WVLOG_D("Entry WaitForAttachedPromise");
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+
+    auto *controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("controller is nullptr");
+        return nullptr;
+    }
+
+    ani_object promise = nullptr;
+    ani_resolver resolver = nullptr;
+    ani_status status = ANI_ERROR;
+    if ((status = env->Promise_New(&resolver, &promise)) != ANI_OK) {
+        WVLOG_E("Promise_New failed, status: %{public}d", status);
+        return nullptr;
+    }
+
+    if (promise && resolver) {
+        controller->WaitForAttachedInternal(env, timeout, resolver);
+    }
+    return promise;
+}
+
+static void SetWebDetach(ani_env *env, ani_object object, ani_int nwebId)
+{
+    WVLOG_D("Entry SetWebDetach nwebId: %{public}d", nwebId);
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto *controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("controller is nullptr");
+        return;
+    }
+
+    auto id = static_cast<int32_t>(nwebId);
+    controller->SetWebDetach(id);
+    return;
 }
 
 ani_status StsWebviewControllerInit(ani_env *env)
@@ -5532,6 +5879,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "resumeAllMedia", nullptr, reinterpret_cast<void *>(ResumeAllMedia) },
         ani_native_function { "setAudioMuted", nullptr, reinterpret_cast<void *>(SetAudioMuted) },
         ani_native_function { "getMediaPlaybackState", nullptr, reinterpret_cast<void *>(GetMediaPlaybackState) },
+        ani_native_function { "avoidVisibleViewportBottom", nullptr,
+                              reinterpret_cast<void *>(AvoidVisibleViewportBottom) },
         ani_native_function { "webPageSnapshot", nullptr, reinterpret_cast<void *>(WebPageSnapshot) },
         ani_native_function { "innerCompleteWindowNew", nullptr, reinterpret_cast<void *>(InnerCompleteWindowNew) },
         ani_native_function { "runJavaScriptCallback", nullptr, reinterpret_cast<void *>(RunJavaScriptCallback) },
@@ -5544,6 +5893,16 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "hasImageCallback", nullptr, reinterpret_cast<void *>(HasImageCallback) },
         ani_native_function { "hasImagePromise", nullptr, reinterpret_cast<void *>(HasImagePromise) },
         ani_native_function { "getCertificateSync", nullptr, reinterpret_cast<void*>(GetCertificateSync) },
+        ani_native_function { "setSocketIdleTimeout", nullptr, reinterpret_cast<void *>(SetSocketIdleTimeout) },
+        ani_native_function { "getProgress", nullptr, reinterpret_cast<void*>(GetProgress) },
+        ani_native_function { "setAppCustomUserAgent", nullptr, reinterpret_cast<void *>(SetAppCustomUserAgent) },
+        ani_native_function { "setUserAgentForHosts", nullptr, reinterpret_cast<void *>(SetUserAgentForHosts) },
+        ani_native_function { "enablePrivateNetworkAccess", nullptr,
+                              reinterpret_cast<void*>(EnablePrivateNetworkAccess) },
+        ani_native_function { "isPrivateNetworkAccessEnabled", nullptr,
+                              reinterpret_cast<void*>(IsPrivateNetworkAccessEnabled) },
+        ani_native_function { "setErrorPageEnabled", nullptr, reinterpret_cast<void*>(SetErrorPageEnabled) },
+        ani_native_function { "getErrorPageEnabled", nullptr, reinterpret_cast<void*>(GetErrorPageEnabled) },
         ani_native_function { "getBlanklessInfoWithKey", nullptr, reinterpret_cast<void*>(GetBlanklessInfoWithKey) },
         ani_native_function { "setBlanklessLoadingWithKey", nullptr,
                               reinterpret_cast<void*>(SetBlanklessLoadingWithKey) },
@@ -5551,6 +5910,15 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void*>(ClearBlanklessLoadingCache) },
         ani_native_function { "setBlanklessLoadingCacheCapacity", nullptr,
                               reinterpret_cast<void*>(SetBlanklessLoadingCacheCapacity) },
+        ani_native_function { "setSoftKeyboardBehaviorMode", nullptr,
+                              reinterpret_cast<void *>(SetSoftKeyboardBehaviorMode) },
+        ani_native_function { "getAttachState", nullptr, reinterpret_cast<void *>(GetAttachState) },
+        ani_native_function { "onControllerAttachStateChange", nullptr,
+                              reinterpret_cast<void *>(OnControllerAttachStateChange) },
+        ani_native_function { "offControllerAttachStateChange", nullptr,
+                              reinterpret_cast<void *>(OffControllerAttachStateChange) },
+        ani_native_function { "waitForAttachedPromise", nullptr, reinterpret_cast<void *>(WaitForAttachedPromise) },
+        ani_native_function { "setWebDetach", nullptr, reinterpret_cast<void *>(SetWebDetach) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());

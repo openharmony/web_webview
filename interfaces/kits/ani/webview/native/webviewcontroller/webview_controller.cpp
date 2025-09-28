@@ -56,6 +56,16 @@ namespace OHOS {
 namespace NWeb {
 namespace {
 constexpr uint32_t URL_MAXIMUM = 2048;
+
+struct WaitForAttachParam {
+    arkts::concurrency_helpers::AsyncWork* asyncWork;
+    ani_resolver resolver;
+    int32_t timeout;
+    WebviewController* webviewController;
+    int32_t state;
+    ani_vm* vm;
+};
+
 bool GetAppBundleNameAndModuleName(std::string& bundleName, std::string& moduleName)
 {
     static std::string applicationBundleName;
@@ -111,6 +121,70 @@ WebviewController::~WebviewController()
 {
     std::unique_lock<std::mutex> lk(g_objectMtx);
     g_webview_controller_map.erase(nwebId_);
+
+    {
+        std::unique_lock<std::mutex> attachLock(attachMtx_);
+        attachState_ = AttachState::ATTACHED;
+        attachCond_.notify_all();
+    }
+
+    for (auto& [eventName, regObjs] : attachEventRegisterInfo_) {
+        for (auto& regObj : regObjs) {
+            if (regObj.m_regHandlerRef) {
+                regObj.m_regEnv->GlobalReference_Delete(regObj.m_regHandlerRef);
+                regObj.m_regHandlerRef = nullptr;
+            }
+        }
+        regObjs.clear();
+    }
+    attachEventRegisterInfo_.clear();
+}
+
+void WebviewController::TriggerStateChangeCallback(const std::string& type)
+{
+    auto iter = attachEventRegisterInfo_.find(type);
+    if (iter == attachEventRegisterInfo_.end()) {
+        WVLOG_D("TriggerStateChangeCallback event %{public}s not found", type.c_str());
+        return;
+    }
+
+    const std::vector<WebRegObj>& regObjs = iter->second;
+    for (const auto& regObj : regObjs) {
+        if (!regObj.m_isMarked) {
+            if (!regObj.m_regHandlerRef) {
+                WVLOG_E("Handler for event %{public}s is null", type.c_str());
+                continue;
+            }
+
+            ani_enum_item stateRst = nullptr;
+            ani_enum enumType;
+            if (regObj.m_regEnv->FindEnum("@ohos.web.webview.webview.ControllerAttachState", &enumType) != ANI_OK) {
+                WVLOG_E("Find enum ControllerAttachState failed");
+                continue;
+            }
+
+            if (regObj.m_regEnv->Enum_GetEnumItemByIndex(enumType, static_cast<ani_int>(attachState_), &stateRst) !=
+                ANI_OK) {
+                WVLOG_E("Convert attachState(%{public}d) failed", attachState_);
+                continue;
+            }
+
+            std::vector<ani_ref> vec;
+            vec.push_back(stateRst);
+            ani_ref callbackResult = nullptr;
+            regObj.m_regEnv->FunctionalObject_Call(reinterpret_cast<ani_fn_object>(regObj.m_regHandlerRef), vec.size(),
+                vec.data(), &callbackResult);
+        }
+    }
+
+    for (auto it = iter->second.begin(); it != iter->second.end();) {
+        if (it->m_isMarked) {
+            it->m_regEnv->GlobalReference_Delete(it->m_regHandlerRef);
+            it = iter->second.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }
 
 void WebviewController::SetWebId(int32_t nwebId)
@@ -124,11 +198,23 @@ void WebviewController::SetWebId(int32_t nwebId)
         return;
     }
 
+    AttachState prevState = attachState_;
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
     if (nweb_ptr) {
         OH_NativeArkWeb_BindWebTagToWebInstance(webTag_.c_str(), nweb_ptr);
         NWebHelper::Instance().SetWebTag(nwebId_, webTag_.c_str());
+
+        {
+            std::unique_lock<std::mutex> attachLock(attachMtx_);
+            attachState_ = AttachState::ATTACHED;
+            attachCond_.notify_all();
+        }
+
+        if (prevState != attachState_) {
+            TriggerStateChangeCallback(CONTROLLER_ATTACH_STATE_CHANGE);
+        }
     }
+
     SetNWebJavaScriptResultCallBack();
     NativeArkWeb_OnValidCallback validCallback = OH_NativeArkWeb_GetJavaScriptProxyValidCallback(webTag_.c_str());
     if (validCallback) {
@@ -136,6 +222,20 @@ void WebviewController::SetWebId(int32_t nwebId)
         (*validCallback)(webTag_.c_str());
     } else {
         WVLOG_W("native validCallback is null, callback nothing");
+    }
+}
+
+void WebviewController::SetWebDetach(int32_t nwebId)
+{
+    if (nwebId != nwebId_) {
+        WVLOG_W("Web detach nwebId(%{public}d) is not equal to current nwebId(%{public}d)", nwebId, nwebId_);
+        return;
+    }
+
+    if (attachState_ != AttachState::NOT_ATTACHED) {
+        std::unique_lock<std::mutex> attachLock(attachMtx_);
+        attachState_ = AttachState::NOT_ATTACHED;
+        TriggerStateChangeCallback(CONTROLLER_ATTACH_STATE_CHANGE);
     }
 }
 
@@ -1273,6 +1373,16 @@ int WebviewController::GetMediaPlaybackState()
     return nweb_ptr->GetMediaPlaybackState();
 }
 
+ErrCode WebviewController::AvoidVisibleViewportBottom(int32_t avoidHeight)
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return INIT_ERROR;
+    }
+    nweb_ptr->AvoidVisibleViewportBottom(avoidHeight);
+    return NWebError::NO_ERROR;
+}
+
 int WebviewController::GetSecurityLevel()
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
@@ -1940,6 +2050,11 @@ void WebviewController::SetScrollable(bool enable, int32_t scrollType)
     return setting->SetScrollable(enable, scrollType);
 }
 
+void WebviewController::SetSoftKeyboardBehaviorMode(int32_t mode)
+{
+    NWebHelper::Instance().SetSoftKeyboardBehaviorMode(static_cast<WebSoftKeyboardBehaviorMode>(mode));
+}
+
 void WebMessageExt::SetType(int type)
 {
     type_ = type;
@@ -2057,6 +2172,35 @@ int32_t WebviewController::GetNWebId()
     return nwebId_;
 }
 
+int32_t WebviewController::GetProgress()
+{
+    int32_t progress = 0;
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (nweb_ptr) {
+        progress = nweb_ptr->PageLoadProgress();
+    }
+    return progress;
+}
+
+ErrCode WebviewController::SetErrorPageEnabled(bool enable)
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return INIT_ERROR;
+    }
+    nweb_ptr->SetErrorPageEnabled(enable);
+    return NWebError::NO_ERROR;
+}
+
+bool WebviewController::GetErrorPageEnabled()
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return false;
+    }
+    return nweb_ptr->GetErrorPageEnabled();
+}
+
 int32_t WebviewController::GetBlanklessInfoWithKey(const std::string& key, double* similarity, int32_t* loadingTime)
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
@@ -2073,6 +2217,207 @@ int32_t WebviewController::SetBlanklessLoadingWithKey(const std::string& key, bo
         return nweb_ptr->SetBlanklessLoadingWithKey(key, isStart);
     }
     return -1;
+}
+
+int32_t WebviewController::GetAttachState()
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (nweb_ptr) {
+        return static_cast<int32_t>(attachState_);
+    }
+    return static_cast<int32_t>(AttachState::NOT_ATTACHED);
+}
+
+void WebviewController::RegisterStateChangeCallback(ani_env *env, const std::string& type, ani_object handler)
+{
+    ani_ref callbackRef;
+    if (env->GlobalReference_Create(handler, &callbackRef) != ANI_OK) {
+        WVLOG_E("RegisterStateChangeCallback failed to create reference for callback");
+        return;
+    }
+
+    WebRegObj regObj(env, callbackRef);
+    auto iter = attachEventRegisterInfo_.find(type);
+    if (iter == attachEventRegisterInfo_.end()) {
+        attachEventRegisterInfo_[type] = std::vector<WebRegObj> { regObj };
+        WVLOG_D("RegisterStateChangeCallback add new type:%{public}s", type.c_str());
+        return;
+    }
+
+    bool found = false;
+    for (auto& regObjInList : iter->second) {
+        if (env == regObjInList.m_regEnv) {
+            ani_boolean isEqual = ANI_FALSE;
+            if (env->Reference_StrictEquals(regObjInList.m_regHandlerRef, handler, &isEqual) != ANI_OK) {
+                WVLOG_E("RegisterStateChangeCallback failed to compare handlers");
+                env->GlobalReference_Delete(callbackRef);
+                return;
+            }
+
+            if (isEqual) {
+                WVLOG_W("RegisterStateChangeCallback handler function is same");
+                found = true;
+                regObjInList.m_isMarked = false;
+                break;
+            }
+        }
+    }
+    if (!found) {
+        iter->second.emplace_back(regObj);
+        WVLOG_D("RegisterStateChangeCallback add new handler for type:%{public}s", type.c_str());
+    }
+
+    return;
+}
+
+void WebviewController::DeleteRegisterObj(ani_env *env, std::vector<WebRegObj>& vecRegObjs, ani_object& handler)
+{
+    for (auto iter = vecRegObjs.begin(); iter != vecRegObjs.end(); ++iter) {
+        if (!handler) {
+            WVLOG_E("DeleteRegisterObj handler is null");
+            break;
+        }
+        if (env == iter->m_regEnv && !iter->m_isMarked) {
+            ani_boolean isEqual = ANI_FALSE;
+            if (env->Reference_StrictEquals(iter->m_regHandlerRef, handler, &isEqual) != ANI_OK) {
+                WVLOG_E("DeleteRegisterObj failed to compare handlers");
+                continue;
+            }
+
+            if (isEqual) {
+                iter->m_isMarked = true;
+                WVLOG_I("DeleteRegisterObj mark register object ref delete");
+                break;
+            } else {
+                WVLOG_D("DeleteRegisterObj register handler is not equal to HandlerRef");
+            }
+        } else {
+            WVLOG_D("DeleteRegisterObj unregister event, env(%{private}p) is not equal to m_regEnv(%{private}p)", env,
+                iter->m_regEnv);
+        }
+    }
+}
+
+void WebviewController::DeleteAllRegisterObj(ani_env *env, std::vector<WebRegObj>& vecRegObjs)
+{
+    for (auto iter = vecRegObjs.begin(); iter != vecRegObjs.end(); ++iter) {
+        if (env == iter->m_regEnv && !iter->m_isMarked) {
+            iter->m_isMarked = true;
+            WVLOG_D("DeleteAllRegisterObj mark register object ref delete");
+        } else {
+            WVLOG_D("DeleteAllRegisterObj unregister all event, env(%{private}p) is not equal to m_regEnv(%{private}p)",
+                env, iter->m_regEnv);
+        }
+    }
+}
+
+void WebviewController::UnregisterStateChangeCallback(ani_env *env, const std::string& type, ani_object handler)
+{
+    auto iter = attachEventRegisterInfo_.find(type);
+    if (iter == attachEventRegisterInfo_.end()) {
+        WVLOG_W("UnregisterStateChangeCallback unregister type:%{public}s not found", type.c_str());
+        return;
+    }
+
+    if (handler) {
+        DeleteRegisterObj(env, iter->second, handler);
+    } else {
+        WVLOG_D("UnregisterStateChangeCallback unregister all callback for type:%{public}s", type.c_str());
+        DeleteAllRegisterObj(env, iter->second);
+    }
+
+    if (iter->second.empty()) {
+        attachEventRegisterInfo_.erase(iter);
+    }
+
+    return;
+}
+
+void WebviewController::WaitForAttachedDeal(ani_env *env, void *data)
+{
+    WaitForAttachParam *param = static_cast<WaitForAttachParam *>(data);
+    std::unique_lock<std::mutex> attachLock(param->webviewController->attachMtx_);
+    param->webviewController->attachCond_.wait_for(attachLock, std::chrono::milliseconds(param->timeout), [param] {
+        return param->webviewController->attachState_ == AttachState::ATTACHED;
+    });
+    param->state = static_cast<int32_t>(param->webviewController->attachState_);
+    WVLOG_D("WaitForAttachedDeal finish wait_for, param->state = %{public}d", param->state);
+}
+
+void WebviewController::WaitForAttachedFinish(ani_env *env, arkts::concurrency_helpers::WorkStatus status, void *data)
+{
+    WaitForAttachParam *param = static_cast<WaitForAttachParam *>(data);
+
+    ani_env *envUse = nullptr;
+    if (param->vm->GetEnv(ANI_VERSION_1, &envUse) != ANI_OK || !envUse) {
+        WVLOG_E("WaitForAttachedFinish get env failed");
+        delete param;
+        param = nullptr;
+        return;
+    }
+
+    ani_size refs = REFERENCES_MAX_NUMBER;
+    envUse->CreateLocalScope(refs);
+
+    if (param->resolver) {
+        ani_enum enumType;
+        if (envUse->FindEnum("@ohos.web.webview.webview.ControllerAttachState", &enumType) != ANI_OK) {
+            WVLOG_E("WaitForAttachedFinish find enumType failed");
+        }
+
+        ani_enum_item result = nullptr;
+        ani_status rst = ANI_ERROR;
+        if ((rst = envUse->Enum_GetEnumItemByIndex(enumType, param->state, &result)) != ANI_OK) {
+            WVLOG_E("WaitForAttachedFinish convert attachState(%{public}d) failed, rst = %{public}d", param->state,
+                rst);
+        }
+
+        if ((rst = envUse->PromiseResolver_Resolve(param->resolver, result)) != ANI_OK) {
+            WVLOG_E("WaitForAttachedFinish resolve promise failed, rst = %{public}d", rst);
+        }
+    }
+
+    envUse->DestroyLocalScope();
+    DeleteAsyncWork(envUse, param->asyncWork);
+    delete param;
+    param = nullptr;
+
+    return;
+}
+
+void WebviewController::WaitForAttachedInternal(ani_env *env, ani_int timeout, ani_resolver resolver)
+{
+    ani_vm *vm = nullptr;
+    if (env->GetVM(&vm) != ANI_OK || !vm) {
+        WVLOG_E("WaitForAttachedInternal get vm failed");
+        return;
+    }
+
+    WaitForAttachParam *param = new (std::nothrow) WaitForAttachParam {
+        .asyncWork = nullptr,
+        .resolver = resolver,
+        .timeout = timeout,
+        .webviewController = this,
+        .state = static_cast<int32_t>(attachState_),
+        .vm = vm,
+    };
+
+    if (!param) {
+        WVLOG_E("WaitForAttachedInternal create param failed");
+        return;
+    }
+
+    auto status = CreateAsyncWork(env, WaitForAttachedDeal, WaitForAttachedFinish, static_cast<void *>(param),
+        &param->asyncWork);
+    if (status != arkts::concurrency_helpers::WorkStatus::OK) {
+        WVLOG_E("WaitForAttachedInternal create asyncWork failed");
+        delete param;
+        param = nullptr;
+        return;
+    }
+
+    QueueAsyncWork(env, param->asyncWork);
+    return;
 }
 } // namespace NWeb
 } // namespace OHOS

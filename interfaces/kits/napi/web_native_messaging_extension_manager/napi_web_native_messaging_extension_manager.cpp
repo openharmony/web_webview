@@ -41,6 +41,7 @@ namespace {
 std::recursive_mutex gConnectsLock_;
 int32_t g_serialNumber = 1;
 static std::map<int32_t, sptr<WebExtensionConnectionCallback>> g_connects;
+bool g_initDiedRecipient = false;
 }
 
 static void RemoveConnection(int32_t connectId)
@@ -58,6 +59,20 @@ static void RemoveConnection(int32_t connectId)
 static int32_t InsertConnection(sptr<WebExtensionConnectionCallback> connection)
 {
     std::lock_guard<std::recursive_mutex> lock(gConnectsLock_);
+    if (!g_initDiedRecipient) {
+        auto diedRecipient = [](){
+            std::lock_guard<std::recursive_mutex> lock(gConnectsLock_);
+            for (auto iter = g_connects.begin(); iter != g_connects.end();) {
+                WNMLOG_I("remove connection %{public}d because of service death", iter->first);
+                if (iter->second) {
+                    iter->second->OnFailed(ConnectNativeRet::SERVICE_DIED_ERROR);
+                }
+                iter = g_connects.erase(iter);
+            }
+        };
+        WebNativeMessagingClient::GetInstance().SetUserDefineDiedRecipient(diedRecipient);
+        g_initDiedRecipient = true;
+    }
     if (connection == nullptr) {
         WNMLOG_E("insert null connection");
         return -1;
@@ -572,17 +587,6 @@ napi_value NapiWebNativeMessagingExtensionManager::DisconnectNative(napi_env env
 
 void NapiWebNativeMessagingExtensionManager::Init(napi_env env, napi_value exports)
 {
-    WebNativeMessagingClient::GetInstance().SetUserDefineDiedRecipient([](){
-        std::lock_guard<std::recursive_mutex> lock(gConnectsLock_);
-        for (auto iter = g_connects.begin(); iter != g_connects.end();) {
-            WNMLOG_I("remove connection %{public}d because of service death", iter->first);
-            if (iter->second) {
-                iter->second->OnFailed(ConnectNativeRet::SERVICE_DIED_ERROR);
-            }
-            iter = g_connects.erase(iter);
-        }
-    });
-
     napi_value nmErrorCode = nullptr;
     napi_property_descriptor nmErorrCodeProperties[] = {
         DECLARE_NAPI_STATIC_PROPERTY("INNER_ERROR", NapiParseUtils::ToInt32Value(env,

@@ -388,4 +388,9 @@ void ArkWebEngineWrapper::SetSocketIdleTimeout(int32_t timeout)
     ark_web_engine_->SetSocketIdleTimeout(timeout);
 }
 
+void ArkWebEngineWrapper::SetSoftKeyboardBehaviorMode(OHOS::NWeb::WebSoftKeyboardBehaviorMode mode)
+{
+    ark_web_engine_->SetSoftKeyboardBehaviorMode(static_cast<int32_t>(mode));
+}
+
 } // namespace OHOS::ArkWeb

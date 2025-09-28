@@ -162,9 +162,7 @@
                 {
                     "header": {
                         "header_files": [
-                            "webview_controller_impl.h",
-                            "web_cookie_manager.h",
-                            "webview_ffi.h"
+                            "webview_controller_impl.h"
                         ],
                         "header_base": "//base/web/webview/interfaces/kits/cj/include"
                     },
@@ -186,6 +184,7 @@
                 }
             ],
             "test": [
+                "//base/web/webview/test/fuzztest/arkwebutils_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/load_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/cannavigatebackorforward_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/executejavascript_fuzzer:fuzztest",
@@ -197,6 +196,7 @@
                 "//base/web/webview/test/fuzztest/ontouchpress_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ontouchrelease_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/registerarkjsfunction_fuzzer:fuzztest",
+                "//base/web/webview/test/fuzztest/verifypackageinstall_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/zoom_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ohos_adapter/camera_adapter/formatadapter_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ohos_adapter/camera_adapter/videocapturerangeadapter_fuzzer:fuzztest",
@@ -388,7 +388,9 @@
                 "//base/web/webview/test/unittest/napi_common_test:unittest",
                 "//base/web/webview/test/unittest/ohos_adapter/native_buffer_adapter_test:unittest",
                 "//base/web/webview/test/unittest/ohos_adapter/drawing_text_adapter_test:unittest",
-                "//base/web/webview/test/unittest/webview_value_test:unittest"
+                "//base/web/webview/test/unittest/webview_value_test:unittest",
+                "//base/web/webview/test/unittest/web_native_messaging_client_test:unittest",
+                "//base/web/webview/test/unittest/sa_web_native_messaging_common_test:unittest"
             ]
         }
     }

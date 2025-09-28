@@ -33,9 +33,11 @@
 #include "print_manager_adapter.h"
 #include "arkweb_scheme_handler.h"
 #include "web_scheme_handler_request.h"
+#include "concurrency_helpers.h"
 
 namespace OHOS {
 namespace NWeb {
+const std::string CONTROLLER_ATTACH_STATE_CHANGE = "controllerAttachStateChange";
 enum class WebHitTestType : int {
     EDIT = 0,
     EMAIL,
@@ -124,6 +126,31 @@ enum class PressureLevel : int {
 
 enum class ScrollType : int {
     EVENT = 0,
+};
+
+enum class AttachState : int {
+    NOT_ATTACHED = 0,
+    ATTACHED = 1,
+};
+
+class WebRegObj {
+public:
+    WebRegObj() : m_regEnv(nullptr), m_regHandlerRef(nullptr) {
+    }
+
+    explicit WebRegObj(ani_env *env, const ani_ref &ref)
+    {
+        m_regEnv = env;
+        m_regHandlerRef = ref;
+        m_isMarked = false;
+    }
+
+    ~WebRegObj() {
+    }
+
+    ani_env *m_regEnv;
+    ani_ref m_regHandlerRef;
+    bool m_isMarked; // delete mark
 };
 
 class WebPrintDocument;
@@ -301,6 +328,8 @@ public:
 
     int GetMediaPlaybackState();
 
+    ErrCode AvoidVisibleViewportBottom(int32_t avoidHeight);
+
     void EnableIntelligentTrackingPrevention(bool enable);
 
     bool IsIntelligentTrackingPreventionEnabled() const;
@@ -390,14 +419,42 @@ public:
         const std::string& bundleName, const std::string& moduleName, std::string &result) const;
 
     std::shared_ptr<HitTestResult> GetLastHitTest();
-    
+
     void OnCreateNativeMediaPlayer(ani_vm *vm, ani_fn_object callback);
 
     int32_t GetNWebId();
 
+    int32_t GetProgress();
+
+    ErrCode SetErrorPageEnabled(bool enable);
+
+    bool GetErrorPageEnabled();
+
     int32_t GetBlanklessInfoWithKey(const std::string& key, double* similarity, int32_t* loadingTime);
 
     int32_t SetBlanklessLoadingWithKey(const std::string& key, bool isStart);
+
+    void SetSoftKeyboardBehaviorMode(int32_t mode);
+
+    int32_t GetAttachState();
+
+    void RegisterStateChangeCallback(ani_env *env, const std::string& type, ani_object handler);
+
+    void DeleteRegisterObj(ani_env *env, std::vector<WebRegObj>& vecRegObjs, ani_object& handler);
+
+    void DeleteAllRegisterObj(ani_env *env, std::vector<WebRegObj>& vecRegObjs);
+
+    void UnregisterStateChangeCallback(ani_env *env, const std::string& type, ani_object handler);
+
+    static void WaitForAttachedDeal(ani_env *env, void *data);
+
+    static void WaitForAttachedFinish(ani_env *env, arkts::concurrency_helpers::WorkStatus status, void *data);
+
+    void WaitForAttachedInternal(ani_env *env, ani_int timeout, ani_resolver resolver);
+
+    void TriggerStateChangeCallback(const std::string& type);
+
+    void SetWebDetach(int32_t nwebId);
 
 private:
     int ConverToWebHitTestType(int hitType);
@@ -427,6 +484,10 @@ private:
     std::string hapPath_ = "";
     std::string webTag_ = "";
     std::vector<std::string> moduleName_;
+    AttachState attachState_ = AttachState::NOT_ATTACHED;
+    std::unordered_map<std::string, std::vector<WebRegObj>> attachEventRegisterInfo_;
+    std::mutex attachMtx_;
+    std::condition_variable attachCond_;
 };
 
 class WebMessageExt {

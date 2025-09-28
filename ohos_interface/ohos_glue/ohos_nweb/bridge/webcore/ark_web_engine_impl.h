@@ -125,6 +125,8 @@ public:
     int32_t GetSiteIsolationMode() override;
 
     void SetSocketIdleTimeout(int32_t timeout) override;
+    
+    void SetSoftKeyboardBehaviorMode(int32_t mode) override;
 
 private:
     std::shared_ptr<OHOS::NWeb::NWebEngine> nweb_engine_;

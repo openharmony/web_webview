@@ -770,6 +770,24 @@ public:
      * @param delayTime The delayTime for web client to remove blankless frame.
      */
     void OnRemoveBlanklessFrameWithAnimation(int delayTime) override;
+
+    /**
+     * @brief Notify a detected blank screen.
+     *
+     * @param url The url of the blank screen.
+     * @param blankScreenReason The reason of the blank screen.
+     * @param detectedContentfulNodesCount The detected contentful nodes count of the blank screen.
+     */
+    void OnDetectedBlankScreen(
+        const ArkWebString& url, int32_t blankScreenReason, int32_t detectedContentfulNodesCount) override;
+
+    /**
+     * @brief Update focus status to textFieldManager and VirtualKeyBoardShow to webpattern.
+     *
+     * @param showkeyboard The status of showkeyboard.
+     */
+    void UpdateTextFieldStatus(bool isShowKeyboard, bool isAttachIME) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };

@@ -19,9 +19,13 @@
 #include <fcntl.h>
 
 #define private public
+#define protected public
 #include "nweb_adapter_helper.h"
 #include "nweb_create_window.h"
 #include "nweb_helper.h"
+#include "ark_web_nweb_webview_bridge_helper.h"
+#include "ark_web_adapter_webview_bridge_helper.h"
+#undef protected
 #undef private
 
 #include "nweb_init_params.h"
@@ -99,9 +103,9 @@ HWTEST_F(OhosAdapterHelperTest, OhosAdapterHelper_GetCookieManager_001, TestSize
     auto cook = helper->GetCookieManager();
     EXPECT_EQ(cook, nullptr);
     auto base = helper->GetDataBase();
-    EXPECT_EQ(base, nullptr);
+    EXPECT_NE(base, nullptr);
     auto storage = helper->GetWebStorage();
-    EXPECT_EQ(storage, nullptr);
+    EXPECT_NE(storage, nullptr);
     auto nweb = helper->GetNWeb(nweb_id);
     EXPECT_EQ(nweb, nullptr);
     std::shared_ptr<NWebDOHConfigImpl> config = std::make_shared<NWebDOHConfigImpl>();
@@ -192,9 +196,9 @@ HWTEST_F(OhosAdapterHelperTest, OhosAdapterHelper_GetDataBase_003, TestSize.Leve
     auto cook = helper->GetCookieManager();
     EXPECT_EQ(cook, nullptr);
     auto base = helper->GetDataBase();
-    EXPECT_EQ(base, nullptr);
+    EXPECT_NE(base, nullptr);
     auto storage = helper->GetWebStorage();
-    EXPECT_EQ(storage, nullptr);
+    EXPECT_NE(storage, nullptr);
     auto nweb = helper->GetNWeb(nweb_id);
     EXPECT_EQ(nweb, nullptr);
 }
@@ -235,5 +239,26 @@ HWTEST_F(OhosAdapterHelperTest, OhosAdapterHelper_GetSystemPropertiesInstance_00
     EXPECT_NE(dateTimeFormat, nullptr);
     auto nativeImage = helper.CreateNativeImageAdapter();
     EXPECT_NE(nativeImage, nullptr);
+}
+
+/**
+ * @tc.name: OhosAdapterHelperTest_Init_001.
+ * @tc.desc: Test the memberCheckFunc_ in ArkWebBridgeHelper Init.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(OhosAdapterHelperTest, OhosAdapterHelperTest_Init_001, TestSize.Level1)
+{
+    std::string hapPath = "";
+    if (access(MOCK_NWEB_INSTALLATION_DIR.c_str(), F_OK) == 0) {
+        hapPath = MOCK_NWEB_INSTALLATION_DIR;
+    }
+    NWebHelper* helper = new NWebHelper;
+    helper->SetBundlePath(hapPath);
+    helper->Init(false);
+    EXPECT_NE(OHOS::ArkWeb::ArkWebNWebWebviewBridgeHelper::GetInstance().libFileHandler_, nullptr);
+    EXPECT_NE(OHOS::ArkWeb::ArkWebNWebWebviewBridgeHelper::GetInstance().memberCheckFunc_, nullptr);
+    EXPECT_NE(OHOS::ArkWeb::ArkWebAdapterWebviewBridgeHelper::GetInstance().libFileHandler_, nullptr);
+    EXPECT_NE(OHOS::ArkWeb::ArkWebAdapterWebviewBridgeHelper::GetInstance().memberCheckFunc_, nullptr);
 }
 } // namespace OHOS::NWeb

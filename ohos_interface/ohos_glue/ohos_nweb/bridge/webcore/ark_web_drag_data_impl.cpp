@@ -103,4 +103,9 @@ bool ArkWebDragDataImpl::IsDragNewStyle()
     return nweb_drag_data_->IsDragNewStyle();
 }
 
+int ArkWebDragDataImpl::GetAllowedDragOperation()
+{
+    return static_cast<int>(nweb_drag_data_->GetAllowedDragOperation());
+}
+
 } // namespace OHOS::ArkWeb

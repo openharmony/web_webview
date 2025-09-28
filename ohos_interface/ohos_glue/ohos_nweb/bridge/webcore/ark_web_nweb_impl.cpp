@@ -1599,4 +1599,11 @@ void ArkWebNWebImpl::SetForceEnableZoom(bool forceEnableZoom)
     nweb_nweb_->SetForceEnableZoom(forceEnableZoom);
 }
 
+void ArkWebNWebImpl::SetBlankScreenDetectionConfig(bool enable, const ArkWebDoubleVector& detectionTiming,
+    const ArkWebInt32Vector& detectionMethods, int32_t contentfulNodesCountThreshold)
+{
+    nweb_nweb_->SetBlankScreenDetectionConfig(enable,
+        ArkWebBasicVectorStructToClass<double, ArkWebDoubleVector>(detectionTiming),
+        ArkWebBasicVectorStructToClass<int32_t, ArkWebInt32Vector>(detectionMethods), contentfulNodesCountThreshold);
+}
 } // namespace OHOS::ArkWeb

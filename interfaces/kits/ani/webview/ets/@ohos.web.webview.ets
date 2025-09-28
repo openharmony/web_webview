@@ -48,6 +48,16 @@ export default namespace webview {
         EVENT
     }
 
+    export enum WebSoftKeyboardBehaviorMode {
+        DEFAULT = 0,
+        DISABLE_AUTO_KEYBOARD_ON_ACTIVE = 1
+    }
+
+    export enum ControllerAttachState {
+        UNATTACHED = 0,
+        ATTACHED = 1,
+    }
+
     export interface CacheOptions {
         responseHeaders: Array<WebHeader>;
     }
@@ -174,7 +184,7 @@ export default namespace webview {
         VIDEO = 0,
         AUDIO = 1
     }
-    
+
     export enum WebResourceType{
         MAIN_FRAME = 0,
         SUB_FRAME = 1,
@@ -320,7 +330,7 @@ export default namespace webview {
         width?: Length;
         height?: Length;
     }
-    
+
     export interface RectEvent {
         x: double;
         y: double;
@@ -753,6 +763,7 @@ export default namespace webview {
         native resumeAllMedia(): void;
         native setAudioMuted(mute: boolean): void;
         native getMediaPlaybackState(): MediaPlaybackState;
+        native avoidVisibleViewportBottom(avoidHeight: int): void;
         native innerCompleteWindowNew(parentNwebId:int): void;
         innerGetThisVar(): long {
             return this.nativePtr;
@@ -793,10 +804,87 @@ export default namespace webview {
         }
 
         native getCertificateSync(): Array<ArrayBuffer>;
+        getCertificate(): Promise<Array<cert.X509Cert>> {
+            let certChainData = this.getCertificateSync();
+            return new Promise<Array<cert.X509Cert>>((resolve, reject) => {
+                let taskPromise = taskpool.execute(():undefined => {
+                    return undefined});
+                taskPromise.then(async (results: NullishType) => {
+                    const certs: Array<cert.X509Cert> = [];
+                    for (let i = 0; i < certChainData.length; i++) {
+                        let certsUint8Array = new Uint8Array(certChainData[i]);
+                        const encodingBlob: cert.EncodingBlob = {
+                            data: certsUint8Array,
+                            encodingFormat: cert.EncodingFormat.FORMAT_DER
+                        };
+                        try {
+                            const x509Cert = await cert.createX509Cert(encodingBlob);
+                            certs.push(x509Cert);
+                        } catch (e) {
+                            console.error("Failed to parse certificate", e);
+                        }
+                    }
+                    resolve(certs);
+                })
+                .catch((error: Error) => {
+                    reject(error);
+                });
+            });
+        }
+        getCertificate(callback: AsyncCallback<Array<cert.X509Cert>>): void {
+            let certChainData = this.getCertificateSync();
+            let p = taskpool.execute(():undefined => {
+                    return undefined});
+            p.then((results : NullishType) => {
+                const certs: Array<cert.X509Cert> = [];
+                for (let i = 0; i < certChainData.length; i++) {
+                    let certsUint8Array = new Uint8Array(certChainData[i]);
+                    const encodingBlob: cert.EncodingBlob = {
+                        data: certsUint8Array,
+                        encodingFormat: cert.EncodingFormat.FORMAT_DER
+                    };
+                    try {
+                        const x509Cert = await cert.createX509Cert(encodingBlob);
+                        certs.push(x509Cert);
+                    } catch (e) {
+                        console.error("Failed to parse certificate", e);
+                    }
+                }
+                let error = new BusinessError<void>();
+                callback(error, certs);
+            }).catch((error: Error) => {
+                let err = error as BusinessError<void>;
+                let data = new Array<cert.X509Cert>;
+                callback(err, data);
+            });
+        }
+
+        native setSocketIdleTimeout(timeout: int): void;
+        native getProgress(): int;
+        native static setAppCustomUserAgent(userAgent: string): void;
+        native static setUserAgentForHosts(userAgent: string, hosts: Array<string>): void;
+        native static enablePrivateNetworkAccess(enable: boolean): void;
+        native static isPrivateNetworkAccessEnabled(): boolean;
+        native setErrorPageEnabled(enable: boolean): void;
+        native getErrorPageEnabled(): boolean;
         native getBlanklessInfoWithKey(key: string): BlanklessInfo;
         native setBlanklessLoadingWithKey(key: string, is_start: boolean): WebBlanklessErrorCode;
         native static clearBlanklessLoadingCache(keys?: Array<string>): void;
-        native static setBlanklessLoadingCacheCapacity(capacity: int): int;        
+        native static setBlanklessLoadingCacheCapacity(capacity: int): int;
+        native setSoftKeyboardBehaviorMode(mode: WebSoftKeyboardBehaviorMode): void;
+        native getAttachState(): ControllerAttachState;
+        native onControllerAttachStateChange(callback: Callback<ControllerAttachState>): void;
+        native offControllerAttachStateChange(callback?: Callback<ControllerAttachState>): void;
+        native waitForAttachedPromise(timeout: int): Promise<ControllerAttachState>;
+        waitForAttached(timeout: int): Promise<ControllerAttachState> {
+            if (timeout < 0 || timeout > 300000) {
+                let error = new Error('BusinessError 401: Parameter error. The value of \'timeout\' is invalid.');
+                throw new BusinessError<void>(401, error);
+            }
+
+            return this.waitForAttachedPromise(timeout);
+        }
+        native setWebDetach(nwebId: int): void;
     }
 
     export class WebSchemeHandlerResponse {
@@ -851,7 +939,7 @@ export default namespace webview {
         native setHeaderByName(name: string, value: string, overwrite: boolean): void;
         native getHeaderByName(name: string): string;
     }
-    
+
      export class WebSchemeHandler {
         private nativePtr: long = 0;
         private cleaner?: Cleaner;

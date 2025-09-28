@@ -148,4 +148,8 @@ bool ArkWebDragDataWrapper::IsDragNewStyle()
     return ark_web_drag_data_->IsDragNewStyle();
 }
 
+OHOS::NWeb::NWebDragData::DragOperationsMask ArkWebDragDataWrapper::GetAllowedDragOperation() const
+{
+    return static_cast<OHOS::NWeb::NWebDragData::DragOperationsMask>(ark_web_drag_data_->GetAllowedDragOperation());
+}
 } // namespace OHOS::ArkWeb

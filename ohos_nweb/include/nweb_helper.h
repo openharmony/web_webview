@@ -144,6 +144,8 @@ public:
     void SetSocketIdleTimeout(int32_t timeout);
 
     int32_t GetSocketIdleTimeout();
+    
+    void SetSoftKeyboardBehaviorMode(WebSoftKeyboardBehaviorMode mode);
 
 private:
     NWebHelper() = default;

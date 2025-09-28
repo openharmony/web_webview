@@ -386,11 +386,6 @@ ArkWebEngineVersion CalculateActiveWebEngineVersion()
         return static_cast<ArkWebEngineVersion>(ArkWebEngineType::EVERGREEN);
     }
 
-    if (webEngineDefault == static_cast<int>(ArkWebEngineVersion::M114) &&
-      g_appBundleName == "com.example.app2") {
-        return static_cast<ArkWebEngineVersion>(ArkWebEngineType::EVERGREEN);
-    }
-
     return static_cast<ArkWebEngineVersion>(webEngineDefault);
 }
 
@@ -430,9 +425,14 @@ std::string GetArkwebLibPath()
     return path;
 }
 
-std::string GetArkwebLibPathForMock()
+std::string GetArkwebLibPathForMock(const std::string& mockBundlePath)
 {
-    std::string path =  ARK_WEB_CORE_MOCK_HAP_LIB_PATH;
+    std::string path;
+    if (!mockBundlePath.empty()) {
+        path = mockBundlePath + "/" + ARK_WEB_CORE_PATH_FOR_MOCK;
+    } else {
+        path = ARK_WEB_CORE_MOCK_HAP_LIB_PATH;
+    }
     WVLOG_I("get arkweb lib mock path: %{public}s", path.c_str());
     return path;
 }
@@ -560,7 +560,7 @@ void* ArkWebBridgeHelperLoadLibFile(int openMode, const std::string& libNsName,
     return libFileHandler;
 }
 
-void* ArkWebBridgeHelperSharedInit(bool runMode)
+void* ArkWebBridgeHelperSharedInit(bool runMode, const std::string& mockBundlePath)
 {
     std::string libFileName = "libarkweb_engine.so";
 
@@ -568,7 +568,7 @@ void* ArkWebBridgeHelperSharedInit(bool runMode)
     if (runMode) {
         libDirPath = GetArkwebLibPath();
     } else {
-        libDirPath = GetArkwebLibPathForMock();
+        libDirPath = GetArkwebLibPathForMock(mockBundlePath);
     }
 
     std::string libNsName = GetArkwebNameSpace();

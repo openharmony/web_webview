@@ -36,6 +36,12 @@ public:
      */
     /*--ark web()--*/
     virtual void HandleConfirm() = 0;
+
+    /**
+     * @brief Handle the result if the user cancelled the url request.
+     */
+    /*--ark web()--*/
+    virtual void HandleCancelV2(bool abortLoading) = 0;
 };
 
 } // namespace OHOS::ArkWeb
