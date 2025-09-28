@@ -5911,9 +5911,9 @@ static void ParsePrintRangeAdapter(ani_env* env, ani_object pageRange, PrintAttr
     }
     ani_array pagesArrayInt = static_cast<ani_array>(pages);
 
-    printAttr.pageRange.startPage = static_cast<int>(startPage);
+    printAttr.pageRange.startPage = static_cast<uint32_t>(startPage);
 
-    printAttr.pageRange.endPage = static_cast<int>(endPage);
+    printAttr.pageRange.endPage = static_cast<uint32_t>(endPage);
     WVLOG_D("printAttr.pageRange.startPage is %{public}d,printAttr.pageRange.endPage is %{public}d",
         printAttr.pageRange.startPage, printAttr.pageRange.endPage);
 
@@ -5956,8 +5956,8 @@ static void ParsePrintPageSizeAdapter(ani_env* env, ani_object pageSize, PrintAt
         WVLOG_E("ParsePrintPageSizeAdapter failed to get height");
     }
 
-    printAttr.pageSize.width = static_cast<int>(width);
-    printAttr.pageSize.height = static_cast<int>(height);
+    printAttr.pageSize.width = static_cast<uint32_t>(width);
+    printAttr.pageSize.height = static_cast<uint32_t>(height);
     WVLOG_D("width is %{public}d,height is %{public}d", printAttr.pageSize.width, printAttr.pageSize.height);
 }
 
@@ -5990,10 +5990,10 @@ static void ParsePrintMarginAdapter(ani_env* env, ani_object margin, PrintAttrib
         WVLOG_D("ParsePrintMarginAdapter failed to get right");
     }
 
-    printAttr.margin.top = static_cast<int>(top);
-    printAttr.margin.bottom = static_cast<int>(bottom);
-    printAttr.margin.left = static_cast<int>(left);
-    printAttr.margin.right = static_cast<int>(right);
+    printAttr.margin.top = static_cast<uint32_t>(top);
+    printAttr.margin.bottom = static_cast<uint32_t>(bottom);
+    printAttr.margin.left = static_cast<uint32_t>(left);
+    printAttr.margin.right = static_cast<uint32_t>(right);
     WVLOG_D("top is %{public}d,bottom is %{public}d,left is %{public}d,right is %{public}d", printAttr.margin.top,
         printAttr.margin.bottom, printAttr.margin.left, printAttr.margin.right);
 }
