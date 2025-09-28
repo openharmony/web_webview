@@ -885,6 +885,8 @@ export default namespace webview {
             return this.waitForAttachedPromise(timeout);
         }
         native setWebDetach(nwebId: int): void;
+        native static getActiveWebEngineVersion(): ArkWebEngineVersion;
+        native static setActiveWebEngineVersion(engineVersion: ArkWebEngineVersion): void;
     }
 
     export class WebSchemeHandlerResponse {
