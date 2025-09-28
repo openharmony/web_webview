@@ -52,6 +52,8 @@ namespace NWebConfig {
 const auto XML_ATTR_NAME = "name";
 const auto XML_BUNDLE_NAME = "bundle_name";
 const auto XML_ENABLE_WINDOW_ORIENTATION = "enable_window_orientation";
+const std::string WEB_LTPO_STRATEGY = "ltpo_strategy";
+const std::string WEB_DVSYNC_SWITCH = "dvsync_switch";
 
 class MockNWebConfigHelper : public NWebConfigHelper {
 public:
@@ -159,6 +161,202 @@ HWTEST_F(NWebConfigHelperTest, ParsePerfConfig_ShouldReturnValue_WhenConfigFound
     NWebConfigHelper::Instance().perfConfig_[configNodeName + "/" + argsNodeName] = expectedValue;
     std::string result = NWebConfigHelper::Instance().ParsePerfConfig(configNodeName, argsNodeName);
     EXPECT_EQ(result, expectedValue);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebLTPOStrategy_001
+ * @tc.desc: ParseNWebLTPOStrategy when nodePtr is null.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLTPOStrategy_001, TestSize.Level1)
+{
+    xmlNodePtr nodePtr = nullptr;
+    NWebConfigHelper::Instance().ltpoStrategy_ = 100;
+    xmlChar *content = xmlNodeGetContent(nodePtr);
+    EXPECT_EQ(content, nullptr);
+    NWebConfigHelper::Instance().ParseNWebLTPOStrategy(nodePtr);
+    EXPECT_EQ(NWebConfigHelper::Instance().ltpoStrategy_, 100);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebLTPOStrategy_002
+ * @tc.desc: ParseNWebLTPOStrategy when nodePtr'value is 3.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLTPOStrategy_002, TestSize.Level1)
+{
+    const char * xmlContent = "<property_animation_dynamic_settings>\n"
+                               "<DynamicSettings name=\"ltpo_strategy\">3</DynamicSettings>\n"
+                              "</property_animation_dynamic_settings>";
+    
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+    xmlNodePtr nodePtr = xmlDocGetRootElement(doc);
+    EXPECT_NE(nodePtr, nullptr);
+    NWebConfigHelper::Instance().ltpoStrategy_ = 100;
+
+    for (xmlNodePtr curNodePtr = nodePtr->xmlChildrenNode; curNodePtr; curNodePtr = curNodePtr->next) {
+        if (curNodePtr->name == nullptr || curNodePtr->type == XML_COMMENT_NODE) {
+            continue;
+        }
+        char* namePtr = (char *)xmlGetProp(curNodePtr, BAD_CAST("name"));
+        if (namePtr == nullptr) {
+            continue;
+        }
+        std::string settingName(namePtr);
+        xmlFree(namePtr);
+        if (settingName == WEB_LTPO_STRATEGY) {
+            NWebConfigHelper::Instance().ParseNWebLTPOStrategy(curNodePtr);
+            break;
+        }
+    }
+    xmlFreeDoc(doc);
+    EXPECT_EQ(NWebConfigHelper::Instance().ltpoStrategy_, 3);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebLTPOStrategy_003
+ * @tc.desc: ParseNWebLTPOStrategy when nodePtr'value is 0.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLTPOStrategy_003, TestSize.Level1)
+{
+    const char * xmlContent = "<property_animation_dynamic_settings>\n"
+                               "<DynamicSettings name=\"ltpo_strategy\">0</DynamicSettings>\n"
+                              "</property_animation_dynamic_settings>";
+    
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+    xmlNodePtr nodePtr = xmlDocGetRootElement(doc);
+    EXPECT_NE(nodePtr, nullptr);
+    NWebConfigHelper::Instance().ltpoStrategy_ = 100;
+
+    for (xmlNodePtr curNodePtr = nodePtr->xmlChildrenNode; curNodePtr; curNodePtr = curNodePtr->next) {
+        if (curNodePtr->name == nullptr || curNodePtr->type == XML_COMMENT_NODE) {
+            continue;
+        }
+        char* namePtr = (char *)xmlGetProp(curNodePtr, BAD_CAST("name"));
+        if (namePtr == nullptr) {
+            continue;
+        }
+        std::string settingName(namePtr);
+        xmlFree(namePtr);
+        if (settingName == WEB_LTPO_STRATEGY) {
+            NWebConfigHelper::Instance().ParseNWebLTPOStrategy(curNodePtr);
+            break;
+        }
+    }
+    xmlFreeDoc(doc);
+    EXPECT_EQ(NWebConfigHelper::Instance().ltpoStrategy_, 0);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebDvsyncSwitch_001
+ * @tc.desc: ParseNWebDvsyncSwitch when nodePtr is null.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebDvsyncSwitch_001, TestSize.Level1)
+{
+    xmlNodePtr nodePtr = nullptr;
+    NWebConfigHelper::Instance().dvsyncSwitch_ = true;
+    xmlChar *content = xmlNodeGetContent(nodePtr);
+    EXPECT_EQ(content, nullptr);
+    NWebConfigHelper::Instance().ParseNWebDvsyncSwitch(nodePtr);
+    EXPECT_EQ(NWebConfigHelper::Instance().dvsyncSwitch_, true);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebDvsyncSwitch_002
+ * @tc.desc: ParseNWebDvsyncSwitch when nodePtr is null.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebDvsyncSwitch_002, TestSize.Level1)
+{
+    xmlNodePtr nodePtr = nullptr;
+    NWebConfigHelper::Instance().dvsyncSwitch_ = false;
+    xmlChar *content = xmlNodeGetContent(nodePtr);
+    EXPECT_EQ(content, nullptr);
+    NWebConfigHelper::Instance().ParseNWebDvsyncSwitch(nodePtr);
+    EXPECT_EQ(NWebConfigHelper::Instance().dvsyncSwitch_, false);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebDvsyncSwitch_003
+ * @tc.desc: ParseNWebDvsyncSwitch when nodePtr'value is 1.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebDvsyncSwitch_003, TestSize.Level1)
+{
+    const char * xmlContent = "<dvsync_config>\n"
+                               "<DvsyncSettings name=\"dvsync_switch\">1</DvsyncSettings>\n"
+                              "</dvsync_config>";
+    
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+    xmlNodePtr nodePtr = xmlDocGetRootElement(doc);
+    EXPECT_NE(nodePtr, nullptr);
+    NWebConfigHelper::Instance().dvsyncSwitch_ = 0;
+
+    for (xmlNodePtr curNodePtr = nodePtr->xmlChildrenNode; curNodePtr; curNodePtr = curNodePtr->next) {
+        if (curNodePtr->name == nullptr || curNodePtr->type == XML_COMMENT_NODE) {
+            continue;
+        }
+        char* namePtr = (char *)xmlGetProp(curNodePtr, BAD_CAST("name"));
+        if (namePtr == nullptr) {
+            continue;
+        }
+        std::string settingName(namePtr);
+        xmlFree(namePtr);
+        if (settingName == WEB_DVSYNC_SWITCH) {
+            NWebConfigHelper::Instance().ParseNWebDvsyncSwitch(curNodePtr);
+            break;
+        }
+    }
+    xmlFreeDoc(doc);
+    EXPECT_EQ(NWebConfigHelper::Instance().dvsyncSwitch_, 1);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebDvsyncSwitch_004
+ * @tc.desc: ParseNWebDvsyncSwitch when nodePtr'value is 0.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebDvsyncSwitch_004, TestSize.Level1)
+{
+    const char* xmlContent = "<dvsync_config>\n"
+                              "<DvsyncSettings name=\"dvsync_switch\">0</DvsyncSettings>\n"
+                             "</dvsync_config>";
+    
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+    xmlNodePtr nodePtr = xmlDocGetRootElement(doc);
+    EXPECT_NE(nodePtr, nullptr);
+    NWebConfigHelper::Instance().dvsyncSwitch_ = 1;
+
+    for (xmlNodePtr curNodePtr = nodePtr->xmlChildrenNode; curNodePtr; curNodePtr = curNodePtr->next) {
+        if (curNodePtr->name == nullptr || curNodePtr->type == XML_COMMENT_NODE) {
+            continue;
+        }
+        char* namePtr = (char *)xmlGetProp(curNodePtr, BAD_CAST("name"));
+        if (namePtr == nullptr) {
+            continue;
+        }
+        std::string settingName(namePtr);
+        xmlFree(namePtr);
+        if (settingName == WEB_DVSYNC_SWITCH) {
+            NWebConfigHelper::Instance().ParseNWebDvsyncSwitch(curNodePtr);
+            break;
+        }
+    }
+    xmlFreeDoc(doc);
+    EXPECT_EQ(NWebConfigHelper::Instance().dvsyncSwitch_, 0);
 }
 
 /**
