@@ -112,10 +112,21 @@ public:
         int64_arr_ = int64_arr;
     }
 
+    std::string GetErrorDescription()
+    {
+        return error_description_;
+    }
+
+    void SetErrorDescription(const std::string& description)
+    {
+        error_description_ = description;
+    }
+
 private:
     std::vector<uint8_t> binary_data_;
     std::string err_name_;
     std::string err_msg_;
+    std::string error_description_;
     int64_t value_ = -1;
     std::vector<std::string> string_arr_;
     std::vector<bool> bool_arr_;
