@@ -34,7 +34,6 @@ namespace OHOS::ArkWeb {
 static int g_appEngineVersion = static_cast<int>(ArkWebEngineVersion::SYSTEM_DEFAULT);
 static bool g_webEngineInitFlag = false;
 static ArkWebEngineVersion g_activeEngineVersion = ArkWebEngineVersion::SYSTEM_DEFAULT;
-static std::string g_appBundleName = "";
 static int g_cloudEnableAppVersion = static_cast<int>(ArkWebEngineVersion::SYSTEM_DEFAULT);
 static std::unique_ptr<std::unordered_set<std::string>> g_legacyApp = nullptr;
 
@@ -301,7 +300,6 @@ static void ParseCloudCfg()
 void SelectWebcoreBeforeProcessRun(const std::string& appBundleName)
 {
     WVLOG_I("SelectWebcoreBeforeProcessRun for app %{public}s.", appBundleName.c_str());
-    g_appBundleName = appBundleName;
 
     if (g_legacyApp && g_legacyApp->find(appBundleName) != g_legacyApp->end()) {
         g_cloudEnableAppVersion = static_cast<int>(ArkWebEngineType::LEGACY);
