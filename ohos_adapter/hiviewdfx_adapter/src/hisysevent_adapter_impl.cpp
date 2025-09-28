@@ -394,4 +394,12 @@ int HiSysEventAdapterImpl::Write(const std::string& eventName, EventType type,
 {
     return ForwardToHiSysEvent(eventName, type, data);
 }
+
+int HiSysEventAdapterImpl::Write(const std::string& eventName, EventType type,
+    const std::tuple<const std::string, const int32_t, const std::string, const int32_t,
+                     const std::string, const std::string, const std::string, const std::string,
+                     const std::string, const std::string>& data)
+{
+    return ForwardToHiSysEvent(eventName, type, data);
+}
 } // namespace OHOS::NWeb
