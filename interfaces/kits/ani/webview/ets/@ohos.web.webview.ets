@@ -48,6 +48,11 @@ export default namespace webview {
         EVENT
     }
 
+    export enum WebDestroyMode {
+        NORMAL_MODE = 0,
+        FAST_MODE = 1
+    }
+
     export enum WebSoftKeyboardBehaviorMode {
         DEFAULT = 0,
         DISABLE_AUTO_KEYBOARD_ON_ACTIVE = 1
@@ -871,6 +876,7 @@ export default namespace webview {
         native setBlanklessLoadingWithKey(key: string, is_start: boolean): WebBlanklessErrorCode;
         native static clearBlanklessLoadingCache(keys?: Array<string>): void;
         native static setBlanklessLoadingCacheCapacity(capacity: int): int;
+        native static setWebDestroyMode(mode: WebDestroyMode): void;
         native setSoftKeyboardBehaviorMode(mode: WebSoftKeyboardBehaviorMode): void;
         native getAttachState(): ControllerAttachState;
         native onControllerAttachStateChange(callback: Callback<ControllerAttachState>): void;
