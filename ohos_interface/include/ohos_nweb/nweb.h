@@ -149,9 +149,15 @@ public:
     virtual double GetX() = 0;
     virtual double GetY() = 0;
     virtual DragAction GetAction() = 0;
-    virtual OHOS::NWeb::NWebDragData::DragOperation GetDragOperation() const = 0;
-    virtual OHOS::NWeb::NWebDragData::DragOperationsMask GetAllowedDragOperation() const = 0;
-    virtual bool IsDragOpValid() const = 0;
+    virtual OHOS::NWeb::NWebDragData::DragOperation GetDragOperation() const {
+        return OHOS::NWeb::NWebDragData::DragOperation::DRAG_OPERATION_COPY;
+    }
+    virtual OHOS::NWeb::NWebDragData::DragOperationsMask GetAllowedDragOperation() const {
+        return OHOS::NWeb::NWebDragData::DragOperationsMask::DRAG_ALLOW_EVERY;
+    }
+    virtual bool IsDragOpValid() const {
+        return false;
+    };
 };
 
 enum class BlurReason : int32_t {
