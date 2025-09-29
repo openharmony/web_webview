@@ -95,6 +95,10 @@ public:
 
     void SetErrName(const ArkWebString& name) override;
 
+    ArkWebString GetErrorDescription() override;
+
+    void SetErrorDescription(const ArkWebString& description) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebHapValue> nweb_hap_value_;
 };
