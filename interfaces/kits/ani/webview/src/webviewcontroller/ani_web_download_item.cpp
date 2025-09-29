@@ -145,6 +145,28 @@ static ani_string GetMethod(ani_env* env, ani_object object)
     return methodValue;
 }
 
+static ani_string GetMimeType(ani_env* env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+
+    auto* webDownloadItem = reinterpret_cast<WebDownloadItem*>(AniParseUtils::Unwrap(env, object));
+    if (!webDownloadItem) {
+        WVLOG_E("GetMimeType webDownloadItem is null");
+        return nullptr;
+    }
+
+    ani_string mimeTypeValue = nullptr;
+    if (env->String_NewUTF8(webDownloadItem->mimeType.c_str(), webDownloadItem->mimeType.size(), &mimeTypeValue) !=
+        ANI_OK) {
+        WVLOG_E("GetMimeType error");
+        return nullptr;
+    }
+    return mimeTypeValue;
+}
+
 static ani_int GetCurrentSpeed(ani_env* env, ani_object object)
 {
     int32_t currentSpeed = 0;
@@ -566,6 +588,7 @@ ani_status StsWebDownLoadItemInit(ani_env* env)
         ani_native_function { "getPercentComplete", nullptr, reinterpret_cast<void*>(GetPercentComplete) },
         ani_native_function { "getSuggestedFileName", nullptr, reinterpret_cast<void*>(GetSuggestedFileName) },
         ani_native_function { "getMethod", nullptr, reinterpret_cast<void*>(GetMethod) },
+        ani_native_function { "getMimeType", nullptr, reinterpret_cast<void*>(GetMimeType) },
         ani_native_function { "getCurrentSpeed", nullptr, reinterpret_cast<void*>(GetCurrentSpeed) },
         ani_native_function { "getReceivedBytes", nullptr, reinterpret_cast<void*>(GetReceivedBytes) },
         ani_native_function { "getFullPath", nullptr, reinterpret_cast<void*>(GetFullPath) },
