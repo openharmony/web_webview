@@ -2201,6 +2201,12 @@ public:
                                    std::shared_ptr<NWebSnapshotCallback> callback) {
         return false;
     }
+
+    /**
+     * @brief Set web should stop fling.
+     */
+    /*--ark web()--*/
+    virtual void StopFling() {}
 };
 
 } // namespace OHOS::NWeb

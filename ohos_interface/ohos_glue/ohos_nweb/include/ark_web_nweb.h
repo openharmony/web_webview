@@ -2082,6 +2082,12 @@ public:
                                    int width,
                                    int height,
                                    ArkWebRefPtr<ArkWebSnapshotCallback> callback) = 0;
+
+    /**
+     * @brief Set web should stop fling.
+     */
+    /*--ark web()--*/
+    virtual void StopFling() {}
 };
 
 } // namespace OHOS::ArkWeb

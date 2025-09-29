@@ -1909,4 +1909,10 @@ bool ArkWebNWebWrapper::WebPageSnapshotV2(const char* id,
                                             new ArkWebSnapshotCallbackImpl(callback));
 }
 
+
+void ArkWebNWebWrapper::StopFling()
+{
+    WVLOG_D("ArkWebNWebWrapper::StopFling");
+    ark_web_nweb_->StopFling();
+}
 } // namespace OHOS::ArkWeb
