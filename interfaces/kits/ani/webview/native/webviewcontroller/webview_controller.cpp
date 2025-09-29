@@ -43,6 +43,8 @@
 #include "iservice_registry.h"
 #include "parameters.h"
 #include "system_ability_definition.h"
+#include "nweb_snapshot_callback_impl.h"
+#include "../../../../../../ohos_interface/ohos_glue/base/include/ark_web_errno.h"
 
 namespace {
 constexpr int32_t PARAMZERO = 0;
@@ -1927,7 +1929,16 @@ ErrCode WebviewController::WebPageSnapshot(
         return INIT_ERROR;
     }
 
-    bool init = nweb_ptr->WebPageSnapshot(id, type, width, height, std::move(callback));
+    auto snapshotCallback =  std::make_shared<NWebSnapshotCallbackImpl>(std::move(callback));
+    bool init = nweb_ptr->WebPageSnapshotV2(id, type, width, height, snapshotCallback);
+
+    if (ArkWebGetErrno() != RESULT_OK) {
+        WVLOG_I("WebPageSnapshotV2 isn't existing, using old");
+        init = nweb_ptr->WebPageSnapshot(
+            id, type, width, height, snapshotCallback->extract());
+        snapshotCallback.reset();
+    }
+
     if (!init) {
         return INIT_ERROR;
     }

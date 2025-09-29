@@ -27,6 +27,7 @@
 #include "napi/native_node_api.h"
 #include "nweb.h"
 #include "nweb_helper.h"
+#include "nweb_snapshot_callback.h"
 #include "nweb_web_message.h"
 #include "web_errors.h"
 #include "webview_javascript_result_callback.h"

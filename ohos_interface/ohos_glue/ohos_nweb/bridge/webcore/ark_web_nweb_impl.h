@@ -1819,6 +1819,23 @@ public:
     void SetBlankScreenDetectionConfig(bool enable, const ArkWebDoubleVector& detectionTiming,
         const ArkWebInt32Vector& detectionMethods, int32_t contentfulNodesCountThreshold) override;
 
+    /**
+     * @brief Get Web page snapshot V2
+     *
+     * @param id Request id.
+     * @param type Request snapshot pixel unit.
+     * @param width Request SnapShot width.
+     * @param height Request SnapShot height.
+     * @param callback SnapShot result callback.
+     * @return ture if succuess request snapshot to renderer.
+     */
+    /*--ark web()--*/
+    bool WebPageSnapshotV2(const char* id,
+                           int type,
+                           int width,
+                           int height,
+                           ArkWebRefPtr<ArkWebSnapshotCallback> callback) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

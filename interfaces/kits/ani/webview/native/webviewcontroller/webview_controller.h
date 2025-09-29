@@ -33,6 +33,7 @@
 #include "print_manager_adapter.h"
 #include "arkweb_scheme_handler.h"
 #include "web_scheme_handler_request.h"
+#include "nweb_snapshot_callback.h"
 #include "concurrency_helpers.h"
 
 namespace OHOS {
