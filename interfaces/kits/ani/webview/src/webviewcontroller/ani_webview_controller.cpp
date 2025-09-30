@@ -161,7 +161,7 @@ ani_status unbox<ani_int>(ani_env *env, ani_object obj, ani_int *result)
         if (status != ANI_OK) {
             return status;
         }
-        status = env->Class_FindMethod(intCls,"unboxed", ":i", &unboxInt);
+        status = env->Class_FindMethod(intCls, "toInt", ":i", &unboxInt);
         if (status != ANI_OK) {
             return status;
         }
@@ -253,7 +253,7 @@ bool ParseResourceUrl(ani_env *env, ani_object urlObject, std::string& url, Webv
         return false;
     }
     ani_int typeInt;
-    if (env->Object_CallMethodByName_Int(static_cast<ani_object>(typeRef), "unboxed", ":i",
+    if (env->Object_CallMethodByName_Int(static_cast<ani_object>(typeRef), "toInt", ":i",
                                          &typeInt) != ANI_OK) {
         return false;
     }
@@ -2937,7 +2937,10 @@ static ani_object CreateWebMessagePortsObj(
     ani_boolean bIsExtentionType = ANI_FALSE;
     env->Reference_IsUndefined(isExtentionType, &isUndefined);
     if (isUndefined != ANI_TRUE) {
-        if (env->Object_CallMethodByName_Boolean(isExtentionType, "unboxed", nullptr, &bIsExtentionType) != ANI_OK) {
+        if (env->Object_CallMethodByName_Boolean(isExtentionType,
+                                                 "toBoolean",
+                                                 nullptr,
+                                                 &bIsExtentionType) != ANI_OK) {
             AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
                 NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "isExtentionType", "boolean"));
             return nullptr;
@@ -3652,7 +3655,7 @@ static void PrefetchResource(ani_env* env, ani_object object, ani_object request
     }
     ani_int cacheValidTimeTemp = 300;
     if (!isUndefined &&
-        (env->Object_CallMethodByName_Int(cacheValidTime, "unboxed", ":i", &cacheValidTimeTemp) != ANI_OK)) {
+        (env->Object_CallMethodByName_Int(cacheValidTime, "toInt", ":i", &cacheValidTimeTemp) != ANI_OK)) {
         AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "duration", "number"));
         return;
@@ -3859,9 +3862,12 @@ bool ParseJsLengthDoubleToInt(ani_env* env, ani_ref ref, int32_t& outValue)
         return false;
     }
     ani_double value = 0;
-    ani_status status = env->Object_CallMethodByName_Double(static_cast<ani_object>(ref), "unboxed", ":d", &value);
+    ani_status status = env->Object_CallMethodByName_Double(static_cast<ani_object>(ref),
+                                                            "toDouble",
+                                                            ":d",
+                                                            &value);
     if (status != ANI_OK) {
-        WVLOG_E("ParseJsLengthDoubleToInt failed status: %{public}d ",status);
+        WVLOG_E("ParseJsLengthDoubleToInt failed status: %{public}d ", status);
         return false;
     }
     outValue = static_cast<int32_t>(value);

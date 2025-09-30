@@ -122,7 +122,7 @@ bool AniParseUtils::ParseDouble_t(ani_env* env, ani_ref ref, double& outValue)
     }
 
     ani_double value = 0;
-    if (env->Object_CallMethodByName_Double(static_cast<ani_object>(ref), "unboxed", ":d", &value) != ANI_OK) {
+    if (env->Object_CallMethodByName_Double(static_cast<ani_object>(ref), "toDouble", ":d", &value) != ANI_OK) {
         WVLOG_E("ParseDouble failed");
         return false;
     }
@@ -144,7 +144,7 @@ bool AniParseUtils::ParseBoolean_t(ani_env* env, ani_ref ref, bool& outValue)
     }
 
     ani_boolean boolValue = false;
-    if (env->Object_CallMethodByName_Boolean(static_cast<ani_object>(ref), "unboxed", ":z", &boolValue) != ANI_OK) {
+    if (env->Object_CallMethodByName_Boolean(static_cast<ani_object>(ref), "toBoolean", ":z", &boolValue) != ANI_OK) {
         WVLOG_E("ParseBoolean failed");
         return false;
     }
@@ -483,7 +483,7 @@ bool AniParseUtils::ParseInt32(ani_env* env, ani_ref ref, int32_t& outValue)
     }
 
     ani_int value = 0;
-    if (env->Object_CallMethodByName_Int(static_cast<ani_object>(ref), "unboxed", ":i", &value) != ANI_OK) {
+    if (env->Object_CallMethodByName_Int(static_cast<ani_object>(ref), "toInt", ":i", &value) != ANI_OK) {
         WVLOG_E("ParseInt32 failed");
         return false;
     }
@@ -678,7 +678,7 @@ bool AniParseUtils::ParseBoolean(ani_env* env, ani_ref ref, bool& outValue)
     }
 
     ani_boolean boolValue;
-    env->Object_CallMethodByName_Boolean(static_cast<ani_object>(ref), "unboxed", ":z", &boolValue);
+    env->Object_CallMethodByName_Boolean(static_cast<ani_object>(ref), "toBoolean", ":z", &boolValue);
     outValue = static_cast<bool>(boolValue);
     return true;
 }
@@ -701,7 +701,7 @@ bool AniParseUtils::ParseInt64(ani_env* env, ani_ref ref, int64_t& outValue)
     }
 
     ani_long value;
-    env->Object_CallMethodByName_Long(static_cast<ani_object>(ref), "unboxed", ":l", &value);
+    env->Object_CallMethodByName_Long(static_cast<ani_object>(ref), "toLong", ":l", &value);
     outValue = static_cast<int64_t>(value);
     return true;
 }
@@ -725,7 +725,7 @@ bool AniParseUtils::ParseDouble(ani_env* env, ani_ref ref, double& outValue)
     }
 
     ani_double value;
-    env->Object_CallMethodByName_Double(static_cast<ani_object>(ref), "unboxed", ":d", &value);
+    env->Object_CallMethodByName_Double(static_cast<ani_object>(ref), "toDouble", ":d", &value);
     outValue = static_cast<double>(value);
     return true;
 }
