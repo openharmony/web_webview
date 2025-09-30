@@ -62,6 +62,7 @@ public:
     MOCK_METHOD1(SetScreenCaptureCallback, int32_t(const std::shared_ptr<ScreenCaptureCallBack>&));
     MOCK_METHOD1(ExcludeContent, int32_t(ScreenCaptureContentFilter&));
     MOCK_METHOD0(SetPrivacyAuthorityEnabled, int32_t());
+    MOCK_METHOD1(SetCaptureAreaHighlight, int32_t(AVScreenCaptureHighlightConfig));
     MOCK_METHOD1(UpdateSurface, int32_t(sptr<Surface>));
     MOCK_METHOD1(SetScreenCaptureStrategy, int32_t(ScreenCaptureStrategy));
     MOCK_METHOD2(SetCaptureArea, int32_t(uint64_t, OHOS::Rect));
