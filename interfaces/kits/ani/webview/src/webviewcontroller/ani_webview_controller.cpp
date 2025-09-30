@@ -5315,7 +5315,6 @@ static ani_object RunJavaScriptInternalPromiseExt(ani_env* env, ani_object objec
     }
     auto callbackImpl = std::make_shared<WebviewJavaScriptExecuteCallback>(env, nullptr, resolver, extention);
     nweb_ptr->ExecuteJavaScriptExt(fd, scriptLength, callbackImpl, extention);
-    close(fd);
     usedFd_--;
     return promise;
 }
