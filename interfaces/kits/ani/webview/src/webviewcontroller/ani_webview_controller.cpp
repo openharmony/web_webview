@@ -5629,14 +5629,14 @@ static void SetSiteIsolationMode(ani_env *env, ani_object object, ani_enum_item 
         return;
     }
 
-    if (mode < static_cast<int>(SiteIsolationMode::PARTIAL) ||
-        mode > static_cast<int>(SiteIsolationMode::STRICT)) {
+    int32_t siteIsolationMode = static_cast<int32_t>(iMode);
+    if (siteIsolationMode < static_cast<int>(SiteIsolationMode::PARTIAL) ||
+        siteIsolationMode > static_cast<int>(SiteIsolationMode::STRICT)) {
         AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "mode"));
         return result;
     }
-
-    int32_t siteIsolationMode = static_cast<int32_t>(iMode);
+    
     WVLOG_I("SetSiteIsolationMode mode: %{public}d", siteIsolationMode);
     int32_t res = NWebHelper::Instance().SetSiteIsolationMode(static_cast<SiteIsolationMode>(siteIsolationMode));
 
