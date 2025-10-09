@@ -827,6 +827,13 @@ public:
      */
     void UpdateTextFieldStatus(bool isShowKeyboard, bool isAttachIME) override;
 
+    /**
+     * @brief Check whether the quick menu is displayed.
+     *
+     * @return Return true quick menu is displayed, false quick menu not displayed.
+     */
+    bool IsQuickMenuShow() override;
+
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };
