@@ -5634,9 +5634,9 @@ static void SetSiteIsolationMode(ani_env *env, ani_object object, ani_enum_item 
         siteIsolationMode > static_cast<int>(SiteIsolationMode::STRICT)) {
         AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "mode"));
-        return result;
+        return;
     }
-    
+
     WVLOG_I("SetSiteIsolationMode mode: %{public}d", siteIsolationMode);
     int32_t res = NWebHelper::Instance().SetSiteIsolationMode(static_cast<SiteIsolationMode>(siteIsolationMode));
 
