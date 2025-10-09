@@ -78,7 +78,7 @@ bool ParseDouble_t(ani_env* env, ani_ref ref, double& outValue)
     }
 
     ani_double value = 0;
-    if (env->Object_CallMethodByName_Double(static_cast<ani_object>(ref), "unboxed", ":d", &value) != ANI_OK) {
+    if (env->Object_CallMethodByName_Double(static_cast<ani_object>(ref), "toDouble", ":d", &value) != ANI_OK) {
         WVLOG_E("ParseDouble failed");
         return false;
     }
@@ -100,7 +100,7 @@ bool ParseBoolean_t(ani_env* env, ani_ref ref, bool& outValue)
     }
 
     ani_boolean boolValue = false;
-    if (env->Object_CallMethodByName_Boolean(static_cast<ani_object>(ref), "unboxed", ":z", &boolValue) != ANI_OK) {
+    if (env->Object_CallMethodByName_Boolean(static_cast<ani_object>(ref), "toBoolean", ":z", &boolValue) != ANI_OK) {
         WVLOG_E("ParseBoolean failed");
         return false;
     }
