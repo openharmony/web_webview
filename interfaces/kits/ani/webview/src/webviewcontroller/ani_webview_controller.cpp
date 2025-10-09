@@ -5631,29 +5631,30 @@ static void SetSiteIsolationMode(ani_env *env, ani_object object, ani_enum_item 
 
     if (mode < static_cast<int>(SiteIsolationMode::PARTIAL) ||
         mode > static_cast<int>(SiteIsolationMode::STRICT)) {
-        BusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "mode"));
         return result;
     }
 
     int32_t siteIsolationMode = static_cast<int32_t>(iMode);
+    WVLOG_I("SetSiteIsolationMode mode: %{public}d", siteIsolationMode);
     int32_t res = NWebHelper::Instance().SetSiteIsolationMode(static_cast<SiteIsolationMode>(siteIsolationMode));
 
     if (res == static_cast<int32_t>(SetSiteIsolationModeErr::ALREADY_SET_ERR)) {
-        BusinessError::ThrowError(env, INIT_ERROR,
+        AniBusinessError::ThrowError(env, INIT_ERROR,
             "InitError 17100001: Site Isolation mode already set by developer");
     }
 
     if (res == static_cast<int32_t>(SetSiteIsolationModeErr::SINGLE_RENDER_SET_STRICT_ERR)) {
-        BusinessError::ThrowError(env, INIT_ERROR,
+        AniBusinessError::ThrowError(env, INIT_ERROR,
             "InitError 17100001: Site Isolation mode cannot be strict when single render");
     }
 
     if (res == static_cast<int32_t>(SetSiteIsolationModeErr::ADVANCED_SECURITY_SET_ERR)) {
-        BusinessError::ThrowError(env, INIT_ERROR,
+        AniBusinessError::ThrowError(env, INIT_ERROR,
             "InitError 17100001: cannot change (AdvancedSecurityMode active)");
     }
-    WVLOG_D("SetSiteIsolationMode mode res %{public}d", res);
+    WVLOG_I("SetSiteIsolationMode mode res %{public}d", res);
 }
 
 static ani_enum_item GetSiteIsolationMode(ani_env *env, ani_object object)
