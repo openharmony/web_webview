@@ -5609,6 +5609,77 @@ static void SetWebDestroyMode(ani_env *env, ani_object object, ani_enum_item mod
     NWebHelper::Instance().SetWebDestroyMode(static_cast<WebDestroyMode>(webDestroyMode));
 }
 
+static void SetSiteIsolationMode(ani_env *env, ani_object object, ani_enum_item mode)
+{
+    WVLOG_D("[WebviewCotr] SetSiteIsolationMode");
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    ani_boolean isUndefined = ANI_FALSE;
+    if (env->Reference_IsUndefined(mode, &isUndefined) != ANI_OK || isUndefined) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+
+    ani_int iMode;
+    if (env->EnumItem_GetValue_Int(mode, &iMode) != ANI_OK) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+
+    if (mode < static_cast<int>(SiteIsolationMode::PARTIAL) ||
+        mode > static_cast<int>(SiteIsolationMode::STRICT)) {
+        BusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "mode"));
+        return result;
+    }
+
+    int32_t siteIsolationMode = static_cast<int32_t>(iMode);
+    int32_t res = NWebHelper::Instance().SetSiteIsolationMode(static_cast<SiteIsolationMode>(siteIsolationMode));
+
+    if (res == static_cast<int32_t>(SetSiteIsolationModeErr::ALREADY_SET_ERR)) {
+        BusinessError::ThrowError(env, INIT_ERROR,
+            "InitError 17100001: Site Isolation mode already set by developer");
+    }
+
+    if (res == static_cast<int32_t>(SetSiteIsolationModeErr::SINGLE_RENDER_SET_STRICT_ERR)) {
+        BusinessError::ThrowError(env, INIT_ERROR,
+            "InitError 17100001: Site Isolation mode cannot be strict when single render");
+    }
+
+    if (res == static_cast<int32_t>(SetSiteIsolationModeErr::ADVANCED_SECURITY_SET_ERR)) {
+        BusinessError::ThrowError(env, INIT_ERROR,
+            "InitError 17100001: cannot change (AdvancedSecurityMode active)");
+    }
+    WVLOG_D("SetSiteIsolationMode mode res %{public}d", res);
+}
+
+static ani_enum_item GetSiteIsolationMode(ani_env *env, ani_object object)
+{
+    WVLOG_D("[WebviewCotr] GetSiteIsolationMode");
+    ani_int siteIsolationMode = 0;
+    ani_enum enumType;
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    if (env->FindEnum("@ohos.web.webview.webview.SiteIsolationMode", &enumType) != ANI_OK) {
+        WVLOG_E("env find enum failed");
+        return nullptr;
+    }
+
+    siteIsolationMode = static_cast<ani_int>(NWebHelper::Instance().GetSiteIsolationMode());
+    WVLOG_D("getSiteIsolationMode mode = %{public}d", static_cast<int32_t>(siteIsolationMode));
+    ani_enum_item mode;
+    if (env->Enum_GetEnumItemByIndex(enumType, siteIsolationMode, &mode) != ANI_OK) {
+        WVLOG_E("env enum_GetEnumItemByIndex failed");
+        return nullptr;
+    }
+    return mode;
+}
+
 static void SetSoftKeyboardBehaviorMode(ani_env *env, ani_object object, ani_enum_item mode)
 {
     if (env == nullptr) {
