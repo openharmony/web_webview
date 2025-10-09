@@ -5639,7 +5639,6 @@ static void SetSiteIsolationMode(ani_env *env, ani_object object, ani_enum_item 
 
     WVLOG_I("SetSiteIsolationMode mode: %{public}d", siteIsolationMode);
     int32_t res = NWebHelper::Instance().SetSiteIsolationMode(static_cast<SiteIsolationMode>(siteIsolationMode));
-
     if (res == static_cast<int32_t>(SetSiteIsolationModeErr::ALREADY_SET_ERR)) {
         AniBusinessError::ThrowError(env, INIT_ERROR,
             "InitError 17100001: Site Isolation mode already set by developer");
