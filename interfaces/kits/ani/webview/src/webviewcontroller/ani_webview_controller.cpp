@@ -5746,34 +5746,46 @@ static void SetWebDetach(ani_env *env, ani_object object, ani_int nwebId)
     return;
 }
 
-static ArkWebEngineVersion GetActiveWebEngineVersion(ani_env *env, ani_object object)
+static ani_enum_item GetActiveWebEngineVersion(ani_env *env, ani_object object)
 {
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
-        return static_cast<ArkWebEngineVersion>(0);
+        return nullptr;
+    }
+
+    ani_int aniVersion = 0;
+    ani_enum enumType;
+    if (env->FindEnum(ANI_ENUM_ARK_WEB_ENGINE_VERSION, &enumType) != ANI_OK) {
+        WVLOG_E("findEnum is nullptr");
+        return nullptr;
+    }
+    
+    aniVersion = static_cast<ani_int>(OHOS::ArkWeb::getActiveWebEngineVersion());
+    ani_enum_item aniEnumState;
+    if ((env->Enum_GetEnumItemByIndex(enumType, aniVersion, &aniEnumState)) != ANI_OK) {
+        WVLOG_E("getEnum is error");
+        return nullptr;
     }
 
     WVLOG_D("GetActiveWebEngineVersion start");
-    return static_cast<ArkWebEngineVersion>(OHOS::ArkWeb::getActiveWebEngineVersion());
+    return aniEnumState;
 }
 
-static void SetActiveWebEngineVersion(ani_env *env, ani_object object, ArkWebEngineVersion engineVersion)
+static void SetActiveWebEngineVersion(ani_env *env, ani_object object, ani_enum_item aniEngineVersion)
 {
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
-        return ;
+        return;
     }
 
-    int32_t version = static_cast<int32_t>(engineVersion);
-    if (!AniParseUtils::ParseInt32(env, object, version)) {
-        WVLOG_E("parseInt32 failed");
-        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "webEngineVersion", "WebEngineVersion"));
-        return ;
+    ani_int aniVersion;
+    if (env->EnumItem_GetValue_Int(aniEngineVersion, &aniVersion) != ANI_OK) {
+       WVLOG_E("EnumItem_GetValue_Int failed");
+       AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
     }
 
     WVLOG_D("SetActiveWebEngineVersion start");
-    OHOS::ArkWeb::setActiveWebEngineVersion(static_cast<OHOS::ArkWeb::ArkWebEngineVersion>(version));
+    OHOS::ArkWeb::setActiveWebEngineVersion(static_cast<OHOS::ArkWeb::ArkWebEngineVersion>(aniVersion));
 }
 
 ani_status StsWebviewControllerInit(ani_env *env)
