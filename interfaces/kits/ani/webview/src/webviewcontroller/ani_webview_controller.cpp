@@ -2316,21 +2316,22 @@ bool SetCustomizeScheme(ani_env* env, ani_ref ref, Scheme& scheme)
             WVLOG_E("Object_GetPropertyByName_Ref status != ANI_OK : %{public}s", property.first.c_str());
         }
         bool schemeProperty = false;
-        if (!AniParseUtils::ParseBoolean(env, schemePropertyRef, schemeProperty)) {
-            WVLOG_I("ParseBoolean schemeProperty %{public}d ", schemeProperty);
-            if (property.first == "isSupportCORS" || property.first == "isSupportFetch") {
-                return false;
+        if (!schemePropertyRef) {
+            if (!AniParseUtils::ParseBoolean(env, schemePropertyRef, schemeProperty)) {
+                WVLOG_I("ParseBoolean schemeProperty %{public}d ", schemeProperty);
+                if (property.first == "isSupportCORS" || property.first == "isSupportFetch") {
+                    return false;
+                }
             }
-        }
-        if (!schemeProperty) {
-            WVLOG_I("schemeProperty status ");
-            if (property.first == "isSupportCORS" || property.first == "isSupportFetch") {
-                WVLOG_I("property.first.c_str() : %{public}s", property.first.c_str());
-                return false;
+            if (!schemeProperty) {
+                WVLOG_I("schemeProperty status ");
+                if (property.first == "isSupportCORS" || property.first == "isSupportFetch") {
+                    WVLOG_I("property.first.c_str() : %{public}s", property.first.c_str());
+                    return false;
+                }
             }
+            property.second(scheme, schemeProperty);
         }
-
-        property.second(scheme, schemeProperty);
     }
     ani_ref schemeNameObj = nullptr;
     if (env->Object_GetPropertyByName_Ref(static_cast<ani_object>(ref), "schemeName", &schemeNameObj) != ANI_OK) {
