@@ -404,7 +404,7 @@ bool TransStringToInt(const std::string& str, int32_t& value)
         WVLOG_E("str is empty");
         return false;
     }
-    int64_t tempValue = std::strtoull(str.c_str(), nullptr, 0);
+    int64_t tempValue = std::stoll(str);
     if (tempValue < std::numeric_limits<int32_t>::min() || tempValue > std::numeric_limits<int32_t>::max()) {
         WVLOG_E("input trans failed: out of range");
         value = 0;
