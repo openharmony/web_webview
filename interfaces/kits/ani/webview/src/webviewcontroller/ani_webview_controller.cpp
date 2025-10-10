@@ -5665,6 +5665,7 @@ static ani_enum_item GetSiteIsolationMode(ani_env *env, ani_object object)
         WVLOG_E("env is nullptr");
         return nullptr;
     }
+    
     if (env->FindEnum("@ohos.web.webview.webview.SiteIsolationMode", &enumType) != ANI_OK) {
         WVLOG_E("env find enum failed");
         return nullptr;
