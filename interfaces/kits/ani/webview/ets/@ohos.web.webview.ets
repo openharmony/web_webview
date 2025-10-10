@@ -154,6 +154,11 @@ export default namespace webview {
         MULTIPLE = 1
     }
 
+    export enum SiteIsolationMode{
+        PARTIAL = 0,
+        STRICT = 1
+    }
+
     export enum PressureLevel {
         MEMORY_PRESSURE_LEVEL_MODERATE = 1,
         MEMORY_PRESSURE_LEVEL_CRITICAL = 2
@@ -876,6 +881,8 @@ export default namespace webview {
         native setBlanklessLoadingWithKey(key: string, is_start: boolean): WebBlanklessErrorCode;
         native static clearBlanklessLoadingCache(keys?: Array<string>): void;
         native static setBlanklessLoadingCacheCapacity(capacity: int): int;
+        native static setSiteIsolationMode(mode: SiteIsolationMode): void;
+        native static getSiteIsolationMode(): SiteIsolationMode;
         native static setWebDestroyMode(mode: WebDestroyMode): void;
         native setSoftKeyboardBehaviorMode(mode: WebSoftKeyboardBehaviorMode): void;
         native getAttachState(): ControllerAttachState;
