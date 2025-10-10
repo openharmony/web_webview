@@ -5780,8 +5780,8 @@ static void SetActiveWebEngineVersion(ani_env *env, ani_object object, ani_enum_
 
     ani_int aniVersion;
     if (env->EnumItem_GetValue_Int(aniEngineVersion, &aniVersion) != ANI_OK) {
-       WVLOG_E("EnumItem_GetValue_Int failed");
-       AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        WVLOG_E("EnumItem_GetValue_Int failed");
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
     }
 
     WVLOG_D("SetActiveWebEngineVersion start");
