@@ -118,7 +118,8 @@ enum ArkWebBridgeType {
     ARK_WEB_JS_PROXY_METHOD = 94,
 
     /*Note: The end of nweb interface bridge type*/
-    ARK_WEB_NWEB_INTERFACE_BUTT,
+    ARK_WEB_NWEB_INTERFACE_BUTT = 103,
+    ARK_WEB_COLOR_CHOOSER_CALLBACK = 104,
 
     /*Note: Adapter interface bridge type*/
     ARK_WEB_ADAPTER_INTERFACE_INIT = 10000,
