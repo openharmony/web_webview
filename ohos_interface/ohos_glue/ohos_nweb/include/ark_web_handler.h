@@ -1123,6 +1123,14 @@ public:
 
     /*--ark web()--*/
     virtual void UpdateTextFieldStatus(bool isShowKeyboard, bool isAttachIME) = 0;
+
+    /**
+     * @brief Check whether the quick menu is displayed.
+     *
+     * @return Return true quick menu is displayed, false quick menu not displayed.
+     */
+    /*--ark web()--*/
+    virtual bool IsQuickMenuShow() = 0;
 };
 
 } // namespace OHOS::ArkWeb

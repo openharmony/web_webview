@@ -1175,4 +1175,9 @@ void ArkWebHandlerImpl::UpdateTextFieldStatus(bool isShowKeyboard, bool isAttach
 {
     nweb_handler_->UpdateTextFieldStatus(isShowKeyboard, isAttachIME);
 }
+
+bool ArkWebHandlerImpl::IsQuickMenuShow()
+{
+    return nweb_handler_->IsQuickMenuShow();
+}
 } // namespace OHOS::ArkWeb

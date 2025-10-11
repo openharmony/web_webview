@@ -1378,6 +1378,16 @@ public:
      * @param showkeyboard The status of showkeyboard.
      */
     virtual void UpdateTextFieldStatus(bool isShowKeyboard, bool isAttachIME) {}
+
+    /**
+     * @brief Check whether the quick menu is displayed.
+     *
+     * @return Return true quick menu is displayed, false quick menu not displayed.
+     */
+    virtual bool IsQuickMenuShow()
+    {
+        return false;
+    }
 };
 
 } // namespace OHOS::NWeb
