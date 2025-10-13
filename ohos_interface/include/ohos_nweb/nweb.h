@@ -103,6 +103,7 @@ public:
     virtual bool GetIsEnhanceSurface() = 0;
     virtual bool GetIsPopup() = 0;
     virtual std::string GetSharedRenderProcessToken() {return "";}
+    virtual bool GetEmulateTouchFromMouseEvent() {return false;}
 };
 
 class OHOS_NWEB_EXPORT NWebOutputFrameCallback {

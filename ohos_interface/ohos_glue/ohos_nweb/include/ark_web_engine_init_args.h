@@ -48,6 +48,9 @@ public:
 
     /*--ark web()--*/
     virtual ArkWebString GetSharedRenderProcessToken() = 0;
+
+    /*--ark web()--*/
+    virtual bool GetEmulateTouchFromMouseEvent() = 0;
 };
 
 } // namespace OHOS::ArkWeb
