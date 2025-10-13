@@ -21,9 +21,12 @@
 #include "parameters.h"
 
 namespace OHOS::ArkWeb {
+extern int g_cloudEnableAppVersion;
+extern bool g_webEngineInitFlag;
 namespace {
     constexpr uint8_t MAX_STRING_LENGTH = 64;
     constexpr int32_t TEST_NUMBER = 1000;
+    constexpr int TEST_PARAMETER = 3;
 }
 
 bool ArkwebUtils001Test(const uint8_t* data, size_t size)
@@ -105,6 +108,45 @@ bool ArkwebUtils002Test(const uint8_t* data, size_t size)
     GetArkwebInstallPath();
     return true;
 }
+
+bool ArkwebUtils003Test(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
+    }
+    SetActiveWebEngineVersionInner(ArkWebEngineVersion::M114);
+    GetArkwebInstallPath();
+    GetArkwebNameSpace();
+    GetArkwebLibPath();
+    SetActiveWebEngineVersionInner(ArkWebEngineVersion::M132);
+    int openMode = 1;
+    std::string libFilePath = "/code/base/";
+    bool isPrintLog = true;
+    ArkWebBridgeHelperLoadLibFile(openMode, libFilePath, isPrintLog);
+    isPrintLog = false;
+    ArkWebBridgeHelperLoadLibFile(openMode, libFilePath, isPrintLog);
+
+    SetIntParameter("web.engine.enforce", 1);
+    ArkWebEngineVersion version = ArkWebEngineVersion::SYSTEM_EVERGREEN;
+    setActiveWebEngineVersion(version);
+    version = ArkWebEngineVersion::M132;
+    setActiveWebEngineVersion(version);
+    version = ArkWebEngineVersion::SYSTEM_DEFAULT;
+    g_cloudEnableAppVersion = static_cast<int>(ArkWebEngineType::LEGACY);
+    setActiveWebEngineVersion(version);
+    g_cloudEnableAppVersion = static_cast<int>(ArkWebEngineType::EVERGREEN);
+    SetIntParameter("web.engine.default", TEST_PARAMETER);
+    setActiveWebEngineVersion(version);
+    SetIntParameter("web.engine.default", static_cast<int>(ArkWebEngineType::EVERGREEN));
+    setActiveWebEngineVersion(version);
+    g_webEngineInitFlag = true;
+    version = ArkWebEngineVersion::SYSTEM_DEFAULT;
+    setActiveWebEngineVersion(version);
+    g_webEngineInitFlag = false;
+    std::string appBundleName = "com.example.app";
+    SelectWebcoreBeforeProcessRun(appBundleName);
+    return true;
+}
 } // namespace OHOS
 
 /* Fuzzer entry point */
@@ -113,5 +155,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     /* Run your code on data */
     OHOS::ArkWeb::ArkwebUtils001Test(data, size);
     OHOS::ArkWeb::ArkwebUtils002Test(data, size);
+    OHOS::ArkWeb::ArkwebUtils003Test(data, size);
     return 0;
 }
