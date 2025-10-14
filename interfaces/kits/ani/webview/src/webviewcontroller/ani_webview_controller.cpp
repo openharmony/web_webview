@@ -3336,12 +3336,12 @@ bool ParseJsLengthResourceToInt(ani_env* env, ani_object jsLength, PixelUnit& ty
         WVLOG_E("env is nullptr");
         return false;
     }
-    ani_double resIdDouble;
-    if ((env->Object_GetPropertyByName_Double(jsLength, "id", &resIdDouble) != ANI_OK)) {
-        WVLOG_E("Object_GetPropertyByName_Double failed");
+    ani_int resIdInt;
+    if ((env->Object_GetPropertyByName_Int(jsLength, "id", &resIdInt) != ANI_OK)) {
+        WVLOG_E("Object_GetPropertyByName_Int failed");
         return false;
     }
-    int32_t resId = static_cast<int32_t>(resIdDouble);
+    int32_t resId = static_cast<int32_t>(resIdInt);
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
         AbilityRuntime::ApplicationContext::GetApplicationContext();
     if (!context) {
