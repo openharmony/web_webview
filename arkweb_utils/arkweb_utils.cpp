@@ -105,6 +105,7 @@ const std::string LIB_ARKWEB_ENGINE = "libarkweb_engine.so";
 const std::string PERSIST_ARKWEBCORE_PACKAGE_NAME = "persist.arkwebcore.package_name";
 const std::string EL1_BUNDLE_PUBLIC = "/data/app/el1/bundle/public/";
 const std::string SANDBOX_REAL_PATH = "/data/storage/el1/bundle/arkwebcore";
+const std::string APPSPAWN_PRELOAD_ARKWEB_ENGINE = "const.startup.appspawn.preload.arkwebEngine";
 #endif
 
 // 前向声明
@@ -609,6 +610,10 @@ bool CreateRealSandboxPath()
 void DlopenArkWebLib()
 {
 #if (defined(webview_arm64) && !defined(ASAN_DETECTOR))
+    if (!OHOS::system::GetBoolParameter(APPSPAWN_PRELOAD_ARKWEB_ENGINE, false)) {
+        WVLOG_E("DlopenArkWebLib preload arkweb turn off!");
+        return;
+    }
     const std::string bundleName = OHOS::system::GetParameter(PERSIST_ARKWEBCORE_PACKAGE_NAME, "");
     if (bundleName.empty()) {
         WVLOG_E("DlopenArkWebLib bundleName is null");
@@ -652,6 +657,10 @@ static bool IsNWebLibLoaded(Dl_namespace dlns)
 int DlcloseArkWebLib()
 {
 #if (defined(webview_arm64) && !defined(ASAN_DETECTOR))
+    if (!OHOS::system::GetBoolParameter(APPSPAWN_PRELOAD_ARKWEB_ENGINE, false)) {
+        WVLOG_E("DlcloseArkWebLib preload arkweb turn off!");
+        return 0;
+    }
     Dl_namespace dlns;
     if (dlns_get("nweb_ns", &dlns) != 0) {
         WVLOG_I("Failed to get nweb_ns");
