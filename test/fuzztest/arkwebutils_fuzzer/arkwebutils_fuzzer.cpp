@@ -108,6 +108,7 @@ bool ArkwebUtils002Test(const uint8_t* data, size_t size)
     GetArkwebInstallPath();
     return true;
 }
+
 bool ArkwebUtils003Test(const uint8_t* data, size_t size)
 {
     if ((data == nullptr) || (size == 0)) {
