@@ -27,6 +27,7 @@ namespace {
     constexpr uint8_t MAX_STRING_LENGTH = 64;
     constexpr int32_t TEST_NUMBER = 1000;
     constexpr int TEST_PARAMETER = 3;
+    constexpr int RANDOM_NUM = 123;
 }
 
 bool ArkwebUtils001Test(const uint8_t* data, size_t size)
@@ -161,7 +162,7 @@ bool ArkwebUtils004Test(const uint8_t* data, size_t size)
     ProcessLegacyAppParam(value1);
 
     Json::Value value2 = Json::arrayValue;
-    value2.append(123);
+    value2.append(Json::Value(RANDOM_NUM));
     ProcessLegacyAppParam(value2);
     return true;
 }
@@ -171,13 +172,10 @@ bool ArkwebUtils005Test(const uint8_t* data, size_t size)
     if ((data == nullptr) || (size == 0)) {
         return false;
     }
-    Json::Value root;
-    root = Json::nullValue;
+    Json::Value root = Json::nullValue;
     ProcessJsonConfig(root);
 
-    Json::Value root = 123;
-    std::string key = "web.engine.enforce";
-    root[key] = value;
+    root = Json::Value(RANDOM_NUM);
     ProcessJsonConfig(root);
     return true;
 }
@@ -189,11 +187,11 @@ bool ArkwebUtils006Test(const uint8_t* data, size_t size)
     }
     std::string versionStr1 = "version = 1.2.3.4";
     long long versionNum1 = 0;
-    HandleVersionString(versionStr1,versionNum1);
+    HandleVersionString(versionStr1, versionNum1);
 
     std::string versionStr2 = "version = 1.2.3";
     long long versionNum2 = 1;
-    HandleVersionString(versionStr2,versionNum2);
+    HandleVersionString(versionStr2, versionNum2);
     return true;
 }
 } // namespace OHOS
