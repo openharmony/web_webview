@@ -340,8 +340,8 @@ bool AniParseUtils::EnumParseInt32_t(ani_env* env, ani_enum_item enum_item, int3
 
 bool AniParseUtils::GetStringList(ani_env *env, ani_object array, std::vector<std::string>& outValue)
 {
-    ani_double arrayLength;
-    if (env->Object_GetPropertyByName_Double(array, "length", &arrayLength) != ANI_OK) {
+    ani_int arrayLength;
+    if (env->Object_GetPropertyByName_Int(array, "length", &arrayLength) != ANI_OK) {
         WVLOG_E("Param check failed, unable to get array length.");
         return false;
     }
