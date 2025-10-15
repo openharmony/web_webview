@@ -53,7 +53,7 @@ static ani_boolean JsExistCookie(ani_env *env, ani_object aniClass, ani_object i
     env->Reference_IsUndefined(incognito, &isUndefined);
     if (isUndefined != ANI_TRUE) {
         ani_boolean bIncognito;
-        if (env->Object_CallMethodByName_Boolean(incognito, "booleanValue", nullptr, &bIncognito) != ANI_OK) {
+        if (env->Object_CallMethodByName_Boolean(incognito, "toBoolean", nullptr, &bIncognito) != ANI_OK) {
             AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
                 NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
             return ANI_FALSE;
@@ -296,7 +296,7 @@ static void JsClearAllCookiesSync(ani_env *env, ani_object aniClass, ani_object 
     env->Reference_IsUndefined(incognito, &isUndefined);
     if (isUndefined != ANI_TRUE) {
         ani_boolean bIncognito;
-        if (env->Object_CallMethodByName_Boolean(incognito, "booleanValue", nullptr, &bIncognito) != ANI_OK) {
+        if (env->Object_CallMethodByName_Boolean(incognito, "toBoolean", nullptr, &bIncognito) != ANI_OK) {
             AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
                 NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
             return;
