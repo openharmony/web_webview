@@ -884,12 +884,10 @@ export default namespace webview {
                         console.error("Failed to parse certificate", e);
                     }
                 }
-                let error = new BusinessError<void>();
-                callback(error, certs);
+                callback(null, certs);
             }).catch((error: Error) => {
                 let err = error as BusinessError<void>;
-                let data = new Array<cert.X509Cert>;
-                callback(err, data);
+                callback(err, undefined);
             });
         }
     }
