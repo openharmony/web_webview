@@ -5755,15 +5755,16 @@ static ani_enum_item GetActiveWebEngineVersion(ani_env *env, ani_object object)
 
     ani_int aniVersion = 0;
     ani_enum enumType;
-    if (env->FindEnum(ANI_ENUM_ARK_WEB_ENGINE_VERSION, &enumType) != ANI_OK) {
-        WVLOG_E("findEnum is nullptr");
+    ani_status status = ANI_ERROR;
+    if ((status = env->FindEnum(ANI_ENUM_ARK_WEB_ENGINE_VERSION, &enumType)) != ANI_OK) {
+        WVLOG_E("FindEnum failed, status: %{public}d", status);
         return nullptr;
     }
     
     aniVersion = static_cast<ani_int>(OHOS::ArkWeb::getActiveWebEngineVersion());
     ani_enum_item aniEnumState;
-    if ((env->Enum_GetEnumItemByIndex(enumType, aniVersion, &aniEnumState)) != ANI_OK) {
-        WVLOG_E("getEnum is error");
+    if ((status = (env->Enum_GetEnumItemByIndex(enumType, aniVersion, &aniEnumState))) != ANI_OK) {
+        WVLOG_E("Enum_GetEnumItemByIndex failed, status: %{public}d", status);
         return nullptr;
     }
 
@@ -5779,9 +5780,11 @@ static void SetActiveWebEngineVersion(ani_env *env, ani_object object, ani_enum_
     }
 
     ani_int aniVersion;
-    if (env->EnumItem_GetValue_Int(aniEngineVersion, &aniVersion) != ANI_OK) {
-        WVLOG_E("EnumItem_GetValue_Int failed");
+    ani_status status = ANI_ERROR;
+    if ((status = env->EnumItem_GetValue_Int(aniEngineVersion, &aniVersion)) != ANI_OK) {
+        WVLOG_E("EnumItem_GetValue_Int failed, status: %{public}d", status);
         AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
     }
 
     WVLOG_D("SetActiveWebEngineVersion start");
