@@ -471,20 +471,23 @@ export default namespace webview {
     }
 
     export interface NativeMediaPlayerBridge {
-        updateRect(x: double, y: double, width: double, height: double): void
-        play(): void
-        pause(): void
-        seek(targetTime: double): void
-        setVolume(volume: double): void
-        setMuted(muted: boolean): void
-        setPlaybackRate(playbackRate: double): void
-        release(): void
-        enterFullscreen(): void
-        exitFullscreen(): void
+        updateRect: UpdateRectFn;
+        play: ZeroParamFn<>;
+        pause: ZeroParamFn<>;
+        seek: OneParamFn<double>;
+        setVolume: OneParamFn<double>;
+        setMuted: OneParamFn<boolean>;
+        setPlaybackRate: OneParamFn<double>;
+        release: ZeroParamFn<>;
+        enterFullscreen: ZeroParamFn<>;
+        exitFullscreen: ZeroParamFn<>;
         resumePlayer?: ResumePlayerFn;
         suspendPlayer?: SuspendPlayerFn;
     }
 
+    type ZeroParamFn<V=void> = () => V;
+    type OneParamFn<T,V=void> = (param: T) => V;
+    type UpdateRectFn = (x: double, y: double, width: double, height: double) => void;
     type SuspendPlayerFn = (type: SuspendType) => void
     type ResumePlayerFn = () => void
 
