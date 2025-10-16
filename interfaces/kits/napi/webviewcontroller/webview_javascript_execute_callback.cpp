@@ -481,6 +481,8 @@ napi_value NapiJsMessageExt::GetErrorDescription(napi_env env, napi_callback_inf
     std::string msgStr = webJsMessageExt->GetJsMsgResult()->GetErrorDescription();
     if (!msgStr.empty()) {
         napi_create_string_utf8(env, msgStr.c_str(), msgStr.length(), &result);
+    } else {
+        napi_get_null(env, &result);
     }
     return result;
 }
