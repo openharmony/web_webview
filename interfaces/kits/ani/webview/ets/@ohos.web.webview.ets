@@ -608,6 +608,13 @@ export default namespace webview {
         }
     }
 
+    export enum ArkWebEngineVersion {
+        SYSTEM_DEFAULT = 0,
+        M114 = 1,
+        M132 = 2,
+        ARKWEB_EVERGREEN = 99999
+    }
+
     export class WebviewController {
         static {
             loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
@@ -898,6 +905,8 @@ export default namespace webview {
             return this.waitForAttachedPromise(timeout);
         }
         native setWebDetach(nwebId: int): void;
+        native static getActiveWebEngineVersion(): ArkWebEngineVersion;
+        native static setActiveWebEngineVersion(engineVersion: ArkWebEngineVersion): void;
     }
 
     export class WebSchemeHandlerResponse {

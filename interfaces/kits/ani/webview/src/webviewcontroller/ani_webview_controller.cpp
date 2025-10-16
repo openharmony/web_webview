@@ -5851,6 +5851,51 @@ static void SetWebDetach(ani_env *env, ani_object object, ani_int nwebId)
     return;
 }
 
+static ani_enum_item GetActiveWebEngineVersion(ani_env *env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+
+    ani_int aniVersion = 0;
+    ani_enum enumType;
+    ani_status status = ANI_ERROR;
+    if ((status = env->FindEnum(ANI_ENUM_ARK_WEB_ENGINE_VERSION, &enumType)) != ANI_OK) {
+        WVLOG_E("FindEnum failed, status: %{public}d", status);
+        return nullptr;
+    }
+    
+    aniVersion = static_cast<ani_int>(OHOS::ArkWeb::getActiveWebEngineVersion());
+    ani_enum_item aniEnumState;
+    if ((status = (env->Enum_GetEnumItemByIndex(enumType, aniVersion, &aniEnumState))) != ANI_OK) {
+        WVLOG_E("Enum_GetEnumItemByIndex failed, status: %{public}d", status);
+        return nullptr;
+    }
+
+    WVLOG_D("GetActiveWebEngineVersion start");
+    return aniEnumState;
+}
+
+static void SetActiveWebEngineVersion(ani_env *env, ani_object object, ani_enum_item aniEngineVersion)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    ani_int aniVersion;
+    ani_status status = ANI_ERROR;
+    if ((status = env->EnumItem_GetValue_Int(aniEngineVersion, &aniVersion)) != ANI_OK) {
+        WVLOG_E("EnumItem_GetValue_Int failed, status: %{public}d", status);
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+
+    WVLOG_D("SetActiveWebEngineVersion start");
+    OHOS::ArkWeb::setActiveWebEngineVersion(static_cast<OHOS::ArkWeb::ArkWebEngineVersion>(aniVersion));
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     WVLOG_D("[DOWNLOAD] StsWebviewControllerInit");
@@ -6028,6 +6073,10 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void *>(OffControllerAttachStateChange) },
         ani_native_function { "waitForAttachedPromise", nullptr, reinterpret_cast<void *>(WaitForAttachedPromise) },
         ani_native_function { "setWebDetach", nullptr, reinterpret_cast<void *>(SetWebDetach) },
+        ani_native_function { "getActiveWebEngineVersion", nullptr,
+                              reinterpret_cast<void*>(GetActiveWebEngineVersion) },
+        ani_native_function { "setActiveWebEngineVersion", nullptr,
+                              reinterpret_cast<void*>(SetActiveWebEngineVersion) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());
