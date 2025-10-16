@@ -52,17 +52,18 @@ bool MediaAVSessionAdapterImplFuzzTest(const uint8_t* data, size_t size)
     key->GetType();
     key->ToString();
 
-    callbackImpl->OnPlay();
+    AVSession::AVControlCommand cmd;
+    callbackImpl->OnPlay(cmd);
     callbackImpl->OnPause();
     callbackImpl->OnStop();
 
-    callbackImpl->OnPlayNext();
-    callbackImpl->OnPlayPrevious();
+    callbackImpl->OnPlayNext(cmd);
+    callbackImpl->OnPlayPrevious(cmd);
 
     int64_t time = fdp.ConsumeIntegralInRange<int64_t>(0, MAX_SET_NUMBER);
     callbackImpl->OnSeek(time);
-    callbackImpl->OnFastForward(time);
-    callbackImpl->OnRewind(time);
+    callbackImpl->OnFastForward(time, cmd);
+    callbackImpl->OnRewind(time, cmd);
 
     auto speed = fdp.ConsumeFloatingPoint<float>();
     callbackImpl->OnSetSpeed(speed);

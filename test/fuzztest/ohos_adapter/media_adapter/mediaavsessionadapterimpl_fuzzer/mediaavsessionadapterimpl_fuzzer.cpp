@@ -47,7 +47,8 @@ bool MediaAVSessionAdapterImplFuzzTest(const uint8_t* data, size_t size)
     FuzzedDataProvider dataProvider(data, size);
     int64_t time = dataProvider.ConsumeIntegralInRange<int64_t>(0, MAX_SET_NUMBER);
 
-    callbackImpl->OnPlay();
+    AVSession::AVControlCommand cmd;
+    callbackImpl->OnPlay(cmd);
     callbackImpl->OnPause();
     callbackImpl->OnStop();
     callbackImpl->OnSeek(time);

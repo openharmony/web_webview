@@ -20,6 +20,7 @@
 
 #include "media_avsession_adapter.h"
 #include "av_session.h"
+#include "avcontrol_command.h"
 
 namespace OHOS::NWeb {
 
@@ -28,13 +29,13 @@ public:
     MediaAVSessionCallbackImpl(std::shared_ptr<MediaAVSessionCallbackAdapter> callbackAdapter);
     ~MediaAVSessionCallbackImpl() = default;
 
-    void OnPlay() override;
+    void OnPlay(const AVSession::AVControlCommand& cmd) override;
     void OnPause() override;
     void OnStop() override;
-    void OnPlayNext() override;
-    void OnPlayPrevious() override;
-    void OnFastForward(int64_t time) override;
-    void OnRewind(int64_t time) override;
+    void OnPlayNext(const AVSession::AVControlCommand& cmd) override;
+    void OnPlayPrevious(const AVSession::AVControlCommand& cmd) override;
+    void OnFastForward(int64_t time, const AVSession::AVControlCommand& cmd) override;
+    void OnRewind(int64_t time, const AVSession::AVControlCommand& cmd) override;
     void OnSeek(int64_t time) override;
     void OnSetSpeed(double speed) override;
     void OnSetLoopMode(int32_t loopMode) override;
