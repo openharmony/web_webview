@@ -137,12 +137,12 @@ ohos_unittest("web_native_messaging_extension_context_info_test") {
 
   include_dirs = [
     "../common",
-    "$webview_path/interfaces/native/web_native_messaging_extension/extension/include",
+    "$webview_path/interfaces/kits/napi/web_native_messaging_extension/extension/include",
     "$webview_path/sa/web_native_messaging/common",
   ]
 
   deps = [
-    "$webview_path/interfaces/native/web_native_messaging_extension/extension:web_extension",
+    "$webview_path/interfaces/kits/napi/web_native_messaging_extension/extension:web_extension",
     "$webview_path/sa/web_native_messaging:web_native_messaging_kit",
     "$webview_path/ohos_nweb:web_configs",
   ]
@@ -179,12 +179,12 @@ ohos_unittest("web_native_messaging_extension_context_test") {
 
   include_dirs = [
     "../common",
-    "$webview_path/interfaces/native/web_native_messaging_extension/extension/include",
+    "$webview_path/interfaces/kits/napi/web_native_messaging_extension/extension/include",
     "$webview_path/sa/web_native_messaging/common",
   ]
 
   deps = [
-    "$webview_path/interfaces/native/web_native_messaging_extension/extension:web_extension",
+    "$webview_path/interfaces/kits/napi/web_native_messaging_extension/extension:web_extension",
     "$webview_path/sa/web_native_messaging:web_native_messaging_kit",
     "$webview_path/ohos_nweb:web_configs",
   ]
@@ -221,15 +221,15 @@ ohos_unittest("web_native_messaging_extension_proxy_test") {
 
   include_dirs = [
     "../common",
-    "$webview_path/interfaces/native/web_native_messaging_extension/extension/include"
+    "$webview_path/interfaces/kits/napi/web_native_messaging_extension/extension/include"
   ]
 
   deps = [
     "$webview_path/arkweb_utils:libarkweb_utils",
     "$webview_path/interfaces/native:ohweb",
     "$webview_path/ohos_nweb:web_configs",
-    "$webview_path/interfaces/native/web_native_messaging_extension/extension:connect_info",
-    "$webview_path/interfaces/native/web_native_messaging_extension/extension_client:web_extension_client",
+    "$webview_path/interfaces/kits/napi/web_native_messaging_extension/extension:connect_info",
+    "$webview_path/interfaces/kits/napi/web_native_messaging_extension/extension_client:web_extension_client",
   ]
 
   external_deps = [
@@ -262,8 +262,8 @@ config("module_private_config") {
     "${target_gen_dir}/../../../sa/web_native_messaging",
     "${target_gen_dir}",
     "${target_gen_dir}/../../ohos_nweb/include",
-    "${webview_path}/interfaces/native/web_native_messaging_extension/extension/include",
-    "${webview_path}/interfaces/native/web_native_messaging_extension/extension_client/include",
+    "${webview_path}/interfaces/kits/napi/web_native_messaging_extension/extension/include",
+    "${webview_path}/interfaces/kits/napi/web_native_messaging_extension/extension_client/include",
     "mock",
   ]
 }
@@ -298,8 +298,8 @@ ohos_unittest("web_native_messaging_service_test") {
 
   deps = [
     "${webview_path}/sa/web_native_messaging:web_native_messaging_service",
-    "${webview_path}/interfaces/native/web_native_messaging_extension/extension_client:web_extension_client",
-    "${webview_path}/interfaces/native/web_native_messaging_extension/extension:web_extension",
+    "${webview_path}/interfaces/kits/napi/web_native_messaging_extension/extension_client:web_extension_client",
+    "${webview_path}/interfaces/kits/napi/web_native_messaging_extension/extension:web_extension",
     ":web_native_messaging_service_interface",
   ]
 
@@ -330,8 +330,8 @@ ohos_unittest("web_native_messaging_manager_test") {
   sources = [ "web_native_messaging_manager_test.cpp" ]
   output_values = get_target_outputs(":web_native_messaging_service_interface")
   sources += [
-    "${webview_path}/interfaces/native/web_native_messaging_extension/extension_client/src/web_native_messaging_extension_proxy.cpp",
-    "${webview_path}/interfaces/native/web_native_messaging_extension/extension/src/web_native_messaging_extension_connect_info.cpp",
+    "${webview_path}/interfaces/kits/napi/web_native_messaging_extension/extension_client/src/web_native_messaging_extension_proxy.cpp",
+    "${webview_path}/interfaces/kits/napi/web_native_messaging_extension/extension/src/web_native_messaging_extension_connect_info.cpp",
     "${webview_path}/sa/web_native_messaging/service/connect_native_request.cpp",
     "${webview_path}/sa/web_native_messaging/service/extension_ipc_connection.cpp",
     "${webview_path}/sa/web_native_messaging/service/service_delay_exit_task.cpp",
@@ -347,8 +347,8 @@ ohos_unittest("web_native_messaging_manager_test") {
 
   deps = [
     "${webview_path}/sa/web_native_messaging:web_native_messaging_service",
-    "${webview_path}/interfaces/native/web_native_messaging_extension/extension_client:web_extension_client",
-    "${webview_path}/interfaces/native/web_native_messaging_extension/extension:web_extension",
+    "${webview_path}/interfaces/kits/napi/web_native_messaging_extension/extension_client:web_extension_client",
+    "${webview_path}/interfaces/kits/napi/web_native_messaging_extension/extension:web_extension",
     ":web_native_messaging_service_interface",
   ]
 

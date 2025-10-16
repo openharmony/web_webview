@@ -50,7 +50,9 @@ ohos_shared_library("webnativemessagingextensioncontext_napi") {
         cfi_vcall_icall_only = true
         debug = false
     }
-    branch_protector_ret = "pac_ret"
+    if (target_cpu == "arm64") {
+        branch_protector_ret = "pac_ret"
+    }
     sources = [ "web_native_messaging_extension_context_module.cpp" ]
 
     deps = [

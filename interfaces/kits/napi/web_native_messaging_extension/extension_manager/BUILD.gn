@@ -1,0 +1,76 @@
+# Copyright (c) 2025 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+
+config("web_public_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "../../../nativecommon",
+    "../../common",
+    "./",
+    "../../../../../ohos_adapter/system_properties_adapter/include",
+    "../../../../../sa/web_native_messaging/client",
+    "../../../../../sa/web_native_messaging/common"
+  ]
+}
+
+ohos_shared_library("webnativemessagingextensionmanager_napi") {
+  sanitize = {
+      cfi = true
+      cfi_cross_dso =  true
+      cfi_vcall_icall_only = true
+      debug = false
+  }
+  if (target_cpu == "arm64") {
+    branch_protector_ret = "pac_ret"
+  }
+
+  public_configs = [ ":web_public_config" ]
+
+  sources = [
+    "../../common/business_error.cpp",
+    "../../common/napi_parse_utils.cpp",
+    "../../../../../sa/web_native_messaging/common/web_native_messaging_common.cpp",
+    "napi_extension_manager_init.cpp",
+    "napi_web_native_messaging_extension_manager.cpp"
+  ]
+
+  use_exceptions = true
+
+  external_deps = [
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:ability_context_native",
+    "ability_runtime:app_context",
+    "ability_runtime:napi_base_context",
+    "ability_runtime:napi_common",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+
+  deps = [
+    "../../../nativecommon:webview_common",
+    "../../../../../arkweb_utils:libarkweb_utils",
+    "../../../../../ohos_adapter:nweb_ohos_adapter",
+    "../../../../../ohos_nweb:libnweb",
+    "../../../../../sa/web_native_messaging:web_native_messaging_kit",
+    "../../../../native:ohweb",
+  ]
+
+  relative_install_dir = "module/web"
+
+  part_name = "webview"
+  subsystem_name = "web"
+}
