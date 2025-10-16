@@ -27,6 +27,7 @@ namespace {
     constexpr uint8_t MAX_STRING_LENGTH = 64;
     constexpr int32_t TEST_NUMBER = 1000;
     constexpr int TEST_PARAMETER = 3;
+    constexpr int RANDOM_NUM = 123;
 }
 
 bool ArkwebUtils001Test(const uint8_t* data, size_t size)
@@ -147,6 +148,52 @@ bool ArkwebUtils003Test(const uint8_t* data, size_t size)
     SelectWebcoreBeforeProcessRun(appBundleName);
     return true;
 }
+
+bool ArkwebUtils004Test(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
+    }
+    Json::Value value = "not an array";
+    ProcessLegacyAppParam(value);
+
+    Json::Value value1 = Json::arrayValue;
+    value1.append("valid_string");
+    ProcessLegacyAppParam(value1);
+
+    Json::Value value2 = Json::arrayValue;
+    value2.append(Json::Value(RANDOM_NUM));
+    ProcessLegacyAppParam(value2);
+    return true;
+}
+
+bool ArkwebUtils005Test(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
+    }
+    Json::Value root = Json::nullValue;
+    ProcessJsonConfig(root);
+
+    root = Json::Value(RANDOM_NUM);
+    ProcessJsonConfig(root);
+    return true;
+}
+
+bool ArkwebUtils006Test(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
+    }
+    std::string versionStr1 = "version = 1.2.3.4";
+    long long versionNum1 = 0;
+    HandleVersionString(versionStr1, versionNum1);
+
+    std::string versionStr2 = "version = 1.2.3";
+    long long versionNum2 = 1;
+    HandleVersionString(versionStr2, versionNum2);
+    return true;
+}
 } // namespace OHOS
 
 /* Fuzzer entry point */
@@ -156,5 +203,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::ArkWeb::ArkwebUtils001Test(data, size);
     OHOS::ArkWeb::ArkwebUtils002Test(data, size);
     OHOS::ArkWeb::ArkwebUtils003Test(data, size);
+    OHOS::ArkWeb::ArkwebUtils004Test(data, size);
+    OHOS::ArkWeb::ArkwebUtils005Test(data, size);
+    OHOS::ArkWeb::ArkwebUtils006Test(data, size);
     return 0;
 }
