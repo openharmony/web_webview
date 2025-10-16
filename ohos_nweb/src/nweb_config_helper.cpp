@@ -132,6 +132,10 @@ const std::unordered_map<std::string_view, std::function<std::string(std::string
         [](std::string& contentStr) {
             return contentStr == "true" ? std::string("--ohos-enable-calc-tablet-mode") : std::string();
         } },
+    { "settingConfig/enableReportCookieMonsterClient",
+        [](std::string& contentStr) {
+            return contentStr == "true" ? std::string("--ohos-enable-report-cookie-monster-client") : std::string();
+        } },
     { "settingConfig/disableMobileStyleSheet",
         [](std::string& contentStr) {
             return contentStr == "true" ? std::string("--ohos-disable-mobile-style-sheet") : std::string();
