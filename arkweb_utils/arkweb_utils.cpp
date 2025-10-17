@@ -593,12 +593,13 @@ void* ArkWebBridgeHelperSharedInit(bool runMode, const std::string& mockBundlePa
 bool CreateRealSandboxPath()
 {
     namespace fs = std::filesystem;
-    if (fs::exists(SANDBOX_REAL_PATH)) {
+    std::error_code ec;
+    if (fs::exists(SANDBOX_REAL_PATH, ec)) {
         WVLOG_I("CreateRealSandboxPath %{public}s already exists", SANDBOX_REAL_PATH.c_str());
         return true;
     }
 
-    if (fs::create_directories(SANDBOX_REAL_PATH)) {
+    if (fs::create_directories(SANDBOX_REAL_PATH, ec)) {
         return true;
     }
 
