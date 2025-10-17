@@ -134,9 +134,9 @@ public:
 bool MediaAvsessionAdapterFuzzTest_01(const uint8_t* data, size_t size)
 {
     FuzzedDataProvider fdp(data, size);
-    std::shared_ptr<MediaAVSessionMetadataAdapterMock> metadataadapter = 
+    std::shared_ptr<MediaAVSessionMetadataAdapterMock> metadataadapter =
         std::make_shared<MediaAVSessionMetadataAdapterMock>();
-    std::shared_ptr<MediaAVSessionPositionAdapterMock> pointeradapter = 
+    std::shared_ptr<MediaAVSessionPositionAdapterMock> pointeradapter =
         std::make_shared<MediaAVSessionPositionAdapterMock>();
     std::shared_ptr<MediaAVSessionAdapterImpl> avSessionAdapter = std::make_shared<MediaAVSessionAdapterImpl>();
     std::shared_ptr<AVSession> avSessionMock = std::make_shared<AVSessionMock>();
@@ -171,9 +171,9 @@ bool MediaAvsessionAdapterFuzzTest_01(const uint8_t* data, size_t size)
 bool MediaAvsessionAdapterFuzzTest_02(const uint8_t* data, size_t size)
 {
     FuzzedDataProvider fdp(data, size);
-    std::shared_ptr<MediaAVSessionMetadataAdapterMock> metadataadapter = 
+    std::shared_ptr<MediaAVSessionMetadataAdapterMock> metadataadapter =
         std::make_shared<MediaAVSessionMetadataAdapterMock>();
-    std::shared_ptr<MediaAVSessionPositionAdapterMock> pointeradapter = 
+    std::shared_ptr<MediaAVSessionPositionAdapterMock> pointeradapter =
         std::make_shared<MediaAVSessionPositionAdapterMock>();
     std::shared_ptr<MediaAVSessionAdapterImpl> avSessionAdapter = std::make_shared<MediaAVSessionAdapterImpl>();
 
