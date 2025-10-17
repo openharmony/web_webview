@@ -1244,8 +1244,8 @@ export default namespace webview {
 
     export class BackForwardCacheOptions {
 
-        size: int;
-        timeToLive: int;
+        size: int = 1;
+        timeToLive: int = 600;
 
         constructor() {};
     }
