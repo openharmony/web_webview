@@ -534,6 +534,7 @@ action("ohos_glue_adapter_prepare") {
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_audio_system_manager_adapter_impl.cpp",
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_audio_system_manager_adapter_impl.h",
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_background_task_adapter_impl.cpp",
+    "${glue_build_gen_dir}/ohos_adapter/bridge/ark_background_task_adapter_impl.h",
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_battery_event_callback_wrapper.cpp",
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_battery_event_callback_wrapper.h",
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_battery_info_impl.cpp",
@@ -781,6 +782,8 @@ action("ohos_glue_adapter_prepare") {
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_web_date_timezone_info_impl.h",
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_window_adapter_impl.cpp",
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_window_adapter_impl.h",
+    "${glue_build_gen_dir}/ohos_adapter/bridge/ark_background_state_change_callback_adapter_wrapper.cpp",
+    "${glue_build_gen_dir}/ohos_adapter/bridge/ark_background_state_change_callback_adapter_wrapper.h",
     "${glue_build_gen_dir}/ohos_adapter/cpptoc/ark_aafwk_app_mgr_client_adapter_cpptoc.cpp",
     "${glue_build_gen_dir}/ohos_adapter/cpptoc/ark_aafwk_app_mgr_client_adapter_cpptoc.h",
     "${glue_build_gen_dir}/ohos_adapter/cpptoc/ark_aafwk_browser_client_adapter_cpptoc.cpp",
@@ -1087,6 +1090,8 @@ action("ohos_glue_adapter_prepare") {
     "${glue_build_gen_dir}/ohos_adapter/ctocpp/ark_video_info_adapter_ctocpp.h",
     "${glue_build_gen_dir}/ohos_adapter/ctocpp/ark_vpn_listener_ctocpp.cpp",
     "${glue_build_gen_dir}/ohos_adapter/ctocpp/ark_vpn_listener_ctocpp.h",
+    "${glue_build_gen_dir}/ohos_adapter/ctocpp/ark_background_state_change_callback_adapter_ctocpp.cpp",
+    "${glue_build_gen_dir}/ohos_adapter/ctocpp/ark_background_state_change_callback_adapter_ctocpp.h",
   ]
 
   deps = [
