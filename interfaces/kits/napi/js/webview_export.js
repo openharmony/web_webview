@@ -285,7 +285,7 @@ function fileSelectorListItem(callback, sysResource, text, func) {
     SymbolGlyph.margin({
       right: 16
     });
-    SymbolGlyph.fontColor([{ 'id': -1, 'type': -1, param: ['sys.color.icon_primary'], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' }]);
+    SymbolGlyph.fontColor([{ 'id': -1, 'type': -1, params: ['sys.color.icon_primary'], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' }]);
     Row.create();
     Row.margin({ right: 36 });
     Row.border({ width: { bottom: 0.5 }, color: '#33000000' });
