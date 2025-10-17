@@ -60,7 +60,18 @@ bool GetParameters(std::shared_ptr<OhosImageDecoderAdapter>& adapter, const uint
     adapter->GetEncodedFormat();
     adapter->GetImageWidth();
     adapter->GetImageHeight();
+    adapter->GetFd();
+    adapter->GetStride();
+    adapter->GetOffset();
+    adapter->GetSize();
+    adapter->GetNativeWindowBuffer();
+    adapter->GetPlanesCount();
+    adapter->GetDecodeData();
+
     adapter->DecodeToPixelMap(imageData, len);
+    adapter->GetEncodedFormat();
+    adapter->GetImageWidth();
+    adapter->GetImageHeight();
     adapter->GetFd();
     adapter->GetStride();
     adapter->GetOffset();
