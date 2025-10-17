@@ -904,6 +904,11 @@ export default namespace webview {
 
             return this.waitForAttachedPromise(timeout);
         }
+        native static isAutoPreconnectEnabled(): boolean;
+        native static setAutoPreconnect(enabled: boolean): void;
+        native setBackForwardCacheOptions(options?: BackForwardCacheOptions): void;
+        native static enableBackForwardCache(features?: BackForwardCacheSupportedFeatures): void;
+        native prefetchPage(url: string, additionalHeaders?: Array<WebHeader>, prefetchOptions?: PrefetchOptions): void;
         native setWebDetach(nwebId: int): void;
         native static getActiveWebEngineVersion(): ArkWebEngineVersion;
         native static setActiveWebEngineVersion(engineVersion: ArkWebEngineVersion): void;
@@ -1940,6 +1945,13 @@ export default namespace webview {
         native getBoolean(): boolean;
         native getArrayBuffer(): ArrayBuffer;
         native getArray(): Array<string | double | long | boolean>;
+    }
+
+    export class PrefetchOptions {      
+        minTimeBetweenPrefetchesMs: int;
+        ignoreCacheControlNoStore: boolean;
+
+        constructor() {};
     }
 
     export class PrintDocumentAdapterInner implements print.PrintDocumentAdapter{
