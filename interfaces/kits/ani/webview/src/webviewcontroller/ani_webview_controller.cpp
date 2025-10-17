@@ -1269,10 +1269,6 @@ static ani_string GetDefaultUserAgent(ani_env *env, ani_object object)
     }
     WVLOG_I("Get the default user agent.");
     std::string result = NWebHelper::Instance().GetDefaultUserAgent();
-    if (result.empty()) {
-        WVLOG_E("Default user agent is empty.");
-        return userAgent;
-    }
     env->String_NewUTF8(result.c_str(), result.size(), &userAgent);
     return userAgent;
 }
@@ -2927,6 +2923,34 @@ static bool CreateWebMessagePortObj(
     return true;
 }
 
+ani_object CreateWebMessagePortsObjOfBoolean(ani_env* env, ani_boolean tempExtentionType)
+{
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+
+    ani_class bool_cls;
+    ani_status status;
+    if ((status = env->FindClass("std.core.Boolean", &bool_cls)) != ANI_OK) {
+        WVLOG_E("error in FindClass status : %{public}d", status);
+        return nullptr;
+    }
+
+    ani_method boolInfoCtor;
+    if ((status = env->Class_FindMethod(bool_cls, "<ctor>", "z:", &boolInfoCtor)) != ANI_OK) {
+        WVLOG_E("error in FindMethod status : %{public}d", status);
+        return nullptr;
+    }
+
+    ani_object boolInfoObj;
+    if (env->Object_New(bool_cls, boolInfoCtor, &boolInfoObj, tempExtentionType) != ANI_OK) {
+        WVLOG_E("error in Object_New status : %{public}d", status);
+        return nullptr;
+    }
+    return boolInfoObj;
+}
+
 static ani_object CreateWebMessagePortsObj(
     ani_env* env, ani_object isExtentionType, int32_t nwebId, std::vector<std::string>& ports)
 {
@@ -2938,16 +2962,13 @@ static ani_object CreateWebMessagePortsObj(
     ani_boolean bIsExtentionType = ANI_FALSE;
     env->Reference_IsUndefined(isExtentionType, &isUndefined);
     if (isUndefined != ANI_TRUE) {
-        if (env->Object_CallMethodByName_Boolean(isExtentionType,
-                                                 "toBoolean",
-                                                 nullptr,
+        if (env->Object_CallMethodByName_Boolean(isExtentionType, "toBoolean", nullptr,
                                                  &bIsExtentionType) != ANI_OK) {
             AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
                 NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "isExtentionType", "boolean"));
             return nullptr;
         }
     }
-
     ani_object arrayObj = nullptr;
     ani_class arrayCls = nullptr;
     if (env->FindClass("escompat.Array", &arrayCls) != ANI_OK) {
@@ -2963,16 +2984,17 @@ static ani_object CreateWebMessagePortsObj(
         WVLOG_E("Object_New Array failed");
         return nullptr;
     }
-
     for (size_t i = 0; i < ports.size(); ++i) {
         ani_object obj = {};
         if (!CreateWebMessagePortObj(env, obj, nwebId, ports[i], static_cast<bool>(bIsExtentionType))) {
             return nullptr;
         }
-        if ((isUndefined != ANI_TRUE) &&
-            (ANI_OK != env->Object_SetPropertyByName_Ref(obj, "isExtentionType", isExtentionType))) {
-            WVLOG_E("set NWebWeMessagePort failed");
-            return nullptr;
+        if (isUndefined != ANI_TRUE) {
+            env->Object_SetPropertyByName_Ref(obj, "isExtentionType", isExtentionType);
+        } else {
+            ani_boolean tempExtentionType = ANI_FALSE;
+            ani_object boolInfoObj = CreateWebMessagePortsObjOfBoolean(env, tempExtentionType);
+            env->Object_SetPropertyByName_Ref(obj, "isExtentionType", boolInfoObj);
         }
         if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "iC{std.core.Object}:", i, obj) != ANI_OK) {
             WVLOG_E("Object_CallMethodByName_Void failed");
