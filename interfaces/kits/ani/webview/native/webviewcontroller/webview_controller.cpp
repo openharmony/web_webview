@@ -21,6 +21,7 @@
 #include <regex>
 
 #include "application_context.h"
+#include "ani_business_error.h"
 #include "business_error.h"
 #include "napi_parse_utils.h"
 #include "ohos_resource_adapter_impl.h"
@@ -1319,10 +1320,11 @@ int WebviewController::GetMediaPlaybackState()
     return nweb_ptr->GetMediaPlaybackState();
 }
 
-int WebviewController::GetSecurityLevel()
+int WebviewController::GetSecurityLevel(ani_env* env)
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
     if (!nweb_ptr) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return static_cast<int>(SecurityLevel::NONE);
     }
 
