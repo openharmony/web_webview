@@ -306,6 +306,7 @@ ohos_unittest("web_native_messaging_service_test") {
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_connect_callback_stub",
     "ability_runtime:ability_manager",
     "ability_runtime:napi_common",
     "ability_runtime:ability_context_native",
@@ -355,6 +356,7 @@ ohos_unittest("web_native_messaging_manager_test") {
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_connect_callback_stub",
     "ability_runtime:ability_manager",
     "ability_runtime:napi_common",
     "ability_runtime:ability_context_native",
