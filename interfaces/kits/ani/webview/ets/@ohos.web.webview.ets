@@ -1044,7 +1044,14 @@ export default namespace webview {
         
         native didReceiveResponse(response: WebSchemeHandlerResponse): void;
         native didFinish(): void;
-        native didFail(code: WebNetErrorList): void;
+        native didFailv0(code: WebNetErrorList): void;
+        didFail(code: WebNetErrorList): void {
+            this.didFailv0(code);
+        }
+        native didFailv1(code: WebNetErrorList, completeIfNoResponse: boolean): void
+        didFail(code: WebNetErrorList, completeIfNoResponse: boolean): void {
+            this.didFailv1(code, completeIfNoResponse);
+        }
         native didReceiveResponseBody(data: ArrayBuffer): void;
 
         static transferWebResourceHandlerToStatic(input: Any): Object {

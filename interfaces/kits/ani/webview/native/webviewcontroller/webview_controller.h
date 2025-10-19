@@ -279,7 +279,7 @@ public:
 
     ErrCode PostUrl(std::string& url, std::vector<char>& postData);
 
-    int GetSecurityLevel();
+    int GetSecurityLevel(ani_env* env);
 
     void EnableSafeBrowsing(bool enable);
 

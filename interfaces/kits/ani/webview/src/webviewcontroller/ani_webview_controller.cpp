@@ -1189,8 +1189,8 @@ static void WarmupServiceWorker(ani_env *env, ani_object object, ani_object urlO
         return;
     }
     std::string url;
-    if (!AniParseUtils::ParseString(env, urlObj, url)) {
-        WVLOG_E("Parse url failed.");
+    if (!ParsePrepareUrl(env, urlObj, url)) {
+        AniBusinessError::ThrowErrorByErrCode(env, INVALID_URL);
         return;
     }
     WVLOG_I("Warm up Service Worker: %{public}s", url.c_str());
@@ -1298,13 +1298,13 @@ static void PrepareForPageLoad(
         return;
     }
     std::string url;
-    if (!AniParseUtils::ParseString(env, aniUrl, url)) {
-        WVLOG_E("parse url failed");
+    if (!ParsePrepareUrl(env, aniUrl, url)) {
+        AniBusinessError::ThrowErrorByErrCode(env, INVALID_URL);
         return;
     }
     int32_t numSockets = static_cast<int32_t>(aniNumSockets);
     if (numSockets <= 0 || static_cast<uint32_t>(numSockets) > SOCKET_MAXIMUM) {
-        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        AniBusinessError::ThrowErrorByErrCode(env, INVALID_SOCKET_NUMBER);
         return;
     }
     NWebHelper::Instance().PrepareForPageLoad(url, preconnectable, numSockets);
@@ -1595,7 +1595,7 @@ static ani_ref GetFaviconByHistoryItem(ani_env *env, std::shared_ptr<NWebHistory
     uint64_t bufferSize = stride * static_cast<uint64_t>(height);
     pixelMap->WritePixels(static_cast<const uint8_t *>(data), bufferSize);
     std::shared_ptr<Media::PixelMap> pixelMapToJs(pixelMap.release());
-    ani_object jsPixelMap = OHOS::Media::PixelMapAni::CreatePixelMap(env, pixelMapToJs);
+    ani_object jsPixelMap = OHOS::Media::PixelMapTaiheAni::CreateEtsPixelMap(env, pixelMapToJs);
     return jsPixelMap;
 }
 
@@ -1636,7 +1636,7 @@ static ani_ref GetFavicon(ani_env* env, ani_object object)
     uint64_t bufferSize = stride * static_cast<uint64_t>(height);
     pixelMap->WritePixels(static_cast<const uint8_t *>(data), bufferSize);
     std::shared_ptr<Media::PixelMap> pixelMapToJs(pixelMap.release());
-    ani_object jsPixelMap = OHOS::Media::PixelMapAni::CreatePixelMap(env, pixelMapToJs);
+    ani_object jsPixelMap = OHOS::Media::PixelMapTaiheAni::CreateEtsPixelMap(env, pixelMapToJs);
     return jsPixelMap;
 }
 
@@ -2416,7 +2416,7 @@ static ani_enum_item GetSecurityLevel(ani_env* env, ani_object object)
     }
     ani_enum enumType;
     env->FindEnum(WEB_CONTROLLER_SECURITY_LEVEL_ENUM_NAME, &enumType);
-    ani_int securityLevel = controller->GetSecurityLevel();
+    ani_int securityLevel = controller->GetSecurityLevel(env);
     env->Enum_GetEnumItemByIndex(enumType, securityLevel, &result);
     return result;
 }
@@ -2433,8 +2433,8 @@ static void PrefetchPage(ani_env *env, ani_object object, ani_string url, ani_ob
         return;
     }
     std::string urlStr;
-    if (!AniParseUtils::ParseString(env, url, urlStr)) {
-        WVLOG_E("Parse url failed.");
+    if (!ParsePrepareUrl(env, url, urlStr)) {
+        AniBusinessError::ThrowErrorByErrCode(env, INVALID_URL);
         return;
     }
 
@@ -5514,7 +5514,7 @@ static void SetUserAgentForHosts(ani_env* env, ani_object object, ani_object ani
 }
 
 static void StoreWebArchiveCallbackInternal(
-    ani_env* env, std::string baseNameStr, bool autoNameStr, ani_ref jsCallback, int32_t nwebId)
+    ani_env* env, std::string baseNameStr, bool autoNameStr, ani_ref& jsCallback, int32_t nwebId)
 {
     if (!env) {
         return;
@@ -5525,10 +5525,11 @@ static void StoreWebArchiveCallbackInternal(
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId);
     if (!nweb_ptr) {
         std::vector<ani_ref> resultRef;
-        ani_ref tmp = NWebError::AniBusinessError::CreateError(env, INVALID_RESOURCE);
+        ani_ref tmp = NWebError::AniBusinessError::CreateError(env, INIT_ERROR);
         resultRef.push_back(tmp);
-        env->GetNull(&tmp);
-        resultRef.push_back(tmp);
+        ani_ref tempData = nullptr;
+        env->GetUndefined(&tempData);
+        resultRef.push_back(tempData);
         ani_ref fnReturnVal;
         env->FunctionalObject_Call(
             static_cast<ani_fn_object>(jsCallback), resultRef.size(), resultRef.data(), &fnReturnVal);
@@ -5552,8 +5553,9 @@ static void StoreWebArchiveCallbackInternal(
         } else {
             ani_ref tmp = NWebError::AniBusinessError::CreateError(env, INVALID_RESOURCE);
             resultRef.push_back(tmp);
-            env->GetNull(&tmp);
-            resultRef.push_back(tmp);
+            ani_ref tempData = nullptr;
+            env->GetUndefined(&tempData);
+            resultRef.push_back(tempData);
         }
         ani_ref fnReturnVal;
         env->FunctionalObject_Call(
