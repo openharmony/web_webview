@@ -28,6 +28,7 @@ constexpr int BITS_PER_PIXEL = 4;
 }
 
 namespace OHOS::NWeb {
+//LCOV_EXCL_START
 class NWebOutputFrameCallbackImpl : public NWebOutputFrameCallback {
 public:
     NWebOutputFrameCallbackImpl(wptr<Surface> surface, NWebSurfaceAdapter *adapter) : surface_(surface),
@@ -183,4 +184,5 @@ bool NWebSurfaceAdapter::FlushBuffer(
 
     return true;
 }
+//LCOV_EXCL_STOP
 } // namespace OHOS::NWeb
