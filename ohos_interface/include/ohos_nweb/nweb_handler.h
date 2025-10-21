@@ -40,6 +40,7 @@
 #include "nweb_js_http_auth_result.h"
 #include "nweb_js_ssl_error_result.h"
 #include "nweb_js_ssl_select_cert_result.h"
+#include "nweb_js_verify_pin_result.h"
 #include "nweb_key_event.h"
 #include "nweb_largest_contentful_paint_details.h"
 #include "nweb_load_committed_details.h"
@@ -1388,6 +1389,9 @@ public:
     {
         return false;
     }
+
+    virtual bool OnVerifyPinRequestByJS(
+        std::shared_ptr<NWebJSVerifyPinResult> result, const std::string& identity) {return false;}
 };
 
 } // namespace OHOS::NWeb

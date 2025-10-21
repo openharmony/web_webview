@@ -46,6 +46,12 @@ public:
      */
     void Confirm(const ArkWebString& private_key_file, const ArkWebString& cert_chain_file) override;
 
+    /**
+     * @brief Confirm to use the specified private key and client certificate
+     *        chain.
+     */
+    void Confirm(const ArkWebString& identity, int32_t type) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebJSSslSelectCertResult> nweb_js_ssl_select_cert_result_;
 };

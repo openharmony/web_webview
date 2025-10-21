@@ -129,6 +129,7 @@ enum ArkWebBridgeType {
     ARK_WEB_NATIVE_MESSAGE_CALLBACK = 107,
     ARK_WEB_RUNTIME_CONNECT_INFO = 108,
     ARK_WEB_SNAPSHOT_CALLBACK = 109,
+    ARK_WEB_JS_VERIFY_PIN_RESULT = 110,
 
     /*Note: The end of nweb interface bridge type*/
     ARK_WEB_NWEB_INTERFACE_BUTT,

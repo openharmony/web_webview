@@ -834,6 +834,9 @@ public:
      */
     bool IsQuickMenuShow() override;
 
+    bool OnVerifyPinRequestByJS(
+        std::shared_ptr<OHOS::NWeb::NWebJSVerifyPinResult> result, const std::string& identity) override;
+
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };
