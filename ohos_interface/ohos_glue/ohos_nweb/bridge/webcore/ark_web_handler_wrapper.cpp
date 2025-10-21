@@ -1362,7 +1362,7 @@ bool ArkWebHandlerWrapper::IsQuickMenuShow()
 }
 
 bool ArkWebHandlerWrapper::OnVerifyPinRequestByJS(
-        std::shared_ptr<OHOS::NWeb::NWebJSVerifyPinResult> result, const std::string& identity)
+    std::shared_ptr<OHOS::NWeb::NWebJSVerifyPinResult> result, const std::string& identity)
 {
     ArkWebString stIdentity = ArkWebStringClassToStruct(identity);
  
