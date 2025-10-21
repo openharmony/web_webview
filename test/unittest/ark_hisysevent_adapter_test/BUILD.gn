@@ -30,7 +30,7 @@ ohos_unittest("ark_hisysevent_adapter_impl_test") {
   module_out_path = module_output_path
   sources = [
     "ark_hisysevent_adapter_impl_test.cpp",
-    "$webview_path/ohos_interface/ohos_glue/ohos_adapter/bridge/webview/ark_web_hisysevent_impl.cpp",
+    "$webview_path/ohos_interface/ohos_glue/ohos_adapter/bridge/webview/ark_hisysevent_impl.cpp",
     "$webview_path/ohos_interface/ohos_glue/base/include/ark_web_types.cpp",
   ]
   configs = [ ":module_private_config" ]
