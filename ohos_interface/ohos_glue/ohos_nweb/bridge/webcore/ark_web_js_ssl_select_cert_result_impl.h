@@ -47,8 +47,8 @@ public:
     void Confirm(const ArkWebString& private_key_file, const ArkWebString& cert_chain_file) override;
 
     /**
-     * @brief Confirm to use the specified private key and client certificate
-     *        chain.
+     * @brief Confirm to use the specified identity and certificate
+     *        type.
      */
     void Confirm(const ArkWebString& identity, int32_t type) override;
 

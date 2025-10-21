@@ -28,8 +28,8 @@ public:
     ~ArkWebJsVerifyPinResultWrapper() = default;
  
     /**
-     * @brief Confirm to use the specified private key and client certificate
-     *        chain.
+     * @brief Confirm to use the specified verification
+     *        result.
      */
     void Confirm(int32_t verify_result) override;
  

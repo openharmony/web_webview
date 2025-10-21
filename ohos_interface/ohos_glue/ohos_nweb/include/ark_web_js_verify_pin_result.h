@@ -26,8 +26,8 @@ namespace OHOS::ArkWeb {
 class ArkWebJsVerifyPinResult : public virtual ArkWebBaseRefCounted {
 public:
     /**
-     * @brief Confirm to use the specified private key and client certificate
-     *        chain.
+     * @brief Confirm to use the specified verification
+     *        result.
      */
     /*--ark web()--*/
     virtual void Confirm(int32_t verifyResult) = 0;

@@ -31,8 +31,8 @@ public:
     ~ArkWebJsVerifyPinResultImpl() = default;
  
     /**
-     * @brief Confirm to use the specified private key and client certificate
-     *        chain.
+     * @brief Confirm to use the specified identity and certificate
+     *        type.
      */
     void Confirm(int32_t verify_result) override;
 private:

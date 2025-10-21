@@ -44,8 +44,8 @@ public:
     void Confirm(const std::string& private_key_file, const std::string& cert_chain_file) override;
 
     /**
-     * @brief Confirm to use the specified private key and client certificate
-     *        chain.
+     * @brief Confirm to use the specified identity and certificate
+     *        type.
      */
     void Confirm(const std::string& identity, int32_t type) override;
 
