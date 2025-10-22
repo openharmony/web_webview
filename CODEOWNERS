@@ -1,0 +1,7 @@
+# arkweb dfx
+/ohos_nweb/src/nweb_crashpad_handler_main.cpp @StringChen
+/ohos_nweb/src/nweb_hisysevent.cpp @StringChen
+/ohos_nweb/include/nweb_log.h @StringChen
+/ohos_adapter/hiviewdfx_adapter/ @StringChen
+/test/fuzztest/ohos_nweb/hisysevent_fuzzer @StringChen
+/test/unittest/ohos_adapter/hiviewdfx_adapter_test/ @StringChen
