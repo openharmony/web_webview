@@ -96,6 +96,10 @@ function takePhoto(param, selectResult) {
 function needShowDialog(params) {
   let result = false;
   try {
+    let currentDevice = deviceinfo.deviceType.toLowerCase();
+    if (currentDevice === '2in1') {
+      return false;
+    }
     if (params.isCapture()) {
       console.log('input element contain capture tag, not show dialog');
       return false;
@@ -523,11 +527,7 @@ Object.defineProperty(webview.WebviewController.prototype, 'fileSelectorShowFrom
       promptAction.openCustomDialog({
         builder: () => {
           Scroll.create();
-          if (currentDevice === '2in1') {
-            fileSelectorDialogForPC(callback);
-          } else {
-            fileSelectorDialogForPhone(callback);
-          }
+          fileSelectorDialogForPhone(callback);
           Scroll.pop();
         },
         onWillDismiss: (dismissDialogAction) => {
@@ -541,8 +541,7 @@ Object.defineProperty(webview.WebviewController.prototype, 'fileSelectorShowFrom
             callback.fileresult.handleFileList([]);
             dismissDialogAction.dismiss();
           }
-        },
-        showInSubWindow: currentDevice === '2in1'
+        }
       }).then((dialogId) => {
         customDialogComponentId = dialogId;
       })
@@ -550,7 +549,7 @@ Object.defineProperty(webview.WebviewController.prototype, 'fileSelectorShowFrom
           callback.fileresult.handleFileList([]);
           console.error(`openCustomDialog error code is ${error.code}, message is ${error.message}`);
         });
-    } else if (callback.fileparam.isCapture() &&
+    } else if (currentDevice !== '2in1' && callback.fileparam.isCapture() &&
         (isContainImageMimeType(callback.fileparam.getAcceptType()) || isContainVideoMimeType(callback.fileparam.getAcceptType()))) {
       console.log('take photo will be directly invoked due to the capture property');
       takePhoto(callback.fileparam, callback.fileresult);
