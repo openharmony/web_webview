@@ -334,44 +334,6 @@ function fileSelectorDialog(callback) {
   List.pop();
 }
 
-function fileSelectorDialogForPC(callback) {
-  Column.create();
-  Column.height(272);
-  fileSelectorDialog(callback);
-  Row.create();
-  Row.onClick(() => {
-    try {
-      console.log('Get Alert Dialog handled');
-      callback.fileresult.handleFileList([]);
-      promptAction.closeCustomDialog(customDialogComponentId);
-    }
-    catch (error) {
-      let message = error.message;
-      let code = error.code;
-      console.error(`closeCustomDialog error code is ${code}, message is ${message}`);
-    }
-  });
-  Row.width('92%');
-  Row.height(40);
-  Row.margin(16);
-  Row.borderRadius(5);
-  Row.backgroundColor('#ededed');
-  Row.justifyContent(FlexAlign.Center);
-  Text.create('取消');
-  Text.fontSize(16);
-  Text.fontColor('#FF0A59F7');
-  Text.fontWeight(FontWeight.Medium);
-  Text.margin({
-    top: 10,
-    bottom: 10,
-    left: 16,
-    right: 16
-  });
-  Text.pop();
-  Row.pop();
-  Column.pop();
-}
-
 function fileSelectorDialogForPhone(callback) {
   Column.create();
   Column.height(264);
