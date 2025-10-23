@@ -475,10 +475,6 @@ void WebHttpBodyStream::Read(int bufLen, ani_ref jsCallback, ani_resolver readRe
         return;
     }
     OH_ArkWebHttpBodyStream_Read(stream_, buffer, bufLen);
-    if (buffer) {
-        delete[] buffer;
-        buffer = nullptr;
-    }
 }
 
 void WebHttpBodyStream::ExecuteInit(ArkWeb_NetError result)
