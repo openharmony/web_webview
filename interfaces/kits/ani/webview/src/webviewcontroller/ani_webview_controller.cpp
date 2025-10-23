@@ -79,6 +79,8 @@
 #include "arkweb_scheme_handler.h"
 #include "arkweb_utils.h"
 #include "system_properties_adapter_impl.h"
+#include "ani_prefetch_options.h"
+#include "prefetch_options.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -93,6 +95,8 @@ constexpr int32_t MAX_SOCKET_IDLE_TIMEOUT = 300;
 constexpr size_t MAX_URL_TRUST_LIST_STR_LEN = 10 * 1024 * 1024; // 10M
 constexpr uint32_t SOCKET_MAXIMUM = 6;
 constexpr size_t MAX_RESOURCES_COUNT = 30;
+constexpr size_t BFCACHE_DEFAULT_SIZE = 1;
+constexpr size_t BFCACHE_DEFAULT_TIMETOLIVE = 600;
 constexpr uint32_t URL_MAXIMUM = 2048;
 constexpr int32_t BLANKLESS_ERR_INVALID_ARGS = 2;
 constexpr int32_t BLANKLESS_ERR_NOT_INITED = 3;
@@ -241,6 +245,27 @@ bool ParseResourceUrl(ani_env *env, ani_object urlObject, std::string& url, Webv
     }
     WVLOG_I("ParseResourceUrl url: %{public}s", url.c_str());
     return true;
+}
+
+std::shared_ptr<NWebPrefetchOptions> GetPrefetchOptions(ani_env *env, ani_object object, ani_object aniOptions)
+{
+    ani_int minTimeBetweenPrefetchesMsObj;
+    int32_t minTimeBetweenPrefetchesMs = 500;
+    if (env->Object_GetPropertyByName_Int(aniOptions, "minTimeBetweenPrefetchesMs",
+        &minTimeBetweenPrefetchesMsObj) == ANI_OK) {
+            minTimeBetweenPrefetchesMs = static_cast<int32_t>(minTimeBetweenPrefetchesMsObj);
+    }
+
+    ani_boolean ignoreCacheControlNoStoreObj;
+    bool ignoreCacheControlNoStore = false;
+    if (env->Object_GetPropertyByName_Boolean(aniOptions, "ignoreCacheControlNoStore",
+        &ignoreCacheControlNoStoreObj) == ANI_OK) {
+            ignoreCacheControlNoStore = static_cast<bool>(ignoreCacheControlNoStoreObj);
+    }
+
+    std::shared_ptr<NWebPrefetchOptions> prefetchOptions =
+        std::make_shared<NWebPrefetchOptionsImpl>(minTimeBetweenPrefetchesMs, ignoreCacheControlNoStore);
+    return prefetchOptions;
 }
 }
 
@@ -477,6 +502,8 @@ static void Clean(ani_env *env, ani_object object)
         reinterpret_cast<WebResourceHandler*>(ptr)->DecStrongRef(reinterpret_cast<WebResourceHandler*>(ptr));
     } else if (clsName == "JsMessageExt") {
         delete reinterpret_cast<WebJsMessageExt*>(ptr);
+    } else if (clsName == "PrefetchOptions") {
+        delete reinterpret_cast<PrefetchOptions*>(ptr);
     } else {
         WVLOG_E("Clean unsupport className: %{public}s", clsName.c_str());
     }
@@ -5832,6 +5859,204 @@ static ani_object WaitForAttachedPromise(ani_env *env, ani_object object, ani_in
     return promise;
 }
 
+static ani_boolean IsAutoPreconnectEnabled(ani_env *env, ani_object object)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_W("IsAutoPreconnectEnabled unsupported engine version: M114");
+        return ANI_FALSE;
+    }
+
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+    WVLOG_D("IsAutoPreconnectEnabled start");
+    return static_cast<ani_boolean>(NWebHelper::Instance().IsAutoPreconnectEnabled());
+}
+
+static void SetAutoPreconnect(ani_env *env, ani_object object, ani_boolean aniEnable)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_W("SetAutoPreconnect unsupported engine version: M114");
+        return;
+    }
+
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    bool autoPreconnectEnabled = static_cast<bool>(aniEnable);
+    WVLOG_D("SetAutoPreconnect start");
+    NWebHelper::Instance().SetAutoPreconnect(autoPreconnectEnabled);
+}
+
+void SetBackForwardCacheOptions(ani_env *env, ani_object object, ani_object options)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        WVLOG_E("SetBackForwardCacheOptions: Init webview controller error.");
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    int32_t size = BFCACHE_DEFAULT_SIZE;
+    int32_t timeToLive = BFCACHE_DEFAULT_TIMETOLIVE;
+
+    ani_boolean isUndefined;
+    if (env->Reference_IsUndefined(options, &isUndefined) != ANI_OK) {
+        WVLOG_E("SetBackForwardCacheOptions Reference_IsUndefined failed.");
+        return;
+    }
+
+    if (isUndefined) {
+        controller->SetBackForwardCacheOptions(size, timeToLive);
+        return;
+    }
+
+    ani_int aniSize;
+    if (env->Object_GetPropertyByName_Int(options, "size", &aniSize) == ANI_OK) {
+        size = static_cast<int32_t>(aniSize);
+    }
+    ani_int aniTimeToLive;
+    if (env->Object_GetPropertyByName_Int(options, "timeToLive", &aniTimeToLive) == ANI_OK) {
+        timeToLive = static_cast<int32_t>(aniTimeToLive);
+    }
+
+    WVLOG_D("SetBackForwardCacheOptions start");
+    controller->SetBackForwardCacheOptions(size, timeToLive);
+}
+
+static void EnableBackForwardCache(ani_env *env, ani_object object, ani_object features)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    bool nativeEmbed = false;
+    bool mediaTakeOver = false;
+
+    ani_boolean isUndefined;
+    if (env->Reference_IsUndefined(features, &isUndefined) != ANI_OK) {
+        WVLOG_E("EnableBackForwardCache Reference_IsUndefined failed.");
+        return;
+    }
+
+    if (isUndefined) {
+        NWebHelper::Instance().EnableBackForwardCache(nativeEmbed, mediaTakeOver);
+        return;
+    }
+
+    ani_boolean aniEmbedObj;
+    if (env->Object_GetPropertyByName_Boolean(features, "nativeEmbed", &aniEmbedObj) == ANI_OK) {
+        nativeEmbed = static_cast<bool>(aniEmbedObj);
+    }
+    ani_boolean aniMediaTakeOver;
+    if (env->Object_GetPropertyByName_Boolean(features, "mediaTakeOver", &aniMediaTakeOver) == ANI_OK) {
+        mediaTakeOver = static_cast<bool>(aniMediaTakeOver);
+    }
+
+    WVLOG_D("EnableBackForwardCache start");
+    NWebHelper::Instance().EnableBackForwardCache(nativeEmbed, mediaTakeOver);
+}
+
+void PrefetchPageWithHttpHeadersAndPrefetchOptions(ani_env* env, ani_object object, ani_object aniUrl,
+    ani_object aniAdditionalHeaders, ani_object aniPrefetchOptions)
+{
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        WVLOG_E("PrefetchPage: Init webview controller error.");
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    std::string url;
+    if (!ParsePrepareUrl(env, aniUrl, url)) {
+        AniBusinessError::ThrowErrorByErrCode(env, INVALID_URL);
+        return;
+    }
+
+    std::map<std::string, std::string> additionalHttpHeaders;
+    ani_boolean isHeadersUndefined;
+    if (env->Reference_IsUndefined(aniAdditionalHeaders, &isHeadersUndefined) != ANI_OK) {
+        WVLOG_E("PrefetchPage Reference_IsUndefined failed.");
+        return;
+    }
+    if (!isHeadersUndefined) {
+        if (!GetWebHeaders(env, aniAdditionalHeaders, additionalHttpHeaders)) {
+            WVLOG_E("getWebHeaders error.");
+            return;
+        }
+    }
+
+    std::shared_ptr<NWebPrefetchOptions> prefetchOptions = GetPrefetchOptions(env, object, aniPrefetchOptions);
+    WVLOG_D("PrefetchPageWithHttpHeadersAndPrefetchOptions start");
+    ErrCode ret = controller->PrefetchPage(url, additionalHttpHeaders, prefetchOptions);
+    if (ret != NO_ERROR) {
+        WVLOG_E("PrefetchPageWithHttpHeadersAndPrefetchOptions failed, error code: %{public}d", ret);
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+    }
+}
+
+void PrefetchPage(ani_env* env, ani_object object, ani_object aniUrl,
+    ani_object aniAdditionalHeaders, ani_object aniPrefetchOptions)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        WVLOG_E("PrefetchPage: Init webview controller error.");
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    std::string url;
+    if (!ParsePrepareUrl(env, aniUrl, url)) {
+        AniBusinessError::ThrowErrorByErrCode(env, INVALID_URL);
+        return;
+    }
+
+    ani_boolean isHeadersUndefined;
+    if (env->Reference_IsUndefined(aniAdditionalHeaders, &isHeadersUndefined) != ANI_OK) {
+        WVLOG_E("PrefetchPage Reference_IsUndefined failed.");
+        return;
+    }
+    ani_boolean isOptionsUndefined;
+    if (env->Reference_IsUndefined(aniPrefetchOptions, &isOptionsUndefined) != ANI_OK) {
+        WVLOG_E("PrefetchPage Reference_IsUndefined failed.");
+        return;
+    }
+
+    if (!isOptionsUndefined) {
+        PrefetchPageWithHttpHeadersAndPrefetchOptions(env, object, aniUrl, aniAdditionalHeaders, aniPrefetchOptions);
+        return;
+    }
+
+    std::map<std::string, std::string> additionalHttpHeaders;
+    if (!isHeadersUndefined) {
+        if (!GetWebHeaders(env, aniAdditionalHeaders, additionalHttpHeaders)) {
+            WVLOG_E("getWebHeaders error.");
+            return;
+        }
+    }
+    WVLOG_D("PrefetchPage start");
+    ErrCode ret = controller->PrefetchPage(url, additionalHttpHeaders);
+    if (ret != NO_ERROR) {
+        WVLOG_E("PrefetchPage failed, error code: %{public}d", ret);
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+    }
+}
+
 static void SetWebDetach(ani_env *env, ani_object object, ani_int nwebId)
 {
     WVLOG_D("Entry SetWebDetach nwebId: %{public}d", nwebId);
@@ -6072,6 +6297,12 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "offControllerAttachStateChange", nullptr,
                               reinterpret_cast<void *>(OffControllerAttachStateChange) },
         ani_native_function { "waitForAttachedPromise", nullptr, reinterpret_cast<void *>(WaitForAttachedPromise) },
+        ani_native_function { "isAutoPreconnectEnabled", nullptr, reinterpret_cast<void*>(IsAutoPreconnectEnabled) },
+        ani_native_function { "setAutoPreconnect", nullptr, reinterpret_cast<void*>(SetAutoPreconnect) },
+        ani_native_function { "setBackForwardCacheOptions", nullptr,
+                              reinterpret_cast<void*>(SetBackForwardCacheOptions) },
+        ani_native_function { "enableBackForwardCache", nullptr, reinterpret_cast<void*>(EnableBackForwardCache) },
+        ani_native_function { "prefetchPage", nullptr, reinterpret_cast<void*>(PrefetchPage) },
         ani_native_function { "setWebDetach", nullptr, reinterpret_cast<void *>(SetWebDetach) },
         ani_native_function { "getActiveWebEngineVersion", nullptr,
                               reinterpret_cast<void*>(GetActiveWebEngineVersion) },
