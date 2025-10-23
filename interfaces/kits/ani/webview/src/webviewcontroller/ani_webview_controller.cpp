@@ -1460,7 +1460,7 @@ static void Refresh(ani_env *env, ani_object object)
     controller->Refresh();
 }
 
-static void StartDownload(ani_env *env, ani_object object, ani_string aniUrl)
+static void StartDownload(ani_env *env, ani_object object, ani_object urlObj)
 {
     WVLOG_D("[WebviewCotr] StartDownload");
     if (!env) {
@@ -1474,8 +1474,8 @@ static void StartDownload(ani_env *env, ani_object object, ani_string aniUrl)
     }
 
     std::string urlStr;
-    if (!AniParseUtils::ParseString(env, aniUrl, urlStr)) {
-        WVLOG_E("Parse url failed.");
+    if (!ParsePrepareUrl(env, urlObj, urlStr)) {
+        AniBusinessError::ThrowErrorByErrCode(env, INVALID_URL);
         return;
     }
     WVLOG_I("StartDownload url: %{public}s", urlStr.c_str());
