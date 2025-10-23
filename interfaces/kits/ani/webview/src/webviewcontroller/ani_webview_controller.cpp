@@ -502,8 +502,6 @@ static void Clean(ani_env *env, ani_object object)
         reinterpret_cast<WebResourceHandler*>(ptr)->DecStrongRef(reinterpret_cast<WebResourceHandler*>(ptr));
     } else if (clsName == "JsMessageExt") {
         delete reinterpret_cast<WebJsMessageExt*>(ptr);
-    } else if (clsName == "PrefetchOptions") {
-        delete reinterpret_cast<PrefetchOptions*>(ptr);
     } else {
         WVLOG_E("Clean unsupport className: %{public}s", clsName.c_str());
     }
