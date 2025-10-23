@@ -194,7 +194,7 @@ static ani_object GetOriginsSync(ani_env *env, ani_object obj)
             WVLOG_E("obj is nullptr");
             break;
         }
-        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "iC{std.core.Object}:", index, obj) != ANI_OK) {
+        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "iY:", index, obj) != ANI_OK) {
             WVLOG_E("Object_CallMethodByName_Void failed");
             break;
         }
