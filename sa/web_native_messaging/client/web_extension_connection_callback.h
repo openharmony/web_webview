@@ -48,7 +48,7 @@ public:
     void OnDisconnect(ConnectionNativeInfo& info) override;
     void OnFailed(int32_t errorNum) override;
 
-    int32_t connectionId_;
+    int32_t connectionId_ = 0;
 private:
     std::shared_ptr<IExtensionConnectionCallback> callback_;
 };

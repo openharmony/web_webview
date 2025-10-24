@@ -67,7 +67,7 @@ public:
     }
     void OnExtensionConnect(ConnectionNativeInfo& info) override;
     void OnExtensionDisconnect(ConnectionNativeInfo& info) override;
-    void OnExtensionFailed(int32_t connectionId, int32_t errnum) override;
+    void OnExtensionFailed(int32_t connectionId, int32_t errorNum) override;
 
 private:
     void DoJsExtensionConnectCallback(
@@ -107,12 +107,12 @@ struct ConnectNativeAsyncContext : public CommonAsyncContext {
     sptr<IRemoteObject> token;
     AAFwk::Want want;
     sptr<WebExtensionConnectionCallback> connectCallback;
-    int32_t connectId;
+    int32_t connectId = 0;
 };
 
 struct DisconnectNativeAsyncContext : public CommonAsyncContext {
     explicit DisconnectNativeAsyncContext(napi_env env) : CommonAsyncContext(env) {};
-    int32_t connectId;
+    int32_t connectId = 0;
 };
 
 class NapiWebNativeMessagingExtensionManager {
