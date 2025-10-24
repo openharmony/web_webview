@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "ohos_adapter/bridge/webview/ark_hisysevent_adapter_impl.h"
+#include "base/web/webview/ohos_interface/ohos_glue/ohos_adapter/bridge/webview/ark_hisysevent_adapter_impl.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
 
