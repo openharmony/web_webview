@@ -167,13 +167,13 @@ static ani_object GetOriginsSync(ani_env *env, ani_object obj)
         return nullptr;
     }
     ani_class arrayCls = nullptr;
-    if (env->FindClass("escompat.Array", &arrayCls) != ANI_OK) {
-        WVLOG_E("find class escompat/Array; failed");
+    if (env->FindClass("std.core.Array", &arrayCls) != ANI_OK) {
+        WVLOG_E("find class std/core/Array; failed");
         return nullptr;
     }
     ani_method arrayCtor;
     if (env->Class_FindMethod(arrayCls, "<ctor>", "i:", &arrayCtor) != ANI_OK) {
-        WVLOG_E("find class escompat/Array; failed");
+        WVLOG_E("find class std/core/Array; failed");
         return nullptr;
     }
 
