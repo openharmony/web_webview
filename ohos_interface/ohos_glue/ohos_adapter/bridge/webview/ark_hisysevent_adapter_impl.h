@@ -17,7 +17,7 @@
 #define ARK_HISYSEVENT_ADAPTER_IMPL_H
 #pragma once
 
-#include "hisysevent_adapter.h"
+#include "base/web/webview/ohos_interface/include/ohos_adapter/hisysevent_adapter.h"
 #include "ohos_adapter/include/ark_hisysevent_adapter.h"
 
 namespace OHOS::ArkWeb {
