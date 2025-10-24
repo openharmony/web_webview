@@ -18,7 +18,7 @@
 namespace OHOS {
 namespace NWeb {
 WebNativeMessagingExtensionStubImpl::WebNativeMessagingExtensionStubImpl(
-    const std::shared_ptr<JsWebNativeMessagingExtension>& extension) : extension_(extension)
+    const std::shared_ptr<WebNativeMessagingExtension>& extension) : extension_(extension)
 {}
 
 WebNativeMessagingExtensionStubImpl::~WebNativeMessagingExtensionStubImpl() {}
