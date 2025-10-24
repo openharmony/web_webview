@@ -40,6 +40,11 @@ public:
      * @brief Ignore this certificate request temporarily.
      */
     virtual void Ignore() = 0;
+
+    /**
+     * @brief Confirm to use the specified identity and certificate type.
+     */
+    virtual void Confirm(const std::string& identity, int32_t type) {}
 };
 
 } // namespace OHOS::NWeb

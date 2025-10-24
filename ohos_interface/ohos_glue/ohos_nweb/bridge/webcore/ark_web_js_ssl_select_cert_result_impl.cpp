@@ -40,4 +40,9 @@ void ArkWebJsSslSelectCertResultImpl::Confirm(const ArkWebString& private_key_fi
         ArkWebStringStructToClass(private_key_file), ArkWebStringStructToClass(cert_chain_file));
 }
 
+void ArkWebJsSslSelectCertResultImpl::Confirm(const ArkWebString& identity, int32_t type)
+{
+    nweb_js_ssl_select_cert_result_->Confirm(ArkWebStringStructToClass(identity), type);
+}
+
 } // namespace OHOS::ArkWeb

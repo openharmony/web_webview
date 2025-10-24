@@ -37,6 +37,7 @@
 #include "ohos_nweb/bridge/ark_web_js_http_auth_result_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_js_ssl_error_result_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_js_ssl_select_cert_result_wrapper.h"
+#include "ohos_nweb/bridge/ark_web_js_verify_pin_result_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_key_event_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_largest_contentful_paint_details_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_load_committed_details_wrapper.h"
@@ -1179,5 +1180,16 @@ void ArkWebHandlerImpl::UpdateTextFieldStatus(bool isShowKeyboard, bool isAttach
 bool ArkWebHandlerImpl::IsQuickMenuShow()
 {
     return nweb_handler_->IsQuickMenuShow();
+}
+
+bool ArkWebHandlerImpl::OnVerifyPinRequestByJS(
+    ArkWebRefPtr<ArkWebJsVerifyPinResult> result, const ArkWebString& identity)
+{
+    if (CHECK_REF_PTR_IS_NULL(result)) {
+        return nweb_handler_->OnVerifyPinRequestByJS(nullptr, ArkWebStringStructToClass(identity));
+    }
+ 
+    return nweb_handler_->OnVerifyPinRequestByJS(std::make_shared<ArkWebJsVerifyPinResultWrapper>(result),
+        ArkWebStringStructToClass(identity));
 }
 } // namespace OHOS::ArkWeb

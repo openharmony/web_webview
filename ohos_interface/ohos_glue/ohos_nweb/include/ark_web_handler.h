@@ -39,6 +39,7 @@
 #include "ohos_nweb/include/ark_web_js_http_auth_result.h"
 #include "ohos_nweb/include/ark_web_js_ssl_error_result.h"
 #include "ohos_nweb/include/ark_web_js_ssl_select_cert_result.h"
+#include "ohos_nweb/include/ark_web_js_verify_pin_result.h"
 #include "ohos_nweb/include/ark_web_key_event.h"
 #include "ohos_nweb/include/ark_web_largest_contentful_paint_details.h"
 #include "ohos_nweb/include/ark_web_load_committed_details.h"
@@ -1131,6 +1132,10 @@ public:
      */
     /*--ark web()--*/
     virtual bool IsQuickMenuShow() = 0;
+
+    /*--ark web()--*/
+    virtual bool OnVerifyPinRequestByJS(
+        ArkWebRefPtr<ArkWebJsVerifyPinResult> result, const ArkWebString& identity) {return false;}
 };
 
 } // namespace OHOS::ArkWeb
