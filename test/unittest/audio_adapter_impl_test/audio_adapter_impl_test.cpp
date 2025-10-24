@@ -852,6 +852,12 @@ HWTEST_F(NWebAudioAdapterTest, NWebAudioAdapterTest_AudioAdapterImpl_018, TestSi
     ASSERT_NE(g_audioCapturer, nullptr);
     g_audioCapturer->audio_capturer_ = AudioCapturer::Create(STREAM_MUSIC);
     ASSERT_NE(g_audioCapturer->audio_capturer_, nullptr);
+    AudioCapturerParams capturerParams;
+    capturerParams.audioSampleFormat = SAMPLE_S16LE;
+    capturerParams.samplingRate = SAMPLE_RATE_44100;
+    capturerParams.audioChannel = STEREO;
+    capturerParams.audioEncoding = ENCODING_PCM;
+    g_audioCapturer->audio_capturer_->SetParams(capturerParams);
     std::shared_ptr<AudioCapturerReadCallbackAdapter> callback = std::make_shared<AudioCapturerCallbackMock>();
     EXPECT_NE(callback, nullptr);
     g_audioCapturer->SetCapturerReadCallback(callback);
