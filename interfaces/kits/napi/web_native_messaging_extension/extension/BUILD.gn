@@ -13,8 +13,8 @@
 
 import("//build/ohos.gni")
 import("//build/config/components/ets_frontend/ets2abc_config.gni")
-import("../../../../config.gni")
-import("../../../../web_aafwk.gni")
+import("../../../../../config.gni")
+import("../../../../../web_aafwk.gni")
 
 config("web_ex_cfg") {
     include_dirs = [
@@ -25,8 +25,8 @@ config("web_ex_cfg") {
 ohos_source_set("connect_info") {
     include_dirs = [
         "include",
-        "../../../../ohos_nweb/include",
-        "../../../../sa/web_native_messaging/common",
+        "../../../../../ohos_nweb/include",
+        "../../../../../sa/web_native_messaging/common",
     ]
 
     sources = [ "src/web_native_messaging_extension_connect_info.cpp" ]
@@ -41,10 +41,19 @@ ohos_source_set("connect_info") {
 }
 
 ohos_shared_library("web_extension") {
+    sanitize = {
+        cfi = true
+        cfi_cross_dso = true
+        cfi_vcall_icall_only = true
+        debug = false
+    }
+    if (target_cpu == "arm64") {
+        branch_protector_ret = "pac_ret"
+    }
     include_dirs = [
         "include",
-        "../../../../ohos_nweb/include",
-        "../../../../sa/web_native_messaging/common",
+        "../../../../../ohos_nweb/include",
+        "../../../../../sa/web_native_messaging/common",
     ]
 
     sources = [
@@ -54,12 +63,12 @@ ohos_shared_library("web_extension") {
         "src/web_native_messaging_extension_stub_impl.cpp",
         "src/web_native_messaging_extension_stub.cpp",
         "src/web_native_messaging_extension.cpp",
-        "../../../../sa/web_native_messaging/common/web_native_messaging_common.cpp"
+        "../../../../../sa/web_native_messaging/common/web_native_messaging_common.cpp"
     ]
 
     deps = [
         ":connect_info",
-        "../../../../sa/web_native_messaging:web_native_messaging_kit"
+        "../../../../../sa/web_native_messaging:web_native_messaging_kit"
     ]
 
     external_deps = [
@@ -90,10 +99,12 @@ ohos_shared_library("web_native_messaging_extension_module") {
         cfi_vcall_icall_only = true
         debug = false
     }
-    branch_protector_ret = "pac_ret"
+    if (target_cpu == "arm64") {
+        branch_protector_ret = "pac_ret"
+    }
     include_dirs = [
         "include",
-        "../../../../sa/web_native_messaging/common",
+        "../../../../../sa/web_native_messaging/common",
     ]
 
     sources = [

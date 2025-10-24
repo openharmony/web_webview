@@ -13,14 +13,14 @@
 
 import("//build/ohos.gni")
 import("//build/config/components/ets_frontend/ets2abc_config.gni")
-import("../../../../config.gni")
-import("../../../../web_aafwk.gni")
+import("../../../../../config.gni")
+import("../../../../../web_aafwk.gni")
 
 ohos_shared_library("web_extension_client") {
   include_dirs = [
     "include",
-    "../../../../ohos_nweb/include",
-    "../../../../sa/web_native_messaging/common",
+    "../../../../../ohos_nweb/include",
+    "../../../../../sa/web_native_messaging/common",
   ]
 
   sources = [

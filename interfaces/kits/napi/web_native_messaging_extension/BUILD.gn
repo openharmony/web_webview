@@ -11,12 +11,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
- group("web_native_messaging_extension") {
+ group("web_native_messaging_extension_napi") {
     deps = [
         "ability:webnativemessagingextensionability_napi",
         "context:webnativemessagingextensioncontext_napi",
         "extension:web_extension",
         "extension:web_native_messaging_extension_module",
         "extension_client:web_extension_client",
+        "extension_manager:webnativemessagingextensionmanager_napi"
     ]
  }
