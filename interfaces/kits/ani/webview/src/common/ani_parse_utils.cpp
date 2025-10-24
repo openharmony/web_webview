@@ -917,7 +917,7 @@ ErrCode AniParseUtils::ConstructArrayBufFlowbuf(ani_env* env, const ani_object s
     ani_boolean isArrayBuffer = false;
     ani_class arrayBufferClass;
     ani_status status;
-    if ((status = env->FindClass("escompat.ArrayBuffer", &arrayBufferClass)) != ANI_OK) {
+    if ((status = env->FindClass("std.core.ArrayBuffer", &arrayBufferClass)) != ANI_OK) {
         WVLOG_E("find buffer class error status : %{public}d", status);
         return NWebError::PARAM_CHECK_ERROR;
     }
@@ -1301,7 +1301,7 @@ bool AniParseUtils::ParseArrayBuffer(ani_env* env, ani_object script, std::strin
     ani_boolean isArrayBuffer = false;
     ani_class arrayBufferClass;
     ani_status status;
-    if ((status = env->FindClass("escompat.ArrayBuffer", &arrayBufferClass)) != ANI_OK) {
+    if ((status = env->FindClass("std.core.ArrayBuffer", &arrayBufferClass)) != ANI_OK) {
         WVLOG_E("find buffer class error status : %{public}d", status);
         return false;
     }

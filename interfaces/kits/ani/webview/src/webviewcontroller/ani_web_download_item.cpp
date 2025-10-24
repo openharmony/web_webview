@@ -452,7 +452,7 @@ static ani_object SerializeInternal(ani_env* env, ani_object object)
     size_t length = webDownloadValue.length();
 
     ani_class cls;
-    ani_status status = env->FindClass("escompat.ArrayBuffer", &cls);
+    ani_status status = env->FindClass("std.core.ArrayBuffer", &cls);
     if (status != ANI_OK) {
         WVLOG_E("[DOWNLOAD] Find class %{public}s failed, status is %{public}d.", "Lescompat/ArrayBuffer", status);
         return nullptr;

@@ -159,7 +159,7 @@ static ani_object GetArrayBuffer(ani_env* env, ani_object object)
 
     ani_class cls;
     ani_method ctor;
-    if (env->FindClass("escompat.ArrayBuffer", &cls) != ANI_OK) {
+    if (env->FindClass("std.core.ArrayBuffer", &cls) != ANI_OK) {
         return result;
     }
     if (env->Class_FindMethod(cls, "<ctor>", "i:", &ctor) != ANI_OK) {
