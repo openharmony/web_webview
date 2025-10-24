@@ -104,7 +104,7 @@ public:
     std::unique_ptr<ArkHiSysEventAdapterImpl> adapterImpl;
 };
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey1) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write1) {
     ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
@@ -130,7 +130,7 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey1) {
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey2) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write2) {
     ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
@@ -160,7 +160,7 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey2) {
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey3) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write3) {
     ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
@@ -195,7 +195,7 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey3) {
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey4) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write4) {
     ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
@@ -234,7 +234,7 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey4) {
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey5) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write5) {
     ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
@@ -278,7 +278,7 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey5) {
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey6) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write6) {
     ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
@@ -326,7 +326,7 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey6) {
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey7) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write7) {
     ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
@@ -360,7 +360,7 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey7) {
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey8) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write8) {
     ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
@@ -401,7 +401,7 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey8) {
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey9) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write9) {
     ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
@@ -507,7 +507,7 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey9) {
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey10) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write10) {
     ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
@@ -560,7 +560,7 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey10) {
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey11) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write11) {
     ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
@@ -617,7 +617,7 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey11) {
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write_WithOneKey12) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write12) {
     ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
