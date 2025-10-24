@@ -55,7 +55,7 @@ public:
     MOCK_METHOD(int, Write, (const std::string&, EventType,
     (const std::tuple<const std::string, const int64_t, const std::string, const int,
     const std::string, const std::vector<uint16_t>, const std::string, const int>&)), (override));
-    
+
     MOCK_METHOD(int, Write, (const std::string&, EventType,
     (const std::tuple<const std::string, const int64_t, const std::string, const int64_t,
     const std::string, const int , const std::string, const int,
@@ -268,13 +268,14 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write5) {
     value.value = const_cast<char*>("value5");
     const ArkWebString value5 =value;
     EXPECT_CALL(*mockAdapter, Write(
-        testing::_, 
-        testing::_, 
+        testing::_,
+        testing::_,
         testing::A<const std::tuple<const std::string, const std::string, const std::string, const std::string,
             const std::string, const std::string, const std::string, const std::string,
             const std::string, const std::string>&>()))
         .WillOnce(testing::Return(0));
-    int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3, key4, value4, key5, value5);
+    int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3,
+                                    key4, value4, key5, value5);
     EXPECT_EQ(result, 0);
 }
 
@@ -316,13 +317,14 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write6) {
     value.value = const_cast<char*>("value6");
     const ArkWebString value6 =value;
     EXPECT_CALL(*mockAdapter, Write(
-        testing::_, 
-        testing::_, 
+        testing::_,
+        testing::_,
         testing::A<const std::tuple<const std::string, const std::string, const std::string, const std::string,
             const std::string, const std::string, const std::string, const std::string,
             const std::string, const std::string, const std::string, const std::string>&>()))
         .WillOnce(testing::Return(0));
-    int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3, key4, value4, key5, value5, key6, value6);
+    int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3,
+                                    key4, value4, key5, value5, key6, value6);
     EXPECT_EQ(result, 0);
 }
 
@@ -351,8 +353,8 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write7) {
     const int value4 = 4;
 
     EXPECT_CALL(*mockAdapter, Write(
-        testing::_, 
-        testing::_, 
+        testing::_,
+        testing::_,
         testing::A<const std::tuple<const std::string, const int64_t, const std::string, const int,
             const std::string, const std::vector<uint16_t>, const std::string, const int>&>()))
         .WillOnce(testing::Return(0));
@@ -391,13 +393,14 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write8) {
     const int value6 = 6;
 
     EXPECT_CALL(*mockAdapter, Write(
-        testing::_, 
-        testing::_, 
+        testing::_,
+        testing::_,
         testing::A<const std::tuple<const std::string, const int64_t, const std::string, const int64_t,
             const std::string, const int , const std::string, const int,
             const std::string, const int64_t, const std::string, const int>&>()))
         .WillOnce(testing::Return(0));
-    int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3, key4, value4, key5, value5, key6, value6);
+    int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3,
+                                    key4, value4, key5, value5, key6, value6);
     EXPECT_EQ(result, 0);
 }
 
@@ -482,8 +485,8 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write9) {
     const int64_t value22 = 22;
     const int64_t value23 = 23;
     EXPECT_CALL(*mockAdapter, Write(
-        testing::_, 
-        testing::_, 
+        testing::_,
+        testing::_,
         testing::A<const std::tuple<const std::string, const int64_t, const std::string, const int64_t,
             const std::string, const uint32_t, const std::string, const int64_t,
             const std::string, const int64_t, const std::string, const int64_t,
@@ -497,8 +500,8 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write9) {
             const std::string, const int64_t, const std::string, const int64_t,
             const std::string, const int64_t>&>()))
         .WillOnce(testing::Return(0));
-    int result = adapterImpl->Write(eventName1, type, 
-            key1, value1, key2, value2, key3, value3, key4, value4, 
+    int result = adapterImpl->Write(eventName1, type,
+            key1, value1, key2, value2, key3, value3, key4, value4,
             key5, value5, key6, value6, key7, value7, key8, value8,
             key9, value9, key10, value10, key11, value11, key12, value12,
             key13, value13, key14, value14, key15, value15, key16, value16,
@@ -549,14 +552,15 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write10) {
     value.value = const_cast<char*>("value7");
     const ArkWebString value7 =value;
     EXPECT_CALL(*mockAdapter, Write(
-        testing::_, 
-        testing::_, 
+        testing::_,
+        testing::_,
         testing::A<const std::tuple<const std::string, const std::string, const std::string, const std::string,
             const std::string, const std::string, const std::string, const std::string,
             const std::string, const std::string, const std::string, const std::string,
             const std::string, const std::string>&>()))
         .WillOnce(testing::Return(0));
-    int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3, key4, value4, key5, value5, key6, value6, key7, value7);
+    int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3,
+                                    key4, value4, key5, value5, key6, value6, key7, value7);
     EXPECT_EQ(result, 0);
 }
 
@@ -606,21 +610,23 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write11) {
     value.value = const_cast<char*>("value8");
     const ArkWebString value8 =value;
     EXPECT_CALL(*mockAdapter, Write(
-        testing::_, 
-        testing::_, 
+        testing::_,
+        testing::_,
         testing::A<const std::tuple<const std::string, const std::string, const std::string, const std::string,
             const std::string, const std::string, const std::string, const std::string,
             const std::string, const std::string, const std::string, const std::string,
             const std::string, const std::string, const std::string, const std::string>&>()))
         .WillOnce(testing::Return(0));
-    int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3, key4, value4, key5, value5, key6, value6, key7, value7, key8, value8);
+    int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3,
+                                    key4, value4, key5, value5, key6, value6, key7, value7, key8, value8);
     EXPECT_EQ(result, 0);
 }
 
 TEST_F(ArkHiSysEventAdapterImplTest, Write12) {
     ArkWebString eventName;
-    eventName.size = 6;
+    
     eventName.value = const_cast<char*>("event1");
+    eventName.size = eventName.value.size();
     eventName.ark_web_mem_free_func = nullptr;
     const ArkWebString eventName1 = eventName;
     uint32_t type = 1;
@@ -636,8 +642,8 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write12) {
     const uint64_t value2 = 2;
 
     EXPECT_CALL(*mockAdapter, Write(
-        testing::_, 
-        testing::_, 
+        testing::_,
+        testing::_,
         testing::A<const std::tuple<const std::string, const uint32_t, const std::string, const uint64_t>&>()))
         .WillOnce(testing::Return(0));
     int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2);
