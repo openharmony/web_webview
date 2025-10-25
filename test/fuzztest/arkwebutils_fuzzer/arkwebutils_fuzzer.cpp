@@ -194,6 +194,19 @@ bool ArkwebUtils006Test(const uint8_t* data, size_t size)
     HandleVersionString(versionStr2, versionNum2);
     return true;
 }
+
+bool ArkwebUtils007Test(const uint8_t* data, size_t size)
+{
+    if ((data == nullptr) || (size == 0)) {
+        return false;
+    }
+#if (defined(webview_arm64) && !defined(ASAN_DETECTOR))
+    CreateRealSandboxPath();
+    DlopenArkWebLib();
+    DlcloseArkWebLib();
+#endif
+    return true;
+}
 } // namespace OHOS
 
 /* Fuzzer entry point */
@@ -206,5 +219,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::ArkWeb::ArkwebUtils004Test(data, size);
     OHOS::ArkWeb::ArkwebUtils005Test(data, size);
     OHOS::ArkWeb::ArkwebUtils006Test(data, size);
+    OHOS::ArkWeb::ArkwebUtils007Test(data, size);
     return 0;
 }
