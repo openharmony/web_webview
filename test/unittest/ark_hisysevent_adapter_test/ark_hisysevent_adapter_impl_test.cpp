@@ -26,7 +26,8 @@ using namespace testing;
 using namespace OHOS::ArkWeb;
 using namespace OHOS::NWeb;
 
-class MockHiSysEventAdapter : public HiSysEventAdapter {
+class MockHiSysEventAdapter : public HiSysEventAdapter
+{
 public:
     MOCK_METHOD(int, Write, (const std::string&, EventType,
     (const std::tuple<const std::string, const std::string>&)), (override));
@@ -58,7 +59,7 @@ public:
 
     MOCK_METHOD(int, Write, (const std::string&, EventType,
     (const std::tuple<const std::string, const int64_t, const std::string, const int64_t,
-    const std::string, const int , const std::string, const int,
+    const std::string, const int, const std::string, const int,
     const std::string, const int64_t, const std::string, const int>&)), (override));
 
     MOCK_METHOD(int, Write, (const std::string&, EventType,
@@ -94,7 +95,8 @@ public:
 class ArkHiSysEventAdapterImplTest : public testing::Test
 {
 public:
-    void SetUp() override {
+    void SetUp() override
+    {
         mockAdapter = std::make_unique<MockHiSysEventAdapter>();
         adapterImpl = std::make_unique<ArkHiSysEventAdapterImpl>(*mockAdapter);
     }
@@ -241,7 +243,7 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write4)
 
 TEST_F(ArkHiSysEventAdapterImplTest, Write5)
 {
-    ArkWebString eventName; 
+    ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
     eventName.ark_web_mem_free_func = nullptr;
@@ -405,7 +407,7 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write8)
         testing::_,
         testing::_,
         testing::A<const std::tuple<const std::string, const int64_t, const std::string, const int64_t,
-            const std::string, const int , const std::string, const int,
+            const std::string, const int, const std::string, const int,
             const std::string, const int64_t, const std::string, const int>&>()))
         .WillOnce(testing::Return(0));
     int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3,
