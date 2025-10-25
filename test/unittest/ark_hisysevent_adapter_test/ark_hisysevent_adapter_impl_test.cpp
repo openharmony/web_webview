@@ -626,7 +626,7 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write12) {
     ArkWebString eventName;
     
     eventName.value = const_cast<char*>("event1");
-    eventName.size = eventName.value.size();
+    eventName.size = 6;
     eventName.ark_web_mem_free_func = nullptr;
     const ArkWebString eventName1 = eventName;
     uint32_t type = 1;
