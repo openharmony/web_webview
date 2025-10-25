@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "ark_hisysevent_adapter_impl.h"
+#include "base/web/webview/ohos_interface/ohos_glue/ohos_adapter/bridge/webview/ark_hisysevent_adapter_impl.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 
-#include "hisysevent_adapter.h"
+#include "base/web/webview/ohos_interface/include/ohos_adapter/hisysevent_adapter.h"
 
 using namespace testing;
 using namespace OHOS::ArkWeb;
@@ -39,7 +39,7 @@ public:
     const std::string, const std::string>&)), (override));
 
     MOCK_METHOD(int, Write, (const std::string&, EventType,
-    (const std::tuple<const std::string, const std::string,const std::string, const std::string,
+    (const std::tuple<const std::string, const std::string, const std::string, const std::string,
     const std::string, const std::string, const std::string, const std::string>&)), (override));
 
     MOCK_METHOD(int, Write, (const std::string&, EventType,
@@ -91,7 +91,8 @@ public:
     (const std::tuple<const std::string, const uint32_t, const std::string, const uint64_t>&)), (override));
 };
 
-class ArkHiSysEventAdapterImplTest : public testing::Test {
+class ArkHiSysEventAdapterImplTest : public testing::Test
+{
 public:
     void SetUp() override {
         mockAdapter = std::make_unique<MockHiSysEventAdapter>();
@@ -104,7 +105,8 @@ public:
     std::unique_ptr<ArkHiSysEventAdapterImpl> adapterImpl;
 };
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write1) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write1)
+{
     ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
@@ -120,17 +122,18 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write1) {
     value.size = 6;
     value.value = const_cast<char*>("value1");
     value.ark_web_mem_free_func = nullptr;
-    const ArkWebString value1 =value;
+    const ArkWebString value1 = value;
     EXPECT_CALL(*mockAdapter, Write(
-        testing::_, 
-        testing::_, 
+        testing::_,
+        testing::_,
         testing::A<const std::tuple<const std::string, const std::string>&>()))
         .WillOnce(testing::Return(0));
     int result = adapterImpl->Write(eventName1, type, key1, value1);
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write2) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write2)
+{
     ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
@@ -148,19 +151,20 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write2) {
     value.size = 6;
     value.value = const_cast<char*>("value1");
     value.ark_web_mem_free_func = nullptr;
-    const ArkWebString value1 =value;
+    const ArkWebString value1 = value;
     value.value = const_cast<char*>("value2");
-    const ArkWebString value2 =value;
+    const ArkWebString value2 = value;
     EXPECT_CALL(*mockAdapter, Write(
-        testing::_, 
-        testing::_, 
+        testing::_,
+        testing::_,
         testing::A<const std::tuple<const std::string, const std::string, const std::string, const std::string>&>()))
         .WillOnce(testing::Return(0));
     int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2);
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write3) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write3)
+{
     ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
@@ -180,14 +184,14 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write3) {
     value.size = 6;
     value.value = const_cast<char*>("value1");
     value.ark_web_mem_free_func = nullptr;
-    const ArkWebString value1 =value;
+    const ArkWebString value1 = value;
     value.value = const_cast<char*>("value2");
-    const ArkWebString value2 =value;
+    const ArkWebString value2 = value;
     value.value = const_cast<char*>("value3");
-    const ArkWebString value3 =value;
+    const ArkWebString value3 = value;
     EXPECT_CALL(*mockAdapter, Write(
-        testing::_, 
-        testing::_, 
+        testing::_,
+        testing::_,
         testing::A<const std::tuple<const std::string, const std::string, const std::string, const std::string,
             const std::string, const std::string>&>()))
         .WillOnce(testing::Return(0));
@@ -195,7 +199,8 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write3) {
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write4) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write4)
+{
     ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
@@ -217,16 +222,16 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write4) {
     value.size = 6;
     value.value = const_cast<char*>("value1");
     value.ark_web_mem_free_func = nullptr;
-    const ArkWebString value1 =value;
+    const ArkWebString value1 = value;
     value.value = const_cast<char*>("value2");
-    const ArkWebString value2 =value;
+    const ArkWebString value2 = value;
     value.value = const_cast<char*>("value3");
-    const ArkWebString value3 =value;
+    const ArkWebString value3 = value;
     value.value = const_cast<char*>("value4");
-    const ArkWebString value4 =value;
+    const ArkWebString value4 = value;
     EXPECT_CALL(*mockAdapter, Write(
-        testing::_, 
-        testing::_, 
+        testing::_,
+        testing::_,
         testing::A<const std::tuple<const std::string, const std::string, const std::string, const std::string,
             const std::string, const std::string, const std::string, const std::string>&>()))
         .WillOnce(testing::Return(0));
@@ -234,8 +239,9 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write4) {
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write5) {
-    ArkWebString eventName;
+TEST_F(ArkHiSysEventAdapterImplTest, Write5)
+{
+    ArkWebString eventName; 
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
     eventName.ark_web_mem_free_func = nullptr;
@@ -258,15 +264,15 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write5) {
     value.size = 6;
     value.value = const_cast<char*>("value1");
     value.ark_web_mem_free_func = nullptr;
-    const ArkWebString value1 =value;
+    const ArkWebString value1 = value;
     value.value = const_cast<char*>("value2");
-    const ArkWebString value2 =value;
+    const ArkWebString value2 = value;
     value.value = const_cast<char*>("value3");
-    const ArkWebString value3 =value;
+    const ArkWebString value3 = value;
     value.value = const_cast<char*>("value4");
-    const ArkWebString value4 =value;
+    const ArkWebString value4 = value;
     value.value = const_cast<char*>("value5");
-    const ArkWebString value5 =value;
+    const ArkWebString value5 = value;
     EXPECT_CALL(*mockAdapter, Write(
         testing::_,
         testing::_,
@@ -275,11 +281,12 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write5) {
             const std::string, const std::string>&>()))
         .WillOnce(testing::Return(0));
     int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3,
-                                    key4, value4, key5, value5);
+        key4, value4, key5, value5);
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write6) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write6)
+{
     ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
@@ -305,17 +312,17 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write6) {
     value.size = 6;
     value.value = const_cast<char*>("value1");
     value.ark_web_mem_free_func = nullptr;
-    const ArkWebString value1 =value;
+    const ArkWebString value1 = value;
     value.value = const_cast<char*>("value2");
-    const ArkWebString value2 =value;
+    const ArkWebString value2 = value;
     value.value = const_cast<char*>("value3");
-    const ArkWebString value3 =value;
+    const ArkWebString value3 = value;
     value.value = const_cast<char*>("value4");
-    const ArkWebString value4 =value;
+    const ArkWebString value4 = value;
     value.value = const_cast<char*>("value5");
-    const ArkWebString value5 =value;
+    const ArkWebString value5 = value;
     value.value = const_cast<char*>("value6");
-    const ArkWebString value6 =value;
+    const ArkWebString value6 = value;
     EXPECT_CALL(*mockAdapter, Write(
         testing::_,
         testing::_,
@@ -324,11 +331,12 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write6) {
             const std::string, const std::string, const std::string, const std::string>&>()))
         .WillOnce(testing::Return(0));
     int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3,
-                                    key4, value4, key5, value5, key6, value6);
+        key4, value4, key5, value5, key6, value6);
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write7) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write7)
+{
     ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
@@ -362,7 +370,8 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write7) {
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write8) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write8)
+{
     ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
@@ -400,11 +409,12 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write8) {
             const std::string, const int64_t, const std::string, const int>&>()))
         .WillOnce(testing::Return(0));
     int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3,
-                                    key4, value4, key5, value5, key6, value6);
+        key4, value4, key5, value5, key6, value6);
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write9) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write9)
+{
     ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
@@ -501,16 +511,16 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write9) {
             const std::string, const int64_t>&>()))
         .WillOnce(testing::Return(0));
     int result = adapterImpl->Write(eventName1, type,
-            key1, value1, key2, value2, key3, value3, key4, value4,
-            key5, value5, key6, value6, key7, value7, key8, value8,
-            key9, value9, key10, value10, key11, value11, key12, value12,
-            key13, value13, key14, value14, key15, value15, key16, value16,
-            key17, value17, key18, value18, key19, value19, key20, value20,
-            key21, value21, key22, value22, key23, value23);
+        key1, value1, key2, value2, key3, value, key4, value4,
+        key5, value5, key6, value6, key7, value7, key8, value8,
+        key9, value, key10, value10, key11, value1, key12, value12,
+        key13, value13, key14, value4, key15, value15, key16, value16,
+        key17, value17, key18, value18, key1919, key20, value20);
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write10) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write10)
+{
     ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
@@ -538,19 +548,19 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write10) {
     value.size = 6;
     value.value = const_cast<char*>("value1");
     value.ark_web_mem_free_func = nullptr;
-    const ArkWebString value1 =value;
+    const ArkWebString value1 = value;
     value.value = const_cast<char*>("value2");
-    const ArkWebString value2 =value;
+    const ArkWebString value2 = value;
     value.value = const_cast<char*>("value3");
-    const ArkWebString value3 =value;
+    const ArkWebString value3 = value;
     value.value = const_cast<char*>("value4");
-    const ArkWebString value4 =value;
+    const ArkWebString value4 = value;
     value.value = const_cast<char*>("value5");
-    const ArkWebString value5 =value;
+    const ArkWebString value5 = value;
     value.value = const_cast<char*>("value6");
-    const ArkWebString value6 =value;
+    const ArkWebString value6 = value;
     value.value = const_cast<char*>("value7");
-    const ArkWebString value7 =value;
+    const ArkWebString value7 = value;
     EXPECT_CALL(*mockAdapter, Write(
         testing::_,
         testing::_,
@@ -560,11 +570,12 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write10) {
             const std::string, const std::string>&>()))
         .WillOnce(testing::Return(0));
     int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3,
-                                    key4, value4, key5, value5, key6, value6, key7, value7);
+        key4, value4, key5, value5, key6, value6, key7, value7);
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write11) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write11)
+{
     ArkWebString eventName;
     eventName.size = 6;
     eventName.value = const_cast<char*>("event1");
@@ -594,21 +605,21 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write11) {
     value.size = 6;
     value.value = const_cast<char*>("value1");
     value.ark_web_mem_free_func = nullptr;
-    const ArkWebString value1 =value;
+    const ArkWebString value1 = value;
     value.value = const_cast<char*>("value2");
-    const ArkWebString value2 =value;
+    const ArkWebString value2 = alue;
     value.value = const_cast<char*>("value3");
-    const ArkWebString value3 =value;
+    const ArkWebString value3 = value;
     value.value = const_cast<char*>("value4");
-    const ArkWebString value4 =value;
+    const ArkWebString value4 = value;
     value.value = const_cast<char*>("value5");
-    const ArkWebString value5 =value;
+    const ArkWebString value5 = value;
     value.value = const_cast<char*>("value6");
-    const ArkWebString value6 =value;
+    const ArkWebString value6 = value;
     value.value = const_cast<char*>("value7");
-    const ArkWebString value7 =value;
+    const ArkWebString value7 = value;
     value.value = const_cast<char*>("value8");
-    const ArkWebString value8 =value;
+    const ArkWebString value8 = value;
     EXPECT_CALL(*mockAdapter, Write(
         testing::_,
         testing::_,
@@ -618,11 +629,12 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write11) {
             const std::string, const std::string, const std::string, const std::string>&>()))
         .WillOnce(testing::Return(0));
     int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3,
-                                    key4, value4, key5, value5, key6, value6, key7, value7, key8, value8);
+        key4, value4, key5, value5, key6, value6, key7, value7, key8, value8);
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(ArkHiSysEventAdapterImplTest, Write12) {
+TEST_F(ArkHiSysEventAdapterImplTest, Write12)
+{
     ArkWebString eventName;
     
     eventName.value = const_cast<char*>("event1");
