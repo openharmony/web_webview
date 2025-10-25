@@ -22,7 +22,7 @@ config("module_private_config") {
 
   include_dirs = [
     "$webview_path/ohos_interface/ohos_glue/",
-    "$webview_path/ohos_interfac/include",
+    "$webview_path/ohos_interface/ohos_glue/ohos_adapter/bridge/webview",
   ]
 }
 
