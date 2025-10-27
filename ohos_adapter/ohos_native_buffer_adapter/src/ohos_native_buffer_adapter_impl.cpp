@@ -40,6 +40,7 @@ OhosNativeBufferAdapterImpl::~OhosNativeBufferAdapterImpl()
     WVLOG_D("Native buffer adapter impl destructor.");
 }
 
+//LCOV_EXCL_START
 bool OhosNativeBufferAdapterImpl::IsBufferLocked(OH_NativeBuffer* buffer) const
 {
     if (buffer == nullptr) {
@@ -264,4 +265,5 @@ int OhosNativeBufferAdapterImpl::FreeNativeBuffer(void* nativeBuffer)
     OH_NativeBuffer_Unreference(static_cast<OH_NativeBuffer*>(nativeBuffer));
     return 0;
 }
+//LCOV_EXCL_STOP
 } // namespace OHOS::NWeb

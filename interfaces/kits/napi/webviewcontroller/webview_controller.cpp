@@ -40,6 +40,7 @@
 
 #include "nweb_precompile_callback.h"
 #include "nweb_cache_options_impl.h"
+#include "nweb_snapshot_callback_impl.h"
 
 #include "bundle_mgr_proxy.h"
 #include "if_system_ability_manager.h"
@@ -2109,7 +2110,16 @@ ErrCode WebviewController::WebPageSnapshot(
         return INIT_ERROR;
     }
 
-    bool init = nweb_ptr->WebPageSnapshot(id, type, width, height, std::move(callback));
+    auto snapshotCallback =  std::make_shared<NWebSnapshotCallbackImpl>(std::move(callback));
+    bool init = nweb_ptr->WebPageSnapshotV2(id, type, width, height, snapshotCallback);
+
+    if (ArkWebGetErrno() != RESULT_OK) {
+        WVLOG_I("WebPageSnapshotV2 isn't existing, using old");
+        init = nweb_ptr->WebPageSnapshot(
+            id, type, width, height, snapshotCallback->extract());
+        snapshotCallback.reset();
+    }
+
     if (!init) {
         return INIT_ERROR;
     }

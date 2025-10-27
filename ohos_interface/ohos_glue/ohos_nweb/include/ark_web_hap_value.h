@@ -124,6 +124,12 @@ public:
 
     /*--ark web()--*/
     virtual void SetErrName(const ArkWebString& name) = 0;
+
+    /*--ark web()--*/
+    virtual ArkWebString GetErrorDescription() = 0;
+
+    /*--ark web()--*/
+    virtual void SetErrorDescription(const ArkWebString& description) = 0;
 };
 
 } // namespace OHOS::ArkWeb

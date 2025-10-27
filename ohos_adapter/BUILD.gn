@@ -219,6 +219,7 @@ ohos_shared_library("nweb_ohos_adapter") {
     "udmf:udmf_client",
     "window_manager:libdm",
     "window_manager:libdm_ndk",
+    "libxml2:libxml2",
   ]
   public_external_deps = [ "ability_base:want" ]
 

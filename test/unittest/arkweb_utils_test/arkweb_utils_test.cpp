@@ -257,9 +257,19 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_SelectWebcoreBeforeProcessRun_002, Tes
 }
 
 #if (defined(webview_arm64) && !defined(ASAN_DETECTOR))
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_DlopenArkWebLib_001, TestSize.Level1) {
+    auto flg = OHOS::system::GetParameter(APPSPAWN_PRELOAD_ARKWEB_ENGINE, "false");
+    OHOS::system::SetParameter(APPSPAWN_PRELOAD_ARKWEB_ENGINE, "false");
+    DlopenArkWebLib();
+    OHOS::system::SetParameter(APPSPAWN_PRELOAD_ARKWEB_ENGINE, flg);
+}
+
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_DlcloseArkWebLib_001, TestSize.Level1) {
+    auto flg = OHOS::system::GetParameter(APPSPAWN_PRELOAD_ARKWEB_ENGINE, "false");
+    OHOS::system::SetParameter(APPSPAWN_PRELOAD_ARKWEB_ENGINE, "false");
     int ret = DlcloseArkWebLib();
     EXPECT_EQ(ret, 0);
+    OHOS::system::SetParameter(APPSPAWN_PRELOAD_ARKWEB_ENGINE, flg);
 }
 #endif
 

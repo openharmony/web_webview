@@ -66,8 +66,8 @@ ohos_shared_library("web_native_messaging_service") {
     "../web_native_messaging/service/web_extension_connection_callback_proxy.cpp",
     "../web_native_messaging/service/web_native_messaging_manager.cpp",
     "../web_native_messaging/service/web_native_messaging_service.cpp",
-    "../../interfaces/native/web_native_messaging_extension/extension_client/src/web_native_messaging_extension_proxy.cpp",
-    "../../interfaces/native/web_native_messaging_extension/extension/src/web_native_messaging_extension_connect_info.cpp"
+    "../../interfaces/kits/napi/web_native_messaging_extension/extension_client/src/web_native_messaging_extension_proxy.cpp",
+    "../../interfaces/kits/napi/web_native_messaging_extension/extension/src/web_native_messaging_extension_connect_info.cpp"
   ]
   sources += filter_include(output_values, [ "*.cpp" ])
   deps = [ ":web_native_messaging_service_interface" ]
@@ -76,11 +76,19 @@ ohos_shared_library("web_native_messaging_service") {
     "./service",
     "${target_gen_dir}",
     "${target_gen_dir}/../../ohos_nweb/include",
-    "../../interfaces/native/web_native_messaging_extension/extension/include/",
-    "../../interfaces/native/web_native_messaging_extension/extension_client/include/",
+    "../../interfaces/kits/napi/web_native_messaging_extension/extension/include/",
+    "../../interfaces/kits/napi/web_native_messaging_extension/extension_client/include/",
     "../../ohos_nweb/include",
   ]
 
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  if (target_cpu == "arm64") {
+    branch_protector_ret = "pac_ret"
+  }
   cflags = [
     "-Wall",
     "-Werror",
@@ -131,6 +139,15 @@ ohos_shared_library("web_native_messaging_kit") {
     "${target_gen_dir}/../../ohos_nweb/include",
     "../../ohos_nweb/include",
   ]
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  if (target_cpu == "arm64") {
+    branch_protector_ret = "pac_ret"
+  }
 
   cflags = [
     "-Wall",

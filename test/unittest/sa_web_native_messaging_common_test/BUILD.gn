@@ -35,7 +35,7 @@ ohos_unittest("sa_web_native_messaging_common_test") {
     "$webview_path/sa/web_native_messaging:web_native_messaging_kit",
     "$webview_path/sa/web_native_messaging:web_native_messaging_service",
     "$webview_path/sa/web_native_messaging:web_native_messaging_service_interface",
-    "$webview_path/interfaces/native/web_native_messaging_extension/extension:web_extension"
+    "$webview_path/interfaces/kits/napi/web_native_messaging_extension/extension:web_extension"
   ]
 
   external_deps = [

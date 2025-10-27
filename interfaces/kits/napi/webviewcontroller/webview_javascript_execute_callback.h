@@ -48,6 +48,7 @@ public:
     static napi_value GetBoolean(napi_env env, napi_callback_info info);
     static napi_value GetArrayBuffer(napi_env env, napi_callback_info info);
     static napi_value GetArray(napi_env env, napi_callback_info info);
+    static napi_value GetErrorDescription(napi_env env, napi_callback_info info);
 };
 
 class WebJsMessageExt {

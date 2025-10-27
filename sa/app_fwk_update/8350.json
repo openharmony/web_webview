@@ -15,7 +15,8 @@
                 {
                     "name": "usual.event.PACKAGE_ADDED"
                 }]
-            }
+            },
+            "min_hdi_proxy_version": []
         }
     ]
 }

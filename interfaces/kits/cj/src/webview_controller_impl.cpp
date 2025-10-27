@@ -40,6 +40,9 @@
 #include "webview_utils.h"
 #include "nweb_message_ext.h"
 
+#include "nweb_snapshot_callback_impl.h"
+#include "../../../../ohos_interface/ohos_glue/base/include/ark_web_errno.h"
+
 namespace OHOS::Webview {
     constexpr int MAX_CUSTOM_SCHEME_SIZE = 10;
     constexpr int MAX_CUSTOM_SCHEME_NAME_LENGTH = 32;
@@ -1411,7 +1414,16 @@ namespace OHOS::Webview {
             return NWebError::INIT_ERROR;
         }
 
-        bool init = nweb_ptr->WebPageSnapshot(id, type, width, height, std::move(callback));
+        auto snapshotCallback =  std::make_shared<NWeb::NWebSnapshotCallbackImpl>(std::move(callback));
+        bool init = nweb_ptr->WebPageSnapshotV2(id, type, width, height, snapshotCallback);
+
+        if (ArkWebGetErrno() != RESULT_OK) {
+            WEBVIEWLOGI("WebPageSnapshotV2 isn't existing, using old");
+            init = nweb_ptr->WebPageSnapshot(
+                id, type, width, height, snapshotCallback->extract());
+            snapshotCallback.reset();
+        }
+
         if (!init) {
             return NWebError::INIT_ERROR;
         }

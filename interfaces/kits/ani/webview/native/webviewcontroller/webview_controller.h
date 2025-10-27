@@ -33,6 +33,7 @@
 #include "print_manager_adapter.h"
 #include "arkweb_scheme_handler.h"
 #include "web_scheme_handler_request.h"
+#include "nweb_snapshot_callback.h"
 #include "concurrency_helpers.h"
 
 namespace OHOS {
@@ -297,6 +298,9 @@ public:
     ErrCode SetAudioMuted(bool muted);
 
     ErrCode PrefetchPage(std::string& url, std::map<std::string, std::string> additionalHttpHeaders);
+
+    ErrCode PrefetchPage(std::string& url, std::map<std::string, std::string> additionalHttpHeaders,
+        std::shared_ptr<NWebPrefetchOptions> prefetchOptions);
 
     void* CreateWebPrintDocumentAdapter(const std::string &jobName);
 

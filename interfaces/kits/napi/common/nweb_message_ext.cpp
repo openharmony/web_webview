@@ -116,6 +116,7 @@ std::shared_ptr<NWebMessage> ConvertNwebHap2NwebMessage(std::shared_ptr<NWebHapV
             break;
         }
     }
+    message->SetErrorDescription(hap->GetErrorDescription());
     return message;
 }
 

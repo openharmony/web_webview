@@ -39,6 +39,7 @@
 #include "ohos_nweb/bridge/ark_web_release_surface_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_rom_value_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_screen_lock_callback_wrapper.h"
+#include "ohos_nweb/bridge/ark_web_snapshot_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_spanstring_convert_html_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_string_value_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_stylus_touch_point_info_wrapper.h"
@@ -1087,7 +1088,8 @@ bool ArkWebNWebImpl::WebPageSnapshot(const char* id,
                                      int type,
                                      int width,
                                      int height,
-                                     const WebSnapshotCallback callback) {
+                                     const WebSnapshotCallback callback)
+{
     return nweb_nweb_->WebPageSnapshot(id, static_cast<ArkPixelUnit>(type), width,
                                        height, callback);
 }
@@ -1605,5 +1607,21 @@ void ArkWebNWebImpl::SetBlankScreenDetectionConfig(bool enable, const ArkWebDoub
     nweb_nweb_->SetBlankScreenDetectionConfig(enable,
         ArkWebBasicVectorStructToClass<double, ArkWebDoubleVector>(detectionTiming),
         ArkWebBasicVectorStructToClass<int32_t, ArkWebInt32Vector>(detectionMethods), contentfulNodesCountThreshold);
+}
+
+bool ArkWebNWebImpl::WebPageSnapshotV2(const char* id,
+                                       int type,
+                                       int width,
+                                       int height,
+                                       ArkWebRefPtr<ArkWebSnapshotCallback> callback)
+{
+    return nweb_nweb_->WebPageSnapshotV2(id, static_cast<ArkPixelUnit>(type), width, height,
+                                         std::make_shared<ArkWebSnapshotCallbackWrapper>(callback));
+}
+
+void ArkWebNWebImpl::StopFling()
+{
+    WVLOG_D("ArkWebNWebImpl::StopFling");
+    nweb_nweb_->StopFling();
 }
 } // namespace OHOS::ArkWeb

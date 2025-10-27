@@ -43,6 +43,8 @@ public:
 
     std::string GetSharedRenderProcessToken() override;
 
+    bool GetEmulateTouchFromMouseEvent() override;
+
 private:
     ArkWebRefPtr<ArkWebEngineInitArgs> ark_web_engine_init_args_;
 };

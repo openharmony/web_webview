@@ -77,4 +77,10 @@ std::string ArkWebEngineInitArgsWrapper::GetSharedRenderProcessToken()
     ArkWebStringStructRelease(arkwebSharedRenderProcessToken);
     return sharedRenderProcessToken;
 }
+
+bool ArkWebEngineInitArgsWrapper::GetEmulateTouchFromMouseEvent()
+{
+    return ark_web_engine_init_args_->GetEmulateTouchFromMouseEvent();
+}
+
 } // namespace OHOS::ArkWeb

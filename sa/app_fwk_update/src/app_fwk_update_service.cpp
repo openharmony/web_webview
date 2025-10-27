@@ -101,6 +101,10 @@ ErrCode AppFwkUpdateService::NotifyFWKAfterBmsStart()
     if (ret != 0) {
         return ERR_INVALID_VALUE;
     }
+    ret = OHOS::system::SetParameter("web.engine.install.completed", "true");
+    if (ret != 0) {
+        return ERR_INVALID_VALUE;
+    }
     return ERR_OK;
 }
 

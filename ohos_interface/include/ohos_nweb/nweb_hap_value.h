@@ -132,6 +132,13 @@ public:
     }
 
     virtual void SetErrName(const std::string& name) {}
+
+    virtual std::string GetErrorDescription()
+    {
+        return std::string();
+    }
+
+    virtual void SetErrorDescription(const std::string& name) {}
 };
 
 } // namespace OHOS::NWeb

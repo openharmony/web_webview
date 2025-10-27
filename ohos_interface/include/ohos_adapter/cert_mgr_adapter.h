@@ -51,6 +51,17 @@ public:
 
     virtual int32_t SignV2(const uint8_t* uri, const uint8_t* certData, uint32_t certDataLen,
         uint8_t* signData, uint32_t* signDataLen, uint16_t algorithm) {return 0;};
+
+    virtual int32_t GetUkeyCert(const std::string& identity, uint8_t* certData, uint32_t* certDataLen) {return -1;}
+ 
+    virtual int32_t OpenUKeyRemoteHandle(const std::string& identity) {return -1;}
+ 
+    virtual int32_t CloseUKeyRemoteHandle(const std::string& identity) {return -1;}
+ 
+    virtual int32_t GetUkeyPinAuthState(const std::string& uri, bool* state) {return -1;}
+ 
+    virtual int32_t SignUsingHuks(const std::string& identity, const uint8_t* certData, uint32_t certDataLen,
+        uint8_t* signData, uint32_t* signDataLen, uint16_t algorithm, uint32_t keySize) {return -1;}
 };
 
 } // namespace OHOS::NWeb

@@ -48,6 +48,11 @@ export default namespace webview {
         EVENT
     }
 
+    export enum WebDestroyMode {
+        NORMAL_MODE = 0,
+        FAST_MODE = 1
+    }
+
     export enum WebSoftKeyboardBehaviorMode {
         DEFAULT = 0,
         DISABLE_AUTO_KEYBOARD_ON_ACTIVE = 1
@@ -147,6 +152,11 @@ export default namespace webview {
     export enum RenderProcessMode{
         SINGLE = 0,
         MULTIPLE = 1
+    }
+
+    export enum SiteIsolationMode{
+        PARTIAL = 0,
+        STRICT = 1
     }
 
     export enum PressureLevel {
@@ -598,6 +608,13 @@ export default namespace webview {
         }
     }
 
+    export enum ArkWebEngineVersion {
+        SYSTEM_DEFAULT = 0,
+        M114 = 1,
+        M132 = 2,
+        ARKWEB_EVERGREEN = 99999
+    }
+
     export class WebviewController {
         static {
             loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
@@ -871,6 +888,9 @@ export default namespace webview {
         native setBlanklessLoadingWithKey(key: string, is_start: boolean): WebBlanklessErrorCode;
         native static clearBlanklessLoadingCache(keys?: Array<string>): void;
         native static setBlanklessLoadingCacheCapacity(capacity: int): int;
+        native static setSiteIsolationMode(mode: SiteIsolationMode): void;
+        native static getSiteIsolationMode(): SiteIsolationMode;
+        native static setWebDestroyMode(mode: WebDestroyMode): void;
         native setSoftKeyboardBehaviorMode(mode: WebSoftKeyboardBehaviorMode): void;
         native getAttachState(): ControllerAttachState;
         native onControllerAttachStateChange(callback: Callback<ControllerAttachState>): void;
@@ -884,7 +904,14 @@ export default namespace webview {
 
             return this.waitForAttachedPromise(timeout);
         }
+        native static isAutoPreconnectEnabled(): boolean;
+        native static setAutoPreconnect(enabled: boolean): void;
+        native setBackForwardCacheOptions(options?: BackForwardCacheOptions): void;
+        native static enableBackForwardCache(features?: BackForwardCacheSupportedFeatures): void;
+        native prefetchPage(url: string, additionalHeaders?: Array<WebHeader>, prefetchOptions?: PrefetchOptions): void;
         native setWebDetach(nwebId: int): void;
+        native static getActiveWebEngineVersion(): ArkWebEngineVersion;
+        native static setActiveWebEngineVersion(engineVersion: ArkWebEngineVersion): void;
     }
 
     export class WebSchemeHandlerResponse {
@@ -1918,6 +1945,13 @@ export default namespace webview {
         native getBoolean(): boolean;
         native getArrayBuffer(): ArrayBuffer;
         native getArray(): Array<string | double | long | boolean>;
+    }
+
+    export class PrefetchOptions {      
+        minTimeBetweenPrefetchesMs: int;
+        ignoreCacheControlNoStore: boolean;
+
+        constructor() {};
     }
 
     export class PrintDocumentAdapterInner implements print.PrintDocumentAdapter{

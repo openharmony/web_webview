@@ -96,6 +96,10 @@ function takePhoto(param, selectResult) {
 function needShowDialog(params) {
   let result = false;
   try {
+    let currentDevice = deviceinfo.deviceType.toLowerCase();
+    if (currentDevice === '2in1') {
+      return false;
+    }
     if (params.isCapture()) {
       console.log('input element contain capture tag, not show dialog');
       return false;
@@ -285,6 +289,7 @@ function fileSelectorListItem(callback, sysResource, text, func) {
     SymbolGlyph.margin({
       right: 16
     });
+    SymbolGlyph.fontColor([{ 'id': -1, 'type': -1, params: ['sys.color.icon_primary'], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' }]);
     Row.create();
     Row.margin({ right: 36 });
     Row.border({ width: { bottom: 0.5 }, color: '#33000000' });
@@ -327,44 +332,6 @@ function fileSelectorDialog(callback) {
   fileSelectorListItem(callback, 'sys.symbol.camera', '拍照', takePhoto);
   fileSelectorListItem(callback, 'sys.symbol.doc_text', '文件', selectFile);
   List.pop();
-}
-
-function fileSelectorDialogForPC(callback) {
-  Column.create();
-  Column.height(272);
-  fileSelectorDialog(callback);
-  Row.create();
-  Row.onClick(() => {
-    try {
-      console.log('Get Alert Dialog handled');
-      callback.fileresult.handleFileList([]);
-      promptAction.closeCustomDialog(customDialogComponentId);
-    }
-    catch (error) {
-      let message = error.message;
-      let code = error.code;
-      console.error(`closeCustomDialog error code is ${code}, message is ${message}`);
-    }
-  });
-  Row.width('92%');
-  Row.height(40);
-  Row.margin(16);
-  Row.borderRadius(5);
-  Row.backgroundColor('#ededed');
-  Row.justifyContent(FlexAlign.Center);
-  Text.create('取消');
-  Text.fontSize(16);
-  Text.fontColor('#FF0A59F7');
-  Text.fontWeight(FontWeight.Medium);
-  Text.margin({
-    top: 10,
-    bottom: 10,
-    left: 16,
-    right: 16
-  });
-  Text.pop();
-  Row.pop();
-  Column.pop();
 }
 
 function fileSelectorDialogForPhone(callback) {
@@ -441,26 +408,50 @@ function selectPicture(param, selectResult) {
   }
 }
 
-function getManifestData(bundleName, callback) {
-
-  dataShare.createDataProxyHandle().then((dsProxyHelper) => {
-    const urisToGet =
-      [`datashareproxy://${bundleName}/browserNativeMessagingHosts`];
+async function getManifestData(bundleName, connectExtensionOrigin, notifyCallback, callback) {
+  try {
+    const dsProxyHelper = await dataShare.createDataProxyHandle();
+    const urisToGet = [`datashareproxy://${bundleName}/browserNativeMessagingHosts`];
     const config = {
       type: dataShare.DataProxyType.SHARED_CONFIG,
     };
-    dsProxyHelper.get(urisToGet, config).then((results) => {
-      results.forEach((result) => {
-        callback(result.value);
-      });
-    }).catch((error) => {
+    const results = await dsProxyHelper.get(urisToGet, config);
+    let foundValid = false;
+    for (let i = 0; i < results.length; i++) {
+      try {
+        const result = results[i];
+        const json = result.value;
+        let info = JSON.parse(json);
+        const infoPath = info.path;
+        if (typeof infoPath === 'string') {
+          info.path = JSON.parse(infoPath);
+          info.abilityName = info.path.abilityName;
+        }
+        if (info.name && info.description && info.allowed_origins && info.abilityName) {
+          console.info('Native message json info is ok');
+          if (!Array.isArray(info.allowed_origins)) {
+            info.allowed_origins = [info.allowed_origins];
+          }
+          if (!info.allowed_origins.includes(connectExtensionOrigin)) {
+            console.error('Origin not allowed, continue searching');
+            continue;
+          }
+          foundValid = true;
+          callback(info);
+          break;
+        }
+      } catch (error) {
+        console.error('NativeMessage JSON parse error:', error);
+      }
+    }
+    if (!foundValid) {
+      console.error('NativeMessage JSON no valid manifest found');
       callback(undefined);
-      console.error('getManifestData, error getting config:', JSON.stringify(error));
-    });
-  }).catch((error) => {
-    callback(undefined);
-    console.error('getManifestData, error creating DataProxyHandle:', JSON.stringify(error));
-  });
+    }
+  } catch (error) {
+      callback(undefined);
+      console.error('Error getting config:', error);
+  }
 }
 
 
@@ -494,13 +485,12 @@ Object.defineProperty(webview.WebviewController.prototype, 'fileSelectorShowFrom
   value: function (callback) {
     let currentDevice = deviceinfo.deviceType.toLowerCase();
     if (needShowDialog(callback.fileparam)) {
+      promptAction.closeCustomDialog(customDialogComponentId);
       promptAction.openCustomDialog({
         builder: () => {
-          if (currentDevice === '2in1') {
-            fileSelectorDialogForPC(callback);
-          } else {
-            fileSelectorDialogForPhone(callback);
-          }
+          Scroll.create();
+          fileSelectorDialogForPhone(callback);
+          Scroll.pop();
         },
         onWillDismiss: (dismissDialogAction) => {
           console.info('reason' + JSON.stringify(dismissDialogAction.reason));
@@ -521,7 +511,7 @@ Object.defineProperty(webview.WebviewController.prototype, 'fileSelectorShowFrom
           callback.fileresult.handleFileList([]);
           console.error(`openCustomDialog error code is ${error.code}, message is ${error.message}`);
         });
-    } else if (callback.fileparam.isCapture() &&
+    } else if (currentDevice !== '2in1' && callback.fileparam.isCapture() &&
         (isContainImageMimeType(callback.fileparam.getAcceptType()) || isContainVideoMimeType(callback.fileparam.getAcceptType()))) {
       console.log('take photo will be directly invoked due to the capture property');
       takePhoto(callback.fileparam, callback.fileresult);
@@ -581,36 +571,29 @@ Object.defineProperty(webview.WebviewController.prototype, 'openAppLink', {
 
 Object.defineProperty(webview.WebviewController.prototype, 'innerWebNativeMessageManager', {
   value: function (callback) {
-    console.info('Web deal native messaging ');
+    console.info('innerWebNativeMessageManager called');
     try {
-      getManifestData(callback.bundleName, (result) => {
+      let bundleName = callback.bundleName;
+      let readPipe = callback.readPipe;
+      let writePipe = callback.writePipe;
+      let connectExtensionOrigin = callback.extensionOrigin;
+      getManifestData(bundleName, connectExtensionOrigin, callback.result, (result) => {
+        try {
         if (!result) {
+          console.error(`NativeMessage find DateShare is no ${bundleName} config`);
           callback.result.onFailed(4001);
           return;
         }
-        const infoByJson = JSON.parse(result);
-        if (!infoByJson || !infoByJson.allowed_origins) {
-          callback.result.onFailed(infoByJson ? 4002 : 4101);
-          return;
-        }
-        if (!infoByJson.allowed_origins.includes(callback.extensionOrigin)) {
-          callback.result.onFailed(4003);
-          return;
-        }
-        const pathByJson = JSON.parse(infoByJson.path);
-        if (!pathByJson) {
-          callback.result.onFailed(4102);
-          return;
-        }
         let wantInfo = {
-          bundleName: pathByJson.bundleName,
-          abilityName: pathByJson.abilityName,
+          bundleName: callback.bundleName,
+          abilityName: result.abilityName,
           parameters: {
-            'ohos.arkweb.messageReadPipe': { 'type': 'FD', 'value': callback.readPipe },
-            'ohos.arkweb.messageWritePipe': { 'type': 'FD', 'value': callback.writePipe },
-            'ohos.arkweb.extensionOrigin': callback.extensionOrigin
+            'ohos.arkweb.messageReadPipe': { 'type': 'FD', 'value': readPipe },
+            'ohos.arkweb.messageWritePipe': { 'type': 'FD', 'value': writePipe },
+            'ohos.arkweb.extensionOrigin': connectExtensionOrigin
           },
         };
+        console.debug(`innerWebNativeMessageManager want  ${JSON.stringify(wantInfo)}`);
         let options = {
           onConnect(connection) {
             callback.result.onConnect(connection.connectionId);
@@ -619,14 +602,18 @@ Object.defineProperty(webview.WebviewController.prototype, 'innerWebNativeMessag
             callback.result.onDisconnect(connection.connectionId);
           },
           onFailed(code) {
-            console.error(`messaging onFailed callback, code: ${code}`);
             callback.result.onFailed(code);
           }
         };
-        webNativeMessagingExtensionManager.connectNative(getContext(this), wantInfo, options);
+        let abilityContext = getContext(this);
+        let connectId = webNativeMessagingExtensionManager.connectNative(abilityContext, wantInfo, options);
+        console.log(`innerWebNativeMessageManager  connectionId : ${connectId}` );
+      } catch (error) {
+        console.log(`inner callback error Message: ${JSON.stringify(error)}`);
+      }
       });
     } catch (err) {
-      console.log(`messaging error : ${JSON.stringify(err)}`);
+      console.log(`innerWebNativeMessageManager Message: ${JSON.stringify(err)}`);
     }
   }
 });

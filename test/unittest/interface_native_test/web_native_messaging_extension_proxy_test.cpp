@@ -17,7 +17,7 @@
 #include <gmock/gmock.h>
 
 #define private public
-#include "base/web/webview/interfaces/native/web_native_messaging_extension/extension_client/include/web_native_messaging_extension_proxy.h"
+#include "base/web/webview/interfaces/kits/napi/web_native_messaging_extension/extension_client/include/web_native_messaging_extension_proxy.h"
 
 using namespace testing;
 using namespace testing::ext;

@@ -46,4 +46,14 @@ void ArkWebJsSslSelectCertResultWrapper::Confirm(
     ArkWebStringStructRelease(stPrivateKeyFile);
 }
 
+void ArkWebJsSslSelectCertResultWrapper::Confirm(
+    const std::string& identity, int32_t type)
+{
+    ArkWebString stIdentity = ArkWebStringClassToStruct(identity);
+ 
+    ark_web_js_ssl_select_cert_result_->Confirm(stIdentity, type);
+ 
+    ArkWebStringStructRelease(stIdentity);
+}
+
 } // namespace OHOS::ArkWeb

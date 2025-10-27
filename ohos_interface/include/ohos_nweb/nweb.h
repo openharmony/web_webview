@@ -35,6 +35,7 @@
 #include "nweb_preference.h"
 #include "nweb_release_surface_callback.h"
 #include "nweb_rom_value.h"
+#include "nweb_snapshot_callback.h"
 #include "nweb_spanstring_convert_html_callback.h"
 #include "nweb_value_callback.h"
 #include "nweb_web_message.h"
@@ -102,6 +103,7 @@ public:
     virtual bool GetIsEnhanceSurface() = 0;
     virtual bool GetIsPopup() = 0;
     virtual std::string GetSharedRenderProcessToken() {return "";}
+    virtual bool GetEmulateTouchFromMouseEvent() {return false;}
 };
 
 class OHOS_NWEB_EXPORT NWebOutputFrameCallback {
@@ -149,9 +151,15 @@ public:
     virtual double GetX() = 0;
     virtual double GetY() = 0;
     virtual DragAction GetAction() = 0;
-    virtual OHOS::NWeb::NWebDragData::DragOperation GetDragOperation() const = 0;
-    virtual OHOS::NWeb::NWebDragData::DragOperationsMask GetAllowedDragOperation() const = 0;
-    virtual bool IsDragOpValid() const = 0;
+    virtual OHOS::NWeb::NWebDragData::DragOperation GetDragOperation() const {
+        return OHOS::NWeb::NWebDragData::DragOperation::DRAG_OPERATION_COPY;
+    }
+    virtual OHOS::NWeb::NWebDragData::DragOperationsMask GetAllowedDragOperation() const {
+        return OHOS::NWeb::NWebDragData::DragOperationsMask::DRAG_ALLOW_EVERY;
+    }
+    virtual bool IsDragOpValid() const {
+        return false;
+    };
 };
 
 enum class BlurReason : int32_t {
@@ -2176,6 +2184,30 @@ public:
     virtual void SetBlankScreenDetectionConfig(bool enable, const std::vector<double>& detectionTiming,
         const std::vector<int32_t>& detectionMethods, int32_t contentfulNodesCountThreshold)
     {}
+
+    /**
+     * @brief Get Web page snapshot V2
+     *
+     * @param id Request id.
+     * @param width Request SnapShot width.
+     * @param height Request SnapShot height.
+     * @param callback SnapShot result callback.
+     * @return ture if succuess request snapshot to renderer.
+     */
+    /*--ark web()--*/
+    virtual bool WebPageSnapshotV2(const char* id,
+                                   PixelUnit type,
+                                   int width,
+                                   int height,
+                                   std::shared_ptr<NWebSnapshotCallback> callback) {
+        return false;
+    }
+
+    /**
+     * @brief Set web should stop fling.
+     */
+    /*--ark web()--*/
+    virtual void StopFling() {}
 };
 
 } // namespace OHOS::NWeb

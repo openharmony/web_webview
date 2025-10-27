@@ -38,6 +38,7 @@
 #include "ohos_nweb/bridge/ark_web_release_surface_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_rom_value_impl.h"
 #include "ohos_nweb/bridge/ark_web_screen_lock_callback_impl.h"
+#include "ohos_nweb/bridge/ark_web_snapshot_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_spanstring_convert_html_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_string_value_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_stylus_touch_point_info_impl.h"
@@ -1896,5 +1897,22 @@ void ArkWebNWebWrapper::SetBlankScreenDetectionConfig(bool enable, const std::ve
 
     ArkWebBasicVectorStructRelease<ArkWebDoubleVector>(dTiming);
     ArkWebBasicVectorStructRelease<ArkWebInt32Vector>(dMethods);
+}
+
+bool ArkWebNWebWrapper::WebPageSnapshotV2(const char* id,
+                                          ArkPixelUnit type,
+                                          int width,
+                                          int height,
+                                          std::shared_ptr<OHOS::NWeb::NWebSnapshotCallback> callback)
+{
+    return ark_web_nweb_->WebPageSnapshotV2(id, static_cast<int>(type), width, height,
+                                            new ArkWebSnapshotCallbackImpl(callback));
+}
+
+
+void ArkWebNWebWrapper::StopFling()
+{
+    WVLOG_D("ArkWebNWebWrapper::StopFling");
+    ark_web_nweb_->StopFling();
 }
 } // namespace OHOS::ArkWeb

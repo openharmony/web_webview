@@ -57,7 +57,8 @@ void WebviewJavaScriptExecuteCallback::InitJSExcute(napi_env env, napi_value exp
         DECLARE_NAPI_FUNCTION("getNumber", NapiJsMessageExt::GetNumber),
         DECLARE_NAPI_FUNCTION("getBoolean", NapiJsMessageExt::GetBoolean),
         DECLARE_NAPI_FUNCTION("getArrayBuffer", NapiJsMessageExt::GetArrayBuffer),
-        DECLARE_NAPI_FUNCTION("getArray", NapiJsMessageExt::GetArray)
+        DECLARE_NAPI_FUNCTION("getArray", NapiJsMessageExt::GetArray),
+        DECLARE_NAPI_FUNCTION("getErrorDescription", NapiJsMessageExt::GetErrorDescription)
     };
     napi_define_class(env, JS_EXT_MSG_CLASS_NAME.c_str(), JS_EXT_MSG_CLASS_NAME.length(),
         NapiJsMessageExt::JsConstructor, nullptr, sizeof(jsMsgExtClsProperties) / sizeof(jsMsgExtClsProperties[0]),
@@ -459,6 +460,30 @@ napi_value NapiJsMessageExt::GetArray(napi_env env, napi_callback_info info)
     }
 
     NapiParseUtils::ConvertNWebToNapiValue(env, webJsMessageExt->GetJsMsgResult(), result);
+    return result;
+}
+
+napi_value NapiJsMessageExt::GetErrorDescription(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+
+    WebJsMessageExt *webJsMessageExt = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
+    NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&webJsMessageExt));
+    if (webJsMessageExt == nullptr) {
+        WVLOG_E("unwrap webJsMessageExt failed.");
+        return result;
+    }
+
+    std::string msgStr = webJsMessageExt->GetJsMsgResult()->GetErrorDescription();
+    if (!msgStr.empty()) {
+        napi_create_string_utf8(env, msgStr.c_str(), msgStr.length(), &result);
+    } else {
+        napi_get_null(env, &result);
+    }
     return result;
 }
 
