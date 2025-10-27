@@ -1376,4 +1376,9 @@ bool ArkWebHandlerWrapper::OnVerifyPinRequestByJS(
     ArkWebStringStructRelease(stIdentity);
     return flag;
 }
+
+void ArkWebHandlerWrapper::OnClippedSelectionBoundsChanged(int x, int y, int width, int height)
+{
+    ark_web_handler_->OnClippedSelectionBoundsChanged(x, y, width, height);
+}
 } // namespace OHOS::ArkWeb

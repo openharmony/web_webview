@@ -797,6 +797,8 @@ public:
 
     bool OnVerifyPinRequestByJS(ArkWebRefPtr<ArkWebJsVerifyPinResult> result, const ArkWebString& identity) override;
 
+    void OnClippedSelectionBoundsChanged(int x, int y, int width, int height) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };

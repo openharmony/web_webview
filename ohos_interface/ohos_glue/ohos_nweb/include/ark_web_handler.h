@@ -1136,6 +1136,9 @@ public:
     /*--ark web()--*/
     virtual bool OnVerifyPinRequestByJS(
         ArkWebRefPtr<ArkWebJsVerifyPinResult> result, const ArkWebString& identity) {return false;}
+
+    /*--ark web()--*/
+    virtual void OnClippedSelectionBoundsChanged(int x, int y, int width, int height) {}
 };
 
 } // namespace OHOS::ArkWeb
