@@ -104,7 +104,7 @@ constexpr double SCALE_MIN = 0.1;
 constexpr double SCALE_MAX = 2.0;
 constexpr double HALF = 2.0;
 constexpr double TEN_MILLIMETER_TO_INCH = 0.39;
-const char* ANI_WEB_CUSTOM_SCHEME_CLASS = "@ohos.web.webview.webview.WebCustomSchemeClass";
+const char* ANI_WEB_CUSTOM_SCHEME_CLASS = "@ohos.web.webview.webview.WebCustomScheme";
 constexpr size_t BFCACHE_DEFAULT_SIZE = 1;
 constexpr size_t BFCACHE_DEFAULT_TIMETOLIVE = 600;
 const char* WEB_CONTROLLER_SECURITY_LEVEL_ENUM_NAME = "@ohos.web.webview.webview.SecurityLevel";
@@ -2288,7 +2288,7 @@ void SetCustomizeSchemeOption(Scheme& scheme)
     }
 }
 
-bool SetCustomizeScheme(ani_env* env, ani_ref ref, Scheme& scheme)
+bool SetCustomizeScheme(ani_env* env, ani_object WebCustomSchemeObj, Scheme& scheme)
 {
     std::map<std::string, std::function<void(Scheme&, bool)>> schemeBooleanProperties = {
         { "isSupportCORS", [](Scheme& scheme, bool value) { scheme.isSupportCORS = value; } },
@@ -2300,40 +2300,51 @@ bool SetCustomizeScheme(ani_env* env, ani_ref ref, Scheme& scheme)
         { "isCspBypassing", [](Scheme& scheme, bool value) { scheme.isCspBypassing = value; } },
         { "isCodeCacheSupported", [](Scheme& scheme, bool value) { scheme.isCodeCacheSupported = value; } }
     };
-
-    ani_ref schemePropertyRef = nullptr;
-    for (const auto& property : schemeBooleanProperties) {
-        ani_status status = ANI_OK;
-        WVLOG_D("property.first.c_str() : %{public}s", property.first.c_str());
-
-        status =
-            env->Object_GetPropertyByName_Ref(static_cast<ani_object>(ref), property.first.c_str(), &schemePropertyRef);
-        if (status != ANI_OK) {
-            WVLOG_E("Object_GetPropertyByName_Ref status != ANI_OK : %{public}s", property.first.c_str());
-        }
-        bool schemeProperty = false;
-        if (!schemePropertyRef) {
-            if (!AniParseUtils::ParseBoolean(env, schemePropertyRef, schemeProperty)) {
-                WVLOG_I("ParseBoolean schemeProperty %{public}d ", schemeProperty);
-                if (property.first == "isSupportCORS" || property.first == "isSupportFetch") {
-                    return false;
-                }
-            }
-            if (!schemeProperty) {
-                WVLOG_I("schemeProperty status ");
-                if (property.first == "isSupportCORS" || property.first == "isSupportFetch") {
-                    WVLOG_I("property.first.c_str() : %{public}s", property.first.c_str());
-                    return false;
-                }
-            }
-            property.second(scheme, schemeProperty);
-        }
-    }
-    ani_ref schemeNameObj = nullptr;
-    if (env->Object_GetPropertyByName_Ref(static_cast<ani_object>(ref), "schemeName", &schemeNameObj) != ANI_OK) {
+    if (!env) {
+        WVLOG_E("env is nullptr");
         return false;
     }
-    if (!AniParseUtils::ParseString(env, schemeNameObj, scheme.name)) {
+    for (const auto& property : schemeBooleanProperties) {
+        ani_status status = ANI_OK;
+        ani_boolean schemeProperty;
+        bool schemePropertyBool;
+        if (property.first == "isSupportCORS" || property.first == "isSupportFetch") {
+            status = env->Object_GetPropertyByName_Boolean(WebCustomSchemeObj, property.first.c_str(), &schemeProperty);
+            if (status != ANI_OK) {
+                WVLOG_E("Object_GetPropertyByName_Boolean status != ANI_OK :  %{public}d", status);
+                return false;
+            }
+            schemePropertyBool = static_cast<bool>(schemeProperty);
+            WVLOG_D("schemePropertyBool : %{public}s %{public}d", property.first.c_str(), schemePropertyBool);
+            property.second(scheme, schemePropertyBool);
+        } else {
+            ani_ref schemePropertyRef = nullptr;
+            status = env->Object_GetPropertyByName_Ref(WebCustomSchemeObj, property.first.c_str(), &schemePropertyRef);
+            if (status != ANI_OK) {
+                WVLOG_E("Object_GetPropertyByName_Ref status != ANI_OK : %{public}s %{public}d", property.first.c_str(),
+                    status);
+                return false;
+            }
+            ani_object schemePropertyObj = static_cast<ani_object>(schemePropertyRef);
+            ani_boolean isUndefined = ANI_TRUE;
+            env->Reference_IsUndefined(schemePropertyObj, &isUndefined);
+            if (isUndefined == ANI_FALSE) {
+                status = env->Object_CallMethodByName_Boolean(schemePropertyObj, "toBoolean", nullptr, &schemeProperty);
+                if (status != ANI_OK) {
+                    WVLOG_E("Object_CallMethodByName_Boolean status != ANI_OK :  %{public}d", status);
+                    return false;
+                }
+                schemePropertyBool = static_cast<bool>(schemeProperty);
+                WVLOG_D("schemePropertyBool : %{public}s %{public}d", property.first.c_str(), schemePropertyBool);
+                property.second(scheme, schemePropertyBool);
+            }
+        }
+    }
+    ani_ref schemeNameRef = nullptr;
+    if (env->Object_GetPropertyByName_Ref(WebCustomSchemeObj, "schemeName", &schemeNameRef) != ANI_OK) {
+        return false;
+    }
+    if (!AniParseUtils::ParseString(env, schemeNameRef, scheme.name)) {
         return false;
     }
     if (!CheckSchemeName(scheme.name)) {
@@ -2343,29 +2354,40 @@ bool SetCustomizeScheme(ani_env* env, ani_ref ref, Scheme& scheme)
     return true;
 }
 
-int32_t CustomizeSchemesArrayDataHandler(ani_env* env, ani_ref array)
+int32_t CustomizeSchemesArrayDataHandler(ani_env* env, ani_object schemes)
 {
-    ani_size arrayLength = 0;
-    env->Array_GetLength(static_cast<ani_array>(array), &arrayLength);
-    if (arrayLength > MAX_CUSTOM_SCHEME_SIZE) {
-        WVLOG_E("PARAM_CHECK_ERROR");
-        return PARAM_CHECK_ERROR;
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    ani_int schemesLength = 0;
+    if (env->Object_GetPropertyByName_Int(schemes, "length", &schemesLength) != ANI_OK) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return false;
+    }
+    WVLOG_D("schemesLength :  %{public}d", schemesLength);
+    ani_class WebCustomSchemeClass;
+    if (env->FindClass(ANI_WEB_CUSTOM_SCHEME_CLASS, &WebCustomSchemeClass) != ANI_OK) {
+        WVLOG_E("Find WebCustomScheme Class failed");
+        return false;
     }
     std::vector<Scheme> schemeVector;
-    ani_object obj = {};
-    if (AniParseUtils::CreateObjectVoid(env, ANI_WEB_CUSTOM_SCHEME_CLASS, obj) == false) {
-        WVLOG_E("Obj CreateObjectVoid failed");
-        return PARAM_CHECK_ERROR;
-    }
-    ani_ref objRef = static_cast<ani_ref>(obj);
-    for (ani_size i = 0; i < arrayLength; ++i) {
-        ani_status status = env->Array_Get(static_cast<ani_array>(array), i, &objRef);
-        if (status != ANI_OK) {
-            WVLOG_E("Array_Get_Ref failed %{public}d", status);
+    for (int i = 0; i < int(schemesLength); i++) {
+        ani_ref WebCustomSchemeRef;
+        if (env->Object_CallMethodByName_Ref(
+            schemes, "$_get", "i:C{std.core.Object}", &WebCustomSchemeRef, (ani_int)i) != ANI_OK) {
+            WVLOG_E("Object_CallMethodByName_Ref failed");
+            return false;
         }
-
+        ani_object WebCustomSchemeObj = reinterpret_cast<ani_object>(WebCustomSchemeRef);
+        ani_boolean isWebCustomScheme = false;
+        env->Object_InstanceOf(WebCustomSchemeObj, WebCustomSchemeClass, &isWebCustomScheme);
+        if (!isWebCustomScheme) {
+            WVLOG_E("not WebCustomScheme");
+            return false;
+        }
         Scheme scheme;
-        bool result = SetCustomizeScheme(env, objRef, scheme);
+        bool result = SetCustomizeScheme(env, WebCustomSchemeObj, scheme);
         if (!result) {
             return PARAM_CHECK_ERROR;
         }
@@ -2373,9 +2395,13 @@ int32_t CustomizeSchemesArrayDataHandler(ani_env* env, ani_ref array)
     }
     int32_t registerResult;
     for (auto it = schemeVector.begin(); it != schemeVector.end(); ++it) {
-        registerResult = OH_ArkWeb_RegisterCustomSchemes(it->name.c_str(), it->option);
-        if (registerResult != NO_ERROR) {
-            return registerResult;
+        if (OHOS::NWeb::NWebHelper::Instance().HasLoadWebEngine() == false) {
+            OHOS::NWeb::NWebHelper::Instance().SaveSchemeVector(it->name.c_str(), it->option);
+        } else {
+            registerResult = OH_ArkWeb_RegisterCustomSchemes(it->name.c_str(), it->option);
+            if (registerResult != NO_ERROR) {
+                return registerResult;
+            }
         }
     }
     return NO_ERROR;
