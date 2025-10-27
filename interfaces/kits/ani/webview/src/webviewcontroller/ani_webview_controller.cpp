@@ -226,7 +226,7 @@ bool ParseResourceRawfileUrl(ani_env *env, const ani_object& object, std::string
     }
     ani_object paramsObj = reinterpret_cast<ani_object>(paramsRef);
     ani_ref fileNameRef;
-    if (env->Object_CallMethodByName_Ref(paramsObj, "$_get", "i:C{std.core.Object}", &fileNameRef, 0) != ANI_OK) {
+    if (env->Object_CallMethodByName_Ref(paramsObj, "$_get", "i:Y", &fileNameRef, 0) != ANI_OK) {
         return false;
     }
     if (env->Reference_IsUndefined(fileNameRef, &isUndefined) != ANI_OK || isUndefined) {
@@ -393,7 +393,7 @@ static bool GetWebHeaders(ani_env *env, ani_object headersArrayObj, std::map<std
     }
     for (int i = 0; i < int(headersLength); i++) {
         ani_ref webHeaderRef;
-        if (env->Object_CallMethodByName_Ref(headersArrayObj, "$_get", "i:C{std.core.Object}",
+        if (env->Object_CallMethodByName_Ref(headersArrayObj, "$_get", "i:Y",
                                              &webHeaderRef, (ani_int)i) != ANI_OK) {
             return false;
         }
@@ -1757,7 +1757,7 @@ bool GetSendPorts(ani_env* env, ani_object portsArrayObj, std::vector<std::strin
     for (uint32_t i = 0; i < static_cast<uint32_t>(arrayLen); i++) {
         ani_ref webMessagePortRef;
         if (env->Object_CallMethodByName_Ref(
-                portsArrayObj, "$_get", "i:C{std.core.Object}", &webMessagePortRef, (ani_int)i) != ANI_OK) {
+            portsArrayObj, "$_get", "i:Y", &webMessagePortRef, (ani_int)i) != ANI_OK) {
             return false;
         }
         ani_object portsObj = reinterpret_cast<ani_object>(webMessagePortRef);
@@ -2996,7 +2996,7 @@ static ani_object CreateWebMessagePortsObj(
             ani_object boolInfoObj = CreateWebMessagePortsObjOfBoolean(env, tempExtentionType);
             env->Object_SetPropertyByName_Ref(obj, "isExtentionType", boolInfoObj);
         }
-        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "iC{std.core.Object}:", i, obj) != ANI_OK) {
+        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "iY:", i, obj) != ANI_OK) {
             WVLOG_E("Object_CallMethodByName_Void failed");
             return nullptr;
         }
