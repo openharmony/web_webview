@@ -1392,6 +1392,8 @@ public:
 
     virtual bool OnVerifyPinRequestByJS(
         std::shared_ptr<NWebJSVerifyPinResult> result, const std::string& identity) {return false;}
+
+    virtual void OnClippedSelectionBoundsChanged(int x, int y, int width, int height) {}
 };
 
 } // namespace OHOS::NWeb

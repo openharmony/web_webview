@@ -1192,4 +1192,9 @@ bool ArkWebHandlerImpl::OnVerifyPinRequestByJS(
     return nweb_handler_->OnVerifyPinRequestByJS(std::make_shared<ArkWebJsVerifyPinResultWrapper>(result),
         ArkWebStringStructToClass(identity));
 }
+
+void ArkWebHandlerImpl::OnClippedSelectionBoundsChanged(int x, int y, int width, int height)
+{
+    nweb_handler_->OnClippedSelectionBoundsChanged(x, y, width, height);
+}
 } // namespace OHOS::ArkWeb
