@@ -75,7 +75,10 @@ ohos_shared_library("web_configs") {
   ]
   sources = [ "src/nweb_config_helper.cpp" ]
 
-  deps = [ ":web_config" ]
+  deps = [
+    ":web_config",
+    "${webview_path}/arkweb_utils:libarkweb_utils",
+  ]
 
   external_deps = [
     "ability_runtime:app_context",

@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include "arkweb_utils.h"
 #include "application_context.h"
 #include "bundle_mgr_interface.h"
 #include "config_policy_utils.h"
@@ -47,6 +48,7 @@ const std::string WEB_DVSYNC_CONFIG = "dvsync_config";
 const std::string WEB_DVSYNC_SWITCH = "dvsync_switch";
 const std::string WEB_WINDOW_ORIENTATION_CONFIG = "window_orientation_config";
 const std::string WEB_ALL_BUNDLE_NAME = "*";
+const std::string WEB_DRDC_CONFIG_NAME = "disableDrdc";
 const auto XML_ATTR_NAME = "name";
 const auto XML_ATTR_MIN = "min";
 const auto XML_ATTR_MAX = "max";
@@ -615,6 +617,10 @@ void NWebConfigHelper::ParseDeleteConfig(const xmlNodePtr &rootPtr, std::shared_
             auto it = configMap.find(nodeName + "/" + childNodeName);
             if (it == configMap.end()) {
                 WVLOG_W("not found for web_config: %{public}s/%{public}s", nodeName.c_str(), childNodeName.c_str());
+                continue;
+            }
+            if (childNodeName == WEB_DRDC_CONFIG_NAME && !IS_CALLING_FROM_M114()) {
+                WVLOG_W("drdc default is enable on M132.");
                 continue;
             }
             std::string param = it->second(contentStr);
