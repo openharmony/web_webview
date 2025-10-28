@@ -93,6 +93,10 @@ function takePhoto(param, selectResult) {
 function needShowDialog(params) {
   let result = false;
   try {
+    let currentDevice = deviceinfo.deviceType.toLowerCase();
+    if (currentDevice === '2in1') {
+      return false;
+    }
     if (params.isCapture()) {
       console.log('input element contain capture tag, not show dialog');
       return false;
@@ -325,45 +329,6 @@ function fileSelectorDialog(callback) {
   List.pop();
 }
 
-function fileSelectorDialogForPC(callback) {
-  Column.create();
-  Column.height(272);
-  Column.width(400);
-  fileSelectorDialog(callback);
-  Row.create();
-  Row.onClick(() => {
-    try {
-      console.log('Get Alert Dialog handled');
-      callback.fileresult.handleFileList([]);
-      promptAction.closeCustomDialog(customDialogComponentId);
-    }
-    catch (error) {
-      let message = error.message;
-      let code = error.code;
-      console.error(`closeCustomDialog error code is ${code}, message is ${message}`);
-    }
-  });
-  Row.width(368);
-  Row.height(40);
-  Row.margin(16);
-  Row.borderRadius(5);
-  Row.backgroundColor('#ededed');
-  Row.justifyContent(FlexAlign.Center);
-  Text.create('取消');
-  Text.fontSize(16);
-  Text.fontColor('#FF0A59F7');
-  Text.fontWeight(FontWeight.Medium);
-  Text.margin({
-    top: 10,
-    bottom: 10,
-    left: 16,
-    right: 16
-  });
-  Text.pop();
-  Row.pop();
-  Column.pop();
-}
-
 function fileSelectorDialogForPhone(callback) {
   Column.create();
   Column.height(264);
@@ -468,13 +433,10 @@ Object.defineProperty(webview.WebviewController.prototype, 'fileSelectorShowFrom
   value: function (callback) {
     let currentDevice = deviceinfo.deviceType.toLowerCase();
     if (needShowDialog(callback.fileparam)) {
+      promptAction.closeCustomDialog(customDialogComponentId);
       promptAction.openCustomDialog({
         builder: () => {
-          if (currentDevice === '2in1') {
-            fileSelectorDialogForPC(callback);
-          } else {
-            fileSelectorDialogForPhone(callback);
-          }
+          fileSelectorDialogForPhone(callback);
         },
         onWillDismiss: (dismissDialogAction) => {
           console.info('reason' + JSON.stringify(dismissDialogAction.reason));
@@ -495,7 +457,7 @@ Object.defineProperty(webview.WebviewController.prototype, 'fileSelectorShowFrom
           callback.fileresult.handleFileList([]);
           console.error(`openCustomDialog error code is ${error.code}, message is ${error.message}`);
         });
-    } else if (callback.fileparam.isCapture() &&
+    } else if (currentDevice !== '2in1' && callback.fileparam.isCapture() &&
       (isContainImageMimeType(callback.fileparam.getAcceptType()) || isContainVideoMimeType(callback.fileparam.getAcceptType()))) {
       console.log('take photo will be directly invoked due to the capture property');
       takePhoto(callback.fileparam, callback.fileresult);
