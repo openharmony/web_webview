@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 
-#include "ohos_adapter/hisysevent_adapter.h"
+#include "hisysevent_adapter.h"
 
 using namespace testing;
 using namespace OHOS::ArkWeb;
@@ -109,172 +109,92 @@ public:
 
 TEST_F(ArkHiSysEventAdapterImplTest, Write1)
 {
-    ArkWebString eventName;
-    eventName.size = 6;
-    eventName.value = const_cast<char*>("event1");
-    eventName.ark_web_mem_free_func = nullptr;
-    const ArkWebString eventName1 = eventName;
+    ArkWebString eventName = ArkWebStringClassToStruct("testEvent");
     uint32_t type = 1;
-    ArkWebString key;
-    key.size = 6;
-    key.value = const_cast<char*>("key1");
-    key.ark_web_mem_free_func = nullptr;
-    const ArkWebString key1 = key;
-    ArkWebString value;
-    value.size = 6;
-    value.value = const_cast<char*>("value1");
-    value.ark_web_mem_free_func = nullptr;
-    const ArkWebString value1 = value;
+    ArkWebString key1 = ArkWebStringClassToStruct("key1");
+    ArkWebString value1 = ArkWebStringClassToStruct("value1");
     EXPECT_CALL(*mockAdapter, Write(
         testing::_,
         testing::_,
         testing::A<const std::tuple<const std::string, const std::string>&>()))
         .WillOnce(testing::Return(0));
-    int result = adapterImpl->Write(eventName1, type, key1, value1);
+    int result = adapterImpl->Write(eventName, type, key1, value1);
     EXPECT_EQ(result, 0);
 }
 
 TEST_F(ArkHiSysEventAdapterImplTest, Write2)
 {
-    ArkWebString eventName;
-    eventName.size = 6;
-    eventName.value = const_cast<char*>("event1");
-    eventName.ark_web_mem_free_func = nullptr;
-    const ArkWebString eventName1 = eventName;
+    ArkWebString eventName = ArkWebStringClassToStruct("testEvent");
     uint32_t type = 1;
-    ArkWebString key;
-    key.size = 6;
-    key.value = const_cast<char*>("key1");
-    key.ark_web_mem_free_func = nullptr;
-    const ArkWebString key1 = key;
-    key.value = const_cast<char*>("key2");
-    const ArkWebString key2 = key;
-    ArkWebString value;
-    value.size = 6;
-    value.value = const_cast<char*>("value1");
-    value.ark_web_mem_free_func = nullptr;
-    const ArkWebString value1 = value;
-    value.value = const_cast<char*>("value2");
-    const ArkWebString value2 = value;
+    ArkWebString key1 = ArkWebStringClassToStruct("key1");
+    ArkWebString value1 = ArkWebStringClassToStruct("value1");
+    ArkWebString key2 = ArkWebStringClassToStruct("key2");
+    ArkWebString value2 = ArkWebStringClassToStruct("value2");
     EXPECT_CALL(*mockAdapter, Write(
         testing::_,
         testing::_,
         testing::A<const std::tuple<const std::string, const std::string, const std::string, const std::string>&>()))
         .WillOnce(testing::Return(0));
-    int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2);
+    int result = adapterImpl->Write(eventName, type, key1, value1, key2, value2);
     EXPECT_EQ(result, 0);
 }
 
 TEST_F(ArkHiSysEventAdapterImplTest, Write3)
 {
-    ArkWebString eventName;
-    eventName.size = 6;
-    eventName.value = const_cast<char*>("event1");
-    eventName.ark_web_mem_free_func = nullptr;
-    const ArkWebString eventName1 = eventName;
+    ArkWebString eventName = ArkWebStringClassToStruct("testEvent");
     uint32_t type = 1;
-    ArkWebString key;
-    key.size = 6;
-    key.value = const_cast<char*>("key1");
-    key.ark_web_mem_free_func = nullptr;
-    const ArkWebString key1 = key;
-    key.value = const_cast<char*>("key2");
-    const ArkWebString key2 = key;
-    key.value = const_cast<char*>("key3");
-    const ArkWebString key3 = key;
-    ArkWebString value;
-    value.size = 6;
-    value.value = const_cast<char*>("value1");
-    value.ark_web_mem_free_func = nullptr;
-    const ArkWebString value1 = value;
-    value.value = const_cast<char*>("value2");
-    const ArkWebString value2 = value;
-    value.value = const_cast<char*>("value3");
-    const ArkWebString value3 = value;
+    ArkWebString key1 = ArkWebStringClassToStruct("key1");
+    ArkWebString value1 = ArkWebStringClassToStruct("value1");
+    ArkWebString key2 = ArkWebStringClassToStruct("key2");
+    ArkWebString value2 = ArkWebStringClassToStruct("value2");
+    ArkWebString key3 = ArkWebStringClassToStruct("key3");
+    ArkWebString value3 = ArkWebStringClassToStruct("value3");
     EXPECT_CALL(*mockAdapter, Write(
         testing::_,
         testing::_,
         testing::A<const std::tuple<const std::string, const std::string, const std::string, const std::string,
             const std::string, const std::string>&>()))
         .WillOnce(testing::Return(0));
-    int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3);
+    int result = adapterImpl->Write(eventName, type, key1, value1, key2, value2, key3, value3);
     EXPECT_EQ(result, 0);
 }
 
 TEST_F(ArkHiSysEventAdapterImplTest, Write4)
 {
-    ArkWebString eventName;
-    eventName.size = 6;
-    eventName.value = const_cast<char*>("event1");
-    eventName.ark_web_mem_free_func = nullptr;
-    const ArkWebString eventName1 = eventName;
+    ArkWebString eventName = ArkWebStringClassToStruct("testEvent");
     uint32_t type = 1;
-    ArkWebString key;
-    key.size = 6;
-    key.value = const_cast<char*>("key1");
-    key.ark_web_mem_free_func = nullptr;
-    const ArkWebString key1 = key;
-    key.value = const_cast<char*>("key2");
-    const ArkWebString key2 = key;
-    key.value = const_cast<char*>("key3");
-    const ArkWebString key3 = key;
-    key.value = const_cast<char*>("key4");
-    const ArkWebString key4 = key;
-    ArkWebString value;
-    value.size = 6;
-    value.value = const_cast<char*>("value1");
-    value.ark_web_mem_free_func = nullptr;
-    const ArkWebString value1 = value;
-    value.value = const_cast<char*>("value2");
-    const ArkWebString value2 = value;
-    value.value = const_cast<char*>("value3");
-    const ArkWebString value3 = value;
-    value.value = const_cast<char*>("value4");
-    const ArkWebString value4 = value;
+    ArkWebString key1 = ArkWebStringClassToStruct("key1");
+    ArkWebString value1 = ArkWebStringClassToStruct("value1");
+    ArkWebString key2 = ArkWebStringClassToStruct("key2");
+    ArkWebString value2 = ArkWebStringClassToStruct("value2");
+    ArkWebString key3 = ArkWebStringClassToStruct("key3");
+    ArkWebString value3 = ArkWebStringClassToStruct("value3");
+    ArkWebString key4 = ArkWebStringClassToStruct("key4");
+    ArkWebString value4 = ArkWebStringClassToStruct("value4");
     EXPECT_CALL(*mockAdapter, Write(
         testing::_,
         testing::_,
         testing::A<const std::tuple<const std::string, const std::string, const std::string, const std::string,
             const std::string, const std::string, const std::string, const std::string>&>()))
         .WillOnce(testing::Return(0));
-    int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3, key4, value4);
+    int result = adapterImpl->Write(eventName, type, key1, value1, key2, value2, key3, value3, key4, value4);
     EXPECT_EQ(result, 0);
 }
 
 TEST_F(ArkHiSysEventAdapterImplTest, Write5)
 {
-    ArkWebString eventName;
-    eventName.size = 6;
-    eventName.value = const_cast<char*>("event1");
-    eventName.ark_web_mem_free_func = nullptr;
-    const ArkWebString eventName1 = eventName;
+    ArkWebString eventName = ArkWebStringClassToStruct("testEvent");
     uint32_t type = 1;
-    ArkWebString key;
-    key.size = 6;
-    key.value = const_cast<char*>("key1");
-    key.ark_web_mem_free_func = nullptr;
-    const ArkWebString key1 = key;
-    key.value = const_cast<char*>("key2");
-    const ArkWebString key2 = key;
-    key.value = const_cast<char*>("key3");
-    const ArkWebString key3 = key;
-    key.value = const_cast<char*>("key4");
-    const ArkWebString key4 = key;
-    key.value = const_cast<char*>("key5");
-    const ArkWebString key5 = key;
-    ArkWebString value;
-    value.size = 6;
-    value.value = const_cast<char*>("value1");
-    value.ark_web_mem_free_func = nullptr;
-    const ArkWebString value1 = value;
-    value.value = const_cast<char*>("value2");
-    const ArkWebString value2 = value;
-    value.value = const_cast<char*>("value3");
-    const ArkWebString value3 = value;
-    value.value = const_cast<char*>("value4");
-    const ArkWebString value4 = value;
-    value.value = const_cast<char*>("value5");
-    const ArkWebString value5 = value;
+    ArkWebString key1 = ArkWebStringClassToStruct("key1");
+    ArkWebString value1 = ArkWebStringClassToStruct("value1");
+    ArkWebString key2 = ArkWebStringClassToStruct("key2");
+    ArkWebString value2 = ArkWebStringClassToStruct("value2");
+    ArkWebString key3 = ArkWebStringClassToStruct("key3");
+    ArkWebString value3 = ArkWebStringClassToStruct("value3");
+    ArkWebString key4 = ArkWebStringClassToStruct("key4");
+    ArkWebString value4 = ArkWebStringClassToStruct("value4");
+    ArkWebString key5 = ArkWebStringClassToStruct("key5");
+    ArkWebString value5 = ArkWebStringClassToStruct("value5");
     EXPECT_CALL(*mockAdapter, Write(
         testing::_,
         testing::_,
@@ -282,49 +202,27 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write5)
             const std::string, const std::string, const std::string, const std::string,
             const std::string, const std::string>&>()))
         .WillOnce(testing::Return(0));
-    int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3,
+    int result = adapterImpl->Write(eventName, type, key1, value1, key2, value2, key3, value3,
         key4, value4, key5, value5);
     EXPECT_EQ(result, 0);
 }
 
 TEST_F(ArkHiSysEventAdapterImplTest, Write6)
 {
-    ArkWebString eventName;
-    eventName.size = 6;
-    eventName.value = const_cast<char*>("event1");
-    eventName.ark_web_mem_free_func = nullptr;
-    const ArkWebString eventName1 = eventName;
+    ArkWebString eventName = ArkWebStringClassToStruct("testEvent");
     uint32_t type = 1;
-    ArkWebString key;
-    key.size = 6;
-    key.value = const_cast<char*>("key1");
-    key.ark_web_mem_free_func = nullptr;
-    const ArkWebString key1 = key;
-    key.value = const_cast<char*>("key2");
-    const ArkWebString key2 = key;
-    key.value = const_cast<char*>("key3");
-    const ArkWebString key3 = key;
-    key.value = const_cast<char*>("key4");
-    const ArkWebString key4 = key;
-    key.value = const_cast<char*>("key5");
-    const ArkWebString key5 = key;
-    key.value = const_cast<char*>("key6");
-    const ArkWebString key6 = key;
-    ArkWebString value;
-    value.size = 6;
-    value.value = const_cast<char*>("value1");
-    value.ark_web_mem_free_func = nullptr;
-    const ArkWebString value1 = value;
-    value.value = const_cast<char*>("value2");
-    const ArkWebString value2 = value;
-    value.value = const_cast<char*>("value3");
-    const ArkWebString value3 = value;
-    value.value = const_cast<char*>("value4");
-    const ArkWebString value4 = value;
-    value.value = const_cast<char*>("value5");
-    const ArkWebString value5 = value;
-    value.value = const_cast<char*>("value6");
-    const ArkWebString value6 = value;
+    ArkWebString key1 = ArkWebStringClassToStruct("key1");
+    ArkWebString value1 = ArkWebStringClassToStruct("value1");
+    ArkWebString key2 = ArkWebStringClassToStruct("key2");
+    ArkWebString value2 = ArkWebStringClassToStruct("value2");
+    ArkWebString key3 = ArkWebStringClassToStruct("key3");
+    ArkWebString value3 = ArkWebStringClassToStruct("value3");
+    ArkWebString key4 = ArkWebStringClassToStruct("key4");
+    ArkWebString value4 = ArkWebStringClassToStruct("value4");
+    ArkWebString key5 = ArkWebStringClassToStruct("key5");
+    ArkWebString value5 = ArkWebStringClassToStruct("value5");
+    ArkWebString key6 = ArkWebStringClassToStruct("key6");
+    ArkWebString value6 = ArkWebStringClassToStruct("value6");
     EXPECT_CALL(*mockAdapter, Write(
         testing::_,
         testing::_,
@@ -332,31 +230,19 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write6)
             const std::string, const std::string, const std::string, const std::string,
             const std::string, const std::string, const std::string, const std::string>&>()))
         .WillOnce(testing::Return(0));
-    int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3,
+    int result = adapterImpl->Write(eventName, type, key1, value1, key2, value2, key3, value3,
         key4, value4, key5, value5, key6, value6);
     EXPECT_EQ(result, 0);
 }
 
 TEST_F(ArkHiSysEventAdapterImplTest, Write7)
 {
-    ArkWebString eventName;
-    eventName.size = 6;
-    eventName.value = const_cast<char*>("event1");
-    eventName.ark_web_mem_free_func = nullptr;
-    const ArkWebString eventName1 = eventName;
+    ArkWebString eventName = ArkWebStringClassToStruct("testEvent");
     uint32_t type = 1;
-    ArkWebString key;
-    key.size = 6;
-    key.value = const_cast<char*>("key1");
-    key.ark_web_mem_free_func = nullptr;
-    const ArkWebString key1 = key;
-    key.value = const_cast<char*>("key2");
-    const ArkWebString key2 = key;
-    key.value = const_cast<char*>("key3");
-    const ArkWebString key3 = key;
-    key.value = const_cast<char*>("key4");
-    const ArkWebString key4 = key;
-
+    ArkWebString key1 = ArkWebStringClassToStruct("key1");
+    ArkWebString key2 = ArkWebStringClassToStruct("key2");
+    ArkWebString key3 = ArkWebStringClassToStruct("key3");
+    ArkWebString key4 = ArkWebStringClassToStruct("key4");
     const int64_t value1 = 1;
     const int value2 = 2;
     const ArkWebUint16Vector value3 = ark_web_uint16_vector_default;
@@ -368,34 +254,20 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write7)
         testing::A<const std::tuple<const std::string, const int64_t, const std::string, const int,
             const std::string, const std::vector<uint16_t>, const std::string, const int>&>()))
         .WillOnce(testing::Return(0));
-    int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3, key4, value4);
+    int result = adapterImpl->Write(eventName, type, key1, value1, key2, value2, key3, value3, key4, value4);
     EXPECT_EQ(result, 0);
 }
 
 TEST_F(ArkHiSysEventAdapterImplTest, Write8)
 {
-    ArkWebString eventName;
-    eventName.size = 6;
-    eventName.value = const_cast<char*>("event1");
-    eventName.ark_web_mem_free_func = nullptr;
-    const ArkWebString eventName1 = eventName;
+    ArkWebString eventName = ArkWebStringClassToStruct("testEvent");
     uint32_t type = 1;
-    ArkWebString key;
-    key.size = 6;
-    key.value = const_cast<char*>("key1");
-    key.ark_web_mem_free_func = nullptr;
-    const ArkWebString key1 = key;
-    key.value = const_cast<char*>("key2");
-    const ArkWebString key2 = key;
-    key.value = const_cast<char*>("key3");
-    const ArkWebString key3 = key;
-    key.value = const_cast<char*>("key4");
-    const ArkWebString key4 = key;
-    key.value = const_cast<char*>("key5");
-    const ArkWebString key5 = key;
-    key.value = const_cast<char*>("key6");
-    const ArkWebString key6 = key;
-
+    ArkWebString key1 = ArkWebStringClassToStruct("key1");
+    ArkWebString key2 = ArkWebStringClassToStruct("key2");
+    ArkWebString key3 = ArkWebStringClassToStruct("key3");
+    ArkWebString key4 = ArkWebStringClassToStruct("key4");
+    ArkWebString key5 = ArkWebStringClassToStruct("key5");
+    ArkWebString key6 = ArkWebStringClassToStruct("key6");
     const int64_t value1 = 1;
     const int64_t value2 = 2;
     const int value3 = 3;
@@ -410,72 +282,41 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write8)
             const std::string, const int, const std::string, const int,
             const std::string, const int64_t, const std::string, const int>&>()))
         .WillOnce(testing::Return(0));
-    int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3,
+    int result = adapterImpl->Write(eventName, type, key1, value1, key2, value2, key3, value3,
         key4, value4, key5, value5, key6, value6);
     EXPECT_EQ(result, 0);
 }
 
 TEST_F(ArkHiSysEventAdapterImplTest, Write9)
 {
-    ArkWebString eventName;
-    eventName.size = 6;
-    eventName.value = const_cast<char*>("event1");
-    eventName.ark_web_mem_free_func = nullptr;
-    const ArkWebString eventName1 = eventName;
+    ArkWebString eventName = ArkWebStringClassToStruct("testEvent");
     uint32_t type = 1;
-    ArkWebString key;
-    key.size = 6;
-    key.value = const_cast<char*>("key1");
-    key.ark_web_mem_free_func = nullptr;
-    const ArkWebString key1 = key;
-    key.value = const_cast<char*>("key2");
-    const ArkWebString key2 = key;
-    key.value = const_cast<char*>("key3");
-    const ArkWebString key3 = key;
-    key.value = const_cast<char*>("key4");
-    const ArkWebString key4 = key;
-    key.value = const_cast<char*>("key5");
-    const ArkWebString key5 = key;
-    key.value = const_cast<char*>("key6");
-    const ArkWebString key6 = key;
-    key.value = const_cast<char*>("key7");
-    const ArkWebString key7 = key;
-    key.value = const_cast<char*>("key8");
-    const ArkWebString key8 = key;
-    key.value = const_cast<char*>("key9");
-    const ArkWebString key9 = key;
-    key.value = const_cast<char*>("key10");
-    const ArkWebString key10 = key;
-    key.value = const_cast<char*>("key11");
-    const ArkWebString key11 = key;
-    key.value = const_cast<char*>("key12");
-    const ArkWebString key12 = key;
-    key.value = const_cast<char*>("key13");
-    const ArkWebString key13 = key;
-    key.value = const_cast<char*>("key14");
-    const ArkWebString key14 = key;
-    key.value = const_cast<char*>("key15");
-    const ArkWebString key15 = key;
-    key.value = const_cast<char*>("key16");
-    const ArkWebString key16 = key;
-    key.value = const_cast<char*>("key17");
-    const ArkWebString key17 = key;
-    key.value = const_cast<char*>("key18");
-    const ArkWebString key18 = key;
-    key.value = const_cast<char*>("key19");
-    const ArkWebString key19 = key;
-    key.value = const_cast<char*>("key20");
-    const ArkWebString key20 = key;
-    key.value = const_cast<char*>("key21");
-    const ArkWebString key21 = key;
-    key.value = const_cast<char*>("key22");
-    const ArkWebString key22 = key;
-    key.value = const_cast<char*>("key23");
-    const ArkWebString key23 = key;
-
+    ArkWebString key1 = ArkWebStringClassToStruct("key1");
+    ArkWebString key2 = ArkWebStringClassToStruct("key2");
+    ArkWebString key3 = ArkWebStringClassToStruct("key3");
+    ArkWebString key4 = ArkWebStringClassToStruct("key4");
+    ArkWebString key5 = ArkWebStringClassToStruct("key5");
+    ArkWebString key6 = ArkWebStringClassToStruct("key6");
+    ArkWebString key7 = ArkWebStringClassToStruct("key7");
+    ArkWebString key8 = ArkWebStringClassToStruct("key8");
+    ArkWebString key9 = ArkWebStringClassToStruct("key9");
+    ArkWebString key10 = ArkWebStringClassToStruct("key10");
+    ArkWebString key11 = ArkWebStringClassToStruct("key11");
+    ArkWebString key12 = ArkWebStringClassToStruct("key12");
+    ArkWebString key13 = ArkWebStringClassToStruct("key13");
+    ArkWebString key14 = ArkWebStringClassToStruct("key14");
+    ArkWebString key15 = ArkWebStringClassToStruct("key15");
+    ArkWebString key16 = ArkWebStringClassToStruct("key16");
+    ArkWebString key17 = ArkWebStringClassToStruct("key17");
+    ArkWebString key18 = ArkWebStringClassToStruct("key18");
+    ArkWebString key19 = ArkWebStringClassToStruct("key19");
+    ArkWebString key20 = ArkWebStringClassToStruct("key20");
+    ArkWebString key21 = ArkWebStringClassToStruct("key21");
+    ArkWebString key22 = ArkWebStringClassToStruct("key22");
+    ArkWebString key23 = ArkWebStringClassToStruct("key23");
     const int64_t value1 = 1;
     const int64_t value2 = 2;
-    const int64_t value3 = 3;
+    const int32_t value3 = 3;
     const int64_t value4 = 4;
     const int64_t value5 = 5;
     const int64_t value6 = 6;
@@ -512,57 +353,34 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write9)
             const std::string, const int64_t, const std::string, const int64_t,
             const std::string, const int64_t>&>()))
         .WillOnce(testing::Return(0));
-    int result = adapterImpl->Write(eventName1, type,
-        key1, value1, key2, value2, key3, value, key4, value4,
+    int result = adapterImpl->Write(eventName, type,
+        key1, value1, key2, value2, key3, value3, key4, value4,
         key5, value5, key6, value6, key7, value7, key8, value8,
-        key9, value, key10, value10, key11, value1, key12, value12,
-        key13, value13, key14, value4, key15, value15, key16, value16,
-        key17, value17, key18, value18, key1919, key20, value20);
+        key9, value9, key10, value10, key11, value11, key12, value12,
+        key13, value13, key14, value14, key15, value15, key16, value16,
+        key17, value17, key18, value18, key19, value19, key20, value20,
+        key21, value21, key22, value22, key23, value23);
     EXPECT_EQ(result, 0);
 }
 
 TEST_F(ArkHiSysEventAdapterImplTest, Write10)
 {
-    ArkWebString eventName;
-    eventName.size = 6;
-    eventName.value = const_cast<char*>("event1");
-    eventName.ark_web_mem_free_func = nullptr;
-    const ArkWebString eventName1 = eventName;
+    ArkWebString eventName = ArkWebStringClassToStruct("testEvent");
     uint32_t type = 1;
-    ArkWebString key;
-    key.size = 6;
-    key.value = const_cast<char*>("key1");
-    key.ark_web_mem_free_func = nullptr;
-    const ArkWebString key1 = key;
-    key.value = const_cast<char*>("key2");
-    const ArkWebString key2 = key;
-    key.value = const_cast<char*>("key3");
-    const ArkWebString key3 = key;
-    key.value = const_cast<char*>("key4");
-    const ArkWebString key4 = key;
-    key.value = const_cast<char*>("key5");
-    const ArkWebString key5 = key;
-    key.value = const_cast<char*>("key6");
-    const ArkWebString key6 = key;
-    key.value = const_cast<char*>("key7");
-    const ArkWebString key7 = key;
-    ArkWebString value;
-    value.size = 6;
-    value.value = const_cast<char*>("value1");
-    value.ark_web_mem_free_func = nullptr;
-    const ArkWebString value1 = value;
-    value.value = const_cast<char*>("value2");
-    const ArkWebString value2 = value;
-    value.value = const_cast<char*>("value3");
-    const ArkWebString value3 = value;
-    value.value = const_cast<char*>("value4");
-    const ArkWebString value4 = value;
-    value.value = const_cast<char*>("value5");
-    const ArkWebString value5 = value;
-    value.value = const_cast<char*>("value6");
-    const ArkWebString value6 = value;
-    value.value = const_cast<char*>("value7");
-    const ArkWebString value7 = value;
+    ArkWebString key1 = ArkWebStringClassToStruct("key1");
+    ArkWebString value1 = ArkWebStringClassToStruct("value1");
+    ArkWebString key2 = ArkWebStringClassToStruct("key2");
+    ArkWebString value2 = ArkWebStringClassToStruct("value2");
+    ArkWebString key3 = ArkWebStringClassToStruct("key3");
+    ArkWebString value3 = ArkWebStringClassToStruct("value3");
+    ArkWebString key4 = ArkWebStringClassToStruct("key4");
+    ArkWebString value4 = ArkWebStringClassToStruct("value4");
+    ArkWebString key5 = ArkWebStringClassToStruct("key5");
+    ArkWebString value5 = ArkWebStringClassToStruct("value5");
+    ArkWebString key6 = ArkWebStringClassToStruct("key6");
+    ArkWebString value6 = ArkWebStringClassToStruct("value6");
+    ArkWebString key7 = ArkWebStringClassToStruct("key7");
+    ArkWebString value7 = ArkWebStringClassToStruct("value7");
     EXPECT_CALL(*mockAdapter, Write(
         testing::_,
         testing::_,
@@ -571,57 +389,31 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write10)
             const std::string, const std::string, const std::string, const std::string,
             const std::string, const std::string>&>()))
         .WillOnce(testing::Return(0));
-    int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3,
+    int result = adapterImpl->Write(eventName, type, key1, value1, key2, value2, key3, value3,
         key4, value4, key5, value5, key6, value6, key7, value7);
     EXPECT_EQ(result, 0);
 }
 
 TEST_F(ArkHiSysEventAdapterImplTest, Write11)
 {
-    ArkWebString eventName;
-    eventName.size = 6;
-    eventName.value = const_cast<char*>("event1");
-    eventName.ark_web_mem_free_func = nullptr;
-    const ArkWebString eventName1 = eventName;
+    ArkWebString eventName = ArkWebStringClassToStruct("testEvent");
     uint32_t type = 1;
-    ArkWebString key;
-    key.size = 6;
-    key.value = const_cast<char*>("key1");
-    key.ark_web_mem_free_func = nullptr;
-    const ArkWebString key1 = key;
-    key.value = const_cast<char*>("key2");
-    const ArkWebString key2 = key;
-    key.value = const_cast<char*>("key3");
-    const ArkWebString key3 = key;
-    key.value = const_cast<char*>("key4");
-    const ArkWebString key4 = key;
-    key.value = const_cast<char*>("key5");
-    const ArkWebString key5 = key;
-    key.value = const_cast<char*>("key6");
-    const ArkWebString key6 = key;
-    key.value = const_cast<char*>("key7");
-    const ArkWebString key7 = key;
-    key.value = const_cast<char*>("key8");
-    const ArkWebString key8 = key;
-    ArkWebString value;
-    value.size = 6;
-    value.value = const_cast<char*>("value1");
-    value.ark_web_mem_free_func = nullptr;
-    const ArkWebString value1 = value;
-    value.value = const_cast<char*>("value2");
-    const ArkWebString value2 = alue;
-    value.value = const_cast<char*>("value3");
-    const ArkWebString value3 = value;
-    value.value = const_cast<char*>("value4");
-    const ArkWebString value4 = value;
-    value.value = const_cast<char*>("value5");
-    const ArkWebString value5 = value;
-    value.value = const_cast<char*>("value6");
-    const ArkWebString value6 = value;
-    value.value = const_cast<char*>("value7");
-    const ArkWebString value7 = value;
-    value.value = const_cast<char*>("value8");
-    const ArkWebString value8 = value;
+    ArkWebString key1 = ArkWebStringClassToStruct("key1");
+    ArkWebString value1 = ArkWebStringClassToStruct("value1");
+    ArkWebString key2 = ArkWebStringClassToStruct("key2");
+    ArkWebString value2 = ArkWebStringClassToStruct("value2");
+    ArkWebString key3 = ArkWebStringClassToStruct("key3");
+    ArkWebString value3 = ArkWebStringClassToStruct("value3");
+    ArkWebString key4 = ArkWebStringClassToStruct("key4");
+    ArkWebString value4 = ArkWebStringClassToStruct("value4");
+    ArkWebString key5 = ArkWebStringClassToStruct("key5");
+    ArkWebString value5 = ArkWebStringClassToStruct("value5");
+    ArkWebString key6 = ArkWebStringClassToStruct("key6");
+    ArkWebString value6 = ArkWebStringClassToStruct("value6");
+    ArkWebString key7 = ArkWebStringClassToStruct("key7");
+    ArkWebString value7 = ArkWebStringClassToStruct("value7");
+    ArkWebString key8 = ArkWebStringClassToStruct("key8");
+    ArkWebString value8 = ArkWebStringClassToStruct("value8");
     EXPECT_CALL(*mockAdapter, Write(
         testing::_,
         testing::_,
@@ -630,28 +422,17 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write11)
             const std::string, const std::string, const std::string, const std::string,
             const std::string, const std::string, const std::string, const std::string>&>()))
         .WillOnce(testing::Return(0));
-    int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2, key3, value3,
+    int result = adapterImpl->Write(eventName, type, key1, value1, key2, value2, key3, value3,
         key4, value4, key5, value5, key6, value6, key7, value7, key8, value8);
     EXPECT_EQ(result, 0);
 }
 
 TEST_F(ArkHiSysEventAdapterImplTest, Write12)
 {
-    ArkWebString eventName;
-    
-    eventName.value = const_cast<char*>("event1");
-    eventName.size = 6;
-    eventName.ark_web_mem_free_func = nullptr;
-    const ArkWebString eventName1 = eventName;
+    ArkWebString eventName = ArkWebStringClassToStruct("testEvent");
     uint32_t type = 1;
-    ArkWebString key;
-    key.size = 6;
-    key.value = const_cast<char*>("key1");
-    key.ark_web_mem_free_func = nullptr;
-    const ArkWebString key1 = key;
-    key.value = const_cast<char*>("key2");
-    const ArkWebString key2 = key;
-
+    ArkWebString key1 = ArkWebStringClassToStruct("key1");
+    ArkWebString key2 = ArkWebStringClassToStruct("key2");
     const uint32_t value1 = 1;
     const uint64_t value2 = 2;
 
@@ -660,6 +441,6 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write12)
         testing::_,
         testing::A<const std::tuple<const std::string, const uint32_t, const std::string, const uint64_t>&>()))
         .WillOnce(testing::Return(0));
-    int result = adapterImpl->Write(eventName1, type, key1, value1, key2, value2);
+    int result = adapterImpl->Write(eventName, type, key1, value1, key2, value2);
     EXPECT_EQ(result, 0);
 }

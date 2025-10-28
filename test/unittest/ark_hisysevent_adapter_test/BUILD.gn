@@ -20,22 +20,33 @@ module_output_path = "webview/webview"
 config("module_private_config") {
   visibility = [ ":*" ]
 
-  include_dirs = [
-    "$webview_path/ohos_interface/ohos_glue/",
-    "$webview_path/ohos_interface/ohos_glue/ohos_adapter/bridge/webview",
-  ]
+  include_dirs = [ "../common"]
+
+  if(webview_print_enable) {
+    defines = [ "NWEB_PRINT_ENABLE"]
+  }
 }
 
 ohos_unittest("ark_hisysevent_adapter_impl_test") {
   module_out_path = module_output_path
   sources = [
     "ark_hisysevent_adapter_impl_test.cpp",
-    "$webview_path/ohos_interface/ohos_glue/ohos_adapter/bridge/webview/ark_hisysevent_adapter_impl.cpp",
-    "$webview_path/ohos_interface/ohos_glue/base/include/ark_web_types.cpp",
   ]
+
+  include_dirs = [
+    "${target_gen_dir}/../../../ohos_glue/ohos_nweb/bridge",
+    "${target_gen_dir}/../../../ohos_glue/ohos_adapter/bridge",
+    "${target_gen_dir}/../../../ohos_glue",
+    "${target_gen_dir}/../../../ohos_glue/base/include",
+  ]
+
   configs = [ ":module_private_config" ]
+
   deps = [ 
-    "$webview_path/ohos_adapter:nweb_ohos_adapter"
+    "${webview_path}/ohos_adapter:nweb_ohos_adapter",
+    "${webview_path}/ohos_glue:ohos_adapter_glue_source",
+    "${webview_path}/ohos_glue:ohos_base_glue_source",
+    "${webview_path}/ohos_glue:ohos_nweb_glue_source",
   ]
 
   external_deps = [
@@ -46,5 +57,7 @@ ohos_unittest("ark_hisysevent_adapter_impl_test") {
 
 group("unittest") {
   testonly = true
-  deps = [ ":ark_hisysevent_adapter_impl_test" ]
+  deps = [
+    ":ark_hisysevent_adapter_impl_test"
+  ]
 }
