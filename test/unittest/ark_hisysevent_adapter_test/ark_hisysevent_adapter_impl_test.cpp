@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "base/web/webview/ohos_interface/ohos_glue/ohos_adapter/bridge/webview/ark_hisysevent_adapter_impl.h"
+#include "ark_hisysevent_adapter_impl.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 
-#include "base/web/webview/ohos_interface/include/ohos_adapter/hisysevent_adapter.h"
+#include "ohos_adapter/hisysevent_adapter.h"
 
 using namespace testing;
 using namespace OHOS::ArkWeb;
