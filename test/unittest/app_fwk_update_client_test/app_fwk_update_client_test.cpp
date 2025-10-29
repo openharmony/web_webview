@@ -117,40 +117,26 @@ public:
         UpdateOnDemandPolicy, int32_t(int32_t, OnDemandPolicyType, const std::vector<SystemAbilityOnDemandEvent>&));
     MOCK_METHOD1(GetOnDemandSystemAbilityIds, int32_t(std::vector<int32_t>&));
     MOCK_METHOD0(AsObject, sptr<IRemoteObject>());
-    MOCK_METHOD0(RefPtrCallback, void());
-    MOCK_METHOD1(OnFirstStrongRef, void(const void*));
-    MOCK_METHOD1(OnLastStrongRef, void(const void*));
-    MOCK_METHOD1(OnLastWeakRef, void(const void*));
-    MOCK_METHOD1(OnAttemptPromoted, bool(const void*));
-};
-MockSystemAbilityManager* g_mockSystemAbilityManager = nullptr;
-
-class MockSystemAbilityManagerClient {
-public:
-    static MockSystemAbilityManagerClient& GetInstance()
-    {
-        static MockSystemAbilityManagerClient instance;
-        return instance;
-    }
-    MOCK_METHOD(sptr<ISystemAbilityManager>, GetSystemAbilityManager, ());
 };
 
-extern "C" {
-SystemAbilityManagerClient& OHOS::SystemAbilityManagerClient::GetInstance()
+sptr<ISystemAbilityManager> g_mockSystemAbilityManager = nullptr;
+SystemAbilityManagerClient& SystemAbilityManagerClient::GetInstance()
 {
-    return reinterpret_cast<SystemAbilityManagerClient&>(MockSystemAbilityManagerClient::GetInstance());
-};
-
-sptr<ISystemAbilityManager> OHOS::SystemAbilityManagerClient::GetSystemAbilityManager()
-{
-    return sptr<ISystemAbilityManager>(reinterpret_cast<ISystemAbilityManager*>(g_mockSystemAbilityManager));
+    static SystemAbilityManagerClient instance;
+    return instance;
 }
-};
-
+sptr<ISystemAbilityManager> SystemAbilityManagerClient::GetSystemAbilityManager()
+{
+    return g_mockSystemAbilityManager;
+}
 int IPCSkeleton::GetCallingUid()
 {
     return g_callingUid;
-};
+}
+void SetCallingUidValue(int value)
+{
+    g_callingUid = value;
+}
 
 template<>
 sptr<NWeb::IAppFwkUpdateService> iface_cast<NWeb::IAppFwkUpdateService>(const sptr<IRemoteObject>& object)
@@ -159,7 +145,7 @@ sptr<NWeb::IAppFwkUpdateService> iface_cast<NWeb::IAppFwkUpdateService>(const sp
         return sptr<NWeb::IAppFwkUpdateService>(g_mockAppFwkUpdateService.GetRefPtr());
     }
     return nullptr;
-};
+}
 
 namespace NWeb {
 class AppFwkUpdateClientTest : public testing::Test {
@@ -174,7 +160,7 @@ public:
     AppFwkUpdateClient::AppFwkUpdateDiedRecipient* appFwkUpdateDiedRecipient_ = nullptr;
     sptr<testing::NiceMock<MockIRemoteObject>> mockRemote_ = nullptr;
     sptr<testing::NiceMock<MockIRemoteObject>> mockRemote1_ = nullptr;
-    std::unique_ptr<MockSystemAbilityManager> mockSystemAbilityManager_ = nullptr;
+    sptr<MockSystemAbilityManager> mockSystemAbilityManager_;
 };
 
 void AppFwkUpdateClientTest::SetUp()
@@ -183,9 +169,9 @@ void AppFwkUpdateClientTest::SetUp()
     appFwkUpdateDiedRecipient_ = new AppFwkUpdateClient::AppFwkUpdateDiedRecipient();
     mockRemote_ = new testing::NiceMock<MockIRemoteObject>();
     mockRemote1_ = new testing::NiceMock<MockIRemoteObject>();
-    mockSystemAbilityManager_ = std::make_unique<testing::NiceMock<MockSystemAbilityManager>>();
     g_mockAppFwkUpdateService = new testing::NiceMock<MockAppFwkUpdateService>();
-    g_mockSystemAbilityManager = mockSystemAbilityManager_.get();
+    mockSystemAbilityManager_ = new testing::NiceMock<MockSystemAbilityManager>();
+    g_mockSystemAbilityManager = mockSystemAbilityManager_;
 }
 
 void AppFwkUpdateClientTest::TearDown()
@@ -196,6 +182,8 @@ void AppFwkUpdateClientTest::TearDown()
     mockRemote1_ = nullptr;
     g_mockAppFwkUpdateService = nullptr;
     g_mockSystemAbilityManager = nullptr;
+    mockSystemAbilityManager_ = nullptr;
+    g_callingUid = 0;
 }
 
 /**
@@ -242,14 +230,8 @@ HWTEST_F(AppFwkUpdateClientTest, SetFwkUpdate_002, testing::ext::TestSize.Level0
  */
 HWTEST_F(AppFwkUpdateClientTest, GetFwkUpdateProxy_001, testing::ext::TestSize.Level0)
 {
-    appFwkUpdateClient_->SetFwkUpdate(nullptr);
-    EXPECT_CALL(MockSystemAbilityManagerClient::GetInstance(), GetSystemAbilityManager())
-        .WillOnce(testing::Return(nullptr));
-    appFwkUpdateClient_->NotifyFWKAfterBmsStart();
-
     sptr<IRemoteObject> remoteObject = mockRemote_;
     appFwkUpdateClient_->SetFwkUpdate(remoteObject);
-    appFwkUpdateClient_->NotifyFWKAfterBmsStart();
 
     EXPECT_NE(appFwkUpdateClient_->GetFwkUpdate(), nullptr);
     sptr<IAppFwkUpdateService> fwkUpdateProxy = appFwkUpdateClient_->GetFwkUpdateProxy();
@@ -267,8 +249,6 @@ HWTEST_F(AppFwkUpdateClientTest, GetFwkUpdateProxy_002, testing::ext::TestSize.L
     g_mockSystemAbilityManager = nullptr;
     appFwkUpdateClient_->SetFwkUpdate(nullptr);
     EXPECT_EQ(appFwkUpdateClient_->GetFwkUpdate(), nullptr);
-    EXPECT_CALL(MockSystemAbilityManagerClient::GetInstance(), GetSystemAbilityManager())
-        .WillOnce(testing::Return(nullptr));
     sptr<IAppFwkUpdateService> fwkUpdateProxy = appFwkUpdateClient_->GetFwkUpdateProxy();
     EXPECT_EQ(fwkUpdateProxy, nullptr);
 }
@@ -282,9 +262,8 @@ HWTEST_F(AppFwkUpdateClientTest, GetFwkUpdateProxy_002, testing::ext::TestSize.L
 HWTEST_F(AppFwkUpdateClientTest, GetFwkUpdateProxy_003, testing::ext::TestSize.Level0)
 {
     appFwkUpdateClient_->SetFwkUpdate(nullptr);
-    EXPECT_CALL(MockSystemAbilityManagerClient::GetInstance(), GetSystemAbilityManager())
-        .WillOnce(testing::Return(g_mockSystemAbilityManager));
-    EXPECT_CALL(*g_mockSystemAbilityManager, CheckSystemAbilityOne(testing::_)).WillOnce(testing::Return(mockRemote_));
+
+    EXPECT_CALL(*mockSystemAbilityManager_, CheckSystemAbilityOne(testing::_)).WillOnce(testing::Return(mockRemote_));
     sptr<IAppFwkUpdateService> fwkUpdateProxy = appFwkUpdateClient_->GetFwkUpdateProxy();
     EXPECT_NE(fwkUpdateProxy, nullptr);
 }
@@ -298,12 +277,8 @@ HWTEST_F(AppFwkUpdateClientTest, GetFwkUpdateProxy_003, testing::ext::TestSize.L
 HWTEST_F(AppFwkUpdateClientTest, GetFwkUpdateProxy_004, testing::ext::TestSize.Level0)
 {
     appFwkUpdateClient_->SetFwkUpdate(nullptr);
-    EXPECT_CALL(MockSystemAbilityManagerClient::GetInstance(), GetSystemAbilityManager())
-        .WillOnce(testing::Return(g_mockSystemAbilityManager))
-        .WillOnce(testing::Return(g_mockSystemAbilityManager));
-    EXPECT_CALL(*g_mockSystemAbilityManager, CheckSystemAbilityOne(testing::_)).WillOnce(testing::Return(nullptr));
-    EXPECT_CALL(*g_mockSystemAbilityManager, LoadSystemAbilityTwo(testing::_, testing::_))
-        .WillOnce(testing::Return(-1));
+    EXPECT_CALL(*mockSystemAbilityManager_, CheckSystemAbilityOne(testing::_)).WillOnce(testing::Return(nullptr));
+    EXPECT_CALL(*mockSystemAbilityManager_, LoadSystemAbilityTwo(testing::_, testing::_)).WillOnce(testing::Return(-1));
     sptr<IAppFwkUpdateService> fwkUpdateProxy = appFwkUpdateClient_->GetFwkUpdateProxy();
     EXPECT_EQ(fwkUpdateProxy, nullptr);
 }
@@ -317,14 +292,10 @@ HWTEST_F(AppFwkUpdateClientTest, GetFwkUpdateProxy_004, testing::ext::TestSize.L
 HWTEST_F(AppFwkUpdateClientTest, GetFwkUpdateProxy_005, testing::ext::TestSize.Level0)
 {
     appFwkUpdateClient_->SetFwkUpdate(nullptr);
-    EXPECT_CALL(MockSystemAbilityManagerClient::GetInstance(), GetSystemAbilityManager())
-        .WillOnce(testing::Return(g_mockSystemAbilityManager))
-        .WillOnce(testing::Return(g_mockSystemAbilityManager));
-    EXPECT_CALL(*g_mockSystemAbilityManager, CheckSystemAbilityOne(testing::_))
+    EXPECT_CALL(*mockSystemAbilityManager_, CheckSystemAbilityOne(testing::_))
         .WillOnce(testing::Return(nullptr))
         .WillOnce(testing::Return(mockRemote_));
-    EXPECT_CALL(*g_mockSystemAbilityManager, LoadSystemAbilityTwo(testing::_, testing::_))
-        .WillOnce(testing::Return(0));
+    EXPECT_CALL(*mockSystemAbilityManager_, LoadSystemAbilityTwo(testing::_, testing::_)).WillOnce(testing::Return(0));
     sptr<IAppFwkUpdateService> fwkUpdateProxy = appFwkUpdateClient_->GetFwkUpdateProxy();
     EXPECT_NE(fwkUpdateProxy, nullptr);
 }
@@ -363,22 +334,6 @@ HWTEST_F(AppFwkUpdateClientTest, VerifyPackageInstall_002, testing::ext::TestSiz
 HWTEST_F(AppFwkUpdateClientTest, VerifyPackageInstall_003, testing::ext::TestSize.Level0)
 {
     g_callingUid = 5523;
-    appFwkUpdateClient_->SetFwkUpdate(nullptr);
-    EXPECT_CALL(MockSystemAbilityManagerClient::GetInstance(), GetSystemAbilityManager())
-        .WillOnce(testing::Return(nullptr));
-    int result = appFwkUpdateClient_->VerifyPackageInstall("com.ohos.nweb", "/path/to/hap");
-    EXPECT_EQ(result, -1);
-}
-
-/**
- * @tc.name: VerifyPackageInstall_004
- * @tc.desc: VerifyPackageInstall(const std::string& bundleName, const std::string& hapPath)
- * @tc.type: Func
- * @tc.require:
- */
-HWTEST_F(AppFwkUpdateClientTest, VerifyPackageInstall_004, testing::ext::TestSize.Level0)
-{
-    g_callingUid = 5523;
     sptr<IRemoteObject> remoteObject = mockRemote_;
     appFwkUpdateClient_->SetFwkUpdate(remoteObject);
     int result = appFwkUpdateClient_->VerifyPackageInstall("com.ohos.nweb", "/path/to/hap");
@@ -394,8 +349,6 @@ HWTEST_F(AppFwkUpdateClientTest, VerifyPackageInstall_004, testing::ext::TestSiz
 HWTEST_F(AppFwkUpdateClientTest, LoadFwkService_001, testing::ext::TestSize.Level0)
 {
     g_mockSystemAbilityManager = nullptr;
-    EXPECT_CALL(MockSystemAbilityManagerClient::GetInstance(), GetSystemAbilityManager())
-        .WillOnce(testing::Return(nullptr));
     bool result = appFwkUpdateClient_->LoadFwkService();
     EXPECT_FALSE(result);
 }
@@ -408,10 +361,7 @@ HWTEST_F(AppFwkUpdateClientTest, LoadFwkService_001, testing::ext::TestSize.Leve
  */
 HWTEST_F(AppFwkUpdateClientTest, LoadFwkService_002, testing::ext::TestSize.Level0)
 {
-    EXPECT_CALL(MockSystemAbilityManagerClient::GetInstance(), GetSystemAbilityManager())
-        .WillOnce(testing::Return(g_mockSystemAbilityManager));
-    EXPECT_CALL(*g_mockSystemAbilityManager, LoadSystemAbilityTwo(testing::_, testing::_))
-        .WillOnce(testing::Return(-1));
+    EXPECT_CALL(*mockSystemAbilityManager_, LoadSystemAbilityTwo(testing::_, testing::_)).WillOnce(testing::Return(-1));
     bool result = appFwkUpdateClient_->LoadFwkService();
     EXPECT_FALSE(result);
 }
@@ -424,10 +374,8 @@ HWTEST_F(AppFwkUpdateClientTest, LoadFwkService_002, testing::ext::TestSize.Leve
  */
 HWTEST_F(AppFwkUpdateClientTest, LoadFwkService_003, testing::ext::TestSize.Level0)
 {
-    EXPECT_CALL(MockSystemAbilityManagerClient::GetInstance(), GetSystemAbilityManager())
-        .WillOnce(testing::Return(g_mockSystemAbilityManager));
-    EXPECT_CALL(*g_mockSystemAbilityManager, LoadSystemAbilityTwo(testing::_, testing::_)).WillOnce(testing::Return(0));
-    EXPECT_CALL(*g_mockSystemAbilityManager, CheckSystemAbilityOne(testing::_)).WillOnce(testing::Return(nullptr));
+    EXPECT_CALL(*mockSystemAbilityManager_, LoadSystemAbilityTwo(testing::_, testing::_)).WillOnce(testing::Return(0));
+    EXPECT_CALL(*mockSystemAbilityManager_, CheckSystemAbilityOne(testing::_)).WillOnce(testing::Return(nullptr));
     bool result = appFwkUpdateClient_->LoadFwkService();
     EXPECT_FALSE(result);
 }
@@ -440,10 +388,8 @@ HWTEST_F(AppFwkUpdateClientTest, LoadFwkService_003, testing::ext::TestSize.Leve
  */
 HWTEST_F(AppFwkUpdateClientTest, LoadFwkService_004, testing::ext::TestSize.Level0)
 {
-    EXPECT_CALL(MockSystemAbilityManagerClient::GetInstance(), GetSystemAbilityManager())
-        .WillOnce(testing::Return(g_mockSystemAbilityManager));
-    EXPECT_CALL(*g_mockSystemAbilityManager, LoadSystemAbilityTwo(testing::_, testing::_)).WillOnce(testing::Return(0));
-    EXPECT_CALL(*g_mockSystemAbilityManager, CheckSystemAbilityOne(testing::_)).WillOnce(testing::Return(mockRemote_));
+    EXPECT_CALL(*mockSystemAbilityManager_, LoadSystemAbilityTwo(testing::_, testing::_)).WillOnce(testing::Return(0));
+    EXPECT_CALL(*mockSystemAbilityManager_, CheckSystemAbilityOne(testing::_)).WillOnce(testing::Return(mockRemote_));
     bool result = appFwkUpdateClient_->LoadFwkService();
     EXPECT_TRUE(result);
 }
@@ -462,6 +408,7 @@ HWTEST_F(AppFwkUpdateClientTest, OnLoadSystemAbilitySuccess_001, testing::ext::T
     sptr<IRemoteObject> remoteObject = mockRemote_;
     appFwkUpdateClient_->appFwkUpdateDiedRecipient_ =
         new (std::nothrow) AppFwkUpdateClient::AppFwkUpdateDiedRecipient();
+    testing::Mock::AllowLeak(mockRemote_);
     EXPECT_CALL(*mockRemote_, AddDeathRecipient(testing::_))
         .WillOnce(testing::Return(false))
         .WillOnce(testing::Return(true));
@@ -528,9 +475,62 @@ HWTEST_F(AppFwkUpdateClientTest, AppFwkUpdateOnRemoteDied_004, testing::ext::Tes
     sptr<IRemoteObject> remoteObject = mockRemote_;
     appFwkUpdateClient_->SetFwkUpdate(remoteObject);
     EXPECT_NE(appFwkUpdateClient_->GetFwkUpdate(), nullptr);
+    testing::Mock::AllowLeak(g_mockAppFwkUpdateService);
     EXPECT_CALL(*g_mockAppFwkUpdateService, AsObject()).WillOnce(testing::Return(remoteObject));
     wptr<IRemoteObject> weakRemoteObject(remoteObject);
     appFwkUpdateClient_->AppFwkUpdateOnRemoteDied(weakRemoteObject);
+    EXPECT_EQ(appFwkUpdateClient_->GetFwkUpdate(), nullptr);
+}
+
+/**
+ * @tc.name: CallbackOnLoadSystemAbilitySuccess_001
+ * @tc.desc: callback.OnLoadSystemAbilitySuccess()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(AppFwkUpdateClientTest, CallbackOnLoadSystemAbilitySuccess_001, testing::ext::TestSize.Level0)
+{
+    AppFwkUpdateLoadCallback callback;
+    sptr<IRemoteObject> remoteObject = mockRemote_;
+    callback.OnLoadSystemAbilitySuccess(SUBSYS_WEBVIEW_SYS_UPDATE_SERVICE_ID, nullptr);
+    EXPECT_EQ(appFwkUpdateClient_->GetFwkUpdate(), nullptr);
+
+    callback.OnLoadSystemAbilitySuccess(SUBSYS_WEBVIEW_SYS_UPDATE_SERVICE_ID - 1, remoteObject);
+    EXPECT_EQ(appFwkUpdateClient_->GetFwkUpdate(), nullptr);
+
+    callback.OnLoadSystemAbilitySuccess(SUBSYS_WEBVIEW_SYS_UPDATE_SERVICE_ID + 1, remoteObject);
+    EXPECT_EQ(appFwkUpdateClient_->GetFwkUpdate(), nullptr);
+}
+
+/**
+ * @tc.name: CallbackOnLoadSystemAbilityFail_001
+ * @tc.desc: callback.OnLoadSystemAbilityFail()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(AppFwkUpdateClientTest, CallbackOnLoadSystemAbilityFail_001, testing::ext::TestSize.Level0)
+{
+    AppFwkUpdateLoadCallback callback;
+    sptr<IRemoteObject> remoteObject = mockRemote_;
+    appFwkUpdateClient_->SetFwkUpdate(remoteObject);
+
+    callback.OnLoadSystemAbilityFail(SUBSYS_WEBVIEW_SYS_UPDATE_SERVICE_ID - 1);
+    EXPECT_NE(appFwkUpdateClient_->GetFwkUpdate(), nullptr);
+
+    callback.OnLoadSystemAbilityFail(SUBSYS_WEBVIEW_SYS_UPDATE_SERVICE_ID + 1);
+    EXPECT_NE(appFwkUpdateClient_->GetFwkUpdate(), nullptr);
+}
+
+/**
+ * @tc.name: CallbackOnLoadSystemAbilityFail_002
+ * @tc.desc: callback.OnLoadSystemAbilityFail()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(AppFwkUpdateClientTest, CallbackOnLoadSystemAbilityFail_002, testing::ext::TestSize.Level0)
+{
+    AppFwkUpdateLoadCallback callback;
+    callback.OnLoadSystemAbilityFail(SUBSYS_WEBVIEW_SYS_UPDATE_SERVICE_ID);
     EXPECT_EQ(appFwkUpdateClient_->GetFwkUpdate(), nullptr);
 }
 } // namespace NWeb
