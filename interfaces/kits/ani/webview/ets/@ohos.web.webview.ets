@@ -896,7 +896,7 @@ export default namespace webview {
         native static setSiteIsolationMode(mode: SiteIsolationMode): void;
         native static getSiteIsolationMode(): SiteIsolationMode;
         native static setWebDestroyMode(mode: WebDestroyMode): void;
-        native static setScrollbarMode(mode: SetScrollbarMode): void;
+        native static setScrollbarMode(mode: ScrollbarMode): void;
         native setSoftKeyboardBehaviorMode(mode: WebSoftKeyboardBehaviorMode): void;
         native getAttachState(): ControllerAttachState;
         native onControllerAttachStateChange(callback: Callback<ControllerAttachState>): void;
