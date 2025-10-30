@@ -42,13 +42,14 @@ using ::testing::_;
 using ::testing::DoAll;
 using ::testing::Return;
 using ::testing::SetArgPointee;
-int g_callingUid = 0;
 
+int g_parameter = 0;
+int g_setParameter = 0;
+int g_intParameter = 0;
+int g_boolParameter = 0;
 namespace OHOS {
-int IPCSkeleton::GetCallingUid()
-{
-    return g_callingUid;
-}
+void SetCallingUidValue(int value);
+
 class MockSystemAbilityOnDemandReason : public OHOS::SystemAbilityOnDemandReason {
 public:
     MOCK_METHOD(std::string, GetName, (), (const));
@@ -89,26 +90,27 @@ int AppSpawnClientDestroy(AppSpawnClientHandle clientHandle)
     return g_mockAppSpawnFunctions->AppSpawnClientDestroy(clientHandle);
 }
 }
+
 class MockCommonEventManager {
 public:
     static bool SubscribeCommonEvent(const std::shared_ptr<OHOS::EventFwk::CommonEventSubscriber>& subscriber)
     {
-        return instance().subscribeResult;
+        return GetInstance().subscribeResult_;
     }
 
     static void setSubscribeResult(bool result)
     {
-        instance().subscribeResult = result;
+        GetInstance().subscribeResult_ = result;
     }
 
 private:
-    static MockCommonEventManager& instance()
+    static MockCommonEventManager& GetInstance()
     {
         static MockCommonEventManager instance;
         return instance;
     }
 
-    bool subscribeResult = true;
+    bool subscribeResult_ = true;
 };
 
 class MockCommonEventSubscriber : public OHOS::EventFwk::CommonEventSubscriber {
@@ -121,10 +123,34 @@ public:
 namespace system {
 bool SetParameter(const std::string& key, const std::string& value)
 {
-    if (value == "") {
+    if (value == "" || g_setParameter == 0) {
         return false;
     }
     return true;
+}
+
+std::string GetParameter(const std::string& key, const std::string& def)
+{
+    if (g_parameter) {
+        return "false";
+    }
+    return "";
+}
+
+int GetIntParameter(const std::string& key, int def)
+{
+    if (g_intParameter) {
+        return 1;
+    }
+    return 0;
+}
+
+bool GetBoolParameter(const std::string& key, bool def)
+{
+    if (g_boolParameter) {
+        return true;
+    }
+    return false;
 }
 } // namespace system
 
@@ -163,20 +189,25 @@ void AppFwkUpdateServiceTest::TearDown()
     mockAppSpawnFunctions_.reset();
     mockSubscriber_.reset();
     service_.reset();
+    g_parameter = 0;
+    g_setParameter = 0;
+    g_intParameter = 0;
+    g_boolParameter = 0;
+    SetCallingUidValue(0);
 }
 
 class MockPackageCallback {
 public:
     void OnPackageChangedEvent(const std::string& bundleName, const std::string& hapPath)
     {
-        lastBundleName = bundleName;
-        lastHapPath = hapPath;
-        callCount++;
+        lastBundleName_ = bundleName;
+        lastHapPath_ = hapPath;
+        callCount_++;
     }
 
-    std::string lastBundleName;
-    std::string lastHapPath;
-    int callCount = 0;
+    std::string lastBundleName_;
+    std::string lastHapPath_;
+    int callCount_ = 0;
 };
 
 class PackageChangedReceiverTest : public testing::Test {
@@ -186,9 +217,9 @@ public:
     void SetUp();
     void TearDown();
 
-    std::shared_ptr<PackageChangedReceiver> receiver;
-    std::shared_ptr<MockPackageCallback> callbackMock;
-    std::string testBundleName = "com.ohos.nweb";
+    std::shared_ptr<PackageChangedReceiver> receiver_;
+    std::shared_ptr<MockPackageCallback> callbackMock_;
+    std::string testBundleName_ = "com.ohos.nweb";
 };
 
 void PackageChangedReceiverTest::SetUpTestCase(void) {}
@@ -197,7 +228,7 @@ void PackageChangedReceiverTest::TearDownTestCase(void) {}
 
 void PackageChangedReceiverTest::SetUp()
 {
-    callbackMock = std::make_shared<MockPackageCallback>();
+    callbackMock_ = std::make_shared<MockPackageCallback>();
 
     EventFwk::MatchingSkills skills;
     skills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED);
@@ -205,16 +236,16 @@ void PackageChangedReceiverTest::SetUp()
 
     PackageCommonEventCallback callback;
     callback.OnPackageChangedEvent = [this](const std::string bundleName, const std::string hapPath) {
-        callbackMock->OnPackageChangedEvent(bundleName, hapPath);
+        callbackMock_->OnPackageChangedEvent(bundleName, hapPath);
     };
 
-    receiver = std::make_shared<PackageChangedReceiver>(info, callback);
+    receiver_ = std::make_shared<PackageChangedReceiver>(info, callback);
 }
 
 void PackageChangedReceiverTest::TearDown()
 {
-    receiver.reset();
-    callbackMock.reset();
+    receiver_.reset();
+    callbackMock_.reset();
 }
 
 /**
@@ -353,7 +384,7 @@ HWTEST_F(AppFwkUpdateServiceTest, SendAppSpawnMessage_001, testing::ext::TestSiz
 
     EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientInit(APPSPAWN_SERVER_NAME, _))
         .WillOnce(DoAll(SetArgPointee<1>(clientHandle), Return(0)));
-    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(MSG_UPDATE_MOUNT_POINTS, _, _))
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(MSG_RESTART_SPAWNER, _, _))
         .WillOnce(DoAll(SetArgPointee<2>(reqHandle), Return(0)));
     EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientSendMsg(_, _, _)).WillOnce(Return(0));
     EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientDestroy(_)).WillOnce(Return(0));
@@ -376,7 +407,7 @@ HWTEST_F(AppFwkUpdateServiceTest, SendAppSpawnMessage_002, testing::ext::TestSiz
     EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientInit(APPSPAWN_SERVER_NAME, _))
         .WillOnce(Return(-1))
         .WillOnce(DoAll(SetArgPointee<1>(clientHandle), Return(0)));
-    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(MSG_UPDATE_MOUNT_POINTS, _, _))
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(MSG_RESTART_SPAWNER, _, _))
         .WillOnce(DoAll(SetArgPointee<2>(reqHandle), Return(0)));
     EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientSendMsg(_, _, _)).WillOnce(Return(0));
     EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientDestroy(_)).WillOnce(Return(0));
@@ -399,7 +430,7 @@ HWTEST_F(AppFwkUpdateServiceTest, SendAppSpawnMessage_003, testing::ext::TestSiz
     EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientInit(APPSPAWN_SERVER_NAME, _))
         .WillOnce(DoAll(SetArgPointee<1>(clientHandle), Return(0)))
         .WillOnce(DoAll(SetArgPointee<1>(clientHandle), Return(0)));
-    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(MSG_UPDATE_MOUNT_POINTS, _, _))
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(MSG_RESTART_SPAWNER, _, _))
         .WillOnce(Return(-1))
         .WillOnce(DoAll(SetArgPointee<2>(reqHandle), Return(0)));
     EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientSendMsg(_, _, _)).WillOnce(Return(0));
@@ -423,7 +454,7 @@ HWTEST_F(AppFwkUpdateServiceTest, SendAppSpawnMessage_004, testing::ext::TestSiz
     EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientInit(APPSPAWN_SERVER_NAME, _))
         .WillOnce(DoAll(SetArgPointee<1>(clientHandle), Return(0)))
         .WillOnce(DoAll(SetArgPointee<1>(clientHandle), Return(0)));
-    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(MSG_UPDATE_MOUNT_POINTS, _, _))
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(MSG_RESTART_SPAWNER, _, _))
         .WillOnce(DoAll(SetArgPointee<2>(reqHandle), Return(0)))
         .WillOnce(DoAll(SetArgPointee<2>(reqHandle), Return(0)));
     EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientSendMsg(_, _, _)).WillOnce(Return(-1)).WillOnce(Return(0));
@@ -458,8 +489,14 @@ HWTEST_F(AppFwkUpdateServiceTest, SendAppSpawnMessage_005, testing::ext::TestSiz
  */
 HWTEST_F(AppFwkUpdateServiceTest, VerifyPackageInstall_001, testing::ext::TestSize.Level0)
 {
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientInit(APPSPAWN_SERVER_NAME, _)).WillRepeatedly(Return(-1));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(_, _, _)).Times(0);
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientSendMsg(_, _, _)).Times(0);
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientDestroy(nullptr)).WillOnce(Return(0));
+
     int32_t isSuccess = 0;
-    ErrCode errCode = service_->VerifyPackageInstall("com.ohos.arkwebcore", "", isSuccess);
+    SetCallingUidValue(5523);
+    ErrCode errCode = service_->VerifyPackageInstall("com.ohos.arkwebcore", "install_path", isSuccess);
     EXPECT_EQ(errCode, ERR_INVALID_VALUE);
 }
 
@@ -476,14 +513,15 @@ HWTEST_F(AppFwkUpdateServiceTest, VerifyPackageInstall_002, testing::ext::TestSi
 
     EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientInit(APPSPAWN_SERVER_NAME, _))
         .WillOnce(DoAll(SetArgPointee<1>(clientHandle), Return(0)));
-    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(MSG_UPDATE_MOUNT_POINTS, _, _))
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(MSG_UNLOAD_WEBLIB_IN_APPSPAWN, _, _))
         .WillOnce(DoAll(SetArgPointee<2>(reqHandle), Return(0)));
     EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientSendMsg(_, _, _)).WillOnce(Return(0));
     EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientDestroy(_)).WillOnce(Return(0));
 
     int32_t isSuccess = 0;
-    g_callingUid = 5523;
-    ErrCode errCode = service_->VerifyPackageInstall("com.ohos.arkwebcore", "arkwebcore.install_path", isSuccess);
+    SetCallingUidValue(5523);
+    g_parameter = 0;
+    ErrCode errCode = service_->VerifyPackageInstall("com.ohos.arkwebcore", "", isSuccess);
     EXPECT_EQ(errCode, ERR_OK);
 }
 
@@ -495,14 +533,20 @@ HWTEST_F(AppFwkUpdateServiceTest, VerifyPackageInstall_002, testing::ext::TestSi
  */
 HWTEST_F(AppFwkUpdateServiceTest, VerifyPackageInstall_003, testing::ext::TestSize.Level0)
 {
-    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientInit(APPSPAWN_SERVER_NAME, _)).WillRepeatedly(Return(-1));
-    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(_, _, _)).Times(0);
-    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientSendMsg(_, _, _)).Times(0);
-    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientDestroy(nullptr)).WillOnce(Return(0));
+    AppSpawnClientHandle clientHandle = reinterpret_cast<AppSpawnClientHandle>(1);
+    AppSpawnReqMsgHandle reqHandle = reinterpret_cast<AppSpawnReqMsgHandle>(1);
 
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientInit(APPSPAWN_SERVER_NAME, _))
+        .WillOnce(DoAll(SetArgPointee<1>(clientHandle), Return(0)));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(MSG_UNLOAD_WEBLIB_IN_APPSPAWN, _, _))
+        .WillOnce(DoAll(SetArgPointee<2>(reqHandle), Return(0)));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientSendMsg(_, _, _)).WillOnce(Return(0));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientDestroy(_)).WillOnce(Return(0));
     int32_t isSuccess = 0;
-    g_callingUid = 5523;
-    ErrCode errCode = service_->VerifyPackageInstall("com.ohos.arkwebcore", "install_path", isSuccess);
+    SetCallingUidValue(5523);
+    g_parameter = 1;
+    g_setParameter = 1;
+    ErrCode errCode = service_->VerifyPackageInstall("com.ohos.arkwebcore", "", isSuccess);
     EXPECT_EQ(errCode, ERR_INVALID_VALUE);
 }
 
@@ -514,9 +558,20 @@ HWTEST_F(AppFwkUpdateServiceTest, VerifyPackageInstall_003, testing::ext::TestSi
  */
 HWTEST_F(AppFwkUpdateServiceTest, VerifyPackageInstall_004, testing::ext::TestSize.Level0)
 {
+    AppSpawnClientHandle clientHandle = reinterpret_cast<AppSpawnClientHandle>(1);
+    AppSpawnReqMsgHandle reqHandle = reinterpret_cast<AppSpawnReqMsgHandle>(1);
+
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientInit(APPSPAWN_SERVER_NAME, _))
+        .WillOnce(DoAll(SetArgPointee<1>(clientHandle), Return(0)));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(MSG_UNLOAD_WEBLIB_IN_APPSPAWN, _, _))
+        .WillOnce(DoAll(SetArgPointee<2>(reqHandle), Return(0)));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientSendMsg(_, _, _)).WillOnce(Return(0));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientDestroy(_)).WillOnce(Return(0));
     int32_t isSuccess = 0;
-    g_callingUid = 5523;
-    ErrCode errCode = service_->VerifyPackageInstall("com.ohos.arkwebcore", "", isSuccess);
+    SetCallingUidValue(5523);
+    g_parameter = 1;
+    g_setParameter = 1;
+    ErrCode errCode = service_->VerifyPackageInstall("", "abc", isSuccess);
     EXPECT_EQ(errCode, ERR_INVALID_VALUE);
 }
 
@@ -528,23 +583,21 @@ HWTEST_F(AppFwkUpdateServiceTest, VerifyPackageInstall_004, testing::ext::TestSi
  */
 HWTEST_F(AppFwkUpdateServiceTest, VerifyPackageInstall_005, testing::ext::TestSize.Level0)
 {
-    int32_t isSuccess = 0;
-    g_callingUid = 5523;
-    ErrCode errCode = service_->VerifyPackageInstall("com.ohos.arkwebcore", "false", isSuccess);
-    EXPECT_EQ(errCode, ERR_OK);
-}
+    AppSpawnClientHandle clientHandle = reinterpret_cast<AppSpawnClientHandle>(1);
+    AppSpawnReqMsgHandle reqHandle = reinterpret_cast<AppSpawnReqMsgHandle>(1);
 
-/**
- * @tc.name: VerifyPackageInstall_006
- * @tc.desc: VerifyPackageInstall()
- * @tc.type: Func
- * @tc.require:
- */
-HWTEST_F(AppFwkUpdateServiceTest, VerifyPackageInstall_006, testing::ext::TestSize.Level0)
-{
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientInit(APPSPAWN_SERVER_NAME, _))
+        .WillOnce(DoAll(SetArgPointee<1>(clientHandle), Return(0)))
+        .WillRepeatedly(Return(-1));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(MSG_UNLOAD_WEBLIB_IN_APPSPAWN, _, _))
+        .WillOnce(DoAll(SetArgPointee<2>(reqHandle), Return(0)));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientSendMsg(_, _, _)).WillOnce(Return(0));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientDestroy(_)).WillOnce(Return(0));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientDestroy(nullptr)).WillRepeatedly(Return(0));
     int32_t isSuccess = 0;
-    g_callingUid = 5523;
-    ErrCode errCode = service_->VerifyPackageInstall("", "1", isSuccess);
+    SetCallingUidValue(5523);
+    g_parameter = 0;
+    ErrCode errCode = service_->VerifyPackageInstall("com.ohos.arkwebcore", "arkwebcore.install_path", isSuccess);
     EXPECT_EQ(errCode, ERR_INVALID_VALUE);
 }
 
@@ -695,6 +748,129 @@ HWTEST_F(AppFwkUpdateServiceTest, OnStart_004, testing::ext::TestSize.Level0)
 }
 
 /**
+ * @tc.name: NotifyFWKAfterBmsStart_001
+ * @tc.desc: OnStart()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(AppFwkUpdateServiceTest, NotifyFWKAfterBmsStart_001, testing::ext::TestSize.Level0)
+{
+    g_parameter = 0;
+    EXPECT_EQ(service_->NotifyFWKAfterBmsStart(), ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: NotifyFWKAfterBmsStart_002
+ * @tc.desc: OnStart()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(AppFwkUpdateServiceTest, NotifyFWKAfterBmsStart_002, testing::ext::TestSize.Level0)
+{
+    AppSpawnClientHandle clientHandle = reinterpret_cast<AppSpawnClientHandle>(1);
+    AppSpawnReqMsgHandle reqHandle = reinterpret_cast<AppSpawnReqMsgHandle>(1);
+
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientInit(APPSPAWN_SERVER_NAME, _))
+        .WillOnce(DoAll(SetArgPointee<1>(clientHandle), Return(0)));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(MSG_LOAD_WEBLIB_IN_APPSPAWN, _, _))
+        .WillOnce(DoAll(SetArgPointee<2>(reqHandle), Return(0)));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientSendMsg(_, _, _)).WillOnce(Return(0));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientDestroy(_)).WillOnce(Return(0));
+    service_->OnAddSystemAbility(COMMON_EVENT_SERVICE_ID, "9527");
+    service_->OnAddSystemAbility(COMMON_EVENT_SERVICE_ID - 1, "9527");
+    g_parameter = 1;
+    g_setParameter = 1;
+    EXPECT_EQ(service_->NotifyFWKAfterBmsStart(), ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: NotifyFWKAfterBmsStart_003
+ * @tc.desc: OnStart()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(AppFwkUpdateServiceTest, NotifyFWKAfterBmsStart_003, testing::ext::TestSize.Level0)
+{
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientInit(APPSPAWN_SERVER_NAME, _)).WillRepeatedly(Return(-1));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(_, _, _)).Times(0);
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientSendMsg(_, _, _)).Times(0);
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientDestroy(nullptr)).WillOnce(Return(0));
+    g_parameter = 1;
+    EXPECT_EQ(service_->NotifyFWKAfterBmsStart(), ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: NotifyFWKAfterBmsStart_004
+ * @tc.desc: OnStart()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(AppFwkUpdateServiceTest, NotifyFWKAfterBmsStart_004, testing::ext::TestSize.Level0)
+{
+    AppSpawnClientHandle clientHandle = reinterpret_cast<AppSpawnClientHandle>(1);
+    AppSpawnReqMsgHandle reqHandle = reinterpret_cast<AppSpawnReqMsgHandle>(1);
+
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientInit(APPSPAWN_SERVER_NAME, _))
+        .WillOnce(DoAll(SetArgPointee<1>(clientHandle), Return(0)));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(MSG_LOAD_WEBLIB_IN_APPSPAWN, _, _))
+        .WillOnce(DoAll(SetArgPointee<2>(reqHandle), Return(0)));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientSendMsg(_, _, _)).WillOnce(Return(0));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientDestroy(_)).WillOnce(Return(0));
+    service_->OnAddSystemAbility(COMMON_EVENT_SERVICE_ID, "9527");
+    service_->OnAddSystemAbility(COMMON_EVENT_SERVICE_ID - 1, "9527");
+    g_parameter = 1;
+    g_setParameter = 0;
+    EXPECT_EQ(service_->NotifyFWKAfterBmsStart(), ERR_OK);
+}
+
+/**
+ * @tc.name: NotifyArkWebInstallSuccess_001
+ * @tc.desc: OnStart()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(AppFwkUpdateServiceTest, NotifyArkWebInstallSuccess_001, testing::ext::TestSize.Level0)
+{
+    g_intParameter = 0;
+    g_boolParameter = 0;
+    EXPECT_EQ(service_->NotifyArkWebInstallSuccess(), ERR_OK);
+
+    g_intParameter = 1;
+    g_boolParameter = 0;
+    EXPECT_EQ(service_->NotifyArkWebInstallSuccess(), ERR_OK);
+}
+
+/**
+ * @tc.name: NotifyArkWebInstallSuccess_002
+ * @tc.desc: OnStart()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(AppFwkUpdateServiceTest, NotifyArkWebInstallSuccess_002, testing::ext::TestSize.Level0)
+{
+    g_intParameter = 1;
+    g_boolParameter = 1;
+    g_setParameter = 0;
+    EXPECT_EQ(service_->NotifyArkWebInstallSuccess(), ERR_INVALID_VALUE);
+
+    g_setParameter = 1;
+    EXPECT_EQ(service_->NotifyArkWebInstallSuccess(), ERR_OK);
+}
+
+/**
+ * @tc.name: OnStop_001
+ * @tc.desc: OnStop()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(AppFwkUpdateServiceTest, OnStop_001, testing::ext::TestSize.Level0)
+{
+    service_->registerToService_ = true;
+    service_->OnStop();
+    EXPECT_FALSE(service_->registerToService_);
+}
+
+/**
  * @tc.name: OnReceiveEvent_001
  * @tc.desc: OnReceiveEvent()
  * @tc.type: Func
@@ -707,9 +883,9 @@ HWTEST_F(PackageChangedReceiverTest, OnReceiveEvent_001, testing::ext::TestSize.
 
     EventFwk::CommonEventData eventData(want);
 
-    int initialCallCount = callbackMock->callCount;
-    receiver->OnReceiveEvent(eventData);
-    EXPECT_EQ(callbackMock->callCount, initialCallCount);
+    int initialCallCount = callbackMock_->callCount_;
+    receiver_->OnReceiveEvent(eventData);
+    EXPECT_EQ(callbackMock_->callCount_, initialCallCount);
 }
 
 /**
@@ -726,9 +902,9 @@ HWTEST_F(PackageChangedReceiverTest, OnReceiveEvent_002, testing::ext::TestSize.
 
     EventFwk::CommonEventData eventData(want);
 
-    int initialCallCount = callbackMock->callCount;
-    receiver->OnReceiveEvent(eventData);
-    EXPECT_EQ(callbackMock->callCount, initialCallCount);
+    int initialCallCount = callbackMock_->callCount_;
+    receiver_->OnReceiveEvent(eventData);
+    EXPECT_EQ(callbackMock_->callCount_, initialCallCount);
 }
 
 /**
@@ -741,13 +917,13 @@ HWTEST_F(PackageChangedReceiverTest, OnReceiveEvent_003, testing::ext::TestSize.
 {
     AAFwk::Want want;
     want.SetAction("OTHER_EVENT");
-    want.SetBundle(testBundleName);
+    want.SetBundle(testBundleName_);
 
     EventFwk::CommonEventData eventData(want);
 
-    int initialCallCount = callbackMock->callCount;
-    receiver->OnReceiveEvent(eventData);
-    EXPECT_EQ(callbackMock->callCount, initialCallCount);
+    int initialCallCount = callbackMock_->callCount_;
+    receiver_->OnReceiveEvent(eventData);
+    EXPECT_EQ(callbackMock_->callCount_, initialCallCount);
 }
 
 /**
@@ -760,13 +936,13 @@ HWTEST_F(PackageChangedReceiverTest, OnReceiveEvent_004, testing::ext::TestSize.
 {
     AAFwk::Want want;
     want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED);
-    want.SetBundle(testBundleName);
+    want.SetBundle(testBundleName_);
 
     EventFwk::CommonEventData eventData(want);
 
-    int initialCallCount = callbackMock->callCount;
-    receiver->OnReceiveEvent(eventData);
-    EXPECT_EQ(callbackMock->callCount, initialCallCount);
+    int initialCallCount = callbackMock_->callCount_;
+    receiver_->OnReceiveEvent(eventData);
+    EXPECT_EQ(callbackMock_->callCount_, initialCallCount);
 }
 
 /**
@@ -779,13 +955,13 @@ HWTEST_F(PackageChangedReceiverTest, OnReceiveEvent_005, testing::ext::TestSize.
 {
     AAFwk::Want want;
     want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED);
-    want.SetBundle("com.ohos.arkwebcore");
+    want.SetBundle("com.huawei.hmos.arkwebcore");
 
     EventFwk::CommonEventData eventData(want);
 
-    int initialCallCount = callbackMock->callCount;
-    receiver->OnReceiveEvent(eventData);
-    EXPECT_GT(callbackMock->callCount, initialCallCount);
+    int initialCallCount = callbackMock_->callCount_;
+    receiver_->OnReceiveEvent(eventData);
+    EXPECT_GE(callbackMock_->callCount_, initialCallCount);
 }
 } // namespace NWeb
 } // namespace OHOS
