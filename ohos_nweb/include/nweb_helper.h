@@ -147,6 +147,8 @@ public:
     
     void SetSoftKeyboardBehaviorMode(WebSoftKeyboardBehaviorMode mode);
 
+    void SetScrollbarMode(ScrollbarMode mode);
+
 private:
     NWebHelper() = default;
     bool GetWebEngine(bool fromArk);

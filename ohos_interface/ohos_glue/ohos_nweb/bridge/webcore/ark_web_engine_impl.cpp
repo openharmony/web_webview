@@ -337,4 +337,9 @@ void ArkWebEngineImpl::SetSoftKeyboardBehaviorMode(int32_t mode)
     nweb_engine_->SetSoftKeyboardBehaviorMode(static_cast<OHOS::NWeb::WebSoftKeyboardBehaviorMode>(mode));
 }
 
+void ArkWebEngineImpl::SetScrollbarMode(int32_t mode)
+{
+    nweb_engine_->SetScrollbarMode(static_cast<OHOS::NWeb::ScrollbarMode>(mode));
+}
+
 } // namespace OHOS::ArkWeb

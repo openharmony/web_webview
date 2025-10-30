@@ -393,4 +393,8 @@ void ArkWebEngineWrapper::SetSoftKeyboardBehaviorMode(OHOS::NWeb::WebSoftKeyboar
     ark_web_engine_->SetSoftKeyboardBehaviorMode(static_cast<int32_t>(mode));
 }
 
+void ArkWebEngineWrapper::SetScrollbarMode(OHOS::NWeb::ScrollbarMode mode)
+{
+    ark_web_engine_->SetScrollbarMode(static_cast<int32_t>(mode));
+}
 } // namespace OHOS::ArkWeb
