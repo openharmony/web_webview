@@ -54,6 +54,9 @@ ohos_shared_library("web_extension") {
         "include",
         "../../../../../ohos_nweb/include",
         "../../../../../sa/web_native_messaging/common",
+        "../../../ani/webnativemessagingextension/ability/include",
+        "../../../ani/webview/src/common",
+        "../../../../kits/nativecommon",
     ]
 
     sources = [
@@ -63,16 +66,24 @@ ohos_shared_library("web_extension") {
         "src/web_native_messaging_extension_stub_impl.cpp",
         "src/web_native_messaging_extension_stub.cpp",
         "src/web_native_messaging_extension.cpp",
+        "../../../ani/webview/src/common/ani_business_error.cpp",
+        "../../../ani/webnativemessagingextension/ability/src/ets_web_native_messaging_extension.cpp",
+        "../../../ani/webnativemessagingextension/ability/src/ets_web_native_messaging_extension_context.cpp",
         "../../../../../sa/web_native_messaging/common/web_native_messaging_common.cpp"
     ]
 
     deps = [
         ":connect_info",
+        "../../../ani/webnativemessagingextension/ability:web_native_messaging_extension_context_ani_kit",
+        "../../../../kits/nativecommon:webview_common",
         "../../../../../sa/web_native_messaging:web_native_messaging_kit"
     ]
 
     external_deps = [
         "ability_base:want",
+        "ability_runtime:ani_common",
+        "ability_runtime:abilitykit_native",
+        "ability_runtime:ani_base_context",
         "ability_runtime:app_context",
         "ability_runtime:napi_common",
         "ability_runtime:ability_start_options",
@@ -86,6 +97,7 @@ ohos_shared_library("web_extension") {
         "ipc:ipc_napi",
         "ipc:ipc_single",
         "napi:ace_napi",
+        "runtime_core:ani",
     ]
 
     part_name = "webview"

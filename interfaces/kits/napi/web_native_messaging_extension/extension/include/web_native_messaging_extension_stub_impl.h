@@ -25,7 +25,7 @@ namespace OHOS {
 namespace NWeb {
 class WebNativeMessagingExtensionStubImpl : public WebNativeMessagingExtensionStub {
 public:
-    explicit WebNativeMessagingExtensionStubImpl(const std::shared_ptr<JsWebNativeMessagingExtension>& extension);
+    explicit WebNativeMessagingExtensionStubImpl(const std::shared_ptr<WebNativeMessagingExtension>& extension);
 
     virtual ~WebNativeMessagingExtensionStubImpl();
 
@@ -34,7 +34,7 @@ public:
     virtual int32_t DisconnectNative(WNMEConnectionInfo& connection) override;
 
 private:
-    std::weak_ptr<JsWebNativeMessagingExtension> extension_;
+    std::weak_ptr<WebNativeMessagingExtension> extension_;
 };
 } // namespace NWeb
 } // namespace OHOS
