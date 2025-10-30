@@ -5323,6 +5323,7 @@ static ani_int GetProgress(ani_env* env, ani_object object)
     ani_int progress = 0;
     if (IS_CALLING_FROM_M114()) {
         WVLOG_E("GetProgress unsupported engine version: M114");
+        AniBusinessError::ThrowErrorByErrCode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
         return progress;
     }
     if (env == nullptr) {
