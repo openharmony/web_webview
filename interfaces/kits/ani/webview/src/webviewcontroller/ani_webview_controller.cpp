@@ -6337,7 +6337,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void*>(GetActiveWebEngineVersion) },
         ani_native_function { "setActiveWebEngineVersion", nullptr,
                               reinterpret_cast<void*>(SetActiveWebEngineVersion) },
-        ani_native_function { "SetScrollbarMode", nullptr,
+        ani_native_function { "setScrollbarMode", nullptr,
                               reinterpret_cast<void *>(SetScrollbarMode) },
     };
 
