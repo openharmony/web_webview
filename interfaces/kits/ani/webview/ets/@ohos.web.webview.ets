@@ -53,6 +53,11 @@ export default namespace webview {
         FAST_MODE = 1
     }
 
+    export enum ScrollbarMode {
+        OVERLAY_LAYOUT_SCROLLBAR,
+        FORCE_DISPLAY_SCROLLBAR
+    };
+
     export enum WebSoftKeyboardBehaviorMode {
         DEFAULT = 0,
         DISABLE_AUTO_KEYBOARD_ON_ACTIVE = 1
@@ -891,6 +896,7 @@ export default namespace webview {
         native static setSiteIsolationMode(mode: SiteIsolationMode): void;
         native static getSiteIsolationMode(): SiteIsolationMode;
         native static setWebDestroyMode(mode: WebDestroyMode): void;
+        native static setScrollbarMode(mode: ScrollbarMode): void;
         native setSoftKeyboardBehaviorMode(mode: WebSoftKeyboardBehaviorMode): void;
         native getAttachState(): ControllerAttachState;
         native onControllerAttachStateChange(callback: Callback<ControllerAttachState>): void;

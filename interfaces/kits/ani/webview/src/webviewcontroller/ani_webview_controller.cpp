@@ -5634,6 +5634,37 @@ static void SetWebDestroyMode(ani_env *env, ani_object object, ani_enum_item mod
     NWebHelper::Instance().SetWebDestroyMode(static_cast<WebDestroyMode>(webDestroyMode));
 }
 
+static void SetScrollbarMode(ani_env *env, ani_object object, ani_enum_item mode)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    ani_boolean isUndefined = ANI_FALSE;
+    if (env->Reference_IsUndefined(mode, &isUndefined) != ANI_OK || isUndefined) {
+        return;
+    }
+
+    ani_int modeInt;
+    if (env->EnumItem_GetValue_Int(mode, &modeInt) != ANI_OK) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    if (modeInt < static_cast<int>(ScrollbarMode::OVERLAY_LAYOUT_SCROLLBAR) ||
+            modeInt > static_cast<int>(ScrollbarMode::FORCE_DISPLAY_SCROLLBAR)) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    WVLOG_I("SetScrollbarMode mode: %{public}d", static_cast<OHOS::NWeb::ScrollbarMode>(modeInt));
+    NWebHelper::Instance().SetScrollbarMode(static_cast<OHOS::NWeb::ScrollbarMode>(modeInt));
+}
+
 static void SetSiteIsolationMode(ani_env *env, ani_object object, ani_enum_item mode)
 {
     WVLOG_D("[WebviewCotr] SetSiteIsolationMode");
@@ -6306,6 +6337,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void*>(GetActiveWebEngineVersion) },
         ani_native_function { "setActiveWebEngineVersion", nullptr,
                               reinterpret_cast<void*>(SetActiveWebEngineVersion) },
+        ani_native_function { "setScrollbarMode", nullptr,
+                              reinterpret_cast<void *>(SetScrollbarMode) },
     };
 
     status = env->Class_BindNativeMethods(webviewControllerCls, controllerMethods.data(), controllerMethods.size());

@@ -303,6 +303,11 @@ enum class WebDestroyMode {
     FAST_MODE
 };
 
+enum class ScrollbarMode {
+    OVERLAY_LAYOUT_SCROLLBAR,
+    FORCE_DISPLAY_SCROLLBAR
+};
+
 class OHOS_NWEB_EXPORT NWebMouseEvent {
 public:
     virtual ~NWebMouseEvent() = default;
