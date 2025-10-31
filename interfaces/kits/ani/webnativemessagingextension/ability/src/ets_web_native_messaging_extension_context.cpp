@@ -239,7 +239,7 @@ ani_ref CreateEtsWebNativeMessagingExtensionContext(ani_env* env,
     ani_method method = nullptr;
     ani_object contextObj = nullptr;
 
-    if ((env->FindClass(
+    if ((status = env->FindClass(
         WEB_NATIVE_MESSAGING_EXTENSION_CONTEXT_CLASS_NAME, &cls)) != ANI_OK ||
         cls == nullptr) {
         WNMLOG_E("Failed to find class, status : %{public}d", status);

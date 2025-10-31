@@ -24,7 +24,7 @@ export interface ConnectionInfo {
     fdWrite: int;
 }
 
-export class ConnectionInfoInner implements ConnectionInfo{
+export class ConnectionInfoInner implements ConnectionInfo {
     connectionId: int = 0;
     bundleName: string = "";
     extensionOrigin: string = "";

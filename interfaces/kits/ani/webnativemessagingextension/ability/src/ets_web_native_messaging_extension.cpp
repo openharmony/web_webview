@@ -127,11 +127,13 @@ void ETSWebNativeMessagingExtension::BindContext(ani_env* env, ani_object obj)
     }
     if ((status = env->Class_FindField(etsObj_->aniCls, "context", &field)) != ANI_OK) {
         WNMLOG_E("Class_FindField failed, status : %{public}d", status);
+        env->GlobalReference_Delete(contextRef);
         return;
     }
     if ((status = env->Object_SetField_Ref(
         etsObj_->aniObj, field, contextRef)) != ANI_OK) {
         WNMLOG_E("Object_SetField_Ref failed, status : %{public}d", status);
+        env->GlobalReference_Delete(contextRef);
         return;
     }
 }
@@ -171,36 +173,36 @@ bool CreateObject(ani_env *env, const char *className, ani_object& object)
     return true;
 }
 
-ani_object ConnInfoToJs(ani_env* env, const WNMEConnectionInfo& params)
+ani_object ConnInfoToAni(ani_env* env, const WNMEConnectionInfo& params)
 {
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return nullptr;
     }
 
-    ani_object connInfoJs = {};
-    if (!CreateObject(env, ANI_CLASS_CONNECTION_INFO, connInfoJs)) {
+    ani_object connInfoAni = {};
+    if (!CreateObject(env, ANI_CLASS_CONNECTION_INFO, connInfoAni)) {
         WVLOG_E("CreateConnectionInfo FAILED");
-        return connInfoJs;
+        return connInfoAni;
     }
-    ani_int connectionIdJs =  static_cast<ani_int>(params.connectionId);
-    env->Object_SetPropertyByName_Int(connInfoJs, "connectionId", connectionIdJs);
-    ani_string bundleNameJs = nullptr;
+    ani_int connectionIdAni =  static_cast<ani_int>(params.connectionId);
+    env->Object_SetPropertyByName_Int(connInfoAni, "connectionId", connectionIdAni);
+    ani_string bundleNameAni = nullptr;
     if (env->String_NewUTF8(
-        params.bundleName.c_str(), params.bundleName.size(), &bundleNameJs) == ANI_OK) {
-        env->Object_SetPropertyByName_Ref(connInfoJs, "bundleName", bundleNameJs);
+        params.bundleName.c_str(), params.bundleName.size(), &bundleNameAni) == ANI_OK) {
+        env->Object_SetPropertyByName_Ref(connInfoAni, "bundleName", bundleNameAni);
     }
-    ani_string extensionOriginJs = nullptr;
+    ani_string extensionOriginAni = nullptr;
     if (env->String_NewUTF8(
         params.extensionOrigin.c_str(), params.extensionOrigin.size(),
-        &extensionOriginJs) == ANI_OK) {
-        env->Object_SetPropertyByName_Ref(connInfoJs, "extensionOrigin", extensionOriginJs);
+        &extensionOriginAni) == ANI_OK) {
+        env->Object_SetPropertyByName_Ref(connInfoAni, "extensionOrigin", extensionOriginAni);
     }
-    ani_int fdReadJs = static_cast<ani_int>(params.fdRead);
-    env->Object_SetPropertyByName_Int(connInfoJs, "fdRead", fdReadJs);
-    ani_int fdWriteJs = static_cast<ani_int>(params.fdWrite);
-    env->Object_SetPropertyByName_Int(connInfoJs, "fdWrite", fdWriteJs);
-    return connInfoJs;
+    ani_int fdReadAni = static_cast<ani_int>(params.fdRead);
+    env->Object_SetPropertyByName_Int(connInfoAni, "fdRead", fdReadAni);
+    ani_int fdWriteAni = static_cast<ani_int>(params.fdWrite);
+    env->Object_SetPropertyByName_Int(connInfoAni, "fdWrite", fdWriteAni);
+    return connInfoAni;
 }
 
 bool FindMethod(ani_env* env,
@@ -242,7 +244,7 @@ void ETSWebNativeMessagingExtension::InvokeCallback(
         WVLOG_E("find method failed");
         return;
     }
-    ani_object info = ConnInfoToJs(env, params);
+    ani_object info = ConnInfoToAni(env, params);
     ani_status status = env->Object_CallMethod_Void(object, method, info);
     if (status != ANI_OK) {
         WNMLOG_E("call func failed status: %{public}d", status);
