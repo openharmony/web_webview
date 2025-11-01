@@ -17,10 +17,10 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include "hilog/log.h"
+#include "process_uid_define.h"
 
 namespace OHOS::NWeb {
 namespace {
-constexpr uint32_t BROWSER_UID_BASE = 20000000;
 constexpr uint32_t LOG_APP_DOMAIN = 0xD004500;
 constexpr uint32_t LOG_RENDER_DOMAIN = 0xD004501;
 constexpr uint32_t LOG_CONSOLE_DOMAIN = 0x001194;
@@ -38,11 +38,14 @@ const ::LogLevel LOG_LEVELS[] = {
 extern "C" {
 int HiLogPrintArgs(LogType type, LogLevel level, unsigned int domain, const char* tag, const char* fmt, va_list ap);
 
-int HiLogAdapterPrintLog(uint32_t level, const char* tag, const char* fmt, va_list ap)
+int HiLogAdapterPrintLog(uint32_t level, const char *tag, const char *fmt, va_list ap)
 {
-    uint32_t domain = LOG_RENDER_DOMAIN;
-    if ((getuid() / BROWSER_UID_BASE) != 0) {
-        domain = LOG_APP_DOMAIN;
+    uint32_t domain = LOG_APP_DOMAIN;
+    uid_t realUid = getuid();
+    uint32_t renderId = realUid % BASE_USER_RANGE_FOR_NWEB;
+    if (renderId >= START_ID_FOR_RENDER_PROCESS_ISOLATION &&
+        renderId <= END_ID_FOR_RENDER_PROCESS_ISOLATION) {
+        domain = LOG_RENDER_DOMAIN;
     }
     return HiLogPrintArgs(LOG_CORE, LOG_LEVELS[level], domain, tag, fmt, ap);
 }

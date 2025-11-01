@@ -499,6 +499,7 @@ component("ohos_nweb_glue_source") {
   ]
 
   deps = [ "//ohos_glue:ohos_base_glue_source" ]
+  external_deps = [ "bundle_framework:appexecfwk_base" ]
 }
 
 component("ohos_adapter_glue_source") {
@@ -1116,4 +1117,5 @@ component("ohos_adapter_glue_source") {
   ]
 
   deps = [ "//ohos_glue:ohos_base_glue_source" ]
+  external_deps = [ "bundle_framework:appexecfwk_base" ]
 }

@@ -192,6 +192,7 @@ action("webview_glue_base_prepare") {
   ]
 
   deps = [ ":webview_interface_prepare" ]
+  external_deps = [ "bundle_framework:appexecfwk_base" ]
 }
 
 action("webview_glue_nweb_prepare") {

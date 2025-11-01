@@ -1160,7 +1160,10 @@ ohos_shared_library("ohos_base_glue_source") {
 
   deps = [ ":ohos_glue_base_prepare" ]
 
-  external_deps = [ "hilog:libhilog" ]
+  external_deps = [ 
+    "hilog:libhilog",
+    "bundle_framework:appexecfwk_base",
+  ]
 
   part_name = "webview"
   subsystem_name = "web"
@@ -1184,6 +1187,7 @@ ohos_shared_library("ohos_nweb_glue_source") {
   external_deps = [
     "hilog:libhilog",
     "ability_runtime:ability_connect_callback_stub",
+    "bundle_framework:appexecfwk_base",
   ]
 
   part_name = "webview"
@@ -1207,6 +1211,7 @@ ohos_shared_library("ohos_adapter_glue_source") {
   external_deps = [
     "hilog:libhilog",
     "ability_runtime:ability_connect_callback_stub",
+    "bundle_framework:appexecfwk_base",
   ]
 
   part_name = "webview"

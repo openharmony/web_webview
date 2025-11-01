@@ -20,59 +20,68 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <hilog/log_c.h>
+#include "process_uid_define.h"
 
-#define BROWSER_UID_BASE  20000000
-#define LOG_APP_DOMAIN    0xD004500
+#define LOG_APP_DOMAIN 0xD004500
 #define LOG_RENDER_DOMAIN 0xD004501
 #ifndef HILOG_TAG
-#define HILOG_TAG         "webview"
+#define HILOG_TAG "webview"
 #endif
-#define FILE_NAME (__builtin_strrchr("/" __FILE__, '/') + 1)
-#define FUNC_LINE_FMT "[%{public}s:%{public}d] "
+#define FUNC_LINE_FMT "%{public}s: "
 
-#define WVLOG_D(fmt, ...) do {                                            \
-    uint32_t domain = LOG_RENDER_DOMAIN;                                  \
-    if ((getuid() / BROWSER_UID_BASE) != 0) {                             \
-        domain = LOG_APP_DOMAIN;                                          \
-    }                                                                     \
-    HILOG_IMPL(LOG_CORE, LOG_DEBUG, domain, HILOG_TAG, FUNC_LINE_FMT fmt, \
-               FILE_NAME, __LINE__, ##__VA_ARGS__);                       \
-} while (0)
+#define WVLOG_D(fmt, ...)                                                                                           \
+    do {                                                                                                            \
+        uint32_t domain = LOG_APP_DOMAIN;                                                                           \
+        uid_t realUid = getuid();                                                                                   \
+        uint32_t renderId = realUid % BASE_USER_RANGE_FOR_NWEB;                                                     \
+        if (renderId >= START_ID_FOR_RENDER_PROCESS_ISOLATION && renderId <= END_ID_FOR_RENDER_PROCESS_ISOLATION) { \
+            domain = LOG_RENDER_DOMAIN;                                                                             \
+        }                                                                                                           \
+        HILOG_IMPL(LOG_CORE, LOG_DEBUG, domain, HILOG_TAG, FUNC_LINE_FMT fmt, __func__, ##__VA_ARGS__);             \
+    } while (0)
 
-#define WVLOG_I(fmt, ...) do {                                            \
-    uint32_t domain = LOG_RENDER_DOMAIN;                                  \
-    if ((getuid() / BROWSER_UID_BASE) != 0) {                             \
-        domain = LOG_APP_DOMAIN;                                          \
-    }                                                                     \
-    HILOG_IMPL(LOG_CORE, LOG_INFO, domain, HILOG_TAG, FUNC_LINE_FMT fmt,  \
-               FILE_NAME, __LINE__, ##__VA_ARGS__);                       \
-} while (0)
+#define WVLOG_I(fmt, ...)                                                                                           \
+    do {                                                                                                            \
+        uint32_t domain = LOG_APP_DOMAIN;                                                                           \
+        uid_t realUid = getuid();                                                                                   \
+        uint32_t renderId = realUid % BASE_USER_RANGE_FOR_NWEB;                                                     \
+        if (renderId >= START_ID_FOR_RENDER_PROCESS_ISOLATION && renderId <= END_ID_FOR_RENDER_PROCESS_ISOLATION) { \
+            domain = LOG_RENDER_DOMAIN;                                                                             \
+        }                                                                                                           \
+        HILOG_IMPL(LOG_CORE, LOG_INFO, domain, HILOG_TAG, FUNC_LINE_FMT fmt, __func__, ##__VA_ARGS__);              \
+    } while (0)
 
-#define WVLOG_W(fmt, ...) do {                                            \
-    uint32_t domain = LOG_RENDER_DOMAIN;                                  \
-    if ((getuid() / BROWSER_UID_BASE) != 0) {                             \
-        domain = LOG_APP_DOMAIN;                                          \
-    }                                                                     \
-    HILOG_IMPL(LOG_CORE, LOG_WARN, domain, HILOG_TAG, FUNC_LINE_FMT fmt,  \
-               FILE_NAME, __LINE__, ##__VA_ARGS__);                       \
-} while (0)
+#define WVLOG_W(fmt, ...)                                                                                           \
+    do {                                                                                                            \
+        uint32_t domain = LOG_APP_DOMAIN;                                                                           \
+        uid_t realUid = getuid();                                                                                   \
+        uint32_t renderId = realUid % BASE_USER_RANGE_FOR_NWEB;                                                     \
+        if (renderId >= START_ID_FOR_RENDER_PROCESS_ISOLATION && renderId <= END_ID_FOR_RENDER_PROCESS_ISOLATION) { \
+            domain = LOG_RENDER_DOMAIN;                                                                             \
+        }                                                                                                           \
+        HILOG_IMPL(LOG_CORE, LOG_WARN, domain, HILOG_TAG, FUNC_LINE_FMT fmt, __func__, ##__VA_ARGS__);              \
+    } while (0)
 
-#define WVLOG_E(fmt, ...) do {                                            \
-    uint32_t domain = LOG_RENDER_DOMAIN;                                  \
-    if ((getuid() / BROWSER_UID_BASE) != 0) {                             \
-        domain = LOG_APP_DOMAIN;                                          \
-    }                                                                     \
-    HILOG_IMPL(LOG_CORE, LOG_ERROR, domain, HILOG_TAG, FUNC_LINE_FMT fmt, \
-               FILE_NAME, __LINE__, ##__VA_ARGS__);                       \
-} while (0)
+#define WVLOG_E(fmt, ...)                                                                                           \
+    do {                                                                                                            \
+        uint32_t domain = LOG_APP_DOMAIN;                                                                           \
+        uid_t realUid = getuid();                                                                                   \
+        uint32_t renderId = realUid % BASE_USER_RANGE_FOR_NWEB;                                                     \
+        if (renderId >= START_ID_FOR_RENDER_PROCESS_ISOLATION && renderId <= END_ID_FOR_RENDER_PROCESS_ISOLATION) { \
+            domain = LOG_RENDER_DOMAIN;                                                                             \
+        }                                                                                                           \
+        HILOG_IMPL(LOG_CORE, LOG_ERROR, domain, HILOG_TAG, FUNC_LINE_FMT fmt, __func__, ##__VA_ARGS__);             \
+    } while (0)
 
-#define WVLOG_F(fmt, ...) do {                                            \
-    uint32_t domain = LOG_RENDER_DOMAIN;                                  \
-    if ((getuid() / BROWSER_UID_BASE) != 0) {                             \
-        domain = LOG_APP_DOMAIN;                                          \
-    }                                                                     \
-    HILOG_IMPL(LOG_CORE, LOG_FATAL, domain, HILOG_TAG, FUNC_LINE_FMT fmt, \
-               FILE_NAME, __LINE__, ##__VA_ARGS__);                       \
-} while (0)
+#define WVLOG_F(fmt, ...)                                                                                           \
+    do {                                                                                                            \
+        uint32_t domain = LOG_APP_DOMAIN;                                                                           \
+        uid_t realUid = getuid();                                                                                   \
+        uint32_t renderId = realUid % BASE_USER_RANGE_FOR_NWEB;                                                     \
+        if (renderId >= START_ID_FOR_RENDER_PROCESS_ISOLATION && renderId <= END_ID_FOR_RENDER_PROCESS_ISOLATION) { \
+            domain = LOG_RENDER_DOMAIN;                                                                             \
+        }                                                                                                           \
+        HILOG_IMPL(LOG_CORE, LOG_FATAL, domain, HILOG_TAG, FUNC_LINE_FMT fmt, __func__, ##__VA_ARGS__);             \
+    } while (0)
 
-#endif // NWEB_HILOG_H
+#endif  // NWEB_HILOG_H

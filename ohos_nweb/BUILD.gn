@@ -207,7 +207,10 @@ ohos_executable("chrome_crashpad_handler") {
 
   sources = [ "src/nweb_crashpad_handler_main.cpp" ]
 
-  external_deps = [ "hilog:libhilog" ]
+  external_deps = [ 
+    "hilog:libhilog",
+    "bundle_framework:appexecfwk_base", 
+  ]
 
   if (target_cpu == "arm64") {
     branch_protector_ret = "pac_ret"
