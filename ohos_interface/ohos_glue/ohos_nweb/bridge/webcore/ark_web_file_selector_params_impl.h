@@ -41,11 +41,6 @@ public:
 
     const ArkWebStringVector MimeType() override;
 
-    const ArkWebString DefaultPath() override;
-
-    const ArkWebStringVector Descriptions() override;
-
-    bool IsAcceptAllOptionExcluded() override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebFileSelectorParams> nweb_file_selector_params_;
 };
