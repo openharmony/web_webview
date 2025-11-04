@@ -42,15 +42,6 @@ public:
 
     /*--ark web()--*/
     virtual const ArkWebStringVector MimeType() = 0;
-
-    /*--ark web()--*/
-    virtual const ArkWebString DefaultPath() = 0;
-
-    /*--ark web()--*/
-    virtual const ArkWebStringVector Descriptions() = 0;
-
-    /*--ark web()--*/
-    virtual bool IsAcceptAllOptionExcluded() = 0;
 };
 
 } // namespace OHOS::ArkWeb
