@@ -148,9 +148,13 @@ static int ForwardToHiSysEvent(const std::string& eventName, HiSysEventAdapter::
                                    "DEFAULT_WEB_ENGINE_TYPE", g_defaultWebEngineType);
     auto mergeData = std::tuple_cat(sysData, tp);
 
+    auto domain = OHOS::HiviewDFX::HiSysEvent::Domain::WEBVIEW;
+    if (type == HiSysEventAdapter::EventType::BEHAVIOR) {
+        domain = OHOS::HiviewDFX::HiSysEvent::Domain::ARKWEB_UE;
+    }
     return std::apply(
         [&](auto&&... args) {
-            return HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::WEBVIEW, eventName, EVENT_TYPES[type], args...);
+            return HiSysEventWrite(domain, eventName, EVENT_TYPES[type], args...);
         },
         mergeData);
 }
