@@ -70,4 +70,27 @@ const std::vector<std::string> ArkWebFileSelectorParamsWrapper::MimeType()
     return objType;
 }
 
+const std::string ArkWebFileSelectorParamsWrapper::DefaultPath()
+{
+    ArkWebString stPath = ark_web_file_selector_params_->DefaultPath();
+
+    std::string objPath = ArkWebStringStructToClass(stPath);
+    ArkWebStringStructRelease(stPath);
+    return objPath;
+}
+
+const std::vector<std::string> ArkWebFileSelectorParamsWrapper::Descriptions()
+{
+    ArkWebStringVector stDescriptions = ark_web_file_selector_params_->Descriptions();
+
+    std::vector<std::string> objDescriptions = ArkWebStringVectorStructToClass(stDescriptions);
+    ArkWebStringVectorStructRelease(stDescriptions);
+    return objDescriptions;
+}
+
+bool ArkWebFileSelectorParamsWrapper::IsAcceptAllOptionExcluded()
+{
+    return ark_web_file_selector_params_->IsAcceptAllOptionExcluded();
+}
+
 } // namespace OHOS::ArkWeb
