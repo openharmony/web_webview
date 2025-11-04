@@ -64,7 +64,7 @@ const ArkWebStringVector ArkWebFileSelectorParamsImpl::Descriptions()
     return ArkWebStringVectorClassToStruct(nweb_file_selector_params_->Descriptions());
 }
 
-bool ArkWebFileSelectorParamsWrapper::IsAcceptAllOptionExcluded()
+bool ArkWebFileSelectorParamsImpl::IsAcceptAllOptionExcluded()
 {
     return nweb_file_selector_params_->IsAcceptAllOptionExcluded();
 }
