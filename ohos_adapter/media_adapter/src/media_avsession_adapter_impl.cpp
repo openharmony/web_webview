@@ -39,7 +39,7 @@ MediaAVSessionCallbackImpl::MediaAVSessionCallbackImpl(
 {
 }
 
-void MediaAVSessionCallbackImpl::OnPlay()
+void MediaAVSessionCallbackImpl::OnPlay(const AVSession::AVControlCommand& cmd)
 {
     if (callbackAdapter_) {
         callbackAdapter_->Play();
@@ -60,19 +60,19 @@ void MediaAVSessionCallbackImpl::OnStop()
     }
 }
 
-void MediaAVSessionCallbackImpl::OnPlayNext()
+void MediaAVSessionCallbackImpl::OnPlayNext(const AVSession::AVControlCommand& cmd)
 {
 }
 
-void MediaAVSessionCallbackImpl::OnPlayPrevious()
+void MediaAVSessionCallbackImpl::OnPlayPrevious(const AVSession::AVControlCommand& cmd)
 {
 }
 
-void MediaAVSessionCallbackImpl::OnFastForward(int64_t time)
+void MediaAVSessionCallbackImpl::OnFastForward(int64_t time, const AVSession::AVControlCommand& cmd)
 {
 }
 
-void MediaAVSessionCallbackImpl::OnRewind(int64_t time)
+void MediaAVSessionCallbackImpl::OnRewind(int64_t time, const AVSession::AVControlCommand& cmd)
 {
 }
 
