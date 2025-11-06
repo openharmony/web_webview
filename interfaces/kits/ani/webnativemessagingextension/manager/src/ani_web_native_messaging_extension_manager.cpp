@@ -56,7 +56,7 @@ constexpr const char* METHOD_ON_DISCONNECT = "onDisconnect";
 constexpr const char* METHOD_ON_FAILED = "onFailed";
 constexpr int32_t INDEX_ZERO = 0;
 constexpr int32_t INDEX_ONE = 1;
-constexpr int32_t INDEX_TWO = 1;
+constexpr int32_t INDEX_TWO = 2;
 std::recursive_mutex g_connectsLock;
 int32_t g_serialNumber = 1;
 static std::map<int32_t, sptr<WebExtensionConnectionCallback>> g_connects;
@@ -111,34 +111,34 @@ static int32_t InsertConnection(sptr<WebExtensionConnectionCallback> connection)
     return connectId;
 }
 
-static ani_object FillJsConnectionNativeInfo(ani_env* env, const ConnectionNativeInfo& info)
+static ani_object FillConnectionNativeInfo(ani_env* env, const ConnectionNativeInfo& info)
 {
-    ani_object jsInfoObj = {};
+    ani_object infoObj = {};
     if (!env) {
         WNMLOG_E("env is nullptr");
-        return jsInfoObj;
+        return infoObj;
     }
-    if (!AniParseUtils::CreateObjectVoid(env, ANI_CLASS_CONNECTION_NATIVE_INFO, jsInfoObj)) {
+    if (!AniParseUtils::CreateObjectVoid(env, ANI_CLASS_CONNECTION_NATIVE_INFO, infoObj)) {
         WVLOG_E("CreateConnectionNativeInfo FAILED");
-        return jsInfoObj;
+        return infoObj;
     }
 
-    ani_int jsConnectId =  static_cast<ani_int>(info.connectionId);
-    ani_int jsExtensionPid =  static_cast<ani_int>(info.extensionPid);
+    ani_int connectId =  static_cast<ani_int>(info.connectionId);
+    ani_int extensionPid =  static_cast<ani_int>(info.extensionPid);
 
-    env->Object_SetPropertyByName_Int(jsInfoObj, "connectionId", jsConnectId);
-    env->Object_SetPropertyByName_Int(jsInfoObj, "extensionPid", jsExtensionPid);
-    ani_string jsBundleName = nullptr;
+    env->Object_SetPropertyByName_Int(infoObj, "connectionId", connectId);
+    env->Object_SetPropertyByName_Int(infoObj, "extensionPid", extensionPid);
+    ani_string bundleName = nullptr;
     if (env->String_NewUTF8(info.bundleName.c_str(),
-        info.bundleName.size(), &jsBundleName) == ANI_OK) {
-        env->Object_SetPropertyByName_Ref(jsInfoObj, "bundleName", jsBundleName);
+        info.bundleName.size(), &bundleName) == ANI_OK) {
+        env->Object_SetPropertyByName_Ref(infoObj, "bundleName", bundleName);
     }
-    ani_string jsExtensionOrigin = nullptr;
+    ani_string extensionOrigin = nullptr;
     if (env->String_NewUTF8(info.extensionOrigin.c_str(),
-        info.extensionOrigin.size(), &jsExtensionOrigin) == ANI_OK) {
-        env->Object_SetPropertyByName_Ref(jsInfoObj, "extensionOrigin", jsExtensionOrigin);
+        info.extensionOrigin.size(), &extensionOrigin) == ANI_OK) {
+        env->Object_SetPropertyByName_Ref(infoObj, "extensionOrigin", extensionOrigin);
     }
-    return jsInfoObj;
+    return infoObj;
 }
 
 static void TransformOnFailedErrorCode(
@@ -233,26 +233,29 @@ void InvokeConnectNativeCallback(std::shared_ptr<AniExtensionConnectionCallbackP
     ani_object resultObj;
     switch (param->type_) {
         case ConnectCallbackType::ON_CONNECT_TYPE: {
-            resultObj = FillJsConnectionNativeInfo(env, param->result_);
+            resultObj = FillConnectionNativeInfo(env, param->result_);
             CallETSConnectionMethod(env, param->aniRef_, METHOD_ON_CONNECT, resultObj);
             break;
         }
         case ConnectCallbackType::ON_DISCONNECT_TYPE: {
             RemoveConnection(param->result_.connectionId);
-            resultObj = FillJsConnectionNativeInfo(env, param->result_);
+            resultObj = FillConnectionNativeInfo(env, param->result_);
             CallETSConnectionMethod(env, param->aniRef_, METHOD_ON_DISCONNECT, resultObj);
             break;
         }
         case ConnectCallbackType::ON_FAILED_TYPE: {
             RemoveConnection(param->result_.connectionId);
             int32_t errorCodeIndex;
-            std::string JsErrorMsg;
-            TransformOnFailedErrorCode(param->errorNum_, errorCodeIndex, JsErrorMsg);
+            std::string errorMsg;
+            TransformOnFailedErrorCode(param->errorNum_, errorCodeIndex, errorMsg);
             ani_enum_item codeEnum;
             AniParseUtils::GetEnumItemByIndex(env, NM_ERROR_CODE, errorCodeIndex, codeEnum);
-            ani_string errorMsg = nullptr;
-            env->String_NewUTF8(JsErrorMsg.c_str(), JsErrorMsg.size(), &errorMsg);
-            CallETSOnFailedMethod(env, param->aniRef_, errorMsg, codeEnum);
+            ani_string aniErrorMsg = nullptr;
+            if (auto status = env->String_NewUTF8(errorMsg.c_str(), errorMsg.size(), &aniErrorMsg) != ANI_OK) {
+                WNMLOG_E("String_NewUTF8 error status is %{public}d", status);
+                return;
+            }
+            CallETSOnFailedMethod(env, param->aniRef_, aniErrorMsg, codeEnum);
             break;
         }
         default: {
@@ -272,7 +275,7 @@ AniExtensionConnectionCallback::AniExtensionConnectionCallback(ani_env* env) : v
     env->GetVM(&vm_);
 }
 
-void AniExtensionConnectionCallback::DoJsExtensionConnectCallback(
+void AniExtensionConnectionCallback::DoExtensionConnectCallback(
     ConnectionNativeInfo& info, int32_t errorNum, ConnectCallbackType type)
 {
     if (!callback_) {
@@ -313,26 +316,26 @@ void AniExtensionConnectionCallback::DoJsExtensionConnectCallback(
     }
 }
 
-static void TriggerDeleteJsCall(std::shared_ptr<AniExtensionConnectionCallback> jsObj)
+static void TriggerDeleteCall(std::shared_ptr<AniExtensionConnectionCallback> obj)
 {
-    WVLOG_D("AniExtensionConnectionCallback::TriggerDeleteJsCall");
-    if (!jsObj) {
-        WVLOG_E("jsObj is null.");
+    WVLOG_D("AniExtensionConnectionCallback::TriggerDeleteCall");
+    if (!obj) {
+        WVLOG_E("obj is null.");
         return;
     }
 
-    ani_env* env = jsObj->GetEnv();
+    ani_env* env = obj->GetEnv();
     if (!env) {
-        WVLOG_E("jsObj->GetEnv is null.");
+        WVLOG_E("obj->GetEnv is null.");
         return;
     }
-    auto callback = jsObj->GetCallBack();
+    auto callback = obj->GetCallBack();
     if (callback && callback->aniRef) {
         env->GlobalReference_Delete(callback->aniRef);
     }
 }
 
-void AniExtensionConnectionCallback::DeleteJsCallInJsThread()
+void AniExtensionConnectionCallback::DeleteCallInThread()
 {
     if (!mainHandler_) {
         std::shared_ptr<OHOS::AppExecFwk::EventRunner> runner =
@@ -348,7 +351,7 @@ void AniExtensionConnectionCallback::DeleteJsCallInJsThread()
         return;
     }
     std::shared_ptr<AniExtensionConnectionCallback> sharedThis = shared_from_this();
-    auto task = [sharedThis] () { TriggerDeleteJsCall(sharedThis); };
+    auto task = [sharedThis] () { TriggerDeleteCall(sharedThis); };
     bool postResult = false;
     postResult = mainHandler_->PostTask(
         std::move(task), TASK_ID_DELETE, 0, OHOS::AppExecFwk::EventQueue::Priority::HIGH, {});
@@ -387,19 +390,19 @@ bool AniExtensionConnectionCallback::Register(ani_object object)
 
 void AniExtensionConnectionCallback::OnExtensionConnect(ConnectionNativeInfo& info)
 {
-    DoJsExtensionConnectCallback(info, 0, ConnectCallbackType::ON_CONNECT_TYPE);
+    DoExtensionConnectCallback(info, 0, ConnectCallbackType::ON_CONNECT_TYPE);
 }
 
 void AniExtensionConnectionCallback::OnExtensionDisconnect(ConnectionNativeInfo& info)
 {
-    DoJsExtensionConnectCallback(info, 0, ConnectCallbackType::ON_DISCONNECT_TYPE);
+    DoExtensionConnectCallback(info, 0, ConnectCallbackType::ON_DISCONNECT_TYPE);
 }
 
 void AniExtensionConnectionCallback::OnExtensionFailed(int32_t connectionId, int32_t errorNum)
 {
     ConnectionNativeInfo info;
     info.connectionId = connectionId;
-    DoJsExtensionConnectCallback(info, errorNum, ConnectCallbackType::ON_FAILED_TYPE);
+    DoExtensionConnectCallback(info, errorNum, ConnectCallbackType::ON_FAILED_TYPE);
 }
 
 CommonAsyncContext::CommonAsyncContext(ani_env* env) : vm_(nullptr)
@@ -456,7 +459,7 @@ void ConnectNativeExcute(ani_env* env, ConnectNativeAsyncContext* asyncContext)
 void ConnectNativeComplete(ani_env* env, ConnectNativeAsyncContext* asyncContext)
 {
     WNMLOG_D("connectNative complete");
-    if (asyncContext == nullptr || !asyncContext->connectCallback) {
+    if (asyncContext == nullptr || asyncContext->connectCallback == nullptr) {
         WNMLOG_E("asyncContext is invalid");
         return;
     }
@@ -562,8 +565,8 @@ static void DisconnectNativeSync(ani_env* env, ani_int aniConnectId)
     int32_t errCode = WebNativeMessagingClient::GetInstance().DisconnectWebNativeMessagingExtension(connectId);
     if (errCode != 0) {
         std::string ErrorMesg = "";
-        int32_t jsError = NativeMessageError::NativeCodeToJsCode(errCode, ErrorMesg);
-        AniBusinessError::ThrowError(env, jsError, ErrorMesg);
+        int32_t error = NativeMessageError::NativeCodeToJsCode(errCode, ErrorMesg);
+        AniBusinessError::ThrowError(env, error, ErrorMesg);
     }
 }
 

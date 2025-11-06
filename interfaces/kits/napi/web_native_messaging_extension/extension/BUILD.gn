@@ -74,7 +74,6 @@ ohos_shared_library("web_extension") {
 
     deps = [
         ":connect_info",
-        "../../../ani/webnativemessagingextension/ability:web_native_messaging_extension_context_ani_kit",
         "../../../../kits/nativecommon:webview_common",
         "../../../../../sa/web_native_messaging:web_native_messaging_kit"
     ]

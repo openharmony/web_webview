@@ -39,6 +39,7 @@ ohos_shared_library("web_native_messaging_extension_context_ani_kit") {
 
   deps = [
     "../../../nativecommon:webview_common",
+    "../../../napi/web_native_messaging_extension/extension:web_extension",
     "../../../../native:ohweb",
     "../../../../../ohos_nweb:libnweb",
     "../../../../../ohos_adapter:nweb_ohos_adapter",

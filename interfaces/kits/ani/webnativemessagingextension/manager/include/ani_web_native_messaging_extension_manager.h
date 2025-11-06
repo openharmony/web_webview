@@ -30,12 +30,6 @@ namespace NWeb {
 
 ani_status StsExtensionManagerInit(ani_env* env);
 
-struct JsConnectCallback {
-    ani_ref onConnectMethodRef = nullptr;
-    ani_ref onDisconnectMethodRef = nullptr;
-    ani_ref onFailedMethodRef = nullptr;
-};
-
 enum ConnectCallbackType : int32_t {
     ON_CONNECT_TYPE = 0,
     ON_DISCONNECT_TYPE = 1,
@@ -78,7 +72,7 @@ public:
     virtual ~AniExtensionConnectionCallback()
     {
         WNMLOG_D("~AniExtensionConnectionCallback");
-        DeleteJsCallInJsThread();
+        DeleteCallInThread();
     }
     ani_env* GetEnv()
     {
@@ -98,12 +92,11 @@ public:
     void OnExtensionFailed(int32_t connectionId, int32_t errnum) override;
 
 private:
-    void DoJsExtensionConnectCallback(
+    void DoExtensionConnectCallback(
         ConnectionNativeInfo& info, int32_t errorNum, ConnectCallbackType type);
-    void DeleteJsCallInJsThread();
+    void DeleteCallInThread();
     ani_vm* vm_ = nullptr;
     std::shared_ptr<AppExecFwk::EventHandler> mainHandler_;
-    JsConnectCallback jsCallback_;
     std::shared_ptr<AppExecFwk::ETSNativeReference> callback_;
 };
 
