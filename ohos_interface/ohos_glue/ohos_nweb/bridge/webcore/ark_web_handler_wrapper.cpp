@@ -1381,4 +1381,9 @@ void ArkWebHandlerWrapper::OnClippedSelectionBoundsChanged(int x, int y, int wid
 {
     ark_web_handler_->OnClippedSelectionBoundsChanged(x, y, width, height);
 }
+
+void ArkWebHandlerWrapper::OnCameraCaptureStateChanged(int originalState, int newState)
+{
+    ark_web_handler_->OnCameraCaptureStateChanged(originalState, newState);
+}
 } // namespace OHOS::ArkWeb

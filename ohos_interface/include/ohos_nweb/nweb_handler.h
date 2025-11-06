@@ -1394,6 +1394,12 @@ public:
         std::shared_ptr<NWebJSVerifyPinResult> result, const std::string& identity) {return false;}
 
     virtual void OnClippedSelectionBoundsChanged(int x, int y, int width, int height) {}
+
+    /**
+     * @brief Called when the camera capture state changed.
+     *
+     */
+    virtual void OnCameraCaptureStateChanged(int originalState, int newState) {}
 };
 
 } // namespace OHOS::NWeb

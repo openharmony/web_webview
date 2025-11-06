@@ -1139,6 +1139,12 @@ public:
 
     /*--ark web()--*/
     virtual void OnClippedSelectionBoundsChanged(int x, int y, int width, int height) {}
+
+    /**
+     * @brief Called when the camera capture state changed.
+     */
+    /*--ark web()--*/
+    virtual void OnCameraCaptureStateChanged(int originalState, int newState) {}
 };
 
 } // namespace OHOS::ArkWeb
