@@ -28,7 +28,6 @@
 #include "service_event_handler.h"
 #include "web_extension_connection_callback_proxy.h"
 #include "web_native_messaging_manager.h"
-#include "web_native_messaging_service.h"
 #undef protected
 #undef private
 #include <thread>
@@ -45,6 +44,8 @@
 #include "string_wrapper.h"
 #include "want_params_wrapper.h"
 #include "mock_accesstoken_kit.h"
+#include "if_system_ability_manager.h"
+#include "bundle_mgr_client.h"
 
 using ::testing::_;
 using ::testing::DoAll;
@@ -62,6 +63,7 @@ namespace OHOS {
 const std::string WANT_EXTENSION_ORIGIN_PARAM_KEY = "ohos.arkweb.extensionOrigin";
 const std::string WANT_READ_PIPE_PARAM_KEY = "ohos.arkweb.messageReadPipe";
 const std::string WANT_WRITE_PIPE_PARAM_KEY = "ohos.arkweb.messageWritePipe";
+const int32_t MOCK_PIPE_FD = 2;
 
 int IPCSkeleton::GetCallingUid()
 {
@@ -77,15 +79,6 @@ int IPCSkeleton::GetCallingPid()
 {
     return g_callingPid;
 }
-
-class MockSystemAbilityOnDemandReason : public OHOS::SystemAbilityOnDemandReason {
-public:
-    MOCK_METHOD(std::string, GetName, (), (const));
-    MOCK_METHOD(std::string, GetValue, (), (const));
-    MOCK_METHOD(bool, HasExtraData, (), (const));
-    MOCK_METHOD(OHOS::OnDemandReasonExtraData, GetExtraData, (), (const));
-    MOCK_METHOD(OHOS::OnDemandReasonId, GetReasonId, (), (const));
-};
 
 class IRemoteObjectMocker : public IRemoteObject {
 public:
@@ -138,41 +131,6 @@ public:
     }
 };
 
-class MockCommonEventManager {
-public:
-    static bool SubscribeCommonEvent(const std::shared_ptr<OHOS::EventFwk::CommonEventSubscriber>& subscriber)
-    {
-        return instance().subscribeResult;
-    }
-
-    static void setSubscribeResult(bool result)
-    {
-        instance().subscribeResult = result;
-    }
-
-private:
-    static MockCommonEventManager& instance()
-    {
-        static MockCommonEventManager instance;
-        return instance;
-    }
-
-    bool subscribeResult = true;
-};
-
-class MockCommonEventSubscriber : public OHOS::EventFwk::CommonEventSubscriber {
-public:
-    MockCommonEventSubscriber() = default;
-    ~MockCommonEventSubscriber() = default;
-    MOCK_METHOD1(OnReceiveEvent, void(const OHOS::EventFwk::CommonEventData&));
-};
-
-bool SystemAbility::Publish(sptr<IRemoteObject> systemAbility)
-{
-    systemAbility.ForceSetRefPtr(nullptr);
-    return true;
-}
-
 namespace NWeb {
 class WebNativeMessagingManagerTest : public testing::Test {
 public:
@@ -210,11 +168,11 @@ HWTEST_F(WebNativeMessagingManagerTest, LookUpOrNewIpcConnection, testing::ext::
     std::string abilityName = "ability";
     sptr<IRemoteObject> token = new IRemoteObjectMocker();
 
-    manager_->NewIpcConnection(tkid, bundleName, abilityName, token);
+    manager_->NewIpcConnection(tkid, bundleName, abilityName, token, -1);
     std::string bundleName2 = "abc2";
-    manager_->LookUpOrNewIpcConnection(tkid, bundleName, abilityName, token);
+    manager_->LookUpOrNewIpcConnection(tkid, bundleName, abilityName, token, -1);
     EXPECT_TRUE(1);
-    manager_->LookUpOrNewIpcConnection(tkid, bundleName2, abilityName, token);
+    manager_->LookUpOrNewIpcConnection(tkid, bundleName2, abilityName, token, -1);
     EXPECT_TRUE(1);
 }
 
@@ -418,7 +376,7 @@ HWTEST_F(WebNativeMessagingManagerTest, DisconnectWebNativeMessagingExtension, t
     tt.bundleName = bundleName;
     MockAccesstokenKit::MockGetHapTokenInfo(tt);
 
-    manager_->NewIpcConnectionUnlock(g_callingTkid, bundleName, abilityName, token);
+    manager_->NewIpcConnectionUnlock(g_callingTkid, bundleName, abilityName, token, -1);
     sptr<ExtensionIpcConnection> ipcConnect =
         new (std::nothrow) ExtensionIpcConnection(g_callingTkid, bundleName, abilityName,
         token, manager_->serviceHandler_);
@@ -474,8 +432,8 @@ HWTEST_F(WebNativeMessagingManagerTest, StartAbility, testing::ext::TestSize.Lev
 
     AAFwk::StartOptions startOptions;
     MockAccesstokenKit::MockAccessTokenKitRet(-1);
-    manager_->NewIpcConnectionUnlock(tkid, bundleName, abilityName, token);
-    
+    manager_->NewIpcConnectionUnlock(tkid, bundleName, abilityName, token, -1);
+
     manager_->StartAbility(token, want, startOptions, errorNum);
     EXPECT_TRUE(errorNum == ConnectNativeRet::PERMISSION_CHECK_ERROR);
 
@@ -552,6 +510,80 @@ HWTEST_F(WebNativeMessagingManagerTest, StopNativeConnectionFromExtension, testi
 
     manager_->StopNativeConnectionFromExtension(innerConnectId, errorNum);
     EXPECT_TRUE(errorNum == ConnectNativeRet::CONNECTION_NOT_EXIST);
+}
+
+static void FillWant(AAFwk::Want& want)
+{
+    std::string abilityName = "ability";
+    std::string bundleName = "web_native_messaging_service_test";
+    want.SetBundle(bundleName);
+    AppExecFwk::ElementName element;
+    element.SetAbilityName("ability");
+    element.SetBundleName("web_native_messaging_service_test");
+    element.SetDeviceID("12345");
+    want.SetElement(element);
+
+    AAFwk::WantParams topParams;
+    topParams.SetParam(WANT_EXTENSION_ORIGIN_PARAM_KEY, AAFwk::String::Box("app_instance_1"));
+    AAFwk::WantParams readParams;
+    readParams.SetParam("type", AAFwk::String::Box("FD"));
+    readParams.SetParam("value", AAFwk::Integer::Box(MOCK_PIPE_FD));
+    topParams.SetParam(WANT_READ_PIPE_PARAM_KEY, AAFwk::WantParamWrapper::Box(readParams));
+
+    AAFwk::WantParams writeParams;
+    writeParams.SetParam("type", AAFwk::String::Box("FD"));
+    writeParams.SetParam("value", AAFwk::Integer::Box(MOCK_PIPE_FD));
+    topParams.SetParam(WANT_WRITE_PIPE_PARAM_KEY, AAFwk::WantParamWrapper::Box(writeParams));
+    want.SetParams(topParams);
+}
+
+/**
+ * @tc.name: CreateNativeRequest001
+ * @tc.desc: CreateNativeRequest()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, CreateNativeRequest001, testing::ext::TestSize.Level0)
+{
+    int errorNum = 0;
+    ConnectNativeParams params;
+    AAFwk::Want want;
+
+    // FillRequestWithWant failed
+    auto request1 = manager_->CreateNativeRequest(want, params, errorNum);
+    ASSERT_EQ(request1, nullptr);
+
+    FillWant(want);
+
+    // params userid invalid
+    params.callerUserId = -1;
+    auto request2 = manager_->CreateNativeRequest(want, params, errorNum);
+    ASSERT_EQ(request2, nullptr);
+
+    params.callerUserId = 1;
+    // GetBundlerInfo failed
+    AppExecFwk::BundleMgrClient::mockRet = false;
+    auto request3 = manager_->CreateNativeRequest(want, params, errorNum);
+    ASSERT_EQ(request3, nullptr);
+
+    // GetBundlerInfo ok, has same name ability, but type is invalid
+    AppExecFwk::BundleMgrClient::mockRet = true;
+    AppExecFwk::ExtensionAbilityInfo extensionInfo;
+    extensionInfo.name = "ability";
+    AppExecFwk::BundleMgrClient::mockExtensionAbilityInfo.emplace_back(extensionInfo);
+    auto request4 = manager_->CreateNativeRequest(want, params, errorNum);
+    ASSERT_EQ(request4, nullptr);
+
+    // CheckAbilityIsWebExtensionAbility ok
+    AppExecFwk::ExtensionAbilityInfo extensionInfo1;
+    extensionInfo1.name = "ability";
+    extensionInfo1.type =
+        AppExecFwk::ExtensionAbilityType::WEB_NATIVE_MESSAGING;
+    std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
+    extensionInfos.emplace_back(extensionInfo1);
+    AppExecFwk::BundleMgrClient::mockExtensionAbilityInfo = extensionInfos;
+    auto request5 = manager_->CreateNativeRequest(want, params, errorNum);
+    ASSERT_NE(request5, nullptr);
 }
 
 } // namespace NWeb
