@@ -40,6 +40,7 @@ ohos_fuzztest("BackgroundTaskImplFuzzTest") {
     "c_utils:utils",
     "image_framework:image_native",
     "pasteboard:pasteboard_client",
+    "ability_runtime:ability_connect_callback_stub",
   ]
 }
 
