@@ -41,6 +41,12 @@ public:
 
     const std::vector<std::string> MimeType() override;
 
+    const std::string DefaultPath() override;
+
+    const std::vector<std::string> Descriptions() override;
+
+    bool IsAcceptAllOptionExcluded() override;
+
 private:
     ArkWebRefPtr<ArkWebFileSelectorParams> ark_web_file_selector_params_;
 };

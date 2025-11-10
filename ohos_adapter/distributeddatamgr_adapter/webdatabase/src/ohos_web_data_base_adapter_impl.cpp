@@ -131,6 +131,10 @@ void OhosWebDataBaseAdapterImpl::SaveHttpAuthCredentials(const std::string& host
     valuesBucket.PutString(HTTPAUTH_REALM_COL, realm);
     valuesBucket.PutString(HTTPAUTH_USERNAME_COL, username);
     valuesBucket.PutBlob(HTTPAUTH_PASSWORD_COL, passwordVector);
+    if (passwordVector.size() == 0) {
+        WVLOG_E("webdatabase get credential fail: passwordVector is empty");
+        return;
+    }
     (void)memset_s(&passwordVector[0], passwordVector.size(), 0, passwordVector.size());
     errCode = rdbStore_->Insert(outRowId, HTTPAUTH_TABLE_NAME, valuesBucket);
     if (errCode != NativeRdb::E_OK) {
@@ -170,6 +174,10 @@ void OhosWebDataBaseAdapterImpl::GetHttpAuthCredentials(const std::string& host,
 
     if (passwordVector.size() > passwordSize - 1) {
         WVLOG_E("webdatabase get credential fail: pwd too long");
+        return;
+    }
+    if (passwordVector.size() == 0) {
+        WVLOG_E("webdatabase get credential fail: passwordVector is empty");
         return;
     }
     if (memcpy_s(password, passwordSize - 1, &passwordVector[0], passwordVector.size()) != EOK) {

@@ -35,6 +35,17 @@ let errMsgMap = new Map();
 errMsgMap.set(PARAM_CHECK_ERROR, ERROR_MSG_INVALID_PARAM);
 let customDialogComponentId = 0;
 
+let defaultPublicPath = 'file://docs/storage/Users/currentUser/';
+
+let publicDirectoryMap = new Map([
+    ['desktop', defaultPublicPath + 'desktop'],
+    ['documents', defaultPublicPath + 'documents'],
+    ['downloads', defaultPublicPath + 'download'],
+    ['music', defaultPublicPath + 'music'],
+    ['pictures', defaultPublicPath + 'images'],
+    ['videos', defaultPublicPath + 'videos'],
+]);
+
 class BusinessError extends Error {
   constructor(code, errorMsg = 'undefined') {
     if (errorMsg === 'undefined') {
@@ -171,6 +182,7 @@ function createDocumentSelectionOptions(param) {
     let defaultSelectMode = picker.DocumentSelectMode.MIXED;
     documentSelectOptions.maxSelectNumber = defaultSelectNumber;
     documentSelectOptions.selectMode = defaultSelectMode;
+    documentSelectOptions.defaultFilePathUri = getDefaultPath(param);
     let mode = param.getMode();
     switch (mode) {
       case FileSelectorMode.FileOpenMode:
@@ -191,7 +203,7 @@ function createDocumentSelectionOptions(param) {
     if (suffix) {
       documentSelectOptions.fileSuffixFilters.push(suffix);
     }
-    if (currentDevice !== 'phone') {
+    if (currentDevice !== 'phone' && !param.isAcceptAllOptionExcluded()) {
       documentSelectOptions.fileSuffixFilters.push('.*');
     }
   } catch (error) {
@@ -206,17 +218,27 @@ function createDocumentSaveOptions(param) {
   try {
     documentSaveOptions.pickerMode = picker.DocumentPickerMode.DEFAULT;
     documentSaveOptions.fileSuffixChoices = [];
+    documentSaveOptions.newFileNames = [ param.getSuggestedName() ];
+    documentSaveOptions.defaultFilePathUri = getDefaultPath(param);
     let suffix = param.getAcceptType().join(',');
     if (suffix) {
       documentSaveOptions.fileSuffixChoices.push(suffix);
     }
-    if (currentDevice !== 'phone') {
+    if (currentDevice !== 'phone' && !param.isAcceptAllOptionExcluded()) {
       documentSaveOptions.fileSuffixChoices.push('.*');
     }
   } catch (error) {
     console.log('saveFile error: ' + + JSON.stringify(error));
   }
   return documentSaveOptions;
+}
+
+function getDefaultPath(param) {
+    let path = param.getDefaultPath();
+    if (publicDirectoryMap.get(path) != undefined) {
+        path = publicDirectoryMap.get(path);
+    }
+    return path;
 }
 
 function isContainImageMimeType(acceptTypes) {

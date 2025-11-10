@@ -14,7 +14,7 @@
  */
 
 #include "web_native_messaging_extension.h"
-
+#include "ets_web_native_messaging_extension.h"
 #include "js_web_native_messaging_extension.h"
 #include "runtime.h"
 #include "web_native_messaging_extension_context.h"
@@ -33,7 +33,8 @@ WebNativeMessagingExtension* WebNativeMessagingExtension::Create(
     switch (runtime->GetLanguage()) {
         case AbilityRuntime::Runtime::Language::JS:
             return JsWebNativeMessagingExtension::Create(runtime);
-
+        case AbilityRuntime::Runtime::Language::ETS:
+            return ETSWebNativeMessagingExtension::Create(runtime);
         default:
             return new WebNativeMessagingExtension();
     }

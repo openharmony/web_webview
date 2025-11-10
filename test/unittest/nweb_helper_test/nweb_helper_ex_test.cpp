@@ -448,6 +448,7 @@ HWTEST_F(NwebHelperTest, NWebHelper_LoadWebEngine_008, TestSize.Level1)
     NWebHelper::Instance().PauseAllTimers();
     NWebHelper::Instance().ResumeAllTimers();
     NWebHelper::Instance().SetWebDestroyMode(WebDestroyMode::NORMAL_MODE);
+    NWebHelper::Instance().SetScrollbarMode(ScrollbarMode::OVERLAY_LAYOUT_SCROLLBAR);
     NWebHelper::Instance().SetSiteIsolationMode(SiteIsolationMode::PARTIAL);
     NWebHelper::Instance().GetSiteIsolationMode();
 

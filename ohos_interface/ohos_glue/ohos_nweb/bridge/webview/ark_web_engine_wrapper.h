@@ -129,6 +129,8 @@ public:
     
     void SetSoftKeyboardBehaviorMode(OHOS::NWeb::WebSoftKeyboardBehaviorMode mode) override;
 
+    void SetScrollbarMode(OHOS::NWeb::ScrollbarMode mode) override;
+
 private:
     ArkWebRefPtr<ArkWebEngine> ark_web_engine_;
 };

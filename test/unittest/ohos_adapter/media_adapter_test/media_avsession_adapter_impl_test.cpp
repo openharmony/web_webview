@@ -250,12 +250,13 @@ void MediaAVSessionAdapterImplTest::TearDown(void)
 HWTEST_F(MediaAVSessionCallbackImplTest, NWebMediaAdapterTest_MediaAVSessionCallbackImpl_001, TestSize.Level1)
 {
     g_callback->callbackAdapter_ = nullptr;
-    g_callback->OnPlay();
+    AVControlCommand cmd;
+    g_callback->OnPlay(cmd);
     EXPECT_EQ(g_callback->callbackAdapter_, nullptr);
 
     auto callbackMock = std::make_shared<MediaAVSessionCallbackAdapterMock>();
     g_callback->callbackAdapter_ = callbackMock;
-    g_callback->OnPlay();
+    g_callback->OnPlay(cmd);
     EXPECT_NE(g_callback->callbackAdapter_, nullptr);
 }
 
@@ -285,12 +286,13 @@ HWTEST_F(MediaAVSessionCallbackImplTest, NWebMediaAdapterTest_MediaAVSessionCall
  */
 HWTEST_F(MediaAVSessionCallbackImplTest, NWebMediaAdapterTest_MediaAVSessionCallbackImpl_003, TestSize.Level1)
 {
+    AVControlCommand cmd;
     g_callback->callbackAdapter_ = nullptr;
     g_callback->OnStop();
-    g_callback->OnPlayNext();
-    g_callback->OnPlayPrevious();
-    g_callback->OnFastForward(0);
-    g_callback->OnRewind(0);
+    g_callback->OnPlayNext(cmd);
+    g_callback->OnPlayPrevious(cmd);
+    g_callback->OnFastForward(0, cmd);
+    g_callback->OnRewind(0, cmd);
     g_callback->OnSetSpeed(0);
     g_callback->OnSetLoopMode(0);
     g_callback->OnToggleFavorite("");

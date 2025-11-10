@@ -38,7 +38,7 @@ namespace OHOS {
 namespace NWeb {
 
 namespace {
-std::recursive_mutex gConnectsLock_;
+std::recursive_mutex g_connectsLock;
 int32_t g_serialNumber = 1;
 static std::map<int32_t, sptr<WebExtensionConnectionCallback>> g_connects;
 bool g_initDiedRecipient = false;
@@ -46,7 +46,7 @@ bool g_initDiedRecipient = false;
 
 static void RemoveConnection(int32_t connectId)
 {
-    std::lock_guard<std::recursive_mutex> lock(gConnectsLock_);
+    std::lock_guard<std::recursive_mutex> lock(g_connectsLock);
     auto item = g_connects.find(connectId);
     if (item != g_connects.end()) {
         WNMLOG_D("remove connection %{public}d ok", connectId);
@@ -58,10 +58,10 @@ static void RemoveConnection(int32_t connectId)
 
 static int32_t InsertConnection(sptr<WebExtensionConnectionCallback> connection)
 {
-    std::lock_guard<std::recursive_mutex> lock(gConnectsLock_);
+    std::lock_guard<std::recursive_mutex> lock(g_connectsLock);
     if (!g_initDiedRecipient) {
         auto diedRecipient = [](){
-            std::lock_guard<std::recursive_mutex> lock(gConnectsLock_);
+            std::lock_guard<std::recursive_mutex> lock(g_connectsLock);
             for (auto iter = g_connects.begin(); iter != g_connects.end();) {
                 WNMLOG_I("remove connection %{public}d because of service death", iter->first);
                 if (iter->second) {

@@ -1396,4 +1396,13 @@ void NWebHelper::SetSoftKeyboardBehaviorMode(WebSoftKeyboardBehaviorMode mode)
     nwebEngine_->SetSoftKeyboardBehaviorMode(mode);
 }
 
+void NWebHelper::SetScrollbarMode(ScrollbarMode mode)
+{
+    if (nwebEngine_ == nullptr) {
+        WVLOG_E("web engine is nullptr");
+        return;
+    }
+    nwebEngine_->SetScrollbarMode(mode);
+}
+
 } // namespace OHOS::NWeb

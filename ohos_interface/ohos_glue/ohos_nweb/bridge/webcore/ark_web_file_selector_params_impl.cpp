@@ -54,4 +54,18 @@ const ArkWebStringVector ArkWebFileSelectorParamsImpl::MimeType()
     return ArkWebStringVectorClassToStruct(nweb_file_selector_params_->MimeType());
 }
 
+const ArkWebString ArkWebFileSelectorParamsImpl::DefaultPath()
+{
+    return ArkWebStringClassToStruct(nweb_file_selector_params_->DefaultPath());
+}
+
+const ArkWebStringVector ArkWebFileSelectorParamsImpl::Descriptions()
+{
+    return ArkWebStringVectorClassToStruct(nweb_file_selector_params_->Descriptions());
+}
+
+bool ArkWebFileSelectorParamsImpl::IsAcceptAllOptionExcluded()
+{
+    return nweb_file_selector_params_->IsAcceptAllOptionExcluded();
+}
 } // namespace OHOS::ArkWeb

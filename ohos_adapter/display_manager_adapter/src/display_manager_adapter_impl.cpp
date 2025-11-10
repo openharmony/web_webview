@@ -26,6 +26,7 @@ using namespace OHOS::NWeb;
 
 namespace OHOS::NWeb {
 constexpr float EPS = 0.0001f;
+const std::string VASSISTANT_SCREEN_NAME = "CeliaView";
 
 DisplayListenerAdapterImpl::DisplayListenerAdapterImpl(
     std::shared_ptr<DisplayListenerAdapter> listener) : listener_(listener) {}
@@ -475,7 +476,12 @@ DisplayId DisplayManagerAdapterImpl::GetDefaultDisplayId()
 
 std::shared_ptr<DisplayAdapter> DisplayManagerAdapterImpl::GetDefaultDisplay()
 {
-    sptr<Display> display = DisplayManager::GetInstance().GetDefaultDisplay();
+    // In the case of VASSISTANT_SCREEN_NAME, use GetDefaultDisplaySync() to obtain virtual screen information;
+    // Otherwise, maintain the existing logic.
+    sptr<Display> display = DisplayManager::GetInstance().GetDefaultDisplaySync(true);
+    if (display->GetName() != VASSISTANT_SCREEN_NAME) {
+        display = DisplayManager::GetInstance().GetDefaultDisplay();
+    }
     return std::make_shared<DisplayAdapterImpl>(display);
 }
 
