@@ -2213,6 +2213,21 @@ public:
      */
     /*--ark web()--*/
     virtual void StopFling() {}
+
+    /**
+     * Resume current microphone.
+     */
+    virtual void ResumeMicrophone() {}
+
+    /**
+     * Stop current microphone.
+     */
+    virtual void StopMicrophone() {}
+
+    /**
+     * Pause current microphone.
+     */
+    virtual void PauseMicrophone() {}
 };
 
 } // namespace OHOS::NWeb

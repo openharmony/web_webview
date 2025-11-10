@@ -365,6 +365,12 @@ public:
 
     ErrCode CloseCamera();
 
+    ErrCode ResumeMicrophone();
+
+    ErrCode StopMicrophone();
+
+    ErrCode PauseMicrophone();
+
     void CloseAllMediaPresentations();
 
     void StopAllMedia();

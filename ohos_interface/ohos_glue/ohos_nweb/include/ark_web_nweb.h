@@ -2088,6 +2088,24 @@ public:
      */
     /*--ark web()--*/
     virtual void StopFling() {}
+
+    /**
+     * @brief Resume current microphone.
+     */
+    /*--ark web()--*/
+    virtual void ResumeMicrophone() {}
+ 
+    /**
+     * @brief Stop current microphone.
+     */
+    /*--ark web()--*/
+    virtual void StopMicrophone() {}
+ 
+    /**
+     * @brief Pause current microphone.
+     */
+    /*--ark web()--*/
+    virtual void PauseMicrophone() {}
 };
 
 } // namespace OHOS::ArkWeb

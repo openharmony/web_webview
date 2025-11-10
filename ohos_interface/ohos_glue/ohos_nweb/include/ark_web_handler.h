@@ -1145,6 +1145,12 @@ public:
      */
     /*--ark web()--*/
     virtual void OnCameraCaptureStateChanged(int originalState, int newState) {}
+
+    /**
+     * @brief Called when the microphone capture state changed.
+     */
+    /*--ark web()--*/
+    virtual void OnMicrophoneCaptureStateChanged(int originalState, int newState) {}
 };
 
 } // namespace OHOS::ArkWeb

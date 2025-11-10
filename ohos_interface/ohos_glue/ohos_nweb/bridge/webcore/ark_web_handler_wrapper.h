@@ -843,6 +843,11 @@ public:
      * @brief Called when the camera capture state changed.
      */
     void OnCameraCaptureStateChanged(int originalState, int newState) override;
+
+    /**
+     * @brief Called when the microphone capture state changed.
+     */
+    void OnMicrophoneCaptureStateChanged(int originalState, int newState) override;
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };

@@ -804,6 +804,10 @@ public:
      */
     void OnCameraCaptureStateChanged(int originalState, int newState) override;
 
+    /**
+     * @brief Called when the microphone capture state changed.
+     */
+    void OnMicrophoneCaptureStateChanged(int originalState, int newState) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };

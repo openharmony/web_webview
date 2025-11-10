@@ -320,6 +320,12 @@ private:
 
     static napi_value CloseCamera(napi_env env, napi_callback_info info);
 
+    static napi_value ResumeMicrophone(napi_env env, napi_callback_info info);
+
+    static napi_value StopMicrophone(napi_env env, napi_callback_info info);
+
+    static napi_value PauseMicrophone(napi_env env, napi_callback_info info);
+
     static napi_value CloseAllMediaPresentations(napi_env env, napi_callback_info info);
 
     static napi_value StopAllMedia(napi_env env, napi_callback_info info);

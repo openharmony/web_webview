@@ -1842,6 +1842,24 @@ public:
     /*--ark web()--*/
     void StopFling() override;
 
+    /**
+     * @brief Resume current microphone.
+     */
+    /*--ark web()--*/
+    void ResumeMicrophone() override;
+
+    /**
+     * @brief Stop current microphone.
+     */
+    /*--ark web()--*/
+    void StopMicrophone() override;
+
+    /**
+     * @brief Pause current microphone.
+     */
+    /*--ark web()--*/
+    void PauseMicrophone() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };
