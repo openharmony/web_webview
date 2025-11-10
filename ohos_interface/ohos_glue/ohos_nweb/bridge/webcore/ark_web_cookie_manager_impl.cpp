@@ -18,6 +18,7 @@
 #include "ohos_nweb/bridge/ark_web_bool_value_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_long_value_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_string_value_callback_wrapper.h"
+#include "ohos_nweb/cpptoc/ark_web_cookie_manager_cookies_vector_cpptoc.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
 
@@ -185,6 +186,11 @@ void ArkWebCookieManagerImpl::SetCookieAsync(const ArkWebString& url, const ArkW
 
     nweb_cookie_manager_->SetCookieAsync(ArkWebStringStructToClass(url), ArkWebStringStructToClass(value),
         incognitoMode, includeHttpOnly, std::make_shared<ArkWebLongValueCallbackWrapper>(callback));
+}
+
+ArkWebCookieManagerCookiesVector ArkWebCookieManagerImpl::GetAllCookieAsync(bool incognitoMode)
+{
+    return ArkWebCookieManagerCookiesVectorClassToStruct(nweb_cookie_manager_->GetAllCookieAsync(incognitoMode));
 }
 
 } // namespace OHOS::ArkWeb

@@ -218,6 +218,8 @@ public:
     void SetCookieAsync(const std::string& url, const std::string& value, bool incognitoMode, bool includeHttpOnly,
         std::shared_ptr<OHOS::NWeb::NWebLongValueCallback> callback) override;
 
+    std::vector<std::shared_ptr<OHOS::NWeb::NWebCookieManagerCookies>> GetAllCookieAsync(bool incognitoMode) override;
+
 private:
     ArkWebRefPtr<ArkWebCookieManager> ark_web_cookie_manager_;
 };

@@ -504,6 +504,12 @@ component("ohos_nweb_glue_source") {
     "ohos_nweb/bridge/ark_web_native_message_callback_impl.h",
     "ohos_nweb/bridge/ark_web_runtime_connect_info_impl.cpp",
     "ohos_nweb/bridge/ark_web_runtime_connect_info_impl.h",
+    "ohos_nweb/bridge/ark_web_cookie_manager_cookies_impl.cpp",
+    "ohos_nweb/bridge/ark_web_cookie_manager_cookies_impl.h",
+    "ohos_nweb/cpptoc/ark_web_cookie_manager_cookies_cpptoc.cpp",
+    "ohos_nweb/cpptoc/ark_web_cookie_manager_cookies_cpptoc.h",
+    "ohos_nweb/cpptoc/ark_web_cookie_manager_cookies_vector_cpptoc.cpp",
+    "ohos_nweb/cpptoc/ark_web_cookie_manager_cookies_vector_cpptoc.h",
   ]
 
   deps = [ "//ohos_glue:ohos_base_glue_source" ]

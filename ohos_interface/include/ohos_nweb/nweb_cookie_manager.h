@@ -24,6 +24,8 @@
 
 namespace OHOS::NWeb {
 
+class NWebCookieManagerCookies;
+
 class OHOS_NWEB_EXPORT NWebCookieManager {
 public:
     NWebCookieManager() = default;
@@ -227,6 +229,40 @@ public:
      */
     virtual void SetCookieAsync(const std::string& url, const std::string& value, bool incognitoMode,
         bool includeHttpOnly, std::shared_ptr<NWebLongValueCallback> callback) = 0;
+
+    /**
+     * @brief Fetches all stored cookies asynchronously.
+     *
+     * @param incognitoMode true if web is in the incognito mode, false otherwise.
+     * @return null if get all cookies fails else return vector.
+     */
+    virtual std::vector<std::shared_ptr<NWebCookieManagerCookies>> GetAllCookieAsync(bool incognitoMode) = 0;
+};
+ 
+class OHOS_NWEB_EXPORT NWebCookieManagerCookies {
+public:
+    NWebCookieManagerCookies() = default;
+    virtual ~NWebCookieManagerCookies() = default;
+ 
+    virtual void SetSamesitePolicy(int samesitePolicy) = 0;
+    virtual void SetExpiresDate(const std::string& expiresDate) = 0;
+    virtual void SetName(const std::string& name) = 0;
+    virtual void SetIsSessionCookie(bool isSessionCookie) = 0;
+    virtual void SetValue(const std::string& value) = 0;
+    virtual void SetPath(const std::string& path) = 0;
+    virtual void SetIsHttpOnly(bool isHttpOnly) = 0;
+    virtual void SetIsSecure(bool isSecure) = 0;
+    virtual void SetDomain(const std::string& domain) = 0;
+ 
+    virtual int GetSamesitePolicy() = 0;
+    virtual std::string GetExpiresDate() = 0;
+    virtual std::string GetName() = 0;
+    virtual bool GetIsSessionCookie() = 0;
+    virtual std::string GetValue() = 0;
+    virtual std::string GetPath() = 0;
+    virtual bool GetIsHttpOnly() = 0;
+    virtual bool GetIsSecure() = 0;
+    virtual std::string GetDomain() = 0;
 };
 
 } // namespace OHOS::NWeb
