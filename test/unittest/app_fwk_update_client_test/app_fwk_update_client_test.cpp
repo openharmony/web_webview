@@ -544,5 +544,33 @@ HWTEST_F(AppFwkUpdateClientTest, CallbackOnLoadSystemAbilityFail_002, testing::e
     callback.OnLoadSystemAbilityFail(SUBSYS_WEBVIEW_SYS_UPDATE_SERVICE_ID);
     EXPECT_EQ(appFwkUpdateClient_->GetFwkUpdate(), nullptr);
 }
+
+/**
+ * @tc.name: NotifyArkWebInstallSuccess_001
+ * @tc.desc: NotifyArkWebInstallSuccess()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(AppFwkUpdateClientTest, NotifyArkWebInstallSuccess001, testing::ext::TestSize.Level0)
+{
+    g_mockSystemAbilityManager = nullptr;
+    appFwkUpdateClient_->SetFwkUpdate(nullptr);
+    appFwkUpdateClient_->NotifyArkWebInstallSuccess();
+    EXPECT_EQ(appFwkUpdateClient_->GetFwkUpdateProxy(), nullptr);
+}
+
+/**
+ * @tc.name: NotifyArkWebInstallSuccess_002
+ * @tc.desc: NotifyArkWebInstallSuccess()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(AppFwkUpdateClientTest, NotifyArkWebInstallSuccess002, testing::ext::TestSize.Level0)
+{
+    sptr<IRemoteObject> remoteObject = mockRemote_;
+    appFwkUpdateClient_->SetFwkUpdate(remoteObject);
+    appFwkUpdateClient_->NotifyArkWebInstallSuccess();
+    EXPECT_NE(appFwkUpdateClient_->GetFwkUpdate(), nullptr);
+}
 } // namespace NWeb
 } // namespace OHOS
