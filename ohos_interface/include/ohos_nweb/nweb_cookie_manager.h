@@ -236,7 +236,7 @@ public:
      * @param incognitoMode true if web is in the incognito mode, false otherwise.
      * @return null if get all cookies fails else return vector.
      */
-    virtual std::vector<std::shared_ptr<NWebCookieManagerCookies>> GetAllCookieAsync(bool incognitoMode) = 0;
+    virtual std::vector<std::shared_ptr<NWebCookieManagerCookies>> GetAllCookie(bool incognitoMode) = 0;
 };
  
 class OHOS_NWEB_EXPORT NWebCookieManagerCookies {

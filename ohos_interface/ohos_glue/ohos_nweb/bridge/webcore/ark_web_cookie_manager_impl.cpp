@@ -188,9 +188,9 @@ void ArkWebCookieManagerImpl::SetCookieAsync(const ArkWebString& url, const ArkW
         incognitoMode, includeHttpOnly, std::make_shared<ArkWebLongValueCallbackWrapper>(callback));
 }
 
-ArkWebCookieManagerCookiesVector ArkWebCookieManagerImpl::GetAllCookieAsync(bool incognitoMode)
+ArkWebCookieManagerCookiesVector ArkWebCookieManagerImpl::GetAllCookie(bool incognitoMode)
 {
-    return ArkWebCookieManagerCookiesVectorClassToStruct(nweb_cookie_manager_->GetAllCookieAsync(incognitoMode));
+    return ArkWebCookieManagerCookiesVectorClassToStruct(nweb_cookie_manager_->GetAllCookie(incognitoMode));
 }
 
 } // namespace OHOS::ArkWeb

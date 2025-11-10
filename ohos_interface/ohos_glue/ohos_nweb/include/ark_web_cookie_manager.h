@@ -247,7 +247,7 @@ public:
      * @Since: 12005
      */
     /*--ark web()--*/
-    virtual ArkWebCookieManagerCookiesVector GetAllCookieAsync(bool incognitoMode) = 0;
+    virtual ArkWebCookieManagerCookiesVector GetAllCookie(bool incognitoMode) = 0;
 };
 
 } // namespace OHOS::ArkWeb

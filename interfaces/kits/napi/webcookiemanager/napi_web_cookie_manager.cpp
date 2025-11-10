@@ -914,7 +914,7 @@ void NapiWebCookieManager::ExecuteGetCookies(napi_env env, void *data)
         param->status = napi_generic_failure;
         return;
     }
-    std::vector<std::shared_ptr<NWebCookieManagerCookies>> cookies = cookieManager->GetAllCookieAsync(param->incognitoMode);
+    std::vector<std::shared_ptr<NWebCookieManagerCookies>> cookies = cookieManager->GetAllCookie(param->incognitoMode);
     for (auto cookie : cookies) {
         NapiWebHttpCookie napiCookie;
         napiCookie.samesitePolicy = cookie->GetSamesitePolicy();
