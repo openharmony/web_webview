@@ -24,15 +24,17 @@
 #include "nweb_log.h"
 #include "securec.h"
 #include "web_errors.h"
-#include "web_scheme_handler_request.h"
+#include "web_scheme_handler.h"
 #include "web_scheme_handler_response.h"
+#include "ani_class_name.h"
+#include "interop_js/arkts_esvalue.h"
+#include "interop_js/arkts_interop_js_api.h"
 
 namespace OHOS {
 namespace NWeb {
 
 using namespace NWebError;
 using NWebError::NO_ERROR;
-const char* ANI_WEB_RESOURCE_HANDLER_CLASS_NAME = "L@ohos/web/webview/webview/WebResourceHandler;";
 static void JSDidReceiveResponse(ani_env* env, ani_object object, ani_object response)
 {
     WVLOG_D("Enter aniwebResourceHandler JSDidReceiveResponse");
@@ -97,6 +99,29 @@ static void Constructor(ani_env* env, ani_object object)
     }
 }
 
+static ani_boolean TransferWebResourceHandlerToStaticInner(
+    ani_env* env, ani_class aniClass, ani_object output, ani_object input)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+
+    void *nativePtr = nullptr;
+    if (!arkts_esvalue_unwrap(env, input, &nativePtr) || nativePtr == nullptr) {
+        WVLOG_E("[TRANSFER] arkts_esvalue_unwrap failed");
+        return ANI_FALSE;
+    }
+    WebResourceHandler *resourceHandler = reinterpret_cast<WebResourceHandler *>(nativePtr);
+    if (!AniParseUtils::Wrap(env, output, ANI_WEB_RESOURCE_HANDLER_CLASS_NAME,
+                             reinterpret_cast<ani_long>(resourceHandler))) {
+        WVLOG_E("[TRANSFER] WebResourceHandler wrap failed");
+        return ANI_FALSE;
+    }
+    resourceHandler->IncStrongRef(nullptr);
+    return ANI_TRUE;
+}
+
 ani_status StsWebSchemeHandlerResourceInit(ani_env* env)
 {
     if (env == nullptr) {
@@ -114,6 +139,8 @@ ani_status StsWebSchemeHandlerResourceInit(ani_env* env)
         ani_native_function { "<ctor>", nullptr, reinterpret_cast<void*>(Constructor) },
         ani_native_function { "didFinish", nullptr, reinterpret_cast<void*>(JsDidFinish) },
         ani_native_function { "didReceiveResponse", nullptr, reinterpret_cast<void*>(JSDidReceiveResponse) },
+        ani_native_function { "transferWebResourceHandlerToStaticInner",
+                              nullptr, reinterpret_cast<void*>(TransferWebResourceHandlerToStaticInner) },
     };
 
     status = env->Class_BindNativeMethods(WebResourceCls, allMethods.data(), allMethods.size());

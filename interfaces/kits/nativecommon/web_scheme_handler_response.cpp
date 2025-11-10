@@ -15,24 +15,20 @@
 
 #include "web_scheme_handler_response.h"
 
-#include <securec.h>
-
+#include "nweb.h"
 #include "nweb_log.h"
-#include "business_error.h"
-#include "web_errors.h"
 
-namespace OHOS::NWeb {
+namespace OHOS {
+namespace NWeb {
 
-WebSchemeHandlerResponse::WebSchemeHandlerResponse(ani_env* env)
-    : env_(env)
+WebSchemeHandlerResponse::WebSchemeHandlerResponse()
 {
     WVLOG_D("WebSchemeHandlerResponse::WebSchemeHandlerResponse");
     OH_ArkWeb_CreateResponse(&response_);
 }
 
-WebSchemeHandlerResponse::WebSchemeHandlerResponse(ani_env* env,
-    ArkWeb_Response* response)
-    : env_(env), response_(response)
+WebSchemeHandlerResponse::WebSchemeHandlerResponse(ArkWeb_Response* response)
+    : response_(response)
 {
     WVLOG_D("WebSchemeHandlerResponse::WebSchemeHandlerResponse");
 }
@@ -40,7 +36,6 @@ WebSchemeHandlerResponse::WebSchemeHandlerResponse(ani_env* env,
 WebSchemeHandlerResponse::~WebSchemeHandlerResponse()
 {
     WVLOG_I("WebSchemeHandlerResponse::~WebSchemeHandlerResponse");
-    (void)env_;
     (void)response_;
     OH_ArkWeb_DestroyResponse(response_);
 }
@@ -146,4 +141,5 @@ int32_t WebSchemeHandlerResponse::SetErrorCode(int32_t code)
     return OH_ArkWebResponse_SetError(response_, static_cast<ArkWeb_NetError>(code));
 }
 
-}
+} // namespace NWeb
+} // namespace OHOS

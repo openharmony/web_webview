@@ -75,7 +75,7 @@
 #include "ohos_adapter_helper.h"
 #include "nweb_adapter_helper.h"
 #include "ani_web_scheme_handler_request.h"
-#include "web_scheme_handler_request.h"
+#include "web_scheme_handler.h"
 #include "arkweb_scheme_handler.h"
 #include "arkweb_utils.h"
 #include "system_properties_adapter_impl.h"
@@ -497,9 +497,15 @@ static void Clean(ani_env *env, ani_object object)
     } else if (clsName == "WebSchemeHandler") {
         delete reinterpret_cast<WebSchemeHandler*>(ptr);
     } else if (clsName == "WebSchemeHandlerRequest") {
-        delete reinterpret_cast<WebSchemeHandlerRequest*>(ptr);
+        WebSchemeHandlerRequest *handler = reinterpret_cast<WebSchemeHandlerRequest *>(ptr);
+        if (handler) {
+            handler->DecStrongRef(handler);
+        }
     } else if (clsName == "WebResourceHandler") {
-        reinterpret_cast<WebResourceHandler*>(ptr)->DecStrongRef(reinterpret_cast<WebResourceHandler*>(ptr));
+        WebResourceHandler *handler = reinterpret_cast<WebResourceHandler*>(ptr);
+        if (handler) {
+            handler->DecStrongRef(handler);
+        }
     } else if (clsName == "JsMessageExt") {
         delete reinterpret_cast<WebJsMessageExt*>(ptr);
     } else {

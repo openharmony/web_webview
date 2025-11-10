@@ -21,6 +21,7 @@
 namespace OHOS {
 namespace NWeb {
 
+namespace {
 static const char* ANI_CLASS_CLEANER = "L@ohos/web/webview/Cleaner;";
 static const char* ANI_CLASS_WEBVIEW_CONTROLLER = "L@ohos/web/webview/webview/WebviewController;";
 static const char* ANI_WEB_MESSAGE_EXT_NAME = "L@ohos/web/webview/webview/WebMessageExt;";
@@ -43,6 +44,12 @@ const char* ANI_SIZE_OPTIONS_CLASS_NAME = "@ohos.web.webview.webview.SizeOptions
 const char* ANI_PRINT_DOCUMENT_ADAPTER_INNER_CLASS_NAME = "L@ohos/web/webview/webview/PrintDocumentAdapterInner;";
 const char* ANI_CLASS_WEB_RESOURCETYPE = "L@ohos/web/webview/webview/WebResourceType;";
 const char* ANI_ENUM_ARK_WEB_ENGINE_VERSION = "L@ohos/web/webview/webview/ArkWebEngineVersion;";
+
+const char* ANI_CLASS_WEB_REQUESTTYPE = "@ohos.web.webview.webview.WebSchemeHandlerRequest";
+const char* ANI_HTTP_BODY_STREAM = "@ohos.web.webview.webview.WebHttpBodyStream";
+const char* ANI_WEB_RESOURCE_HANDLER_CLASS_NAME = "@ohos.web.webview.webview.WebResourceHandler";
+const char* ANI_WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME = "@ohos.web.webview.webview.WebSchemeHandlerRequest";
+}
 
 } // namespace NWeb
 } // namespace OHOS
