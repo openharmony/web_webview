@@ -348,7 +348,8 @@ HWTEST_F(AppFwkUpdateClientTest, VerifyPackageInstall_003, testing::ext::TestSiz
  */
 HWTEST_F(AppFwkUpdateClientTest, NotifyFWKAfterBmsStart_001, testing::ext::TestSize.Level0)
 {
-    appFwkUpdateClient_->NotifyFWKAfterBmsStart();
+    int result = appFwkUpdateClient_->NotifyFWKAfterBmsStart();
+    EXPECT_EQ(result, 0);
 }
 
 /**
