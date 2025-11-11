@@ -799,6 +799,11 @@ public:
 
     void OnClippedSelectionBoundsChanged(int x, int y, int width, int height) override;
 
+    /**
+     * @brief Called when the camera capture state changed.
+     */
+    void OnCameraCaptureStateChanged(int originalState, int newState) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };

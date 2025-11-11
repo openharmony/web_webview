@@ -838,6 +838,11 @@ public:
         std::shared_ptr<OHOS::NWeb::NWebJSVerifyPinResult> result, const std::string& identity) override;
 
     void OnClippedSelectionBoundsChanged(int x, int y, int width, int height) override;
+
+    /**
+     * @brief Called when the camera capture state changed.
+     */
+    void OnCameraCaptureStateChanged(int originalState, int newState) override;
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };
