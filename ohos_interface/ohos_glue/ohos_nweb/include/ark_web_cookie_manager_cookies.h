@@ -12,74 +12,74 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #ifndef ARK_WEB_COOKIE_MANAGER_COOKIES_H_
 #define ARK_WEB_COOKIE_MANAGER_COOKIES_H_
 #pragma once
- 
+
 #include "base/include/ark_web_base_ref_counted.h"
 #include "base/include/ark_web_types.h"
- 
+
 namespace OHOS::ArkWeb {
- 
+
 /*--ark web(source=webcore)--*/
 class ArkWebCookieManagerCookies : public virtual ArkWebBaseRefCounted {
 public:
     /*--ark web()--*/
     virtual void SetSamesitePolicy(int samesitePolicy) = 0;
- 
+
     /*--ark web()--*/
     virtual void SetExpiresDate(const ArkWebString& expiresDate) = 0;
- 
+
     /*--ark web()--*/
     virtual void SetName(const ArkWebString& name) = 0;
- 
+
     /*--ark web()--*/
     virtual void SetIsSessionCookie(bool isSessionCookie) = 0;
- 
+
     /*--ark web()--*/
     virtual void SetValue(const ArkWebString& value) = 0;
- 
+
     /*--ark web()--*/
     virtual void SetPath(const ArkWebString& path) = 0;
- 
+
     /*--ark web()--*/
     virtual void SetIsHttpOnly(bool isHttpOnly) = 0;
- 
+
     /*--ark web()--*/
     virtual void SetIsSecure(bool isSecure) = 0;
- 
+
     /*--ark web()--*/
     virtual void SetDomain(const ArkWebString& domain) = 0;
- 
+
     /*--ark web()--*/
     virtual int GetSamesitePolicy() = 0;
- 
+
     /*--ark web()--*/
     virtual ArkWebString GetExpiresDate() = 0;
- 
+
     /*--ark web()--*/
     virtual ArkWebString GetName() = 0;
- 
+
     /*--ark web()--*/
     virtual bool GetIsSessionCookie() = 0;
- 
+
     /*--ark web()--*/
     virtual ArkWebString GetValue() = 0;
- 
+
     /*--ark web()--*/
     virtual ArkWebString GetPath() = 0;
- 
+
     /*--ark web()--*/
     virtual bool GetIsHttpOnly() = 0;
- 
+
     /*--ark web()--*/
     virtual bool GetIsSecure() = 0;
- 
+
     /*--ark web()--*/
     virtual ArkWebString GetDomain() = 0;
 };
- 
+
 } // namespace OHOS::ArkWeb
- 
+
 #endif // ARK_WEB_COOKIE_MANAGER_COOKIES_H_

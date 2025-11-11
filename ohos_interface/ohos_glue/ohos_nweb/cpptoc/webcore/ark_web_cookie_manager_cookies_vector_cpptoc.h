@@ -12,21 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #ifndef ARK_WEB_COOKIE_MANAGER_COOKIES_VECTOR_CPPTOC_H_
 #define ARK_WEB_COOKIE_MANAGER_COOKIES_VECTOR_CPPTOC_H_
 #pragma once
- 
+
 #include "include/nweb_cookie_manager.h"
 #include "ohos_nweb/include/ark_web_cookie_manager_cookies_vector.h"
- 
+
 namespace OHOS::ArkWeb {
- 
+
 ArkWebCookieManagerCookiesVector ArkWebCookieManagerCookiesVectorClassToStruct(
     const std::vector<std::shared_ptr<OHOS::NWeb::NWebCookieManagerCookies>>& class_value);
- 
+
 void ArkWebCookieManagerCookiesVectorStructRelease(ArkWebCookieManagerCookiesVector& struct_value);
- 
+
 } // namespace OHOS::ArkWeb
- 
+
 #endif // ARK_WEB_COOKIE_MANAGER_COOKIES_VECTOR_CPPTOC_H_

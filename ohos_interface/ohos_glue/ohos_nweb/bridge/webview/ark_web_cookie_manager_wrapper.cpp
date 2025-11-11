@@ -235,7 +235,8 @@ void ArkWebCookieManagerWrapper::SetCookieAsync(const std::string& url, const st
     ArkWebStringStructRelease(stValue);
 }
 
-std::vector<std::shared_ptr<OHOS::NWeb::NWebCookieManagerCookies>> ArkWebCookieManagerWrapper::GetAllCookie(bool incognitoMode)
+std::vector<std::shared_ptr<OHOS::NWeb::NWebCookieManagerCookies>> ArkWebCookieManagerWrapper::GetAllCookie(
+    bool incognitoMode)
 {
     return ArkWebCookieManagerCookiesVectorStructToClass(ark_web_cookie_manager_->GetAllCookie(incognitoMode));
 }

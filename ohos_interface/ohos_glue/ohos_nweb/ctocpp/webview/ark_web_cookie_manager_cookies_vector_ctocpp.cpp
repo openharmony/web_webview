@@ -12,14 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include "ohos_nweb/ctocpp/ark_web_cookie_manager_cookies_vector_ctocpp.h"
- 
-#include "ohos_nweb/bridge/ark_web_cookie_manager_cookies_wrapper.h"
 #include "ohos_nweb/ctocpp/ark_web_cookie_manager_cookies_ctocpp.h"
- 
+#include "ohos_nweb/bridge/ark_web_cookie_manager_cookies_wrapper.h"
+
 namespace OHOS::ArkWeb {
- 
+
 std::vector<std::shared_ptr<OHOS::NWeb::NWebCookieManagerCookies>> ArkWebCookieManagerCookiesVectorStructToClass(
     const ArkWebCookieManagerCookiesVector& struct_value)
 {
@@ -32,8 +31,8 @@ std::vector<std::shared_ptr<OHOS::NWeb::NWebCookieManagerCookies>> ArkWebCookieM
             class_value.push_back(nweb_storage_origin);
         }
     }
- 
+
     return class_value;
 }
- 
+
 } // namespace OHOS::ArkWeb

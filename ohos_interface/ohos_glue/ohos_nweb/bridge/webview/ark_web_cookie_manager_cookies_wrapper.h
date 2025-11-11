@@ -12,21 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #ifndef ARK_WEB_COOKIE_MANAGER_COOKIES_WRAPPER_H_
 #define ARK_WEB_COOKIE_MANAGER_COOKIES_WRAPPER_H_
 #pragma once
- 
+
 #include "include/nweb_cookie_manager.h"
 #include "ohos_nweb/include/ark_web_cookie_manager_cookies.h"
- 
+
 namespace OHOS::ArkWeb {
- 
+
 class ArkWebCookieManagerCookiesWrapper : public OHOS::NWeb::NWebCookieManagerCookies {
 public:
     ArkWebCookieManagerCookiesWrapper(ArkWebRefPtr<ArkWebCookieManagerCookies> ark_web_cookie_manager_cookies);
     ~ArkWebCookieManagerCookiesWrapper() = default;
- 
+
     void SetSamesitePolicy(int samesitePolicy) override;
     void SetExpiresDate(const std::string& expiresDate) override;
     void SetName(const std::string& name) override;
@@ -36,7 +36,7 @@ public:
     void SetIsHttpOnly(bool isHttpOnly) override;
     void SetIsSecure(bool isSecure) override;
     void SetDomain(const std::string& domain) override;
- 
+
     int GetSamesitePolicy() override;
     std::string GetExpiresDate() override;
     std::string GetName() override;
@@ -46,11 +46,11 @@ public:
     bool GetIsHttpOnly() override;
     bool GetIsSecure() override;
     std::string GetDomain() override;
- 
+
 private:
     ArkWebRefPtr<ArkWebCookieManagerCookies> ark_web_cookie_manager_cookies_;
 };
- 
+
 } // namespace OHOS::ArkWeb
- 
+
 #endif // ARK_WEB_COOKIE_MANAGER_COOKIES_WRAPPER_H_
