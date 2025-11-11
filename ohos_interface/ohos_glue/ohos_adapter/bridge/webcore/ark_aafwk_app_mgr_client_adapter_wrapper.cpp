@@ -76,4 +76,8 @@ void ArkAafwkAppMgrClientAdapterWrapper::SaveBrowserConnect(std::shared_ptr<NWeb
     ctocpp_->SaveBrowserConnect(new ArkAafwkBrowserHostAdapterImpl(adapter));
 }
 
+bool ArkAafwkAppMgrClientAdapterWrapper::IsRenderProcessByUid(int uid)
+{
+    return ctocpp_->IsRenderProcessByUid(uid);
+}
 } // namespace OHOS::ArkWeb

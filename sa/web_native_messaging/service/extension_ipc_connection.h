@@ -46,7 +46,7 @@ public:
         const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int resultCode) override;
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int resultCode) override;
 
-    int32_t ConnectNative(std::shared_ptr<ConnectionNativeRequest> info);
+    int32_t ConnectNative(std::shared_ptr<ConnectionNativeRequest> request);
     int32_t DisconnectNative(int32_t connectionId, bool& resDeleted);
 
     void PostRequestOnConnect(std::shared_ptr<ConnectionNativeRequest> request);
@@ -62,6 +62,11 @@ public:
     void SetThisWptr(wptr<ExtensionIpcConnection> wp)
     {
         wpThis_ = wp;
+    }
+
+    void SetCallerUserId(int32_t userId)
+    {
+        callerUserId_ = userId;
     }
 
     void SetManagerWptr(std::shared_ptr<IWebNativeMessagingManager> wp)
@@ -104,9 +109,10 @@ private:
     };
 
     Security::AccessToken::AccessTokenID callerTokenId_;
+    int32_t callerUserId_ = -1;
     std::string targetBundleName_;
     std::string targetAbilityName_;
-    int32_t targetExtensionPid_;
+    int32_t targetExtensionPid_ = 0;
     sptr<IRemoteObject> extensionIpcRemote_;
     sptr<IRemoteObject> token_;
     IpcConnectStatus status_ = IpcConnectStatus::INIT;

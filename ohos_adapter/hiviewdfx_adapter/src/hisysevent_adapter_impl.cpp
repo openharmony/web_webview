@@ -148,11 +148,21 @@ static int ForwardToHiSysEvent(const std::string& eventName, HiSysEventAdapter::
                                    "DEFAULT_WEB_ENGINE_TYPE", g_defaultWebEngineType);
     auto mergeData = std::tuple_cat(sysData, tp);
 
-    return std::apply(
-        [&](auto&&... args) {
-            return HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::WEBVIEW, eventName, EVENT_TYPES[type], args...);
-        },
-        mergeData);
+    if (type == HiSysEventAdapter::EventType::BEHAVIOR) {
+        return std::apply(
+            [&](auto&&... args) {
+                return HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::ARKWEB_UE,
+                                       eventName, EVENT_TYPES[type], args...);
+            },
+            mergeData);
+    } else {
+        return std::apply(
+            [&](auto&&... args) {
+                return HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::WEBVIEW,
+                                       eventName, EVENT_TYPES[type], args...);
+            },
+            mergeData);
+    }
 }
 
 int ProcessEventPageLoadTime(const std::string& eventName, HiSysEventAdapter::EventType type,

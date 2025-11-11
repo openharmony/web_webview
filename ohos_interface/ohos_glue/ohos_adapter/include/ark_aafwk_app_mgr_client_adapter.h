@@ -43,6 +43,9 @@ public:
 
     /*--ark web()--*/
     virtual void SaveBrowserConnect(ArkWebRefPtr<ArkAafwkBrowserHostAdapter> adapter) = 0;
+
+    /*--ark web()--*/
+    virtual bool IsRenderProcessByUid(int uid) = 0;
 };
 
 } // namespace OHOS::ArkWeb

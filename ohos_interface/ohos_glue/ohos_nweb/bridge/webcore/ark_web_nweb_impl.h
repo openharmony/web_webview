@@ -1806,6 +1806,42 @@ public:
      */
     /*--ark web()--*/
     void SetForceEnableZoom(bool forceEnableZoom) override;
+
+    /**
+     * @brief Set the config for blank screen detection.
+     *
+     * @param enable Whether the blank screen detection is enabled.
+     * @param detectionTiming The timing of the blank screen detection.
+     * @param detectionMethods The methods of the blank screen detection.
+     * @param contentfulNodesCountThreshold The contentful nodes count threshold of the blank screen detection.
+     */
+    /*--ark web()--*/
+    void SetBlankScreenDetectionConfig(bool enable, const ArkWebDoubleVector& detectionTiming,
+        const ArkWebInt32Vector& detectionMethods, int32_t contentfulNodesCountThreshold) override;
+
+    /**
+     * @brief Get Web page snapshot V2
+     *
+     * @param id Request id.
+     * @param type Request snapshot pixel unit.
+     * @param width Request SnapShot width.
+     * @param height Request SnapShot height.
+     * @param callback SnapShot result callback.
+     * @return ture if succuess request snapshot to renderer.
+     */
+    /*--ark web()--*/
+    bool WebPageSnapshotV2(const char* id,
+                           int type,
+                           int width,
+                           int height,
+                           ArkWebRefPtr<ArkWebSnapshotCallback> callback) override;
+
+    /**
+     * @brief Set web should stop fling.
+     */
+    /*--ark web()--*/
+    void StopFling() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

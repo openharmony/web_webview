@@ -128,6 +128,8 @@ public:
     
     void SetSoftKeyboardBehaviorMode(int32_t mode) override;
 
+    void SetScrollbarMode(int32_t mode) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebEngine> nweb_engine_;
 };

@@ -41,8 +41,8 @@ int HiLogPrintArgs(LogType type, LogLevel level, unsigned int domain, const char
 int HiLogAdapterPrintLog(uint32_t level, const char *tag, const char *fmt, va_list ap)
 {
     uint32_t domain = LOG_APP_DOMAIN;
-    uid_t realUid = getuid();
-    uint32_t renderId = realUid % BASE_USER_RANGE_FOR_NWEB;
+    uid_t uid = getuid();
+    uint32_t renderId = uid % BASE_USER_RANGE_FOR_NWEB;
     if (renderId >= START_ID_FOR_RENDER_PROCESS_ISOLATION &&
         renderId <= END_ID_FOR_RENDER_PROCESS_ISOLATION) {
         domain = LOG_RENDER_DOMAIN;

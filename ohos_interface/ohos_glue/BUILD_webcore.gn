@@ -148,6 +148,8 @@ component("ohos_nweb_glue_source") {
     "ohos_nweb/bridge/ark_web_js_ssl_error_result_impl.h",
     "ohos_nweb/bridge/ark_web_js_ssl_select_cert_result_impl.cpp",
     "ohos_nweb/bridge/ark_web_js_ssl_select_cert_result_impl.h",
+    "ohos_nweb/bridge/ark_web_js_verify_pin_result_impl.cpp",
+    "ohos_nweb/bridge/ark_web_js_verify_pin_result_impl.h",
     "ohos_nweb/bridge/ark_web_key_event_impl.cpp",
     "ohos_nweb/bridge/ark_web_key_event_impl.h",
     "ohos_nweb/bridge/ark_web_keyboard_event_wrapper.cpp",
@@ -228,6 +230,8 @@ component("ohos_nweb_glue_source") {
     "ohos_nweb/bridge/ark_web_select_popup_menu_item_impl.h",
     "ohos_nweb/bridge/ark_web_select_popup_menu_param_impl.cpp",
     "ohos_nweb/bridge/ark_web_select_popup_menu_param_impl.h",
+    "ohos_nweb/bridge/ark_web_snapshot_callback_wrapper.cpp",
+    "ohos_nweb/bridge/ark_web_snapshot_callback_wrapper.h",
     "ohos_nweb/bridge/ark_web_spanstring_convert_html_callback_wrapper.cpp",
     "ohos_nweb/bridge/ark_web_spanstring_convert_html_callback_wrapper.h",
     "ohos_nweb/bridge/ark_web_string_value_callback_wrapper.cpp",
@@ -332,6 +336,8 @@ component("ohos_nweb_glue_source") {
     "ohos_nweb/cpptoc/ark_web_js_ssl_error_result_cpptoc.h",
     "ohos_nweb/cpptoc/ark_web_js_ssl_select_cert_result_cpptoc.cpp",
     "ohos_nweb/cpptoc/ark_web_js_ssl_select_cert_result_cpptoc.h",
+    "ohos_nweb/cpptoc/ark_web_js_verify_pin_result_cpptoc.cpp",
+    "ohos_nweb/cpptoc/ark_web_js_verify_pin_result_cpptoc.h",
     "ohos_nweb/cpptoc/ark_web_key_event_cpptoc.cpp",
     "ohos_nweb/cpptoc/ark_web_key_event_cpptoc.h",
     "ohos_nweb/cpptoc/ark_web_largest_contentful_paint_details_cpptoc.cpp",
@@ -468,6 +474,8 @@ component("ohos_nweb_glue_source") {
     "ohos_nweb/ctocpp/ark_web_screen_capture_config_ctocpp.h",
     "ohos_nweb/ctocpp/ark_web_screen_lock_callback_ctocpp.cpp",
     "ohos_nweb/ctocpp/ark_web_screen_lock_callback_ctocpp.h",
+    "ohos_nweb/ctocpp/ark_web_snapshot_callback_ctocpp.cpp",
+    "ohos_nweb/ctocpp/ark_web_snapshot_callback_ctocpp.h",
     "ohos_nweb/ctocpp/ark_web_spanstring_convert_html_callback_ctocpp.cpp",
     "ohos_nweb/ctocpp/ark_web_spanstring_convert_html_callback_ctocpp.h",
     "ohos_nweb/ctocpp/ark_web_string_value_callback_ctocpp.cpp",
@@ -499,7 +507,6 @@ component("ohos_nweb_glue_source") {
   ]
 
   deps = [ "//ohos_glue:ohos_base_glue_source" ]
-  external_deps = [ "bundle_framework:appexecfwk_base" ]
 }
 
 component("ohos_adapter_glue_source") {
@@ -1117,5 +1124,4 @@ component("ohos_adapter_glue_source") {
   ]
 
   deps = [ "//ohos_glue:ohos_base_glue_source" ]
-  external_deps = [ "bundle_framework:appexecfwk_base" ]
 }

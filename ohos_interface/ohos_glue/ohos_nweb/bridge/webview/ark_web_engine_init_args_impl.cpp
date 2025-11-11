@@ -64,4 +64,9 @@ ArkWebString ArkWebEngineInitArgsImpl::GetSharedRenderProcessToken()
     return ArkWebStringClassToStruct(nweb_engine_init_args_->GetSharedRenderProcessToken());
 }
 
+bool ArkWebEngineInitArgsImpl::GetEmulateTouchFromMouseEvent()
+{
+    return nweb_engine_init_args_->GetEmulateTouchFromMouseEvent();
+}
+
 } // namespace OHOS::ArkWeb

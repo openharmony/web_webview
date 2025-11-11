@@ -172,4 +172,11 @@ void AafwkAppMgrClientAdapterImpl::SaveBrowserConnect(std::shared_ptr<AafwkBrows
     WVLOG_I("AafwkAppMgrClientAdapterImpl SaveBrowserConnect success!");
     appMgrClient_->SaveBrowserChannel(aafwkBrowserHostImpl_);
 }
+
+bool AafwkAppMgrClientAdapterImpl::IsRenderProcessByUid(int uid)
+{
+    uint32_t renderId = static_cast<uint32_t>(uid) % BASE_USER_RANGE_FOR_NWEB;
+    return (renderId >= START_ID_FOR_RENDER_PROCESS_ISOLATION) &&
+           (renderId <= END_ID_FOR_RENDER_PROCESS_ISOLATION);
+}
 } // namespace OHOS::NWeb

@@ -40,6 +40,9 @@
 #include "webview_utils.h"
 #include "nweb_message_ext.h"
 
+#include "nweb_snapshot_callback_impl.h"
+#include "../../../../ohos_interface/ohos_glue/base/include/ark_web_errno.h"
+
 namespace OHOS::Webview {
     constexpr int MAX_CUSTOM_SCHEME_SIZE = 10;
     constexpr int MAX_CUSTOM_SCHEME_NAME_LENGTH = 32;
@@ -745,6 +748,10 @@ namespace OHOS::Webview {
         NWeb::ImageColorType &colorType, NWeb::ImageAlphaType &alphaType) const
     {
         bool isGetFavicon = false;
+        if (!data) {
+            WEBVIEWLOGE("WebviewControllerImpl::GetFavicon data is nullptr");
+            return isGetFavicon;
+        }
         auto nweb_ptr = NWeb::NWebHelper::Instance().GetNWeb(nwebId_);
         if (nweb_ptr) {
             isGetFavicon = nweb_ptr->GetFavicon(data, width, height, colorType, alphaType);
@@ -825,6 +832,10 @@ namespace OHOS::Webview {
     void WebviewControllerImpl::RegisterJavaScriptProxyEx(const std::vector<std::function<char*(const char*)>>& cjFuncs,
         const std::string& objName, const std::vector<std::string>& methodList, char* permission)
     {
+        if (!permission) {
+            WEBVIEWLOGE("WebviewControllerImpl::RegisterJavaScriptProxy permission is nullptr");
+            return;
+        }
         auto nweb_ptr = NWeb::NWebHelper::Instance().GetNWeb(nwebId_);
         if (!nweb_ptr) {
             WEBVIEWLOGE("WebviewControllerImpl::RegisterJavaScriptProxy nweb_ptr is null");
@@ -842,7 +853,6 @@ namespace OHOS::Webview {
             WEBVIEWLOGE("WebviewControllerImpl::RegisterJavaScriptProxy methodList is empty");
             return;
         }
-
         objId = javaScriptResultCb_->RegisterJavaScriptProxy(cjFuncs, objName, methodList);
 
         nweb_ptr->RegisterArkJSfunction(objName, methodList, std::vector<std::string>(),
@@ -1353,6 +1363,10 @@ namespace OHOS::Webview {
 
     bool WebviewControllerImpl::SetWebServiceWorkerSchemeHandler(const char* scheme, WebSchemeHandlerImpl* handler)
     {
+        if (!handler || !scheme) {
+            WEBVIEWLOGE("WebviewControllerImpl::SetWebServiceWorkerSchemeHandler schemeHandler or scheme is nullptr");
+            return false;
+        }
         ArkWeb_SchemeHandler* schemeHandler =
             const_cast<ArkWeb_SchemeHandler*>(WebSchemeHandlerImpl::GetArkWebSchemeHandler(handler));
         return OH_ArkWebServiceWorker_SetSchemeHandler(scheme, schemeHandler);
@@ -1391,12 +1405,25 @@ namespace OHOS::Webview {
     int32_t WebviewControllerImpl::WebPageSnapshot(const char* id, NWeb::PixelUnit type,
         int32_t width, int32_t height, const NWeb::WebSnapshotCallback callback)
     {
+        if (!id) {
+            WEBVIEWLOGE(" WebviewControllerImpl::WebPageSnapshot id is nullptr");
+            return NWebError::INIT_ERROR;
+        }
         auto nweb_ptr = NWeb::NWebHelper::Instance().GetNWeb(nwebId_);
         if (!nweb_ptr) {
             return NWebError::INIT_ERROR;
         }
 
-        bool init = nweb_ptr->WebPageSnapshot(id, type, width, height, std::move(callback));
+        auto snapshotCallback =  std::make_shared<NWeb::NWebSnapshotCallbackImpl>(std::move(callback));
+        bool init = nweb_ptr->WebPageSnapshotV2(id, type, width, height, snapshotCallback);
+
+        if (ArkWebGetErrno() != RESULT_OK) {
+            WEBVIEWLOGI("WebPageSnapshotV2 isn't existing, using old");
+            init = nweb_ptr->WebPageSnapshot(
+                id, type, width, height, snapshotCallback->extract());
+            snapshotCallback.reset();
+        }
+
         if (!init) {
             return NWebError::INIT_ERROR;
         }
@@ -1507,6 +1534,10 @@ namespace OHOS::Webview {
 
     void WebviewControllerImpl::GetScrollOffset(float* offset_x, float* offset_y)
     {
+        if (!offset_x || !offset_y) {
+            WEBVIEWLOGE("WebviewControllerImpl::GetScrollOffset offset_x or offset_y is nullptr");
+            return;
+        }
         auto nweb_ptr = NWeb::NWebHelper::Instance().GetNWeb(nwebId_);
         if (nweb_ptr) {
             nweb_ptr->GetScrollOffset(offset_x, offset_y);

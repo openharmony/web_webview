@@ -808,6 +808,41 @@ public:
      * @param delayTime The delayTime for web client to remove blankless frame.
      */
     void OnRemoveBlanklessFrameWithAnimation(int delayTime) override;
+
+    /**
+     * @brief Notify a detected blank screen.
+     *
+     * @param url The url of the blank screen.
+     * @param blankScreenReason The reason of the blank screen.
+     * @param detectedContentfulNodesCount The detected contentful nodes count of the blank screen.
+     */
+    void OnDetectedBlankScreen(
+        const std::string& url, int32_t blankScreenReason, int32_t detectedContentfulNodesCount) override;
+
+    /**
+     * @brief Update focus status to textFieldManager and VirtualKeyBoardStates to webpattern.
+     *
+     * @param isShowKeyboard The status of VirtualKeyBoardStates.
+     * @param isAttachIME The status of attach to inputmethod.
+     */
+    void UpdateTextFieldStatus(bool isShowKeyboard, bool isAttachIME) override;
+
+    /**
+     * @brief Check whether the quick menu is displayed.
+     *
+     * @return Return true quick menu is displayed, false quick menu not displayed.
+     */
+    bool IsQuickMenuShow() override;
+
+    bool OnVerifyPinRequestByJS(
+        std::shared_ptr<OHOS::NWeb::NWebJSVerifyPinResult> result, const std::string& identity) override;
+
+    void OnClippedSelectionBoundsChanged(int x, int y, int width, int height) override;
+
+    /**
+     * @brief Called when the camera capture state changed.
+     */
+    void OnCameraCaptureStateChanged(int originalState, int newState) override;
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };

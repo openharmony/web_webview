@@ -37,6 +37,7 @@
 #include "ohos_nweb/bridge/ark_web_js_http_auth_result_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_js_ssl_error_result_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_js_ssl_select_cert_result_wrapper.h"
+#include "ohos_nweb/bridge/ark_web_js_verify_pin_result_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_key_event_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_largest_contentful_paint_details_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_load_committed_details_wrapper.h"
@@ -1162,5 +1163,43 @@ void ArkWebHandlerImpl::OnRefreshAccessedHistoryV2(const ArkWebString& url, bool
 void ArkWebHandlerImpl::OnRemoveBlanklessFrameWithAnimation(int delayTime)
 {
     nweb_handler_->OnRemoveBlanklessFrameWithAnimation(delayTime);
+}
+
+void ArkWebHandlerImpl::OnDetectedBlankScreen(
+    const ArkWebString& url, int32_t blankScreenReason, int32_t detectedContentfulNodesCount)
+{
+    nweb_handler_->OnDetectedBlankScreen(
+        ArkWebStringStructToClass(url), blankScreenReason, detectedContentfulNodesCount);
+}
+
+void ArkWebHandlerImpl::UpdateTextFieldStatus(bool isShowKeyboard, bool isAttachIME)
+{
+    nweb_handler_->UpdateTextFieldStatus(isShowKeyboard, isAttachIME);
+}
+
+bool ArkWebHandlerImpl::IsQuickMenuShow()
+{
+    return nweb_handler_->IsQuickMenuShow();
+}
+
+bool ArkWebHandlerImpl::OnVerifyPinRequestByJS(
+    ArkWebRefPtr<ArkWebJsVerifyPinResult> result, const ArkWebString& identity)
+{
+    if (CHECK_REF_PTR_IS_NULL(result)) {
+        return nweb_handler_->OnVerifyPinRequestByJS(nullptr, ArkWebStringStructToClass(identity));
+    }
+ 
+    return nweb_handler_->OnVerifyPinRequestByJS(std::make_shared<ArkWebJsVerifyPinResultWrapper>(result),
+        ArkWebStringStructToClass(identity));
+}
+
+void ArkWebHandlerImpl::OnClippedSelectionBoundsChanged(int x, int y, int width, int height)
+{
+    nweb_handler_->OnClippedSelectionBoundsChanged(x, y, width, height);
+}
+
+void ArkWebHandlerImpl::OnCameraCaptureStateChanged(int originalState, int newState)
+{
+    nweb_handler_->OnCameraCaptureStateChanged(originalState, newState);
 }
 } // namespace OHOS::ArkWeb

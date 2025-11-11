@@ -1,0 +1,62 @@
+# Copyright (c) 2025 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/config/components/ets_frontend/ets2abc_config.gni")
+import("//build/ohos.gni")
+
+generate_static_abc("web_native_messaging_extension_ability") {
+  base_url = "./"
+  files = [ "./@ohos.web.WebNativeMessagingExtensionAbility.ets" ]
+
+  is_boot_abc = "True"
+  device_dst_file =
+      "/system/framework/web_native_messaging_extension_ability.abc"
+}
+ohos_prebuilt_etc("web_native_messaging_extension_ability_abc_etc") {
+  source = "$target_out_dir/web_native_messaging_extension_ability.abc"
+  module_install_dir = "framework"
+  part_name = "webview"
+  subsystem_name = "web"
+  deps = [ ":web_native_messaging_extension_ability" ]
+}
+
+generate_static_abc("web_native_messaging_extension_context") {
+  base_url = "./"
+  files = [ "./@ohos.web.WebNativeMessagingExtensionContext.ets" ]
+
+  is_boot_abc = "True"
+  device_dst_file = "/system/framework/web_native_messaging_extension_context.abc"
+}
+ohos_prebuilt_etc("web_native_messaging_extension_context_abc_etc") {
+  source = "$target_out_dir/web_native_messaging_extension_context.abc"
+  module_install_dir = "framework"
+  part_name = "webview"
+  subsystem_name = "web"
+  deps = [ ":web_native_messaging_extension_context" ]
+}
+
+generate_static_abc("web_native_messaging_extension_manager") {
+  base_url = "./"
+  files = [
+    "./@ohos.web.webNativeMessagingExtensionManager.ets",
+  ]
+  is_boot_abc = "True"
+  device_dst_file = "/system/framework/web_native_messaging_extension_manager.abc"
+}
+ohos_prebuilt_etc("web_native_messaging_extension_manager_abc_etc") {
+  source = "$target_out_dir/web_native_messaging_extension_manager.abc"
+  module_install_dir = "framework"
+  part_name = "webview"
+  subsystem_name = "web"
+  deps = [ ":web_native_messaging_extension_manager" ]
+}

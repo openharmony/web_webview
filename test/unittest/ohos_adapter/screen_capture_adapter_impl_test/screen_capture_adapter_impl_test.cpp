@@ -54,6 +54,7 @@ public:
     MOCK_METHOD0(StopScreenCapture, int32_t());
     MOCK_METHOD0(StartScreenRecording, int32_t());
     MOCK_METHOD0(StopScreenRecording, int32_t());
+    MOCK_METHOD0(PresentPicker, int32_t());
     MOCK_METHOD2(AcquireAudioBuffer, int32_t(std::shared_ptr<AudioBuffer>&, AudioCaptureSourceType));
     MOCK_METHOD3(AcquireVideoBuffer, sptr<OHOS::SurfaceBuffer>(int32_t&, int64_t&, OHOS::Rect&));
     MOCK_METHOD1(ReleaseAudioBuffer, int32_t(AudioCaptureSourceType));
@@ -61,7 +62,10 @@ public:
     MOCK_METHOD0(Release, int32_t());
     MOCK_METHOD1(SetScreenCaptureCallback, int32_t(const std::shared_ptr<ScreenCaptureCallBack>&));
     MOCK_METHOD1(ExcludeContent, int32_t(ScreenCaptureContentFilter&));
+    MOCK_METHOD1(ExcludePickerWindows, int32_t(std::vector<int32_t>&));
+    MOCK_METHOD1(SetPickerMode, int32_t(PickerMode));
     MOCK_METHOD0(SetPrivacyAuthorityEnabled, int32_t());
+    MOCK_METHOD1(SetCaptureAreaHighlight, int32_t(AVScreenCaptureHighlightConfig));
     MOCK_METHOD1(UpdateSurface, int32_t(sptr<Surface>));
     MOCK_METHOD1(SetScreenCaptureStrategy, int32_t(ScreenCaptureStrategy));
     MOCK_METHOD2(SetCaptureArea, int32_t(uint64_t, OHOS::Rect));

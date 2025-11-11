@@ -38,7 +38,18 @@ ohos_unittest("ohos_adapter_helper_test") {
 
   configs = [ ":module_private_config" ]
 
-  deps = [ "$webview_path/ohos_adapter:nweb_ohos_adapter" ]
+  include_dirs = [
+    "${target_gen_dir}/../../../ohos_glue/ohos_nweb/bridge",
+    "${target_gen_dir}/../../../ohos_glue/ohos_adapter/bridge",
+    "${target_gen_dir}/../../../ohos_glue",
+  ]
+
+  deps = [
+    "$webview_path/ohos_adapter:nweb_ohos_adapter",
+    "${webview_path}/ohos_glue:ohos_adapter_glue_source",
+    "${webview_path}/ohos_glue:ohos_base_glue_source",
+    "${webview_path}/ohos_glue:ohos_nweb_glue_source",
+  ]
 
   external_deps = [
     "ability_base:base",

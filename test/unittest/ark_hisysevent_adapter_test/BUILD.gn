@@ -1,0 +1,63 @@
+# Copyright (c) 2025 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//base/web/webview/web_aafwk.gni")
+import("//build/test.gni")
+import("../../../config.gni")
+
+module_output_path = "webview/webview"
+
+config("module_private_config") {
+  visibility = [ ":*" ]
+
+  include_dirs = [ "../common"]
+
+  if(webview_print_enable) {
+    defines = [ "NWEB_PRINT_ENABLE"]
+  }
+}
+
+ohos_unittest("ark_hisysevent_adapter_impl_test") {
+  module_out_path = module_output_path
+  sources = [
+    "ark_hisysevent_adapter_impl_test.cpp",
+  ]
+
+  include_dirs = [
+    "${target_gen_dir}/../../../ohos_glue/ohos_nweb/bridge",
+    "${target_gen_dir}/../../../ohos_glue/ohos_adapter/bridge",
+    "${target_gen_dir}/../../../ohos_glue",
+    "${target_gen_dir}/../../../ohos_glue/base/include",
+  ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [ 
+    "${webview_path}/ohos_adapter:nweb_ohos_adapter",
+    "${webview_path}/ohos_glue:ohos_adapter_glue_source",
+    "${webview_path}/ohos_glue:ohos_base_glue_source",
+    "${webview_path}/ohos_glue:ohos_nweb_glue_source",
+  ]
+
+  external_deps = [
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+  ]
+}
+
+group("unittest") {
+  testonly = true
+  deps = [
+    ":ark_hisysevent_adapter_impl_test"
+  ]
+}

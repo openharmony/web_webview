@@ -43,6 +43,13 @@ public:
      */
     /*--ark web()--*/
     virtual void Confirm(const ArkWebString& private_key_file, const ArkWebString& cert_chain_file) = 0;
+
+    /**
+     * @brief Confirm to use the specified identity and certificate
+     *        type.
+     */
+    /*--ark web()--*/
+    virtual void Confirm(const ArkWebString& identity, int32_t type) {}
 };
 
 } // namespace OHOS::ArkWeb

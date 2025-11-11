@@ -43,6 +43,8 @@ public:
         pid_t& renderPid, const std::string& processType) = 0;
 
     virtual void SaveBrowserConnect(std::shared_ptr<AafwkBrowserHostAdapter> adapter) = 0;
+
+    virtual bool IsRenderProcessByUid(int uid) { return false; }
 };
 
 } // namespace OHOS::NWeb

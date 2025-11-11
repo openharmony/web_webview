@@ -101,14 +101,19 @@ ErrCode AppFwkUpdateService::NotifyFWKAfterBmsStart()
     if (ret != 0) {
         return ERR_INVALID_VALUE;
     }
+    ret = OHOS::system::SetParameter("web.engine.install.completed", "true");
+    if (ret != 0) {
+        return ERR_INVALID_VALUE;
+    }
     return ERR_OK;
 }
 
 ErrCode AppFwkUpdateService::NotifyArkWebInstallSuccess()
 {
     int preloadMode = OHOS::system::GetIntParameter("const.startup.nwebspawn.preloadMode", 0);
-    WVLOG_I("NwebSpawn preload render lib mode: %{public}d", preloadMode);
-    if (preloadMode) {
+    bool bootCompleted = OHOS::system::GetBoolParameter("bootevent.boot.completed", false);
+    WVLOG_I("NwebSpawn preload render lib mode: %{public}d, boot completed: %{public}d", preloadMode, bootCompleted);
+    if (preloadMode && bootCompleted) {
         auto ret = OHOS::system::SetParameter("web.engine.install.completed", "true");
         if (!ret) {
             WVLOG_E("Set parameter web.engine.install.completed failed");

@@ -47,6 +47,7 @@
             <enablePrinting>false</enablePrinting>
             <enableCalcTabletMode>true</enableCalcTabletMode>
             <disableMobileStyleSheet>false</disableMobileStyleSheet>
+            <disableNextPreviousFlag>false</disableNextPreviousFlag>
         </settingConfig>
         <userAgentConfig>
             <userAgentValue>Phone</userAgentValue>

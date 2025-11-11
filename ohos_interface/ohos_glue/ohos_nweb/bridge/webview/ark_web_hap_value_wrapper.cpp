@@ -245,4 +245,19 @@ void ArkWebHapValueWrapper::SetErrName(const std::string& name)
     ArkWebStringStructRelease(stName);
 }
 
+std::string ArkWebHapValueWrapper::GetErrorDescription()
+{
+    auto stDescription = ark_web_hap_value_->GetErrorDescription();
+    auto description = ArkWebStringStructToClass(stDescription);
+    ArkWebStringStructRelease(stDescription);
+    return description;
+}
+
+void ArkWebHapValueWrapper::SetErrorDescription(const std::string& description)
+{
+    auto stDescription = ArkWebStringClassToStruct(description);
+    ark_web_hap_value_->SetErrorDescription(stDescription);
+    ArkWebStringStructRelease(stDescription);
+}
+
 } // namespace OHOS::ArkWeb

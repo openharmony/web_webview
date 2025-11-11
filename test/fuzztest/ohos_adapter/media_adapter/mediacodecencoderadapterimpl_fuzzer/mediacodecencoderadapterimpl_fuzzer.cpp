@@ -71,7 +71,7 @@ public:
     double frameRate;
 };
 
-bool CreateLocationProxyAdapterFuzzTest(const uint8_t* data, size_t size)
+bool CreateLocationProxyAdapterFuzzTest_01(const uint8_t* data, size_t size)
 {
     NWeb::MediaCodecEncoderAdapterImpl mediaCodecEncoderAdapterImpl;
     std::shared_ptr<NWeb::CodecCallbackAdapter> callbackImpl = std::make_shared<EncoderCallbackAdapterMock>();
@@ -106,15 +106,54 @@ bool CreateLocationProxyAdapterFuzzTest(const uint8_t* data, size_t size)
     encoderCallback.OnInputBufferAvailable(1, memory);
     encoderCallback.OnOutputBufferAvailable(0, OHOS::MediaAVCodec::AVCodecBufferInfo(),
         OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_NONE, nullptr);
-
+    mediaCodecEncoderAdapterImpl.CreateVideoCodecByName("video/avc");
     return true;
 }
+
+bool CreateLocationProxyAdapterFuzzTest_02(const uint8_t* data, size_t size)
+{
+    NWeb::MediaCodecEncoderAdapterImpl mediaCodecEncoderAdapterImpl;
+    std::shared_ptr<NWeb::CodecCallbackAdapter> callbackImpl = std::make_shared<EncoderCallbackAdapterMock>();
+    std::shared_ptr<NWeb::CodecConfigParaAdapter> config = std::make_shared<CodecConfigParaAdapterMock>();
+
+    FuzzedDataProvider dataProvider(data, size);
+    std::string mimeParam = dataProvider.ConsumeRandomLengthString(MAX_STRING_LENGTH);
+    mediaCodecEncoderAdapterImpl.CreateVideoCodecByMime(mimeParam);
+    mediaCodecEncoderAdapterImpl.CreateVideoCodecByMime("video/avc");
+    mediaCodecEncoderAdapterImpl.SetCodecCallback(nullptr);
+    mediaCodecEncoderAdapterImpl.SetCodecCallback(callbackImpl);
+    mediaCodecEncoderAdapterImpl.Configure(nullptr);
+    mediaCodecEncoderAdapterImpl.Configure(config);
+    mediaCodecEncoderAdapterImpl.Prepare();
+    mediaCodecEncoderAdapterImpl.Start();
+    mediaCodecEncoderAdapterImpl.Stop();
+    mediaCodecEncoderAdapterImpl.Reset();
+    mediaCodecEncoderAdapterImpl.Release();
+    mediaCodecEncoderAdapterImpl.CreateInputSurface();
+    mediaCodecEncoderAdapterImpl.ReleaseOutputBuffer(0, true);
+    mediaCodecEncoderAdapterImpl.RequestKeyFrameSoon();
+    mediaCodecEncoderAdapterImpl.GetErrorType(AVCodecErrorType::AVCODEC_ERROR_INTERNAL);
+    mediaCodecEncoderAdapterImpl.GetBufferFlag(AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_NONE);
+
+    std::shared_ptr<Media::AVSharedMemory> memory = std::make_shared<Media::AVSharedMemoryBase>(1, 1.0, "test");
+    NWeb::EncoderCallbackImpl encoderCallback(callbackImpl);
+    encoderCallback.OnError(OHOS::MediaAVCodec::AVCodecErrorType::AVCODEC_ERROR_INTERNAL, 0);
+    encoderCallback.OnOutputFormatChanged(OHOS::MediaAVCodec::Format());
+    encoderCallback.OnInputBufferAvailable(0, nullptr);
+    encoderCallback.OnInputBufferAvailable(1, memory);
+    encoderCallback.OnOutputBufferAvailable(0, OHOS::MediaAVCodec::AVCodecBufferInfo(),
+        OHOS::MediaAVCodec::AVCodecBufferFlag::AVCODEC_BUFFER_FLAG_NONE, nullptr);
+    mediaCodecEncoderAdapterImpl.CreateVideoCodecByName("video/avc");
+    return true;
+}
+
 } // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     /* Run your code on data */
-    OHOS::CreateLocationProxyAdapterFuzzTest(data, size);
+    OHOS::CreateLocationProxyAdapterFuzzTest_01(data, size);
+    OHOS::CreateLocationProxyAdapterFuzzTest_02(data, size);
     return 0;
 }

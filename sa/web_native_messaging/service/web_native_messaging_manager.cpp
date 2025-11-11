@@ -25,10 +25,8 @@
 #include "web_native_messaging_common.h"
 #include "system_ability_definition.h"
 #include "ability_manager_client.h"
-#include "bundle_info.h"
 #include "if_system_ability_manager.h"
 #include "bundle_mgr_client.h"
-#include "bundlemgr/bundle_mgr_interface.h"
 
 namespace OHOS::NWeb {
 namespace {
@@ -114,7 +112,8 @@ bool WebNativeMessagingManager::GetPidExtensionBundleName(int32_t pid, std::stri
 
 sptr<ExtensionIpcConnection> WebNativeMessagingManager::NewIpcConnectionUnlock(
     Security::AccessToken::AccessTokenID tokenId,
-    std::string& bundleName, std::string& abilityName, sptr<IRemoteObject> token)
+    std::string& bundleName, std::string& abilityName, sptr<IRemoteObject> token,
+    int32_t userId)
 {
     sptr<ExtensionIpcConnection> ipcConnect =
         new (std::nothrow) ExtensionIpcConnection(tokenId, bundleName, abilityName, token, serviceHandler_);
@@ -127,6 +126,7 @@ sptr<ExtensionIpcConnection> WebNativeMessagingManager::NewIpcConnectionUnlock(
     std::shared_ptr<IWebNativeMessagingManager> weakPtrManager = shared_from_this();
     ipcConnect->SetThisWptr(wpIpcConnect);
     ipcConnect->SetManagerWptr(weakPtrManager);
+    ipcConnect->SetCallerUserId(userId);
 
     AbilityConnectMap_.insert(std::pair<std::pair<Security::AccessToken::AccessTokenID, std::string>,
         sptr<ExtensionIpcConnection>>({tokenId, bundleName}, ipcConnect));
@@ -135,10 +135,11 @@ sptr<ExtensionIpcConnection> WebNativeMessagingManager::NewIpcConnectionUnlock(
 
 sptr<ExtensionIpcConnection> WebNativeMessagingManager::NewIpcConnection(
     Security::AccessToken::AccessTokenID tokenId,
-    std::string& bundleName, std::string& abilityName, sptr<IRemoteObject> token)
+    std::string& bundleName, std::string& abilityName, sptr<IRemoteObject> token,
+    int32_t userId)
 {
     std::lock_guard<std::mutex> lock(AbilityConnectMutex_);
-    return NewIpcConnectionUnlock(tokenId, bundleName, abilityName, token);
+    return NewIpcConnectionUnlock(tokenId, bundleName, abilityName, token, userId);
 }
 
 sptr<ExtensionIpcConnection> WebNativeMessagingManager::LookUpIpcConnectionUnlock(
@@ -161,48 +162,43 @@ sptr<ExtensionIpcConnection> WebNativeMessagingManager::LookUpIpcConnection(
 
 sptr<ExtensionIpcConnection> WebNativeMessagingManager::LookUpOrNewIpcConnection(
     Security::AccessToken::AccessTokenID tokenId,
-    std::string& bundleName, std::string& abilityName, sptr<IRemoteObject> token)
+    std::string& bundleName, std::string& abilityName, sptr<IRemoteObject> token,
+    int32_t userId)
 {
     std::lock_guard<std::mutex> lock(AbilityConnectMutex_);
     auto connect = LookUpIpcConnectionUnlock(tokenId, bundleName);
     if (connect) {
         return connect;
     }
-    return NewIpcConnectionUnlock(tokenId, bundleName, abilityName, token);
+    return NewIpcConnectionUnlock(tokenId, bundleName, abilityName, token, userId);
 }
 
-static sptr<AppExecFwk::IBundleMgr> GetBundleMgr()
-{
-    auto saMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (!saMgr) {
-        return nullptr;
-    }
-    auto bundleMgrObj = saMgr->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (!bundleMgrObj) {
-        return nullptr;
-    }
-    return iface_cast<AppExecFwk::IBundleMgr>(bundleMgrObj);
-}
-
-static bool CheckAbilityIsUIAbility(const std::string& bundleName,
-    const std::string& abilityName, int32_t userId)
+static bool GetTargetBundleInfo(const std::string& bundleName, const std::string& abilityName,
+    int32_t userId, AppExecFwk::BundleInfo& info, bool isExtension)
 {
     if (bundleName.empty() || abilityName.empty() || userId <= 0) {
         WNMLOG_E("check ability type: params is error");
         return false;
     }
-    auto bundleMgr = GetBundleMgr();
-    if (!bundleMgr) {
-        WNMLOG_E("check ability type: bundle manager is null");
-        return false;
-    }
-    AppExecFwk::BundleInfo bundleInfo;
-    auto ret = bundleMgr->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES,
-        bundleInfo, userId);
+    AppExecFwk::BundleMgrClient bmsClient;
+    AppExecFwk::BundleFlag flag = isExtension ?
+        AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO : AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES;
+    auto ret = bmsClient.GetBundleInfo(bundleName, flag, info, userId);
     if (!ret) {
         WNMLOG_E("check ability type: GetBundleInfo fail, error: %{public}d", ret);
         return false;
     }
+    return true;
+}
+
+static bool CheckAbilityIsUIAbility(const std::string& bundleName,
+    const std::string& abilityName, int32_t userId)
+{
+    AppExecFwk::BundleInfo bundleInfo;
+    if (!GetTargetBundleInfo(bundleName, abilityName, userId, bundleInfo, false)) {
+        return false;
+    }
+
     for (auto ability : bundleInfo.abilityInfos) {
         if (ability.name == abilityName) {
             if (ability.type == AppExecFwk::AbilityType::PAGE) {
@@ -212,8 +208,28 @@ static bool CheckAbilityIsUIAbility(const std::string& bundleName,
             return false;
         }
     }
-
     WNMLOG_E("check ability type: ability is not found");
+    return false;
+}
+
+static bool CheckAbilityIsWebExtensionAbility(const std::string& bundleName,
+    const std::string& abilityName, int32_t userId)
+{
+    AppExecFwk::BundleInfo bundleInfo;
+    if (!GetTargetBundleInfo(bundleName, abilityName, userId, bundleInfo, true)) {
+        return false;
+    }
+
+    for (auto ability : bundleInfo.extensionInfos) {
+        if (ability.name == abilityName) {
+            if (ability.type == AppExecFwk::ExtensionAbilityType::WEB_NATIVE_MESSAGING) {
+                return true;
+            }
+            WNMLOG_E("check ability type: extension ability is found, but type is not webNativeMessaging");
+            return false;
+        }
+    }
+    WNMLOG_E("check ability type: extension ability is not found");
     return false;
 }
 
@@ -231,9 +247,9 @@ int32_t WebNativeMessagingManager::GetAndCheckConnectParams(const sptr<IRemoteOb
         return ConnectNativeRet::CALLBACK_ERROR;
     }
     params.connectionCallback = connectionCallback;
-
     params.callerTokenId = IPCSkeleton::GetCallingTokenID();
     params.callerPid = IPCSkeleton::GetCallingPid();
+    params.callerUserId = IPCSkeleton::GetCallingUid() / UID_TRANSFORM_DIVISOR;
     if (Security::AccessToken::AccessTokenKit::VerifyAccessToken(params.callerTokenId,
         PERMISSION_WEB_NATIVE_MESSAGING) != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
         WNMLOG_E("Check permission %{public}s failed", PERMISSION_WEB_NATIVE_MESSAGING.c_str());
@@ -278,6 +294,13 @@ std::shared_ptr<ConnectionNativeRequest> WebNativeMessagingManager::CreateNative
         return nullptr;
     }
 
+    if (!CheckAbilityIsWebExtensionAbility(request->GetTargetBundleName(),
+        request->GetTargetAbilityName(), params.callerUserId)) {
+        WNMLOG_E("check want extension ability invalid");
+        errorNum = ConnectNativeRet::WANT_FORMAT_ERROR;
+        return nullptr;
+    }
+
     request->SetInnerConnectionId(params.innerConnectId);
     request->SetCallerConnectionId(params.callerConnectId);
     request->SetCallerPid(params.callerPid);
@@ -307,7 +330,7 @@ void WebNativeMessagingManager::ConnectWebNativeMessagingExtension(const sptr<IR
 
     sptr<ExtensionIpcConnection> ipcConnect =
         LookUpOrNewIpcConnection(params.callerTokenId, request->GetTargetBundleName(),
-        request->GetTargetAbilityName(), token);
+        request->GetTargetAbilityName(), token, params.callerUserId);
     if (!ipcConnect) {
         WNMLOG_E("create ipc connect failed");
         errorNum = ConnectNativeRet::MEMORY_ERROR;
@@ -318,8 +341,8 @@ void WebNativeMessagingManager::ConnectWebNativeMessagingExtension(const sptr<IR
         // retry to connect it.
         DeleteIpcConnect(params.callerTokenId, request->GetTargetBundleName());
         ipcConnect = NewIpcConnection(params.callerTokenId, request->GetTargetBundleName(),
-            request->GetTargetAbilityName(), token);
-        if (ipcConnect) {
+            request->GetTargetAbilityName(), token, params.callerUserId);
+        if (!ipcConnect) {
             WNMLOG_E("new ipc connection failed");
             errorNum = ConnectNativeRet::MEMORY_ERROR;
             return;

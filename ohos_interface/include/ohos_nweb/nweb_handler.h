@@ -40,6 +40,7 @@
 #include "nweb_js_http_auth_result.h"
 #include "nweb_js_ssl_error_result.h"
 #include "nweb_js_ssl_select_cert_result.h"
+#include "nweb_js_verify_pin_result.h"
 #include "nweb_key_event.h"
 #include "nweb_largest_contentful_paint_details.h"
 #include "nweb_load_committed_details.h"
@@ -1360,6 +1361,45 @@ public:
      * @param delayTime The delayTime for web client to remove blankless frame.
      */
     virtual void OnRemoveBlanklessFrameWithAnimation(int delayTime) {}
+
+    /**
+     * @brief Notify a detected blank screen.
+     *
+     * @param url The url of the blank screen.
+     * @param blankScreenReason The reason of the blank screen.
+     * @param detectedContentfulNodesCount The detected contentful nodes count of the blank screen.
+     */
+    virtual void OnDetectedBlankScreen(
+        const std::string& url, int32_t blankScreenReason, int32_t detectedContentfulNodesCount)
+    {}
+
+    /**
+     * @brief Update focus status to textFieldManager and VirtualKeyBoardShow to webpattern.
+     *
+     * @param showkeyboard The status of showkeyboard.
+     */
+    virtual void UpdateTextFieldStatus(bool isShowKeyboard, bool isAttachIME) {}
+
+    /**
+     * @brief Check whether the quick menu is displayed.
+     *
+     * @return Return true quick menu is displayed, false quick menu not displayed.
+     */
+    virtual bool IsQuickMenuShow()
+    {
+        return false;
+    }
+
+    virtual bool OnVerifyPinRequestByJS(
+        std::shared_ptr<NWebJSVerifyPinResult> result, const std::string& identity) {return false;}
+
+    virtual void OnClippedSelectionBoundsChanged(int x, int y, int width, int height) {}
+
+    /**
+     * @brief Called when the camera capture state changed.
+     *
+     */
+    virtual void OnCameraCaptureStateChanged(int originalState, int newState) {}
 };
 
 } // namespace OHOS::NWeb

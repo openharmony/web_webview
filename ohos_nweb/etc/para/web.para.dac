@@ -18,4 +18,4 @@ persist.arkwebcore.install_path = root:root:0776
 persist.arkwebcore.package_name = root:root:0776
 web.prppreload.mode = root:root:0644
 persist.scrollable. = root:root:0775
-web.engine.install.completed = root:root:0776
+web.engine.install.completed = app_fwk_update:app_fwk_update:0775

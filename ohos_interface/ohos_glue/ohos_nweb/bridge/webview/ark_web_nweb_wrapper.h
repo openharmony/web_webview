@@ -18,6 +18,7 @@
 #pragma once
 
 #include "include/nweb.h"
+#include "include/nweb_snapshot_callback.h"
 #include "ohos_nweb/include/ark_web_nweb.h"
 
 namespace OHOS::ArkWeb {
@@ -1819,6 +1820,41 @@ public:
      * @brief Set web should ignore zoom limit.
      */
     void SetForceEnableZoom(bool forceEnableZoom) const override;
+
+    /**
+     * @brief Set the config for blank screen detection.
+     *
+     * @param enable Whether the blank screen detection is enabled.
+     * @param detectionTiming The timing of the blank screen detection.
+     * @param detectionMethods The methods of the blank screen detection.
+     * @param contentfulNodesCountThreshold The contentful nodes count threshold of the blank screen detection.
+     */
+    void SetBlankScreenDetectionConfig(bool enable, const std::vector<double>& detectionTiming,
+        const std::vector<int32_t>& detectionMethods, int32_t contentfulNodesCountThreshold) override;
+
+    /**
+     * @brief Get Web page snapshot V2
+     *
+     * @param id Request id.
+     * @param type Request snapshot pixel unit.
+     * @param width Request SnapShot width.
+     * @param height Request SnapShot height.
+     * @param callback SnapShot result callback.
+     * @return ture if succuess request snapshot to renderer.
+     */
+    /*--ark web()--*/
+    bool WebPageSnapshotV2(const char* id,
+                           ArkPixelUnit type,
+                           int width,
+                           int height,
+                           std::shared_ptr<OHOS::NWeb::NWebSnapshotCallback> callback) override;
+
+    /**
+     * @brief Set web should stop fling.
+     */
+    /*--ark web()--*/
+    void StopFling() override;
+
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };

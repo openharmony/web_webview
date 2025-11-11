@@ -47,6 +47,7 @@ const std::string WEB_CONTROLLER_ATTACHSTATE_ENUM_NAME = "ControllerAttachState"
 const std::string WEB_BLANKLESS_ERROR_CODE_ENUM_NAME = "WebBlanklessErrorCode";
 const std::string WEB_DESTROY_MODE_ENUM_NAME = "WebDestroyMode";
 const std::string WEB_SITE_ISOLATION_MODE_ENUM_NAME = "SiteIsolationMode";
+const std::string WEB_SCROLLBAR_MODE_ENUM_NAME = "ScrollbarMode";
 const std::string WEB_SOFT_KEYBOARD_BEHAVIOR_MODE_ENUM_NAME = "WebSoftKeyboardBehaviorMode";
 constexpr double TEN_MILLIMETER_TO_INCH = 0.39;
 
@@ -427,6 +428,7 @@ private:
     static napi_value IsAutoPreconnectEnabled(napi_env env, napi_callback_info info);
     static napi_value SetSocketIdleTimeout(napi_env env, napi_callback_info info);
     static napi_value SetSoftKeyboardBehaviorMode(napi_env env, napi_callback_info info);
+    static napi_value SetScrollbarMode(napi_env env, napi_callback_info info);
 };
 
 class ArkWebTransfer {

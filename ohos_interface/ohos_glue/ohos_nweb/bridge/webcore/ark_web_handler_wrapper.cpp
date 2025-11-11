@@ -37,6 +37,7 @@
 #include "ohos_nweb/bridge/ark_web_js_http_auth_result_impl.h"
 #include "ohos_nweb/bridge/ark_web_js_ssl_error_result_impl.h"
 #include "ohos_nweb/bridge/ark_web_js_ssl_select_cert_result_impl.h"
+#include "ohos_nweb/bridge/ark_web_js_verify_pin_result_impl.h"
 #include "ohos_nweb/bridge/ark_web_key_event_impl.h"
 #include "ohos_nweb/bridge/ark_web_largest_contentful_paint_details_impl.h"
 #include "ohos_nweb/bridge/ark_web_load_committed_details_impl.h"
@@ -1338,5 +1339,51 @@ void ArkWebHandlerWrapper::OnRefreshAccessedHistoryV2(const std::string& url, bo
 void ArkWebHandlerWrapper::OnRemoveBlanklessFrameWithAnimation(int delayTime)
 {
     ark_web_handler_->OnRemoveBlanklessFrameWithAnimation(delayTime);
+}
+
+void ArkWebHandlerWrapper::OnDetectedBlankScreen(
+    const std::string& url, int32_t blankScreenReason, int32_t detectedContentfulNodesCount)
+{
+    ArkWebString stUrl = ArkWebStringClassToStruct(url);
+
+    ark_web_handler_->OnDetectedBlankScreen(stUrl, blankScreenReason, detectedContentfulNodesCount);
+
+    ArkWebStringStructRelease(stUrl);
+}
+
+void ArkWebHandlerWrapper::UpdateTextFieldStatus(bool isShowKeyboard, bool isAttachIME)
+{
+    ark_web_handler_->UpdateTextFieldStatus(isShowKeyboard, isAttachIME);
+}
+
+bool ArkWebHandlerWrapper::IsQuickMenuShow()
+{
+    return ark_web_handler_->IsQuickMenuShow();
+}
+
+bool ArkWebHandlerWrapper::OnVerifyPinRequestByJS(
+    std::shared_ptr<OHOS::NWeb::NWebJSVerifyPinResult> result, const std::string& identity)
+{
+    ArkWebString stIdentity = ArkWebStringClassToStruct(identity);
+ 
+    bool flag = false;
+    if (CHECK_SHARED_PTR_IS_NULL(result)) {
+        flag = ark_web_handler_->OnVerifyPinRequestByJS(nullptr, stIdentity);
+    } else {
+        flag = ark_web_handler_->OnVerifyPinRequestByJS(new ArkWebJsVerifyPinResultImpl(result), stIdentity);
+    }
+ 
+    ArkWebStringStructRelease(stIdentity);
+    return flag;
+}
+
+void ArkWebHandlerWrapper::OnClippedSelectionBoundsChanged(int x, int y, int width, int height)
+{
+    ark_web_handler_->OnClippedSelectionBoundsChanged(x, y, width, height);
+}
+
+void ArkWebHandlerWrapper::OnCameraCaptureStateChanged(int originalState, int newState)
+{
+    ark_web_handler_->OnCameraCaptureStateChanged(originalState, newState);
 }
 } // namespace OHOS::ArkWeb

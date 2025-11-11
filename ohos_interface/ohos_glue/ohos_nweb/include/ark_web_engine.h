@@ -206,6 +206,9 @@ public:
 
     /*--ark web()--*/
     virtual void SetSoftKeyboardBehaviorMode(int32_t mode) = 0;
+
+    /*--ark web()--*/
+    virtual void SetScrollbarMode(int32_t mode) = 0;
 };
 
 } // namespace OHOS::ArkWeb

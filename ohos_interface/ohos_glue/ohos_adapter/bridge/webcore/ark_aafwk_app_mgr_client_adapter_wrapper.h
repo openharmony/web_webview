@@ -37,6 +37,8 @@ public:
 
     void SaveBrowserConnect(std::shared_ptr<NWeb::AafwkBrowserHostAdapter> adapter) override;
 
+    bool IsRenderProcessByUid(int uid) override;
+
 private:
     ArkWebRefPtr<ArkAafwkAppMgrClientAdapter> ctocpp_;
 };

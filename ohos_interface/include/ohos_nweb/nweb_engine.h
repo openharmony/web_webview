@@ -141,6 +141,8 @@ public:
     virtual void SetSocketIdleTimeout(int32_t timeout) {}
 
     virtual void SetSoftKeyboardBehaviorMode(WebSoftKeyboardBehaviorMode mode) {}
+
+    virtual void SetScrollbarMode(ScrollbarMode mode) {}
 };
 
 } // namespace OHOS::NWeb

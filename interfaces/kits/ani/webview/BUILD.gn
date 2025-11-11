@@ -43,6 +43,7 @@ ohos_shared_library("webview_ani") {
     "../../../native",
     "../../../../ohos_adapter/ohos_resource_adapter/include",
     "../../../../ohos_adapter/system_properties_adapter/include",
+    "../../../../ohos_interface/ohos_glue/base/include",
   ]
 
   sources = [
@@ -81,6 +82,10 @@ ohos_shared_library("webview_ani") {
     "./src/webviewcontroller/ani_webview_createpdf_execute_callback.cpp",
     "./src/webviewcontroller/webview_javascript_execute_callback.cpp",
     "./src/webviewcontroller/webview_javascript_execute_callback.h",
+    "./src/webviewcontroller/ani_prefetch_options.cpp",
+    "./src/webviewcontroller/ani_prefetch_options.h",
+    "./src/webviewcontroller/prefetch_options.cpp",
+    "./src/webviewcontroller/prefetch_options.h", 
     "./src/proxycontroller/ani_proxy_config.cpp",
     "./src/proxycontroller/ani_proxy_config.h",
     "./src/proxycontroller/proxy_config.cpp",
@@ -123,6 +128,8 @@ ohos_shared_library("webview_ani") {
     "../../../../ohos_nweb:libnweb",
     "../../../native:ohweb",
     "../../napi/protos:proto_gen",
+    "../../../../ohos_glue:ohos_base_glue_source",
+    "//base/web/webview/arkweb_utils:libarkweb_utils",
   ]
   external_deps = [
     "ability_base:extractortool",

@@ -197,4 +197,14 @@ void ArkWebHapValueImpl::SetErrName(const ArkWebString& name)
     nweb_hap_value_->SetErrName(ArkWebStringStructToClass(name));
 }
 
+ArkWebString ArkWebHapValueImpl::GetErrorDescription()
+{
+    return ArkWebStringClassToStruct(nweb_hap_value_->GetErrorDescription());
+}
+
+void ArkWebHapValueImpl::SetErrorDescription(const ArkWebString& description)
+{
+    nweb_hap_value_->SetErrorDescription(ArkWebStringStructToClass(description));
+}
+
 } // namespace OHOS::ArkWeb

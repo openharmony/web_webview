@@ -63,4 +63,8 @@ void ArkAafwkAppMgrClientAdapterImpl::SaveBrowserConnect(ArkWebRefPtr<ArkAafwkBr
     return real_->SaveBrowserConnect(std::make_shared<ArkAafwkBrowserHostAdapterWrapper>(adapter));
 }
 
+bool ArkAafwkAppMgrClientAdapterImpl::IsRenderProcessByUid(int uid)
+{
+    return real_->IsRenderProcessByUid(uid);
+}
 } // namespace OHOS::ArkWeb

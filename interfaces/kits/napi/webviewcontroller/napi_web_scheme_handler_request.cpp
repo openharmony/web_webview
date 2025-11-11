@@ -520,23 +520,25 @@ napi_value NapiWebSchemeHandlerRequest::JS_HttpBodyStream(napi_env env, napi_cal
     napi_value thisVar = nullptr;
     void *data = nullptr;
     WebSchemeHandlerRequest *request = nullptr;
+    napi_value null_value;
+    napi_get_null(env, &null_value);
     napi_get_cb_info(env, cbinfo, nullptr, nullptr, &thisVar, &data);
 
     napi_unwrap(env, thisVar, (void **)&request);
     if (!request) {
         WVLOG_E("NapiWebSchemeHandlerRequest::JS_HttpBodyStream request is nullptr");
-        return nullptr;
+        return null_value;
     }
 
     ArkWeb_HttpBodyStream* arkWebPostStream = request->GetHttpBodyStream();
     if (!arkWebPostStream) {
         WVLOG_D("NapiWebSchemeHandlerRequest::JS_HttpBodyStream stream is nullptr");
-        return nullptr;
+        return null_value;
     }
     napi_value httpBodyStreamObject;
     WebHttpBodyStream* stream = new (std::nothrow) WebHttpBodyStream(env, arkWebPostStream);
     if (stream == nullptr) {
-        return nullptr;
+        return null_value;
     }
     NAPI_CALL(env, napi_create_object(env, &httpBodyStreamObject));
     napi_wrap(

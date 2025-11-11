@@ -41,6 +41,7 @@
 #include "ohos_nweb/include/ark_web_rom_value.h"
 #include "ohos_nweb/include/ark_web_rom_value_vector.h"
 #include "ohos_nweb/include/ark_web_screen_lock_callback.h"
+#include "ohos_nweb/include/ark_web_snapshot_callback.h"
 #include "ohos_nweb/include/ark_web_spanstring_convert_html_callback.h"
 #include "ohos_nweb/include/ark_web_string_value_callback.h"
 #include "ohos_nweb/include/ark_web_stylus_touch_point_info.h"
@@ -2052,6 +2053,41 @@ public:
      */
     /*--ark web()--*/
     virtual void SetForceEnableZoom(bool forceEnableZoom) {}
+
+    /**
+     * @brief Set the config for blank screen detection.
+     *
+     * @param enable Whether the blank screen detection is enabled.
+     * @param detectionTiming The timing of the blank screen detection.
+     * @param detectionMethods The methods of the blank screen detection.
+     * @param contentfulNodesCountThreshold The contentful nodes count threshold of the blank screen detection.
+     */
+    /*--ark web()--*/
+    virtual void SetBlankScreenDetectionConfig(bool enable, const ArkWebDoubleVector& detectionTiming,
+        const ArkWebInt32Vector& detectionMethods, int32_t contentfulNodesCountThreshold) = 0;
+
+    /**
+     * @brief Get Web page snapshot V2
+     *
+     * @param id Request id.
+     * @param type Request snapshot pixel unit.
+     * @param width Request SnapShot width.
+     * @param height Request SnapShot height.
+     * @param callback SnapShot result callback.
+     * @return ture if succuess request snapshot to renderer.
+     */
+    /*--ark web()--*/
+    virtual bool WebPageSnapshotV2(const char* id,
+                                   int type,
+                                   int width,
+                                   int height,
+                                   ArkWebRefPtr<ArkWebSnapshotCallback> callback) = 0;
+
+    /**
+     * @brief Set web should stop fling.
+     */
+    /*--ark web()--*/
+    virtual void StopFling() {}
 };
 
 } // namespace OHOS::ArkWeb

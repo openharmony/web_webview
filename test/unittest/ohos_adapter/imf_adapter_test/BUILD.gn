@@ -34,6 +34,7 @@ ohos_unittest("nweb_imf_adapter_test") {
   deps = [ "../../../../ohos_adapter:nweb_ohos_adapter" ]
 
   external_deps = [
+    "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "googletest:gmock_main",
     "googletest:gtest_main",

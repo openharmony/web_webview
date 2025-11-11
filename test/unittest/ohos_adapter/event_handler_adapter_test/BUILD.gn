@@ -34,6 +34,7 @@ ohos_unittest("nweb_event_handler_adapter_test") {
   deps = [ "../../../../ohos_adapter:nweb_ohos_adapter" ]
 
   external_deps = [
+    "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "googletest:gmock_main",

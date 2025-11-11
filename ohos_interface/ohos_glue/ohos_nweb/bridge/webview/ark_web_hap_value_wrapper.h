@@ -95,6 +95,10 @@ public:
 
     void SetErrName(const std::string& name) override;
 
+    std::string GetErrorDescription() override;
+
+    void SetErrorDescription(const std::string& description) override;
+
 private:
     ArkWebRefPtr<ArkWebHapValue> ark_web_hap_value_;
 };

@@ -83,7 +83,7 @@ public:
     double frameRate;
 };
 
-bool MediaCodecDecoderAdapterImplFuzzTest(const uint8_t* data, size_t size)
+bool MediaCodecDecoderAdapterImplFuzzTest01(const uint8_t* data, size_t size)
 {
     NWeb::MediaCodecDecoderAdapterImpl mediaCodecDecoderAdapterImpl;
     NWeb::DecoderAdapterCode code = mediaCodecDecoderAdapterImpl.CreateVideoDecoderByMime("testmimeType");
@@ -129,6 +129,52 @@ bool MediaCodecDecoderAdapterImplFuzzTest(const uint8_t* data, size_t size)
     OH_AVBuffer_Destroy(buffer);
     codecFormat = nullptr;
     buffer = nullptr;
+
+    code = mediaCodecDecoderAdapterImpl.CreateVideoDecoderByName("video/avc");
+    return true;
+}
+
+bool MediaCodecDecoderAdapterImplFuzzTest02(const uint8_t* data, size_t size)
+{
+    NWeb::MediaCodecDecoderAdapterImpl mediaCodecDecoderAdapterImpl;
+    FuzzedDataProvider dataProvider(data, size);
+    int32_t intParam = dataProvider.ConsumeIntegralInRange<int32_t>(0, 10000);
+    uint32_t uintParam = dataProvider.ConsumeIntegralInRange<uint32_t>(0, 10000);
+    std::shared_ptr<DecoderFormatAdapterMock> format = std::make_unique<DecoderFormatAdapterMock>();
+    auto code = mediaCodecDecoderAdapterImpl.CreateVideoDecoderByMime("video/avc");
+    code = mediaCodecDecoderAdapterImpl.ConfigureDecoder(nullptr);
+    code = mediaCodecDecoderAdapterImpl.ConfigureDecoder(format);
+    code = mediaCodecDecoderAdapterImpl.SetParameterDecoder(nullptr);
+    code = mediaCodecDecoderAdapterImpl.SetParameterDecoder(format);
+    code = mediaCodecDecoderAdapterImpl.QueueInputBufferDec(
+        uintParam, 0, intParam, intParam, BufferFlag::CODEC_BUFFER_FLAG_NONE);
+    code = mediaCodecDecoderAdapterImpl.GetOutputFormatDec(nullptr);
+    code = mediaCodecDecoderAdapterImpl.GetOutputFormatDec(format);
+    code = mediaCodecDecoderAdapterImpl.ReleaseOutputBufferDec(uintParam, true);
+    code = mediaCodecDecoderAdapterImpl.ReleaseOutputBufferDec(uintParam, false);
+    code = mediaCodecDecoderAdapterImpl.SetCallbackDec(nullptr);
+    code = mediaCodecDecoderAdapterImpl.StartDecoder();
+    code = mediaCodecDecoderAdapterImpl.FlushDecoder();
+    code = mediaCodecDecoderAdapterImpl.StopDecoder();
+
+    std::shared_ptr<DecoderCallbackAdapterMock> callback = std::make_unique<DecoderCallbackAdapterMock>();
+    code = mediaCodecDecoderAdapterImpl.SetCallbackDec(callback);
+    constexpr int32_t MEMSIZE = 1024 * 1024;
+    OH_AVFormat* codecFormat = OH_AVFormat_Create();
+    OH_AVBuffer* buffer = OH_AVBuffer_Create(MEMSIZE);
+    mediaCodecDecoderAdapterImpl.OnError(uintParam);
+    mediaCodecDecoderAdapterImpl.OnOutputFormatChanged(nullptr);
+    mediaCodecDecoderAdapterImpl.OnInputBufferAvailable(uintParam, nullptr);
+    mediaCodecDecoderAdapterImpl.OnOutputBufferAvailable(uintParam, nullptr);
+    mediaCodecDecoderAdapterImpl.OnOutputFormatChanged(codecFormat);
+    mediaCodecDecoderAdapterImpl.OnInputBufferAvailable(uintParam, buffer);
+    mediaCodecDecoderAdapterImpl.OnOutputBufferAvailable(uintParam, buffer);
+
+    OH_AVFormat_Destroy(codecFormat);
+    OH_AVBuffer_Destroy(buffer);
+    codecFormat = nullptr;
+    buffer = nullptr;
+    (void)mediaCodecDecoderAdapterImpl.GetBufferFlag(OH_AVCodecBufferFlags::AVCODEC_BUFFER_FLAGS_EOS);
     return true;
 }
 } // namespace OHOS
@@ -137,6 +183,7 @@ bool MediaCodecDecoderAdapterImplFuzzTest(const uint8_t* data, size_t size)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     /* Run your code on data */
-    OHOS::MediaCodecDecoderAdapterImplFuzzTest(data, size);
+    OHOS::MediaCodecDecoderAdapterImplFuzzTest01(data, size);
+    OHOS::MediaCodecDecoderAdapterImplFuzzTest02(data, size);
     return 0;
 }

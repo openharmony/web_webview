@@ -98,9 +98,8 @@
                 "//base/web/webview/interfaces/kits/cj:cj_webview_ffi",
                 "//base/web/webview/interfaces/kits/napi:webview_napi",
                 "//base/web/webview/interfaces/kits/napi:neterrorlist_napi",
-                "//base/web/webview/interfaces/kits/napi:webnativemessagingextensionmanager_napi",
+                "//base/web/webview/interfaces/kits/napi/web_native_messaging_extension:web_native_messaging_extension_napi",
                 "//base/web/webview/interfaces/native:webview_ndk",
-                "//base/web/webview/interfaces/native/web_native_messaging_extension:web_native_messaging_extension",
                 "//base/web/webview/ohos_glue:ohos_base_glue_source",
                 "//base/web/webview/ohos_nweb:chrome_crashpad_handler",
                 "//base/web/webview/ohos_nweb:libnweb",
@@ -162,9 +161,7 @@
                 {
                     "header": {
                         "header_files": [
-                            "webview_controller_impl.h",
-                            "web_cookie_manager.h",
-                            "webview_ffi.h"
+                            "webview_controller_impl.h"
                         ],
                         "header_base": "//base/web/webview/interfaces/kits/cj/include"
                     },
@@ -186,6 +183,7 @@
                 }
             ],
             "test": [
+                "//base/web/webview/test/fuzztest/arkwebutils_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/load_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/cannavigatebackorforward_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/executejavascript_fuzzer:fuzztest",
@@ -197,6 +195,7 @@
                 "//base/web/webview/test/fuzztest/ontouchpress_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ontouchrelease_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/registerarkjsfunction_fuzzer:fuzztest",
+                "//base/web/webview/test/fuzztest/verifypackageinstall_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/zoom_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ohos_adapter/camera_adapter/formatadapter_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ohos_adapter/camera_adapter/videocapturerangeadapter_fuzzer:fuzztest",
@@ -348,6 +347,7 @@
                 "//base/web/webview/test/unittest/pasteboard_adapter:unittest",
                 "//base/web/webview/test/unittest/battery_mgr_adapter_impl:unittest",
                 "//base/web/webview/test/unittest/aafwk_app_client_adapter:unittest",
+                "//base/web/webview/test/unittest/ark_hisysevent_adapter_test:unittest",
                 "//base/web/webview/test/unittest/mmi_adapter:unittest",
                 "//base/web/webview/test/unittest/ohos_adapter_helper:unittest",
                 "//base/web/webview/test/unittest/napi_web_cookie_manager_test:unittest",
@@ -389,7 +389,8 @@
                 "//base/web/webview/test/unittest/ohos_adapter/native_buffer_adapter_test:unittest",
                 "//base/web/webview/test/unittest/ohos_adapter/drawing_text_adapter_test:unittest",
                 "//base/web/webview/test/unittest/webview_value_test:unittest",
-                "//base/web/webview/test/unittest/web_native_messaging_client_test:unittest"
+                "//base/web/webview/test/unittest/web_native_messaging_client_test:unittest",
+                "//base/web/webview/test/unittest/sa_web_native_messaging_common_test:unittest"
             ]
         }
     }

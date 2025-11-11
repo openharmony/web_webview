@@ -24,7 +24,10 @@ config("module_private_config") {
     defines = [ "NWEB_AUDIO_ENABLE" ]
   }
 
-  include_dirs = [ "../../../ohos_adapter/audio_adapter/include" ]
+  include_dirs = [ 
+    "../../../ohos_adapter/audio_adapter/include",
+    "../../../ohos_interface/include/ohos_adapter",
+  ]
 }
 
 ohos_unittest("nweb_audio_adapter_test") {

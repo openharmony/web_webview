@@ -39,6 +39,7 @@
 #include "ohos_nweb/include/ark_web_js_http_auth_result.h"
 #include "ohos_nweb/include/ark_web_js_ssl_error_result.h"
 #include "ohos_nweb/include/ark_web_js_ssl_select_cert_result.h"
+#include "ohos_nweb/include/ark_web_js_verify_pin_result.h"
 #include "ohos_nweb/include/ark_web_key_event.h"
 #include "ohos_nweb/include/ark_web_largest_contentful_paint_details.h"
 #include "ohos_nweb/include/ark_web_load_committed_details.h"
@@ -1109,6 +1110,41 @@ public:
      */
     /*--ark web()--*/
     virtual void OnRemoveBlanklessFrameWithAnimation(int delayTime) = 0;
+
+    /**
+     * @brief Notify a detected blank screen.
+     *
+     * @param url The url of the blank screen.
+     * @param blankScreenReason The reason of the blank screen.
+     * @param detectedContentfulNodesCount The detected contentful nodes count of the blank screen.
+     */
+    /*--ark web()--*/
+    virtual void OnDetectedBlankScreen(
+        const ArkWebString& url, int32_t blankScreenReason, int32_t detectedContentfulNodesCount) = 0;
+
+    /*--ark web()--*/
+    virtual void UpdateTextFieldStatus(bool isShowKeyboard, bool isAttachIME) = 0;
+
+    /**
+     * @brief Check whether the quick menu is displayed.
+     *
+     * @return Return true quick menu is displayed, false quick menu not displayed.
+     */
+    /*--ark web()--*/
+    virtual bool IsQuickMenuShow() = 0;
+
+    /*--ark web()--*/
+    virtual bool OnVerifyPinRequestByJS(
+        ArkWebRefPtr<ArkWebJsVerifyPinResult> result, const ArkWebString& identity) {return false;}
+
+    /*--ark web()--*/
+    virtual void OnClippedSelectionBoundsChanged(int x, int y, int width, int height) {}
+
+    /**
+     * @brief Called when the camera capture state changed.
+     */
+    /*--ark web()--*/
+    virtual void OnCameraCaptureStateChanged(int originalState, int newState) {}
 };
 
 } // namespace OHOS::ArkWeb

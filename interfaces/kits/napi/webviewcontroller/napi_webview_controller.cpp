@@ -829,6 +829,7 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_FUNCTION("isPrivateNetworkAccessEnabled",
             NapiWebviewController::IsPrivateNetworkAccessEnabled),
         DECLARE_NAPI_STATIC_FUNCTION("setWebDestroyMode", NapiWebviewController::SetWebDestroyMode),
+        DECLARE_NAPI_STATIC_FUNCTION("setScrollbarMode", NapiWebviewController::SetScrollbarMode),
         DECLARE_NAPI_STATIC_FUNCTION("setActiveWebEngineVersion", NapiWebviewController::SetActiveWebEngineVersion),
         DECLARE_NAPI_STATIC_FUNCTION("getActiveWebEngineVersion", NapiWebviewController::GetActiveWebEngineVersion),
         DECLARE_NAPI_STATIC_FUNCTION("isActiveWebEngineEvergreen", NapiWebviewController::IsActiveWebEngineEvergreen),
@@ -1128,6 +1129,21 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         sizeof(webBehaviorModeProperties) / sizeof(webBehaviorModeProperties[0]), webBehaviorModeProperties,
         &webBehaviorModeEnum);
     napi_set_named_property(env, exports, WEB_SOFT_KEYBOARD_BEHAVIOR_MODE_ENUM_NAME.c_str(), webBehaviorModeEnum);
+
+    napi_value scrollbarModeEnum = nullptr;
+    napi_property_descriptor scrollbarModeProperties[] = {
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "OVERLAY_LAYOUT_SCROLLBAR",
+            NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(ScrollbarMode::OVERLAY_LAYOUT_SCROLLBAR))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "FORCE_DISPLAY_SCROLLBAR",
+            NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(ScrollbarMode::FORCE_DISPLAY_SCROLLBAR))),
+    };
+    napi_define_class(env, WEB_SCROLLBAR_MODE_ENUM_NAME.c_str(), WEB_SCROLLBAR_MODE_ENUM_NAME.length(),
+        NapiParseUtils::CreateEnumConstructor, nullptr,
+        sizeof(scrollbarModeProperties) / sizeof(scrollbarModeProperties[0]), scrollbarModeProperties,
+        &scrollbarModeEnum);
+    napi_set_named_property(env, exports, WEB_SCROLLBAR_MODE_ENUM_NAME.c_str(), scrollbarModeEnum);
 
     WebviewJavaScriptExecuteCallback::InitJSExcute(env, exports);
     WebviewCreatePDFExecuteCallback::InitJSExcute(env, exports);
@@ -7925,17 +7941,17 @@ napi_value NapiWebviewController::SetSiteIsolationMode(
     WVLOG_I("NapiWebviewController::SetSiteIsolationMode res: %{public}d", res);
     if (res == static_cast<int32_t>(SetSiteIsolationModeErr::ALREADY_SET_ERR)) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR,
-            "InitError 17100001: Site Isolation mode already set by developer");
+            "InitError 17100001: Site Isolation mode is already set by the developer.");
     }
 
     if (res == static_cast<int32_t>(SetSiteIsolationModeErr::SINGLE_RENDER_SET_STRICT_ERR)) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR,
-            "InitError 17100001: Site Isolation mode cannot be strict when single render");
+            "InitError 17100001: Site Isolation mode cannot be strict in single-render-process mode.");
     }
 
     if (res == static_cast<int32_t>(SetSiteIsolationModeErr::ADVANCED_SECURITY_SET_ERR)) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR,
-            "InitError 17100001: cannot change (AdvancedSecurityMode active)");
+            "InitError 17100001: Site Isolation mode cannot be changed while Secure Shield mode is active.");
     }
 
     return result;
@@ -8022,6 +8038,42 @@ napi_value NapiWebviewController::SetSoftKeyboardBehaviorMode(napi_env env, napi
         return result;
     }
     NWebHelper::Instance().SetSoftKeyboardBehaviorMode(static_cast<WebSoftKeyboardBehaviorMode>(mode));
+    return result;
+}
+
+napi_value NapiWebviewController::SetScrollbarMode(napi_env env, napi_callback_info info)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_W("SetScrollbarMode unsupported engine version: M114");
+        return nullptr;
+    }
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
+        return result;
+    }
+
+    int32_t scrollbarMode = false;
+    if (!NapiParseUtils::ParseInt32(env, argv[INTEGER_ZERO], scrollbarMode)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "mode", "ScrollbarMode"));
+        return result;
+    }
+
+    if (scrollbarMode < static_cast<int>(ScrollbarMode::OVERLAY_LAYOUT_SCROLLBAR) ||
+        scrollbarMode > static_cast<int>(ScrollbarMode::FORCE_DISPLAY_SCROLLBAR)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "mode"));
+        return result;
+    }
+
+    NWebHelper::Instance().SetScrollbarMode(static_cast<ScrollbarMode>(scrollbarMode));
     return result;
 }
 

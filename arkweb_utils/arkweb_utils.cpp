@@ -26,7 +26,7 @@
 #include <iomanip>
 
 #if (defined(webview_arm64) && !defined(ASAN_DETECTOR))
-#include "ace_forward_compatibility.h"
+#include <sys/mount.h>
 #endif
 
 namespace OHOS::ArkWeb {
@@ -34,7 +34,6 @@ namespace OHOS::ArkWeb {
 static int g_appEngineVersion = static_cast<int>(ArkWebEngineVersion::SYSTEM_DEFAULT);
 static bool g_webEngineInitFlag = false;
 static ArkWebEngineVersion g_activeEngineVersion = ArkWebEngineVersion::SYSTEM_DEFAULT;
-static std::string g_appBundleName = "";
 static int g_cloudEnableAppVersion = static_cast<int>(ArkWebEngineVersion::SYSTEM_DEFAULT);
 static std::unique_ptr<std::unordered_set<std::string>> g_legacyApp = nullptr;
 
@@ -105,6 +104,8 @@ const int MAX_DLCLOSE_COUNT = 10;
 const std::string LIB_ARKWEB_ENGINE = "libarkweb_engine.so";
 const std::string PERSIST_ARKWEBCORE_PACKAGE_NAME = "persist.arkwebcore.package_name";
 const std::string EL1_BUNDLE_PUBLIC = "/data/app/el1/bundle/public/";
+const std::string SANDBOX_REAL_PATH = "/data/storage/el1/bundle/arkwebcore";
+const std::string APPSPAWN_PRELOAD_ARKWEB_ENGINE = "const.startup.appspawn.preload.arkwebEngine";
 #endif
 
 // 前向声明
@@ -301,7 +302,6 @@ static void ParseCloudCfg()
 void SelectWebcoreBeforeProcessRun(const std::string& appBundleName)
 {
     WVLOG_I("SelectWebcoreBeforeProcessRun for app %{public}s.", appBundleName.c_str());
-    g_appBundleName = appBundleName;
 
     if (g_legacyApp && g_legacyApp->find(appBundleName) != g_legacyApp->end()) {
         g_cloudEnableAppVersion = static_cast<int>(ArkWebEngineType::LEGACY);
@@ -386,11 +386,6 @@ ArkWebEngineVersion CalculateActiveWebEngineVersion()
         return static_cast<ArkWebEngineVersion>(ArkWebEngineType::EVERGREEN);
     }
 
-    if (webEngineDefault == static_cast<int>(ArkWebEngineVersion::M114) &&
-      g_appBundleName == "com.example.app2") {
-        return static_cast<ArkWebEngineVersion>(ArkWebEngineType::EVERGREEN);
-    }
-
     return static_cast<ArkWebEngineVersion>(webEngineDefault);
 }
 
@@ -430,9 +425,14 @@ std::string GetArkwebLibPath()
     return path;
 }
 
-std::string GetArkwebLibPathForMock()
+std::string GetArkwebLibPathForMock(const std::string& mockBundlePath)
 {
-    std::string path =  ARK_WEB_CORE_MOCK_HAP_LIB_PATH;
+    std::string path;
+    if (!mockBundlePath.empty()) {
+        path = mockBundlePath + "/" + ARK_WEB_CORE_PATH_FOR_MOCK;
+    } else {
+        path = ARK_WEB_CORE_MOCK_HAP_LIB_PATH;
+    }
     WVLOG_I("get arkweb lib mock path: %{public}s", path.c_str());
     return path;
 }
@@ -560,7 +560,7 @@ void* ArkWebBridgeHelperLoadLibFile(int openMode, const std::string& libNsName,
     return libFileHandler;
 }
 
-void* ArkWebBridgeHelperSharedInit(bool runMode)
+void* ArkWebBridgeHelperSharedInit(bool runMode, const std::string& mockBundlePath)
 {
     std::string libFileName = "libarkweb_engine.so";
 
@@ -568,7 +568,7 @@ void* ArkWebBridgeHelperSharedInit(bool runMode)
     if (runMode) {
         libDirPath = GetArkwebLibPath();
     } else {
-        libDirPath = GetArkwebLibPathForMock();
+        libDirPath = GetArkwebLibPathForMock(mockBundlePath);
     }
 
     std::string libNsName = GetArkwebNameSpace();
@@ -589,23 +589,57 @@ void* ArkWebBridgeHelperSharedInit(bool runMode)
     return libFileHandler;
 }
 
+#if (defined(webview_arm64) && !defined(ASAN_DETECTOR))
+bool CreateRealSandboxPath()
+{
+    namespace fs = std::filesystem;
+    std::error_code ec;
+    if (fs::exists(SANDBOX_REAL_PATH, ec)) {
+        WVLOG_I("CreateRealSandboxPath %{public}s already exists", SANDBOX_REAL_PATH.c_str());
+        return true;
+    }
+
+    if (fs::create_directories(SANDBOX_REAL_PATH, ec)) {
+        return true;
+    }
+
+    WVLOG_E("CreateRealSandboxPath create_directories failed");
+    return false;
+}
+
+#endif
 void DlopenArkWebLib()
 {
 #if (defined(webview_arm64) && !defined(ASAN_DETECTOR))
+    if (!OHOS::system::GetBoolParameter(APPSPAWN_PRELOAD_ARKWEB_ENGINE, false)) {
+        WVLOG_E("DlopenArkWebLib preload arkweb turn off!");
+        return;
+    }
     const std::string bundleName = OHOS::system::GetParameter(PERSIST_ARKWEBCORE_PACKAGE_NAME, "");
-    const std::string arkwebLibPath = EL1_BUNDLE_PUBLIC + bundleName + "/" + ARK_WEB_CORE_PATH_FOR_MOCK +
-        ":" + ARK_WEB_CORE_HAP_LIB_PATH;
-    WVLOG_I("DlopenArkWebLib arkwebLibPath: %{public}s", arkwebLibPath.c_str());
-    void* libFileHandler = ArkWebBridgeHelperLoadLibFile(
+    if (bundleName.empty()) {
+        WVLOG_E("DlopenArkWebLib bundleName is null");
+        return;
+    }
+
+    if (!CreateRealSandboxPath()) {
+        return;
+    }
+
+    const std::string realPath = EL1_BUNDLE_PUBLIC + bundleName;
+    WVLOG_I("DlopenArkWebLib realPath: %{public}s, SANDBOX_REAL_PATH: %{public}s",
+        realPath.c_str(),
+        SANDBOX_REAL_PATH.c_str());
+    if (mount(realPath.c_str(), SANDBOX_REAL_PATH.c_str(), nullptr, MS_BIND | MS_REC, nullptr) != 0) {
+        WVLOG_E("DlopenArkWebLib mount error: %{public}s", strerror(errno));
+        return;
+    }
+
+    ArkWebBridgeHelperLoadLibFile(
         RTLD_NOW | RTLD_GLOBAL,
         "nweb_ns",
-        arkwebLibPath.c_str(),
+        ARK_WEB_CORE_HAP_LIB_PATH.c_str(),
         LIB_ARKWEB_ENGINE.c_str()
     );
-    if (libFileHandler != nullptr) {
-        WVLOG_I("DlopenArkWebLib Start reclaim file cache");
-        OHOS::Ace::AceForwardCompatibility::ReclaimFileCache(getpid());
-    }
 #endif
 }
 
@@ -624,6 +658,10 @@ static bool IsNWebLibLoaded(Dl_namespace dlns)
 int DlcloseArkWebLib()
 {
 #if (defined(webview_arm64) && !defined(ASAN_DETECTOR))
+    if (!OHOS::system::GetBoolParameter(APPSPAWN_PRELOAD_ARKWEB_ENGINE, false)) {
+        WVLOG_E("DlcloseArkWebLib preload arkweb turn off!");
+        return 0;
+    }
     Dl_namespace dlns;
     if (dlns_get("nweb_ns", &dlns) != 0) {
         WVLOG_I("Failed to get nweb_ns");

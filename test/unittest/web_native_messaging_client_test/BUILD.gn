@@ -23,13 +23,13 @@ ohos_unittest("web_native_messaging_client_test") {
   ]
 
   include_dirs = [
-    "$webview_path/interfaces/native/web_native_messaging_extension/extension/include",
+    "$webview_path/interfaces/kits/napi/web_native_messaging_extension/extension/include",
     "$webview_path/sa/web_native_messaging/common",
     "$webview_path/sa/web_native_messaging/client",
   ]
 
   deps = [
-    "$webview_path/interfaces/native/web_native_messaging_extension/extension:web_extension",
+    "$webview_path/interfaces/kits/napi/web_native_messaging_extension/extension:web_extension",
     "$webview_path/sa/web_native_messaging:web_native_messaging_kit",
     "$webview_path/ohos_nweb:web_configs",
   ]
@@ -60,13 +60,13 @@ ohos_unittest("web_extension_connection_callback_test") {
   ]
 
   include_dirs = [
-    "$webview_path/interfaces/native/web_native_messaging_extension/extension/include",
+    "$webview_path/interfaces/kits/napi/web_native_messaging_extension/extension/include",
     "$webview_path/sa/web_native_messaging/common",
     "$webview_path/sa/web_native_messaging/client",
   ]
 
   deps = [
-    "$webview_path/interfaces/native/web_native_messaging_extension/extension:web_extension",
+    "$webview_path/interfaces/kits/napi/web_native_messaging_extension/extension:web_extension",
     "$webview_path/sa/web_native_messaging:web_native_messaging_kit",
     "$webview_path/ohos_nweb:web_configs",
   ]
@@ -97,13 +97,13 @@ ohos_unittest("web_extension_connection_callback_stub_test") {
   ]
 
   include_dirs = [
-    "$webview_path/interfaces/native/web_native_messaging_extension/extension/include",
+    "$webview_path/interfaces/kits/napi/web_native_messaging_extension/extension/include",
     "$webview_path/sa/web_native_messaging/common",
     "$webview_path/sa/web_native_messaging/client",
   ]
 
   deps = [
-    "$webview_path/interfaces/native/web_native_messaging_extension/extension:web_extension",
+    "$webview_path/interfaces/kits/napi/web_native_messaging_extension/extension:web_extension",
     "$webview_path/sa/web_native_messaging:web_native_messaging_kit",
     "$webview_path/ohos_nweb:web_configs",
   ]
@@ -134,13 +134,13 @@ ohos_unittest("web_native_messaging_load_callback_test") {
   ]
 
   include_dirs = [
-    "$webview_path/interfaces/native/web_native_messaging_extension/extension/include",
+    "$webview_path/interfaces/kits/napi/web_native_messaging_extension/extension/include",
     "$webview_path/sa/web_native_messaging/common",
     "$webview_path/sa/web_native_messaging/client",
   ]
 
   deps = [
-    "$webview_path/interfaces/native/web_native_messaging_extension/extension:web_extension",
+    "$webview_path/interfaces/kits/napi/web_native_messaging_extension/extension:web_extension",
     "$webview_path/sa/web_native_messaging:web_native_messaging_kit",
     "$webview_path/ohos_nweb:web_configs",
   ]
