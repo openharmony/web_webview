@@ -27,6 +27,7 @@ const std::string NWEB_VIEW_DATA_KEY_RECT_W = "width";
 const std::string NWEB_VIEW_DATA_KEY_RECT_H = "height";
 const std::string NWEB_VIEW_DATA_KEY_VALUE = "value";
 const std::string NWEB_VIEW_DATA_KEY_PLACEHOLDER = "placeholder";
+const std::string NWEB_VIEW_DATA_KEY_SELECTABLE_USER_NAMES = "selectableUsernames";
 
 const std::string NWEB_AUTOFILL_EVENT_SAVE = "save";
 const std::string NWEB_AUTOFILL_EVENT_FILL = "fill";
