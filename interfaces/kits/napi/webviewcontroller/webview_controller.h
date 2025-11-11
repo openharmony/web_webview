@@ -33,7 +33,7 @@
 #include "webview_javascript_result_callback.h"
 #include "webview_controller_print_structs.h"
 
-#include "web_scheme_handler_request.h"
+#include "web_scheme_handler.h"
 #include "webview_value.h"
 
 namespace OHOS {

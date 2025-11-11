@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "web_scheme_handler_request.h"
+#include "web_scheme_handler.h"
 
 #include <securec.h>
 #include <sstream>
@@ -24,10 +24,10 @@
 #include "web_errors.h"
 #include "ani_parse_utils.h"
 #include "ani_business_error.h"
+#include "ani_class_name.h"
 
 namespace OHOS::NWeb {
-const char* WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME = "L@ohos/web/webview/webview/WebSchemeHandlerRequest;";
-const char* WEB_RESOURCE_HANDLER_CLASS_NAME = "L@ohos/web/webview/webview/WebResourceHandler;";
+
 namespace {
 
 void OnRequestStart(const ArkWeb_SchemeHandler* schemeHandler, ArkWeb_ResourceRequest* resourceRequest,
@@ -61,117 +61,6 @@ void OnRequestStop(const ArkWeb_SchemeHandler* schemeHandler, const ArkWeb_Resou
     handler->RequestStop(resourceRequest);
 }
 } // namespace
-
-WebSchemeHandlerRequest::WebSchemeHandlerRequest(ani_env* env) : env_(env)
-{
-    WVLOG_D("WebSchemeHandlerRequest::WebSchemeHandlerRequest");
-    if (vm_ == nullptr) {
-        WVLOG_E("vm_ is nullptr");
-        return;
-    }
-    if (env_->GetVM(&vm_) != ANI_OK) {
-        WVLOG_E("Failed to get VM from env");
-        return;
-    }
-}
-
-WebSchemeHandlerRequest::WebSchemeHandlerRequest(ani_env* env, const ArkWeb_ResourceRequest* request) : env_(env)
-{
-    WVLOG_D("WebSchemeHandlerRequest::WebSchemeHandlerRequest");
-    OH_ArkWebResourceRequest_GetUrl(request, &url_);
-    OH_ArkWebResourceRequest_GetMethod(request, &method_);
-    OH_ArkWebResourceRequest_GetReferrer(request, &referrer_);
-    isRedirect_ = OH_ArkWebResourceRequest_IsRedirect(request);
-    isMainFrame_ = OH_ArkWebResourceRequest_IsMainFrame(request);
-    hasGesture_ = OH_ArkWebResourceRequest_HasGesture(request);
-    OH_ArkWebResourceRequest_GetHttpBodyStream(request, &stream_);
-    requestResourceType_ = OH_ArkWebResourceRequest_GetResourceType(request);
-    OH_ArkWebResourceRequest_GetFrameUrl(request, &frameUrl_);
-
-    ArkWeb_RequestHeaderList* arkWebHeaderlist = nullptr;
-    OH_ArkWebResourceRequest_GetRequestHeaders(request, &arkWebHeaderlist);
-    if (!arkWebHeaderlist) {
-        WVLOG_E("OH_ArkWebRequestHeaderList_Create failed");
-        return;
-    }
-    int32_t size = OH_ArkWebRequestHeaderList_GetSize(arkWebHeaderlist);
-    if (size <= 0) {
-        WVLOG_E("OH_ArkWebRequestHeaderList_GetSize:%{public}d", size);
-        return;
-    }
-    for (int32_t index = 0; index < size; index++) {
-        char* key;
-        char* value;
-        OH_ArkWebRequestHeaderList_GetHeader(arkWebHeaderlist, index, &key, &value);
-        if (!key || !value) {
-            continue;
-        }
-        std::string strKey(key);
-        std::string strValue(value);
-        headerList_.emplace_back(std::make_pair(strKey, strValue));
-        OH_ArkWeb_ReleaseString(key);
-        OH_ArkWeb_ReleaseString(value);
-    }
-    OH_ArkWebRequestHeaderList_Destroy(arkWebHeaderlist);
-}
-
-WebSchemeHandlerRequest::~WebSchemeHandlerRequest()
-{
-    WVLOG_D("WebSchemeHandlerRequest::~WebSchemeHandlerRequest");
-    OH_ArkWeb_ReleaseString(url_);
-    OH_ArkWeb_ReleaseString(method_);
-    OH_ArkWeb_ReleaseString(referrer_);
-}
-
-char* WebSchemeHandlerRequest::GetRequestUrl()
-{
-    return url_;
-}
-
-char* WebSchemeHandlerRequest::GetMethod()
-{
-    return method_;
-}
-
-char* WebSchemeHandlerRequest::GetReferrer()
-{
-    return referrer_;
-}
-
-bool WebSchemeHandlerRequest::IsRedirect()
-{
-    return isRedirect_;
-}
-
-bool WebSchemeHandlerRequest::IsMainFrame()
-{
-    return isMainFrame_;
-}
-
-bool WebSchemeHandlerRequest::HasGesture()
-{
-    return hasGesture_;
-}
-
-const WebHeaderList& WebSchemeHandlerRequest::GetHeader()
-{
-    return headerList_;
-}
-
-ArkWeb_HttpBodyStream* WebSchemeHandlerRequest::GetHttpBodyStream()
-{
-    return stream_;
-}
-
-int32_t WebSchemeHandlerRequest::GetRequestResourceType()
-{
-    return requestResourceType_;
-}
-
-char* WebSchemeHandlerRequest::GetFrameUrl()
-{
-    return frameUrl_;
-}
 
 std::unordered_map<WebSchemeHandler*, const ArkWeb_SchemeHandler*> WebSchemeHandler::webSchemeHandlerMap_;
 std::unordered_map<const ArkWeb_SchemeHandler*, WebSchemeHandler*> WebSchemeHandler::arkWebSchemeHandlerMap_;
@@ -230,7 +119,7 @@ WebSchemeHandler::~WebSchemeHandler()
 }
 
 void WebSchemeHandler::RequestStart(
-    ArkWeb_ResourceRequest* request, const ArkWeb_ResourceHandler* ArkWeb_ResourceHandler, bool* intercept)
+    ArkWeb_ResourceRequest* request, const ArkWeb_ResourceHandler* arkwebResourceHandler, bool* intercept)
 {
     if (vm_ == nullptr) {
         WVLOG_E("WebSchemeHandler::RequestStart nil vm");
@@ -248,34 +137,34 @@ void WebSchemeHandler::RequestStart(
     }
     ani_size nr_refs = REFERENCES_MAX_NUMBER;
     env->CreateLocalScope(nr_refs);
-    WebSchemeHandlerRequest* schemeHandlerRequest = new (std::nothrow) WebSchemeHandlerRequest(env, request);
+    WebSchemeHandlerRequest* schemeHandlerRequest = new (std::nothrow) WebSchemeHandlerRequest(request);
     if (schemeHandlerRequest == nullptr) {
         WVLOG_E("RequestStart, new schemeHandlerRequest failed");
         env->DestroyLocalScope();
         return;
     }
-    sptr<WebResourceHandler> resourceHandler = new (std::nothrow) WebResourceHandler(env, ArkWeb_ResourceHandler);
+    sptr<WebResourceHandler> resourceHandler = new (std::nothrow) WebResourceHandler(arkwebResourceHandler);
     if (resourceHandler == nullptr) {
         WVLOG_E("RequestStart, new resourceHandler failed");
-        delete schemeHandlerRequest;
+        schemeHandlerRequest->DecStrongRef(schemeHandlerRequest);
         resourceHandler->DecStrongRef(resourceHandler);
         env->DestroyLocalScope();
         return;
     }
 
     ani_object requestObject = {};
-    if (!AniParseUtils::CreateObjectVoid(env, WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME, requestObject)) {
+    if (!AniParseUtils::CreateObjectVoid(env, ANI_WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME, requestObject)) {
         WVLOG_E("[SchemeHandler] CreaterequestObject failed");
-        delete schemeHandlerRequest;
+        schemeHandlerRequest->DecStrongRef(schemeHandlerRequest);
         resourceHandler->DecStrongRef(resourceHandler);
         env->DestroyLocalScope();
         return;
     }
 
     ani_object resourceObject = {};
-    if (!AniParseUtils::CreateObjectVoid(env, WEB_RESOURCE_HANDLER_CLASS_NAME, resourceObject)) {
+    if (!AniParseUtils::CreateObjectVoid(env, ANI_WEB_RESOURCE_HANDLER_CLASS_NAME, resourceObject)) {
         WVLOG_E("[SchemeHandler] CreateresourceObject Failed");
-        delete schemeHandlerRequest;
+        schemeHandlerRequest->DecStrongRef(schemeHandlerRequest);
         resourceHandler->DecStrongRef(resourceHandler);
         env->DestroyLocalScope();
         return;
@@ -285,16 +174,16 @@ void WebSchemeHandler::RequestStart(
     } else {
         resourceHandler->IncStrongRef(nullptr);
     }
-    if (!AniParseUtils::Wrap(env, requestObject, WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME,
+    if (!AniParseUtils::Wrap(env, requestObject, ANI_WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME,
         reinterpret_cast<ani_long>(schemeHandlerRequest))) {
         WVLOG_E("[SchemeHandler] WebSchemeHandlerRequest wrap failed");
-        delete schemeHandlerRequest;
+        schemeHandlerRequest->DecStrongRef(schemeHandlerRequest);
         schemeHandlerRequest = nullptr;
         env->DestroyLocalScope();
         return;
     }
 
-    if (!AniParseUtils::Wrap(env, resourceObject, WEB_RESOURCE_HANDLER_CLASS_NAME,
+    if (!AniParseUtils::Wrap(env, resourceObject, ANI_WEB_RESOURCE_HANDLER_CLASS_NAME,
         reinterpret_cast<ani_long>(resourceHandler.GetRefPtr()))) {
         WVLOG_E("[SchemeHandler] WebResourceHandler wrap failed");
         resourceHandler->DecStrongRef(resourceHandler);
@@ -366,86 +255,6 @@ void WebSchemeHandler::PutRequestStop(ani_env* env, ani_vm* vm, ani_fn_object ca
     ani_status status = env->GlobalReference_Create(reinterpret_cast<ani_ref>(callback), &request_stop_callback_);
     if (status != ANI_OK) {
         WVLOG_E("PutRequestStop create reference failed.");
-    }
-}
-
-WebResourceHandler::WebResourceHandler(ani_env* env)
-{
-    WVLOG_D("create WebResourceHandler");
-    if (vm_ == nullptr) {
-        WVLOG_E("vm_ is nullptr");
-        return;
-    }
-    if (env->GetVM(&vm_) != ANI_OK) {
-        WVLOG_E("Failed to get VM from env");
-        return;
-    }
-}
-
-WebResourceHandler::WebResourceHandler(ani_env* env, const ArkWeb_ResourceHandler* handler)
-    : handler_(const_cast<ArkWeb_ResourceHandler*>(handler))
-{
-    WVLOG_D("create WebResourceHandler");
-    if (vm_ == nullptr) {
-        WVLOG_E("vm_ is nullptr");
-        return;
-    }
-    if (env->GetVM(&vm_) != ANI_OK) {
-        WVLOG_E("Failed to get VM from env");
-        return;
-    }
-}
-
-WebResourceHandler::~WebResourceHandler()
-{
-    WVLOG_D("~WebResourceHandler");
-}
-
-int32_t WebResourceHandler::DidReceiveResponse(const ArkWeb_Response* response)
-{
-    if (isFinished_) {
-        return ArkWeb_ErrorCode::ARKWEB_ERROR_UNKNOWN;
-    }
-    return OH_ArkWebResourceHandler_DidReceiveResponse(handler_, response);
-}
-
-int32_t WebResourceHandler::DidReceiveResponseBody(const uint8_t* buffer, int64_t buflen)
-{
-    if (isFinished_) {
-        return ArkWeb_ErrorCode::ARKWEB_ERROR_UNKNOWN;
-    }
-    return OH_ArkWebResourceHandler_DidReceiveData(handler_, buffer, buflen);
-}
-
-int32_t WebResourceHandler::DidFinish()
-{
-    if (isFinished_) {
-        return ArkWeb_ErrorCode::ARKWEB_ERROR_UNKNOWN;
-    }
-    int32_t ret = OH_ArkWebResourceHandler_DidFinish(handler_);
-    if (ret == 0) {
-        isFinished_ = true;
-    }
-    return ret;
-}
-
-int32_t WebResourceHandler::DidFailWithError(ArkWeb_NetError errorCode)
-{
-    if (isFinished_) {
-        return ArkWeb_ErrorCode::ARKWEB_ERROR_UNKNOWN;
-    }
-    int32_t ret = OH_ArkWebResourceHandler_DidFailWithError(handler_, errorCode);
-    if (ret == 0) {
-        isFinished_ = true;
-    }
-    return ret;
-}
-
-void WebResourceHandler::DestoryArkWebResourceHandler()
-{
-    if (handler_) {
-        OH_ArkWebResourceHandler_Destroy(handler_);
-        handler_ = nullptr;
     }
 }
 

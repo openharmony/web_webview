@@ -24,7 +24,7 @@
 
 #include "business_error.h"
 #include "nweb_napi_scope.h"
-#include "web_scheme_handler_request.h"
+#include "web_scheme_handler.h"
 #include "nweb_log.h"
 #include "napi_parse_utils.h"
 #include "web_errors.h"
@@ -338,7 +338,7 @@ napi_value NapiWebSchemeHandlerRequest::JS_Constructor(napi_env env, napi_callba
     void *data = nullptr;
     napi_get_cb_info(env, cbinfo, nullptr, nullptr, &thisVar, &data);
 
-    WebSchemeHandlerRequest *request = new (std::nothrow) WebSchemeHandlerRequest(env);
+    WebSchemeHandlerRequest *request = new (std::nothrow) WebSchemeHandlerRequest();
     if (request == nullptr) {
         return nullptr;
     }
@@ -347,7 +347,9 @@ napi_value NapiWebSchemeHandlerRequest::JS_Constructor(napi_env env, napi_callba
         env, thisVar, request,
         [](napi_env /* env */, void *data, void * /* hint */) {
             WebSchemeHandlerRequest *request = reinterpret_cast<WebSchemeHandlerRequest *>(data);
-            delete request;
+            if (request) {
+                request->DecStrongRef(request);
+            }
         },
         nullptr, nullptr);
 
@@ -688,7 +690,7 @@ napi_value NapiWebSchemeHandlerResponse::JS_Constructor(napi_env env, napi_callb
     void *data = nullptr;
     napi_get_cb_info(env, cbinfo, nullptr, nullptr, &thisVar, &data);
 
-    WebSchemeHandlerResponse *response = new WebSchemeHandlerResponse(env);
+    WebSchemeHandlerResponse *response = new WebSchemeHandlerResponse();
 
     napi_wrap(
         env, thisVar, response,
@@ -1217,7 +1219,7 @@ napi_value NapiWebResourceHandler::JS_Constructor(napi_env env, napi_callback_in
     void *data = nullptr;
     napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, &data);
 
-    WebResourceHandler *handler = new WebResourceHandler(env);
+    WebResourceHandler *handler = new WebResourceHandler();
 
     napi_wrap(
         env, thisVar, handler,

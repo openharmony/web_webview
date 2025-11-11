@@ -26,17 +26,16 @@
 #include "nweb_log.h"
 #include "securec.h"
 #include "web_errors.h"
-#include "web_scheme_handler_request.h"
+#include "web_scheme_handler.h"
+#include "ani_class_name.h"
+#include "interop_js/arkts_esvalue.h"
+#include "interop_js/arkts_interop_js_api.h"
 
 namespace OHOS {
 namespace NWeb {
 
 using namespace NWebError;
 using NWebError::NO_ERROR;
-namespace {
-const char* ANI_CLASS_WEB_REQUESTTYPE = "L@ohos/web/webview/webview/WebSchemeHandlerRequest;";
-const char* ANI_CLASS_WEB_RESOURCETYPE = "L@ohos/web/webview/webview/WebResourceType;";
-} // namespace
 
 static ani_boolean JSHasGesture(ani_env* env, ani_object object)
 {
@@ -278,6 +277,29 @@ static void Constructor(ani_env* env, ani_object object)
     }
 }
 
+static ani_boolean TransferWebSchemeHandlerRequestToStaticInner(
+    ani_env* env, ani_class aniClass, ani_object output, ani_object input)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+
+    void *nativePtr = nullptr;
+    if (!arkts_esvalue_unwrap(env, input, &nativePtr) || nativePtr == nullptr) {
+        WVLOG_E("[TRANSFER] arkts_esvalue_unwrap failed");
+        return ANI_FALSE;
+    }
+    WebSchemeHandlerRequest *schemeHandlerRequest = reinterpret_cast<WebSchemeHandlerRequest *>(nativePtr);
+    if (!AniParseUtils::Wrap(env, output, ANI_WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME,
+                             reinterpret_cast<ani_long>(schemeHandlerRequest))) {
+        WVLOG_E("[TRANSFER] WebSchemeHandlerRequest wrap failed");
+        return ANI_FALSE;
+    }
+    schemeHandlerRequest->IncStrongRef(nullptr);
+    return ANI_TRUE;
+}
+
 ani_status StsWebSchemeHandlerRequestInit(ani_env* env)
 {
     if (env == nullptr) {
@@ -301,6 +323,8 @@ ani_status StsWebSchemeHandlerRequestInit(ani_env* env)
         ani_native_function { "getRequestUrl", nullptr, reinterpret_cast<void*>(GetRequestUrl) },
         ani_native_function { "isMainFrame", nullptr, reinterpret_cast<void*>(IsMainFrame) },
         ani_native_function { "getRequestMethod", nullptr, reinterpret_cast<void*>(GetRequestMethod) },
+        ani_native_function { "transferWebSchemeHandlerRequestToStaticInner",
+                              nullptr, reinterpret_cast<void*>(TransferWebSchemeHandlerRequestToStaticInner) },
     };
 
     status = env->Class_BindNativeMethods(WebSchemeHandlerRequestCls, allMethods.data(), allMethods.size());
