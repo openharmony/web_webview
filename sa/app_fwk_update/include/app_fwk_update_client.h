@@ -33,7 +33,7 @@ public:
     virtual ~AppFwkUpdateClient() = default;
     static AppFwkUpdateClient& GetInstance();
     int VerifyPackageInstall(const std::string& bundleName, const std::string& hapPath);
-    void NotifyFWKAfterBmsStart();
+    int NotifyFWKAfterBmsStart();
     void NotifyArkWebInstallSuccess();
     void OnLoadSystemAbilitySuccess(const sptr<IRemoteObject>& object);
     void OnLoadSystemAbilityFail();
