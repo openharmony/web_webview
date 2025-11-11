@@ -64,6 +64,11 @@ public:
         wpThis_ = wp;
     }
 
+    void SetCallerUserId(int32_t userId)
+    {
+        callerUserId_ = userId;
+    }
+
     void SetManagerWptr(std::shared_ptr<IWebNativeMessagingManager> wp)
     {
         wpManager_ = wp;
@@ -104,6 +109,7 @@ private:
     };
 
     Security::AccessToken::AccessTokenID callerTokenId_;
+    int32_t callerUserId_ = -1;
     std::string targetBundleName_;
     std::string targetAbilityName_;
     int32_t targetExtensionPid_ = 0;

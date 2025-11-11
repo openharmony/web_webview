@@ -131,7 +131,7 @@ ohos_unittest("native_interface_arkweb_test") {
 ohos_unittest("web_native_messaging_extension_context_info_test") {
   module_out_path = module_output_path
 
-  sources = [ 
+  sources = [
     "web_native_messaging_extension_context_info_test.cpp"
   ]
 
@@ -173,7 +173,7 @@ ohos_unittest("web_native_messaging_extension_context_info_test") {
 ohos_unittest("web_native_messaging_extension_context_test") {
   module_out_path = module_output_path
 
-  sources = [ 
+  sources = [
     "web_native_messaging_extension_context_test.cpp"
   ]
 
@@ -264,7 +264,6 @@ config("module_private_config") {
     "${target_gen_dir}/../../ohos_nweb/include",
     "${webview_path}/interfaces/kits/napi/web_native_messaging_extension/extension/include",
     "${webview_path}/interfaces/kits/napi/web_native_messaging_extension/extension_client/include",
-    "mock",
   ]
 }
 
@@ -339,15 +338,27 @@ ohos_unittest("web_native_messaging_manager_test") {
     "${webview_path}/sa/web_native_messaging/service/service_event_handler.cpp",
     "${webview_path}/sa/web_native_messaging/service/web_extension_connection_callback_proxy.cpp",
     "${webview_path}/sa/web_native_messaging/service/web_native_messaging_manager.cpp",
-    "${webview_path}/sa/web_native_messaging/service/web_native_messaging_service.cpp",
     "${webview_path}/sa/web_native_messaging/common/connection_native_info_parcel.cpp",
     "mock/mock_accesstoken_kit.cpp",
+    "mock/bundle_mgr_client.cpp",
   ]
-  configs = [ ":module_private_config" ]
   sources += filter_include(output_values, [ "*.cpp" ])
 
+  include_dirs = [
+    "$webview_path/sa/include",
+    "$webview_path/sa/web_native_messaging/client",
+    "$webview_path/sa/web_native_messaging/common",
+    "$webview_path/sa/web_native_messaging/service",
+    "$webview_path/ohos_nweb/include",
+    "${target_gen_dir}/../../../sa/web_native_messaging",
+    "${target_gen_dir}",
+    "${target_gen_dir}/../../ohos_nweb/include",
+    "${webview_path}/interfaces/kits/napi/web_native_messaging_extension/extension/include",
+    "${webview_path}/interfaces/kits/napi/web_native_messaging_extension/extension_client/include",
+    "mock"
+  ]
+
   deps = [
-    "${webview_path}/sa/web_native_messaging:web_native_messaging_service",
     "${webview_path}/interfaces/kits/napi/web_native_messaging_extension/extension_client:web_extension_client",
     "${webview_path}/interfaces/kits/napi/web_native_messaging_extension/extension:web_extension",
     ":web_native_messaging_service_interface",
@@ -362,8 +373,6 @@ ohos_unittest("web_native_messaging_manager_test") {
     "ability_runtime:ability_context_native",
     "ability_runtime:ability_start_options",
     "access_token:libaccesstoken_sdk",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog:libhilog",

@@ -232,7 +232,7 @@ int32_t ExtensionIpcConnection::ConnectNative(std::shared_ptr<ConnectionNativeRe
             RemovePendingRequestUnlock(request);
             return ConnectNativeRet::ABILITY_CONNECTION_ERROR;
         }
-        ErrCode err = abilityClient->ConnectAbilityWithExtensionType(want, spThis, token_, -1,
+        ErrCode err = abilityClient->ConnectAbilityWithExtensionType(want, spThis, token_, callerUserId_,
             AppExecFwk::ExtensionAbilityType::WEB_NATIVE_MESSAGING);
         if (err != ERR_OK) {
             WNMLOG_E("call ability manager connect extension failed, err %{public}d", err);

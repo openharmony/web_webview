@@ -41,6 +41,7 @@ struct ConnectNativeParams {
     std::string callerBundleName;
     sptr<IRemoteObject> connectionCallback;
     sptr<IRemoteObject> token;
+    int32_t callerUserId;
 };
 
 class WebNativeMessagingManager : public IWebNativeMessagingManager,
@@ -72,11 +73,11 @@ private:
     sptr<ExtensionIpcConnection> LookUpIpcConnection(Security::AccessToken::AccessTokenID tokenId,
         std::string& bundleName);
     sptr<ExtensionIpcConnection> NewIpcConnectionUnlock(Security::AccessToken::AccessTokenID tokenId,
-        std::string& bundleName, std::string& abilityName, sptr<IRemoteObject> token);
+        std::string& bundleName, std::string& abilityName, sptr<IRemoteObject> token, int32_t userId);
     sptr<ExtensionIpcConnection> NewIpcConnection(Security::AccessToken::AccessTokenID tokenId,
-        std::string& bundleName, std::string& abilityName, sptr<IRemoteObject> token);
+        std::string& bundleName, std::string& abilityName, sptr<IRemoteObject> token, int32_t userId);
     sptr<ExtensionIpcConnection> LookUpOrNewIpcConnection(Security::AccessToken::AccessTokenID tokenId,
-        std::string& bundleName, std::string& abilityName, sptr<IRemoteObject> token);
+        std::string& bundleName, std::string& abilityName, sptr<IRemoteObject> token, int32_t userId);
 
     bool GetPidExtensionBundleName(int32_t pid, std::string& bundleName);
     int32_t GetAndCheckConnectParams(const sptr<IRemoteObject>& token,
