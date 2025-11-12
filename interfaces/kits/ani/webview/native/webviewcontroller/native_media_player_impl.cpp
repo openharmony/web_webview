@@ -29,16 +29,15 @@ constexpr int INTEGER_ZERO = 0;
 constexpr int INTEGER_ONE = 1;
 
 namespace {
-const char* NATIVE_MEDIA_PLAYER_HANDLER_INNER = "L@ohos/web/webview/webview/NativeMediaPlayerHandlerinner;";
-const char* MEDIA_INFO_INNER = "L@ohos/web/webview/webview/MediaInfoinner;";
-const char* RECT_EVENT_INNER = "L@ohos/web/webview/webview/RectEventinner;";
-const char* CLASS_MEDIA_SOURCE_INFO = "L@ohos/web/webview/webview/MediaSourceInfo;";
-const char* NATIVE_MEDIA_PLAYER_SURFACE_INFO = "L@ohos/web/webview/webview/NativeMediaPlayerSurfaceInfo;";
-const char* CLASS_NAME_STRING = "Lstd/core/String;";
-const char* ANI_ENUM_MEDIA_TYPE = "L@ohos/web/webview/webview/MediaType;";
-const char* ANI_ENUM_PRELOAD = "L@ohos/web/webview/webview/Preload;";
-const char* ANI_ENUM_SOURCE_TYPE = "L@ohos/web/webview/webview/SourceType;";
-const char* ANI_ENUM_SUSPEND_TYPE = "L@ohos/web/webview/webview/SuspendType;";
+const char* NATIVE_MEDIA_PLAYER_HANDLER_INNER = "@ohos.web.webview.webview.NativeMediaPlayerHandlerinner";
+const char* MEDIA_INFO_INNER = "@ohos.web.webview.webview.MediaInfoinner";
+const char* RECT_EVENT_INNER = "@ohos.web.webview.webview.RectEventinner";
+const char* CLASS_MEDIA_SOURCE_INFO = "@ohos.web.webview.webview.MediaSourceInfo";
+const char* NATIVE_MEDIA_PLAYER_CLASS_NAME = "@ohos.web.webview.webview.NativeMediaPlayerSurfaceInfo";
+const char* ANI_ENUM_MEDIA_TYPE = "@ohos.web.webview.webview.MediaType";
+const char* ANI_ENUM_PRELOAD = "@ohos.web.webview.webview.Preload";
+const char* ANI_ENUM_SOURCE_TYPE = "@ohos.web.webview.webview.SourceType";
+const char* ANI_ENUM_SUSPEND_TYPE = "@ohos.web.webview.webview.SuspendType";
 } // namespace
 
 bool Wrap(ani_env* env, const ani_object& object, const char* className, const ani_long& thisVar)
@@ -50,7 +49,7 @@ bool Wrap(ani_env* env, const ani_object& object, const char* className, const a
         return false;
     }
     ani_method innerWrapMethod;
-    if ((status = env->Class_FindMethod(cls, "bindNativePtr", "J:V", &innerWrapMethod)) != ANI_OK) {
+    if ((status = env->Class_FindMethod(cls, "bindNativePtr", "l:", &innerWrapMethod)) != ANI_OK) {
         WVLOG_E("AniUtils_Wrap Class_FindMethod status: %{public}d", status);
         return false;
     }
@@ -148,10 +147,10 @@ void NWebNativeMediaPlayerBridgeImpl::UpdateRect(double x, double y, double widt
         return;
     }
 
-    if (env->Object_CallMethodByName_Void(reinterpret_cast<ani_object>(value_), "updateRect", nullptr, 
-                                          static_cast<ani_double>(x), 
-                                          static_cast<ani_double>(y), 
-                                          static_cast<ani_double>(width), 
+    if (env->Object_CallMethodByName_Void(reinterpret_cast<ani_object>(value_), "updateRect", nullptr,
+                                          static_cast<ani_double>(x),
+                                          static_cast<ani_double>(y),
+                                          static_cast<ani_double>(width),
                                           static_cast<ani_double>(height)) != ANI_OK) {
         WVLOG_E("UpdateRect failed");
     }
@@ -191,7 +190,7 @@ void NWebNativeMediaPlayerBridgeImpl::Seek(double time)
         return;
     }
 
-    if (env->Object_CallMethodByName_Void(reinterpret_cast<ani_object>(value_), "seek", nullptr, 
+    if (env->Object_CallMethodByName_Void(reinterpret_cast<ani_object>(value_), "seek", nullptr,
                                           static_cast<ani_double>(time)) != ANI_OK) {
         WVLOG_E("Seek failed");
     }
@@ -205,7 +204,7 @@ void NWebNativeMediaPlayerBridgeImpl::SetVolume(double volume)
         return;
     }
 
-    if (env->Object_CallMethodByName_Void(reinterpret_cast<ani_object>(value_), "setVolume", nullptr, 
+    if (env->Object_CallMethodByName_Void(reinterpret_cast<ani_object>(value_), "setVolume", nullptr,
                                           static_cast<ani_double>(volume)) != ANI_OK) {
         WVLOG_E("SetVolume failed");
     }
@@ -219,7 +218,7 @@ void NWebNativeMediaPlayerBridgeImpl::SetMuted(bool isMuted)
         return;
     }
 
-    if (env->Object_CallMethodByName_Void(reinterpret_cast<ani_object>(value_), "setMuted", nullptr, 
+    if (env->Object_CallMethodByName_Void(reinterpret_cast<ani_object>(value_), "setMuted", nullptr,
                                           static_cast<ani_boolean>(isMuted)) != ANI_OK) {
         WVLOG_E("SetMuted failed");
     }
@@ -233,7 +232,7 @@ void NWebNativeMediaPlayerBridgeImpl::SetPlaybackRate(double playbackRate)
         return;
     }
 
-    if (env->Object_CallMethodByName_Void(reinterpret_cast<ani_object>(value_), "setPlaybackRate", nullptr, 
+    if (env->Object_CallMethodByName_Void(reinterpret_cast<ani_object>(value_), "setPlaybackRate", nullptr,
                                           static_cast<ani_double>(playbackRate)) != ANI_OK) {
         WVLOG_E("SetPlaybackRate failed");
     }
@@ -285,7 +284,7 @@ void NWebNativeMediaPlayerBridgeImpl::ResumeMediaPlayer()
     ani_ref argv[INTEGER_ZERO];
     ani_ref resumeRef {};
     ani_ref ref;
-    if (env->Object_GetPropertyByName_Ref(reinterpret_cast<ani_object>(value_), "resumePlayer", &resumeRef) != 
+    if (env->Object_GetPropertyByName_Ref(reinterpret_cast<ani_object>(value_), "resumePlayer", &resumeRef) !=
         ANI_OK){
         WVLOG_E("ResumeMediaPlayer failed");
         return;
@@ -314,7 +313,7 @@ void NWebNativeMediaPlayerBridgeImpl::SuspendMediaPlayer(SuspendType type)
     argv[INTEGER_ZERO] = static_cast<ani_ref>(SuspendTypeRef);
     ani_ref suspendRef {};
     ani_ref ref;
-    if (env->Object_GetPropertyByName_Ref(reinterpret_cast<ani_object>(value_), "suspendPlayer", &suspendRef) != 
+    if (env->Object_GetPropertyByName_Ref(reinterpret_cast<ani_object>(value_), "suspendPlayer", &suspendRef) !=
         ANI_OK){
         WVLOG_E("SuspendMediaPlayer failed");
         return;
@@ -444,14 +443,14 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructHandler(
 
     ani_object object = nullptr;
     if (!CreateObjectVoid(env, NATIVE_MEDIA_PLAYER_HANDLER_INNER, object)) {
-        WVLOG_E("new napiNativeMediaPlayerHandlerImpl createobject failed");
+        WVLOG_E("new NapiNativeMediaPlayerHandlerImpl createobject failed");
         delete napiNativeMediaPlayerHandlerImpl;
         napiNativeMediaPlayerHandlerImpl = nullptr;
         return nullptr;
     }
 
     if (!Wrap(env, object, NATIVE_MEDIA_PLAYER_HANDLER_INNER,
-              reinterpret_cast<ani_long>(napiNativeMediaPlayerHandlerImpl))) {
+        reinterpret_cast<ani_long>(napiNativeMediaPlayerHandlerImpl))) {
         WVLOG_E("aniNativeMediaPlayerHandlerImpl wrap failed");
         delete napiNativeMediaPlayerHandlerImpl;
         napiNativeMediaPlayerHandlerImpl = nullptr;
@@ -469,25 +468,20 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructControls(const std:
         return nullptr;
     }
 
-    ani_class stringCls = nullptr;
-    if (ANI_OK != env->FindClass(CLASS_NAME_STRING, &stringCls)) {
-        WVLOG_E("FindClass failed");
-        return nullptr;
-    }
     ani_ref undefinedRef = nullptr;
     if (ANI_OK != env->GetUndefined(&undefinedRef)) {
         WVLOG_E("GetUndefined failed");
         return nullptr;
     }
-    ani_array_ref array;
-    if (ANI_OK != env->Array_New_Ref(stringCls, controls.size(), undefinedRef, &array)) {
+    ani_array array;
+    if (ANI_OK != env->Array_New(controls.size(), undefinedRef, &array)) {
         WVLOG_E("ConstructControls failed");
         return nullptr;
     }
 
     for (size_t i = 0; i < controls.size(); i++) {
         auto item = StringToAniStr(env, controls[i]);
-        env->Array_Set_Ref(array, i, item);
+        env->Array_Set(array, i, item);
     }
 
     return static_cast<ani_object>(array);
@@ -502,11 +496,11 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructHeaders(const std::
         return nullptr;
     }
     ani_object object = nullptr;
-    if (!CreateObjectVoid(env, "Lescompat/Record;", object) || object == nullptr) {
+    if (!CreateObjectVoid(env, "escompat.Record", object) || object == nullptr) {
         return nullptr;
     }
     ani_class cls;
-    ani_status status = env->FindClass("Lescompat/Record;", &cls);
+    ani_status status = env->FindClass("escompat.Record", &cls);
     if (status != ANI_OK) {
         WVLOG_E("find class failed, status: %{public}d", status);
         return nullptr;
@@ -537,11 +531,11 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructAttributes(
         return nullptr;
     }
     ani_object object = nullptr;
-    if (!CreateObjectVoid(env, "Lescompat/Record;", object) || object == nullptr) {
+    if (!CreateObjectVoid(env, "escompat.Record", object) || object == nullptr) {
         return nullptr;
     }
     ani_class cls;
-    ani_status status = env->FindClass("Lescompat/Record;", &cls);
+    ani_status status = env->FindClass("escompat.Record", &cls);
     if (status != ANI_OK) {
         WVLOG_E("find class failed, status: %{public}d", status);
         return nullptr;
@@ -583,7 +577,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructMediaInfo(std::shar
     env->Object_SetPropertyByName_Ref(object, "embedID", embedIdref);
 
     ani_enum_item mediaTypeRef;
-    if (!GetEnumItemByIndex(env, ANI_ENUM_MEDIA_TYPE, 
+    if (!GetEnumItemByIndex(env, ANI_ENUM_MEDIA_TYPE,
                             static_cast<int32_t>(mediaInfo->GetMediaType()), mediaTypeRef)) {
         return nullptr;
     }
@@ -616,7 +610,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructMediaInfo(std::shar
     ani_ref attributesRef = static_cast<ani_ref>(attributes);
     if (attributesRef == nullptr) { return nullptr; }
     env->Object_SetPropertyByName_Ref(object, "attributes", attributesRef);
-    
+
     ani_boolean isMuted = static_cast<ani_boolean>(mediaInfo->GetIsMuted());
     env->Object_SetPropertyByName_Boolean(object, "muted", isMuted);
 
@@ -628,7 +622,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructMediaInfo(std::shar
     env->Object_SetPropertyByName_Ref(object, "posterUrl", posterUrlref);
 
     ani_enum_item preloadRef;
-    if (!GetEnumItemByIndex(env, ANI_ENUM_PRELOAD, 
+    if (!GetEnumItemByIndex(env, ANI_ENUM_PRELOAD,
                             static_cast<int32_t>(mediaInfo->GetPreload()), preloadRef)) {
         return nullptr;
     }
@@ -645,18 +639,14 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructSourceInfos(
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return nullptr;
     }
-    ani_class stringCls = nullptr;
-    if (ANI_OK != env->FindClass(CLASS_MEDIA_SOURCE_INFO, &stringCls)) {
-        WVLOG_E("FindClass failed");
-        return nullptr;
-    }
+
     ani_ref undefinedRef = nullptr;
     if (ANI_OK != env->GetUndefined(&undefinedRef)) {
         WVLOG_E("GetUndefined failed");
         return nullptr;
     }
-    ani_array_ref array;
-    if (ANI_OK != env->Array_New_Ref(stringCls, sourceInfos.size(), undefinedRef, &array)) {
+    ani_array array;
+    if (ANI_OK != env->Array_New(sourceInfos.size(), undefinedRef, &array)) {
         WVLOG_E("ConstructSourceInfos failed");
         return nullptr;
     }
@@ -668,7 +658,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructSourceInfos(
         }
 
         ani_enum_item typeRef;
-        if (!GetEnumItemByIndex(env, ANI_ENUM_SOURCE_TYPE, 
+        if (!GetEnumItemByIndex(env, ANI_ENUM_SOURCE_TYPE,
                                 static_cast<int32_t>(sourceInfos[i]->GetType()), typeRef)) {
             return nullptr;
         }
@@ -682,7 +672,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructSourceInfos(
         if (formatref == nullptr) { return nullptr; }
         env->Object_SetPropertyByName_Ref(sourceInfo, "format", formatref);
 
-        env->Array_Set_Ref(array, i, static_cast<ani_ref>(sourceInfo));
+        env->Array_Set(array, i, static_cast<ani_ref>(sourceInfo));
     }
     return static_cast<ani_object>(array);
 }
@@ -696,7 +686,7 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructSurfaceInfo(
         return nullptr;
     }
     ani_object object;
-    if (!CreateObjectVoid(env, NATIVE_MEDIA_PLAYER_SURFACE_INFO, object)) {
+    if (!CreateObjectVoid(env, NATIVE_MEDIA_PLAYER_CLASS_NAME, object)) {
         return nullptr;
     }
 

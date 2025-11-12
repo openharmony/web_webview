@@ -22,6 +22,7 @@
 
 namespace OHOS {
 namespace NWeb {
+extern ani_boolean g_WebMessagePort;
 struct OfflineResourceValueAni {
     ani_ref urlListArray;
     ani_ref resourceArrayBuffer;
@@ -35,6 +36,7 @@ ani_status StsCleanerInit(ani_env *env);
 ani_status StsBackForwardListInit(ani_env *env);
 ani_status StsWebMessagePortInit(ani_env *env);
 ani_status StsWebSchemeHandlerResponseInit(ani_env *env);
+ani_status StsWebHttpBodyStreamInit(ani_env *env);
 ani_status StsWebDownloadDelegateInit(ani_env *env);
 ani_status StsWebDownLoadItemInit(ani_env *env);
 ani_status StsWebDownloadManagerInit(ani_env *env);

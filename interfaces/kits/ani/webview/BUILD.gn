@@ -50,6 +50,7 @@ ohos_shared_library("webview_ani") {
     "./src/common/ani_business_error.cpp",
     "./src/common/ani_parse_utils.cpp",
     "./src/common/ani_parse_utils.h",
+    "./src/common/ani_web_net_error_list.h",
     "./src/webstorage/ani_web_storage.cpp",
     "./src/webadsblockmanager/ani_web_adsblock_manager.h",
     "./src/webadsblockmanager/ani_web_adsblock_manager.cpp",
@@ -65,6 +66,8 @@ ohos_shared_library("webview_ani") {
     "./src/webviewcontroller/ani_web_scheme_handler.h",
     "./src/webviewcontroller/ani_web_scheme_handler_response.cpp",
     "./src/webviewcontroller/ani_web_scheme_handler_response.h",
+    "./src/webviewcontroller/ani_web_http_body_stream.cpp",
+    "./src/webviewcontroller/ani_web_http_body_stream.h",
     "./src/webviewcontroller/ani_web_download_delegate.cpp",
     "./src/webviewcontroller/ani_web_download_item.cpp",
     "./src/webviewcontroller/ani_web_download_manager.cpp",
@@ -74,16 +77,20 @@ ohos_shared_library("webview_ani") {
     "./src/webviewcontroller/web_download_item.h",
     "./src/webviewcontroller/web_download_manager.cpp",
     "./src/webviewcontroller/web_download_manager.h",
+    "./src/webviewcontroller/ani_nweb_value_callback_impl.cpp",
+    "./src/webviewcontroller/ani_nweb_value_callback_impl.h",
     "./src/webviewcontroller/ani_web_cookie_manager.cpp",
     "./src/webviewcontroller/ani_native_media_player_handler.cpp",
     "./src/webviewcontroller/ani_native_media_player_handler.h",
     "./src/webviewcontroller/ani_webview_createpdf_execute_callback.cpp",
     "./src/webviewcontroller/webview_javascript_execute_callback.cpp",
     "./src/webviewcontroller/webview_javascript_execute_callback.h",
+    "./src/proxycontroller/ani_proxy_controller.cpp",
+    "./src/proxycontroller/ani_proxy_controller.h",
     "./src/webviewcontroller/ani_prefetch_options.cpp",
     "./src/webviewcontroller/ani_prefetch_options.h",
     "./src/webviewcontroller/prefetch_options.cpp",
-    "./src/webviewcontroller/prefetch_options.h", 
+    "./src/webviewcontroller/prefetch_options.h",
     "./src/proxycontroller/ani_proxy_config.cpp",
     "./src/proxycontroller/ani_proxy_config.h",
     "./src/proxycontroller/proxy_config.cpp",
@@ -152,6 +159,7 @@ generate_static_abc("web_webview") {
   base_url = "./ets"
   files = [
     "./ets/@ohos.web.webview.ets",
+    "./ets/@ohos.web.netErrorList.ets",
   ]
   is_boot_abc = "True"
   device_dst_file = "/system/framework/web_webview.abc"

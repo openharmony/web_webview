@@ -38,13 +38,13 @@ const double MAX_PLAYBACK_RATE = 10.0;
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-const char* NATIVE_MEDIA_PLAYER_HANDLER_INNER_CLASS_NAME = "L@ohos/web/webview/webview/NativeMediaPlayerHandlerinner;";
+const char* NATIVE_MEDIA_PLAYER_HANDLER_INNER_CLASS_NAME = "@ohos.web.webview.webview.NativeMediaPlayerHandlerinner";
 }
 
 bool EnumParseInt32_t(ani_env* env, ani_enum_item enum_item, int32_t& outValue)
 {
     ani_class doubleObject;
-    if (env->FindClass("Lstd/core/Object;", &doubleObject) != ANI_OK) {
+    if (env->FindClass("std.core.Object", &doubleObject) != ANI_OK) {
         WVLOG_E("EnumParseInt32 failed - invalid FindClass type");
         return false;
     }
@@ -66,7 +66,7 @@ bool EnumParseInt32_t(ani_env* env, ani_enum_item enum_item, int32_t& outValue)
 bool ParseDouble_t(ani_env* env, ani_ref ref, double& outValue)
 {
     ani_class doubleClass;
-    if (env->FindClass("Lstd/core/Double;", &doubleClass) != ANI_OK) {
+    if (env->FindClass("std.core.Double", &doubleClass) != ANI_OK) {
         WVLOG_E("ParseDouble failed - invalid FindClass type");
         return false;
     }
@@ -78,7 +78,7 @@ bool ParseDouble_t(ani_env* env, ani_ref ref, double& outValue)
     }
 
     ani_double value = 0;
-    if (env->Object_CallMethodByName_Double(static_cast<ani_object>(ref), "unboxed", ":d", &value) != ANI_OK) {
+    if (env->Object_CallMethodByName_Double(static_cast<ani_object>(ref), "toDouble", ":d", &value) != ANI_OK) {
         WVLOG_E("ParseDouble failed");
         return false;
     }
@@ -89,7 +89,7 @@ bool ParseDouble_t(ani_env* env, ani_ref ref, double& outValue)
 bool ParseBoolean_t(ani_env* env, ani_ref ref, bool& outValue)
 {
     ani_class boolClass;
-    if (env->FindClass("Lstd/core/Boolean;", &boolClass) != ANI_OK) {
+    if (env->FindClass("std.core.Boolean", &boolClass) != ANI_OK) {
         WVLOG_E("ParseBoolean failed - invalid FindClass type");
         return false;
     }
@@ -100,7 +100,7 @@ bool ParseBoolean_t(ani_env* env, ani_ref ref, bool& outValue)
     }
 
     ani_boolean boolValue = false;
-    if (env->Object_CallMethodByName_Boolean(static_cast<ani_object>(ref), "unboxed", ":z", &boolValue) != ANI_OK) {
+    if (env->Object_CallMethodByName_Boolean(static_cast<ani_object>(ref), "toBoolean", ":z", &boolValue) != ANI_OK) {
         WVLOG_E("ParseBoolean failed");
         return false;
     }
@@ -110,7 +110,7 @@ bool ParseBoolean_t(ani_env* env, ani_ref ref, bool& outValue)
 
 ani_object createObjectDouble(ani_env* env, ani_double status)
 {
-    static constexpr const char* className = "Lstd/core/Double;";
+    static constexpr const char* className = "std.core.Double";
     ani_class doubleCls {};
     if (env->FindClass(className, &doubleCls) != ANI_OK) {
         WVLOG_E("createObjectDouble failed - invalid FindClass type");
@@ -131,7 +131,7 @@ ani_object createObjectDouble(ani_env* env, ani_double status)
 
 ani_object createObjectBoolean(ani_env* env, ani_boolean status)
 {
-    static constexpr const char* className = "Lstd/core/Boolean;";
+    static constexpr const char* className = "std.core.Boolean";
     ani_class booleanCls {};
     if (env->FindClass(className, &booleanCls) != ANI_OK) {
         WVLOG_E("createObjectBoolean failed - invalid FindClass type");
@@ -641,7 +641,8 @@ ani_status StsNativeMediaPlayerHandlerinnerInit(ani_env* env)
             "find %{public}s class failed, status: %{public}d", NATIVE_MEDIA_PLAYER_HANDLER_INNER_CLASS_NAME, status);
         return ANI_ERROR;
     }
-    std::array allMethods = {
+
+    std::array instanceMethods = {
         ani_native_function { "handleStatusChanged", nullptr, reinterpret_cast<void*>(HandleStatusChanged) },
         ani_native_function { "handleVolumeChanged", nullptr, reinterpret_cast<void*>(HandleVolumeChanged) },
         ani_native_function { "handleMutedChanged", nullptr, reinterpret_cast<void*>(HandleMutedChanged) },
@@ -660,16 +661,24 @@ ani_status StsNativeMediaPlayerHandlerinnerInit(ani_env* env)
         ani_native_function { "handleSeekFinished", nullptr, reinterpret_cast<void*>(HandleSeekFinished) },
         ani_native_function { "handleError", nullptr, reinterpret_cast<void*>(HandleError) },
         ani_native_function { "handleVideoSizeChanged", nullptr, reinterpret_cast<void*>(HandleVideoSizeChanged) },
+    };
+    status = env->Class_BindNativeMethods(
+        nativeMediaPlayerHandlerinnerCls, instanceMethods.data(), instanceMethods.size());
+    if (status != ANI_OK) {
+        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+        return status;
+    }
+
+    std::array staticMethods = {
         ani_native_function { "transferNativeMediaPlayerHandlerToStaticInner", nullptr,
             reinterpret_cast<void*>(TransferNativeMediaPlayerHandlerToStaticInner) },
     };
-
-    status = env->Class_BindNativeMethods(nativeMediaPlayerHandlerinnerCls, allMethods.data(), allMethods.size());
+    status = env->Class_BindStaticNativeMethods(
+        nativeMediaPlayerHandlerinnerCls, staticMethods.data(), staticMethods.size());
     if (status != ANI_OK) {
-        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
-        return ANI_ERROR;
+        WVLOG_E("Class_BindStaticNativeMethods failed status: %{public}d", status);
     }
-    return ANI_OK;
+    return status;
 }
 
 } // namespace NWeb

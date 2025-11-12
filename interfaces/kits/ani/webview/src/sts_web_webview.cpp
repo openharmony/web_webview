@@ -33,6 +33,7 @@
 #include "ani_web_scheme_handler.h"
 #include "ani_web_scheme_handler_resource.h"
 #include "ani_web_scheme_handler_request.h"
+#include "ani_proxy_controller.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -53,6 +54,7 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
     StsBackForwardListInit(env);
     StsWebMessagePortInit(env);
     StsWebSchemeHandlerResponseInit(env);
+    StsWebHttpBodyStreamInit(env);
     StsWebDownloadDelegateInit(env);
     StsWebDownLoadItemInit(env);
     StsWebDownloadManagerInit(env);
@@ -71,6 +73,7 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
     StsWebSchemeHandlerResourceInit(env);
     StsWebSchemeHandlerRequestInit(env);
     StsWebSchemeHandlerInit(env);
+    StsProxyControllerInit(env);
     *result = ANI_VERSION_1;
     return ANI_OK;
 }

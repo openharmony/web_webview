@@ -14,10 +14,12 @@
  */
 
 #include <array>
+#include <cstdint>
 #include <iostream>
 
 #include "webview_controller.h"
 #include "web_scheme_handler_response.h"
+#include "ani_web_net_error_list.h"
 
 #include "ani_business_error.h"
 #include "ani_parse_utils.h"
@@ -30,7 +32,7 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-const char* WEB_SCHEME_HANDLER_RESPONSE_CLASS_NAME = "L@ohos/web/webview/webview/WebSchemeHandlerResponse;";
+const char* WEB_SCHEME_HANDLER_RESPONSE_CLASS_NAME = "@ohos.web.webview.webview.WebSchemeHandlerResponse";
 }
 
 static void JsSetUrl(ani_env *env, ani_object object, ani_object urlObject)
@@ -341,6 +343,61 @@ static ani_string JsGetHeaderByName(ani_env* env, ani_object object, ani_object 
     return headerValue;
 }
 
+static ani_enum_item JsGetNetErrorCode(ani_env* env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    auto* schemeHandler = reinterpret_cast<WebSchemeHandlerResponse*>(AniParseUtils::Unwrap(env, object));
+    if (!schemeHandler) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        WVLOG_E("Unwrap WebSchemeHandler failed");
+        return nullptr;
+    }
+    ani_int result = 0;
+    ani_enum enumType;
+    ani_status status = env->FindEnum("@ohos.web.netErrorList.WebNetErrorList", &enumType);
+    if (status != ANI_OK) {
+        WVLOG_E("JsGetNetErrorCode FindEnum error");
+        return nullptr;
+    }
+
+    result = schemeHandler->GetErrorCode();
+    ani_int index = static_cast<ani_int>(GetErrorIndex(result));
+    ani_enum_item code;
+    status = env->Enum_GetEnumItemByIndex(enumType, index, &code);
+    if (status != ANI_OK) {
+        WVLOG_E("Enum_GetEnumItemByIndex status: %{public}d", status);
+        return nullptr;
+    }
+    return code;
+}
+
+static void JsSetNetErrorCode(ani_env* env, ani_object object, ani_enum_item code)
+{
+    WVLOG_I("JsSetNetErrorCode begin");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* schemeHandler = reinterpret_cast<WebSchemeHandlerResponse*>(AniParseUtils::Unwrap(env, object));
+    if (!schemeHandler) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        WVLOG_E("Unwrap WebSchemeHandler failed");
+        return;
+    }
+    ani_int iCode;
+    if (env->EnumItem_GetValue_Int(code, &iCode) != ANI_OK) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    int32_t codeInt = static_cast<int32_t>(iCode);
+    schemeHandler->SetErrorCode(codeInt);
+    return;
+}
+
 static void Constructor(ani_env *env, ani_object object)
 {
     WVLOG_D("WebSchemeHandlerResponse native Constructor");
@@ -388,6 +445,8 @@ ani_status StsWebSchemeHandlerResponseInit(ani_env *env)
         ani_native_function { "getStatus", nullptr, reinterpret_cast<void*>(JsGetStatus) },
         ani_native_function { "setHeaderByName", nullptr, reinterpret_cast<void*>(JsSetHeaderByName) },
         ani_native_function { "getHeaderByName", nullptr, reinterpret_cast<void*>(JsGetHeaderByName) },
+        ani_native_function { "getNetErrorCode", nullptr, reinterpret_cast<void*>(JsGetNetErrorCode) },
+        ani_native_function { "setNetErrorCode", nullptr, reinterpret_cast<void*>(JsSetNetErrorCode) },
     };
 
     status = env->Class_BindNativeMethods(webSchemeHandlerResponseCls, allMethods.data(), allMethods.size());

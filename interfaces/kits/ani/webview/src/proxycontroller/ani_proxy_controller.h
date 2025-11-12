@@ -13,14 +13,27 @@
  * limitations under the License.
  */
 
- #ifndef OHOS_NWEB_ANI_WEB_DATA_BASE_H
- #define OHOS_NWEB_ANI_WEB_DATA_BASE_H
+#ifndef OHOS_NWEB_ANI_PROXY_CONTROLLER_H
+#define OHOS_NWEB_ANI_PROXY_CONTROLLER_H
 
+#include "nweb_proxy_changed_callback.h"
  #include <ani.h>
 
- namespace OHOS {
- namespace NWeb {
- ani_status StsWebDataBaseInit(ani_env *env);
- } // namespace NWeb
- } // namespace OHOS
- #endif // OHOS_NWEB_ANI_WEB_DATA_BASE_H
+namespace OHOS {
+namespace NWeb {
+class ProxyChangedCallbackImpl : public NWebProxyChangedCallback {
+public:
+    ProxyChangedCallbackImpl(ani_env* env, ani_ref callback) : env_(env), callback_(callback) {}
+    ~ProxyChangedCallbackImpl() = default;
+
+    void OnChanged() override;
+
+private:
+    ani_env* env_;
+    ani_ref callback_;
+};
+
+ani_status StsProxyControllerInit(ani_env* env);
+} // namespace NWeb
+} // namespace OHOS
+#endif // OHOS_NWEB_ANI_PROXY_CONTROLLER_H

@@ -49,8 +49,8 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-static const char* WEB_STORAGE_CLASS_NAME = "L@ohos/web/webview/webview/WebStorage;";
-static const char* ANI_CLASS_WEB_STORAGE_ORIGIN_INNER = "L@ohos/web/webview/webview/WebStorageOriginInner;";
+static const char* WEB_STORAGE_CLASS_NAME = "@ohos.web.webview.webview.WebStorage";
+static const char* ANI_CLASS_WEB_STORAGE_ORIGIN_INNER = "@ohos.web.webview.webview.WebStorageOriginInner";
 }
 
 void DeleteAllData(ani_env *env, ani_object object, ani_object incognitoObj)
@@ -167,12 +167,12 @@ static ani_object GetOriginsSync(ani_env *env, ani_object obj)
         return nullptr;
     }
     ani_class arrayCls = nullptr;
-    if (env->FindClass("Lescompat/Array;", &arrayCls) != ANI_OK) {
+    if (env->FindClass("escompat.Array", &arrayCls) != ANI_OK) {
         WVLOG_E("find class escompat/Array; failed");
         return nullptr;
     }
     ani_method arrayCtor;
-    if (env->Class_FindMethod(arrayCls, "<ctor>", "I:V", &arrayCtor) != ANI_OK) {
+    if (env->Class_FindMethod(arrayCls, "<ctor>", "i:", &arrayCtor) != ANI_OK) {
         WVLOG_E("find class escompat/Array; failed");
         return nullptr;
     }
@@ -194,7 +194,7 @@ static ani_object GetOriginsSync(ani_env *env, ani_object obj)
             WVLOG_E("obj is nullptr");
             break;
         }
-        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "ILstd/core/Object;:V", index, obj) != ANI_OK) {
+        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "iY:", index, obj) != ANI_OK) {
             WVLOG_E("Object_CallMethodByName_Void failed");
             break;
         }
@@ -275,9 +275,9 @@ ani_status StsWebStorageInit(ani_env *env)
         ani_native_function { "getOriginUsageSync", nullptr, reinterpret_cast<void *>(GetOriginUsageSync) },
     };
 
-    status = env->Class_BindNativeMethods(webStorageCls, storageMethods.data(), storageMethods.size());
+    status = env->Class_BindStaticNativeMethods(webStorageCls, storageMethods.data(), storageMethods.size());
     if (status != ANI_OK) {
-        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+        WVLOG_E("Class_BindStaticNativeMethods failed status: %{public}d", status);
         return ANI_ERROR;
     }
     return ANI_OK;

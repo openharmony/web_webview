@@ -30,7 +30,7 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-const char* WEB_DOWNLOAD_DELEGATE_CLASS_NAME = "L@ohos/web/webview/webview/WebDownloadDelegate;";
+const char* WEB_DOWNLOAD_DELEGATE_CLASS_NAME = "@ohos.web.webview.webview.WebDownloadDelegate";
 }
 
 static void OnBeforeDownload(ani_env* env, ani_object object, ani_fn_object callback)

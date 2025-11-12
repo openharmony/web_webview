@@ -29,7 +29,7 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-static const char* WEB_ADS_BLOCK_MANAGER_CLASS_NAME = "L@ohos/web/webview/webview/AdsBlockManager;";
+static const char* WEB_ADS_BLOCK_MANAGER_CLASS_NAME = "@ohos.web.webview.webview.AdsBlockManager";
 constexpr int MAX_URL_RULES_FILEPATH_LENGTH = 255;
 }
 
@@ -39,7 +39,7 @@ void ClearAdsBlockAllowedList(ani_env *env, ani_object object)
         WVLOG_E("clear ads_block allowed list failed, env is nullptr.");
         return;
     }
-    std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> adsBlockManager = 
+    std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> adsBlockManager =
         OHOS::NWeb::NWebHelper::Instance().GetAdsBlockManager();
     if (adsBlockManager != nullptr) {
         adsBlockManager->ClearAdsBlockAllowedList();
@@ -52,7 +52,7 @@ void ClearAdsBlockDisallowedList(ani_env *env, ani_object object)
         WVLOG_E("clear ads_block disallowed list failed, env is nullptr.");
         return;
     }
-    std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> adsBlockManager = 
+    std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> adsBlockManager =
         OHOS::NWeb::NWebHelper::Instance().GetAdsBlockManager();
     if (adsBlockManager != nullptr) {
         adsBlockManager->ClearAdsBlockDisallowedList();
@@ -79,7 +79,7 @@ void RemoveAdsBlockDisallowedList(ani_env *env, ani_object object, ani_object do
         return;
     }
 
-    std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> adsBlockManager = 
+    std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> adsBlockManager =
         OHOS::NWeb::NWebHelper::Instance().GetAdsBlockManager();
     if (adsBlockManager != nullptr) {
         adsBlockManager->RemoveAdsBlockDisallowedList(domainSuffixes);
@@ -106,7 +106,7 @@ void AddAdsBlockDisallowedList(ani_env *env, ani_object object, ani_object domai
         return;
     }
 
-    std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> adsBlockManager = 
+    std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> adsBlockManager =
         OHOS::NWeb::NWebHelper::Instance().GetAdsBlockManager();
     if (adsBlockManager != nullptr) {
         adsBlockManager->AddAdsBlockDisallowedList(domainSuffixes);
@@ -160,7 +160,7 @@ void RemoveAdsBlockAllowedList(ani_env *env, ani_object object, ani_object domai
         return;
     }
 
-    std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> adsBlockManager = 
+    std::shared_ptr<OHOS::NWeb::NWebAdsBlockManager> adsBlockManager =
         OHOS::NWeb::NWebHelper::Instance().GetAdsBlockManager();
     if (adsBlockManager != nullptr) {
         adsBlockManager->RemoveAdsBlockAllowedList(domainSuffixes);
@@ -212,15 +212,15 @@ ani_status StsWebAdsBlockManagerInit(ani_env *env)
     }
 
     std::array managerMethods = {
-        ani_native_function { "clearAdsBlockAllowedList", 
+        ani_native_function { "clearAdsBlockAllowedList",
             nullptr, reinterpret_cast<void *>(ClearAdsBlockAllowedList) },
-        ani_native_function { "clearAdsBlockDisallowedList", 
+        ani_native_function { "clearAdsBlockDisallowedList",
             nullptr, reinterpret_cast<void *>(ClearAdsBlockDisallowedList)},
-        ani_native_function { "removeAdsBlockDisallowedList", 
+        ani_native_function { "removeAdsBlockDisallowedList",
             nullptr, reinterpret_cast<void *>(RemoveAdsBlockDisallowedList)},
-        ani_native_function { "addAdsBlockDisallowedList", 
+        ani_native_function { "addAdsBlockDisallowedList",
             nullptr, reinterpret_cast<void *>(AddAdsBlockDisallowedList)},
-        ani_native_function { "removeAdsBlockAllowedList", 
+        ani_native_function { "removeAdsBlockAllowedList",
             nullptr, reinterpret_cast<void *>(RemoveAdsBlockAllowedList)},
         ani_native_function { "addAdsBlockAllowedList",
             nullptr, reinterpret_cast<void *>(AddAdsBlockAllowedList)},
@@ -228,9 +228,9 @@ ani_status StsWebAdsBlockManagerInit(ani_env *env)
             nullptr, reinterpret_cast<void *>(JsSetAdsBlockRules)},
     };
 
-    status = env->Class_BindNativeMethods(webAdsBlockManagerCls, managerMethods.data(), managerMethods.size());
+    status = env->Class_BindStaticNativeMethods(webAdsBlockManagerCls, managerMethods.data(), managerMethods.size());
     if (status != ANI_OK) {
-        WVLOG_E("WebAdsBlockManager Class_BindNativeMethods failed status: %{public}d", status);
+        WVLOG_E("WebAdsBlockManager Class_BindStaticNativeMethods failed status: %{public}d", status);
         return ANI_ERROR;
     }
     return ANI_OK;
