@@ -1017,7 +1017,7 @@ napi_value NapiWebCookieManager::JsFetchAllCookies(napi_env env, napi_callback_i
     }
  
     bool incognitoMode = false;
-    if (argc == INTEGER_ONE && !GetBooleanPara(env, argv[INTEGER_ZERO], incognitoMode)) {
+    if (!GetBooleanPara(env, argv[INTEGER_ZERO], incognitoMode)) {
         return nullptr;
     }
  
