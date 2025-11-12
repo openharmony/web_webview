@@ -59,13 +59,24 @@ public:
 
     std::string systemTmpVersionFile_ = "system_version_tmp.txt";
     std::string updateTmpVersionFile_ = "update_version_tmp.txt";
+    static int paramEnforce;
+    static int paramDefault;
 };
 
+int ArkWebUtilsTest::paramEnforce = 0;
+int ArkWebUtilsTest::paramDefault = 0;
+
 void ArkWebUtilsTest::SetUpTestCase(void)
-{}
+{
+    paramEnforce = OHOS::system::GetIntParameter("web.engine.enforce", 0);
+    paramDefault = OHOS::system::GetIntParameter("web.engine.default", 0);
+}
 
 void ArkWebUtilsTest::TearDownTestCase(void)
-{}
+{
+    OHOS::system::SetParameter("web.engine.enforce", std::to_string(paramEnforce));
+    OHOS::system::SetParameter("web.engine.default", std::to_string(paramDefault));
+}
 
 void ArkWebUtilsTest::SetUp(void)
 {}
@@ -195,14 +206,11 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetArkwebInstallPath_001, TestSize.Lev
 
     auto aclPath = GetArkwebInstallPath();
     bool res = (aclPath == SANDBOX_LEGACY_HAP_PATH || aclPath == PRECONFIG_LEGACY_HAP_PATH);
-    // rk is default
-    std::string deviceType = OHOS::system::GetDeviceType();
-    if (deviceType == "default") {
-        EXPECT_FALSE(res);
-    } else {
+    if (access(PRECONFIG_LEGACY_HAP_PATH.c_str(), F_OK) == 0) {
         EXPECT_TRUE(res);
+    } else {
+        EXPECT_FALSE(res);
     }
-
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
 }
 
@@ -213,19 +221,13 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetArkwebInstallPath_002, TestSize.Lev
 
     auto aclPath = GetArkwebInstallPath();
     bool res = (aclPath == SANDBOX_EVERGREEN_HAP_PATH || aclPath == PRECONFIG_EVERGREEN_HAP_PATH);
-    // rk is default
-    std::string deviceType = OHOS::system::GetDeviceType();
-    if (deviceType == "default") {
-        EXPECT_FALSE(res);
-    } else {
-        EXPECT_TRUE(res);
-    }
-
+    EXPECT_TRUE(res);
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
 }
 
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_IsActiveWebEngineEvergreen_001, TestSize.Level1)
 {
+    OHOS::system::SetParameter("web.engine.enforce", "0");
     setActiveWebEngineVersion(ArkWebEngineVersion::M114);
     EXPECT_FALSE(IsActiveWebEngineEvergreen());
     setActiveWebEngineVersion(ArkWebEngineVersion::M132);
@@ -275,6 +277,7 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_DlcloseArkWebLib_001, TestSize.Level1)
 
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ProcessDefaultParam_001, TestSize.Level1)
 {
+    OHOS::system::SetParameter("web.engine.default", "0");
     std::string key = "web.engine.default";
     Json::Value value = 1000;
     ProcessDefaultParam(value);

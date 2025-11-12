@@ -44,11 +44,20 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
+    static int paramEnforce;
 };
 
-void NativeInterfaceArkWebTest::SetUpTestCase(void) {}
+int NativeInterfaceArkWebTest::paramEnforce = 0;
 
-void NativeInterfaceArkWebTest::TearDownTestCase(void) {}
+void NativeInterfaceArkWebTest::SetUpTestCase(void)
+{
+    paramEnforce = OHOS::system::GetIntParameter("web.engine.enforce", 0);
+}
+
+void NativeInterfaceArkWebTest::TearDownTestCase(void)
+{
+    OHOS::system::SetParameter("web.engine.enforce", std::to_string(paramEnforce));
+}
 
 void NativeInterfaceArkWebTest::SetUp(void) {}
 
@@ -253,6 +262,7 @@ HWTEST_F(NativeInterfaceArkWebTest, OH_NativeArkWeb_SetBlanklessLoadingCacheCapa
 HWTEST_F(NativeInterfaceArkWebTest, OH_NativeArkWeb_Blankless_Dual_Core_01, TestSize.Level1) {
     bool defaultStatus = OHOS::system::GetBoolParameter("web.blankless.enabled", false);
     OHOS::system::SetParameter("web.blankless.enabled", "true");
+    OHOS::system::SetParameter("web.engine.enforce", "0");
     auto version = ArkWeb::getActiveWebEngineVersion();
     ArkWeb::setActiveWebEngineVersion(ArkWeb::ArkWebEngineVersion::M114);
     auto info = OH_NativeArkWeb_GetBlanklessInfoWithKey("", "");
