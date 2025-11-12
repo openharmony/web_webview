@@ -15,9 +15,9 @@
 
  #ifndef OHOS_NWEB_ANI_WEB_STORAGE_H
  #define OHOS_NWEB_ANI_WEB_STORAGE_H
- 
+
  #include <ani.h>
- 
+
  namespace OHOS {
  namespace NWeb {
  ani_status StsWebStorageInit(ani_env *env);

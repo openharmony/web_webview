@@ -200,6 +200,8 @@ public:
 
     std::string GetTitle();
 
+    int32_t GetProgress();
+
     int32_t GetPageHeight();
 
     ErrCode BackOrForward(int32_t step);
@@ -246,6 +248,8 @@ public:
     void SetNWebJavaScriptResultCallBack();
 
     void RegisterJavaScriptProxy(RegisterJavaScriptProxyParam& param);
+
+    void RegisterJavaScriptProxy(AniRegisterJavaScriptProxyParam& param);
 
     ErrCode DeleteJavaScriptRegister(const std::string& objName,
         const std::vector<std::string>& methodList);
@@ -306,7 +310,7 @@ public:
 
     ErrCode PostUrl(std::string& url, std::vector<char>& postData);
 
-    int GetSecurityLevel();
+    int GetSecurityLevel(ani_env* env);
 
     void EnableSafeBrowsing(bool enable);
 
@@ -343,6 +347,8 @@ public:
     static bool SetWebServiveWorkerSchemeHandler(const char* scheme, WebSchemeHandler* handler);
 
     int32_t ClearWebSchemeHandler();
+
+    static int32_t ClearWebServiceWorkerSchemeHandler();
 
     ErrCode StartCamera();
 
@@ -427,8 +433,6 @@ public:
     void OnCreateNativeMediaPlayer(ani_vm *vm, ani_fn_object callback);
 
     int32_t GetNWebId();
-
-    int32_t GetProgress();
 
     ErrCode SetErrorPageEnabled(bool enable);
 

@@ -12,15 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef OHOS_NWEB_ANI_WEB_HTTP_BODY_STREAM_H
+#define OHOS_NWEB_ANI_WEB_HTTP_BODY_STREAM_H
 
- #ifndef OHOS_NWEB_ANI_WEB_DATA_BASE_H
- #define OHOS_NWEB_ANI_WEB_DATA_BASE_H
+#include <ani.h>
 
- #include <ani.h>
-
- namespace OHOS {
- namespace NWeb {
- ani_status StsWebDataBaseInit(ani_env *env);
- } // namespace NWeb
- } // namespace OHOS
- #endif // OHOS_NWEB_ANI_WEB_DATA_BASE_H
+namespace OHOS {
+namespace NWeb {
+ani_status StsWebHttpBodyStreamInit(ani_env* env);
+} // namespace NWeb
+} // namespace OHOS
+#endif // OHOS_NWEB_ANI_WEB_HTTP_BODY_STREAM_H

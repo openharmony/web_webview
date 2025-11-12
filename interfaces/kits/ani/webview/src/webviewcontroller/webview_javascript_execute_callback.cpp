@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include "webview_javascript_execute_callback.h"
+
 #include <memory>
 
 #include "ani.h"
@@ -23,12 +25,11 @@
 #include "nweb_log.h"
 #include "nweb_web_message.h"
 #include "web_errors.h"
-#include "webview_javascript_execute_callback.h"
 
 namespace OHOS::NWeb {
 using namespace NWebError;
 namespace {
-const char* ANI_JSMESSAGEEXT_CLASS_NAME = "L@ohos/web/webview/webview/JsMessageExt;";
+const char* ANI_JSMESSAGEEXT_CLASS_NAME = "@ohos.web.webview.webview.JsMessageExt";
 }
 thread_local ani_ref g_jsMsgExtClassRef;
 
@@ -36,8 +37,8 @@ const std::string TASK_ID = "javascript";
 constexpr int32_t CALLBACK_PARAM_LENGTH = 2;
 
 WebviewJavaScriptExecuteCallback::WebviewJavaScriptExecuteCallback(
-    ani_env* env, ani_ref callback, ani_resolver resolver, bool extention)
-    : vm_(nullptr), callbackRef_(nullptr), resolver_(resolver), extention_(extention)
+    ani_env* env, ani_ref callback, ani_resolver resolver, bool extension)
+    : vm_(nullptr), callbackRef_(nullptr), resolver_(resolver), extension_(extension)
 {
     WVLOG_D("WebviewJavaScriptExecuteCallback::WebviewJavaScriptExecuteCallback");
     if (!env) {
@@ -82,10 +83,10 @@ ani_object WrapStsError(ani_env* env, const std::string& msg)
         return nullptr;
     }
 
-    if ((status = env->FindClass("Lescompat/Error;", &cls)) != ANI_OK) {
+    if ((status = env->FindClass("escompat.Error", &cls)) != ANI_OK) {
         return nullptr;
     }
-    if ((status = env->Class_FindMethod(cls, "<ctor>", "Lstd/core/String;Lescompat/ErrorOptions;:V", &method)) !=
+    if ((status = env->Class_FindMethod(cls, "<ctor>", "C{std.core.String}C{escompat.ErrorOptions}:", &method)) !=
         ANI_OK) {
         return nullptr;
     }
@@ -100,11 +101,11 @@ ani_ref CreateStsError(ani_env* env, ani_int code, const std::string& msg)
 {
     ani_class cls;
     ani_status status = ANI_OK;
-    if ((status = env->FindClass("L@ohos/base/BusinessError;", &cls)) != ANI_OK) {
+    if ((status = env->FindClass("@ohos.base.BusinessError", &cls)) != ANI_OK) {
         return nullptr;
     }
     ani_method ctor;
-    if ((status = env->Class_FindMethod(cls, "<ctor>", "ILescompat/Error;:V", &ctor)) != ANI_OK) {
+    if ((status = env->Class_FindMethod(cls, "<ctor>", "iC{escompat.Error}:", &ctor)) != ANI_OK) {
         return nullptr;
     }
     ani_object error = WrapStsError(env, msg);
@@ -141,8 +142,8 @@ bool CreateArgs(std::shared_ptr<WebviewJavaScriptExecuteCallback> jsObj, std::sh
             WVLOG_E("create null resultRef[0] error");
             return false;
         }
-        if (!(jsObj->GetExtention())) {
-            WVLOG_E("TriggerJsCallback extention is false");
+        if (!(jsObj->GetExtension())) {
+            WVLOG_E("TriggerJsCallback extension is false");
             resultRef[1] = OHOS::NWeb::AniParseUtils::ConvertNWebToAniValue(env, result);
         } else {
             WebJsMessageExt* webJsMessageExt = new (std::nothrow) WebJsMessageExt(result);
@@ -173,14 +174,19 @@ static void UvAfterWorkCbPromise(std::shared_ptr<WebviewJavaScriptExecuteCallbac
     std::shared_ptr<NWebMessage> result, std::vector<ani_ref>& resultRef)
 {
     WVLOG_D("enter UvAfterWorkCbPromise");
-    ani_env* env;
-    if (!jsObj || !(env = jsObj->GetEnv())) {
-        WVLOG_E("env or jsObj is nullptr");
+    if (!jsObj) {
+        WVLOG_E("jsObj is nullptr");
+        return;
+    }
+    ani_env* env = jsObj->GetEnv();
+    if (!env) {
+        WVLOG_E("env is nullptr");
         return;
     }
     ani_status status;
     resultRef[0] = CreateStsError(env, static_cast<ani_int>(NWebError::INVALID_RESOURCE), result->GetErrMsg());
-    if (!(jsObj->GetExtention())) {
+    if (!(jsObj->GetExtension())) {
+        WVLOG_E("TriggerJsCallback extension is false");
         resultRef[1] = OHOS::NWeb::AniParseUtils::ConvertNWebToAniValue(env, result);
     } else {
         WebJsMessageExt* webJsMessageExt = new (std::nothrow) WebJsMessageExt(result);
@@ -253,6 +259,11 @@ void TriggerJsCallback(std::shared_ptr<WebviewJavaScriptExecuteCallback> jsObj, 
 
 void WebviewJavaScriptExecuteCallback::OnReceiveValue(std::shared_ptr<NWebMessage> result)
 {
+    WVLOG_D("WebviewJavaScriptExecuteCallback::OnReceiveValue");
+    if (!result) {
+        WVLOG_E("result is null");
+        return;
+    }
     WVLOG_I("WebviewJavaScriptExecuteCallback::OnReceiveValue");
     std::shared_ptr<WebviewJavaScriptExecuteCallback> sharedThis = shared_from_this();
 
@@ -275,7 +286,7 @@ void WebviewJavaScriptExecuteCallback::OnReceiveValue(std::shared_ptr<NWebMessag
     if (postResult) {
         WVLOG_D("PostTask success");
     } else {
-        WVLOG_E("ostTask failed");
+        WVLOG_E("PostTask failed");
     }
 }
 
@@ -357,7 +368,7 @@ static ani_enum_item GetType(ani_env* env, ani_object object)
     }
     ani_int typeMode = 0;
     ani_enum enumType;
-    if ((env->FindEnum("L@ohos/web/webview/webview/JsMessageType;", &enumType)) != ANI_OK) {
+    if ((env->FindEnum("@ohos.web.webview.webview.JsMessageType", &enumType)) != ANI_OK) {
         WVLOG_E("FindEnum failed");
         return nullptr;
     }
@@ -401,8 +412,8 @@ static ani_string GetString(ani_env* env, ani_object object)
 
 static ani_object GetNumber(ani_env* env, ani_object object)
 {
-    WVLOG_I("GetNumber webJsMessageExt start");
-    if (env == nullptr) {
+    WVLOG_D("GetNumber webJsMessageExt start");
+    if (!env) {
         WVLOG_E("env is nullptr");
         return nullptr;
     }
@@ -423,6 +434,7 @@ static ani_object GetNumber(ani_env* env, ani_object object)
         WVLOG_E("message failed.");
         return nullptr;
     }
+
     return static_cast<ani_object>(AniParseUtils::ConvertNWebToAniValue(env, message));
 }
 
@@ -512,7 +524,7 @@ static ani_object GetArray(ani_env* env, ani_object object)
         return nullptr;
     }
 
-    ani_array_ref arr = nullptr;
+    ani_array arr = nullptr;
     auto message = webJsMessageExt->GetJsMsgResult();
     if (!message) {
         WVLOG_E("message failed.");
@@ -520,13 +532,13 @@ static ani_object GetArray(ani_env* env, ani_object object)
     }
     NWebValue::Type type = message->GetType();
     if (type == NWebValue::Type::STRINGARRAY) {
-        arr = static_cast<ani_array_ref>(OHOS::NWeb::ConvertToAniHandlerOfStringArr(env, message));
+        arr = static_cast<ani_array>(OHOS::NWeb::ConvertToAniHandlerOfStringArr(env, message));
     } else if (type == NWebValue::Type::BOOLEANARRAY) {
-        arr = static_cast<ani_array_ref>(OHOS::NWeb::ConvertToAniHandlerOfBooleanArr(env, message));
+        arr = static_cast<ani_array>(OHOS::NWeb::ConvertToAniHandlerOfBooleanArr(env, message));
     } else if (type == NWebValue::Type::DOUBLEARRAY) {
-        arr = static_cast<ani_array_ref>(OHOS::NWeb::ConvertToAniHandlerOfDoubleArr(env, message));
+        arr = static_cast<ani_array>(OHOS::NWeb::ConvertToAniHandlerOfDoubleArr(env, message));
     } else if (type == NWebValue::Type::INT64ARRAY) {
-        arr = static_cast<ani_array_ref>(OHOS::NWeb::ConvertToAniHandlerOfInt64Arr(env, message));
+        arr = static_cast<ani_array>(OHOS::NWeb::ConvertToAniHandlerOfInt64Arr(env, message));
     }
     return arr;
 }

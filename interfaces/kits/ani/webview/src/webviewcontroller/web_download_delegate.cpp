@@ -28,7 +28,7 @@
 namespace OHOS {
 namespace NWeb {
 namespace {
-const char* WEB_DOWNLOAD_ITEM_CLASS_NAME = "L@ohos/web/webview/webview/WebDownloadItem;";
+const char* WEB_DOWNLOAD_ITEM_CLASS_NAME = "@ohos.web.webview.webview.WebDownloadItem";
 }
 
 WebDownloadDelegate::WebDownloadDelegate(ani_env* env)

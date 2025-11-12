@@ -22,6 +22,9 @@
 
 #include "arkweb_scheme_handler.h"
 #include "refbase.h"
+#include "event_handler.h"
+#include "nweb_value_callback.h"
+#include "nweb_web_message.h"
 #include "web_resource_handler.h"
 #include "web_scheme_handler_request.h"
 #include "web_scheme_handler_response.h"
@@ -65,13 +68,52 @@ private:
         const ArkWeb_ResourceRequest* arkWebRequest_;
     } RequestStopParam;
 
-    static void RequestStopAfterWorkCb(RequestStopParam* param);
+    void RequestStopAfterWorkCb(RequestStopParam* param);
     ani_env* env_ = nullptr;
     ani_vm* vm_ = nullptr;
+    std::shared_ptr<AppExecFwk::EventHandler> mainHandler_;
     ArkWeb_OnRequestStart onRequestStart_ = nullptr;
     ArkWeb_OnRequestStop onRequestStop_ = nullptr;
     ani_ref request_start_callback_ = nullptr;
     ani_ref request_stop_callback_ = nullptr;
+};
+class WebHttpBodyStream {
+public:
+    explicit WebHttpBodyStream(ani_env* env);
+    static void HttpBodyStreamReadCallback(const ArkWeb_HttpBodyStream* httpBodyStream, uint8_t* buffer, int bytesRead);
+    static void HttpBodyStreamInitCallback(const ArkWeb_HttpBodyStream* httpBodyStream, ArkWeb_NetError result);
+    WebHttpBodyStream(ani_env* env, ArkWeb_HttpBodyStream* stream);
+    ~WebHttpBodyStream();
+    void Init(ani_ref jsCallback, ani_resolver initResolver);
+    void Read(int bufLen, ani_ref jsCallback, ani_resolver readResolver);
+    uint64_t GetPosition() const;
+    uint64_t GetSize() const;
+    bool IsChunked() const;
+    bool IsEof();
+    bool IsInMemory();
+
+    void ExecuteInit(ArkWeb_NetError result);
+    void ExecuteRead(uint8_t* buffer, int bytesRead);
+
+private:
+    struct InitAsyncCtx {
+        ani_env* env = nullptr;
+        ani_resolver deferred;
+        int32_t errCode = -1;
+    };
+
+    struct ReadAsyncCtx {
+        ani_env* env = nullptr;
+        ani_resolver deferred;
+        uint8_t* buffer = nullptr;
+        int bytesRead = 0;
+    };
+    ani_ref initJsCallback_ = nullptr;
+    ani_resolver initResolver_ = nullptr;
+    ani_ref readJsCallback_ = nullptr;
+    ani_resolver readResolver_ = nullptr;
+    ani_env* env_;
+    ArkWeb_HttpBodyStream* stream_ = nullptr;
 };
 
 } // namespace NWeb
