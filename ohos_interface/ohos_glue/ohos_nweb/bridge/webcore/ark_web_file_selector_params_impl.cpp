@@ -68,4 +68,10 @@ bool ArkWebFileSelectorParamsImpl::IsAcceptAllOptionExcluded()
 {
     return nweb_file_selector_params_->IsAcceptAllOptionExcluded();
 }
+
+const ArkWebString ArkWebFileSelectorParamsImpl::Accepts()
+{
+    return ArkWebStringClassToStruct(nweb_file_selector_params_->Accepts());
+}
+}
 } // namespace OHOS::ArkWeb
