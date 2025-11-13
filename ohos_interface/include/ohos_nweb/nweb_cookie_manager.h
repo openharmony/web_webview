@@ -26,8 +26,6 @@ namespace OHOS::NWeb {
 
 class NWebCookie;
 
-class NWebCookieManagerCookies;
-
 class OHOS_NWEB_EXPORT NWebCookieManager {
 public:
     NWebCookieManager() = default;

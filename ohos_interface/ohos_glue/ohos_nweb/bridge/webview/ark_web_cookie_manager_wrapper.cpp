@@ -18,7 +18,7 @@
 #include "ohos_nweb/bridge/ark_web_bool_value_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_long_value_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_string_value_callback_impl.h"
-#include "ohos_nweb/ctocpp/ark_web_cookie_manager_cookies_vector_ctocpp.h"
+#include "ohos_nweb/ctocpp/ark_web_cookie_vector_ctocpp.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
 
