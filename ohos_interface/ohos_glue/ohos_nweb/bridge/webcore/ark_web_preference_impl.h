@@ -699,6 +699,16 @@ public:
      */
     void PutZoomControlAccess(bool zoomControlAccess) override;
 
+    /**
+     * @brief Set whether to enable image analyzer.
+     */
+    void PutImageAnalyzerEnabled(bool enabled) override;
+
+    /**
+     * @brief Get whether to enable image analyzer.
+     */
+    bool GetImageAnalyzerEnabled() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebPreference> nweb_preference_;
 };

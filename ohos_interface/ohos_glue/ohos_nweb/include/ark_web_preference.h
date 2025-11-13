@@ -791,6 +791,18 @@ public:
      */
     /*--ark web()--*/
     virtual void PutZoomControlAccess(bool zoomControlAccess) = 0;
+
+    /**
+     * @brief Set whether to enable image analyzer.
+     */
+    /*--ark web()--*/
+    virtual void PutImageAnalyzerEnabled(bool enabled) = 0;
+
+    /**
+     * @brief Get whether to enable image analyzer.
+     */
+    /*--ark web()--*/
+    virtual bool GetImageAnalyzerEnabled() = 0;
 };
 
 } // namespace OHOS::ArkWeb
