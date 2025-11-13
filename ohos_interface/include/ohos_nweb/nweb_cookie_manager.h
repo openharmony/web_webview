@@ -24,6 +24,8 @@
 
 namespace OHOS::NWeb {
 
+class NWebCookie;
+
 class NWebCookieManagerCookies;
 
 class OHOS_NWEB_EXPORT NWebCookieManager {
@@ -236,24 +238,14 @@ public:
      * @param incognitoMode true if web is in the incognito mode, false otherwise.
      * @return null if get all cookies fails else return vector.
      */
-    virtual std::vector<std::shared_ptr<NWebCookieManagerCookies>> GetAllCookie(bool incognitoMode) = 0;
+    virtual std::vector<std::shared_ptr<NWebCookie>> GetAllCookie(bool incognitoMode) = 0;
 };
  
-class OHOS_NWEB_EXPORT NWebCookieManagerCookies {
+class OHOS_NWEB_EXPORT NWebCookie {
 public:
-    NWebCookieManagerCookies() = default;
-    virtual ~NWebCookieManagerCookies() = default;
- 
-    virtual void SetSamesitePolicy(int samesitePolicy) = 0;
-    virtual void SetExpiresDate(const std::string& expiresDate) = 0;
-    virtual void SetName(const std::string& name) = 0;
-    virtual void SetIsSessionCookie(bool isSessionCookie) = 0;
-    virtual void SetValue(const std::string& value) = 0;
-    virtual void SetPath(const std::string& path) = 0;
-    virtual void SetIsHttpOnly(bool isHttpOnly) = 0;
-    virtual void SetIsSecure(bool isSecure) = 0;
-    virtual void SetDomain(const std::string& domain) = 0;
- 
+    NWebCookie() = default;
+    virtual ~NWebCookie() = default;
+
     virtual int GetSamesitePolicy() = 0;
     virtual std::string GetExpiresDate() = 0;
     virtual std::string GetName() = 0;

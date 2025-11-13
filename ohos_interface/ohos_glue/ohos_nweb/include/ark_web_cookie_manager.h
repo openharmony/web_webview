@@ -20,7 +20,7 @@
 #include "ohos_nweb/include/ark_web_bool_value_callback.h"
 #include "ohos_nweb/include/ark_web_long_value_callback.h"
 #include "ohos_nweb/include/ark_web_string_value_callback.h"
-#include "ohos_nweb/include/ark_web_cookie_manager_cookies_vector.h"
+#include "ohos_nweb/include/ark_web_cookie_vector.h"
 
 namespace OHOS::ArkWeb {
 
@@ -247,7 +247,7 @@ public:
      * @Since: 12005
      */
     /*--ark web()--*/
-    virtual ArkWebCookieManagerCookiesVector GetAllCookie(bool incognitoMode) = 0;
+    virtual ArkWebCookieVector GetAllCookie(bool incognitoMode) = 0;
 };
 
 } // namespace OHOS::ArkWeb

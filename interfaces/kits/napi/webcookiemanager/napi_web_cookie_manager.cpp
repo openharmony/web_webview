@@ -914,7 +914,7 @@ void NapiWebCookieManager::ExecuteGetCookies(napi_env env, void *data)
         param->status = napi_generic_failure;
         return;
     }
-    std::vector<std::shared_ptr<NWebCookieManagerCookies>> cookies = cookieManager->GetAllCookie(param->incognitoMode);
+    std::vector<std::shared_ptr<NWebCookie>> cookies = cookieManager->GetAllCookie(param->incognitoMode);
     for (auto cookie : cookies) {
         NapiWebHttpCookie napiCookie;
         napiCookie.samesitePolicy = cookie->GetSamesitePolicy();
@@ -933,47 +933,47 @@ void NapiWebCookieManager::ExecuteGetCookies(napi_env env, void *data)
 }
  
 void NapiWebCookieManager::GetNapiWebHttpCookieForResult(napi_env env,
-    const std::vector<NapiWebHttpCookie> &info, napi_value result)
+    const std::vector<NapiWebHttpCookie> &cookies, napi_value result)
 {
     int32_t index = 0;
-    for (auto item : info) {
+    for (auto cookie : cookies) {
         napi_value napiWebHttpCookie = nullptr;
         napi_create_object(env, &napiWebHttpCookie);
  
         napi_value samesitePolicy = nullptr;
-        napi_create_int32(env, static_cast<uint32_t>(item.samesitePolicy), &samesitePolicy);
+        napi_create_int32(env, static_cast<uint32_t>(cookie.samesitePolicy), &samesitePolicy);
         napi_set_named_property(env, napiWebHttpCookie, "samesitePolicy", samesitePolicy);
  
         napi_value expiresDate = nullptr;
-        napi_create_string_utf8(env, item.expiresDate.c_str(), NAPI_AUTO_LENGTH, &expiresDate);
+        napi_create_string_utf8(env, cookie.expiresDate.c_str(), NAPI_AUTO_LENGTH, &expiresDate);
         napi_set_named_property(env, napiWebHttpCookie, "expiresDate", expiresDate);
  
         napi_value name = nullptr;
-        napi_create_string_utf8(env, item.name.c_str(), NAPI_AUTO_LENGTH, &name);
+        napi_create_string_utf8(env, cookie.name.c_str(), NAPI_AUTO_LENGTH, &name);
         napi_set_named_property(env, napiWebHttpCookie, "name", name);
  
         napi_value isSessionCookie = nullptr;
-        napi_get_boolean(env, static_cast<bool>(item.isSessionCookie), &isSessionCookie);
+        napi_get_boolean(env, static_cast<bool>(cookie.isSessionCookie), &isSessionCookie);
         napi_set_named_property(env, napiWebHttpCookie, "isSessionCookie", isSessionCookie);
  
         napi_value value = nullptr;
-        napi_create_string_utf8(env, item.value.c_str(), NAPI_AUTO_LENGTH, &value);
+        napi_create_string_utf8(env, cookie.value.c_str(), NAPI_AUTO_LENGTH, &value);
         napi_set_named_property(env, napiWebHttpCookie, "value", value);
  
         napi_value path = nullptr;
-        napi_create_string_utf8(env, item.path.c_str(), NAPI_AUTO_LENGTH, &path);
+        napi_create_string_utf8(env, cookie.path.c_str(), NAPI_AUTO_LENGTH, &path);
         napi_set_named_property(env, napiWebHttpCookie, "path", path);
  
         napi_value isHttpOnly = nullptr;
-        napi_get_boolean(env, static_cast<bool>(item.isHttpOnly), &isHttpOnly);
+        napi_get_boolean(env, static_cast<bool>(cookie.isHttpOnly), &isHttpOnly);
         napi_set_named_property(env, napiWebHttpCookie, "isHttpOnly", isHttpOnly);
  
         napi_value isSecure = nullptr;
-        napi_get_boolean(env, static_cast<bool>(item.isSecure), &isSecure);
+        napi_get_boolean(env, static_cast<bool>(cookie.isSecure), &isSecure);
         napi_set_named_property(env, napiWebHttpCookie, "isSecure", isSecure);
  
         napi_value domain = nullptr;
-        napi_create_string_utf8(env, item.domain.c_str(), NAPI_AUTO_LENGTH, &domain);
+        napi_create_string_utf8(env, cookie.domain.c_str(), NAPI_AUTO_LENGTH, &domain);
         napi_set_named_property(env, napiWebHttpCookie, "domain", domain);
  
         napi_set_element(env, result, index, napiWebHttpCookie);

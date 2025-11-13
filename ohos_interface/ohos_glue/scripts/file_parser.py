@@ -444,8 +444,8 @@ _simpletypes = {
     'ArkWebNativeEmbedParamItemVector': [
         'ArkWebNativeEmbedParamItemVector', 'ark_web_native_embed_param_item_vector_default'
     ],
-    'ArkWebCookieManagerCookiesVector': [
-        'ArkWebCookieManagerCookiesVector', 'ark_web_cookie_manager_cookies_vector_default'
+    'ArkWebCookieVector': [
+        'ArkWebCookieVector', 'ark_web_cookie_vector_default'
     ],
 }
 

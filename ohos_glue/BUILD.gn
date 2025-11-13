@@ -507,12 +507,12 @@ action("ohos_glue_nweb_prepare") {
     "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_native_message_callback_wrapper.h",
     "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_runtime_connect_info_wrapper.cpp",
     "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_runtime_connect_info_wrapper.h",
-    "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_cookie_manager_cookies_wrapper.cpp",
-    "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_cookie_manager_cookies_wrapper.h",
-    "${glue_build_gen_dir}/ohos_nweb/ctocpp/ark_web_cookie_manager_cookies_ctocpp.cpp",
-    "${glue_build_gen_dir}/ohos_nweb/ctocpp/ark_web_cookie_manager_cookies_ctocpp.h",
-    "${glue_build_gen_dir}/ohos_nweb/ctocpp/ark_web_cookie_manager_cookies_vector_ctocpp.cpp",
-    "${glue_build_gen_dir}/ohos_nweb/ctocpp/ark_web_cookie_manager_cookies_vector_ctocpp.h",
+    "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_cookie_wrapper.cpp",
+    "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_cookie_wrapper.h",
+    "${glue_build_gen_dir}/ohos_nweb/ctocpp/ark_web_cookie_ctocpp.cpp",
+    "${glue_build_gen_dir}/ohos_nweb/ctocpp/ark_web_cookie_ctocpp.h",
+    "${glue_build_gen_dir}/ohos_nweb/ctocpp/ark_web_cookie_vector_ctocpp.cpp",
+    "${glue_build_gen_dir}/ohos_nweb/ctocpp/ark_web_cookie_vector_ctocpp.h",
   ]
 
   deps = [
