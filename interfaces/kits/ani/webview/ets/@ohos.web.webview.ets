@@ -982,6 +982,55 @@ export default namespace webview {
         native setWebDetach(nwebId: int): void;
         native static getActiveWebEngineVersion(): ArkWebEngineVersion;
         native static setActiveWebEngineVersion(engineVersion: ArkWebEngineVersion): void;
+        native jsProxy(obj: Object, name: string, methodList: Array<string>, asyncMethodList?: Array<string>, permission?: string): void;
+        jsProxyInvokeMethod(obj: Object, name: string, args: Array<Object>): Any {
+            let clsVal = Type.of(obj) as ClassType;
+            let method = clsVal.getMethodByName(name);
+            if(args.length <= 0) {
+                return method.invoke(obj, []);
+            }
+            const methodArgs: FixedArray<Object> = new Object[args.length];
+            for (let argIdx = 0; argIdx < args.length; argIdx++) {
+                const arg = args[argIdx];
+                methodArgs[argIdx] = arg;
+            }
+            return method.invoke(obj, methodArgs);
+        }
+        getReferenceMap(): Map<string, Object> {
+            let claMap: Map<string, Object> = new Map<string, Object>;
+            return claMap;
+        }
+        setFieldForObject(target: Map<string, Object>, name: string, val: Object): Map<string, Object> {
+            try {
+                target.set(name, val);
+            } catch (e: Error) {
+                console.error(e);
+            }
+            return target;
+        }
+    }
+    
+    export class jsProxyCallbackWrapper {
+        myFun_: (...args: Array<Object|string|number|undefined|null>) => Any = (...args: Array<Object|string|number|undefined|null>) => { return "" };
+        constructor(myFun: (...args: Array<Object|string|number|undefined|null>)=> Any) {
+            this.myFun_ = myFun;
+        }
+
+        native callNativeFunc(ptr: long, argv: double, args: Array<Object>): void;
+        getCallback(ptr: long): (...args: Array<Object|string|number|undefined|null>) => Any {
+            this.myFun_ = (...args: Array<Object|string|number|undefined|null>) => {
+                let objArgs: Array<Object> = new Array<Object>;
+                for (const arg of args) {
+                    if (arg instanceof Object) {
+                       let obj = arg as Object;
+                       objArgs.push(obj);
+                    }
+                }
+                this.callNativeFunc(ptr, args.length, objArgs);
+                return "";
+            };
+            return this.myFun_;
+        }
     }
 
     export class WebSchemeHandlerResponse {

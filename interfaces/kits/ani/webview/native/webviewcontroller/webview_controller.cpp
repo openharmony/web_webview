@@ -1049,6 +1049,7 @@ void WebviewController::RegisterJavaScriptProxy(AniRegisterJavaScriptProxyParam&
     tmp.syncMethodList = allMethodList;
     tmp.asyncMethodList = param.asyncMethodList;
     tmp.permission = param.permission;
+    tmp.webviewObj = param.webviewObj;
     objId = javaScriptResultCb_->RegisterJavaScriptProxy(tmp);
 
     nweb_ptr->RegisterArkJSfunction(tmp.objName, tmp.syncMethodList, std::vector<std::string>(), objId, tmp.permission);

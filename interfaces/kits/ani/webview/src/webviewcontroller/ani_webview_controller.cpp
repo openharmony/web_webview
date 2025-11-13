@@ -5094,78 +5094,71 @@ ani_status StsWebMessageExtInit(ani_env* env)
     return status;
 }
 
-bool ParseRegisterJavaScriptProxyParam(ani_env* env, ani_object jsObject, ani_string name, ani_object methodList,
-    ani_object asyncMethodList, ani_object permission, AniRegisterJavaScriptProxyParam* param)
+static void InnerJsProxy(ani_env* env, ani_object object, ani_object obj, ani_string name, ani_array methodList,
+    ani_object asyncMethodList, ani_object permission)
 {
-    std::string objName;
-    if (!AniParseUtils::ParseString(env, name, objName)) {
-        AniBusinessError::ThrowError(
-            env, PARAM_CHECK_ERROR, NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "name", "string"));
-        return false;
+    if (env == nullptr) {
+        return;
     }
-
-    std::vector<std::string> jsMethodList;
-    if (!AniParseUtils::ParseStringArray(env, methodList, jsMethodList)) {
-        WVLOG_E("ParseRegisterJavaScriptProxyParam build jsMethodList error");
-        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
-        return false;
-    }
-    WVLOG_I("jsMethodList size = %{public}d", jsMethodList.size());
-    std::vector<std::string> jsAsyncMethodList;
-    ani_boolean isUndefined = ANI_TRUE;
-    if (env->Reference_IsUndefined(asyncMethodList, &isUndefined) != ANI_OK) {
-        return false;
-    }
-    WVLOG_I("ParseRegisterJavaScriptProxyParam jsAsyncMethodList is undefined? : %{public}d", isUndefined);
-    if (!isUndefined && !AniParseUtils::ParseStringArray(env, asyncMethodList, jsAsyncMethodList)) {
-        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
-        return false;
-    }
-    WVLOG_I("jsAsyncMethodList size = %{public}d", jsAsyncMethodList.size());
-    std::string jsPermission;
-    if (env->Reference_IsUndefined(permission, &isUndefined) != ANI_OK) {
-        return false;
-    }
-    WVLOG_I("ParseRegisterJavaScriptProxyParam Permission is undefined? : %{public}d", isUndefined);
-    if (!isUndefined && !AniParseUtils::ParseString(env, static_cast<ani_ref>(permission), jsPermission)) {
-        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
-        return false;
-    }
-
-    param->env = env;
-    param->obj = jsObject;
-    param->objName = objName;
-    param->syncMethodList = jsMethodList;
-    param->asyncMethodList = jsAsyncMethodList;
-    param->permission = jsPermission;
-    return true;
-}
-
-static void RegisterJavaScriptProxy(ani_env* env, ani_object object, ani_object jsObject, ani_string name,
-    ani_object methodList, ani_object asyncMethodList, ani_object permission)
-{
-    WVLOG_D("enter RegisterJavaScriptProxy");
-    if (!env) {
-        WVLOG_E("env is nullptr");
+    ani_vm* vm = nullptr;
+    if (env->GetVM(&vm) != ANI_OK) {
         return;
     }
 
-    AniRegisterJavaScriptProxyParam param;
-    if (!ParseRegisterJavaScriptProxyParam(env, jsObject, name, methodList, asyncMethodList, permission, &param)) {
-        WVLOG_E("bulid AniRegisterJavaScriptProxyParam error");
+    ani_ref webviewObj;
+    if (env->GlobalReference_Create(reinterpret_cast<ani_ref>(object), &webviewObj) != ANI_OK) {
         return;
     }
+    ani_ref saveObj;
+    if (env->GlobalReference_Create(reinterpret_cast<ani_ref>(obj), &saveObj) != ANI_OK) {
+        return;
+    }
+    std::string nameStr;
+    if (!AniParseUtils::ParseString(env, name, nameStr)) {
+        return;
+    }
+    std::vector<std::string> methodListStr;
+    if (!AniParseUtils::ParseStringArray(env, methodList, methodListStr)) {
+        return;
+    }
+    ani_boolean isUndefined = true;
+    std::vector<std::string> asyncMethodListStr;
+    if (env->Reference_IsUndefined(asyncMethodList, &isUndefined) == ANI_OK && !isUndefined) {
+        if (!AniParseUtils::ParseStringArray(env, asyncMethodList, asyncMethodListStr)) {
+            return;
+        }
+    }
+    isUndefined = true;
+    std::string permissionStr;
+    if (env->Reference_IsUndefined(permission, &isUndefined) == ANI_OK && !isUndefined) {
+        if (!AniParseUtils::ParseString(env, permission, permissionStr)) {
+            return;
+        }
+    }
 
-    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    WebviewController* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
     if (!controller || !controller->IsInit()) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
 
     controller->SetNWebJavaScriptResultCallBack();
+
+    AniRegisterJavaScriptProxyParam param;
+    param.env = env;
+    param.obj = reinterpret_cast<ani_object>(saveObj);
+    param.objName = nameStr;
+    param.syncMethodList = methodListStr;
+    param.asyncMethodList = asyncMethodListStr;
+    param.permission = permissionStr;
+    param.webviewObj = reinterpret_cast<ani_object>(webviewObj);
     controller->RegisterJavaScriptProxy(param);
-    WVLOG_I("exit RegisterJavaScriptProxy");
-    return;
+}
+
+static void RegisterJavaScriptProxy(ani_env* env, ani_object object, ani_object jsObject, ani_string name,
+    ani_object methodList, ani_object asyncMethodList, ani_object permission)
+{
+    InnerJsProxy(env, object, jsObject, name, static_cast<ani_array>(methodList), asyncMethodList, permission);
 }
 
 static void DeleteJavaScriptRegister(ani_env* env, ani_object object, ani_string name)
@@ -7117,6 +7110,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "hasImagePromise", nullptr, reinterpret_cast<void *>(HasImagePromise) },
         ani_native_function { "restoreWebState", nullptr, reinterpret_cast<void*>(RestoreWebState) },
         ani_native_function { "getCertificateSync", nullptr, reinterpret_cast<void*>(GetCertificateSync) },
+        ani_native_function { "jsProxy", nullptr, reinterpret_cast<void *>(InnerJsProxy) },
         ani_native_function { "setSocketIdleTimeout", nullptr, reinterpret_cast<void *>(SetSocketIdleTimeout) },
         ani_native_function { "enablePrivateNetworkAccess", nullptr,
                               reinterpret_cast<void*>(EnablePrivateNetworkAccess) },
