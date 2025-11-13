@@ -1386,4 +1386,9 @@ void ArkWebHandlerWrapper::OnCameraCaptureStateChanged(int originalState, int ne
 {
     ark_web_handler_->OnCameraCaptureStateChanged(originalState, newState);
 }
+
+void ArkWebHandlerWrapper::OnMicrophoneCaptureStateChanged(int originalState, int newState)
+{
+    ark_web_handler_->OnMicrophoneCaptureStateChanged(originalState, newState);
+}
 } // namespace OHOS::ArkWeb

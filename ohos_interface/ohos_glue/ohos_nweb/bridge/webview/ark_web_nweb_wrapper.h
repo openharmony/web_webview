@@ -1855,6 +1855,24 @@ public:
     /*--ark web()--*/
     void StopFling() override;
 
+    /**
+     * @brief Resume current microphone.
+     */
+    /*--ark web()--*/
+    void ResumeMicrophone() override;
+
+    /**
+     * @brief Stop current microphone.
+     */
+    /*--ark web()--*/
+    void StopMicrophone() override;
+
+    /**
+     * @brief Pause current microphone.
+     */
+    /*--ark web()--*/
+    void PauseMicrophone() override;
+
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };

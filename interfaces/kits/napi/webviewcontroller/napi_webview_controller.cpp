@@ -775,6 +775,9 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("startCamera", NapiWebviewController::StartCamera),
         DECLARE_NAPI_FUNCTION("stopCamera", NapiWebviewController::StopCamera),
         DECLARE_NAPI_FUNCTION("closeCamera", NapiWebviewController::CloseCamera),
+        DECLARE_NAPI_FUNCTION("resumeMicrophone", NapiWebviewController::ResumeMicrophone),
+        DECLARE_NAPI_FUNCTION("stopMicrophone", NapiWebviewController::StopMicrophone),
+        DECLARE_NAPI_FUNCTION("pauseMicrophone", NapiWebviewController::PauseMicrophone),
         DECLARE_NAPI_FUNCTION("closeAllMediaPresentations", NapiWebviewController::CloseAllMediaPresentations),
         DECLARE_NAPI_FUNCTION("stopAllMedia", NapiWebviewController::StopAllMedia),
         DECLARE_NAPI_FUNCTION("resumeAllMedia", NapiWebviewController::ResumeAllMedia),
@@ -6092,6 +6095,45 @@ napi_value NapiWebviewController::CloseCamera(napi_env env, napi_callback_info i
         return result;
     }
     webviewController->CloseCamera();
+
+    return result;
+}
+
+napi_value NapiWebviewController::ResumeMicrophone(napi_env env, napi_callback_info info)
+{
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_undefined(env, &result));
+    WebviewController* webviewController = GetWebviewController(env, info);
+    if (!webviewController) {
+        return result;
+    }
+    webviewController->ResumeMicrophone();
+
+    return result;
+}
+
+napi_value NapiWebviewController::StopMicrophone(napi_env env, napi_callback_info info)
+{
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_undefined(env, &result));
+    WebviewController* webviewController = GetWebviewController(env, info);
+    if (!webviewController) {
+        return result;
+    }
+    webviewController->StopMicrophone();
+
+    return result;
+}
+
+napi_value NapiWebviewController::PauseMicrophone(napi_env env, napi_callback_info info)
+{
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_undefined(env, &result));
+    WebviewController* webviewController = GetWebviewController(env, info);
+    if (!webviewController) {
+        return result;
+    }
+    webviewController->PauseMicrophone();
 
     return result;
 }

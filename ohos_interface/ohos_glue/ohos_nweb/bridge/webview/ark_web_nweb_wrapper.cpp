@@ -1915,4 +1915,19 @@ void ArkWebNWebWrapper::StopFling()
     WVLOG_D("ArkWebNWebWrapper::StopFling");
     ark_web_nweb_->StopFling();
 }
+
+void ArkWebNWebWrapper::ResumeMicrophone()
+{
+    ark_web_nweb_->ResumeMicrophone();
+}
+
+void ArkWebNWebWrapper::StopMicrophone()
+{
+    ark_web_nweb_->StopMicrophone();
+}
+
+void ArkWebNWebWrapper::PauseMicrophone()
+{
+    ark_web_nweb_->PauseMicrophone();
+}
 } // namespace OHOS::ArkWeb
