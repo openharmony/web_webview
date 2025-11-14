@@ -55,6 +55,7 @@ napi_value NapiWebCookieManager::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_FUNCTION("clearSessionCookie", NapiWebCookieManager::JsClearSessionCookieAsync),
         DECLARE_NAPI_STATIC_FUNCTION("saveCookieAsync", NapiWebCookieManager::JsSaveCookieAsync),
         DECLARE_NAPI_STATIC_FUNCTION("saveCookieSync", NapiWebCookieManager::JsSaveCookieSync),
+        DECLARE_NAPI_STATIC_FUNCTION("fetchAllCookies", NapiWebCookieManager::JsFetchAllCookies),
     };
     napi_value constructor = nullptr;
 
@@ -894,6 +895,138 @@ void NWebSaveCookieCallbackImpl::OnReceiveValue(bool result)
             work = nullptr;
         }
     }
+}
+
+void NapiWebCookieManager::ExecuteGetCookies(napi_env env, void *data)
+{
+    GetCookiesParam *param = reinterpret_cast<GetCookiesParam *>(data);
+    std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
+        OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
+    if (cookieManager == nullptr) {
+        param->status = napi_generic_failure;
+        return;
+    }
+    std::vector<std::shared_ptr<NWebCookie>> cookies = cookieManager->GetAllCookies(param->incognitoMode);
+    for (auto cookie : cookies) {
+        NapiWebHttpCookie napiCookie;
+        napiCookie.samesitePolicy = cookie->GetSamesitePolicy();
+        napiCookie.expiresDate = cookie->GetExpiresDate();
+        napiCookie.name = cookie->GetName();
+        napiCookie.isSessionCookie = cookie->GetIsSessionCookie();
+        napiCookie.value = cookie->GetValue();
+        napiCookie.path = cookie->GetPath();
+        napiCookie.isHttpOnly = cookie->GetIsHttpOnly();
+        napiCookie.isSecure = cookie->GetIsSecure();
+        napiCookie.domain = cookie->GetDomain();
+        param->cookies.push_back(napiCookie);
+    }
+    param->status = param->cookies.empty() ? napi_generic_failure : napi_ok;
+}
+ 
+void NapiWebCookieManager::GetNapiWebHttpCookieForResult(napi_env env,
+    const std::vector<NapiWebHttpCookie> &cookies, napi_value result)
+{
+    int32_t index = 0;
+    for (auto cookie : cookies) {
+        napi_value napiWebHttpCookie = nullptr;
+        napi_create_object(env, &napiWebHttpCookie);
+ 
+        napi_value samesitePolicy = nullptr;
+        napi_create_int32(env, static_cast<uint32_t>(cookie.samesitePolicy), &samesitePolicy);
+        napi_set_named_property(env, napiWebHttpCookie, "samesitePolicy", samesitePolicy);
+ 
+        napi_value expiresDate = nullptr;
+        napi_create_string_utf8(env, cookie.expiresDate.c_str(), NAPI_AUTO_LENGTH, &expiresDate);
+        napi_set_named_property(env, napiWebHttpCookie, "expiresDate", expiresDate);
+ 
+        napi_value name = nullptr;
+        napi_create_string_utf8(env, cookie.name.c_str(), NAPI_AUTO_LENGTH, &name);
+        napi_set_named_property(env, napiWebHttpCookie, "name", name);
+ 
+        napi_value isSessionCookie = nullptr;
+        napi_get_boolean(env, static_cast<bool>(cookie.isSessionCookie), &isSessionCookie);
+        napi_set_named_property(env, napiWebHttpCookie, "isSessionCookie", isSessionCookie);
+ 
+        napi_value value = nullptr;
+        napi_create_string_utf8(env, cookie.value.c_str(), NAPI_AUTO_LENGTH, &value);
+        napi_set_named_property(env, napiWebHttpCookie, "value", value);
+ 
+        napi_value path = nullptr;
+        napi_create_string_utf8(env, cookie.path.c_str(), NAPI_AUTO_LENGTH, &path);
+        napi_set_named_property(env, napiWebHttpCookie, "path", path);
+ 
+        napi_value isHttpOnly = nullptr;
+        napi_get_boolean(env, static_cast<bool>(cookie.isHttpOnly), &isHttpOnly);
+        napi_set_named_property(env, napiWebHttpCookie, "isHttpOnly", isHttpOnly);
+ 
+        napi_value isSecure = nullptr;
+        napi_get_boolean(env, static_cast<bool>(cookie.isSecure), &isSecure);
+        napi_set_named_property(env, napiWebHttpCookie, "isSecure", isSecure);
+ 
+        napi_value domain = nullptr;
+        napi_create_string_utf8(env, cookie.domain.c_str(), NAPI_AUTO_LENGTH, &domain);
+        napi_set_named_property(env, napiWebHttpCookie, "domain", domain);
+ 
+        napi_set_element(env, result, index, napiWebHttpCookie);
+        index++;
+    }
+}
+ 
+void NapiWebCookieManager::GetCookiesPromiseComplete(napi_env env, napi_status status, void *data)
+{
+    GetCookiesParam* param = static_cast<GetCookiesParam*>(data);
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(env, &scope);
+    if (scope == nullptr) {
+        delete param;
+        return;
+    }
+
+    napi_value setResult = nullptr;
+    napi_create_array(env, &setResult);
+    GetNapiWebHttpCookieForResult(env, param->cookies, setResult);
+    if (param->status == napi_ok) {
+        napi_resolve_deferred(env, param->deferred, setResult);
+    }
+    napi_delete_async_work(env, param->asyncWork);
+    napi_close_handle_scope(env, scope);
+    delete param;
+}
+ 
+napi_value NapiWebCookieManager::JsFetchAllCookies(napi_env env, napi_callback_info info)
+{
+    napi_value retValue = nullptr;
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+    napi_get_cb_info(env, info, &argc, argv, &retValue, nullptr);
+    if (argc != INTEGER_ONE) {
+        return nullptr;
+    }
+ 
+    bool incognitoMode = false;
+    if (!GetBooleanPara(env, argv[INTEGER_ZERO], incognitoMode)) {
+        return nullptr;
+    }
+ 
+    napi_deferred deferred = nullptr;
+    napi_value promise = nullptr;
+    napi_create_promise(env, &deferred, &promise);
+ 
+    GetCookiesParam *param = new (std::nothrow) GetCookiesParam {
+        .env = env,
+        .asyncWork = nullptr,
+        .deferred = deferred,
+        .incognitoMode = incognitoMode,
+    };
+    if (param == nullptr) {
+        return nullptr;
+    }
+    napi_value resourceName = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+    NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, ExecuteGetCookies,
+        GetCookiesPromiseComplete, static_cast<void *>(param), &param->asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, param->asyncWork, napi_qos_user_initiated));
+    return promise;
 }
 
 void NWebFetchCookieCallbackImpl::UvJsCallbackThreadWoker(uv_work_t *work, int status)

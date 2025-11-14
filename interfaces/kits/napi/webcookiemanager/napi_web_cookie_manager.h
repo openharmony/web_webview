@@ -29,6 +29,27 @@ namespace OHOS {
 namespace NWeb {
 const std::string WEB_COOKIE_MANAGER_CLASS_NAME = "WebCookieManager";
 
+struct NapiWebHttpCookie {
+    int samesitePolicy;
+    std::string expiresDate;
+    std::string name;
+    bool isSessionCookie;
+    std::string value;
+    std::string path;
+    bool isHttpOnly;
+    bool isSecure;
+    std::string domain;
+};
+ 
+struct GetCookiesParam {
+    std::vector<NapiWebHttpCookie> cookies;
+    napi_env env;
+    napi_async_work asyncWork;
+    napi_deferred deferred;
+    napi_status status;
+    bool incognitoMode;
+};
+
 class NapiWebCookieManager {
 public:
     NapiWebCookieManager() {}
@@ -107,6 +128,15 @@ private:
     static napi_value JsHasIncognitoCookie(napi_env env, napi_callback_info info);
 
     static napi_value JsSetIncognitoCookie(napi_env env, napi_callback_info info);
+
+    static void ExecuteGetCookies(napi_env env, void *data);
+ 
+    static void GetNapiWebHttpCookieForResult(napi_env env,
+        const std::vector<NapiWebHttpCookie> &info, napi_value result);
+ 
+    static void GetCookiesPromiseComplete(napi_env env, napi_status status, void *data);
+ 
+    static napi_value JsFetchAllCookies(napi_env env, napi_callback_info info);
 };
 
 class NWebSaveCookieCallbackImpl : public NWebBoolValueCallback {

@@ -1,0 +1,58 @@
+/*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
+#ifndef ARK_WEB_COOKIE_H_
+#define ARK_WEB_COOKIE_H_
+#pragma once
+ 
+#include "base/include/ark_web_base_ref_counted.h"
+#include "base/include/ark_web_types.h"
+ 
+namespace OHOS::ArkWeb {
+ 
+/*--ark web(source=webcore)--*/
+class ArkWebCookie : public virtual ArkWebBaseRefCounted {
+public:
+    /*--ark web()--*/
+    virtual int GetSamesitePolicy() = 0;
+ 
+    /*--ark web()--*/
+    virtual ArkWebString GetExpiresDate() = 0;
+ 
+    /*--ark web()--*/
+    virtual ArkWebString GetName() = 0;
+ 
+    /*--ark web()--*/
+    virtual bool GetIsSessionCookie() = 0;
+ 
+    /*--ark web()--*/
+    virtual ArkWebString GetValue() = 0;
+ 
+    /*--ark web()--*/
+    virtual ArkWebString GetPath() = 0;
+ 
+    /*--ark web()--*/
+    virtual bool GetIsHttpOnly() = 0;
+ 
+    /*--ark web()--*/
+    virtual bool GetIsSecure() = 0;
+ 
+    /*--ark web()--*/
+    virtual ArkWebString GetDomain() = 0;
+};
+ 
+} // namespace OHOS::ArkWeb
+ 
+#endif // ARK_WEB_COOKIE_H_
