@@ -48,7 +48,6 @@ struct GetCookiesParam {
     napi_deferred deferred;
     napi_status status;
     bool incognitoMode;
-    int errCode;
 };
 
 class NapiWebCookieManager {

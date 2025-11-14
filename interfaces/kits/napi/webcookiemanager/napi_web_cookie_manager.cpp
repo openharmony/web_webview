@@ -29,13 +29,6 @@
 #include "web_errors.h"
 #include "securec.h"
 
-namespace {
-constexpr int32_t INTERFACE_OK = 0;
-constexpr int32_t INTERFACE_ERROR = -1;
-constexpr int32_t RESULT_COUNT = 2;
-constexpr int32_t PARAMZERO = 0;
-constexpr int32_t PARAMONE = 1;
-}
 namespace OHOS {
 namespace NWeb {
 napi_value NapiWebCookieManager::Init(napi_env env, napi_value exports)
@@ -910,7 +903,6 @@ void NapiWebCookieManager::ExecuteGetCookies(napi_env env, void *data)
     std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
         OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
     if (cookieManager == nullptr) {
-        param->errCode = INTERFACE_ERROR;
         param->status = napi_generic_failure;
         return;
     }
@@ -928,8 +920,7 @@ void NapiWebCookieManager::ExecuteGetCookies(napi_env env, void *data)
         napiCookie.domain = cookie->GetDomain();
         param->cookies.push_back(napiCookie);
     }
-    param->errCode = param->cookies.empty() ? NWebError::INVALID_COOKIE_VALUE : INTERFACE_OK;
-    param->status = param->errCode == INTERFACE_OK ? napi_ok : napi_generic_failure;
+    param->status = param->cookies.empty() ? napi_generic_failure : napi_ok;
 }
  
 void NapiWebCookieManager::GetNapiWebHttpCookieForResult(napi_env env,
@@ -991,15 +982,11 @@ void NapiWebCookieManager::GetCookiesPromiseComplete(napi_env env, napi_status s
         return;
     }
 
-    napi_value setResult[RESULT_COUNT] = {0};
-    setResult[PARAMZERO] = NWebError::BusinessError::CreateError(env, NWebError::INVALID_COOKIE_VALUE);
-    napi_create_array(env, &setResult[PARAMONE]);
-    GetNapiWebHttpCookieForResult(env, param->cookies, setResult[PARAMONE]);
-    napi_value args[RESULT_COUNT] = {setResult[PARAMZERO], setResult[PARAMONE]};
+    napi_value setResult = nullptr;
+    napi_create_array(env, &setResult);
+    GetNapiWebHttpCookieForResult(env, param->cookies, setResult);
     if (param->status == napi_ok) {
-        napi_resolve_deferred(env, param->deferred, args[1]);
-    } else {
-        napi_reject_deferred(env, param->deferred, args[0]);
+        napi_resolve_deferred(env, param->deferred, setResult);
     }
     napi_delete_async_work(env, param->asyncWork);
     napi_close_handle_scope(env, scope);
