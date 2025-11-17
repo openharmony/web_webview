@@ -808,6 +808,16 @@ public:
      * @brief Called when the microphone capture state changed.
      */
     void OnMicrophoneCaptureStateChanged(int originalState, int newState) override;
+
+    /**
+     * @brief Notify a first screen paint.
+     *
+     * @param url The url of the first screen paint.
+     * @param navigationStartTime The navigation start time of the first screen paint.
+     * @param firstScreenPaintTime The time of the first screen paint.
+     */
+    void OnFirstScreenPaint(
+        const ArkWebString& url, int64_t navigationStartTime, int64_t firstScreenPaintTime) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };
