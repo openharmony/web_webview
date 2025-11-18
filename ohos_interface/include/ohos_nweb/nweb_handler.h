@@ -1405,6 +1405,17 @@ public:
      * @brief Called when the microphone capture state changed.
      */
     virtual void OnMicrophoneCaptureStateChanged(int originalState, int newState) {}
+
+    /**
+     * @brief Notify a first screen paint.
+     *
+     * @param url The url of the first screen paint.
+     * @param navigationStartTime The navigation start time of the first screen paint.
+     * @param firstScreenPaintTime The time of the first screen paint.
+     */
+    virtual void OnFirstScreenPaint(
+        const std::string& url, int64_t navigationStartTime, int64_t firstScreenPaintTime)
+    {}
 };
 
 } // namespace OHOS::NWeb

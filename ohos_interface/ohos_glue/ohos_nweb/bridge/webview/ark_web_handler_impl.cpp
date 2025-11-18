@@ -1207,4 +1207,11 @@ void ArkWebHandlerImpl::OnMicrophoneCaptureStateChanged(int originalState, int n
 {
     nweb_handler_->OnMicrophoneCaptureStateChanged(originalState, newState);
 }
+
+void ArkWebHandlerImpl::OnFirstScreenPaint(
+    const ArkWebString& url, int64_t navigationStartTime, int64_t firstScreenPaintTime)
+{
+    nweb_handler_->OnFirstScreenPaint(
+        ArkWebStringStructToClass(url), navigationStartTime, firstScreenPaintTime);
+}
 } // namespace OHOS::ArkWeb
