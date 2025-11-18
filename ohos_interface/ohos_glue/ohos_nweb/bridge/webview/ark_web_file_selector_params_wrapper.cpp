@@ -93,4 +93,13 @@ bool ArkWebFileSelectorParamsWrapper::IsAcceptAllOptionExcluded()
     return ark_web_file_selector_params_->IsAcceptAllOptionExcluded();
 }
 
+const std::string ArkWebFileSelectorParamsWrapper::Accepts()
+{
+    ArkWebString stAccepts = ark_web_file_selector_params_->Accepts();
+
+    std::string objAccepts = ArkWebStringStructToClass(stAccepts);
+    ArkWebStringStructRelease(stAccepts);
+    return objAccepts;
+}
+
 } // namespace OHOS::ArkWeb
