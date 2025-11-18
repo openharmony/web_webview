@@ -179,6 +179,8 @@ public:
 
     void SetSocketIdleTimeout(int32_t timeout) {}
 
+    void LibraryLoaded(std::shared_ptr<NWebEngineInitArgs> init_args) {}
+
     MOCK_METHOD(void, SetWebDebuggingAccessAndPort,
         (bool isEnableDebug, int32_t port), (override));
 
@@ -1100,6 +1102,52 @@ HWTEST_F(NwebHelperTest, NWebHelper_CreateNWeb, TestSize.Level1)
 
     NWebHelper::Instance().autoPreconnectEnabled_ = ret;
     LOG_SetCallback(nullptr);
+}
+
+/**
+ * @tc.name: NWebHelper_SetLazyInitializeWebEngine_001
+ * @tc.desc: SetLazyInitializeWebEngine.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_SetLazyInitializeWebEngine_001, TestSize.Level1)
+{
+    NWebHelper::Instance().initWebEngine_ = true;
+    EXPECT_EQ(NWebHelper::Instance().initWebEngine_, true);
+
+    NWebHelper::Instance().SetLazyInitializeWebEngine(true);
+    EXPECT_EQ(NWebHelper::Instance().lazyInitializeWebEngine_, false);
+}
+
+/**
+ * @tc.name: NWebHelper_SetLazyInitializeWebEngine_002
+ * @tc.desc: SetLazyInitializeWebEngine.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_SetLazyInitializeWebEngine_002, TestSize.Level1)
+{
+    NWebHelper::Instance().initWebEngine_ = false;
+    EXPECT_EQ(NWebHelper::Instance().initWebEngine_, false);
+
+    NWebHelper::Instance().SetLazyInitializeWebEngine(true);
+    EXPECT_EQ(NWebHelper::Instance().lazyInitializeWebEngine_, true);
+}
+
+/**
+ * @tc.name: NWebHelper_IsLazyInitializeWebEngine_002
+ * @tc.desc: IsLazyInitializeWebEngine.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_IsLazyInitializeWebEngine_001, TestSize.Level1)
+{
+    int32_t nweb_id = 1;
+    auto nwebHelper = NWebHelper::Instance().GetNWeb(nweb_id);
+    EXPECT_EQ(nwebHelper, nullptr);
+
+    NWebHelper::Instance().SetLazyInitializeWebEngine(true);
+    EXPECT_EQ(NWebHelper::Instance().IsLazyInitializeWebEngine(), true);
 }
 } // namespace OHOS::NWeb
 }

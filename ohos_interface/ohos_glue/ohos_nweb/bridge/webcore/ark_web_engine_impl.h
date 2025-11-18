@@ -130,6 +130,8 @@ public:
 
     void SetScrollbarMode(int32_t mode) override;
 
+    void LibraryLoaded(ArkWebRefPtr<ArkWebEngineInitArgs> init_args) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebEngine> nweb_engine_;
 };

@@ -52,6 +52,7 @@ public:
     bool LoadWebEngine(bool fromArk, bool runFlag);
     void* LoadFuncSymbol(const char* funcName);
 
+    std::shared_ptr<OHOS::NWeb::NWebEngineInitArgs> GetInitArgs();
     std::shared_ptr<NWeb> CreateNWeb(std::shared_ptr<NWebCreateInfo> create_info);
     std::shared_ptr<NWebCookieManager> GetCookieManager();
     std::shared_ptr<NWebDataBase> GetDataBase();
@@ -149,6 +150,10 @@ public:
 
     void SetScrollbarMode(ScrollbarMode mode);
 
+    void SetLazyInitializeWebEngine(bool lazy);
+
+    bool IsLazyInitializeWebEngine();
+
 private:
     NWebHelper() = default;
     bool GetWebEngine(bool fromArk);
@@ -159,6 +164,8 @@ private:
     int32_t socketIdleTimeout_ = 300;
     bool initFlag_ = false;
     bool autoPreconnectEnabled_ = true;
+    bool lazyInitializeWebEngine_ = false;
+    bool initWebEngine_ = false;
     std::string bundlePath_;
     std::string customSchemeCmdLine_;
     std::shared_ptr<NWebEngine> nwebEngine_ = nullptr;

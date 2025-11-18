@@ -397,4 +397,15 @@ void ArkWebEngineWrapper::SetScrollbarMode(OHOS::NWeb::ScrollbarMode mode)
 {
     ark_web_engine_->SetScrollbarMode(static_cast<int32_t>(mode));
 }
+
+void ArkWebEngineWrapper::LibraryLoaded(std::shared_ptr<OHOS::NWeb::NWebEngineInitArgs> init_args)
+{
+    if (CHECK_SHARED_PTR_IS_NULL(init_args)) {
+        ark_web_engine_->LibraryLoaded(nullptr);
+        return;
+    }
+
+    ArkWebRefPtr<ArkWebEngineInitArgs> ark_web_engine_init_args = new ArkWebEngineInitArgsImpl(init_args);
+    ark_web_engine_->LibraryLoaded(ark_web_engine_init_args);
+}
 } // namespace OHOS::ArkWeb

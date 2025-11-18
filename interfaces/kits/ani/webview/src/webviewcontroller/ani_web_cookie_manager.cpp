@@ -325,6 +325,18 @@ static void JsSaveCookieSync(ani_env *env, ani_object aniClass)
     cookieManager->Store();
 }
 
+static void JsSetLazyInitializeWebEngine(ani_env* env, ani_object aniClass, ani_boolean lazy)
+{
+    WVLOG_I("[COOKIE] JsSetLazyInitializeWebEngine Lazy: %d.", lazy);
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    bool lazyInit = static_cast<bool>(lazy);
+    OHOS::NWeb::NWebHelper::Instance().SetLazyInitializeWebEngine(lazyInit);
+}
+
 ani_status StsWebCookieManagerInit(ani_env *env)
 {
     if (env == nullptr) {
@@ -352,6 +364,8 @@ ani_status StsWebCookieManagerInit(ani_env *env)
         ani_native_function { "fetchCookieSync", nullptr, reinterpret_cast<void *>(JsFetchCookieSync) },
         ani_native_function { "saveCookieSync", nullptr, reinterpret_cast<void *>(JsSaveCookieSync) },
         ani_native_function { "clearAllCookiesSync", nullptr, reinterpret_cast<void *>(JsClearAllCookiesSync) },
+        ani_native_function {
+            "setLazyInitializeWebEngine", nullptr, reinterpret_cast<void*>(JsSetLazyInitializeWebEngine) },
     };
 
     status = env->Class_BindStaticNativeMethods(webCookieManagerCls, allMethods.data(), allMethods.size());
