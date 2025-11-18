@@ -145,14 +145,14 @@ export default namespace webview {
     }
 
     export enum WebHitTestType {
-        EditText,
-        Email,
-        HttpAnchor,
-        HttpAnchorImg,
-        Img,
-        Map,
-        Phone,
-        Unknown
+        EDIT_TEXT,
+        EMAIL,
+        HTTP_ANCHOR,
+        HTTP_ANCHOR_IMG,
+        IMG,
+        MAP,
+        PHONE,
+        UNKNOWN
     }
 
     export enum SecurityLevel {
@@ -307,7 +307,7 @@ export default namespace webview {
         extra: string;
     }
     export class HitTestValueInner implements HitTestValue {
-        type: WebHitTestType = WebHitTestType.Unknown;
+        type: WebHitTestType = WebHitTestType.UNKNOWN;
         extra: string = "";
     }
 
