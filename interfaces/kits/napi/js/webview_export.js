@@ -650,8 +650,8 @@ Object.defineProperty(webview.WebviewController.prototype, 'innerNativeMessageDi
 
 Object.defineProperty(webview.WebviewController.prototype, 'isHuksCryptoExtension', {
   value: function (callback) {
-    let result = canIUse("SystemCapability.Security.Huks.CryptoExtension");
-    console.log(`zyt isHuksCryptoExtension is ${result}`);
+    let result = canIUse('SystemCapability.Security.Huks.CryptoExtension');
+    console.log(`isHuksCryptoExtension supported is ${result}`);
     return result;
   }
 });
