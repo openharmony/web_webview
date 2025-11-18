@@ -1135,7 +1135,7 @@ HWTEST_F(NwebHelperTest, NWebHelper_SetLazyInitializeWebEngine_002, TestSize.Lev
 }
 
 /**
- * @tc.name: NWebHelper_IsLazyInitializeWebEngine_002
+ * @tc.name: NWebHelper_IsLazyInitializeWebEngine_001
  * @tc.desc: IsLazyInitializeWebEngine.
  * @tc.type: FUNC
  * @tc.require:

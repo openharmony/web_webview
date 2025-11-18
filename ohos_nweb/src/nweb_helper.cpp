@@ -757,7 +757,7 @@ std::shared_ptr<OHOS::NWeb::NWebEngineInitArgs> NWebHelper::GetInitArgs()
 
     initArgs->AddArg(std::string("--socket-idle-timeout=").append(std::to_string(socketIdleTimeout_)));
 
-    return initargs;
+    return initArgs;
 }
 
 bool NWebHelper::InitWebEngine()
