@@ -1362,6 +1362,7 @@ export default namespace webview {
         native static isThirdPartyCookieAllowed(): boolean;
 
         native static configCookieSyncInternal(url: string, value: string, incognito?: boolean): void;
+        native static setLazyInitializeWebEngine(lazy: boolean): void;
 
         static configCookieSync(url: string, value: string, incognito?: boolean): void {
             WebCookieManager.configCookieSyncInternal(url, value, incognito);

@@ -691,27 +691,29 @@ bool NWebHelper::GetWebEngine(bool fromArk)
     WVLOG_E("api level of arkweb core is %{public}d", coreApiLevel_);
 
     nwebEngine_->SetArkWebRomApiLevel(ARKWEB_CORE_API_LEVEL);
+    if (IsLazyInitializeWebEngine()) {
+        WVLOG_I("web engine libraryloaded");
+        auto initArgs = GetInitArgs();
+        nwebEngine_->LibraryLoaded(initArgs);
+    }
     return true;
 }
 
-bool NWebHelper::InitWebEngine()
+std::shared_ptr<OHOS::NWeb::NWebEngineInitArgs> NWebHelper::GetInitArgs()
 {
-    if (initFlag_) {
-        return true;
-    }
+    auto initArgs = std::make_shared<NWebEngineInitArgsImpl>();
 
     auto ctx = AbilityRuntime::ApplicationContext::GetApplicationContext();
     if (!ctx) {
         WVLOG_E("failed to get application context");
-        return false;
+        return nullptr;
     }
 
     if (ctx->GetBaseDir().empty()) {
         WVLOG_E("base dir of application context is empty");
-        return false;
+        return nullptr;
     }
 
-    auto initArgs = std::make_shared<NWebEngineInitArgsImpl>();
     NWebAdapterHelper::Instance().ParseConfig(initArgs);
 
     initArgs->AddArg(std::string("--user-data-dir=").append(ctx->GetBaseDir()));
@@ -755,8 +757,24 @@ bool NWebHelper::InitWebEngine()
 
     initArgs->AddArg(std::string("--socket-idle-timeout=").append(std::to_string(socketIdleTimeout_)));
 
+    return initargs;
+}
+
+bool NWebHelper::InitWebEngine()
+{
+    if (initFlag_) {
+        return true;
+    }
+
+    auto initArgs = GetInitArgs();
+    if (!initArgs) {
+        return false;
+    }
+
     nwebEngine_->InitializeWebEngine(initArgs);
     initFlag_ = true;
+    initWebEngine_ = true;
+    lazyInitializeWebEngine_ = false;
 
     WVLOG_I("succeed to init web engine");
     return true;
@@ -798,12 +816,14 @@ std::shared_ptr<NWeb> NWebHelper::CreateNWeb(std::shared_ptr<NWebCreateInfo> cre
         return nullptr;
     }
 
+    initWebEngine_ = true;
+    lazyInitializeWebEngine_ = false;
     return nwebEngine_->CreateNWeb(create_info);
 }
 
 std::shared_ptr<NWebCookieManager> NWebHelper::GetCookieManager()
 {
-    if (!LoadWebEngine(true, true)) {
+    if (!LoadWebEngine(true, !IsLazyInitializeWebEngine())) {
         WVLOG_E("failed to load web engine");
         return nullptr;
     }
@@ -1403,6 +1423,21 @@ void NWebHelper::SetScrollbarMode(ScrollbarMode mode)
         return;
     }
     nwebEngine_->SetScrollbarMode(mode);
+}
+
+void NWebHelper::SetLazyInitializeWebEngine(bool lazy)
+{
+    if (initWebEngine_) {
+        WVLOG_E("web engine has been initialized");
+        return;
+    }
+
+    lazyInitializeWebEngine_ = lazy;
+}
+
+bool NWebHelper::IsLazyInitializeWebEngine()
+{
+    return lazyInitializeWebEngine_;
 }
 
 } // namespace OHOS::NWeb

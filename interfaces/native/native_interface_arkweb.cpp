@@ -468,3 +468,7 @@ ArkWebEngineVersion OH_NativeArkWeb_GetActiveWebEngineVersion() {
 bool OH_NativeArkWeb_IsActiveWebEngineEvergreen() {
     return OHOS::ArkWeb::IsActiveWebEngineEvergreen();
 }
+
+void OH_NativeArkWeb_LazyInitializeWebEngineInCookieManager(bool lazy) {
+    OHOS::NWeb::NWebHelper::Instance().SetLazyInitializeWebEngine(lazy);
+}
