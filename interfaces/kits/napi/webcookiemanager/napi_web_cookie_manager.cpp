@@ -907,7 +907,7 @@ void NapiWebCookieManager::ExecuteGetCookies(napi_env env, void *data)
         return;
     }
     std::vector<std::shared_ptr<NWebCookie>> cookies = cookieManager->GetAllCookies(param->incognitoMode);
-    for (auto cookie : cookies) {
+    for (auto& cookie : cookies) {
         NapiWebHttpCookie napiCookie;
         napiCookie.samesitePolicy = cookie->GetSamesitePolicy();
         napiCookie.expiresDate = cookie->GetExpiresDate();
@@ -927,7 +927,7 @@ void NapiWebCookieManager::GetNapiWebHttpCookieForResult(napi_env env,
     const std::vector<NapiWebHttpCookie> &cookies, napi_value result)
 {
     int32_t index = 0;
-    for (auto cookie : cookies) {
+    for (auto& cookie : cookies) {
         napi_value napiWebHttpCookie = nullptr;
         napi_create_object(env, &napiWebHttpCookie);
  
@@ -975,10 +975,8 @@ void NapiWebCookieManager::GetNapiWebHttpCookieForResult(napi_env env,
 void NapiWebCookieManager::GetCookiesPromiseComplete(napi_env env, napi_status status, void *data)
 {
     GetCookiesParam* param = static_cast<GetCookiesParam*>(data);
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
-        delete param;
+    NApiScope scope(env);
+    if (!scope.IsVaild()) {
         return;
     }
 
@@ -989,7 +987,6 @@ void NapiWebCookieManager::GetCookiesPromiseComplete(napi_env env, napi_status s
         napi_resolve_deferred(env, param->deferred, setResult);
     }
     napi_delete_async_work(env, param->asyncWork);
-    napi_close_handle_scope(env, scope);
     delete param;
 }
  
