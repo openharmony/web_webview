@@ -19,13 +19,14 @@
 #include "napi/native_api.h"
 #include "nweb_native_media_player.h"
 #include "napi_native_mediaplayer_handler_impl.h"
+#include "auto_napi_ref.h"
 
 namespace OHOS::NWeb {
 
 class NWebNativeMediaPlayerBridgeImpl : public NWebNativeMediaPlayerBridge {
 public:
     NWebNativeMediaPlayerBridgeImpl(int32_t nwebId, napi_env env, napi_value value);
-    ~NWebNativeMediaPlayerBridgeImpl() = default;
+    ~NWebNativeMediaPlayerBridgeImpl();
 
     void UpdateRect(double x, double y, double width, double height) override;
 
@@ -54,7 +55,7 @@ public:
 private:
     int32_t nwebId_ = -1;
     napi_env env_ = nullptr;
-    napi_value value_ = nullptr;
+    AutoNapiRef handler_ref_;
 };
 
 class NWebCreateNativeMediaPlayerCallbackImpl : public NWebCreateNativeMediaPlayerCallback {
