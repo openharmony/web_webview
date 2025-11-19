@@ -23,6 +23,7 @@
 namespace OHOS::ArkWeb {
 
 using ArkWebLogLevel = OHOS::NWeb::NWebConsoleLog::NWebConsoleLogLevel;
+using ArkWebLogSource = OHOS::NWeb::NWebConsoleLog::NWebConsoleLogSource;
 
 class ArkWebConsoleLogWrapper : public OHOS::NWeb::NWebConsoleLog {
 public:
@@ -56,6 +57,13 @@ public:
      * @return line number
      */
     int LineNumer() override;
+
+    /**
+     * @brief Get console log source type
+     *
+     * @return source type
+     */
+    ArkWebLogSource Source() override;
 
 private:
     ArkWebRefPtr<ArkWebConsoleLog> ark_web_console_log_;
