@@ -873,6 +873,10 @@ void NWebHelper::RemoveProxyOverride(std::shared_ptr<NWebProxyChangedCallback> c
 
 void NWebHelper::PrepareForPageLoad(std::string url, bool preconnectable, int32_t numSockets)
 {
+    if (!initFlag_) {
+        WVLOG_E("engine not initialized");
+        return;
+    }
     if (nwebEngine_ == nullptr) {
         WVLOG_E("web engine is nullptr");
         return;
@@ -982,6 +986,10 @@ void NWebHelper::PrefetchResource(const std::shared_ptr<NWebEnginePrefetchArgs>&
     const std::map<std::string, std::string>& additional_http_headers, const std::string& cache_key,
     const uint32_t& cache_valid_time)
 {
+    if (!initFlag_) {
+        WVLOG_E("engine not initialized");
+        return;
+    }
     if (nwebEngine_ == nullptr) {
         WVLOG_E("web engine is nullptr");
         return;
@@ -1094,6 +1102,10 @@ void NWebHelper::SetUserAgentForHosts(const std::string& userAgent, const std::v
 
 void NWebHelper::WarmupServiceWorker(const std::string& url)
 {
+    if (!initFlag_) {
+        WVLOG_E("engine not initialized");
+        return;
+    }
     if (nwebEngine_ == nullptr) {
         WVLOG_E("web engine is nullptr");
         return;
