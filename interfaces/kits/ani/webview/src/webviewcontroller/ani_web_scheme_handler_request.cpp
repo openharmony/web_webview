@@ -292,7 +292,9 @@ static ani_object GetHttpBodyStream(ani_env *env, ani_object object)
         return nullptr;
     }
     if (env->Object_New(cls, ctor, &httpBodyStreamObject) != ANI_OK) {
-            WVLOG_E("Object_New failed");
+        WVLOG_E("Object_New failed");
+        delete stream;
+        stream = nullptr;
         return nullptr;
     }
     if (!AniParseUtils::Wrap(env, httpBodyStreamObject, ANI_HTTP_BODY_STREAM, reinterpret_cast<ani_long>(stream))) {

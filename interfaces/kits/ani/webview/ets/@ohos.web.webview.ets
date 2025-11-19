@@ -977,17 +977,17 @@ export default namespace webview {
         }
         native static isAutoPreconnectEnabled(): boolean;
         native static setAutoPreconnect(enabled: boolean): void;
-        native prefetchPage1(url: string): void;
-        native prefetchPage2(url: string, additionalHeaders: Array<WebHeader>): void;
-        native prefetchPage3(url: string, additionalHeaders: Array<WebHeader>, prefetchOptions: PrefetchOptions): void;
-        prefetchPage(url: string): void{
-            this.prefetchPage1(url);
+        native prefetchPageUrl(url: string): void;
+        native prefetchPageUrlHeaders(url: string, additionalHeaders: Array<WebHeader>): void;
+        native prefetchPageUrlHeadersOptions(url: string, additionalHeaders: Array<WebHeader>, prefetchOptions: PrefetchOptions): void;
+        prefetchPage(url: string): void {
+            this.prefetchPageUrl(url);
         }
-        prefetchPage(url: string, additionalHeaders: Array<WebHeader>): void{
-            this.prefetchPage2(url, additionalHeaders);
+        prefetchPage(url: string, additionalHeaders: Array<WebHeader>): void {
+            this.prefetchPageUrlHeaders(url, additionalHeaders);
         }
-        prefetchPage(url: string, additionalHeaders: Array<WebHeader>, prefetchOptions: PrefetchOptions): void{
-            this.prefetchPage3(url, additionalHeaders, prefetchOptions);
+        prefetchPage(url: string, additionalHeaders: Array<WebHeader>, prefetchOptions: PrefetchOptions): void {
+            this.prefetchPageUrlHeadersOptions(url, additionalHeaders, prefetchOptions);
         }
         native setWebDetach(nwebId: int): void;
         native static getActiveWebEngineVersion(): ArkWebEngineVersion;

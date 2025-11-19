@@ -19,6 +19,7 @@
 
 #include "ani.h"
 #include "ani_business_error.h"
+#include "ani_nweb_value_callback_impl.h"
 #include "ani_parse_utils.h"
 #include "business_error.h"
 #include "napi_parse_utils.h"
@@ -288,6 +289,13 @@ void WebviewJavaScriptExecuteCallback::OnReceiveValue(std::shared_ptr<NWebMessag
     } else {
         WVLOG_E("PostTask failed");
     }
+}
+
+void WebviewJavaScriptExecuteCallback::OnReceiveValueV2(std::shared_ptr<NWebHapValue> result)
+{
+    WVLOG_I("WebviewJavaScriptExecuteCallback::OnReceiveValueV2 start");
+    std::shared_ptr<NWebMessage> message = ConvertNwebHap2NwebMessage(result);
+    OnReceiveValue(message);
 }
 
 int32_t WebJsMessageExt::ConvertToJsType(NWebValue::Type type)

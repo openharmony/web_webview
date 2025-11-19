@@ -1178,6 +1178,9 @@ ErrCode WebviewController::HasImagesPromise(ani_vm *vm, ani_resolver deferred)
     if (!nweb_ptr) {
         ani_ref jsResult = nullptr;
         jsResult = AniBusinessErrorError::CreateError(env, NWebError::INIT_ERROR);
+        if (jsResult == nullptr) {
+            return NWebError::INIT_ERROR;
+        }
         auto status = env->PromiseResolver_Reject(deferred, static_cast<ani_error>(jsResult));
         if (status != ANI_OK) {
             WVLOG_E("PromiseResolver_Reject failed, status is : %{public}d", status);
