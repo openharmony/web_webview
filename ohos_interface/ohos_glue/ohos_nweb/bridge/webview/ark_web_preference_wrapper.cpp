@@ -619,4 +619,19 @@ void ArkWebPreferenceWrapper::PutZoomControlAccess(bool zoomControlAccess)
         ark_web_preference_->PutZoomControlAccess(zoomControlAccess);
     }
 }
+
+void ArkWebPreferenceWrapper::PutImageAnalyzerEnabled(bool enabled)
+{
+    if (ark_web_preference_) {
+        ark_web_preference_->PutImageAnalyzerEnabled(enabled);
+    }
+}
+
+bool ArkWebPreferenceWrapper::GetImageAnalyzerEnabled()
+{
+    if (ark_web_preference_) {
+        return ark_web_preference_->GetImageAnalyzerEnabled();
+    }
+    return false;
+}
 } // namespace OHOS::ArkWeb
