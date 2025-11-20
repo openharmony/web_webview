@@ -818,6 +818,13 @@ public:
      */
     void OnFirstScreenPaint(
         const ArkWebString& url, int64_t navigationStartTime, int64_t firstScreenPaintTime) override;
+
+    /**
+     * @brief Callback with the selected text after the text selection content changes.
+     *
+     * @param selectedText The selected text after the text selection content changes.
+     */
+    void OnTextSelectionChange(const ArkWebString& selectedText) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };
