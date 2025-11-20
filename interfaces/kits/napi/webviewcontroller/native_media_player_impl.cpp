@@ -30,7 +30,8 @@ NWebNativeMediaPlayerBridgeImpl::NWebNativeMediaPlayerBridgeImpl(int32_t nwebId,
     handler_ref_.CreateReference(env_, value);
 }
 
-NWebNativeMediaPlayerBridgeImpl::~NWebNativeMediaPlayerBridgeImpl() {
+NWebNativeMediaPlayerBridgeImpl::~NWebNativeMediaPlayerBridgeImpl()
+{
     WVLOG_I("Napi NWebNativeMediaPlayerBridgeImpl release");
 }
 
@@ -399,12 +400,13 @@ void NWebCreateNativeMediaPlayerCallbackImpl::ConstructHandler(
         [](napi_env /*env*/, void* data, void* /*hint*/) {
             WVLOG_I("NapiNativeMediaPlayerHandlerImpl start release.");
             NapiNativeMediaPlayerHandlerImpl* napiHandler = static_cast<NapiNativeMediaPlayerHandlerImpl*>(data);
-            if (napiHandler) {
+            if (napiHandler && napiHandler->DecRefCount() <= 0) {
                 delete napiHandler;
                 napiHandler = nullptr;
             }
         },
         nullptr, nullptr);
+    handlerImpl->IncRefCount();
     NAPI_CALL_RETURN_VOID(env_, NapiNativeMediaPlayerHandler::DefineProperties(env_, value));
 }
 
