@@ -234,7 +234,7 @@ public:
      * @brief Fetch all stored cookies.
      *
      * @param incognitoMode true if web is in the incognito mode, false otherwise.
-     * @return null if get all cookies fails else return vector.
+     * @return empty if get all cookies fails else return vector.
      */
     virtual std::vector<std::shared_ptr<NWebCookie>> GetAllCookies(bool incognitoMode) { return {}; }
 };
