@@ -231,7 +231,7 @@ public:
         bool includeHttpOnly, std::shared_ptr<NWebLongValueCallback> callback) = 0;
 
     /**
-     * @brief Fetches all stored cookies.
+     * @brief Fetch all stored cookies.
      *
      * @param incognitoMode true if web is in the incognito mode, false otherwise.
      * @return null if get all cookies fails else return vector.
