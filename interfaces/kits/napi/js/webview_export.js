@@ -35,8 +35,8 @@ let errMsgMap = new Map();
 errMsgMap.set(PARAM_CHECK_ERROR, ERROR_MSG_INVALID_PARAM);
 let customDialogComponentId = 0;
 
-let defaultBasicPath = 'file://docs/'; 
-let defaultPublicPath = 'storage/Users/currentUser/';
+let defaultBasicPath = 'file://docs';
+let defaultPublicPath = '/storage/Users/currentUser/';
 
 let publicDirectoryMap = new Map([
     ['desktop', defaultPublicPath + 'desktop'],
@@ -201,7 +201,11 @@ function createDocumentSelectionOptions(param) {
     }
     documentSelectOptions.fileSuffixFilters = [];
     let suffix = param.getAcceptType().join(',');
-    if (suffix) {
+    let accepts = param.getAcceptableFileTypes();
+    let descriptions = param.getDescriptions();
+    if (accepts && accepts.length > 0) {
+      suffixFromAccepts(documentSelectOptions.fileSuffixFilters, descriptions, accepts);
+    } else if (suffix) {
       documentSelectOptions.fileSuffixFilters.push(suffix);
     }
     if (currentDevice !== 'phone' && !param.isAcceptAllOptionExcluded()) {
@@ -222,7 +226,11 @@ function createDocumentSaveOptions(param) {
     documentSaveOptions.newFileNames = [ param.getSuggestedName() ];
     documentSaveOptions.defaultFilePathUri = getDefaultPath(param);
     let suffix = param.getAcceptType().join(',');
-    if (suffix) {
+    let accepts = param.getAcceptableFileTypes();
+    let descriptions = param.getDescriptions();
+    if (accepts && accepts.length > 0) {
+      suffixFromAccepts(documentSaveOptions.fileSuffixChoices, descriptions, accepts);
+    } else if (suffix) {
       documentSaveOptions.fileSuffixChoices.push(suffix);
     }
     if (currentDevice !== 'phone' && !param.isAcceptAllOptionExcluded()) {
@@ -240,6 +248,20 @@ function getDefaultPath(param) {
         path = publicDirectoryMap.get(path);
     }
     return defaultBasicPath + path;
+}
+
+function suffixFromAccepts(suffix, descriptions, accepts) {
+  let n = accepts.length;
+  for (let i = 0; i < n; i++) {
+    let m = accepts[i].length;
+    let extList = [];
+    for (let j = 0; j < m; j++) {
+      extList.push(accepts[i][j].AcceptType.join(','));
+    }
+    let ext = extList.join(',');
+    let desc = descriptions[i] + '(' + ext + ')' + '|';
+    suffix.push(desc + ext);
+  }
 }
 
 function isContainImageMimeType(acceptTypes) {
