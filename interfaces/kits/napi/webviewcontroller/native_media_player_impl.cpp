@@ -395,7 +395,7 @@ void NWebCreateNativeMediaPlayerCallbackImpl::ConstructHandler(
     NAPI_CALL_RETURN_VOID(env_, napi_create_object(env_, value));
 
     NapiNativeMediaPlayerHandlerImpl* handlerImpl = new NapiNativeMediaPlayerHandlerImpl(nwebId_, std::move(handler));
-    napi_wrap(
+    napi_status status = napi_wrap(
         env_, *value, handlerImpl,
         [](napi_env /*env*/, void* data, void* /*hint*/) {
             WVLOG_I("NapiNativeMediaPlayerHandlerImpl start release.");
@@ -406,6 +406,12 @@ void NWebCreateNativeMediaPlayerCallbackImpl::ConstructHandler(
             }
         },
         nullptr, nullptr);
+    if (status != napi_ok) {
+        WVLOG_E("napi_wrap failed with status: %d", status);
+        delete handlerImpl;
+        handlerImpl = nullptr;
+        return;
+    }
     handlerImpl->IncRefCount();
     NAPI_CALL_RETURN_VOID(env_, NapiNativeMediaPlayerHandler::DefineProperties(env_, value));
 }
