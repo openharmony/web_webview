@@ -123,6 +123,7 @@ public:
         QM_EF_CAN_PASTE = 1 << 3,
         QM_EF_CAN_SELECT_ALL = 1 << 4,
         QM_EF_CAN_AI_WRITE = 1 << 5,
+        QM_EF_CAN_AUTOFILL = 1 << 6,
     };
 
     virtual ~NWebQuickMenuParams() = default;
@@ -173,6 +174,7 @@ enum MenuCommandId {
     CI_REDO = 6,
     CI_UNDO = 7,
     CI_PASTE_AND_MATCH_STYLE = 8,
+    CI_REQUEST_AUTOFILL = 9,
 };
 
 class OHOS_NWEB_EXPORT NWebContextMenuCallback {
