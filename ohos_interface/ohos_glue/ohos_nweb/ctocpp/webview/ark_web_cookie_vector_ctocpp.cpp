@@ -36,4 +36,10 @@ std::vector<std::shared_ptr<OHOS::NWeb::NWebCookie>> ArkWebCookieVectorStructToC
     return class_value;
 }
  
+void ArkWebCookieVectorStructRelease(ArkWebCookieVector& struct_value)
+{
+    struct_value.size = 0;
+    SAFE_FREE(struct_value.value, struct_value.ark_web_mem_free_func);
+}
+
 } // namespace OHOS::ArkWeb
