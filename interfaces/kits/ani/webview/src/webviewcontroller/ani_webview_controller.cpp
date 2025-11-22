@@ -1815,7 +1815,8 @@ bool GetSendPorts(ani_env* env, ani_object portsArrayObj, std::vector<std::strin
     for (uint32_t i = 0; i < static_cast<uint32_t>(arrayLen); i++) {
         ani_ref webMessagePortRef;
         if (env->Object_CallMethodByName_Ref(
-            portsArrayObj, "$_get", "i:Y", &webMessagePortRef, (ani_int)i) != ANI_OK) {
+            portsArrayObj, "$_get", "i:C{std.core.Object}", &webMessagePortRef, (ani_int)i) != ANI_OK) {
+            WVLOG_E("Object_CallMethodByName_Ref failed");
             return false;
         }
         ani_object portsObj = reinterpret_cast<ani_object>(webMessagePortRef);
@@ -2770,7 +2771,7 @@ static void PostMessageEvent(ani_env* env, ani_object object, ani_object message
     }
 
     ani_class arrayBufferClass;
-    if (auto status = env->FindClass("std.core.ArrayBuffer", &arrayBufferClass) != ANI_OK) {
+    if (auto status = env->FindClass("escompat.Array", &arrayBufferClass) != ANI_OK) {
         WVLOG_E("[WebMessagePort] Find class %{public}s failed, status is %{public}d.", "ArrayBuffer", status);
         return;
     }
@@ -3051,7 +3052,7 @@ static ani_object CreateWebMessagePortsObj(
             ani_object boolInfoObj = CreateWebMessagePortsObjOfBoolean(env, tempExtentionType);
             env->Object_SetPropertyByName_Ref(obj, "isExtentionType", boolInfoObj);
         }
-        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "iY:", i, obj) != ANI_OK) {
+        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "iC{std.core.Object}:", i, obj) != ANI_OK) {
             WVLOG_E("Object_CallMethodByName_Void failed");
             return nullptr;
         }
@@ -7056,7 +7057,9 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "getLastJavascriptProxyCallingFrameUrl", nullptr,
                               reinterpret_cast<void *>(GetLastJavascriptProxyCallingFrameUrl) },
         ani_native_function { "getSecurityLevel", nullptr, reinterpret_cast<void *>(GetSecurityLevel) },
-        ani_native_function { "prefetchPage", nullptr, reinterpret_cast<void *>(PrefetchPage) },
+        ani_native_function { "prefetchPage1", nullptr, reinterpret_cast<void *>(PrefetchPage) },
+        ani_native_function { "prefetchPage2", nullptr, reinterpret_cast<void *>(PrefetchPage) },
+        ani_native_function { "prefetchPage3", nullptr, reinterpret_cast<void *>(PrefetchPage) },
         ani_native_function { "searchAllAsync", nullptr, reinterpret_cast<void *>(SearchAllAsync) },
         ani_native_function { "forward", nullptr, reinterpret_cast<void *>(Forward) },
         ani_native_function { "createWebMessagePorts", nullptr, reinterpret_cast<void *>(CreateWebMessagePorts) },

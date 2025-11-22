@@ -770,7 +770,6 @@ export default namespace webview {
         native getCustomUserAgent(): string;
         native getLastJavascriptProxyCallingFrameUrl(): string;
         native getSecurityLevel(): SecurityLevel;
-        native prefetchPage(url: string, additionalHeaders?: Array<WebHeader>): void;
         native static setHttpDns(secureDnsMode: SecureDnsMode, secureDnsConfig: string): void;
         native searchAllAsync(searchString: string): void;
         native static clearServiceWorkerWebSchemeHandler(): void;
@@ -978,7 +977,18 @@ export default namespace webview {
         }
         native static isAutoPreconnectEnabled(): boolean;
         native static setAutoPreconnect(enabled: boolean): void;
-        native prefetchPage(url: string, additionalHeaders?: Array<WebHeader>, prefetchOptions?: PrefetchOptions): void;
+        native prefetchPage1(url: string): void;
+        native prefetchPage2(url: string, additionalHeaders: Array<WebHeader>): void;
+        native prefetchPage3(url: string, additionalHeaders: Array<WebHeader>, prefetchOptions: PrefetchOptions): void;
+        prefetchPage(url: string): void{
+            this.prefetchPage1(url);
+        }
+        prefetchPage(url: string, additionalHeaders: Array<WebHeader>): void{
+            this.prefetchPage2(url, additionalHeaders);
+        }
+        prefetchPage(url: string, additionalHeaders: Array<WebHeader>, prefetchOptions: PrefetchOptions): void{
+            this.prefetchPage3(url, additionalHeaders, prefetchOptions);
+        }
         native setWebDetach(nwebId: int): void;
         native static getActiveWebEngineVersion(): ArkWebEngineVersion;
         native static setActiveWebEngineVersion(engineVersion: ArkWebEngineVersion): void;
