@@ -19,19 +19,39 @@
 #include "napi_native_media_player.h"
 #include "napi_parse_utils.h"
 #include "nweb_log.h"
+#include "nweb_napi_scope.h"
 
 namespace OHOS::NWeb {
 
 NWebNativeMediaPlayerBridgeImpl::NWebNativeMediaPlayerBridgeImpl(int32_t nwebId, napi_env env, napi_value value)
-    : nwebId_(nwebId), env_(env), value_(value)
-{}
+    : nwebId_(nwebId), env_(env)
+{
+    WVLOG_I("Napi NWebNativeMediaPlayerBridgeImpl construct");
+    handler_ref_.CreateReference(env_, value);
+}
+
+NWebNativeMediaPlayerBridgeImpl::~NWebNativeMediaPlayerBridgeImpl()
+{
+    WVLOG_I("Napi NWebNativeMediaPlayerBridgeImpl release");
+}
 
 void NWebNativeMediaPlayerBridgeImpl::UpdateRect(double x, double y, double width, double height)
 {
     WVLOG_D("begin to update rect,nweb id is %{public}d", nwebId_);
 
+    NApiScope scope(env_);
+    if (!scope.IsVaild()) {
+        return;
+    }
+
+    napi_value value = handler_ref_.GetRefValue();
+    if (value == nullptr) {
+        WVLOG_E("update rect get native object failed");
+        return;
+    }
+
     napi_value callback = nullptr;
-    NAPI_GET_CALLBACK_RETURN_VOID(env_, value_, "updateRect", callback);
+    NAPI_GET_CALLBACK_RETURN_VOID(env_, value, "updateRect", callback);
 
     napi_value argv[INTEGER_FOUR] = { nullptr };
     NAPI_CALL_RETURN_VOID(env_, napi_create_double(env_, x, &argv[INTEGER_ZERO]));
@@ -39,148 +59,279 @@ void NWebNativeMediaPlayerBridgeImpl::UpdateRect(double x, double y, double widt
     NAPI_CALL_RETURN_VOID(env_, napi_create_double(env_, width, &argv[INTEGER_TWO]));
     NAPI_CALL_RETURN_VOID(env_, napi_create_double(env_, height, &argv[INTEGER_THREE]));
 
-    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value_, callback, INTEGER_FOUR, argv, nullptr));
+    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value, callback, INTEGER_FOUR, argv, nullptr));
 }
 
 void NWebNativeMediaPlayerBridgeImpl::Play()
 {
     WVLOG_D("begin to play,nweb id is %{public}d", nwebId_);
 
-    napi_value callback = nullptr;
-    NAPI_GET_CALLBACK_RETURN_VOID(env_, value_, "play", callback);
+    NApiScope scope(env_);
+    if (!scope.IsVaild()) {
+        return;
+    }
 
-    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value_, callback, INTEGER_ZERO, nullptr, nullptr));
+    napi_value value = handler_ref_.GetRefValue();
+    if (value == nullptr) {
+        WVLOG_E("play get native object failed");
+        return;
+    }
+
+    napi_value callback = nullptr;
+    NAPI_GET_CALLBACK_RETURN_VOID(env_, value, "play", callback);
+
+    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value, callback, INTEGER_ZERO, nullptr, nullptr));
 }
 
 void NWebNativeMediaPlayerBridgeImpl::Pause()
 {
     WVLOG_D("begin to pause,nweb id is %{public}d", nwebId_);
 
-    napi_value callback = nullptr;
-    NAPI_GET_CALLBACK_RETURN_VOID(env_, value_, "pause", callback);
+    NApiScope scope(env_);
+    if (!scope.IsVaild()) {
+        return;
+    }
 
-    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value_, callback, INTEGER_ZERO, nullptr, nullptr));
+    napi_value value = handler_ref_.GetRefValue();
+    if (value == nullptr) {
+        WVLOG_E("pause get native object failed");
+        return;
+    }
+
+    napi_value callback = nullptr;
+    NAPI_GET_CALLBACK_RETURN_VOID(env_, value, "pause", callback);
+
+    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value, callback, INTEGER_ZERO, nullptr, nullptr));
 }
 
 void NWebNativeMediaPlayerBridgeImpl::Seek(double time)
 {
     WVLOG_D("begin to seek,nweb id is %{public}d,time is %{public}f", nwebId_, time);
 
+    NApiScope scope(env_);
+    if (!scope.IsVaild()) {
+        return;
+    }
+
+    napi_value value = handler_ref_.GetRefValue();
+    if (value == nullptr) {
+        WVLOG_E("seek get native object failed");
+        return;
+    }
+
     napi_value callback = nullptr;
-    NAPI_GET_CALLBACK_RETURN_VOID(env_, value_, "seek", callback);
+    NAPI_GET_CALLBACK_RETURN_VOID(env_, value, "seek", callback);
 
     napi_value argv[INTEGER_ONE] = { nullptr };
     NAPI_CALL_RETURN_VOID(env_, napi_create_double(env_, time, &argv[INTEGER_ZERO]));
 
-    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value_, callback, INTEGER_ONE, argv, nullptr));
+    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value, callback, INTEGER_ONE, argv, nullptr));
 }
 
 void NWebNativeMediaPlayerBridgeImpl::SetVolume(double volume)
 {
     WVLOG_D("begin to set volume,nweb id is %{public}d,volume is %{public}f", nwebId_, volume);
 
+    NApiScope scope(env_);
+    if (!scope.IsVaild()) {
+        return;
+    }
+
+    napi_value value = handler_ref_.GetRefValue();
+    if (value == nullptr) {
+        WVLOG_E("set volume get native object failed");
+        return;
+    }
+
     napi_value callback = nullptr;
-    NAPI_GET_CALLBACK_RETURN_VOID(env_, value_, "setVolume", callback);
+    NAPI_GET_CALLBACK_RETURN_VOID(env_, value, "setVolume", callback);
 
     napi_value argv[INTEGER_ONE] = { nullptr };
     NAPI_CALL_RETURN_VOID(env_, napi_create_double(env_, volume, &argv[INTEGER_ZERO]));
 
-    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value_, callback, INTEGER_ONE, argv, nullptr));
+    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value, callback, INTEGER_ONE, argv, nullptr));
 }
 
 void NWebNativeMediaPlayerBridgeImpl::SetMuted(bool isMuted)
 {
     WVLOG_D("begin to set muted,nweb id is %{public}d,muted flag is %{public}d", nwebId_, isMuted);
 
+    NApiScope scope(env_);
+    if (!scope.IsVaild()) {
+        return;
+    }
+
+    napi_value value = handler_ref_.GetRefValue();
+    if (value == nullptr) {
+        WVLOG_E("set muted get native object failed");
+        return;
+    }
+
     napi_value callback = nullptr;
-    NAPI_GET_CALLBACK_RETURN_VOID(env_, value_, "setMuted", callback);
+    NAPI_GET_CALLBACK_RETURN_VOID(env_, value, "setMuted", callback);
 
     napi_value argv[INTEGER_ONE] = { nullptr };
     NAPI_CALL_RETURN_VOID(env_, napi_get_boolean(env_, isMuted, &argv[INTEGER_ZERO]));
 
-    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value_, callback, INTEGER_ONE, argv, nullptr));
+    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value, callback, INTEGER_ONE, argv, nullptr));
 }
 
 void NWebNativeMediaPlayerBridgeImpl::SetPlaybackRate(double playbackRate)
 {
     WVLOG_D("begin to set playback rate,nweb id is %{public}d,playback rate is %{public}f", nwebId_, playbackRate);
 
+    NApiScope scope(env_);
+    if (!scope.IsVaild()) {
+        return;
+    }
+
+    napi_value value = handler_ref_.GetRefValue();
+    if (value == nullptr) {
+        WVLOG_E("set playbackrate get native object failed");
+        return;
+    }
+
     napi_value callback = nullptr;
-    NAPI_GET_CALLBACK_RETURN_VOID(env_, value_, "setPlaybackRate", callback);
+    NAPI_GET_CALLBACK_RETURN_VOID(env_, value, "setPlaybackRate", callback);
 
     napi_value argv[INTEGER_ONE] = { nullptr };
     NAPI_CALL_RETURN_VOID(env_, napi_create_double(env_, playbackRate, &argv[INTEGER_ZERO]));
 
-    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value_, callback, INTEGER_ONE, argv, nullptr));
+    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value, callback, INTEGER_ONE, argv, nullptr));
 }
 
 void NWebNativeMediaPlayerBridgeImpl::Release()
 {
     WVLOG_D("begin to release,nweb id is %{public}d", nwebId_);
 
-    napi_value callback = nullptr;
-    NAPI_GET_CALLBACK_RETURN_VOID(env_, value_, "release", callback);
+    NApiScope scope(env_);
+    if (!scope.IsVaild()) {
+        return;
+    }
 
-    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value_, callback, INTEGER_ZERO, nullptr, nullptr));
+    napi_value value = handler_ref_.GetRefValue();
+    if (value == nullptr) {
+        WVLOG_E("release get native object failed");
+        return;
+    }
+
+    napi_value callback = nullptr;
+    NAPI_GET_CALLBACK_RETURN_VOID(env_, value, "release", callback);
+
+    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value, callback, INTEGER_ZERO, nullptr, nullptr));
 }
 
 void NWebNativeMediaPlayerBridgeImpl::EnterFullScreen()
 {
     WVLOG_D("begin to enter full screen,nweb id is %{public}d", nwebId_);
 
-    napi_value callback = nullptr;
-    NAPI_GET_CALLBACK_RETURN_VOID(env_, value_, "enterFullscreen", callback);
+    NApiScope scope(env_);
+    if (!scope.IsVaild()) {
+        return;
+    }
 
-    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value_, callback, INTEGER_ZERO, nullptr, nullptr));
+    napi_value value = handler_ref_.GetRefValue();
+    if (value == nullptr) {
+        WVLOG_E("enterfullscreen get native object failed");
+        return;
+    }
+
+    napi_value callback = nullptr;
+    NAPI_GET_CALLBACK_RETURN_VOID(env_, value, "enterFullscreen", callback);
+
+    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value, callback, INTEGER_ZERO, nullptr, nullptr));
 }
 
 void NWebNativeMediaPlayerBridgeImpl::ExitFullScreen()
 {
     WVLOG_D("begin to exit full screen,nweb id is %{public}d", nwebId_);
 
-    napi_value callback = nullptr;
-    NAPI_GET_CALLBACK_RETURN_VOID(env_, value_, "exitFullscreen", callback);
+    NApiScope scope(env_);
+    if (!scope.IsVaild()) {
+        return;
+    }
 
-    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value_, callback, INTEGER_ZERO, nullptr, nullptr));
+    napi_value value = handler_ref_.GetRefValue();
+    if (value == nullptr) {
+        WVLOG_E("exitfullscreen get native object failed");
+        return;
+    }
+
+    napi_value callback = nullptr;
+    NAPI_GET_CALLBACK_RETURN_VOID(env_, value, "exitFullscreen", callback);
+
+    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value, callback, INTEGER_ZERO, nullptr, nullptr));
 }
 
 void NWebNativeMediaPlayerBridgeImpl::ResumeMediaPlayer()
 {
     WVLOG_D("begin to resume media player,nweb id is %{public}d", nwebId_);
 
-    napi_value callback = nullptr;
-    NAPI_GET_CALLBACK_RETURN_VOID(env_, value_, "resumePlayer", callback);
+    NApiScope scope(env_);
+    if (!scope.IsVaild()) {
+        return;
+    }
 
-    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value_, callback, INTEGER_ZERO, nullptr, nullptr));
+    napi_value value = handler_ref_.GetRefValue();
+    if (value == nullptr) {
+        WVLOG_E("resumeMediaPlayer get native object failed");
+        return;
+    }
+
+    napi_value callback = nullptr;
+    NAPI_GET_CALLBACK_RETURN_VOID(env_, value, "resumePlayer", callback);
+
+    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value, callback, INTEGER_ZERO, nullptr, nullptr));
 }
 
 void NWebNativeMediaPlayerBridgeImpl::SuspendMediaPlayer(SuspendType type)
 {
     WVLOG_D("begin to suspend media player,nweb id is %{public}d", nwebId_);
 
+    NApiScope scope(env_);
+    if (!scope.IsVaild()) {
+        return;
+    }
+
+    napi_value value = handler_ref_.GetRefValue();
+    if (value == nullptr) {
+        WVLOG_E("suspendMediaPlayer get native object failed");
+        return;
+    }
+
     napi_value callback = nullptr;
-    NAPI_GET_CALLBACK_RETURN_VOID(env_, value_, "suspendPlayer", callback);
+    NAPI_GET_CALLBACK_RETURN_VOID(env_, value, "suspendPlayer", callback);
 
     napi_value argv[INTEGER_ONE] = { nullptr };
     NAPI_CALL_RETURN_VOID(env_, napi_create_int32(env_, static_cast<int>(type), &argv[INTEGER_ZERO]));
 
-    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value_, callback, INTEGER_ONE, argv, nullptr));
+    NAPI_CALL_RETURN_VOID(env_, napi_call_function(env_, value, callback, INTEGER_ONE, argv, nullptr));
 }
 
 NWebCreateNativeMediaPlayerCallbackImpl::NWebCreateNativeMediaPlayerCallbackImpl(
     int32_t nwebId, napi_env env, napi_ref callback)
     : nwebId_(nwebId), env_(env), callback_(callback)
-{}
+{
+    WVLOG_I("NWebCreateNativeMediaPlayerCallbackImpl construct");
+}
 
 NWebCreateNativeMediaPlayerCallbackImpl::~NWebCreateNativeMediaPlayerCallbackImpl()
 {
-    napi_delete_reference(env_, callback_);
+    WVLOG_I("NWebCreateNativeMediaPlayerCallbackImpl release");
+    if (callback_) {
+        napi_delete_reference(env_, callback_);
+    }
 }
 
 std::shared_ptr<NWebNativeMediaPlayerBridge> NWebCreateNativeMediaPlayerCallbackImpl::OnCreate(
     std::shared_ptr<NWebNativeMediaPlayerHandler> handler, std::shared_ptr<NWebMediaInfo> mediaInfo)
 {
     WVLOG_D("begin to create native media player,nweb id is %{public}d", nwebId_);
+
+    NApiScope scope(env_);
+    if (!scope.IsVaild()) {
+        return nullptr;
+    }
 
     if (!callback_) {
         WVLOG_E("callback is null,nweb id is %{public}d", nwebId_);
@@ -243,16 +394,24 @@ void NWebCreateNativeMediaPlayerCallbackImpl::ConstructHandler(
 {
     NAPI_CALL_RETURN_VOID(env_, napi_create_object(env_, value));
 
-    NapiNativeMediaPlayerHandlerImpl* handlerImpl = new NapiNativeMediaPlayerHandlerImpl(nwebId_, handler);
-    napi_wrap(
+    NapiNativeMediaPlayerHandlerImpl* handlerImpl = new NapiNativeMediaPlayerHandlerImpl(nwebId_, std::move(handler));
+    napi_status status = napi_wrap(
         env_, *value, handlerImpl,
         [](napi_env /*env*/, void* data, void* /*hint*/) {
-            NapiNativeMediaPlayerHandlerImpl* handler = (NapiNativeMediaPlayerHandlerImpl*)data;
-	    if (handler && handler->DecRefCount() <= 0) {
-                delete handler;
+            WVLOG_I("NapiNativeMediaPlayerHandlerImpl start release.");
+            NapiNativeMediaPlayerHandlerImpl* napiHandler = static_cast<NapiNativeMediaPlayerHandlerImpl*>(data);
+            if (napiHandler && napiHandler->DecRefCount() <= 0) {
+                delete napiHandler;
+                napiHandler = nullptr;
             }
         },
         nullptr, nullptr);
+    if (status != napi_ok) {
+        WVLOG_E("napi_wrap failed with status: %d", status);
+        delete handlerImpl;
+        handlerImpl = nullptr;
+        return;
+    }
     handlerImpl->IncRefCount();
     NAPI_CALL_RETURN_VOID(env_, NapiNativeMediaPlayerHandler::DefineProperties(env_, value));
 }
