@@ -693,7 +693,7 @@ bool NWebHelper::GetWebEngine(bool fromArk)
     nwebEngine_->SetArkWebRomApiLevel(ARKWEB_CORE_API_LEVEL);
     WVLOG_I("web engine libraryloaded");
     auto initArgs = GetInitArgs();
-    nwebEngine_->LibraryLoaded(initArgs);
+    nwebEngine_->LibraryLoaded(initArgs, lazyInitializeWebEngine_);
     return true;
 }
 
