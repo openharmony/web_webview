@@ -554,8 +554,16 @@ bool AniIsArray(ani_env* env, ani_object arrayObject)
     }
     ani_class cls;
     ani_boolean isArray = ANI_FALSE;
-    env->FindClass("escompat.Array;", &cls);
-    env->Object_InstanceOf(arrayObject, cls, &isArray);
+    ani_status status = env->FindClass("escompat.Array;", &cls);
+    if (status != ANI_OK) {
+        WVLOG_E("Failed to find class escompat.Array;");
+        return false;
+    }
+    status = env->Object_InstanceOf(arrayObject, cls, &isArray);
+    if (status != ANI_OK) {
+        WVLOG_E("Failed to find check instance of array");
+        return false;
+    }
     if (!isArray) {
         WVLOG_E("object must be array");
         return false;
@@ -576,8 +584,12 @@ bool AniGetElement(ani_env* env, ani_array value, uint32_t i, ani_ref* aniTmp)
     }
     ani_boolean isNull;
     s = env->Reference_IsNull(*aniTmp, &isNull);
-    if (s != ANI_OK && isNull) {
-        WVLOG_E("element is null fail");
+    if (s != ANI_OK) {
+        WVLOG_E("element is null check fail");
+        return false;
+    }
+    if (isNull) {
+        WVLOG_E("element is null");
         return false;
     }
     return true;
@@ -1346,6 +1358,7 @@ bool ParseBasicTypeAniValue2NwebValue(
         if (!AniParseUtils::ParseDouble(env, aniTmp, douVal)) {
             WVLOG_E("ParseBasicTypeAniValue2NwebValue AniParseUtils::ParseDouble "
                     "failed");
+            return false;
         }
         nwebValue->SetType(NWebValue::Type::DOUBLE);
         nwebValue->SetDouble(douVal);
@@ -1357,6 +1370,7 @@ bool ParseBasicTypeAniValue2NwebValue(
         if (!AniParseUtils::ParseBoolean(env, aniTmp, boolVal)) {
             WVLOG_E("ParseBasicTypeAniValue2NwebValue AniParseUtils::ParseBoolean "
                     "failed");
+            return false;
         }
         nwebValue->SetType(NWebValue::Type::BOOLEAN);
         nwebValue->SetBoolean(boolVal);
@@ -1368,6 +1382,7 @@ bool ParseBasicTypeAniValue2NwebValue(
         if (!AniParseUtils::ParseString(env, aniTmp, strVal)) {
             WVLOG_E("ParseBasicTypeAniValue2NwebValue AniParseUtils::ParseString "
                     "failed");
+            return false;
         }
         if (strVal == "methodNameListForJsProxy") {
             *isObject = true;
@@ -1400,7 +1415,11 @@ void ParseDictionaryAniValue2NwebValue(
     }
     arrayRef = static_cast<ani_array>(value);
 
-    env->Object_GetPropertyByName_Double(value, "length", &arrayLength);
+    s = env->Object_GetPropertyByName_Double(value, "length", &arrayLength);
+    if (s != ANI_OK) {
+        WVLOG_E("ParseDictionaryAniValue2NwebValue Object_GetPropertyByName_Double call fail");
+        return;
+    }
     uint32_t size = static_cast<uint32_t>(arrayLength);
 
     size = std::min(size, MAX_DATA_LENGTH);
@@ -1453,6 +1472,10 @@ void ParseAniValue2NwebValueHelper(
                 WVLOG_E("ParseAniValue2NwebValueHelper element is null fail");
                 continue;
             }
+            if (aniTmp == nullptr) {
+                WVLOG_E("ParseAniValue2NwebValueHelper element is null");
+                continue;
+            }
             ani_object element = static_cast<ani_object>(aniTmp);
             auto nwebTmp = std::make_shared<NWebValue>();
             ParseAniValue2NwebValueHelper(env, state, element, nwebTmp, isOject);
@@ -1491,6 +1514,7 @@ bool ParseBasicTypeAniValue2NwebValueV2(ani_env* env, ani_object& value, std::sh
         if (!AniParseUtils::ParseInt32(env, aniTmp, int32Val)) {
             WVLOG_E("ParseBasicTypeAniValue2NwebValueV2 AniParseUtils::ParseInt32 "
                     "failed");
+            return false;
         }
         nwebValue->SetType(T::Type::INTEGER);
         nwebValue->SetInt(int32Val);
@@ -1502,6 +1526,7 @@ bool ParseBasicTypeAniValue2NwebValueV2(ani_env* env, ani_object& value, std::sh
         if (!AniParseUtils::ParseInt64(env, aniTmp, intVal)) {
             WVLOG_E("ParseBasicTypeAniValue2NwebValueV2 AniParseUtils::ParseInt64 "
                     "failed");
+            return false;
         }
         nwebValue->SetType(T::Type::INTEGER);
         nwebValue->SetInt(intVal);
@@ -1513,6 +1538,7 @@ bool ParseBasicTypeAniValue2NwebValueV2(ani_env* env, ani_object& value, std::sh
         if (!AniParseUtils::ParseDouble(env, aniTmp, douVal)) {
             WVLOG_E("ParseBasicTypeAniValue2NwebValueV2 AniParseUtils::ParseDouble "
                     "failed");
+            return false;
         }
         nwebValue->SetType(T::Type::DOUBLE);
         nwebValue->SetDouble(douVal);
@@ -1525,6 +1551,7 @@ bool ParseBasicTypeAniValue2NwebValueV2(ani_env* env, ani_object& value, std::sh
         if (!AniParseUtils::ParseBoolean(env, aniTmp, boolVal)) {
             WVLOG_E("ParseBasicTypeAniValue2NwebValueV2 AniParseUtils::ParseDouble "
                     "failed");
+            return false;
         }
         nwebValue->SetType(T::Type::BOOLEAN);
         nwebValue->SetBool(boolVal);
@@ -1537,6 +1564,7 @@ bool ParseBasicTypeAniValue2NwebValueV2(ani_env* env, ani_object& value, std::sh
         if (!AniParseUtils::ParseString(env, aniTmp, strVal)) {
             WVLOG_E("ParseBasicTypeAniValue2NwebValueV2 AniParseUtils::ParseString "
                     "failed");
+            return false;
         }
         if (strVal == "methodNameListForJsProxy") {
             *isObject = true;
