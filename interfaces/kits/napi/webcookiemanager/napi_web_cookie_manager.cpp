@@ -56,6 +56,7 @@ napi_value NapiWebCookieManager::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_FUNCTION("saveCookieAsync", NapiWebCookieManager::JsSaveCookieAsync),
         DECLARE_NAPI_STATIC_FUNCTION("saveCookieSync", NapiWebCookieManager::JsSaveCookieSync),
         DECLARE_NAPI_STATIC_FUNCTION("fetchAllCookies", NapiWebCookieManager::JsFetchAllCookies),
+        DECLARE_NAPI_STATIC_FUNCTION("setLazyInitializeWebEngine", NapiWebCookieManager::JsSetLazyInitializeWebEngine),
     };
     napi_value constructor = nullptr;
 
@@ -1297,6 +1298,32 @@ void NWebConfigCookieCallbackImpl::OnReceiveValue(long result)
             work = nullptr;
         }
     }
+}
+
+napi_value NapiWebCookieManager::JsSetLazyInitializeWebEngine(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+    NAPI_CALL(env, napi_get_undefined(env, &result));
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+
+    if (argc != INTEGER_ONE) {
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
+        return result;
+    }
+
+    bool lazy = false;
+    if (!NapiParseUtils::ParseBoolean(env, argv[0], lazy)) {
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "enable", "boolean"));
+        return result;
+    }
+
+    OHOS::NWeb::NWebHelper::Instance().SetLazyInitializeWebEngine(lazy);
+    return result;
 }
 
 } // namespace NWeb

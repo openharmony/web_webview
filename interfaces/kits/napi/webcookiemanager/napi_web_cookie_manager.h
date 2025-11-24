@@ -137,6 +137,8 @@ private:
     static void GetCookiesPromiseComplete(napi_env env, napi_status status, void *data);
  
     static napi_value JsFetchAllCookies(napi_env env, napi_callback_info info);
+
+    static napi_value JsSetLazyInitializeWebEngine(napi_env env, napi_callback_info info);
 };
 
 class NWebSaveCookieCallbackImpl : public NWebBoolValueCallback {

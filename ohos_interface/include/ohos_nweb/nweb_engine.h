@@ -143,6 +143,8 @@ public:
     virtual void SetSoftKeyboardBehaviorMode(WebSoftKeyboardBehaviorMode mode) {}
 
     virtual void SetScrollbarMode(ScrollbarMode mode) {}
+
+    virtual void LibraryLoaded(std::shared_ptr<NWebEngineInitArgs> init_args, bool lazy) {}
 };
 
 } // namespace OHOS::NWeb
