@@ -2106,6 +2106,42 @@ public:
      */
     /*--ark web()--*/
     virtual void PauseMicrophone() {}
+
+    /**
+     * @brief Inject the JavaScript before WebView load the DOM tree.
+     *
+     * @param script_items Multiple injected JavaScript codes are stored in a map in lexicographical order.
+     * @param script_regex_items: Multiple injected regular expression rule codes are
+     *                            stored in a map in lexicographical order.
+     * @param script_items_by_order Multiple injected JavaScript codes are stored in the order of injection.
+     */
+    /*--ark web()--*/
+    virtual void JavaScriptOnDocumentStartByOrderV2(const ArkWebStringVectorMap& script_items,
+        const ArkWebPairStringVectorMap& script_regex_items, const ArkWebStringVector& script_items_by_order) = 0;
+
+    /**
+     * @brief Inject the JavaScript after WebView loads the DOM tree and run
+     *        JavaScripts.
+     *
+     * @param script_items Multiple injected JavaScript codes are stored in a map in lexicographical order.
+     * @param script_regex_items: Multiple injected regular expression rule codes are
+     *                            stored in a map in lexicographical order.
+     * @param script_items_by_order Multiple injected JavaScript codes are stored in the order of injection.
+     */
+    /*--ark web()--*/
+    virtual void JavaScriptOnDocumentEndByOrderV2(const ArkWebStringVectorMap& script_items,
+        const ArkWebPairStringVectorMap& script_regex_items, const ArkWebStringVector& script_items_by_order) = 0;
+
+    /**
+     * @Description: Inject the JavaScript when the head element has been created.
+     * @Input scriptItems: The injected JavaScript code is stored in lexicographical order.
+     * @Input script_regex_items: Multiple injected regular expression rule codes are
+     *                            stored in a map in lexicographical order.
+     * @Input scriptItemsByOrder: The injected JavaScript code is stored in the order of the injection array.
+     */
+    /*--ark web()--*/
+    virtual void JavaScriptOnHeadReadyByOrderV2(const ArkWebStringVectorMap& script_items,
+        const ArkWebPairStringVectorMap& script_regex_items, const ArkWebStringVector& script_items_by_order) = 0;
 };
 
 } // namespace OHOS::ArkWeb
