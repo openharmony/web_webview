@@ -1146,7 +1146,7 @@ HWTEST_F(NwebHelperTest, NWebHelper_SetLazyInitializeWebEngine_003, TestSize.Lev
 {
     NWebHelper::Instance().initWebEngine_ = false;
     EXPECT_EQ(NWebHelper::Instance().initWebEngine_, false);
-    auto nwebEngineMock = std::make_shared();
+    auto nwebEngineMock = std::make_shared<MockNWebEngine>();
     NWebHelper::Instance().nwebEngine_ = nwebEngineMock;
     EXPECT_NE(NWebHelper::Instance().nwebEngine_, nullptr);
 
