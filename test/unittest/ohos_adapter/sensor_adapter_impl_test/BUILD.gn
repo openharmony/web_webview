@@ -22,7 +22,10 @@ config("module_private_config") {
   cflags_cc = [ "--coverage" ]
   cflags = [ "--coverage" ]
   ldflags = [ "--coverage" ]
-  include_dirs = [ "$webview_path/ohos_adapter/sensor_adapter/include" ]
+  include_dirs = [
+    "$webview_path/ohos_adapter/sensor_adapter/include",
+    "$webview_path/ohos_interface/include/ohos_adapter"
+  ]
 }
 
 ohos_unittest("sensor_adapter_impl_test") {
