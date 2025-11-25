@@ -343,7 +343,7 @@ ArkWebPairStringVector ArkWebPairStringVectorClassToStruct(
 }
 
 std::vector<std::pair<std::string, std::string>> ArkWebPairStringVectorStructToClass(
-    const ArkWebPairStringVector& struct_value) 
+    const ArkWebPairStringVector& struct_value)
 {
     std::vector<std::pair<std::string, std::string>> class_value;
     for (int count = 0; count < struct_value.size; count++) {
@@ -394,7 +394,8 @@ std::map<std::string, std::vector<std::pair<std::string, std::string>>> ArkWebPa
     return class_value;
 }
 
-ARK_WEB_NO_SANITIZE void ArkWebPairStringVectorStructRelease(ArkWebPairStringVector& struct_value) {
+ARK_WEB_NO_SANITIZE void ArkWebPairStringVectorStructRelease(ArkWebPairStringVector& struct_value)
+{
     for (int count = 0; count < struct_value.size; count++) {
         ArkWebStringStructRelease(struct_value.first[count]);
         ArkWebStringStructRelease(struct_value.second[count]);
@@ -405,7 +406,8 @@ ARK_WEB_NO_SANITIZE void ArkWebPairStringVectorStructRelease(ArkWebPairStringVec
     SAFE_FREE(struct_value.second, struct_value.ark_web_mem_free_func);
 }
 
-ARK_WEB_NO_SANITIZE void ArkWebPairStringVectorMapStructRelease(ArkWebPairStringVectorMap& struct_value) {
+ARK_WEB_NO_SANITIZE void ArkWebPairStringVectorMapStructRelease(ArkWebPairStringVectorMap& struct_value)
+{
     for (int count = 0; count < struct_value.size; count++) {
         ArkWebStringStructRelease(struct_value.key[count]);
         ArkWebPairStringVectorStructRelease(struct_value.value[count]);
