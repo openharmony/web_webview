@@ -407,4 +407,20 @@ std::map<std::string, std::vector<uint8_t>> ArkWebUInt8VectorMapStructToClass(
 
 void ArkWebUInt8VectorMapStructRelease(ArkWebUInt8VectorMap& struct_value);
 
+ArkWebPairStringVector ArkWebPairStringVectorClassToStruct(
+    const std::vector<std::pair<std::string, std::string>>& class_value);
+
+std::vector<std::pair<std::string, std::string>> ArkWebPairStringVectorStructToClass(
+    const ArkWebPairStringVector& struct_value);
+
+ArkWebPairStringVectorMap ArkWebPairStringVectorMapClassToStruct(
+    const std::map<std::string, std::vector<std::pair<std::string, std::string>>>& class_value);
+
+std::map<std::string, std::vector<std::pair<std::string, std::string>>> ArkWebPairStringVectorMapStructToClass(
+    const ArkWebPairStringVectorMap& struct_value);
+
+void ArkWebPairStringVectorStructRelease(ArkWebPairStringVector& struct_value);
+
+void ArkWebPairStringVectorMapStructRelease(ArkWebPairStringVectorMap& struct_value);
+
 #endif // ARK_WEB_TYPES_H_
