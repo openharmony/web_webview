@@ -3627,15 +3627,18 @@ static void InjectOfflineResources(ani_env* env, ani_object object, ani_object r
         WVLOG_E("object is nullptr");
         return;
     }
-    ani_double resourceMapsCount;
+
     auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
     if (!controller) {
         WVLOG_E("controller null");
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
-
-    env->Object_GetPropertyByName_Double(resourceMaps, "length", &resourceMapsCount);
+    ani_int resourceMapsCount;
+    if (env->Object_GetPropertyByName_Int(resourceMaps, "length", &resourceMapsCount) != ANI_OK) {
+        WVLOG_E("get resourceMaps length error");
+        return;
+    }
     size_t resourceMapsCountInt = static_cast<size_t>(resourceMapsCount);
     if (resourceMapsCountInt > MAX_RESOURCES_COUNT || resourceMapsCountInt == 0) {
         WVLOG_E("BusinessError: 401. The size of 'resourceMaps' must less than %{public}zu and not 0",
@@ -3656,10 +3659,13 @@ static void ClearPrefetchedResource(ani_env* env, ani_object aniClass, ani_objec
 
     ani_array cacheKeyStr = nullptr;
     cacheKeyStr = static_cast<ani_array>(cacheKey);
-    ani_double cacheKeyCount;
-    env->Object_GetPropertyByName_Double(cacheKey, "length", &cacheKeyCount);
+    ani_int cacheKeyCount;
+    if (env->Object_GetPropertyByName_Int(cacheKey, "length", &cacheKeyCount) != ANI_OK) {
+        WVLOG_E("get cacheKey length error");
+        return;
+    }
     std::vector<std::string> cacheKeyList;
-    for (ani_double i = 0; i < cacheKeyCount; i++) {
+    for (ani_int i = 0; i < cacheKeyCount; i++) {
         ani_ref pathItem = nullptr;
         env->Array_Get(cacheKeyStr, i, &pathItem);
         std::string path;
@@ -7052,7 +7058,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "getSecurityLevel", nullptr, reinterpret_cast<void *>(GetSecurityLevel) },
         ani_native_function { "prefetchPageUrl", nullptr, reinterpret_cast<void *>(PrefetchPage) },
         ani_native_function { "prefetchPageUrlHeaders", nullptr, reinterpret_cast<void *>(PrefetchPage) },
-        ani_native_function { "prefetchPageUrlHeadersOptions1", nullptr, reinterpret_cast<void *>(PrefetchPage) },
+        ani_native_function { "prefetchPageUrlHeadersOptions", nullptr, reinterpret_cast<void *>(PrefetchPage) },
         ani_native_function { "searchAllAsync", nullptr, reinterpret_cast<void *>(SearchAllAsync) },
         ani_native_function { "forward", nullptr, reinterpret_cast<void *>(Forward) },
         ani_native_function { "createWebMessagePorts", nullptr, reinterpret_cast<void *>(CreateWebMessagePorts) },
