@@ -277,7 +277,7 @@ void WebSchemeHandler::RequestStopAfterWorkCb(RequestStopParam* param)
         return;
     }
     if (callbackFunc != nullptr) {
-        env_->GlobalReference_Delete(callbackFunc);
+        param->env_->GlobalReference_Delete(callbackFunc);
     }
     WebResourceHandler* resourceHandler =
         reinterpret_cast<WebResourceHandler*>(OH_ArkWebResourceRequest_GetUserData(param->arkWebRequest_));
@@ -540,7 +540,7 @@ void WebHttpBodyStream::ExecuteRead(uint8_t* buffer, int bytesRead)
     }
     auto* asyncCtx = new ReadAsyncCtx {
         .env = env_,
-        .deferred = initResolver_,
+        .deferred = readResolver_,
         .buffer = buffer,
         .bytesRead = bytesRead,
     };
