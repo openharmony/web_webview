@@ -87,6 +87,10 @@ public:
     int Write(const ArkWebString& eventName, uint32_t type, const ArkWebString key1, const uint32_t value1,
         const ArkWebString key2, const uint64_t value2) override;
 
+    int Write(const ArkWebString& eventName, uint32_t type, const ArkWebString key1,
+        const int32_t value1, const ArkWebString key2, const ArkWebString value2, const ArkWebString key3,
+        const ArkWebString value3, const ArkWebString key4, const ArkWebString value4, const ArkWebString key5,
+        const int32_t value5) override;
 private:
     NWeb::HiSysEventAdapter& real_;
 
