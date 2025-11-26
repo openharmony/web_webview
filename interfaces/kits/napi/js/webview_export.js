@@ -498,11 +498,11 @@ Object.defineProperty(webview.WebviewController.prototype, 'fileSelectorShowFrom
           console.info('reason' + JSON.stringify(dismissDialogAction.reason));
           console.log('dialog onWillDismiss');
           if (dismissDialogAction.reason === DismissReason.PRESS_BACK) {
-            onShowFileSelectorEvent.fileresult.handleFileList([]);
+            onShowFileSelectorEvent?.fileresult.handleFileList([]);
             dismissDialogAction.dismiss();
           }
           if (dismissDialogAction.reason === DismissReason.TOUCH_OUTSIDE) {
-            onShowFileSelectorEvent.fileresult.handleFileList([]);
+            onShowFileSelectorEvent?.fileresult.handleFileList([]);
             dismissDialogAction.dismiss();
           }
           onShowFileSelectorEvent = undefined;
