@@ -34,6 +34,7 @@ const ERROR_MSG_INVALID_PARAM = 'Invalid input parameter';
 let errMsgMap = new Map();
 errMsgMap.set(PARAM_CHECK_ERROR, ERROR_MSG_INVALID_PARAM);
 let customDialogComponentId = 0;
+let onShowFileSelectorEvent = undefined;
 
 class BusinessError extends Error {
   constructor(code, errorMsg = 'undefined') {
@@ -65,32 +66,29 @@ function getCertificatePromise(certChainData) {
   return Promise.all(x509CertArray);
 }
 
-function takePhoto(param, selectResult) {
-  try {
-    let pickerProfileOptions = {
-      'cameraPosition': camera.CameraPosition.CAMERA_POSITION_BACK,
-    };
-    let acceptTypes = param.getAcceptType();
-    let mediaType = [];
-    if (isContainImageMimeType(acceptTypes)) {
-      mediaType.push(cameraPicker.PickerMediaType.PHOTO);
-    }
-    if (isContainVideoMimeType(acceptTypes)) {
-      mediaType.push(cameraPicker.PickerMediaType.VIDEO);
-    }
-    cameraPicker.pick(getContext(this), mediaType, pickerProfileOptions)
-      .then((pickerResult) => {
-        selectResult.handleFileList([pickerResult.resultUri]);
-      }).catch((error) => {
-        console.log('selectFile error:' + JSON.stringify(error));
-        throw error;
-      });
-
-  } catch (error) {
-    console.log('the pick call failed, error code' + JSON.stringify(error));
-    selectResult.handleFileList([]);
-    promptAction.showToast({ message: '无法打开拍照功能，请检查是否具备拍照功能' });
+function takePhoto(param) {
+  let pickerProfileOptions = {
+    'cameraPosition': camera.CameraPosition.CAMERA_POSITION_BACK,
+  };
+  let acceptTypes = param.getAcceptType();
+  let mediaType = [];
+  if (isContainImageMimeType(acceptTypes)) {
+    mediaType.push(cameraPicker.PickerMediaType.PHOTO);
   }
+  if (isContainVideoMimeType(acceptTypes)) {
+    mediaType.push(cameraPicker.PickerMediaType.VIDEO);
+  }
+  let result = [];
+  cameraPicker.pick(getContext(this), mediaType, pickerProfileOptions)
+    .then((pickerResult) => {
+      result.push(pickerResult.resultUri);
+    }).catch((error) => {
+      console.log('selectFile error:' + JSON.stringify(error));
+      promptAction.showToast({ message: '无法打开拍照功能，请检查是否具备拍照功能' });
+    }).finally(() => {
+      onShowFileSelectorEvent.fileresult.handleFileList(result);
+      onShowFileSelectorEvent = undefined;
+    });
 }
 
 function needShowDialog(params) {
@@ -114,52 +112,52 @@ function needShowDialog(params) {
   return result;
 }
 
-function selectFile(param, result) {
-  try {
-    let documentPicker = new picker.DocumentViewPicker();
-    if (param.getMode() !== FileSelectorMode.FileSaveMode) {
-      documentPicker.select(createDocumentSelectionOptions(param))
-        .then((documentSelectResult) => {
-          let filePath = documentSelectResult;
-          result.handleFileList(filePath);
-        }).catch((error) => {
-          console.log('selectFile error: ' + JSON.stringify(error));
-          throw error;
-        });
-    } else {
-      documentPicker.save(createDocumentSaveOptions(param))
-        .then((documentSaveResult) => {
-          let filePaths = documentSaveResult;
-          let tempUri = '';
-          if (filePaths.length > 0) {
-            let fileName = filePaths[0].substr(filePaths[0].lastIndexOf('/'));
-            let tempPath = getContext(this).filesDir + fileName;
-            tempUri = fileUri.getUriFromPath(tempPath);
-            let randomAccessFile = fileIo.createRandomAccessFileSync(tempPath, fileIo.OpenMode.CREATE);
-            randomAccessFile.close();
+function selectFile(param) {
+  let documentPicker = new picker.DocumentViewPicker();
+  let result = [];
+  if (param.getMode() !== FileSelectorMode.FileSaveMode) {
+    documentPicker.select(createDocumentSelectionOptions(param))
+      .then((documentSelectResult) => {
+        result = documentSelectResult;
+      }).catch((error) => {
+        console.log('selectFile error: ' + JSON.stringify(error));
+        promptAction.showToast({ message: '无法打开文件功能，请检查是否具备文件功能' });
+      }).finally(() => {
+        onShowFileSelectorEvent.fileresult.handleFileList(result);
+        onShowFileSelectorEvent = undefined;
+      });
+  } else {
+    documentPicker.save(createDocumentSaveOptions(param))
+      .then((documentSaveResult) => {
+        let filePaths = documentSaveResult;
+        let tempUri = '';
+        if (filePaths.length > 0) {
+          let fileName = filePaths[0].substr(filePaths[0].lastIndexOf('/'));
+          let tempPath = getContext(this).filesDir + fileName;
+          tempUri = fileUri.getUriFromPath(tempPath);
+          let randomAccessFile = fileIo.createRandomAccessFileSync(tempPath, fileIo.OpenMode.CREATE);
+          randomAccessFile.close();
 
-            let watcher = fileIo.createWatcher(tempPath, 0x4, () => {
-              fileIo.copy(tempUri, filePaths[0]).then(() => {
-                console.log('Web save file succeeded in copying. ');
-                fileIo.unlink(tempPath);
-              }).catch((err) => {
-                console.error(`Web save file failed to copy: ${JSON.stringify(err)}`);
-              }).finally(() => {
-                watcher.stop();
-              });
+          let watcher = fileIo.createWatcher(tempPath, 0x4, () => {
+            fileIo.copy(tempUri, filePaths[0]).then(() => {
+              console.log('Web save file succeeded in copying. ');
+              fileIo.unlink(tempPath);
+            }).catch((err) => {
+              console.error(`Web save file failed to copy: ${JSON.stringify(err)}`);
+            }).finally(() => {
+              watcher.stop();
             });
-            watcher.start();
-          }
-          result.handleFileList([tempUri]);
-        }).catch((error) => {
-          console.log('saveFile error: ' + JSON.stringify(error));
-          throw error;
-        });
-    }
-  } catch (error) {
-    console.log('picker error: ' + JSON.stringify(error));
-    result.handleFileList([]);
-    promptAction.showToast({ message: '无法打开文件功能，请检查是否具备文件功能' });
+          });
+          watcher.start();
+        }
+        result.push(tempUri);
+      }).catch((error) => {
+        console.log('saveFile error: ' + JSON.stringify(error));
+        promptAction.showToast({ message: '无法打开文件功能，请检查是否具备文件功能' });
+      }).finally(() => {
+        onShowFileSelectorEvent.fileresult.handleFileList(result);
+        onShowFileSelectorEvent = undefined;
+      });
   }
 }
 
@@ -271,7 +269,7 @@ function fileSelectorListItem(callback, sysResource, text, func) {
     ListItem.create(deepRenderFunction, true);
     ListItem.onClick(() => {
       promptAction.closeCustomDialog(customDialogComponentId);
-      func(callback.fileparam, callback.fileresult);
+      func(callback.fileparam);
     });
     ListItem.height(48);
     ListItem.padding({
@@ -343,7 +341,8 @@ function fileSelectorDialogForPhone(callback) {
   Row.onClick(() => {
     try {
       console.log('Get Alert Dialog handled');
-      callback.fileresult.handleFileList([]);
+      onShowFileSelectorEvent.fileresult.handleFileList([]);
+      onShowFileSelectorEvent = undefined;
       promptAction.closeCustomDialog(customDialogComponentId);
     }
     catch (error) {
@@ -377,35 +376,34 @@ function fileSelectorDialogForPhone(callback) {
   Column.pop();
 }
 
-function selectPicture(param, selectResult) {
-  try {
-    let photoResultArray = [];
-    let photoSelectOptions = new photoAccessHelper.PhotoSelectOptions();
-    if (param.getMode() === FileSelectorMode.FileOpenMode) {
-      console.log('allow select single photo or video');
-      photoSelectOptions.maxSelectNumber = 1;
-    }
-    let acceptTypes = param.getAcceptType();
-    photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.IMAGE_VIDEO_TYPE;
-    if (isContainImageMimeType(acceptTypes) && !isContainVideoMimeType(acceptTypes)) {
-      photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.IMAGE_TYPE;
-    }
-    if (!isContainImageMimeType(acceptTypes) && isContainVideoMimeType(acceptTypes)) {
-      photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.VIDEO_TYPE;
-    }
-
-    let photoPicker = new photoAccessHelper.PhotoViewPicker();
-    photoPicker.select(photoSelectOptions).then((photoSelectResult) => {
-      for (let i = 0; i < photoSelectResult.photoUris.length; i++) {
-        photoResultArray.push(photoSelectResult.photoUris[i]);
-      }
-      selectResult.handleFileList(photoResultArray);
-    });
-  } catch (error) {
-    console.log('selectPicture error' + JSON.stringify(error));
-    selectResult.handleFileList([]);
-    promptAction.showToast({ message: '无法打开图片功能，请检查是否具备图片功能' });
+function selectPicture(param) {
+  let photoResultArray = [];
+  let photoSelectOptions = new photoAccessHelper.PhotoSelectOptions();
+  if (param.getMode() === FileSelectorMode.FileOpenMode) {
+    console.log('allow select single photo or video');
+    photoSelectOptions.maxSelectNumber = 1;
   }
+  let acceptTypes = param.getAcceptType();
+  photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.IMAGE_VIDEO_TYPE;
+  if (isContainImageMimeType(acceptTypes) && !isContainVideoMimeType(acceptTypes)) {
+    photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.IMAGE_TYPE;
+  }
+  if (!isContainImageMimeType(acceptTypes) && isContainVideoMimeType(acceptTypes)) {
+    photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.VIDEO_TYPE;
+  }
+
+  let photoPicker = new photoAccessHelper.PhotoViewPicker();
+  photoPicker.select(photoSelectOptions).then((photoSelectResult) => {
+    for (let i = 0; i < photoSelectResult.photoUris.length; i++) {
+      photoResultArray.push(photoSelectResult.photoUris[i]);
+    }
+  }).catch((error) => {
+    console.log('selectPicture error' + JSON.stringify(error));
+    promptAction.showToast({ message: '无法打开图片功能，请检查是否具备图片功能' });
+  }).finally(() => {
+    onShowFileSelectorEvent.fileresult.handleFileList(photoResultArray);
+    onShowFileSelectorEvent = undefined;
+  });
 }
 
 async function getManifestData(bundleName, connectExtensionOrigin, notifyCallback, callback) {
@@ -483,9 +481,13 @@ Object.defineProperty(webview.WebviewController.prototype, 'getCertificate', {
 
 Object.defineProperty(webview.WebviewController.prototype, 'fileSelectorShowFromUserWeb', {
   value: function (callback) {
+    if (onShowFileSelectorEvent) {
+      onShowFileSelectorEvent = callback;
+      return;
+    }
+    onShowFileSelectorEvent = callback;
     let currentDevice = deviceinfo.deviceType.toLowerCase();
     if (needShowDialog(callback.fileparam)) {
-      promptAction.closeCustomDialog(customDialogComponentId);
       promptAction.openCustomDialog({
         builder: () => {
           Scroll.create();
@@ -496,28 +498,30 @@ Object.defineProperty(webview.WebviewController.prototype, 'fileSelectorShowFrom
           console.info('reason' + JSON.stringify(dismissDialogAction.reason));
           console.log('dialog onWillDismiss');
           if (dismissDialogAction.reason === DismissReason.PRESS_BACK) {
-            callback.fileresult.handleFileList([]);
+            onShowFileSelectorEvent.fileresult.handleFileList([]);
             dismissDialogAction.dismiss();
           }
           if (dismissDialogAction.reason === DismissReason.TOUCH_OUTSIDE) {
-            callback.fileresult.handleFileList([]);
+            onShowFileSelectorEvent.fileresult.handleFileList([]);
             dismissDialogAction.dismiss();
           }
+          onShowFileSelectorEvent = undefined;
         }
       }).then((dialogId) => {
         customDialogComponentId = dialogId;
       })
         .catch((error) => {
-          callback.fileresult.handleFileList([]);
+          onShowFileSelectorEvent.fileresult.handleFileList([]);
+          onShowFileSelectorEvent = undefined;
           console.error(`openCustomDialog error code is ${error.code}, message is ${error.message}`);
         });
     } else if (currentDevice !== '2in1' && callback.fileparam.isCapture() &&
         (isContainImageMimeType(callback.fileparam.getAcceptType()) || isContainVideoMimeType(callback.fileparam.getAcceptType()))) {
       console.log('take photo will be directly invoked due to the capture property');
-      takePhoto(callback.fileparam, callback.fileresult);
+      takePhoto(callback.fileparam);
     } else {
       console.log('selectFile will be invoked by web');
-      selectFile(callback.fileparam, callback.fileresult);
+      selectFile(callback.fileparam);
     }
   }
 });
