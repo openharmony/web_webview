@@ -29,6 +29,7 @@ let webNativeMessagingExtensionManager = requireNapi('web.webnativemessagingexte
 let { LengthMetrics } = requireNapi('arkui.node');
 let commonEventManager = requireNapi('commonEventManager');
 let resourceManager = requireNapi('resourceManager');
+let Environment = requireNapi('file.environment');
 
 const PARAM_CHECK_ERROR = 401;
 
@@ -40,7 +41,7 @@ let customDialogComponentId = 0;
 let onShowFileSelectorEvent = undefined;
 
 let defaultBasicPath = 'file://docs';
-let defaultPublicPath = '/storage/Users/currentUser/';
+let defaultPublicPath = initDefaultPublicPath();
 
 let publicDirectoryMap = new Map([
     ['desktop', defaultPublicPath + 'desktop'],
@@ -50,6 +51,18 @@ let publicDirectoryMap = new Map([
     ['pictures', defaultPublicPath + 'images'],
     ['videos', defaultPublicPath + 'videos'],
 ]);
+
+function initDefaultPublicPath() {
+  if (deviceinfo.deviceType.toLowerCase() !== '2in1') {
+    return '';
+  }
+  let path = Environment.getUserDownloadDir();
+  const pathEndIndex = path.lastIndexOf('/');
+  if (pathEndIndex !== -1) {
+    return path.substring(0,pathEndIndex + 1);
+  }
+  return '';
+}
 
 class BusinessError extends Error {
   constructor(code, errorMsg = 'undefined') {
@@ -184,7 +197,9 @@ function createDocumentSelectionOptions(param) {
     let defaultSelectMode = picker.DocumentSelectMode.MIXED;
     documentSelectOptions.maxSelectNumber = defaultSelectNumber;
     documentSelectOptions.selectMode = defaultSelectMode;
-    documentSelectOptions.defaultFilePathUri = getDefaultPath(param);
+    if (currentDevice === '2in1') {
+      documentSelectOptions.defaultFilePathUri = getDefaultPath(param);
+    }
     let mode = param.getMode();
     switch (mode) {
       case FileSelectorMode.FileOpenMode:
@@ -225,7 +240,9 @@ function createDocumentSaveOptions(param) {
     documentSaveOptions.pickerMode = picker.DocumentPickerMode.DEFAULT;
     documentSaveOptions.fileSuffixChoices = [];
     documentSaveOptions.newFileNames = [ param.getSuggestedName() ];
-    documentSaveOptions.defaultFilePathUri = getDefaultPath(param);
+    if (currentDevice === '2in1') {
+      documentSaveOptions.defaultFilePathUri = getDefaultPath(param);
+    }
     let suffix = param.getAcceptType().join(',');
     let accepts = param.getAcceptableFileTypes();
     let descriptions = param.getDescriptions();
@@ -244,11 +261,11 @@ function createDocumentSaveOptions(param) {
 }
 
 function getDefaultPath(param) {
-    let path = param.getDefaultPath();
-    if (publicDirectoryMap.get(path) != undefined) {
-        path = publicDirectoryMap.get(path);
-    }
-    return defaultBasicPath + path;
+  let path = param.getDefaultPath();
+  if (publicDirectoryMap.get(path) !== undefined) {
+    path = publicDirectoryMap.get(path);
+  }
+  return defaultBasicPath + path;
 }
 
 function suffixFromAccepts(suffix, descriptions, accepts) {
