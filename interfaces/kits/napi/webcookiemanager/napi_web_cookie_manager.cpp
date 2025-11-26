@@ -883,8 +883,9 @@ void NWebSaveCookieCallbackImpl::OnReceiveValue(bool result)
     param->deferred_ = deferred_;
 
     work->data = reinterpret_cast<void*>(param);
-    int ret = uv_queue_work_with_qos(
-        loop, work, [](uv_work_t* work) {}, UvJsCallbackThreadWoker, uv_qos_user_initiated);
+    int ret = uv_queue_work_with_qos_internal(
+        loop, work, [](uv_work_t* work) {}, UvJsCallbackThreadWoker, uv_qos_user_initiated,
+        "WebviewNWebSaveCookieCallbackImpl");
     if (ret != 0) {
         if (param != nullptr) {
             delete param;
@@ -1107,8 +1108,9 @@ void NWebFetchCookieCallbackImpl::OnReceiveValue(const std::string &result)
     param->result_ = result;
 
     work->data = reinterpret_cast<void*>(param);
-    int ret = uv_queue_work_with_qos(
-        loop, work, [](uv_work_t* work) {}, UvJsCallbackThreadWoker, uv_qos_user_initiated);
+    int ret = uv_queue_work_with_qos_internal(
+        loop, work, [](uv_work_t* work) {}, UvJsCallbackThreadWoker, uv_qos_user_initiated,
+        "WebviewNWebFetchCookieCallbackImpl");
     if (ret != 0) {
         if (param != nullptr) {
             delete param;
@@ -1189,8 +1191,9 @@ void NWebCookieCallbackImpl::OnReceiveValue(bool result)
     param->deferred_ = deferred_;
 
     work->data = reinterpret_cast<void*>(param);
-    int ret = uv_queue_work_with_qos(
-        loop, work, [](uv_work_t* work) {}, UvJsCallbackThreadWoker, uv_qos_user_initiated);
+    int ret = uv_queue_work_with_qos_internal(
+        loop, work, [](uv_work_t* work) {}, UvJsCallbackThreadWoker, uv_qos_user_initiated,
+        "WebviewNWebCookieCallbackImpl");
     if (ret != 0) {
         if (param != nullptr) {
             delete param;
@@ -1282,8 +1285,9 @@ void NWebConfigCookieCallbackImpl::OnReceiveValue(long result)
     param->result_ = result;
 
     work->data = reinterpret_cast<void*>(param);
-    int ret = uv_queue_work_with_qos(
-        loop, work, [](uv_work_t* work) {}, UvJsCallbackThreadWoker, uv_qos_user_initiated);
+    int ret = uv_queue_work_with_qos_internal(
+        loop, work, [](uv_work_t* work) {}, UvJsCallbackThreadWoker, uv_qos_user_initiated,
+        "WebviewNWebConfigCookieCallbackImpl");
     if (ret != 0) {
         if (param != nullptr) {
             delete param;
