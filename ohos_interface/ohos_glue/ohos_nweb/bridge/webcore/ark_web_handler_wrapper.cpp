@@ -1401,4 +1401,13 @@ void ArkWebHandlerWrapper::OnFirstScreenPaint(
  
     ArkWebStringStructRelease(stUrl);
 }
+
+void ArkWebHandlerWrapper::OnTextSelectionChange(const std::string& selectedText)
+{
+    ArkWebString stSelectedText = ArkWebStringClassToStruct(selectedText);
+
+    ark_web_handler_->OnTextSelectionChange(stSelectedText);
+
+    ArkWebStringStructRelease(stSelectedText);
+}
 } // namespace OHOS::ArkWeb

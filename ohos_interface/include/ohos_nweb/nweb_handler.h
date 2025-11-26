@@ -1416,6 +1416,13 @@ public:
     virtual void OnFirstScreenPaint(
         const std::string& url, int64_t navigationStartTime, int64_t firstScreenPaintTime)
     {}
+
+    /**
+     * @brief Callback with the selected text after the text selection content changes.
+     *
+     * @param selectedText The selected text after the text selection content changes.
+     */
+    virtual void OnTextSelectionChange(const std::string& selectedText) {}
 };
 
 } // namespace OHOS::NWeb

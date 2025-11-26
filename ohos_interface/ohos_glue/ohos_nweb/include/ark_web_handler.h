@@ -1162,6 +1162,14 @@ public:
     /*--ark web()--*/
     virtual void OnFirstScreenPaint(
         const ArkWebString& url, int64_t navigationStartTime, int64_t firstScreenPaintTime) = 0;
+
+    /**
+     * @brief Callback with the selected text after the text selection content changes.
+     *
+     * @param selectedText The selected text after the text selection content changes.
+     */
+     /*--ark web()--*/
+    virtual void OnTextSelectionChange(const ArkWebString& selectedText) = 0;
 };
 
 } // namespace OHOS::ArkWeb

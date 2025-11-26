@@ -1214,4 +1214,9 @@ void ArkWebHandlerImpl::OnFirstScreenPaint(
     nweb_handler_->OnFirstScreenPaint(
         ArkWebStringStructToClass(url), navigationStartTime, firstScreenPaintTime);
 }
+
+void ArkWebHandlerImpl::OnTextSelectionChange(const ArkWebString& selectedText)
+{
+    nweb_handler_->OnTextSelectionChange(ArkWebStringStructToClass(selectedText));
+}
 } // namespace OHOS::ArkWeb
