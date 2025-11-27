@@ -1663,4 +1663,9 @@ void ArkWebNWebImpl::JavaScriptOnHeadReadyByOrderV2(const ArkWebStringVectorMap&
         ArkWebPairStringVectorMapStructToClass(script_regex_items),
         ArkWebStringVectorStructToClass(script_items_by_order));
 }
+
+void ArkWebNWebImpl::SetEnableAutoFill(bool enable)
+{
+    nweb_nweb_->SetEnableAutoFill(enable);
+}
 } // namespace OHOS::ArkWeb

@@ -1977,4 +1977,9 @@ void ArkWebNWebWrapper::JavaScriptOnHeadReadyByOrderV2(
     ArkWebPairStringVectorMapStructRelease(stscript_regex_items);
     ArkWebStringVectorStructRelease(stscript_items_by_order);
 }
+
+void ArkWebNWebWrapper::SetEnableAutoFill(bool enable)
+{
+    ark_web_nweb_->SetEnableAutoFill(enable);
+}
 } // namespace OHOS::ArkWeb
