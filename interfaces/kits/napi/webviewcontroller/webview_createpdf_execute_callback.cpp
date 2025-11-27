@@ -104,7 +104,7 @@ void WebviewCreatePDFExecuteCallback::OnReceiveValue(const char* value, const lo
             UvAfterWorkCbPromise(env, param->deferred_, param->result_, param->size_);
         }
     };
-    if (napi_status::napi_ok != napi_send_event(env_, task, napi_eprio_immediate)) {
+    if (napi_status::napi_ok != napi_send_event(env_, task, napi_eprio_immediate, "WebviewCreatePDF_napi")) {
         WVLOG_E("OnReceiveValue: Failed to SendEvent");
         delete[] param->result_;
         delete param;

@@ -2769,8 +2769,9 @@ void NWebValueCallbackImpl::OnReceiveValue(std::shared_ptr<NWebMessage> result)
         InvokeWebMessageCallback(param);
     } else {
         work->data = reinterpret_cast<void*>(param);
-        uv_queue_work_with_qos(
-            loop, work, [](uv_work_t* work) {}, UvWebMessageOnReceiveValueCallback, uv_qos_user_initiated);
+        uv_queue_work_with_qos_internal(
+            loop, work, [](uv_work_t* work) {}, UvWebMessageOnReceiveValueCallback, uv_qos_user_initiated,
+            "WebviewNWebValueCallbackImpl_OnReceiveValue");
 
         {
             std::unique_lock<std::mutex> lock(param->mutex_);
@@ -2839,8 +2840,9 @@ NWebValueCallbackImpl::~NWebValueCallbackImpl()
     param->env_ = env_;
     param->callback_ = callback_;
     work->data = reinterpret_cast<void*>(param);
-    int ret = uv_queue_work_with_qos(
-        loop, work, [](uv_work_t *work) {}, UvNWebValueCallbackImplThreadWoker, uv_qos_user_initiated);
+    int ret = uv_queue_work_with_qos_internal(
+        loop, work, [](uv_work_t *work) {}, UvNWebValueCallbackImplThreadWoker, uv_qos_user_initiated,
+        "WebviewNWebValueCallbackImpl");
     if (ret != 0) {
         if (param != nullptr) {
             delete param;
