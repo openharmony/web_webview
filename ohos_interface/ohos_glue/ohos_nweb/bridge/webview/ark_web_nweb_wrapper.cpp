@@ -1930,4 +1930,51 @@ void ArkWebNWebWrapper::PauseMicrophone()
 {
     ark_web_nweb_->PauseMicrophone();
 }
+
+void ArkWebNWebWrapper::JavaScriptOnDocumentStartByOrderV2(
+    const std::map<std::string, std::vector<std::string>>& script_items,
+    const std::map<std::string, std::vector<std::pair<std::string, std::string>>>& script_regex_items,
+    const std::vector<std::string>& script_items_by_order)
+{
+    ArkWebStringVectorMap stscript_items = ArkWebStringVectorMapClassToStruct(script_items);
+    ArkWebPairStringVectorMap stscript_regex_items = ArkWebPairStringVectorMapClassToStruct(script_regex_items);
+    ArkWebStringVector stscript_items_by_order = ArkWebStringVectorClassToStruct(script_items_by_order);
+    ark_web_nweb_->JavaScriptOnDocumentStartByOrderV2(stscript_items, stscript_regex_items, stscript_items_by_order);
+
+    ArkWebStringVectorMapStructRelease(stscript_items);
+    ArkWebPairStringVectorMapStructRelease(stscript_regex_items);
+    ArkWebStringVectorStructRelease(stscript_items_by_order);
+}
+
+void ArkWebNWebWrapper::JavaScriptOnDocumentEndByOrderV2(
+    const std::map<std::string, std::vector<std::string>>& script_items,
+    const std::map<std::string, std::vector<std::pair<std::string, std::string>>>& script_regex_items,
+    const std::vector<std::string>& script_items_by_order)
+{
+    ArkWebStringVectorMap stscript_items = ArkWebStringVectorMapClassToStruct(script_items);
+    ArkWebPairStringVectorMap stscript_regex_items = ArkWebPairStringVectorMapClassToStruct(script_regex_items);
+    ArkWebStringVector stscript_items_by_order = ArkWebStringVectorClassToStruct(script_items_by_order);
+
+    ark_web_nweb_->JavaScriptOnDocumentEndByOrderV2(stscript_items, stscript_regex_items, stscript_items_by_order);
+
+    ArkWebStringVectorMapStructRelease(stscript_items);
+    ArkWebPairStringVectorMapStructRelease(stscript_regex_items);
+    ArkWebStringVectorStructRelease(stscript_items_by_order);
+}
+
+void ArkWebNWebWrapper::JavaScriptOnHeadReadyByOrderV2(
+    const std::map<std::string, std::vector<std::string>>& script_items,
+    const std::map<std::string, std::vector<std::pair<std::string, std::string>>>& script_regex_items,
+    const std::vector<std::string>& script_items_by_order)
+{
+    ArkWebStringVectorMap stscript_items = ArkWebStringVectorMapClassToStruct(script_items);
+    ArkWebPairStringVectorMap stscript_regex_items = ArkWebPairStringVectorMapClassToStruct(script_regex_items);
+    ArkWebStringVector stscript_items_by_order = ArkWebStringVectorClassToStruct(script_items_by_order);
+
+    ark_web_nweb_->JavaScriptOnHeadReadyByOrderV2(stscript_items, stscript_regex_items, stscript_items_by_order);
+
+    ArkWebStringVectorMapStructRelease(stscript_items);
+    ArkWebPairStringVectorMapStructRelease(stscript_regex_items);
+    ArkWebStringVectorStructRelease(stscript_items_by_order);
+}
 } // namespace OHOS::ArkWeb
