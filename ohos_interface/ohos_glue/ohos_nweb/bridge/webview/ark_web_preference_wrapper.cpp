@@ -634,4 +634,11 @@ bool ArkWebPreferenceWrapper::GetImageAnalyzerEnabled()
     }
     return false;
 }
+
+void ArkWebPreferenceWrapper::SetEnableAutoFill(bool enable)
+{
+    if (ark_web_preference_) {
+        ark_web_preference_->SetEnableAutoFill(enable);
+    }
+}
 } // namespace OHOS::ArkWeb

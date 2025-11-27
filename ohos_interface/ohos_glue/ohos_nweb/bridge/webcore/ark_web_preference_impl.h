@@ -709,6 +709,13 @@ public:
      */
     bool GetImageAnalyzerEnabled() override;
 
+    /**
+     * @brief Sets whether enable auto fill or not.
+     *
+     * @param enable bool: Indicates the flag whether autofill is enabled.
+     */
+    void SetEnableAutoFill(bool enable) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebPreference> nweb_preference_;
 };

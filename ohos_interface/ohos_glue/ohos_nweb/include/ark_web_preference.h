@@ -803,6 +803,14 @@ public:
      */
     /*--ark web()--*/
     virtual bool GetImageAnalyzerEnabled() = 0;
+
+    /**
+     * @brief Sets whether enable auto fill or not.
+     *
+     * @param enable bool: Indicates the flag whether autofill is enabled.
+     */
+    /*--ark web()--*/
+    virtual void SetEnableAutoFill(bool enable) = 0;
 };
 
 } // namespace OHOS::ArkWeb

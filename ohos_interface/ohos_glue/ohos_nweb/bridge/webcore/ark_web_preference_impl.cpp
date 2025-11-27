@@ -553,4 +553,11 @@ bool ArkWebPreferenceImpl::GetImageAnalyzerEnabled()
     }
     return false;
 }
+
+void ArkWebPreferenceImpl::SetEnableAutoFill(bool enable)
+{
+    if (nweb_preference_) {
+        nweb_preference_->SetEnableAutoFill(enable);
+    }
+}
 } // namespace OHOS::ArkWeb

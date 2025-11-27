@@ -711,6 +711,13 @@ public:
     {
         return false;
     }
+
+    /**
+     * @brief Sets whether enable auto fill or not.
+     *
+     * @param enable bool: Indicates the flag whether autofill is enabled.
+     */
+    virtual void SetEnableAutoFill(bool enable) {}
 };
 
 } // namespace OHOS::NWeb
