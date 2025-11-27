@@ -5111,7 +5111,7 @@ bool ParseRegisterJavaScriptProxyParam(ani_env* env, ani_object jsObject, ani_st
         AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
         return false;
     }
-    WVLOG_I("jsMethodList size = %{public}d", jsMethodList.size());
+    WVLOG_I("jsMethodList size = %{public}zu", jsMethodList.size());
     std::vector<std::string> jsAsyncMethodList;
     ani_boolean isUndefined = ANI_TRUE;
     if (env->Reference_IsUndefined(asyncMethodList, &isUndefined) != ANI_OK) {
@@ -5122,7 +5122,7 @@ bool ParseRegisterJavaScriptProxyParam(ani_env* env, ani_object jsObject, ani_st
         AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
         return false;
     }
-    WVLOG_I("jsAsyncMethodList size = %{public}d", jsAsyncMethodList.size());
+    WVLOG_I("jsAsyncMethodList size = %{public}zu", jsAsyncMethodList.size());
     std::string jsPermission;
     if (env->Reference_IsUndefined(permission, &isUndefined) != ANI_OK) {
         return false;
