@@ -57,6 +57,7 @@ ohos_shared_library("libarkweb_utils") {
     "init:libbegetutil",
     "hilog:libhilog",
     "jsoncpp:jsoncpp",
+    "selinux_adapter:librestorecon"
   ]
 
   include_dirs = [

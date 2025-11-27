@@ -19,8 +19,14 @@
 #include "json/json.h"
 #include <cerrno>
 #include <cstring>
-#include <dlfcn.h>
+#include <dlfcn_ext.h>
+#include <fcntl.h>
 #include <fstream>
+#include <filesystem>
+#include <policycoreutils.h>
+#include <system_error>
+#include <sys/mman.h>
+#include <sys/prctl.h>
 #include <unordered_set>
 #include <regex>
 #include <iomanip>
@@ -36,6 +42,14 @@ static bool g_webEngineInitFlag = false;
 static ArkWebEngineVersion g_activeEngineVersion = ArkWebEngineVersion::SYSTEM_DEFAULT;
 static int g_cloudEnableAppVersion = static_cast<int>(ArkWebEngineVersion::SYSTEM_DEFAULT);
 static std::unique_ptr<std::unordered_set<std::string>> g_legacyApp = nullptr;
+
+static void* g_reservedAddress = nullptr;
+static size_t g_reservedSize = 0;
+const int SHARED_RELRO_UID = 1037;
+const std::string ARK_WEB_ENGINE_LIB_NAME = "libarkweb_engine.so";
+const std::string SHARED_RELRO_DIR = "/data/service/el1/public/for-all-app/shared_relro";
+const std::string NWEB_RELRO_PATH = SHARED_RELRO_DIR + "/libwebviewchromium64.relro";
+const size_t RESERVED_VMA_SIZE = 512 * 1024 * 1024;
 
 #if defined(webview_arm64)
 const std::string ARK_WEB_CORE_MOCK_HAP_LIB_PATH =
@@ -685,5 +699,146 @@ int DlcloseArkWebLib()
     }
 #endif
     return 0;
+}
+
+bool NeedShareRelro()
+{
+    // Check if share relro is enabled
+    static bool isShareRelroEnabled = OHOS::system::GetBoolParameter("web.shareRelro.enabled", true);
+    if (!isShareRelroEnabled) {
+        WVLOG_I("NeedShareRelro: share relro is disabled.");
+        return false;
+    }
+
+    // Check if ark_web_engine_lib is accessible
+    std::string arkwebLibPath = GetArkwebLibPath().c_str();
+    std::filesystem::path arkwebEngineLibPath = arkwebLibPath + "/" + ARK_WEB_ENGINE_LIB_NAME;
+    std::error_code ec;
+    static bool arkwebEngineAccessible = std::filesystem::exists(arkwebEngineLibPath, ec);
+    if (ec) {
+        WVLOG_E("NeedShareRelro: error checking file: %{public}s.", ec.message().c_str());
+        return false;
+    }
+
+    // Need to share relro only when share relro is enabled and ark_web_engine_lib is accessible
+    WVLOG_I("NeedShareRelro:share relro is enabled, webEngine accessible:%{public}d.", arkwebEngineAccessible);
+    return arkwebEngineAccessible;
+}
+
+bool ReserveAddressSpace()
+{
+    if (!NeedShareRelro()) {
+        return false;
+    }
+    void* addr = mmap(nullptr, RESERVED_VMA_SIZE, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (addr == MAP_FAILED) {
+        WVLOG_E("ReserveAddressSpace: mmap failed, error=[%{public}s]", strerror(errno));
+        return false;
+    }
+    prctl(PR_SET_VMA, PR_SET_VMA_ANON_NAME, addr, RESERVED_VMA_SIZE, "libwebview reservation");
+    g_reservedAddress = addr;
+    g_reservedSize = RESERVED_VMA_SIZE;
+    WVLOG_I("1.Reserve address space success, size:%{public}zd bytes", g_reservedSize);
+    return true;
+}
+
+void* CreateRelroFile(const std::string& lib, Dl_namespace* dlns)
+{
+    if (!NeedShareRelro()) {
+        return nullptr;
+    }
+    if (!g_reservedAddress) {
+        WVLOG_E("CreateRelroFile: the reserved address is nullptr.");
+        return nullptr;
+    }
+
+    WVLOG_I("2.CreateRelroFile begin.");
+    if (unlink(NWEB_RELRO_PATH.c_str()) != 0 && errno != ENOENT) {
+        WVLOG_E("CreateRelroFile unlink failed, error=[%{public}s]", strerror(errno));
+    }
+    int relroFd = open(NWEB_RELRO_PATH.c_str(), O_RDWR | O_TRUNC | O_CLOEXEC | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
+    if (relroFd < 0) {
+        WVLOG_E("CreateRelroFile open failed, error=[%{public}s]", strerror(errno));
+        return nullptr;
+    }
+
+    WVLOG_I("CreateRelroFile: dlopen_ns_ext extinfo with reserved address.");
+    dl_extinfo extinfo = {
+        .flag = DL_EXT_WRITE_RELRO | DL_EXT_RESERVED_ADDRESS_RECURSIVE | DL_EXT_RESERVED_ADDRESS,
+        .relro_fd = relroFd,
+        .reserved_addr = g_reservedAddress,
+        .reserved_size = g_reservedSize,
+    };
+    void* result = dlopen_ns_ext(dlns, lib.c_str(), RTLD_NOW | RTLD_GLOBAL, &extinfo);
+    if (!result) {
+        WVLOG_E("CreateRelroFile: dlopen_ns_ext failed, error=[%{public}s]", strerror(errno));
+    }
+    close(relroFd);
+    return result;
+}
+
+void CreateRelroFileInSubProc()
+{
+    pid_t pid = fork();
+    if (pid < 0) {
+        WVLOG_E("Fork sub process failed.");
+    } else if (pid == 0) {
+        WVLOG_I("Fork sub process success.");
+        if (prctl(PR_SET_NAME, "shared_relro")) {
+            WVLOG_E("Set sub process name failed, error=[%{public}s]", strerror(errno));
+        }
+        if (setuid(SHARED_RELRO_UID) || setgid(SHARED_RELRO_UID)) {
+            WVLOG_E("Set uid/gid failed, error=[%{public}s]", strerror(errno));
+            _exit(0);
+        }
+        if (RestoreconRecurse(SHARED_RELRO_DIR.c_str())) {
+            WVLOG_E("Restorecon failed, error=[%{public}s]", strerror(errno));
+            _exit(0);
+        }
+
+        Dl_namespace dlns;
+        dlns_init(&dlns, GetArkwebNameSpace().c_str());
+        dlns_create(&dlns, GetArkwebLibPath().c_str());
+        Dl_namespace ndkns;
+        dlns_get("ndk", &ndkns);
+        dlns_inherit(&dlns, &ndkns, "allow_all_shared_libs");
+
+        void* webEngineHandle = CreateRelroFile(ARK_WEB_ENGINE_LIB_NAME, &dlns);
+        if (webEngineHandle) {
+            WVLOG_I("Create relro file success.");
+        } else {
+            WVLOG_E("Create relro file failed.");
+        }
+        _exit(0);
+    }
+}
+
+void* LoadWithRelroFile(const std::string& lib, Dl_namespace* dlns)
+{
+    if (!NeedShareRelro()) {
+        return nullptr;
+    }
+    if (!g_reservedAddress) {
+        WVLOG_E("LoadWithRelroFile: the reserved address is nullptr.");
+        return nullptr;
+    }
+
+    WVLOG_I("3.LoadWithRelroFile begin.");
+    int relroFd = open(NWEB_RELRO_PATH.c_str(), O_RDONLY);
+    if (relroFd < 0) {
+        WVLOG_E("LoadWithRelroFile open failed, error=[%{public}s]", strerror(errno));
+        return nullptr;
+    }
+
+    WVLOG_I("LoadWithRelroFile: dlopen_ns_ext extinfo with reserved address.");
+    dl_extinfo extinfo = {
+        .flag = DL_EXT_USE_RELRO | DL_EXT_RESERVED_ADDRESS_RECURSIVE | DL_EXT_RESERVED_ADDRESS,
+        .relro_fd =relroFd,
+        .reserved_addr = g_reservedAddress,
+        .reserved_size = g_reservedSize,
+    };
+    void* result = dlopen_ns_ext(dlns, lib.c_str(), RTLD_NOW | RTLD_GLOBAL, &extinfo);
+    close(relroFd);
+    return result;
 }
 }
