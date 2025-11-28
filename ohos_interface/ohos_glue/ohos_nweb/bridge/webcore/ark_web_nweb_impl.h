@@ -1894,6 +1894,14 @@ public:
     void JavaScriptOnHeadReadyByOrderV2(const ArkWebStringVectorMap& script_items,
         const ArkWebPairStringVectorMap& script_regex_items, const ArkWebStringVector& script_items_by_order) override;
 
+    /**
+     * @brief Sets whether enable auto fill or not.
+     *
+     * @param enable bool: Indicates the flag whether autofill is enabled.
+     */
+    /*--ark web()--*/
+    void SetEnableAutoFill(bool enable) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };
