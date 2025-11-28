@@ -60,6 +60,7 @@
 #include "ohos_nweb/cpptoc/ark_web_date_time_suggestion_vector_cpptoc.h"
 #include "ohos_nweb/bridge/ark_web_native_message_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_runtime_connect_info_impl.h"
+#include "ohos_nweb/bridge/ark_web_window_new_event_info_impl.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
 
@@ -402,6 +403,16 @@ void ArkWebHandlerWrapper::OnWindowNewByJS(const std::string& target_url, bool i
     }
 
     ArkWebStringStructRelease(stTargetUrl);
+}
+
+void ArkWebHandlerWrapper::OnWindowNewExtByJS(std::shared_ptr<OHOS::NWeb::NWebWindowNewEventInfo> dataInfo)
+{
+    if (CHECK_SHARED_PTR_IS_NULL(dataInfo)) {
+        ark_web_handler_->OnWindowNewExtByJS(nullptr);
+        return;
+    }
+
+    ark_web_handler_->OnWindowNewExtByJS(new ArkWebWindowNewEventInfoImpl(dataInfo));
 }
 
 void ArkWebHandlerWrapper::OnWindowExitByJS()

@@ -818,6 +818,14 @@ public:
      */
     void OnFirstScreenPaint(
         const ArkWebString& url, int64_t navigationStartTime, int64_t firstScreenPaintTime) override;
+
+    /**
+     * @brief called when new window required.
+     *
+     * @param dataInfo The information containing the set of all info for the new window.
+     */
+    void OnWindowNewExtByJS(ArkWebRefPtr<ArkWebWindowNewEventInfo> dataInfo) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };

@@ -858,6 +858,15 @@ public:
      */
     void OnFirstScreenPaint(
         const std::string& url, int64_t navigationStartTime, int64_t firstScreenPaintTime) override;
+
+    /**
+     * @brief Called when params of the native object are changed.
+     *
+     * @param newWindowInfo The information containing the set of all info for the new window.
+     *
+     */
+    virtual void OnWindowNewExtByJS(const std::shared_ptr<OHOS::NWeb::NWebWindowNewEventInfo> dataInfo) override;
+
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };
