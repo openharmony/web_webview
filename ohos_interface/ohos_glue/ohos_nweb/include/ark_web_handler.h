@@ -1165,6 +1165,14 @@ public:
         const ArkWebString& url, int64_t navigationStartTime, int64_t firstScreenPaintTime) = 0;
 
     /**
+     * @brief Callback with the selected text after the text selection content changes.
+     *
+     * @param selectedText The selected text after the text selection content changes.
+     */
+     /*--ark web()--*/
+    virtual void OnTextSelectionChange(const ArkWebString& selectedText) = 0;
+
+    /**
      * @brief called when new window required.
      *
      * @param dataInfo The information containing the set of all info for the new window.

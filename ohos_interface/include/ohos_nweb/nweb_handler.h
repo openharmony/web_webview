@@ -1441,6 +1441,13 @@ public:
     {}
 
     /**
+     * @brief Callback with the selected text after the text selection content changes.
+     *
+     * @param selectedText The selected text after the text selection content changes.
+     */
+    virtual void OnTextSelectionChange(const std::string& selectedText) {}
+
+    /**
      * @brief Called when params of the native object are changed.
      *
      * @param dataInfo The information containing the set of all info for the new window.

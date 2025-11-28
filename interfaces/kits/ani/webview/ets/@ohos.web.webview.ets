@@ -977,21 +977,70 @@ export default namespace webview {
         }
         native static isAutoPreconnectEnabled(): boolean;
         native static setAutoPreconnect(enabled: boolean): void;
-        native prefetchPage1(url: string): void;
-        native prefetchPage2(url: string, additionalHeaders: Array<WebHeader>): void;
-        native prefetchPage3(url: string, additionalHeaders: Array<WebHeader>, prefetchOptions: PrefetchOptions): void;
-        prefetchPage(url: string): void{
-            this.prefetchPage1(url);
+        native prefetchPageUrl(url: string): void;
+        native prefetchPageUrlHeaders(url: string, additionalHeaders: Array<WebHeader>): void;
+        native prefetchPageUrlHeadersOptions(url: string, additionalHeaders: Array<WebHeader>, prefetchOptions: PrefetchOptions): void;
+        prefetchPage(url: string): void {
+            this.prefetchPageUrl(url);
         }
-        prefetchPage(url: string, additionalHeaders: Array<WebHeader>): void{
-            this.prefetchPage2(url, additionalHeaders);
+        prefetchPage(url: string, additionalHeaders: Array<WebHeader>): void {
+            this.prefetchPageUrlHeaders(url, additionalHeaders);
         }
-        prefetchPage(url: string, additionalHeaders: Array<WebHeader>, prefetchOptions: PrefetchOptions): void{
-            this.prefetchPage3(url, additionalHeaders, prefetchOptions);
+        prefetchPage(url: string, additionalHeaders: Array<WebHeader>, prefetchOptions: PrefetchOptions): void {
+            this.prefetchPageUrlHeadersOptions(url, additionalHeaders, prefetchOptions);
         }
         native setWebDetach(nwebId: int): void;
         native static getActiveWebEngineVersion(): ArkWebEngineVersion;
         native static setActiveWebEngineVersion(engineVersion: ArkWebEngineVersion): void;
+        native jsProxy(obj: Object, name: string, methodList: Array<string>, asyncMethodList?: Array<string>, permission?: string): void;
+        jsProxyInvokeMethod(obj: Object, name: string, args: Array<Object>): Any {
+            let clsVal = Type.of(obj) as ClassType;
+            let method = clsVal.getMethodByName(name);
+            if(args.length <= 0) {
+                return method.invoke(obj, []);
+            }
+            const methodArgs: FixedArray<Object> = new Object[args.length];
+            for (let argIdx = 0; argIdx < args.length; argIdx++) {
+                const arg = args[argIdx];
+                methodArgs[argIdx] = arg;
+            }
+            return method.invoke(obj, methodArgs);
+        }
+        getReferenceMap(): Map<string, Object> {
+            let claMap: Map<string, Object> = new Map<string, Object>;
+            return claMap;
+        }
+        setFieldForObject(target: Map<string, Object>, name: string, val: Object): Map<string, Object> {
+            try {
+                target.set(name, val);
+            } catch (e: Error) {
+                console.error(e);
+            }
+            return target;
+        }
+    }
+    
+    export class jsProxyCallbackWrapper {
+        myFun_: (...args: Array<Object|string|number|undefined|null>) => Any = (...args: Array<Object|string|number|undefined|null>) => { return "" };
+        constructor(myFun: (...args: Array<Object|string|number|undefined|null>)=> Any) {
+            this.myFun_ = myFun;
+        }
+
+        native callNativeFunc(ptr: long, argv: double, args: Array<Object>): void;
+        getCallback(ptr: long): (...args: Array<Object|string|number|undefined|null>) => Any {
+            this.myFun_ = (...args: Array<Object|string|number|undefined|null>) => {
+                let objArgs: Array<Object> = new Array<Object>;
+                for (const arg of args) {
+                    if (arg instanceof Object) {
+                       let obj = arg as Object;
+                       objArgs.push(obj);
+                    }
+                }
+                this.callNativeFunc(ptr, args.length, objArgs);
+                return "";
+            };
+            return this.myFun_;
+        }
     }
 
     export class WebSchemeHandlerResponse {
@@ -1372,6 +1421,7 @@ export default namespace webview {
         native static isThirdPartyCookieAllowed(): boolean;
 
         native static configCookieSyncInternal(url: string, value: string, incognito?: boolean): void;
+        native static setLazyInitializeWebEngine(lazy: boolean): void;
 
         static configCookieSync(url: string, value: string, incognito?: boolean): void {
             WebCookieManager.configCookieSyncInternal(url, value, incognito);

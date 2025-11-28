@@ -341,6 +341,7 @@ typedef int64_t (*AccessibilityIdGenerateFunc)();
 typedef void (*NativeArkWebOnValidCallback)(const char*);
 typedef void (*NativeArkWebOnDestroyCallback)(const char*);
 using ScriptItems = std::map<std::string, std::vector<std::string>>;
+using ScriptRegexItems = std::map<std::string, std::vector<std::pair<std::string, std::string>>>;
 using ScriptItemsByOrder = std::vector<std::string>;
 using WebSnapshotCallback = std::function<void(const char*, bool, float, void*, int, int)>;
 
@@ -2235,6 +2236,38 @@ public:
      * Pause current microphone.
      */
     virtual void PauseMicrophone() {}
+
+    /**
+     * @brief Inject the JavaScript before WebView load the DOM tree.
+     *
+     * @param scriptItems: Multiple injected JavaScript codes are stored in a map in lexicographical order.
+     * @param scriptRegexItems: Multiple injected regular expression rule codes are
+     *                          stored in a map in lexicographical order.
+     * @param scriptItemsByOrder: Multiple injected JavaScript codes are stored in the order of injection.
+     */
+    virtual void JavaScriptOnDocumentStartByOrderV2(const ScriptItems& scriptItems,
+        const ScriptRegexItems& scriptRegexItems, const ScriptItemsByOrder& scriptItemsByOrder) {}
+
+    /**
+     * @brief Inject the JavaScript after WebView load the DOM tree.
+     *
+     * @param scriptItems: Multiple injected JavaScript codes are stored in a map in lexicographical order.
+     * @param scriptRegexItems: Multiple injected regular expression rule codes are
+     *                          stored in a map in lexicographical order.
+     * @param scriptItemsByOrder: Multiple injected JavaScript codes are stored in the order of injection.
+     */
+    virtual void JavaScriptOnDocumentEndByOrderV2(const ScriptItems& scriptItems,
+        const ScriptRegexItems& scriptRegexItems, const ScriptItemsByOrder& scriptItemsByOrder) {}
+
+    /**
+     * @Description: Inject the JavaScript when the head element has been created.
+     * @Input scriptItems: The injected JavaScript code is stored in lexicographical order.
+     * @Input scriptRegexItems: Multiple injected regular expression rule codes are
+     *                          stored in a map in lexicographical order.
+     * @Input scriptItemsByOrder: The injected JavaScript code is stored in the order of the injection array.
+     */
+    virtual void JavaScriptOnHeadReadyByOrderV2(const ScriptItems& scriptItems,
+        const ScriptRegexItems& scriptRegexItems, const ScriptItemsByOrder& scriptItemsByOrder) {}
 };
 
 } // namespace OHOS::NWeb

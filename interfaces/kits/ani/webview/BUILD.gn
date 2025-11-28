@@ -51,6 +51,7 @@ ohos_shared_library("webview_ani") {
     "./src/common/ani_parse_utils.cpp",
     "./src/common/ani_parse_utils.h",
     "./src/common/ani_web_net_error_list.h",
+    "./src/common/nweb_message_ext.cpp",
     "./src/webstorage/ani_web_storage.cpp",
     "./src/webadsblockmanager/ani_web_adsblock_manager.h",
     "./src/webadsblockmanager/ani_web_adsblock_manager.cpp",

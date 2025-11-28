@@ -1049,6 +1049,7 @@ void WebviewController::RegisterJavaScriptProxy(AniRegisterJavaScriptProxyParam&
     tmp.syncMethodList = allMethodList;
     tmp.asyncMethodList = param.asyncMethodList;
     tmp.permission = param.permission;
+    tmp.webviewObj = param.webviewObj;
     objId = javaScriptResultCb_->RegisterJavaScriptProxy(tmp);
 
     nweb_ptr->RegisterArkJSfunction(tmp.objName, tmp.syncMethodList, std::vector<std::string>(), objId, tmp.permission);
@@ -1178,6 +1179,9 @@ ErrCode WebviewController::HasImagesPromise(ani_vm *vm, ani_resolver deferred)
     if (!nweb_ptr) {
         ani_ref jsResult = nullptr;
         jsResult = AniBusinessErrorError::CreateError(env, NWebError::INIT_ERROR);
+        if (jsResult == nullptr) {
+            return NWebError::INIT_ERROR;
+        }
         auto status = env->PromiseResolver_Reject(deferred, static_cast<ani_error>(jsResult));
         if (status != ANI_OK) {
             WVLOG_E("PromiseResolver_Reject failed, status is : %{public}d", status);

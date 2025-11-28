@@ -1639,4 +1639,28 @@ void ArkWebNWebImpl::PauseMicrophone()
 {
     nweb_nweb_->PauseMicrophone();
 }
+
+void ArkWebNWebImpl::JavaScriptOnDocumentStartByOrderV2(const ArkWebStringVectorMap& script_items,
+    const ArkWebPairStringVectorMap& script_regex_items, const ArkWebStringVector& script_items_by_order)
+{
+    nweb_nweb_->JavaScriptOnDocumentStartByOrderV2(ArkWebStringVectorMapStructToClass(script_items),
+        ArkWebPairStringVectorMapStructToClass(script_regex_items),
+        ArkWebStringVectorStructToClass(script_items_by_order));
+}
+
+void ArkWebNWebImpl::JavaScriptOnDocumentEndByOrderV2(const ArkWebStringVectorMap& script_items,
+    const ArkWebPairStringVectorMap& script_regex_items, const ArkWebStringVector& script_items_by_order)
+{
+    nweb_nweb_->JavaScriptOnDocumentEndByOrderV2(ArkWebStringVectorMapStructToClass(script_items),
+        ArkWebPairStringVectorMapStructToClass(script_regex_items),
+        ArkWebStringVectorStructToClass(script_items_by_order));
+}
+
+void ArkWebNWebImpl::JavaScriptOnHeadReadyByOrderV2(const ArkWebStringVectorMap& script_items,
+    const ArkWebPairStringVectorMap& script_regex_items, const ArkWebStringVector& script_items_by_order)
+{
+    nweb_nweb_->JavaScriptOnHeadReadyByOrderV2(ArkWebStringVectorMapStructToClass(script_items),
+        ArkWebPairStringVectorMapStructToClass(script_regex_items),
+        ArkWebStringVectorStructToClass(script_items_by_order));
+}
 } // namespace OHOS::ArkWeb

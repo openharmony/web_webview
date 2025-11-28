@@ -266,4 +266,23 @@ int ArkHiSysEventAdapterImpl::Write(const ArkWebString& eventName, uint32_t type
     return real_.Write(s_eventName, (OHOS::NWeb::HiSysEventAdapter::EventType)type, data);
 }
 
+int ArkHiSysEventAdapterImpl::Write(const ArkWebString& eventName, uint32_t type, const ArkWebString key1,
+    const int32_t value1, const ArkWebString key2, const ArkWebString value2, const ArkWebString key3,
+    const ArkWebString value3, const ArkWebString key4, const ArkWebString value4, const ArkWebString key5,
+    const int32_t value5)
+{
+    std::string s_eventName = ArkWebStringStructToClass(eventName);
+    std::string s_key1 = ArkWebStringStructToClass(key1);
+    std::string s_key2 = ArkWebStringStructToClass(key2);
+    std::string s_value2 = ArkWebStringStructToClass(value2);
+    std::string s_key3 = ArkWebStringStructToClass(key3);
+    std::string s_value3 = ArkWebStringStructToClass(value3);
+    std::string s_key4 = ArkWebStringStructToClass(key4);
+    std::string s_value4 = ArkWebStringStructToClass(value4);
+    std::string s_key5 = ArkWebStringStructToClass(key5);
+    std::tuple data = std::make_tuple(s_key1, value1, s_key2, s_value2, s_key3, s_value3,
+                                      s_key4, s_value4, s_key5, value5);
+
+    return real_.Write(s_eventName, (OHOS::NWeb::HiSysEventAdapter::EventType)type, data);
+}
 } // namespace OHOS::ArkWeb

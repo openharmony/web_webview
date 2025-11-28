@@ -209,6 +209,9 @@ public:
 
     /*--ark web()--*/
     virtual void SetScrollbarMode(int32_t mode) = 0;
+
+    /*--ark web()--*/
+    virtual void LibraryLoaded(ArkWebRefPtr<ArkWebEngineInitArgs> init_args, bool lazy) = 0;
 };
 
 } // namespace OHOS::ArkWeb

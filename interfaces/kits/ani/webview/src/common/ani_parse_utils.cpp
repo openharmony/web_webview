@@ -396,7 +396,7 @@ bool IsFormatStringOfLength(const std::string& str)
 bool IsNumberOfLength(const std::string& value)
 {
     if (value.empty()) {
-        WVLOG_E("vlaue is empty");
+        WVLOG_E("value is empty");
         return false;
     }
     return std::all_of(value.begin(), value.end(), [](char i) { return isdigit(i); });

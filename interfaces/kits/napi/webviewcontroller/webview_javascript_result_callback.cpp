@@ -301,7 +301,6 @@ void CreateUvQueueWorkEnhanced(napi_env env, WebviewJavaScriptResultCallBack::Na
     class WorkData {
     public:
         WorkData() = delete;
-
         WorkData(napi_env env, WebviewJavaScriptResultCallBack::NapiJsCallBackParm* data,
             void (*handler)(
                 napi_env env, napi_status status, WebviewJavaScriptResultCallBack::NapiJsCallBackParm* data))
@@ -316,7 +315,6 @@ void CreateUvQueueWorkEnhanced(napi_env env, WebviewJavaScriptResultCallBack::Na
     auto workData = new WorkData(env, data, handler);
     auto work = new uv_work_t;
     work->data = reinterpret_cast<void*>(workData);
-
     auto callback = [](uv_work_t* work, int status) {
         auto workData = static_cast<WorkData*>(work->data);
         if (!workData) {
@@ -339,8 +337,8 @@ void CreateUvQueueWorkEnhanced(napi_env env, WebviewJavaScriptResultCallBack::Na
         delete workData;
         delete work;
     };
-    int ret = uv_queue_work_with_qos(
-        loop, work, [](uv_work_t* work) {}, callback, uv_qos_user_initiated);
+    int ret = uv_queue_work_with_qos_internal(
+        loop, work, [](uv_work_t* work) {}, callback, uv_qos_user_initiated, "WebviewCreateUvQueueWorkEnhanced_napi");
     if (ret != 0) {
         if (workData) {
             delete workData;
