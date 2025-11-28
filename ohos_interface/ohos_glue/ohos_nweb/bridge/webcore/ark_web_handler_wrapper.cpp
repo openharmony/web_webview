@@ -405,16 +405,6 @@ void ArkWebHandlerWrapper::OnWindowNewByJS(const std::string& target_url, bool i
     ArkWebStringStructRelease(stTargetUrl);
 }
 
-void ArkWebHandlerWrapper::OnWindowNewExtByJS(std::shared_ptr<OHOS::NWeb::NWebWindowNewEventInfo> dataInfo)
-{
-    if (CHECK_SHARED_PTR_IS_NULL(dataInfo)) {
-        ark_web_handler_->OnWindowNewExtByJS(nullptr);
-        return;
-    }
-
-    ark_web_handler_->OnWindowNewExtByJS(new ArkWebWindowNewEventInfoImpl(dataInfo));
-}
-
 void ArkWebHandlerWrapper::OnWindowExitByJS()
 {
     ark_web_handler_->OnWindowExitByJS();
@@ -1420,5 +1410,15 @@ void ArkWebHandlerWrapper::OnTextSelectionChange(const std::string& selectedText
     ark_web_handler_->OnTextSelectionChange(stSelectedText);
 
     ArkWebStringStructRelease(stSelectedText);
+}
+
+void ArkWebHandlerWrapper::OnWindowNewExtByJS(std::shared_ptr<OHOS::NWeb::NWebWindowNewEventInfo> dataInfo)
+{
+    if (CHECK_SHARED_PTR_IS_NULL(dataInfo)) {
+        ark_web_handler_->OnWindowNewExtByJS(nullptr);
+        return;
+    }
+
+    ark_web_handler_->OnWindowNewExtByJS(new ArkWebWindowNewEventInfoImpl(dataInfo));
 }
 } // namespace OHOS::ArkWeb
