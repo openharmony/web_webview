@@ -21,7 +21,7 @@
 
 namespace OHOS::ArkWeb {
 
-ArkWebWindowNewEventInfoImpl::ArkWebNewWindowInfoImpl(
+ArkWebWindowNewEventInfoImpl::ArkWebWindowNewEventInfoImpl(
     std::shared_ptr<OHOS::NWeb::NWebWindowNewEventInfo> nweb_window_new_event_info)
     : nweb_window_new_event_info_(nweb_window_new_event_info)
 {}
