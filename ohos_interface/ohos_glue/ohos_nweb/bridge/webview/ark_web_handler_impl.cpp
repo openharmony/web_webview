@@ -364,16 +364,6 @@ void ArkWebHandlerImpl::OnWindowNewByJS(
         std::make_shared<ArkWebControllerHandlerWrapper>(handler));
 }
 
-void ArkWebHandlerImpl::OnWindowNewExtByJS(ArkWebRefPtr<ArkWebWindowNewEventInfo> dataInfo)
-{
-    if (CHECK_REF_PTR_IS_NULL(dataInfo)) {
-        nweb_handler_->OnWindowNewExtByJS(nullptr);
-        return;
-    }
-
-    nweb_handler_->OnWindowNewExtByJS(std::make_shared<ArkWebWindowNewEventInfoWrapper>(dataInfo));
-}
-
 void ArkWebHandlerImpl::OnWindowExitByJS()
 {
     nweb_handler_->OnWindowExitByJS();
@@ -1229,5 +1219,15 @@ void ArkWebHandlerImpl::OnFirstScreenPaint(
 void ArkWebHandlerImpl::OnTextSelectionChange(const ArkWebString& selectedText)
 {
     nweb_handler_->OnTextSelectionChange(ArkWebStringStructToClass(selectedText));
+}
+
+void ArkWebHandlerImpl::OnWindowNewExtByJS(ArkWebRefPtr<ArkWebWindowNewEventInfo> dataInfo)
+{
+    if (CHECK_REF_PTR_IS_NULL(dataInfo)) {
+        nweb_handler_->OnWindowNewExtByJS(nullptr);
+        return;
+    }
+
+    nweb_handler_->OnWindowNewExtByJS(std::make_shared<ArkWebWindowNewEventInfoWrapper>(dataInfo));
 }
 } // namespace OHOS::ArkWeb
