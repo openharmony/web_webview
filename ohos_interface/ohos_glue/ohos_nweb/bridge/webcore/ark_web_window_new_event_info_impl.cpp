@@ -72,7 +72,7 @@ int32_t ArkWebWindowNewEventInfoImpl::GetHeight()
 
 int32_t ArkWebWindowNewEventInfoImpl::GetNavigationPolicy()
 {
-    return static_cast<size_t>(nweb_window_new_event_info_->GetNavigationPolicy());
+    return static_cast<int32_t>(nweb_window_new_event_info_->GetNavigationPolicy());
 }
 
 } // namespace OHOS::ArkWeb
