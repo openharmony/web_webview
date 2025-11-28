@@ -706,6 +706,13 @@ public:
      */
     bool GetImageAnalyzerEnabled() override;
 
+    /**
+     * @brief Sets whether enable auto fill or not.
+     *
+     * @param enable bool: Indicates the flag whether autofill is enabled.
+     */
+    void SetEnableAutoFill(bool enable) override;
+
 private:
     ArkWebRefPtr<ArkWebPreference> ark_web_preference_;
 };
