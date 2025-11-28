@@ -355,7 +355,6 @@ void NWebConfigHelper::ParseWebConfigXml(const std::string& configFilePath,
         WVLOG_E("load xml error!");
         return;
     }
-
     xmlNodePtr rootPtr = xmlDocGetRootElement(docPtr);
     if (rootPtr == nullptr || rootPtr->name == nullptr ||
         xmlStrcmp(rootPtr->name, reinterpret_cast<const xmlChar *>("WEB"))) {
@@ -363,7 +362,6 @@ void NWebConfigHelper::ParseWebConfigXml(const std::string& configFilePath,
         xmlFreeDoc(docPtr);
         return;
     }
-
     xmlNodePtr initNodePtr = GetChildrenNode(rootPtr, INIT_CONFIG);
     if (initNodePtr != nullptr) {
         WVLOG_D("read config from init node");
@@ -372,38 +370,31 @@ void NWebConfigHelper::ParseWebConfigXml(const std::string& configFilePath,
         WVLOG_D("read config from root node");
         ReadConfig(rootPtr, initArgs);
     }
-
     xmlNodePtr deleteNodePtr = GetChildrenNode(rootPtr, DELETE_CONFIG);
     if (deleteNodePtr != nullptr) {
         WVLOG_D("read config from delete node");
         ParseDeleteConfig(deleteNodePtr, initArgs);
     }
-
-    if (IsPerfConfigEmpty()) {
-        xmlNodePtr perfNodePtr = GetChildrenNode(rootPtr, PERFORMANCE_CONFIG);
-        if (perfNodePtr != nullptr) {
-            ParsePerfConfig(perfNodePtr);
-        }
-        xmlNodePtr adapterNodePtr = GetChildrenNode(rootPtr, BASE_WEB_CONFIG);
-        if (adapterNodePtr != nullptr) {
-            ParsePerfConfig(adapterNodePtr);
-        }
+    xmlNodePtr perfNodePtr = GetChildrenNode(rootPtr, PERFORMANCE_CONFIG);
+    if (perfNodePtr != nullptr) {
+        ParsePerfConfig(perfNodePtr);
     }
-
+    xmlNodePtr adapterNodePtr = GetChildrenNode(rootPtr, BASE_WEB_CONFIG);
+    if (adapterNodePtr != nullptr) {
+        ParsePerfConfig(adapterNodePtr);
+    }
     if (ltpoConfig_.empty() && ltpoStrategy_ == 0) {
         xmlNodePtr ltpoConfigNodePtr = GetChildrenNode(rootPtr, WEB_ANIMATION_DYNAMIC_SETTING_CONFIG);
         if (ltpoConfigNodePtr != nullptr) {
             ParseNWebLTPOConfig(ltpoConfigNodePtr);
         }
     }
-
     if (!dvsyncSwitch_) {
         xmlNodePtr dvsyncConfigNodePtr = GetChildrenNode(rootPtr, WEB_DVSYNC_CONFIG);
         if (dvsyncConfigNodePtr != nullptr) {
             ParseNWebDvsync(dvsyncConfigNodePtr);
         }
     }
-
     xmlNodePtr windowOrientationNodePtr = GetChildrenNode(rootPtr, WEB_WINDOW_ORIENTATION_CONFIG);
     if (windowOrientationNodePtr != nullptr) {
         WVLOG_D("read config from window orientation node");
@@ -569,7 +560,7 @@ void NWebConfigHelper::ParsePerfConfig(xmlNodePtr NodePtr)
             xmlFree(content);
             {
             std::lock_guard<std::mutex> lock(lock_);
-            perfConfig_.emplace(nodeName + "/" + childNodeName, contentStr);
+            perfConfig_.insert_or_assign(nodeName + "/" + childNodeName, contentStr);
             }
             WriteConfigValueToSysPara(nodeName + "/" + childNodeName, contentStr);
         }
