@@ -177,6 +177,7 @@ NWebConfigHelper::NWebConfigHelper()
     bool hasPlayGround = false;
     bool isDebugApp = false;
     bool isDeveloperMode = IsDeveloperModeEnabled();
+    dvsyncSwitch_ = false;
     if (saManager == nullptr) {
         WVLOG_E("webPlayGround get saManager fail");
         return;
@@ -203,7 +204,6 @@ NWebConfigHelper::NWebConfigHelper()
         }
     }
     web_play_ground_enabled_ = isDebugApp && hasPlayGround && isDeveloperMode;
-    dvsyncSwitch_ = false;
 
     if (web_play_ground_enabled_) {
         #define XPM_KICKER (0x6a6974)
