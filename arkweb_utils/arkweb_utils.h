@@ -19,6 +19,7 @@
 #pragma once
 
 #include <climits>
+#include <dlfcn.h>
 #include <string>
 
 #ifndef ARKWEB_EXPORT
@@ -94,6 +95,9 @@ ARKWEB_EXPORT void* ArkWebBridgeHelperSharedInit(bool runMode, const std::string
 ARKWEB_EXPORT void DlopenArkWebLib();
 ARKWEB_EXPORT int DlcloseArkWebLib();
 
+ARKWEB_EXPORT bool ReserveAddressSpace();
+ARKWEB_EXPORT void CreateRelroFileInSubProc();
+ARKWEB_EXPORT void* LoadWithRelroFile(const std::string& lib, Dl_namespace* dlns);
 } // namespace OHOS::ArkWeb
 
 #endif // WEB_WEBVIEW_ARKWEB_UTILS_ARKWEB_UTILS_H

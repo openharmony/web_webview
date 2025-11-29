@@ -42,6 +42,7 @@ ohos_fuzztest("ArkwebUtilsFuzzTest") {
     "init:libbegetutil",
     "jsoncpp:jsoncpp",
     "webview:libnweb",
+    "selinux_adapter:librestorecon"
   ]
 }
 
