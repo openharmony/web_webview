@@ -2142,14 +2142,6 @@ public:
     /*--ark web()--*/
     virtual void JavaScriptOnHeadReadyByOrderV2(const ArkWebStringVectorMap& script_items,
         const ArkWebPairStringVectorMap& script_regex_items, const ArkWebStringVector& script_items_by_order) = 0;
-
-    /**
-     * @brief Sets whether enable auto fill or not.
-     *
-     * @param enable bool: Indicates the flag whether autofill is enabled.
-     */
-    /*--ark web()--*/
-    virtual void SetEnableAutoFill(bool enable) {}
 };
 
 } // namespace OHOS::ArkWeb

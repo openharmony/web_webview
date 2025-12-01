@@ -2262,13 +2262,6 @@ public:
     virtual void JavaScriptOnHeadReadyByOrderV2(const ScriptItems& scriptItems,
         const ScriptRegexItems& scriptRegexItems, const ScriptItemsByOrder& scriptItemsByOrder) {}
 
-    /**
-     * @brief Sets whether enable auto fill or not.
-     *
-     * @param enable bool: Indicates the flag whether autofill is enabled.
-     */
-    /*--ark web()--*/
-    virtual void SetEnableAutoFill(bool enable) {}
 };
 
 } // namespace OHOS::NWeb

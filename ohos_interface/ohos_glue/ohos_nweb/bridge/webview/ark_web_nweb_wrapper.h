@@ -1910,13 +1910,6 @@ public:
         const std::map<std::string, std::vector<std::pair<std::string, std::string>>>& script_regex_items,
         const std::vector<std::string>& script_items_by_order) override;
 
-    /**
-     * @brief Sets whether enable auto fill or not.
-     *
-     * @param enable bool: Indicates the flag whether autofill is enabled.
-     */
-    void SetEnableAutoFill(bool enable) override;
-
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };
