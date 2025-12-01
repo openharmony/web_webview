@@ -992,6 +992,7 @@ export default namespace webview {
         native setWebDetach(nwebId: int): void;
         native static getActiveWebEngineVersion(): ArkWebEngineVersion;
         native static setActiveWebEngineVersion(engineVersion: ArkWebEngineVersion): void;
+        native static isActiveWebEngineEvergreen(): boolean;
         native jsProxy(obj: Object, name: string, methodList: Array<string>, asyncMethodList?: Array<string>, permission?: string): void;
         jsProxyInvokeMethod(obj: Object, name: string, args: Array<Object>): Any {
             let clsVal = Type.of(obj) as ClassType;

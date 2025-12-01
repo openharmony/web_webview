@@ -6977,6 +6977,15 @@ static void SetActiveWebEngineVersion(ani_env *env, ani_object object, ani_enum_
     OHOS::ArkWeb::setActiveWebEngineVersion(static_cast<OHOS::ArkWeb::ArkWebEngineVersion>(aniVersion));
 }
 
+static ani_boolean IsActiveWebEngineEvergreen(ani_env *env, ani_object object)
+{
+    if (!OHOS::ArkWeb::IsActiveWebEngineEvergreen()) {
+        return ANI_FALSE;
+    }
+
+    return ANI_TRUE;
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     WVLOG_D("[DOWNLOAD] StsWebviewControllerInit");
@@ -7144,6 +7153,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void*>(GetActiveWebEngineVersion) },
         ani_native_function { "setActiveWebEngineVersion", nullptr,
                               reinterpret_cast<void*>(SetActiveWebEngineVersion) },
+        ani_native_function { "isActiveWebEngineEvergreen", nullptr,
+                              reinterpret_cast<void*>(IsActiveWebEngineEvergreen) },
         ani_native_function { "setScrollbarMode", nullptr,
                               reinterpret_cast<void *>(SetScrollbarMode) },
     };

@@ -392,7 +392,7 @@
         "name": "OH_NativeArkWeb_GetActiveWebEngineVersion"
     },
     {
-        "first_introduced": "21",
+        "first_introduced": "23",
         "name": "OH_NativeArkWeb_IsActiveWebEngineEvergreen"
     },
     {
