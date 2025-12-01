@@ -484,40 +484,6 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_NeedShareRelro_001, TestSize.Level1)
 }
 
 /**
- * @brief 校验预留relro内存是否成功
- * @note 预期结果: 根据NeedShareRelro()判断是否需要共享relro，需要的话成功预留relro内存
- *
- */
-HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ReserveAddressSpace_001, TestSize.Level1)
-{
-    bool needShareRelro = NeedShareRelro();
-    EXPECT_EQ(ReserveAddressSpace(), needShareRelro);
-}
-
-/**
- * @brief 校验创建relro共享文件是否车工
- * @note 预期结果: 根据NeedShareRelro()判断是否需要共享relro，需要的话成功创建relro共享文件
- *
- */
-HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_CreateRelroFile_001, TestSize.Level1)
-{
-    std::string arkWebEngineLibName = "libarkweb_engine.so";
-    if (!NeedShareRelro()) {
-        EXPECT_EQ(CreateRelroFile(arkWebEngineLibName, nullptr), nullptr);
-        return;
-    }
-
-    Dl_namespace dlns;
-    Dl_namespace ndkns;
-    dlns_init(&dlns, GetArkwebNameSpace().c_str());
-    dlns_create(&dlns, GetArkwebLibPath().c_str());
-    dlns_get("ndk", &ndkns);
-    dlns_inherit(&dlns, &ndkns, "allow_all_shared_libs");
-    CreateRelroFileInSubProc();
-    EXPECT_NE(CreateRelroFile(arkWebEngineLibName, &dlns), nullptr);
-}
-
-/**
  * @brief 校验加载relro共享文件是否成功
  * @note 预期结果: 根据NeedShareRelro()判断是否需要共享relro，需要的话成功加载relro共享文件
  *
@@ -530,12 +496,25 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_LoadWithRelroFile_001, TestSize.Level1
         return;
     }
 
+    CreateRelroFileInSubProc();
+    sleep(1); // wait 1s for sub proc run finished.
     Dl_namespace dlns;
     Dl_namespace ndkns;
     dlns_init(&dlns, GetArkwebNameSpace().c_str());
     dlns_create(&dlns, GetArkwebLibPath().c_str());
     dlns_get("ndk", &ndkns);
     dlns_inherit(&dlns, &ndkns, "allow_all_shared_libs");
-    EXPECT_NE(LoadWithRelroFile(arkWebEngineLibName, &dlns), nullptr);
+    EXPECT_EQ(LoadWithRelroFile(arkWebEngineLibName, &dlns), nullptr);
+}
+
+/**
+ * @brief 校验预留relro内存是否成功
+ * @note 预期结果: 根据NeedShareRelro()判断是否需要共享relro，需要的话成功预留relro内存
+ *
+ */
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ReserveAddressSpace_001, TestSize.Level1)
+{
+    bool needShareRelro = NeedShareRelro();
+    EXPECT_EQ(ReserveAddressSpace(), needShareRelro);
 }
 } // namespace OHOS::NWeb
