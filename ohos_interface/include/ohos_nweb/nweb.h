@@ -38,6 +38,7 @@
 #include "nweb_snapshot_callback.h"
 #include "nweb_spanstring_convert_html_callback.h"
 #include "nweb_value_callback.h"
+#include "nweb_vault_plain_text_callback.h"
 #include "nweb_web_message.h"
 #include "nweb_print_manager_adapter.h"
 
@@ -89,6 +90,13 @@ enum class SourceTool : int32_t {
     LENS = 8,
     TOUCHPAD = 9,
     JOYSTICK = 10,
+};
+
+enum class NWebAutoFillTriggerType : int32_t {
+    AUTO_REQUEST = 0,
+    MANUAL_REQUEST,
+    PASTE_REQUEST,
+    UNSPECIFIED
 };
 
 class OHOS_NWEB_EXPORT NWebEngineInitArgs {
@@ -2269,6 +2277,22 @@ public:
     virtual void JavaScriptOnHeadReadyByOrderV2(const ScriptItems& scriptItems,
         const ScriptRegexItems& scriptRegexItems, const ScriptItemsByOrder& scriptItemsByOrder) {}
 
+    /**
+     * @brief Put the callback, get plain text from password vault.
+     *
+     * @param callback get plain text from password vault.
+     */
+    virtual void PutVaultPlainTextCallback(
+        std::shared_ptr<NWebVaultPlainTextCallback> callback) {}
+    
+    /**
+     * @brief fill autofill data.
+     *
+     * @param data data.
+     * @param type type.
+     */
+    virtual void FillAutofillDataFromTriggerType(
+        std::shared_ptr<NWebRomValue> data, const NWebAutoFillTriggerType& type) {}
 };
 
 } // namespace OHOS::NWeb

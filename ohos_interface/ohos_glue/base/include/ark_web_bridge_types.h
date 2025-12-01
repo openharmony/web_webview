@@ -132,6 +132,7 @@ enum ArkWebBridgeType {
     ARK_WEB_JS_VERIFY_PIN_RESULT = 110,
     ARK_WEB_COOKIE = 111,
     ARK_WEB_WINDOW_NEW_EVENT_INFO = 112,
+    ARK_WEB_VAULT_PLAIN_TEXT_CALLBACK = 113,
 
     /*Note: The end of nweb interface bridge type*/
     ARK_WEB_NWEB_INTERFACE_BUTT,
