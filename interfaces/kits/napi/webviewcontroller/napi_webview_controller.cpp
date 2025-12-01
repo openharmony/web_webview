@@ -6724,6 +6724,8 @@ WebSnapshotCallback CreateWebPageSnapshotResultCallback(
             const char *returnId, bool returnStatus, float radio, void *returnData,
             int returnWidth, int returnHeight) {
             WVLOG_I("WebPageSnapshot return napi callback");
+            napi_handle_scope scope = nullptr;
+            napi_open_handle_scope(env, &scope);
             napi_value jsResult = nullptr;
             napi_create_object(env, &jsResult);
 
@@ -6789,6 +6791,7 @@ WebSnapshotCallback CreateWebPageSnapshotResultCallback(
             napi_call_function(env, nullptr, callback, INTEGER_TWO, args, &callbackResult);
             napi_delete_reference(env, jCallback);
             g_inWebPageSnapshot = false;
+            napi_close_handle_scope(env, scope);
         };
 }
 
