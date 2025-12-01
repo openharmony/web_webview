@@ -2997,8 +2997,8 @@ static ani_object CreateWebMessagePortsObj(
     }
     ani_object arrayObj = nullptr;
     ani_class arrayCls = nullptr;
-    if (env->FindClass("escompat.Array", &arrayCls) != ANI_OK) {
-        WVLOG_E("find class escompat/Array; failed");
+    if (env->FindClass("std.core.Array", &arrayCls) != ANI_OK) {
+        WVLOG_E("find class std/core/Array; failed");
         return nullptr;
     }
     ani_method arrayCtor;
@@ -5797,7 +5797,7 @@ static ani_object GetCertificateSync(ani_env* env, ani_object object)
         return certificateObj;
     }
     ani_class cls;
-    if (env->FindClass("escompat.Array", &cls) != ANI_OK) {
+    if (env->FindClass("std.core.Array", &cls) != ANI_OK) {
         return certificateObj;
     }
     ani_method arrayCtor;

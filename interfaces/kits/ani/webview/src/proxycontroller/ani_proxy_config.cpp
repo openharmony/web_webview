@@ -88,7 +88,7 @@ static ani_ref GetProxyRulesInternal(ani_env *env, ProxyConfig* proxyConfig,
 
     ani_method arrayCtor;
     if (env->Class_FindMethod(arrayCls, "<ctor>", "i:", &arrayCtor) != ANI_OK) {
-        WVLOG_E("[PROXYCONTROLLER] FindClass Lescompat/Array; Failed.");
+        WVLOG_E("[PROXYCONTROLLER] FindClass Lstd/core/Array; Failed.");
         return nullptr;
     }
 
@@ -162,8 +162,8 @@ static ani_ref JsGetProxyRule(ani_env *env, ani_object object)
     }
 
     ani_class arrayCls = nullptr;
-    if (env->FindClass("escompat.Array", &arrayCls) != ANI_OK) {
-        WVLOG_E("[PROXYCONTROLLER] FindClass Lescompat/Array; Failed.");
+    if (env->FindClass("std.core.Array", &arrayCls) != ANI_OK) {
+        WVLOG_E("[PROXYCONTROLLER] FindClass Lstd/core/Array; Failed.");
         return nullptr;
     }
     return GetProxyRulesInternal(env, proxyConfig, arrayCls, itemCls, enumType);
