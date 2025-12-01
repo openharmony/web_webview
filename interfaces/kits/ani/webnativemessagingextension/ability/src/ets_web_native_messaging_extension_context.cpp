@@ -269,6 +269,7 @@ ani_ref CreateEtsWebNativeMessagingExtensionContext(ani_env* env,
         if(serviceContextPtr != nullptr)
         {
             delete serviceContextPtr;
+            serviceContextPtr = nullptr;
         }
         return nullptr;
     }
@@ -277,6 +278,7 @@ ani_ref CreateEtsWebNativeMessagingExtensionContext(ani_env* env,
         if(serviceContextPtr != nullptr)
         {
             delete serviceContextPtr;
+            serviceContextPtr = nullptr;
         }
         return nullptr;
     }
