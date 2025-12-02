@@ -865,6 +865,14 @@ public:
      * @param selectedText The selected text after the text selection content changes.
      */
     void OnTextSelectionChange(const std::string& selectedText) override;
+
+    /**
+     * @brief Called when params of the native object are changed.
+     *
+     * @param newWindowInfo The information containing the set of all info for the new window.
+     *
+     */
+    virtual void OnWindowNewExtByJS(const std::shared_ptr<OHOS::NWeb::NWebWindowNewEventInfo> dataInfo) override;
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };

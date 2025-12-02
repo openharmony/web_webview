@@ -308,6 +308,13 @@ enum class ScrollbarMode {
     FORCE_DISPLAY_SCROLLBAR
 };
 
+enum class NavigationPolicy : int32_t {
+    NEW_POPUP = 0,
+    NEW_WINDOW = 1,
+    NEW_BACKGROUND_TAB = 2,
+    NEW_FOREGROUND_TAB = 3
+};
+
 class OHOS_NWEB_EXPORT NWebMouseEvent {
 public:
     virtual ~NWebMouseEvent() = default;

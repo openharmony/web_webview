@@ -61,6 +61,7 @@
 #include "ohos_nweb/include/ark_web_url_resource_response.h"
 #include "ohos_nweb/include/ark_web_native_message_callback.h"
 #include "ohos_nweb/include/ark_web_runtime_connect_info.h"
+#include "ohos_nweb/include/ark_web_window_new_event_info.h"
 
 namespace OHOS::ArkWeb {
 
@@ -1170,6 +1171,14 @@ public:
      */
      /*--ark web()--*/
     virtual void OnTextSelectionChange(const ArkWebString& selectedText) = 0;
+
+    /**
+     * @brief called when new window required.
+     *
+     * @param dataInfo The information containing the set of all info for the new window.
+     */
+    /*--ark web()--*/
+    virtual void OnWindowNewExtByJS(ArkWebRefPtr<ArkWebWindowNewEventInfo> dataInfo) = 0;
 };
 
 } // namespace OHOS::ArkWeb
