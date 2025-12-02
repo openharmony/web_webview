@@ -1171,5 +1171,68 @@ HWTEST_F(NwebHelperTest, NWebHelper_IsLazyInitializeWebEngine_001, TestSize.Leve
     NWebHelper::Instance().SetLazyInitializeWebEngine(false);
     EXPECT_EQ(NWebHelper::Instance().IsLazyInitializeWebEngine(), false);
 }
+
+/**
+ * @tc.name: NWebHelper_SetNWebActiveStatus_001
+ * @tc.desc: SetNWebActiveStatus.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_SetNWebActiveStatus_001, TestSize.Level1)
+{
+    int32_t nweb_id = 1;
+
+    NWebHelper::Instance().SetNWebActiveStatus(nweb_id, true);
+    EXPECT_EQ(NWebHelper::Instance().GetNWebActiveStatus(nweb_id), true);
+}
+
+/**
+ * @tc.name: NWebHelper_SetNWebActiveStatus_002
+ * @tc.desc: SetNWebActiveStatus.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_SetNWebActiveStatus_002, TestSize.Level1)
+{
+    int32_t nweb_id = 1;
+
+    NWebHelper::Instance().SetNWebActiveStatus(nweb_id, true);
+    EXPECT_EQ(NWebHelper::Instance().GetNWebActiveStatus(nweb_id), true);
+
+    NWebHelper::Instance().SetNWebActiveStatus(nweb_id, false);
+    EXPECT_EQ(NWebHelper::Instance().GetNWebActiveStatus(nweb_id), false);
+}
+
+/**
+ * @tc.name: NWebHelper_GetNWebActiveStatus_001
+ * @tc.desc: GetNWebActiveStatus.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_GetNWebActiveStatus_001, TestSize.Level1)
+{
+    int32_t nweb_id = 1;
+
+    EXPECT_EQ(NWebHelper::Instance().GetNWebActiveStatus(nweb_id), false);
+
+    NWebHelper::Instance().SetNWebActiveStatus(nweb_id, true);
+    EXPECT_EQ(NWebHelper::Instance().GetNWebActiveStatus(nweb_id), true);
+    NWebHelper::Instance().RemoveNWebActiveStatus(nweb_id);
+}
+
+/**
+ * @tc.name: NWebHelper_RemoveNWebActiveStatus_001
+ * @tc.desc: RemoveNWebActiveStatus.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_RemoveNWebActiveStatus_001, TestSize.Level1)
+{
+    int32_t nweb_id = 1;
+    NWebHelper::Instance().SetNWebActiveStatus(nweb_id, true);
+    NWebHelper::Instance().RemoveNWebActiveStatus(nweb_id);
+    EXPECT_EQ(NWebHelper::Instance().GetNWebActiveStatus(nweb_id), false);
+}
+
 } // namespace OHOS::NWeb
 }
