@@ -711,7 +711,7 @@ bool NeedShareRelro()
     }
 
     // Check if ark_web_engine_lib is accessible
-    std::string arkwebLibPath = GetArkwebLibPath().c_str();
+    std::string arkwebLibPath = GetArkwebLibPath();
     std::filesystem::path arkwebEngineLibPath = arkwebLibPath + "/" + ARK_WEB_ENGINE_LIB_NAME;
     std::error_code ec;
     static bool arkwebEngineAccessible = std::filesystem::exists(arkwebEngineLibPath, ec);
@@ -796,9 +796,11 @@ void CreateRelroFileInSubProc()
             _exit(0);
         }
 
+        const std::string libNsName = GetArkwebNameSpace();
+        const std::string libpath = GetArkwebLibPath();
         Dl_namespace dlns;
-        dlns_init(&dlns, GetArkwebNameSpace().c_str());
-        dlns_create(&dlns, GetArkwebLibPath().c_str());
+        dlns_init(&dlns, libNsName.c_str());
+        dlns_create(&dlns, libpath.c_str());
         Dl_namespace ndkns;
         dlns_get("ndk", &ndkns);
         dlns_inherit(&dlns, &ndkns, "allow_all_shared_libs");
