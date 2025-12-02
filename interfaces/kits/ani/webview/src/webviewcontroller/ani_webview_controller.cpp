@@ -2375,7 +2375,7 @@ int32_t CustomizeSchemesArrayDataHandler(ani_env* env, ani_object schemes)
     for (int i = 0; i < int(schemesLength); i++) {
         ani_ref WebCustomSchemeRef;
         if (env->Object_CallMethodByName_Ref(
-            schemes, "$_get", "i:C{std.core.Object}", &WebCustomSchemeRef, (ani_int)i) != ANI_OK) {
+            schemes, "$_get", "i:Y", &WebCustomSchemeRef, (ani_int)i) != ANI_OK) {
             WVLOG_E("Object_CallMethodByName_Ref failed");
             return false;
         }
