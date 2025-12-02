@@ -266,7 +266,7 @@ ani_ref CreateEtsWebNativeMessagingExtensionContext(ani_env* env,
         cls, method, &contextObj, (ani_long)workContext.release())) != ANI_OK ||
         contextObj == nullptr) {
         WNMLOG_E("Failed to create object, status : %{public}d", status);
-        if(serviceContextPtr != nullptr) {
+        if (serviceContextPtr != nullptr) {
             delete serviceContextPtr;
             serviceContextPtr = nullptr;
         }
@@ -274,7 +274,7 @@ ani_ref CreateEtsWebNativeMessagingExtensionContext(ani_env* env,
     }
     if (!ContextUtil::SetNativeContextLong(env, contextObj, (ani_long)(serviceContextPtr))) {
         WNMLOG_E("Failed to setNativeContextLong ");
-        if(serviceContextPtr != nullptr) {
+        if (serviceContextPtr != nullptr) {
             delete serviceContextPtr;
             serviceContextPtr = nullptr;
         }
