@@ -257,7 +257,7 @@ function suffixFromAccepts(suffix, descriptions, accepts) {
     let m = accepts[i].length;
     let extList = [];
     for (let j = 0; j < m; j++) {
-      extList.push(accepts[i][j].AcceptType.join(','));
+      extList.push(accepts[i][j].acceptableType.join(','));
     }
     let ext = extList.join(',');
     let desc = descriptions[i] + '(' + ext + ')' + '|';
