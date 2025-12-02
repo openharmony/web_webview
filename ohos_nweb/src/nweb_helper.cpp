@@ -1453,4 +1453,28 @@ bool NWebHelper::IsLazyInitializeWebEngine()
     return lazyInitializeWebEngine_ && !initWebEngine_;
 }
 
+void NWebHelper::SetNWebActiveStatus(int32_t nwebId, bool nwebActiveStatus)
+{
+    WVLOG_D("Set nwebId: %{public}d, nwebActiveStatus: %{public}d", nwebId, nwebActiveStatus);
+    nwebActiveStatusMap_[nwebId] = nwebActiveStatus;
+}
+
+bool NWebHelper::GetNWebActiveStatus(int32_t nwebId)
+{
+    auto iter = nwebActiveStatusMap_.find(nwebId);
+    if (iter != nwebActiveStatusMap_.end()) {
+        WVLOG_D("Find nwebId: %{public}d, nwebActiveStatus: %{public}d", nwebId, nwebActiveStatusMap_[nwebId]);
+        return iter->second;
+    } else {
+        WVLOG_W("No nwebId: %{public}d in nwebActiveStatusMap_", nwebId);
+        return false;
+    }
+}
+
+void NWebHelper::RemoveNWebActiveStatus(int32_t nwebId)
+{
+    WVLOG_D("Erase nwebId: %{public}d", nwebId);
+    nwebActiveStatusMap_.erase(nwebId);
+}
+
 } // namespace OHOS::NWeb
