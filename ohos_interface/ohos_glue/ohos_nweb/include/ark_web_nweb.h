@@ -2162,6 +2162,14 @@ public:
     /*--ark web()--*/
     virtual void FillAutofillDataFromTriggerType(
         ArkWebRefPtr<ArkWebRomValue> data, int type) {}
+    
+    /**
+     * @brief Set soft keyboard behavior mode.
+     *
+     * @param mode WebSoftKeyboardBehaviorMode: the soft keyboard behavior mode.
+     */
+    /*--ark web()--*/
+    virtual void SetSoftKeyboardBehaviorMode(int mode) = 0;
 };
 
 } // namespace OHOS::ArkWeb

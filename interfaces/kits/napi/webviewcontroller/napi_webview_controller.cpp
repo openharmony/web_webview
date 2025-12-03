@@ -8209,7 +8209,14 @@ napi_value NapiWebviewController::SetSoftKeyboardBehaviorMode(napi_env env, napi
             NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "mode"));
         return result;
     }
-    NWebHelper::Instance().SetSoftKeyboardBehaviorMode(static_cast<WebSoftKeyboardBehaviorMode>(mode));
+    
+    WebviewController *webviewController = GetWebviewController(env, info);
+    if (!webviewController) {
+        WVLOG_E("NapiWebviewController::SetSoftKeyboardBehaviorMode get controller failed");
+        return nullptr;
+    }
+    WVLOG_I("SoftKeyboardBehaviorMode is active. ");
+    webviewController->SetSoftKeyboardBehaviorMode(static_cast<WebSoftKeyboardBehaviorMode>(mode));
     return result;
 }
 

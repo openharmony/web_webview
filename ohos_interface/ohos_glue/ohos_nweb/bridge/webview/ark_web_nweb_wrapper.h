@@ -1928,6 +1928,12 @@ public:
     void FillAutofillDataFromTriggerType(
         std::shared_ptr<OHOS::NWeb::NWebRomValue> data, const ArkWebAutoFillTriggerType& type) override;
 
+    /**
+     * @brief Set soft keyboard behavior mode.
+     * @param mode WebSoftKeyboardBehaviorMode: the soft keyboard behavior mode.
+     */
+    void SetSoftKeyboardBehaviorMode(OHOS::NWeb::WebSoftKeyboardBehaviorMode mode) override;
+
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };

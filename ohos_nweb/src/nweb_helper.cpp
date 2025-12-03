@@ -1421,7 +1421,6 @@ void NWebHelper::SetSoftKeyboardBehaviorMode(WebSoftKeyboardBehaviorMode mode)
         WVLOG_E("web engine is nullptr");
         return;
     }
-    nwebEngine_->SetSoftKeyboardBehaviorMode(mode);
 }
 
 void NWebHelper::SetScrollbarMode(ScrollbarMode mode)
