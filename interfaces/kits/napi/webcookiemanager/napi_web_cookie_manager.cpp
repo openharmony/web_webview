@@ -985,9 +985,7 @@ void NapiWebCookieManager::GetCookiesPromiseComplete(napi_env env, napi_status s
     napi_value setResult = nullptr;
     napi_create_array(env, &setResult);
     GetNapiWebHttpCookieForResult(env, param->cookies, setResult);
-    if (param->status == napi_ok) {
-        napi_resolve_deferred(env, param->deferred, setResult);
-    }
+    napi_resolve_deferred(env, param->deferred, setResult);
     napi_delete_async_work(env, param->asyncWork);
     delete param;
 }
@@ -999,11 +997,15 @@ napi_value NapiWebCookieManager::JsFetchAllCookies(napi_env env, napi_callback_i
     napi_value argv[INTEGER_ONE] = { 0 };
     napi_get_cb_info(env, info, &argc, argv, &retValue, nullptr);
     if (argc != INTEGER_ONE) {
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
         return nullptr;
     }
  
     bool incognitoMode = false;
     if (!GetBooleanPara(env, argv[INTEGER_ZERO], incognitoMode)) {
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYEPS_ERROR));
         return nullptr;
     }
  
