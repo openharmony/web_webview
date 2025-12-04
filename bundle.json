@@ -341,6 +341,7 @@
                 "//base/web/webview/test/unittest/net_connect_adapter_test:unittest",
                 "//base/web/webview/test/unittest/power_mgr_client_adapter_impl_test:unittest",
                 "//base/web/webview/test/unittest/nweb_helper_test:unittest",
+                "//base/web/webview/test/unittest/nweb_hisysevent_test:unittest",
                 "//base/web/webview/test/unittest/nweb_config_helper_test:unittest",
                 "//base/web/webview/test/unittest/ohos_adapter/permission_data_base_adapter_test:unittest",
                 "//base/web/webview/test/unittest/ohos_adapter/date_time_adapter_impl_test:unittest",
