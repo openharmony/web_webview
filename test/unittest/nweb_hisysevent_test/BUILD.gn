@@ -16,24 +16,12 @@ import("../../../web_aafwk.gni")
 
 module_output_path = "webview/webview"
 
-config("module_private_config") {
-  visibility = [ ":*"]
-
-  include_dirs = [
-    "$webview_path/test/ohos_nweb",
-    "$webview_path/test/unittest",
-    "$webview_path/ohos_nweb/include",
-  ]
-}
-
-ohos_unittest("nweb_hisysevent_test") {
+ohos_unittest("nweb_helper_test") {
   module_out_path = module_output_path
 
-  sources = [
-    "nweb_hisysevent_test.cpp",
-  ]
+  sources = [ "nweb_hisysevent_test.cpp" ]
 
-  configs = [ ":module_private_config"]
+  include_dirs = [ "../common" ]
 
   deps = [ "$webview_path/ohos_nweb:web_configs" ]
 
