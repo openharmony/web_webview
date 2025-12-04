@@ -30,6 +30,7 @@ using ArkWebImageAlphaType = OHOS::NWeb::ImageAlphaType;
 using ArkWebNestedScrollMode = OHOS::NWeb::NestedScrollMode;
 using ArkPixelUnit = OHOS::NWeb::PixelUnit;
 using ArkWebDestroyMode = OHOS::NWeb::WebDestroyMode;
+using ArkWebAutoFillTriggerType = OHOS::NWeb::NWebAutoFillTriggerType;
 
 class ArkWebNWebWrapper : public OHOS::NWeb::NWeb {
 public:
@@ -1909,6 +1910,23 @@ public:
     void JavaScriptOnHeadReadyByOrderV2(const std::map<std::string, std::vector<std::string>>& script_items,
         const std::map<std::string, std::vector<std::pair<std::string, std::string>>>& script_regex_items,
         const std::vector<std::string>& script_items_by_order) override;
+
+    /**
+     * @brief Put the callback, get plain text from password vault.
+     *
+     * @param callback get plain text from password vault.
+     */
+    void PutVaultPlainTextCallback(
+        std::shared_ptr<OHOS::NWeb::NWebVaultPlainTextCallback> callback) override;
+    
+    /**
+     * @brief fill autofill data.
+     *
+     * @param data data.
+     * @param type type.
+     */
+    void FillAutofillDataFromTriggerType(
+        std::shared_ptr<OHOS::NWeb::NWebRomValue> data, const ArkWebAutoFillTriggerType& type) override;
 
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;

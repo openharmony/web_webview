@@ -1894,6 +1894,23 @@ public:
     void JavaScriptOnHeadReadyByOrderV2(const ArkWebStringVectorMap& script_items,
         const ArkWebPairStringVectorMap& script_regex_items, const ArkWebStringVector& script_items_by_order) override;
 
+    /**
+     * @brief Put the callback, get plain text from password vault.
+     *
+     * @param callback get plain text from password vault.
+     */
+    void PutVaultPlainTextCallback(
+        ArkWebRefPtr<ArkWebVaultPlainTextCallback> callback) override;
+    
+    /**
+     * @brief fill autofill data.
+     *
+     * @param data data.
+     * @param type type.
+     */
+    void FillAutofillDataFromTriggerType(
+        ArkWebRefPtr<ArkWebRomValue> data, int type) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

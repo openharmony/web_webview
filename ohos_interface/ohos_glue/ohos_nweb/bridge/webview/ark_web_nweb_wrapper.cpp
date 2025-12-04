@@ -43,6 +43,7 @@
 #include "ohos_nweb/bridge/ark_web_string_value_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_stylus_touch_point_info_impl.h"
 #include "ohos_nweb/bridge/ark_web_system_configuration_impl.h"
+#include "ohos_nweb/bridge/ark_web_vault_plain_text_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_view_struct_utils.h"
 #include "ohos_nweb/bridge/ark_web_print_document_adapter_adapter_wrapper.h"
 #include "ohos_nweb/cpptoc/ark_web_js_proxy_callback_vector_cpptoc.h"
@@ -1978,4 +1979,27 @@ void ArkWebNWebWrapper::JavaScriptOnHeadReadyByOrderV2(
     ArkWebStringVectorStructRelease(stscript_items_by_order);
 }
 
+void ArkWebNWebWrapper::PutVaultPlainTextCallback(
+    std::shared_ptr<OHOS::NWeb::NWebVaultPlainTextCallback> callback)
+{
+    if (CHECK_SHARED_PTR_IS_NULL(callback)) {
+        ark_web_nweb_->PutVaultPlainTextCallback(nullptr);
+        return;
+    }
+
+    ark_web_nweb_->PutVaultPlainTextCallback(
+        new ArkWebVaultPlainTextCallbackImpl(callback));
+}
+
+void ArkWebNWebWrapper::FillAutofillDataFromTriggerType(
+    std::shared_ptr<OHOS::NWeb::NWebRomValue> data, const ArkWebAutoFillTriggerType& type)
+{
+    if (CHECK_SHARED_PTR_IS_NULL(data)) {
+        ark_web_nweb_->FillAutofillDataFromTriggerType(nullptr, static_cast<int>(type));
+        return;
+    }
+
+    ark_web_nweb_->FillAutofillDataFromTriggerType(
+        new ArkWebRomValueImpl(data), static_cast<int>(type));
+}
 } // namespace OHOS::ArkWeb
