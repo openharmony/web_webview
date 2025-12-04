@@ -35,6 +35,7 @@
 #include "nweb_surface_adapter.h"
 #include "parameter.h"
 #include "parameters.h"
+#include "arkweb_utils.h"
 
 namespace {
 
@@ -665,7 +666,12 @@ bool NWebHelper::GetWebEngine(bool fromArk)
         }
     }
 
-    fromArk = fromArk && !NWebConfigHelper::Instance().IsWebPlayGroundEnable();
+    bool webPlayGroundEnable = NWebConfigHelper::Instance().IsWebPlayGroundEnable();
+    if (webPlayGroundEnable) {
+        OHOS::ArkWeb::SetActiveWebPlayGround(OHOS::ArkWeb::ArkWebEngineVersion::PLAYGROUND);
+    }
+    fromArk = fromArk && !webPlayGroundEnable;
+
     if (!ArkWeb::ArkWebNWebWebviewBridgeHelper::GetInstance().Init(fromArk, bundlePath_)) {
         WVLOG_E("failed to init arkweb nweb bridge helper");
         return false;
@@ -716,6 +722,7 @@ bool NWebHelper::InitWebEngine()
 
     initArgs->AddArg(std::string("--user-data-dir=").append(ctx->GetBaseDir()));
     initArgs->AddArg(std::string("--bundle-installation-dir=").append(bundlePath_));
+    initArgs->AddArg(NWebConfigHelper::Instance().GetWebPlayGroundInitArg());
 
     std::string arkWebInstallPath = OHOS::system::GetParameter("persist.arkwebcore.install_path", "");
     if (!arkWebInstallPath.empty()) {

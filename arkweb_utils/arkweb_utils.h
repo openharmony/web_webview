@@ -65,15 +65,18 @@ enum class ArkWebEngineVersion {
     SYSTEM_DEFAULT = 0,
     M114 = 1,
     M132 = 2,
+    PLAYGROUND = 99998,
     SYSTEM_EVERGREEN = 99999
 };
 
 enum class ArkWebEngineType {
     LEGACY = static_cast<int>(ArkWebEngineVersion::M114),
     EVERGREEN = static_cast<int>(ArkWebEngineVersion::M132),
+    PLAYGROUND = static_cast<int>(ArkWebEngineVersion::PLAYGROUND),
 };
 
 ARKWEB_EXPORT void setActiveWebEngineVersion(ArkWebEngineVersion version);
+ARKWEB_EXPORT void SetActiveWebPlayGround(ArkWebEngineVersion version);
 ARKWEB_EXPORT ArkWebEngineVersion getActiveWebEngineVersion();
 ARKWEB_EXPORT ArkWebEngineType getActiveWebEngineType();
 ARKWEB_EXPORT void SetActiveWebEngineVersionInner(ArkWebEngineVersion version);
