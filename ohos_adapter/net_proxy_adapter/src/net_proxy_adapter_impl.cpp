@@ -227,6 +227,9 @@ void NetProxyAdapterImpl::Changed()
 
 bool NetProxyAdapterImpl::StartListen()
 {
+    if (commonEventSubscriber_) {
+        return true;
+    }
     WVLOG_I("start netproxy listen");
     Changed();
     EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();

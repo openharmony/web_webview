@@ -204,6 +204,7 @@ HWTEST_F(NetProxyAdapterTest, NetProxyAdapterTest_StartListen_001, TestSize.Leve
     EXPECT_EQ(eventCallback->host_, "");
     EXPECT_EQ(eventCallback->port_, 1);
     EXPECT_EQ(eventCallback->exclusion_, "exclusion1,exclusion2");
+    ASSERT_TRUE(NetProxyAdapterImpl::GetInstance().StartListen());
 
     NetProxyAdapterImpl::GetInstance().StopListen();
     ASSERT_FALSE(NetConnClientMock::IsAppExist(1));
