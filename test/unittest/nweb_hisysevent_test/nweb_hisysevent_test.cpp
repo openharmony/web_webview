@@ -26,7 +26,7 @@ public:
 
 TEST_F(NWebHiSysEventTest, ReportCreatWebInstanceTime) {
     uint32_t nwebId = 123;
-    int64_t useTime = 1000;
+    int64_t usedTime = 1000;
 
     int result = EventReport::ReportCreatWebInstanceTime(nwebId, usedTime);
     EXPECT_EQ(result, 0);
