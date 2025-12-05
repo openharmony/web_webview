@@ -19,14 +19,12 @@ module_output_path = "webview/webview"
 ohos_unittest("nweb_helper_test") {
   module_out_path = module_output_path
 
-  sources = [
-    "../common/nweb_create_window.cpp",
-    "nweb_hisysevent_test.cpp",
-  ]
+  sources = [ "nweb_hisysevent_test.cpp" ]
 
   include_dirs = [ "../common" ]
 
-  deps = [ "$webview_path/ohos_nweb:web_configs",
+  deps = [
+    "$webview_path/ohos_nweb:web_configs",
     "$webview_path/ohos_nweb:libnweb"
   ]
 
