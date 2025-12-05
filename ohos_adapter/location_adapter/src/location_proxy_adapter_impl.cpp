@@ -286,13 +286,8 @@ int32_t LocationProxyAdapterImpl::StartLocating(
         reinterpret_cast<LocationRequestConfigImpl*>(requestConfig.get())->GetConfig(),
         iCallback);
     if (!ret) {
-        WVLOG_E("StartLocating failed, errcode:%{public}d", ret);
-        LocatorCallbackMap::iterator iter = reg_.find(id);
-        if (iter == reg_.end()) {
-            WVLOG_E("StartLocating failed due to reg not find iCallback");
-            return -1;
-        }
-        reg_.erase(iter);
+        WVLOG_E("StartLocating failed, id:%{public}d", id);
+        reg_.erase(id);
         return -1;
     }
     return id;
