@@ -16,7 +16,7 @@ import("../../../web_aafwk.gni")
 
 module_output_path = "webview/webview"
 
-ohos_unittest("nweb_helper_test") {
+ohos_unittest("nweb_hisysevent_test") {
   module_out_path = module_output_path
 
   sources = [ "nweb_hisysevent_test.cpp" ]
