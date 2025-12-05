@@ -24,14 +24,14 @@ public:
     void TearDown() override {}
 };
 
-TEST_F(NWebHiSysEventTest, ReportCreatWebInstanceTime) {
+TEST_F(NWebHiSysEventTest, ReportCreateWebInstanceTime) {
     uint32_t nwebId = 123;
     int64_t useTime = 1000;
 
-    int result = EventReport::ReportCreatWebInstanceTime(nwebId, useTime);
+    int result = EventReport::ReportCreateWebInstanceTime(nwebId, useTime);
     EXPECT_EQ(result, 0);
 
-    result = EventReport::ReportCreatWebInstanceTime(nwebId, useTime);
+    result = EventReport::ReportCreateWebInstanceTime(nwebId, useTime);
     EXPECT_EQ(result, 0);
 }
 
