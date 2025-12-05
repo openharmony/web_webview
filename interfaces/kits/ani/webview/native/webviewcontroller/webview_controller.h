@@ -357,6 +357,12 @@ public:
 
     ErrCode CloseCamera();
 
+    ErrCode ResumeMicrophone();
+
+    ErrCode StopMicrophone();
+
+    ErrCode PauseMicrophone();
+    
     bool ParseScriptContent(napi_env env, napi_value value, std::string &script);
 
     std::shared_ptr<CacheOptions> ParseCacheOptions(napi_env env, napi_value value);
