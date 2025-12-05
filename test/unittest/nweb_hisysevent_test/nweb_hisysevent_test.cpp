@@ -24,7 +24,8 @@ public:
     void TearDown() override {}
 };
 
-TEST_F(NWebHiSysEventTest, ReportCreateWebInstanceTime) {
+TEST_F(NWebHiSysEventTest, ReportCreateWebInstanceTime)
+{
     uint32_t nwebId = 123;
     int64_t useTime = 1000;
 
