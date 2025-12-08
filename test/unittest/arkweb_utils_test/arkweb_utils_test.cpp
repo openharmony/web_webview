@@ -467,7 +467,7 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetArkwebLibPathForMock_001, TestSize.
  */
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_NeedShareRelro_001, TestSize.Level1)
 {
-    bool isShareRelroEnabled = OHOS::system::GetBoolParameter("web.shareRelro.enabled", true);
+    bool isShareRelroEnabled = OHOS::system::GetBoolParameter("web.shareRelro.enabled", false);
     std::string arkwebLibPath = GetArkwebLibPath().c_str();
     std::filesystem::path arkwebEngineLibPath = arkwebLibPath + "/libarkweb_engine.so";
     std::error_code ec;
