@@ -704,7 +704,7 @@ int DlcloseArkWebLib()
 bool NeedShareRelro()
 {
     // Check if share relro is enabled
-    static bool isShareRelroEnabled = OHOS::system::GetBoolParameter("web.shareRelro.enabled", true);
+    static bool isShareRelroEnabled = OHOS::system::GetBoolParameter("web.shareRelro.enabled", false);
     if (!isShareRelroEnabled) {
         WVLOG_I("NeedShareRelro: share relro is disabled.");
         return false;
