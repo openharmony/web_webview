@@ -2420,18 +2420,17 @@ int32_t CustomizeSchemesArrayDataHandler(ani_env* env, ani_object schemes)
 {
     if (!env) {
         WVLOG_E("env is nullptr");
-        return false;
+        return PARAM_CHECK_ERROR;
     }
     ani_int schemesLength = 0;
     if (env->Object_GetPropertyByName_Int(schemes, "length", &schemesLength) != ANI_OK) {
-        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
-        return false;
+        return PARAM_CHECK_ERROR;
     }
     WVLOG_D("schemesLength :  %{public}d", schemesLength);
     ani_class WebCustomSchemeClass;
     if (env->FindClass(ANI_WEB_CUSTOM_SCHEME_CLASS, &WebCustomSchemeClass) != ANI_OK) {
         WVLOG_E("Find WebCustomScheme Class failed");
-        return false;
+        return PARAM_CHECK_ERROR;
     }
     std::vector<Scheme> schemeVector;
     for (int i = 0; i < int(schemesLength); i++) {
@@ -2439,14 +2438,14 @@ int32_t CustomizeSchemesArrayDataHandler(ani_env* env, ani_object schemes)
         if (env->Object_CallMethodByName_Ref(
             schemes, "$_get", "i:C{std.core.Object}", &WebCustomSchemeRef, (ani_int)i) != ANI_OK) {
             WVLOG_E("Object_CallMethodByName_Ref failed");
-            return false;
+            return PARAM_CHECK_ERROR;
         }
         ani_object WebCustomSchemeObj = reinterpret_cast<ani_object>(WebCustomSchemeRef);
         ani_boolean isWebCustomScheme = false;
         env->Object_InstanceOf(WebCustomSchemeObj, WebCustomSchemeClass, &isWebCustomScheme);
         if (!isWebCustomScheme) {
             WVLOG_E("not WebCustomScheme");
-            return false;
+            return PARAM_CHECK_ERROR;
         }
         Scheme scheme;
         bool result = SetCustomizeScheme(env, WebCustomSchemeObj, scheme);

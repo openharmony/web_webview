@@ -1346,6 +1346,9 @@ export default namespace webview {
     }
 
     export class WebCookieManager {
+        static {
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
+        }
         /**
          * Save the cookies synchronously.
          * @syscap SystemCapability.Web.Webview.Core
@@ -1882,6 +1885,9 @@ export default namespace webview {
     }
 
     export class WebDataBase {
+        static {
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
+        }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
 
