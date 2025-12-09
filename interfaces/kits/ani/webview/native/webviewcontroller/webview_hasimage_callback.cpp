@@ -155,7 +155,7 @@ void WebviewHasImageCallback::AfterWorkCbPromise(ani_env* env, bool result)
         WVLOG_E("setResult is nullptr");
         return;
     }
-    auto status = env->PromiseResolver_Resolve(deferred_, static_cast<ani_string>(setResult));
+    auto status = env->PromiseResolver_Resolve(deferred_, setResult);
     if (status != ANI_OK) {
         WVLOG_E("PromiseResolver_Resolve failed, status is : %{public}d", status);
         return;

@@ -483,6 +483,8 @@ public:
 
     void SetWebDetach(int32_t nwebId);
 
+    void SetSoftKeyboardBehaviorMode(WebSoftKeyboardBehaviorMode mode);
+
     ErrCode AvoidVisibleViewportBottom(int32_t avoidHeight);
 
     ErrCode SetErrorPageEnabled(bool enable);

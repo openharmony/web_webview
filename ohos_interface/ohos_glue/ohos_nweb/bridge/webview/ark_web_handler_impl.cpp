@@ -62,6 +62,7 @@
 #include "ohos_nweb/bridge/ark_web_native_message_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_runtime_connect_info_wrapper.h"
 #include "base/bridge/ark_web_bridge_macros.h"
+#include "ohos_nweb/bridge/ark_web_window_new_event_info_wrapper.h"
 
 namespace OHOS::ArkWeb {
 
@@ -1206,5 +1207,27 @@ void ArkWebHandlerImpl::OnCameraCaptureStateChanged(int originalState, int newSt
 void ArkWebHandlerImpl::OnMicrophoneCaptureStateChanged(int originalState, int newState)
 {
     nweb_handler_->OnMicrophoneCaptureStateChanged(originalState, newState);
+}
+
+void ArkWebHandlerImpl::OnFirstScreenPaint(
+    const ArkWebString& url, int64_t navigationStartTime, int64_t firstScreenPaintTime)
+{
+    nweb_handler_->OnFirstScreenPaint(
+        ArkWebStringStructToClass(url), navigationStartTime, firstScreenPaintTime);
+}
+
+void ArkWebHandlerImpl::OnTextSelectionChange(const ArkWebString& selectedText)
+{
+    nweb_handler_->OnTextSelectionChange(ArkWebStringStructToClass(selectedText));
+}
+
+void ArkWebHandlerImpl::OnWindowNewExtByJS(ArkWebRefPtr<ArkWebWindowNewEventInfo> dataInfo)
+{
+    if (CHECK_REF_PTR_IS_NULL(dataInfo)) {
+        nweb_handler_->OnWindowNewExtByJS(nullptr);
+        return;
+    }
+
+    nweb_handler_->OnWindowNewExtByJS(std::make_shared<ArkWebWindowNewEventInfoWrapper>(dataInfo));
 }
 } // namespace OHOS::ArkWeb

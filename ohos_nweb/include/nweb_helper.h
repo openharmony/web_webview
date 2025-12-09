@@ -154,6 +154,10 @@ public:
 
     bool IsLazyInitializeWebEngine();
 
+    bool GetNWebActiveStatus(int32_t nwebId);
+    void SetNWebActiveStatus(int32_t nwebId, bool nwebActiveStatus);
+    void RemoveNWebActiveStatus(int32_t nwebId);
+
 private:
     NWebHelper() = default;
     bool GetWebEngine(bool fromArk);
@@ -172,6 +176,7 @@ private:
     std::vector<NwebScheme> schemeVector_;
     std::vector<std::string> backForwardCacheCmdLine_;
     mutable std::mutex lock_;
+    std::map<int32_t, bool> nwebActiveStatusMap_;
 };
 } // namespace OHOS::NWeb
 

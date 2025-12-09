@@ -49,6 +49,8 @@ public:
 
     ArkWebTouchHandleType GetTouchHandleType() override;
 
+    bool IsDragging() override;
+
 private:
     ArkWebRefPtr<ArkWebTouchHandleState> ark_web_touch_handle_state_;
 };

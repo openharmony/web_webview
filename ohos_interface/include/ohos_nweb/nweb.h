@@ -38,6 +38,7 @@
 #include "nweb_snapshot_callback.h"
 #include "nweb_spanstring_convert_html_callback.h"
 #include "nweb_value_callback.h"
+#include "nweb_vault_plain_text_callback.h"
 #include "nweb_web_message.h"
 #include "nweb_print_manager_adapter.h"
 
@@ -89,6 +90,13 @@ enum class SourceTool : int32_t {
     LENS = 8,
     TOUCHPAD = 9,
     JOYSTICK = 10,
+};
+
+enum class NWebAutoFillTriggerType : int32_t {
+    AUTO_REQUEST = 0,
+    MANUAL_REQUEST,
+    PASTE_REQUEST,
+    UNSPECIFIED
 };
 
 class OHOS_NWEB_EXPORT NWebEngineInitArgs {
@@ -308,6 +316,13 @@ enum class ScrollbarMode {
     FORCE_DISPLAY_SCROLLBAR
 };
 
+enum class NavigationPolicy : int32_t {
+    NEW_POPUP = 0,
+    NEW_WINDOW = 1,
+    NEW_BACKGROUND_TAB = 2,
+    NEW_FOREGROUND_TAB = 3
+};
+
 class OHOS_NWEB_EXPORT NWebMouseEvent {
 public:
     virtual ~NWebMouseEvent() = default;
@@ -334,6 +349,7 @@ typedef int64_t (*AccessibilityIdGenerateFunc)();
 typedef void (*NativeArkWebOnValidCallback)(const char*);
 typedef void (*NativeArkWebOnDestroyCallback)(const char*);
 using ScriptItems = std::map<std::string, std::vector<std::string>>;
+using ScriptRegexItems = std::map<std::string, std::vector<std::pair<std::string, std::string>>>;
 using ScriptItemsByOrder = std::vector<std::string>;
 using WebSnapshotCallback = std::function<void(const char*, bool, float, void*, int, int)>;
 
@@ -2228,6 +2244,62 @@ public:
      * Pause current microphone.
      */
     virtual void PauseMicrophone() {}
+
+    /**
+     * @brief Inject the JavaScript before WebView load the DOM tree.
+     *
+     * @param scriptItems: Multiple injected JavaScript codes are stored in a map in lexicographical order.
+     * @param scriptRegexItems: Multiple injected regular expression rule codes are
+     *                          stored in a map in lexicographical order.
+     * @param scriptItemsByOrder: Multiple injected JavaScript codes are stored in the order of injection.
+     */
+    virtual void JavaScriptOnDocumentStartByOrderV2(const ScriptItems& scriptItems,
+        const ScriptRegexItems& scriptRegexItems, const ScriptItemsByOrder& scriptItemsByOrder) {}
+
+    /**
+     * @brief Inject the JavaScript after WebView load the DOM tree.
+     *
+     * @param scriptItems: Multiple injected JavaScript codes are stored in a map in lexicographical order.
+     * @param scriptRegexItems: Multiple injected regular expression rule codes are
+     *                          stored in a map in lexicographical order.
+     * @param scriptItemsByOrder: Multiple injected JavaScript codes are stored in the order of injection.
+     */
+    virtual void JavaScriptOnDocumentEndByOrderV2(const ScriptItems& scriptItems,
+        const ScriptRegexItems& scriptRegexItems, const ScriptItemsByOrder& scriptItemsByOrder) {}
+
+    /**
+     * @Description: Inject the JavaScript when the head element has been created.
+     * @Input scriptItems: The injected JavaScript code is stored in lexicographical order.
+     * @Input scriptRegexItems: Multiple injected regular expression rule codes are
+     *                          stored in a map in lexicographical order.
+     * @Input scriptItemsByOrder: The injected JavaScript code is stored in the order of the injection array.
+     */
+    virtual void JavaScriptOnHeadReadyByOrderV2(const ScriptItems& scriptItems,
+        const ScriptRegexItems& scriptRegexItems, const ScriptItemsByOrder& scriptItemsByOrder) {}
+
+    /**
+     * @brief Put the callback, get plain text from password vault.
+     *
+     * @param callback get plain text from password vault.
+     */
+    virtual void PutVaultPlainTextCallback(
+        std::shared_ptr<NWebVaultPlainTextCallback> callback) {}
+    
+    /**
+     * @brief fill autofill data.
+     *
+     * @param data data.
+     * @param type type.
+     */
+    virtual void FillAutofillDataFromTriggerType(
+        std::shared_ptr<NWebRomValue> data, const NWebAutoFillTriggerType& type) {}
+
+    /**
+     * @brief Set soft keyboard behavior mode.
+     *
+     * @param mode WebSoftKeyboardBehaviorMode: the soft keyboard behavior mode.
+     */
+    virtual void SetSoftKeyboardBehaviorMode(WebSoftKeyboardBehaviorMode mode) {}
 };
 
 } // namespace OHOS::NWeb

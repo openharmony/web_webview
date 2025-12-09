@@ -51,6 +51,9 @@ public:
 
     /*--ark web()--*/
     virtual bool IsAcceptAllOptionExcluded() = 0;
+
+    /*--ark web()--*/
+    virtual const ArkWebString Accepts() = 0;
 };
 
 } // namespace OHOS::ArkWeb

@@ -90,6 +90,11 @@ public:
 
     MOCK_METHOD(int, Write, (const std::string&, EventType,
     (const std::tuple<const std::string, const uint32_t, const std::string, const uint64_t>&)), (override));
+
+    MOCK_METHOD(int, Write, (const std::string&, EventType,
+    (const std::tuple<const std::string, const int32_t, const std::string, const std::string,
+    const std::string, const std::string, const std::string, const std::string,
+    const std::string, const int32_t>&)), (override));
 };
 
 class ArkHiSysEventAdapterImplTest : public testing::Test
@@ -442,5 +447,31 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write12)
         testing::A<const std::tuple<const std::string, const uint32_t, const std::string, const uint64_t>&>()))
         .WillOnce(testing::Return(0));
     int result = adapterImpl->Write(eventName, type, key1, value1, key2, value2);
+    EXPECT_EQ(result, 0);
+}
+
+TEST_F(ArkHiSysEventAdapterImplTest, Write13)
+{
+    ArkWebString eventName = ArkWebStringClassToStruct("testEvent");
+    uint32_t type = 1;
+    ArkWebString key1 = ArkWebStringClassToStruct("key1");
+    int32_t value1 = 1;
+    ArkWebString key2 = ArkWebStringClassToStruct("key2");
+    ArkWebString value2 = ArkWebStringClassToStruct("value2");
+    ArkWebString key3 = ArkWebStringClassToStruct("key3");
+    ArkWebString value3 = ArkWebStringClassToStruct("value3");
+    ArkWebString key4 = ArkWebStringClassToStruct("key4");
+    ArkWebString value4 = ArkWebStringClassToStruct("value4");
+    ArkWebString key5 = ArkWebStringClassToStruct("key5");
+    int32_t value5 = 5;
+    EXPECT_CALL(*mockAdapter, Write(
+        testing::_,
+        testing::_,
+        testing::A<const std::tuple<const std::string, const int32_t, const std::string, const std::string,
+            const std::string, const std::string, const std::string, const std::string,
+            const std::string, const int32_t>&>()))
+        .WillOnce(testing::Return(0));
+    int result = adapterImpl->Write(eventName, type, key1, value1, key2, value2, key3, value3,
+        key4, value4, key5, value5);
     EXPECT_EQ(result, 0);
 }

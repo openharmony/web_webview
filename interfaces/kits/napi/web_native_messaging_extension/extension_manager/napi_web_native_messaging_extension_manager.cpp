@@ -247,8 +247,9 @@ void NapiExtensionConnectionCallback::DoJsExtensionConnectCallback(
         }
 
         work->data = reinterpret_cast<void*>(param.get());
-        int ret = uv_queue_work_with_qos(
-            loop, work.get(), [](uv_work_t* work) {}, UvInvokeConnectNativeCallback, uv_qos_user_initiated);
+        int ret = uv_queue_work_with_qos_internal(
+            loop, work.get(), [](uv_work_t* work) {}, UvInvokeConnectNativeCallback, uv_qos_user_initiated,
+            "WebviewDoJsExtensionConnectCallback");
         if (ret == 0) {
             work.release();
             param.release();
@@ -319,8 +320,9 @@ void NapiExtensionConnectionCallback::DeleteJsCallInJsThread()
         }
 
         work->data = reinterpret_cast<void*>(param.get());
-        int ret = uv_queue_work_with_qos(
-            loop, work.get(), [](uv_work_t* work) {}, UvInvokeDeleteJsCall, uv_qos_user_initiated);
+        int ret = uv_queue_work_with_qos_internal(
+            loop, work.get(), [](uv_work_t* work) {}, UvInvokeDeleteJsCall, uv_qos_user_initiated,
+            "WebviewDeleteJsCallInJsThread");
         if (ret == 0) {
             work.release();
             param.release();

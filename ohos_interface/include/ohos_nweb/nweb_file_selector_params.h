@@ -57,6 +57,8 @@ public:
     }
 
     virtual bool IsAcceptAllOptionExcluded() { return false; }
+
+    virtual const std::string Accepts() { return ""; }
 };
 
 } // namespace OHOS::NWeb

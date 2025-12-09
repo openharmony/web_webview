@@ -231,12 +231,12 @@ public:
         bool includeHttpOnly, std::shared_ptr<NWebLongValueCallback> callback) = 0;
 
     /**
-     * @brief Fetches all stored cookies asynchronously.
+     * @brief Fetch all stored cookies.
      *
      * @param incognitoMode true if web is in the incognito mode, false otherwise.
-     * @return null if get all cookies fails else return vector.
+     * @return empty if get all cookies fails else return vector.
      */
-    virtual std::vector<std::shared_ptr<NWebCookie>> GetAllCookies(bool incognitoMode) = 0;
+    virtual std::vector<std::shared_ptr<NWebCookie>> GetAllCookies(bool incognitoMode) { return {}; }
 };
  
 class OHOS_NWEB_EXPORT NWebCookie {

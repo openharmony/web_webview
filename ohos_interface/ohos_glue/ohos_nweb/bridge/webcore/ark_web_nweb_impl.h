@@ -1860,6 +1860,64 @@ public:
     /*--ark web()--*/
     void PauseMicrophone() override;
 
+    /**
+     * @brief Inject the JavaScript before WebView load the DOM tree.
+     *
+     * @param script_items Multiple injected JavaScript codes are stored in a map in lexicographical order.
+     * @param script_regex_items: Multiple injected regular expression rule codes are
+     *                            stored in a map in lexicographical order.
+     * @param script_items_by_order Multiple injected JavaScript codes are stored in the order of injection.
+     */
+    /*--ark web()--*/
+    void JavaScriptOnDocumentStartByOrderV2(const ArkWebStringVectorMap& script_items,
+        const ArkWebPairStringVectorMap& script_regex_items, const ArkWebStringVector& script_items_by_order) override;
+
+    /**
+     * @brief Inject the JavaScript after WebView loads the DOM tree and run
+     *        JavaScripts.
+     *
+     * @param script_items: Multiple injected JavaScript codes are stored in a map in lexicographical order.
+     * @param script_regex_items: Multiple injected regular expression rule codes are
+     *                            stored in a map in lexicographical order.
+     * @param script_items_by_order: Multiple injected JavaScript codes are stored in the order of injection.
+     */
+    void JavaScriptOnDocumentEndByOrderV2(const ArkWebStringVectorMap& script_items,
+        const ArkWebPairStringVectorMap& script_regex_items, const ArkWebStringVector& script_items_by_order) override;
+
+    /**
+     * @Description: Inject the JavaScript when the head element has been created.
+     * @Input scriptItems: The injected JavaScript code is stored in lexicographical order.
+     * @Input script_regex_items: Multiple injected regular expression rule codes are
+     *                            stored in a map in lexicographical order.
+     * @Input scriptItemsByOrder: The injected JavaScript code is stored in the order of the injection array..
+     */
+    void JavaScriptOnHeadReadyByOrderV2(const ArkWebStringVectorMap& script_items,
+        const ArkWebPairStringVectorMap& script_regex_items, const ArkWebStringVector& script_items_by_order) override;
+
+    /**
+     * @brief Put the callback, get plain text from password vault.
+     *
+     * @param callback get plain text from password vault.
+     */
+    void PutVaultPlainTextCallback(
+        ArkWebRefPtr<ArkWebVaultPlainTextCallback> callback) override;
+    
+    /**
+     * @brief fill autofill data.
+     *
+     * @param data data.
+     * @param type type.
+     */
+    void FillAutofillDataFromTriggerType(
+        ArkWebRefPtr<ArkWebRomValue> data, int type) override;
+
+    /**
+     * @brief Set soft keyboard behavior mode.
+     *
+     * @param mode WebSoftKeyboardBehaviorMode: the soft keyboard behavior mode.
+     */
+    void SetSoftKeyboardBehaviorMode(int mode) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

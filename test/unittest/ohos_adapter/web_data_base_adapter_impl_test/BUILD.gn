@@ -20,6 +20,7 @@ config("module_private_config") {
 
   include_dirs = [
     "../../../../ohos_adapter/distributeddatamgr_adapter/webdatabase/include",
+    "../../../../ohos_interface/include/ohos_adapter",
   ]
 }
 

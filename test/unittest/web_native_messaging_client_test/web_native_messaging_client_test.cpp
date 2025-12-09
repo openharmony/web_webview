@@ -251,6 +251,13 @@ public:
     }
 };
 
+class MockWebNativeMessagingClient : public WebNativeMessagingClient {
+public:
+    MockWebNativeMessagingClient() = default;
+    ~MockWebNativeMessagingClient() override = default;
+    MOCK_METHOD(sptr<IWebNativeMessagingService>, GetWebNativeMessagingProxy, (), ());
+};
+
 class WebNativeMessagingClientTest : public Test {
 protected:
     void SetUp() override
@@ -260,6 +267,7 @@ protected:
         g_mockSAMgr = mockSAMgr_;
         client_.SetWebNativeMessagingProxy(nullptr);
         client_.SetUserDefineDiedRecipient(nullptr);
+        mockClient = new MockWebNativeMessagingClient();
     }
     void TearDown() override
     {
@@ -268,6 +276,7 @@ protected:
         mockSAMgr_ = nullptr;
         client_.SetWebNativeMessagingProxy(nullptr);
         client_.SetUserDefineDiedRecipient(nullptr);
+        delete mockClient;
     }
     void SimulateSALoadSuccess(const sptr<ISystemAbilityLoadCallback>& callback, int32_t systemAbilityId)
     {
@@ -293,6 +302,7 @@ protected:
     WebNativeMessagingClient& client_ = WebNativeMessagingClient::GetInstance();
     sptr<MockWebNativeMessagingService> mockService_;
     sptr<MockSystemAbilityManager> mockSAMgr_;
+    MockWebNativeMessagingClient* mockClient;
 };
 
 /**
@@ -522,11 +532,11 @@ TEST_F(WebNativeMessagingClientTest, DisconnectWebNativeMessagingExtension_Shoul
  */
 TEST_F(WebNativeMessagingClientTest, StartAbility_ShouldReturnIpcErrorWhenProxyIsNull)
 {
-    client_.SetWebNativeMessagingProxy(nullptr);
     sptr<IRemoteObject> token = new MockRemoteObject();
     AAFwk::Want want;
     AAFwk::StartOptions options;
-    int result = client_.StartAbility(token, want, options);
+    ON_CALL(*mockClient, GetWebNativeMessagingProxy()).WillByDefault(Return(nullptr));
+    int result = mockClient->StartAbility(token, want, options);
     EXPECT_EQ(result, ConnectNativeRet::IPC_ERROR);
 }
 

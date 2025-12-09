@@ -358,6 +358,7 @@ void WebviewController::OnActive()
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
     if (nweb_ptr) {
+        NWebHelper::Instance().SetNWebActiveStatus(nwebId_, true);
         nweb_ptr->OnContinue();
     }
 }
@@ -366,6 +367,7 @@ void WebviewController::OnInactive()
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
     if (nweb_ptr) {
+        NWebHelper::Instance().SetNWebActiveStatus(nwebId_, false);
         nweb_ptr->OnPause();
     }
 }
@@ -2638,6 +2640,14 @@ ErrCode WebviewController::PauseMicrophone()
 
     nweb_ptr->PauseMicrophone();
     return NWebError::NO_ERROR;
+}
+
+void WebviewController::SetSoftKeyboardBehaviorMode(WebSoftKeyboardBehaviorMode mode)
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (nweb_ptr) {
+        nweb_ptr->SetSoftKeyboardBehaviorMode(mode);
+    }
 }
 } // namespace NWeb
 } // namespace OHOS

@@ -101,7 +101,7 @@ private:
     static StartLocatingFuncType startLocatingFunc_;
     static StopLocatingFuncType stopLocatingFunc_;
     LocatorCallbackMap reg_;
-    std::mutex count_mutex_;
+    std::mutex locating_mutex_;
 #endif
 };
 }

@@ -62,7 +62,7 @@ struct ConnectNativeAsyncContext : public CommonAsyncContext {
     sptr<IRemoteObject> token;
     AAFwk::Want want;
     sptr<WebExtensionConnectionCallback> connectCallback;
-    int32_t connectId;
+    int32_t connectId = 0;
 };
 
 class AniExtensionConnectionCallback : public IExtensionConnectionCallback,

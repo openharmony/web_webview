@@ -698,6 +698,26 @@ public:
      * Sets whether the Web supports zooming using Ctrl.
      */
     virtual void PutZoomControlAccess(bool zoomControlAccess) {}
+
+    /**
+     * Set whether to enable image analyzer.
+     */
+    virtual void PutImageAnalyzerEnabled(bool enabled) {}
+
+    /**
+     * Get whether to enable image analyzer.
+     */
+    virtual bool GetImageAnalyzerEnabled()
+    {
+        return false;
+    }
+
+    /**
+     * @brief Sets whether enable auto fill or not.
+     *
+     * @param enable bool: Indicates the flag whether autofill is enabled.
+     */
+    virtual void SetEnableAutoFill(bool enable) {}
 };
 
 } // namespace OHOS::NWeb

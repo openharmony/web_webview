@@ -2769,8 +2769,9 @@ void NWebValueCallbackImpl::OnReceiveValue(std::shared_ptr<NWebMessage> result)
         InvokeWebMessageCallback(param);
     } else {
         work->data = reinterpret_cast<void*>(param);
-        uv_queue_work_with_qos(
-            loop, work, [](uv_work_t* work) {}, UvWebMessageOnReceiveValueCallback, uv_qos_user_initiated);
+        uv_queue_work_with_qos_internal(
+            loop, work, [](uv_work_t* work) {}, UvWebMessageOnReceiveValueCallback, uv_qos_user_initiated,
+            "WebviewNWebValueCallbackImpl_OnReceiveValue");
 
         {
             std::unique_lock<std::mutex> lock(param->mutex_);
@@ -2839,8 +2840,9 @@ NWebValueCallbackImpl::~NWebValueCallbackImpl()
     param->env_ = env_;
     param->callback_ = callback_;
     work->data = reinterpret_cast<void*>(param);
-    int ret = uv_queue_work_with_qos(
-        loop, work, [](uv_work_t *work) {}, UvNWebValueCallbackImplThreadWoker, uv_qos_user_initiated);
+    int ret = uv_queue_work_with_qos_internal(
+        loop, work, [](uv_work_t *work) {}, UvNWebValueCallbackImplThreadWoker, uv_qos_user_initiated,
+        "WebviewNWebValueCallbackImpl");
     if (ret != 0) {
         if (param != nullptr) {
             delete param;
@@ -6722,6 +6724,8 @@ WebSnapshotCallback CreateWebPageSnapshotResultCallback(
             const char *returnId, bool returnStatus, float radio, void *returnData,
             int returnWidth, int returnHeight) {
             WVLOG_I("WebPageSnapshot return napi callback");
+            napi_handle_scope scope = nullptr;
+            napi_open_handle_scope(env, &scope);
             napi_value jsResult = nullptr;
             napi_create_object(env, &jsResult);
 
@@ -6787,6 +6791,7 @@ WebSnapshotCallback CreateWebPageSnapshotResultCallback(
             napi_call_function(env, nullptr, callback, INTEGER_TWO, args, &callbackResult);
             napi_delete_reference(env, jCallback);
             g_inWebPageSnapshot = false;
+            napi_close_handle_scope(env, scope);
         };
 }
 
@@ -8204,7 +8209,14 @@ napi_value NapiWebviewController::SetSoftKeyboardBehaviorMode(napi_env env, napi
             NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "mode"));
         return result;
     }
-    NWebHelper::Instance().SetSoftKeyboardBehaviorMode(static_cast<WebSoftKeyboardBehaviorMode>(mode));
+    
+    WebviewController *webviewController = GetWebviewController(env, info);
+    if (!webviewController) {
+        WVLOG_E("NapiWebviewController::SetSoftKeyboardBehaviorMode get controller failed");
+        return nullptr;
+    }
+    WVLOG_I("SoftKeyboardBehaviorMode is active. ");
+    webviewController->SetSoftKeyboardBehaviorMode(static_cast<WebSoftKeyboardBehaviorMode>(mode));
     return result;
 }
 

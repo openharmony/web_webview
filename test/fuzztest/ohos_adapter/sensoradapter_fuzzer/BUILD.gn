@@ -23,6 +23,7 @@ ohos_fuzztest("SensorAdapterFuzzTest") {
       "$webview_path/test/fuzztest/ohos_adapter/sensoradapter_fuzzer"
   include_dirs = [
     "$webview_path/ohos_adapter/sensor_adapter/include",
+    "$webview_path/ohos_interface/include/ohos_adapter",
     "$webview_path/test/fuzztest",
   ]
   cflags = [

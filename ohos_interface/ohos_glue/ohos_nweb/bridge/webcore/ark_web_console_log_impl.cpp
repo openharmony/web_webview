@@ -43,4 +43,9 @@ int ArkWebConsoleLogImpl::LineNumer()
     return nweb_console_log_->LineNumer();
 }
 
+int ArkWebConsoleLogImpl::Source()
+{
+    return static_cast<int>(nweb_console_log_->Source());
+}
+
 } // namespace OHOS::ArkWeb

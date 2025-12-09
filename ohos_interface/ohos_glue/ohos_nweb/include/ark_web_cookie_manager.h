@@ -240,10 +240,10 @@ public:
         bool includeHttpOnly, ArkWebRefPtr<ArkWebLongValueCallback> callback) = 0;
 
     /**
-     * @Description: Fetches all stored cookies asynchronously.
+     * @Description: Fetch all stored cookies.
      *
      * @Input incognitoMode: set true to gets all cookies in incognito context, false otherwise.
-     * @return: nullptr if get all cookies failed else return value.
+     * @return: empty if get all cookies failed else return value.
      * @Since: 12005
      */
     /*--ark web()--*/

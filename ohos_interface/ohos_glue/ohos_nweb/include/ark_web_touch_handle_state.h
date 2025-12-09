@@ -50,6 +50,9 @@ public:
 
     /*--ark web()--*/
     virtual int GetTouchHandleType() = 0;
+
+    /*--ark web()--*/
+    virtual bool IsDragging() = 0;
 };
 
 } // namespace OHOS::ArkWeb

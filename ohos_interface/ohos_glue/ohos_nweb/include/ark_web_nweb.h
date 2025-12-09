@@ -37,6 +37,7 @@
 #include "ohos_nweb/include/ark_web_mouse_event.h"
 #include "ohos_nweb/include/ark_web_pdfconfig_args.h"
 #include "ohos_nweb/include/ark_web_preference.h"
+#include "ohos_nweb/include/ark_web_print_document_adapter_adapter.h"
 #include "ohos_nweb/include/ark_web_release_surface_callback.h"
 #include "ohos_nweb/include/ark_web_rom_value.h"
 #include "ohos_nweb/include/ark_web_rom_value_vector.h"
@@ -48,7 +49,7 @@
 #include "ohos_nweb/include/ark_web_stylus_touch_point_info_vector.h"
 #include "ohos_nweb/include/ark_web_system_configuration.h"
 #include "ohos_nweb/include/ark_web_touch_point_info_vector.h"
-#include "ohos_nweb/include/ark_web_print_document_adapter_adapter.h"
+#include "ohos_nweb/include/ark_web_vault_plain_text_callback.h"
 
 namespace OHOS::ArkWeb {
 
@@ -2106,6 +2107,69 @@ public:
      */
     /*--ark web()--*/
     virtual void PauseMicrophone() {}
+
+    /**
+     * @brief Inject the JavaScript before WebView load the DOM tree.
+     *
+     * @param script_items Multiple injected JavaScript codes are stored in a map in lexicographical order.
+     * @param script_regex_items: Multiple injected regular expression rule codes are
+     *                            stored in a map in lexicographical order.
+     * @param script_items_by_order Multiple injected JavaScript codes are stored in the order of injection.
+     */
+    /*--ark web()--*/
+    virtual void JavaScriptOnDocumentStartByOrderV2(const ArkWebStringVectorMap& script_items,
+        const ArkWebPairStringVectorMap& script_regex_items, const ArkWebStringVector& script_items_by_order) = 0;
+
+    /**
+     * @brief Inject the JavaScript after WebView loads the DOM tree and run
+     *        JavaScripts.
+     *
+     * @param script_items Multiple injected JavaScript codes are stored in a map in lexicographical order.
+     * @param script_regex_items: Multiple injected regular expression rule codes are
+     *                            stored in a map in lexicographical order.
+     * @param script_items_by_order Multiple injected JavaScript codes are stored in the order of injection.
+     */
+    /*--ark web()--*/
+    virtual void JavaScriptOnDocumentEndByOrderV2(const ArkWebStringVectorMap& script_items,
+        const ArkWebPairStringVectorMap& script_regex_items, const ArkWebStringVector& script_items_by_order) = 0;
+
+    /**
+     * @Description: Inject the JavaScript when the head element has been created.
+     * @Input scriptItems: The injected JavaScript code is stored in lexicographical order.
+     * @Input script_regex_items: Multiple injected regular expression rule codes are
+     *                            stored in a map in lexicographical order.
+     * @Input scriptItemsByOrder: The injected JavaScript code is stored in the order of the injection array.
+     */
+    /*--ark web()--*/
+    virtual void JavaScriptOnHeadReadyByOrderV2(const ArkWebStringVectorMap& script_items,
+        const ArkWebPairStringVectorMap& script_regex_items, const ArkWebStringVector& script_items_by_order) = 0;
+
+    /**
+     * @brief Put the callback, get plain text from password vault.
+     *
+     * @param callback get plain text from password vault.
+     */
+    /*--ark web()--*/
+    virtual void PutVaultPlainTextCallback(
+        ArkWebRefPtr<ArkWebVaultPlainTextCallback> callback) {}
+    
+    /**
+     * @brief fill autofill data.
+     *
+     * @param data data.
+     * @param type type.
+     */
+    /*--ark web()--*/
+    virtual void FillAutofillDataFromTriggerType(
+        ArkWebRefPtr<ArkWebRomValue> data, int type) {}
+    
+    /**
+     * @brief Set soft keyboard behavior mode.
+     *
+     * @param mode WebSoftKeyboardBehaviorMode: the soft keyboard behavior mode.
+     */
+    /*--ark web()--*/
+    virtual void SetSoftKeyboardBehaviorMode(int mode) = 0;
 };
 
 } // namespace OHOS::ArkWeb
