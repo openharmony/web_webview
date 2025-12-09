@@ -143,6 +143,10 @@ const std::unordered_map<std::string_view, std::function<std::string(std::string
         [](std::string& contentStr) {
             return contentStr == "true" ? std::string("--ohos-enable-report-thread-pool-foreg") : std::string();
         } },
+    { "settingConfig/enableJsFlagOptimizeForSize",
+        [](std::string& contentStr) {
+            return contentStr == "true" ? std::string("--js-flags=\"--optimize_for_size\"") : std::string();
+        } },
     { "settingConfig/disableMobileStyleSheet",
         [](std::string& contentStr) {
             return contentStr == "true" ? std::string("--ohos-disable-mobile-style-sheet") : std::string();
@@ -173,6 +177,7 @@ NWebConfigHelper::NWebConfigHelper()
     bool hasPlayGround = false;
     bool isDebugApp = false;
     bool isDeveloperMode = IsDeveloperModeEnabled();
+    dvsyncSwitch_ = false;
     if (saManager == nullptr) {
         WVLOG_E("webPlayGround get saManager fail");
         return;
@@ -199,7 +204,6 @@ NWebConfigHelper::NWebConfigHelper()
         }
     }
     web_play_ground_enabled_ = isDebugApp && hasPlayGround && isDeveloperMode;
-    dvsyncSwitch_ = false;
 
     if (web_play_ground_enabled_) {
         #define XPM_KICKER (0x6a6974)

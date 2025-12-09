@@ -22,22 +22,21 @@
 #include "event_handler.h"
 #include "nweb_value_callback.h"
 #include "nweb_web_message.h"
+#include "nweb_message_ext.h"
 
 namespace OHOS {
 namespace NWeb {
-
 class NWebValueCallbackImpl : public NWebMessageValueCallback {
 public:
     explicit NWebValueCallbackImpl(ani_vm* vm, ani_fn_object callback, bool extention);
     ~NWebValueCallbackImpl();
     void OnReceiveValue(std::shared_ptr<NWebMessage> result) override;
+    void OnReceiveValueV2(std::shared_ptr<NWebHapValue> value) override;
 
 private:
     ani_vm* vm_ = nullptr;
     ani_ref callback_ = nullptr;
     bool extention_;
-    std::mutex mutex_;
-    bool ready_ = false;
     std::condition_variable condition_;
     std::shared_ptr<AppExecFwk::EventHandler> mainHandler_;
     void WebMessageCallback(ani_env* env, std::shared_ptr<NWebMessage> result);

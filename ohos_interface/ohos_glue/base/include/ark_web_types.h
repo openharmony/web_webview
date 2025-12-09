@@ -209,6 +209,30 @@ const ArkWebUInt8VectorMap ark_web_uint8_vector_map_default = {
     0,
 };
 
+typedef struct {
+    int size;
+    ArkWebString* first;
+    ArkWebString* second;
+
+    ArkWebMemFreeFunc ark_web_mem_free_func;
+} ArkWebPairStringVector;
+
+const ArkWebPairStringVector ark_web_pair_string_vector_default = {
+    0,
+};
+
+typedef struct {
+    int size;
+    ArkWebString* key;
+    ArkWebPairStringVector* value;
+
+    ArkWebMemFreeFunc ark_web_mem_free_func;
+} ArkWebPairStringVectorMap;
+
+const ArkWebPairStringVectorMap ark_web_pair_string_vector_map_default = {
+    0,
+};
+
 template<typename T1, typename T2, typename R>
 R ArkWebBasicMapClassToStruct(const std::map<T1, T2>& class_value)
 {
@@ -382,5 +406,21 @@ std::map<std::string, std::vector<uint8_t>> ArkWebUInt8VectorMapStructToClass(
     const ArkWebUInt8VectorMap& struct_value);
 
 void ArkWebUInt8VectorMapStructRelease(ArkWebUInt8VectorMap& struct_value);
+
+ArkWebPairStringVector ArkWebPairStringVectorClassToStruct(
+    const std::vector<std::pair<std::string, std::string>>& class_value);
+
+std::vector<std::pair<std::string, std::string>> ArkWebPairStringVectorStructToClass(
+    const ArkWebPairStringVector& struct_value);
+
+ArkWebPairStringVectorMap ArkWebPairStringVectorMapClassToStruct(
+    const std::map<std::string, std::vector<std::pair<std::string, std::string>>>& class_value);
+
+std::map<std::string, std::vector<std::pair<std::string, std::string>>> ArkWebPairStringVectorMapStructToClass(
+    const ArkWebPairStringVectorMap& struct_value);
+
+void ArkWebPairStringVectorStructRelease(ArkWebPairStringVector& struct_value);
+
+void ArkWebPairStringVectorMapStructRelease(ArkWebPairStringVectorMap& struct_value);
 
 #endif // ARK_WEB_TYPES_H_

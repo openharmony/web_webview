@@ -17,6 +17,7 @@
 #include <iostream>
 #include <js_native_api.h>
 #include <js_native_api_types.h>
+#include <securec.h>
 
 #include "ani_business_error.h"
 #include "ani_parse_utils.h"
@@ -449,39 +450,19 @@ static ani_object SerializeInternal(ani_env* env, ani_object object)
     std::string webDownloadValue;
     webDownloadPb.SerializeToString(&webDownloadValue);
     WVLOG_D("[DOWNLOAD] webDownloadValue.c_str() is %{public}s", webDownloadValue.c_str());
-    size_t length = webDownloadValue.length();
-
-    ani_class cls;
-    ani_status status = env->FindClass("std.core.ArrayBuffer", &cls);
-    if (status != ANI_OK) {
-        WVLOG_E("[DOWNLOAD] Find class %{public}s failed, status is %{public}d.", "Lescompat/ArrayBuffer", status);
+    void* data = nullptr;
+    ani_arraybuffer buffer = nullptr;
+    size_t length = webDownloadValue.size();
+    if (env->CreateArrayBuffer(length, &data, &buffer) != ANI_OK) {
+        WVLOG_E("CreateArrayBuffer failed");
         return nullptr;
     }
-
-    ani_method ctor;
-    status = env->Class_FindMethod(cls, "<ctor>", "i:", &ctor);
-    if (status != ANI_OK) {
-        WVLOG_E("[DOWNLOAD] Find function %{public}s failed, status is %{public}d.", "<ctor>", status);
+    int retCode = memcpy_s(data, length, webDownloadValue.data(), length);
+    if (retCode != 0) {
+        WVLOG_E("memcpy failed");
         return nullptr;
     }
-
-    ani_object arrayBufferObj = nullptr;
-    status = env->Object_New(cls, ctor, &arrayBufferObj, length);
-    if (status != ANI_OK) {
-        WVLOG_E("[DOWNLOAD] Object_New failed, status is %{public}d.", status);
-        return nullptr;
-    }
-
-    for (size_t i = 0; i < length; i++) {
-        ani_int value = webDownloadValue[i];
-        status = env->Object_CallMethodByName_Void(
-            arrayBufferObj, "set", "ib:", static_cast<ani_int>(i), static_cast<ani_byte>(value));
-        if (status != ANI_OK) {
-            WVLOG_E("[DOWNLOAD]arrayBufferObj set() failed, status is %{public}d.", status);
-            break;
-        }
-    }
-    return arrayBufferObj;
+    return buffer;
 }
 
 void GetWebDownloadPb(const browser_service::WebDownload& webDownloadPb, WebDownloadItem* webDownloadItem)

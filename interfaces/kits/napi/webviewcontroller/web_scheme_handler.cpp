@@ -304,8 +304,8 @@ void WebSchemeHandler::RequestStop(const ArkWeb_ResourceRequest* resourceRequest
     }
     param->arkWebRequest_ = resourceRequest;
     work->data = reinterpret_cast<void*>(param);
-    int ret = uv_queue_work_with_qos(loop, work, [](uv_work_t *work) {},
-        RequestStopAfterWorkCb, uv_qos_user_initiated);
+    int ret = uv_queue_work_with_qos_internal(loop, work, [](uv_work_t *work) {},
+        RequestStopAfterWorkCb, uv_qos_user_initiated, "WebviewWebSchemeHandler");
     if (ret != 0) {
         if (param != nullptr) {
             delete param;

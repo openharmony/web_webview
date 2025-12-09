@@ -352,7 +352,7 @@ bool AniParseUtils::GetStringList(ani_env *env, ani_object array, std::vector<st
     }
     for (int32_t i = 0; i < static_cast<int32_t>(arrayLength); ++i) {
         ani_ref elementRef;
-        if (env->Object_CallMethodByName_Ref(array, "$_get", "i:Y", &elementRef,
+        if (env->Object_CallMethodByName_Ref(array, "$_get", "i:C{std.core.Object}", &elementRef,
             static_cast<ani_int>(i)) != ANI_OK) {
             WVLOG_E("Failed to get element at index %d", i);
             return false;
@@ -396,7 +396,7 @@ bool IsFormatStringOfLength(const std::string& str)
 bool IsNumberOfLength(const std::string& value)
 {
     if (value.empty()) {
-        WVLOG_E("vlaue is empty");
+        WVLOG_E("value is empty");
         return false;
     }
     return std::all_of(value.begin(), value.end(), [](char i) { return isdigit(i); });

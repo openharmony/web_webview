@@ -43,6 +43,7 @@
 #include "ohos_nweb/bridge/ark_web_string_value_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_stylus_touch_point_info_impl.h"
 #include "ohos_nweb/bridge/ark_web_system_configuration_impl.h"
+#include "ohos_nweb/bridge/ark_web_vault_plain_text_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_view_struct_utils.h"
 #include "ohos_nweb/bridge/ark_web_print_document_adapter_adapter_wrapper.h"
 #include "ohos_nweb/cpptoc/ark_web_js_proxy_callback_vector_cpptoc.h"
@@ -1929,5 +1930,81 @@ void ArkWebNWebWrapper::StopMicrophone()
 void ArkWebNWebWrapper::PauseMicrophone()
 {
     ark_web_nweb_->PauseMicrophone();
+}
+
+void ArkWebNWebWrapper::JavaScriptOnDocumentStartByOrderV2(
+    const std::map<std::string, std::vector<std::string>>& script_items,
+    const std::map<std::string, std::vector<std::pair<std::string, std::string>>>& script_regex_items,
+    const std::vector<std::string>& script_items_by_order)
+{
+    ArkWebStringVectorMap stscript_items = ArkWebStringVectorMapClassToStruct(script_items);
+    ArkWebPairStringVectorMap stscript_regex_items = ArkWebPairStringVectorMapClassToStruct(script_regex_items);
+    ArkWebStringVector stscript_items_by_order = ArkWebStringVectorClassToStruct(script_items_by_order);
+    ark_web_nweb_->JavaScriptOnDocumentStartByOrderV2(stscript_items, stscript_regex_items, stscript_items_by_order);
+
+    ArkWebStringVectorMapStructRelease(stscript_items);
+    ArkWebPairStringVectorMapStructRelease(stscript_regex_items);
+    ArkWebStringVectorStructRelease(stscript_items_by_order);
+}
+
+void ArkWebNWebWrapper::JavaScriptOnDocumentEndByOrderV2(
+    const std::map<std::string, std::vector<std::string>>& script_items,
+    const std::map<std::string, std::vector<std::pair<std::string, std::string>>>& script_regex_items,
+    const std::vector<std::string>& script_items_by_order)
+{
+    ArkWebStringVectorMap stscript_items = ArkWebStringVectorMapClassToStruct(script_items);
+    ArkWebPairStringVectorMap stscript_regex_items = ArkWebPairStringVectorMapClassToStruct(script_regex_items);
+    ArkWebStringVector stscript_items_by_order = ArkWebStringVectorClassToStruct(script_items_by_order);
+
+    ark_web_nweb_->JavaScriptOnDocumentEndByOrderV2(stscript_items, stscript_regex_items, stscript_items_by_order);
+
+    ArkWebStringVectorMapStructRelease(stscript_items);
+    ArkWebPairStringVectorMapStructRelease(stscript_regex_items);
+    ArkWebStringVectorStructRelease(stscript_items_by_order);
+}
+
+void ArkWebNWebWrapper::JavaScriptOnHeadReadyByOrderV2(
+    const std::map<std::string, std::vector<std::string>>& script_items,
+    const std::map<std::string, std::vector<std::pair<std::string, std::string>>>& script_regex_items,
+    const std::vector<std::string>& script_items_by_order)
+{
+    ArkWebStringVectorMap stscript_items = ArkWebStringVectorMapClassToStruct(script_items);
+    ArkWebPairStringVectorMap stscript_regex_items = ArkWebPairStringVectorMapClassToStruct(script_regex_items);
+    ArkWebStringVector stscript_items_by_order = ArkWebStringVectorClassToStruct(script_items_by_order);
+
+    ark_web_nweb_->JavaScriptOnHeadReadyByOrderV2(stscript_items, stscript_regex_items, stscript_items_by_order);
+
+    ArkWebStringVectorMapStructRelease(stscript_items);
+    ArkWebPairStringVectorMapStructRelease(stscript_regex_items);
+    ArkWebStringVectorStructRelease(stscript_items_by_order);
+}
+
+void ArkWebNWebWrapper::PutVaultPlainTextCallback(
+    std::shared_ptr<OHOS::NWeb::NWebVaultPlainTextCallback> callback)
+{
+    if (CHECK_SHARED_PTR_IS_NULL(callback)) {
+        ark_web_nweb_->PutVaultPlainTextCallback(nullptr);
+        return;
+    }
+
+    ark_web_nweb_->PutVaultPlainTextCallback(
+        new ArkWebVaultPlainTextCallbackImpl(callback));
+}
+
+void ArkWebNWebWrapper::FillAutofillDataFromTriggerType(
+    std::shared_ptr<OHOS::NWeb::NWebRomValue> data, const ArkWebAutoFillTriggerType& type)
+{
+    if (CHECK_SHARED_PTR_IS_NULL(data)) {
+        ark_web_nweb_->FillAutofillDataFromTriggerType(nullptr, static_cast<int>(type));
+        return;
+    }
+
+    ark_web_nweb_->FillAutofillDataFromTriggerType(
+        new ArkWebRomValueImpl(data), static_cast<int>(type));
+}
+
+void ArkWebNWebWrapper::SetSoftKeyboardBehaviorMode(OHOS::NWeb::WebSoftKeyboardBehaviorMode mode)
+{
+    return ark_web_nweb_->SetSoftKeyboardBehaviorMode(static_cast<int>(mode));
 }
 } // namespace OHOS::ArkWeb

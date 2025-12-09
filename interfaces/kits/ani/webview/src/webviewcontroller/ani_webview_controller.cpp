@@ -72,6 +72,7 @@
 #include "web_scheme_handler.h"
 #include "arkweb_scheme_handler.h"
 #include "web_history_list.h"
+#include "webview_value.h"
 #include "web_message_port.h"
 #include "interop_js/arkts_esvalue.h"
 #include "interop_js/arkts_interop_js_api.h"
@@ -82,6 +83,7 @@
 #include "system_properties_adapter_impl.h"
 #include "ani_prefetch_options.h"
 #include "prefetch_options.h"
+#include "webview_value.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -1815,7 +1817,8 @@ bool GetSendPorts(ani_env* env, ani_object portsArrayObj, std::vector<std::strin
     for (uint32_t i = 0; i < static_cast<uint32_t>(arrayLen); i++) {
         ani_ref webMessagePortRef;
         if (env->Object_CallMethodByName_Ref(
-            portsArrayObj, "$_get", "i:Y", &webMessagePortRef, (ani_int)i) != ANI_OK) {
+            portsArrayObj, "$_get", "i:C{std.core.Object}", &webMessagePortRef, (ani_int)i) != ANI_OK) {
+            WVLOG_E("Object_CallMethodByName_Ref failed");
             return false;
         }
         ani_object portsObj = reinterpret_cast<ani_object>(webMessagePortRef);
@@ -2734,7 +2737,8 @@ static ani_boolean TransferWebMessagePortToStaticInner(ani_env* env, ani_class a
 }
 
 bool PostMessageEventMsgHandler(
-    ani_env* env, ani_object messageObj, bool isString, bool isArrayBuffer, std::shared_ptr<NWebMessage> webMsg)
+    ani_env* env, ani_object messageObj, bool isString, bool isArrayBuffer,
+    std::shared_ptr<NWebMessage> webMsg, std::shared_ptr<NWebRomValue> romMsg)
 {
     WVLOG_D("[WebMessagePort] PostMessageEventMsgHandler");
     if (!env) {
@@ -2743,20 +2747,28 @@ bool PostMessageEventMsgHandler(
     }
     if (isString) {
         std::string message;
-        AniParseUtils::ParseString(env, messageObj, message);
+        if (!AniParseUtils::ParseString(env, messageObj, message)) {
+            WVLOG_E("ParseString failed");
+            return false;
+        }
         webMsg->SetType(NWebValue::Type::STRING);
         webMsg->SetString(message);
+        romMsg->SetType(NWebRomValue::Type::STRING);
+        romMsg->SetString(message);
     } else if (isArrayBuffer) {
         size_t byteLength = 0;
         uint8_t* arrayBuffer = nullptr;
-        if (auto status = env->ArrayBuffer_GetInfo(reinterpret_cast<ani_arraybuffer>(messageObj), (void**)&arrayBuffer,
-            &byteLength) != ANI_OK) {
+        auto status = env->ArrayBuffer_GetInfo(reinterpret_cast<ani_arraybuffer>(messageObj), (void**)&arrayBuffer,
+            &byteLength);
+        if (status != ANI_OK) {
             WVLOG_E("[WebMessagePort] ArrayBuffer_GetInfo failed, status is : %{public}d", status);
             return false;
         }
         std::vector<uint8_t> vecData(arrayBuffer, arrayBuffer + byteLength);
         webMsg->SetType(NWebValue::Type::BINARY);
         webMsg->SetBinary(vecData);
+        romMsg->SetType(NWebRomValue::Type::BINARY);
+        romMsg->SetBinary(vecData);
     }
     return true;
 }
@@ -2770,13 +2782,14 @@ static void PostMessageEvent(ani_env* env, ani_object object, ani_object message
     }
 
     ani_class arrayBufferClass;
-    if (auto status = env->FindClass("std.core.ArrayBuffer", &arrayBufferClass) != ANI_OK) {
+    if (auto status = env->FindClass("escompat.Array", &arrayBufferClass) != ANI_OK) {
         WVLOG_E("[WebMessagePort] Find class %{public}s failed, status is %{public}d.", "ArrayBuffer", status);
         return;
     }
     ani_boolean isArrayBuffer;
-    if (auto status = env->Object_InstanceOf(messageObj, arrayBufferClass, &isArrayBuffer) != ANI_OK) {
-        WVLOG_E("[WebMessagePort] Find type %{public}s failed, status is %{public}d.", "ArrayBuffer", status);
+    auto stat = env->Object_InstanceOf(messageObj, arrayBufferClass, &isArrayBuffer);
+    if (stat != ANI_OK) {
+        WVLOG_E("[WebMessagePort] Find type %{public}s failed, status is %{public}d.", "ArrayBuffer", stat);
         return;
     }
     bool isString = AniParseUtils::IsString(env, messageObj);
@@ -2786,7 +2799,8 @@ static void PostMessageEvent(ani_env* env, ani_object object, ani_object message
         return;
     }
     auto webMsg = std::make_shared<OHOS::NWeb::NWebMessage>(NWebValue::Type::NONE);
-    if (!PostMessageEventMsgHandler(env, messageObj, isString, isArrayBuffer, webMsg)) {
+    auto romMsg = std::make_shared<OHOS::NWeb::WebViewValue>(NWebRomValue::Type::NONE);
+    if (!PostMessageEventMsgHandler(env, messageObj, isString, isArrayBuffer, webMsg, romMsg)) {
         WVLOG_E("[WebMessagePort] PostMessageEventMsgHandler failed");
         return;
     }
@@ -2795,7 +2809,7 @@ static void PostMessageEvent(ani_env* env, ani_object object, ani_object message
         WVLOG_E("[WebMessagePort] WebMessagePort failed");
         return;
     }
-    ErrCode ret = msgPort->PostPortMessage(webMsg, nullptr);
+    ErrCode ret = msgPort->PostPortMessage(webMsg, romMsg);
     if (ret != NO_ERROR) {
         AniBusinessError::ThrowErrorByErrCode(env, ret);
         return;
@@ -2811,13 +2825,15 @@ static void PostMessageEventExt(ani_env* env, ani_object object, ani_object mess
     }
 
     ani_class cls;
-    if (auto status = env->FindClass("@ohos.web.webview.webview.WebMessageExt", &cls) != ANI_OK) {
+    auto status = env->FindClass("@ohos.web.webview.webview.WebMessageExt", &cls);
+    if (status != ANI_OK) {
         WVLOG_E("[WebMessagePort] Find class %{public}s failed, status is %{public}d.", "WebMessageExt", status);
         return;
     }
     ani_boolean isWebMessageExt;
-    if (auto status = env->Object_InstanceOf(messageObj, cls, &isWebMessageExt) != ANI_OK) {
-        WVLOG_E("[WebMessagePort] Find type %{public}s failed, status is %{public}d.", "WebMessageExt", status);
+    auto stat = env->Object_InstanceOf(messageObj, cls, &isWebMessageExt);
+    if (stat != ANI_OK) {
+        WVLOG_E("[WebMessagePort] Find type %{public}s failed, status is %{public}d.", "WebMessageExt", stat);
         return;
     }
     if (!isWebMessageExt) {
@@ -2841,7 +2857,7 @@ static void PostMessageEventExt(ani_env* env, ani_object object, ani_object mess
             env, PARAM_CHECK_ERROR, NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "message"));
         return;
     }
-    ErrCode ret = msgPort->PostPortMessage(webMessageExt->GetData(), nullptr);
+    ErrCode ret = msgPort->PostPortMessage(webMessageExt->GetData(), webMessageExt->GetValue());
     if (ret != NO_ERROR) {
         AniBusinessError::ThrowErrorByErrCode(env, ret);
         return;
@@ -3026,16 +3042,13 @@ static ani_object CreateWebMessagePortsObj(
     ani_object arrayObj = nullptr;
     ani_class arrayCls = nullptr;
     if (env->FindClass("escompat.Array", &arrayCls) != ANI_OK) {
-        WVLOG_E("find class escompat/Array; failed");
         return nullptr;
     }
     ani_method arrayCtor;
     if (env->Class_FindMethod(arrayCls, "<ctor>", "i:", &arrayCtor) != ANI_OK) {
-        WVLOG_E("get ctor method failed");
         return nullptr;
     }
     if (env->Object_New(arrayCls, arrayCtor, &arrayObj, ports.size()) != ANI_OK) {
-        WVLOG_E("Object_New Array failed");
         return nullptr;
     }
 
@@ -3051,7 +3064,7 @@ static ani_object CreateWebMessagePortsObj(
             ani_object boolInfoObj = CreateWebMessagePortsObjOfBoolean(env, tempExtentionType);
             env->Object_SetPropertyByName_Ref(obj, "isExtentionType", boolInfoObj);
         }
-        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "iY:", i, obj) != ANI_OK) {
+        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "iC{std.core.Object}:", i, obj) != ANI_OK) {
             WVLOG_E("Object_CallMethodByName_Void failed");
             return nullptr;
         }
@@ -3614,15 +3627,18 @@ static void InjectOfflineResources(ani_env* env, ani_object object, ani_object r
         WVLOG_E("object is nullptr");
         return;
     }
-    ani_double resourceMapsCount;
+
     auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
     if (!controller) {
         WVLOG_E("controller null");
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
-
-    env->Object_GetPropertyByName_Double(resourceMaps, "length", &resourceMapsCount);
+    ani_int resourceMapsCount;
+    if (env->Object_GetPropertyByName_Int(resourceMaps, "length", &resourceMapsCount) != ANI_OK) {
+        WVLOG_E("get resourceMaps length error");
+        return;
+    }
     size_t resourceMapsCountInt = static_cast<size_t>(resourceMapsCount);
     if (resourceMapsCountInt > MAX_RESOURCES_COUNT || resourceMapsCountInt == 0) {
         WVLOG_E("BusinessError: 401. The size of 'resourceMaps' must less than %{public}zu and not 0",
@@ -3643,10 +3659,13 @@ static void ClearPrefetchedResource(ani_env* env, ani_object aniClass, ani_objec
 
     ani_array cacheKeyStr = nullptr;
     cacheKeyStr = static_cast<ani_array>(cacheKey);
-    ani_double cacheKeyCount;
-    env->Object_GetPropertyByName_Double(cacheKey, "length", &cacheKeyCount);
+    ani_int cacheKeyCount;
+    if (env->Object_GetPropertyByName_Int(cacheKey, "length", &cacheKeyCount) != ANI_OK) {
+        WVLOG_E("get cacheKey length error");
+        return;
+    }
     std::vector<std::string> cacheKeyList;
-    for (ani_double i = 0; i < cacheKeyCount; i++) {
+    for (ani_int i = 0; i < cacheKeyCount; i++) {
         ani_ref pathItem = nullptr;
         env->Array_Get(cacheKeyStr, i, &pathItem);
         std::string path;
@@ -3868,7 +3887,7 @@ static void ResumeAllMedia(ani_env* env, ani_object object)
     controller->ResumeAllMedia();
 }
 
-static void SetAudioMuted(ani_env* env, ani_object object,ani_boolean mute)
+static void SetAudioMuted(ani_env* env, ani_object object, ani_boolean mute)
 {
     WVLOG_D("SetAudioMuted begin");
     if (!env) {
@@ -4189,7 +4208,6 @@ WebSnapshotCallback CreateWebPageSnapshotResultCallback(
         ani_fn_object callbackFn = static_cast<ani_fn_object>(jCallback);
         if (env->FunctionalObject_Call(callbackFn, ani_size(RESULT_COUNT), vec.data(), &callbackResult) != ANI_OK) {
             WVLOG_E("execute callFunction failed");
-            return;
         }
         if (env->GlobalReference_Delete(jCallback) != ANI_OK) {
             WVLOG_E("delete global Ref failed");
@@ -4408,7 +4426,8 @@ static void ConstructorExt(ani_env* env, ani_object object)
         }
 
         auto webMsg = std::make_shared<OHOS::NWeb::NWebMessage>(NWebValue::Type::NONE);
-        WebMessageExt* webMessageExt = new (std::nothrow) WebMessageExt(webMsg);
+        auto romMsg = std::make_shared<OHOS::NWeb::WebViewValue>(NWebRomValue::Type::NONE);
+        WebMessageExt* webMessageExt = new (std::nothrow) WebMessageExt(webMsg, romMsg);
         if (!webMessageExt) {
             WVLOG_E("new webMessageExt failed");
             return;
@@ -5094,78 +5113,71 @@ ani_status StsWebMessageExtInit(ani_env* env)
     return status;
 }
 
-bool ParseRegisterJavaScriptProxyParam(ani_env* env, ani_object jsObject, ani_string name, ani_object methodList,
-    ani_object asyncMethodList, ani_object permission, AniRegisterJavaScriptProxyParam* param)
+static void InnerJsProxy(ani_env* env, ani_object object, ani_object obj, ani_string name, ani_array methodList,
+    ani_object asyncMethodList, ani_object permission)
 {
-    std::string objName;
-    if (!AniParseUtils::ParseString(env, name, objName)) {
-        AniBusinessError::ThrowError(
-            env, PARAM_CHECK_ERROR, NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "name", "string"));
-        return false;
+    if (env == nullptr) {
+        return;
     }
-
-    std::vector<std::string> jsMethodList;
-    if (!AniParseUtils::ParseStringArray(env, methodList, jsMethodList)) {
-        WVLOG_E("ParseRegisterJavaScriptProxyParam build jsMethodList error");
-        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
-        return false;
-    }
-    WVLOG_I("jsMethodList size = %{public}d", jsMethodList.size());
-    std::vector<std::string> jsAsyncMethodList;
-    ani_boolean isUndefined = ANI_TRUE;
-    if (env->Reference_IsUndefined(asyncMethodList, &isUndefined) != ANI_OK) {
-        return false;
-    }
-    WVLOG_I("ParseRegisterJavaScriptProxyParam jsAsyncMethodList is undefined? : %{public}d", isUndefined);
-    if (!isUndefined && !AniParseUtils::ParseStringArray(env, asyncMethodList, jsAsyncMethodList)) {
-        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
-        return false;
-    }
-    WVLOG_I("jsAsyncMethodList size = %{public}d", jsAsyncMethodList.size());
-    std::string jsPermission;
-    if (env->Reference_IsUndefined(permission, &isUndefined) != ANI_OK) {
-        return false;
-    }
-    WVLOG_I("ParseRegisterJavaScriptProxyParam Permission is undefined? : %{public}d", isUndefined);
-    if (!isUndefined && !AniParseUtils::ParseString(env, static_cast<ani_ref>(permission), jsPermission)) {
-        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
-        return false;
-    }
-
-    param->env = env;
-    param->obj = jsObject;
-    param->objName = objName;
-    param->syncMethodList = jsMethodList;
-    param->asyncMethodList = jsAsyncMethodList;
-    param->permission = jsPermission;
-    return true;
-}
-
-static void RegisterJavaScriptProxy(ani_env* env, ani_object object, ani_object jsObject, ani_string name,
-    ani_object methodList, ani_object asyncMethodList, ani_object permission)
-{
-    WVLOG_D("enter RegisterJavaScriptProxy");
-    if (!env) {
-        WVLOG_E("env is nullptr");
+    ani_vm* vm = nullptr;
+    if (env->GetVM(&vm) != ANI_OK) {
         return;
     }
 
-    AniRegisterJavaScriptProxyParam param;
-    if (!ParseRegisterJavaScriptProxyParam(env, jsObject, name, methodList, asyncMethodList, permission, &param)) {
-        WVLOG_E("bulid AniRegisterJavaScriptProxyParam error");
+    ani_ref webviewObj;
+    if (env->GlobalReference_Create(reinterpret_cast<ani_ref>(object), &webviewObj) != ANI_OK) {
         return;
     }
+    ani_ref saveObj;
+    if (env->GlobalReference_Create(reinterpret_cast<ani_ref>(obj), &saveObj) != ANI_OK) {
+        return;
+    }
+    std::string nameStr;
+    if (!AniParseUtils::ParseString(env, name, nameStr)) {
+        return;
+    }
+    std::vector<std::string> methodListStr;
+    if (!AniParseUtils::ParseStringArray(env, methodList, methodListStr)) {
+        return;
+    }
+    ani_boolean isUndefined = true;
+    std::vector<std::string> asyncMethodListStr;
+    if (env->Reference_IsUndefined(asyncMethodList, &isUndefined) == ANI_OK && !isUndefined) {
+        if (!AniParseUtils::ParseStringArray(env, asyncMethodList, asyncMethodListStr)) {
+            return;
+        }
+    }
+    isUndefined = true;
+    std::string permissionStr;
+    if (env->Reference_IsUndefined(permission, &isUndefined) == ANI_OK && !isUndefined) {
+        if (!AniParseUtils::ParseString(env, permission, permissionStr)) {
+            return;
+        }
+    }
 
-    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    WebviewController* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
     if (!controller || !controller->IsInit()) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
 
     controller->SetNWebJavaScriptResultCallBack();
+
+    AniRegisterJavaScriptProxyParam param;
+    param.env = env;
+    param.obj = reinterpret_cast<ani_object>(saveObj);
+    param.objName = nameStr;
+    param.syncMethodList = methodListStr;
+    param.asyncMethodList = asyncMethodListStr;
+    param.permission = permissionStr;
+    param.webviewObj = reinterpret_cast<ani_object>(webviewObj);
     controller->RegisterJavaScriptProxy(param);
-    WVLOG_I("exit RegisterJavaScriptProxy");
-    return;
+}
+
+static void RegisterJavaScriptProxy(ani_env* env, ani_object object, ani_object jsObject, ani_string name,
+    ani_object methodList, ani_object asyncMethodList, ani_object permission)
+{
+    InnerJsProxy(env, object, jsObject, name, static_cast<ani_array>(methodList), asyncMethodList, permission);
 }
 
 static void DeleteJavaScriptRegister(ani_env* env, ani_object object, ani_string name)
@@ -5428,7 +5440,7 @@ static void RunJSCallback(ani_env* env, ani_object object, ani_object script, an
     WVLOG_D("enter RunJSCallback");
     if (g_maxFdNum == -1) {
         g_maxFdNum =
-            std::atoi(NWebAdapterHelper::Instance().ParsePerfConfig("flowBufferConfig", "g_maxFdNumber").c_str());
+            std::atoi(NWebAdapterHelper::Instance().ParsePerfConfig("flowBufferConfig", "maxFdNumber").c_str());
     }
     if (usedFd_.load() < g_maxFdNum) {
         WVLOG_I("enter RunJavaScriptInternalExt in RunJSCallback");
@@ -5453,7 +5465,7 @@ static ani_object RunJSPromise(ani_env* env, ani_object object, ani_object scrip
     WVLOG_D("enter RunJSPromise");
     if (g_maxFdNum == -1) {
         g_maxFdNum =
-            std::atoi(NWebAdapterHelper::Instance().ParsePerfConfig("flowBufferConfig", "g_maxFdNumber").c_str());
+            std::atoi(NWebAdapterHelper::Instance().ParsePerfConfig("flowBufferConfig", "maxFdNumber").c_str());
     }
     if (usedFd_.load() < g_maxFdNum) {
         WVLOG_I("enter RunJavaScriptInternalPromiseExt in RunJSCallback");
@@ -5497,7 +5509,7 @@ static ani_object RunJavaScriptPromiseExt(ani_env* env, ani_object object, ani_o
     return RunJSPromise(env, object, script, true);
 }
 
-static void EnableBackForwardCache(ani_env *env, ani_object object, ani_object features)
+static void EnableBackForwardCache(ani_env *env, ani_object object, ani_object featuresObject)
 {
     if (!env) {
         WVLOG_E("env is nullptr");
@@ -5506,70 +5518,51 @@ static void EnableBackForwardCache(ani_env *env, ani_object object, ani_object f
 
     bool nativeEmbed = false;
     bool mediaTakeOver = false;
+    ani_boolean embedObj = ANI_FALSE;
+    ani_boolean mediaObj = ANI_FALSE;
+    ani_boolean isUndefined = ANI_TRUE;
+    env->Reference_IsUndefined(featuresObject, &isUndefined);
+    if (isUndefined != ANI_TRUE) {
+        if (env->Object_GetFieldByName_Boolean(featuresObject, "nativeEmbed", &embedObj) == ANI_OK) {
+            nativeEmbed = static_cast<bool>(embedObj);
+        }
 
-    ani_boolean isUndefined;
-    if (env->Reference_IsUndefined(features, &isUndefined) != ANI_OK) {
-        WVLOG_E("EnableBackForwardCache Reference_IsUndefined failed.");
-        return;
+        if (env->Object_GetFieldByName_Boolean(featuresObject, "mediaTakeOver", &mediaObj) == ANI_OK) {
+            mediaTakeOver = static_cast<bool>(mediaObj);
+        }
     }
-
-    if (isUndefined) {
-        NWebHelper::Instance().EnableBackForwardCache(nativeEmbed, mediaTakeOver);
-        return;
-    }
-
-    ani_boolean aniEmbedObj;
-    if (env->Object_GetPropertyByName_Boolean(features, "nativeEmbed", &aniEmbedObj) == ANI_OK) {
-        nativeEmbed = static_cast<bool>(aniEmbedObj);
-    }
-    ani_boolean aniMediaTakeOver;
-    if (env->Object_GetPropertyByName_Boolean(features, "mediaTakeOver", &aniMediaTakeOver) == ANI_OK) {
-        mediaTakeOver = static_cast<bool>(aniMediaTakeOver);
-    }
-
-    WVLOG_D("EnableBackForwardCache start");
     NWebHelper::Instance().EnableBackForwardCache(nativeEmbed, mediaTakeOver);
+    return;
 }
 
-void SetBackForwardCacheOptions(ani_env *env, ani_object object, ani_object options)
+static void SetBackForwardCacheOptions(ani_env *env, ani_object object, ani_object optionsObject)
 {
     if (!env) {
         WVLOG_E("env is nullptr");
         return;
     }
-
-    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
-    if (!controller || !controller->IsInit()) {
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
         WVLOG_E("SetBackForwardCacheOptions: Init webview controller error.");
-        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
-
     int32_t size = BFCACHE_DEFAULT_SIZE;
     int32_t timeToLive = BFCACHE_DEFAULT_TIMETOLIVE;
-
-    ani_boolean isUndefined;
-    if (env->Reference_IsUndefined(options, &isUndefined) != ANI_OK) {
-        WVLOG_E("SetBackForwardCacheOptions Reference_IsUndefined failed.");
-        return;
+    ani_int sizeObj = static_cast<ani_int>(size);
+    ani_int timeToLiveObj = static_cast<ani_int>(timeToLive);
+    ani_boolean isUndefined = ANI_TRUE;
+    env->Reference_IsUndefined(optionsObject, &isUndefined);
+    if (isUndefined != ANI_TRUE) {
+        if (env->Object_GetPropertyByName_Int(optionsObject, "size", &sizeObj) == ANI_OK) {
+            size = static_cast<int32_t>(sizeObj);
+        }
+        if (env->Object_GetPropertyByName_Int(optionsObject, "timeToLive", &timeToLiveObj) == ANI_OK) {
+            timeToLive = static_cast<int32_t>(timeToLiveObj);
+        }
     }
-
-    if (isUndefined) {
-        controller->SetBackForwardCacheOptions(size, timeToLive);
-        return;
-    }
-
-    ani_int aniSize;
-    if (env->Object_GetPropertyByName_Int(options, "size", &aniSize) == ANI_OK) {
-        size = static_cast<int32_t>(aniSize);
-    }
-    ani_int aniTimeToLive;
-    if (env->Object_GetPropertyByName_Int(options, "timeToLive", &aniTimeToLive) == ANI_OK) {
-        timeToLive = static_cast<int32_t>(aniTimeToLive);
-    }
-
-    WVLOG_D("SetBackForwardCacheOptions start");
+    WVLOG_D("SetBackForwardCacheOptions size:%{public}d, timeToLive:%{public}d", size, timeToLive);
     controller->SetBackForwardCacheOptions(size, timeToLive);
+    return;
 }
 
 static void SetAppCustomUserAgent(ani_env* env, ani_object object, ani_object aniUA)
@@ -6984,6 +6977,15 @@ static void SetActiveWebEngineVersion(ani_env *env, ani_object object, ani_enum_
     OHOS::ArkWeb::setActiveWebEngineVersion(static_cast<OHOS::ArkWeb::ArkWebEngineVersion>(aniVersion));
 }
 
+static ani_boolean IsActiveWebEngineEvergreen(ani_env *env, ani_object object)
+{
+    if (!OHOS::ArkWeb::IsActiveWebEngineEvergreen()) {
+        return ANI_FALSE;
+    }
+
+    return ANI_TRUE;
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     WVLOG_D("[DOWNLOAD] StsWebviewControllerInit");
@@ -7056,7 +7058,9 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "getLastJavascriptProxyCallingFrameUrl", nullptr,
                               reinterpret_cast<void *>(GetLastJavascriptProxyCallingFrameUrl) },
         ani_native_function { "getSecurityLevel", nullptr, reinterpret_cast<void *>(GetSecurityLevel) },
-        ani_native_function { "prefetchPage", nullptr, reinterpret_cast<void *>(PrefetchPage) },
+        ani_native_function { "prefetchPageUrl", nullptr, reinterpret_cast<void *>(PrefetchPage) },
+        ani_native_function { "prefetchPageUrlHeaders", nullptr, reinterpret_cast<void *>(PrefetchPage) },
+        ani_native_function { "prefetchPageUrlHeadersOptions", nullptr, reinterpret_cast<void *>(PrefetchPage) },
         ani_native_function { "searchAllAsync", nullptr, reinterpret_cast<void *>(SearchAllAsync) },
         ani_native_function { "forward", nullptr, reinterpret_cast<void *>(Forward) },
         ani_native_function { "createWebMessagePorts", nullptr, reinterpret_cast<void *>(CreateWebMessagePorts) },
@@ -7117,6 +7121,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "hasImagePromise", nullptr, reinterpret_cast<void *>(HasImagePromise) },
         ani_native_function { "restoreWebState", nullptr, reinterpret_cast<void*>(RestoreWebState) },
         ani_native_function { "getCertificateSync", nullptr, reinterpret_cast<void*>(GetCertificateSync) },
+        ani_native_function { "jsProxy", nullptr, reinterpret_cast<void *>(InnerJsProxy) },
         ani_native_function { "setSocketIdleTimeout", nullptr, reinterpret_cast<void *>(SetSocketIdleTimeout) },
         ani_native_function { "enablePrivateNetworkAccess", nullptr,
                               reinterpret_cast<void*>(EnablePrivateNetworkAccess) },
@@ -7148,6 +7153,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void*>(GetActiveWebEngineVersion) },
         ani_native_function { "setActiveWebEngineVersion", nullptr,
                               reinterpret_cast<void*>(SetActiveWebEngineVersion) },
+        ani_native_function { "isActiveWebEngineEvergreen", nullptr,
+                              reinterpret_cast<void*>(IsActiveWebEngineEvergreen) },
         ani_native_function { "setScrollbarMode", nullptr,
                               reinterpret_cast<void *>(SetScrollbarMode) },
     };
@@ -7165,11 +7172,13 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "clearIntelligentTrackingPreventionBypassingList", nullptr,
             reinterpret_cast<void *>(ClearIntelligentTrackingPreventionBypassingList) },
         ani_native_function { "setHostIP", nullptr, reinterpret_cast<void *>(SetHostIP) },
-        ani_native_function { "clearHostIP", nullptr,reinterpret_cast<void *>(ClearHostIP) },
+        ani_native_function { "clearHostIP", nullptr, reinterpret_cast<void *>(ClearHostIP) },
         ani_native_function { "warmupServiceWorker", nullptr, reinterpret_cast<void *>(WarmupServiceWorker) },
         ani_native_function { "prepareForPageLoad", nullptr, reinterpret_cast<void *>(PrepareForPageLoad) },
         ani_native_function { "getDefaultUserAgent", nullptr, reinterpret_cast<void *>(GetDefaultUserAgent) },
         ani_native_function { "removeAllCache", nullptr, reinterpret_cast<void *>(RemoveAllCache) },
+        ani_native_function { "setServiceWorkerWebSchemeHandler", nullptr,
+                              reinterpret_cast<void *>(SetServiceWorkerWebSchemeHandler) },
         ani_native_function { "setRenderProcessMode", nullptr, reinterpret_cast<void *>(SetRenderProcessMode) },
         ani_native_function { "getRenderProcessMode", nullptr, reinterpret_cast<void *>(GetRenderProcessMode) },
         ani_native_function { "setConnectionTimeout", nullptr, reinterpret_cast<void *>(SetConnectionTimeout) },

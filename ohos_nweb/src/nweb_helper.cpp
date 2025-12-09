@@ -889,6 +889,10 @@ void NWebHelper::RemoveProxyOverride(std::shared_ptr<NWebProxyChangedCallback> c
 
 void NWebHelper::PrepareForPageLoad(std::string url, bool preconnectable, int32_t numSockets)
 {
+    if (!initFlag_) {
+        WVLOG_E("engine not initialized");
+        return;
+    }
     if (nwebEngine_ == nullptr) {
         WVLOG_E("web engine is nullptr");
         return;
@@ -998,6 +1002,10 @@ void NWebHelper::PrefetchResource(const std::shared_ptr<NWebEnginePrefetchArgs>&
     const std::map<std::string, std::string>& additional_http_headers, const std::string& cache_key,
     const uint32_t& cache_valid_time)
 {
+    if (!initFlag_) {
+        WVLOG_E("engine not initialized");
+        return;
+    }
     if (nwebEngine_ == nullptr) {
         WVLOG_E("web engine is nullptr");
         return;
@@ -1110,6 +1118,10 @@ void NWebHelper::SetUserAgentForHosts(const std::string& userAgent, const std::v
 
 void NWebHelper::WarmupServiceWorker(const std::string& url)
 {
+    if (!initFlag_) {
+        WVLOG_E("engine not initialized");
+        return;
+    }
     if (nwebEngine_ == nullptr) {
         WVLOG_E("web engine is nullptr");
         return;
@@ -1409,7 +1421,6 @@ void NWebHelper::SetSoftKeyboardBehaviorMode(WebSoftKeyboardBehaviorMode mode)
         WVLOG_E("web engine is nullptr");
         return;
     }
-    nwebEngine_->SetSoftKeyboardBehaviorMode(mode);
 }
 
 void NWebHelper::SetScrollbarMode(ScrollbarMode mode)
@@ -1439,6 +1450,30 @@ void NWebHelper::SetLazyInitializeWebEngine(bool lazy)
 bool NWebHelper::IsLazyInitializeWebEngine()
 {
     return lazyInitializeWebEngine_ && !initWebEngine_;
+}
+
+void NWebHelper::SetNWebActiveStatus(int32_t nwebId, bool nwebActiveStatus)
+{
+    WVLOG_D("Set nwebId: %{public}d, nwebActiveStatus: %{public}d", nwebId, nwebActiveStatus);
+    nwebActiveStatusMap_[nwebId] = nwebActiveStatus;
+}
+
+bool NWebHelper::GetNWebActiveStatus(int32_t nwebId)
+{
+    auto iter = nwebActiveStatusMap_.find(nwebId);
+    if (iter != nwebActiveStatusMap_.end()) {
+        WVLOG_D("Find nwebId: %{public}d, nwebActiveStatus: %{public}d", nwebId, nwebActiveStatusMap_[nwebId]);
+        return iter->second;
+    } else {
+        WVLOG_W("No nwebId: %{public}d in nwebActiveStatusMap_", nwebId);
+        return false;
+    }
+}
+
+void NWebHelper::RemoveNWebActiveStatus(int32_t nwebId)
+{
+    WVLOG_D("Erase nwebId: %{public}d", nwebId);
+    nwebActiveStatusMap_.erase(nwebId);
 }
 
 } // namespace OHOS::NWeb

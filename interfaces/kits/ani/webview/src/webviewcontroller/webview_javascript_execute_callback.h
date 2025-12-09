@@ -23,6 +23,7 @@
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "napi_parse_utils.h"
+#include "nweb_message_ext.h"
 #include "nweb_value_callback.h"
 #include "nweb_web_message.h"
 
@@ -38,6 +39,7 @@ public:
     ~WebviewJavaScriptExecuteCallback();
     void SetJavaScriptCallBackRef(ani_object callback);
     void OnReceiveValue(std::shared_ptr<NWebMessage> result) override;
+    void OnReceiveValueV2(std::shared_ptr<NWebHapValue> value) override;
     ani_env* GetEnv()
     {
         ani_env* env = nullptr;

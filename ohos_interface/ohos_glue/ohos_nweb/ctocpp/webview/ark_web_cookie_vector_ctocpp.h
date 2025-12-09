@@ -26,6 +26,8 @@ std::vector<std::shared_ptr<OHOS::NWeb::NWebCookie>>
     ARK_WEB_CALLBACK ArkWebCookieVectorStructToClass(
         const ArkWebCookieVector& struct_value);
  
+void ArkWebCookieVectorStructRelease(ArkWebCookieVector& struct_value);
+
 } // namespace OHOS::ArkWeb
  
 #endif // ARK_WEB_COOKIE_VECTOR_CTOCPP_H_

@@ -47,6 +47,8 @@ public:
 
     int GetTouchHandleType() override;
 
+    bool IsDragging() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebTouchHandleState> nweb_touch_handle_state_;
 };

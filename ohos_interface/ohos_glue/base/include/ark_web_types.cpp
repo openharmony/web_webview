@@ -316,3 +316,104 @@ ARK_WEB_NO_SANITIZE void ArkWebUInt8VectorMapStructRelease(ArkWebUInt8VectorMap&
     SAFE_FREE(struct_value.key, struct_value.ark_web_mem_free_func);
     SAFE_FREE(struct_value.value, struct_value.ark_web_mem_free_func);
 }
+
+ArkWebPairStringVector ArkWebPairStringVectorClassToStruct(
+    const std::vector<std::pair<std::string, std::string>>& class_value)
+{
+    ArkWebPairStringVector struct_value = { .size = class_value.size(), .ark_web_mem_free_func = ArkWebMemFree };
+    if (struct_value.size > 0) {
+        struct_value.first = (ArkWebString*)ArkWebMemMalloc(sizeof(ArkWebString) * struct_value.size);
+        struct_value.second = (ArkWebString*)ArkWebMemMalloc(sizeof(ArkWebString) * struct_value.size);
+        if (struct_value.first == nullptr || struct_value.second == nullptr) {
+            ArkWebMemFree(struct_value.first);
+            ArkWebMemFree(struct_value.second);
+            struct_value.size = 0;
+            return struct_value;
+        }
+
+        int count = 0;
+        for (const auto& pair : class_value) {
+            struct_value.first[count] = ArkWebStringClassToStruct(pair.first);
+            struct_value.second[count] = ArkWebStringClassToStruct(pair.second);
+            count++;
+        }
+    }
+
+    return struct_value;
+}
+
+std::vector<std::pair<std::string, std::string>> ArkWebPairStringVectorStructToClass(
+    const ArkWebPairStringVector& struct_value)
+{
+    std::vector<std::pair<std::string, std::string>> class_value;
+    for (int count = 0; count < struct_value.size; count++) {
+        class_value.push_back(std::make_pair(
+            ArkWebStringStructToClass(struct_value.first[count]),
+            ArkWebStringStructToClass(struct_value.second[count])));
+    }
+
+    return class_value;
+}
+
+ArkWebPairStringVectorMap ArkWebPairStringVectorMapClassToStruct(
+    const std::map<std::string, std::vector<std::pair<std::string, std::string>>>& class_value)
+{
+    ArkWebPairStringVectorMap struct_value = { .size = class_value.size(), .ark_web_mem_free_func = ArkWebMemFree };
+    if (struct_value.size > 0) {
+        struct_value.key = (ArkWebString*)ArkWebMemMalloc(sizeof(ArkWebString) * struct_value.size);
+        struct_value.value = (ArkWebPairStringVector*)ArkWebMemMalloc(
+            sizeof(ArkWebPairStringVector) * struct_value.size);
+        if (struct_value.key == nullptr || struct_value.value == nullptr) {
+            ArkWebMemFree(struct_value.key);
+            ArkWebMemFree(struct_value.value);
+            struct_value.size = 0;
+            return struct_value;
+        }
+
+        int count = 0;
+        for (const auto& [key, value] : class_value) {
+            struct_value.key[count] = ArkWebStringClassToStruct(key);
+            struct_value.value[count] = ArkWebPairStringVectorClassToStruct(value);
+            count++;
+        }
+    }
+
+    return struct_value;
+}
+
+std::map<std::string, std::vector<std::pair<std::string, std::string>>> ArkWebPairStringVectorMapStructToClass(
+    const ArkWebPairStringVectorMap& struct_value)
+{
+    std::map<std::string, std::vector<std::pair<std::string, std::string>>> class_value;
+    for (int count = 0; count < struct_value.size; count++) {
+        class_value.insert(std::map<std::string, std::vector<std::pair<std::string, std::string>>>::value_type(
+            ArkWebStringStructToClass(struct_value.key[count]),
+            ArkWebPairStringVectorStructToClass(struct_value.value[count])));
+    }
+
+    return class_value;
+}
+
+ARK_WEB_NO_SANITIZE void ArkWebPairStringVectorStructRelease(ArkWebPairStringVector& struct_value)
+{
+    for (int count = 0; count < struct_value.size; count++) {
+        ArkWebStringStructRelease(struct_value.first[count]);
+        ArkWebStringStructRelease(struct_value.second[count]);
+    }
+
+    struct_value.size = 0;
+    SAFE_FREE(struct_value.first, struct_value.ark_web_mem_free_func);
+    SAFE_FREE(struct_value.second, struct_value.ark_web_mem_free_func);
+}
+
+ARK_WEB_NO_SANITIZE void ArkWebPairStringVectorMapStructRelease(ArkWebPairStringVectorMap& struct_value)
+{
+    for (int count = 0; count < struct_value.size; count++) {
+        ArkWebStringStructRelease(struct_value.key[count]);
+        ArkWebPairStringVectorStructRelease(struct_value.value[count]);
+    }
+
+    struct_value.size = 0;
+    SAFE_FREE(struct_value.key, struct_value.ark_web_mem_free_func);
+    SAFE_FREE(struct_value.value, struct_value.ark_web_mem_free_func);
+}

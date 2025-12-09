@@ -47,6 +47,7 @@ public:
 
     bool IsAcceptAllOptionExcluded() override;
 
+    const std::string Accepts() override;
 private:
     ArkWebRefPtr<ArkWebFileSelectorParams> ark_web_file_selector_params_;
 };

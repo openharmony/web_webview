@@ -56,6 +56,14 @@ public:
      */
     /*--ark web()--*/
     virtual int LineNumer() = 0;
+
+    /**
+     * @brief Get console log source type
+     *
+     * @return source type
+     */
+    /*--ark web()--*/
+    virtual int Source() = 0;
 };
 
 } // namespace OHOS::ArkWeb

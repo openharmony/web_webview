@@ -791,6 +791,26 @@ public:
      */
     /*--ark web()--*/
     virtual void PutZoomControlAccess(bool zoomControlAccess) = 0;
+
+    /**
+     * @brief Set whether to enable image analyzer.
+     */
+    /*--ark web()--*/
+    virtual void PutImageAnalyzerEnabled(bool enabled) = 0;
+
+    /**
+     * @brief Get whether to enable image analyzer.
+     */
+    /*--ark web()--*/
+    virtual bool GetImageAnalyzerEnabled() = 0;
+
+    /**
+     * @brief Sets whether enable auto fill or not.
+     *
+     * @param enable bool: Indicates the flag whether autofill is enabled.
+     */
+    /*--ark web()--*/
+    virtual void SetEnableAutoFill(bool enable) = 0;
 };
 
 } // namespace OHOS::ArkWeb

@@ -120,18 +120,21 @@ void NWebValueCallbackImpl::OnReceiveValue(std::shared_ptr<NWebMessage> result)
     }
     if (env == nullptr) {
         WVLOG_E("[WebMessagePort] env is nullptr");
+        vm_->DetachCurrentThread();
         return;
     }
     auto engine = reinterpret_cast<NativeEngine*>(env);
     if (!mainHandler_) {
         std::shared_ptr<OHOS::AppExecFwk::EventRunner> runner = OHOS::AppExecFwk::EventRunner::GetMainEventRunner();
         if (!runner) {
+            vm_->DetachCurrentThread();
             return;
         }
         mainHandler_ = std::make_shared<OHOS::AppExecFwk::EventHandler>(runner);
     }
     if (mainHandler_ == nullptr) {
         WVLOG_E("[WebMessagePort] mainHandler_ is null.");
+        vm_->DetachCurrentThread();
         return;
     }
     if (pthread_self() == engine->GetTid()) {
@@ -139,12 +142,15 @@ void NWebValueCallbackImpl::OnReceiveValue(std::shared_ptr<NWebMessage> result)
     } else {
         auto task = [this, result]() { NWebValueCallbackImpl::WebMessageOnReceiveValueCallback(result); };
         mainHandler_->PostTask(task, TASK_ID);
-        {
-            std::unique_lock<std::mutex> lock(mutex_);
-            condition_.wait(lock, [this] { return ready_; });
-        }
     }
     vm_->DetachCurrentThread();
+}
+
+void NWebValueCallbackImpl::OnReceiveValueV2(std::shared_ptr<NWebHapValue> value)
+{
+    WVLOG_I("message port received msg OnReceiveValueV2");
+    std::shared_ptr<NWebMessage> message = ConvertNwebHap2NwebMessage(value);
+    OnReceiveValue(message);
 }
 
 void NWebValueCallbackImpl::WebMessageCallback(ani_env* env, std::shared_ptr<NWebMessage> result)
@@ -174,6 +180,7 @@ void NWebValueCallbackImpl::WebMessageCallback(ani_env* env, std::shared_ptr<NWe
             WVLOG_E("[WebMessagePort] webMessageExt wrap failed");
             delete webMessageExt;
             webMessageExt = nullptr;
+            webMsgExt = nullptr;
             return;
         }
     } else {
@@ -194,7 +201,8 @@ void NWebValueCallbackImpl::WebMessageOnReceiveValueCallback(std::shared_ptr<NWe
 {
     WVLOG_D("[WebMessagePort] WebMessageOnReceiveValueCallback Start");
     ani_env* env = nullptr;
-    if (auto status = vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
+    auto status = vm_->GetEnv(ANI_VERSION_1, &env);
+    if (status != ANI_OK) {
         WVLOG_E("[WebMessagePort] GetEnv status is : %{public}d", status);
         return;
     }
@@ -224,6 +232,7 @@ void NWebValueCallbackImpl::WebMessageOnReceiveValueCallback(std::shared_ptr<NWe
             WVLOG_E("[WebMessagePort] webMessageExt wrap failed");
             delete webMessageExt;
             webMessageExt = nullptr;
+            webMsgExt = nullptr;
             return;
         }
     } else {
@@ -237,8 +246,5 @@ void NWebValueCallbackImpl::WebMessageOnReceiveValueCallback(std::shared_ptr<NWe
         WVLOG_E("[WebMessagePort] FunctionalObject_Call failed");
         return;
     }
-    std::unique_lock<std::mutex> lock(mutex_);
-    ready_ = true;
-    condition_.notify_all();
 }
 } // namespace OHOS::NWeb

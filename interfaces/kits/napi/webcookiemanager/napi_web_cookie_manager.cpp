@@ -884,8 +884,9 @@ void NWebSaveCookieCallbackImpl::OnReceiveValue(bool result)
     param->deferred_ = deferred_;
 
     work->data = reinterpret_cast<void*>(param);
-    int ret = uv_queue_work_with_qos(
-        loop, work, [](uv_work_t* work) {}, UvJsCallbackThreadWoker, uv_qos_user_initiated);
+    int ret = uv_queue_work_with_qos_internal(
+        loop, work, [](uv_work_t* work) {}, UvJsCallbackThreadWoker, uv_qos_user_initiated,
+        "WebviewNWebSaveCookieCallbackImpl");
     if (ret != 0) {
         if (param != nullptr) {
             delete param;
@@ -908,7 +909,7 @@ void NapiWebCookieManager::ExecuteGetCookies(napi_env env, void *data)
         return;
     }
     std::vector<std::shared_ptr<NWebCookie>> cookies = cookieManager->GetAllCookies(param->incognitoMode);
-    for (auto cookie : cookies) {
+    for (auto& cookie : cookies) {
         NapiWebHttpCookie napiCookie;
         napiCookie.samesitePolicy = cookie->GetSamesitePolicy();
         napiCookie.expiresDate = cookie->GetExpiresDate();
@@ -928,7 +929,7 @@ void NapiWebCookieManager::GetNapiWebHttpCookieForResult(napi_env env,
     const std::vector<NapiWebHttpCookie> &cookies, napi_value result)
 {
     int32_t index = 0;
-    for (auto cookie : cookies) {
+    for (auto& cookie : cookies) {
         napi_value napiWebHttpCookie = nullptr;
         napi_create_object(env, &napiWebHttpCookie);
  
@@ -976,21 +977,16 @@ void NapiWebCookieManager::GetNapiWebHttpCookieForResult(napi_env env,
 void NapiWebCookieManager::GetCookiesPromiseComplete(napi_env env, napi_status status, void *data)
 {
     GetCookiesParam* param = static_cast<GetCookiesParam*>(data);
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
-        delete param;
+    NApiScope scope(env);
+    if (!scope.IsVaild()) {
         return;
     }
 
     napi_value setResult = nullptr;
     napi_create_array(env, &setResult);
     GetNapiWebHttpCookieForResult(env, param->cookies, setResult);
-    if (param->status == napi_ok) {
-        napi_resolve_deferred(env, param->deferred, setResult);
-    }
+    napi_resolve_deferred(env, param->deferred, setResult);
     napi_delete_async_work(env, param->asyncWork);
-    napi_close_handle_scope(env, scope);
     delete param;
 }
  
@@ -1001,11 +997,15 @@ napi_value NapiWebCookieManager::JsFetchAllCookies(napi_env env, napi_callback_i
     napi_value argv[INTEGER_ONE] = { 0 };
     napi_get_cb_info(env, info, &argc, argv, &retValue, nullptr);
     if (argc != INTEGER_ONE) {
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
         return nullptr;
     }
  
     bool incognitoMode = false;
     if (!GetBooleanPara(env, argv[INTEGER_ZERO], incognitoMode)) {
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYEPS_ERROR));
         return nullptr;
     }
  
@@ -1111,8 +1111,9 @@ void NWebFetchCookieCallbackImpl::OnReceiveValue(const std::string &result)
     param->result_ = result;
 
     work->data = reinterpret_cast<void*>(param);
-    int ret = uv_queue_work_with_qos(
-        loop, work, [](uv_work_t* work) {}, UvJsCallbackThreadWoker, uv_qos_user_initiated);
+    int ret = uv_queue_work_with_qos_internal(
+        loop, work, [](uv_work_t* work) {}, UvJsCallbackThreadWoker, uv_qos_user_initiated,
+        "WebviewNWebFetchCookieCallbackImpl");
     if (ret != 0) {
         if (param != nullptr) {
             delete param;
@@ -1193,8 +1194,9 @@ void NWebCookieCallbackImpl::OnReceiveValue(bool result)
     param->deferred_ = deferred_;
 
     work->data = reinterpret_cast<void*>(param);
-    int ret = uv_queue_work_with_qos(
-        loop, work, [](uv_work_t* work) {}, UvJsCallbackThreadWoker, uv_qos_user_initiated);
+    int ret = uv_queue_work_with_qos_internal(
+        loop, work, [](uv_work_t* work) {}, UvJsCallbackThreadWoker, uv_qos_user_initiated,
+        "WebviewNWebCookieCallbackImpl");
     if (ret != 0) {
         if (param != nullptr) {
             delete param;
@@ -1286,8 +1288,9 @@ void NWebConfigCookieCallbackImpl::OnReceiveValue(long result)
     param->result_ = result;
 
     work->data = reinterpret_cast<void*>(param);
-    int ret = uv_queue_work_with_qos(
-        loop, work, [](uv_work_t* work) {}, UvJsCallbackThreadWoker, uv_qos_user_initiated);
+    int ret = uv_queue_work_with_qos_internal(
+        loop, work, [](uv_work_t* work) {}, UvJsCallbackThreadWoker, uv_qos_user_initiated,
+        "WebviewNWebConfigCookieCallbackImpl");
     if (ret != 0) {
         if (param != nullptr) {
             delete param;
