@@ -1686,4 +1686,9 @@ void ArkWebNWebImpl::FillAutofillDataFromTriggerType(ArkWebRefPtr<ArkWebRomValue
     nweb_nweb_->FillAutofillDataFromTriggerType(
         std::make_shared<ArkWebRomValueWrapper>(data), static_cast<ArkWebAutoFillTriggerType>(type));
 }
+
+void ArkWebNWebImpl::SetSoftKeyboardBehaviorMode(int mode)
+{
+    return nweb_nweb_->SetSoftKeyboardBehaviorMode(static_cast<OHOS::NWeb::WebSoftKeyboardBehaviorMode>(mode));
+}
 } // namespace OHOS::ArkWeb

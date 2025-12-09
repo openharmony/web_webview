@@ -2002,4 +2002,9 @@ void ArkWebNWebWrapper::FillAutofillDataFromTriggerType(
     ark_web_nweb_->FillAutofillDataFromTriggerType(
         new ArkWebRomValueImpl(data), static_cast<int>(type));
 }
+
+void ArkWebNWebWrapper::SetSoftKeyboardBehaviorMode(OHOS::NWeb::WebSoftKeyboardBehaviorMode mode)
+{
+    return ark_web_nweb_->SetSoftKeyboardBehaviorMode(static_cast<int>(mode));
+}
 } // namespace OHOS::ArkWeb

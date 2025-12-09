@@ -2293,6 +2293,13 @@ public:
      */
     virtual void FillAutofillDataFromTriggerType(
         std::shared_ptr<NWebRomValue> data, const NWebAutoFillTriggerType& type) {}
+
+    /**
+     * @brief Set soft keyboard behavior mode.
+     *
+     * @param mode WebSoftKeyboardBehaviorMode: the soft keyboard behavior mode.
+     */
+    virtual void SetSoftKeyboardBehaviorMode(WebSoftKeyboardBehaviorMode mode) {}
 };
 
 } // namespace OHOS::NWeb
