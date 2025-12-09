@@ -372,7 +372,7 @@ bool OH_NativeArkWeb_IsActiveWebEngineEvergreen();
  * CookieManager interface is called. Instead, the web engine will be initialized either when the web component is
  * created or when initializeWebEngine is called.
  * @param { bool } lazy - Controls whether to delay the initialization of the web engine.
- * @since 23
+ * @since 22
  */
 void OH_NativeArkWeb_LazyInitializeWebEngineInCookieManager(bool lazy);
 
