@@ -83,6 +83,7 @@ ohos_shared_library("webview_ani") {
     "./src/webviewcontroller/ani_webview_blankless_callback.cpp",
     "./src/webviewcontroller/ani_webview_blankless_callback.h",
     "./src/webviewcontroller/ani_web_cookie_manager.cpp",
+    "./src/webviewcontroller/ani_web_cookie_manager.h",
     "./src/webviewcontroller/ani_native_media_player_handler.cpp",
     "./src/webviewcontroller/ani_native_media_player_handler.h",
     "./src/webviewcontroller/ani_webview_createpdf_execute_callback.cpp",
