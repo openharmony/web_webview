@@ -19,7 +19,7 @@
 #include "nweb_hisysevent.h"
 #include "arkweb_utils.h"
 #include "parameters.h"
-
+#include <iostream>
 namespace OHOS::NWeb {
 namespace {
 const HiviewDFX::HiSysEvent::EventType EVENT_TYPES[] = {
@@ -48,19 +48,25 @@ static std::string g_defaultWebEngineType = "";
 template<typename... Args>
 static int ForwardToHiSysEvent(const std::string& eventName, EventType type, const std::tuple<Args...>& tp)
 {
+    std::cout<<" ForwardToHiSysEvent_in"<<"ysy_test"<<std::endl;
     if (g_currentBundleName.empty() || g_apiCompatibleVersion.empty()) {
+        std::cout<<" g_currentBundleName "<<"ysy_test"<<g_currentBundleName.empty()<<std::endl;
+        std::cout<<" g_apiCompatibleVersion "<<"ysy_test"<<g_apiCompatibleVersion.empty()<<std::endl;
         auto appInfo = AbilityRuntime::ApplicationContext::GetInstance()->GetApplicationInfo();
         if (appInfo != nullptr) {
+            std::cout<<" appInfo "<<"ysy_test"<<std::endl;
             g_currentBundleName = appInfo->bundleName;
             g_apiCompatibleVersion = std::to_string(appInfo->apiCompatibleVersion);
         }
     }
     
     if (g_webEngineType.empty()) {
+        std::cout<<" g_webEngineType "<<"ysy_test"<<std::endl;
         g_webEngineType = std::to_string(static_cast<int>(OHOS::ArkWeb::getActiveWebEngineType()));
     }
 
     if (g_defaultWebEngineType.empty()) {
+        std::cout<<" g_defaultWebEngineType "<<"ysy_test"<<std::endl;
         g_defaultWebEngineType = std::to_string(OHOS::system::GetIntParameter("web.engine.default",
             static_cast<int>(OHOS::ArkWeb::ArkWebEngineType::EVERGREEN)));
     }
@@ -80,6 +86,7 @@ static int ForwardToHiSysEvent(const std::string& eventName, EventType type, con
 
 int EventReport::ReportCreateWebInstanceTime(uint32_t nwebId, int64_t usedTime)
 {
+    std::cout<<" ReportCreateWebInstanceTime "<<"ysy_test"<<std::endl;
     auto data = std::make_tuple(INSTANCE_ID, nwebId, USED_TIME, usedTime);
     return ForwardToHiSysEvent(INSTANCE_INITIALIZE_TIME, STATISTIC, data);
 }
