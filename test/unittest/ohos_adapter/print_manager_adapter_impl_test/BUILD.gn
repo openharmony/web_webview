@@ -20,7 +20,10 @@ module_output_path = "webview/webview"
 config("module_private_config") {
   visibility = [ ":*" ]
 
-  include_dirs = [ "$webview_path/ohos_adapter/print_manager_adapter/include" ]
+  include_dirs = [
+    "$webview_path/ohos_adapter/print_manager_adapter/include",
+    "$webview_path/ohos_interface/include/ohos_adapter"
+  ]
 
   if (webview_print_enable) {
     defines = [ "NWEB_PRINT_ENABLE" ]
