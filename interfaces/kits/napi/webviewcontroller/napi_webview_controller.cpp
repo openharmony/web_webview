@@ -5564,8 +5564,8 @@ napi_value NapiWebPrintDocument::OnJobStateChanged(napi_env env, napi_callback_i
 napi_value NapiWebPrintDocument::JsConstructor(napi_env env, napi_callback_info info)
 {
     napi_value thisVar = nullptr;
-    size_t argc = INTEGER_TWO;
-    napi_value argv[INTEGER_TWO];
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE];
     uint64_t addrWebPrintDoc = 0;
     bool loseLess = true;
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
