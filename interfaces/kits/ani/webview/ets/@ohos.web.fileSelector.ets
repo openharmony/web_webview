@@ -82,6 +82,70 @@ class SelectorDialog {
   }
 
   @Builder
+  private fileSelectorDialog(event: OnShowFileSelectorEvent) {
+    Scroll() {
+      Column() {
+        Row() {
+          Text($r('sys.string.choose_to_upload'))
+            .fontSize(20)
+            .fontWeight(FontWeight.Bold)
+            .lineHeight(23)
+            .margin({
+              top: 15,
+              bottom: 15,
+              left: 24,
+              right: 24
+            })
+        }.height(56)
+
+        this.fileSelectorListItem('sys.symbol.picture', 'sys.string.gallery', selectPicture, event)
+        const acceptTypes = event.fileSelector.getAcceptType()
+        let cameraOption = 'sys.string.taking_photos_or_videos'
+        if (isContainImageMimeType(acceptTypes) && !isContainVideoMimeType(acceptTypes)) {
+          cameraOption = 'sys.string.taking_photos'
+        }
+        if (!isContainImageMimeType(acceptTypes) && isContainVideoMimeType(acceptTypes)) {
+          cameraOption = 'sys.string.video_recording'
+        }
+        this.fileSelectorListItem('sys.symbol.camera', cameraOption, takePhoto, event)
+        this.fileSelectorListItem('sys.symbol.doc_text', 'sys.string.document', selectFile, event)
+
+        Row() {
+          Text($r('sys.string.general_cancel'))
+            .fontSize(16)
+            .fontColor('#FF0A59F7')
+            .fontWeight(FontWeight.Medium)
+            .margin({
+              top: 10,
+              bottom: 10
+            } as Margin)
+        }
+        .onClick((e) => {
+          try {
+            console.log('Get Alert Dialog handled')
+            event.result.handleFileList([])
+            UIContext.getFocusedUIContext()?.getPromptAction().closeCustomDialog(this.customDialogComponentId)
+          } catch (error: BusinessError) {
+            console.error(`closeCustomDialog error code is ${error.code}, message is ${error.message}`)
+          }
+        })
+        .width(296)
+        .height(40)
+        .margin({
+          top: 8,
+          bottom: 16,
+          left: 16,
+          right: 16
+        })
+        .borderRadius(5)
+        .justifyContent(FlexAlign.Center)
+      }
+      .height(264)
+      .width(328)
+    }
+  }
+
+  @Builder
   private fileSelectorListItem(sysResource: string, text: string, func: (e: OnShowFileSelectorEvent) => void,
     event: OnShowFileSelectorEvent) {
     Row() {
@@ -118,72 +182,6 @@ class SelectorDialog {
       left: 24,
       right: 24
     })
-  }
-
-  @Builder
-  private fileSelectorDialog(event: OnShowFileSelectorEvent) {
-    Scroll() {
-      Column() {
-        Row() {
-          Text($r('sys.string.choose_to_upload'))
-            .fontSize(20)
-            .fontWeight(FontWeight.Bold)
-            .lineHeight(23)
-            .margin({
-              top: 15,
-              bottom: 15,
-              left: 24,
-              right: 24
-            })
-        }.height(56)
-
-        this.fileSelectorListItem('sys.symbol.picture', 'sys.string.gallery', selectPicture, event)
-        const acceptTypes = event.fileSelector.getAcceptType()
-        let cameraOption = 'sys.string.taking_photos_or_videos'
-        if (isContainImageMimeType(acceptTypes) && !isContainVideoMimeType(acceptTypes)) {
-          cameraOption = 'sys.string.taking_photos'
-        }
-        if (!isContainImageMimeType(acceptTypes) && isContainVideoMimeType(acceptTypes)) {
-          cameraOption = 'sys.string.video_recording'
-        }
-        this.fileSelectorListItem('sys.symbol.camera', cameraOption, takePhoto, event)
-        this.fileSelectorListItem('sys.symbol.doc_text', 'sys.string.document', selectFile, event)
-
-        Row() {
-          Text($r('sys.string.general_cancel'))
-            .fontSize(16)
-            .fontColor('#FF0A59F7')
-            .fontWeight(FontWeight.Medium)
-            .margin({
-              top: 10,
-              bottom: 10,
-              left: 104,
-              right: 104
-            })
-        }
-        .onClick((e) => {
-          try {
-            console.log('Get Alert Dialog handled')
-            event.result.handleFileList([])
-            UIContext.getFocusedUIContext()?.getPromptAction().closeCustomDialog(this.customDialogComponentId)
-          } catch (error: BusinessError) {
-            console.error(`closeCustomDialog error code is ${error.code}, message is ${error.message}`)
-          }
-        })
-        .width(296)
-        .height(40)
-        .margin({
-          top: 8,
-          bottom: 16,
-          left: 16,
-          right: 16
-        })
-        .borderRadius(5)
-        .justifyContent(FlexAlign.Center)
-      }
-      .height(264)
-      .width(328)
-    }
   }
 }
 
@@ -257,14 +255,14 @@ function takePhoto(event: OnShowFileSelectorEvent) {
     'cameraPosition': camera.CameraPosition.CAMERA_POSITION_BACK,
   }
   const acceptTypes = event.fileSelector.getAcceptType()
-  const mediaType: Array<cameraPicker.PickerMediaType> = []
+  const mediaType: cameraPicker.PickerMediaType[] = []
   if (isContainImageMimeType(acceptTypes)) {
     mediaType.push(cameraPicker.PickerMediaType.PHOTO)
   }
   if (isContainVideoMimeType(acceptTypes)) {
     mediaType.push(cameraPicker.PickerMediaType.VIDEO)
   }
-  const result: Array<string> = []
+  const result: string[] = []
   cameraPicker.pick(UIContext.getFocusedUIContext()?.getHostContext()!, mediaType, pickerProfileOptions)
     .then((pickerResult) => {
       result.push(pickerResult.resultUri)
