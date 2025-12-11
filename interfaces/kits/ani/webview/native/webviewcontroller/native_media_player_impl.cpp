@@ -666,11 +666,11 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructHeaders(const std::
         return nullptr;
     }
     ani_object object = nullptr;
-    if (!CreateObjectVoid(env, "escompat.Record", object) || object == nullptr) {
+    if (!CreateObjectVoid(env, "std.core.Record", object) || object == nullptr) {
         return nullptr;
     }
     ani_class cls;
-    ani_status status = env->FindClass("escompat.Record", &cls);
+    ani_status status = env->FindClass("std.core.Record", &cls);
     if (status != ANI_OK) {
         WVLOG_E("find class failed, status: %{public}d", status);
         return nullptr;
@@ -701,11 +701,11 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructAttributes(
         return nullptr;
     }
     ani_object object = nullptr;
-    if (!CreateObjectVoid(env, "escompat.Record", object) || object == nullptr) {
+    if (!CreateObjectVoid(env, "std.core.Record", object) || object == nullptr) {
         return nullptr;
     }
     ani_class cls;
-    ani_status status = env->FindClass("escompat.Record", &cls);
+    ani_status status = env->FindClass("std.core.Record", &cls);
     if (status != ANI_OK) {
         WVLOG_E("find class failed, status: %{public}d", status);
         return nullptr;

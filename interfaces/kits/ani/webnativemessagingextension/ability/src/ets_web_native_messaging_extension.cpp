@@ -298,7 +298,7 @@ void ETSWebNativeMessagingExtension::OnDestroy()
     }
     ani_object object = etsObj_->aniObj;
     ani_method method = {};
-    if (!FindMethod(env, method, ON_DESTROY_METHOD_NAME, ":V")) {
+    if (!FindMethod(env, method, ON_DESTROY_METHOD_NAME, ":")) {
         WVLOG_E("find method failed");
         return;
     }
