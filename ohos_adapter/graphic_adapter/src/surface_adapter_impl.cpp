@@ -25,8 +25,8 @@ namespace {
 bool IsSupportFormat(int32_t format)
 {
     switch (format) {
-        case PixelFormat::PIXEL_FMT_RGBA_8888:
-        case PixelFormat::PIXEL_FMT_YCBCR_420_SP:
+        case PIXEL_FMT_RGBA_8888:
+        case PIXEL_FMT_YCBCR_420_SP:
             return true;
         default:
             return false;
