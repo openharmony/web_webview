@@ -360,21 +360,21 @@ void OH_NativeArkWeb_SetActiveWebEngineVersion(ArkWebEngineVersion webEngineVers
 ArkWebEngineVersion OH_NativeArkWeb_GetActiveWebEngineVersion();
 
 /**
-* Check if the currently active ArkWeb engine is Evergreen.
-* @returns { bool } true means the application is using the Evergreen Web Engine, false means not.
-* @since 23
-*/
-bool OH_NativeArkWeb_IsActiveWebEngineEvergreen();
-
-/**
  * Delays the initialization of the web engine. By default, the web engine is initialized when the CookieManager
  * interface is called. By setting the 'lazy' parameter to true, the web engine will not be initialized when the
  * CookieManager interface is called. Instead, the web engine will be initialized either when the web component is
  * created or when initializeWebEngine is called.
  * @param { bool } lazy - Controls whether to delay the initialization of the web engine.
- * @since 23
+ * @since 22
  */
 void OH_NativeArkWeb_LazyInitializeWebEngineInCookieManager(bool lazy);
+
+/**
+* Check if the currently active ArkWeb engine is Evergreen.
+* @returns { bool } true means the application is using the Evergreen Web Engine, false means not.
+* @since 23
+*/
+bool OH_NativeArkWeb_IsActiveWebEngineEvergreen();
 
 #ifdef __cplusplus
 };

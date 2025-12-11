@@ -392,11 +392,11 @@
         "name": "OH_NativeArkWeb_GetActiveWebEngineVersion"
     },
     {
-        "first_introduced": "23",
-        "name": "OH_NativeArkWeb_IsActiveWebEngineEvergreen"
+        "first_introduced": "22",
+        "name": "OH_NativeArkWeb_LazyInitializeWebEngineInCookieManager"
     },
     {
         "first_introduced": "23",
-        "name": "OH_NativeArkWeb_LazyInitializeWebEngineInCookieManager"    
+        "name": "OH_NativeArkWeb_IsActiveWebEngineEvergreen"
     }
 ]
