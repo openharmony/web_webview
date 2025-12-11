@@ -161,7 +161,9 @@ generate_static_abc("web_webview") {
   files = [
     "./ets/@ohos.web.webview.ets",
     "./ets/@ohos.web.netErrorList.ets",
+    "./ets/@ohos.web.fileSelector.ets",
   ]
+  ui_enable = "True"
   is_boot_abc = "True"
   device_dst_file = "/system/framework/web_webview.abc"
 }
