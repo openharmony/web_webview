@@ -39,6 +39,8 @@ const uint32_t NWEB_PRINT_ATTR_ID_MARGIN_LEFT = 13;
 const uint32_t NWEB_PRINT_ATTR_ID_MARGIN_RIGHT = 14;
 const uint32_t NWEB_PRINT_ATTR_ID_HAS_OPTION = 15;
 const uint32_t NWEB_PRINT_ATTR_ID_OPTION = 16;
+const uint32_t NWEB_PRINT_ATTR_ID_HEADER_FOOTER = 17;
+const uint32_t NWEB_PRINT_ATTR_ID_PRINT_BACKGROUNDS = 18;
 
 class NWebPrintAttributesAdapter {
 public:

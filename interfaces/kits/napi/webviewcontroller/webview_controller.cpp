@@ -1449,6 +1449,10 @@ uint32_t WebPrintAttributes::GetUInt32(uint32_t attrId)
             return attrs_.margin.left;
         case NWEB_PRINT_ATTR_ID_MARGIN_RIGHT:
             return attrs_.margin.right;
+        case NWEB_PRINT_ATTR_ID_HEADER_FOOTER:
+            return attrs_.display_header_footer;
+        case NWEB_PRINT_ATTR_ID_PRINT_BACKGROUNDS:
+            return attrs_.print_backgrounds;
         default:
             break;
     }
@@ -1486,13 +1490,6 @@ void WebPrintDocument::OnStartLayoutWrite(const std::string& jobId, const PrintA
         auto oldAttributes = std::make_shared<WebPrintAttributes>(oldAttrs);
         auto newAttributes = std::make_shared<WebPrintAttributes>(newAttrs);
         printDocAdapterV2_->OnStartLayoutWrite(jobId, oldAttributes, newAttributes, fd, callbackV2);
-        return;
-    }
-
-    if (printDocAdapter_) {
-        std::shared_ptr<PrintWriteResultCallbackAdapter> callback =
-            std::make_shared<WebPrintWriteResultCallbackAdapter>(writeResultCallback);
-        printDocAdapter_->OnStartLayoutWrite(jobId, oldAttrs, newAttrs, fd, callback);
     }
 }
 
@@ -1500,16 +1497,10 @@ void WebPrintDocument::OnJobStateChanged(const std::string& jobId, uint32_t stat
 {
     if (printDocAdapterV2_) {
         printDocAdapterV2_->OnJobStateChanged(jobId, state);
-        return;
-    }
-
-    if (printDocAdapter_) {
-        printDocAdapter_->OnJobStateChanged(jobId, state);
     }
 }
 
-void* WebviewController::CreateWebPrintDocumentAdapter(
-    const std::string& jobName, int32_t& useAdapterV2)
+void* WebviewController::CreateWebPrintDocumentAdapter(const std::string& jobName)
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
     if (!nweb_ptr) {
@@ -1519,12 +1510,10 @@ void* WebviewController::CreateWebPrintDocumentAdapter(
     std::unique_ptr<NWebPrintDocumentAdapterAdapter> adapter =
         nweb_ptr->CreateWebPrintDocumentAdapterV2(jobName);
     if (adapter) {
-        useAdapterV2 = 1;
         return adapter.release();
     }
 
-    useAdapterV2 = 0;
-    return nweb_ptr->CreateWebPrintDocumentAdapter(jobName);
+    return nullptr;
 }
 
 void WebviewController::CloseAllMediaPresentations()
@@ -1643,13 +1632,6 @@ bool WebviewController::IsIntelligentTrackingPreventionEnabled() const
         enabled = nweb_ptr->IsIntelligentTrackingPreventionEnabled();
     }
     return enabled;
-}
-
-void WebPrintWriteResultCallbackAdapter::WriteResultCallback(std::string jobId, uint32_t code)
-{
-    if (cb_) {
-        cb_(jobId, code);
-    }
 }
 
 void WebPrintWriteResultCallbackAdapterV2::WriteResultCallback(const std::string& jobId, uint32_t code)
