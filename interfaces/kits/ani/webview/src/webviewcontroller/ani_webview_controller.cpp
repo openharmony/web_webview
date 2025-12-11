@@ -6128,42 +6128,23 @@ static void ParsePrintMarginAdapter(ani_env* env, ani_object margin, PrintAttrib
         printAttr.margin.bottom, printAttr.margin.left, printAttr.margin.right);
 }
 
-static bool ParseWebPrintAttrParams(ani_env* env, ani_object obj, PrintAttributesAdapter& printAttr)
-{
-    if (!env) {
-        WVLOG_E("env is nullptr");
-        return false;
-    }
 
-    if (!obj) {
-        WVLOG_E("ParseWebPrintAttrParams failed.");
-        return false;
-    }
+static void ParseBasicParams(ani_env* env, ani_object obj, PrintAttributesAdapter& printAttr)
+{
     ani_ref copyNumber_ref = nullptr;
-    ani_ref pageRange_ref = nullptr;
     ani_ref isSequential_ref = nullptr;
-    ani_ref pageSize_ref = nullptr;
     ani_ref isLandscape_ref = nullptr;
     ani_ref colorMode_ref = nullptr;
     ani_ref duplexMode_ref = nullptr;
-    ani_ref margin = nullptr;
 
     int32_t copyNumber = 0;
     if (AniParseUtils::GetRefProperty(env, obj, "copyNumber", copyNumber_ref)) {
         AniParseUtils::ParseInt32(env, copyNumber_ref, copyNumber);
     }
 
-    if (AniParseUtils::GetRefProperty(env, obj, "pageRange", pageRange_ref)) {
-        ParsePrintRangeAdapter(env, static_cast<ani_object>(pageRange_ref), printAttr);
-    }
-
     bool isSequential = false;
     if (AniParseUtils::GetRefProperty(env, obj, "isSequential", isSequential_ref)) {
         AniParseUtils::ParseBoolean(env, isSequential_ref, isSequential);
-    }
-
-    if (AniParseUtils::GetRefProperty(env, obj, "pageSize", pageSize_ref)) {
-        ParsePrintPageSizeAdapter(env, static_cast<ani_object>(pageSize_ref), printAttr);
     }
 
     bool isLandscape = false;
@@ -6181,21 +6162,48 @@ static bool ParseWebPrintAttrParams(ani_env* env, ani_object obj, PrintAttribute
         AniParseUtils::ParseInt32(env, duplexMode_ref, duplexMode);
     }
 
-    if (AniParseUtils::GetRefProperty(env, obj, "margin", margin)) {
-        ParsePrintMarginAdapter(env, static_cast<ani_object>(margin), printAttr);
-    }
-
     printAttr.copyNumber = static_cast<uint32_t>(copyNumber);
     printAttr.isSequential = static_cast<bool>(isSequential);
     printAttr.isLandscape = static_cast<bool>(isLandscape);
     printAttr.colorMode = static_cast<uint32_t>(colorMode);
     printAttr.duplexMode = static_cast<uint32_t>(duplexMode);
-    printAttr.print_backgrounds = UINT32_MAX;
-    printAttr.display_header_footer = UINT32_MAX;
+
     WVLOG_D("copyNumber is %{public}d,isSequential is %{public}d,isLandscape is %{public}d,colorMode is "
             "%{public}d,duplexMode is %{public}d",
         printAttr.copyNumber, printAttr.isSequential, printAttr.isLandscape, printAttr.colorMode, printAttr.duplexMode);
+}
 
+static bool ParseWebPrintAttrParams(ani_env* env, ani_object obj, PrintAttributesAdapter& printAttr)
+{
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+
+    if (!obj) {
+        WVLOG_E("ParseWebPrintAttrParams failed.");
+        return false;
+    }
+    ani_ref pageRange_ref = nullptr;
+    ani_ref pageSize_ref = nullptr;
+    ani_ref margin = nullptr;
+
+    ParseBasicParams(env, obj, printAttr);
+
+    if (AniParseUtils::GetRefProperty(env, obj, "pageRange", pageRange_ref)) {
+        ParsePrintRangeAdapter(env, static_cast<ani_object>(pageRange_ref), printAttr);
+    }
+
+    if (AniParseUtils::GetRefProperty(env, obj, "pageSize", pageSize_ref)) {
+        ParsePrintPageSizeAdapter(env, static_cast<ani_object>(pageSize_ref), printAttr);
+    }
+
+    if (AniParseUtils::GetRefProperty(env, obj, "margin", margin)) {
+        ParsePrintMarginAdapter(env, static_cast<ani_object>(margin), printAttr);
+    }
+
+    printAttr.print_backgrounds = UINT32_MAX;
+    printAttr.display_header_footer = UINT32_MAX;
     return true;
 }
 
