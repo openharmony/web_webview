@@ -17,7 +17,7 @@
 
 #include <unordered_map>
 
-#include "display_type.h"
+#include "v1_0/display_composer_type.h"
 #include "nweb_log.h"
 
 namespace OHOS::NWeb {
