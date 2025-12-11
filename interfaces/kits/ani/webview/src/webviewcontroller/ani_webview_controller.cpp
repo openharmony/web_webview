@@ -6190,6 +6190,8 @@ static bool ParseWebPrintAttrParams(ani_env* env, ani_object obj, PrintAttribute
     printAttr.isLandscape = static_cast<bool>(isLandscape);
     printAttr.colorMode = static_cast<uint32_t>(colorMode);
     printAttr.duplexMode = static_cast<uint32_t>(duplexMode);
+    printAttr.print_backgrounds = UINT32_MAX;
+    printAttr.display_header_footer = UINT32_MAX;
     WVLOG_D("copyNumber is %{public}d,isSequential is %{public}d,isLandscape is %{public}d,colorMode is "
             "%{public}d,duplexMode is %{public}d",
         printAttr.copyNumber, printAttr.isSequential, printAttr.isLandscape, printAttr.colorMode, printAttr.duplexMode);

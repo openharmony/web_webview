@@ -5476,6 +5476,8 @@ bool ParseWebPrintAttrParams(napi_env env, napi_value obj, PrintAttributesAdapte
     ParsePrintRangeAdapter(env, pageRange, printAttr);
     ParsePrintPageSizeAdapter(env, pageSize, printAttr);
     ParsePrintMarginAdapter(env, margin, printAttr);
+    printAttr.print_backgrounds = UINT32_MAX;
+    printAttr.display_header_footer = UINT32_MAX;
     return true;
 }
 
