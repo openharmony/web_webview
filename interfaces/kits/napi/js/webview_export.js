@@ -547,9 +547,7 @@ class SelectorDialog extends ViewPU {
       Text.fontWeight(FontWeight.Medium);
       Text.margin({
         top: 10,
-        bottom: 10,
-        left: 104,
-        right: 104
+        bottom: 10
       });
     }, Text);
     Text.pop();
