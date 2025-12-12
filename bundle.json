@@ -46,6 +46,7 @@
                 "config_policy",
                 "core_service",
                 "data_share",
+                "drivers_interface_display",
                 "enterprise_device_management",
                 "eventhandler",
                 "file_api",
