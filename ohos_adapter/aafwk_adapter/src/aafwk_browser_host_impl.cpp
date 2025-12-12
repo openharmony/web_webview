@@ -24,6 +24,7 @@
 #include "surface_utils.h"
 #include "surface/window.h"
 #include "native_window.h"
+#include "external_window.h"
 
 namespace OHOS::NWeb {
 
@@ -131,6 +132,7 @@ sptr<IRemoteObject> AafwkBrowserHostImpl::QueryRenderSurface(int32_t surface_id)
     if (window) {
         OHNativeWindow* ohNativeWindow = reinterpret_cast<OHNativeWindow*>(window);
         sptr<Surface> surface = ohNativeWindow->surface;
+        OH_NativeWindow_NativeObjectUnreference(ohNativeWindow);
         WVLOG_D("browser host impl get request window");
         if (surface != nullptr) {
             return surface->GetProducer()->AsObject();
