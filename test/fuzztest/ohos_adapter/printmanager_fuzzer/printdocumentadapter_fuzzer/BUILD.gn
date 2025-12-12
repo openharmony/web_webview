@@ -21,6 +21,7 @@ ohos_fuzztest("PrintDocumentAdapterFuzzTest") {
   fuzz_config_file = "$webview_path/test/fuzztest/ohos_adapter/printmanager_fuzzer/printdocumentadapter_fuzzer"
   include_dirs = [
     "$webview_path/ohos_adapter/print_manager_adapter/include",
+    "$webview_path/ohos_interface/include/ohos_adapter",
     "$webview_path/test/fuzztest",
   ]
   cflags = [
