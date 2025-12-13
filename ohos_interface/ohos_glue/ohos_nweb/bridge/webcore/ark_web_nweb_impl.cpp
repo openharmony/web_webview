@@ -17,6 +17,8 @@
 
 #include "ohos_nweb/bridge/ark_web_accessibility_event_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_accessibility_node_info_impl.h"
+#include "ohos_nweb/bridge/ark_web_agent_handler_wrapper.h"
+#include "ohos_nweb/bridge/ark_web_agent_manager_impl.h"
 #include "ohos_nweb/bridge/ark_web_array_buffer_value_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_pdfconfig_args_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_bool_value_callback_wrapper.h"
@@ -1690,5 +1692,25 @@ void ArkWebNWebImpl::FillAutofillDataFromTriggerType(ArkWebRefPtr<ArkWebRomValue
 void ArkWebNWebImpl::SetSoftKeyboardBehaviorMode(int mode)
 {
     return nweb_nweb_->SetSoftKeyboardBehaviorMode(static_cast<OHOS::NWeb::WebSoftKeyboardBehaviorMode>(mode));
+}
+
+ArkWebRefPtr<ArkWebAgentManager> ArkWebNWebImpl::GetAgentManager()
+{
+    std::shared_ptr<OHOS::NWeb::NWebAgentManager> nweb_agent_manager = nweb_nweb_->GetAgentManager();
+    if (CHECK_SHARED_PTR_IS_NULL(nweb_agent_manager)) {
+        return nullptr;
+    }
+
+    return new ArkWebAgentManagerImpl(nweb_agent_manager);
+}
+
+void ArkWebNWebImpl::SetNWebAgentHandler(ArkWebRefPtr<ArkWebAgentHandler> handler)
+{
+    if (CHECK_REF_PTR_IS_NULL(handler)) {
+        nweb_nweb_->SetNWebAgentHandler(nullptr);
+        return;
+    }
+
+    nweb_nweb_->SetNWebAgentHandler(std::make_shared<ArkWebAgentHandlerWrapper>(handler));
 }
 } // namespace OHOS::ArkWeb

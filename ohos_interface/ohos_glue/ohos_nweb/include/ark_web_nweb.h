@@ -19,6 +19,7 @@
 
 #include "ohos_nweb/include/ark_web_accessibility_event_callback.h"
 #include "ohos_nweb/include/ark_web_accessibility_node_info.h"
+#include "ohos_nweb/include/ark_web_agent_manager.h"
 #include "ohos_nweb/include/ark_web_array_buffer_value_callback.h"
 #include "ohos_nweb/include/ark_web_bool_value_callback.h"
 #include "ohos_nweb/include/ark_web_cache_options.h"
@@ -53,6 +54,7 @@
 
 namespace OHOS::ArkWeb {
 
+class ArkWebAgentHandler;
 class ArkWebHandler;
 
 /*--ark web(source=webcore)--*/
@@ -2170,6 +2172,23 @@ public:
      */
     /*--ark web()--*/
     virtual void SetSoftKeyboardBehaviorMode(int mode) = 0;
+
+    /**
+    * @brief Get the ArkWebAgentManager that manages agent related features.
+    *
+    * @return ArkWebAgentManager wrapper.
+     */
+    /*--ark web()--*/
+    virtual ArkWebRefPtr<ArkWebAgentManager> GetAgentManager() = 0;
+
+    /**
+     * @brief Set the NWebAgentHandler that will receive agent related callbacks.
+     * This will replace the current handler.
+     *
+     * @param handler ArkWebAgentHandler wrapper.
+     */
+    /*--ark web()--*/
+    virtual void SetNWebAgentHandler(ArkWebRefPtr<ArkWebAgentHandler> handler) = 0;
 };
 
 } // namespace OHOS::ArkWeb

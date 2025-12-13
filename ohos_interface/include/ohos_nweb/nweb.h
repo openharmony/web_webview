@@ -24,6 +24,7 @@
 
 #include "nweb_accessibility_event_callback.h"
 #include "nweb_accessibility_node_info.h"
+#include "nweb_agent_manager.h"
 #include "nweb_download_callback.h"
 #include "nweb_drag_data.h"
 #include "nweb_export.h"
@@ -44,6 +45,7 @@
 
 namespace OHOS::NWeb {
 
+class NWebAgentHandler;
 class NWebHandler;
 class NWebValue;
 
@@ -2300,6 +2302,24 @@ public:
      * @param mode WebSoftKeyboardBehaviorMode: the soft keyboard behavior mode.
      */
     virtual void SetSoftKeyboardBehaviorMode(WebSoftKeyboardBehaviorMode mode) {}
+    
+    /**
+    * @brief Get the NWebAgentManager that manages agent related features.
+    *
+    * @return a shared_ptr to NWebAgentManager. If agent features are not supported, returns nullptr.
+    */
+    virtual std::shared_ptr<NWebAgentManager> GetAgentManager()
+    {
+        return nullptr;
+    }
+
+    /**
+     * @brief Set the NWebAgentHandler that will receive agent related callbacks.
+     * This will replace the current handler.
+     *
+     * @param agentHandler: a shared_ptr to an implementation of NWebAgentHandler.
+     */
+    virtual void SetNWebAgentHandler(std::shared_ptr<NWebAgentHandler> agentHandler) {};
 };
 
 } // namespace OHOS::NWeb
