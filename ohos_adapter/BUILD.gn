@@ -424,6 +424,7 @@ ohos_shared_library("nweb_ohos_adapter") {
 
   deps = [
     "../ohos_nweb:web_configs",
-    "//base/web/webview/arkweb_utils:libarkweb_utils"
+    "//base/web/webview/arkweb_utils:libarkweb_utils",
+    "../ohos_glue:ohos_base_glue_source",
   ]
 }

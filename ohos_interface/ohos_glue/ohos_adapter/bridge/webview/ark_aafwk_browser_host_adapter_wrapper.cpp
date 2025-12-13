@@ -30,4 +30,9 @@ void ArkAafwkBrowserHostAdapterWrapper::DestroySurfaceFromKernel(int32_t surface
 {
     return ctocpp_->DestroySurfaceFromKernel(surface_id);
 }
+
+void* ArkAafwkBrowserHostAdapterWrapper::GetSurfaceFromKernelWithRef(int32_t surface_id)
+{
+    return ctocpp_->GetSurfaceFromKernelWithRef(surface_id);
+}
 } // namespace OHOS::ArkWeb

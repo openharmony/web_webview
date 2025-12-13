@@ -215,6 +215,7 @@ class AafwkBrowserHostAdapterImpl : public AafwkBrowserHostAdapter {
 public:
     void* GetSurfaceFromKernel(int32_t surface_id);
     void DestroySurfaceFromKernel(int32_t surface_id);
+    void* GetSurfaceFromKernelWithRef(int32_t surface_id);
 };
 
 void* AafwkBrowserHostAdapterImpl::GetSurfaceFromKernel(int32_t surface_id)
@@ -232,6 +233,18 @@ void* AafwkBrowserHostAdapterImpl::GetSurfaceFromKernel(int32_t surface_id)
 void AafwkBrowserHostAdapterImpl::DestroySurfaceFromKernel(int32_t surface_id)
 {
     (void)surface_id;
+};
+
+void* AafwkBrowserHostAdapterImpl::GetSurfaceFromKernelWithRef(int32_t surface_id)
+{
+    if (surface_id == 0) {
+        return nullptr;
+    }
+    auto cSurface = IConsumerSurface::Create("test");
+    auto producer = cSurface->GetProducer();
+    auto pSurface = Surface::CreateSurfaceAsProducer(producer);
+    OHNativeWindow* window = ::CreateNativeWindowFromSurface(&pSurface);
+    return window;
 };
 
 /**
