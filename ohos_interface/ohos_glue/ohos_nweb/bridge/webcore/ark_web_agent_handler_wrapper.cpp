@@ -27,7 +27,9 @@ void ArkWebAgentHandlerWrapper::ReportEventJson(const std::string& json)
 {
     ArkWebString stJson = ArkWebStringClassToStruct(json);
 
-    ark_web_agent_handler_->ReportEventJson(stJson);
+    if (ark_web_agent_handler_) {
+        ark_web_agent_handler_->ReportEventJson(stJson);
+    }
 
     ArkWebStringStructRelease(stJson);
 }
