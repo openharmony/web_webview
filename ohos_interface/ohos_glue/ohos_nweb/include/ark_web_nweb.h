@@ -2174,9 +2174,9 @@ public:
     virtual void SetSoftKeyboardBehaviorMode(int mode) = 0;
 
     /**
-    * @brief Get the ArkWebAgentManager that manages agent related features.
-    *
-    * @return ArkWebAgentManager wrapper.
+     * @brief Get the ArkWebAgentManager that manages agent related features.
+     *
+     * @return ArkWebAgentManager wrapper.
      */
     /*--ark web()--*/
     virtual ArkWebRefPtr<ArkWebAgentManager> GetAgentManager() = 0;
