@@ -25,17 +25,21 @@ ArkWebAgentManagerImpl::ArkWebAgentManagerImpl(
 
 void ArkWebAgentManagerImpl::SetAgentEnabled(bool enabled)
 {
-    nweb_agent_manager_->SetAgentEnabled(enabled);
+    if (nweb_agent_manager_) {
+        nweb_agent_manager_->SetAgentEnabled(enabled);
+    }
 }
 
 bool ArkWebAgentManagerImpl::IsAgentEnabled()
 {
-    return nweb_agent_manager_->IsAgentEnabled();
+    return nweb_agent_manager_ ? nweb_agent_manager_->IsAgentEnabled() : false;
 }
 
 void ArkWebAgentManagerImpl::SetContentChangeDetectionConfig(int32_t min_report_time, float text_content_ratio)
 {
-    nweb_agent_manager_->SetContentChangeDetectionConfig(min_report_time, text_content_ratio);
+    if (nweb_agent_manager_) {
+        nweb_agent_manager_->SetContentChangeDetectionConfig(min_report_time, text_content_ratio);
+    }
 }
 
 }  // namespace OHOS::ArkWeb
