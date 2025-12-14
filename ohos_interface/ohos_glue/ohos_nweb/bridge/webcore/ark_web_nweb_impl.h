@@ -1919,18 +1919,18 @@ public:
     void SetSoftKeyboardBehaviorMode(int mode) override;
 
     /**
-    * @brief Get agent manager.
-    *
-    * @return ArkWebAgentManager of agent manager.
-    */
+     * @brief Get agent manager.
+     *
+     * @return ArkWebAgentManager of agent manager.
+     */
     ArkWebRefPtr<ArkWebAgentManager> GetAgentManager() override;
 
     /**
-    * @brief Set the NWebAgentHandler that will receive various notifications and
-    *        requests. This will replace the current handler.
-    *
-    * @param handler: an implementation of NWebAgentHandler This value cannot be null.
-    */
+     * @brief Set the NWebAgentHandler that will receive various notifications and
+     *        requests. This will replace the current handler.
+     *
+     * @param handler: an implementation of NWebAgentHandler This value cannot be null.
+     */
     void SetNWebAgentHandler(ArkWebRefPtr<ArkWebAgentHandler> handler) override;
 
 private:
