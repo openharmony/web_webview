@@ -29,10 +29,10 @@ public:
     ~ArkWebAgentHandlerImpl() = default;
 
     /*
-    * @brief Report a JSON event from the overlay/state channel.
-    *
-    * @param json The JSON string describing the event.
-    */
+     * @brief Report a JSON event from the overlay/state channel.
+     *
+     * @param json The JSON string describing the event.
+     */
     void ReportEventJson(const ArkWebString& json) override;
 
 private:
