@@ -2304,10 +2304,10 @@ public:
     virtual void SetSoftKeyboardBehaviorMode(WebSoftKeyboardBehaviorMode mode) {}
     
     /**
-    * @brief Get the NWebAgentManager that manages agent related features.
-    *
-    * @return a shared_ptr to NWebAgentManager. If agent features are not supported, returns nullptr.
-    */
+     * @brief Get the NWebAgentManager that manages agent related features.
+     *
+     * @return a shared_ptr to NWebAgentManager. If agent features are not supported, returns nullptr.
+     */
     virtual std::shared_ptr<NWebAgentManager> GetAgentManager()
     {
         return nullptr;
