@@ -34,14 +34,17 @@ public:
      *
      * @param enabled true to enable agent, false to disable.
      */
-    virtual void SetAgentEnabled(bool enabled) = 0;
+    virtual void SetAgentEnabled(bool enabled) {}
 
     /**
      * @brief Check if agent feature is enabled.
      *
      * @return true if agent is enabled, false otherwise.
      */
-    virtual bool IsAgentEnabled() = 0;
+    virtual bool IsAgentEnabled()
+    {
+        return false;
+    }
 
     /**
      * @brief Set the config for content change detection.
@@ -49,7 +52,7 @@ public:
      * @param min_report_time The minimum report interval.
      * @param text_content_ratio The text content change ratio.
      */
-    virtual void SetContentChangeDetectionConfig(int32_t min_report_time, float text_content_ratio) = 0;
+    virtual void SetContentChangeDetectionConfig(int32_t min_report_time, float text_content_ratio) {}
 };
 }  // namespace OHOS::NWeb
 
