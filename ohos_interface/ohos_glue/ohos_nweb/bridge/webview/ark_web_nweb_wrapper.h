@@ -1935,12 +1935,12 @@ public:
     void SetSoftKeyboardBehaviorMode(OHOS::NWeb::WebSoftKeyboardBehaviorMode mode) override;
 
     /**
-    * @brief Get NWebAgentManager
+     * @brief Get NWebAgentManager
      */
     std::shared_ptr<OHOS::NWeb::NWebAgentManager> GetAgentManager() override;
 
     /**
-    * @brief Set NWebAgentHandler
+     * @brief Set NWebAgentHandler
      */
     void SetNWebAgentHandler(std::shared_ptr<OHOS::NWeb::NWebAgentHandler> handler) override;
 
