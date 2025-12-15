@@ -133,6 +133,8 @@ enum ArkWebBridgeType {
     ARK_WEB_COOKIE = 111,
     ARK_WEB_WINDOW_NEW_EVENT_INFO = 112,
     ARK_WEB_VAULT_PLAIN_TEXT_CALLBACK = 113,
+    ARK_WEB_AGENT_MANAGER = 114,
+    ARK_WEB_AGENT_HANDLER = 115,
 
     /*Note: The end of nweb interface bridge type*/
     ARK_WEB_NWEB_INTERFACE_BUTT,
