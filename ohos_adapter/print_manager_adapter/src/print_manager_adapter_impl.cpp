@@ -138,6 +138,8 @@ PrintAttributesAdapter PrintDocumentAdapterImpl::ConvertPrintingParameters(OHOS:
     printMarginAdapter.bottom = printMargin.GetBottom();
     printMarginAdapter.left = printMargin.GetLeft();
     printMarginAdapter.right = printMargin.GetRight();
+    printAttributesAdapter.print_backgrounds = UINT32_MAX;
+    printAttributesAdapter.display_header_footer = UINT32_MAX;
     return printAttributesAdapter;
 }
 

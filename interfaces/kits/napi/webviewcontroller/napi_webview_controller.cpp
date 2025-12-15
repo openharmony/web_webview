@@ -5283,8 +5283,7 @@ napi_value NapiWebviewController::CreateWebPrintDocumentAdapter(napi_env env, na
         return result;
     }
 
-    int32_t useAdapterV2 = 0;
-    void* webPrintDocument = webviewController->CreateWebPrintDocumentAdapter(jobName, useAdapterV2);
+    auto webPrintDocument = webviewController->CreateWebPrintDocumentAdapter(jobName);
     if (!webPrintDocument) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
         return result;
@@ -5295,12 +5294,11 @@ napi_value NapiWebviewController::CreateWebPrintDocumentAdapter(napi_env env, na
     }
     napi_value webPrintDoc = nullptr;
     NAPI_CALL(env, napi_get_reference_value(env, g_webPrintDocClassRef, &webPrintDoc));
-    napi_value consParam[INTEGER_TWO] = {0};
+    napi_value consParam[INTEGER_ONE] = {0};
     NAPI_CALL(env, napi_create_bigint_uint64(env, reinterpret_cast<uint64_t>(webPrintDocument),
                                              &consParam[INTEGER_ZERO]));
-    NAPI_CALL(env, napi_create_int32(env, useAdapterV2, &consParam[INTEGER_ONE]));
     napi_value proxy = nullptr;
-    status = napi_new_instance(env, webPrintDoc, INTEGER_TWO, &consParam[INTEGER_ZERO], &proxy);
+    status = napi_new_instance(env, webPrintDoc, INTEGER_ONE, &consParam[INTEGER_ZERO], &proxy);
     if (status!= napi_ok) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
         return result;
@@ -5478,6 +5476,8 @@ bool ParseWebPrintAttrParams(napi_env env, napi_value obj, PrintAttributesAdapte
     ParsePrintRangeAdapter(env, pageRange, printAttr);
     ParsePrintPageSizeAdapter(env, pageSize, printAttr);
     ParsePrintMarginAdapter(env, margin, printAttr);
+    printAttr.print_backgrounds = UINT32_MAX;
+    printAttr.display_header_footer = UINT32_MAX;
     return true;
 }
 
@@ -5566,11 +5566,10 @@ napi_value NapiWebPrintDocument::OnJobStateChanged(napi_env env, napi_callback_i
 napi_value NapiWebPrintDocument::JsConstructor(napi_env env, napi_callback_info info)
 {
     napi_value thisVar = nullptr;
-    size_t argc = INTEGER_TWO;
-    napi_value argv[INTEGER_TWO];
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE];
     uint64_t addrWebPrintDoc = 0;
     bool loseLess = true;
-    int32_t useAdapterV2 = 0;
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
 
     if (!NapiParseUtils::ParseUint64(env, argv[INTEGER_ZERO], addrWebPrintDoc, &loseLess)) {
@@ -5578,19 +5577,8 @@ napi_value NapiWebPrintDocument::JsConstructor(napi_env env, napi_callback_info 
         return nullptr;
     }
 
-    if (!NapiParseUtils::ParseInt32(env, argv[INTEGER_ONE], useAdapterV2)) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
-        return nullptr;
-    }
-
-    WebPrintDocument *webPrintDoc = nullptr;
-    if (useAdapterV2) {
-        webPrintDoc = new (std::nothrow) WebPrintDocument(
-            reinterpret_cast<NWebPrintDocumentAdapterAdapter *>(addrWebPrintDoc));
-    } else {
-        webPrintDoc = new (std::nothrow) WebPrintDocument(
-            reinterpret_cast<PrintDocumentAdapterAdapter *>(addrWebPrintDoc));
-    }
+    WebPrintDocument *webPrintDoc = new (std::nothrow) WebPrintDocument(
+        reinterpret_cast<NWebPrintDocumentAdapterAdapter *>(addrWebPrintDoc));
     if (webPrintDoc == nullptr) {
         WVLOG_E("new web print failed");
         return nullptr;

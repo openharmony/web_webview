@@ -51,6 +51,8 @@ struct PrintAttributesAdapter {
     PrintMarginAdapter margin;
     bool hasOption;
     std::string option;
+    uint32_t display_header_footer;
+    uint32_t print_backgrounds;
 };
 
 /*[clang::lto_visibility_public]:Prevent this class from being optimized away at compile time*/ 
