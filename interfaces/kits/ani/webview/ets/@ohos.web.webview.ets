@@ -836,6 +836,9 @@ export default namespace webview {
         native stopAllMedia(): void;
         native stopCamera(): void;
         native closeCamera(): void;
+        native resumeMicrophone(): void;
+        native stopMicrophone(): void;
+        native pauseMicrophone(): void;
         native pauseAllMedia(): void;
         native resumeAllMedia(): void;
         native setAudioMuted(mute: boolean): void;

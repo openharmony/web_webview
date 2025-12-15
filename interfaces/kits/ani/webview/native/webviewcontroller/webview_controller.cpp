@@ -1603,6 +1603,39 @@ ErrCode WebviewController::CloseCamera()
     return NWebError::NO_ERROR;
 }
 
+ErrCode WebviewController::ResumeMicrophone()
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return NWebError::INIT_ERROR;
+    }
+
+    nweb_ptr->ResumeMicrophone();
+    return NWebError::NO_ERROR;
+}
+
+ErrCode WebviewController::StopMicrophone()
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return NWebError::INIT_ERROR;
+    }
+
+    nweb_ptr->StopMicrophone();
+    return NWebError::NO_ERROR;
+}
+
+ErrCode WebviewController::PauseMicrophone()
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return NWebError::INIT_ERROR;
+    }
+
+    nweb_ptr->PauseMicrophone();
+    return NWebError::NO_ERROR;
+}
+
 std::string WebviewController::GetLastJavascriptProxyCallingFrameUrl()
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);

@@ -3856,6 +3856,63 @@ static void CloseCamera(ani_env* env, ani_object object)
     }
 }
 
+static void ResumeMicrophone(ani_env* env, ani_object object)
+{
+    WVLOG_D("ResumeMicrophone begin");
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    ErrCode ret = controller->ResumeMicrophone();
+    if (ret != NO_ERROR) {
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+        return;
+    }
+}
+
+static void StopMicrophone(ani_env* env, ani_object object)
+{
+    WVLOG_D("StopMicrophone begin");
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    ErrCode ret = controller->StopMicrophone();
+    if (ret != NO_ERROR) {
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+        return;
+    }
+}
+
+static void PauseMicrophone(ani_env* env, ani_object object)
+{
+    WVLOG_D("PauseMicrophone begin");
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    ErrCode ret = controller->PauseMicrophone();
+    if (ret != NO_ERROR) {
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+        return;
+    }
+}
+
 static void PauseAllMedia(ani_env* env, ani_object object)
 {
     WVLOG_D("PauseAllMedia begin");
@@ -7107,6 +7164,9 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "stopAllMedia", nullptr, reinterpret_cast<void *>(StopAllMedia) },
         ani_native_function { "stopCamera", nullptr, reinterpret_cast<void *>(StopCamera) },
         ani_native_function { "closeCamera", nullptr, reinterpret_cast<void *>(CloseCamera) },
+        ani_native_function { "resumeMicrophone", nullptr, reinterpret_cast<void *>(ResumeMicrophone) },
+        ani_native_function { "stopMicrophone", nullptr, reinterpret_cast<void *>(StopMicrophone) },
+        ani_native_function { "pauseMicrophone", nullptr, reinterpret_cast<void *>(PauseMicrophone) },
         ani_native_function { "pauseAllMedia", nullptr, reinterpret_cast<void *>(PauseAllMedia) },
         ani_native_function { "resumeAllMedia", nullptr, reinterpret_cast<void *>(ResumeAllMedia) },
         ani_native_function { "setAudioMuted", nullptr, reinterpret_cast<void *>(SetAudioMuted) },
