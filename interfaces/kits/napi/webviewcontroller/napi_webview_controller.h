@@ -49,6 +49,7 @@ const std::string WEB_DESTROY_MODE_ENUM_NAME = "WebDestroyMode";
 const std::string WEB_SITE_ISOLATION_MODE_ENUM_NAME = "SiteIsolationMode";
 const std::string WEB_SCROLLBAR_MODE_ENUM_NAME = "ScrollbarMode";
 const std::string WEB_SOFT_KEYBOARD_BEHAVIOR_MODE_ENUM_NAME = "WebSoftKeyboardBehaviorMode";
+const std::string WEB_HTTP_COOKIE_SAME_SITE_POLICY_ENUM_NAME = "WebHttpCookieSameSitePolicy";
 constexpr double TEN_MILLIMETER_TO_INCH = 0.39;
 
 struct Scheme {

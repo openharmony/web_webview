@@ -323,6 +323,12 @@ enum class NavigationPolicy : int32_t {
     NEW_FOREGROUND_TAB = 3
 };
 
+enum class WebHttpCookieSameSitePolicy {
+    NONE = 0,
+    LAX = 1,
+    STRICT = 2
+};
+
 class OHOS_NWEB_EXPORT NWebMouseEvent {
 public:
     virtual ~NWebMouseEvent() = default;
