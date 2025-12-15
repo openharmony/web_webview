@@ -1165,12 +1165,12 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
             "STRICT",
             NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebHttpCookieSameSitePolicy::STRICT))),
     };
-    napi_define_class(env, WEB_HTTP_COOKIE_SAME_SITE_POLICY_ENUM_NAME.c_str(), 
+    napi_define_class(env, WEB_HTTP_COOKIE_SAME_SITE_POLICY_ENUM_NAME.c_str(),
         WEB_HTTP_COOKIE_SAME_SITE_POLICY_ENUM_NAME.length(),
         NapiParseUtils::CreateEnumConstructor, nullptr,
-        sizeof(webHttpCookieSameSitePolicyProperties) / sizeof(webHttpCookieSameSitePolicyProperties[0]), 
+        sizeof(webHttpCookieSameSitePolicyProperties) / sizeof(webHttpCookieSameSitePolicyProperties[0]),
         webHttpCookieSameSitePolicyProperties, &webHttpCookieSameSitePolicyEnum);
-    napi_set_named_property(env, exports, WEB_HTTP_COOKIE_SAME_SITE_POLICY_ENUM_NAME.c_str(), 
+    napi_set_named_property(env, exports, WEB_HTTP_COOKIE_SAME_SITE_POLICY_ENUM_NAME.c_str(),
         webHttpCookieSameSitePolicyEnum);
 
     WebviewJavaScriptExecuteCallback::InitJSExcute(env, exports);
