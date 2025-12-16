@@ -173,3 +173,21 @@ ohos_prebuilt_etc("web_webview_abc_etc") {
   subsystem_name = "web"
   deps = [ ":web_webview" ]
 }
+
+generate_static_abc("web_innerUI") {
+  base_url = "./ets"
+  files = [
+    "./ets/@ohos.web.fileSelector.ets",
+  ]
+  ui_enable = "True"
+  is_boot_abc = "True"
+  device_dst_file = "/system/framework/web_innerUI.abc"
+}
+
+ohos_prebuilt_etc("web_innerUI_abc_etc") {
+  source = "$target_out_dir/web_innerUI.abc"
+  module_install_dir = "framework"
+  part_name = "webview"
+  subsystem_name = "web"
+  deps = [ ":web_innerUI" ]
+}

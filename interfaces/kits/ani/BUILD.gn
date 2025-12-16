@@ -17,6 +17,7 @@ group("ani_packages") {
     deps = [
         "./webview:webview_ani",
         "./webview:web_webview_abc_etc",
+        "./webview:web_innerUI_abc_etc",
         "./webnativemessagingextension/ability:web_native_messaging_extension_context_ani_kit",
         "./webnativemessagingextension/manager:web_native_messaging_extension_manager_ani_kit",
         "./webnativemessagingextension/ets:web_native_messaging_extension_manager_abc_etc",
