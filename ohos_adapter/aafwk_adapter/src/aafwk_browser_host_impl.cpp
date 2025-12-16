@@ -24,6 +24,9 @@
 #include "surface_utils.h"
 #include "surface/window.h"
 #include "native_window.h"
+#include "external_window.h"
+
+#include "../../../ohos_interface/ohos_glue/base/include/ark_web_errno.h"
 
 namespace OHOS::NWeb {
 
@@ -127,10 +130,20 @@ sptr<IRemoteObject> AafwkBrowserHostImpl::QueryRenderSurface(int32_t surface_id)
         return nullptr;
     }
     // send to kernel (Browser)
-    void* window = browserHostAdapter_->GetSurfaceFromKernel(surface_id);
+    bool withRef = true;
+    void* window = browserHostAdapter_->GetSurfaceFromKernelWithRef(surface_id);
+    if (ArkWebGetErrno() != RESULT_OK) {
+        WVLOG_D("retry request for window id = %{public}d", surface_id);
+        window = browserHostAdapter_->GetSurfaceFromKernel(surface_id);
+        withRef = false;
+    }
     if (window) {
         OHNativeWindow* ohNativeWindow = reinterpret_cast<OHNativeWindow*>(window);
         sptr<Surface> surface = ohNativeWindow->surface;
+        if (withRef) {
+            OH_NativeWindow_NativeObjectUnreference(ohNativeWindow);
+        }
+
         WVLOG_D("browser host impl get request window");
         if (surface != nullptr) {
             return surface->GetProducer()->AsObject();

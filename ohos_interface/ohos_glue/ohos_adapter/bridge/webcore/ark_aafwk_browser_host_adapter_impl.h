@@ -32,6 +32,8 @@ public:
 
     void DestroySurfaceFromKernel(int32_t surface_id) override;
 
+    void* GetSurfaceFromKernelWithRef(int32_t surface_id) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::AafwkBrowserHostAdapter> real_;
 

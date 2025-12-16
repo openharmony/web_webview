@@ -29,6 +29,9 @@ public:
 
     /*--ark web()--*/
     virtual void DestroySurfaceFromKernel(int32_t surface_id) = 0;
+
+    /*--ark web()--*/
+    virtual void* GetSurfaceFromKernelWithRef(int32_t surface_id) = 0;
 };
 
 } // namespace OHOS::ArkWeb
