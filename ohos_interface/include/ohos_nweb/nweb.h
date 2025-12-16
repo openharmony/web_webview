@@ -210,6 +210,41 @@ public:
     virtual double GetY() = 0;
 };
 
+class OHOS_NWEB_EXPORT NWebCommandAction {
+public:
+    virtual ~NWebCommandAction() = default;
+
+    /**
+     * @brief Retrieves the type of the simulated event (e.g., "click", "scroll").
+     * @return A string representing the event type.
+     */
+    virtual std::string GetEventType() = 0;
+
+    /**
+     * @brief Retrieves the XPath path of the target element.
+     * @return A string representing the XPath path.
+     */
+    virtual std::string GetXPath() = 0;
+
+    /**
+     * @brief Retrieves the duration of the action (e.g., duration for a scroll).
+     * @return The duration in milliseconds (ms).
+     */
+    virtual int32_t GetDuration() = 0;
+
+    /**
+     * @brief Retrieves the alignment mode (e.g., alignment for scroll top/mid/bottom).
+     * @return A string representing the alignment mode.
+     */
+    virtual std::string GetAlign() = 0;
+
+    /**
+     * @brief Retrieves the offset value for the action.
+     * @return The offset value (typically in vp).
+     */
+    virtual int32_t GetOffset() = 0;
+};
+
 class NWebStylusTouchPointInfo : public NWebTouchPointInfo {
 public:
     virtual ~NWebStylusTouchPointInfo() = default;
@@ -2320,8 +2355,19 @@ public:
      * @param agentHandler: a shared_ptr to an implementation of NWebAgentHandler.
      */
     virtual void SetNWebAgentHandler(std::shared_ptr<NWebAgentHandler> agentHandler) {};
-};
 
+    /**
+     * @brief Sends command to the web kernel.
+     *
+     * @param action Basic information about msdp command.
+     * @return The result of command.
+     */
+    virtual int32_t SendCommandAction(std::shared_ptr<OHOS::NWeb::NWebCommandAction> action)
+    {
+        return -1;
+    }
+
+};
 } // namespace OHOS::NWeb
 
 #endif

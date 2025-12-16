@@ -53,6 +53,7 @@
 #include "ohos_nweb/ctocpp/ark_web_stylus_touch_point_info_vector_ctocpp.h"
 #include "ohos_nweb/ctocpp/ark_web_touch_point_info_vector_ctocpp.h"
 #include "ohos_nweb/ctocpp/ark_web_value_vector_ctocpp.h"
+#include "ohos_nweb/bridge/ark_web_command_action_wrapper.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
 
@@ -1712,5 +1713,14 @@ void ArkWebNWebImpl::SetNWebAgentHandler(ArkWebRefPtr<ArkWebAgentHandler> handle
     }
 
     nweb_nweb_->SetNWebAgentHandler(std::make_shared<ArkWebAgentHandlerWrapper>(handler));
+}
+
+int32_t ArkWebNWebImpl::SendCommandAction(ArkWebRefPtr<ArkWebCommandAction> action)
+{
+    if (CHECK_REF_PTR_IS_NULL(action)) {
+        nweb_nweb_->SendCommandAction(nullptr);
+        return -1;
+    }
+    return nweb_nweb_->SendCommandAction(std::make_shared<ArkWebCommandActionWrapper>(action));
 }
 } // namespace OHOS::ArkWeb

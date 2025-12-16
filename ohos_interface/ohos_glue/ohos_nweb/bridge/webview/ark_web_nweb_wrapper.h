@@ -1944,6 +1944,14 @@ public:
      */
     void SetNWebAgentHandler(std::shared_ptr<OHOS::NWeb::NWebAgentHandler> handler) override;
 
+    /**
+     * @brief Send command action to nweb.
+     *
+     * @param action The action of msdp's command.
+     * @return The result of command.
+     */
+    int32_t SendCommandAction(std::shared_ptr<OHOS::NWeb::NWebCommandAction> action) override;
+
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };

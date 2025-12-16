@@ -51,6 +51,7 @@
 #include "ohos_nweb/include/ark_web_system_configuration.h"
 #include "ohos_nweb/include/ark_web_touch_point_info_vector.h"
 #include "ohos_nweb/include/ark_web_vault_plain_text_callback.h"
+#include "ohos_nweb/include/ark_web_command_action.h"
 
 namespace OHOS::ArkWeb {
 
@@ -2189,6 +2190,15 @@ public:
      */
     /*--ark web()--*/
     virtual void SetNWebAgentHandler(ArkWebRefPtr<ArkWebAgentHandler> handler) = 0;
+
+    /**
+     * @brief Send command action to nweb.
+     *
+     * @param action The action of msdp's command.
+     * @return The result of command.
+     */
+    /*--ark web()--*/
+    virtual int32_t SendCommandAction(ArkWebRefPtr<ArkWebCommandAction> action) = 0;
 };
 
 } // namespace OHOS::ArkWeb
