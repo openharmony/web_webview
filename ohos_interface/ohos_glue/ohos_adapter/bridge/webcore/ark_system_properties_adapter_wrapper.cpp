@@ -364,4 +364,30 @@ int32_t ArkSystemPropertiesAdapterWrapper::GetIntParameter(const std::string& ke
     ArkWebStringStructRelease(str);
     return result;
 }
+
+std::string ArkSystemPropertiesAdapterWrapper::GetTopPriorityConfigPath(const std::string& relativePath)
+{
+    if (!ctocpp_) {
+        return "";
+    }
+    ArkWebString str = ArkWebStringClassToStruct(relativePath);
+    ArkWebString res = ctocpp_->GetTopPriorityConfigPath(str);
+    std::string result = ArkWebStringStructToClass(res);
+    ArkWebStringStructRelease(str);
+    return result;
+}
+
+std::vector<std::string> ArkSystemPropertiesAdapterWrapper::GetConfigPathsInPriorityOrder(
+    const std::string& relativePath)
+{
+    if (!ctocpp_) {
+        return {};
+    }
+    ArkWebString str = ArkWebStringClassToStruct(relativePath);
+    ArkWebStringVector ark_vector = ctocpp_->GetConfigPathsInPriorityOrder(str);
+    std::vector<std::string> result = ArkWebStringVectorStructToClass(ark_vector);
+    ArkWebStringVectorStructRelease(ark_vector);
+    ArkWebStringStructRelease(str);
+    return result;
+}
 } // namespace OHOS::ArkWeb

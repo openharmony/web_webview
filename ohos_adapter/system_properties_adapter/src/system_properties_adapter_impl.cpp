@@ -437,4 +437,14 @@ int32_t SystemPropertiesAdapterImpl::GetIntParameter(const std::string& key, int
 {
     return OHOS::system::GetIntParameter(key, defaultValue);
 }
+
+std::string SystemPropertiesAdapterImpl::GetTopPriorityConfigPath(const std::string& relativePath)
+{
+    return NWebConfigHelper::Instance().GetConfigPath(relativePath);
+}
+
+std::vector<std::string> SystemPropertiesAdapterImpl::GetConfigPathsInPriorityOrder(const std::string& relativePath)
+{
+    return NWebConfigHelper::Instance().GetConfigPathsInPriorityOrder(relativePath);
+}
 } // namespace OHOS::NWeb

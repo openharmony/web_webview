@@ -932,5 +932,33 @@ HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ReadConfigIfNeeded_ShouldNotPars
     EXPECT_CALL(*mock, ParseConfig(initArgs)).Times(0);
     delete mock;
 }
+
+/**
+ * @tc.name  : GetConfigPathsInPriorityOrder_ShouldReturnEmptyVector_WhenRelativePathIsEmpty
+ * @tc.number: GetConfigPathsInPriorityOrder_Test_001
+ * @tc.desc  : Test that When GetConfigPathsInPriorityOrder will return empty vector when relativePath is empty.
+ */
+HWTEST_F(NWebConfigHelperTest,
+         GetConfigPathsInPriorityOrder_ShouldReturnEmptyVector_WhenRelativePathIsEmpty,
+         TestSize.Level0)
+{
+    std::string emptyRelativePath = "";
+    std::vector<std::string> result = NWebConfigHelper::Instance().GetConfigPathsInPriorityOrder(emptyRelativePath);
+    EXPECT_TRUE(result.empty());
+}
+
+/**
+ * @tc.name  : GetConfigPathsInPriorityOrder_ShouldReturnEmptyVector_WhenCfgFilesIsNull
+ * @tc.number: GetConfigPathsInPriorityOrder_Test_002
+ * @tc.desc  : Test that When GetConfigPathsInPriorityOrder will return empty vector when CfgFiles is null.
+ */
+HWTEST_F(NWebConfigHelperTest,
+         GetConfigPathsInPriorityOrder_ShouldReturnEmptyVector_WhenCfgFilesIsNull,
+         TestSize.Level0)
+{
+    std::string relativePath = "not/exist/path/config.json";
+    std::vector<std::string> result = NWebConfigHelper::Instance().GetConfigPathsInPriorityOrder(relativePath);
+    EXPECT_TRUE(result.empty());
+}
 } // NWebConfig
 } // OHOS```

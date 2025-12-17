@@ -140,6 +140,20 @@ public:
 
     /*--ark web()--*/
     virtual int32_t GetIntParameter(const ArkWebString& key, int32_t defaultValue) = 0;
+
+    /**
+     * @Description: return the top priority config path.
+     * @Return：return ArkWebString to describe the top priority config path.
+     */
+    /*--ark web()--*/
+    virtual ArkWebString GetTopPriorityConfigPath(const ArkWebString& relativePath) = 0;
+
+    /**
+     * @Description: return the config path list order by priority.
+     * @Return：return ArkWebStringVector to describe the config path list order by priority ASC.
+     */
+    /*--ark web()--*/
+    virtual ArkWebStringVector GetConfigPathsInPriorityOrder(const ArkWebString& relativePath) = 0;
 };
 
 } // namespace OHOS::ArkWeb

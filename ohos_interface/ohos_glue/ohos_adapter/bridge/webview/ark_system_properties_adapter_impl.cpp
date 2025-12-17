@@ -232,4 +232,16 @@ int32_t ArkSystemPropertiesAdapterImpl::GetIntParameter(const ArkWebString& key,
 {
     return real_.GetIntParameter(ArkWebStringStructToClass(key), defaultValue);
 }
+
+ArkWebString ArkSystemPropertiesAdapterImpl::GetTopPriorityConfigPath(const ArkWebString& relativePath)
+{
+    std::string str = real_.GetTopPriorityConfigPath(ArkWebStringStructToClass(relativePath));
+    return ArkWebStringClassToStruct(str);
+}
+
+ArkWebStringVector ArkSystemPropertiesAdapterImpl::GetConfigPathsInPriorityOrder(const ArkWebString& relativePath)
+{
+    std::vector<std::string> result = real_.GetConfigPathsInPriorityOrder(ArkWebStringStructToClass(relativePath));
+    return ArkWebStringVectorClassToStruct(result);
+}
 } // namespace OHOS::ArkWeb

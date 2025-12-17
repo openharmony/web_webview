@@ -44,10 +44,11 @@ public:
     bool IsWebPlayGroundEnable();
     const std::string& GetWebPlayGroundInitArg();
     const std::string& GetWebPlayGroundHapPath();
+    std::string GetConfigPath(const std::string &configFileName);
+    std::vector<std::string> GetConfigPathsInPriorityOrder(const std::string& relativePath);
 
 private:
     NWebConfigHelper();
-    std::string GetConfigPath(const std::string &configFileName);
     void ParseNWebLTPOConfig(xmlNodePtr nodePtr);
     void ReadConfig(const xmlNodePtr &rootPtr, std::shared_ptr<NWebEngineInitArgsImpl> initArgs);
     xmlNodePtr GetChildrenNode(xmlNodePtr NodePtr, const std::string &childrenNodeName);
