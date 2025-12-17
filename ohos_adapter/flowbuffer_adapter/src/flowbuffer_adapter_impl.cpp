@@ -17,6 +17,7 @@
 
 #include <cstring>
 #include <sys/mman.h>
+#include <sys/prctl.h>
 
 #include "ashmem.h"
 #include "nweb_log.h"
@@ -86,6 +87,7 @@ void* FlowbufferAdapterImpl::CreateAshmem(size_t size, int mapType, int& fd)
         WVLOG_E("Map ashmem failed");
         return nullptr;
     }
+    prctl(PR_SET_VMA, PR_SET_VMA_ANON_NAME, startAddr, size, "web_flowbuffer");
     data_ = startAddr;
     size_ = size;
     return startAddr;
@@ -110,6 +112,7 @@ void* FlowbufferAdapterImpl::CreateAshmemWithFd(const int fd, size_t size, int m
         WVLOG_E("Map ashmem failed");
         return nullptr;
     }
+    prctl(PR_SET_VMA, PR_SET_VMA_ANON_NAME, startAddr, size, "web_flowbuffer");
     data_ = startAddr;
     size_ = size;
     return startAddr;
