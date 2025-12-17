@@ -131,6 +131,8 @@ public:
 
     void SetScrollbarMode(OHOS::NWeb::ScrollbarMode mode) override;
 
+    void LibraryLoaded(std::shared_ptr<OHOS::NWeb::NWebEngineInitArgs> init_args, bool lazy) override;
+
 private:
     ArkWebRefPtr<ArkWebEngine> ark_web_engine_;
 };

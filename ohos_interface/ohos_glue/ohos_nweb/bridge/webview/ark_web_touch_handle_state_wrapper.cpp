@@ -69,4 +69,9 @@ ArkWebTouchHandleType ArkWebTouchHandleStateWrapper::GetTouchHandleType()
     return static_cast<ArkWebTouchHandleType>(ark_web_touch_handle_state_->GetTouchHandleType());
 }
 
+bool ArkWebTouchHandleStateWrapper::IsDragging()
+{
+    return ark_web_touch_handle_state_->IsDragging();
+}
+
 } // namespace OHOS::ArkWeb

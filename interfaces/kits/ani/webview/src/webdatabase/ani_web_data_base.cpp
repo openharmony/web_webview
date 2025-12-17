@@ -34,7 +34,7 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-const char* WEB_DATA_BASE_CLASS_NAME = "L@ohos/web/webview/webview/WebDataBase;";
+const char* WEB_DATA_BASE_CLASS_NAME = "@ohos.web.webview.webview.WebDataBase";
 } // namespace
 
 bool GetStringPara(ani_env* env, ani_string dataStr)
@@ -209,9 +209,9 @@ ani_status StsWebDataBaseInit(ani_env* env)
         ani_native_function { "getHttpAuthCredentials", nullptr, reinterpret_cast<void*>(JsGetHttpAuthCredentials) },
     };
 
-    status = env->Class_BindNativeMethods(webDataBaseCls, allMethods.data(), allMethods.size());
+    status = env->Class_BindStaticNativeMethods(webDataBaseCls, allMethods.data(), allMethods.size());
     if (status != ANI_OK) {
-        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+        WVLOG_E("Class_BindStaticNativeMethods failed status: %{public}d", status);
     }
     return ANI_OK;
 }

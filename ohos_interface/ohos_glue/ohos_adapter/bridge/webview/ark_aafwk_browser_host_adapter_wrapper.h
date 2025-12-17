@@ -33,6 +33,8 @@ public:
 
     void DestroySurfaceFromKernel(int32_t surface_id) override;
 
+    void* GetSurfaceFromKernelWithRef(int32_t surface_id) override;
+
 private:
     ArkWebRefPtr<ArkAafwkBrowserHostAdapter> ctocpp_;
 };

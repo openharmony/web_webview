@@ -31,7 +31,7 @@ ani_ref createBooleanObject(ani_env* env, ani_boolean status)
         WVLOG_E("env is nullptr");
         return nullptr;
     }
-    static constexpr const char* className = "Lstd/core/Boolean;";
+    static constexpr const char* className = "std.core.Boolean";
     ani_status stat = ANI_ERROR;
     ani_class booleanCls {};
     stat = env->FindClass(className, &booleanCls);
@@ -155,7 +155,7 @@ void WebviewHasImageCallback::AfterWorkCbPromise(ani_env* env, bool result)
         WVLOG_E("setResult is nullptr");
         return;
     }
-    auto status = env->PromiseResolver_Resolve(deferred_, static_cast<ani_string>(setResult));
+    auto status = env->PromiseResolver_Resolve(deferred_, setResult);
     if (status != ANI_OK) {
         WVLOG_E("PromiseResolver_Resolve failed, status is : %{public}d", status);
         return;

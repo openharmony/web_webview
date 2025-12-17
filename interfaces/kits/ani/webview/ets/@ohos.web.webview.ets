@@ -16,9 +16,10 @@
 import { Resource } from 'global.resource';
 import type image from '@ohos.multimedia.image';
 import { AsyncCallback, BusinessError, Callback } from '@ohos.base';
+import { WebNetErrorList } from '@ohos.web.netErrorList';
+import type cert from '@ohos.security.cert';
 import print from '@ohos.print'
 import {SizeOptions} from '@ohos.arkui.component';
-import type cert from '@ohos.security.cert';
 declare type Length = string | number | Resource;
 
 class Cleaner {
@@ -144,14 +145,21 @@ export default namespace webview {
     }
 
     export enum WebHitTestType {
-        EditText,
-        Email,
-        HttpAnchor,
-        HttpAnchorImg,
-        Img,
-        Map,
-        Phone,
-        Unknown
+        EDIT_TEXT,
+        EMAIL,
+        HTTP_ANCHOR,
+        HTTP_ANCHOR_IMG,
+        IMG,
+        MAP,
+        PHONE,
+        UNKNOWN
+    }
+
+    export enum SecurityLevel {
+        NONE = 0,
+        SECURE,
+        WARNING,
+        DANGEROUS
     }
 
     export enum RenderProcessMode{
@@ -299,8 +307,14 @@ export default namespace webview {
         extra: string;
     }
     export class HitTestValueInner implements HitTestValue {
-        type: WebHitTestType = WebHitTestType.Unknown;
+        type: WebHitTestType = WebHitTestType.UNKNOWN;
         extra: string = "";
+    }
+
+    enum SecureDnsMode {
+        OFF = 0,
+        AUTO,
+        SECURE_ONLY
     }
 
     export interface HistoryItem {
@@ -345,6 +359,30 @@ export default namespace webview {
         width?: Length;
         height?: Length;
     }
+
+    export interface WebCustomScheme {
+        schemeName: string;
+        isSupportCORS: boolean;
+        isSupportFetch: boolean;
+        isStandard?: boolean;
+        isLocal?: boolean;
+        isDisplayIsolated?: boolean;
+        isSecure?: boolean;
+        isCspBypassing?: boolean;
+        isCodeCacheSupported?: boolean;
+  }
+
+    export class WebCustomSchemeClass implements WebCustomScheme {
+        schemeName: string;
+        isSupportCORS: boolean;
+        isSupportFetch: boolean;
+        isStandard?: boolean;
+        isLocal?: boolean;
+        isDisplayIsolated?: boolean;
+        isSecure?: boolean;
+        isCspBypassing?: boolean;
+        isCodeCacheSupported?: boolean;
+  }
 
     export interface RectEvent {
         x: double;
@@ -479,20 +517,23 @@ export default namespace webview {
     }
 
     export interface NativeMediaPlayerBridge {
-        updateRect(x: double, y: double, width: double, height: double): void
-        play(): void
-        pause(): void
-        seek(targetTime: double): void
-        setVolume(volume: double): void
-        setMuted(muted: boolean): void
-        setPlaybackRate(playbackRate: double): void
-        release(): void
-        enterFullscreen(): void
-        exitFullscreen(): void
+        updateRect: UpdateRectFn;
+        play: ZeroParamFn<>;
+        pause: ZeroParamFn<>;
+        seek: OneParamFn<double>;
+        setVolume: OneParamFn<double>;
+        setMuted: OneParamFn<boolean>;
+        setPlaybackRate: OneParamFn<double>;
+        release: ZeroParamFn<>;
+        enterFullscreen: ZeroParamFn<>;
+        exitFullscreen: ZeroParamFn<>;
         resumePlayer?: ResumePlayerFn;
         suspendPlayer?: SuspendPlayerFn;
     }
 
+    type ZeroParamFn<V=void> = () => V;
+    type OneParamFn<T,V=void> = (param: T) => V;
+    type UpdateRectFn = (x: double, y: double, width: double, height: double) => void;
     type SuspendPlayerFn = (type: SuspendType) => void
     type ResumePlayerFn = () => void
 
@@ -533,8 +574,8 @@ export default namespace webview {
                 throw new Error("input object is null or undefined");
             }
             let dyESValue = ESValue.wrap(input);
-            bflObject.currentIndex = dyESValue.getProperty('currentIndex').toNumber() as int;
-            bflObject.size = dyESValue.getProperty('size').toNumber() as int;
+            bflObject.currentIndex = dyESValue.getProperty('currentIndex').toNumber().toInt();
+            bflObject.size = dyESValue.getProperty('size').toNumber().toInt();
             if (!BackForwardListinner.transferBackForwardListToStaticInner(bflObject, dyESValue)) {
                 throw new Error("transfer failed");
             }
@@ -683,10 +724,10 @@ export default namespace webview {
         }
         createPdf(configuration: PdfConfiguration): Promise<PdfData> {
             let p:Promise<PdfData> =
-                new Promise<PdfData>((resolve: (data: PdfData | undefined)=>void, reject:(err: BusinessError<void> | null)=>void):void => {
+                new Promise<PdfData>((resolve: (data: PdfData)=>void, reject:(err: Error)=>void):void => {
                 let myCall = new AsyncCallbackWrapper<PdfData>((err: BusinessError<void> | null, data: PdfData | undefined)=>{
                     if (err === null || err.code == 0) {
-                        resolve(data);
+                        resolve(data!);
                     } else {
                         reject(err);
                     }
@@ -723,10 +764,15 @@ export default namespace webview {
         native postMessage(name: string, ports: Array<WebMessagePort>, uri: string): void;
         native getUrl(): string;
         native getTitle(): string;
+        native getProgress(): int;
         native getOriginalUrl(): string;
         native getUserAgent(): string;
         native getCustomUserAgent(): string;
         native getLastJavascriptProxyCallingFrameUrl(): string;
+        native getSecurityLevel(): SecurityLevel;
+        native static setHttpDns(secureDnsMode: SecureDnsMode, secureDnsConfig: string): void;
+        native searchAllAsync(searchString: string): void;
+        native static clearServiceWorkerWebSchemeHandler(): void;
         native forward(): void;
         native backward(): void;
         native accessForward(): boolean;
@@ -734,12 +780,20 @@ export default namespace webview {
         native loadData(data: string, mimeType: string, encoding: string, baseUrl?: string, historyUrl?: string): void;
         native clearHistory(): void;
         native setWebSchemeHandler(scheme: string, handler: WebSchemeHandler): void;
+        native static customizeSchemes(schemes: Array<WebCustomScheme>): void;
         native static setServiceWorkerWebSchemeHandler(scheme: string, handler: WebSchemeHandler): void;
         native clearWebSchemeHandler(): void;
         native terminateRenderProcess(): boolean;
         native static setConnectionTimeout(timeout: int): void;
         native backOrForward(step: int): void;
-        native static setWebDebuggingAccess(webDebuggingAccess: boolean): void;
+        native static SetWebDebuggingAccess(webDebuggingAccess: boolean): void;
+        static setWebDebuggingAccess(webDebuggingAccess: boolean): void {
+            WebviewController.SetWebDebuggingAccess(webDebuggingAccess);
+        }
+        native static setWebDebuggingAccessAndPort(webDebuggingAccess: boolean, port: int): void;
+        static setWebDebuggingAccess(webDebuggingAccess: boolean, port: int): void {
+            WebviewController.setWebDebuggingAccessAndPort(webDebuggingAccess, port);
+        }
         native enableSafeBrowsing(enable: boolean): void;
         native static setRenderProcessMode(mode: RenderProcessMode): void;
         native static getRenderProcessMode(): RenderProcessMode;
@@ -755,6 +809,7 @@ export default namespace webview {
             let uint8Array = new Uint8Array(buffer);
             return uint8Array;
         }
+        native restoreWebState(state: Uint8Array): void;
         native static trimMemoryByPressureLevel(level: PressureLevel): void;
         native setPathAllowingUniversalAccess(pathList: Array<string>): void;
         native onCreateNativeMediaPlayer(callback: (handler: NativeMediaPlayerHandler, mediaInfo: MediaInfo) => NativeMediaPlayerBridge): void;
@@ -781,6 +836,9 @@ export default namespace webview {
         native stopAllMedia(): void;
         native stopCamera(): void;
         native closeCamera(): void;
+        native resumeMicrophone(): void;
+        native stopMicrophone(): void;
+        native pauseMicrophone(): void;
         native pauseAllMedia(): void;
         native resumeAllMedia(): void;
         native setAudioMuted(mute: boolean): void;
@@ -800,6 +858,9 @@ export default namespace webview {
             }
             return this.precompileJavaScriptInternal(url, resScript, cacheOptions);
         }
+        native registerJavaScriptProxy(object: object, name: string, methodList: Array<string>,
+                                        asyncMethodList?: Array<string>, permission?: string): void;
+        native deleteJavaScriptRegister(name: string): void;
         native runJavaScriptCallback(script: string, callback: AsyncCallback<string>): void;
         runJavaScript(script: string, callback: AsyncCallback<string>): void {
             this.runJavaScriptCallback(script, callback);
@@ -815,6 +876,18 @@ export default namespace webview {
         native runJavaScriptPromiseExt(script: string | ArrayBuffer): Promise<string>;
         runJavaScriptExt(script: string | ArrayBuffer): Promise<string> {
             return this.runJavaScriptPromiseExt(script);
+        }
+        native static enableBackForwardCache(features?: BackForwardCacheSupportedFeatures): void;
+        native setBackForwardCacheOptions(options?: BackForwardCacheOptions): void;
+        native static setAppCustomUserAgent(userAgent: string): void;
+        native static setUserAgentForHosts(userAgent: string, hosts: Array<string>): void
+        native storeWebArchiveCallback(baseName: string, autoName: boolean, callback: AsyncCallback<string>): void;
+        storeWebArchive(baseName: string, autoName: boolean, callback: AsyncCallback<string>): void {
+            this.storeWebArchiveCallback(baseName, autoName, callback);
+        }
+        native storeWebArchivePromise(baseName: string, autoName: boolean): Promise<string>;
+        storeWebArchive(baseName: string, autoName: boolean): Promise<string> {
+            return this.storeWebArchivePromise(baseName, autoName);
         }
         native hasImageCallback(callback: AsyncCallback<boolean>): void;
         hasImage(callback: AsyncCallback<boolean>): void {
@@ -872,19 +945,14 @@ export default namespace webview {
                         console.error("Failed to parse certificate", e);
                     }
                 }
-                let error = new BusinessError<void>();
-                callback(error, certs);
+                callback(null, certs);
             }).catch((error: Error) => {
                 let err = error as BusinessError<void>;
-                let data = new Array<cert.X509Cert>;
-                callback(err, data);
+                callback(err, undefined);
             });
         }
 
         native setSocketIdleTimeout(timeout: int): void;
-        native getProgress(): int;
-        native static setAppCustomUserAgent(userAgent: string): void;
-        native static setUserAgentForHosts(userAgent: string, hosts: Array<string>): void;
         native static enablePrivateNetworkAccess(enable: boolean): void;
         native static isPrivateNetworkAccessEnabled(): boolean;
         native setErrorPageEnabled(enable: boolean): void;
@@ -912,12 +980,71 @@ export default namespace webview {
         }
         native static isAutoPreconnectEnabled(): boolean;
         native static setAutoPreconnect(enabled: boolean): void;
-        native setBackForwardCacheOptions(options?: BackForwardCacheOptions): void;
-        native static enableBackForwardCache(features?: BackForwardCacheSupportedFeatures): void;
-        native prefetchPage(url: string, additionalHeaders?: Array<WebHeader>, prefetchOptions?: PrefetchOptions): void;
+        native prefetchPageUrl(url: string): void;
+        native prefetchPageUrlHeaders(url: string, additionalHeaders: Array<WebHeader>): void;
+        native prefetchPageUrlHeadersOptions(url: string, additionalHeaders: Array<WebHeader>, prefetchOptions: PrefetchOptions): void;
+        prefetchPage(url: string): void {
+            this.prefetchPageUrl(url);
+        }
+        prefetchPage(url: string, additionalHeaders: Array<WebHeader>): void {
+            this.prefetchPageUrlHeaders(url, additionalHeaders);
+        }
+        prefetchPage(url: string, additionalHeaders: Array<WebHeader>, prefetchOptions: PrefetchOptions): void {
+            this.prefetchPageUrlHeadersOptions(url, additionalHeaders, prefetchOptions);
+        }
         native setWebDetach(nwebId: int): void;
         native static getActiveWebEngineVersion(): ArkWebEngineVersion;
         native static setActiveWebEngineVersion(engineVersion: ArkWebEngineVersion): void;
+        native static isActiveWebEngineEvergreen(): boolean;
+        native jsProxy(obj: Object, name: string, methodList: Array<string>, asyncMethodList?: Array<string>, permission?: string): void;
+        jsProxyInvokeMethod(obj: Object, name: string, args: Array<Object>): Any {
+            let clsVal = Type.of(obj) as ClassType;
+            let method = clsVal.getMethodByName(name);
+            if(args.length <= 0) {
+                return method.invoke(obj, []);
+            }
+            const methodArgs: FixedArray<Object> = new Object[args.length];
+            for (let argIdx = 0; argIdx < args.length; argIdx++) {
+                const arg = args[argIdx];
+                methodArgs[argIdx] = arg;
+            }
+            return method.invoke(obj, methodArgs);
+        }
+        getReferenceMap(): Map<string, Object> {
+            let claMap: Map<string, Object> = new Map<string, Object>;
+            return claMap;
+        }
+        setFieldForObject(target: Map<string, Object>, name: string, val: Object): Map<string, Object> {
+            try {
+                target.set(name, val);
+            } catch (e: Error) {
+                console.error(e);
+            }
+            return target;
+        }
+    }
+    
+    export class jsProxyCallbackWrapper {
+        myFun_: (...args: Array<Object|string|number|undefined|null>) => Any = (...args: Array<Object|string|number|undefined|null>) => { return "" };
+        constructor(myFun: (...args: Array<Object|string|number|undefined|null>)=> Any) {
+            this.myFun_ = myFun;
+        }
+
+        native callNativeFunc(ptr: long, argv: double, args: Array<Object>): void;
+        getCallback(ptr: long): (...args: Array<Object|string|number|undefined|null>) => Any {
+            this.myFun_ = (...args: Array<Object|string|number|undefined|null>) => {
+                let objArgs: Array<Object> = new Array<Object>;
+                for (const arg of args) {
+                    if (arg instanceof Object) {
+                       let obj = arg as Object;
+                       objArgs.push(obj);
+                    }
+                }
+                this.callNativeFunc(ptr, args.length, objArgs);
+                return "";
+            };
+            return this.myFun_;
+        }
     }
 
     export class WebSchemeHandlerResponse {
@@ -941,25 +1068,7 @@ export default namespace webview {
 
         native constructor();
 
-        /**
-         * Set the resolved URL after redirects or changed as a result of HSTS.
-         *
-         * @param { string } url - Set response url for redirects.
-         * @throws { BusinessError } 401 - Parameter error. Possible causes: 1. Incorrect parameter types.
-         * @syscap SystemCapability.Web.Webview.Core
-         * @atomicservice
-         * @since 20
-         */
         native setUrl(url: string): void;
-
-        /**
-         * Get the resolved URL after redirects or changed as a result of HSTS.
-         *
-         * @returns { string } Return response url for redirects.
-         * @syscap SystemCapability.Web.Webview.Core
-         * @atomicservice
-         * @since 20
-         */
         native getUrl(): string;
         native setMimeType(type: string): void;
         native getMimeType(): string;
@@ -971,6 +1080,8 @@ export default namespace webview {
         native getStatus(): int;
         native setHeaderByName(name: string, value: string, overwrite: boolean): void;
         native getHeaderByName(name: string): string;
+        native setNetErrorCode(code: WebNetErrorList): void;
+        native getNetErrorCode(): WebNetErrorList;
     }
 
      export class WebSchemeHandler {
@@ -978,7 +1089,7 @@ export default namespace webview {
         private cleaner?: Cleaner;
 
         registerCleaner(ptr: long): void {
-            this.cleaner = new Cleaner(ptr, "WebSchemeHandler")
+            this.cleaner = new Cleaner(ptr, "WebSchemeHandler");
             destroyRegister.register(this, this.cleaner!, unregisterToken);
         }
         unregisterCleaner(): void {
@@ -988,20 +1099,24 @@ export default namespace webview {
         bindNativePtr(ptr: long): void {
             if (this.nativePtr == 0) {
                 this.nativePtr = ptr;
-                this.registerCleaner(this.nativePtr)
+                this.registerCleaner(this.nativePtr);
             }
         }
 
         native constructor();
         native onRequestStart(callback: (request: WebSchemeHandlerRequest, handler: WebResourceHandler) => boolean): void;
+        native onRequestStop(callback : (request: WebSchemeHandlerRequest) => void): void;
     }
 
     export class WebSchemeHandlerRequest {
+        static {
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
+        }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
 
         registerCleaner(ptr: long): void {
-            this.cleaner = new Cleaner(ptr, "WebSchemeHandlerRequest")
+            this.cleaner = new Cleaner(ptr, "WebSchemeHandlerRequest");
             destroyRegister.register(this, this.cleaner!, unregisterToken);
         }
         unregisterCleaner(): void {
@@ -1011,7 +1126,7 @@ export default namespace webview {
         bindNativePtr(ptr: long): void {
             if (this.nativePtr == 0) {
                 this.nativePtr = ptr;
-                this.registerCleaner(this.nativePtr)
+                this.registerCleaner(this.nativePtr);
             }
         }
 
@@ -1022,16 +1137,49 @@ export default namespace webview {
         native getHeader(): Array<WebHeader>;
         native getRequestResourceType(): WebResourceType;
         native getRequestUrl(): string;
+        native getHttpBodyStream(): WebHttpBodyStream | null;
         native isMainFrame(): boolean;
         native getRequestMethod(): string;
+
+        static transferWebSchemeHandlerRequestToStatic(input: Any): Object {
+            let wshrObject: WebSchemeHandlerRequest = new WebSchemeHandlerRequest();
+            if (input === undefined || input === null) {
+                throw new Error("input object is null or undefined");
+            }
+            let dyESValue = ESValue.wrap(input);
+            if (!WebSchemeHandlerRequest.transferWebSchemeHandlerRequestToStaticInner(wshrObject, dyESValue)) {
+                throw new Error("transfer failed");
+            }
+            return wshrObject as Object;
+        }
+        private static native transferWebSchemeHandlerRequestToStaticInner(newDemo: WebSchemeHandlerRequest, input: ESValue): boolean;
+
+        static transferWebSchemeHandlerRequestToDynamic(input: Object): Any {
+            const staticRef = input as WebSchemeHandlerRequest;
+            if (staticRef) {
+                let addr = staticRef.nativePtr;
+                let module = ESValue.load("@ohos.web.webview");
+                let initFunc = module.getProperty("__createWebSchemeHandlerRequestTransfer__");
+                if (initFunc) {
+                    let dynamicRef = initFunc.invoke(ESValue.wrap(addr));
+                    return dynamicRef.unwrap();
+                } else {
+                    console.error("invoke func not exit");
+                }
+            }
+            return undefined;
+        }
     }
 
     export class WebResourceHandler {
+        static {
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
+        }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
 
         registerCleaner(ptr: long): void {
-            this.cleaner = new Cleaner(ptr, "WebResourceHandler")
+            this.cleaner = new Cleaner(ptr, "WebResourceHandler");
             destroyRegister.register(this, this.cleaner!, unregisterToken);
         }
         unregisterCleaner(): void {
@@ -1041,12 +1189,79 @@ export default namespace webview {
         bindNativePtr(ptr: long): void {
             if (this.nativePtr == 0) {
                 this.nativePtr = ptr;
-                this.registerCleaner(this.nativePtr)
+                this.registerCleaner(this.nativePtr);
             }
         }
         native constructor();
         native didReceiveResponse(response: WebSchemeHandlerResponse): void;
         native didFinish(): void;
+        native didFailv0(code: WebNetErrorList): void;
+        didFail(code: WebNetErrorList): void {
+            this.didFailv0(code);
+        }
+        native didFailv1(code: WebNetErrorList, completeIfNoResponse: boolean): void
+        didFail(code: WebNetErrorList, completeIfNoResponse: boolean): void {
+            this.didFailv1(code, completeIfNoResponse);
+        }
+        native didReceiveResponseBody(data: ArrayBuffer): void;
+
+        static transferWebResourceHandlerToStatic(input: Any): Object {
+            let wrhObject: WebResourceHandler = new WebResourceHandler();
+            if (input === undefined || input === null) {
+                throw new Error("input object is null or undefined");
+            }
+            let dyESValue = ESValue.wrap(input);
+            if (!WebResourceHandler.transferWebResourceHandlerToStaticInner(wrhObject, dyESValue)) {
+                throw new Error("transfer failed");
+            }
+            return wrhObject as Object;
+        }
+        private static native transferWebResourceHandlerToStaticInner(newDemo: WebResourceHandler, input: ESValue): boolean;
+
+        static transferWebResourceHandlerToDynamic(input: Object): Any {
+            const staticRef = input as WebResourceHandler;
+            if (staticRef) {
+                let addr = staticRef.nativePtr;
+                let module = ESValue.load("@ohos.web.webview");
+                let initFunc = module.getProperty("__createWebResourceHandlerTransfer__");
+                if (initFunc) {
+                    let dynamicRef = initFunc.invoke(ESValue.wrap(addr));
+                    return dynamicRef.unwrap();
+                } else {
+                    console.error("invoke func not exit");
+                }
+            }
+            return undefined;
+        }
+    }
+
+    export class WebHttpBodyStream {
+        private nativePtr: long = 0;
+        private cleaner?: Cleaner;
+
+        registerCleaner(ptr: long): void {
+            this.cleaner = new Cleaner(ptr, "WebHttpBodyStream");
+            destroyRegister.register(this, this.cleaner!, unregisterToken);
+        }
+        unregisterCleaner(): void {
+            destroyRegister.unregister(unregisterToken);
+        }
+
+        bindNativePtr(ptr: long): void {
+            if (this.nativePtr == 0) {
+                this.nativePtr = ptr;
+                this.registerCleaner(this.nativePtr);
+            }
+        }
+
+        native constructor();
+        native isChunked(): boolean;
+        native isInMemory(): boolean;
+        native isEof(): boolean;
+        native getSize():long;
+	native getPosition():long;
+        native initialize(): Promise<void>;
+        native read(size: int): Promise<ArrayBuffer>;
     }
 
     export class WebDownloadItem {
@@ -1077,8 +1292,8 @@ export default namespace webview {
         native getGuid(): string;
         native getPercentComplete(): int;
         native getSuggestedFileName(): string;
-
         native getMethod(): string;
+        native getMimeType(): string;
         native getCurrentSpeed(): int;
         native getReceivedBytes(): long;
         native getFullPath(): string;
@@ -1187,13 +1402,16 @@ export default namespace webview {
 
     export class BackForwardCacheOptions {
 
-        size: int;
-        timeToLive: int;
+        size: int = 1;
+        timeToLive: int = 600;
 
         constructor() {};
     }
 
     export class WebCookieManager {
+        static {
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
+        }
         /**
          * Save the cookies synchronously.
          * @syscap SystemCapability.Web.Webview.Core
@@ -1205,8 +1423,12 @@ export default namespace webview {
         native static isCookieAllowed(): boolean;
         native static clearSessionCookieSync(): void;
         native static configCookieSync(url: string, value: string, incognito: boolean, includeHttpOnly: boolean): void;
+        native static putAcceptCookieEnabled(accept: boolean): void;
+        native static putAcceptThirdPartyCookieEnabled(accept: boolean): void;
+        native static isThirdPartyCookieAllowed(): boolean;
 
         native static configCookieSyncInternal(url: string, value: string, incognito?: boolean): void;
+        native static setLazyInitializeWebEngine(lazy: boolean): void;
 
         static configCookieSync(url: string, value: string, incognito?: boolean): void {
             WebCookieManager.configCookieSyncInternal(url, value, incognito);
@@ -1483,7 +1705,7 @@ export default namespace webview {
         private cleaner?: Cleaner;
 
         registerCleaner(ptr: long): void {
-            this.cleaner = new Cleaner(ptr, "ProxyConfig")
+            this.cleaner = new Cleaner(ptr, "ProxyConfig");
             destroyRegister.register(this, this.cleaner!, unregisterToken);
         }
         unregisterCleaner(): void {
@@ -1493,7 +1715,7 @@ export default namespace webview {
         bindNativePtr(ptr: long): void {
             if (this.nativePtr == 0) {
                 this.nativePtr = ptr;
-                this.registerCleaner(this.nativePtr)
+                this.registerCleaner(this.nativePtr);
             }
         }
 
@@ -1530,12 +1752,23 @@ export default namespace webview {
          * @since 20
          */
         native getProxyRules(): Array<ProxyRule>;
+        native insertBypassRule(bypassRule: string): void;
+        native insertDirectRule(schemeFilter?: ProxySchemeFilter): void;
+        native bypassHostnamesWithoutPeriod(): void;
+        native clearImplicitRules(): void;
+        native enableReverseBypass(reverse: boolean): void;
+        native getBypassRules(): Array<string>;
+        native isReverseBypassEnabled(): boolean;
     }
 
     type WebMessage = ArrayBuffer | string;
     export interface WebMessagePort {
         isExtentionType?: boolean;
         close(): void;
+        postMessageEvent(message: WebMessage): void;
+        onMessageEvent(callback: (result: WebMessage) => void): void;
+        postMessageEventExt(message: WebMessageExt): void;
+        onMessageEventExt(callback: (result: WebMessageExt) => void): void;
     }
     export class WebMessagePortInner implements WebMessagePort {
         static {
@@ -1556,8 +1789,14 @@ export default namespace webview {
                 this.registerCleaner(this.nativePtr)
             }
         }
+
+        constructor(){};
         isExtentionType?: boolean;
         native close(): void;
+        native postMessageEvent(message: WebMessage): void;
+        native onMessageEvent(callback: (result: WebMessage) => void): void;
+        native postMessageEventExt(message: WebMessageExt): void;
+        native onMessageEventExt(callback: (result: WebMessageExt) => void): void;
 
         static transferWebMessagePortToStatic(input: Any): Object {
             let wmpObject: WebMessagePortInner = new WebMessagePortInner();
@@ -1710,6 +1949,9 @@ export default namespace webview {
     }
 
     export class WebDataBase {
+        static {
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
+        }
         private nativePtr: long = 0;
         private cleaner?: Cleaner;
 
@@ -1953,11 +2195,36 @@ export default namespace webview {
         native getArray(): Array<string | double | long | boolean>;
     }
 
-    export class PrefetchOptions {      
+    export class PrefetchOptions {
         minTimeBetweenPrefetchesMs: int;
         ignoreCacheControlNoStore: boolean;
 
         constructor() {};
+    }
+    type OnProxyConfigChangeCallback = () => void;
+    export class ProxyController {
+        private nativePtr: long = 0;
+        private cleaner?: Cleaner;
+
+        registerCleaner(ptr: long): void {
+            this.cleaner = new Cleaner(ptr, "ProxyController");
+            destroyRegister.register(this, this.cleaner!, unregisterToken);
+        }
+        unregisterCleaner(): void {
+            destroyRegister.unregister(unregisterToken);
+        }
+
+        bindNativePtr(ptr: long): void {
+            if (this.nativePtr == 0) {
+                this.nativePtr = ptr;
+                this.registerCleaner(this.nativePtr);
+            }
+        }
+
+        native constructor();
+
+        native static applyProxyOverride(proxyConfig: ProxyConfig, callback: OnProxyConfigChangeCallback): void;
+        native static removeProxyOverride(callback: OnProxyConfigChangeCallback): void;
     }
 
     export class PrintDocumentAdapterInner implements print.PrintDocumentAdapter{

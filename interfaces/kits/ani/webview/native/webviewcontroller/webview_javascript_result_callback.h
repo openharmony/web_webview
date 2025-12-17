@@ -32,6 +32,9 @@
 #include "nweb_log.h"
 #include "nweb_value.h"
 #include "uv.h"
+#include "ani.h"
+#include "ani_parse_utils.h"
+#include "event_handler.h"
 
 namespace OHOS::NWeb {
 typedef struct RegisterJavaScriptProxyParam {
@@ -43,6 +46,16 @@ typedef struct RegisterJavaScriptProxyParam {
     std::string permission;
 } RegisterJavaScriptProxyParam;
 
+typedef struct AniRegisterJavaScriptProxyParam {
+    ani_env* env;
+    ani_object obj;
+    std::string objName;
+    std::vector<std::string> syncMethodList;
+    ani_object webviewObj;
+    std::vector<std::string> asyncMethodList;
+    std::string permission;
+} AniRegisterJavaScriptProxyParam;
+
 class JavaScriptOb {
 public:
     // to be compatible with older webcotroller, be sure to the same as ace and core
@@ -52,13 +65,25 @@ public:
 
     static std::shared_ptr<JavaScriptOb> CreateNamed(
         napi_env env, int32_t containerScopeId, napi_value value, size_t refCount = 1);
+
+    static std::shared_ptr<JavaScriptOb> CreateNamed(
+        ani_env* env, int32_t containerScopeId, ani_object value, size_t refCount = 1);
+
     static std::shared_ptr<JavaScriptOb> CreateTransient(
         napi_env env, int32_t containerScopeId, napi_value value, int32_t holder, size_t refCount = 1);
 
+    static std::shared_ptr<JavaScriptOb> CreateTransient(
+        ani_env* env, int32_t containerScopeId, ani_object value, int32_t holder, size_t refCount = 1);
+
     JavaScriptOb(napi_env env, int32_t containerScopeId, napi_value value, size_t refCount = 1);
+
+    JavaScriptOb(ani_env *env, int32_t containerScopeId, ani_object value, size_t refCount = 1);
 
     JavaScriptOb(
         napi_env env, int32_t containerScopeId, napi_value value, std::set<int32_t> holders, size_t refCount = 1);
+
+    JavaScriptOb(
+        ani_env* env, int32_t containerScopeId, ani_object value, std::set<int32_t> holders, size_t refCount = 1);
 
     JavaScriptOb(const JavaScriptOb& job)
     {
@@ -108,11 +133,34 @@ public:
     ~JavaScriptOb()
     {
         Delete();
+        if (aniObjRef_) {
+            WVLOG_I("delete aniObjRef_ ");
+            ani_env* env = GetAniEnv();
+            if (env) {
+                env->GlobalReference_Delete(aniObjRef_);
+            } else {
+                WVLOG_E("aniObjRef_ not delete");
+            }
+        }
     }
 
     napi_env GetEnv() const
     {
         return env_;
+    }
+
+    ani_env* GetAniEnv() const
+    {
+        ani_env* env = nullptr;
+        if (vm_) {
+            vm_->GetEnv(ANI_VERSION_1, &env);
+        }
+        return env;
+    }
+
+    ani_ref GetWebviewObject()
+    {
+        return webviewObj_;
     }
 
     void SetContainerScopeId(int32_t newId)
@@ -139,6 +187,28 @@ public:
     {
         napi_value result = nullptr;
         napi_get_reference_value(env_, objRef_, &result);
+        return result;
+    }
+
+    ani_ref GetAniValue() const
+    {
+        ani_ref result = nullptr;
+        ani_env* env = GetAniEnv();
+        if (!env) {
+            WVLOG_E("env is nullptr");
+            return result;
+        }
+        ani_wref wref;
+        if ((env->WeakReference_Create(aniObjRef_, &wref)) != ANI_OK) {
+            WVLOG_E("create weakref error");
+            return result;
+        }
+
+        ani_boolean wasReleased;
+        if ((env->WeakReference_GetReference(wref, &wasReleased, &result)) != ANI_OK) {
+            WVLOG_E("create ref error");
+            return result;
+        }
         return result;
     }
 
@@ -241,6 +311,25 @@ public:
         return false;
     }
 
+    bool AniHasMethod(const std::string& methodName)
+    {
+        if (methodName.empty()) {
+            WVLOG_E("HasMethod methodName null");
+            return false;
+        }
+
+        if (!isMethodsSetup_) {
+            AniSetUpMethods();
+            return false;
+        }
+        for (std::vector<std::string>::iterator iter = methods_.begin(); iter != methods_.end(); ++iter) {
+            if (*iter == methodName) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     napi_value FindMethod(const std::string& methodName)
     {
         if (!isMethodsSetup_) {
@@ -278,6 +367,43 @@ public:
             return result;
         }
 
+        return nullptr;
+    }
+
+    ani_object AniFindMethod(const std::string& methodName)
+    {
+        ani_env* ani_env_ = GetAniEnv();
+        if (AniHasMethod(methodName)) {
+            ani_boolean hasFunc = false;
+            ani_object result = nullptr;
+            ani_object obj = static_cast<ani_object>(GetAniValue());
+            if (!obj) {
+                WVLOG_E("JavaScriptOb FindMethod obj null");
+                return nullptr;
+            }
+            ani_status s = AniHasNamedProperty(ani_env_, obj, methodName.c_str(), &hasFunc);
+            if (s != ANI_OK) {
+                WVLOG_E("JavaScriptOb FindMethod property fail");
+                return nullptr;
+            }
+            if (!hasFunc) {
+                WVLOG_E("JavaScriptOb FindMethod has func false");
+                return nullptr;
+            }
+            ani_ref refResult = nullptr;
+            s = AniGetNamedProperty(ani_env_, obj, methodName.c_str(), &refResult);
+            if (s != ANI_OK) {
+                WVLOG_E("JavaScriptOb FindMethod get property fail");
+                return nullptr;
+            }
+            result = static_cast<ani_object>(refResult);
+            bool isFunction = AniParseUtils::IsFunction(ani_env_, result);
+            if (!isFunction) {
+                WVLOG_E("JavaScriptOb FindMethod isfunction false");
+                return nullptr;
+            }
+            return result;
+        }
         return nullptr;
     }
 
@@ -325,6 +451,8 @@ public:
         isMethodsSetup_ = true;
     }
 
+    void AniSetUpMethods();
+
     void SetMethods(std::vector<std::string> methods_name)
     {
         std::unique_lock<std::mutex> lock(mutex_);
@@ -344,7 +472,47 @@ public:
         permission_ = permission;
     }
 
+    void SetWebviewObject(ani_object obj)
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        ani_env* ani_env_ = GetAniEnv();
+        ani_ref result = nullptr;
+        if (ani_env_) {
+            ani_status s = ani_env_->GlobalReference_Create(obj, &result);
+            if (s != ANI_OK) {
+                WVLOG_E("JavaScriptOb SetWebviewObject status=%{public}d", s);
+            }
+        }
+        webviewObj_ = result;
+    }
+
 private:
+    ani_status AniHasNamedProperty(ani_env* env, ani_object object, const char* name, ani_boolean* result)
+    {
+        if (env) {
+            *result = false;
+            ani_ref fieldResult;
+            ani_status s = env->Object_GetFieldByName_Ref(object, name, &fieldResult);
+            if (s != ANI_OK) {
+                return ANI_ERROR;
+            }
+            return ANI_OK;
+        }
+        return ANI_ERROR;
+    }
+
+    ani_status AniGetNamedProperty(ani_env* env, ani_object object, const char* name, ani_ref* result)
+    {
+        if (env) {
+            ani_status s = env->Object_GetPropertyByName_Ref(object, name, result);
+            if (s != ANI_OK) {
+                return ANI_ERROR;
+            }
+            return ANI_OK;
+        }
+        return ANI_ERROR;
+    }
+
     static napi_status CreateNewWeakRef(napi_env env, napi_ref ref, napi_ref* new_ref)
     {
         napi_value val = nullptr;
@@ -377,10 +545,13 @@ private:
     }
 
     napi_env env_ = nullptr;
+    ani_vm* vm_ = nullptr;
     int32_t containerScopeId_ = -1;
 
     napi_ref objRef_ = nullptr;
+    ani_ref aniObjRef_ = nullptr;
     bool isStrongRef_ = true;
+    ani_ref webviewObj_ = nullptr;
 
     // methods_ contains sync methods and async methods.
     std::vector<std::string> methods_;
@@ -397,7 +568,8 @@ private:
     std::mutex mutex_;
 };
 
-class WebviewJavaScriptResultCallBack : public NWebJavaScriptResultCallBack {
+class WebviewJavaScriptResultCallBack : public std::enable_shared_from_this<WebviewJavaScriptResultCallBack>,
+                                        public NWebJavaScriptResultCallBack {
 public:
     typedef std::unordered_map<std::string, JavaScriptOb::ObjectID> NamedObjectMap;
     typedef std::unordered_map<JavaScriptOb::ObjectID, std::shared_ptr<JavaScriptOb>> ObjectMap;
@@ -447,6 +619,21 @@ public:
         void* out = nullptr;
     };
 
+    struct AniJsCallBackParm {
+        // environment
+        ani_env* env = nullptr;
+        int32_t containerScopedId = -1;
+
+        std::mutex mutex;
+        //  sync
+        std::condition_variable condition;
+        bool ready = false;
+        // input
+        void* input = nullptr;
+        // out
+        void* out = nullptr;
+    };
+
     WebviewJavaScriptResultCallBack() {}
 
     explicit WebviewJavaScriptResultCallBack(int32_t nwebId);
@@ -469,10 +656,6 @@ public:
 
     void RemoveJavaScriptObjectHolderInJsTd(int32_t holder, JavaScriptOb::ObjectID objectId);
 
-    void RemoveTransientJavaScriptObject() override;
-
-    bool FindObjectIdInJsTd(napi_env env, napi_value object, JavaScriptOb::ObjectID* objectId);
-
     void GetJavaScriptResultV2(const std::vector<std::shared_ptr<NWebHapValue>>& args, const std::string& method,
         const std::string& objectName, int32_t routingId, int32_t objectId,
         std::shared_ptr<NWebHapValue> result) override;
@@ -483,19 +666,31 @@ public:
 
     void GetJavaScriptObjectMethodsV2(int32_t objectId, std::shared_ptr<NWebHapValue> result) override;
 
+    void RemoveTransientJavaScriptObject() override;
+
+    bool FindObjectIdInJsTd(napi_env env, napi_value object, JavaScriptOb::ObjectID* objectId);
+
+    bool FindObjectIdInJsTd(ani_env* env, ani_object object, JavaScriptOb::ObjectID* objectId);
+
     std::unordered_map<std::string, std::shared_ptr<JavaScriptOb>> GetNamedObjects();
 
     ObjectMap GetObjectMap();
 
     JavaScriptOb::ObjectID AddObject(napi_env env, const napi_value& object, bool methodName, int32_t holder);
 
+    JavaScriptOb::ObjectID AddObject(ani_env* env, const ani_object& object, bool methodName, int32_t holder);
+
     void SetUpAnnotateMethods(JavaScriptOb::ObjectID objId, std::vector<std::string>& methodNameList);
 
     JavaScriptOb::ObjectID RegisterJavaScriptProxy(RegisterJavaScriptProxyParam& param);
 
+    JavaScriptOb::ObjectID RegisterJavaScriptProxy(AniRegisterJavaScriptProxyParam& param);
+
     bool DeleteJavaScriptRegister(const std::string& objName);
 
     void CallH5FunctionInternal(napi_env env, H5Bundle& bundle, std::vector<std::shared_ptr<NWebValue>> nwebArgs);
+
+    void CallH5FunctionInternal(ani_env* env, H5Bundle& bundle, std::vector<std::shared_ptr<NWebValue>> nwebArgs);
 
     int32_t GetNWebId()
     {
@@ -508,6 +703,8 @@ private:
 
     JavaScriptOb::ObjectID AddNamedObject(napi_env env, napi_value& obj, const std::string& objName);
 
+    JavaScriptOb::ObjectID AddNamedObject(ani_env* env, ani_object& obj, const std::string& objName);
+
     std::shared_ptr<NWebValue> PostGetJavaScriptResultToJsThread(std::vector<std::shared_ptr<NWebValue>> args,
         const std::string& method, const std::string& objName, int32_t routingId, int32_t objectId);
 
@@ -516,8 +713,17 @@ private:
 
     void PostRemoveJavaScriptObjectHolderToJsThread(int32_t holder, JavaScriptOb::ObjectID objectId);
 
+    void PostGetJavaScriptResultToJsThreadV2(std::vector<ani_object>& argv, const std::string& method,
+        int32_t routingId, int32_t objectId, std::shared_ptr<NWebHapValue> result);
+
+    void CreateUvQueueWork(ani_env* env, WebviewJavaScriptResultCallBack::AniJsCallBackParm* data,
+        void (*handler)(ani_env* env, ani_status status, WebviewJavaScriptResultCallBack::AniJsCallBackParm* data));
+
     std::shared_ptr<NWebValue> GetJavaScriptResultSelf(std::vector<std::shared_ptr<NWebValue>> args,
         const std::string& method, const std::string& objName, int32_t routingId, int32_t objectId);
+
+    void GetJavaScriptResultSelfV2(const std::vector<std::shared_ptr<NWebHapValue>>& args, const std::string& method,
+        int32_t routingId, int32_t objectId, std::shared_ptr<NWebHapValue> result);
 
     bool ConstructArgv(void* ashmem, std::vector<std::shared_ptr<NWebValue>> args,
     	std::vector<napi_value>& argv, std::shared_ptr<JavaScriptOb> jsObj, int32_t routingId);
@@ -536,6 +742,7 @@ private:
     NamedObjectMap namedObjects_;
     ObjectMap objects_;
     std::unordered_set<std::shared_ptr<JavaScriptOb>> retainedObjectSet_;
+    std::shared_ptr<AppExecFwk::EventHandler> mainHandler_;
 };
 }
 #endif

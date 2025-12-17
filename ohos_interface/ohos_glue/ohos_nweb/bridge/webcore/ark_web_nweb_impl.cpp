@@ -17,6 +17,8 @@
 
 #include "ohos_nweb/bridge/ark_web_accessibility_event_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_accessibility_node_info_impl.h"
+#include "ohos_nweb/bridge/ark_web_agent_handler_wrapper.h"
+#include "ohos_nweb/bridge/ark_web_agent_manager_impl.h"
 #include "ohos_nweb/bridge/ark_web_array_buffer_value_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_pdfconfig_args_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_bool_value_callback_wrapper.h"
@@ -44,12 +46,14 @@
 #include "ohos_nweb/bridge/ark_web_string_value_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_stylus_touch_point_info_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_system_configuration_wrapper.h"
+#include "ohos_nweb/bridge/ark_web_vault_plain_text_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_print_document_adapter_adapter_impl.h"
 #include "ohos_nweb/ctocpp/ark_web_js_proxy_callback_vector_ctocpp.h"
 #include "ohos_nweb/ctocpp/ark_web_rom_value_vector_ctocpp.h"
 #include "ohos_nweb/ctocpp/ark_web_stylus_touch_point_info_vector_ctocpp.h"
 #include "ohos_nweb/ctocpp/ark_web_touch_point_info_vector_ctocpp.h"
 #include "ohos_nweb/ctocpp/ark_web_value_vector_ctocpp.h"
+#include "ohos_nweb/bridge/ark_web_command_action_wrapper.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
 
@@ -61,6 +65,7 @@ using ArkWebImageColorType = OHOS::NWeb::ImageColorType;
 using ArkWebImageAlphaType = OHOS::NWeb::ImageAlphaType;
 using ArkWebNestedScrollMode = OHOS::NWeb::NestedScrollMode;
 using ArkPixelUnit = OHOS::NWeb::PixelUnit;
+using ArkWebAutoFillTriggerType = OHOS::NWeb::NWebAutoFillTriggerType;
 
 ArkWebNWebImpl::ArkWebNWebImpl(std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb) : nweb_nweb_(nweb_nweb) {}
 
@@ -1623,5 +1628,99 @@ void ArkWebNWebImpl::StopFling()
 {
     WVLOG_D("ArkWebNWebImpl::StopFling");
     nweb_nweb_->StopFling();
+}
+
+void ArkWebNWebImpl::ResumeMicrophone()
+{
+    nweb_nweb_->ResumeMicrophone();
+}
+
+void ArkWebNWebImpl::StopMicrophone()
+{
+    nweb_nweb_->StopMicrophone();
+}
+
+void ArkWebNWebImpl::PauseMicrophone()
+{
+    nweb_nweb_->PauseMicrophone();
+}
+
+void ArkWebNWebImpl::JavaScriptOnDocumentStartByOrderV2(const ArkWebStringVectorMap& script_items,
+    const ArkWebPairStringVectorMap& script_regex_items, const ArkWebStringVector& script_items_by_order)
+{
+    nweb_nweb_->JavaScriptOnDocumentStartByOrderV2(ArkWebStringVectorMapStructToClass(script_items),
+        ArkWebPairStringVectorMapStructToClass(script_regex_items),
+        ArkWebStringVectorStructToClass(script_items_by_order));
+}
+
+void ArkWebNWebImpl::JavaScriptOnDocumentEndByOrderV2(const ArkWebStringVectorMap& script_items,
+    const ArkWebPairStringVectorMap& script_regex_items, const ArkWebStringVector& script_items_by_order)
+{
+    nweb_nweb_->JavaScriptOnDocumentEndByOrderV2(ArkWebStringVectorMapStructToClass(script_items),
+        ArkWebPairStringVectorMapStructToClass(script_regex_items),
+        ArkWebStringVectorStructToClass(script_items_by_order));
+}
+
+void ArkWebNWebImpl::JavaScriptOnHeadReadyByOrderV2(const ArkWebStringVectorMap& script_items,
+    const ArkWebPairStringVectorMap& script_regex_items, const ArkWebStringVector& script_items_by_order)
+{
+    nweb_nweb_->JavaScriptOnHeadReadyByOrderV2(ArkWebStringVectorMapStructToClass(script_items),
+        ArkWebPairStringVectorMapStructToClass(script_regex_items),
+        ArkWebStringVectorStructToClass(script_items_by_order));
+}
+
+void ArkWebNWebImpl::PutVaultPlainTextCallback(
+    ArkWebRefPtr<ArkWebVaultPlainTextCallback> callback)
+{
+    if (CHECK_REF_PTR_IS_NULL(callback)) {
+        nweb_nweb_->PutVaultPlainTextCallback(nullptr);
+        return;
+    }
+    nweb_nweb_->PutVaultPlainTextCallback(
+        std::make_shared<ArkWebVaultPlainTextCallbackWrapper>(callback));
+}
+
+void ArkWebNWebImpl::FillAutofillDataFromTriggerType(ArkWebRefPtr<ArkWebRomValue> data, int type)
+{
+    if (CHECK_REF_PTR_IS_NULL(data)) {
+        nweb_nweb_->FillAutofillDataFromTriggerType(nullptr, static_cast<ArkWebAutoFillTriggerType>(type));
+        return;
+    }
+    nweb_nweb_->FillAutofillDataFromTriggerType(
+        std::make_shared<ArkWebRomValueWrapper>(data), static_cast<ArkWebAutoFillTriggerType>(type));
+}
+
+void ArkWebNWebImpl::SetSoftKeyboardBehaviorMode(int mode)
+{
+    return nweb_nweb_->SetSoftKeyboardBehaviorMode(static_cast<OHOS::NWeb::WebSoftKeyboardBehaviorMode>(mode));
+}
+
+ArkWebRefPtr<ArkWebAgentManager> ArkWebNWebImpl::GetAgentManager()
+{
+    std::shared_ptr<OHOS::NWeb::NWebAgentManager> nweb_agent_manager = nweb_nweb_->GetAgentManager();
+    if (CHECK_SHARED_PTR_IS_NULL(nweb_agent_manager)) {
+        return nullptr;
+    }
+
+    return new ArkWebAgentManagerImpl(nweb_agent_manager);
+}
+
+void ArkWebNWebImpl::SetNWebAgentHandler(ArkWebRefPtr<ArkWebAgentHandler> handler)
+{
+    if (CHECK_REF_PTR_IS_NULL(handler)) {
+        nweb_nweb_->SetNWebAgentHandler(nullptr);
+        return;
+    }
+
+    nweb_nweb_->SetNWebAgentHandler(std::make_shared<ArkWebAgentHandlerWrapper>(handler));
+}
+
+int32_t ArkWebNWebImpl::SendCommandAction(ArkWebRefPtr<ArkWebCommandAction> action)
+{
+    if (CHECK_REF_PTR_IS_NULL(action)) {
+        nweb_nweb_->SendCommandAction(nullptr);
+        return -1;
+    }
+    return nweb_nweb_->SendCommandAction(std::make_shared<ArkWebCommandActionWrapper>(action));
 }
 } // namespace OHOS::ArkWeb

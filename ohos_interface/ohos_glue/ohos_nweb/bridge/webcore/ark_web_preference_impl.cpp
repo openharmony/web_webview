@@ -538,4 +538,26 @@ void ArkWebPreferenceImpl::PutZoomControlAccess(bool enable)
         nweb_preference_->PutZoomControlAccess(enable);
     }
 }
+
+void ArkWebPreferenceImpl::PutImageAnalyzerEnabled(bool enabled)
+{
+    if (nweb_preference_) {
+        nweb_preference_->PutImageAnalyzerEnabled(enabled);
+    }
+}
+
+bool ArkWebPreferenceImpl::GetImageAnalyzerEnabled()
+{
+    if (nweb_preference_) {
+        return nweb_preference_->GetImageAnalyzerEnabled();
+    }
+    return false;
+}
+
+void ArkWebPreferenceImpl::SetEnableAutoFill(bool enable)
+{
+    if (nweb_preference_) {
+        nweb_preference_->SetEnableAutoFill(enable);
+    }
+}
 } // namespace OHOS::ArkWeb

@@ -26,7 +26,7 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-const char* WEB_COOKIE_MANAGER_CLASS_NAME = "L@ohos/web/webview/webview/WebCookieManager;";
+const char* WEB_COOKIE_MANAGER_CLASS_NAME = "@ohos.web.webview.webview.WebCookieManager";
 }
 static void ClearSessionCookieSync(ani_env *env, ani_object aniClass)
 {
@@ -53,7 +53,7 @@ static ani_boolean JsExistCookie(ani_env *env, ani_object aniClass, ani_object i
     env->Reference_IsUndefined(incognito, &isUndefined);
     if (isUndefined != ANI_TRUE) {
         ani_boolean bIncognito;
-        if (env->Object_CallMethodByName_Boolean(incognito, "booleanValue", nullptr, &bIncognito) != ANI_OK) {
+        if (env->Object_CallMethodByName_Boolean(incognito, "toBoolean", nullptr, &bIncognito) != ANI_OK) {
             AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
                 NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
             return ANI_FALSE;
@@ -127,7 +127,7 @@ static void JsSetCookieSyncThree(ani_env *env, ani_object aniClass, ani_string u
     env->Reference_IsUndefined(incognito, &isUndefined);
     if (isUndefined != ANI_TRUE) {
         ani_boolean bIncognito = ANI_FALSE;
-        if (env->Object_CallMethodByName_Boolean(incognito, "unboxed", nullptr, &bIncognito) != ANI_OK) {
+        if (env->Object_CallMethodByName_Boolean(incognito, "toBoolean", nullptr, &bIncognito) != ANI_OK) {
             AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
                 NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
             return;
@@ -190,6 +190,36 @@ static void JsSetCookieSync(ani_env *env, ani_object aniClass, ani_string url, a
     }
 }
 
+static void JsPutAcceptCookieEnabled(ani_env *env, ani_object aniClass, ani_boolean accept)
+{
+    WVLOG_D("[COOKIE] JsPutAcceptCookieEnabled");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
+        OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
+    if (cookieManager != nullptr) {
+        cookieManager->PutAcceptCookieEnabled(accept);
+    }
+    return;
+}
+
+static void JsPutAcceptThirdPartyCookieEnabled(ani_env* env, ani_object aniClass, ani_boolean accept)
+{
+    WVLOG_D("[COOKIE] JsPutAcceptThirdPartyCookieEnabled");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
+        OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
+    if (cookieManager != nullptr) {
+        cookieManager->PutAcceptThirdPartyCookieEnabled(accept);
+    }
+    return;
+}
+
 static ani_string JsFetchCookieSync(ani_env *env, ani_object aniClass, ani_string url, ani_object incognito)
 {
     WVLOG_D("[COOKIE] JsFetchCookieSync.");
@@ -217,7 +247,7 @@ static ani_string JsFetchCookieSync(ani_env *env, ani_object aniClass, ani_strin
     env->Reference_IsUndefined(incognito, &isUndefined);
     if (isUndefined != ANI_TRUE) {
         ani_boolean bIncognito;
-        if (env->Object_CallMethodByName_Boolean(incognito, "booleanValue", nullptr, &bIncognito) != ANI_OK) {
+        if (env->Object_CallMethodByName_Boolean(incognito, "toBoolean", ":z", &bIncognito) != ANI_OK) {
             AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
                 NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
             return result;
@@ -240,6 +270,23 @@ static ani_string JsFetchCookieSync(ani_env *env, ani_object aniClass, ani_strin
     return result;
 }
 
+static ani_boolean JsIsThirdPartyCookieAllowed(ani_env *env, ani_object aniClass)
+{
+    WVLOG_D("[COOKIE] JsIsThirdPartyCookieAllowed");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+    std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
+        OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
+    if (cookieManager != nullptr) {
+        return static_cast<ani_boolean>(cookieManager->IsThirdPartyCookieAllowed());
+    } else {
+        WVLOG_E("cookieManager is nullptr");
+        return ANI_FALSE;
+    }
+}
+
 static void JsClearAllCookiesSync(ani_env *env, ani_object aniClass, ani_object incognito)
 {
     WVLOG_D("[COOKIE] JsClearAllCookiesSync");
@@ -249,7 +296,7 @@ static void JsClearAllCookiesSync(ani_env *env, ani_object aniClass, ani_object 
     env->Reference_IsUndefined(incognito, &isUndefined);
     if (isUndefined != ANI_TRUE) {
         ani_boolean bIncognito;
-        if (env->Object_CallMethodByName_Boolean(incognito, "booleanValue", nullptr, &bIncognito) != ANI_OK) {
+        if (env->Object_CallMethodByName_Boolean(incognito, "toBoolean", nullptr, &bIncognito) != ANI_OK) {
             AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
                 NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
             return;
@@ -278,6 +325,18 @@ static void JsSaveCookieSync(ani_env *env, ani_object aniClass)
     cookieManager->Store();
 }
 
+static void JsSetLazyInitializeWebEngine(ani_env* env, ani_object aniClass, ani_boolean lazy)
+{
+    WVLOG_I("[COOKIE] JsSetLazyInitializeWebEngine Lazy: %d.", lazy);
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    bool lazyInit = static_cast<bool>(lazy);
+    OHOS::NWeb::NWebHelper::Instance().SetLazyInitializeWebEngine(lazyInit);
+}
+
 ani_status StsWebCookieManagerInit(ani_env *env)
 {
     if (env == nullptr) {
@@ -295,16 +354,23 @@ ani_status StsWebCookieManagerInit(ani_env *env)
         ani_native_function { "existCookie", nullptr, reinterpret_cast<void *>(JsExistCookie) },
         ani_native_function { "isCookieAllowed", nullptr, reinterpret_cast<void *>(JsIsCookieAllowed) },
         ani_native_function { "configCookieSyncInternal", nullptr, reinterpret_cast<void *>(JsSetCookieSyncThree) },
-        ani_native_function { "configCookieSync", "Lstd/core/String;Lstd/core/String;ZZ:V",
+        ani_native_function { "configCookieSync", "C{std.core.String}C{std.core.String}zz:",
                               reinterpret_cast<void *>(JsSetCookieSync) },
+        ani_native_function { "putAcceptCookieEnabled", nullptr, reinterpret_cast<void *>(JsPutAcceptCookieEnabled) },
+        ani_native_function {"putAcceptThirdPartyCookieEnabled", nullptr,
+            reinterpret_cast<void *>(JsPutAcceptThirdPartyCookieEnabled) },
+        ani_native_function { "isThirdPartyCookieAllowed",
+            nullptr, reinterpret_cast<void *>(JsIsThirdPartyCookieAllowed) },
         ani_native_function { "fetchCookieSync", nullptr, reinterpret_cast<void *>(JsFetchCookieSync) },
         ani_native_function { "saveCookieSync", nullptr, reinterpret_cast<void *>(JsSaveCookieSync) },
         ani_native_function { "clearAllCookiesSync", nullptr, reinterpret_cast<void *>(JsClearAllCookiesSync) },
+        ani_native_function {
+            "setLazyInitializeWebEngine", nullptr, reinterpret_cast<void*>(JsSetLazyInitializeWebEngine) },
     };
 
-    status = env->Class_BindNativeMethods(webCookieManagerCls, allMethods.data(), allMethods.size());
+    status = env->Class_BindStaticNativeMethods(webCookieManagerCls, allMethods.data(), allMethods.size());
     if (status != ANI_OK) {
-        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+        WVLOG_E("Class_BindStaticNativeMethods failed status: %{public}d", status);
     }
 
     return ANI_OK;

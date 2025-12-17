@@ -48,7 +48,6 @@ const std::string WEB_DVSYNC_CONFIG = "dvsync_config";
 const std::string WEB_DVSYNC_SWITCH = "dvsync_switch";
 const std::string WEB_WINDOW_ORIENTATION_CONFIG = "window_orientation_config";
 const std::string WEB_ALL_BUNDLE_NAME = "*";
-const std::string WEB_DRDC_CONFIG_NAME = "disableDrdc";
 const auto XML_ATTR_NAME = "name";
 const auto XML_ATTR_MIN = "min";
 const auto XML_ATTR_MAX = "max";
@@ -140,6 +139,14 @@ const std::unordered_map<std::string_view, std::function<std::string(std::string
         [](std::string& contentStr) {
             return contentStr == "true" ? std::string("--ohos-enable-report-cookie-monster-client") : std::string();
         } },
+    { "settingConfig/enableReportThreadPoolForeg",
+        [](std::string& contentStr) {
+            return contentStr == "true" ? std::string("--ohos-enable-report-thread-pool-foreg") : std::string();
+        } },
+    { "settingConfig/enableJsFlagOptimizeForSize",
+        [](std::string& contentStr) {
+            return contentStr == "true" ? std::string("--js-flags=\"--optimize_for_size\"") : std::string();
+        } },
     { "settingConfig/disableMobileStyleSheet",
         [](std::string& contentStr) {
             return contentStr == "true" ? std::string("--ohos-disable-mobile-style-sheet") : std::string();
@@ -170,6 +177,7 @@ NWebConfigHelper::NWebConfigHelper()
     bool hasPlayGround = false;
     bool isDebugApp = false;
     bool isDeveloperMode = IsDeveloperModeEnabled();
+    dvsyncSwitch_ = false;
     if (saManager == nullptr) {
         WVLOG_E("webPlayGround get saManager fail");
         return;
@@ -196,7 +204,6 @@ NWebConfigHelper::NWebConfigHelper()
         }
     }
     web_play_ground_enabled_ = isDebugApp && hasPlayGround && isDeveloperMode;
-    dvsyncSwitch_ = false;
 
     if (web_play_ground_enabled_) {
         #define XPM_KICKER (0x6a6974)
@@ -617,10 +624,6 @@ void NWebConfigHelper::ParseDeleteConfig(const xmlNodePtr &rootPtr, std::shared_
             auto it = configMap.find(nodeName + "/" + childNodeName);
             if (it == configMap.end()) {
                 WVLOG_W("not found for web_config: %{public}s/%{public}s", nodeName.c_str(), childNodeName.c_str());
-                continue;
-            }
-            if (childNodeName == WEB_DRDC_CONFIG_NAME && !IS_CALLING_FROM_M114()) {
-                WVLOG_W("drdc default is enable on M132.");
                 continue;
             }
             std::string param = it->second(contentStr);

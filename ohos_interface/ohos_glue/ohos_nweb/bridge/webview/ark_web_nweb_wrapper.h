@@ -30,6 +30,7 @@ using ArkWebImageAlphaType = OHOS::NWeb::ImageAlphaType;
 using ArkWebNestedScrollMode = OHOS::NWeb::NestedScrollMode;
 using ArkPixelUnit = OHOS::NWeb::PixelUnit;
 using ArkWebDestroyMode = OHOS::NWeb::WebDestroyMode;
+using ArkWebAutoFillTriggerType = OHOS::NWeb::NWebAutoFillTriggerType;
 
 class ArkWebNWebWrapper : public OHOS::NWeb::NWeb {
 public:
@@ -1854,6 +1855,102 @@ public:
      */
     /*--ark web()--*/
     void StopFling() override;
+
+    /**
+     * @brief Resume current microphone.
+     */
+    /*--ark web()--*/
+    void ResumeMicrophone() override;
+
+    /**
+     * @brief Stop current microphone.
+     */
+    /*--ark web()--*/
+    void StopMicrophone() override;
+
+    /**
+     * @brief Pause current microphone.
+     */
+    /*--ark web()--*/
+    void PauseMicrophone() override;
+
+    /**
+     * @brief Inject the JavaScript before WebView load the DOM tree.
+     *
+     * @param script_items: Multiple injected JavaScript codes are stored in a map in lexicographical order.
+     * @param script_regex_items: Multiple injected regular expression rule codes are
+     *                            stored in a map in lexicographical order.
+     * @param script_items_by_order: Multiple injected JavaScript codes are stored in the order of injection.
+     */
+    void JavaScriptOnDocumentStartByOrderV2(const std::map<std::string, std::vector<std::string>>& script_items,
+        const std::map<std::string, std::vector<std::pair<std::string, std::string>>>& script_regex_items,
+        const std::vector<std::string>& script_items_by_order) override;
+
+    /**
+     * @brief Inject the JavaScript after WebView loads the DOM tree and run
+     *        JavaScripts.
+     *
+     * @param script_items: Multiple injected JavaScript codes are stored in a map in lexicographical order.
+     * @param script_regex_items: Multiple injected regular expression rule codes are
+     *                            stored in a map in lexicographical order.
+     * @param script_items_by_order: Multiple injected JavaScript codes are stored in the order of injection.
+     */
+    void JavaScriptOnDocumentEndByOrderV2(const std::map<std::string, std::vector<std::string>>& script_items,
+        const std::map<std::string, std::vector<std::pair<std::string, std::string>>>& script_regex_items,
+        const std::vector<std::string>& script_items_by_order) override;
+
+    /**
+     * @Description: Inject the JavaScript when the head element has been created.
+     * @Input scriptItems: The injected JavaScript code is stored in lexicographical order.
+     * @Input script_regex_items: Multiple injected regular expression rule codes are
+     *                            stored in a map in lexicographical order.
+     * @Input scriptItemsByOrder: The injected JavaScript code is stored in the order of the injection array.
+     */
+    /*--ark web()--*/
+    void JavaScriptOnHeadReadyByOrderV2(const std::map<std::string, std::vector<std::string>>& script_items,
+        const std::map<std::string, std::vector<std::pair<std::string, std::string>>>& script_regex_items,
+        const std::vector<std::string>& script_items_by_order) override;
+
+    /**
+     * @brief Put the callback, get plain text from password vault.
+     *
+     * @param callback get plain text from password vault.
+     */
+    void PutVaultPlainTextCallback(
+        std::shared_ptr<OHOS::NWeb::NWebVaultPlainTextCallback> callback) override;
+    
+    /**
+     * @brief fill autofill data.
+     *
+     * @param data data.
+     * @param type type.
+     */
+    void FillAutofillDataFromTriggerType(
+        std::shared_ptr<OHOS::NWeb::NWebRomValue> data, const ArkWebAutoFillTriggerType& type) override;
+
+    /**
+     * @brief Set soft keyboard behavior mode.
+     * @param mode WebSoftKeyboardBehaviorMode: the soft keyboard behavior mode.
+     */
+    void SetSoftKeyboardBehaviorMode(OHOS::NWeb::WebSoftKeyboardBehaviorMode mode) override;
+
+    /**
+     * @brief Get NWebAgentManager
+     */
+    std::shared_ptr<OHOS::NWeb::NWebAgentManager> GetAgentManager() override;
+
+    /**
+     * @brief Set NWebAgentHandler
+     */
+    void SetNWebAgentHandler(std::shared_ptr<OHOS::NWeb::NWebAgentHandler> handler) override;
+
+    /**
+     * @brief Send command action to nweb.
+     *
+     * @param action The action of msdp's command.
+     * @return The result of command.
+     */
+    int32_t SendCommandAction(std::shared_ptr<OHOS::NWeb::NWebCommandAction> action) override;
 
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;

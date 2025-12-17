@@ -69,8 +69,9 @@ void WebRunInitedCallbackImpl::RunInitedCallback()
         return;
     }
     work->data = reinterpret_cast<void*>(param_);
-    int ret = uv_queue_work_with_qos(
-        loop, work, [](uv_work_t* work) {}, UvWebInitedCallbackThreadWoker, uv_qos_user_initiated);
+    int ret = uv_queue_work_with_qos_internal(
+        loop, work, [](uv_work_t* work) {}, UvWebInitedCallbackThreadWoker, uv_qos_user_initiated,
+        "WebviewUvWebInitedCallbackThreadWoker");
     if (ret != 0) {
         if (param_ != nullptr) {
             delete param_;

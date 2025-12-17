@@ -57,6 +57,13 @@ public:
      */
     int LineNumer() override;
 
+    /**
+     * @brief Get console log source type
+     *
+     * @return source type
+     */
+    int Source() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebConsoleLog> nweb_console_log_;
 };

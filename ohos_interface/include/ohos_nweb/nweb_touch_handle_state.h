@@ -47,6 +47,8 @@ public:
     virtual float GetAlpha() = 0;
 
     virtual float GetEdgeHeight() = 0;
+
+    virtual bool IsDragging() { return false; }
 };
 
 } // namespace OHOS::NWeb

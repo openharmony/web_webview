@@ -395,6 +395,8 @@ _simpletypes = {
     'ArkWebStringVector':['ArkWebStringVector', 'ark_web_string_vector_default'],
     'ArkWebStringVectorMap':['ArkWebStringVectorMap', 'ark_web_string_vector_map_default'],
     'ArkWebUInt8VectorMap': ['ArkWebUInt8VectorMap', 'ark_web_uint8_vector_map_default'],
+    'ArkWebPairStringVector':['ArkWebPairStringVector', 'ark_web_pair_string_vector_default'],
+    'ArkWebPairStringVectorMap':['ArkWebPairStringVectorMap', 'ark_web_pair_string_vector_map_default'],
     'ArkWebValueVector':['ArkWebValueVector', 'ark_web_value_vector_default'],
     'ArkWebTouchPointInfoVector':['ArkWebTouchPointInfoVector', 'ak_web_touch_point_info_vector_default'],
     'ArkWebMediaSourceInfoVector':['ArkWebMediaSourceInfoVector', 'ark_web_media_source_info_vector_default'],
@@ -443,6 +445,9 @@ _simpletypes = {
     ],
     'ArkWebNativeEmbedParamItemVector': [
         'ArkWebNativeEmbedParamItemVector', 'ark_web_native_embed_param_item_vector_default'
+    ],
+    'ArkWebCookieVector': [
+        'ArkWebCookieVector', 'ark_web_cookie_vector_default'
     ],
 }
 

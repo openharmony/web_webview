@@ -17,6 +17,7 @@
 #include <iostream>
 #include <js_native_api.h>
 #include <js_native_api_types.h>
+#include <securec.h>
 
 #include "ani_business_error.h"
 #include "ani_parse_utils.h"
@@ -38,7 +39,7 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-const char* ANI_CLASS_WEB_DOWNLOAD_ITEM = "L@ohos/web/webview/webview/WebDownloadItem;";
+const char* ANI_CLASS_WEB_DOWNLOAD_ITEM = "@ohos.web.webview.webview.WebDownloadItem";
 } // namespace
 
 static ani_string GetUrl(ani_env* env, ani_object object)
@@ -145,6 +146,28 @@ static ani_string GetMethod(ani_env* env, ani_object object)
     return methodValue;
 }
 
+static ani_string GetMimeType(ani_env* env, ani_object object)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+
+    auto* webDownloadItem = reinterpret_cast<WebDownloadItem*>(AniParseUtils::Unwrap(env, object));
+    if (!webDownloadItem) {
+        WVLOG_E("GetMimeType webDownloadItem is null");
+        return nullptr;
+    }
+
+    ani_string mimeTypeValue = nullptr;
+    if (env->String_NewUTF8(webDownloadItem->mimeType.c_str(), webDownloadItem->mimeType.size(), &mimeTypeValue) !=
+        ANI_OK) {
+        WVLOG_E("GetMimeType error");
+        return nullptr;
+    }
+    return mimeTypeValue;
+}
+
 static ani_int GetCurrentSpeed(ani_env* env, ani_object object)
 {
     int32_t currentSpeed = 0;
@@ -235,7 +258,7 @@ static ani_enum_item GetLastErrorCode(ani_env* env, ani_object object)
     }
 
     ani_enum enumType;
-    ani_status status = env->FindEnum("L@ohos/web/webview/webview/WebDownloadErrorCode;", &enumType);
+    ani_status status = env->FindEnum("@ohos.web.webview.webview.WebDownloadErrorCode", &enumType);
     if (status != ANI_OK) {
         return errorCode;
     }
@@ -263,7 +286,7 @@ static ani_enum_item GetState(ani_env* env, ani_object object)
     }
 
     ani_enum enumType;
-    ani_status status = env->FindEnum("L@ohos/web/webview/webview/WebDownloadState;", &enumType);
+    ani_status status = env->FindEnum("@ohos.web.webview.webview.WebDownloadState", &enumType);
     if (status != ANI_OK) {
         return state;
     }
@@ -427,39 +450,19 @@ static ani_object SerializeInternal(ani_env* env, ani_object object)
     std::string webDownloadValue;
     webDownloadPb.SerializeToString(&webDownloadValue);
     WVLOG_D("[DOWNLOAD] webDownloadValue.c_str() is %{public}s", webDownloadValue.c_str());
-    size_t length = webDownloadValue.length();
-
-    ani_class cls;
-    ani_status status = env->FindClass("Lescompat/ArrayBuffer;", &cls);
-    if (status != ANI_OK) {
-        WVLOG_E("[DOWNLOAD] Find class %{public}s failed, status is %{public}d.", "Lescompat/ArrayBuffer", status);
+    void* data = nullptr;
+    ani_arraybuffer buffer = nullptr;
+    size_t length = webDownloadValue.size();
+    if (env->CreateArrayBuffer(length, &data, &buffer) != ANI_OK) {
+        WVLOG_E("CreateArrayBuffer failed");
         return nullptr;
     }
-
-    ani_method ctor;
-    status = env->Class_FindMethod(cls, "<ctor>", "I:V", &ctor);
-    if (status != ANI_OK) {
-        WVLOG_E("[DOWNLOAD] Find function %{public}s failed, status is %{public}d.", "<ctor>", status);
+    int retCode = memcpy_s(data, length, webDownloadValue.data(), length);
+    if (retCode != 0) {
+        WVLOG_E("memcpy failed");
         return nullptr;
     }
-
-    ani_object arrayBufferObj = nullptr;
-    status = env->Object_New(cls, ctor, &arrayBufferObj, length);
-    if (status != ANI_OK) {
-        WVLOG_E("[DOWNLOAD] Object_New failed, status is %{public}d.", status);
-        return nullptr;
-    }
-
-    for (size_t i = 0; i < length; i++) {
-        ani_int value = webDownloadValue[i];
-        status = env->Object_CallMethodByName_Void(
-            arrayBufferObj, "set", "IB:V", static_cast<ani_int>(i), static_cast<ani_byte>(value));
-        if (status != ANI_OK) {
-            WVLOG_E("[DOWNLOAD]arrayBufferObj set() failed, status is %{public}d.", status);
-            break;
-        }
-    }
-    return arrayBufferObj;
+    return buffer;
 }
 
 void GetWebDownloadPb(const browser_service::WebDownload& webDownloadPb, WebDownloadItem* webDownloadItem)
@@ -494,7 +497,7 @@ static ani_object DeserializeInternal(ani_env* env, ani_object object, ani_objec
     }
 
     ani_int length;
-    ani_status status = env->Object_CallMethodByName_Int(arrayObject, "getByteLength", ":I", &length);
+    ani_status status = env->Object_CallMethodByName_Int(arrayObject, "getByteLength", ":i", &length);
     if (status != ANI_OK || length <= 0) {
         WVLOG_E("[DOWNLOAD]Object_CallMethodByName_Int getByteLength() failed, status is %{public}d.", status);
         return nullptr;
@@ -503,7 +506,7 @@ static ani_object DeserializeInternal(ani_env* env, ani_object object, ani_objec
     std::string dataStr(length, '\0');
     for (ani_int i = 0; i < length; i++) {
         ani_byte value;
-        status = env->Object_CallMethodByName_Byte(arrayObject, "at", "I:B", &value, static_cast<ani_int>(i));
+        status = env->Object_CallMethodByName_Byte(arrayObject, "at", "i:b", &value, i);
         if (status != ANI_OK) {
             WVLOG_E("[DOWNLOAD]arrayBufferObj at() failed, status is %{public}d.", status);
             return nullptr;
@@ -566,6 +569,7 @@ ani_status StsWebDownLoadItemInit(ani_env* env)
         ani_native_function { "getPercentComplete", nullptr, reinterpret_cast<void*>(GetPercentComplete) },
         ani_native_function { "getSuggestedFileName", nullptr, reinterpret_cast<void*>(GetSuggestedFileName) },
         ani_native_function { "getMethod", nullptr, reinterpret_cast<void*>(GetMethod) },
+        ani_native_function { "getMimeType", nullptr, reinterpret_cast<void*>(GetMimeType) },
         ani_native_function { "getCurrentSpeed", nullptr, reinterpret_cast<void*>(GetCurrentSpeed) },
         ani_native_function { "getReceivedBytes", nullptr, reinterpret_cast<void*>(GetReceivedBytes) },
         ani_native_function { "getFullPath", nullptr, reinterpret_cast<void*>(GetFullPath) },
@@ -577,11 +581,16 @@ ani_status StsWebDownLoadItemInit(ani_env* env)
         ani_native_function { "resume", nullptr, reinterpret_cast<void*>(Resume) },
         ani_native_function { "pause", nullptr, reinterpret_cast<void*>(Pause) },
         ani_native_function { "serializeInternal", nullptr, reinterpret_cast<void*>(SerializeInternal) },
-        ani_native_function { "deserializeInternal", nullptr, reinterpret_cast<void*>(DeserializeInternal) },
     };
     status = env->Class_BindNativeMethods(aniCls, allMethods.data(), allMethods.size());
     if (status != ANI_OK) {
         WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+        return ANI_ERROR;
+    }
+    ani_native_function staticMethod { "deserializeInternal", nullptr, reinterpret_cast<void*>(DeserializeInternal) };
+    status = env->Class_BindStaticNativeMethods(aniCls, &staticMethod, 1);
+    if (status != ANI_OK) {
+        WVLOG_E("Class_BindStaticNativeMethods failed status: %{public}d", status);
         return ANI_ERROR;
     }
     return ANI_OK;

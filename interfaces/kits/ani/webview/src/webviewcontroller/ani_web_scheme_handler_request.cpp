@@ -26,17 +26,16 @@
 #include "nweb_log.h"
 #include "securec.h"
 #include "web_errors.h"
-#include "web_scheme_handler_request.h"
+#include "web_scheme_handler.h"
+#include "ani_class_name.h"
+#include "interop_js/arkts_esvalue.h"
+#include "interop_js/arkts_interop_js_api.h"
 
 namespace OHOS {
 namespace NWeb {
 
 using namespace NWebError;
 using NWebError::NO_ERROR;
-namespace {
-const char* ANI_CLASS_WEB_REQUESTTYPE = "L@ohos/web/webview/webview/WebSchemeHandlerRequest;";
-const char* ANI_CLASS_WEB_RESOURCETYPE = "L@ohos/web/webview/webview/WebResourceType;";
-} // namespace
 
 static ani_boolean JSHasGesture(ani_env* env, ani_object object)
 {
@@ -183,7 +182,7 @@ static ani_string GetRequestUrl(ani_env* env, ani_object object)
     return value;
 }
 
-bool GetHeaderProcessItems(ani_env* env, std::vector<std::pair<std::string, std::string>> values, ani_array_ref& array)
+bool GetHeaderProcessItems(ani_env* env, std::vector<std::pair<std::string, std::string>> values, ani_array& array)
 {
     WVLOG_D("GetHeaderProcessItems begin");
     if (env == nullptr) {
@@ -191,7 +190,7 @@ bool GetHeaderProcessItems(ani_env* env, std::vector<std::pair<std::string, std:
         return false;
     }
     ani_class stringCls;
-    if (ANI_OK != env->FindClass("L@ohos/web/webview/webview/GetHeaderWebHeader;", &stringCls)) {
+    if (ANI_OK != env->FindClass("@ohos.web.webview.webview.GetHeaderWebHeader", &stringCls)) {
         WVLOG_E("getHeader find class failed.");
         return false;
     }
@@ -221,7 +220,7 @@ bool GetHeaderProcessItems(ani_env* env, std::vector<std::pair<std::string, std:
             WVLOG_E("getHeader Get headerValue failed");
             return false;
         }
-        env->Array_Set_Ref(array, i, webHeaderObj);
+        env->Array_Set(array, i, webHeaderObj);
     }
     return true;
 }
@@ -240,24 +239,14 @@ static ani_ref GetHeader(ani_env* env, ani_object object)
     }
 
     std::vector<std::pair<std::string, std::string>> values = request->GetHeader();
-    ani_class stringCls;
-    if (ANI_OK != env->FindClass("L@ohos/web/webview/webview/GetHeaderWebHeader;", &stringCls)) {
-        WVLOG_E("getHeader find class failed.");
-        return nullptr;
-    }
-    ani_method personInfoCtor;
-    if (ANI_OK != env->Class_FindMethod(stringCls, "<ctor>", nullptr, &personInfoCtor)) {
-        WVLOG_E("getHeader Class_FindMethod Failed.");
-        return nullptr;
-    }
 
     ani_ref undefinedRef = nullptr;
     if (ANI_OK != env->GetUndefined(&undefinedRef)) {
         WVLOG_E("getHeader GetUndefined Failed.");
         return nullptr;
     }
-    ani_array_ref array = nullptr;
-    if (ANI_OK != env->Array_New_Ref(stringCls, values.size(), undefinedRef, &array)) {
+    ani_array array = nullptr;
+    if (ANI_OK != env->Array_New(values.size(), undefinedRef, &array)) {
         WVLOG_E("getHeader new array ref error.");
         return nullptr;
     }
@@ -267,6 +256,77 @@ static ani_ref GetHeader(ani_env* env, ani_object object)
         return nullptr;
     }
     return array;
+}
+
+static ani_object GetHttpBodyStream(ani_env *env, ani_object object)
+{
+    WVLOG_I("getHttpBodyStream start");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    auto* request = reinterpret_cast<WebSchemeHandlerRequest *>(AniParseUtils::Unwrap(env, object));
+    if (!request) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return nullptr;
+    }
+
+    ArkWeb_HttpBodyStream* arkWebPostStream = request->GetHttpBodyStream();
+    if (!arkWebPostStream) {
+        WVLOG_E("getHttpBodyStream: arkWebPostStream is nullptr");
+        return nullptr;
+    }
+    ani_object httpBodyStreamObject;
+    WebHttpBodyStream* stream = new (std::nothrow) WebHttpBodyStream(env, arkWebPostStream);
+    if (stream == nullptr) {
+        WVLOG_E("stream is nullptr");
+        return nullptr;
+    }
+
+    ani_class cls;
+    ani_method ctor;
+    if (env->FindClass(ANI_HTTP_BODY_STREAM, &cls) != ANI_OK) {
+        return nullptr;
+    }
+    if (env->Class_FindMethod(cls, "<ctor>", nullptr, &ctor) != ANI_OK) {
+        return nullptr;
+    }
+    if (env->Object_New(cls, ctor, &httpBodyStreamObject) != ANI_OK) {
+        WVLOG_E("Object_New failed");
+        delete stream;
+        stream = nullptr;
+        return nullptr;
+    }
+    if (!AniParseUtils::Wrap(env, httpBodyStreamObject, ANI_HTTP_BODY_STREAM, reinterpret_cast<ani_long>(stream))) {
+        WVLOG_E("webview controller wrap failed");
+        delete stream;
+        stream = nullptr;
+    }
+    WVLOG_I("getHttpBodyStream: arkWebPostStream success");
+    return httpBodyStreamObject;
+}
+
+static ani_boolean TransferWebSchemeHandlerRequestToStaticInner(
+    ani_env* env, ani_class aniClass, ani_object output, ani_object input)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+
+    void *nativePtr = nullptr;
+    if (!arkts_esvalue_unwrap(env, input, &nativePtr) || nativePtr == nullptr) {
+        WVLOG_E("[TRANSFER] arkts_esvalue_unwrap failed");
+        return ANI_FALSE;
+    }
+    WebSchemeHandlerRequest *schemeHandlerRequest = reinterpret_cast<WebSchemeHandlerRequest *>(nativePtr);
+    if (!AniParseUtils::Wrap(env, output, ANI_WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME,
+                             reinterpret_cast<ani_long>(schemeHandlerRequest))) {
+        WVLOG_E("[TRANSFER] WebSchemeHandlerRequest wrap failed");
+        return ANI_FALSE;
+    }
+    schemeHandlerRequest->IncStrongRef(nullptr);
+    return ANI_TRUE;
 }
 
 static void Constructor(ani_env* env, ani_object object)
@@ -300,12 +360,24 @@ ani_status StsWebSchemeHandlerRequestInit(ani_env* env)
         ani_native_function { "getRequestResourceType", nullptr, reinterpret_cast<void*>(GetRequestResourceType) },
         ani_native_function { "getRequestUrl", nullptr, reinterpret_cast<void*>(GetRequestUrl) },
         ani_native_function { "isMainFrame", nullptr, reinterpret_cast<void*>(IsMainFrame) },
+        ani_native_function { "getHttpBodyStream", nullptr, reinterpret_cast<void *>(GetHttpBodyStream) },
         ani_native_function { "getRequestMethod", nullptr, reinterpret_cast<void*>(GetRequestMethod) },
     };
 
     status = env->Class_BindNativeMethods(WebSchemeHandlerRequestCls, allMethods.data(), allMethods.size());
     if (status != ANI_OK) {
         WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+        return status;
+    }
+
+    std::array allStaticMethods = {
+        ani_native_function { "transferWebSchemeHandlerRequestToStaticInner",
+                              nullptr, reinterpret_cast<void*>(TransferWebSchemeHandlerRequestToStaticInner) },
+    };
+    status = env->Class_BindStaticNativeMethods(WebSchemeHandlerRequestCls,
+        allStaticMethods.data(), allStaticMethods.size());
+    if (status != ANI_OK) {
+        WVLOG_E("Class_BindStaticNativeMethods failed status: %{public}d", status);
     }
     return ANI_OK;
 }

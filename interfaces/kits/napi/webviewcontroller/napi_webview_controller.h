@@ -38,7 +38,7 @@ const std::string WEB_HISTORY_LIST_CLASS_NAME = "WebHistoryList";
 const std::string WEB_SECURE_DNS_MODE_ENUM_NAME = "SecureDnsMode";
 const std::string WEB_ENGINE_VERSION_ENUM_NAME = "ArkWebEngineVersion";
 const std::string WEB_PRINT_DOCUMENT_CLASS_NAME = "WebPrintDocument";
-const std::string WEB_SECURITY_LEVEL_ENUM_NAME = "WebSecurityLevel";
+const std::string WEB_SECURITY_LEVEL_ENUM_NAME = "SecurityLevel";
 const std::string WEB_RENDER_PROCESS_MODE_ENUM_NAME = "RenderProcessMode";
 const std::string OFFLINE_RESOURCE_TYPE_ENUM_NAME = "OfflineResourceType";
 const std::string WEB_SCROLL_TYPE_ENUM_NAME = "ScrollType";
@@ -49,6 +49,7 @@ const std::string WEB_DESTROY_MODE_ENUM_NAME = "WebDestroyMode";
 const std::string WEB_SITE_ISOLATION_MODE_ENUM_NAME = "SiteIsolationMode";
 const std::string WEB_SCROLLBAR_MODE_ENUM_NAME = "ScrollbarMode";
 const std::string WEB_SOFT_KEYBOARD_BEHAVIOR_MODE_ENUM_NAME = "WebSoftKeyboardBehaviorMode";
+const std::string WEB_HTTP_COOKIE_SAME_SITE_POLICY_ENUM_NAME = "WebHttpCookieSameSitePolicy";
 constexpr double TEN_MILLIMETER_TO_INCH = 0.39;
 
 struct Scheme {
@@ -320,6 +321,12 @@ private:
 
     static napi_value CloseCamera(napi_env env, napi_callback_info info);
 
+    static napi_value ResumeMicrophone(napi_env env, napi_callback_info info);
+
+    static napi_value StopMicrophone(napi_env env, napi_callback_info info);
+
+    static napi_value PauseMicrophone(napi_env env, napi_callback_info info);
+
     static napi_value CloseAllMediaPresentations(napi_env env, napi_callback_info info);
 
     static napi_value StopAllMedia(napi_env env, napi_callback_info info);
@@ -437,6 +444,8 @@ public:
     ~ArkWebTransfer() = default;
     static napi_value CreateBackForwardListTransfer(napi_env env, napi_callback_info info);
     static napi_value CreateWebMessagePortTransfer(napi_env env, napi_callback_info info);
+    static napi_value CreateWebResourceHandlerTransfer(napi_env env, napi_callback_info info);
+    static napi_value CreateWebSchemeHandlerRequestTransfer(napi_env env, napi_callback_info info);
 };
 
 class NWebValueCallbackImpl : public NWebMessageValueCallback {

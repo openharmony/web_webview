@@ -15,9 +15,9 @@
 
  #ifndef OHOS_NWEB_ANI_WEB_DATA_BASE_H
  #define OHOS_NWEB_ANI_WEB_DATA_BASE_H
- 
+
  #include <ani.h>
- 
+
  namespace OHOS {
  namespace NWeb {
  ani_status StsWebDataBaseInit(ani_env *env);

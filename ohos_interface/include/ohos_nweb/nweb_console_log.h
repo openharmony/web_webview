@@ -27,6 +27,22 @@ class OHOS_NWEB_EXPORT NWebConsoleLog {
 public:
     enum NWebConsoleLogLevel { DEBUG = 1, INFO, WARNING, ERROR, UNKNOWN };
 
+    enum NWebConsoleLogSource {
+        XML,
+        JAVASCRIPT,
+        NETWORK,
+        CONSOLEAPI,
+        STORAGE,
+        RENDERING,
+        SECURITY,
+        OTHER,
+        DEPRECATION,
+        WORKER,
+        VIOLATION,
+        INTERVENTION,
+        RECOMMENDATION
+    };
+
     virtual ~NWebConsoleLog() = default;
 
     /**
@@ -56,6 +72,16 @@ public:
      * @retval source id
      */
     virtual std::string SourceId() = 0;
+
+    /**
+     * @brief Get console log source id
+     *
+     * @retval source id
+     */
+    virtual NWebConsoleLogSource Source()
+    {
+        return OTHER;
+    }
 };
 
 } // namespace OHOS::NWeb

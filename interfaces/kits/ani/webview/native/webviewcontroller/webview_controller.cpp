@@ -21,6 +21,7 @@
 #include <regex>
 
 #include "application_context.h"
+#include "ani_business_error.h"
 #include "business_error.h"
 #include "napi_parse_utils.h"
 #include "ohos_resource_adapter_impl.h"
@@ -467,6 +468,16 @@ std::string WebviewController::GetTitle()
         title = nweb_ptr->Title();
     }
     return title;
+}
+
+int32_t WebviewController::GetProgress()
+{
+    int32_t progress = 0;
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (nweb_ptr) {
+        progress = nweb_ptr->PageLoadProgress();
+    }
+    return progress;
 }
 
 int32_t WebviewController::GetPageHeight()
@@ -1007,6 +1018,43 @@ void WebviewController::RegisterJavaScriptProxy(RegisterJavaScriptProxyParam& pa
                                     std::vector<std::string>(), objId, param_tmp.permission);
 }
 
+void WebviewController::RegisterJavaScriptProxy(AniRegisterJavaScriptProxyParam& param)
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        WVLOG_E("WebviewController::RegisterJavaScriptProxy nweb_ptr is null");
+        return;
+    }
+    JavaScriptOb::ObjectID objId =
+        static_cast<JavaScriptOb::ObjectID>(JavaScriptOb::JavaScriptObjIdErrorCode::WEBCONTROLLERERROR);
+
+    if (!javaScriptResultCb_) {
+        WVLOG_E("WebviewController::RegisterJavaScriptProxy javaScriptResultCb_ is null");
+        return;
+    }
+
+    if (param.syncMethodList.empty() && param.asyncMethodList.empty()) {
+        WVLOG_E("WebviewController::RegisterJavaScriptProxy all methodList are empty");
+        return;
+    }
+
+    std::vector<std::string> allMethodList;
+    std::merge(param.syncMethodList.begin(), param.syncMethodList.end(), param.asyncMethodList.begin(),
+        param.asyncMethodList.end(), std::back_inserter(allMethodList));
+
+    AniRegisterJavaScriptProxyParam tmp;
+    tmp.env = param.env;
+    tmp.obj = param.obj;
+    tmp.objName = param.objName;
+    tmp.syncMethodList = allMethodList;
+    tmp.asyncMethodList = param.asyncMethodList;
+    tmp.permission = param.permission;
+    tmp.webviewObj = param.webviewObj;
+    objId = javaScriptResultCb_->RegisterJavaScriptProxy(tmp);
+
+    nweb_ptr->RegisterArkJSfunction(tmp.objName, tmp.syncMethodList, std::vector<std::string>(), objId, tmp.permission);
+}
+
 void WebviewController::CreatePDFExt(
     std::shared_ptr<NWebPDFConfigArgs> pdfConfig, std::shared_ptr<NWebArrayBufferValueCallback> callbackImpl)
 {
@@ -1131,6 +1179,9 @@ ErrCode WebviewController::HasImagesPromise(ani_vm *vm, ani_resolver deferred)
     if (!nweb_ptr) {
         ani_ref jsResult = nullptr;
         jsResult = AniBusinessErrorError::CreateError(env, NWebError::INIT_ERROR);
+        if (jsResult == nullptr) {
+            return NWebError::INIT_ERROR;
+        }
         auto status = env->PromiseResolver_Reject(deferred, static_cast<ani_error>(jsResult));
         if (status != ANI_OK) {
             WVLOG_E("PromiseResolver_Reject failed, status is : %{public}d", status);
@@ -1398,10 +1449,11 @@ ErrCode WebviewController::AvoidVisibleViewportBottom(int32_t avoidHeight)
     return NWebError::NO_ERROR;
 }
 
-int WebviewController::GetSecurityLevel()
+int WebviewController::GetSecurityLevel(ani_env* env)
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
     if (!nweb_ptr) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return static_cast<int>(SecurityLevel::NONE);
     }
 
@@ -1481,7 +1533,6 @@ void WebPrintWriteResultCallbackAdapter::WriteResultCallback(std::string jobId, 
 }
 
 bool WebviewController::SetWebSchemeHandler(const char* scheme, WebSchemeHandler* handler) const
-
 {
     if (!handler || !scheme) {
         WVLOG_E("WebviewController::SetWebSchemeHandler handler or scheme is nullptr");
@@ -1514,6 +1565,11 @@ int32_t WebviewController::ClearWebSchemeHandler()
     return OH_ArkWeb_ClearSchemeHandlers(webTag_.c_str());
 }
 
+int32_t WebviewController::ClearWebServiceWorkerSchemeHandler()
+{
+    return OH_ArkWebServiceWorker_ClearSchemeHandlers();
+}
+
 ErrCode WebviewController::StartCamera()
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
@@ -1544,6 +1600,39 @@ ErrCode WebviewController::CloseCamera()
     }
 
     nweb_ptr->CloseCamera();
+    return NWebError::NO_ERROR;
+}
+
+ErrCode WebviewController::ResumeMicrophone()
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return NWebError::INIT_ERROR;
+    }
+
+    nweb_ptr->ResumeMicrophone();
+    return NWebError::NO_ERROR;
+}
+
+ErrCode WebviewController::StopMicrophone()
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return NWebError::INIT_ERROR;
+    }
+
+    nweb_ptr->StopMicrophone();
+    return NWebError::NO_ERROR;
+}
+
+ErrCode WebviewController::PauseMicrophone()
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return NWebError::INIT_ERROR;
+    }
+
+    nweb_ptr->PauseMicrophone();
     return NWebError::NO_ERROR;
 }
 
@@ -2076,7 +2165,11 @@ void WebviewController::SetScrollable(bool enable, int32_t scrollType)
 
 void WebviewController::SetSoftKeyboardBehaviorMode(int32_t mode)
 {
-    NWebHelper::Instance().SetSoftKeyboardBehaviorMode(static_cast<WebSoftKeyboardBehaviorMode>(mode));
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return;
+    }
+    nweb_ptr->SetSoftKeyboardBehaviorMode(static_cast<WebSoftKeyboardBehaviorMode>(mode));
 }
 
 void WebMessageExt::SetType(int type)
@@ -2194,16 +2287,6 @@ void WebviewController::OnCreateNativeMediaPlayer(ani_vm* vm, ani_fn_object call
 int32_t WebviewController::GetNWebId()
 {
     return nwebId_;
-}
-
-int32_t WebviewController::GetProgress()
-{
-    int32_t progress = 0;
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (nweb_ptr) {
-        progress = nweb_ptr->PageLoadProgress();
-    }
-    return progress;
 }
 
 ErrCode WebviewController::SetErrorPageEnabled(bool enable)

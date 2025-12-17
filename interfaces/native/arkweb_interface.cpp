@@ -239,7 +239,8 @@ static bool LoadCookieManagerAPI()
     }
     g_CookieManagerImpl->size = sizeof(ArkWeb_CookieManagerAPI);
 
-    if (!OHOS::NWeb::NWebHelper::Instance().LoadWebEngine(true, true)) {
+    bool lazy = OHOS::NWeb::NWebHelper::Instance().IsLazyInitializeWebEngine();
+    if (!OHOS::NWeb::NWebHelper::Instance().LoadWebEngine(true, !lazy)) {
         WVLOG_E("NativeArkWeb webEngineHandle is nullptr");
         return false;
     }

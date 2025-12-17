@@ -696,6 +696,23 @@ public:
      */
     void PutZoomControlAccess(bool zoomControlAccess) override;
 
+    /**
+     * @brief Set whether to enable image analyzer.
+     */
+    void PutImageAnalyzerEnabled(bool enabled) override;
+
+    /**
+     * @brief Get whether to enable image analyzer.
+     */
+    bool GetImageAnalyzerEnabled() override;
+
+    /**
+     * @brief Sets whether enable auto fill or not.
+     *
+     * @param enable bool: Indicates the flag whether autofill is enabled.
+     */
+    void SetEnableAutoFill(bool enable) override;
+
 private:
     ArkWebRefPtr<ArkWebPreference> ark_web_preference_;
 };

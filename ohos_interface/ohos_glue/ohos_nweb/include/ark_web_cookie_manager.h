@@ -20,6 +20,7 @@
 #include "ohos_nweb/include/ark_web_bool_value_callback.h"
 #include "ohos_nweb/include/ark_web_long_value_callback.h"
 #include "ohos_nweb/include/ark_web_string_value_callback.h"
+#include "ohos_nweb/include/ark_web_cookie_vector.h"
 
 namespace OHOS::ArkWeb {
 
@@ -237,6 +238,16 @@ public:
     /*--ark web()--*/
     virtual void SetCookieAsync(const ArkWebString& url, const ArkWebString& value, bool incognitoMode,
         bool includeHttpOnly, ArkWebRefPtr<ArkWebLongValueCallback> callback) = 0;
+
+    /**
+     * @Description: Fetch all stored cookies.
+     *
+     * @Input incognitoMode: set true to gets all cookies in incognito context, false otherwise.
+     * @return: empty if get all cookies failed else return value.
+     * @Since: 12005
+     */
+    /*--ark web()--*/
+    virtual ArkWebCookieVector GetAllCookies(bool incognitoMode) = 0;
 };
 
 } // namespace OHOS::ArkWeb

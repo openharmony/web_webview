@@ -32,6 +32,7 @@ class AafwkBrowserHostAdapterImpl : public AafwkBrowserHostAdapter {
 public:
     void* GetSurfaceFromKernel(int32_t id);
     void DestroySurfaceFromKernel(int32_t id);
+    void* GetSurfaceFromKernelWithRef(int32_t id);
 };
 
 void* AafwkBrowserHostAdapterImpl::GetSurfaceFromKernel(int32_t id)
@@ -43,6 +44,12 @@ void* AafwkBrowserHostAdapterImpl::GetSurfaceFromKernel(int32_t id)
 void AafwkBrowserHostAdapterImpl::DestroySurfaceFromKernel(int32_t id)
 {
     (void)id;
+};
+
+void* AafwkBrowserHostAdapterImpl::GetSurfaceFromKernelWithRef(int32_t id)
+{
+    (void)id;
+    return nullptr;
 };
 
 bool AafwkAttachRenderFuzzTest(const uint8_t* data, size_t size)

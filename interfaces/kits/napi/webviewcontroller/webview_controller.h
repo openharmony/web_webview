@@ -33,7 +33,7 @@
 #include "webview_javascript_result_callback.h"
 #include "webview_controller_print_structs.h"
 
-#include "web_scheme_handler_request.h"
+#include "web_scheme_handler.h"
 #include "webview_value.h"
 
 namespace OHOS {
@@ -326,7 +326,7 @@ public:
     ErrCode PrefetchPage(std::string& url, std::map<std::string, std::string> additionalHttpHeaders,
         std::shared_ptr<NWebPrefetchOptions> prefetchOptions);
 
-    void* CreateWebPrintDocumentAdapter(const std::string &jobName, int32_t& useAdapterV2);
+    void* CreateWebPrintDocumentAdapter(const std::string &jobName);
 
     ErrCode PostUrl(std::string& url, std::vector<char>& postData);
 
@@ -364,6 +364,12 @@ public:
     ErrCode StopCamera();
 
     ErrCode CloseCamera();
+
+    ErrCode ResumeMicrophone();
+
+    ErrCode StopMicrophone();
+
+    ErrCode PauseMicrophone();
 
     void CloseAllMediaPresentations();
 
@@ -476,6 +482,8 @@ public:
     int32_t SetBlanklessLoadingWithKey(const std::string& key, bool isStart);
 
     void SetWebDetach(int32_t nwebId);
+
+    void SetSoftKeyboardBehaviorMode(WebSoftKeyboardBehaviorMode mode);
 
     ErrCode AvoidVisibleViewportBottom(int32_t avoidHeight);
 

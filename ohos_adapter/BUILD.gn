@@ -186,6 +186,7 @@ ohos_shared_library("nweb_ohos_adapter") {
     "common_event_service:cesfwk_innerkits",
     "data_share:datashare_common",
     "data_share:datashare_consumer",
+    "drivers_interface_display:libdisplay_composer_proxy_1.0",
     "drivers_peripheral_display:hdi_gralloc_client",
     "eventhandler:libeventhandler",
     "file_api:remote_uri_native",
@@ -423,6 +424,7 @@ ohos_shared_library("nweb_ohos_adapter") {
 
   deps = [
     "../ohos_nweb:web_configs",
-    "//base/web/webview/arkweb_utils:libarkweb_utils"
+    "//base/web/webview/arkweb_utils:libarkweb_utils",
+    "../ohos_glue:ohos_base_glue_source",
   ]
 }

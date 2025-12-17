@@ -25,7 +25,7 @@
 #include "nweb_log.h"
 #include "securec.h"
 #include "web_errors.h"
-#include "web_scheme_handler_request.h"
+#include "web_scheme_handler.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -33,7 +33,7 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-const char* WEB_WEBSCHEME_HANDLER_CLASS_NAME = "L@ohos/web/webview/webview/WebSchemeHandler;";
+const char* WEB_WEBSCHEME_HANDLER_CLASS_NAME = "@ohos.web.webview.webview.WebSchemeHandler";
 }
 static void OnRequestStart(ani_env* env, ani_object object, ani_fn_object callback)
 {
@@ -74,6 +74,24 @@ static void Constructor(ani_env* env, ani_object object)
     }
 }
 
+static void OnRequestStop(ani_env* env, ani_object object, ani_fn_object callback)
+{
+    WVLOG_D("enter SchemeHandler OnRequestStop");
+    if (env == nullptr) {
+        WVLOG_E("[WebSchemeHandler] env is nullptr");
+        return;
+    }
+
+    auto* webSchemeHandler = reinterpret_cast<WebSchemeHandler*>(AniParseUtils::Unwrap(env, object));
+    if (!webSchemeHandler) {
+        WVLOG_E("[WebSchemeHandler] webSchemeHandler is null");
+        return;
+    }
+    ani_vm* vm = nullptr;
+    env->GetVM(&vm);
+    webSchemeHandler->PutRequestStop(env, vm, callback);
+}
+
 ani_status StsWebSchemeHandlerInit(ani_env* env)
 {
     if (env == nullptr) {
@@ -89,7 +107,8 @@ ani_status StsWebSchemeHandlerInit(ani_env* env)
     }
     std::array allMethods = {
         ani_native_function { "<ctor>", nullptr, reinterpret_cast<void*>(Constructor) },
-        ani_native_function { "onRequestStart", "Lstd/core/Function2;:V", reinterpret_cast<void*>(OnRequestStart) },
+        ani_native_function { "onRequestStart", "C{std.core.Function2}:", reinterpret_cast<void*>(OnRequestStart) },
+        ani_native_function { "onRequestStop", nullptr, reinterpret_cast<void*>(OnRequestStop) },
     };
 
     status = env->Class_BindNativeMethods(WebSchemeHandlerCls, allMethods.data(), allMethods.size());

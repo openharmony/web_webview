@@ -40,7 +40,6 @@ private:
 
 class WebPrintDocument {
 public:
-    explicit WebPrintDocument(PrintDocumentAdapterAdapter* webPrintdoc) : printDocAdapter_(webPrintdoc) {}
     explicit WebPrintDocument(NWebPrintDocumentAdapterAdapter* webPrintdocV2) : printDocAdapterV2_(webPrintdocV2) {}
     ~WebPrintDocument() = default;
     void OnStartLayoutWrite(const std::string& jobId, const PrintAttributesAdapter& oldAttrs,
@@ -50,18 +49,7 @@ public:
     void OnJobStateChanged(const std::string& jobId, uint32_t state);
 
 private:
-    std::unique_ptr<PrintDocumentAdapterAdapter> printDocAdapter_ = nullptr;
     std::unique_ptr<NWebPrintDocumentAdapterAdapter> printDocAdapterV2_ = nullptr;
-};
-
-class WebPrintWriteResultCallbackAdapter : public PrintWriteResultCallbackAdapter {
-public:
-    explicit WebPrintWriteResultCallbackAdapter(std::function<void(std::string, uint32_t)>& cb) : cb_(cb) {}
-
-    void WriteResultCallback(std::string jobId, uint32_t code) override;
-
-private:
-    std::function<void(std::string, uint32_t)> cb_ = nullptr;
 };
 
 class WebPrintWriteResultCallbackAdapterV2 : public NWebPrintWriteResultCallbackAdapter {

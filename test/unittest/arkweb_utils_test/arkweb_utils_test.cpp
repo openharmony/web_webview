@@ -59,13 +59,24 @@ public:
 
     std::string systemTmpVersionFile_ = "system_version_tmp.txt";
     std::string updateTmpVersionFile_ = "update_version_tmp.txt";
+    static int paramEnforce;
+    static int paramDefault;
 };
 
+int ArkWebUtilsTest::paramEnforce = 0;
+int ArkWebUtilsTest::paramDefault = 0;
+
 void ArkWebUtilsTest::SetUpTestCase(void)
-{}
+{
+    paramEnforce = OHOS::system::GetIntParameter("web.engine.enforce", 0);
+    paramDefault = OHOS::system::GetIntParameter("web.engine.default", 0);
+}
 
 void ArkWebUtilsTest::TearDownTestCase(void)
-{}
+{
+    OHOS::system::SetParameter("web.engine.enforce", std::to_string(paramEnforce));
+    OHOS::system::SetParameter("web.engine.default", std::to_string(paramDefault));
+}
 
 void ArkWebUtilsTest::SetUp(void)
 {}
@@ -195,14 +206,11 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetArkwebInstallPath_001, TestSize.Lev
 
     auto aclPath = GetArkwebInstallPath();
     bool res = (aclPath == SANDBOX_LEGACY_HAP_PATH || aclPath == PRECONFIG_LEGACY_HAP_PATH);
-    // rk is default
-    std::string deviceType = OHOS::system::GetDeviceType();
-    if (deviceType == "default") {
-        EXPECT_FALSE(res);
-    } else {
+    if (access(PRECONFIG_LEGACY_HAP_PATH.c_str(), F_OK) == 0) {
         EXPECT_TRUE(res);
+    } else {
+        EXPECT_FALSE(res);
     }
-
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
 }
 
@@ -213,19 +221,13 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetArkwebInstallPath_002, TestSize.Lev
 
     auto aclPath = GetArkwebInstallPath();
     bool res = (aclPath == SANDBOX_EVERGREEN_HAP_PATH || aclPath == PRECONFIG_EVERGREEN_HAP_PATH);
-    // rk is default
-    std::string deviceType = OHOS::system::GetDeviceType();
-    if (deviceType == "default") {
-        EXPECT_FALSE(res);
-    } else {
-        EXPECT_TRUE(res);
-    }
-
+    EXPECT_TRUE(res);
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
 }
 
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_IsActiveWebEngineEvergreen_001, TestSize.Level1)
 {
+    OHOS::system::SetParameter("web.engine.enforce", "0");
     setActiveWebEngineVersion(ArkWebEngineVersion::M114);
     EXPECT_FALSE(IsActiveWebEngineEvergreen());
     setActiveWebEngineVersion(ArkWebEngineVersion::M132);
@@ -275,6 +277,7 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_DlcloseArkWebLib_001, TestSize.Level1)
 
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ProcessDefaultParam_001, TestSize.Level1)
 {
+    OHOS::system::SetParameter("web.engine.default", "0");
     std::string key = "web.engine.default";
     Json::Value value = 1000;
     ProcessDefaultParam(value);
@@ -455,5 +458,63 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetArkwebLibPathForMock_001, TestSize.
     std::string bundlePath = "/data/app/el1/bundle/public/com.ohos.arkwebcore";
     res = GetArkwebLibPathForMock(bundlePath);
     EXPECT_EQ(res, bundlePath + "/" + ARK_WEB_CORE_PATH_FOR_MOCK);
+}
+
+/**
+ * @brief 校验是否需要共享relro
+ * @note 预期结果: 根据web.shareRelro.enabled开关和libarkweb_engine.so的可访问性判断是否需要共享relro
+ *
+ */
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_NeedShareRelro_001, TestSize.Level1)
+{
+    bool isShareRelroEnabled = OHOS::system::GetBoolParameter("web.shareRelro.enabled", false);
+    std::string arkwebLibPath = GetArkwebLibPath().c_str();
+    std::filesystem::path arkwebEngineLibPath = arkwebLibPath + "/libarkweb_engine.so";
+    std::error_code ec;
+    bool isArkwebEngineAccessible = std::filesystem::exists(arkwebEngineLibPath, ec);
+    if (ec) {
+        GTEST_LOG_(INFO) << "Error checking file:" << ec.message() << "\n";
+        isArkwebEngineAccessible = false;
+    }
+    if (isShareRelroEnabled) {
+        EXPECT_EQ(NeedShareRelro(), isArkwebEngineAccessible);
+    } else {
+        EXPECT_EQ(NeedShareRelro(), false);
+    }
+}
+
+/**
+ * @brief 校验加载relro共享文件是否成功
+ * @note 预期结果: 根据NeedShareRelro()判断是否需要共享relro，需要的话成功加载relro共享文件
+ *
+ */
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_LoadWithRelroFile_001, TestSize.Level1)
+{
+    std::string arkWebEngineLibName = "libarkweb_engine.so";
+    if (!NeedShareRelro()) {
+        EXPECT_EQ(LoadWithRelroFile(arkWebEngineLibName, nullptr), nullptr);
+        return;
+    }
+
+    CreateRelroFileInSubProc();
+    sleep(1); // wait 1s for sub proc run finished.
+    Dl_namespace dlns;
+    Dl_namespace ndkns;
+    dlns_init(&dlns, GetArkwebNameSpace().c_str());
+    dlns_create(&dlns, GetArkwebLibPath().c_str());
+    dlns_get("ndk", &ndkns);
+    dlns_inherit(&dlns, &ndkns, "allow_all_shared_libs");
+    EXPECT_EQ(LoadWithRelroFile(arkWebEngineLibName, &dlns), nullptr);
+}
+
+/**
+ * @brief 校验预留relro内存是否成功
+ * @note 预期结果: 根据NeedShareRelro()判断是否需要共享relro，需要的话成功预留relro内存
+ *
+ */
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ReserveAddressSpace_001, TestSize.Level1)
+{
+    bool needShareRelro = NeedShareRelro();
+    EXPECT_EQ(ReserveAddressSpace(), needShareRelro);
 }
 } // namespace OHOS::NWeb

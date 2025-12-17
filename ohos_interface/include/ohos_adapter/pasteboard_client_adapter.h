@@ -106,6 +106,8 @@ public:
     virtual int32_t AddPasteboardChangedObserver(std::shared_ptr<PasteboardObserverAdapter> callback) = 0;
 
     virtual void RemovePasteboardChangedObserver(int32_t callbackId) = 0;
+
+    virtual bool HasType(const char* type) { return false; }
 };
 
 class PasteDataRecordAdapter {

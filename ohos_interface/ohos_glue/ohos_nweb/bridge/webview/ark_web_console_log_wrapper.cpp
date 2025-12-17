@@ -51,4 +51,9 @@ int ArkWebConsoleLogWrapper::LineNumer()
     return ark_web_console_log_->LineNumer();
 }
 
+ArkWebLogSource ArkWebConsoleLogWrapper::Source()
+{
+    return static_cast<ArkWebLogSource>(ark_web_console_log_->Source());
+}
+
 } // namespace OHOS::ArkWeb

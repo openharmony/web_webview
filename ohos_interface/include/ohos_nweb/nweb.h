@@ -24,6 +24,7 @@
 
 #include "nweb_accessibility_event_callback.h"
 #include "nweb_accessibility_node_info.h"
+#include "nweb_agent_manager.h"
 #include "nweb_download_callback.h"
 #include "nweb_drag_data.h"
 #include "nweb_export.h"
@@ -38,11 +39,13 @@
 #include "nweb_snapshot_callback.h"
 #include "nweb_spanstring_convert_html_callback.h"
 #include "nweb_value_callback.h"
+#include "nweb_vault_plain_text_callback.h"
 #include "nweb_web_message.h"
 #include "nweb_print_manager_adapter.h"
 
 namespace OHOS::NWeb {
 
+class NWebAgentHandler;
 class NWebHandler;
 class NWebValue;
 
@@ -89,6 +92,13 @@ enum class SourceTool : int32_t {
     LENS = 8,
     TOUCHPAD = 9,
     JOYSTICK = 10,
+};
+
+enum class NWebAutoFillTriggerType : int32_t {
+    AUTO_REQUEST = 0,
+    MANUAL_REQUEST,
+    PASTE_REQUEST,
+    UNSPECIFIED
 };
 
 class OHOS_NWEB_EXPORT NWebEngineInitArgs {
@@ -200,6 +210,41 @@ public:
     virtual double GetY() = 0;
 };
 
+class OHOS_NWEB_EXPORT NWebCommandAction {
+public:
+    virtual ~NWebCommandAction() = default;
+
+    /**
+     * @brief Retrieves the type of the simulated event (e.g., "click", "scroll").
+     * @return A string representing the event type.
+     */
+    virtual std::string GetEventType() = 0;
+
+    /**
+     * @brief Retrieves the XPath path of the target element.
+     * @return A string representing the XPath path.
+     */
+    virtual std::string GetXPath() = 0;
+
+    /**
+     * @brief Retrieves the duration of the action (e.g., duration for a scroll).
+     * @return The duration in milliseconds (ms).
+     */
+    virtual int32_t GetDuration() = 0;
+
+    /**
+     * @brief Retrieves the alignment mode (e.g., alignment for scroll top/mid/bottom).
+     * @return A string representing the alignment mode.
+     */
+    virtual std::string GetAlign() = 0;
+
+    /**
+     * @brief Retrieves the offset value for the action.
+     * @return The offset value (typically in vp).
+     */
+    virtual int32_t GetOffset() = 0;
+};
+
 class NWebStylusTouchPointInfo : public NWebTouchPointInfo {
 public:
     virtual ~NWebStylusTouchPointInfo() = default;
@@ -308,6 +353,19 @@ enum class ScrollbarMode {
     FORCE_DISPLAY_SCROLLBAR
 };
 
+enum class NavigationPolicy : int32_t {
+    NEW_POPUP = 0,
+    NEW_WINDOW = 1,
+    NEW_BACKGROUND_TAB = 2,
+    NEW_FOREGROUND_TAB = 3
+};
+
+enum class WebHttpCookieSameSitePolicy {
+    NONE = 0,
+    LAX = 1,
+    STRICT = 2
+};
+
 class OHOS_NWEB_EXPORT NWebMouseEvent {
 public:
     virtual ~NWebMouseEvent() = default;
@@ -334,6 +392,7 @@ typedef int64_t (*AccessibilityIdGenerateFunc)();
 typedef void (*NativeArkWebOnValidCallback)(const char*);
 typedef void (*NativeArkWebOnDestroyCallback)(const char*);
 using ScriptItems = std::map<std::string, std::vector<std::string>>;
+using ScriptRegexItems = std::map<std::string, std::vector<std::pair<std::string, std::string>>>;
 using ScriptItemsByOrder = std::vector<std::string>;
 using WebSnapshotCallback = std::function<void(const char*, bool, float, void*, int, int)>;
 
@@ -2213,8 +2272,108 @@ public:
      */
     /*--ark web()--*/
     virtual void StopFling() {}
-};
 
+    /**
+     * Resume current microphone.
+     */
+    virtual void ResumeMicrophone() {}
+
+    /**
+     * Stop current microphone.
+     */
+    virtual void StopMicrophone() {}
+
+    /**
+     * Pause current microphone.
+     */
+    virtual void PauseMicrophone() {}
+
+    /**
+     * @brief Inject the JavaScript before WebView load the DOM tree.
+     *
+     * @param scriptItems: Multiple injected JavaScript codes are stored in a map in lexicographical order.
+     * @param scriptRegexItems: Multiple injected regular expression rule codes are
+     *                          stored in a map in lexicographical order.
+     * @param scriptItemsByOrder: Multiple injected JavaScript codes are stored in the order of injection.
+     */
+    virtual void JavaScriptOnDocumentStartByOrderV2(const ScriptItems& scriptItems,
+        const ScriptRegexItems& scriptRegexItems, const ScriptItemsByOrder& scriptItemsByOrder) {}
+
+    /**
+     * @brief Inject the JavaScript after WebView load the DOM tree.
+     *
+     * @param scriptItems: Multiple injected JavaScript codes are stored in a map in lexicographical order.
+     * @param scriptRegexItems: Multiple injected regular expression rule codes are
+     *                          stored in a map in lexicographical order.
+     * @param scriptItemsByOrder: Multiple injected JavaScript codes are stored in the order of injection.
+     */
+    virtual void JavaScriptOnDocumentEndByOrderV2(const ScriptItems& scriptItems,
+        const ScriptRegexItems& scriptRegexItems, const ScriptItemsByOrder& scriptItemsByOrder) {}
+
+    /**
+     * @Description: Inject the JavaScript when the head element has been created.
+     * @Input scriptItems: The injected JavaScript code is stored in lexicographical order.
+     * @Input scriptRegexItems: Multiple injected regular expression rule codes are
+     *                          stored in a map in lexicographical order.
+     * @Input scriptItemsByOrder: The injected JavaScript code is stored in the order of the injection array.
+     */
+    virtual void JavaScriptOnHeadReadyByOrderV2(const ScriptItems& scriptItems,
+        const ScriptRegexItems& scriptRegexItems, const ScriptItemsByOrder& scriptItemsByOrder) {}
+
+    /**
+     * @brief Put the callback, get plain text from password vault.
+     *
+     * @param callback get plain text from password vault.
+     */
+    virtual void PutVaultPlainTextCallback(
+        std::shared_ptr<NWebVaultPlainTextCallback> callback) {}
+    
+    /**
+     * @brief fill autofill data.
+     *
+     * @param data data.
+     * @param type type.
+     */
+    virtual void FillAutofillDataFromTriggerType(
+        std::shared_ptr<NWebRomValue> data, const NWebAutoFillTriggerType& type) {}
+
+    /**
+     * @brief Set soft keyboard behavior mode.
+     *
+     * @param mode WebSoftKeyboardBehaviorMode: the soft keyboard behavior mode.
+     */
+    virtual void SetSoftKeyboardBehaviorMode(WebSoftKeyboardBehaviorMode mode) {}
+    
+    /**
+     * @brief Get the NWebAgentManager that manages agent related features.
+     *
+     * @return a shared_ptr to NWebAgentManager. If agent features are not supported, returns nullptr.
+     */
+    virtual std::shared_ptr<NWebAgentManager> GetAgentManager()
+    {
+        return nullptr;
+    }
+
+    /**
+     * @brief Set the NWebAgentHandler that will receive agent related callbacks.
+     * This will replace the current handler.
+     *
+     * @param agentHandler: a shared_ptr to an implementation of NWebAgentHandler.
+     */
+    virtual void SetNWebAgentHandler(std::shared_ptr<NWebAgentHandler> agentHandler) {};
+
+    /**
+     * @brief Sends command to the web kernel.
+     *
+     * @param action Basic information about msdp command.
+     * @return The result of command.
+     */
+    virtual int32_t SendCommandAction(std::shared_ptr<OHOS::NWeb::NWebCommandAction> action)
+    {
+        return -1;
+    }
+
+};
 } // namespace OHOS::NWeb
 
 #endif

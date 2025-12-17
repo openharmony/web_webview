@@ -27,6 +27,8 @@ public:
     virtual void* GetSurfaceFromKernel(int32_t surface_id) = 0;
 
     virtual void DestroySurfaceFromKernel(int32_t surface_id) = 0;
+
+    virtual void* GetSurfaceFromKernelWithRef(int32_t surface_id) = 0;
 };
 } // namespace OHOS::NWeb
 

@@ -26,6 +26,9 @@ let deviceinfo = requireInternal('deviceInfo');
 let promptAction = requireNapi('promptAction');
 let dataShare = requireNapi('data.dataShare');
 let webNativeMessagingExtensionManager = requireNapi('web.webnativemessagingextensionmanager_napi');
+let { LengthMetrics } = requireNapi('arkui.node');
+let commonEventManager = requireNapi('commonEventManager');
+let resourceManager = requireNapi('resourceManager');
 
 const PARAM_CHECK_ERROR = 401;
 
@@ -34,8 +37,10 @@ const ERROR_MSG_INVALID_PARAM = 'Invalid input parameter';
 let errMsgMap = new Map();
 errMsgMap.set(PARAM_CHECK_ERROR, ERROR_MSG_INVALID_PARAM);
 let customDialogComponentId = 0;
+let onShowFileSelectorEvent = undefined;
 
-let defaultPublicPath = 'file://docs/storage/Users/currentUser/';
+let defaultBasicPath = 'file://docs';
+let defaultPublicPath = '/storage/Users/currentUser/';
 
 let publicDirectoryMap = new Map([
     ['desktop', defaultPublicPath + 'desktop'],
@@ -76,32 +81,29 @@ function getCertificatePromise(certChainData) {
   return Promise.all(x509CertArray);
 }
 
-function takePhoto(param, selectResult) {
-  try {
-    let pickerProfileOptions = {
-      'cameraPosition': camera.CameraPosition.CAMERA_POSITION_BACK,
-    };
-    let acceptTypes = param.getAcceptType();
-    let mediaType = [];
-    if (isContainImageMimeType(acceptTypes)) {
-      mediaType.push(cameraPicker.PickerMediaType.PHOTO);
-    }
-    if (isContainVideoMimeType(acceptTypes)) {
-      mediaType.push(cameraPicker.PickerMediaType.VIDEO);
-    }
-    cameraPicker.pick(getContext(this), mediaType, pickerProfileOptions)
-      .then((pickerResult) => {
-        selectResult.handleFileList([pickerResult.resultUri]);
-      }).catch((error) => {
-        console.log('selectFile error:' + JSON.stringify(error));
-        throw error;
-      });
-
-  } catch (error) {
-    console.log('the pick call failed, error code' + JSON.stringify(error));
-    selectResult.handleFileList([]);
-    promptAction.showToast({ message: '无法打开拍照功能，请检查是否具备拍照功能' });
+function takePhoto(param) {
+  let pickerProfileOptions = {
+    'cameraPosition': camera.CameraPosition.CAMERA_POSITION_BACK,
+  };
+  let acceptTypes = param.getAcceptType();
+  let mediaType = [];
+  if (isContainImageMimeType(acceptTypes)) {
+    mediaType.push(cameraPicker.PickerMediaType.PHOTO);
   }
+  if (isContainVideoMimeType(acceptTypes)) {
+    mediaType.push(cameraPicker.PickerMediaType.VIDEO);
+  }
+  let result = [];
+  cameraPicker.pick(getContext(this), mediaType, pickerProfileOptions)
+    .then((pickerResult) => {
+      result.push(pickerResult.resultUri);
+    }).catch((error) => {
+      console.log('selectFile error:' + JSON.stringify(error));
+      promptAction.showToast({ message: '无法打开拍照功能，请检查是否具备拍照功能' });
+    }).finally(() => {
+      onShowFileSelectorEvent.fileresult.handleFileList(result);
+      onShowFileSelectorEvent = undefined;
+    });
 }
 
 function needShowDialog(params) {
@@ -125,52 +127,52 @@ function needShowDialog(params) {
   return result;
 }
 
-function selectFile(param, result) {
-  try {
-    let documentPicker = new picker.DocumentViewPicker();
-    if (param.getMode() !== FileSelectorMode.FileSaveMode) {
-      documentPicker.select(createDocumentSelectionOptions(param))
-        .then((documentSelectResult) => {
-          let filePath = documentSelectResult;
-          result.handleFileList(filePath);
-        }).catch((error) => {
-          console.log('selectFile error: ' + JSON.stringify(error));
-          throw error;
-        });
-    } else {
-      documentPicker.save(createDocumentSaveOptions(param))
-        .then((documentSaveResult) => {
-          let filePaths = documentSaveResult;
-          let tempUri = '';
-          if (filePaths.length > 0) {
-            let fileName = filePaths[0].substr(filePaths[0].lastIndexOf('/'));
-            let tempPath = getContext(this).filesDir + fileName;
-            tempUri = fileUri.getUriFromPath(tempPath);
-            let randomAccessFile = fileIo.createRandomAccessFileSync(tempPath, fileIo.OpenMode.CREATE);
-            randomAccessFile.close();
+function selectFile(param) {
+  let documentPicker = new picker.DocumentViewPicker();
+  let result = [];
+  if (param.getMode() !== FileSelectorMode.FileSaveMode) {
+    documentPicker.select(createDocumentSelectionOptions(param))
+      .then((documentSelectResult) => {
+        result = documentSelectResult;
+      }).catch((error) => {
+        console.log('selectFile error: ' + JSON.stringify(error));
+        promptAction.showToast({ message: '无法打开文件功能，请检查是否具备文件功能' });
+      }).finally(() => {
+        onShowFileSelectorEvent.fileresult.handleFileList(result);
+        onShowFileSelectorEvent = undefined;
+      });
+  } else {
+    documentPicker.save(createDocumentSaveOptions(param))
+      .then((documentSaveResult) => {
+        let filePaths = documentSaveResult;
+        let tempUri = '';
+        if (filePaths.length > 0) {
+          let fileName = filePaths[0].substr(filePaths[0].lastIndexOf('/'));
+          let tempPath = getContext(this).filesDir + fileName;
+          tempUri = fileUri.getUriFromPath(tempPath);
+          let randomAccessFile = fileIo.createRandomAccessFileSync(tempPath, fileIo.OpenMode.CREATE);
+          randomAccessFile.close();
 
-            let watcher = fileIo.createWatcher(tempPath, 0x4, () => {
-              fileIo.copy(tempUri, filePaths[0]).then(() => {
-                console.log('Web save file succeeded in copying. ');
-                fileIo.unlink(tempPath);
-              }).catch((err) => {
-                console.error(`Web save file failed to copy: ${JSON.stringify(err)}`);
-              }).finally(() => {
-                watcher.stop();
-              });
+          let watcher = fileIo.createWatcher(tempPath, 0x4, () => {
+            fileIo.copy(tempUri, filePaths[0]).then(() => {
+              console.log('Web save file succeeded in copying. ');
+              fileIo.unlink(tempPath);
+            }).catch((err) => {
+              console.error(`Web save file failed to copy: ${JSON.stringify(err)}`);
+            }).finally(() => {
+              watcher.stop();
             });
-            watcher.start();
-          }
-          result.handleFileList([tempUri]);
-        }).catch((error) => {
-          console.log('saveFile error: ' + JSON.stringify(error));
-          throw error;
-        });
-    }
-  } catch (error) {
-    console.log('picker error: ' + JSON.stringify(error));
-    result.handleFileList([]);
-    promptAction.showToast({ message: '无法打开文件功能，请检查是否具备文件功能' });
+          });
+          watcher.start();
+        }
+        result.push(tempUri);
+      }).catch((error) => {
+        console.log('saveFile error: ' + JSON.stringify(error));
+        promptAction.showToast({ message: '无法打开文件功能，请检查是否具备文件功能' });
+      }).finally(() => {
+        onShowFileSelectorEvent.fileresult.handleFileList(result);
+        onShowFileSelectorEvent = undefined;
+      });
   }
 }
 
@@ -200,7 +202,11 @@ function createDocumentSelectionOptions(param) {
     }
     documentSelectOptions.fileSuffixFilters = [];
     let suffix = param.getAcceptType().join(',');
-    if (suffix) {
+    let accepts = param.getAcceptableFileTypes();
+    let descriptions = param.getDescriptions();
+    if (accepts && accepts.length > 0) {
+      suffixFromAccepts(documentSelectOptions.fileSuffixFilters, descriptions, accepts);
+    } else if (suffix) {
       documentSelectOptions.fileSuffixFilters.push(suffix);
     }
     if (currentDevice !== 'phone' && !param.isAcceptAllOptionExcluded()) {
@@ -221,7 +227,11 @@ function createDocumentSaveOptions(param) {
     documentSaveOptions.newFileNames = [ param.getSuggestedName() ];
     documentSaveOptions.defaultFilePathUri = getDefaultPath(param);
     let suffix = param.getAcceptType().join(',');
-    if (suffix) {
+    let accepts = param.getAcceptableFileTypes();
+    let descriptions = param.getDescriptions();
+    if (accepts && accepts.length > 0) {
+      suffixFromAccepts(documentSaveOptions.fileSuffixChoices, descriptions, accepts);
+    } else if (suffix) {
       documentSaveOptions.fileSuffixChoices.push(suffix);
     }
     if (currentDevice !== 'phone' && !param.isAcceptAllOptionExcluded()) {
@@ -238,7 +248,21 @@ function getDefaultPath(param) {
     if (publicDirectoryMap.get(path) != undefined) {
         path = publicDirectoryMap.get(path);
     }
-    return path;
+    return defaultBasicPath + path;
+}
+
+function suffixFromAccepts(suffix, descriptions, accepts) {
+  let n = accepts.length;
+  for (let i = 0; i < n; i++) {
+    let m = accepts[i].length;
+    let extList = [];
+    for (let j = 0; j < m; j++) {
+      extList.push(accepts[i][j].acceptableType.join(','));
+    }
+    let ext = extList.join(',');
+    let desc = descriptions[i] + '(' + ext + ')' + '|';
+    suffix.push(desc + ext);
+  }
 }
 
 function isContainImageMimeType(acceptTypes) {
@@ -280,154 +304,356 @@ function isContainVideoMimeType(acceptTypes) {
   return false;
 }
 
-function fileSelectorListItem(callback, sysResource, text, func) {
-  const itemCreation = (elmtId, isInitialRender) => {
-    ViewStackProcessor.StartGetAccessRecordingFor(elmtId);
-    itemCreation2(elmtId, isInitialRender);
-    if (!isInitialRender) {
-      ListItem.pop();
+class SelectorDialog extends ViewPU {
+  constructor(parent, params, __localStorage, elmtId = -1, paramsLambda = undefined, extraInfo) {
+    super(parent, __localStorage, elmtId, extraInfo);
+    if (typeof paramsLambda === 'function') {
+      this.paramsGenerator_ = paramsLambda;
     }
-    ViewStackProcessor.StopGetAccessRecording();
-  };
-  const itemCreation2 = (elmtId, isInitialRender) => {
-    ListItem.create(deepRenderFunction, true);
-    ListItem.onClick(() => {
-      promptAction.closeCustomDialog(customDialogComponentId);
-      func(callback.fileparam, callback.fileresult);
+    this.__choose_to_upload = new ObservedPropertyObjectPU({ 'id': -1, 'type': -1, params: ['sys.string.choose_to_upload'], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' }, this, 'choose_to_upload');
+    this.__general_cancel = new ObservedPropertyObjectPU({ 'id': -1, 'type': -1, params: ['sys.string.general_cancel'], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' }, this, 'general_cancel');
+    this.__taking_photos_or_videos = new ObservedPropertyObjectPU({ 'id': -1, 'type': -1, params: ['sys.string.taking_photos_or_videos'], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' }, this, 'taking_photos_or_videos');
+    this.__taking_photos = new ObservedPropertyObjectPU({ 'id': -1, 'type': -1, params: ['sys.string.taking_photos'], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' }, this, 'taking_photos');
+    this.__video_recording = new ObservedPropertyObjectPU({ 'id': -1, 'type': -1, params: ['sys.string.video_recording'], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' }, this, 'video_recording');
+    this.__gallery = new ObservedPropertyObjectPU({ 'id': -1, 'type': -1, params: ['sys.string.gallery'], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' }, this, 'gallery');
+    this.__document = new ObservedPropertyObjectPU({ 'id': -1, 'type': -1, params: ['sys.string.document'], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' }, this, 'document');
+    this.setInitiallyProvidedValue(params);
+  }
+
+  setInitiallyProvidedValue(params) {
+    if (params.callback !== undefined) {
+      this.callback = params.callback;
+    }
+  }
+
+  purgeVariableDependenciesOnElmtId(rmElmtId) {
+    this.__choose_to_upload.purgeDependencyOnElmtId(rmElmtId);
+    this.__general_cancel.purgeDependencyOnElmtId(rmElmtId);
+    this.__taking_photos_or_videos.purgeDependencyOnElmtId(rmElmtId);
+    this.__taking_photos.purgeDependencyOnElmtId(rmElmtId);
+    this.__video_recording.purgeDependencyOnElmtId(rmElmtId);
+    this.__gallery.purgeDependencyOnElmtId(rmElmtId);
+    this.__document.purgeDependencyOnElmtId(rmElmtId);
+  }
+
+  aboutToBeDeleted() {
+    commonEventManager.unsubscribe(this.subscriber, (err) => {
+      if (err) {
+        console.error(`Failed to unsubscribe. Code is ${err.code}, message is ${err.message}`);
+        return;
+      }
+      // When a subscriber is no longer in use, it should be set to undefined to prevent memory leaks.
+      this.subscriber = undefined;
+      console.info('Succeeded in unsubscribing.');
     });
-    ListItem.height(48);
-    ListItem.padding({
-      left: 24,
-      right: 24
-    });
-  };
-  const deepRenderFunction = (elmtId, isInitialRender) => {
-    itemCreation(elmtId, isInitialRender);
-    Row.create();
-    SymbolGlyph.create({ 'id': -1, 'type': -1, params: [sysResource], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' });
-    SymbolGlyph.width(24);
-    SymbolGlyph.height(24);
-    SymbolGlyph.fontSize(24);
-    SymbolGlyph.margin({
-      right: 16
-    });
-    SymbolGlyph.fontColor([{ 'id': -1, 'type': -1, params: ['sys.color.icon_primary'], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' }]);
-    Row.create();
-    Row.margin({ right: 36 });
-    Row.border({ width: { bottom: 0.5 }, color: '#33000000' });
-    Text.create(text);
-    Text.fontSize(16);
-    Text.fontWeight(FontWeight.Medium);
-    Text.lineHeight(19);
-    Text.margin({
-      top: 13,
-      bottom: 13
-    });
-    Text.width('100%');
+    this.__choose_to_upload.aboutToBeDeleted();
+    this.__general_cancel.aboutToBeDeleted();
+    this.__taking_photos_or_videos.aboutToBeDeleted();
+    this.__taking_photos.aboutToBeDeleted();
+    this.__video_recording.aboutToBeDeleted();
+    this.__gallery.aboutToBeDeleted();
+    this.__document.aboutToBeDeleted();
+    SubscriberManager.Get().delete(this.id__());
+    this.aboutToBeDeletedInternal();
+  }
+
+  get choose_to_upload() {
+    return this.__choose_to_upload.get();
+  }
+
+  set choose_to_upload(newValue) {
+    this.__choose_to_upload.set(newValue);
+  }
+
+  get general_cancel() {
+    return this.__general_cancel.get();
+  }
+
+  set general_cancel(newValue) {
+    this.__general_cancel.set(newValue);
+  }
+
+  get taking_photos_or_videos() {
+    return this.__taking_photos_or_videos.get();
+  }
+
+  set taking_photos_or_videos(newValue) {
+    this.__taking_photos_or_videos.set(newValue);
+  }
+
+  get taking_photos() {
+    return this.__taking_photos.get();
+  }
+
+  set taking_photos(newValue) {
+    this.__taking_photos.set(newValue);
+  }
+
+  get video_recording() {
+    return this.__video_recording.get();
+  }
+
+  set video_recording(newValue) {
+    this.__video_recording.set(newValue);
+  }
+
+  get gallery() {
+    return this.__gallery.get();
+  }
+
+  set gallery(newValue) {
+    this.__gallery.set(newValue);
+  }
+
+  get document() {
+    return this.__document.get();
+  }
+
+  set document(newValue) {
+    this.__document.set(newValue);
+  }
+
+  fileSelectorListItem(callback, sysResource, text, func) {
+    this.observeComponentCreation2((elmtId, isInitialRender) => {
+      Row.create();
+      Row.onClick(() => {
+        promptAction.closeCustomDialog(customDialogComponentId);
+        func(callback.fileparam);
+      });
+      Row.height(48);
+      Row.padding({
+        left: 24,
+        right: 24
+      });
+    }, Row);
+    this.observeComponentCreation2((elmtId, isInitialRender) => {
+      SymbolGlyph.create({ 'id': -1, 'type': -1, params: [sysResource], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' });
+      SymbolGlyph.width(24);
+      SymbolGlyph.height(24);
+      SymbolGlyph.fontSize(24);
+      SymbolGlyph.margin({
+        end: LengthMetrics.vp(16)
+      });
+      SymbolGlyph.fontColor([{ 'id': -1, 'type': -1, params: ['sys.color.font_primary'], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' }]);
+    }, SymbolGlyph);
+    this.observeComponentCreation2((elmtId, isInitialRender) => {
+      Row.create();
+      Row.margin({ end: LengthMetrics.vp(36) });
+      Row.border({ width: { bottom: 0.5 }, color: '#33000000' });
+    }, Row);
+    this.observeComponentCreation2((elmtId, isInitialRender) => {
+      switch (text) {
+        case 'sys.string.gallery':
+          Text.create(this.gallery);
+          break;
+        case 'sys.string.taking_photos_or_videos':
+          Text.create(this.taking_photos_or_videos);
+          break;
+        case 'sys.string.taking_photos':
+          Text.create(this.taking_photos);
+          break;
+        case 'sys.string.video_recording':
+          Text.create(this.video_recording);
+          break;
+        case 'sys.string.document':
+          Text.create(this.document);
+      }
+      Text.fontSize(16);
+      Text.fontWeight(FontWeight.Medium);
+      Text.lineHeight(19);
+      Text.margin({
+        top: 13,
+        bottom: 13
+      });
+      Text.width('100%');
+    }, Text);
     Text.pop();
     Row.pop();
     Row.pop();
-    ListItem.pop();
-  };
-  itemCreation(ViewStackProcessor.AllocateNewElmetIdForNextComponent(), true);
-  ListItem.pop();
-}
+  }
 
-function fileSelectorDialog(callback) {
-  Row.create();
-  Row.height(56);
-  Text.create('选择上传');
-  Text.fontSize(20);
-  Text.fontWeight(FontWeight.Bold);
-  Text.lineHeight(23);
-  Text.margin({
-    top: 15,
-    bottom: 15,
-    left: 24,
-    right: 24,
-  });
-  Text.pop();
-  Row.pop();
-  List.create();
-  List.width('100%');
-  fileSelectorListItem(callback, 'sys.symbol.picture', '照片', selectPicture);
-  fileSelectorListItem(callback, 'sys.symbol.camera', '拍照', takePhoto);
-  fileSelectorListItem(callback, 'sys.symbol.doc_text', '文件', selectFile);
-  List.pop();
-}
-
-function fileSelectorDialogForPhone(callback) {
-  Column.create();
-  Column.height(264);
-  Column.width(328);
-  fileSelectorDialog(callback);
-  Row.create();
-  Row.onClick(() => {
-    try {
-      console.log('Get Alert Dialog handled');
-      callback.fileresult.handleFileList([]);
-      promptAction.closeCustomDialog(customDialogComponentId);
-    }
-    catch (error) {
-      let message = error.message;
-      let code = error.code;
-      console.error(`closeCustomDialog error code is ${code}, message is ${message}`);
-    }
-  });
-  Row.width(296);
-  Row.height(40);
-  Row.margin({
-    top: 8,
-    bottom: 16,
-    left: 16,
-    right: 16
-  });
-  Row.borderRadius(5);
-  Row.justifyContent(FlexAlign.Center);
-  Text.create('取消');
-  Text.fontSize(16);
-  Text.fontColor('#FF0A59F7');
-  Text.fontWeight(FontWeight.Medium);
-  Text.margin({
-    top: 10,
-    bottom: 10,
-    left: 104,
-    right: 104
-  });
-  Text.pop();
-  Row.pop();
-  Column.pop();
-}
-
-function selectPicture(param, selectResult) {
-  try {
-    let photoResultArray = [];
-    let photoSelectOptions = new photoAccessHelper.PhotoSelectOptions();
-    if (param.getMode() === FileSelectorMode.FileOpenMode) {
-      console.log('allow select single photo or video');
-      photoSelectOptions.maxSelectNumber = 1;
-    }
-    let acceptTypes = param.getAcceptType();
-    photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.IMAGE_VIDEO_TYPE;
+  fileSelectorDialog(callback) {
+    this.observeComponentCreation2((elmtId, isInitialRender) => {
+      Row.create();
+      Row.height(56);
+    }, Row);
+    this.observeComponentCreation2((elmtId, isInitialRender) => {
+      Text.create(this.choose_to_upload);
+      Text.fontSize(20);
+      Text.fontWeight(FontWeight.Bold);
+      Text.lineHeight(23);
+      Text.margin({
+        top: 15,
+        bottom: 15,
+        left: 24,
+        right: 24,
+      });
+    }, Text);
+    Text.pop();
+    Row.pop();
+    this.fileSelectorListItem.bind(this)(callback, 'sys.symbol.picture', 'sys.string.gallery', selectPicture);
+    let acceptTypes = callback.fileparam.getAcceptType();
+    let cameraOption = 'sys.string.taking_photos_or_videos';
     if (isContainImageMimeType(acceptTypes) && !isContainVideoMimeType(acceptTypes)) {
-      photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.IMAGE_TYPE;
+      cameraOption = 'sys.string.taking_photos';
     }
     if (!isContainImageMimeType(acceptTypes) && isContainVideoMimeType(acceptTypes)) {
-      photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.VIDEO_TYPE;
+      cameraOption = 'sys.string.video_recording';
     }
-
-    let photoPicker = new photoAccessHelper.PhotoViewPicker();
-    photoPicker.select(photoSelectOptions).then((photoSelectResult) => {
-      for (let i = 0; i < photoSelectResult.photoUris.length; i++) {
-        photoResultArray.push(photoSelectResult.photoUris[i]);
-      }
-      selectResult.handleFileList(photoResultArray);
-    });
-  } catch (error) {
-    console.log('selectPicture error' + JSON.stringify(error));
-    selectResult.handleFileList([]);
-    promptAction.showToast({ message: '无法打开图片功能，请检查是否具备图片功能' });
+    this.fileSelectorListItem.bind(this)(callback, 'sys.symbol.camera', cameraOption, takePhoto);
+    this.fileSelectorListItem.bind(this)(callback, 'sys.symbol.doc_text', 'sys.string.document', selectFile);
   }
+
+  fileSelectorDialogForPhone(callback) {
+    this.observeComponentCreation2((elmtId, isInitialRender) => {
+      Scroll.create();
+    }, Scroll);
+    this.observeComponentCreation2((elmtId, isInitialRender) => {
+      Column.create();
+      Column.height(264);
+      Column.width(328);
+    }, Column);
+    this.fileSelectorDialog.bind(this)(callback);
+    this.observeComponentCreation2((elmtId, isInitialRender) => {
+      Row.create();
+      Row.onClick(() => {
+        try {
+          console.log('Get Alert Dialog handled');
+          onShowFileSelectorEvent.fileresult.handleFileList([]);
+          onShowFileSelectorEvent = undefined;
+          promptAction.closeCustomDialog(customDialogComponentId);
+        }
+        catch (error) {
+          let message = error.message;
+          let code = error.code;
+          console.error(`closeCustomDialog error code is ${code}, message is ${message}`);
+        }
+      });
+      Row.width(296);
+      Row.height(40);
+      Row.margin({
+        top: 8,
+        bottom: 16,
+        left: 16,
+        right: 16
+      });
+      Row.borderRadius(5);
+      Row.justifyContent(FlexAlign.Center);
+    }, Row);
+    this.observeComponentCreation2((elmtId, isInitialRender) => {
+      Text.create(this.general_cancel);
+      Text.fontSize(16);
+      Text.fontColor('#FF0A59F7');
+      Text.fontWeight(FontWeight.Medium);
+      Text.margin({
+        top: 10,
+        bottom: 10
+      });
+    }, Text);
+    Text.pop();
+    Row.pop();
+    Column.pop();
+    Scroll.pop();
+  }
+
+  setResource() {
+    let manager = resourceManager.getSysResourceManager();
+    setTimeout(() => {
+      manager.getStringByName('choose_to_upload')
+        .then((value) => {
+          this.choose_to_upload = value;
+        });
+      manager.getStringByName('general_cancel')
+        .then((value) => {
+          this.general_cancel = value;
+        });
+      manager.getStringByName('taking_photos_or_videos')
+        .then((value) => {
+          this.taking_photos_or_videos = value;
+        });
+      manager.getStringByName('taking_photos')
+        .then((value) => {
+          this.taking_photos = value;
+        });
+      manager.getStringByName('video_recording')
+        .then((value) => {
+          this.video_recording = value;
+        });
+      manager.getStringByName('gallery')
+        .then((value) => {
+          this.gallery = value;
+        });
+      manager.getStringByName('document')
+        .then((value) => {
+          this.document = value;
+        });
+    }, 200);
+  }
+
+  initialRender() {
+    this.fileSelectorDialogForPhone.bind(this)(this.callback);
+    commonEventManager.createSubscriber({ events: [commonEventManager.Support.COMMON_EVENT_LOCALE_CHANGED] })
+      .then((commonEventSubscriber) => {
+        this.subscriber = commonEventSubscriber;
+        commonEventManager.subscribe(commonEventSubscriber, (err, data) => {
+          if (err) {
+            console.error(`Failed to subscribe. Code is ${err.code}, message is ${err.message}`);
+            return;
+          }
+          this.setResource();
+        });
+      }).catch((err) => {
+        console.error(`CreateSubscriber failed. Code is ${err.code}, message is ${err.message}`);
+      });
+    let that = this;
+    this.getUIContext().getHostContext()?.getApplicationContext().on('applicationStateChange', {
+      onApplicationForeground() {
+        console.info('SelectorDialog onApplicationForeground');
+        that.setResource();
+      },
+      onApplicationBackground() {
+        console.info('SelectorDialog onApplicationBackground');
+      }
+    });
+  }
+
+  rerender() {
+    this.updateDirtyElements();
+  }
+
+  static getEntryName() {
+    return 'SelectorDialog';
+  }
+}
+
+function selectPicture(param) {
+  let photoResultArray = [];
+  let photoSelectOptions = new photoAccessHelper.PhotoSelectOptions();
+  if (param.getMode() === FileSelectorMode.FileOpenMode) {
+    console.log('allow select single photo or video');
+    photoSelectOptions.maxSelectNumber = 1;
+  }
+  let acceptTypes = param.getAcceptType();
+  photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.IMAGE_VIDEO_TYPE;
+  if (isContainImageMimeType(acceptTypes) && !isContainVideoMimeType(acceptTypes)) {
+    photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.IMAGE_TYPE;
+  }
+  if (!isContainImageMimeType(acceptTypes) && isContainVideoMimeType(acceptTypes)) {
+    photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.VIDEO_TYPE;
+  }
+
+  let photoPicker = new photoAccessHelper.PhotoViewPicker();
+  photoPicker.select(photoSelectOptions).then((photoSelectResult) => {
+    for (let i = 0; i < photoSelectResult.photoUris.length; i++) {
+      photoResultArray.push(photoSelectResult.photoUris[i]);
+    }
+  }).catch((error) => {
+    console.log('selectPicture error' + JSON.stringify(error));
+    promptAction.showToast({ message: '无法打开图片功能，请检查是否具备图片功能' });
+  }).finally(() => {
+    onShowFileSelectorEvent.fileresult.handleFileList(photoResultArray);
+    onShowFileSelectorEvent = undefined;
+  });
 }
 
 async function getManifestData(bundleName, connectExtensionOrigin, notifyCallback, callback) {
@@ -505,41 +731,45 @@ Object.defineProperty(webview.WebviewController.prototype, 'getCertificate', {
 
 Object.defineProperty(webview.WebviewController.prototype, 'fileSelectorShowFromUserWeb', {
   value: function (callback) {
+    if (onShowFileSelectorEvent) {
+      onShowFileSelectorEvent = callback;
+      return;
+    }
+    onShowFileSelectorEvent = callback;
     let currentDevice = deviceinfo.deviceType.toLowerCase();
     if (needShowDialog(callback.fileparam)) {
-      promptAction.closeCustomDialog(customDialogComponentId);
       promptAction.openCustomDialog({
         builder: () => {
-          Scroll.create();
-          fileSelectorDialogForPhone(callback);
-          Scroll.pop();
+          ViewPU.create(new SelectorDialog(undefined, { callback: callback }));
         },
         onWillDismiss: (dismissDialogAction) => {
           console.info('reason' + JSON.stringify(dismissDialogAction.reason));
           console.log('dialog onWillDismiss');
           if (dismissDialogAction.reason === DismissReason.PRESS_BACK) {
-            callback.fileresult.handleFileList([]);
+            onShowFileSelectorEvent?.fileresult.handleFileList([]);
             dismissDialogAction.dismiss();
           }
           if (dismissDialogAction.reason === DismissReason.TOUCH_OUTSIDE) {
-            callback.fileresult.handleFileList([]);
+            onShowFileSelectorEvent?.fileresult.handleFileList([]);
             dismissDialogAction.dismiss();
           }
+          onShowFileSelectorEvent = undefined;
         }
       }).then((dialogId) => {
         customDialogComponentId = dialogId;
       })
         .catch((error) => {
-          callback.fileresult.handleFileList([]);
+          onShowFileSelectorEvent.fileresult.handleFileList([]);
+          onShowFileSelectorEvent = undefined;
           console.error(`openCustomDialog error code is ${error.code}, message is ${error.message}`);
         });
     } else if (currentDevice !== '2in1' && callback.fileparam.isCapture() &&
         (isContainImageMimeType(callback.fileparam.getAcceptType()) || isContainVideoMimeType(callback.fileparam.getAcceptType()))) {
       console.log('take photo will be directly invoked due to the capture property');
-      takePhoto(callback.fileparam, callback.fileresult);
+      takePhoto(callback.fileparam);
     } else {
       console.log('selectFile will be invoked by web');
-      selectFile(callback.fileparam, callback.fileresult);
+      selectFile(callback.fileparam);
     }
   }
 });
@@ -645,6 +875,14 @@ Object.defineProperty(webview.WebviewController.prototype, 'innerNativeMessageDi
     let connectId = callback.connectId;
     console.log(`Messaging disconnect connectId= ${connectId}`);
     webNativeMessagingExtensionManager.disconnectNative(connectId);
+  }
+});
+
+Object.defineProperty(webview.WebviewController.prototype, 'canIUse', {
+  value: function (callback) {
+    let result = canIUse(callback.syscap);
+    console.log(`canIUse ${callback.syscap} supported is ${result}`);
+    return result;
   }
 });
 

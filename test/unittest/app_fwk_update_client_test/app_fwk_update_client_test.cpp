@@ -348,6 +348,21 @@ HWTEST_F(AppFwkUpdateClientTest, VerifyPackageInstall_003, testing::ext::TestSiz
  */
 HWTEST_F(AppFwkUpdateClientTest, NotifyFWKAfterBmsStart_001, testing::ext::TestSize.Level0)
 {
+    appFwkUpdateClient_->SetFwkUpdate(nullptr);
+    int result = appFwkUpdateClient_->NotifyFWKAfterBmsStart();
+    EXPECT_EQ(result, -1);
+}
+
+/**
+ * @tc.name: NotifyFWKAfterBmsStart_002
+ * @tc.desc: NotifyFWKAfterBmsStart()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(AppFwkUpdateClientTest, NotifyFWKAfterBmsStart_002, testing::ext::TestSize.Level0)
+{
+    sptr<IRemoteObject> remoteObject = mockRemote_;
+    appFwkUpdateClient_->SetFwkUpdate(remoteObject);
     int result = appFwkUpdateClient_->NotifyFWKAfterBmsStart();
     EXPECT_EQ(result, 0);
 }

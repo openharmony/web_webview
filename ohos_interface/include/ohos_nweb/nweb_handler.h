@@ -388,6 +388,29 @@ public:
     virtual std::vector<std::shared_ptr<NWebNativeEmbedParamItem>> GetParamItems() = 0;
 };
 
+class NWebWindowNewEventInfo {
+public:
+    virtual ~NWebWindowNewEventInfo() = default;
+
+    virtual std::string GetUrl() = 0;
+
+    virtual bool IsAlert() = 0;
+
+    virtual bool IsUserTrigger() = 0;
+
+    virtual std::shared_ptr<NWebControllerHandler> GetHandler() = 0;
+
+    virtual int32_t GetX() = 0;
+
+    virtual int32_t GetY() = 0;
+
+    virtual int32_t GetWidth() = 0;
+
+    virtual int32_t GetHeight() = 0;
+
+    virtual NavigationPolicy GetNavigationPolicy() = 0;
+};
+
 class OHOS_NWEB_EXPORT NWebHandler {
 public:
     NWebHandler() = default;
@@ -1400,6 +1423,37 @@ public:
      *
      */
     virtual void OnCameraCaptureStateChanged(int originalState, int newState) {}
+
+    /**
+     * @brief Called when the microphone capture state changed.
+     */
+    virtual void OnMicrophoneCaptureStateChanged(int originalState, int newState) {}
+
+    /**
+     * @brief Notify a first screen paint.
+     *
+     * @param url The url of the first screen paint.
+     * @param navigationStartTime The navigation start time of the first screen paint.
+     * @param firstScreenPaintTime The time of the first screen paint.
+     */
+    virtual void OnFirstScreenPaint(
+        const std::string& url, int64_t navigationStartTime, int64_t firstScreenPaintTime)
+    {}
+
+    /**
+     * @brief Callback with the selected text after the text selection content changes.
+     *
+     * @param selectedText The selected text after the text selection content changes.
+     */
+    virtual void OnTextSelectionChange(const std::string& selectedText) {}
+
+    /**
+     * @brief Called when params of the native object are changed.
+     *
+     * @param dataInfo The information containing the set of all info for the new window.
+     *
+     */
+    virtual void OnWindowNewExtByJS(const std::shared_ptr<NWebWindowNewEventInfo> dataInfo) {}
 };
 
 } // namespace OHOS::NWeb

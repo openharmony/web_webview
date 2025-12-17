@@ -27,7 +27,7 @@ namespace OHOS::NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace name {
-const char* JS_EXT_ARR_CLASS_NAME = "L@ohos/web/webview/webview/PdfData;";
+const char* JS_EXT_ARR_CLASS_NAME = "@ohos.web.webview.webview.PdfData";
 } // namespace name
 
 WebviewCreatePDFExecuteCallback::WebviewCreatePDFExecuteCallback(ani_env *env,
@@ -118,7 +118,7 @@ void WebviewCreatePDFExecuteCallback::ThreadAfterCb(ani_env *env)
         ReleaseBuffer();
         return;
     }
-    
+
     ani_size nr_refs = 16;
     if (env->CreateLocalScope(nr_refs) != ANI_OK) {
         WVLOG_E("[CreatePDF] CreateLocalScope failed");
@@ -159,10 +159,10 @@ static ani_object GetArrayBuffer(ani_env* env, ani_object object)
 
     ani_class cls;
     ani_method ctor;
-    if (env->FindClass("Lescompat/ArrayBuffer;", &cls) != ANI_OK) {
+    if (env->FindClass("std.core.ArrayBuffer", &cls) != ANI_OK) {
         return result;
     }
-    if (env->Class_FindMethod(cls, "<ctor>", "I:V", &ctor) != ANI_OK) {
+    if (env->Class_FindMethod(cls, "<ctor>", "i:", &ctor) != ANI_OK) {
         return result;
     }
 
@@ -176,7 +176,7 @@ static ani_object GetArrayBuffer(ani_env* env, ani_object object)
     for (ani_int i = 0; i < size; i++) {
         ani_int value = pdfResult[i];
         status = env->Object_CallMethodByName_Void(
-            arrayObject, "set", "IB:V", i, static_cast<ani_byte>(value));
+            arrayObject, "set", "ib:", i, static_cast<ani_byte>(value));
         if (status != ANI_OK) {
             WVLOG_E("arrayObject set() failed, status is %{public}d.", status);
             break;
@@ -187,24 +187,24 @@ static ani_object GetArrayBuffer(ani_env* env, ani_object object)
 
 ani_status StsPdfDataInit(ani_env* env)
 {
-   if (env == nullptr) {
-       WVLOG_E("env is nullptr");
-       return ANI_ERROR;
-   }
-   ani_class pdfDataCls = nullptr;
-   ani_status status = env->FindClass(name::JS_EXT_ARR_CLASS_NAME, &pdfDataCls);
-   if (status != ANI_OK || !pdfDataCls) {
-       WVLOG_E("find %{public}s class failed, status: %{public}d", name::JS_EXT_ARR_CLASS_NAME, status);
-       return ANI_ERROR;
-   }
-   std::array allMethods = {
-       ani_native_function { "pdfArrayBufferInternal", nullptr, reinterpret_cast<void*>(GetArrayBuffer) },
-   };
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_ERROR;
+    }
+    ani_class pdfDataCls = nullptr;
+    ani_status status = env->FindClass(name::JS_EXT_ARR_CLASS_NAME, &pdfDataCls);
+    if (status != ANI_OK || !pdfDataCls) {
+        WVLOG_E("find %{public}s class failed, status: %{public}d", name::JS_EXT_ARR_CLASS_NAME, status);
+        return ANI_ERROR;
+    }
+    std::array allMethods = {
+        ani_native_function { "pdfArrayBufferInternal", nullptr, reinterpret_cast<void*>(GetArrayBuffer) },
+    };
 
-   status = env->Class_BindNativeMethods(pdfDataCls, allMethods.data(), allMethods.size());
-   if (status != ANI_OK) {
-       WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
-   }
-   return ANI_OK;
+    status = env->Class_BindStaticNativeMethods(pdfDataCls, allMethods.data(), allMethods.size());
+    if (status != ANI_OK) {
+        WVLOG_E("Class_BindStaticNativeMethods failed status: %{public}d", status);
+    }
+    return ANI_OK;
 }
 } // namespace OHOS::NWeb

@@ -49,7 +49,8 @@
 #include "web_download_manager.h"
 #include "arkweb_scheme_handler.h"
 #include "arkweb_utils.h"
-#include "web_scheme_handler_request.h"
+#include "web_scheme_handler.h"
+#include "napi_web_scheme_handler_request.h"
 #include "system_properties_adapter_impl.h"
 #include "nweb_message_ext.h"
 #include "webview_value.h"
@@ -654,6 +655,10 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
             ArkWebTransfer::CreateBackForwardListTransfer),
         DECLARE_NAPI_FUNCTION("__createWebMessagePortTransfer__",
             ArkWebTransfer::CreateWebMessagePortTransfer),
+        DECLARE_NAPI_FUNCTION("__createWebResourceHandlerTransfer__",
+            ArkWebTransfer::CreateWebResourceHandlerTransfer),
+        DECLARE_NAPI_FUNCTION("__createWebSchemeHandlerRequestTransfer__",
+            ArkWebTransfer::CreateWebSchemeHandlerRequestTransfer),
     };
     napi_define_properties(env, exports, sizeof(transferDesc) / sizeof(transferDesc[0]), transferDesc);
     napi_property_descriptor properties[] = {
@@ -770,6 +775,9 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("startCamera", NapiWebviewController::StartCamera),
         DECLARE_NAPI_FUNCTION("stopCamera", NapiWebviewController::StopCamera),
         DECLARE_NAPI_FUNCTION("closeCamera", NapiWebviewController::CloseCamera),
+        DECLARE_NAPI_FUNCTION("resumeMicrophone", NapiWebviewController::ResumeMicrophone),
+        DECLARE_NAPI_FUNCTION("stopMicrophone", NapiWebviewController::StopMicrophone),
+        DECLARE_NAPI_FUNCTION("pauseMicrophone", NapiWebviewController::PauseMicrophone),
         DECLARE_NAPI_FUNCTION("closeAllMediaPresentations", NapiWebviewController::CloseAllMediaPresentations),
         DECLARE_NAPI_FUNCTION("stopAllMedia", NapiWebviewController::StopAllMedia),
         DECLARE_NAPI_FUNCTION("resumeAllMedia", NapiWebviewController::ResumeAllMedia),
@@ -1144,6 +1152,26 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         sizeof(scrollbarModeProperties) / sizeof(scrollbarModeProperties[0]), scrollbarModeProperties,
         &scrollbarModeEnum);
     napi_set_named_property(env, exports, WEB_SCROLLBAR_MODE_ENUM_NAME.c_str(), scrollbarModeEnum);
+
+    napi_value webHttpCookieSameSitePolicyEnum = nullptr;
+    napi_property_descriptor webHttpCookieSameSitePolicyProperties[] = {
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "NONE",
+            NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebHttpCookieSameSitePolicy::NONE))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "LAX",
+            NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebHttpCookieSameSitePolicy::LAX))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "STRICT",
+            NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(WebHttpCookieSameSitePolicy::STRICT))),
+    };
+    napi_define_class(env, WEB_HTTP_COOKIE_SAME_SITE_POLICY_ENUM_NAME.c_str(),
+        WEB_HTTP_COOKIE_SAME_SITE_POLICY_ENUM_NAME.length(),
+        NapiParseUtils::CreateEnumConstructor, nullptr,
+        sizeof(webHttpCookieSameSitePolicyProperties) / sizeof(webHttpCookieSameSitePolicyProperties[0]),
+        webHttpCookieSameSitePolicyProperties, &webHttpCookieSameSitePolicyEnum);
+    napi_set_named_property(env, exports, WEB_HTTP_COOKIE_SAME_SITE_POLICY_ENUM_NAME.c_str(),
+        webHttpCookieSameSitePolicyEnum);
 
     WebviewJavaScriptExecuteCallback::InitJSExcute(env, exports);
     WebviewCreatePDFExecuteCallback::InitJSExcute(env, exports);
@@ -2761,8 +2789,9 @@ void NWebValueCallbackImpl::OnReceiveValue(std::shared_ptr<NWebMessage> result)
         InvokeWebMessageCallback(param);
     } else {
         work->data = reinterpret_cast<void*>(param);
-        uv_queue_work_with_qos(
-            loop, work, [](uv_work_t* work) {}, UvWebMessageOnReceiveValueCallback, uv_qos_user_initiated);
+        uv_queue_work_with_qos_internal(
+            loop, work, [](uv_work_t* work) {}, UvWebMessageOnReceiveValueCallback, uv_qos_user_initiated,
+            "WebviewNWebValueCallbackImpl_OnReceiveValue");
 
         {
             std::unique_lock<std::mutex> lock(param->mutex_);
@@ -2831,8 +2860,9 @@ NWebValueCallbackImpl::~NWebValueCallbackImpl()
     param->env_ = env_;
     param->callback_ = callback_;
     work->data = reinterpret_cast<void*>(param);
-    int ret = uv_queue_work_with_qos(
-        loop, work, [](uv_work_t *work) {}, UvNWebValueCallbackImplThreadWoker, uv_qos_user_initiated);
+    int ret = uv_queue_work_with_qos_internal(
+        loop, work, [](uv_work_t *work) {}, UvNWebValueCallbackImplThreadWoker, uv_qos_user_initiated,
+        "WebviewNWebValueCallbackImpl");
     if (ret != 0) {
         if (param != nullptr) {
             delete param;
@@ -5273,8 +5303,7 @@ napi_value NapiWebviewController::CreateWebPrintDocumentAdapter(napi_env env, na
         return result;
     }
 
-    int32_t useAdapterV2 = 0;
-    void* webPrintDocument = webviewController->CreateWebPrintDocumentAdapter(jobName, useAdapterV2);
+    auto webPrintDocument = webviewController->CreateWebPrintDocumentAdapter(jobName);
     if (!webPrintDocument) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
         return result;
@@ -5285,12 +5314,11 @@ napi_value NapiWebviewController::CreateWebPrintDocumentAdapter(napi_env env, na
     }
     napi_value webPrintDoc = nullptr;
     NAPI_CALL(env, napi_get_reference_value(env, g_webPrintDocClassRef, &webPrintDoc));
-    napi_value consParam[INTEGER_TWO] = {0};
+    napi_value consParam[INTEGER_ONE] = {0};
     NAPI_CALL(env, napi_create_bigint_uint64(env, reinterpret_cast<uint64_t>(webPrintDocument),
                                              &consParam[INTEGER_ZERO]));
-    NAPI_CALL(env, napi_create_int32(env, useAdapterV2, &consParam[INTEGER_ONE]));
     napi_value proxy = nullptr;
-    status = napi_new_instance(env, webPrintDoc, INTEGER_TWO, &consParam[INTEGER_ZERO], &proxy);
+    status = napi_new_instance(env, webPrintDoc, INTEGER_ONE, &consParam[INTEGER_ZERO], &proxy);
     if (status!= napi_ok) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
         return result;
@@ -5468,6 +5496,8 @@ bool ParseWebPrintAttrParams(napi_env env, napi_value obj, PrintAttributesAdapte
     ParsePrintRangeAdapter(env, pageRange, printAttr);
     ParsePrintPageSizeAdapter(env, pageSize, printAttr);
     ParsePrintMarginAdapter(env, margin, printAttr);
+    printAttr.print_backgrounds = UINT32_MAX;
+    printAttr.display_header_footer = UINT32_MAX;
     return true;
 }
 
@@ -5556,11 +5586,10 @@ napi_value NapiWebPrintDocument::OnJobStateChanged(napi_env env, napi_callback_i
 napi_value NapiWebPrintDocument::JsConstructor(napi_env env, napi_callback_info info)
 {
     napi_value thisVar = nullptr;
-    size_t argc = INTEGER_TWO;
-    napi_value argv[INTEGER_TWO];
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE];
     uint64_t addrWebPrintDoc = 0;
     bool loseLess = true;
-    int32_t useAdapterV2 = 0;
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
 
     if (!NapiParseUtils::ParseUint64(env, argv[INTEGER_ZERO], addrWebPrintDoc, &loseLess)) {
@@ -5568,19 +5597,8 @@ napi_value NapiWebPrintDocument::JsConstructor(napi_env env, napi_callback_info 
         return nullptr;
     }
 
-    if (!NapiParseUtils::ParseInt32(env, argv[INTEGER_ONE], useAdapterV2)) {
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
-        return nullptr;
-    }
-
-    WebPrintDocument *webPrintDoc = nullptr;
-    if (useAdapterV2) {
-        webPrintDoc = new (std::nothrow) WebPrintDocument(
-            reinterpret_cast<NWebPrintDocumentAdapterAdapter *>(addrWebPrintDoc));
-    } else {
-        webPrintDoc = new (std::nothrow) WebPrintDocument(
-            reinterpret_cast<PrintDocumentAdapterAdapter *>(addrWebPrintDoc));
-    }
+    WebPrintDocument *webPrintDoc = new (std::nothrow) WebPrintDocument(
+        reinterpret_cast<NWebPrintDocumentAdapterAdapter *>(addrWebPrintDoc));
     if (webPrintDoc == nullptr) {
         WVLOG_E("new web print failed");
         return nullptr;
@@ -6087,6 +6105,45 @@ napi_value NapiWebviewController::CloseCamera(napi_env env, napi_callback_info i
         return result;
     }
     webviewController->CloseCamera();
+
+    return result;
+}
+
+napi_value NapiWebviewController::ResumeMicrophone(napi_env env, napi_callback_info info)
+{
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_undefined(env, &result));
+    WebviewController* webviewController = GetWebviewController(env, info);
+    if (!webviewController) {
+        return result;
+    }
+    webviewController->ResumeMicrophone();
+
+    return result;
+}
+
+napi_value NapiWebviewController::StopMicrophone(napi_env env, napi_callback_info info)
+{
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_undefined(env, &result));
+    WebviewController* webviewController = GetWebviewController(env, info);
+    if (!webviewController) {
+        return result;
+    }
+    webviewController->StopMicrophone();
+
+    return result;
+}
+
+napi_value NapiWebviewController::PauseMicrophone(napi_env env, napi_callback_info info)
+{
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_undefined(env, &result));
+    WebviewController* webviewController = GetWebviewController(env, info);
+    if (!webviewController) {
+        return result;
+    }
+    webviewController->PauseMicrophone();
 
     return result;
 }
@@ -6675,6 +6732,8 @@ WebSnapshotCallback CreateWebPageSnapshotResultCallback(
             const char *returnId, bool returnStatus, float radio, void *returnData,
             int returnWidth, int returnHeight) {
             WVLOG_I("WebPageSnapshot return napi callback");
+            napi_handle_scope scope = nullptr;
+            napi_open_handle_scope(env, &scope);
             napi_value jsResult = nullptr;
             napi_create_object(env, &jsResult);
 
@@ -6740,6 +6799,7 @@ WebSnapshotCallback CreateWebPageSnapshotResultCallback(
             napi_call_function(env, nullptr, callback, INTEGER_TWO, args, &callbackResult);
             napi_delete_reference(env, jCallback);
             g_inWebPageSnapshot = false;
+            napi_close_handle_scope(env, scope);
         };
 }
 
@@ -7722,6 +7782,126 @@ napi_value ArkWebTransfer::CreateWebMessagePortTransfer(napi_env env, napi_callb
     return result;
 }
 
+static napi_value CreateWebResourceHandler(napi_env env, WebResourceHandler* resourceHandler)
+{
+    napi_value jsValue = nullptr;
+    napi_create_object(env, &jsValue);
+
+    NAPI_CALL(env, napi_wrap(env, jsValue, resourceHandler,
+        [](napi_env env, void *data, void *hint) {
+            WebResourceHandler *handler = static_cast<WebResourceHandler *>(data);
+            if (handler) {
+                handler->DecStrongRef(handler);
+            }
+        },
+        nullptr, nullptr));
+    resourceHandler->IncStrongRef(nullptr);
+    
+    napi_property_descriptor resultFuncs[] = {
+        DECLARE_NAPI_FUNCTION("didReceiveResponse", NapiWebResourceHandler::JS_DidReceiveResponse),
+        DECLARE_NAPI_FUNCTION("didReceiveResponseBody", NapiWebResourceHandler::JS_DidReceiveResponseBody),
+        DECLARE_NAPI_FUNCTION("didFinish", NapiWebResourceHandler::JS_DidFinish),
+        DECLARE_NAPI_FUNCTION("didFail", NapiWebResourceHandler::JS_DidFailWithError),
+    };
+
+    NAPI_CALL(env, napi_define_properties(env, jsValue, sizeof(resultFuncs) / sizeof(resultFuncs[0]), resultFuncs));
+    return jsValue;
+}
+
+napi_value ArkWebTransfer::CreateWebResourceHandlerTransfer(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    napi_value result;
+    napi_get_undefined(env, &result);
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (argc != INTEGER_ONE) {
+        WVLOG_E("[CreateWebResourceHandlerTransfer] number of params is invalid");
+        return result;
+    }
+
+    int64_t addr = 0;
+    if (!NapiParseUtils::ParseInt64(env, argv[INTEGER_ZERO], addr)) {
+        WVLOG_E("[CreateWebResourceHandlerTransfer] type of param is error");
+        return result;
+    }
+
+    WebResourceHandler* resourceHandler =  reinterpret_cast<WebResourceHandler*>(addr);
+    if (resourceHandler == nullptr) {
+        WVLOG_E("[CreateWebResourceHandlerTransfer] resourceHandler is null");
+        return result;
+    }
+    napi_value jsValue = CreateWebResourceHandler(env, resourceHandler);
+    if (jsValue) {
+        return jsValue;
+    }
+    return result;
+}
+
+static napi_value CreateWebSchemeHandlerRequest(napi_env env, WebSchemeHandlerRequest* schemeHandlerRequest)
+{
+    napi_value jsValue = nullptr;
+    napi_create_object(env, &jsValue);
+
+    NAPI_CALL(env, napi_wrap(env, jsValue, schemeHandlerRequest,
+        [](napi_env env, void *data, void *hint) {
+            WebSchemeHandlerRequest *handler = static_cast<WebSchemeHandlerRequest *>(data);
+            if (handler) {
+                handler->DecStrongRef(handler);
+            }
+        },
+        nullptr, nullptr));
+    schemeHandlerRequest->IncStrongRef(nullptr);
+    
+    napi_property_descriptor resultFuncs[] = {
+        DECLARE_NAPI_FUNCTION("getHeader", NapiWebSchemeHandlerRequest::JS_GetHeader),
+        DECLARE_NAPI_FUNCTION("getRequestUrl", NapiWebSchemeHandlerRequest::JS_GetRequestUrl),
+        DECLARE_NAPI_FUNCTION("getRequestMethod", NapiWebSchemeHandlerRequest::JS_GetRequestMethod),
+        DECLARE_NAPI_FUNCTION("getReferrer", NapiWebSchemeHandlerRequest::JS_GetReferrer),
+        DECLARE_NAPI_FUNCTION("isRedirect", NapiWebSchemeHandlerRequest::JS_IsRedirect),
+        DECLARE_NAPI_FUNCTION("isMainFrame", NapiWebSchemeHandlerRequest::JS_IsMainFrame),
+        DECLARE_NAPI_FUNCTION("hasGesture", NapiWebSchemeHandlerRequest::JS_HasGesture),
+        DECLARE_NAPI_FUNCTION("getHttpBodyStream", NapiWebSchemeHandlerRequest::JS_HttpBodyStream),
+        DECLARE_NAPI_FUNCTION("getRequestResourceType", NapiWebSchemeHandlerRequest::JS_GetRequestResourceType),
+        DECLARE_NAPI_FUNCTION("getFrameUrl", NapiWebSchemeHandlerRequest::JS_GetFrameUrl),
+    };
+
+    NAPI_CALL(env, napi_define_properties(env, jsValue, sizeof(resultFuncs) / sizeof(resultFuncs[0]), resultFuncs));
+    return jsValue;
+}
+
+napi_value ArkWebTransfer::CreateWebSchemeHandlerRequestTransfer(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    napi_value result;
+    napi_get_undefined(env, &result);
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (argc != INTEGER_ONE) {
+        WVLOG_E("[CreateWebSchemeHandlerRequestTransfer] number of params is invalid");
+        return result;
+    }
+
+    int64_t addr = 0;
+    if (!NapiParseUtils::ParseInt64(env, argv[INTEGER_ZERO], addr)) {
+        WVLOG_E("[CreateWebSchemeHandlerRequestTransfer] type of param is error");
+        return result;
+    }
+
+    WebSchemeHandlerRequest* schemeHandlerRequest =  reinterpret_cast<WebSchemeHandlerRequest*>(addr);
+    if (schemeHandlerRequest == nullptr) {
+        WVLOG_E("[CreateWebSchemeHandlerRequestTransfer] schemeHandlerRequest is null");
+        return result;
+    }
+    napi_value jsValue = CreateWebSchemeHandlerRequest(env, schemeHandlerRequest);
+    if (jsValue) {
+        return jsValue;
+    }
+    return result;
+}
+
 napi_value NapiWebviewController::EnablePrivateNetworkAccess(napi_env env, napi_callback_info info)
 {
     if (IS_CALLING_FROM_M114()) {
@@ -8037,7 +8217,14 @@ napi_value NapiWebviewController::SetSoftKeyboardBehaviorMode(napi_env env, napi
             NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "mode"));
         return result;
     }
-    NWebHelper::Instance().SetSoftKeyboardBehaviorMode(static_cast<WebSoftKeyboardBehaviorMode>(mode));
+    
+    WebviewController *webviewController = GetWebviewController(env, info);
+    if (!webviewController) {
+        WVLOG_E("NapiWebviewController::SetSoftKeyboardBehaviorMode get controller failed");
+        return nullptr;
+    }
+    WVLOG_I("SoftKeyboardBehaviorMode is active. ");
+    webviewController->SetSoftKeyboardBehaviorMode(static_cast<WebSoftKeyboardBehaviorMode>(mode));
     return result;
 }
 

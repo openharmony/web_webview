@@ -52,6 +52,7 @@ public:
     bool LoadWebEngine(bool fromArk, bool runFlag);
     void* LoadFuncSymbol(const char* funcName);
 
+    std::shared_ptr<OHOS::NWeb::NWebEngineInitArgs> GetInitArgs();
     std::shared_ptr<NWeb> CreateNWeb(std::shared_ptr<NWebCreateInfo> create_info);
     std::shared_ptr<NWebCookieManager> GetCookieManager();
     std::shared_ptr<NWebDataBase> GetDataBase();
@@ -149,6 +150,14 @@ public:
 
     void SetScrollbarMode(ScrollbarMode mode);
 
+    void SetLazyInitializeWebEngine(bool lazy);
+
+    bool IsLazyInitializeWebEngine();
+
+    bool GetNWebActiveStatus(int32_t nwebId);
+    void SetNWebActiveStatus(int32_t nwebId, bool nwebActiveStatus);
+    void RemoveNWebActiveStatus(int32_t nwebId);
+
 private:
     NWebHelper() = default;
     bool GetWebEngine(bool fromArk);
@@ -159,12 +168,15 @@ private:
     int32_t socketIdleTimeout_ = 300;
     bool initFlag_ = false;
     bool autoPreconnectEnabled_ = true;
+    bool lazyInitializeWebEngine_ = false;
+    bool initWebEngine_ = false;
     std::string bundlePath_;
     std::string customSchemeCmdLine_;
     std::shared_ptr<NWebEngine> nwebEngine_ = nullptr;
     std::vector<NwebScheme> schemeVector_;
     std::vector<std::string> backForwardCacheCmdLine_;
     mutable std::mutex lock_;
+    std::map<int32_t, bool> nwebActiveStatusMap_;
 };
 } // namespace OHOS::NWeb
 
