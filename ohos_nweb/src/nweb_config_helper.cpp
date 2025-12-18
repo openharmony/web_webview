@@ -258,6 +258,13 @@ void NWebConfigHelper::ReadConfigIfNeeded()
     }
 }
 
+/**
+ * @brief Returns the configured top priority path;
+ * If it does not exist, returns the default path, /system/ + configFileName.
+ *
+ * @param configFileName The relative path of the file, e.g., "etc/web/web_config.xml".
+ * @return The top priority path, e.g., "/sys_prod/varient/hw_oem/factory/etc/web/web_config.xml".
+ */
 std::string NWebConfigHelper::GetConfigPath(const std::string &configFileName)
 {
     char buf[PATH_MAX + 1];
@@ -696,4 +703,37 @@ std::string NWebConfigHelper::GetBundleName()
     return bundleName_;
 }
 
+/**
+ * Returns all configured CCM paths, sorted in ascending order of priority,
+ * provided that configuration files exist under these paths.
+ *
+ * @param relativePath The relative path of the file, e.g., "etc/web/web_config.xml".
+ * @return List of paths, e.g., ["/system/etc/web/web_config.xml", "/sys_prod/etc/web/web_config.xml"].
+ */
+std::vector<std::string> NWebConfigHelper::GetConfigPathsInPriorityOrder(const std::string& relativePath)
+{
+    std::vector<std::string> paths;
+    if (relativePath.empty()) {
+        return paths;
+    }
+    CfgFiles* cfgFiles = GetCfgFiles(relativePath.c_str());
+    if (cfgFiles == nullptr) {
+        WVLOG_E("GetPathsInPriorityOrder failed, can not found path");
+        return paths;
+    }
+
+    // order by priority asc
+    for (int32_t i = 0; i < MAX_CFG_POLICY_DIRS_CNT; i++) {
+        char* cfgFilePath = cfgFiles->paths[i];
+        if (!cfgFilePath || *(cfgFilePath) == '\0') {
+            break;
+        }
+        if (strlen(cfgFilePath) == 0 || strlen(cfgFilePath) > PATH_MAX) {
+            continue;
+        }
+        paths.push_back(std::string(cfgFilePath));
+    }
+    FreeCfgFiles(cfgFiles);
+    return paths;
+}
 } // namespace OHOS::NWeb

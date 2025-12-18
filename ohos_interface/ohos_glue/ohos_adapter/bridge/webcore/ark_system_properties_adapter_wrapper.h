@@ -97,6 +97,10 @@ public:
 
     int32_t GetIntParameter(const std::string& key, int32_t defaultValue) override;
 
+    std::string GetTopPriorityConfigPath(const std::string& relativePath) override;
+
+    std::vector<std::string> GetConfigPathsInPriorityOrder(const std::string& relativePath) override;
+
 private:
     ArkWebRefPtr<ArkSystemPropertiesAdapter> ctocpp_;
 };

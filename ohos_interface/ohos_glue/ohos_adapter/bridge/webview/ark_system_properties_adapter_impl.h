@@ -96,6 +96,10 @@ public:
 
     int32_t GetIntParameter(const ArkWebString& key, int32_t defaultValue) override;
 
+    ArkWebString GetTopPriorityConfigPath(const ArkWebString& relativePath) override;
+
+    ArkWebStringVector GetConfigPathsInPriorityOrder(const ArkWebString& relativePath) override;
+
 private:
     NWeb::SystemPropertiesAdapter& real_;
 
