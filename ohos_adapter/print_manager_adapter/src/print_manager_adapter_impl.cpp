@@ -19,13 +19,13 @@
 
 namespace OHOS::NWeb {
 namespace {
-std::shared_ptr<Print::PrintAttributes> CreateAttrsWithCustomOption(const PrintAttributesAdapter& printAttr)
+std::shared_ptr<OHOS::Print::PrintAttributes> CreateAttrsWithCustomOption(const PrintAttributesAdapter& printAttr)
 {
-    auto attr = std::make_shared<Print::PrintAttributes>();
-    std::vector<Print::PrintCustomOption> customOption;
+    auto attr = std::make_shared<OHOS::Print::PrintAttributes>();
+    std::vector<OHOS::Print::PrintCustomOption> customOption;
 
     if (printAttr.display_header_footer != UINT32_MAX) {
-        Print::PrintCustomOption option;
+        OHOS::Print::PrintCustomOption option;
         option.SetOptionName("display_header_footer");
         option.SetType(static_cast<uint32_t>(OHOS::Print::ComponentType::SWITCH));
         option.SetOptionResourceName("rid_display_header_footer");
@@ -34,7 +34,7 @@ std::shared_ptr<Print::PrintAttributes> CreateAttrsWithCustomOption(const PrintA
     }
 
     if (printAttr.print_backgrounds != UINT32_MAX) {
-        Print::PrintCustomOption option;
+        OHOS::Print::PrintCustomOption option;
         option.SetOptionName("print_backgrounds");
         option.SetType(static_cast<uint32_t>(OHOS::Print::ComponentType::SWITCH));
         option.SetOptionResourceName("rid_print_backgrounds");
