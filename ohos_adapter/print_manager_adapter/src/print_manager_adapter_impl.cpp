@@ -183,7 +183,7 @@ PrintAttributesAdapter PrintDocumentAdapterImpl::ConvertPrintingParameters(OHOS:
             }
         }
         WVLOG_D("display_header_footer = %{public}u, print_backgrounds = %{public}u",
-          printAttributesAdapter.display_header_footer, printAttributesAdapter.print_backgrounds);
+            printAttributesAdapter.display_header_footer, printAttributesAdapter.print_backgrounds);
     } else {
         WVLOG_D("No Custom Option");
     }
