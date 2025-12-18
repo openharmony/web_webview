@@ -18,28 +18,7 @@
 #include "nweb_log.h"
 
 namespace OHOS::NWeb {
-// static
-PrintManagerAdapterImpl& PrintManagerAdapterImpl::GetInstance()
-{
-    static PrintManagerAdapterImpl instance;
-    return instance;
-}
-
-int32_t PrintManagerAdapterImpl::StartPrint(
-    const std::vector<std::string>& fileList, const std::vector<uint32_t>& fdList, std::string& taskId)
-{
-#if defined(NWEB_PRINT_ENABLE)
-    int32_t ret = OHOS::Print::PrintManagerClient::GetInstance()->StartPrint(fileList, fdList, taskId);
-    if (ret != 0) {
-        WVLOG_E("StartPrint failed, failed id = %{public}d", ret);
-        return -1;
-    }
-    return ret;
-#else
-    return -1;
-#endif
-}
-
+namespace {
 std::shared_ptr<Print::PrintAttributes> CreateAttrsWithCustomOption(const PrintAttributesAdapter& printAttr)
 {
     auto attr = std::make_shared<Print::PrintAttributes>();
@@ -63,10 +42,34 @@ std::shared_ptr<Print::PrintAttributes> CreateAttrsWithCustomOption(const PrintA
         customOption.push_back(option);
     }
 
-    attr->SetCustomOpion(customOption);
+    attr->SetCustomOption(customOption);
 
-    WVLOG_D("Start Print WIth display_header_footer = %{public}u print_backgrounds = %{public}u",
+    WVLOG_D("Start Print With display_header_footer = %{public}u print_backgrounds = %{public}u",
         printAttr.display_header_footer, printAttr.print_backgrounds);
+    return attr;
+}
+}
+
+// static
+PrintManagerAdapterImpl& PrintManagerAdapterImpl::GetInstance()
+{
+    static PrintManagerAdapterImpl instance;
+    return instance;
+}
+
+int32_t PrintManagerAdapterImpl::StartPrint(
+    const std::vector<std::string>& fileList, const std::vector<uint32_t>& fdList, std::string& taskId)
+{
+#if defined(NWEB_PRINT_ENABLE)
+    int32_t ret = OHOS::Print::PrintManagerClient::GetInstance()->StartPrint(fileList, fdList, taskId);
+    if (ret != 0) {
+        WVLOG_E("StartPrint failed, failed id = %{public}d", ret);
+        return -1;
+    }
+    return ret;
+#else
+    return -1;
+#endif
 }
 
 int32_t PrintManagerAdapterImpl::Print(const std::string& printJobName,

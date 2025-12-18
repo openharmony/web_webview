@@ -5464,7 +5464,7 @@ void ParseCustomOptions(napi_env env, napi_value customOption, PrintAttributesAd
 
     for (uint32_t i = 0; i < arrayLen; i++) {
         napi_value item = nullptr;
-        napi_gat_element(env, customOption, i, &item);
+        napi_get_element(env, customOption, i, &item);
 
         napi_value optionNameValue = nullptr;
         napi_value isSelectValue = nullptr;
@@ -5475,7 +5475,7 @@ void ParseCustomOptions(napi_env env, napi_value customOption, PrintAttributesAd
         if (optionNameValue) {
             NapiParseUtils::ParseString(env, optionNameValue, optionName);
         }
-        if (optionNameValue) {
+        if (isSelectValue) {
             NapiParseUtils::ParseBoolean(env, isSelectValue, isSelect);
         }
 
