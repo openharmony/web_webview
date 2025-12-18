@@ -361,6 +361,22 @@ void setActiveWebEngineVersion(ArkWebEngineVersion version)
     g_activeEngineVersion = CalculateActiveWebEngineVersion();
 }
 
+void SetActiveWebPlayGround(ArkWebEngineVersion version)
+{
+    if (g_webEngineInitFlag) {
+        WVLOG_E("library resources have been loaded, can't set appEngineVersion");
+        return;
+    }
+
+    if (static_cast<int>(version) != static_cast<int>(ArkWebEngineType::PLAYGROUND)) {
+        WVLOG_E("set EngineVersion not support, setVersion: %{public}d", static_cast<int>(version));
+        return;
+    }
+    g_appEngineVersion = static_cast<int>(version);
+    WVLOG_I("app setActiveWebEngineVersion: %{public}d", g_appEngineVersion);
+    g_activeEngineVersion = version;
+}
+
 void SetActiveWebEngineVersionInner(ArkWebEngineVersion version)
 {
     g_activeEngineVersion = version;
@@ -454,7 +470,9 @@ std::string GetArkwebLibPathForMock(const std::string& mockBundlePath)
 std::string GetArkwebNameSpace()
 {
     std::string ns;
-    if (getActiveWebEngineType() == ArkWebEngineType::LEGACY) {
+    if (getActiveWebEngineType() == ArkWebEngineType::PLAYGROUND) {
+        ns = "nweb_ns_playground";
+    } else if (getActiveWebEngineType() == ArkWebEngineType::LEGACY) {
         ns = "nweb_ns_legacy";
     } else {
         ns = "nweb_ns";
