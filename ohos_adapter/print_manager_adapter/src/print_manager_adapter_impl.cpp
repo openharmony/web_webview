@@ -24,7 +24,7 @@ std::shared_ptr<Print::PrintAttributes> CreateAttrsWithCustomOption(const PrintA
     auto attr = std::make_shared<Print::PrintAttributes>();
     std::vector<Print::PrintCustomOption> customOption;
 
-    if(printAttr.display_header_footer != UINT32_MAX) {
+    if (printAttr.display_header_footer != UINT32_MAX) {
         Print::PrintCustomOption option;
         option.SetOptionName("display_header_footer");
         option.SetType(static_cast<uint32_t>(OHOS::Print::ComponentType::SWITCH));
@@ -33,7 +33,7 @@ std::shared_ptr<Print::PrintAttributes> CreateAttrsWithCustomOption(const PrintA
         customOption.push_back(option);
     }
 
-    if(printAttr.print_backgrounds != UINT32_MAX) {
+    if (printAttr.print_backgrounds != UINT32_MAX) {
         Print::PrintCustomOption option;
         option.SetOptionName("print_backgrounds");
         option.SetType(static_cast<uint32_t>(OHOS::Print::ComponentType::SWITCH));
@@ -44,7 +44,7 @@ std::shared_ptr<Print::PrintAttributes> CreateAttrsWithCustomOption(const PrintA
 
     attr->SetCustomOption(customOption);
 
-    WVLOG_D("Start Print With display_header_footer = %{public}u print_backgrounds = %{public}u",
+    WVLOG_D("Start Print With display_header_footer = %{public}u, print_backgrounds = %{public}u",
         printAttr.display_header_footer, printAttr.print_backgrounds);
     return attr;
 }
@@ -86,7 +86,7 @@ int32_t PrintManagerAdapterImpl::Print(const std::string& printJobName,
         WVLOG_E("iCallback get failed");
         return -1;
     }
-    auto attributes = std::make_shared<OHOS::Print::PrintAttributes>();
+    auto attributes = CreateAttrsWithCustomOption(printAttributes);
     if (!attributes) {
         WVLOG_E("attributes get failed");
         return -1;
@@ -117,7 +117,7 @@ int32_t PrintManagerAdapterImpl::Print(const std::string& printJobName,
         WVLOG_E("iCallback get failed");
         return -1;
     }
-    auto attributes = std::make_shared<OHOS::Print::PrintAttributes>();
+    auto attributes = CreateAttrsWithCustomOption(printAttributes);
     if (!attributes) {
         WVLOG_E("attributes get failed");
         return -1;
@@ -182,7 +182,7 @@ PrintAttributesAdapter PrintDocumentAdapterImpl::ConvertPrintingParameters(OHOS:
                 printAttributesAdapter.display_header_footer = op.GetIsSelect();
             }
         }
-        WVLOG_D("display_header_footer = %{public}u print_backgrounds = %{public}u",
+        WVLOG_D("display_header_footer = %{public}u, print_backgrounds = %{public}u",
           printAttributesAdapter.display_header_footer, printAttributesAdapter.print_backgrounds);
     } else {
         WVLOG_D("No Custom Option");
