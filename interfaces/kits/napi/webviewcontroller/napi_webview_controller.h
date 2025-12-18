@@ -39,6 +39,7 @@ const std::string WEB_SECURE_DNS_MODE_ENUM_NAME = "SecureDnsMode";
 const std::string WEB_ENGINE_VERSION_ENUM_NAME = "ArkWebEngineVersion";
 const std::string WEB_PRINT_DOCUMENT_CLASS_NAME = "WebPrintDocument";
 const std::string WEB_SECURITY_LEVEL_ENUM_NAME = "SecurityLevel";
+const std::string WEB_MEDIA_PLAYBACK_STATE_ENUM_NAME = "MediaPlaybackState";
 const std::string WEB_RENDER_PROCESS_MODE_ENUM_NAME = "RenderProcessMode";
 const std::string OFFLINE_RESOURCE_TYPE_ENUM_NAME = "OfflineResourceType";
 const std::string WEB_SCROLL_TYPE_ENUM_NAME = "ScrollType";
