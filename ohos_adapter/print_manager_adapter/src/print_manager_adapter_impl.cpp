@@ -19,6 +19,7 @@
 
 namespace OHOS::NWeb {
 namespace {
+#if defined(NWEB_PRINT_ENABLE)
 std::shared_ptr<OHOS::Print::PrintAttributes> CreateAttrsWithCustomOption(const PrintAttributesAdapter& printAttr)
 {
     auto attr = std::make_shared<OHOS::Print::PrintAttributes>();
@@ -48,6 +49,7 @@ std::shared_ptr<OHOS::Print::PrintAttributes> CreateAttrsWithCustomOption(const 
         printAttr.display_header_footer, printAttr.print_backgrounds);
     return attr;
 }
+#endif
 }
 
 // static
