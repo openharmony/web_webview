@@ -23,6 +23,7 @@
 #include "aafwk_browser_host_impl.h"
 #include "aafwk_render_scheduler_host_adapter.h"
 #include "app_mgr_client.h"
+#include "process_uid_define.h"
 
 namespace OHOS::NWeb {
 class AafwkAppMgrClientAdapterImpl : public AafwkAppMgrClientAdapter {
@@ -44,6 +45,7 @@ public:
 
     void SaveBrowserConnect(std::shared_ptr<AafwkBrowserHostAdapter> adapter) override;
 
+    bool IsRenderProcessByUid(int uid) override;
 private:
     std::unique_ptr<AppExecFwk::AppMgrClient> appMgrClient_;
     sptr<AafwkBrowserHostImpl> aafwkBrowserHostImpl_ = nullptr;

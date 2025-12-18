@@ -35,6 +35,7 @@ ohos_fuzztest("ArkwebUtilsFuzzTest") {
   ]
   sources = [ "arkwebutils_fuzzer.cpp" ]
   external_deps = [
+    "bundle_framework:appexecfwk_base",
     "cJSON:cjson",
     "c_utils:utils",
     "graphic_2d:librender_service_client",

@@ -28,6 +28,7 @@
 #include "aafwk_render_scheduler_host_adapter.h"
 #include "app_mgr_client.h"
 #include "ohos_adapter_helper.h"
+#include "process_uid_define.h"
 #include "surface_utils.h"
 
 using namespace testing;
@@ -978,5 +979,36 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_StartChildProcess_004, TestSize.
     int result = g_adapter->StartChildProcess(renderParam, ipcFd, sharedFd, crashFd, renderPid, processtype);
     EXPECT_NE(RESULT_OK, result);
     g_adapter->SaveBrowserConnect(adapter);
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_IsRenderProcessByUid_001.
+ * @tc.desc: Test IsRenderProcessByUid interface (cover valid/invalid UID, boundary value, appMgrClient_ null/valid scenarios).
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_IsRenderProcessByUid_001, TestSize.Level1)
+{
+    g_adapter->appMgrClient_ = nullptr;
+    int validRenderUid = 100 * BASE_USER_RANGE_FOR_NWEB + 105000;
+    int invalidRenderUid = 100 * BASE_USER_RANGE_FOR_NWEB + 99999;
+    int boundaryStartUid = 100 * BASE_USER_RANGE_FOR_NWEB + START_ID_FOR_RENDER_PROCESS_ISOLATION;
+    int boundaryEndUid = 100 * BASE_USER_RANGE_FOR_NWEB + END_ID_FOR_RENDER_PROCESS_ISOLATION;
+    int boundaryOverUid = 100 * BASE_USER_RANGE_FOR_NWEB + (END_ID_FOR_RENDER_PROCESS_ISOLATION + 1);
+    int zeroUid = 0;
+    EXPECT_TRUE(g_adapter->IsRenderProcessByUid(validRenderUid));
+    EXPECT_FALSE(g_adapter->IsRenderProcessByUid(invalidRenderUid));
+    EXPECT_TRUE(g_adapter->IsRenderProcessByUid(boundaryStartUid));
+    EXPECT_TRUE(g_adapter->IsRenderProcessByUid(boundaryEndUid));
+    EXPECT_FALSE(g_adapter->IsRenderProcessByUid(boundaryOverUid));
+    EXPECT_FALSE(g_adapter->IsRenderProcessByUid(zeroUid));
+    MockAppMgrClient *mock = new MockAppMgrClient();
+    g_adapter->appMgrClient_.reset((AppMgrClient *)mock);
+    EXPECT_TRUE(g_adapter->IsRenderProcessByUid(validRenderUid));
+    EXPECT_FALSE(g_adapter->IsRenderProcessByUid(invalidRenderUid));
+    EXPECT_TRUE(g_adapter->IsRenderProcessByUid(boundaryStartUid));
+    EXPECT_TRUE(g_adapter->IsRenderProcessByUid(boundaryEndUid));
+    EXPECT_FALSE(g_adapter->IsRenderProcessByUid(boundaryOverUid));
+    EXPECT_FALSE(g_adapter->IsRenderProcessByUid(zeroUid));
 }
 }

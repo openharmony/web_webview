@@ -38,6 +38,8 @@ public:
 
     void SaveBrowserConnect(ArkWebRefPtr<ArkAafwkBrowserHostAdapter> adapter) override;
 
+    bool IsRenderProcessByUid(int uid) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::AafwkAppMgrClientAdapter> real_;
 

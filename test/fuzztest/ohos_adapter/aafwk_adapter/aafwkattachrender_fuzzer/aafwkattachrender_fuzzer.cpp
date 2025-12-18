@@ -80,6 +80,8 @@ bool AafwkAttachRenderFuzzTest(const uint8_t* data, size_t size)
     render1.SaveBrowserConnect(nullptr);
     auto adapter1 = std::make_shared<AafwkBrowserHostAdapterImpl>();
     render1.SaveBrowserConnect(adapter1);
+    int randomUid = dataProvider.ConsumeIntegral<int>();
+    render1.IsRenderProcessByUid(randomUid);
     return true;
 }
 } // namespace OHOS
