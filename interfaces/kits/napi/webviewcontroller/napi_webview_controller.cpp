@@ -914,6 +914,22 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         sizeof(securityLevelProperties[0]), securityLevelProperties, &securityLevelEnum);
     napi_set_named_property(env, exports, WEB_SECURITY_LEVEL_ENUM_NAME.c_str(), securityLevelEnum);
 
+    napi_value mediaPlaybackStateEnum = nullptr;
+    napi_property_descriptor mediaPlaybackStateProperties[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("NONE", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(MediaPlaybackState::NONE))),
+        DECLARE_NAPI_STATIC_PROPERTY("PLAYING", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(MediaPlaybackState::PLAYING))),
+        DECLARE_NAPI_STATIC_PROPERTY("PAUSED", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(MediaPlaybackState::PAUSED))),
+        DECLARE_NAPI_STATIC_PROPERTY("STOPPED", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(MediaPlaybackState::STOP)))
+    };
+    napi_define_class(env, WEB_MEDIA_PLAYBACK_STATE_ENUM_NAME.c_str(), WEB_MEDIA_PLAYBACK_STATE_ENUM_NAME.length(),
+        NapiParseUtils::CreateEnumConstructor, nullptr, sizeof(mediaPlaybackStateProperties) /
+        sizeof(mediaPlaybackStateProperties[0]), mediaPlaybackStateProperties, &mediaPlaybackStateEnum);
+    napi_set_named_property(env, exports, WEB_MEDIA_PLAYBACK_STATE_ENUM_NAME.c_str(), mediaPlaybackStateEnum);
+
     napi_value msgPortCons = nullptr;
     napi_property_descriptor msgPortProperties[] = {
         DECLARE_NAPI_FUNCTION("close", NapiWebMessagePort::Close),
