@@ -33,7 +33,10 @@ config("module_private_config") {
 ohos_unittest("print_manager_adapter_impl_test") {
   module_out_path = module_output_path
 
-  sources = [ "print_manager_adapter_impl_test.cpp" ]
+  sources = [
+    "convert_printing_parameters_test.cpp",
+    "print_manager_adapter_impl_test.cpp",
+  ]
 
   configs = [ ":module_private_config" ]
 
