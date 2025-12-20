@@ -18,6 +18,40 @@
 #include "nweb_log.h"
 
 namespace OHOS::NWeb {
+namespace {
+#if defined(NWEB_PRINT_ENABLE)
+std::shared_ptr<OHOS::Print::PrintAttributes> CreateAttrsWithCustomOption(const PrintAttributesAdapter& printAttr)
+{
+    auto attr = std::make_shared<OHOS::Print::PrintAttributes>();
+    std::vector<OHOS::Print::PrintCustomOption> customOption;
+
+    if (printAttr.display_header_footer != UINT32_MAX) {
+        OHOS::Print::PrintCustomOption option;
+        option.SetOptionName("display_header_footer");
+        option.SetType(static_cast<uint32_t>(OHOS::Print::ComponentType::SWITCH));
+        option.SetOptionResourceName("rid_display_header_footer");
+        option.SetIsSelect(!!printAttr.display_header_footer);
+        customOption.push_back(option);
+    }
+
+    if (printAttr.print_backgrounds != UINT32_MAX) {
+        OHOS::Print::PrintCustomOption option;
+        option.SetOptionName("print_backgrounds");
+        option.SetType(static_cast<uint32_t>(OHOS::Print::ComponentType::SWITCH));
+        option.SetOptionResourceName("rid_print_backgrounds");
+        option.SetIsSelect(!!printAttr.print_backgrounds);
+        customOption.push_back(option);
+    }
+
+    attr->SetCustomOption(customOption);
+
+    WVLOG_D("Start Print With display_header_footer = %{public}u, print_backgrounds = %{public}u",
+        printAttr.display_header_footer, printAttr.print_backgrounds);
+    return attr;
+}
+#endif
+}
+
 // static
 PrintManagerAdapterImpl& PrintManagerAdapterImpl::GetInstance()
 {
@@ -54,7 +88,7 @@ int32_t PrintManagerAdapterImpl::Print(const std::string& printJobName,
         WVLOG_E("iCallback get failed");
         return -1;
     }
-    auto attributes = std::make_shared<OHOS::Print::PrintAttributes>();
+    auto attributes = CreateAttrsWithCustomOption(printAttributes);
     if (!attributes) {
         WVLOG_E("attributes get failed");
         return -1;
@@ -85,7 +119,7 @@ int32_t PrintManagerAdapterImpl::Print(const std::string& printJobName,
         WVLOG_E("iCallback get failed");
         return -1;
     }
-    auto attributes = std::make_shared<OHOS::Print::PrintAttributes>();
+    auto attributes = CreateAttrsWithCustomOption(printAttributes);
     if (!attributes) {
         WVLOG_E("attributes get failed");
         return -1;
@@ -138,8 +172,23 @@ PrintAttributesAdapter PrintDocumentAdapterImpl::ConvertPrintingParameters(OHOS:
     printMarginAdapter.bottom = printMargin.GetBottom();
     printMarginAdapter.left = printMargin.GetLeft();
     printMarginAdapter.right = printMargin.GetRight();
-    printAttributesAdapter.print_backgrounds = UINT32_MAX;
     printAttributesAdapter.display_header_footer = UINT32_MAX;
+    printAttributesAdapter.print_backgrounds = UINT32_MAX;
+    if (attrs.HasCustomOption()) {
+        std::vector<Print::PrintCustomOption> customOption;
+        attrs.GetCustomOption(customOption);
+        for (auto op : customOption) {
+            if (op.GetOptionName() == "print_backgrounds") {
+                printAttributesAdapter.print_backgrounds = op.GetIsSelect();
+            } else if (op.GetOptionName() == "display_header_footer") {
+                printAttributesAdapter.display_header_footer = op.GetIsSelect();
+            }
+        }
+        WVLOG_D("display_header_footer = %{public}u, print_backgrounds = %{public}u",
+            printAttributesAdapter.display_header_footer, printAttributesAdapter.print_backgrounds);
+    } else {
+        WVLOG_D("No Custom Option");
+    }
     return printAttributesAdapter;
 }
 
