@@ -76,8 +76,8 @@ void ConvertPrintingParametersTest::TearDown(void)
  * @tc.desc  : Test ConvertPrintingParameters without custom options
  * @tc.type  : FUNC
  */
- HWTEST_F(ConvertPrintingParametersTest, ConvertPrintingParameters_CustomOptions_001, TestSize.level0)
- {
+HWTEST_F(ConvertPrintingParametersTest, ConvertPrintingParameters_CustomOptions_001, TestSize.Level0)
+{
     // Test
     PrintDocumentAdapterImpl adapter(nullptr);
     PrintAttributesAdapter result = adapter.ConvertPrintingParameters(defaultAttrs_);
@@ -86,7 +86,7 @@ void ConvertPrintingParametersTest::TearDown(void)
     EXPECT_EQ(result.copyNumber, 2);
     EXPECT_EQ(result.pageRange.startPage, 1);
     EXPECT_EQ(result.pageRange.endPage, 5);
-    EXPECT_EQ(result.pageRange.pages.size(), 2)
+    EXPECT_EQ(result.pageRange.pages.size(), 2);
     if (result.pageRange.pages.size() == 2) {
         EXPECT_EQ(result.pageRange.pages[0], 1);
         EXPECT_EQ(result.pageRange.pages[1], 5);
@@ -104,15 +104,15 @@ void ConvertPrintingParametersTest::TearDown(void)
     // Check custom options, UINT32_MAX means no custom option
     EXPECT_EQ(result.display_header_footer, UINT32_MAX);
     EXPECT_EQ(result.print_backgrounds, UINT32_MAX);
- }
+}
 
 /**
  * @tc.name  : ConvertPrintingParameters_CustomOptions_002
  * @tc.desc  : Test ConvertPrintingParameters with custom options
  * @tc.type  : FUNC
  */
- HWTEST_F(ConvertPrintingParametersTest, ConvertPrintingParameters_CustomOptions_002, TestSize.level0)
- {
+HWTEST_F(ConvertPrintingParametersTest, ConvertPrintingParameters_CustomOptions_002, TestSize.Level0)
+{
     // Init
     auto attrs = defaultAttrs_;
     std::vector<Print::PrintCustomOption> customOption;
@@ -141,4 +141,4 @@ void ConvertPrintingParametersTest::TearDown(void)
     // Check custom options
     EXPECT_EQ(result.display_header_footer, 1);
     EXPECT_EQ(result.print_backgrounds, 0);
- }
+}
