@@ -50,6 +50,14 @@ public:
      */
     /*--ark web()--*/
     virtual void SetContentChangeDetectionConfig(int32_t min_report_time, float text_content_ratio) = 0;
+
+    /**
+     * @brief Enable or disable highlight when in agent.
+     *
+     * @param enabled true to enable highlight, false to disable.
+     */
+    /*--ark web()--*/
+    virtual void SetAgentNeedHighlight(bool enabled) {}
 };
 
 } // namespace OHOS::ArkWeb

@@ -49,6 +49,13 @@ public:
      */
     void SetContentChangeDetectionConfig(int32_t min_report_time, float text_content_ratio) override;
 
+    /**
+     * @brief Enable or disable highlight when in agent.
+     *
+     * @param enabled true to enable highlight, false to disable.
+     */
+    void SetAgentNeedHighlight(bool enabled) override;
+
 private:
     ArkWebRefPtr<ArkWebAgentManager> ark_web_agent_manager_;
 };

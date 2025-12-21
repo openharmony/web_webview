@@ -53,6 +53,13 @@ public:
      * @param text_content_ratio The text content change ratio.
      */
     virtual void SetContentChangeDetectionConfig(int32_t min_report_time, float text_content_ratio) {}
+
+    /**
+     * @brief Enable or disable highlight when in agent.
+     *
+     * @param enabled true to enable highlight, false to disable.
+     */
+    virtual void SetAgentNeedHighlight(bool enabled) {}
 };
 }  // namespace OHOS::NWeb
 
