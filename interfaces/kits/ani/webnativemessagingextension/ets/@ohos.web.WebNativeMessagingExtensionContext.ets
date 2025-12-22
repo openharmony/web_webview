@@ -65,7 +65,7 @@ export default class WebNativeMessagingExtensionContext extends ExtensionContext
             let pPromise1 = taskpool.execute(():undefined => {
                 this.startAbilitySync(want, options);
                 return undefined});
-            pPromise1.then((e :NullishType): void=>{
+            pPromise1.then((e :Any): void=>{
                 console.log("in Promise then. e is ", e)
                 resolve(Promise.resolve());
             }, (err:Error): void => {
@@ -82,7 +82,7 @@ export default class WebNativeMessagingExtensionContext extends ExtensionContext
             let pPromise1 = taskpool.execute(():undefined => {
                 this.terminateSelfSync();
                 return undefined});
-            pPromise1.then((e :NullishType): void=>{
+            pPromise1.then((e :Any): void=>{
                 console.log("in Promise then. e is ", e)
                 resolve(Promise.resolve());
             }, (err:Error): void => {

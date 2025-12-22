@@ -904,7 +904,7 @@ export default namespace webview {
             return new Promise<Array<cert.X509Cert>>((resolve, reject) => {
                 let taskPromise = taskpool.execute(():undefined => {
                     return undefined});
-                taskPromise.then(async (results: NullishType) => {
+                taskPromise.then(async (results: Any) => {
                     const certs: Array<cert.X509Cert> = [];
                     for (let i = 0; i < certChainData.length; i++) {
                         let certsUint8Array = new Uint8Array(certChainData[i]);
@@ -930,7 +930,7 @@ export default namespace webview {
             let certChainData = this.getCertificateSync();
             let p = taskpool.execute(():undefined => {
                     return undefined});
-            p.then((results : NullishType) => {
+            p.then((results : Any) => {
                 const certs: Array<cert.X509Cert> = [];
                 for (let i = 0; i < certChainData.length; i++) {
                     let certsUint8Array = new Uint8Array(certChainData[i]);
@@ -1439,7 +1439,7 @@ export default namespace webview {
                 WebCookieManager.configCookieSync(url, value, false, false);
                 return undefined
         });
-            pCallback.then((e :NullishType)=>{
+            pCallback.then((e :Any)=>{
                 callback(null, undefined);
             }, (err: Error): void => {
                 let error: BusinessError = err as BusinessError;
@@ -1455,7 +1455,7 @@ export default namespace webview {
                 let pPromise1 = taskpool.execute(():undefined => {
                     WebCookieManager.configCookieSync(url, value, false, false);
                     return undefined});
-                pPromise1.then((e :NullishType): void=>{
+                pPromise1.then((e :Any): void=>{
                     console.log("in Promise then. e is ", e)
                     resolve(Promise.resolve());
                 }, (err:Error): void => {
@@ -1471,7 +1471,7 @@ export default namespace webview {
                 let pPromise1 = taskpool.execute(():undefined => {
                     WebCookieManager.configCookieSync(url, value, incognito, includeHttpOnly);
                     return undefined});
-                pPromise1.then((e :NullishType): void=>{
+                pPromise1.then((e :Any): void=>{
                     console.log("in Promise then. e is ", e)
                     resolve(Promise.resolve());
                 }, (err:Error): void => {
@@ -1495,7 +1495,7 @@ export default namespace webview {
                                               reject: (error: Error) => void): void => {
                 let pPromise1 = taskpool.execute(():undefined => {
                     WebCookieManager.saveCookieSync();  return undefined});
-                pPromise1.then((e :NullishType): void=>{
+                pPromise1.then((e :Any): void=>{
                     console.log("in Promise then. e is ", e)
                     resolve(undefined);
                 }, (err:Error): void => {
@@ -1516,7 +1516,7 @@ export default namespace webview {
          */
         static saveCookieAsync(callback: AsyncCallback<void>): void {
             let pCallback = taskpool.execute(():undefined => {WebCookieManager.saveCookieSync();  return undefined});
-            pCallback.then((e :NullishType)=>{
+            pCallback.then((e :Any)=>{
                 callback(null, undefined);
             }, (err: Error): void => {
                 let error: BusinessError = err as BusinessError;
@@ -1549,7 +1549,7 @@ export default namespace webview {
                                               reject: (error: Error) => void): void => {
                 let pPromise1 = taskpool.execute(():undefined => {
                     WebCookieManager.clearAllCookiesSync();  return undefined});
-                pPromise1.then((e :NullishType): void=>{
+                pPromise1.then((e :Any): void=>{
                     console.log("in Promise then. e is ", e)
                     resolve(undefined);
                 }, (err:Error): void => {
@@ -1572,7 +1572,7 @@ export default namespace webview {
         static clearAllCookies(callback: AsyncCallback<void>): void {
             let pCallback = taskpool.execute(():undefined => {
                 WebCookieManager.clearAllCookiesSync();  return undefined});
-            pCallback.then((e :NullishType)=>{
+            pCallback.then((e :Any)=>{
                 callback(null, undefined);
             }, (err: Error): void => {
                 let error: BusinessError = err as BusinessError;
@@ -1586,7 +1586,7 @@ export default namespace webview {
                 let pPromise1 = taskpool.execute((): string => {
                     return WebCookieManager.fetchCookieSync(url);
                 });
-                pPromise1.then((e: NullishType) => {
+                pPromise1.then((e: Any) => {
                     let r: string = e as string;
                     resolve(r);
                 }, (error: Error): void => {
@@ -1598,7 +1598,7 @@ export default namespace webview {
             let pCallback = taskpool.execute((): string => {
                 return WebCookieManager.fetchCookieSync(url);
             });
-            pCallback.then((e: NullishType) => {
+            pCallback.then((e: Any) => {
                 let data: string = e as string;
                 callback(null, data);
             }, (err: Error): void => {
@@ -1609,7 +1609,7 @@ export default namespace webview {
 
         static clearSessionCookie(callback: AsyncCallback<void>): void {
             let pCallback = taskpool.execute(():undefined => {WebCookieManager.clearSessionCookieSync(); return undefined});
-            pCallback.then((e :NullishType) => {
+            pCallback.then((e :Any) => {
                 callback(null, undefined);
             }, (err: Error): void => {
                 let error: BusinessError = err as BusinessError;
@@ -1622,7 +1622,7 @@ export default namespace webview {
                                               reject: (error: Error) => void): void => {
                 let pPromise1 = taskpool.execute(():undefined => {
                     WebCookieManager.clearSessionCookieSync();  return undefined});
-                pPromise1.then((e: NullishType): void => {
+                pPromise1.then((e: Any): void => {
                     console.log("in Promise then. e is ", e)
                     resolve(undefined);
                 }, (err: Error): void => {
@@ -1637,7 +1637,7 @@ export default namespace webview {
                 let pPromise1 = taskpool.execute((): string => {
                     return WebCookieManager.fetchCookieSync(url, incognito);
                 });
-                pPromise1.then((e: NullishType) => {
+                pPromise1.then((e: Any) => {
                     let r: string = e as string;
                     resolve(r);
                 }, (error: Error): void => {
@@ -1858,7 +1858,7 @@ export default namespace webview {
             let p = new Promise<Array<WebStorageOrigin>>((resolve: (v: Array<WebStorageOrigin>) => void,
             reject: (error: Error) => void) => {
                 let p1 = taskpool.execute(WebStorage.getOriginsSync);
-                p1.then((e : NullishType) => {
+                p1.then((e : Any) => {
                     let r = e as Array<WebStorageOrigin>;
                     resolve(r);
                 }).catch((error: Error): Array<WebStorageOrigin> => {
@@ -1870,7 +1870,7 @@ export default namespace webview {
 
         static getOrigins(callback: AsyncCallback<Array<WebStorageOrigin>>): void {
             let p = taskpool.execute(WebStorage.getOriginsSync);
-            p.then((e : NullishType) => {
+            p.then((e : Any) => {
                 let r = e as Array<WebStorageOrigin>;
                 let err : BusinessError<void> = new BusinessError<void>();
                 callback(err, r);
@@ -1885,7 +1885,7 @@ export default namespace webview {
             let p = new Promise<double>((resolve: (v: double) => void,
             reject: (error: Error) => void) => {
                 let p1 = taskpool.execute(WebStorage.getOriginQuotaSync, origin);
-                p1.then((e : NullishType) => {
+                p1.then((e : Any) => {
                     let r = e as double;
                     resolve(r);
                 }).catch((error: Error): double => {
@@ -1897,7 +1897,7 @@ export default namespace webview {
 
         static getOriginQuota(origin: string, callback: AsyncCallback<double>): void {
             let p = taskpool.execute(WebStorage.getOriginQuotaSync, origin);
-            p.then((e : NullishType) => {
+            p.then((e : Any) => {
                 let r = e as double;
                 let err : BusinessError<void> = new BusinessError<void>();
                 callback(err, r);
@@ -1911,7 +1911,7 @@ export default namespace webview {
             let p = new Promise<double>((resolve: (v: double) => void,
             reject: (error: Error) => void) => {
                 let p1 = taskpool.execute(WebStorage.getOriginUsageSync, origin);
-                p1.then((e : NullishType) => {
+                p1.then((e : Any) => {
                     let r = e as double;
                     resolve(r);
                 }).catch((error: Error): double => {
@@ -1923,7 +1923,7 @@ export default namespace webview {
 
         static getOriginUsage(origin: string, callback: AsyncCallback<double>): void {
             let p = taskpool.execute(WebStorage.getOriginUsageSync, origin);
-            p.then((e : NullishType) => {
+            p.then((e : Any) => {
                 let r = e as double;
                 let err : BusinessError<void> = new BusinessError<void>();
                 callback(err, r);
@@ -2041,7 +2041,7 @@ export default namespace webview {
             let p = new Promise<Array<string>>((resolve: (v: Array<string>) => void,
                 reject: (error: Error) => void) => {
                 let p1 = taskpool.execute(GeolocationPermissions.getOriginsSync,incognitoMode);
-                p1.then((e : NullishType) => {
+                p1.then((e : Any) => {
                     let r = e as Array<string>;
                     resolve(r);
                 }).catch((error: Error): Array<string> => {
@@ -2058,7 +2058,7 @@ export default namespace webview {
                 incognitoMode = incognito;
             }
             let p = taskpool.execute(GeolocationPermissions.getOriginsSync,incognitoMode);
-            p.then((e : NullishType) => {
+            p.then((e : Any) => {
                 let r = e as Array<string>;
                 let err:  BusinessError = {};
                 err.code = 0;
@@ -2079,7 +2079,7 @@ export default namespace webview {
             let p = new Promise<boolean>((resolve: (v: boolean) => void,
             reject: (error: Error) => void) => {
                 let p1 = taskpool.execute(GeolocationPermissions.getAccessibleGeolocationSync, origin, incognitoMode);
-                p1.then((e : NullishType) => {
+                p1.then((e : Any) => {
                     let r = e as boolean;
                     resolve(r);
                 }).catch((error: Error): boolean => {
@@ -2096,7 +2096,7 @@ export default namespace webview {
                 incognitoMode = incognito;
             }
             let p = taskpool.execute(GeolocationPermissions.getAccessibleGeolocationSync, origin, incognitoMode);
-            p.then((e : NullishType) => {
+            p.then((e : Any) => {
                 let r = e as boolean;
                 let err:  BusinessError = {};
                 err.code = 0;

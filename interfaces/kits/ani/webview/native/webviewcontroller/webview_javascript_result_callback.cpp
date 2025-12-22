@@ -285,7 +285,7 @@ ani_ref CallbackFunctionForH5V2(ani_env* env, ani_object object, void* data, ani
 
     ani_boolean isArray = ANI_FALSE;
     ani_class cls;
-    s = env->FindClass("escompat.Array;", &cls);
+    s = env->FindClass("std.core.Array;", &cls);
     if (s != ANI_OK || !cls) {
         WVLOG_E("CallbackFunctionForH5V2 Array class fail");
         return nullptr;
@@ -379,7 +379,7 @@ ani_class CreateProxyForH5Object(ani_env* env, ani_object* result)
         return nullptr;
     }
     ani_status status = ANI_OK;
-    constexpr const char* className = "L@ohos/web/webview/webview/jsProxyCallbackWrapper;";
+    constexpr const char* className = "@ohos.web.webview.webview.jsProxyCallbackWrapper";
     ani_class jsProxyCallbackCls = nullptr;
     status = env->FindClass(className, &jsProxyCallbackCls);
     if (status != ANI_OK || !jsProxyCallbackCls) {
@@ -555,9 +555,9 @@ bool AniIsArray(ani_env* env, ani_object arrayObject)
     }
     ani_class cls;
     ani_boolean isArray = ANI_FALSE;
-    ani_status status = env->FindClass("escompat.Array;", &cls);
+    ani_status status = env->FindClass("std.core.Array;", &cls);
     if (status != ANI_OK) {
-        WVLOG_E("Failed to find class escompat.Array;");
+        WVLOG_E("Failed to find class std.core.Array;");
         return false;
     }
     status = env->Object_InstanceOf(arrayObject, cls, &isArray);
@@ -1654,7 +1654,7 @@ void ParseDictionaryAniValue2NwebValueV2(
         return;
     }
     ani_static_method getMethod = nullptr;
-    if (env->Class_FindStaticMethod(cls, "entries", "C{std.core.Object}:C{escompat.Array}", &getMethod) != ANI_OK) {
+    if (env->Class_FindStaticMethod(cls, "entries", "C{std.core.Object}:C{std.core.Array}", &getMethod) != ANI_OK) {
         WVLOG_E("ParseDictionaryAniValue2NwebValueV2 Class_FindStaticMethod fail.. ");
         return;
     }
@@ -1933,7 +1933,7 @@ void JavaScriptOb::AniSetUpMethods()
         return;
     }
     ani_static_method getMethod = nullptr;
-    if (env->Class_FindStaticMethod(cls, "entries", "C{std.core.Object}:C{escompat.Array}", &getMethod) != ANI_OK) {
+    if (env->Class_FindStaticMethod(cls, "entries", "C{std.core.Object}:C{std.core.Array}", &getMethod) != ANI_OK) {
         WVLOG_E("AniSetUpMethods Class_FindStaticMethod fail.. ");
         return;
     }

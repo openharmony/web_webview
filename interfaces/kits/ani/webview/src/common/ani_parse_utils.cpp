@@ -247,7 +247,7 @@ bool AniParseUtils::ParseStringArray(ani_env* env, ani_object argv, std::vector<
     ani_boolean isArray = ANI_FALSE;
     ani_int arrayLength;
     ani_array arrayRef;
-    env->FindClass("escompat.Array", &cls);
+    env->FindClass("std.core.Array", &cls);
     env->Object_InstanceOf(argv, cls, &isArray);
     if (!isArray) {
         WVLOG_E("argv must be array");
@@ -282,7 +282,7 @@ bool AniParseUtils::ParseStringArrayMap(ani_env* env, ani_object argv, std::map<
     ani_boolean isArray = ANI_FALSE;
     ani_array arrayRef;
     ani_double arrayLength;
-    env->FindClass("escompat.Array", &cls);
+    env->FindClass("std.core.Array", &cls);
     env->Object_InstanceOf(argv, cls, &isArray);
     if (!isArray) {
         WVLOG_E("argv must be array");
@@ -792,7 +792,7 @@ bool AniParseUtils::ParseInt64Array(ani_env* env, ani_object argv, std::vector<i
     ani_boolean isArray = ANI_FALSE;
     ani_int arrayLength;
     ani_array arrayRef;
-    env->FindClass("escompat.Array", &cls);
+    env->FindClass("std.core.Array", &cls);
     env->Object_InstanceOf(argv, cls, &isArray);
     if (!isArray) {
         WVLOG_E("argv must be array");
@@ -822,7 +822,7 @@ bool AniParseUtils::ParseBooleanArray(ani_env* env, ani_object argv, std::vector
     ani_boolean isArray = ANI_FALSE;
     ani_int arrayLength;
     ani_array arrayRef;
-    env->FindClass("escompat.Array", &cls);
+    env->FindClass("std.core.Array", &cls);
     env->Object_InstanceOf(argv, cls, &isArray);
     if (!isArray) {
         WVLOG_E("argv must be array");
@@ -852,7 +852,7 @@ bool AniParseUtils::ParseDoubleArray(ani_env* env, ani_object argv, std::vector<
     ani_boolean isArray = ANI_FALSE;
     ani_int arrayLength;
     ani_array arrayRef;
-    env->FindClass("escompat.Array", &cls);
+    env->FindClass("std.core.Array", &cls);
     env->Object_InstanceOf(argv, cls, &isArray);
     if (!isArray) {
         WVLOG_E("argv must be array");

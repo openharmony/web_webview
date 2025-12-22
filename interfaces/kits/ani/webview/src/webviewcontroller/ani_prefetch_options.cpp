@@ -31,7 +31,7 @@ namespace NWeb {
 using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
-const char* PREFETCH_OPTIONS_INNER_CLASS_NAME = "L@ohos/web/webview/webview/PrefetchOptions;";
+const char* PREFETCH_OPTIONS_INNER_CLASS_NAME = "@ohos.web.webview.webview.PrefetchOptions";
 }
 
 static void Constructor(ani_env *env, ani_object object)

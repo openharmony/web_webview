@@ -30,8 +30,8 @@ static const char* ANI_CLASS_WEB_HEADER = "@ohos.web.webview.webview.WebHeader";
 static const char* ANI_CLASS_SCROLL_OFFSET_INNER = "@ohos.web.webview.webview.ScrollOffsetInner";
 static const char* ANI_ENUM_WEB_HIT_TEST_TYPE = "@ohos.web.webview.webview.WebHitTestType";
 static const char* ANI_CLASS_HIT_TEST_VALUE_INNER = "@ohos.web.webview.webview.HitTestValueInner";
-static const char* ANI_CLASS_BLANKLESS_INFO_INNER = "L@ohos/web/webview/webview/BlanklessInfoInner;";
-static const char* ANI_ENUM_WEB_BLANKLESS_ERROR_CODE = "L@ohos/web/webview/webview/WebBlanklessErrorCode;";
+static const char* ANI_CLASS_BLANKLESS_INFO_INNER = "@ohos.web.webview.webview.BlanklessInfoInner";
+static const char* ANI_ENUM_WEB_BLANKLESS_ERROR_CODE = "@ohos.web.webview.webview.WebBlanklessErrorCode";
 
 const char* ANI_BACK_FORWARD_LIST_INNER_CLASS_NAME = "@ohos.web.webview.webview.BackForwardListinner";
 const char* ANI_HISTORY_ITEM_INNER_CLASS_NAME = "@ohos.web.webview.webview.HistoryIteminner";
@@ -48,7 +48,7 @@ const char* ANI_PRINT_DOCUMENT_ADAPTER_INNER_CLASS_NAME = "@ohos.web.webview.web
 const char* ANI_WEB_RESOURCE_HANDLER_CLASS_NAME = "@ohos.web.webview.webview.WebResourceHandler";
 const char* ANI_WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME = "@ohos.web.webview.webview.WebSchemeHandlerRequest";
 
-const char* ANI_ENUM_ARK_WEB_ENGINE_VERSION = "L@ohos/web/webview/webview/ArkWebEngineVersion;";
+const char* ANI_ENUM_ARK_WEB_ENGINE_VERSION = "@ohos.web.webview.webview.ArkWebEngineVersion";
 }
 
 } // namespace NWeb

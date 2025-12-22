@@ -249,7 +249,7 @@ ani_ref CreateEtsWebNativeMessagingExtensionContext(ani_env* env,
         WNMLOG_E("Failed to BindNativeMethods");
         return nullptr;
     }
-    if ((status = env->Class_FindMethod(cls, "<ctor>", "J:V", &method)) != ANI_OK ||
+    if ((status = env->Class_FindMethod(cls, "<ctor>", "l:", &method)) != ANI_OK ||
             method == nullptr) {
         WNMLOG_E("Failed to find constructor, status : %{public}d", status);
         return nullptr;
