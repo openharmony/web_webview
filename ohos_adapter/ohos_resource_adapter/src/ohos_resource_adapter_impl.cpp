@@ -478,43 +478,40 @@ std::shared_ptr<OhosFileMapper> OhosResourceAdapterImpl::GetRawFileMapper(
 
 std::string OhosResourceAdapterImpl::GetArkWebVersion()
 {
-    const std::string hapPaths[] = {
-        "/system/app/com.ohos.arkwebcore/ArkWebCore.hap"
-    };
+    const std::string hapPath = GetArkwebInstallPath();
     const std::string packInfoPath = "pack.info";
 
-    for (const auto& hapPath : hapPaths) {
-        OHOS::AbilityBase::Extractor extractor(hapPath);
-        if (!extractor.Init()) {
-            WVLOG_E("Failed to initialize extractor for HAP file: %{public}s", hapPath.c_str());
-            continue;
-        }
-
-        std::ostringstream contentStream;
-        bool ret = extractor.ExtractByName(packInfoPath, contentStream);
-        if (!ret) {
-            WVLOG_E("Failed to extract pack.info from HAP: %{public}s", hapPath.c_str());
-            continue;
-        }
-
-        std::string configContent = contentStream.str();
-        
-        Json::Value root;
-        Json::Reader reader;
-        if (!reader.parse(configContent, root)) {
-            WVLOG_E("Failed to parse pack.info from HAP: %{public}s", hapPath.c_str());
-            continue;
-        }
-
-        if (root.isMember("summary") && 
-            root["summary"].isMember("app") && 
-            root["summary"]["app"].isMember("version") && 
-            root["summary"]["app"]["version"].isMember("name")) {
-            return root["summary"]["app"]["version"]["name"].asString();
-        }
-
-        WVLOG_E("Version information not found in pack.info from HAP: %{public}s", hapPath.c_str());
+    OHOS::AbilityBase::Extractor extractor(hapPath);
+    if (!extractor.Init()) {
+        WVLOG_E("Failed to initialize extractor for HAP file: %{public}s", hapPath.c_str());
+        continue;
     }
+
+    std::ostringstream contentStream;
+    bool ret = extractor.ExtractByName(packInfoPath, contentStream);
+    if (!ret) {
+        WVLOG_E("Failed to extract pack.info from HAP: %{public}s", hapPath.c_str());
+        continue;
+    }
+
+    std::string configContent = contentStream.str();
+        
+    Json::Value root;
+    Json::Reader reader;
+    if (!reader.parse(configContent, root)) {
+        WVLOG_E("Failed to parse pack.info from HAP: %{public}s", hapPath.c_str());
+        continue;
+    }
+
+    if (root.isMember("summary") && 
+        root["summary"].isMember("app") && 
+        root["summary"]["app"].isMember("version") && 
+        root["summary"]["app"]["version"].isMember("name")) {
+        return root["summary"]["app"]["version"]["name"].asString();
+    }
+
+    WVLOG_E("Version information not found in pack.info from HAP: %{public}s", hapPath.c_str());
+    
 
     WVLOG_E("Failed to get ArkWeb version from any of the specified paths");
     return "";
