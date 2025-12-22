@@ -42,4 +42,11 @@ void ArkWebAgentManagerImpl::SetContentChangeDetectionConfig(int32_t min_report_
     }
 }
 
+void ArkWebAgentManagerImpl::SetAgentNeedHighlight(bool enabled)
+{
+    if (nweb_agent_manager_) {
+        nweb_agent_manager_->SetAgentNeedHighlight(enabled);
+    }
+}
+
 }  // namespace OHOS::ArkWeb
