@@ -478,7 +478,11 @@ std::shared_ptr<OhosFileMapper> OhosResourceAdapterImpl::GetRawFileMapper(
 
 std::string OhosResourceAdapterImpl::GetArkWebVersion()
 {
-    const std::string hapPath = GetArkwebInstallPath();
+    std::string hapPath = GetArkwebInstallPath();
+    if (hapPath.empty()) {
+        WVLOG_E("GetArkwebInstallPath is empty.");
+        return false;
+    }
     const std::string packInfoPath = "pack.info";
 
     OHOS::AbilityBase::Extractor extractor(hapPath);
