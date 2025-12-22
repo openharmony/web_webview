@@ -469,6 +469,11 @@ void WebHttpBodyStream::ExecuteInit(ArkWeb_NetError result)
         DeleteInitJsCallbackRef();
         return;
     }
+    NApiScope scope(env_);
+    if (!scope.IsVaild()) {
+        DeleteInitJsCallbackRef();
+        return;
+    }
     InitParam *param = new (std::nothrow) InitParam {
         .env = env_,
         .asyncWork = nullptr,
