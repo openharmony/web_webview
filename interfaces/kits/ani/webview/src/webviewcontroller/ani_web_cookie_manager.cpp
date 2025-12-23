@@ -148,7 +148,8 @@ static void JsSetCookieSyncThree(ani_env *env, ani_object aniClass, ani_string u
         isSet = cookieManager->SetCookieSync(urlStr, valueStr, incognitoMode, false);
     }
     if (isSet == NWebError::INVALID_URL) {
-        AniBusinessError::ThrowErrorByErrCode(env, NWebError::INVALID_URL);
+        AniBusinessError::ThrowError(env, NWebError::INVALID_URL,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::INVALID_URL_FOR_COOKIE));
         return;
     } else if (isSet == NWebError::INVALID_COOKIE_VALUE) {
         AniBusinessError::ThrowErrorByErrCode(env, NWebError::INVALID_COOKIE_VALUE);
@@ -189,7 +190,8 @@ static void JsSetCookieSync(ani_env *env, ani_object aniClass, ani_string url, a
         isSet = cookieManager->SetCookieSync(urlStr, valueStr, incognitoMode, bIncludeHttpOnly);
     }
     if (isSet == NWebError::INVALID_URL) {
-        AniBusinessError::ThrowErrorByErrCode(env, NWebError::INVALID_URL);
+        AniBusinessError::ThrowError(env, NWebError::INVALID_URL,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::INVALID_URL_FOR_COOKIE));
         return;
     } else if (isSet == NWebError::INVALID_COOKIE_VALUE) {
         AniBusinessError::ThrowErrorByErrCode(env, NWebError::INVALID_COOKIE_VALUE);
@@ -239,7 +241,12 @@ void UvAfterWorkCbPromise(std::shared_ptr<NWebConfigCookieCallbackImpl> cookieOb
     ani_ref resultRef = nullptr;
     ani_status status = ANI_OK;
     if (result != RESULT_OK) {
-        resultRef = AniBusinessError::CreateError(env, result);
+        if (result == NWebError::INVALID_URL) {
+            resultRef = AniBusinessError::CreateError(env, result,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::INVALID_URL_FOR_COOKIE));
+        } else {
+            resultRef = AniBusinessError::CreateError(env, result);
+        }
         if ((status = env->PromiseResolver_Reject(resolver, reinterpret_cast<ani_error>(resultRef))) != ANI_OK) {
             WVLOG_E("promise reject error status = %{public}d", status);
         }
@@ -268,7 +275,12 @@ void UvJsCallbackThreadWoker(std::shared_ptr<NWebConfigCookieCallbackImpl> cooki
         ani_status status = ANI_OK;
         ani_ref callbackResult = nullptr;
         if (result != RESULT_OK) {
-            resultRef = AniBusinessError::CreateError(env, result);
+            if (result == NWebError::INVALID_URL) {
+                resultRef = AniBusinessError::CreateError(env, result,
+                    NWebError::FormatString(ParamCheckErrorMsgTemplate::INVALID_URL_FOR_COOKIE));
+            } else {
+                resultRef = AniBusinessError::CreateError(env, result);
+            }
         } else {
             if ((status = env->GetNull(&resultRef)) != ANI_OK) {
                 WVLOG_E("resultRef is null");
@@ -462,7 +474,8 @@ static ani_string JsFetchCookieSync(ani_env *env, ani_object aniClass, ani_strin
         cookieContent = cookieManager->ReturnCookie(urlStr, isValid, incognitoMode);
     }
     if (cookieContent == "" && !isValid) {
-        AniBusinessError::ThrowErrorByErrCode(env, NWebError::INVALID_URL);
+        AniBusinessError::ThrowError(env, NWebError::INVALID_URL,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::INVALID_URL_FOR_COOKIE));
         return result;
     }
     env->String_NewUTF8(cookieContent.c_str(), cookieContent.size(), &result);

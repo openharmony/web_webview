@@ -104,7 +104,7 @@ constexpr int32_t MAX_SOCKET_IDLE_TIMEOUT = 300;
 constexpr size_t MAX_URL_TRUST_LIST_STR_LEN = 10 * 1024 * 1024; // 10M
 constexpr uint32_t SOCKET_MAXIMUM = 6;
 constexpr size_t MAX_RESOURCES_COUNT = 30;
-constexpr uint32_t URL_MAXIMUM = 2048;
+constexpr uint32_t URL_MAXIMUM = 2 * 1024 * 1024;
 constexpr int32_t BLANKLESS_SUCCESS = 0;
 constexpr int32_t BLANKLESS_ERR_UNKNOWN = 1;
 constexpr int32_t BLANKLESS_ERR_INVALID_ARGS = 2;
@@ -411,7 +411,8 @@ static bool GetUrl(ani_env *env, ani_object urlObject, std::string& url, Webview
         }
     } else if (AniParseUtils::IsResource(env, urlObject)) {
         if (!ParseResourceUrl(env, urlObject, url, controller)) {
-            AniBusinessError::ThrowErrorByErrCode(env, INVALID_URL);
+            AniBusinessError::ThrowError(env, INVALID_URL,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::URL_INVALID));
             return false;
         }
     } else {
@@ -495,7 +496,12 @@ static void LoadUrl(ani_env *env, ani_object object, ani_object urlObject, ani_o
     }
     WVLOG_I("loadUrl ret: %{public}d", ret);
     if (ret != NO_ERROR && ret != NWEB_ERROR) {
-        AniBusinessError::ThrowErrorByErrCode(env, ret);
+        if (ret == NWebError::INVALID_URL) {
+            AniBusinessError::ThrowError(env, NWebError::INVALID_URL,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::URL_INVALID));
+        } else {
+            AniBusinessError::ThrowErrorByErrCode(env, ret);
+        }
     }
 }
 
@@ -1264,7 +1270,8 @@ static void WarmupServiceWorker(ani_env *env, ani_object object, ani_object urlO
     }
     std::string url;
     if (!ParsePrepareUrl(env, urlObj, url)) {
-        AniBusinessError::ThrowErrorByErrCode(env, INVALID_URL);
+        AniBusinessError::ThrowError(env, INVALID_URL,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::URL_INVALID_OR_TOO_LONG));
         return;
     }
     WVLOG_I("Warm up Service Worker: %{public}s", url.c_str());
@@ -1406,7 +1413,8 @@ static void PrepareForPageLoad(
     }
     std::string url;
     if (!ParsePrepareUrl(env, aniUrl, url)) {
-        AniBusinessError::ThrowErrorByErrCode(env, INVALID_URL);
+        AniBusinessError::ThrowError(env, INVALID_URL,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::URL_INVALID_OR_TOO_LONG));
         return;
     }
     int32_t numSockets = static_cast<int32_t>(aniNumSockets);
@@ -1600,7 +1608,8 @@ static void StartDownload(ani_env *env, ani_object object, ani_object urlObj)
 
     std::string urlStr;
     if (!ParsePrepareUrl(env, urlObj, urlStr)) {
-        AniBusinessError::ThrowErrorByErrCode(env, INVALID_URL);
+        AniBusinessError::ThrowError(env, INVALID_URL,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::URL_INVALID_OR_TOO_LONG));
         return;
     }
     WVLOG_I("StartDownload url: %{public}s", urlStr.c_str());
@@ -1856,9 +1865,14 @@ static void PostUrl(ani_env *env, ani_object object, ani_object urlObj, ani_obje
         if (ret == NWEB_ERROR) {
             WVLOG_E("PostUrl failed");
             return;
+        } else if (ret == NWebError::INVALID_URL) {
+            AniBusinessError::ThrowError(env, NWebError::INVALID_URL,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::URL_INVALID));
+            return;
+        } else {
+            AniBusinessError::ThrowErrorByErrCode(env, ret);
+            return;
         }
-        AniBusinessError::ThrowErrorByErrCode(env, ret);
-        return;
     }
 }
 
@@ -3759,7 +3773,8 @@ static std::shared_ptr<NWebEnginePrefetchArgs> ParsePrefetchArgs(ani_env* env, a
         return nullptr;
     }
     if (!ParsePrepareUrl(env, urlObj, url)) {
-        AniBusinessError::ThrowErrorByErrCode(env, INVALID_URL);
+        AniBusinessError::ThrowError(env, INVALID_URL,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::URL_INVALID_OR_TOO_LONG));
         return nullptr;
     }
 
@@ -7173,7 +7188,8 @@ void PrefetchPageWithHttpHeadersAndPrefetchOptions(ani_env* env, ani_object obje
 
     std::string url;
     if (!ParsePrepareUrl(env, aniUrl, url)) {
-        AniBusinessError::ThrowErrorByErrCode(env, INVALID_URL);
+        AniBusinessError::ThrowError(env, INVALID_URL,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::URL_INVALID_OR_TOO_LONG));
         return;
     }
 
@@ -7217,7 +7233,8 @@ void PrefetchPage(ani_env* env, ani_object object, ani_object aniUrl,
 
     std::string url;
     if (!ParsePrepareUrl(env, aniUrl, url)) {
-        AniBusinessError::ThrowErrorByErrCode(env, INVALID_URL);
+        AniBusinessError::ThrowError(env, INVALID_URL,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::URL_INVALID_OR_TOO_LONG));
         return;
     }
 
