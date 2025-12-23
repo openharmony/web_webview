@@ -286,9 +286,13 @@ static ani_object GetHttpBodyStream(ani_env *env, ani_object object)
     ani_class cls;
     ani_method ctor;
     if (env->FindClass(ANI_HTTP_BODY_STREAM, &cls) != ANI_OK) {
+        delete stream;
+        stream = nullptr;
         return nullptr;
     }
     if (env->Class_FindMethod(cls, "<ctor>", nullptr, &ctor) != ANI_OK) {
+        delete stream;
+        stream = nullptr;
         return nullptr;
     }
     if (env->Object_New(cls, ctor, &httpBodyStreamObject) != ANI_OK) {
