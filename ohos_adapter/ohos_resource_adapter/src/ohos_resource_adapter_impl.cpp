@@ -484,12 +484,14 @@ std::string OhosResourceAdapterImpl::GetArkWebVersion()
     OHOS::AbilityBase::Extractor extractor(hapPath);
     if (!extractor.Init()) {
         WVLOG_E("Failed to initialize extractor for HAP file: %{public}s", hapPath.c_str());
+        return "";
     }
 
     std::ostringstream contentStream;
     bool ret = extractor.ExtractByName(packInfoPath, contentStream);
     if (!ret) {
         WVLOG_E("Failed to extract pack.info from HAP: %{public}s", hapPath.c_str());
+        return "";
     }
 
     std::string configContent = contentStream.str();
@@ -498,6 +500,7 @@ std::string OhosResourceAdapterImpl::GetArkWebVersion()
     Json::Reader reader;
     if (!reader.parse(configContent, root)) {
         WVLOG_E("Failed to parse pack.info from HAP: %{public}s", hapPath.c_str());
+        return "";
     }
 
     if (root.isMember("summary") &&
