@@ -5471,14 +5471,14 @@ void ParseCustomOptions(napi_env env, napi_value customOption, PrintAttributesAd
 {
     if (!customOption) {
         WVLOG_D("No custom option");
-        return nullptr;
+        return;
     }
 
     bool isArray = false;
     napi_is_array(env, customOption, &isArray);
     if (!isArray) {
         WVLOG_E("Custom option is not array");
-        return nullptr;
+        return;
     }
 
     printAttr.display_header_footer = UINT32_MAX;
