@@ -500,15 +500,15 @@ std::string OhosResourceAdapterImpl::GetArkWebVersion()
         WVLOG_E("Failed to parse pack.info from HAP: %{public}s", hapPath.c_str());
     }
 
-    if (root.isMember("summary") && 
-        root["summary"].isMember("app") && 
-        root["summary"]["app"].isMember("version") && 
+    if (root.isMember("summary") &&
+        root["summary"].isMember("app") &&
+        root["summary"]["app"].isMember("version") &&
         root["summary"]["app"]["version"].isMember("name")) {
         return root["summary"]["app"]["version"]["name"].asString();
     }
 
     WVLOG_E("Version information not found in pack.info from HAP: %{public}s", hapPath.c_str());
-    
+
     WVLOG_E("Failed to get ArkWeb version from any of the specified paths");
     return "";
 }
