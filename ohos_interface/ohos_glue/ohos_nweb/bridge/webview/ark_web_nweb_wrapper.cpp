@@ -711,6 +711,11 @@ void ArkWebNWebWrapper::UnRegisterScreenLockFunction(int32_t window_id)
 
 void ArkWebNWebWrapper::NotifyMemoryLevel(int32_t level)
 {
+    static constexpr int32_t kMemoryLevelMax = 3;
+    if (level >= kMemoryLevelMax) {
+        WVLOG_D("The memory level >= kMemoryLevelMax(3), not supported");
+        return;
+    }
     ark_web_nweb_->NotifyMemoryLevel(level);
 }
 
