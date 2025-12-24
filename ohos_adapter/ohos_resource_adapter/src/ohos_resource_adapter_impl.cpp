@@ -493,7 +493,7 @@ std::string OhosResourceAdapterImpl::GetArkWebVersion()
     }
 
     std::string configContent = contentStream.str();
-        
+
     Json::Value root;
     Json::Reader reader;
     if (!reader.parse(configContent, root)) {
