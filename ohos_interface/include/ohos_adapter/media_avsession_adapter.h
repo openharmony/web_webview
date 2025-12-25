@@ -81,7 +81,7 @@ public:
 
     virtual int32_t GetMediaCastCurrentTime() = 0;
 
-    virtual void PullUpCastBackGround(Const std::string& device_name) = 0;
+    virtual void PullUpCastBackGround(const std::string& device_name) = 0;
 
     virtual void SetAvCast(bool is_avcast) = 0;
 
