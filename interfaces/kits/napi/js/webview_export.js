@@ -775,7 +775,7 @@ Object.defineProperty(webview.WebviewController.prototype, 'OnMediaCastEnter', {
     try {
       avCastPicker.select();
       console.log("webview_export OnMediaCastEnter select, success");
-      onPickerStateChange(avCastPicker)
+      onPickerStateChange(avCastPicker);
     } catch (error) {
       console.log("webview_export OnMediaCastEnter select, fail:", error);
     }
