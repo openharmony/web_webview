@@ -89,7 +89,7 @@ public:
 
     virtual void UpdateUiPlayPosition(int64_t position) = 0;
 
-    virtual void MediaCastStopped(int64_t millisTime) = 0;
+    virtual void MediaCastStopped() = 0;
 };
 
 class MediaAVSessionAdapter {
