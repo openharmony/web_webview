@@ -1941,6 +1941,26 @@ public:
      */
     int32_t SendCommandAction(ArkWebRefPtr<ArkWebCommandAction> action) override;
 
+    /*
+     * @brief Set unique key of current page for insert frame.
+     *
+     * @param key string: the unique key of current page.
+     * @param enable Whether to enable frame interpolation.
+     * @param duration The duration time of frame interpolation.
+     * @param expirationTime Indicates the time when the historical frame interpolation expires.
+     * @param callback Called after the frame insertion successful, failed, or removed.
+     */
+    int32_t SetBlanklessLoadingParams(const ArkWebString& key, bool enable, int32_t duration,
+        int64_t expirationTime, ArkWebRefPtr<ArkWebBlanklessCallback> callback) override;
+
+    /**
+     * @brief Sends state to the web kernel to execute blankless callback.
+     *
+     * @param state Frame insertion successful, failed, or removed.
+     * @param reason reason of Frame insertion failed.
+     */
+    void CallExecuteBlanklessCallback(int32_t state, const ArkWebString& reason) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };
