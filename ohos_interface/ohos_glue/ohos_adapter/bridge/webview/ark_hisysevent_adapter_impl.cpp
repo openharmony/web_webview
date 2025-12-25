@@ -285,4 +285,14 @@ int ArkHiSysEventAdapterImpl::Write(const ArkWebString& eventName, uint32_t type
 
     return real_.Write(s_eventName, (OHOS::NWeb::HiSysEventAdapter::EventType)type, data);
 }
+
+int ArkHiSysEventAdapterImpl::Write(const ArkWebString& eventName, uint32_t type, const ArkWebString key1,
+    const int32_t value1)
+{
+    std::string s_eventName = ArkWebStringStructToClass(eventName);
+    std::string s_key1 = ArkWebStringStructToClass(key1);
+    std::tuple data = std::make_tuple(s_key1, value1);
+
+    return real_.Write(s_eventName, (OHOS::NWeb::HiSysEventAdapter::EventType)type, data);
+}
 } // namespace OHOS::ArkWeb
