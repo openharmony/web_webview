@@ -71,6 +71,7 @@ WebSchemeHandlerRequest::~WebSchemeHandlerRequest()
     OH_ArkWeb_ReleaseString(url_);
     OH_ArkWeb_ReleaseString(method_);
     OH_ArkWeb_ReleaseString(referrer_);
+    OH_ArkWeb_ReleaseString(frameUrl_);
 }
 
 char* WebSchemeHandlerRequest::GetRequestUrl()
