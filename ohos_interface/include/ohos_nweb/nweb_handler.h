@@ -1454,6 +1454,12 @@ public:
      *
      */
     virtual void OnWindowNewExtByJS(const std::shared_ptr<NWebWindowNewEventInfo> dataInfo) {}
+
+    /**
+     * @brief Notify the web component to open the casting picker dialog.
+     *
+     */
+    virtual void OnMediaCastEnter() {}
 };
 
 } // namespace OHOS::NWeb

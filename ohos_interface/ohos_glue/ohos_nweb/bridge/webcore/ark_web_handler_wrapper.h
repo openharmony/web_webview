@@ -873,6 +873,12 @@ public:
      *
      */
     virtual void OnWindowNewExtByJS(const std::shared_ptr<OHOS::NWeb::NWebWindowNewEventInfo> dataInfo) override;
+
+    /**
+     * @brief Notify the web component to open the casting picker dialog.
+     *
+     */
+    void OnMediaCastEnter() override;
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };

@@ -1179,6 +1179,13 @@ public:
      */
     /*--ark web()--*/
     virtual void OnWindowNewExtByJS(ArkWebRefPtr<ArkWebWindowNewEventInfo> dataInfo) = 0;
+
+    /**
+     * @brief Notify the web component to open the casting picker dialog.
+     *
+     */
+    /*--ark web()--*/
+    virtual void OnMediaCastEnter() = 0;
 };
 
 } // namespace OHOS::ArkWeb
