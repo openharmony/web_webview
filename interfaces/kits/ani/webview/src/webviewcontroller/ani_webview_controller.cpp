@@ -1505,19 +1505,35 @@ static void clearMatches(ani_env *env, ani_object object)
     controller->ClearMatches();
 }
 
-static void Refresh(ani_env *env, ani_object object)
+static void Refresh(ani_env* env, ani_object object, ani_object aniIgnoreCache)
 {
     WVLOG_D("[WebviewCotr] Refresh");
     if (!env) {
         WVLOG_E("env is nullptr");
         return;
     }
-    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    ani_boolean isUndefined = ANI_TRUE;
+    bool ignoreCache = false;
+    env->Reference_IsUndefined(aniIgnoreCache, &isUndefined);
+    if (isUndefined != ANI_TRUE) {
+        ani_boolean ignoreCacheMode;
+        if (env->Object_CallMethodByName_Boolean(aniIgnoreCache, "toBoolean", nullptr, &ignoreCacheMode) != ANI_OK) {
+            AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "aniIgnoreCache", "boolean"));
+            return;
+        }
+        ignoreCache = static_cast<bool>(ignoreCacheMode);
+    }
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
     if (!controller || !controller->IsInit()) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
-    controller->Refresh();
+    if (ignoreCache) {
+        controller->ReloadIgnoreCache();
+    } else {
+        controller->Refresh();
+    }
 }
 
 static void StartDownload(ani_env *env, ani_object object, ani_object urlObj)

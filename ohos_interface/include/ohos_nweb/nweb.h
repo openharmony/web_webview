@@ -42,6 +42,7 @@
 #include "nweb_vault_plain_text_callback.h"
 #include "nweb_web_message.h"
 #include "nweb_print_manager_adapter.h"
+#include "nweb_blankless_callback.h"
 
 namespace OHOS::NWeb {
 
@@ -2372,6 +2373,34 @@ public:
     {
         return -1;
     }
+
+    /*
+     * @brief Set unique key of current page for insert frame.
+     *
+     * @param key string: the unique key of current page.
+     * @param enable Whether to enable frame interpolation.
+     * @param duration The duration time of frame interpolation.
+     * @param expirationTime Indicates the time when the historical frame interpolation expires.
+     * @param callback Called after the frame insertion successful, failed, or removed.
+     */
+    virtual int32_t SetBlanklessLoadingParams(const std::string& key, bool enable, int32_t duration,
+        int64_t expirationTime, std::shared_ptr<NWebBlanklessCallback> callback)
+    {
+        return -1;
+    }
+
+    /**
+     * @brief Sends state to the web kernel to execute blankless callback.
+     *
+     * @param state Frame insertion successful, failed, or removed.
+     * @param reason Reason of frame insertion failed.
+     */
+    virtual void CallExecuteBlanklessCallback(int32_t state, const std::string& reason) {}
+
+    /**
+     * @brief Forces a full reload of the current page, bypassing the browser cache.
+     */
+    virtual void ReloadIgnoreCache() {};
 
 };
 } // namespace OHOS::NWeb

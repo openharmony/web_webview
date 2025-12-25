@@ -1760,14 +1760,35 @@ napi_value NapiWebviewController::OnInactive(napi_env env, napi_callback_info in
 
 napi_value NapiWebviewController::Refresh(napi_env env, napi_callback_info info)
 {
+    napi_value thisVar = nullptr;
     napi_value result = nullptr;
-    WebviewController *webviewController = GetWebviewController(env, info);
-    if (!webviewController) {
-        return nullptr;
-    }
-
-    webviewController->Refresh();
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
     NAPI_CALL(env, napi_get_undefined(env, &result));
+    bool ignoreCache = false;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
+    if (argc != INTEGER_ZERO && argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_TWO, "zero", "one"));
+        return result;
+    }
+    if (argc == INTEGER_ONE) {
+        if (!NapiParseUtils::ParseBoolean(env, argv[0], ignoreCache)) {
+            BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "ignoreCache", "boolean"));
+            return result;
+        }
+    }
+ 
+    WebviewController* webviewController = GetWebviewController(env, info);
+    if (!webviewController) {
+        return result;
+    }
+    if (ignoreCache) {
+        webviewController->ReloadIgnoreCache();
+    } else {
+        webviewController->Refresh();
+    }
     return result;
 }
 

@@ -46,6 +46,7 @@
 #include "ohos_nweb/bridge/ark_web_stylus_touch_point_info_impl.h"
 #include "ohos_nweb/bridge/ark_web_system_configuration_impl.h"
 #include "ohos_nweb/bridge/ark_web_vault_plain_text_callback_impl.h"
+#include "ohos_nweb/bridge/ark_web_blankless_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_view_struct_utils.h"
 #include "ohos_nweb/bridge/ark_web_print_document_adapter_adapter_wrapper.h"
 #include "ohos_nweb/cpptoc/ark_web_js_proxy_callback_vector_cpptoc.h"
@@ -2039,5 +2040,34 @@ int32_t ArkWebNWebWrapper::SendCommandAction(std::shared_ptr<OHOS::NWeb::NWebCom
     }
 
     return ark_web_nweb_->SendCommandAction(new ArkWebCommandActionImpl(action));
+}
+
+int32_t ArkWebNWebWrapper::SetBlanklessLoadingParams(const std::string& key, bool enable, int32_t duration,
+    int64_t expirationTime, std::shared_ptr<OHOS::NWeb::NWebBlanklessCallback> callback)
+{
+    ArkWebString stKey = ArkWebStringClassToStruct(key);
+
+    int32_t errCode = 0;
+    if (CHECK_SHARED_PTR_IS_NULL(callback)) {
+        errCode = ark_web_nweb_->SetBlanklessLoadingParams(stKey, enable, duration, expirationTime, nullptr);
+    } else {
+        errCode = ark_web_nweb_->SetBlanklessLoadingParams(stKey, enable, duration, expirationTime,
+            new ArkWebBlanklessCallbackImpl(callback));
+    }
+
+    ArkWebStringStructRelease(stKey);
+    return errCode;
+}
+
+void ArkWebNWebWrapper::CallExecuteBlanklessCallback(int32_t state, const std::string& reason)
+{
+    ArkWebString stReason = ArkWebStringClassToStruct(reason);
+    ark_web_nweb_->CallExecuteBlanklessCallback(state, stReason);
+    ArkWebStringStructRelease(stReason);
+}
+
+void ArkWebNWebWrapper::ReloadIgnoreCache()
+{
+    ark_web_nweb_->ReloadIgnoreCache();
 }
 } // namespace OHOS::ArkWeb

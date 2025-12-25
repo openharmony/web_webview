@@ -380,6 +380,14 @@ void WebviewController::Refresh()
     }
 }
 
+void WebviewController::ReloadIgnoreCache()
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (nweb_ptr) {
+        nweb_ptr->ReloadIgnoreCache();
+    }
+}
+
 ErrCode WebviewController::ZoomIn()
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);

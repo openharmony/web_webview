@@ -21,6 +21,7 @@
 #include "ohos_nweb/include/ark_web_accessibility_node_info.h"
 #include "ohos_nweb/include/ark_web_agent_manager.h"
 #include "ohos_nweb/include/ark_web_array_buffer_value_callback.h"
+#include "ohos_nweb/include/ark_web_blankless_callback.h"
 #include "ohos_nweb/include/ark_web_bool_value_callback.h"
 #include "ohos_nweb/include/ark_web_cache_options.h"
 #include "ohos_nweb/include/ark_web_create_native_media_player_callback.h"
@@ -2199,6 +2200,35 @@ public:
      */
     /*--ark web()--*/
     virtual int32_t SendCommandAction(ArkWebRefPtr<ArkWebCommandAction> action) = 0;
+
+    /**
+     * @brief Set whether to enable blankless loading on the current page.
+     *
+     * @param key The unique key of current page.
+     * @param enable Whether to enable frame interpolation.
+     * @param duration The duration time of frame interpolation.
+     * @param expirationTime Indicates the time when the historical frame interpolation expires.
+     * @param callback Called after the frame insertion successful, failed, or removed.
+     * @return The error code.
+     */
+    /*--ark web()--*/
+    virtual int32_t SetBlanklessLoadingParams(const ArkWebString& key, bool enable, int32_t duration,
+        int64_t expirationTime, ArkWebRefPtr<ArkWebBlanklessCallback> callback) = 0;
+    
+    /**
+     * @brief Sends state to the web kernel to execute blankless callback.
+     *
+     * @param state Frame insertion successful, failed, or removed.
+     * @param reason Reason of frame insertion failed.
+     */
+    /*--ark web()--*/
+    virtual void CallExecuteBlanklessCallback(int32_t state, const ArkWebString& reason) = 0;
+
+    /**
+     * @brief Forces a full reload of the current page, bypassing the browser cache.
+     */
+    /*--ark web()--*/
+    virtual void ReloadIgnoreCache() = 0;
 };
 
 } // namespace OHOS::ArkWeb

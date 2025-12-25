@@ -194,6 +194,8 @@ public:
 
     void Refresh();
 
+    void ReloadIgnoreCache();
+
     ErrCode ZoomIn();
 
     ErrCode ZoomOut();

@@ -21,6 +21,7 @@
 #include "ohos_nweb/bridge/ark_web_agent_manager_impl.h"
 #include "ohos_nweb/bridge/ark_web_array_buffer_value_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_pdfconfig_args_wrapper.h"
+#include "ohos_nweb/bridge/ark_web_blankless_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_bool_value_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_cache_options_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_core_struct_utils.h"
@@ -1722,5 +1723,26 @@ int32_t ArkWebNWebImpl::SendCommandAction(ArkWebRefPtr<ArkWebCommandAction> acti
         return -1;
     }
     return nweb_nweb_->SendCommandAction(std::make_shared<ArkWebCommandActionWrapper>(action));
+}
+
+int32_t ArkWebNWebImpl::SetBlanklessLoadingParams(const ArkWebString& key, bool enable, int32_t duration,
+    int64_t expirationTime, ArkWebRefPtr<ArkWebBlanklessCallback> callback)
+{
+    if (CHECK_REF_PTR_IS_NULL(callback)) {
+        return nweb_nweb_->SetBlanklessLoadingParams(ArkWebStringStructToClass(key),
+            enable, duration, expirationTime, nullptr);
+    }
+    return nweb_nweb_->SetBlanklessLoadingParams(ArkWebStringStructToClass(key),
+        enable, duration, expirationTime, std::make_shared<ArkWebBlanklessCallbackWrapper>(callback));
+}
+
+void ArkWebNWebImpl::CallExecuteBlanklessCallback(int32_t state, const ArkWebString& reason)
+{
+    return nweb_nweb_->CallExecuteBlanklessCallback(state, ArkWebStringStructToClass(reason));
+}
+
+void ArkWebNWebImpl::ReloadIgnoreCache()
+{
+    nweb_nweb_->ReloadIgnoreCache();
 }
 } // namespace OHOS::ArkWeb
