@@ -26,6 +26,19 @@ using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::NWeb;
 
+#define DEFAULT_COPY_NUMBER 2
+#define DEFAULT_START_PAGE 1
+#define DEFAULT_END_PAGE 5
+#define DEFAULT_PAGE_RANGE_SIZE 2
+#define DEFAULT_WIDTH 100
+#define DEFAULT_HEIGHT 200
+#define DEFAULT_COLOR_MODE 1
+#define DEFAULT_DUPLEX_MODE 1
+#define DEFAULT_MARGIN_TOP 1
+#define DEFAULT_MARGIN_BOTTOM 2
+#define DEFAULT_MARGIN_LEFT 3
+#define DEFAULT_MARGIN_RIGHT 4
+
 class ConvertPrintingParametersTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -45,27 +58,26 @@ void ConvertPrintingParametersTest::TearDownTestCase(void)
 void ConvertPrintingParametersTest::SetUp(void)
 {
     // Set basic options
-    defaultAttrs_.SetCopyNumber(2);
+    defaultAttrs_.SetCopyNumber(DEFAULT_COPY_NUMBER);
     Print::PrintRange range;
-    range.SetStartPage(1);
-    range.SetEndPage(5);
-    range.SetPages({1, 5});
+    range.SetStartPage(DEFAULT_START_PAGE);
+    range.SetEndPage(DEFAULT_END_PAGE);
+    range.SetPages({DEFAULT_START_PAGE, DEFAULT_END_PAGE});
     defaultAttrs_.SetPageRange(range);
     defaultAttrs_.SetIsSequential(true);
     Print::PrintPageSize pageSize;
-    pageSize.SetWidth(100);
-    pageSize.SetHeight(200);
+    pageSize.SetWidth(DEFAULT_WIDTH);
+    pageSize.SetHeight(DEFAULT_HEIGHT);
     defaultAttrs_.SetPageSize(pageSize);
     defaultAttrs_.SetIsLandscape(false);
-    defaultAttrs_.SetColorMode(1);
-    defaultAttrs_.SetDuplexMode(1);
+    defaultAttrs_.SetColorMode(DEFAULT_COLOR_MODE);
+    defaultAttrs_.SetDuplexMode(DEFAULT_DUPLEX_MODE);
     Print::PrintMargin margin;
-    margin.SetTop(1);
-    margin.SetBottom(2);
-    margin.SetLeft(3);
-    margin.SetRight(4);
+    margin.SetTop(DEFAULT_MARGIN_TOP);
+    margin.SetBottom(DEFAULT_MARGIN_BOTTOM);
+    margin.SetLeft(DEFAULT_MARGIN_LEFT);
+    margin.SetRight(DEFAULT_MARGIN_RIGHT);
     defaultAttrs_.SetMargin(margin);
-
 }
 
 void ConvertPrintingParametersTest::TearDown(void)
@@ -83,24 +95,24 @@ HWTEST_F(ConvertPrintingParametersTest, ConvertPrintingParameters_CustomOptions_
     PrintAttributesAdapter result = adapter.ConvertPrintingParameters(defaultAttrs_);
 
     // Check basic options
-    EXPECT_EQ(result.copyNumber, 2);
-    EXPECT_EQ(result.pageRange.startPage, 1);
-    EXPECT_EQ(result.pageRange.endPage, 5);
-    EXPECT_EQ(result.pageRange.pages.size(), 2);
-    if (result.pageRange.pages.size() == 2) {
-        EXPECT_EQ(result.pageRange.pages[0], 1);
-        EXPECT_EQ(result.pageRange.pages[1], 5);
+    EXPECT_EQ(result.copyNumber, DEFAULT_COPY_NUMBER);
+    EXPECT_EQ(result.pageRange.startPage, DEFAULT_START_PAGE);
+    EXPECT_EQ(result.pageRange.endPage, DEFAULT_END_PAGE);
+    EXPECT_EQ(result.pageRange.pages.size(), DEFAULT_PAGE_RANGE_SIZE);
+    if (result.pageRange.pages.size() == DEFAULT_PAGE_RANGE_SIZE) {
+        EXPECT_EQ(result.pageRange.pages[0], DEFAULT_START_PAGE);
+        EXPECT_EQ(result.pageRange.pages[1], DEFAULT_END_PAGE);
     }
     EXPECT_TRUE(result.isSequential);
-    EXPECT_EQ(result.pageSize.width, 100);
-    EXPECT_EQ(result.pageSize.height, 200);
+    EXPECT_EQ(result.pageSize.width, DEFAULT_WIDTH);
+    EXPECT_EQ(result.pageSize.height, DEFAULT_HEIGHT);
     EXPECT_FALSE(result.isLandscape);
-    EXPECT_EQ(result.colorMode, 1);
-    EXPECT_EQ(result.duplexMode, 1);
-    EXPECT_EQ(result.margin.top, 1);
-    EXPECT_EQ(result.margin.bottom, 2);
-    EXPECT_EQ(result.margin.left, 3);
-    EXPECT_EQ(result.margin.right, 4);
+    EXPECT_EQ(result.colorMode, DEFAULT_COLOR_MODE);
+    EXPECT_EQ(result.duplexMode, DEFAULT_DUPLEX_MODE);
+    EXPECT_EQ(result.margin.top, DEFAULT_MARGIN_TOP);
+    EXPECT_EQ(result.margin.bottom, DEFAULT_MARGIN_BOTTOM);
+    EXPECT_EQ(result.margin.left, DEFAULT_MARGIN_LEFT);
+    EXPECT_EQ(result.margin.right, DEFAULT_MARGIN_RIGHT);
     // Check custom options, UINT32_MAX means no custom option
     EXPECT_EQ(result.display_header_footer, UINT32_MAX);
     EXPECT_EQ(result.print_backgrounds, UINT32_MAX);
