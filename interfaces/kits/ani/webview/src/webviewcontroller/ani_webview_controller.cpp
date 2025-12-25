@@ -1817,7 +1817,7 @@ bool GetSendPorts(ani_env* env, ani_object portsArrayObj, std::vector<std::strin
     for (uint32_t i = 0; i < static_cast<uint32_t>(arrayLen); i++) {
         ani_ref webMessagePortRef;
         if (env->Object_CallMethodByName_Ref(
-            portsArrayObj, "$_get", "i:C{std.core.Object}", &webMessagePortRef, (ani_int)i) != ANI_OK) {
+            portsArrayObj, "$_get", "i:Y", &webMessagePortRef, (ani_int)i) != ANI_OK) {
             WVLOG_E("Object_CallMethodByName_Ref failed");
             return false;
         }
@@ -2439,7 +2439,7 @@ int32_t CustomizeSchemesArrayDataHandler(ani_env* env, ani_object schemes)
     for (int i = 0; i < int(schemesLength); i++) {
         ani_ref WebCustomSchemeRef;
         if (env->Object_CallMethodByName_Ref(
-            schemes, "$_get", "i:C{std.core.Object}", &WebCustomSchemeRef, (ani_int)i) != ANI_OK) {
+            schemes, "$_get", "i:Y", &WebCustomSchemeRef, (ani_int)i) != ANI_OK) {
             WVLOG_E("Object_CallMethodByName_Ref failed");
             return PARAM_CHECK_ERROR;
         }
@@ -3063,7 +3063,7 @@ static ani_object CreateWebMessagePortsObj(
             ani_object boolInfoObj = CreateWebMessagePortsObjOfBoolean(env, tempExtentionType);
             env->Object_SetPropertyByName_Ref(obj, "isExtentionType", boolInfoObj);
         }
-        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "iC{std.core.Object}:", i, obj) != ANI_OK) {
+        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "iY:", i, obj) != ANI_OK) {
             WVLOG_E("Object_CallMethodByName_Void failed");
             return nullptr;
         }
