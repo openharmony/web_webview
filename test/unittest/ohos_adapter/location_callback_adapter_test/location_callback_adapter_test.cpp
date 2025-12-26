@@ -78,11 +78,11 @@ HWTEST_F(LocationCallbackAdapterTest, LocationCallbackAdapterTest_GetInstance_00
     data.WriteInterfaceToken(name);
     uint32_t code = 0;
     int result = locationImpl->OnRemoteRequest(code, data, reply, option);
-    EXPECT_EQ(result, 0);
+    EXPECT_EQ(result, -1);
     code += 1;
     data.WriteInterfaceToken(name);
     result = locationImpl->OnRemoteRequest(code, data, reply, option);
-    EXPECT_EQ(result, 0);
+    EXPECT_EQ(result, -1);
     code += 1;
     data.WriteInterfaceToken(name);
     result = locationImpl->OnRemoteRequest(code, data, reply, option);
