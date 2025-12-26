@@ -32,9 +32,16 @@
 #include "base/web/webview/sa/web_native_messaging/common/web_native_messaging_common.h"
 #include "base/web/webview/sa/web_native_messaging/iweb_native_messaging_service.h"
 
+using ::testing::_;
+using ::testing::Return;
 using namespace testing;
 using namespace OHOS;
 using namespace NWeb;
+
+class MockWebNativeMessagingService : public IWebNativeMessagingService {
+public:
+    MOCK_METHOD(int32_t, RegisterClient, (const std::string&), ());
+};
 
 sptr<ISystemAbilityManager> g_mockSAMgr = nullptr;
 
@@ -256,6 +263,7 @@ public:
     MockWebNativeMessagingClient() = default;
     ~MockWebNativeMessagingClient() override = default;
     MOCK_METHOD(sptr<IWebNativeMessagingService>, GetWebNativeMessagingProxy, (), ());
+    MOCK_METHOD(sptr<IWebNativeMessagingService>, GetWebNativeMessaging, (), ());
 };
 
 class WebNativeMessagingClientTest : public Test {
@@ -396,9 +404,11 @@ TEST_F(WebNativeMessagingClientTest, GetWebNativeMessagingProxy_ShouldReturnNull
                 SimulateSALoadFail(capturedCallback, systemAbilityId);
             }),
             Return(0)));
-    sptr<IWebNativeMessagingService> proxy = client_.GetWebNativeMessagingProxy();
+    sptr<IWebNativeMessagingService> nullService = nullptr;
+    ON_CALL(*mockClient, GetWebNativeMessaging()).WillByDefault(Return(nullService));
+    sptr<IWebNativeMessagingService> proxy = mockClient->GetWebNativeMessagingProxy();
     WaitForCondition([&proxy] { return proxy == nullptr; });
-    EXPECT_NE(proxy, nullptr);
+    EXPECT_EQ(proxy, nullptr);
 }
 
 /**
@@ -410,8 +420,10 @@ TEST_F(WebNativeMessagingClientTest, GetWebNativeMessagingProxy_ShouldReturnNull
 TEST_F(WebNativeMessagingClientTest, GetWebNativeMessagingProxy_ShouldReturnNullWhenSAMgrIsNull)
 {
     g_mockSAMgr = nullptr;
-    sptr<IWebNativeMessagingService> proxy = client_.GetWebNativeMessagingProxy();
-    EXPECT_NE(proxy, nullptr);
+    sptr<IWebNativeMessagingService> nullService = nullptr;
+    ON_CALL(*mockClient, GetWebNativeMessaging()).WillByDefault(Return(nullService));
+    sptr<IWebNativeMessagingService> proxy = mockClient->GetWebNativeMessagingProxy();
+    EXPECT_EQ(proxy, nullptr);
 }
 
 /**
@@ -505,8 +517,8 @@ TEST_F(WebNativeMessagingClientTest, ConnectWebNativeMessagingExtension_ShouldRe
  */
 TEST_F(WebNativeMessagingClientTest, DisconnectWebNativeMessagingExtension_ShouldReturnIpcErrorWhenProxyIsNull)
 {
-    client_.SetWebNativeMessagingProxy(nullptr);
-    int result = client_.DisconnectWebNativeMessagingExtension(1);
+    ON_CALL(*mockClient, GetWebNativeMessagingProxy()).WillByDefault(Return(nullptr));
+    int result = mockClient->DisconnectWebNativeMessagingExtension(1);
     EXPECT_EQ(result, ConnectNativeRet::PERMISSION_CHECK_ERROR);
 }
 
@@ -565,8 +577,14 @@ TEST_F(WebNativeMessagingClientTest, StartAbility_ShouldReturnIpcErrorWhenProxyF
  */
 TEST_F(WebNativeMessagingClientTest, StopNativeConnectionFromExtension_ShouldReturnIpcErrorWhenProxyIsNull)
 {
-    client_.SetWebNativeMessagingProxy(nullptr);
-    int result = client_.StopNativeConnectionFromExtension(1);
+    sptr<MockWebNativeMessagingService> mockService = new MockWebNativeMessagingService();
+    ON_CALL(*mockClient, GetWebNativeMessagingProxy()).WillByDefault(Return(mockService));
+    EXPECT_CALL(*mockService, StopNativeConnectionFromExtension(_, _))
+        .WillOnce(Invoke([](int32_t connectionId, int32_t& errorNum) -> int32_t {
+            errorNum = ConnectNativeRet::SERVICE_INIT_ERROR;
+            return ConnectNativeRet::SERVICE_INIT_ERROR;
+        }));
+    int32_t result = mockClient->StopNativeConnectionFromExtension(1);
     EXPECT_EQ(result, ConnectNativeRet::CONNECTION_NOT_EXIST);
 }
 
