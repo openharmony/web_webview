@@ -28,3 +28,4 @@ web.ohos.dvsync = false
 web.ohos.enableCWNDSetting = false
 web.TCPConnectedSocket.initialCongestionWindowSize = -1
 web.engine.install.completed = false
+web.debug.dump.on = false

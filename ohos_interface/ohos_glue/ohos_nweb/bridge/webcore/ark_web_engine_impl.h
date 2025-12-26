@@ -132,6 +132,7 @@ public:
 
     void LibraryLoaded(ArkWebRefPtr<ArkWebEngineInitArgs> init_args, bool lazy) override;
 
+    ArkWebString DumpArkWebInfo(const ArkWebString& param) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebEngine> nweb_engine_;
 };
