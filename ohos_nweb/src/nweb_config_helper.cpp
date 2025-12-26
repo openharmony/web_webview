@@ -145,7 +145,7 @@ const std::unordered_map<std::string_view, std::function<std::string(std::string
         } },
     { "settingConfig/enableJsFlagOptimizeForSize",
         [](std::string& contentStr) {
-            return contentStr == "true" ? std::string("--js-flags=\"--optimize_for_size\"") : std::string();
+            return contentStr == "true" ? std::string("--js-flags=--optimize_for_size") : std::string();
         } },
     { "settingConfig/disableMobileStyleSheet",
         [](std::string& contentStr) {
