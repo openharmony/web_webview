@@ -20,6 +20,7 @@
 #include <napi/native_api.h>
 #include <cstring>
 #include "napi_parse_utils.h"
+#include "nweb_napi_scope.h"
 
 #include "nweb_helper.h"
 #include "nweb_log.h"
@@ -98,6 +99,13 @@ void NapiProxyController::InnerApplyProxyOverride(ProxyConfig *proxyConfig, napi
 
 void ProxyChangedCallbackImpl::OnChanged()
 {
+    if (!env_) {
+        return;
+    }
+    NApiScope scope(env_);
+    if (!scope.IsVaild()) {
+        return;
+    }
     napi_value callback = nullptr;
     napi_get_reference_value(env_, callback_, &callback);
 
