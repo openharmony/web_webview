@@ -5469,12 +5469,24 @@ WebPrintWriteResultCallback ParseWebPrintWriteResultCallback(napi_env env, napi_
 
 void ParseCustomOptions(napi_env env, napi_value customOption, PrintAttributesAdapter& printAttr)
 {
+    if (!customOption) {
+        WVLOG_D("No custom option");
+        return;
+    }
+
+    bool isArray = false;
+    napi_is_array(env, customOption, &isArray);
+    if (!isArray) {
+        WVLOG_E("Custom option is not array");
+        return;
+    }
+
     printAttr.display_header_footer = UINT32_MAX;
     printAttr.print_backgrounds = UINT32_MAX;
     uint32_t arrayLen = 0;
     napi_get_array_length(env, customOption, &arrayLen);
     if (arrayLen == 0) {
-        WVLOG_D("No Custom Option");
+        WVLOG_D("Custom option has length 0");
         return;
     }
 
