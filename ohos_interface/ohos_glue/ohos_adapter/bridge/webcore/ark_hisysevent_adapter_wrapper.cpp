@@ -486,4 +486,21 @@ int ArkHiSysEventAdapterWrapper::Write(const std::string& eventName, EventType t
     return result;
 }
 
+int ArkHiSysEventAdapterWrapper::Write(const std::string& eventName, EventType type,
+    const std::tuple<const std::string, const int32_t>& data)
+{
+    if (!ctocpp_) {
+        return -1;
+    }
+    ArkWebString ark_event_name = ArkWebStringClassToStruct(eventName);
+    ArkWebString ark_key1 = ArkWebStringClassToStruct(std::get<0>(data));
+
+    int result = ctocpp_->Write(ark_event_name, (uint32_t)type, ark_key1, std::get<1>(data));
+
+    ArkWebStringStructRelease(ark_event_name);
+    ArkWebStringStructRelease(ark_key1);
+
+    return result;
+}
+
 } // namespace OHOS::ArkWeb
