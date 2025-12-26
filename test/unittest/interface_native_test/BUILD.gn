@@ -385,11 +385,40 @@ ohos_unittest("web_native_messaging_manager_test") {
   ]
 }
 
+ohos_unittest("ets_web_native_messaging_extension_context_test") {
+  module_out_path = module_output_path
+  sources = [ "ets_web_native_messaging_extension_context_test.cpp" ]
+  include_dirs = [
+    "${webview_path}/interfaces/kits/ani/webnativemessagingextension/ability/include",
+    "${webview_path}/interfaces/kits/ani/webnativemessagingextension/ability/src",
+    "${webview_path}/interfaces/kits/ani/webview/src/common",
+    "${webview_path}/interfaces/kits/napi/web_native_messaging_extension/extension/include",
+    "${webview_path}/sa/web_native_messaging/common",
+    "${webview_path}/ohos_nweb/include",
+    "${webview_path}/interfaces/kits/ani/webview/native/common",
+  ]
+
+  deps = [
+    "${webview_path}/interfaces/kits/ani/webview:webview_ani",
+    "${webview_path}/interfaces/kits/napi/web_native_messaging_extension/extension:web_extension",
+    "${webview_path}/sa/web_native_messaging:web_native_messaging_kit",
+    "${webview_path}/ohos_nweb:web_configs",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+    "hilog:libhilog",
+  ]
+}
+
 group("unittest") {
   testonly = true
   deps = [
     ":arkweb_interface_test",
     ":arkweb_scheme_handler_test",
+    ":ets_web_native_messaging_extension_context_test",
     ":native_interface_arkweb_test",
     ":native_javascript_execute_callback_test",
     ":web_native_messaging_extension_context_info_test",
