@@ -32,6 +32,10 @@ static const char* ANI_ENUM_WEB_HIT_TEST_TYPE = "@ohos.web.webview.webview.WebHi
 static const char* ANI_CLASS_HIT_TEST_VALUE_INNER = "@ohos.web.webview.webview.HitTestValueInner";
 static const char* ANI_CLASS_BLANKLESS_INFO_INNER = "@ohos.web.webview.webview.BlanklessInfoInner";
 static const char* ANI_ENUM_WEB_BLANKLESS_ERROR_CODE = "@ohos.web.webview.webview.WebBlanklessErrorCode";
+static const char* ANI_ENUM_BLANKLESS_LOADING_STATE = "@ohos.web.webview.webview.BlanklessFrameInterpolationState";
+static const char* ANI_CLASS_BLANKLESS_LOADING_INFO_INNER =
+    "@ohos.web.webview.webview.BlanklessFrameInterpolationInfoInner";
+static const char* ANI_CLASS_BLANKLESS_LOADING_PARAM_INNER = "@ohos.web.webview.webview.BlanklessLoadingParamInner";
 
 const char* ANI_BACK_FORWARD_LIST_INNER_CLASS_NAME = "@ohos.web.webview.webview.BackForwardListinner";
 const char* ANI_HISTORY_ITEM_INNER_CLASS_NAME = "@ohos.web.webview.webview.HistoryIteminner";

@@ -27,6 +27,7 @@
 
 #include <cstdlib>
 #include <ctime>
+#include <chrono>
 #include <memory>
 #include <unordered_map>
 #include <cstddef>
@@ -101,8 +102,15 @@ constexpr size_t MAX_URL_TRUST_LIST_STR_LEN = 10 * 1024 * 1024; // 10M
 constexpr uint32_t SOCKET_MAXIMUM = 6;
 constexpr size_t MAX_RESOURCES_COUNT = 30;
 constexpr uint32_t URL_MAXIMUM = 2048;
+constexpr int32_t BLANKLESS_SUCCESS = 0;
+constexpr int32_t BLANKLESS_ERR_UNKNOWN = 1;
 constexpr int32_t BLANKLESS_ERR_INVALID_ARGS = 2;
 constexpr int32_t BLANKLESS_ERR_NOT_INITED = 3;
+constexpr int32_t BLANKLESS_ERR_DURATION_OUT_OF_RANGE = 6;
+constexpr int32_t BLANKLESS_ERR_EXPIRATION_TIME_OUT_OF_RANGE = 7;
+constexpr int32_t MAX_BLANKLESS_DURATION_TIME = 2000;
+constexpr int32_t MIN_BLANKLESS_DURATION_TIME = 200;
+constexpr int64_t MAX_EXPIRATION_TIME = 30LL * 24 * 3600 * 1000; // 计算30天后的UTC毫秒数
 constexpr int32_t MAX_DATABASE_SIZE_IN_MB = 100;
 constexpr char URL_REGEXPR[] = "^http(s)?:\\/\\/.+";
 const char *INVOKE_METHOD_NAME = "invoke";
@@ -6513,6 +6521,94 @@ ani_enum_item SetBlanklessLoadingWithKey(ani_env* env, ani_object object, ani_ob
     return result;
 }
 
+int32_t ParseBlanklessLoadingParam(ani_env* env, ani_object param, AniBlanklessLoadingParam& aniParam)
+{
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return BLANKLESS_ERR_UNKNOWN;
+    }
+
+    ani_boolean enableObj;
+    if (env->Object_GetPropertyByName_Boolean(param, "enable", &enableObj) != ANI_OK) {
+        return BLANKLESS_ERR_INVALID_ARGS;
+    }
+    aniParam.enable = static_cast<bool>(enableObj);
+
+    ani_int durationObj;
+    if (env->Object_GetPropertyByName_Int(param, "duration", &durationObj) == ANI_OK) {
+        int32_t durationTemp = static_cast<int32_t>(durationObj);
+        if (durationTemp != 0 && (durationTemp < MIN_BLANKLESS_DURATION_TIME ||
+            durationTemp > MAX_BLANKLESS_DURATION_TIME)) {
+            return BLANKLESS_ERR_DURATION_OUT_OF_RANGE;
+        }
+        aniParam.duration = durationTemp;
+    }
+
+    ani_long expirationTimeObj;
+    if (env->Object_GetPropertyByName_Long(param, "expirationTime", &expirationTimeObj) == ANI_OK) {
+        int64_t expirationTimeTemp = static_cast<int64_t>(expirationTimeObj);
+        int64_t nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()
+        ).count();
+        if (expirationTimeTemp != 0 && (expirationTimeTemp < nowMs ||
+            expirationTimeTemp - nowMs > MAX_EXPIRATION_TIME)) {
+            return BLANKLESS_ERR_EXPIRATION_TIME_OUT_OF_RANGE;
+        }
+        aniParam.expirationTime = expirationTimeTemp;
+    }
+
+    ani_ref callbackRef = nullptr;
+    if (env->Object_GetPropertyByName_Ref(param, "callback", &callbackRef) == ANI_OK) {
+        aniParam.callbackRef = callbackRef;
+    }
+    
+    return BLANKLESS_SUCCESS;
+}
+
+ani_enum_item SetBlanklessLoadingWithParams(ani_env* env, ani_object object, ani_object keyObj, ani_object param)
+{
+    ProductDeviceType deviceType = SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType();
+    if (deviceType != ProductDeviceType::DEVICE_TYPE_MOBILE) {
+        WVLOG_E("SetBlanklessLoadingWithParams capability not supported.");
+        AniBusinessError::ThrowErrorByErrCode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
+        return nullptr;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("webviewController is nullptr.");
+        return nullptr;
+    }
+
+    ani_enum_item result;
+    std::string key;
+    if (!AniParseUtils::ParseString(env, keyObj, key)) {
+        WVLOG_E("SetBlanklessLoadingWithKey ParseString failed");
+        AniParseUtils::GetEnumItemByIndex(env, ANI_ENUM_WEB_BLANKLESS_ERROR_CODE, BLANKLESS_ERR_INVALID_ARGS, result);
+        return result;
+    }
+
+    if (!controller->IsInit()) {
+        WVLOG_E("SetBlanklessLoadingWithKey controller is not inited");
+        AniParseUtils::GetEnumItemByIndex(env, ANI_ENUM_WEB_BLANKLESS_ERROR_CODE, BLANKLESS_ERR_NOT_INITED, result);
+        return result;
+    }
+
+    AniBlanklessLoadingParam aniParam;
+    if (auto parseResult = ParseBlanklessLoadingParam(env, param, aniParam); parseResult != BLANKLESS_SUCCESS) {
+        WVLOG_E("SetBlanklessLoadingWithKey ParseParam failed");
+        AniParseUtils::GetEnumItemByIndex(env, ANI_ENUM_WEB_BLANKLESS_ERROR_CODE, parseResult, result);
+        return result;
+    }
+
+    auto errCode = controller->SetBlanklessLoadingParams(env, key, aniParam);
+    AniParseUtils::GetEnumItemByIndex(env, ANI_ENUM_WEB_BLANKLESS_ERROR_CODE, std::abs(errCode), result);
+    return result;
+}
+
 static ani_int SetBlanklessLoadingCacheCapacity(ani_env* env, ani_object object, ani_int capacityObj)
 {
     ProductDeviceType deviceType = SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType();
@@ -7205,6 +7301,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void*>(ClearBlanklessLoadingCache) },
         ani_native_function { "setBlanklessLoadingCacheCapacity", nullptr,
                               reinterpret_cast<void*>(SetBlanklessLoadingCacheCapacity) },
+        ani_native_function { "setBlanklessLoadingWithParams", nullptr,
+                              reinterpret_cast<void*>(SetBlanklessLoadingWithParams) },
         ani_native_function { "setWebDestroyMode", nullptr,
                               reinterpret_cast<void *>(SetWebDestroyMode) },
         ani_native_function { "setSoftKeyboardBehaviorMode", nullptr,

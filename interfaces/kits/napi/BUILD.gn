@@ -90,6 +90,7 @@ ohos_shared_library("webview_napi") {
     "webviewcontroller/web_download_manager.h",
     "webviewcontroller/web_scheme_handler.cpp",
     "webviewcontroller/web_scheme_handler.h",
+    "webviewcontroller/webview_blankless_callback.cpp",
     "webviewcontroller/webview_controller.cpp",
     "webviewcontroller/webview_createpdf_execute_callback.cpp",
     "webviewcontroller/webview_hasimage_callback.cpp",

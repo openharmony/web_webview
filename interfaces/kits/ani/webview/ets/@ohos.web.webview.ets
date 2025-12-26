@@ -127,7 +127,15 @@ export default namespace webview {
         ERR_INVALID_PARAM = -2,
         ERR_CONTROLLER_NOT_INITED = -3,
         ERR_KEY_NOT_MATCH = -4,
-        ERR_SIGNIFICANT_CHANGE = -5
+        ERR_SIGNIFICANT_CHANGE = -5,
+        ERR_DURATION_OUT_OF_RANGE = -6,
+        ERR_EXPIRATION_TIME_OUT_OF_RANGE = -7
+    }
+
+    export enum BlanklessFrameInterpolationState {
+        FRAME_INTERPOLATION_SUCCEEDED = 0,
+        FRAME_INTERPOLATION_FAILED = 1,
+        FRAME_INTERPOLATION_REMOVED = 2
     }
 
     export interface OfflineResourceMap {
@@ -300,6 +308,34 @@ export default namespace webview {
         errCode: WebBlanklessErrorCode = WebBlanklessErrorCode.ERR_INVALID_PARAM;
         similarity: double = 0.0;
         loadingTime: int = 0;
+    }
+
+    export interface BlanklessFrameInterpolationInfo {
+        key: string;
+        state: BlanklessFrameInterpolationState;
+        timestamp: int;
+        reason: string;
+    }
+
+    export class BlanklessFrameInterpolationInfoInner implements BlanklessFrameInterpolationInfo {
+        key: string;
+        state: BlanklessFrameInterpolationState;
+        timestamp: int;
+        reason: string;
+    }
+
+    export interface BlanklessLoadingParam {
+        enable: boolean;
+        duration?: int;
+        expirationTime?: int;
+        callback?: Callback<BlanklessFrameInterpolationInfo>;
+    }
+
+    export class BlanklessLoadingParamInner implements BlanklessLoadingParam {
+        enable: boolean;
+        duration?: int;
+        expirationTime?: int;
+        callback?: Callback<BlanklessFrameInterpolationInfo>;
     }
 
     export interface HitTestValue {
@@ -959,6 +995,7 @@ export default namespace webview {
         native getErrorPageEnabled(): boolean;
         native getBlanklessInfoWithKey(key: string): BlanklessInfo;
         native setBlanklessLoadingWithKey(key: string, is_start: boolean): WebBlanklessErrorCode;
+        native setBlanklessLoadingWithParams(key: string, param: BlanklessLoadingParam): WebBlanklessErrorCode;
         native static clearBlanklessLoadingCache(keys?: Array<string>): void;
         native static setBlanklessLoadingCacheCapacity(capacity: int): int;
         native static setSiteIsolationMode(mode: SiteIsolationMode): void;

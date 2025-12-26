@@ -33,6 +33,7 @@
 #include "nweb_log.h"
 #include "nweb_store_web_archive_callback.h"
 #include "web_errors.h"
+#include "webview_blankless_callback.h"
 #include "webview_createpdf_execute_callback.h"
 #include "webview_hasimage_callback.h"
 #include "webview_javascript_execute_callback.h"
@@ -2560,6 +2561,27 @@ int32_t WebviewController::SetBlanklessLoadingWithKey(const std::string& key, bo
         return nweb_ptr->SetBlanklessLoadingWithKey(key, isStart);
     }
     return -1;
+}
+
+int32_t WebviewController::SetBlanklessLoadingParams(napi_env env,
+    const std::string& key, BlanklessLoadingParamValue& paramsValue)
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        if (paramsValue.callback != nullptr) {
+            napi_delete_reference(env, paramsValue.callback);
+        }
+        return -1;
+    }
+
+    std::shared_ptr<OHOS::NWeb::NWebBlanklessCallback> callbackImpl = nullptr;
+    
+    if (paramsValue.callback != nullptr) {
+        callbackImpl = std::make_shared<OHOS::NWeb::WebviewBlanklessCallback>(env, paramsValue.callback);
+    }
+    
+    return nweb_ptr->SetBlanklessLoadingParams(key,
+        paramsValue.enable, paramsValue.duration, paramsValue.expirationTime, callbackImpl);
 }
 
 ErrCode WebviewController::AvoidVisibleViewportBottom(int32_t avoidHeight)

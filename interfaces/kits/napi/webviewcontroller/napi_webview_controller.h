@@ -410,6 +410,11 @@ private:
 
     static napi_value SetBlanklessLoadingWithKey(napi_env env, napi_callback_info info);
 
+    static napi_value SetBlanklessLoadingWithParams(napi_env env, napi_callback_info info);
+
+    static int32_t ParseBlanklessLoadingParams(napi_env env,
+        napi_value paramsObj, BlanklessLoadingParamValue& paramsValue);
+
     static napi_value SetBlanklessLoadingCacheCapacity(napi_env env, napi_callback_info info);
 
     static napi_value ClearBlanklessLoadingCache(napi_env env, napi_callback_info info);
