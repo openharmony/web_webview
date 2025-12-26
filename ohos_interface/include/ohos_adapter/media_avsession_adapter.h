@@ -79,17 +79,17 @@ public:
 
     virtual void SeekTo(int64_t millisTime) = 0;
 
-    virtual int32_t GetMediaCastCurrentTime() = 0;
+    virtual int32_t GetMediaCastCurrentTime() { return 0; }
 
-    virtual void PullUpCastBackGround(const std::string& device_name) = 0;
+    virtual void PullUpCastBackGround(const std::string& device_name) {}
 
-    virtual void SetAvCast(bool is_avcast) = 0;
+    virtual void SetAvCast(bool is_avcast) {}
 
-    virtual void UpdateUiPlayState(bool is_playing) = 0;
+    virtual void UpdateUiPlayState(bool is_playing) {}
 
-    virtual void UpdateUiPlayPosition(int64_t position) = 0;
+    virtual void UpdateUiPlayPosition(int64_t position) {}
 
-    virtual void MediaCastStopped() = 0;
+    virtual void MediaCastStopped() {}
 };
 
 class MediaAVSessionAdapter {
@@ -116,19 +116,19 @@ public:
 
     virtual void SetPlaybackPosition(const std::shared_ptr<MediaAVSessionPositionAdapter> position) = 0;
 
-    virtual void SetMediaCastUri(const std::string& mediaUri) = 0;
+    virtual void SetMediaCastUri(const std::string& mediaUri) {}
 
-    virtual void CreateAVCastAdapter() = 0;
+    virtual void CreateAVCastAdapter() {}
 
-    virtual void SetRemoteCastEnabled(bool enabled) = 0;
+    virtual void SetRemoteCastEnabled(bool enabled) {}
 
-    virtual void PrepareMediaCastDescription() = 0;
+    virtual void PrepareMediaCastDescription() {}
 
-    virtual void HandleStopMediaCast() = 0;
+    virtual void HandleStopMediaCast() {}
 
-    virtual void UpdateRemotePlayState(bool is_playing) = 0;
+    virtual void UpdateRemotePlayState(bool is_playing) {}
 
-    virtual void UpdateRemotePlayPosition(int64_t position) = 0; 
+    virtual void UpdateRemotePlayPosition(int64_t position) {}
 };
 
 } // namespace OHOS::NWeb
