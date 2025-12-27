@@ -770,33 +770,33 @@ Object.defineProperty(webview.WebviewController.prototype, 'fileSelectorShowFrom
 
 Object.defineProperty(webview.WebviewController.prototype, 'OnMediaCastEnter', {
   value: function () {
-    console.log("webview_export OnMediaCastEnter");
+    console.log('webview_export OnMediaCastEnter');
     let avCastPicker = new avsession.AVCastPickerHelper(getContext(this));
     try {
       avCastPicker.select();
-      console.log("webview_export OnMediaCastEnter select, success");
+      console.log('webview_export OnMediaCastEnter select, success');
       onPickerStateChange(avCastPicker);
     } catch (error) {
-      console.log("webview_export OnMediaCastEnter select, fail:", error);
+      console.log('webview_export OnMediaCastEnter select, fail: ', error);
     }
   }
 });
 
 async function onPickerStateChange(avCastPicker) {
   // Listening to the picker status
-  console.log("webview_export onPickerStateChange, enter");
+  console.log('webview_export onPickerStateChange, enter');
   try {
     avCastPicker.on('pickerStateChange', (state) => {
       console.info(`webview_export pickerStateChange: picker state change : ${state}`);
-      if(state == AVCastPickerState.STATE_APPEARING) {
+      if(state === AVCastPickerState.STATE_APPEARING) {
         console.log('webview_export pickerStateChange, The picker showing.');
-      } else if (state == AVCastPickerState.STATE_DISAPPEARING) {
+      } else if (state === AVCastPickerState.STATE_DISAPPEARING) {
         console.log('webview_export pickerStateChange, The picker hiding');
         avCastPicker = undefined;
       }
     });
   } catch (error) {
-    console.log("webview_export onPickerStateChange, fail:", error);
+    console.log('webview_export onPickerStateChange, fail: ', error);
   }
 }
 
