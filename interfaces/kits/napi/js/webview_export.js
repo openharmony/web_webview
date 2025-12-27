@@ -22,6 +22,7 @@ let photoAccessHelper = requireNapi('file.photoAccessHelper');
 let cameraPicker = requireNapi('multimedia.cameraPicker');
 let camera = requireNapi('multimedia.camera');
 let accessControl = requireNapi('abilityAccessCtrl');
+let avsession = requireNapi('multimedia.avsession');
 let deviceinfo = requireInternal('deviceInfo');
 let promptAction = requireNapi('promptAction');
 let dataShare = requireNapi('data.dataShare');
@@ -74,6 +75,12 @@ class BusinessError extends Error {
     this.code = code;
   }
 }
+
+export let AVCastPickerState;
+(function(pickerState) {
+    pickerState[pickerState.STATE_APPEARING = 0] = 'STATE_APPEARING';
+    pickerState[pickerState.STATE_DISAPPEARING = 1] = 'STATE_DISAPPEARING';
+})(AVCastPickerState || (AVCastPickerState = {}));
 
 function getCertificatePromise(certChainData) {
   let x509CertArray = [];
@@ -777,6 +784,38 @@ Object.defineProperty(webview.WebviewController.prototype, 'fileSelectorShowFrom
     }
   }
 });
+
+Object.defineProperty(webview.WebviewController.prototype, 'OnMediaCastEnter', {
+  value: function () {
+    console.log('webview_export OnMediaCastEnter');
+    let avCastPicker = new avsession.AVCastPickerHelper(getContext(this));
+    try {
+      avCastPicker.select();
+      console.log('webview_export OnMediaCastEnter select, success');
+      onPickerStateChange(avCastPicker);
+    } catch (error) {
+      console.log('webview_export OnMediaCastEnter select, fail: ', error);
+    }
+  }
+});
+
+async function onPickerStateChange(avCastPicker) {
+  // Listening to the picker status
+  console.log('webview_export onPickerStateChange, enter');
+  try {
+    avCastPicker.on('pickerStateChange', (state) => {
+      console.info(`webview_export pickerStateChange: picker state change : ${state}`);
+      if(state === AVCastPickerState.STATE_APPEARING) {
+        console.log('webview_export pickerStateChange, The picker showing.');
+      } else if (state === AVCastPickerState.STATE_DISAPPEARING) {
+        console.log('webview_export pickerStateChange, The picker hiding');
+        avCastPicker = undefined;
+      }
+    });
+  } catch (error) {
+    console.log('webview_export onPickerStateChange, fail: ', error);
+  }
+}
 
 Object.defineProperty(webview.WebviewController.prototype, 'requestPermissionsFromUserWeb', {
   value: function (callback) {

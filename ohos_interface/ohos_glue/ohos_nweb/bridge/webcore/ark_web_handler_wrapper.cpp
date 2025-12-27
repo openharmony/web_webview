@@ -1421,4 +1421,9 @@ void ArkWebHandlerWrapper::OnWindowNewExtByJS(std::shared_ptr<OHOS::NWeb::NWebWi
 
     ark_web_handler_->OnWindowNewExtByJS(new ArkWebWindowNewEventInfoImpl(dataInfo));
 }
+
+void ArkWebHandlerWrapper::OnMediaCastEnter()
+{
+    ark_web_handler_->OnMediaCastEnter();
+}
 } // namespace OHOS::ArkWeb
