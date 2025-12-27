@@ -2326,6 +2326,20 @@ int32_t WebviewController::SetBlanklessLoadingWithKey(const std::string& key, bo
     return -1;
 }
 
+int32_t WebviewController::SetBlanklessLoadingParams(ani_env* env, const std::string& key,
+    AniBlanklessLoadingParam& param)
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    std::shared_ptr<OHOS::NWeb::AniWebviewBlanklessCallback> callbackImpl = nullptr;
+    if (!nweb_ptr) {
+        return -1;
+    }
+    if (param.callbackRef) {
+        callbackImpl = std::make_shared<OHOS::NWeb::AniWebviewBlanklessCallback>(env, param.callbackRef);
+    }
+    return nweb_ptr->SetBlanklessLoadingParams(key, param.enable, param.duration, param.expirationTime, callbackImpl);
+}
+
 int32_t WebviewController::GetAttachState()
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);

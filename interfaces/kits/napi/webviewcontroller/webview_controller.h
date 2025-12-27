@@ -142,6 +142,13 @@ enum class BlanklessErrorCode : int {
     ERR_SIGNIFICANT_CHANGE = -5
 };
 
+struct BlanklessLoadingParamValue {
+    bool enable = false;
+    int32_t duration = 0;
+    int64_t expirationTime = 0;
+    napi_ref callback = nullptr;
+};
+
 class WebRegObj {
 public:
     WebRegObj() : m_regEnv(0), m_regHanderRef(nullptr) {
@@ -480,6 +487,8 @@ public:
     int32_t GetBlanklessInfoWithKey(const std::string& key, double* similarity, int32_t* loadingTime);
 
     int32_t SetBlanklessLoadingWithKey(const std::string& key, bool isStart);
+
+    int32_t SetBlanklessLoadingParams(napi_env env, const std::string& key, BlanklessLoadingParamValue& paramsValue);
 
     void SetWebDetach(int32_t nwebId);
 

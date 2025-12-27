@@ -17,6 +17,7 @@
 
 #include <arpa/inet.h>
 #include <cctype>
+#include <chrono>
 #include <climits>
 #include <cstdint>
 #include <regex>
@@ -67,8 +68,11 @@ constexpr uint32_t SOCKET_MAXIMUM = 6;
 constexpr char URL_REGEXPR[] = "^http(s)?:\\/\\/.+";
 constexpr size_t MAX_RESOURCES_COUNT = 30;
 constexpr size_t MAX_RESOURCE_SIZE = 10 * 1024 * 1024;
+constexpr int32_t BLANKLESS_PARSE_PARAM_SUCCESS = 0;
 constexpr int32_t BLANKLESS_ERR_INVALID_ARGS = -2;
 constexpr int32_t BLANKLESS_ERR_NOT_INITED = -3;
+constexpr int32_t BLANKLESS_ERR_DURATION_OUT_OF_RANGE = -6;
+constexpr int32_t BLANKLESS_ERR_EXPIRATION_TIME_OUT_OF_RANGE = -7;
 constexpr int32_t MAX_DATABASE_SIZE_IN_MB = 100;
 constexpr uint32_t MAX_KEYS_COUNT = 100;
 constexpr size_t MAX_KEY_LENGTH = 2048;
@@ -84,6 +88,9 @@ constexpr double TEN_MILLIMETER_TO_INCH = 0.39;
 constexpr const char* EVENT_ATTACH_STATE_CHANGE = "controllerAttachStateChange";
 constexpr int32_t MIN_SOCKET_IDLE_TIMEOUT = 30;
 constexpr int32_t MAX_SOCKET_IDLE_TIMEOUT = 300;
+constexpr int32_t MAX_BLANKLESS_DURATION_TIME = 2000;
+constexpr int32_t MIN_BLANKLESS_DURATION_TIME = 200;
+constexpr int64_t MAX_EXPIRATION_TIME = 30LL * 24 * 3600 * 1000; // 计算30天后的UTC毫秒数
 using WebPrintWriteResultCallback = std::function<void(std::string, uint32_t)>;
 
 bool ParsePrepareUrl(napi_env env, napi_value urlObj, std::string& url)
@@ -825,6 +832,8 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
             NapiWebviewController::GetBlanklessInfoWithKey),
         DECLARE_NAPI_FUNCTION("setBlanklessLoadingWithKey",
             NapiWebviewController::SetBlanklessLoadingWithKey),
+        DECLARE_NAPI_FUNCTION("setBlanklessLoadingWithParams",
+            NapiWebviewController::SetBlanklessLoadingWithParams),
         DECLARE_NAPI_FUNCTION("setSoftKeyboardBehaviorMode", NapiWebviewController::SetSoftKeyboardBehaviorMode),
         DECLARE_NAPI_STATIC_FUNCTION("setBlanklessLoadingCacheCapacity",
             NapiWebviewController::SetBlanklessLoadingCacheCapacity),
@@ -7529,6 +7538,103 @@ napi_value NapiWebviewController::SetBlanklessLoadingWithKey(napi_env env, napi_
 
     napi_create_int32(env, controller->SetBlanklessLoadingWithKey(key, isStart), &result);
     return result;
+}
+
+napi_value NapiWebviewController::SetBlanklessLoadingWithParams(napi_env env, napi_callback_info info)
+{
+    if (!SystemPropertiesAdapterImpl::GetInstance().GetBoolParameter("web.blankless.enabled", false) ||
+        IS_CALLING_FROM_M114()) {
+        WVLOG_E("blankless SetBlanklessLoadingWithParams capability not supported.");
+        BusinessError::ThrowErrorByErrcode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
+        return nullptr;
+    }
+
+    napi_value thisVar = nullptr;
+    size_t argc = INTEGER_TWO;
+    napi_value argv[INTEGER_TWO] = { 0 };
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    WebviewController* controller = nullptr;
+    napi_unwrap(env, thisVar, (void**)&controller);
+    if (controller == nullptr) {
+        WVLOG_E("blankless SetBlanklessLoadingWithParams controller is nullptr");
+        return nullptr;
+    }
+
+    if (argc != INTEGER_TWO) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "two"));
+        return nullptr;
+    }
+
+    napi_value result = nullptr;
+    std::string key;
+    if (!ParseBlanklessString(env, argv[INTEGER_ZERO], key)) {
+        WVLOG_E("blankless SetBlanklessLoadingWithParams parse string failed");
+        napi_create_int32(env, BLANKLESS_ERR_INVALID_ARGS, &result);
+        return result;
+    }
+
+    BlanklessLoadingParamValue paramsValue;
+    if (int32_t parseErr = ParseBlanklessLoadingParams(env, argv[INTEGER_ONE], paramsValue);
+        parseErr != BLANKLESS_PARSE_PARAM_SUCCESS) {
+        napi_create_int32(env, parseErr, &result);
+        return result;
+    }
+
+    if (!controller->IsInit()) {
+        WVLOG_E("blankless SetBlanklessLoadingWithParams controller is not inited");
+        napi_create_int32(env, BLANKLESS_ERR_NOT_INITED, &result);
+        return result;
+    }
+
+    napi_create_int32(env, controller->SetBlanklessLoadingParams(env, key, paramsValue), &result);
+    return result;
+}
+
+int32_t NapiWebviewController::ParseBlanklessLoadingParams(napi_env env,
+    napi_value paramsObj, BlanklessLoadingParamValue& paramsValue)
+{
+    napi_value enableObj = nullptr;
+    if (napi_get_named_property(env, paramsObj, "enable", &enableObj) != napi_ok ||
+        !NapiParseUtils::ParseBoolean(env, enableObj, paramsValue.enable)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "enable", "bool"));
+        return BLANKLESS_ERR_INVALID_ARGS;
+    }
+
+    napi_value durationObj = nullptr;
+    napi_get_named_property(env, paramsObj, "duration", &durationObj);
+    if (durationObj != nullptr && NapiParseUtils::ParseInt32(env, durationObj, paramsValue.duration)) {
+        if (paramsValue.duration != 0 && (paramsValue.duration > MAX_BLANKLESS_DURATION_TIME ||
+            paramsValue.duration < MIN_BLANKLESS_DURATION_TIME)) {
+            return BLANKLESS_ERR_DURATION_OUT_OF_RANGE;
+        }
+    }
+
+    napi_value expirationTimeObj = nullptr;
+    napi_get_named_property(env, paramsObj, "expirationTime", &expirationTimeObj);
+    if (expirationTimeObj != nullptr &&
+        NapiParseUtils::ParseInt64(env, expirationTimeObj, paramsValue.expirationTime)) {
+        int64_t nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()
+        ).count();
+        if (paramsValue.expirationTime != 0 && (paramsValue.expirationTime < nowMs ||
+            paramsValue.expirationTime - nowMs > MAX_EXPIRATION_TIME)) {
+            return BLANKLESS_ERR_EXPIRATION_TIME_OUT_OF_RANGE;
+        }
+    }
+
+    napi_value callbackObj = nullptr;
+    napi_get_named_property(env, paramsObj, "callback", &callbackObj);
+    if (callbackObj != nullptr) {
+        napi_valuetype valueType = napi_null;
+        napi_typeof(env, callbackObj, &valueType);
+        if (valueType == napi_function) {
+            napi_create_reference(env, callbackObj, INTEGER_ONE, &paramsValue.callback);
+        }
+    }
+
+    return BLANKLESS_PARSE_PARAM_SUCCESS;
 }
 
 napi_value NapiWebviewController::SetBlanklessLoadingCacheCapacity(napi_env env, napi_callback_info info)

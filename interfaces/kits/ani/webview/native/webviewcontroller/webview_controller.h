@@ -36,6 +36,7 @@
 #include "webview_value.h"
 #include "nweb_snapshot_callback.h"
 #include "concurrency_helpers.h"
+#include "ani_webview_blankless_callback.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -133,6 +134,13 @@ enum class ScrollType : int {
 enum class AttachState : int {
     NOT_ATTACHED = 0,
     ATTACHED = 1,
+};
+
+struct AniBlanklessLoadingParam {
+    bool enable = false;
+    int32_t duration = 0;
+    int64_t expirationTime = 0;
+    ani_ref callbackRef = nullptr;
 };
 
 class WebRegObj {
@@ -448,6 +456,8 @@ public:
     int32_t GetBlanklessInfoWithKey(const std::string& key, double* similarity, int32_t* loadingTime);
 
     int32_t SetBlanklessLoadingWithKey(const std::string& key, bool isStart);
+
+    int32_t SetBlanklessLoadingParams(ani_env* env, const std::string& key, AniBlanklessLoadingParam& param);
 
     void SetSoftKeyboardBehaviorMode(int32_t mode);
 
