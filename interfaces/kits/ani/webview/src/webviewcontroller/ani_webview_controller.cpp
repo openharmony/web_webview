@@ -6561,7 +6561,7 @@ int32_t ParseBlanklessLoadingParam(ani_env* env, ani_object param, AniBlanklessL
     if (env->Object_GetPropertyByName_Ref(param, "callback", &callbackRef) == ANI_OK) {
         aniParam.callbackRef = callbackRef;
     }
-    
+
     return BLANKLESS_SUCCESS;
 }
 
@@ -7233,8 +7233,6 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "clearHistory", nullptr, reinterpret_cast<void *>(ClearHistory) },
         ani_native_function { "clearWebSchemeHandler", nullptr, reinterpret_cast<void *>(ClearWebSchemeHandler) },
         ani_native_function { "terminateRenderProcess", nullptr, reinterpret_cast<void *>(TerminateRenderProcess) },
-        ani_native_function { "setSiteIsolationMode", nullptr, reinterpret_cast<void *>(SetSiteIsolationMode) },
-        ani_native_function { "getSiteIsolationMode", nullptr, reinterpret_cast<void *>(GetSiteIsolationMode) },
         ani_native_function { "backOrForward", nullptr, reinterpret_cast<void *>(BackOrForward) },
         ani_native_function { "enableSafeBrowsing", nullptr, reinterpret_cast<void *>(EnableSafeBrowsing) },
         ani_native_function { "setCustomUserAgent", nullptr, reinterpret_cast<void *>(SetCustomUserAgent) },
@@ -7288,23 +7286,13 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "getCertificateSync", nullptr, reinterpret_cast<void*>(GetCertificateSync) },
         ani_native_function { "jsProxy", nullptr, reinterpret_cast<void *>(InnerJsProxy) },
         ani_native_function { "setSocketIdleTimeout", nullptr, reinterpret_cast<void *>(SetSocketIdleTimeout) },
-        ani_native_function { "enablePrivateNetworkAccess", nullptr,
-                              reinterpret_cast<void*>(EnablePrivateNetworkAccess) },
-        ani_native_function { "isPrivateNetworkAccessEnabled", nullptr,
-                              reinterpret_cast<void*>(IsPrivateNetworkAccessEnabled) },
         ani_native_function { "setErrorPageEnabled", nullptr, reinterpret_cast<void*>(SetErrorPageEnabled) },
         ani_native_function { "getErrorPageEnabled", nullptr, reinterpret_cast<void*>(GetErrorPageEnabled) },
         ani_native_function { "getBlanklessInfoWithKey", nullptr, reinterpret_cast<void*>(GetBlanklessInfoWithKey) },
         ani_native_function { "setBlanklessLoadingWithKey", nullptr,
                               reinterpret_cast<void*>(SetBlanklessLoadingWithKey) },
-        ani_native_function { "clearBlanklessLoadingCache", nullptr,
-                              reinterpret_cast<void*>(ClearBlanklessLoadingCache) },
-        ani_native_function { "setBlanklessLoadingCacheCapacity", nullptr,
-                              reinterpret_cast<void*>(SetBlanklessLoadingCacheCapacity) },
         ani_native_function { "setBlanklessLoadingWithParams", nullptr,
                               reinterpret_cast<void*>(SetBlanklessLoadingWithParams) },
-        ani_native_function { "setWebDestroyMode", nullptr,
-                              reinterpret_cast<void *>(SetWebDestroyMode) },
         ani_native_function { "setSoftKeyboardBehaviorMode", nullptr,
                               reinterpret_cast<void *>(SetSoftKeyboardBehaviorMode) },
         ani_native_function { "getAttachState", nullptr, reinterpret_cast<void *>(GetAttachState) },
@@ -7313,21 +7301,11 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "offControllerAttachStateChange", nullptr,
                               reinterpret_cast<void *>(OffControllerAttachStateChange) },
         ani_native_function { "waitForAttachedPromise", nullptr, reinterpret_cast<void *>(WaitForAttachedPromise) },
-        ani_native_function { "isAutoPreconnectEnabled", nullptr, reinterpret_cast<void*>(IsAutoPreconnectEnabled) },
-        ani_native_function { "setAutoPreconnect", nullptr, reinterpret_cast<void*>(SetAutoPreconnect) },
         ani_native_function { "setWebDetach", nullptr, reinterpret_cast<void *>(SetWebDetach) },
-        ani_native_function { "getActiveWebEngineVersion", nullptr,
-                              reinterpret_cast<void*>(GetActiveWebEngineVersion) },
-        ani_native_function { "setActiveWebEngineVersion", nullptr,
-                              reinterpret_cast<void*>(SetActiveWebEngineVersion) },
-        ani_native_function { "isActiveWebEngineEvergreen", nullptr,
-                              reinterpret_cast<void*>(IsActiveWebEngineEvergreen) },
-        ani_native_function { "setScrollbarMode", nullptr,
-                              reinterpret_cast<void *>(SetScrollbarMode) },
     };
     status = env->Class_BindNativeMethods(webviewControllerCls, instanceMethods.data(), instanceMethods.size());
     if (status != ANI_OK) {
-        WVLOG_E("Class_BindNativeMethods failed status: %{public}d", status);
+        WVLOG_E("StsWebviewControllerInit Class_BindNativeMethods failed status: %{public}d", status);
     }
 
     std::array controllerStaticMethods = {
@@ -7370,11 +7348,33 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "enableBackForwardCache", nullptr, reinterpret_cast<void *>(EnableBackForwardCache) },
         ani_native_function { "setAppCustomUserAgent", nullptr, reinterpret_cast<void *>(SetAppCustomUserAgent) },
         ani_native_function { "setUserAgentForHosts", nullptr, reinterpret_cast<void *>(SetUserAgentForHosts) },
+        ani_native_function { "setSiteIsolationMode", nullptr, reinterpret_cast<void *>(SetSiteIsolationMode) },
+        ani_native_function { "getSiteIsolationMode", nullptr, reinterpret_cast<void *>(GetSiteIsolationMode) },
+        ani_native_function { "enablePrivateNetworkAccess", nullptr,
+                              reinterpret_cast<void*>(EnablePrivateNetworkAccess) },
+        ani_native_function { "isPrivateNetworkAccessEnabled", nullptr,
+                              reinterpret_cast<void*>(IsPrivateNetworkAccessEnabled) },
+        ani_native_function { "clearBlanklessLoadingCache", nullptr,
+                              reinterpret_cast<void*>(ClearBlanklessLoadingCache) },
+        ani_native_function { "setBlanklessLoadingCacheCapacity", nullptr,
+                              reinterpret_cast<void*>(SetBlanklessLoadingCacheCapacity) },
+        ani_native_function { "setWebDestroyMode", nullptr,
+                              reinterpret_cast<void *>(SetWebDestroyMode) },
+        ani_native_function { "isAutoPreconnectEnabled", nullptr, reinterpret_cast<void*>(IsAutoPreconnectEnabled) },
+        ani_native_function { "setAutoPreconnect", nullptr, reinterpret_cast<void*>(SetAutoPreconnect) },
+        ani_native_function { "getActiveWebEngineVersion", nullptr,
+                              reinterpret_cast<void*>(GetActiveWebEngineVersion) },
+        ani_native_function { "setActiveWebEngineVersion", nullptr,
+                              reinterpret_cast<void*>(SetActiveWebEngineVersion) },
+        ani_native_function { "isActiveWebEngineEvergreen", nullptr,
+                              reinterpret_cast<void*>(IsActiveWebEngineEvergreen) },
+        ani_native_function { "setScrollbarMode", nullptr,
+                              reinterpret_cast<void *>(SetScrollbarMode) },
     };
     status = env->Class_BindStaticNativeMethods(webviewControllerCls, controllerStaticMethods.data(),
         controllerStaticMethods.size());
     if (status != ANI_OK) {
-        WVLOG_E("Class_BindStaticNativeMethods failed status: %{public}d", status);
+        WVLOG_E("StsWebviewControllerInit Class_BindStaticNativeMethods failed status: %{public}d", status);
     }
     return ANI_OK;
 }
