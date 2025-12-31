@@ -1926,6 +1926,10 @@ void JavaScriptOb::AniSetUpMethods()
 {
     ani_object obj = static_cast<ani_object>(GetAniValue());
     ani_env* env = GetAniEnv();
+    if (env == nullptr) {
+        WVLOG_E("env null");
+        return;
+    }
     ani_class cls;
     ani_status s = env->FindClass("std.core.Object;", &cls);
     if (s != ANI_OK) {
@@ -2964,6 +2968,10 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultSelfV2(const std::vecto
     }
 
     ani_env* env = jsObj->GetAniEnv();
+    if (env == nullptr) {
+        WVLOG_E("env null");
+        return;
+    }
     ani_object callResult = nullptr;
     ani_status status = ANI_OK;
     ani_ref resultVal;
