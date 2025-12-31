@@ -39,6 +39,7 @@ const ERROR_MSG_INVALID_PARAM = 'Invalid input parameter';
 let errMsgMap = new Map();
 errMsgMap.set(PARAM_CHECK_ERROR, ERROR_MSG_INVALID_PARAM);
 let customDialogComponentId = 0;
+let onShowFileSelectorEvent = undefined;
 
 let defaultBasicPath = 'file://docs';
 let defaultPublicPath = initDefaultPublicPath();
@@ -120,7 +121,8 @@ function takePhoto(callback) {
       console.log('selectFile error:' + JSON.stringify(error));
       promptAction.showToast({ message: '无法打开拍照功能，请检查是否具备拍照功能' });
     }).finally(() => {
-      callback.fileresult.handleFileList(result);
+      onShowFileSelectorEvent?.fileresult.handleFileList(result);
+      onShowFileSelectorEvent = undefined;
     });
 }
 
@@ -156,7 +158,8 @@ function selectFile(callback) {
         console.log('selectFile error: ' + JSON.stringify(error));
         promptAction.showToast({ message: '无法打开文件功能，请检查是否具备文件功能' });
       }).finally(() => {
-        callback.fileresult.handleFileList(result);
+        onShowFileSelectorEvent?.fileresult.handleFileList(result);
+        onShowFileSelectorEvent = undefined;
       });
   } else {
     documentPicker.save(createDocumentSaveOptions(callback.fileparam))
@@ -187,7 +190,8 @@ function selectFile(callback) {
         console.log('saveFile error: ' + JSON.stringify(error));
         promptAction.showToast({ message: '无法打开文件功能，请检查是否具备文件功能' });
       }).finally(() => {
-        callback.fileresult.handleFileList(result);
+        onShowFileSelectorEvent?.fileresult.handleFileList(result);
+        onShowFileSelectorEvent = undefined;
       });
   }
 }
@@ -539,7 +543,8 @@ class SelectorDialog extends ViewPU {
       Row.onClick(() => {
         try {
           console.log('Get Alert Dialog handled');
-          callback.fileresult.handleFileList([]);
+          onShowFileSelectorEvent?.fileresult.handleFileList([]);
+          onShowFileSelectorEvent = undefined;
           promptAction.closeCustomDialog(customDialogComponentId);
         }
         catch (error) {
@@ -670,7 +675,8 @@ function selectPicture(callback) {
     console.log('selectPicture error' + JSON.stringify(error));
     promptAction.showToast({ message: '无法打开图片功能，请检查是否具备图片功能' });
   }).finally(() => {
-    callback.fileresult.handleFileList(photoResultArray);
+    onShowFileSelectorEvent?.fileresult.handleFileList(photoResultArray);
+    onShowFileSelectorEvent = undefined;
   });
 }
 
@@ -749,6 +755,11 @@ Object.defineProperty(webview.WebviewController.prototype, 'getCertificate', {
 
 Object.defineProperty(webview.WebviewController.prototype, 'fileSelectorShowFromUserWeb', {
   value: function (callback) {
+    if (onShowFileSelectorEvent) {
+      onShowFileSelectorEvent = callback;
+      return;
+    }
+    onShowFileSelectorEvent = callback;
     let currentDevice = deviceinfo.deviceType.toLowerCase();
     if (needShowDialog(callback.fileparam)) {
       promptAction.openCustomDialog({
@@ -759,19 +770,21 @@ Object.defineProperty(webview.WebviewController.prototype, 'fileSelectorShowFrom
           console.info('reason' + JSON.stringify(dismissDialogAction.reason));
           console.log('dialog onWillDismiss');
           if (dismissDialogAction.reason === DismissReason.PRESS_BACK) {
-            callback.fileresult.handleFileList([]);
+            onShowFileSelectorEvent?.fileresult.handleFileList([]);
             dismissDialogAction.dismiss();
           }
           if (dismissDialogAction.reason === DismissReason.TOUCH_OUTSIDE) {
-            callback.fileresult.handleFileList([]);
+            onShowFileSelectorEvent?.fileresult.handleFileList([]);
             dismissDialogAction.dismiss();
           }
+          onShowFileSelectorEvent = undefined;
         }
       }).then((dialogId) => {
         customDialogComponentId = dialogId;
       })
         .catch((error) => {
-          callback.fileresult.handleFileList([]);
+          onShowFileSelectorEvent?.fileresult.handleFileList([]);
+          onShowFileSelectorEvent = undefined;
           console.error(`openCustomDialog error code is ${error.code}, message is ${error.message}`);
         });
     } else if (currentDevice !== '2in1' && callback.fileparam.isCapture() &&
