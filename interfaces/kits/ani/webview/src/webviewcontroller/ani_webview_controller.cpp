@@ -1229,8 +1229,6 @@ static void SetHostIP(ani_env *env, ani_object object, ani_object hostNameObj, a
         WVLOG_E("aliveTime must be greater than 0, aliveTime: %{public}d", aliveTimeInt);
         return;
     }
-    WVLOG_I("Set host ip: %{public}s, %{public}s, aliveTime: %{public}d", hostName.c_str(), address.c_str(),
-    aliveTimeInt);
     NWebHelper::Instance().SetHostIP(hostName, address, aliveTimeInt);
     return;
 }
