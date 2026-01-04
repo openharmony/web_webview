@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2025-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1066,7 +1066,7 @@ export default namespace webview {
         setFieldForObject(target: Map<string, Object>, name: string, val: Object): Map<string, Object> {
             try {
                 target.set(name, val);
-            } catch (e: Error) {
+            } catch (e) {
                 console.error(e);
             }
             return target;
