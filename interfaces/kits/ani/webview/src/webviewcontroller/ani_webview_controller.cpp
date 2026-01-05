@@ -127,6 +127,7 @@ const char* ANI_WEB_CUSTOM_SCHEME_CLASS = "@ohos.web.webview.webview.WebCustomSc
 constexpr size_t BFCACHE_DEFAULT_SIZE = 1;
 constexpr size_t BFCACHE_DEFAULT_TIMETOLIVE = 600;
 const char* WEB_CONTROLLER_SECURITY_LEVEL_ENUM_NAME = "@ohos.web.webview.webview.SecurityLevel";
+constexpr double MINIMAL_ERROR = 0.000001;
 using WebPrintWriteResultCallback = std::function<void(const std::string&, uint32_t)>;
 struct PDFMarginConfig {
     double top = TEN_MILLIMETER_TO_INCH;
@@ -4684,6 +4685,28 @@ static void HandleInt64Array(ani_env* env, ani_object array, WebMessageExt* webM
     webMessageExt->SetInt64Array(intVec);
 }
 
+bool UseDouble(ani_env* env, const ani_ref& element, bool& isDouble)
+{
+    if (!env) {
+        WVLOG_E("env is null");
+        return false;
+    }
+
+    int elementInt = 0;
+    double elementDouble = 0.0;
+    if (env->Object_CallMethodByName_Int(static_cast<ani_object>(element), "toInt", ":i", &elementInt) != ANI_OK) {
+        WVLOG_E("to int value failed");
+        return false;
+    }
+    if (env->Object_CallMethodByName_Double(static_cast<ani_object>(element), "toDouble", ":d", &elementDouble) !=
+        ANI_OK) {
+        WVLOG_E("to double value failed");
+        return false;
+    }
+    isDouble = abs(elementDouble - elementInt * 1.0) > MINIMAL_ERROR;
+    return true;
+}
+
 static void SetArray(ani_env* env, ani_object object, ani_object array)
 {
     WVLOG_D("WebMessageExt SetArray start.");
@@ -4711,6 +4734,7 @@ static void SetArray(ani_env* env, ani_object object, ani_object array)
     }
 
     ani_object elementObj = static_cast<ani_object>(element);
+    bool isDouble = false;
     if (AniParseUtils::IsString(env, elementObj)) {
         HandleStringArray(env, array, webMessageExt);
     } else if (AniParseUtils::IsBoolean(env, elementObj)) {
@@ -4718,7 +4742,15 @@ static void SetArray(ani_env* env, ani_object object, ani_object array)
     } else if (AniParseUtils::IsDouble(env, elementObj)) {
         HandleDoubleArray(env, array, webMessageExt);
     } else if (AniParseUtils::IsInteger(env, elementObj)) {
-        HandleInt64Array(env, array, webMessageExt);
+        if (!UseDouble(env, element, isDouble)) {
+            WVLOG_E("UseDouble execute failed");
+            return;
+        }
+        if (isDouble) {
+            HandleDoubleArray(env, array, webMessageExt);
+        } else {
+            HandleInt64Array(env, array, webMessageExt);
+        }
     } else {
         WVLOG_E("Unsupported array element type");
     }
