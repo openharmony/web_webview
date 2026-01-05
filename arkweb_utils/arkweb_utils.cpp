@@ -802,14 +802,14 @@ void CreateRelroFileInSubProc()
         WVLOG_E("Fork sub process failed.");
     } else if (pid == 0) {
         WVLOG_I("Fork sub process success.");
-        if (prctl(PR_SET_NAME, "shared_relro")) {
+        if (prctl(PR_SET_NAME, "shared_relro") != 0) {
             WVLOG_E("Set sub process name failed, error=[%{public}s]", strerror(errno));
         }
-        if (setuid(SHARED_RELRO_UID) || setgid(SHARED_RELRO_UID)) {
+        if (setuid(SHARED_RELRO_UID) != 0 || setgid(SHARED_RELRO_UID)  != 0) {
             WVLOG_E("Set uid/gid failed, error=[%{public}s]", strerror(errno));
             _exit(0);
         }
-        if (RestoreconRecurse(SHARED_RELRO_DIR.c_str())) {
+        if (RestoreconRecurse(SHARED_RELRO_DIR.c_str()) != 0) {
             WVLOG_E("Restorecon failed, error=[%{public}s]", strerror(errno));
             _exit(0);
         }
