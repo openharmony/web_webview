@@ -1080,6 +1080,16 @@ int ArkWebNWebImpl::SetUrlTrustListWithErrMsg(const ArkWebString& urlTrustList, 
     return res;
 }
 
+int ArkWebNWebImpl::SetUrlTrustListWithErrMsg(const ArkWebString& urlTrustList,
+        bool allowOpaqueOrigin, bool supportWildcard, ArkWebString& detailErrMsg)
+{
+    std::string detailMsg;
+    int res = nweb_nweb_->SetUrlTrustListWithErrMsg(ArkWebStringStructToClass(urlTrustList),
+        allowOpaqueOrigin, supportWildcard, detailMsg);
+    detailErrMsg = ArkWebStringClassToStruct(detailMsg);
+    return res;
+}
+
 void ArkWebNWebImpl::PutSpanstringConvertHtmlCallback(
     ArkWebRefPtr<ArkWebSpanstringConvertHtmlCallback> callback) {
     if (CHECK_REF_PTR_IS_NULL(callback)) {

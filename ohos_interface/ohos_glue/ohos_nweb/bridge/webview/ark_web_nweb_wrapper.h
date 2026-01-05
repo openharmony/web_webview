@@ -1230,6 +1230,13 @@ public:
     int SetUrlTrustListWithErrMsg(const std::string& urlTrustList, std::string& detailErrMsg) override;
 
     /**
+     * @brief Set url trust list with error message.
+     */
+    /*--ark web()--*/
+    int SetUrlTrustListWithErrMsg(const std::string& urlTrustList,
+        bool allowOpaqueOrigin, bool supportWildcard, std::string& detailErrMsg) override;
+
+    /**
      * @brief resize visual viewport.
      *
      * @param width width.

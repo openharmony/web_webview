@@ -2229,6 +2229,14 @@ public:
      */
     /*--ark web()--*/
     virtual void ReloadIgnoreCache() = 0;
+
+    /**
+     * @brief Set url trust list with error message.
+     *
+     */
+    /*--ark web()--*/
+    virtual int SetUrlTrustListWithErrMsg(const ArkWebString& urlTrustList,
+        bool allowOpaqueOrigin, bool supportWildcard, ArkWebString& detailErrMsg) { return 0; }
 };
 
 } // namespace OHOS::ArkWeb
