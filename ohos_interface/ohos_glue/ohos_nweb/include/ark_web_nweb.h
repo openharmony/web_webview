@@ -2223,6 +2223,12 @@ public:
      */
     /*--ark web()--*/
     virtual void CallExecuteBlanklessCallback(int32_t state, const ArkWebString& reason) = 0;
+
+    /**
+     * @brief Forces a full reload of the current page, bypassing the browser cache.
+     */
+    /*--ark web()--*/
+    virtual void ReloadIgnoreCache() = 0;
 };
 
 } // namespace OHOS::ArkWeb

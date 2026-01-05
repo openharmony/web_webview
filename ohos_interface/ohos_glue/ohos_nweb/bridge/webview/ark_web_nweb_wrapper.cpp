@@ -2065,4 +2065,9 @@ void ArkWebNWebWrapper::CallExecuteBlanklessCallback(int32_t state, const std::s
     ark_web_nweb_->CallExecuteBlanklessCallback(state, stReason);
     ArkWebStringStructRelease(stReason);
 }
+
+void ArkWebNWebWrapper::ReloadIgnoreCache()
+{
+    ark_web_nweb_->ReloadIgnoreCache();
+}
 } // namespace OHOS::ArkWeb

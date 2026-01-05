@@ -2396,6 +2396,12 @@ public:
      * @param reason Reason of frame insertion failed.
      */
     virtual void CallExecuteBlanklessCallback(int32_t state, const std::string& reason) {}
+
+    /**
+     * @brief Forces a full reload of the current page, bypassing the browser cache.
+     */
+    virtual void ReloadIgnoreCache() {};
+
 };
 } // namespace OHOS::NWeb
 

@@ -140,6 +140,8 @@ public:
 
     void Refresh();
 
+    void ReloadIgnoreCache();
+
     std::string GetUserAgent();
 
     bool AccessForward();

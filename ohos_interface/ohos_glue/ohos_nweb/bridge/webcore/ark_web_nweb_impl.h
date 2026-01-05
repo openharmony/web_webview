@@ -1961,6 +1961,11 @@ public:
      */
     void CallExecuteBlanklessCallback(int32_t state, const ArkWebString& reason) override;
 
+    /**
+     * @brief Forces a full reload of the current page, bypassing the browser cache.
+     */
+    void ReloadIgnoreCache() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

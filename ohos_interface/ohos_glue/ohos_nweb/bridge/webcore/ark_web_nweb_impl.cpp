@@ -1740,4 +1740,9 @@ void ArkWebNWebImpl::CallExecuteBlanklessCallback(int32_t state, const ArkWebStr
 {
     return nweb_nweb_->CallExecuteBlanklessCallback(state, ArkWebStringStructToClass(reason));
 }
+
+void ArkWebNWebImpl::ReloadIgnoreCache()
+{
+    nweb_nweb_->ReloadIgnoreCache();
+}
 } // namespace OHOS::ArkWeb

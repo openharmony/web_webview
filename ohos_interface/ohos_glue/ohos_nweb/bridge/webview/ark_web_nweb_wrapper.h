@@ -1972,6 +1972,11 @@ public:
      * @param reason Reason of frame insertion failed.
      */
     void CallExecuteBlanklessCallback(int32_t state, const std::string& reason) override;
+
+    /**
+     * @brief Forces a full reload of the current page, bypassing the browser cache.
+     */
+    void ReloadIgnoreCache() override;
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };
