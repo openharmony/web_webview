@@ -1511,30 +1511,32 @@ static void clearMatches(ani_env *env, ani_object object)
     controller->ClearMatches();
 }
 
-static void Refresh(ani_env* env, ani_object object, ani_object aniIgnoreCache)
+static void Refresh(ani_env *env, ani_object object)
 {
     WVLOG_D("[WebviewCotr] Refresh");
     if (!env) {
-        WVLOG_E("env is nullptr");
         return;
     }
-    ani_boolean isUndefined = ANI_TRUE;
-    bool ignoreCache = false;
-    env->Reference_IsUndefined(aniIgnoreCache, &isUndefined);
-    if (isUndefined != ANI_TRUE) {
-        ani_boolean ignoreCacheMode;
-        if (env->Object_CallMethodByName_Boolean(aniIgnoreCache, "toBoolean", nullptr, &ignoreCacheMode) != ANI_OK) {
-            AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "aniIgnoreCache", "boolean"));
-            return;
-        }
-        ignoreCache = static_cast<bool>(ignoreCacheMode);
-    }
-    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
     if (!controller || !controller->IsInit()) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
+    controller->Refresh();
+}
+
+static void ReloadIgnoreCache(ani_env *env, ani_object object, ani_boolean aniIgnoreCache)
+{
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    bool ignoreCache = static_cast<bool>(aniIgnoreCache);
     if (ignoreCache) {
         controller->ReloadIgnoreCache();
     } else {
@@ -7213,7 +7215,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "zoomIn", nullptr, reinterpret_cast<void *>(ZoomIn) },
         ani_native_function { "getLastHitTest", nullptr, reinterpret_cast<void *>(GetLastHitTest) },
         ani_native_function { "getPageHeight", nullptr, reinterpret_cast<void *>(GetPageHeight) },
-        ani_native_function { "refresh", nullptr, reinterpret_cast<void *>(Refresh) },
+        ani_native_function { "reload", nullptr, reinterpret_cast<void *>(Refresh) },
+        ani_native_function { "reloadIgnoreCache", nullptr, reinterpret_cast<void *>(ReloadIgnoreCache) },
         ani_native_function { "stop", nullptr, reinterpret_cast<void *>(Stop) },
         ani_native_function { "clearSslCache", nullptr, reinterpret_cast<void *>(clearSslCache) },
         ani_native_function { "clearMatches", nullptr, reinterpret_cast<void *>(clearMatches) },
