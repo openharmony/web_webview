@@ -230,7 +230,7 @@ static void ProcessJsonConfig(const Json::Value& root)
 static bool GetVersionString(const std::string& versionFilePath, std::string& versionStr)
 {
     std::ifstream file(versionFilePath);
-    if(!file.is_open()) {
+    if (!file.is_open()) {
         WVLOG_E("can not open version file: %{public}s", versionFilePath.c_str());
         return false;
     }
