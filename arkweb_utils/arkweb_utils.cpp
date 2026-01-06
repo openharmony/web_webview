@@ -807,11 +807,11 @@ void CreateRelroFileInSubProc()
         }
         if (setuid(SHARED_RELRO_UID) != 0 || setgid(SHARED_RELRO_UID)  != 0) {
             WVLOG_E("Set uid/gid failed, error=[%{public}s]", strerror(errno));
-            _exit(0);
+            exit(0);
         }
         if (RestoreconRecurse(SHARED_RELRO_DIR.c_str()) != 0) {
             WVLOG_E("Restorecon failed, error=[%{public}s]", strerror(errno));
-            _exit(0);
+            exit(0);
         }
 
         const std::string libNsName = GetArkwebNameSpace();
@@ -829,7 +829,7 @@ void CreateRelroFileInSubProc()
         } else {
             WVLOG_E("Create relro file failed.");
         }
-        _exit(0);
+        exit(0);
     }
 }
 
