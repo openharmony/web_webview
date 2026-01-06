@@ -7015,6 +7015,32 @@ napi_value NapiWebviewController::WebPageSnapshot(napi_env env, napi_callback_in
     return result;
 }
 
+void SetUrlTrustListV2(napi_env env, napi_value* argv, WebviewController* webviewController, std::string& urlTrustList)
+{
+    WVLOG_I("[wxz-url] argc == INTEGER_THREE");
+    bool allowOpaqueOrigin = false;
+    if (!NapiParseUtils::ParseBoolean(env, argv[INTEGER_ONE], allowOpaqueOrigin)) {
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "allowOpaqueOrigin", "boolean"));
+        return;
+    }
+    bool supportWildcard = false;
+    if (!NapiParseUtils::ParseBoolean(env, argv[INTEGER_TWO], supportWildcard)) {
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "supportWildcard", "boolean"));
+        return;
+    }
+    std::string detailMsg;
+    ErrCode ret = webviewController->SetUrlTrustList(urlTrustList,
+        allowOpaqueOrigin, supportWildcard, detailMsg);
+    if (ret != NO_ERROR) {
+        WVLOG_E("SetUrlTrustList failed, error code: %{public}d", ret);
+        BusinessError::ThrowErrorByErrcode(env, ret,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_DETAIL_ERROR_MSG, detailMsg.c_str()));
+        return;
+    }
+}
+
 napi_value NapiWebviewController::SetUrlTrustList(napi_env env, napi_callback_info info)
 {
     WVLOG_D("SetUrlTrustList invoked");
@@ -7051,27 +7077,7 @@ napi_value NapiWebviewController::SetUrlTrustList(napi_env env, napi_callback_in
     }
 
     if (argc == INTEGER_THREE) {
-        bool allowOpaqueOrigin = false;
-        if (!NapiParseUtils::ParseBoolean(env, argv[INTEGER_ONE], allowOpaqueOrigin)) {
-            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "allowOpaqueOrigin", "boolean"));
-            return result;
-        }
-        bool supportWildcard = false;
-        if (!NapiParseUtils::ParseBoolean(env, argv[INTEGER_TWO], supportWildcard)) {
-            NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "supportWildcard", "boolean"));
-            return result;
-        }
-        std::string detailMsg;
-        ErrCode ret = webviewController->SetUrlTrustList(urlTrustList,
-            allowOpaqueOrigin, supportWildcard, detailMsg);
-        if (ret != NO_ERROR) {
-            WVLOG_E("SetUrlTrustList failed, error code: %{public}d", ret);
-            BusinessError::ThrowErrorByErrcode(env, ret,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_DETAIL_ERROR_MSG, detailMsg.c_str()));
-            return result;
-        }
+        SetUrlTrustListV2(env, argv, webviewController, urlTrustList);
         return result;
     }
 

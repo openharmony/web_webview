@@ -1081,7 +1081,7 @@ int ArkWebNWebImpl::SetUrlTrustListWithErrMsg(const ArkWebString& urlTrustList, 
 }
 
 int ArkWebNWebImpl::SetUrlTrustListWithErrMsg(const ArkWebString& urlTrustList,
-        bool allowOpaqueOrigin, bool supportWildcard, ArkWebString& detailErrMsg)
+    bool allowOpaqueOrigin, bool supportWildcard, ArkWebString& detailErrMsg)
 {
     std::string detailMsg;
     int res = nweb_nweb_->SetUrlTrustListWithErrMsg(ArkWebStringStructToClass(urlTrustList),
