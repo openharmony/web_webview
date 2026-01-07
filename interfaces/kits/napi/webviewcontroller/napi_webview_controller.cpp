@@ -7017,7 +7017,6 @@ napi_value NapiWebviewController::WebPageSnapshot(napi_env env, napi_callback_in
 
 void SetUrlTrustListV2(napi_env env, napi_value* argv, WebviewController* webviewController, std::string& urlTrustList)
 {
-    WVLOG_I("[wxz-url] argc == INTEGER_THREE");
     bool allowOpaqueOrigin = false;
     if (!NapiParseUtils::ParseBoolean(env, argv[INTEGER_ONE], allowOpaqueOrigin)) {
         NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
