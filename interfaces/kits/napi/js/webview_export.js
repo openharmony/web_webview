@@ -448,9 +448,7 @@ class SelectorDialog extends ViewPU {
     }, Row);
     this.observeComponentCreation2((elmtId, isInitialRender) => {
       SymbolGlyph.create({ 'id': -1, 'type': -1, params: [sysResource], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' });
-      SymbolGlyph.width(24);
-      SymbolGlyph.height(24);
-      SymbolGlyph.fontSize(24);
+      SymbolGlyph.fontSize('24vp');
       SymbolGlyph.fontWeight(FontWeight.Medium);
       SymbolGlyph.margin({
         end: LengthMetrics.vp(16)
@@ -480,6 +478,7 @@ class SelectorDialog extends ViewPU {
         case 'sys.string.document':
           Text.create(this.document);
       }
+      Text.fontSize('16vp');
       Text.fontWeight(FontWeight.Medium);
     }, Text);
     Text.pop();
@@ -522,8 +521,9 @@ class SelectorDialog extends ViewPU {
     }, Row);
     this.observeComponentCreation2((elmtId, isInitialRender) => {
       Text.create(this.choose_to_upload);
-      Text.fontSize(20);
+      Text.fontSize('20vp');
       Text.fontWeight(FontWeight.Bold);
+      Text.textAlign(TextAlign.Center);
     }, Text);
     Text.pop();
     Row.pop();
@@ -554,7 +554,9 @@ class SelectorDialog extends ViewPU {
     this.observeComponentCreation2((elmtId, isInitialRender) => {
       Text.create(this.general_cancel);
       Text.fontColor('#FF0A59F7');
+      Text.fontSize('16vp');
       Text.fontWeight(FontWeight.Medium);
+      Text.textAlign(TextAlign.Center);
     }, Text);
     Text.pop();
     Row.pop();

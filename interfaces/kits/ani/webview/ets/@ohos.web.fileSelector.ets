@@ -32,6 +32,7 @@ import {
   FlexAlign,
   FlexDirection,
   ItemAlign,
+  TextAlign,
   Builder
 } from '@ohos.arkui.component'
 import { BusinessError } from '@ohos.base'
@@ -89,8 +90,9 @@ class SelectorDialog {
     Flex({ justifyContent: FlexAlign.Center, direction: FlexDirection.Column, alignItems: ItemAlign.Center }) {
       Row() {
         Text($r('sys.string.choose_to_upload'))
-          .fontSize(20)
+          .fontSize('20vp')
           .fontWeight(FontWeight.Bold)
+          .textAlign(TextAlign.Center)
       }
       .constraintSize({ minHeight: 56 })
       .width('calc(100% - 48vp)')
@@ -115,7 +117,9 @@ class SelectorDialog {
       Row() {
         Text($r('sys.string.general_cancel'))
           .fontColor('#FF0A59F7')
+          .fontSize('16vp')
           .fontWeight(FontWeight.Medium)
+          .textAlign(TextAlign.Center)
       }
       .onClick((e) => {
         try {
@@ -142,9 +146,7 @@ class SelectorDialog {
     event: OnShowFileSelectorEvent) {
     Row() {
       SymbolGlyph($r(sysResource))
-        .width(24)
-        .height(24)
-        .fontSize(24)
+        .fontSize('24vp')
         .fontWeight(FontWeight.Medium)
         .margin({
           end: LengthMetrics.vp(16)
@@ -152,6 +154,7 @@ class SelectorDialog {
         .fontColor([$r('sys.color.font_primary')])
       Row() {
         Text($r(text))
+          .fontSize('16vp')
           .fontWeight(FontWeight.Medium)
       }
       .constraintSize({ minHeight: 56 })
