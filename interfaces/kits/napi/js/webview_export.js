@@ -444,17 +444,14 @@ class SelectorDialog extends ViewPU {
         promptAction.closeCustomDialog(customDialogComponentId);
         func(callback);
       });
-      Row.height(48);
-      Row.padding({
-        left: 24,
-        right: 24
-      });
+      Row.width('calc(100% - 48vp)');
     }, Row);
     this.observeComponentCreation2((elmtId, isInitialRender) => {
       SymbolGlyph.create({ 'id': -1, 'type': -1, params: [sysResource], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' });
       SymbolGlyph.width(24);
       SymbolGlyph.height(24);
       SymbolGlyph.fontSize(24);
+      SymbolGlyph.fontWeight(FontWeight.Medium);
       SymbolGlyph.margin({
         end: LengthMetrics.vp(16)
       });
@@ -462,7 +459,8 @@ class SelectorDialog extends ViewPU {
     }, SymbolGlyph);
     this.observeComponentCreation2((elmtId, isInitialRender) => {
       Row.create();
-      Row.margin({ end: LengthMetrics.vp(36) });
+      Row.constraintSize({ minHeight: 56 });
+      Row.width('calc(100% - 40vp)');
       Row.border({ width: { bottom: 0.5 }, color: '#33000000' });
     }, Row);
     this.observeComponentCreation2((elmtId, isInitialRender) => {
@@ -482,14 +480,7 @@ class SelectorDialog extends ViewPU {
         case 'sys.string.document':
           Text.create(this.document);
       }
-      Text.fontSize(16);
       Text.fontWeight(FontWeight.Medium);
-      Text.lineHeight(19);
-      Text.margin({
-        top: 13,
-        bottom: 13
-      });
-      Text.width('100%');
     }, Text);
     Text.pop();
     Row.pop();
@@ -498,23 +489,11 @@ class SelectorDialog extends ViewPU {
 
   fileSelectorDialog(callback) {
     this.observeComponentCreation2((elmtId, isInitialRender) => {
-      Row.create();
-      Row.height(56);
-    }, Row);
+      Scroll.create();
+    }, Scroll);
     this.observeComponentCreation2((elmtId, isInitialRender) => {
-      Text.create(this.choose_to_upload);
-      Text.fontSize(20);
-      Text.fontWeight(FontWeight.Bold);
-      Text.lineHeight(23);
-      Text.margin({
-        top: 15,
-        bottom: 15,
-        left: 24,
-        right: 24,
-      });
-    }, Text);
-    Text.pop();
-    Row.pop();
+      Column.create();
+    }, Column);
     this.fileSelectorListItem.bind(this)(callback, 'sys.symbol.picture', 'sys.string.gallery', selectPicture);
     let acceptTypes = callback.fileparam.getAcceptType();
     let cameraOption = 'sys.string.taking_photos_or_videos';
@@ -526,17 +505,28 @@ class SelectorDialog extends ViewPU {
     }
     this.fileSelectorListItem.bind(this)(callback, 'sys.symbol.camera', cameraOption, takePhoto);
     this.fileSelectorListItem.bind(this)(callback, 'sys.symbol.doc_text', 'sys.string.document', selectFile);
+    Column.pop();
+    Scroll.pop();
   }
 
   fileSelectorDialogForPhone(callback) {
     this.observeComponentCreation2((elmtId, isInitialRender) => {
-      Scroll.create();
-    }, Scroll);
+      Flex.create({ justifyContent: FlexAlign.Center, direction: FlexDirection.Column, alignItems: ItemAlign.Center });
+      Flex.height('auto');
+    }, Flex);
     this.observeComponentCreation2((elmtId, isInitialRender) => {
-      Column.create();
-      Column.height(264);
-      Column.width(328);
-    }, Column);
+      Row.create();
+      Row.constraintSize({ minHeight: 56 });
+      Row.width('calc(100% - 48vp)');
+      Row.justifyContent(FlexAlign.Center);
+    }, Row);
+    this.observeComponentCreation2((elmtId, isInitialRender) => {
+      Text.create(this.choose_to_upload);
+      Text.fontSize(20);
+      Text.fontWeight(FontWeight.Bold);
+    }, Text);
+    Text.pop();
+    Row.pop();
     this.fileSelectorDialog.bind(this)(callback);
     this.observeComponentCreation2((elmtId, isInitialRender) => {
       Row.create();
@@ -553,31 +543,22 @@ class SelectorDialog extends ViewPU {
           console.error(`closeCustomDialog error code is ${code}, message is ${message}`);
         }
       });
-      Row.width(296);
-      Row.height(40);
+      Row.constraintSize({ minHeight: 40 });
       Row.margin({
         top: 8,
-        bottom: 16,
-        left: 16,
-        right: 16
+        bottom: 16
       });
-      Row.borderRadius(5);
+      Row.width('calc(100% - 32vp)');
       Row.justifyContent(FlexAlign.Center);
     }, Row);
     this.observeComponentCreation2((elmtId, isInitialRender) => {
       Text.create(this.general_cancel);
-      Text.fontSize(16);
       Text.fontColor('#FF0A59F7');
       Text.fontWeight(FontWeight.Medium);
-      Text.margin({
-        top: 10,
-        bottom: 10
-      });
     }, Text);
     Text.pop();
     Row.pop();
-    Column.pop();
-    Scroll.pop();
+    Flex.pop();
   }
 
   setResource() {
