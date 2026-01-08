@@ -781,7 +781,14 @@ export default namespace webview {
         native zoomIn(): void;
         native getLastHitTest(): HitTestValue;
         native getPageHeight(): int;
-        native refresh(ignoreCache?: boolean): void;
+        native reload(): void;
+        refresh(): void {
+            this.reload();
+        }
+        native reloadIgnoreCache(ignoreCache: boolean): void;
+        refresh(ignoreCache: boolean): void {
+            this.reloadIgnoreCache(ignoreCache);
+        }
         native stop(): void;
         native clearSslCache(): void;
         native clearMatches(): void;
