@@ -91,4 +91,21 @@ export default class WebNativeMessagingExtensionContext extends ExtensionContext
         });
         return pPromise;
     }
+
+    native stopNativeConnectionSync(connectionId: int): void;
+    stopNativeConnection(connectionId: int): Promise<void> {
+        let pPromise = new Promise<void>((resolve: (v: PromiseLike<void>) => void,
+                                      reject: (error: Error) => void): void => {
+            let pPromise1 = taskpool.execute(():undefined => {
+                this.stopNativeConnectionSync(connectionId);
+                return undefined});
+            pPromise1.then((e :Any): void=>{
+                console.log("in Promise then. e is ", e)
+                resolve(Promise.resolve());
+            }, (err:Error): void => {
+                reject(err);
+            });
+        });
+        return pPromise;
+    }
 }
