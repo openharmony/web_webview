@@ -1486,7 +1486,7 @@ void NWebHelper::RemoveNWebActiveStatus(int32_t nwebId)
 std::string NWebHelper::DumpArkWebInfo(const std::string& param)
 {
     if (nwebEngine_ == nullptr) {
-        return std::string("web engine has been initialized, can not dump arkweb info!");
+        return std::string("web engine has not been initialized, can not dump arkweb info!");
     }
 
     return nwebEngine_->DumpArkWebInfo(param);
