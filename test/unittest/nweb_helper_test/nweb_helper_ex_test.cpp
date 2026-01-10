@@ -1242,6 +1242,12 @@ HWTEST_F(NwebHelperTest, NWebHelper_RemoveNWebActiveStatus_001, TestSize.Level1)
  */
 HWTEST_F(NwebHelperTest, NWebHelper_DumpArkWebInfo_001, TestSize.Level1)
 {
+    std::string result;
+    NWebHelper::Instance().nwebEngine_ = nullptr;
+    NWebHelper::Instance().DumpArkWebInfo("");
+    EXPECT_NE(result.size(), 0);
+
+    result.clear();
     g_errlog.clear();
     LOG_SetCallback(MyLogCallback); 
     RSSurfaceNodeConfig config;
