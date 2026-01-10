@@ -1234,5 +1234,32 @@ HWTEST_F(NwebHelperTest, NWebHelper_RemoveNWebActiveStatus_001, TestSize.Level1)
     EXPECT_EQ(NWebHelper::Instance().GetNWebActiveStatus(nweb_id), false);
 }
 
+/**
+ * @tc.name: NWebHelper_DumpArkWebInfo_001
+ * @tc.desc: DumpArkWebInfo.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_DumpArkWebInfo_001, TestSize.Level1)
+{
+    g_errlog.clear();
+    LOG_SetCallback(MyLogCallback); 
+    RSSurfaceNodeConfig config;
+    config.SurfaceNodeName = "webTestSurfaceName";
+    auto surfaceNode = RSSurfaceNode::Create(config, false);
+    ASSERT_NE(surfaceNode, nullptr);
+    sptr<Surface> surPtr = surfaceNode->GetSurface();
+    ASSERT_NE(surPtr, nullptr);
+    ASSERT_NE(GetInitArgs(), nullptr);
+    uint32_t width = 7880;
+    uint32_t height = 7880;
+    std::shared_ptr<NWeb> nweb = 
+        NWebAdapterHelper::Instance().CreateNWeb(surPtr, GetInitArgs(), width, height);
+    EXPECT_TRUE(g_errlog.find("is invalid") != std::string::npos);
+    EXPECT_EQ(nweb, nullptr);
+
+    std::string result = NWebHelper::Instance().DumpArkWebInfo("");
+    EXPECT_NE(result.size, 0);
+}
 } // namespace OHOS::NWeb
 }
