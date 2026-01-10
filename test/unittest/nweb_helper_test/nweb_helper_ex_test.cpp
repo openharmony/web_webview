@@ -1264,7 +1264,7 @@ HWTEST_F(NwebHelperTest, NWebHelper_DumpArkWebInfo_001, TestSize.Level1)
     EXPECT_TRUE(g_errlog.find("is invalid") != std::string::npos);
     EXPECT_EQ(nweb, nullptr);
 
-    std::string result = NWebHelper::Instance().DumpArkWebInfo("");
+    result = NWebHelper::Instance().DumpArkWebInfo("");
     EXPECT_NE(result.size(), 0);
 }
 } // namespace OHOS::NWeb
