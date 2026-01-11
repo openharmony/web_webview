@@ -14,6 +14,7 @@
  */
 
 import {
+  Flex,
   Text,
   Column,
   Row,
@@ -29,6 +30,9 @@ import {
   Margin,
   EdgeWidths,
   FlexAlign,
+  FlexDirection,
+  ItemAlign,
+  TextAlign,
   Builder
 } from '@ohos.arkui.component'
 import { BusinessError } from '@ohos.base'
@@ -83,66 +87,58 @@ class SelectorDialog {
 
   @Builder
   private fileSelectorDialog(event: OnShowFileSelectorEvent) {
-    Scroll() {
-      Column() {
-        Row() {
-          Text($r('sys.string.choose_to_upload'))
-            .fontSize(20)
-            .fontWeight(FontWeight.Bold)
-            .lineHeight(23)
-            .margin({
-              top: 15,
-              bottom: 15,
-              left: 24,
-              right: 24
-            })
-        }.height(56)
-
-        this.fileSelectorListItem('sys.symbol.picture', 'sys.string.gallery', selectPicture, event)
-        const acceptTypes = event.fileSelector.getAcceptType()
-        let cameraOption = 'sys.string.taking_photos_or_videos'
-        if (isContainImageMimeType(acceptTypes) && !isContainVideoMimeType(acceptTypes)) {
-          cameraOption = 'sys.string.taking_photos'
-        }
-        if (!isContainImageMimeType(acceptTypes) && isContainVideoMimeType(acceptTypes)) {
-          cameraOption = 'sys.string.video_recording'
-        }
-        this.fileSelectorListItem('sys.symbol.camera', cameraOption, takePhoto, event)
-        this.fileSelectorListItem('sys.symbol.doc_text', 'sys.string.document', selectFile, event)
-
-        Row() {
-          Text($r('sys.string.general_cancel'))
-            .fontSize(16)
-            .fontColor('#FF0A59F7')
-            .fontWeight(FontWeight.Medium)
-            .margin({
-              top: 10,
-              bottom: 10
-            } as Margin)
-        }
-        .onClick((e) => {
-          try {
-            console.log('Get Alert Dialog handled')
-            event.result.handleFileList([])
-            UIContext.getFocusedUIContext()?.getPromptAction().closeCustomDialog(this.customDialogComponentId)
-          } catch (error: BusinessError) {
-            console.error(`closeCustomDialog error code is ${error.code}, message is ${error.message}`)
-          }
-        })
-        .width(296)
-        .height(40)
-        .margin({
-          top: 8,
-          bottom: 16,
-          left: 16,
-          right: 16
-        })
-        .borderRadius(5)
-        .justifyContent(FlexAlign.Center)
+    Flex({ justifyContent: FlexAlign.Center, direction: FlexDirection.Column, alignItems: ItemAlign.Center }) {
+      Row() {
+        Text($r('sys.string.choose_to_upload'))
+          .fontSize('20vp')
+          .fontWeight(FontWeight.Bold)
+          .textAlign(TextAlign.Center)
       }
-      .height(264)
-      .width(328)
+      .constraintSize({ minHeight: 56 })
+      .width('calc(100% - 48vp)')
+      .justifyContent(FlexAlign.Center)
+
+      Scroll() {
+        Column() {
+          this.fileSelectorListItem('sys.symbol.picture', 'sys.string.gallery', selectPicture, event)
+          const acceptTypes = event.fileSelector.getAcceptType()
+          let cameraOption = 'sys.string.taking_photos_or_videos'
+          if (isContainImageMimeType(acceptTypes) && !isContainVideoMimeType(acceptTypes)) {
+            cameraOption = 'sys.string.taking_photos'
+          }
+          if (!isContainImageMimeType(acceptTypes) && isContainVideoMimeType(acceptTypes)) {
+            cameraOption = 'sys.string.video_recording'
+          }
+          this.fileSelectorListItem('sys.symbol.camera', cameraOption, takePhoto, event)
+          this.fileSelectorListItem('sys.symbol.doc_text', 'sys.string.document', selectFile, event)
+        }
+      }
+
+      Row() {
+        Text($r('sys.string.general_cancel'))
+          .fontColor('#FF0A59F7')
+          .fontSize('16vp')
+          .fontWeight(FontWeight.Medium)
+          .textAlign(TextAlign.Center)
+      }
+      .onClick((e) => {
+        try {
+          console.log('Get Alert Dialog handled')
+          event.result.handleFileList([])
+          UIContext.getFocusedUIContext()?.getPromptAction().closeCustomDialog(this.customDialogComponentId)
+        } catch (error: BusinessError) {
+          console.error(`closeCustomDialog error code is ${error.code}, message is ${error.message}`)
+        }
+      })
+      .constraintSize({ minHeight: 40 })
+      .margin({
+        top: 8,
+        bottom: 16
+      } as Margin)
+      .width('calc(100% - 32vp)')
+      .justifyContent(FlexAlign.Center)
     }
+    .height('auto')
   }
 
   @Builder
@@ -150,38 +146,26 @@ class SelectorDialog {
     event: OnShowFileSelectorEvent) {
     Row() {
       SymbolGlyph($r(sysResource))
-        .width(24)
-        .height(24)
-        .fontSize(24)
+        .fontSize('24vp')
+        .fontWeight(FontWeight.Medium)
         .margin({
           end: LengthMetrics.vp(16)
         })
         .fontColor([$r('sys.color.font_primary')])
       Row() {
         Text($r(text))
-          .fontSize(16)
+          .fontSize('16vp')
           .fontWeight(FontWeight.Medium)
-          .lineHeight(19)
-          .margin({
-            top: 13,
-            bottom: 13
-          } as Margin)
-          .width('100%')
       }
+      .constraintSize({ minHeight: 56 })
+      .width('calc(100% - 40vp)')
       .border({ width: { bottom: 0.5 } as EdgeWidths, color: '#33000000' })
-      .margin({
-        end: LengthMetrics.vp(36)
-      })
     }
     .onClick((e) => {
       UIContext.getFocusedUIContext()?.getPromptAction().closeCustomDialog(this.customDialogComponentId)
       func(event)
     })
-    .height(48)
-    .padding({
-      left: 24,
-      right: 24
-    })
+    .width('calc(100% - 48vp)')
   }
 }
 
