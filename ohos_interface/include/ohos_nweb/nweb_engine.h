@@ -145,6 +145,10 @@ public:
     virtual void SetScrollbarMode(ScrollbarMode mode) {}
 
     virtual void LibraryLoaded(std::shared_ptr<NWebEngineInitArgs> init_args, bool lazy) {}
+
+    virtual std::string DumpArkWebInfo(const std::string& param) {
+        return "";
+    }
 };
 
 } // namespace OHOS::NWeb

@@ -212,6 +212,15 @@ public:
 
     /*--ark web()--*/
     virtual void LibraryLoaded(ArkWebRefPtr<ArkWebEngineInitArgs> init_args, bool lazy) = 0;
+
+    /**
+     * @brief dump arkweb info
+     *
+     * @param param: Types of information about Arkweb
+     * @return string of arkweb info
+     */
+    /*--ark web()--*/
+    virtual ArkWebString DumpArkWebInfo(const ArkWebString& param) = 0;
 };
 
 } // namespace OHOS::ArkWeb

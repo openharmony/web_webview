@@ -352,4 +352,9 @@ void ArkWebEngineImpl::LibraryLoaded(ArkWebRefPtr<ArkWebEngineInitArgs> init_arg
         std::make_shared<ArkWebEngineInitArgsWrapper>(init_args);
     nweb_engine_->LibraryLoaded(nweb_engine_init_args, lazy);
 }
+
+ArkWebString ArkWebEngineImpl::DumpArkWebInfo(const ArkWebString& param)
+{
+    return ArkWebStringClassToStruct(nweb_engine_->DumpArkWebInfo(ArkWebStringStructToClass(param)));
+}
 } // namespace OHOS::ArkWeb
