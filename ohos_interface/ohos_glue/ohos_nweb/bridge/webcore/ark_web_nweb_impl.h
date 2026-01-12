@@ -1995,6 +1995,10 @@ public:
      */
     ArkWebRefPtr<ArkWebUserAgentMetadataAck> GetUserAgentMetadata(const ArkWebString& userAgent) override;
 
+    /**
+     * @brief Set is offline web Component.
+     */
+    void SetIsOfflineWebComponent() override;
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

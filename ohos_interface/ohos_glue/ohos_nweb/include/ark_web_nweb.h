@@ -2259,6 +2259,12 @@ public:
     /*--ark web()--*/
     virtual int SetUrlTrustListWithErrMsg(const ArkWebString& urlTrustList,
         bool allowOpaqueOrigin, bool supportWildcard, ArkWebString& detailErrMsg) { return 0; }
+
+    /**
+     * @brief Set is offline web Component.
+     */
+    /*--ark web()--*/
+    virtual void SetIsOfflineWebComponent() = 0;
 };
 
 } // namespace OHOS::ArkWeb

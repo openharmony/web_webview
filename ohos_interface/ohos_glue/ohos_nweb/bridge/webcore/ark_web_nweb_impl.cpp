@@ -1774,4 +1774,9 @@ ArkWebRefPtr<ArkWebUserAgentMetadataAck> ArkWebNWebImpl::GetUserAgentMetadata(co
     }
     return new ArkWebUserAgentMetadataAckImpl(nweb_metadata);
 }
+
+void ArkWebNWebImpl::SetIsOfflineWebComponent()
+{
+    nweb_nweb_->SetIsOfflineWebComponent();
+}
 } // namespace OHOS::ArkWeb
