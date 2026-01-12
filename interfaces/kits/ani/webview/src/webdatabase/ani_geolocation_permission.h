@@ -13,16 +13,17 @@
  * limitations under the License.
  */
 
- #ifndef OHOS_NWEB_ANI_GEOLOCATION_PERMISSION_H
- #define OHOS_NWEB_ANI_GEOLOCATION_PERMISSION_H
- 
- #include <ani.h>
- 
- namespace OHOS {
-     namespace NWeb {
-         ani_status StsGeolocationPermissionInit(ani_env *env);
-     } // namespace NWeb
- } // namespace OHOS
- 
- #endif // OHOS_NWEB_ANI_GEOLOCATION_PERMISSION_H
- 
+#ifndef OHOS_NWEB_ANI_GEOLOCATION_PERMISSION_H
+#define OHOS_NWEB_ANI_GEOLOCATION_PERMISSION_H
+
+#include <ani.h>
+
+namespace OHOS {
+namespace NWeb {
+
+ani_status StsGeolocationPermissionInit(ani_env *env);
+
+} // namespace NWeb
+} // namespace OHOS
+
+#endif // OHOS_NWEB_ANI_GEOLOCATION_PERMISSION_H
