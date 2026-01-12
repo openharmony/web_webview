@@ -160,6 +160,10 @@ public:
 
     std::string DumpArkWebInfo(const std::string& param = "");
 
+    void SetUserAgentClientHintsEnabled(bool enabled);
+
+    bool GetUserAgentClientHintsEnabled();
+
 private:
     NWebHelper() = default;
     bool GetWebEngine(bool fromArk);

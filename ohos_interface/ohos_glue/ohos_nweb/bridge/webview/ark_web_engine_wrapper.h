@@ -134,6 +134,10 @@ public:
     void LibraryLoaded(std::shared_ptr<OHOS::NWeb::NWebEngineInitArgs> init_args, bool lazy) override;
 
     std::string DumpArkWebInfo(const std::string& param) override;
+
+    void SetUserAgentClientHintsEnabled(bool enabled) override;
+
+    bool GetUserAgentClientHintsEnabled() override;
 private:
     ArkWebRefPtr<ArkWebEngine> ark_web_engine_;
 };

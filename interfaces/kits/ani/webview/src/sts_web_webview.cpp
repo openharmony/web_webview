@@ -34,6 +34,8 @@
 #include "ani_web_scheme_handler_resource.h"
 #include "ani_web_scheme_handler_request.h"
 #include "ani_proxy_controller.h"
+#include "ani_user_agent_brand_version.h"
+#include "ani_user_agent_metadata.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -74,6 +76,8 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
     StsWebSchemeHandlerRequestInit(env);
     StsWebSchemeHandlerInit(env);
     StsProxyControllerInit(env);
+    StsUserAgentBrandVersionInit(env);
+    StsUserAgentMetadataInit(env);
     *result = ANI_VERSION_1;
     return ANI_OK;
 }
