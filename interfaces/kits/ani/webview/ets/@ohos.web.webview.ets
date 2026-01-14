@@ -1478,51 +1478,17 @@ export default namespace webview {
             WebCookieManager.configCookieSyncInternal(url, value, incognito);
         }
 
+        native static configCookieCallback(url: string, value: string, callback: AsyncCallback<void>): void;
         static configCookie(url: string, value: string, callback: AsyncCallback<void>): void {
-            let pCallback = taskpool.execute((): undefined => {
-                WebCookieManager.configCookieSync(url, value, false, false);
-                return undefined
-        });
-            pCallback.then((e :Any)=>{
-                callback(null, undefined);
-            }, (err: Error): void => {
-                let error: BusinessError = err as BusinessError;
-                callback(error, undefined);
-            });
+            WebCookieManager.configCookieCallback(url, value, callback);
         }
 
-
-
+        native static configCookiePromise(url: string, value: string, incognito: boolean, includeHttpOnly: boolean): Promise<void>;
         static configCookie(url: string, value: string): Promise<void> {
-            let pPromise = new Promise<void>((resolve: (v: PromiseLike<void>) => void,
-                                              reject: (error: Error) => void): void => {
-                let pPromise1 = taskpool.execute(():undefined => {
-                    WebCookieManager.configCookieSync(url, value, false, false);
-                    return undefined});
-                pPromise1.then((e :Any): void=>{
-                    console.log("in Promise then. e is ", e)
-                    resolve(Promise.resolve());
-                }, (err:Error): void => {
-                    reject(err);
-                });
-            });
-            return pPromise;
+            return WebCookieManager.configCookiePromise(url, value, false, false);
         }
-
         static configCookie(url: string, value: string, incognito: boolean, includeHttpOnly: boolean): Promise<void> {
-            let pPromise = new Promise<void>((resolve: (v: PromiseLike<void>) => void,
-                                              reject: (error: Error) => void): void => {
-                let pPromise1 = taskpool.execute(():undefined => {
-                    WebCookieManager.configCookieSync(url, value, incognito, includeHttpOnly);
-                    return undefined});
-                pPromise1.then((e :Any): void=>{
-                    console.log("in Promise then. e is ", e)
-                    resolve(Promise.resolve());
-                }, (err:Error): void => {
-                    reject(err);
-                });
-            });
-            return pPromise;
+            return WebCookieManager.configCookiePromise(url, value, incognito, includeHttpOnly);
         }
 
         /**
