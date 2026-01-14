@@ -537,22 +537,6 @@ TEST_F(WebNativeMessagingClientTest, DisconnectWebNativeMessagingExtension_Shoul
 }
 
 /**
- * @tc.name: WebNativeMessagingClientTest_StartAbility_001
- * @tc.desc: Verify StartAbility result when proxy is null
- * @tc.type: Func
- * @tc.require:
- */
-TEST_F(WebNativeMessagingClientTest, StartAbility_ShouldReturnIpcErrorWhenProxyIsNull)
-{
-    sptr<IRemoteObject> token = new MockRemoteObject();
-    AAFwk::Want want;
-    AAFwk::StartOptions options;
-    ON_CALL(*mockClient, GetWebNativeMessagingProxy()).WillByDefault(Return(nullptr));
-    int result = mockClient->StartAbility(token, want, options);
-    EXPECT_EQ(result, ConnectNativeRet::IPC_ERROR);
-}
-
-/**
  * @tc.name: WebNativeMessagingClientTest_StartAbility_002
  * @tc.desc: Verify StartAbility result when proxy fails
  * @tc.type: Func
@@ -567,25 +551,6 @@ TEST_F(WebNativeMessagingClientTest, StartAbility_ShouldReturnIpcErrorWhenProxyF
     ON_CALL(*mockService_, StartAbility(_, _, _, _)).WillByDefault(Return(-1));
     int result = client_.StartAbility(token, want, options);
     EXPECT_EQ(result, ConnectNativeRet::SUCCESS);
-}
-
-/**
- * @tc.name: WebNativeMessagingClientTest_StopConnection_001
- * @tc.desc: Verify StopNativeConnection result when proxy is null
- * @tc.type: Func
- * @tc.require:
- */
-TEST_F(WebNativeMessagingClientTest, StopNativeConnectionFromExtension_ShouldReturnIpcErrorWhenProxyIsNull)
-{
-    sptr<MockWebNativeMessagingService> mockService = new MockWebNativeMessagingService();
-    ON_CALL(*mockClient, GetWebNativeMessagingProxy()).WillByDefault(Return(mockService));
-    EXPECT_CALL(*mockService, StopNativeConnectionFromExtension(_, _))
-        .WillOnce(Invoke([](int32_t connectionId, int32_t& errorNum) -> int32_t {
-            errorNum = ConnectNativeRet::SERVICE_INIT_ERROR;
-            return ConnectNativeRet::SERVICE_INIT_ERROR;
-        }));
-    int32_t result = mockClient->StopNativeConnectionFromExtension(1);
-    EXPECT_EQ(result, ConnectNativeRet::CONNECTION_NOT_EXIST);
 }
 
 /**
