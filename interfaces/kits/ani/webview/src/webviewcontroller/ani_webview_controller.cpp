@@ -1264,7 +1264,7 @@ static void WarmupServiceWorker(ani_env *env, ani_object object, ani_object urlO
     return;
 }
 
-static void SetUrlTrustList(ani_env *env, ani_object object, ani_object urlTrustListObj)
+static void SetUrlTrustListV1(ani_env *env, ani_object object, ani_object urlTrustListObj)
 {
     if (!env) {
         WVLOG_E("env is nullptr");
@@ -1287,6 +1287,39 @@ static void SetUrlTrustList(ani_env *env, ani_object object, ani_object urlTrust
     }
     std::string detailMsg;
     ErrCode ret = controller->SetUrlTrustList(urlTrustList, detailMsg);
+    if (ret != NO_ERROR) {
+        WVLOG_E("Set Url Trust List failed, detailMsg: %{public}s", detailMsg.c_str());
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+        return;
+    }
+}
+
+static void SetUrlTrustListV2(ani_env *env, ani_object object, ani_object urlTrustListObj,
+    ani_boolean aniAllowOpaqueOrigin, ani_boolean aniSupportWildcard)
+{
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller) {
+        WVLOG_E("webview controller is null or not init");
+        return;
+    }
+
+    std::string urlTrustList;
+    if (!AniParseUtils::ParseString(env, urlTrustListObj, urlTrustList)) {
+        return;
+    }
+    if (urlTrustList.size() > MAX_URL_TRUST_LIST_STR_LEN) {
+        WVLOG_E("EnableAdsBlock: url trust list len is too large.");
+        return;
+    }
+    std::string detailMsg;
+    bool allowOpaqueOrigin = static_cast<bool>(aniAllowOpaqueOrigin);
+    bool supportWildcard = static_cast<bool>(aniSupportWildcard);
+    ErrCode ret = controller->SetUrlTrustList(urlTrustList, allowOpaqueOrigin, supportWildcard, detailMsg);
     if (ret != NO_ERROR) {
         WVLOG_E("Set Url Trust List failed, detailMsg: %{public}s", detailMsg.c_str());
         AniBusinessError::ThrowErrorByErrCode(env, ret);
@@ -7205,7 +7238,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
             reinterpret_cast<void *>(IsIntelligentTrackingPreventionEnabled) },
         ani_native_function { "isSafeBrowsingEnabled", nullptr, reinterpret_cast<void *>(IsSafeBrowsingEnabled) },
         ani_native_function { "getFavicon", nullptr, reinterpret_cast<void *>(GetFavicon) },
-        ani_native_function { "setUrlTrustList", nullptr, reinterpret_cast<void *>(SetUrlTrustList) },
+        ani_native_function { "setUrlTrustListV1", nullptr, reinterpret_cast<void *>(SetUrlTrustListV1) },
+        ani_native_function { "setUrlTrustListV2", nullptr, reinterpret_cast<void *>(SetUrlTrustListV2) },
         ani_native_function { "enableIntelligentTrackingPrevention", nullptr,
                               reinterpret_cast<void *>(EnableIntelligentTrackingPrevention) },
         ani_native_function { "searchNext", nullptr, reinterpret_cast<void *>(SearchNext) },
