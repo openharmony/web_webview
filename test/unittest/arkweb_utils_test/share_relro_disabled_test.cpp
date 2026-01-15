@@ -105,7 +105,7 @@ HWTEST_F(ShareRelroDisabledTest, ShareRelroDisabledTest_CreateRelroFileInSubProc
     EXPECT_EQ(ret, true);
     bool isShareRelroEnabled = OHOS::system::GetBoolParameter("web.shareRelro.enabled", false);
     EXPECT_EQ(isShareRelroEnabled, false);
-    SetPrctlMockValue(-1); // -1 invlaid prctl mock value
+    SetPrctlMockValue(-1); // -1 invalid prctl mock value
     CreateRelroFileInSubProc();
     std::string arkWebEngineLibName = "libarkweb_engine.so";
     Dl_namespace dlns;
@@ -129,8 +129,8 @@ HWTEST_F(ShareRelroDisabledTest, ShareRelroDisabledTest_CreateRelroFileInSubProc
     EXPECT_EQ(ret, true);
     bool isShareRelroEnabled = OHOS::system::GetBoolParameter("web.shareRelro.enabled", false);
     EXPECT_EQ(isShareRelroEnabled, false);
-    SetPrctlMockValue(0); // 0 vlaid mock value
-    int invalidMockValue = -1; // -1 invlaid mock value
+    SetPrctlMockValue(0); // 0 valid mock value
+    int invalidMockValue = -1; // -1 invalid mock value
     SetUidMockValue(invalidMockValue);
     SetGidMockValue(invalidMockValue);
     CreateRelroFileInSubProc();
@@ -156,10 +156,10 @@ HWTEST_F(ShareRelroDisabledTest, ShareRelroDisabledTest_CreateRelroFileInSubProc
     EXPECT_EQ(ret, true);
     bool isShareRelroEnabled = OHOS::system::GetBoolParameter("web.shareRelro.enabled", false);
     EXPECT_EQ(isShareRelroEnabled, false);
-    int validMockValue = 0; // 0 vlaid mock value
+    int validMockValue = 0; // 0 valid mock value
     SetPrctlMockValue(validMockValue);
     SetUidMockValue(validMockValue);
-    SetGidMockValue(-1); // -1 invlaid mock value
+    SetGidMockValue(-1); // -1 invalid mock value
     CreateRelroFileInSubProc();
     std::string arkWebEngineLibName = "libarkweb_engine.so";
     Dl_namespace dlns;
@@ -183,10 +183,10 @@ HWTEST_F(ShareRelroDisabledTest, ShareRelroDisabledTest_CreateRelroFileInSubProc
     EXPECT_EQ(ret, true);
     bool isShareRelroEnabled = OHOS::system::GetBoolParameter("web.shareRelro.enabled", false);
     EXPECT_EQ(isShareRelroEnabled, false);
-    int validMockValue = 0; // 0 vlaid mock value
+    int validMockValue = 0; // 0 valid mock value
     SetPrctlMockValue(validMockValue);
     SetGidMockValue(validMockValue);
-    SetUidMockValue(-1); // -1 invlaid mock value
+    SetUidMockValue(-1); // -1 invalid mock value
     CreateRelroFileInSubProc();
     std::string arkWebEngineLibName = "libarkweb_engine.so";
     Dl_namespace dlns;
@@ -210,11 +210,11 @@ HWTEST_F(ShareRelroDisabledTest, ShareRelroDisabledTest_CreateRelroFileInSubProc
     EXPECT_EQ(ret, true);
     bool isShareRelroEnabled = OHOS::system::GetBoolParameter("web.shareRelro.enabled", false);
     EXPECT_EQ(isShareRelroEnabled, false);
-    int validMockValue = 0; // 0 vlaid mock value
+    int validMockValue = 0; // 0 valid mock value
     SetPrctlMockValue(validMockValue);
     SetGidMockValue(validMockValue);
     SetUidMockValue(validMockValue);
-    SetRestoreconRecurseMockValue(-1); // -1 invlaid mock value
+    SetRestoreconRecurseMockValue(-1); // -1 invalid mock value
     CreateRelroFileInSubProc();
     std::string arkWebEngineLibName = "libarkweb_engine.so";
     Dl_namespace dlns;
@@ -238,7 +238,7 @@ HWTEST_F(ShareRelroDisabledTest, ShareRelroDisabledTest_CreateRelroFileInSubProc
     EXPECT_EQ(ret, true);
     bool isShareRelroEnabled = OHOS::system::GetBoolParameter("web.shareRelro.enabled", false);
     EXPECT_EQ(isShareRelroEnabled, false);
-    int validMockValue = 0; // 0 vlaid mock value
+    int validMockValue = 0; // 0 valid mock value
     SetPrctlMockValue(validMockValue);
     SetGidMockValue(validMockValue);
     SetUidMockValue(validMockValue);
@@ -266,7 +266,7 @@ HWTEST_F(ShareRelroDisabledTest, ShareRelroDisabledTest_CreateRelroFileInSubProc
     EXPECT_EQ(ret, true);
     bool isShareRelroEnabled = OHOS::system::GetBoolParameter("web.shareRelro.enabled", false);
     EXPECT_EQ(isShareRelroEnabled, false);
-    SetForkMockValue(-1); // -1 invliad pid
+    SetForkMockValue(-1); // -1 invalid pid
     CreateRelroFileInSubProc();
     std::string arkWebEngineLibName = "libarkweb_engine.so";
     Dl_namespace dlns;
@@ -276,7 +276,7 @@ HWTEST_F(ShareRelroDisabledTest, ShareRelroDisabledTest_CreateRelroFileInSubProc
     dlns_get("ndk", &ndkns);
     dlns_inherit(&dlns, &ndkns, "allow_all_shared_libs");
     EXPECT_EQ(LoadWithRelroFile(arkWebEngineLibName, &dlns), nullptr);
-    SetForkMockValue(1); // 1 invliad pid
+    SetForkMockValue(1); // 1 invalid pid
     CreateRelroFileInSubProc();
     EXPECT_EQ(LoadWithRelroFile(arkWebEngineLibName, &dlns), nullptr);
 }
