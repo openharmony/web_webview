@@ -788,14 +788,8 @@ export default namespace webview {
         native startDownload(url: string): void;
         native setDownloadDelegate(delegate: WebDownloadDelegate): void;
         native getBackForwardEntries(): BackForwardList;
-        native SetUrlTrustList(urlTrustList: string): void;
-        setUrlTrustList(urlTrustList: string): void {
-            this.SetUrlTrustList(urlTrustList);
-        }
-        native setUrlTrustListWithWildcard(urlTrustList: string, allowOpaqueOrigin: boolean, supportWildcard: boolean): void;
-        setUrlTrustList(urlTrustList: string, allowOpaqueOrigin: boolean, supportWildcard: boolean): void{
-            this.setUrlTrustListWithWildcard(urlTrustList, allowOpaqueOrigin, supportWildcard);
-        }
+        native setUrlTrustList(urlTrustList: string): void;
+        native setUrlTrustList(urlTrustList: string, allowOpaqueOrigin: boolean, supportWildcard: boolean): void;
         native enableIntelligentTrackingPrevention(enable: boolean): void;
         native searchNext(forward: boolean): void;
         native static getDefaultUserAgent(): string;
