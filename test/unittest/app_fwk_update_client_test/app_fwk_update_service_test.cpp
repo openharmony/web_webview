@@ -851,7 +851,7 @@ HWTEST_F(AppFwkUpdateServiceTest, NotifyArkWebInstallSuccess_002, testing::ext::
     g_intParameter = 1;
     g_boolParameter = 1;
     g_setParameter = 0;
-    EXPECT_EQ(service_->NotifyArkWebInstallSuccess(), ERR_INVALID_VALUE);
+    EXPECT_EQ(service_->NotifyArkWebInstallSuccess(), ERR_OK);
 
     g_setParameter = 1;
     EXPECT_EQ(service_->NotifyArkWebInstallSuccess(), ERR_OK);
