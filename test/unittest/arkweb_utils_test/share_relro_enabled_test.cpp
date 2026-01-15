@@ -257,7 +257,7 @@ HWTEST_F(ShareRelroEnabledTest, ShareRelroEnabledTest_CreateRelroFile_006, TestS
     EXPECT_EQ(ret, true);
     bool isShareRelroEnabled = OHOS::system::GetBoolParameter("web.shareRelro.enabled", false);
     EXPECT_EQ(isShareRelroEnabled, true);
-    int validMockValue = 0; // 0 is invalid ret value
+    int validMockValue = 0; // 0 is valid ret value
     SetUnlinkMockValue(validMockValue);
     errno = ENOENT;
     SetOpenMockValue(validMockValue);
@@ -284,7 +284,7 @@ HWTEST_F(ShareRelroEnabledTest, ShareRelroEnabledTest_CreateRelroFile_007, TestS
     EXPECT_EQ(ret, true);
     bool isShareRelroEnabled = OHOS::system::GetBoolParameter("web.shareRelro.enabled", false);
     EXPECT_EQ(isShareRelroEnabled, true);
-    int validMockValue = 0; // 0 is invalid ret value
+    int validMockValue = 0; // 0 is valid ret value
     SetUnlinkMockValue(validMockValue);
     errno = ENOENT;
     SetOpenMockValue(validMockValue);
@@ -316,7 +316,7 @@ HWTEST_F(ShareRelroEnabledTest, ShareRelroEnabledTest_CreateRelroFileInSubProc_0
     EXPECT_EQ(ret, true);
     bool isShareRelroEnabled = OHOS::system::GetBoolParameter("web.shareRelro.enabled", false);
     EXPECT_EQ(isShareRelroEnabled, true);
-    int validMockValue = 0; // 0 is invalid ret value
+    int validMockValue = 0; // 0 is valid ret value
     SetPrctlMockValue(validMockValue);
     SetGidMockValue(validMockValue);
     SetUidMockValue(validMockValue);
