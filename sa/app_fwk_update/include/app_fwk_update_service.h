@@ -73,6 +73,7 @@ private:
     std::shared_ptr<AppExecFwk::EventRunner> runner_;
     bool registerToService_ = false;
     std::shared_ptr<EventFwk::CommonEventSubscriber> pkgSubscriber_;
+    std::mutex lock_;
 };
 } // namespace OHOS::NWeb
 
