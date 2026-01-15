@@ -539,7 +539,7 @@ static void Clean(ani_env *env, ani_object object)
         delete reinterpret_cast<WebSchemeHandlerResponse *>(ptr);
     } else if (clsName == "WebDownloadDelegate") {
         delete reinterpret_cast<WebDownloadDelegate *>(ptr);
-    } else if (clsName == "WebMessageExt"){
+    } else if (clsName == "WebMessageExt") {
         delete reinterpret_cast<WebMessageExt *>(ptr);
     } else if (clsName == "WebDownloadItem") {
         delete reinterpret_cast<WebDownloadItem *>(ptr);

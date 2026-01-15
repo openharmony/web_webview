@@ -69,7 +69,7 @@ void RemoveAdsBlockDisallowedList(ani_env *env, ani_object object, ani_object do
     ani_boolean isUndefined = ANI_TRUE;
     if (env->Reference_IsUndefined(domainSuffixesArray, &isUndefined) != ANI_OK || isUndefined == ANI_TRUE) {
         WVLOG_E("domainSuffixes is undefined");
-         AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
+        AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
         return;
     }
     std::vector<std::string> domainSuffixes;
@@ -96,7 +96,7 @@ void AddAdsBlockDisallowedList(ani_env *env, ani_object object, ani_object domai
     ani_boolean isUndefined = ANI_TRUE;
     if (env->Reference_IsUndefined(domainSuffixesArray, &isUndefined) != ANI_OK || isUndefined == ANI_TRUE) {
         WVLOG_E("domainSuffixes is undefined");
-         AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
+        AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
         return;
     }
     std::vector<std::string> domainSuffixes;
@@ -150,7 +150,7 @@ void RemoveAdsBlockAllowedList(ani_env *env, ani_object object, ani_object domai
     ani_boolean isUndefined = ANI_TRUE;
     if (env->Reference_IsUndefined(domainSuffixesArray, &isUndefined) != ANI_OK || isUndefined == ANI_TRUE) {
         WVLOG_E("domainSuffixes is undefined");
-         AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
+        AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
         return;
     }
     std::vector<std::string> domainSuffixes;

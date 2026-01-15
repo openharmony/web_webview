@@ -132,6 +132,10 @@ static ani_string GetFrameUrl(ani_env* env, ani_object object)
     }
     ani_string url = nullptr;
     char* result = request->GetFrameUrl();
+    if (result == nullptr) {
+        WVLOG_E("GetFrameUrl: url is nullptr");
+        return nullptr;
+    }
     env->String_NewUTF8(result, strlen(result), &url);
     OH_ArkWeb_ReleaseString(result);
     return url;

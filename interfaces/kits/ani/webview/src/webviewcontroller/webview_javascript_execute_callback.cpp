@@ -125,9 +125,13 @@ ani_ref CreateStsError(ani_env* env, ani_int code, const std::string& msg)
 bool CreateArgs(std::shared_ptr<WebviewJavaScriptExecuteCallback> jsObj, std::shared_ptr<NWebMessage> result,
     std::vector<ani_ref>& resultRef)
 {
+    if (!jsObj) {
+        WVLOG_E("jsObj is nullptr");
+        return false;
+    }
     ani_env* env = jsObj->GetEnv();
-    if (!env || !jsObj) {
-        WVLOG_E("env or jsObj is nullptr");
+    if (!env) {
+        WVLOG_E("env is nullptr");
         return false;
     }
     ani_status status;
