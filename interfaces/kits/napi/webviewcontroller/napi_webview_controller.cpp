@@ -7024,7 +7024,7 @@ napi_value NapiWebviewController::WebPageSnapshot(napi_env env, napi_callback_in
     return result;
 }
 
-void SetUrlTrustListV2(napi_env env, napi_value* argv, WebviewController* webviewController, std::string& urlTrustList)
+void SetUrlTrustListWithWildcard(napi_env env, napi_value* argv, WebviewController* webviewController, std::string& urlTrustList)
 {
     bool allowOpaqueOrigin = false;
     if (!NapiParseUtils::ParseBoolean(env, argv[INTEGER_ONE], allowOpaqueOrigin)) {
@@ -7085,7 +7085,7 @@ napi_value NapiWebviewController::SetUrlTrustList(napi_env env, napi_callback_in
     }
 
     if (argc == INTEGER_THREE) {
-        SetUrlTrustListV2(env, argv, webviewController, urlTrustList);
+        SetUrlTrustListWithWildcard(env, argv, webviewController, urlTrustList);
         return result;
     }
 
