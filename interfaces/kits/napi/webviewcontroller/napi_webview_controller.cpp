@@ -7024,7 +7024,8 @@ napi_value NapiWebviewController::WebPageSnapshot(napi_env env, napi_callback_in
     return result;
 }
 
-void SetUrlTrustListWithWildcard(napi_env env, napi_value* argv, WebviewController* webviewController, std::string& urlTrustList)
+void SetUrlTrustListWithWildcard(napi_env env, napi_value* argv,
+    WebviewController* webviewController, std::string& urlTrustList)
 {
     bool allowOpaqueOrigin = false;
     if (!NapiParseUtils::ParseBoolean(env, argv[INTEGER_ONE], allowOpaqueOrigin)) {
