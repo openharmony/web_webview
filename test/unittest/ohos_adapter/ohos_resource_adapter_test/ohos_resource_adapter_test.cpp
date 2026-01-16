@@ -39,7 +39,6 @@ namespace {
 constexpr uint32_t MODULE_NAME_SIZE = 32;
 const std::string NWEB_HAP_PATH = "/system/app/ArkWebCore/ArkWebCore.hap";
 const std::string NWEB_HAP_PATH_1 = "/system/app/NWeb/NWeb.hap";
-const std::string NWEB_HAP_PATH_2 = "/system/app/com.ohos.nweb/NWeb.hap";
 const std::string ARKWEB_HAP_PATH_1 = "/system/app/com.ohos.arkwebcore/ArkWebCore.hap";
 const std::string NWEB_HAP_PATH_MODULE_UPDATE = "/module_update/ArkWebCore/app/com.ohos.nweb/NWeb.hap";
 
@@ -172,23 +171,7 @@ HWTEST_F(OhosResourceAdapterTest, OhosResourceAdapterTest_GetRawFileData_002, Te
  */
 HWTEST_F(OhosResourceAdapterTest, OhosResourceAdapterTest_OhosFileMapperImpl_003, TestSize.Level1)
 {
-    std::string hapPath = "";
-    if (access(NWEB_HAP_PATH.c_str(), F_OK) == 0) {
-        hapPath = NWEB_HAP_PATH;
-    }
-    if (access(NWEB_HAP_PATH_1.c_str(), F_OK) == 0) {
-        hapPath = NWEB_HAP_PATH_1;
-    }
-    if (access(NWEB_HAP_PATH_MODULE_UPDATE.c_str(), F_OK) == 0) {
-        hapPath = NWEB_HAP_PATH_MODULE_UPDATE;
-    }
-    if (access(NWEB_HAP_PATH_2.c_str(), F_OK) == 0) {
-        hapPath = NWEB_HAP_PATH_MODULE_UPDATE;
-    }
-    if (access(ARKWEB_HAP_PATH_1.c_str(), F_OK) == 0) {
-        hapPath = NWEB_HAP_PATH_MODULE_UPDATE;
-    }
-
+    std::string hapPath = "/system/app/com.ohos.nweb/NWeb.hap";
     std::shared_ptr<Extractor> extractor = std::make_shared<Extractor>(hapPath);
     EXPECT_NE(extractor, nullptr);
     std::shared_ptr<OHOS::AbilityBase::ZipFileReader> fileReader =
