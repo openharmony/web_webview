@@ -28,6 +28,7 @@
 #include "nweb_create_window.h"
 #include "nweb_c_api.h"
 #include "nweb_init_params.h"
+#include "nweb_user_agent_metadata.h"
 #include "application_context.h"
 
 using namespace testing;
@@ -184,8 +185,31 @@ public:
     MOCK_METHOD(void, SetWebDebuggingAccessAndPort,
         (bool isEnableDebug, int32_t port), (override));
 
+    void SetUserAgentClientHintsEnabled(bool enabled)
+    {
+        userAgentClientHintsEnabled_ = enabled;
+    }
+
+    bool GetUserAgentClientHintsEnabled()
+    {
+        return userAgentClientHintsEnabled_;
+    }
+
+    void SetUserAgentMetadata(
+        int32_t nwebId, const std::string& userAgent, std::shared_ptr<NWebUserAgentMetadata> metadata)
+    {
+        metadata_ = metadata;
+    }
+
+    std::shared_ptr<NWebUserAgentMetadata> GetUserAgentMetadata(int32_t nwebId, const std::string& userAgent)
+    {
+        return metadata_;
+    }
+
 private:
     RenderProcessMode process_mode_ = RenderProcessMode::SINGLE_MODE;
+    bool userAgentClientHintsEnabled_ = false;
+    std::shared_ptr<NWebUserAgentMetadata> metadata_ = nullptr;
 };
 
 void NwebHelperTest::SetUpTestCase(void)
@@ -1266,6 +1290,41 @@ HWTEST_F(NwebHelperTest, NWebHelper_DumpArkWebInfo_001, TestSize.Level1)
 
     result = NWebHelper::Instance().DumpArkWebInfo("");
     EXPECT_NE(result.size(), 0);
+}
+
+/**
+ * @tc.name: NWebHelper_UserAgentClientHints_001
+ * @tc.desc: UserAgentClientHintsEnabled.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_UserAgentClientHints_001, TestSize.Level1)
+{
+    int32_t nweb_id = 1;
+    auto nwebHelper = NWebHelper::Instance().GetNWeb(nweb_id);
+    EXPECT_EQ(nwebHelper, nullptr);
+
+    g_errlog.clear();
+    LOG_SetCallback(MyLogCallback);
+    NWebHelper::Instance().initFlag_ = false;
+    NWebHelper::Instance().SetUserAgentClientHintsEnabled(true);
+    EXPECT_TRUE(g_errlog.find("not initialized") != std::string::npos);
+    NWebHelper::Instance().GetUserAgentClientHintsEnabled();
+    EXPECT_TRUE(g_errlog.find("not initialized") != std::string::npos);
+    NWebHelper::Instance().initFlag_ = true;
+    NWebHelper::Instance().nwebEngine_ = nullptr;
+    NWebHelper::Instance().SetUserAgentClientHintsEnabled(true);
+    EXPECT_TRUE(g_errlog.find("web engine is nullptr") != std::string::npos);
+    NWebHelper::Instance().GetUserAgentClientHintsEnabled();
+    EXPECT_TRUE(g_errlog.find("web engine is nullptr") != std::string::npos);
+
+    auto nwebengineMock = std::make_shared<MockNWebEngine>();
+    NWebHelper::Instance().nwebEngine_ = nwebengineMock;
+    NWebHelper::Instance().SetUserAgentClientHintsEnabled(true);
+    EXPECT_TRUE(NWebHelper::Instance().GetUserAgentClientHintsEnabled());
+    NWebHelper::Instance().SetUserAgentClientHintsEnabled(false);
+    EXPECT_FALSE(NWebHelper::Instance().GetUserAgentClientHintsEnabled());
+    LOG_SetCallback(nullptr);
 }
 } // namespace OHOS::NWeb
 }

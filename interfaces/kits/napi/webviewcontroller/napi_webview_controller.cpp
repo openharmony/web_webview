@@ -36,6 +36,7 @@
 #include "nweb_helper.h"
 #include "nweb_init_params.h"
 #include "nweb_log.h"
+#include "nweb_user_agent_metadata_impl.h"
 #include "ohos_adapter_helper.h"
 #include "parameters.h"
 #include "pixel_map.h"
@@ -55,6 +56,8 @@
 #include "system_properties_adapter_impl.h"
 #include "nweb_message_ext.h"
 #include "webview_value.h"
+
+#include "napi_user_agent_metadata.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -853,6 +856,12 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_FUNCTION("setAutoPreconnect", NapiWebviewController::SetAutoPreconnect),
         DECLARE_NAPI_STATIC_FUNCTION("isAutoPreconnectEnabled", NapiWebviewController::IsAutoPreconnectEnabled),
         DECLARE_NAPI_STATIC_FUNCTION("setSocketIdleTimeout", NapiWebviewController::SetSocketIdleTimeout),
+        DECLARE_NAPI_STATIC_FUNCTION(
+            "setUserAgentClientHintsEnabled", NapiWebviewController::SetUserAgentClientHintsEnabled),
+        DECLARE_NAPI_STATIC_FUNCTION(
+            "getUserAgentClientHintsEnabled", NapiWebviewController::GetUserAgentClientHintsEnabled),
+        DECLARE_NAPI_FUNCTION("setUserAgentMetadata", NapiWebviewController::SetUserAgentMetadata),
+        DECLARE_NAPI_FUNCTION("getUserAgentMetadata", NapiWebviewController::GetUserAgentMetadata),
     };
     napi_value constructor = nullptr;
     napi_define_class(env, WEBVIEW_CONTROLLER_CLASS_NAME.c_str(), WEBVIEW_CONTROLLER_CLASS_NAME.length(),
@@ -8458,5 +8467,171 @@ napi_value NapiWebviewController::SetScrollbarMode(napi_env env, napi_callback_i
     return result;
 }
 
+napi_value NapiWebviewController::SetUserAgentClientHintsEnabled(napi_env env, napi_callback_info info)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_E("SetUserAgentClientHintsEnabled unsupported engine version: M114");
+        return nullptr;
+    }
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+    NAPI_CALL(env, napi_get_undefined(env, &result));
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
+        return result;
+    }
+
+    bool userAgentClientHintsEnabled = true;
+    if (!NapiParseUtils::ParseBoolean(env, argv[0], userAgentClientHintsEnabled)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "userAgentClientHintsEnabled", "boolean"));
+        return result;
+    }
+
+    NWebHelper::Instance().SetUserAgentClientHintsEnabled(userAgentClientHintsEnabled);
+    return result;
+}
+
+napi_value NapiWebviewController::GetUserAgentClientHintsEnabled(napi_env env, napi_callback_info info)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_E("GetUserAgentClientHintsEnabled unsupported engine version: M114");
+        return nullptr;
+    }
+    bool userAgentClientHintsEnabled = true;
+    napi_value result = nullptr;
+
+    userAgentClientHintsEnabled = NWebHelper::Instance().GetUserAgentClientHintsEnabled();
+    NAPI_CALL(env, napi_get_boolean(env, userAgentClientHintsEnabled, &result));
+    return result;
+}
+
+napi_value NapiWebviewController::SetUserAgentMetadata(napi_env env, napi_callback_info info)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_E("SetUserAgentMetadata unsupported engine version: M114");
+        return nullptr;
+    }
+    size_t argc = 2;
+    napi_value argv[2] = { 0 };
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, &data);
+    WebviewController* webviewController = nullptr;
+    NAPI_CALL(env, napi_unwrap(env, thisVar, (void**)&webviewController));
+    if (webviewController == nullptr || !webviewController->IsInit()) {
+        BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
+        WVLOG_E("create message port failed, napi unwrap webviewController failed");
+        return nullptr;
+    }
+
+    std::string userAgent = "";
+    if (!NapiParseUtils::ParseString(env, argv[0], userAgent)) {
+        WVLOG_E("NapiWebviewController::SetUserAgentMetadata parse userAgent failed");
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "userAgent", "string"));
+        return nullptr;
+    }
+
+    NWebUserAgentMetadataImpl* metadata = nullptr;
+    napi_value obj = argv[1];
+    napi_unwrap(env, obj, (void**)&metadata);
+    if (!metadata) {
+        WVLOG_E("NapiWebviewController::SetUserAgentMetadata metadata is null");
+        return nullptr;
+    }
+    std::vector<std::string> strBrand;
+    std::vector<std::string> strMajorVersion;
+    std::vector<std::string> strFullVersion;
+    metadata->GetBrandVersionList(strBrand, strMajorVersion, strFullVersion);
+    UserAgentMetadataInfo metadataInfo { .arch = metadata->GetArchitecture(),
+        .bitness = metadata->GetBitness(),
+        .formFactors = metadata->GetFormFactors(),
+        .fullVersion = metadata->GetFullVersion(),
+        .isMobile = metadata->GetMobile(),
+        .model = metadata->GetModel(),
+        .platform = metadata->GetPlatform(),
+        .platformVersion = metadata->GetPlatformVersion(),
+        .isWow64 = metadata->GetWow64() };
+    auto ptrMetadata = std::make_shared<OHOS::NWeb::NWebUserAgentMetadataImpl>(
+        strBrand, strMajorVersion, strFullVersion, metadataInfo);
+
+    webviewController->SetUserAgentMetadata(userAgent, ptrMetadata);
+    return nullptr;
+}
+
+static napi_value GetUserAgentMetadataObject(napi_env env, std::shared_ptr<NWebUserAgentMetadata> metadata)
+{
+    std::vector<std::string> strBrand;
+    std::vector<std::string> strMajorVersion;
+    std::vector<std::string> strFullVersion;
+    metadata->GetBrandVersionList(strBrand, strMajorVersion, strFullVersion);
+    napi_value jsValue = nullptr;
+    napi_create_object(env, &jsValue);
+    UserAgentMetadataInfo info { .arch = metadata->GetArchitecture(),
+        .bitness = metadata->GetBitness(),
+        .formFactors = metadata->GetFormFactors(),
+        .fullVersion = metadata->GetFullVersion(),
+        .isMobile = metadata->GetMobile(),
+        .model = metadata->GetModel(),
+        .platform = metadata->GetPlatform(),
+        .platformVersion = metadata->GetPlatformVersion(),
+        .isWow64 = metadata->GetWow64() };
+    napi_wrap(
+        env, jsValue, new NWebUserAgentMetadataImpl(strBrand, strMajorVersion, strFullVersion, info),
+        [](napi_env /* env */, void* data, void* /* hint */) {
+            if (data) {
+                NWebUserAgentMetadataImpl* metadata = static_cast<NWebUserAgentMetadataImpl*>(data);
+                delete metadata;
+            }
+        },
+        nullptr, nullptr);
+    NapiUserAgentMetadata::DefineProperties(env, &jsValue);
+    return jsValue;
+}
+
+napi_value NapiWebviewController::GetUserAgentMetadata(napi_env env, napi_callback_info info)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_E("GetUserAgentMetadata unsupported engine version: M114");
+        return nullptr;
+    }
+    WVLOG_I("GetUserAgentMetadata.");
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE];
+    NAPI_CALL(env, napi_get_undefined(env, &result));
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
+        return result;
+    }
+    std::string userAgent;
+    if (!NapiParseUtils::ParseString(env, argv[INTEGER_ZERO], userAgent)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "userAgent", "string"));
+        return result;
+    }
+    WebviewController* webviewController = nullptr;
+    napi_status status = napi_unwrap(env, thisVar, (void**)&webviewController);
+    if ((!webviewController) || (status != napi_ok) || !webviewController->IsInit()) {
+        BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
+        return result;
+    }
+    auto metadata = webviewController->GetUserAgentMetadata(userAgent);
+    if (!metadata) {
+        WVLOG_I("[UserAgentMetata] GetUserAgentMetadata is null");
+        return result;
+    }
+
+    return GetUserAgentMetadataObject(env, metadata);
+}
 } // namespace NWeb
 } // namespace OHOS

@@ -924,6 +924,10 @@ export default namespace webview {
         native setBackForwardCacheOptions(options?: BackForwardCacheOptions): void;
         native static setAppCustomUserAgent(userAgent: string): void;
         native static setUserAgentForHosts(userAgent: string, hosts: Array<string>): void
+        native static setUserAgentClientHintsEnabled(enabled: boolean): void;
+        native static getUserAgentClientHintsEnabled(): boolean;
+        native setUserAgentMetadata(userAgent: string, metaData: UserAgentMetadata): void;
+        native getUserAgentMetadata(userAgent: string): UserAgentMetadata;
         native storeWebArchiveCallback(baseName: string, autoName: boolean, callback: AsyncCallback<string>): void;
         storeWebArchive(baseName: string, autoName: boolean, callback: AsyncCallback<string>): void {
             this.storeWebArchiveCallback(baseName, autoName, callback);
@@ -2263,5 +2267,88 @@ export default namespace webview {
                     writeResultCallback: (jobId: string, writeResult: print.PrintFileCreationState) => void): void;
 
         native onJobStateChanged(jobId: string, state: print.PrintDocumentAdapterState): void;
+    }
+
+    export enum UserAgentFormFactor {
+        AUTOMOTIVE = 'Automotive',
+        DESKTOP = 'Desktop',
+        MOBILE = 'Mobile',
+        EINK = 'EInk',
+        TABLET = 'Tablet',
+        WATCH = 'Watch',
+        XR = 'XR'
+    }
+    export class UserAgentBrandVersion {
+        static {
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
+        }
+        private nativePtr: long = 0;
+        private cleaner?: Cleaner;
+
+        registerCleaner(ptr: long): void {
+            this.cleaner = new Cleaner(ptr, "UserAgentBrandVersion")
+            destroyRegister.register(this, this.cleaner!, unregisterToken);
+        }
+        unregisterCleaner(): void {
+            destroyRegister.unregister(unregisterToken);
+        }
+
+        bindNativePtr(ptr: long): void {
+            if (this.nativePtr == 0) {
+                this.nativePtr = ptr;
+                this.registerCleaner(this.nativePtr)
+            }
+        }
+        native constructor();
+        native setBrand(brand: string): void;
+        native setMajorVersion(majorVersion: string): void;
+        native setFullVersion(fullVersion: string): void;
+        native getBrand(): string;
+        native getMajorVersion(): string;
+        native getFullVersion(): string;
+    }
+    export class UserAgentMetadata {
+        static {
+            loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
+        }
+        private nativePtr: long = 0;
+        private cleaner?: Cleaner;
+ 
+        registerCleaner(ptr: long): void {
+            this.cleaner = new Cleaner(ptr, "UserAgentMetadata")
+            destroyRegister.register(this, this.cleaner!, unregisterToken);
+        }
+        unregisterCleaner(): void {
+            destroyRegister.unregister(unregisterToken);
+        }
+ 
+        bindNativePtr(ptr: long): void {
+            if (this.nativePtr == 0) {
+                this.nativePtr = ptr;
+                this.registerCleaner(this.nativePtr)
+            }
+        }
+
+        native constructor();
+        native setBrandVersionList(brandVersionList: Array<UserAgentBrandVersion>): void;
+        native setArchitecture(arch: string): void;
+        native setBitness(bitness: string): void;
+        native setFormFactors(formFactors: Array<UserAgentFormFactor>): void;
+        native setFullVersion(fullVersion: string): void;
+        native setMobile(isMobile: boolean): void;
+        native setModel(model: string): void;
+        native setPlatform(platform: string): void;
+        native setPlatformVersion(platformVersion: string): void;
+        native setWow64(isWow64: boolean): void;
+        native getBrandVersionList(): Array<UserAgentBrandVersion>;
+        native getArchitecture(): string;
+        native getBitness(): string;
+        native getFormFactors(): Array<UserAgentFormFactor>;
+        native getFullVersion(): string;
+        native getMobile(): boolean;
+        native getModel(): string;
+        native getPlatform(): string;
+        native getPlatformVersion(): string;
+        native getWow64(): boolean;
     }
 }

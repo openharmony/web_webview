@@ -501,6 +501,11 @@ public:
     ErrCode SetErrorPageEnabled(bool enable);
 
     bool GetErrorPageEnabled();
+
+    void SetUserAgentMetadata(const std::string& userAgent, std::shared_ptr<NWebUserAgentMetadata> metaData);
+
+    std::shared_ptr<NWebUserAgentMetadata> GetUserAgentMetadata(const std::string& userAgent);
+
 private:
     int ConverToWebHitTestType(int hitType);
 

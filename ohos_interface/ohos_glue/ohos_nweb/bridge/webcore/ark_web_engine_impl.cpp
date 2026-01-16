@@ -25,6 +25,8 @@
 #include "ohos_nweb/bridge/ark_web_nweb_impl.h"
 #include "ohos_nweb/bridge/ark_web_web_storage_impl.h"
 #include "ohos_nweb/bridge/ark_web_proxy_changed_callback_impl.h"
+#include "ohos_nweb/bridge/ark_web_user_agent_metadata_wrapper.h"
+#include "ohos_nweb/bridge/ark_web_user_agent_metadata_ack_impl.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
 
@@ -356,5 +358,15 @@ void ArkWebEngineImpl::LibraryLoaded(ArkWebRefPtr<ArkWebEngineInitArgs> init_arg
 ArkWebString ArkWebEngineImpl::DumpArkWebInfo(const ArkWebString& param)
 {
     return ArkWebStringClassToStruct(nweb_engine_->DumpArkWebInfo(ArkWebStringStructToClass(param)));
+}
+
+void ArkWebEngineImpl::SetUserAgentClientHintsEnabled(bool enabled)
+{
+    nweb_engine_->SetUserAgentClientHintsEnabled(enabled);
+}
+
+bool ArkWebEngineImpl::GetUserAgentClientHintsEnabled()
+{
+    return nweb_engine_->GetUserAgentClientHintsEnabled();
 }
 } // namespace OHOS::ArkWeb
