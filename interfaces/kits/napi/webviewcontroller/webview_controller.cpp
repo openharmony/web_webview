@@ -1002,8 +1002,8 @@ void WebviewController::RegisterJavaScriptProxy(RegisterJavaScriptProxyParam& pa
     param_tmp.permission = param.permission;
     objId = javaScriptResultCb_->RegisterJavaScriptProxy(param_tmp);
 
-    nweb_ptr->RegisterArkJSfunction(param_tmp.objName, param_tmp.syncMethodList,
-                                    std::vector<std::string>(), objId, param_tmp.permission);
+    nweb_ptr->RegisterArkJSfunctionV2(param_tmp.objName, param_tmp.syncMethodList,
+                                      std::vector<std::string>(), objId, param_tmp.permission);
 }
 
 void WebviewController::RunJavaScriptCallback(

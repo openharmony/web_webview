@@ -1153,6 +1153,14 @@ void ArkWebNWebImpl::RegisterArkJSfunction(const ArkWebString& object_name, cons
         ArkWebStringStructToClass(permission));
 }
 
+void ArkWebNWebImpl::RegisterArkJSfunctionV2(const ArkWebString& object_name, const ArkWebStringVector& method_list,
+    const ArkWebStringVector& async_method_list, const int32_t object_id, const ArkWebString& permission)
+{
+    nweb_nweb_->RegisterArkJSfunctionV2(ArkWebStringStructToClass(object_name),
+        ArkWebStringVectorStructToClass(method_list), ArkWebStringVectorStructToClass(async_method_list), object_id,
+        ArkWebStringStructToClass(permission));
+}
+
 void ArkWebNWebImpl::ResizeVisibleViewport(uint32_t width, uint32_t height, bool isKeyboard)
 {
     nweb_nweb_->ResizeVisibleViewport(width, height, isKeyboard);
