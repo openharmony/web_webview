@@ -418,6 +418,9 @@ public:
 
     ErrCode SetUrlTrustList(const std::string& urlTrustList, std::string& detailErrMsg);
 
+    ErrCode SetUrlTrustList(const std::string& urlTrustList,
+        bool allowOpaqueOrigin, bool supportWildcard, std::string& detailErrMsg);
+
     std::string GetSurfaceId();
     void EnableAdsBlock(bool enable);
 

@@ -2420,6 +2420,21 @@ public:
     {
         return nullptr;
     }
+
+    /**
+     * @brief Set url trust list with error message.
+     *
+     * @param urlTrustList The url Trust list.
+     * @param allowOpaqueOrigin If true, loading of opaque origin URLs (e.g., javascript, data) is
+     *     allowed. If false, it is not allowed.
+     * @param supportWildcard If true, wildcard matching is supported (e.g., *.example.com matches all
+     *     subdomains). If false, wildcard matching is not supported.
+     * @param detailErrMsg The url trust list detail message.
+     */
+    virtual int SetUrlTrustListWithErrMsg(const std::string& urlTrustList,
+        bool allowOpaqueOrigin, bool supportWildcard, std::string& detailErrMsg) {
+        return 0;
+    }
 };
 } // namespace OHOS::NWeb
 
