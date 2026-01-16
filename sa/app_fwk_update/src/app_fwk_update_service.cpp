@@ -213,6 +213,7 @@ bool AppFwkUpdateService::Init(const SystemAbilityOnDemandReason& startReason)
 
 int AppFwkUpdateService::SendAppSpawnMessage(const std::string& bundleName, AppSpawnMsgType msgType)
 {
+    std::lock_guard<std::mutex> lock(lock_);
     WVLOG_I("Send appspawn message start,uid = %{public}d.", getuid());
     int ret = 0;
     int retryCount = 0;

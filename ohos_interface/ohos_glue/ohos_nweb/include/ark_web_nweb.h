@@ -53,6 +53,8 @@
 #include "ohos_nweb/include/ark_web_touch_point_info_vector.h"
 #include "ohos_nweb/include/ark_web_vault_plain_text_callback.h"
 #include "ohos_nweb/include/ark_web_command_action.h"
+#include "ohos_nweb/include/ark_web_user_agent_metadata.h"
+#include "ohos_nweb/include/ark_web_user_agent_metadata_ack.h"
 
 namespace OHOS::ArkWeb {
 
@@ -2229,6 +2231,26 @@ public:
      */
     /*--ark web()--*/
     virtual void ReloadIgnoreCache() = 0;
+
+    /**
+     * @brief Sets the User-Agent metadata corresponding to the User-Agent.
+     *
+     * @param userAgent The User-Agent string.
+     * @param metaData The UserAgentMetadata for the userAgent.
+     */
+    /*--ark web()--*/
+    virtual void SetUserAgentMetadata(const ArkWebString& userAgent, ArkWebRefPtr<ArkWebUserAgentMetadata> metadata) {}
+
+    /**
+     * @brief Get the User-Agent metadata corresponding to the User-Agent.
+     *
+     * @param userAgent The User-Agent string.
+     */
+    /*--ark web()--*/
+    virtual ArkWebRefPtr<ArkWebUserAgentMetadataAck> GetUserAgentMetadata(const ArkWebString& userAgent)
+    {
+        return nullptr;
+    }
 
     /**
      * @brief Set url trust list with error message.

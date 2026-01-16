@@ -105,14 +105,18 @@ WebSchemeHandler::~WebSchemeHandler()
 {
     WVLOG_D("WebSchemeHandler::~WebSchemeHandler");
     ani_env* env = GetEnv();
-    if (env && request_start_callback_ && request_stop_callback_) {
+    if (!env) {
+        WVLOG_E("env is null");
+        return;
+    }
+    if (request_start_callback_) {
         if (env->GlobalReference_Delete(request_start_callback_) != ANI_OK) {
             WVLOG_E("delete reference obj fail");
-            return;
         }
+    }
+    if (request_stop_callback_) {
         if (env->GlobalReference_Delete(request_stop_callback_) != ANI_OK) {
             WVLOG_E("delete reference obj fail");
-            return;
         }
     }
     ArkWeb_SchemeHandler* handler = const_cast<ArkWeb_SchemeHandler*>(GetArkWebSchemeHandler(this));

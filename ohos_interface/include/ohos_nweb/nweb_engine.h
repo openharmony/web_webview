@@ -145,6 +145,17 @@ public:
     virtual void SetScrollbarMode(ScrollbarMode mode) {}
 
     virtual void LibraryLoaded(std::shared_ptr<NWebEngineInitArgs> init_args, bool lazy) {}
+
+    virtual std::string DumpArkWebInfo(const std::string& param) {
+        return "";
+    }
+
+    virtual void SetUserAgentClientHintsEnabled(bool enabled) {}
+
+    virtual bool GetUserAgentClientHintsEnabled()
+    {
+        return false;
+    }
 };
 
 } // namespace OHOS::NWeb

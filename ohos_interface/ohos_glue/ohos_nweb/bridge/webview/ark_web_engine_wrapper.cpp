@@ -25,6 +25,8 @@
 #include "ohos_nweb/bridge/ark_web_nweb_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_web_storage_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_proxy_changed_callback_wrapper.h"
+#include "ohos_nweb/bridge/ark_web_user_agent_metadata_impl.h"
+#include "ohos_nweb/bridge/ark_web_user_agent_metadata_ack_wrapper.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
 #include "base/include/ark_web_errno.h"
@@ -406,5 +408,23 @@ void ArkWebEngineWrapper::LibraryLoaded(std::shared_ptr<OHOS::NWeb::NWebEngineIn
 
     ArkWebRefPtr<ArkWebEngineInitArgs> ark_web_engine_init_args = new ArkWebEngineInitArgsImpl(init_args);
     ark_web_engine_->LibraryLoaded(ark_web_engine_init_args, lazy);
+}
+
+std::string ArkWebEngineWrapper::DumpArkWebInfo(const std::string& param)
+{
+    ArkWebString arkwebStr = ArkWebStringClassToStruct(param);
+    std::string structToClass = ArkWebStringStructToClass(ark_web_engine_->DumpArkWebInfo(arkwebStr));
+    ArkWebStringStructRelease(arkwebStr);
+    return structToClass;
+}
+
+void ArkWebEngineWrapper::SetUserAgentClientHintsEnabled(bool enabled)
+{
+    ark_web_engine_->SetUserAgentClientHintsEnabled(enabled);
+}
+ 
+bool ArkWebEngineWrapper::GetUserAgentClientHintsEnabled()
+{
+    return ark_web_engine_->GetUserAgentClientHintsEnabled();
 }
 } // namespace OHOS::ArkWeb

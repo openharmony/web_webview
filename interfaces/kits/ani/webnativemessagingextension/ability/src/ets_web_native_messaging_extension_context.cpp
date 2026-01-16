@@ -69,14 +69,13 @@ public:
     {
         return context_;
     }
-    
-    static void StartAbility(ani_env* env,
-        ani_object obj, ani_object want, ani_object options)
+
+    static void StartAbility(ani_env* env, ani_object obj, ani_object want, ani_object options)
     {
         auto etsExtensionContext = GetEtsAbilityContext(env, obj);
         if (etsExtensionContext == nullptr) {
-            WNMLOG_E("null etsExtensionContext");
-            return ;
+            WNMLOG_E("etsExtensionContext is null");
+            return;
         }
         etsExtensionContext->OnStartAbility(env, obj, want, options);
     }
@@ -85,10 +84,20 @@ public:
     {
         auto etsExtensionContext = GetEtsAbilityContext(env, obj);
         if (etsExtensionContext == nullptr) {
-            WNMLOG_E("null etsExtensionContext");
-            return ;
+            WNMLOG_E("etsExtensionContext is null");
+            return;
         }
         etsExtensionContext->OnTerminateSelf(env, obj);
+    }
+
+    static void StopNativeConnection(ani_env* env, ani_object obj, ani_int connectionId)
+    {
+        auto etsExtensionContext = GetEtsAbilityContext(env, obj);
+        if (etsExtensionContext == nullptr) {
+            WNMLOG_E("etsExtensionContext is null");
+            return;
+        }
+        etsExtensionContext->OnStopNativeConnection(env, obj, connectionId);
     }
 private:
     std::weak_ptr<WebNativeMessagingExtensionContext> context_;
@@ -127,7 +136,7 @@ private:
         WNMLOG_D("OnTerminateSelf");
         if (env == nullptr) {
             WVLOG_E("env is nullptr");
-            return ;
+            return;
         }
         auto innerErrCode = std::make_shared<ErrCode>(ERR_OK);
         auto context = context_.lock();
@@ -164,7 +173,7 @@ private:
         WNMLOG_D("OnStartAbility");
         if (env == nullptr) {
             WVLOG_E("env is nullptr");
-            return ;
+            return;
         }
         AAFwk::Want want;
         AAFwk::StartOptions startOptions;
@@ -182,7 +191,31 @@ private:
         } else {
             *innerErrCode = context->StartAbility(want, startOptions);
         }
-        
+
+        if (*innerErrCode != ERR_OK) {
+            AniBusinessError::ThrowErrorByErrCode(env, *innerErrCode);
+        }
+    }
+
+    void OnStopNativeConnection(ani_env* env, ani_object obj, ani_int connectionId)
+    {
+        WNMLOG_D("OnStopNativeConnection");
+        if (env == nullptr) {
+            WVLOG_E("env is nullptr");
+            return;
+        }
+
+        int32_t connId = static_cast<int32_t>(connectionId);
+
+        auto innerErrCode = std::make_shared<ErrCode>(ERR_OK);
+        auto context = context_.lock();
+        if (!context) {
+            WNMLOG_E("context is null");
+            *innerErrCode = static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+        } else {
+            *innerErrCode = context->StopNativeConnection(connId);
+        }
+
         if (*innerErrCode != ERR_OK) {
             AniBusinessError::ThrowErrorByErrCode(env, *innerErrCode);
         }
@@ -202,6 +235,8 @@ bool BindNativeMethods(ani_env *env, ani_class &cls)
             reinterpret_cast<void *>(ETSWebNativeMessagingExtensionContext::StartAbility) },
         ani_native_function { "terminateSelfSync", nullptr,
             reinterpret_cast<void *>(ETSWebNativeMessagingExtensionContext::TerminateSelf) },
+        ani_native_function { "stopNativeConnectionSync", nullptr,
+            reinterpret_cast<void *>(ETSWebNativeMessagingExtensionContext::StopNativeConnection) },
     };
     if ((status = env->Class_BindNativeMethods(cls, functions.data(), functions.size())) != ANI_OK
             && status != ANI_ALREADY_BINDED) {

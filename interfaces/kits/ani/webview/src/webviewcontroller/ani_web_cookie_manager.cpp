@@ -17,6 +17,7 @@
 
 #include "ani_business_error.h"
 #include "ani_parse_utils.h"
+#include "ani_web_cookie_manager.h"
 #include "nweb_log.h"
 #include "web_errors.h"
 #include "nweb_helper.h"
@@ -28,6 +29,11 @@ using NWebError::NO_ERROR;
 namespace {
 const char* WEB_COOKIE_MANAGER_CLASS_NAME = "@ohos.web.webview.webview.WebCookieManager";
 }
+
+const std::string TASK_ID = "configCookieAsync";
+constexpr int32_t PARAM_NUM = 1;
+constexpr long RESULT_OK = 1;
+
 static void ClearSessionCookieSync(ani_env *env, ani_object aniClass)
 {
     WVLOG_D("[COOKIE] ClearSessionCookieSync");
@@ -82,7 +88,8 @@ static ani_boolean JsIsCookieAllowed(ani_env *env, ani_object aniClass)
     return static_cast<ani_boolean>(cookieManager->IsAcceptCookieAllowed());
 }
 
-static void SetCookieSyncParseString(ani_env *env, ani_string url, ani_string value, std::string& urlStr, std::string& valueStr)
+static void JsSetCookieSyncParseString(ani_env *env, ani_string url, ani_string value, std::string& urlStr,
+    std::string& valueStr)
 {
     if (!AniParseUtils::ParseString(env, url, urlStr)) {
         WVLOG_E("Parse url failed.");
@@ -121,7 +128,7 @@ static void JsSetCookieSyncThree(ani_env *env, ani_object aniClass, ani_string u
     }
     std::string urlStr;
     std::string valueStr;
-    SetCookieSyncParseString(env, url, value, urlStr, valueStr);
+    JsSetCookieSyncParseString(env, url, value, urlStr, valueStr);
     bool incognitoMode = false;
     isUndefined = ANI_TRUE;
     env->Reference_IsUndefined(incognito, &isUndefined);
@@ -172,7 +179,7 @@ static void JsSetCookieSync(ani_env *env, ani_object aniClass, ani_string url, a
     }
     std::string urlStr;
     std::string valueStr;
-    SetCookieSyncParseString(env, url, value, urlStr, valueStr);
+    JsSetCookieSyncParseString(env, url, value, urlStr, valueStr);
     bool incognitoMode = static_cast<bool>(incognito);
     bool bIncludeHttpOnly = static_cast<bool>(includeHttpOnly);
     int isSet = -1;
@@ -187,6 +194,198 @@ static void JsSetCookieSync(ani_env *env, ani_object aniClass, ani_string url, a
     } else if (isSet == NWebError::INVALID_COOKIE_VALUE) {
         AniBusinessError::ThrowErrorByErrCode(env, NWebError::INVALID_COOKIE_VALUE);
         return;
+    }
+}
+
+NWebConfigCookieCallbackImpl::NWebConfigCookieCallbackImpl(ani_env* env, ani_ref callback, ani_resolver resolver)
+    :vm_(nullptr), callback_(nullptr), resolver_(resolver)
+{
+    WVLOG_D("enter NWebConfigCookieCallbackImpl::NWebConfigCookieCallbackImpl");
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    env->GetVM(&vm_);
+    if (callback) {
+        env->GlobalReference_Create(callback, &callback_);
+    }
+}
+
+NWebConfigCookieCallbackImpl::~NWebConfigCookieCallbackImpl()
+{
+    WVLOG_D("enter NWebConfigCookieCallbackImpl::~NWebConfigCookieCallbackImpl");
+    ani_env* env = GetEnv();
+    if (env && callback_) {
+        env->GlobalReference_Delete(callback_);
+    }
+}
+
+void UvAfterWorkCbPromise(std::shared_ptr<NWebConfigCookieCallbackImpl> cookieObj, long result)
+{
+    if (!cookieObj) {
+        WVLOG_E("cookieObj is null");
+        return;
+    }
+    ani_resolver resolver = cookieObj->GetResolver();
+    if (!resolver) {
+        WVLOG_E("resolver is null");
+        return;
+    }
+    ani_env* env = cookieObj->GetEnv();
+    if (!env) {
+        WVLOG_E("env is null");
+        return;
+    }
+    ani_ref resultRef = nullptr;
+    ani_status status = ANI_OK;
+    if (result != RESULT_OK) {
+        resultRef = AniBusinessError::CreateError(env, result);
+        if ((status = env->PromiseResolver_Reject(resolver, reinterpret_cast<ani_error>(resultRef))) != ANI_OK) {
+            WVLOG_E("promise reject error status = %{public}d", status);
+        }
+    } else {
+        env->GetNull(&resultRef);
+        if ((status = env->PromiseResolver_Resolve(resolver, resultRef)) != ANI_OK) {
+            WVLOG_E("promise reject error status = %{public}d", status);
+        }
+    }
+}
+
+void UvJsCallbackThreadWoker(std::shared_ptr<NWebConfigCookieCallbackImpl> cookieObj, long result)
+{
+    WVLOG_D("in NWebConfigCookieCallbackImpl::OnReceiveValue result = %{public}ld", result);
+    if (!cookieObj) {
+        WVLOG_E("cookieObj is null");
+        return;
+    }
+    ani_env* env = cookieObj->GetEnv();
+    if (!env) {
+        WVLOG_E("env is null");
+        return;
+    }
+    if (cookieObj->GetCallBack()) {
+        ani_ref resultRef = nullptr;
+        ani_status status = ANI_OK;
+        ani_ref callbackResult = nullptr;
+        if (result != RESULT_OK) {
+            resultRef = AniBusinessError::CreateError(env, result);
+        } else {
+            if ((status = env->GetNull(&resultRef)) != ANI_OK) {
+                WVLOG_E("resultRef is null");
+                return;
+            }
+        }
+        if ((status = env->FunctionalObject_Call(static_cast<ani_fn_object>(cookieObj->GetCallBack()),
+            PARAM_NUM, &resultRef, &callbackResult)) != ANI_OK) {
+            WVLOG_E("callback function execute error status = %{public}d", status);
+        }
+    }
+    if (cookieObj->GetResolver()) {
+        UvAfterWorkCbPromise(cookieObj, result);
+    }
+}
+
+void NWebConfigCookieCallbackImpl::OnReceiveValue(long result)
+{
+    WVLOG_D("in NWebConfigCookieCallbackImpl::OnReceiveValue result = %{public}ld", result);
+    std::shared_ptr<NWebConfigCookieCallbackImpl> sharedThis = shared_from_this();
+
+    if (!mainHandler_) {
+        std::shared_ptr<OHOS::AppExecFwk::EventRunner> runner = OHOS::AppExecFwk::EventRunner::GetMainEventRunner();
+        if (!runner) {
+            return;
+        }
+        mainHandler_ = std::make_shared<OHOS::AppExecFwk::EventHandler>(runner);
+    }
+
+    if (!mainHandler_) {
+        WVLOG_E("mainHandler_ is null.");
+        return;
+    }
+
+    auto task = [sharedThis, result] () { UvJsCallbackThreadWoker(sharedThis, result); };
+    bool postResult = false;
+    postResult = mainHandler_->PostTask(std::move(task), TASK_ID, 0, OHOS::AppExecFwk::EventQueue::Priority::HIGH, {});
+    if (postResult) {
+        WVLOG_D("PostTask success");
+    } else {
+        WVLOG_E("PostTask failed");
+    }
+}
+
+static ani_object JsSetCookiePromise(ani_env *env, ani_object aniClass, ani_string url, ani_string value,
+    ani_boolean incognito, ani_boolean includeHttpOnly)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    std::string urlStr;
+    std::string valueStr;
+    JsSetCookieSyncParseString(env, url, value, urlStr, valueStr);
+    bool tempIncognito = static_cast<bool>(incognito);
+    bool tempIncludeHttpOnly = static_cast<bool>(includeHttpOnly);
+    ani_object promise;
+    ani_resolver resolver;
+    if (env->Promise_New(&resolver, &promise) != ANI_OK) {
+        WVLOG_E("create promise object error");
+        return nullptr;
+    }
+    if (promise && resolver) {
+        std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
+            OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
+        if (cookieManager == nullptr) {
+            ani_ref jsResult = nullptr;
+            env->GetUndefined(&jsResult);
+            if (env ->PromiseResolver_Reject(resolver, static_cast<ani_error>(jsResult)) != ANI_OK) {
+                WVLOG_E("promise reject error");
+                return nullptr;
+            }
+        } else {
+            auto callbackImpl = std::make_shared<OHOS::NWeb::NWebConfigCookieCallbackImpl>(env, nullptr, resolver);
+            cookieManager->SetCookieAsync(urlStr, valueStr, tempIncognito, tempIncludeHttpOnly, callbackImpl);
+        }
+    }
+    return promise;
+}
+
+static void JsSetCookieCallback(ani_env *env, ani_object aniClass, ani_string url, ani_string value,
+    ani_object callback)
+{
+    if (!env) {
+        WVLOG_E("env is null");
+        return;
+    }
+    if (!AniParseUtils::IsFunction(env, callback)) {
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "callback", "function"));
+        return;
+    }
+    std::string urlStr;
+    std::string valueStr;
+    JsSetCookieSyncParseString(env, url, value, urlStr, valueStr);
+    std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
+        OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
+    if (cookieManager == nullptr) {
+        WVLOG_E("cookieManager is null");
+        ani_status status = ANI_OK;
+        ani_ref jsResult = nullptr;
+        ani_ref jsCallback = nullptr;
+        if ((status = env->GetNull(&jsResult)) != ANI_OK) {
+            WVLOG_E("jsResult is null");
+            return;
+        }
+        env->GlobalReference_Create(callback, &jsCallback);
+        if (jsCallback) {
+            ani_ref callbackResult = nullptr;
+            if ((status = env->FunctionalObject_Call(static_cast<ani_fn_object>(jsCallback),
+                PARAM_NUM, &jsResult, &callbackResult)) != ANI_OK) {
+                WVLOG_E("callback function execute error status = %{public}d", status);
+                }
+        }
+    } else {
+        auto callbackImpl = std::make_shared<OHOS::NWeb::NWebConfigCookieCallbackImpl>(env, callback, nullptr);
+        cookieManager->SetCookieAsync(urlStr, valueStr, false, false, callbackImpl);
     }
 }
 
@@ -356,6 +555,8 @@ ani_status StsWebCookieManagerInit(ani_env *env)
         ani_native_function { "configCookieSyncInternal", nullptr, reinterpret_cast<void *>(JsSetCookieSyncThree) },
         ani_native_function { "configCookieSync", "C{std.core.String}C{std.core.String}zz:",
                               reinterpret_cast<void *>(JsSetCookieSync) },
+        ani_native_function { "configCookiePromise", nullptr, reinterpret_cast<void *>(JsSetCookiePromise)},
+        ani_native_function { "configCookieCallback", nullptr, reinterpret_cast<void *>(JsSetCookieCallback)},
         ani_native_function { "putAcceptCookieEnabled", nullptr, reinterpret_cast<void *>(JsPutAcceptCookieEnabled) },
         ani_native_function {"putAcceptThirdPartyCookieEnabled", nullptr,
             reinterpret_cast<void *>(JsPutAcceptThirdPartyCookieEnabled) },

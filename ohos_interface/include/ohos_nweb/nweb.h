@@ -43,6 +43,7 @@
 #include "nweb_web_message.h"
 #include "nweb_print_manager_adapter.h"
 #include "nweb_blankless_callback.h"
+#include "nweb_user_agent_metadata.h"
 
 namespace OHOS::NWeb {
 
@@ -2401,6 +2402,24 @@ public:
      * @brief Forces a full reload of the current page, bypassing the browser cache.
      */
     virtual void ReloadIgnoreCache() {};
+
+    /**
+     * @brief Sets the User-Agent metadata corresponding to the User-Agent.
+     *
+     * @param userAgent The User-Agent string.
+     * @param metaData The UserAgentMetadata for the userAgent.
+     */
+    virtual void SetUserAgentMetadata(const std::string& userAgent, std::shared_ptr<NWebUserAgentMetadata> metaData) {}
+
+    /**
+     * @brief Get the User-Agent metadata corresponding to the User-Agent.
+     *
+     * @param userAgent The User-Agent string.
+     */
+    virtual std::shared_ptr<NWebUserAgentMetadata> GetUserAgentMetadata(const std::string& userAgent)
+    {
+        return nullptr;
+    }
 
     /**
      * @brief Set url trust list with error message.

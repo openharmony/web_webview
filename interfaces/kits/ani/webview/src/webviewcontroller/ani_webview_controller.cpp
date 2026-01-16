@@ -52,6 +52,9 @@
 #include "nweb_cache_options_impl.h"
 #include "ani_nweb_value_callback_impl.h"
 #include "nweb_store_web_archive_callback.h"
+#include "nweb_user_agent_brand_version_impl.h"
+#include "nweb_user_agent_metadata_impl.h"
+#include "ani_user_agent_metadata.h"
 
 #include "bundle_mgr_proxy.h"
 #include "if_system_ability_manager.h"
@@ -127,6 +130,7 @@ const char* ANI_WEB_CUSTOM_SCHEME_CLASS = "@ohos.web.webview.webview.WebCustomSc
 constexpr size_t BFCACHE_DEFAULT_SIZE = 1;
 constexpr size_t BFCACHE_DEFAULT_TIMETOLIVE = 600;
 const char* WEB_CONTROLLER_SECURITY_LEVEL_ENUM_NAME = "@ohos.web.webview.webview.SecurityLevel";
+constexpr double MINIMAL_ERROR = 0.000001;
 using WebPrintWriteResultCallback = std::function<void(const std::string&, uint32_t)>;
 struct PDFMarginConfig {
     double top = TEN_MILLIMETER_TO_INCH;
@@ -534,6 +538,10 @@ static void Clean(ani_env *env, ani_object object)
         }
     } else if (clsName == "ProxyConfig") {
         delete reinterpret_cast<ProxyConfig *>(ptr);
+    } else if (clsName == "UserAgentMetadata") {
+        delete reinterpret_cast<NWebUserAgentMetadataImpl *>(ptr);
+    } else if (clsName == "UserAgentBrandVersion") {
+        delete reinterpret_cast<NWebUserAgentBrandVersionImpl *>(ptr);
     } else if (clsName == "WebSchemeHandlerResponse") {
         delete reinterpret_cast<WebSchemeHandlerResponse *>(ptr);
     } else if (clsName == "WebDownloadDelegate") {
@@ -1544,30 +1552,32 @@ static void clearMatches(ani_env *env, ani_object object)
     controller->ClearMatches();
 }
 
-static void Refresh(ani_env* env, ani_object object, ani_object aniIgnoreCache)
+static void Refresh(ani_env *env, ani_object object)
 {
     WVLOG_D("[WebviewCotr] Refresh");
     if (!env) {
-        WVLOG_E("env is nullptr");
         return;
     }
-    ani_boolean isUndefined = ANI_TRUE;
-    bool ignoreCache = false;
-    env->Reference_IsUndefined(aniIgnoreCache, &isUndefined);
-    if (isUndefined != ANI_TRUE) {
-        ani_boolean ignoreCacheMode;
-        if (env->Object_CallMethodByName_Boolean(aniIgnoreCache, "toBoolean", nullptr, &ignoreCacheMode) != ANI_OK) {
-            AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "aniIgnoreCache", "boolean"));
-            return;
-        }
-        ignoreCache = static_cast<bool>(ignoreCacheMode);
-    }
-    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
     if (!controller || !controller->IsInit()) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
+    controller->Refresh();
+}
+
+static void ReloadIgnoreCache(ani_env *env, ani_object object, ani_boolean aniIgnoreCache)
+{
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    bool ignoreCache = static_cast<bool>(aniIgnoreCache);
     if (ignoreCache) {
         controller->ReloadIgnoreCache();
     } else {
@@ -4717,6 +4727,28 @@ static void HandleInt64Array(ani_env* env, ani_object array, WebMessageExt* webM
     webMessageExt->SetInt64Array(intVec);
 }
 
+bool UseDouble(ani_env* env, const ani_ref& element, bool& isDouble)
+{
+    if (!env) {
+        WVLOG_E("env is null");
+        return false;
+    }
+
+    int elementInt = 0;
+    double elementDouble = 0.0;
+    if (env->Object_CallMethodByName_Int(static_cast<ani_object>(element), "toInt", ":i", &elementInt) != ANI_OK) {
+        WVLOG_E("to int value failed");
+        return false;
+    }
+    if (env->Object_CallMethodByName_Double(static_cast<ani_object>(element), "toDouble", ":d", &elementDouble) !=
+        ANI_OK) {
+        WVLOG_E("to double value failed");
+        return false;
+    }
+    isDouble = abs(elementDouble - elementInt * 1.0) > MINIMAL_ERROR;
+    return true;
+}
+
 static void SetArray(ani_env* env, ani_object object, ani_object array)
 {
     WVLOG_D("WebMessageExt SetArray start.");
@@ -4744,6 +4776,7 @@ static void SetArray(ani_env* env, ani_object object, ani_object array)
     }
 
     ani_object elementObj = static_cast<ani_object>(element);
+    bool isDouble = false;
     if (AniParseUtils::IsString(env, elementObj)) {
         HandleStringArray(env, array, webMessageExt);
     } else if (AniParseUtils::IsBoolean(env, elementObj)) {
@@ -4751,7 +4784,15 @@ static void SetArray(ani_env* env, ani_object object, ani_object array)
     } else if (AniParseUtils::IsDouble(env, elementObj)) {
         HandleDoubleArray(env, array, webMessageExt);
     } else if (AniParseUtils::IsInteger(env, elementObj)) {
-        HandleInt64Array(env, array, webMessageExt);
+        if (!UseDouble(env, element, isDouble)) {
+            WVLOG_E("UseDouble execute failed");
+            return;
+        }
+        if (isDouble) {
+            HandleDoubleArray(env, array, webMessageExt);
+        } else {
+            HandleInt64Array(env, array, webMessageExt);
+        }
     } else {
         WVLOG_E("Unsupported array element type");
     }
@@ -6776,6 +6817,95 @@ static void SetScrollbarMode(ani_env *env, ani_object object, ani_enum_item mode
     NWebHelper::Instance().SetScrollbarMode(static_cast<OHOS::NWeb::ScrollbarMode>(modeInt));
 }
 
+static void SetUserAgentClientHintsEnabled(ani_env* env, ani_object object, ani_boolean aniEnable)
+{
+    if (IS_CALLING_FROM_M114() || !env) {
+        WVLOG_E("SetUserAgentClientHintsEnabled unsupported engine version: M114 or env is nullptr");
+        return;
+    }
+    WVLOG_D("SetUserAgentClientHintsEnabled enable:%{public}d", aniEnable);
+    NWebHelper::Instance().SetUserAgentClientHintsEnabled(static_cast<bool>(aniEnable));
+}
+
+static ani_boolean GetUserAgentClientHintsEnabled(ani_env* env, ani_object object)
+{
+    if (IS_CALLING_FROM_M114() || !env) {
+        WVLOG_E("GetUserAgentClientHintsEnabled unsupported engine version: M114 or env is nullptr");
+        return ANI_FALSE;
+    }
+    WVLOG_D("GetUserAgentClientHintsEnabled.");
+    return static_cast<ani_boolean>(NWebHelper::Instance().GetUserAgentClientHintsEnabled());
+}
+
+static void SetUserAgentMetadata(ani_env* env, ani_object object, ani_object aniUserAgent, ani_object aniMetadata)
+{
+    if (IS_CALLING_FROM_M114() || !env) {
+        WVLOG_E("SetUserAgentMetadata unsupported engine version: M114 or env is nullptr");
+        return;
+    }
+    WVLOG_D("webviewController SetUserAgentMetadata.");
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    std::string userAgent;
+    if (!AniParseUtils::ParseString(env, aniUserAgent, userAgent)) {
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "userAgent", "string"));
+        return;
+    }
+    auto* metadata = reinterpret_cast<NWebUserAgentMetadataImpl*>(AniParseUtils::Unwrap(env, aniMetadata));
+    if (!metadata) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    std::vector<std::string> strBrand;
+    std::vector<std::string> strMajorVersion;
+    std::vector<std::string> strFullVersion;
+    metadata->GetBrandVersionList(strBrand, strMajorVersion, strFullVersion);
+    UserAgentMetadataInfo metadataInfo { .arch = metadata->GetArchitecture(),
+        .bitness = metadata->GetBitness(),
+        .formFactors = metadata->GetFormFactors(),
+        .fullVersion = metadata->GetFullVersion(),
+        .isMobile = metadata->GetMobile(),
+        .model = metadata->GetModel(),
+        .platform = metadata->GetPlatform(),
+        .platformVersion = metadata->GetPlatformVersion(),
+        .isWow64 = metadata->GetWow64() };
+    auto ptrMetadata = std::make_shared<OHOS::NWeb::NWebUserAgentMetadataImpl>(
+        strBrand, strMajorVersion, strFullVersion, metadataInfo);
+    controller->SetUserAgentMetadata(userAgent, ptrMetadata);
+}
+
+static ani_object GetUserAgentMetadata(ani_env* env, ani_object object, ani_object aniUserAgent)
+{
+    if (IS_CALLING_FROM_M114() || !env) {
+        WVLOG_E("GetUserAgentMetadata unsupported engine version: M114 or env is nullptr");
+        return nullptr;
+    }
+    WVLOG_D("webviewController GetUserAgentMetadata ");
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return nullptr;
+    }
+    std::string userAgent;
+    if (!AniParseUtils::ParseString(env, aniUserAgent, userAgent)) {
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "userAgent", "string"));
+        return nullptr;
+    }
+    auto metadata = controller->GetUserAgentMetadata(userAgent);
+    if (!metadata) {
+        WVLOG_E("GetUserAgentMetadata is null");
+        return nullptr;
+    }
+    ani_object metadataObj = {};
+    metadataObj = CreateUserAgentMetadataObject(env, metadata);
+    return metadataObj;
+}
+
 static void SetSiteIsolationMode(ani_env *env, ani_object object, ani_enum_item mode)
 {
     WVLOG_D("[WebviewCotr] SetSiteIsolationMode");
@@ -7248,7 +7378,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "zoomIn", nullptr, reinterpret_cast<void *>(ZoomIn) },
         ani_native_function { "getLastHitTest", nullptr, reinterpret_cast<void *>(GetLastHitTest) },
         ani_native_function { "getPageHeight", nullptr, reinterpret_cast<void *>(GetPageHeight) },
-        ani_native_function { "refresh", nullptr, reinterpret_cast<void *>(Refresh) },
+        ani_native_function { "reload", nullptr, reinterpret_cast<void *>(Refresh) },
+        ani_native_function { "reloadIgnoreCache", nullptr, reinterpret_cast<void *>(ReloadIgnoreCache) },
         ani_native_function { "stop", nullptr, reinterpret_cast<void *>(Stop) },
         ani_native_function { "clearSslCache", nullptr, reinterpret_cast<void *>(clearSslCache) },
         ani_native_function { "clearMatches", nullptr, reinterpret_cast<void *>(clearMatches) },
@@ -7351,6 +7482,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void *>(OffControllerAttachStateChange) },
         ani_native_function { "waitForAttachedPromise", nullptr, reinterpret_cast<void *>(WaitForAttachedPromise) },
         ani_native_function { "setWebDetach", nullptr, reinterpret_cast<void *>(SetWebDetach) },
+        ani_native_function { "setUserAgentMetadata", nullptr, reinterpret_cast<void*>(SetUserAgentMetadata) },
+        ani_native_function { "getUserAgentMetadata", nullptr, reinterpret_cast<void*>(GetUserAgentMetadata) },
     };
     status = env->Class_BindNativeMethods(webviewControllerCls, instanceMethods.data(), instanceMethods.size());
     if (status != ANI_OK) {
@@ -7419,6 +7552,10 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void*>(IsActiveWebEngineEvergreen) },
         ani_native_function { "setScrollbarMode", nullptr,
                               reinterpret_cast<void *>(SetScrollbarMode) },
+        ani_native_function {
+            "setUserAgentClientHintsEnabled", nullptr, reinterpret_cast<void*>(SetUserAgentClientHintsEnabled) },
+        ani_native_function {
+            "getUserAgentClientHintsEnabled", nullptr, reinterpret_cast<void*>(GetUserAgentClientHintsEnabled) },
     };
     status = env->Class_BindStaticNativeMethods(webviewControllerCls, controllerStaticMethods.data(),
         controllerStaticMethods.size());

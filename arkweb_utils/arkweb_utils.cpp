@@ -230,7 +230,7 @@ static void ProcessJsonConfig(const Json::Value& root)
 static bool GetVersionString(const std::string& versionFilePath, std::string& versionStr)
 {
     std::ifstream file(versionFilePath);
-    if(!file.is_open()) {
+    if (!file.is_open()) {
         WVLOG_E("can not open version file: %{public}s", versionFilePath.c_str());
         return false;
     }
@@ -774,11 +774,13 @@ void* CreateRelroFile(const std::string& lib, Dl_namespace* dlns)
     if (unlink(NWEB_RELRO_PATH.c_str()) != 0 && errno != ENOENT) {
         WVLOG_E("CreateRelroFile unlink failed, error=[%{public}s]", strerror(errno));
     }
+    uint64_t relroFdTag = LOG_RENDER_DOMAIN;
     int relroFd = open(NWEB_RELRO_PATH.c_str(), O_RDWR | O_TRUNC | O_CLOEXEC | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
     if (relroFd < 0) {
         WVLOG_E("CreateRelroFile open failed, error=[%{public}s]", strerror(errno));
         return nullptr;
     }
+    fdsan_exchange_owner_tag(relroFd, 0, relroFdTag);
 
     WVLOG_I("CreateRelroFile: dlopen_ns_ext extinfo with reserved address.");
     dl_extinfo extinfo = {
@@ -791,7 +793,7 @@ void* CreateRelroFile(const std::string& lib, Dl_namespace* dlns)
     if (!result) {
         WVLOG_E("CreateRelroFile: dlopen_ns_ext failed, error=[%{public}s]", strerror(errno));
     }
-    close(relroFd);
+    fdsan_close_with_tag(relroFd, relroFdTag);
     return result;
 }
 
@@ -807,11 +809,11 @@ void CreateRelroFileInSubProc()
         }
         if (setuid(SHARED_RELRO_UID) != 0 || setgid(SHARED_RELRO_UID)  != 0) {
             WVLOG_E("Set uid/gid failed, error=[%{public}s]", strerror(errno));
-            _exit(0);
+            exit(0);
         }
         if (RestoreconRecurse(SHARED_RELRO_DIR.c_str()) != 0) {
             WVLOG_E("Restorecon failed, error=[%{public}s]", strerror(errno));
-            _exit(0);
+            exit(0);
         }
 
         const std::string libNsName = GetArkwebNameSpace();
@@ -829,7 +831,7 @@ void CreateRelroFileInSubProc()
         } else {
             WVLOG_E("Create relro file failed.");
         }
-        _exit(0);
+        exit(0);
     }
 }
 
@@ -844,11 +846,13 @@ void* LoadWithRelroFile(const std::string& lib, Dl_namespace* dlns)
     }
 
     WVLOG_I("3.LoadWithRelroFile begin.");
+    uint64_t relroFdTag = LOG_RENDER_DOMAIN;
     int relroFd = open(NWEB_RELRO_PATH.c_str(), O_RDONLY);
     if (relroFd < 0) {
         WVLOG_E("LoadWithRelroFile open failed, error=[%{public}s]", strerror(errno));
         return nullptr;
     }
+    fdsan_exchange_owner_tag(relroFd, 0, relroFdTag);
 
     WVLOG_I("LoadWithRelroFile: dlopen_ns_ext extinfo with reserved address.");
     dl_extinfo extinfo = {
@@ -858,7 +862,7 @@ void* LoadWithRelroFile(const std::string& lib, Dl_namespace* dlns)
         .reserved_size = g_reservedSize,
     };
     void* result = dlopen_ns_ext(dlns, lib.c_str(), RTLD_NOW | RTLD_GLOBAL, &extinfo);
-    close(relroFd);
+    fdsan_close_with_tag(relroFd, relroFdTag);
     return result;
 }
 }

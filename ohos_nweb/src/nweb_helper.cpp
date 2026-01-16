@@ -720,7 +720,7 @@ std::shared_ptr<OHOS::NWeb::NWebEngineInitArgs> NWebHelper::GetInitArgs()
 
     NWebAdapterHelper::Instance().ParseConfig(initArgs);
 
-    initArgs->AddArg(std::string("--user-data-dir=").append(ctx->GetBaseDir()));
+    initArgs->AddArg(std::string("--arkweb-app-data-dir=").append(ctx->GetBaseDir()));
     initArgs->AddArg(std::string("--bundle-installation-dir=").append(bundlePath_));
     initArgs->AddArg(NWebConfigHelper::Instance().GetWebPlayGroundInitArg());
 
@@ -1483,4 +1483,38 @@ void NWebHelper::RemoveNWebActiveStatus(int32_t nwebId)
     nwebActiveStatusMap_.erase(nwebId);
 }
 
+std::string NWebHelper::DumpArkWebInfo(const std::string& param)
+{
+    if (nwebEngine_ == nullptr) {
+        return std::string("web engine has not been initialized, can not dump arkweb info!");
+    }
+
+    return nwebEngine_->DumpArkWebInfo(param);
+}
+
+void NWebHelper::SetUserAgentClientHintsEnabled(bool enabled)
+{
+    if (!initFlag_) {
+        WVLOG_E("SetUserAgentClientHintsEnabled, not initialized");
+        return;
+    }
+    if (!nwebEngine_) {
+        WVLOG_E("web engine is nullptr");
+        return;
+    }
+    nwebEngine_->SetUserAgentClientHintsEnabled(enabled);
+}
+ 
+bool NWebHelper::GetUserAgentClientHintsEnabled()
+{
+    if (!initFlag_) {
+        WVLOG_E("GetUserAgentClientHintsEnabled, not initialized");
+        return false;
+    }
+    if (!nwebEngine_) {
+        WVLOG_E("web engine is nullptr");
+        return false;
+    }
+    return nwebEngine_->GetUserAgentClientHintsEnabled();
+}
 } // namespace OHOS::NWeb

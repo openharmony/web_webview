@@ -413,6 +413,96 @@ ohos_unittest("ets_web_native_messaging_extension_context_test") {
   ]
 }
 
+ohos_unittest("web_history_list_test") {
+  module_out_path = module_output_path
+
+  sources = [ 
+    "web_history_list_test.cpp",
+    "${webview_path}/interfaces/kits/nativecommon/web_history_list.cpp", 
+  ]
+
+  include_dirs = [ "../common" ]
+
+  deps = [
+    "$webview_path/interfaces/native:ohweb",
+    "$webview_path/ohos_nweb:web_configs",
+    "../../../ohos_nweb:libnweb",
+  ]
+
+  external_deps = [
+    "ability_runtime:app_context",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+    "graphic_2d:librender_service_client",
+    "hilog:libhilog",
+    "libxml2:libxml2",
+    "window_manager:libwm",
+  ]
+}
+
+ohos_unittest("web_resource_handler_test") {
+  module_out_path = module_output_path
+
+  sources = [ 
+    "web_resource_handler_test.cpp",
+    "${webview_path}/interfaces/kits/nativecommon/web_resource_handler.cpp", 
+  ]
+
+  include_dirs = [ "${webview_path}/interfaces/native" ]
+
+  deps = [
+    "$webview_path/interfaces/native:ohweb",
+    "$webview_path/ohos_nweb:web_configs",
+    "../../../ohos_nweb:libnweb",
+  ]
+
+  external_deps = [
+    "ability_runtime:app_context",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+    "graphic_2d:librender_service_client",
+    "hilog:libhilog",
+    "libxml2:libxml2",
+    "window_manager:libwm",
+  ]
+}
+
+ohos_unittest("web_scheme_handler_response_test") {
+  module_out_path = module_output_path
+
+  sources = [ 
+    "web_scheme_handler_response_test.cpp",
+    "${webview_path}/interfaces/kits/nativecommon/web_scheme_handler_response.cpp", 
+  ]
+
+  include_dirs = [ "${webview_path}/interfaces/native" ]
+
+  deps = [
+    "$webview_path/interfaces/native:ohweb",
+    "$webview_path/ohos_nweb:web_configs",
+    "../../../ohos_nweb:libnweb",
+  ]
+
+  external_deps = [
+    "ability_runtime:app_context",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+    "graphic_2d:librender_service_client",
+    "hilog:libhilog",
+    "libxml2:libxml2",
+    "window_manager:libwm",
+  ]
+}
+
 group("unittest") {
   testonly = true
   deps = [
@@ -426,5 +516,8 @@ group("unittest") {
     ":web_native_messaging_extension_proxy_test",
     ":web_native_messaging_service_test",
     ":web_native_messaging_manager_test",
+    ":web_history_list_test",
+    ":web_resource_handler_test",
+    ":web_scheme_handler_response_test",
   ]
 }

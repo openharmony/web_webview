@@ -158,6 +158,12 @@ public:
     void SetNWebActiveStatus(int32_t nwebId, bool nwebActiveStatus);
     void RemoveNWebActiveStatus(int32_t nwebId);
 
+    std::string DumpArkWebInfo(const std::string& param = "");
+
+    void SetUserAgentClientHintsEnabled(bool enabled);
+
+    bool GetUserAgentClientHintsEnabled();
+
 private:
     NWebHelper() = default;
     bool GetWebEngine(bool fromArk);

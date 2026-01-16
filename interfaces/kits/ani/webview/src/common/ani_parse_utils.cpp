@@ -863,9 +863,13 @@ bool AniParseUtils::ParseDoubleArray(ani_env* env, ani_object argv, std::vector<
     env->Object_GetPropertyByName_Int(argv, "length", &arrayLength);
     for (ani_int i = 0; i < arrayLength; i++) {
         ani_ref arrayItem = nullptr;
-        env->Array_Get(arrayRef, i, &arrayItem);
+        if (env->Array_Get(arrayRef, i, &arrayItem) != ANI_OK) {
+            WVLOG_E("get array value failed");
+            return false;
+        }
         double value;
-        if (ParseDouble(env, arrayItem, value)) {
+        if (env->Object_CallMethodByName_Double(static_cast<ani_object>(arrayItem), "toDouble", ":d", &value) ==
+            ANI_OK) {
             outValue.push_back(value);
         }
     }

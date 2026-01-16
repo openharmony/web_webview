@@ -1980,6 +1980,21 @@ public:
      */
     void ReloadIgnoreCache() override;
 
+    /**
+     * @brief Sets the User-Agent metadata corresponding to the User-Agent.
+     *
+     * @param userAgent The User-Agent string.
+     * @param metaData The UserAgentMetadata for the userAgent.
+     */
+    void SetUserAgentMetadata(const ArkWebString& userAgent, ArkWebRefPtr<ArkWebUserAgentMetadata> metadata) override;
+
+    /**
+     * @brief Get the User-Agent metadata corresponding to the User-Agent.
+     *
+     * @param userAgent The User-Agent string.
+     */
+    ArkWebRefPtr<ArkWebUserAgentMetadataAck> GetUserAgentMetadata(const ArkWebString& userAgent) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

@@ -137,7 +137,8 @@ enum ArkWebBridgeType {
     ARK_WEB_AGENT_HANDLER = 115,
     ARK_WEB_COMMAND_ACTION = 116,
     ARK_WEB_BLANKLESS_CALLBACK = 117,
-
+    ARK_WEB_USER_AGENT_METADATA = 118,
+    ARK_WEB_USER_AGENT_METADATA_ACK = 119,
     /*Note: The end of nweb interface bridge type*/
     ARK_WEB_NWEB_INTERFACE_BUTT,
 

@@ -61,7 +61,93 @@ ohos_unittest("arkweb_utils_test") {
   ]
 }
 
+config("share_relro_private_config") {
+  defines = [
+    "mmap=MmapMock",
+    "unlink=UnlinkMock",
+    "dlopen_ns_ext=DlopenNsExtMock",
+    "prctl=PrctlMock",
+    "setuid=SetUidMock",
+    "setgid=SetGidMock",
+    "RestoreconRecurse=RestoreconRecurseMock",
+  ]
+}
+
+ohos_unittest("share_relro_enabled_test") {
+  module_out_path = module_output_path
+  sources = [
+    "share_relro_enabled_test.cpp",
+    "mock_system_func.c"
+  ]
+  configs = [
+    ":module_private_config",
+    ":share_relro_private_config"
+  ]
+  deps = [
+    "$webview_path/arkweb_utils:libarkweb_utils",
+    "$webview_path/ohos_nweb:libnweb"
+  ]
+  external_deps = [
+    "ability_runtime:app_context",
+    "ability_runtime:app_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "audio_framework:audio_capturer",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+    "hilog:libhilog",
+    "cJSON:cjson",
+    "bundle_framework:appexecfwk_base",
+    "graphic_2d:librender_service_client",
+    "init:libbegetutil",
+    "window_manager:libwm",
+    "selinux_adapter:librestorecon"
+  ]
+}
+
+ohos_unittest("share_relro_disabled_test") {
+  module_out_path = module_output_path
+  sources = [
+    "share_relro_disabled_test.cpp",
+    "mock_system_func.c"
+  ]
+  configs = [
+    ":module_private_config",
+    ":share_relro_private_config"
+  ]
+  deps = [
+    "$webview_path/arkweb_utils:libarkweb_utils",
+    "$webview_path/ohos_nweb:libnweb"
+  ]
+  external_deps = [
+    "ability_runtime:app_context",
+    "ability_runtime:app_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "audio_framework:audio_capturer",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+    "hilog:libhilog",
+    "cJSON:cjson",
+    "bundle_framework:appexecfwk_base",
+    "graphic_2d:librender_service_client",
+    "init:libbegetutil",
+    "window_manager:libwm",
+    "selinux_adapter:librestorecon"
+  ]
+}
+
 group("unittest") {
   testonly = true
-  deps = [ ":arkweb_utils_test" ]
+  deps = [
+    ":arkweb_utils_test",
+    ":share_relro_enabled_test",
+    ":share_relro_disabled_test",
+  ]
 }
