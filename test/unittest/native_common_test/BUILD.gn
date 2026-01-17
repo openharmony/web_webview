@@ -14,7 +14,7 @@
 import("//base/web/webview/web_aafwk.gni")
 import("//build/test.gni")
 
-module_output_path = "webview/webview"
+module_output_path = "webview/Multimedia"
 
 ohos_unittest("native_common_test") {
   module_out_path = module_output_path

@@ -14,7 +14,7 @@
 import("//base/web/webview/web_aafwk.gni")
 import("//build/test.gni")
 
-module_output_path = "webview/webview"
+module_output_path = "webview/Networking"
 
 config("module_private_config") {
   visibility = [ ":*" ]

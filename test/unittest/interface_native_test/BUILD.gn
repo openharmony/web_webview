@@ -15,10 +15,8 @@ import("//build/test.gni")
 import("//build/config/components/idl_tool/idl.gni")
 import("../../../web_aafwk.gni")
 
-module_output_path = "webview/webview"
-
 ohos_unittest("arkweb_scheme_handler_test") {
-  module_out_path = module_output_path
+  module_out_path = "webview/Networking"
 
   sources = [ "arkweb_scheme_handler_test.cpp" ]
 
@@ -45,7 +43,7 @@ ohos_unittest("arkweb_scheme_handler_test") {
 }
 
 ohos_unittest("arkweb_interface_test") {
-  module_out_path = module_output_path
+  module_out_path = "webview/Web_Framework"
 
   sources = [ "arkweb_interface_test.cpp" ]
 
@@ -72,7 +70,7 @@ ohos_unittest("arkweb_interface_test") {
 }
 
 ohos_unittest("native_javascript_execute_callback_test") {
-  module_out_path = module_output_path
+  module_out_path = "webview/Networking"
 
   sources = [ "native_javascript_execute_callback_test.cpp" ]
 
@@ -98,7 +96,7 @@ ohos_unittest("native_javascript_execute_callback_test") {
 }
 
 ohos_unittest("native_interface_arkweb_test") {
-  module_out_path = module_output_path
+  module_out_path = "webview/Networking"
 
   sources = [ "native_interface_arkweb_test.cpp" ]
 
@@ -129,7 +127,7 @@ ohos_unittest("native_interface_arkweb_test") {
 }
 
 ohos_unittest("web_native_messaging_extension_context_info_test") {
-  module_out_path = module_output_path
+  module_out_path = "webview/security"
 
   sources = [
     "web_native_messaging_extension_context_info_test.cpp"
@@ -171,7 +169,7 @@ ohos_unittest("web_native_messaging_extension_context_info_test") {
 }
 
 ohos_unittest("web_native_messaging_extension_context_test") {
-  module_out_path = module_output_path
+  module_out_path = "webview/security"
 
   sources = [
     "web_native_messaging_extension_context_test.cpp"
@@ -213,7 +211,7 @@ ohos_unittest("web_native_messaging_extension_context_test") {
 }
 
 ohos_unittest("web_native_messaging_extension_proxy_test") {
-  module_out_path = module_output_path
+  module_out_path = "webview/security"
 
   sources = [
     "web_native_messaging_extension_proxy_test.cpp"
@@ -248,8 +246,6 @@ ohos_unittest("web_native_messaging_extension_proxy_test") {
   ]
 }
 
-module_output_path = "webview/webview"
-
 config("module_private_config") {
   visibility = [ ":*" ]
 
@@ -278,7 +274,7 @@ idl_gen_interface("web_native_messaging_service_interface") {
 }
 
 ohos_unittest("web_native_messaging_service_test") {
-  module_out_path = module_output_path
+  module_out_path = "webview/security"
   output_values = get_target_outputs(":web_native_messaging_service_interface")
   sources = [ "web_native_messaging_service_test.cpp" ]
   sources += [
@@ -326,7 +322,7 @@ ohos_unittest("web_native_messaging_service_test") {
 }
 
 ohos_unittest("web_native_messaging_manager_test") {
-  module_out_path = module_output_path
+  module_out_path = "webview/security"
   sources = [ "web_native_messaging_manager_test.cpp" ]
   output_values = get_target_outputs(":web_native_messaging_service_interface")
   sources += [
@@ -386,7 +382,7 @@ ohos_unittest("web_native_messaging_manager_test") {
 }
 
 ohos_unittest("ets_web_native_messaging_extension_context_test") {
-  module_out_path = module_output_path
+  module_out_path = "webview/security"
   sources = [ "ets_web_native_messaging_extension_context_test.cpp" ]
   include_dirs = [
     "${webview_path}/interfaces/kits/ani/webnativemessagingextension/ability/include",
@@ -414,7 +410,7 @@ ohos_unittest("ets_web_native_messaging_extension_context_test") {
 }
 
 ohos_unittest("web_history_list_test") {
-  module_out_path = module_output_path
+  module_out_path = "webview/Networking"
 
   sources = [ 
     "web_history_list_test.cpp",
@@ -444,7 +440,7 @@ ohos_unittest("web_history_list_test") {
 }
 
 ohos_unittest("web_resource_handler_test") {
-  module_out_path = module_output_path
+  module_out_path = "webview/Networking"
 
   sources = [ 
     "web_resource_handler_test.cpp",
@@ -474,7 +470,7 @@ ohos_unittest("web_resource_handler_test") {
 }
 
 ohos_unittest("web_scheme_handler_response_test") {
-  module_out_path = module_output_path
+  module_out_path = "webview/Networking"
 
   sources = [ 
     "web_scheme_handler_response_test.cpp",

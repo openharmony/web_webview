@@ -13,7 +13,7 @@
 
 import("//build/test.gni")
 
-module_output_path = "webview/webview"
+module_output_path = "webview/Web_Framework"
 
 ohos_unittest("nweb_value_test") {
   module_out_path = module_output_path

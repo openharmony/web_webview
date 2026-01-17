@@ -14,7 +14,7 @@
 import("//build/test.gni")
 import("../../../web_aafwk.gni")
 
-module_output_path = "webview/webview"
+module_output_path = "webview/security"
 
 ohos_unittest("web_native_messaging_client_test") {
   module_out_path = module_output_path
