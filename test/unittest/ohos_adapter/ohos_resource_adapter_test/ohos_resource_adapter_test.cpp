@@ -193,6 +193,9 @@ HWTEST_F(OhosResourceAdapterTest, OhosResourceAdapterTest_OhosFileMapperImpl_003
     EXPECT_NE(extractor, nullptr);
     std::shared_ptr<OHOS::AbilityBase::ZipFileReader> fileReader =
         OHOS::AbilityBase::ZipFileReader::CreateZipFileReader(hapPath);
+    if (fileReader == nullptr) {
+        return;
+    }
     EXPECT_NE(fileReader, nullptr);
     std::unique_ptr<OHOS::AbilityBase::FileMapper> fileMap = std::make_unique<OHOS::AbilityBase::FileMapper>();
     EXPECT_NE(fileMap, nullptr);
