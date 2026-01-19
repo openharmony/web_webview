@@ -1022,8 +1022,8 @@ void WebviewController::RegisterJavaScriptProxy(RegisterJavaScriptProxyParam& pa
     param_tmp.permission = param.permission;
     objId = javaScriptResultCb_->RegisterJavaScriptProxy(param_tmp);
 
-    nweb_ptr->RegisterArkJSfunction(param_tmp.objName, param_tmp.syncMethodList,
-                                    std::vector<std::string>(), objId, param_tmp.permission);
+    nweb_ptr->RegisterArkJSfunctionV2(param_tmp.objName, param_tmp.syncMethodList,
+                                      std::vector<std::string>(), objId, param_tmp.permission);
 }
 
 void WebviewController::RegisterJavaScriptProxy(AniRegisterJavaScriptProxyParam& param)
@@ -1060,7 +1060,8 @@ void WebviewController::RegisterJavaScriptProxy(AniRegisterJavaScriptProxyParam&
     tmp.webviewObj = param.webviewObj;
     objId = javaScriptResultCb_->RegisterJavaScriptProxy(tmp);
 
-    nweb_ptr->RegisterArkJSfunction(tmp.objName, tmp.syncMethodList, std::vector<std::string>(), objId, tmp.permission);
+    nweb_ptr->RegisterArkJSfunctionV2(tmp.objName, tmp.syncMethodList, std::vector<std::string>(),
+        objId, tmp.permission);
 }
 
 void WebviewController::CreatePDFExt(
