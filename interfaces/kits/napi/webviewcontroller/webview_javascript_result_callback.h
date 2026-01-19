@@ -191,6 +191,7 @@ public:
         if (!isMethodsSetup_) {
             SetUpMethods();
         }
+        std::unique_lock<std::mutex> lock(mutex_);
         return methods_;
     }
 
@@ -199,6 +200,7 @@ public:
         if (!isMethodsSetup_) {
             SetUpMethods();
         }
+        std::unique_lock<std::mutex> lock(mutex_);
         if (asyncMethods_.empty()) {
             return methods_;
         }
@@ -215,11 +217,13 @@ public:
 
     std::vector<std::string> GetAsyncMethodNames()
     {
+        std::unique_lock<std::mutex> lock(mutex_);
         return asyncMethods_;
     }
 
     std::string GetPermission()
     {
+        std::unique_lock<std::mutex> lock(mutex_);
         return permission_;
     }
 
@@ -233,9 +237,13 @@ public:
         if (!isMethodsSetup_) {
             SetUpMethods();
         }
-        for (std::vector<std::string>::iterator iter = methods_.begin(); iter != methods_.end(); ++iter) {
-            if (*iter == methodName) {
-                return true;
+
+        {
+            std::unique_lock<std::mutex> lock(mutex_);
+            for (std::vector<std::string>::iterator iter = methods_.begin(); iter != methods_.end(); ++iter) {
+                if (*iter == methodName) {
+                    return true;
+                }
             }
         }
         return false;

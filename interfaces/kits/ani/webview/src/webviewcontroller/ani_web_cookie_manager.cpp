@@ -145,7 +145,7 @@ static void JsSetCookieSyncThree(ani_env *env, ani_object aniClass, ani_string u
     std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
         OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
     if (cookieManager != nullptr) {
-        isSet = cookieManager->SetCookieSync(urlStr, valueStr, incognitoMode , false);
+        isSet = cookieManager->SetCookieSync(urlStr, valueStr, incognitoMode, false);
     }
     if (isSet == NWebError::INVALID_URL) {
         AniBusinessError::ThrowErrorByErrCode(env, NWebError::INVALID_URL);
@@ -186,7 +186,7 @@ static void JsSetCookieSync(ani_env *env, ani_object aniClass, ani_string url, a
     std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
         OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
     if (cookieManager != nullptr) {
-        isSet = cookieManager->SetCookieSync(urlStr, valueStr, incognitoMode , bIncludeHttpOnly);
+        isSet = cookieManager->SetCookieSync(urlStr, valueStr, incognitoMode, bIncludeHttpOnly);
     }
     if (isSet == NWebError::INVALID_URL) {
         AniBusinessError::ThrowErrorByErrCode(env, NWebError::INVALID_URL);
