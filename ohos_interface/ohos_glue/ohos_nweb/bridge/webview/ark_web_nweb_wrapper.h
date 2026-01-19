@@ -2017,6 +2017,10 @@ public:
      */
     std::shared_ptr<OHOS::NWeb::NWebUserAgentMetadata> GetUserAgentMetadata(const std::string& userAgent) override;
 
+    /**
+     * @brief Set is offline web Component.
+     */
+    void SetIsOfflineWebComponent() override;
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };

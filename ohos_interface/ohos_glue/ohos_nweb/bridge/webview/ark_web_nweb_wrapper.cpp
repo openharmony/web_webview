@@ -2125,4 +2125,9 @@ std::shared_ptr<OHOS::NWeb::NWebUserAgentMetadata> ArkWebNWebWrapper::GetUserAge
     ArkWebStringStructRelease(stUserAgent);
     return std::make_shared<ArkWebUserAgentMetadataAckWrapper>(ark_web_metadata);
 }
+
+void ArkWebNWebWrapper::SetIsOfflineWebComponent()
+{
+    ark_web_nweb_->SetIsOfflineWebComponent();
+}
 } // namespace OHOS::ArkWeb

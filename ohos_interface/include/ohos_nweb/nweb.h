@@ -2447,6 +2447,11 @@ public:
         bool allowOpaqueOrigin, bool supportWildcard, std::string& detailErrMsg) {
         return 0;
     }
+
+    /**
+     * @brief Set is offline web Component.
+     */
+    virtual void SetIsOfflineWebComponent() {}
 };
 } // namespace OHOS::NWeb
 
