@@ -27,6 +27,7 @@
 #include <system_error>
 #include <sys/mman.h>
 #include <sys/prctl.h>
+#include <sys/stat.h>
 #include <unordered_set>
 #include <regex>
 #include <iomanip>
@@ -522,8 +523,9 @@ std::string GetArkwebInstallPath()
     }
 
     std::string installPath = "";
+    struct stat statbuf;
     for (auto path : workPaths) {
-        if (access(path.c_str(), F_OK) == 0) {
+        if (fstatat(AT_FDCWD, path.c_str(), &statbuf, AT_SYMLINK_NOFOLLOW) == 0) {
             installPath = path;
             break;
         }
