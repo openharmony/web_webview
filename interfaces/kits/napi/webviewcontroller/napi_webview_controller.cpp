@@ -1125,11 +1125,32 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
             static_cast<int32_t>(BlanklessErrorCode::ERR_KEY_NOT_MATCH))),
         DECLARE_NAPI_STATIC_PROPERTY("ERR_SIGNIFICANT_CHANGE", NapiParseUtils::ToInt32Value(env,
             static_cast<int32_t>(BlanklessErrorCode::ERR_SIGNIFICANT_CHANGE))),
+        DECLARE_NAPI_STATIC_PROPERTY("ERR_DURATION_OUT_OF_RANGE", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(BlanklessErrorCode::ERR_DURATION_OUT_OF_RANGE))),
+        DECLARE_NAPI_STATIC_PROPERTY("ERR_EXPIRATION_TIME_OUT_OF_RANGE", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(BlanklessErrorCode::ERR_EXPIRATION_TIME_OUT_OF_RANGE))),
     };
     napi_define_class(env, WEB_BLANKLESS_ERROR_CODE_ENUM_NAME.c_str(), WEB_BLANKLESS_ERROR_CODE_ENUM_NAME.length(),
         NapiParseUtils::CreateEnumConstructor, nullptr, sizeof(blanklessErrorCodeProperties) /
         sizeof(blanklessErrorCodeProperties[0]), blanklessErrorCodeProperties, &blanklessErrorCodeEnum);
     napi_set_named_property(env, exports, WEB_BLANKLESS_ERROR_CODE_ENUM_NAME.c_str(), blanklessErrorCodeEnum);
+
+    napi_value blanklessFrameInterpolationStateEnum = nullptr;
+    napi_property_descriptor blanklessFrameInterpolationStateProperties[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("FRAME_INTERPOLATION_SUCCEEDED", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(BlanklessFrameInterpolationState::FRAME_INTERPOLATION_SUCCEEDED))),
+        DECLARE_NAPI_STATIC_PROPERTY("FRAME_INTERPOLATION_FAILED", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(BlanklessFrameInterpolationState::FRAME_INTERPOLATION_FAILED))),
+        DECLARE_NAPI_STATIC_PROPERTY("FRAME_INTERPOLATION_REMOVED", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(BlanklessFrameInterpolationState::FRAME_INTERPOLATION_REMOVED))),
+    };
+    napi_define_class(env, BLANKLESS_FRAME_INTERPOLATION_STATE_ENUM_NAME.c_str(),
+        BLANKLESS_FRAME_INTERPOLATION_STATE_ENUM_NAME.length(),
+        NapiParseUtils::CreateEnumConstructor, nullptr, sizeof(blanklessFrameInterpolationStateProperties) /
+        sizeof(blanklessFrameInterpolationStateProperties[0]), blanklessFrameInterpolationStateProperties,
+        &blanklessFrameInterpolationStateEnum);
+    napi_set_named_property(env, exports, BLANKLESS_FRAME_INTERPOLATION_STATE_ENUM_NAME.c_str(),
+        blanklessFrameInterpolationStateEnum);
 
     napi_value webDestroyModeEnum = nullptr;
     napi_property_descriptor webDestroyModeProperties[] = {
