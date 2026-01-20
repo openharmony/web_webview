@@ -55,18 +55,6 @@ HWTEST(WindowAdapterImplTest, NormalTest, TestSize.Level1)
 }
 
 /**
- * @tc.name: NormalTest.
- * @tc.desc: test AshmemAdapterImplTest class function.
- * @tc.type: FUNC.
- * @tc.require:
- */
-HWTEST(AshmemAdapterImplTest, NormalTest, TestSize.Level1)
-{
-    size_t size = 1024;
-    EXPECT_GE(AshmemAdapter::AshmemCreate("test", size), 0);
-}
-
-/**
  * @tc.name: WindowAdapterImplTest_001
  * @tc.desc: test WindowAdapterImpl class function.
  * @tc.type: FUNC.

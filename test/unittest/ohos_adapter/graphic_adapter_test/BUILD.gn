@@ -13,8 +13,6 @@
 
 import("//build/test.gni")
 
-module_output_path = "webview/webview"
-
 config("module_private_config") {
   visibility = [ ":*" ]
 
@@ -25,12 +23,11 @@ config("module_private_config") {
 }
 
 ohos_unittest("graphic_adapter_test") {
-  module_out_path = module_output_path
+  module_out_path = "webview/render_gpu"
 
   sources = [
     "graphic_adapter_test.cpp",
     "native_image_adapter_impl_test.cpp",
-    "surface_adapter_impl_test.cpp",
     "window_adapter_impl_test.cpp",
   ]
 
@@ -53,7 +50,59 @@ ohos_unittest("graphic_adapter_test") {
   ]
 }
 
+ohos_unittest("surface_adapter_impl_test") {
+  module_out_path = "webview/Multimedia"
+
+  sources = [ "surface_adapter_impl_test.cpp" ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [ "../../../../ohos_adapter:nweb_ohos_adapter" ]
+
+  external_deps = [
+    "ability_runtime:app_manager",
+    "c_utils:utils",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+    "graphic_2d:libcomposer",
+    "graphic_2d:librender_service_base",
+    "graphic_2d:librender_service_client",
+    "graphic_surface:surface",
+    "graphic_2d:libnative_image",
+    "hilog:libhilog",
+    "relational_store:native_rdb",
+  ]
+}
+
+ohos_unittest("ashmem_adapter_impl_test") {
+  module_out_path = "webview/Storage"
+
+  sources = [ "ashmem_adapter_impl_test.cpp" ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [ "../../../../ohos_adapter:nweb_ohos_adapter" ]
+
+  external_deps = [
+    "ability_runtime:app_manager",
+    "c_utils:utils",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+    "graphic_2d:libcomposer",
+    "graphic_2d:librender_service_base",
+    "graphic_2d:librender_service_client",
+    "graphic_surface:surface",
+    "graphic_2d:libnative_image",
+    "hilog:libhilog",
+    "relational_store:native_rdb",
+  ]
+}
+
 group("unittest") {
   testonly = true
-  deps = [ ":graphic_adapter_test" ]
+  deps = [
+    ":ashmem_adapter_impl_test",
+    ":graphic_adapter_test",
+    ":surface_adapter_impl_test",
+  ]
 }

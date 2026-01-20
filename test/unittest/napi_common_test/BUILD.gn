@@ -15,7 +15,7 @@ import("//base/web/webview/web_aafwk.gni")
 import("//build/test.gni")
 import("../../../web_aafwk.gni")
 
-module_output_path = "webview/webview"
+module_output_path = "webview/Web_Framework"
 
 ohos_unittest("napi_common_test") {
   module_out_path = module_output_path

@@ -14,7 +14,7 @@
 import("//base/web/webview/web_aafwk.gni")
 import("//build/test.gni")
 
-module_output_path = "webview/webview"
+module_output_path = "webview/render_blink"
 
 config("module_private_config") {
   visibility = [ ":*" ]
