@@ -46,6 +46,7 @@ const std::string WEB_SCROLL_TYPE_ENUM_NAME = "ScrollType";
 const std::string WEB_PRESSURE_LEVEL_ENUM_NAME = "PressureLevel";
 const std::string WEB_CONTROLLER_ATTACHSTATE_ENUM_NAME = "ControllerAttachState";
 const std::string WEB_BLANKLESS_ERROR_CODE_ENUM_NAME = "WebBlanklessErrorCode";
+const std::string BLANKLESS_FRAME_INTERPOLATION_STATE_ENUM_NAME = "BlanklessFrameInterpolationState";
 const std::string WEB_DESTROY_MODE_ENUM_NAME = "WebDestroyMode";
 const std::string WEB_SITE_ISOLATION_MODE_ENUM_NAME = "SiteIsolationMode";
 const std::string WEB_SCROLLBAR_MODE_ENUM_NAME = "ScrollbarMode";

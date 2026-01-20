@@ -139,7 +139,15 @@ enum class BlanklessErrorCode : int {
     ERR_INVALID_PARAM = -2,
     ERR_CONTROLLER_NOT_INITED = -3,
     ERR_KEY_NOT_MATCH = -4,
-    ERR_SIGNIFICANT_CHANGE = -5
+    ERR_SIGNIFICANT_CHANGE = -5,
+    ERR_DURATION_OUT_OF_RANGE = -6,
+    ERR_EXPIRATION_TIME_OUT_OF_RANGE = -7
+};
+
+enum class BlanklessFrameInterpolationState : int {
+    FRAME_INTERPOLATION_SUCCEEDED = 0,
+    FRAME_INTERPOLATION_FAILED = 1,
+    FRAME_INTERPOLATION_REMOVED = 2
 };
 
 struct BlanklessLoadingParamValue {
