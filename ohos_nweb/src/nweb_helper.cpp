@@ -780,6 +780,8 @@ bool NWebHelper::InitWebEngine()
     initFlag_ = true;
     initWebEngine_ = true;
 
+    OHOS::ArkWeb::InitAppInfo();
+
     WVLOG_I("succeed to init web engine");
     return true;
 }

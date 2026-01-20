@@ -48,12 +48,12 @@ static std::string g_defaultWebEngineType = "";
 template<typename... Args>
 static int ForwardToHiSysEvent(const std::string& eventName, EventType type, const std::tuple<Args...>& tp)
 {
-    if (g_currentBundleName.empty() || g_apiCompatibleVersion.empty()) {
-        auto appInfo = AbilityRuntime::ApplicationContext::GetInstance()->GetApplicationInfo();
-        if (appInfo != nullptr) {
-            g_currentBundleName = appInfo->bundleName;
-            g_apiCompatibleVersion = std::to_string(appInfo->apiCompatibleVersion);
-        }
+    if (g_currentBundleName.empty()) {
+        g_currentBundleName = OHOS::ArkWeb::GetBundleName();
+    }
+
+    if (g_apiCompatibleVersion.empty()) {
+        g_apiCompatibleVersion = OHOS::ArkWeb::GetApiVersion();
     }
     
     if (g_webEngineType.empty()) {

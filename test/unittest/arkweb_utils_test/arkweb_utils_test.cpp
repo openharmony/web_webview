@@ -18,6 +18,7 @@
 #include <string>
 #include <vector>
 
+#include "application_context.h"
 #include "arkweb_utils.cpp"
 #include "parameters.h"
 #include "system_properties_adapter_impl.h"
@@ -458,5 +459,70 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetArkwebLibPathForMock_001, TestSize.
     std::string bundlePath = "/data/app/el1/bundle/public/com.ohos.arkwebcore";
     res = GetArkwebLibPathForMock(bundlePath);
     EXPECT_EQ(res, bundlePath + "/" + ARK_WEB_CORE_PATH_FOR_MOCK);
+}
+
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_InitAppInfo, TestSize.Level1)
+{
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    auto applicationContext = AbilityRuntime::ApplicationContext::GetInstance();
+    std::shared_ptr<AppExecFwk::ApplicationInfo> info = std::make_shared<AppExecFwk::ApplicationInfo>();
+    info->bundleName = "com.example.app";
+    info->apiCompatibleVersion = 1;
+    info->versionName = "1.0.0";
+    contextImpl->SetApplicationInfo(info);
+    applicationContext->AttachContextImpl(contextImpl);
+    std::shared_ptr<AppExecFwk::ApplicationInfo> ans = AbilityRuntime::ApplicationContext
+        ::GetInstance()->GetApplicationInfo();
+    EXPECT_NE(ans, nullptr);
+
+    InitAppInfo();
+    EXPECT_EQ(g_bundleName, "com.example.app");
+    EXPECT_EQ(g_apiVersion, "1");
+    EXPECT_EQ(g_appVersion, "1.0.0");
+}
+
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_SetBundleNameInner, TestSize.Level1)
+{
+    std::string testBundleName = "com.example.app";
+    SetBundleNameInner(testBundleName);
+    EXPECT_EQ(g_bundleName, testBundleName);
+}
+
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_SetApiVersionInner, TestSize.Level1)
+{
+    std::string testApiVersion = "1";
+    SetApiVersionInner(testApiVersion);
+    EXPECT_EQ(g_apiVersion, testApiVersion);
+}
+
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_SetAppVersionInner, TestSize.Level1)
+{
+    std::string testAppVersion = "1.0.0";
+    SetAppVersionInner(testAppVersion);
+    EXPECT_EQ(g_appVersion, testAppVersion);
+}
+
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetBundleName, TestSize.Level1)
+{
+    SetBundleNameInner("test");
+
+    auto res = GetBundleName();
+    EXPECT_EQ(res, "test");
+}
+
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetApiVersion, TestSize.Level1)
+{
+    SetApiVersionInner("test");
+
+    auto res = GetApiVersion();
+    EXPECT_EQ(res, "test");
+}
+
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetAppVersion, TestSize.Level1)
+{
+    SetAppVersionInner("test");
+
+    auto res = GetAppVersion();
+    EXPECT_EQ(res, "test");
 }
 } // namespace OHOS::NWeb

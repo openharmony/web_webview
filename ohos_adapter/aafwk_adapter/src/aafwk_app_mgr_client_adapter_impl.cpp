@@ -130,7 +130,10 @@ int AafwkAppMgrClientAdapterImpl::StartChildProcess(
     do {
         int appEngineVersion = static_cast<int>(OHOS::ArkWeb::getActiveWebEngineVersion());
         const std::string renderParamNew =
-            renderParam + APP_ENGINE_VERSION_PREFIX + std::to_string(appEngineVersion);
+            renderParam + APP_ENGINE_VERSION_PREFIX + std::to_string(appEngineVersion)
+            + APP_BUNDLE_NAME_PREFIX + OHOS::ArkWeb::GetBundleName()
+            + APP_API_VERSION_PREFIX + OHOS::ArkWeb::GetApiVersion()
+            + APP_VERSION_PREFIX + OHOS::ArkWeb::GetAppVersion();
         WVLOG_I("AafwkAppMgrClientAdapterImpl::StartChildProcess, renderParamNew = %{public}s, renderPid = %{public}d",
             renderParamNew.c_str(), renderPid);
         ret = appMgrClient_->StartRenderProcess(renderParamNew, ipcFd, sharedFd, crashFd, renderPid, isGPU);

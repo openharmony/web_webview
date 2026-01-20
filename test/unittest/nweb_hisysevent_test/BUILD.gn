@@ -25,7 +25,8 @@ ohos_unittest("nweb_hisysevent_test") {
 
   deps = [
     "$webview_path/ohos_nweb:web_configs",
-    "$webview_path/ohos_nweb:libnweb"
+    "$webview_path/ohos_nweb:libnweb",
+    "$webview_path/arkweb_utils:libarkweb_utils"
   ]
 
   external_deps = [

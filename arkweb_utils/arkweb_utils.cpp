@@ -14,6 +14,7 @@
  */
 #include "arkweb_utils.h"
 
+#include "application_context.h"
 #include "parameters.h"
 #include "nweb_log.h"
 #include "json/json.h"
@@ -42,6 +43,9 @@ static bool g_webEngineInitFlag = false;
 static ArkWebEngineVersion g_activeEngineVersion = ArkWebEngineVersion::SYSTEM_DEFAULT;
 static int g_cloudEnableAppVersion = static_cast<int>(ArkWebEngineVersion::SYSTEM_DEFAULT);
 static std::unique_ptr<std::unordered_set<std::string>> g_legacyApp = nullptr;
+static std::string g_bundleName;
+static std::string g_apiVersion;
+static std::string g_appVersion;
 
 static void* g_reservedAddress = nullptr;
 static size_t g_reservedSize = 0;
@@ -342,6 +346,18 @@ void PreloadArkWebLibForBrowser()
     return;
 }
 
+void InitAppInfo()
+{
+    auto appInfo = AbilityRuntime::ApplicationContext::GetInstance()->GetApplicationInfo();
+    if (appInfo != nullptr) {
+        g_bundleName = appInfo->bundleName;
+        g_apiVersion = std::to_string(appInfo->apiCompatibleVersion);
+        g_appVersion = appInfo->versionName;
+    } else {
+        WVLOG_E("InitAppInfo failed for appInfo is null.");
+    }
+}
+
 void setActiveWebEngineVersion(ArkWebEngineVersion version)
 {
     if (g_webEngineInitFlag) {
@@ -382,9 +398,39 @@ void SetActiveWebEngineVersionInner(ArkWebEngineVersion version)
     g_activeEngineVersion = version;
 }
 
+void SetBundleNameInner(const std::string& bundleName)
+{
+    g_bundleName = bundleName;
+}
+
+void SetApiVersionInner(const std::string& apiVersion)
+{
+    g_apiVersion = apiVersion;
+}
+
+void SetAppVersionInner(const std::string& appVersion)
+{
+    g_appVersion = appVersion;
+}
+
 ArkWebEngineVersion getActiveWebEngineVersion()
 {
     return g_activeEngineVersion;
+}
+
+std::string GetBundleName()
+{
+    return g_bundleName;
+}
+
+std::string GetApiVersion()
+{
+    return g_apiVersion;
+}
+
+std::string GetAppVersion()
+{
+    return g_appVersion;
 }
 
 ArkWebEngineVersion CalculateActiveWebEngineVersion()

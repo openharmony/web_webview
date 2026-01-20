@@ -108,6 +108,7 @@ const static std::string PAGE_LOAD_KEY_LISTS[] = {
 static std::string g_currentBundleName = "";
 static std::string g_versionCode = "";
 static std::string g_apiCompatibleVersion = "";
+static std::string g_appVersion = "";
 static std::string g_webEngineType = "";
 static std::string g_defaultWebEngineType = "";
 HiSysEventAdapterImpl& HiSysEventAdapterImpl::GetInstance()
@@ -120,12 +121,16 @@ template<typename... Args>
 static int ForwardToHiSysEvent(const std::string& eventName, HiSysEventAdapter::EventType type,
     const std::tuple<Args...>& tp)
 {
-    if (g_currentBundleName.empty() || g_apiCompatibleVersion.empty()) {
-        auto appInfo = AbilityRuntime::ApplicationContext::GetInstance()->GetApplicationInfo();
-        if (appInfo != nullptr) {
-            g_currentBundleName = appInfo->bundleName;
-            g_apiCompatibleVersion = std::to_string(appInfo->apiCompatibleVersion);
-        }
+    if (g_currentBundleName.empty()) {
+        g_currentBundleName = OHOS::ArkWeb::GetBundleName();
+    }
+
+    if (g_apiCompatibleVersion.empty()) {
+        g_apiCompatibleVersion = OHOS::ArkWeb::GetApiVersion();
+    }
+
+    if (g_appVersion.empty()) {
+        g_appVersion = OHOS::ArkWeb::GetAppVersion();
     }
 
     if (g_versionCode.empty()) {
@@ -149,12 +154,13 @@ static int ForwardToHiSysEvent(const std::string& eventName, HiSysEventAdapter::
     auto mergeData = std::tuple_cat(sysData, tp);
 
     if (type == HiSysEventAdapter::EventType::BEHAVIOR) {
+        auto ueData = std::make_tuple("PNAMEID", g_currentBundleName, "PVERSIONID", g_appVersion);
         return std::apply(
             [&](auto&&... args) {
                 return HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::ARKWEB_UE,
                                        eventName, EVENT_TYPES[type], args...);
             },
-            mergeData);
+            std::tuple_cat(ueData, mergeData));
     } else {
         return std::apply(
             [&](auto&&... args) {

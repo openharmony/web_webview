@@ -18,6 +18,7 @@
 #include "ohos_adapter_helper.h"
 #include "hitrace_adapter_impl.h"
 #include "application_context.h"
+#include "arkweb_utils.h"
 #include "parameters.h"
 using namespace OHOS;
 
@@ -303,5 +304,33 @@ HWTEST(HiViewDFXAdapterTest, NormalScene_05, TestSize.Level1)
     applicationContext->AttachContextImpl(nullptr);
     ans = AbilityRuntime::ApplicationContext::GetInstance()->GetApplicationInfo();
     EXPECT_EQ(ans, nullptr);
+}
+
+/**
+* @tc.name: NormalScene.
+* @tc.desc: test normal scene of HiViewDFXAdapter.
+* @tc.type: FUNC.
+* @tc.require:
+*/
+HWTEST(HiViewDFXAdapterTest, NormalScene_06, TestSize.Level1)
+{
+    OHOS::ArkWeb::SetBundleNameInner("test");
+    int ret = OhosAdapterHelper::GetInstance().GetHiSysEventAdapterInstance().Write(
+        "testEvent", HiSysEventAdapter::EventType::BEHAVIOR, { "testkey1", "0"});
+    EXPECT_EQ(ret, 0);
+
+    OHOS::ArkWeb::SetApiVersionInner("test");
+    ret = OhosAdapterHelper::GetInstance().GetHiSysEventAdapterInstance().Write(
+        "testEvent", HiSysEventAdapter::EventType::BEHAVIOR, { "testkey1", "0"});
+    EXPECT_EQ(ret, 0);
+
+    OHOS::ArkWeb::SetAppVersionInner("test");
+    ret = OhosAdapterHelper::GetInstance().GetHiSysEventAdapterInstance().Write(
+        "testEvent", HiSysEventAdapter::EventType::BEHAVIOR, { "testkey1", "0"});
+    EXPECT_EQ(ret, 0);
+
+    ret = OhosAdapterHelper::GetInstance().GetHiSysEventAdapterInstance().Write(
+        "testEvent", HiSysEventAdapter::EventType::BEHAVIOR, { "testkey1", "0"});
+    EXPECT_EQ(ret, 0);
 }
 } // namespace OHOS::NWeb
