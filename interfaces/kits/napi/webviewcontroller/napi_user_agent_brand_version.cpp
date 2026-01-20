@@ -68,8 +68,8 @@ napi_value NapiUserAgentBrandVersion::JS_SetBrand(napi_env env, napi_callback_in
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "brand", "string"));
         return nullptr;
     }
-    if (brand == "") {
-        WVLOG_E("brand is null");
+    if (brand.empty()) {
+        WVLOG_E("brand is empty");
         return nullptr;
     }
     WVLOG_D("brand %{public}s.", brand.c_str());
@@ -92,8 +92,8 @@ napi_value NapiUserAgentBrandVersion::JS_SetMajorVersion(napi_env env, napi_call
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "majorVersion", "string"));
         return nullptr;
     }
-    if (majorVersion == "") {
-        WVLOG_E("majorVersion is null");
+    if (majorVersion.empty()) {
+        WVLOG_E("majorVersion is empty");
         return nullptr;
     }
     WVLOG_D("majorVersion %{public}s.", majorVersion.c_str());
@@ -116,8 +116,8 @@ napi_value NapiUserAgentBrandVersion::JS_SetFullVersion(napi_env env, napi_callb
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "fullVersion", "string"));
         return nullptr;
     }
-    if (fullVersion == "") {
-        WVLOG_E("fullVersion is null");
+    if (fullVersion.empty()) {
+        WVLOG_E("fullVersion is empty");
         return nullptr;
     }
     WVLOG_D("FullVersion %{public}s.", fullVersion.c_str());

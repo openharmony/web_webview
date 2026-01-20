@@ -196,7 +196,7 @@ static void SetFormFactors(ani_env* env, ani_object object, ani_object formFacto
     }
     for (uint32_t i = 0; i < static_cast<uint32_t>(arrayLen); i++) {
         ani_ref element = nullptr;
-        if (env->Array_Get(arrayRef, i, &element) != ANI_OK) {
+        if (env->Array_Get(arrayRef, i, &element) != ANI_OK || element == nullptr) {
             WVLOG_E(" get element from array error");
             return;
         }
@@ -442,7 +442,10 @@ static ani_string GetBitness(ani_env* env, ani_object object)
     }
 
     std::string result = metadata->GetBitness();
-    env->String_NewUTF8(result.c_str(), result.size(), &value);
+    if (env->String_NewUTF8(result.c_str(), result.size(), &value) != ANI_OK) {
+        WVLOG_E("String_NewUTF8 failed");
+        return nullptr;
+    }
 
     return value;
 }
@@ -471,10 +474,10 @@ static ani_object CreateAniStringArray(ani_env* env, const std::vector<std::stri
         WVLOG_E("find enumType failed");
         return nullptr;
     }
+    const std::map<std::string, int> formFactorMap { { "Automotive", 0 }, { "Desktop", 1 }, { "Mobile", 2 },
+        { "EInk", 3 }, { "Tablet", 4 }, { "Watch", 5 }, { "XR", 6 } };
     for (size_t i = 0; i < arr.size(); ++i) {
         ani_enum_item enumItem = nullptr;
-        std::map<std::string, int> formFactorMap { { "Automotive", 0 }, { "Desktop", 1 }, { "Mobile", 2 },
-            { "EInk", 3 }, { "Tablet", 4 }, { "Watch", 5 }, { "XR", 6 } };
         auto it = formFactorMap.find(arr[i]);
         if (it == formFactorMap.end()) {
             WVLOG_E(" no find item");
@@ -524,12 +527,14 @@ static ani_string GetFullVersion(ani_env* env, ani_object object)
     }
 
     std::string result = metadata->GetFullVersion();
-    env->String_NewUTF8(result.c_str(), result.size(), &value);
-
+    if (env->String_NewUTF8(result.c_str(), result.size(), &value) != ANI_OK) {
+        WVLOG_E("String_NewUTF8 failed");
+        return nullptr;
+    }
     return value;
 }
 
-static ani_boolean GetMobile(ani_env* env, ani_object object, ani_boolean enable)
+static ani_boolean GetMobile(ani_env* env, ani_object object)
 {
     if (!env) {
         WVLOG_E("env is nullptr");
@@ -540,12 +545,7 @@ static ani_boolean GetMobile(ani_env* env, ani_object object, ani_boolean enable
         WVLOG_E(" UserAgentMetadata is null");
         return ANI_FALSE;
     }
-
-    if (!metadata->GetMobile()) {
-        return ANI_FALSE;
-    }
-
-    return ANI_TRUE;
+    return static_cast<ani_boolean>(metadata->GetMobile());
 }
 
 static ani_string GetModel(ani_env* env, ani_object object)
@@ -564,8 +564,10 @@ static ani_string GetModel(ani_env* env, ani_object object)
     }
 
     std::string result = metadata->GetModel();
-    env->String_NewUTF8(result.c_str(), result.size(), &value);
-
+    if (env->String_NewUTF8(result.c_str(), result.size(), &value) != ANI_OK) {
+        WVLOG_E("String_NewUTF8 failed");
+        return nullptr;
+    }
     return value;
 }
 
@@ -585,8 +587,10 @@ static ani_string GetPlatform(ani_env* env, ani_object object)
     }
 
     std::string result = metadata->GetPlatform();
-    env->String_NewUTF8(result.c_str(), result.size(), &value);
-
+    if (env->String_NewUTF8(result.c_str(), result.size(), &value) != ANI_OK) {
+        WVLOG_E("String_NewUTF8 failed");
+        return nullptr;
+    }
     return value;
 }
 
@@ -606,8 +610,10 @@ static ani_string GetPlatformVersion(ani_env* env, ani_object object)
     }
 
     std::string result = metadata->GetPlatformVersion();
-    env->String_NewUTF8(result.c_str(), result.size(), &value);
-
+    if (env->String_NewUTF8(result.c_str(), result.size(), &value) != ANI_OK) {
+        WVLOG_E("String_NewUTF8 failed");
+        return nullptr;
+    }
     return value;
 }
 
@@ -622,12 +628,7 @@ static ani_boolean GetWow64(ani_env* env, ani_object object)
         WVLOG_E(" UserAgentMetadata is null");
         return ANI_FALSE;
     }
-
-    if (!metadata->GetWow64()) {
-        return ANI_FALSE;
-    }
-
-    return ANI_TRUE;
+    return static_cast<ani_boolean>(metadata->GetWow64());
 }
 
 ani_object CreateUserAgentMetadataObject(ani_env* env, std::shared_ptr<NWebUserAgentMetadata> metadata)

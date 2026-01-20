@@ -42,8 +42,6 @@ public:
     NWebUserAgentMetadataImpl();
     NWebUserAgentMetadataImpl(const std::vector<std::string>& brand, const std::vector<std::string>& majorVersion,
         const std::vector<std::string>& brandFullVersion, const UserAgentMetadataInfo& info);
-    NWebUserAgentMetadataImpl(const std::vector<std::shared_ptr<NWebUserAgentBrandVersionImpl>>& brandVersionList,
-        const UserAgentMetadataInfo& info);
     ~NWebUserAgentMetadataImpl() = default;
 
     void SetBrandVersionList(const std::vector<std::string>& brand, const std::vector<std::string>& majorVersion,

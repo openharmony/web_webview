@@ -2252,7 +2252,8 @@ public:
      * @param metaData The UserAgentMetadata for the userAgent.
      */
     /*--ark web()--*/
-    virtual void SetUserAgentMetadata(const ArkWebString& userAgent, ArkWebRefPtr<ArkWebUserAgentMetadata> metadata) {}
+    virtual void SetUserAgentMetadata(
+        const ArkWebString& userAgent, ArkWebRefPtr<ArkWebUserAgentMetadata> metadata) = 0;
 
     /**
      * @brief Get the User-Agent metadata corresponding to the User-Agent.
@@ -2260,10 +2261,7 @@ public:
      * @param userAgent The User-Agent string.
      */
     /*--ark web()--*/
-    virtual ArkWebRefPtr<ArkWebUserAgentMetadataAck> GetUserAgentMetadata(const ArkWebString& userAgent)
-    {
-        return nullptr;
-    }
+    virtual ArkWebRefPtr<ArkWebUserAgentMetadataAck> GetUserAgentMetadata(const ArkWebString& userAgent) = 0;
 
     /**
      * @brief Set url trust list with error message.
