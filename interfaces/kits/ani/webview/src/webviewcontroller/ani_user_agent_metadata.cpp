@@ -380,7 +380,7 @@ static ani_ref GetBrandVersionsInternal(ani_env* env, NWebUserAgentMetadataImpl*
             WVLOG_E("Create brand object failed");
             return nullptr;
         }
-        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "iC{std.core.Object}:", i, obj) != ANI_OK) {
+        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "iY:", i, obj) != ANI_OK) {
             WVLOG_E("Set object failed");
             return nullptr;
         }
