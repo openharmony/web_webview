@@ -1246,22 +1246,6 @@ public:
     void SetBackForwardCacheOptions(int32_t size, int32_t timeToLive) override;
 
     /**
-     * @brief RegisterArkJSfunction
-     *
-     * @param object_name String: objector name
-     * @param method_list vector<String>: vector list, sync method list
-     * @param async_method_list vector<String>: vector list, async method list
-     * @param object_id int32_t: object id
-     * @param permission String: allow list
-     */
-    /*--ark web()--*/
-    void RegisterArkJSfunction(const std::string& object_name,
-                               const std::vector<std::string>& method_list,
-                               const std::vector<std::string>& async_method_list,
-                               const int32_t object_id,
-                               const std::string& permission) override;
-
-    /**
      * @brief RegisterArkJSfunctionV2
      *
      * @param object_name String: objector name
