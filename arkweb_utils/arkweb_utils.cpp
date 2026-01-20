@@ -24,6 +24,7 @@
 #include <fcntl.h>
 #include <fstream>
 #include <filesystem>
+#include <mutex>
 #include <policycoreutils.h>
 #include <system_error>
 #include <sys/mman.h>
@@ -46,6 +47,7 @@ static std::unique_ptr<std::unordered_set<std::string>> g_legacyApp = nullptr;
 static std::string g_bundleName;
 static std::string g_apiVersion;
 static std::string g_appVersion;
+static std::mutex g_appInfoMutex;
 
 static void* g_reservedAddress = nullptr;
 static size_t g_reservedSize = 0;
@@ -348,14 +350,18 @@ void PreloadArkWebLibForBrowser()
 
 void InitAppInfo()
 {
-    auto appInfo = AbilityRuntime::ApplicationContext::GetInstance()->GetApplicationInfo();
-    if (appInfo != nullptr) {
-        g_bundleName = appInfo->bundleName;
-        g_apiVersion = std::to_string(appInfo->apiCompatibleVersion);
-        g_appVersion = appInfo->versionName;
-    } else {
+    auto appContext = AbilityRuntime::ApplicationContext::GetInstance();
+    if (!appContext) {
+        WVLOG_E("InitAppInfo failed for appContext is null.");
+    }
+    auto appInfo = appContext->GetApplicationInfo();
+    if (!appInfo) {
         WVLOG_E("InitAppInfo failed for appInfo is null.");
     }
+    std::lock_guard<std::mutex> lock(g_appInfoMutex);
+    g_bundleName = appInfo->bundleName;
+    g_apiVersion = std::to_string(appInfo->apiCompatibleVersion);
+    g_appVersion = appInfo->versionName;
 }
 
 void setActiveWebEngineVersion(ArkWebEngineVersion version)
@@ -400,16 +406,19 @@ void SetActiveWebEngineVersionInner(ArkWebEngineVersion version)
 
 void SetBundleNameInner(const std::string& bundleName)
 {
+    std::lock_guard<std::mutex> lock(g_appInfoMutex);
     g_bundleName = bundleName;
 }
 
 void SetApiVersionInner(const std::string& apiVersion)
 {
+    std::lock_guard<std::mutex> lock(g_appInfoMutex);
     g_apiVersion = apiVersion;
 }
 
 void SetAppVersionInner(const std::string& appVersion)
 {
+    std::lock_guard<std::mutex> lock(g_appInfoMutex);
     g_appVersion = appVersion;
 }
 
@@ -420,16 +429,19 @@ ArkWebEngineVersion getActiveWebEngineVersion()
 
 std::string GetBundleName()
 {
+    std::lock_guard<std::mutex> lock(g_appInfoMutex);
     return g_bundleName;
 }
 
 std::string GetApiVersion()
 {
+    std::lock_guard<std::mutex> lock(g_appInfoMutex);
     return g_apiVersion;
 }
 
 std::string GetAppVersion()
 {
+    std::lock_guard<std::mutex> lock(g_appInfoMutex);
     return g_appVersion;
 }
 
