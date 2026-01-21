@@ -476,30 +476,9 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_InitAppInfo, TestSize.Level1)
     EXPECT_NE(ans, nullptr);
 
     InitAppInfo();
-    EXPECT_EQ(g_bundleName, "com.example.app");
-    EXPECT_EQ(g_apiVersion, "1");
-    EXPECT_EQ(g_appVersion, "1.0.0");
-}
-
-HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_SetBundleNameInner, TestSize.Level1)
-{
-    std::string testBundleName = "com.example.app";
-    SetBundleNameInner(testBundleName);
-    EXPECT_EQ(g_bundleName, testBundleName);
-}
-
-HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_SetApiVersionInner, TestSize.Level1)
-{
-    std::string testApiVersion = "1";
-    SetApiVersionInner(testApiVersion);
-    EXPECT_EQ(g_apiVersion, testApiVersion);
-}
-
-HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_SetAppVersionInner, TestSize.Level1)
-{
-    std::string testAppVersion = "1.0.0";
-    SetAppVersionInner(testAppVersion);
-    EXPECT_EQ(g_appVersion, testAppVersion);
+    EXPECT_EQ(GetBundleName(), "com.example.app");
+    EXPECT_EQ(GetApiVersion(), "1");
+    EXPECT_EQ(GetAppVersion(), "1.0.0");
 }
 
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetBundleName, TestSize.Level1)
