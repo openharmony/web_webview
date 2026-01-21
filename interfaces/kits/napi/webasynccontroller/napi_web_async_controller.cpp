@@ -18,6 +18,7 @@
 #include "nweb.h"
 #include "nweb_helper.h"
 #include "nweb_store_web_archive_callback.h"
+#include "nweb_log.h"
 #include <memory>
 
 #undef LOG_TAG
