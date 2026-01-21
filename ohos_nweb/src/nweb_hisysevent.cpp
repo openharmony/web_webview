@@ -41,21 +41,11 @@ constexpr char INSTANCE_INITIALIZE_TIME[] = "INSTANCE_INITIALIZE_TIME";
 constexpr char INSTANCE_ID[] = "INSTANCE_ID";
 constexpr char USED_TIME[] = "USED_TIME";
 
-static std::string g_currentBundleName = "";
-static std::string g_apiCompatibleVersion = "";
 static std::string g_webEngineType = "";
 static std::string g_defaultWebEngineType = "";
 template<typename... Args>
 static int ForwardToHiSysEvent(const std::string& eventName, EventType type, const std::tuple<Args...>& tp)
-{
-    if (g_currentBundleName.empty()) {
-        g_currentBundleName = OHOS::ArkWeb::GetBundleName();
-    }
-
-    if (g_apiCompatibleVersion.empty()) {
-        g_apiCompatibleVersion = OHOS::ArkWeb::GetApiVersion();
-    }
-    
+{    
     if (g_webEngineType.empty()) {
         g_webEngineType = std::to_string(static_cast<int>(OHOS::ArkWeb::getActiveWebEngineType()));
     }
@@ -65,8 +55,8 @@ static int ForwardToHiSysEvent(const std::string& eventName, EventType type, con
             static_cast<int>(OHOS::ArkWeb::ArkWebEngineType::EVERGREEN)));
     }
 
-    auto sysData = std::make_tuple("BUNDLE_NAME", g_currentBundleName,
-                                   "API_COMPATIBLE_VERSION", g_apiCompatibleVersion,
+    auto sysData = std::make_tuple("BUNDLE_NAME", OHOS::ArkWeb::GetBundleName(),
+                                   "API_COMPATIBLE_VERSION", OHOS::ArkWeb::GetApiVersion(),
                                    "WEB_ENGINE_TYPE", g_webEngineType,
                                    "DEFAULT_WEB_ENGINE_TYPE", g_defaultWebEngineType);
     auto mergeData = std::tuple_cat(sysData, tp);

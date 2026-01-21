@@ -105,10 +105,7 @@ const static std::string PAGE_LOAD_KEY_LISTS[] = {
     "IS_PAINT_DONE",
     "FIRST_MEANINGFUL_PAINT"
 };
-static std::string g_currentBundleName = "";
 static std::string g_versionCode = "";
-static std::string g_apiCompatibleVersion = "";
-static std::string g_appVersion = "";
 static std::string g_webEngineType = "";
 static std::string g_defaultWebEngineType = "";
 HiSysEventAdapterImpl& HiSysEventAdapterImpl::GetInstance()
@@ -121,18 +118,6 @@ template<typename... Args>
 static int ForwardToHiSysEvent(const std::string& eventName, HiSysEventAdapter::EventType type,
     const std::tuple<Args...>& tp)
 {
-    if (g_currentBundleName.empty()) {
-        g_currentBundleName = OHOS::ArkWeb::GetBundleName();
-    }
-
-    if (g_apiCompatibleVersion.empty()) {
-        g_apiCompatibleVersion = OHOS::ArkWeb::GetApiVersion();
-    }
-
-    if (g_appVersion.empty()) {
-        g_appVersion = OHOS::ArkWeb::GetAppVersion();
-    }
-
     if (g_versionCode.empty()) {
         g_versionCode = OhosResourceAdapterImpl::GetArkWebVersion();
     }
@@ -146,15 +131,16 @@ static int ForwardToHiSysEvent(const std::string& eventName, HiSysEventAdapter::
             static_cast<int>(OHOS::ArkWeb::ArkWebEngineType::EVERGREEN)));
     }
 
-    auto sysData = std::make_tuple("BUNDLE_NAME", g_currentBundleName,
+    auto sysData = std::make_tuple("BUNDLE_NAME", OHOS::ArkWeb::GetBundleName(),
                                    "VERSION_CODE", g_versionCode,
-                                   "API_COMPATIBLE_VERSION", g_apiCompatibleVersion,
+                                   "API_COMPATIBLE_VERSION", OHOS::ArkWeb::GetApiVersion(),
                                    "WEB_ENGINE_TYPE", g_webEngineType,
                                    "DEFAULT_WEB_ENGINE_TYPE", g_defaultWebEngineType);
     auto mergeData = std::tuple_cat(sysData, tp);
 
     if (type == HiSysEventAdapter::EventType::BEHAVIOR) {
-        auto ueData = std::make_tuple("PNAMEID", g_currentBundleName, "PVERSIONID", g_appVersion);
+        auto ueData = std::make_tuple("PNAMEID", OHOS::ArkWeb::GetBundleName(),
+                                      "PVERSIONID", OHOS::ArkWeb::GetAppVersion());
         return std::apply(
             [&](auto&&... args) {
                 return HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::ARKWEB_UE,
