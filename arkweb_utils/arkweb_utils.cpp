@@ -353,10 +353,12 @@ void InitAppInfo()
     auto appContext = AbilityRuntime::ApplicationContext::GetInstance();
     if (!appContext) {
         WVLOG_E("InitAppInfo failed for appContext is null.");
+        return;
     }
     auto appInfo = appContext->GetApplicationInfo();
     if (!appInfo) {
         WVLOG_E("InitAppInfo failed for appInfo is null.");
+        return;
     }
     std::lock_guard<std::mutex> lock(g_appInfoMutex);
     g_bundleName = appInfo->bundleName;
