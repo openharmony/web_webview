@@ -83,8 +83,8 @@ static void SetBrand(ani_env* env, ani_object object, ani_string brandObj)
             env, PARAM_CHECK_ERROR, NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "brand", "string"));
         return;
     }
-    if (value == "") {
-        WVLOG_E("brand is null");
+    if (value.empty()) {
+        WVLOG_E("brand is empty");
         return;
     }
     WVLOG_D("SetBrand %{public}s.", value.c_str());
@@ -108,8 +108,8 @@ static void SetMajorVersion(ani_env* env, ani_object object, ani_string majorVer
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "majorVersion", "string"));
         return;
     }
-    if (value == "") {
-        WVLOG_E("majorVersion is null");
+    if (value.empty()) {
+        WVLOG_E("majorVersion is empty");
         return;
     }
     WVLOG_D("SetMajorVersion %{public}s.", value.c_str());
@@ -133,8 +133,8 @@ static void SetFullVersion(ani_env* env, ani_object object, ani_string fullVersi
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "fullVersion", "string"));
         return;
     }
-    if (value == "") {
-        WVLOG_E("fullVersion is null");
+    if (value.empty()) {
+        WVLOG_E("fullVersion is empty");
         return;
     }
     WVLOG_D("SetFullVersion %{public}s.", value.c_str());
@@ -157,8 +157,10 @@ static ani_string GetBrand(ani_env* env, ani_object object)
     }
 
     std::string result = userAgentBrandVersion->GetBrand();
-    env->String_NewUTF8(result.c_str(), result.size(), &brand);
-
+    if (env->String_NewUTF8(result.c_str(), result.size(), &brand) != ANI_OK) {
+        WVLOG_E("String_NewUTF8 failed");
+        return nullptr;
+    }
     return brand;
 }
 
@@ -178,8 +180,10 @@ static ani_string GetMajorVersion(ani_env* env, ani_object object)
     }
 
     std::string result = userAgentBrandVersion->GetMajorVersion();
-    env->String_NewUTF8(result.c_str(), result.size(), &majorVersion);
-
+    if (env->String_NewUTF8(result.c_str(), result.size(), &majorVersion) != ANI_OK) {
+        WVLOG_E("String_NewUTF8 failed");
+        return nullptr;
+    }
     return majorVersion;
 }
 
@@ -199,8 +203,10 @@ static ani_string GetFullVersion(ani_env* env, ani_object object)
     }
 
     std::string result = userAgentBrandVersion->GetFullVersion();
-    env->String_NewUTF8(result.c_str(), result.size(), &fullVersion);
-
+    if (env->String_NewUTF8(result.c_str(), result.size(), &fullVersion) != ANI_OK) {
+        WVLOG_E("String_NewUTF8 failed");
+        return nullptr;
+    }
     return fullVersion;
 }
 

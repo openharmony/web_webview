@@ -27,29 +27,9 @@ NWebUserAgentMetadataImpl::NWebUserAgentMetadataImpl(const std::vector<std::stri
       model_(info.model), platform_(info.platform), platformVersion_(info.platformVersion), isWow64_(info.isWow64)
 {}
 
-NWebUserAgentMetadataImpl::NWebUserAgentMetadataImpl(
-    const std::vector<std::shared_ptr<NWebUserAgentBrandVersionImpl>>& brandVersionList,
-    const UserAgentMetadataInfo& info)
-    : arch_(info.arch), bitness_(info.bitness), formFactors_(info.formFactors), fullVersion_(info.fullVersion),
-      isMobile_(info.isMobile), model_(info.model), platform_(info.platform), platformVersion_(info.platformVersion),
-      isWow64_(info.isWow64)
-{
-    brand_.clear();
-    majorVersion_.clear();
-    brandFullVersion_.clear();
-    for (auto it : brandVersionList) {
-        brand_.push_back(it->GetBrand());
-        majorVersion_.push_back(it->GetMajorVersion());
-        brandFullVersion_.push_back(it->GetFullVersion());
-    }
-}
-
 void NWebUserAgentMetadataImpl::SetBrandVersionList(const std::vector<std::string>& brand,
     const std::vector<std::string>& majorVersion, const std::vector<std::string>& brandFullVersion)
 {
-    brand_.clear();
-    majorVersion_.clear();
-    brandFullVersion_.clear();
     if (brand.size() != majorVersion.size() || brand.size() != brandFullVersion.size() ||
         majorVersion.size() != brandFullVersion.size()) {
         return;
