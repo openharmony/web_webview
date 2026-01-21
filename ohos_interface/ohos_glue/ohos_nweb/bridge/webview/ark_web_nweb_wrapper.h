@@ -1222,6 +1222,13 @@ public:
                                    double vx,
                                    double vy,
                                    const std::vector<int32_t>& pressedCodes) override;
+                                   
+    /**
+     * @brief Send cancel fling event.
+     *
+     */
+    /*--ark web()--*/
+    void WebSendCancelFlingEvent() override;
 
     /**
      * @brief Set url trust list with error message.

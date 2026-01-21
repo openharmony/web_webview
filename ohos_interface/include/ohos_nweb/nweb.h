@@ -1571,6 +1571,12 @@ public:
                                            double vx,
                                            double vy,
                                            const std::vector<int32_t>& pressedCodes) {}
+                                           
+    /**
+     * @brief Send cancel fling event.
+     *
+     */
+    virtual void WebSendCancelFlingEvent() {}
 
     /**
      * @brief Set url trust list with error message.

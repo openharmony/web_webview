@@ -1417,6 +1417,13 @@ public:
                                            const ArkWebInt32Vector& pressedCodes) = 0;
 
     /**
+     * @brief Send cancel fling event.
+     *
+     */
+    /*--ark web()--*/
+    virtual void WebSendCancelFlingEvent() = 0;
+
+    /**
      * @brief Set url trust list with error message.
      *
      */

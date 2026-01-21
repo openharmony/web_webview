@@ -1237,6 +1237,12 @@ public:
                                    double vx,
                                    double vy,
                                    const ArkWebInt32Vector& pressedCodes) override;
+                                   
+    /* @brief Send cancel fling event.
+     *
+     */
+    /*--ark web()--*/
+    void WebSendCancelFlingEvent() override;
 
     /**
      * @brief Set url trust list with error message.
