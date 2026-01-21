@@ -16,6 +16,8 @@
 #include "ohos_nweb/bridge/ark_web_agent_manager_impl.h"
 #include "base/bridge/ark_web_bridge_macros.h"
 
+#include "ohos_nweb/bridge/ark_web_message_value_callback_wrapper.h"
+
 namespace OHOS::ArkWeb {
 
 ArkWebAgentManagerImpl::ArkWebAgentManagerImpl(
@@ -47,6 +49,15 @@ void ArkWebAgentManagerImpl::SetAgentNeedHighlight(bool enabled)
     if (nweb_agent_manager_) {
         nweb_agent_manager_->SetAgentNeedHighlight(enabled);
     }
+}
+
+void ArkWebAgentManagerImpl::RequestWebDomJsonString(ArkWebRefPtr<ArkWebMessageValueCallback> callback)
+{
+    if (CHECK_REF_PTR_IS_NULL(callback)) {
+        nweb_agent_manager_->RequestWebDomJsonString(nullptr);
+        return;
+    }
+    nweb_agent_manager_->RequestWebDomJsonString(std::make_shared<ArkWebMessageValueCallbackWrapper>(callback));
 }
 
 }  // namespace OHOS::ArkWeb

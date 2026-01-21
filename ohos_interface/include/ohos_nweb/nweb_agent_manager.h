@@ -60,6 +60,13 @@ public:
      * @param enabled true to enable highlight, false to disable.
      */
     virtual void SetAgentNeedHighlight(bool enabled) {}
+
+    /**
+     * @brief Request web dom json string
+     *
+     * @param callback request callabck
+     */
+    virtual void RequestWebDomJsonString(std::shared_ptr<NWebMessageValueCallback> callback) {}
 };
 }  // namespace OHOS::NWeb
 
