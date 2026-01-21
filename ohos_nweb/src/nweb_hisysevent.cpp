@@ -45,7 +45,7 @@ static std::string g_webEngineType = "";
 static std::string g_defaultWebEngineType = "";
 template<typename... Args>
 static int ForwardToHiSysEvent(const std::string& eventName, EventType type, const std::tuple<Args...>& tp)
-{    
+{
     if (g_webEngineType.empty()) {
         g_webEngineType = std::to_string(static_cast<int>(OHOS::ArkWeb::getActiveWebEngineType()));
     }
