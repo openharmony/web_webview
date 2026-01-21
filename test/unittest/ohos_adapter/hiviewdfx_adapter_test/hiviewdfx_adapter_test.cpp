@@ -314,7 +314,7 @@ HWTEST(HiViewDFXAdapterTest, NormalScene_05, TestSize.Level1)
 */
 HWTEST(HiViewDFXAdapterTest, NormalScene_06, TestSize.Level1)
 {
-    ret = OhosAdapterHelper::GetInstance().GetHiSysEventAdapterInstance().Write(
+    int ret = OhosAdapterHelper::GetInstance().GetHiSysEventAdapterInstance().Write(
         "testEvent", HiSysEventAdapter::EventType::BEHAVIOR, { "testkey1", "0"});
     EXPECT_EQ(ret, 0);
 
