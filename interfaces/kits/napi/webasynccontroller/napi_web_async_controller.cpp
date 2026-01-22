@@ -18,6 +18,7 @@
 #include "nweb.h"
 #include "nweb_helper.h"
 #include "nweb_store_web_archive_callback.h"
+#include "nweb_log.h"
 #include <memory>
 
 #undef LOG_TAG
@@ -175,7 +176,7 @@ napi_value NapiWebAsyncController::JS_NapiWebAsyncController(napi_env env, napi_
 
     NapiWebAsyncController *webAsyncController = new (std::nothrow) NapiWebAsyncController(env, thisVar, nwebId);
     if (webAsyncController == nullptr) {
-        HILOG_ERROR(LOG_APP, "new webAsyncController failed");
+        WVLOG_E("new webAsyncController failed");
         return nullptr;
     }
 
@@ -197,7 +198,7 @@ void NapiWebAsyncController::StoreWebArchiveCallback(const std::string &baseName
 {
     std::shared_ptr<NWeb> nweb = NWebHelper::Instance().GetNWeb(nwebId_);
     if (!nweb) {
-        HILOG_ERROR(LOG_APP, "not found a valid nweb");
+        WVLOG_E("not found a valid nweb");
         napi_value callback = nullptr;
         napi_value jsResult = nullptr;
         napi_value callbackResult = nullptr;
@@ -247,7 +248,7 @@ void NapiWebAsyncController::StoreWebArchivePromise(const std::string &baseName,
 {
     std::shared_ptr<NWeb> nweb = NWebHelper::Instance().GetNWeb(nwebId_);
     if (!nweb) {
-        HILOG_ERROR(LOG_APP, "not found a valid nweb");
+        WVLOG_E("not found a valid nweb");
         napi_value jsResult = nullptr;
         napi_get_null(env, &jsResult);
         napi_reject_deferred(env, deferred, jsResult);
