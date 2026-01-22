@@ -44,9 +44,9 @@ static bool g_webEngineInitFlag = false;
 static ArkWebEngineVersion g_activeEngineVersion = ArkWebEngineVersion::SYSTEM_DEFAULT;
 static int g_cloudEnableAppVersion = static_cast<int>(ArkWebEngineVersion::SYSTEM_DEFAULT);
 static std::unique_ptr<std::unordered_set<std::string>> g_legacyApp = nullptr;
-static std::string g_bundleName;
-static std::string g_apiVersion;
-static std::string g_appVersion;
+static std::string g_bundleName = "";
+static std::string g_apiVersion = "";
+static std::string g_appVersion = "";
 static std::mutex g_appInfoMutex;
 
 static void* g_reservedAddress = nullptr;
@@ -348,24 +348,6 @@ void PreloadArkWebLibForBrowser()
     return;
 }
 
-void InitAppInfo()
-{
-    auto appContext = AbilityRuntime::ApplicationContext::GetInstance();
-    if (!appContext) {
-        WVLOG_E("InitAppInfo failed for appContext is null.");
-        return;
-    }
-    auto appInfo = appContext->GetApplicationInfo();
-    if (!appInfo) {
-        WVLOG_E("InitAppInfo failed for appInfo is null.");
-        return;
-    }
-    std::lock_guard<std::mutex> lock(g_appInfoMutex);
-    g_bundleName = appInfo->bundleName;
-    g_apiVersion = std::to_string(appInfo->apiCompatibleVersion);
-    g_appVersion = appInfo->versionName;
-}
-
 void setActiveWebEngineVersion(ArkWebEngineVersion version)
 {
     if (g_webEngineInitFlag) {
@@ -422,6 +404,75 @@ void SetAppVersionInner(const std::string& appVersion)
 {
     std::lock_guard<std::mutex> lock(g_appInfoMutex);
     g_appVersion = appVersion;
+}
+
+void InitAppInfo()
+{
+    auto appContext = AbilityRuntime::ApplicationContext::GetInstance();
+    if (!appContext) {
+        WVLOG_E("InitAppInfo failed for appContext is null.");
+        return;
+    }
+    auto appInfo = appContext->GetApplicationInfo();
+    if (!appInfo) {
+        WVLOG_E("InitAppInfo failed for appInfo is null.");
+        return;
+    }
+    SetBundleNameInner(appInfo->bundleName);
+    SetApiVersionInner(std::to_string(appInfo->apiCompatibleVersion));
+    SetAppVersionInner(appInfo->versionName);
+}
+
+std::string ExtractAndRemoveParam(std::string& renderCmd, const std::string& prefix)
+{
+    if (prefix.empty()) {
+        WVLOG_E("prefix is empty");
+        return "";
+    }
+    size_t posLeft = renderCmd.rfind(prefix);
+    if (posLeft == std::string::npos) {
+        WVLOG_E("not found arg");
+        return "";
+    }
+    size_t posRight = posLeft + prefix.size();
+    size_t posEnd = renderCmd.find('#', posRight);
+    std::string value = (posEnd == std::string::npos) ?
+                            renderCmd.substr(posRight) :
+                            renderCmd.substr(posRight, posEnd - posRight);
+
+    // remove arg
+    size_t eraseLength = (posEnd == std::string::npos) ?
+                            renderCmd.length() - posLeft :
+                            posEnd - posLeft;
+    renderCmd.erase(posLeft, eraseLength);
+
+    return value;
+}
+
+void UpdateAppInfoFromCmdline(std::string& renderCmd)
+{
+    WVLOG_D("UpdateAppInfoFromCmdline renderCmd: %{public}s", renderCmd.c_str());
+
+    std::string bundleName = ExtractAndRemoveParam(renderCmd, APP_BUNDLE_NAME_PREFIX);
+    if (!bundleName.empty()) {
+        SetBundleNameInner(bundleName);
+    } else {
+        WVLOG_W("Bundle name parameter not found in command line.");
+    }
+
+    std::string apiVersion = ExtractAndRemoveParam(renderCmd, APP_API_VERSION_PREFIX);
+    if (!apiVersion.empty()) {
+        SetApiVersionInner(apiVersion);
+    } else {
+        WVLOG_W("Api version parameter not found in command line.");
+    }
+
+    std::string appVersion = ExtractAndRemoveParam(renderCmd, APP_VERSION_PREFIX);
+    if (!appVersion.empty()) {
+        SetAppVersionInner(appVersion);
+    } else {
+        WVLOG_W("App version parameter not found in command line.");
+    }
 }
 
 ArkWebEngineVersion getActiveWebEngineVersion()

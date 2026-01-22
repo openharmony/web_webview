@@ -80,7 +80,11 @@ void ArkWebUtilsTest::TearDownTestCase(void)
 }
 
 void ArkWebUtilsTest::SetUp(void)
-{}
+{
+    SetBundleNameInner("");
+    SetApiVersionInner("");
+    SetAppVersionInner("");
+}
 
 void ArkWebUtilsTest::TearDown(void)
 {}
@@ -461,6 +465,21 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetArkwebLibPathForMock_001, TestSize.
     EXPECT_EQ(res, bundlePath + "/" + ARK_WEB_CORE_PATH_FOR_MOCK);
 }
 
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_InitAppInfo_NullAppInfo, TestSize.Level1)
+{
+    auto applicationContext = AbilityRuntime::ApplicationContext::GetInstance();
+    applicationContext->AttachContextImpl(nullptr);
+
+    auto appInfo = applicationContext->GetApplicationInfo();
+    EXPECT_EQ(appInfo, nullptr);
+
+    InitAppInfo();
+
+    EXPECT_EQ(GetBundleName(), "");
+    EXPECT_EQ(GetApiVersion(), "");
+    EXPECT_EQ(GetAppVersion(), "");
+}
+
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_InitAppInfo, TestSize.Level1)
 {
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
@@ -503,5 +522,139 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetAppVersion, TestSize.Level1)
 
     auto res = GetAppVersion();
     EXPECT_EQ(res, "test");
+}
+
+/**
+* @brief 无前缀返回空字串
+*
+*/
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ExtractAndRemoveParam_001, TestSize.Level1)
+{
+    std::string renderCmd = "someCommandWithoutPrefix";
+    std::string prefix = "prefix=";
+
+    std::string result = ExtractAndRemoveParam(renderCmd, prefix);
+    EXPECT_EQ(result, "");
+}
+
+/**
+* @brief 函数返回参数值并移除参数
+*
+*/
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ExtractAndRemoveParam_002, TestSize.Level1)
+{
+    std::string renderCmd = "command#prefix=paramValue";
+    std::string prefix = "#prefix=";
+
+    std::string result = ExtractAndRemoveParam(renderCmd, prefix);
+    EXPECT_EQ(result, "paramValue");
+    EXPECT_EQ(renderCmd, "command");
+}
+
+/**
+* @brief 参数在中间时，函数返回参数值并移除参数
+*
+*/
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ExtractAndRemoveParam_003, TestSize.Level1)
+{
+    std::string renderCmd = "command#prefix=paramValue#remaining";
+    std::string prefix = "#prefix=";
+
+    std::string result = ExtractAndRemoveParam(renderCmd, prefix);
+    EXPECT_EQ(result, "paramValue");
+    EXPECT_EQ(renderCmd, "command#remaining");
+}
+
+/**
+* @brief 前缀prefix为空
+*
+*/
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ExtractAndRemoveParam_004, TestSize.Level1)
+{
+    std::string renderCmd = "someCommandWithoutPrefix";
+    std::string prefix = "";
+
+    std::string result = ExtractAndRemoveParam(renderCmd, prefix);
+    EXPECT_EQ(result, "");
+    EXPECT_EQ(renderCmd, "someCommandWithoutPrefix");
+}
+
+/**
+* @brief 多个相同前缀prefix的参数
+*
+*/
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ExtractAndRemoveParam_005, TestSize.Level1)
+{
+    std::string renderCmd = "command#prefix=first#prefix=second";
+    std::string prefix = "#prefix=";
+
+    std::string result = ExtractAndRemoveParam(renderCmd, prefix);
+    EXPECT_EQ(result, "second");
+    EXPECT_EQ(renderCmd, "command#prefix=first");
+}
+
+/**
+* @brief 参数值为空
+*
+*/
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ExtractAndRemoveParam_006, TestSize.Level1)
+{
+    std::string renderCmd = "command#prefix=#remaining";
+    std::string prefix = "#prefix=";
+
+    std::string result = ExtractAndRemoveParam(renderCmd, prefix);
+    EXPECT_EQ(result, "");
+    EXPECT_EQ(renderCmd, "command#remaining");
+}
+
+/**
+* @brief 无APP_BUNDLE_NAME_PREFIX参数
+*
+*/
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_NoBundleName, TestSize.Level1)
+{
+    std::string renderCmd = "noparam";
+    OHOS::ArkWeb::SetBundleNameInner("test");
+    UpdateAppInfoFromCmdline(renderCmd);
+    EXPECT_EQ(OHOS::ArkWeb::GetBundleName(), "test");
+}
+
+/**
+* @brief 无APP_API_VERSION_PREFIX参数
+*
+*/
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_NoApiVersion, TestSize.Level1)
+{
+    std::string renderCmd = "noparam";
+    OHOS::ArkWeb::SetApiVersionInner("test");
+    UpdateAppInfoFromCmdline(renderCmd);
+    EXPECT_EQ(OHOS::ArkWeb::GetApiVersion(), "test");
+}
+
+/**
+* @brief 无APP_APP_VERSION_PREFIX参数
+*
+*/
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_NoAppVersion, TestSize.Level1)
+{
+    std::string renderCmd = "noparam";
+    OHOS::ArkWeb::SetAppVersionInner("test");
+    UpdateAppInfoFromCmdline(renderCmd);
+    EXPECT_EQ(OHOS::ArkWeb::GetAppVersion(), "test");
+}
+
+/**
+* @brief 参数均存在且有效
+*
+*/
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_NormalScene, TestSize.Level1)
+{
+    std::string renderCmd = "#--appEngineVersion=2#--appBundleName=test#--appApiVersion=1#--appVersion=3";
+    UpdateAppInfoFromCmdline(renderCmd);
+    EXPECT_EQ(OHOS::ArkWeb::getActiveWebEngineVersion(),
+        static_cast<OHOS::ArkWeb::ArkWebEngineVersion>(2));
+    EXPECT_EQ(OHOS::ArkWeb::GetBundleName(), "test");
+    EXPECT_EQ(OHOS::ArkWeb::GetApiVersion(), "1");
+    EXPECT_EQ(OHOS::ArkWeb::GetAppVersion(), "3");
 }
 } // namespace OHOS::NWeb
