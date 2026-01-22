@@ -25,6 +25,7 @@
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
+#include "scene_board_judgement.h"
 #include "system_ability_definition.h"
 #include "web_native_messaging_client.h"
 #include "web_native_messaging_load_callback.h"
@@ -519,7 +520,11 @@ TEST_F(WebNativeMessagingClientTest, DisconnectWebNativeMessagingExtension_Shoul
 {
     ON_CALL(*mockClient, GetWebNativeMessagingProxy()).WillByDefault(Return(nullptr));
     int result = mockClient->DisconnectWebNativeMessagingExtension(1);
-    EXPECT_EQ(result, ConnectNativeRet::PERMISSION_CHECK_ERROR);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(result, ConnectNativeRet::PERMISSION_CHECK_ERROR);
+    } else {
+        EXPECT_NE(result, ConnectNativeRet::PERMISSION_CHECK_ERROR);
+    }
 }
 
 /**

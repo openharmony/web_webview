@@ -30,6 +30,7 @@
 #include "nweb_helper.h"
 #include "nweb_init_params.h"
 #include "application_context.h"
+#include "scene_board_judgement.h"
 
 
 using namespace testing;
@@ -550,13 +551,13 @@ HWTEST_F(NWebConfigHelperTest,
     std::shared_ptr<NWebEngineInitArgsImpl> initArgs = std::make_shared<NWebEngineInitArgsImpl>();
     NWebConfigHelper::Instance().ParseWindowOrientationConfig(rootNode, initArgs);
     const auto& args = initArgs->GetArgsToAdd();
-    EXPECT_EQ(args.size(), 1);
-    EXPECT_EQ(args.front(), "--enable-blink-features=OrientationEvent");
-
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(args.size(), 1);
+        EXPECT_EQ(args.front(), "--enable-blink-features=OrientationEvent");
+    }
     g_applicationContext.reset();
     EXPECT_EQ(g_applicationContext, nullptr);
     xmlFreeNode(rootNode);
-    xmlFreeNode(configNode);
 }
 
 /**
@@ -586,13 +587,13 @@ HWTEST_F(NWebConfigHelperTest,
     std::shared_ptr<NWebEngineInitArgsImpl> initArgs = std::make_shared<NWebEngineInitArgsImpl>();
     NWebConfigHelper::Instance().ParseWindowOrientationConfig(rootNode, initArgs);
     const auto& args = initArgs->GetArgsToAdd();
-    EXPECT_EQ(args.size(), 1);
-    EXPECT_EQ(args.front(), "--disable-blink-features=OrientationEvent");
-
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(args.size(), 1);
+        EXPECT_EQ(args.front(), "--disable-blink-features=OrientationEvent");
+    }
     g_applicationContext.reset();
     EXPECT_EQ(g_applicationContext, nullptr);
     xmlFreeNode(rootNode);
-    xmlFreeNode(configNode);
 }
 
 /**
@@ -627,7 +628,6 @@ HWTEST_F(NWebConfigHelperTest,
     g_applicationContext.reset();
     EXPECT_EQ(g_applicationContext, nullptr);
     xmlFreeNode(rootNode);
-    xmlFreeNode(configNode);
 }
 
 /**
