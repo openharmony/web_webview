@@ -22,7 +22,7 @@ class PermissionClipboard {
     const event: OnPermissionRequestEvent = { request: request }
 
     const accessManager = abilityAccessCtrl.createAtManager()
-    const abilityContext = UIContext.getFocusedUIContext()?.getHostContext()!
+    const abilityContext = UIContext.resolveUIContext()?.getHostContext()!
     accessManager.requestPermissionsFromUser(abilityContext, ['ohos.permission.READ_PASTEBOARD'])
       .then((data: PermissionRequestResult) => {
         if (data.authResults[0] === 0) {

@@ -51,7 +51,7 @@ class SelectorDialog {
     const event: OnShowFileSelectorEvent = { fileSelector: param, result: result }
     const currentDevice = deviceInfo.deviceType.toLowerCase()
     if (needShowDialog(event)) {
-      UIContext.getFocusedUIContext()?.getPromptAction()
+      UIContext.resolveUIContext()?.getPromptAction()
         .openCustomDialog({
           builder: () => this.fileSelectorDialog(event),
           onWillDismiss: (dismissDialogAction: DismissDialogAction) => {
@@ -125,7 +125,7 @@ class SelectorDialog {
         try {
           console.log('Get Alert Dialog handled')
           event.result.handleFileList([])
-          UIContext.getFocusedUIContext()?.getPromptAction().closeCustomDialog(this.customDialogComponentId)
+          UIContext.resolveUIContext()?.getPromptAction().closeCustomDialog(this.customDialogComponentId)
         } catch (error: BusinessError) {
           console.error(`closeCustomDialog error code is ${error.code}, message is ${error.message}`)
         }
@@ -162,7 +162,7 @@ class SelectorDialog {
       .border({ width: { bottom: 0.5 } as EdgeWidths, color: '#33000000' })
     }
     .onClick((e) => {
-      UIContext.getFocusedUIContext()?.getPromptAction().closeCustomDialog(this.customDialogComponentId)
+      UIContext.resolveUIContext()?.getPromptAction().closeCustomDialog(this.customDialogComponentId)
       func(event)
     })
     .width('calc(100% - 48vp)')
@@ -231,7 +231,7 @@ function isContainVideoMimeType(acceptTypes: Array<string> | undefined) {
 
 function selectPicture(event: OnShowFileSelectorEvent) {
   event.result.handleFileList([])
-  UIContext.getFocusedUIContext()?.getPromptAction().showToast({ message: '无法打开图片功能，请检查是否具备图片功能' })
+  UIContext.resolveUIContext()?.getPromptAction().showToast({ message: '无法打开图片功能，请检查是否具备图片功能' })
 }
 
 function takePhoto(event: OnShowFileSelectorEvent) {
@@ -247,13 +247,13 @@ function takePhoto(event: OnShowFileSelectorEvent) {
     mediaType.push(cameraPicker.PickerMediaType.VIDEO)
   }
   const result: string[] = []
-  cameraPicker.pick(UIContext.getFocusedUIContext()?.getHostContext()!, mediaType, pickerProfileOptions)
+  cameraPicker.pick(UIContext.resolveUIContext()?.getHostContext()!, mediaType, pickerProfileOptions)
     .then((pickerResult) => {
       result.push(pickerResult.resultUri)
     })
     .catch((error) => {
       console.log('selectFile error: ' + JSON.stringify(error))
-      UIContext.getFocusedUIContext()?.getPromptAction().showToast({
+      UIContext.resolveUIContext()?.getPromptAction().showToast({
         message: '无法打开拍照功能，请检查是否具备拍照功能'
       })
     })
@@ -264,5 +264,5 @@ function takePhoto(event: OnShowFileSelectorEvent) {
 
 function selectFile(event: OnShowFileSelectorEvent) {
   event.result.handleFileList([])
-  UIContext.getFocusedUIContext()?.getPromptAction().showToast({ message: '无法打开文件功能，请检查是否具备文件功能' })
+  UIContext.resolveUIContext()?.getPromptAction().showToast({ message: '无法打开文件功能，请检查是否具备文件功能' })
 }
