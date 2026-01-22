@@ -50,6 +50,7 @@ ohos_unittest("web_native_messaging_client_test") {
     "napi:ace_napi",
     "webview:libnweb",
     "window_manager:libwm",
+    "window_manager:libwsutils",
   ]
 }
 
