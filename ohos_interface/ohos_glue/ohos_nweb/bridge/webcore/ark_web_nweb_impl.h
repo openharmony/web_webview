@@ -1237,12 +1237,6 @@ public:
                                    double vx,
                                    double vy,
                                    const ArkWebInt32Vector& pressedCodes) override;
-                                   
-    /* @brief Send cancel fling event.
-     *
-     */
-    /*--ark web()--*/
-    void WebSendCancelFlingEvent() override;
 
     /**
      * @brief Set url trust list with error message.
@@ -2017,6 +2011,12 @@ public:
      * @brief Set is offline web Component.
      */
     void SetIsOfflineWebComponent() override;
+
+    /* @brief Send cancel fling event.
+     *
+     */
+    /*--ark web()--*/
+    void WebSendCancelFlingEvent() override;
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };
