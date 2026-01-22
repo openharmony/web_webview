@@ -99,62 +99,6 @@ void ArkWebBridgeHelper::UnloadLibFile()
     }
 }
 
-void ArkWebBridgeHelper::PrereadLibFile(const std::string& libFilePath, bool isPrintLog)
-{
-    char realPath[PATH_MAX] = { 0 };
-    if (realpath(libFilePath.c_str(), realPath) == nullptr) {
-        if (isPrintLog) {
-            ARK_WEB_BRIDGE_ERROR_LOG("failed to get real path,lib file is %{public}s,errno is %{public}d(%{public}s)",
-                libFilePath.c_str(), errno, strerror(errno));
-        }
-        return;
-    }
-
-    struct stat stats;
-    if (stat(realPath, &stats) < 0) {
-        if (isPrintLog) {
-            ARK_WEB_BRIDGE_ERROR_LOG("failed to stat lib file %{public}s,errno is %{public}d(%{public}s)",
-                libFilePath.c_str(), errno, strerror(errno));
-        }
-        return;
-    }
-
-    int fd = open(realPath, O_RDONLY);
-    if (fd <= 0) {
-        if (isPrintLog) {
-            ARK_WEB_BRIDGE_ERROR_LOG("failed to open lib file %{public}s,errno is %{public}d : %{public}s",
-                libFilePath.c_str(), errno, strerror(errno));
-        }
-        return;
-    }
-
-    static const int SINGLE_READ_SIZE = 5 * 1024 * 1024;
-    char* buf = new (std::nothrow) char[SINGLE_READ_SIZE];
-    if (buf == nullptr) {
-        (void)close(fd);
-        if (isPrintLog) {
-            ARK_WEB_BRIDGE_ERROR_LOG("failed to malloc buf,lib file is %{public}s", libFilePath.c_str());
-        }
-        return;
-    }
-
-    int readCnt = stats.st_size / SINGLE_READ_SIZE;
-    if (readCnt * SINGLE_READ_SIZE < stats.st_size) {
-        readCnt += 1;
-    }
-
-    for (int i = 0; i < readCnt; i++) {
-        (void)read(fd, buf, SINGLE_READ_SIZE);
-    }
-
-    (void)close(fd);
-    delete[] buf;
-
-    if (isPrintLog) {
-        ARK_WEB_BRIDGE_INFO_LOG("succeed to preread lib file %{public}s", libFilePath.c_str());
-    }
-}
-
 void* ArkWebBridgeHelper::LoadFuncSymbol(const char* funcName, bool isPrintLog)
 {
     if (!libFileHandler_) {

@@ -62,8 +62,6 @@ protected:
         const std::string& libFileName, bool isPrintLog = true);
 #endif
 
-    static void PrereadLibFile(const std::string& libFilePath, bool isPrintLog = true);
-
     void InitFuncMemberMaps(ArkWebBridgeType init, ArkWebBridgeType butt, bool isPrintLog = true);
 
 private:

@@ -57,18 +57,6 @@ ArkWebNWebWebviewBridgeHelper& ArkWebNWebWebviewBridgeHelper::GetInstance()
     return helper;
 }
 
-void ArkWebNWebWebviewBridgeHelper::PreloadLibFile(bool runMode, const std::string& bundlePath)
-{
-    std::string libFilePath;
-    if (runMode) {
-        libFilePath = bundlePath + "/" + GetArkwebRelativePathForBundle() + "/" + NWEB_LIB_FILE_NAME;
-    } else {
-        libFilePath = bundlePath + "/" + GetArkwebRelativePathForMock() + "/" + NWEB_LIB_FILE_NAME;
-    }
-
-    ArkWebBridgeHelper::PrereadLibFile(libFilePath);
-}
-
 } // namespace OHOS::ArkWeb
 
 #ifdef __cplusplus
