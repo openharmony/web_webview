@@ -2276,6 +2276,12 @@ public:
      */
     /*--ark web()--*/
     virtual void SetIsOfflineWebComponent() = 0;
+
+    /**
+     * @brief Update web ltpo info.
+     */
+    /*--ark web()--*/
+    virtual void UpdateWebLtpoInfo() = 0;   
 };
 
 } // namespace OHOS::ArkWeb

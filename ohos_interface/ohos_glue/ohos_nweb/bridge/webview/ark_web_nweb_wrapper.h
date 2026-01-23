@@ -2021,6 +2021,11 @@ public:
      * @brief Set is offline web Component.
      */
     void SetIsOfflineWebComponent() override;
+
+    /**
+     * @brief Update web ltpo info.
+     */
+    void UpdateWebLtpoInfo() override;
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };

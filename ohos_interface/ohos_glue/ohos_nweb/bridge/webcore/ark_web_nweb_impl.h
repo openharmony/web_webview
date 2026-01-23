@@ -2011,6 +2011,11 @@ public:
      * @brief Set is offline web Component.
      */
     void SetIsOfflineWebComponent() override;
+
+    /**
+     * @brief Update web ltpo info.
+     */
+    void UpdateWebLtpoInfo() override;
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

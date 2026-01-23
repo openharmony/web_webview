@@ -2452,6 +2452,11 @@ public:
      * @brief Set is offline web Component.
      */
     virtual void SetIsOfflineWebComponent() {}
+
+    /**
+     * @brief Update web ltpo info.
+     */
+    virtual void UpdateWebLtpoInfo() {}
 };
 } // namespace OHOS::NWeb
 
