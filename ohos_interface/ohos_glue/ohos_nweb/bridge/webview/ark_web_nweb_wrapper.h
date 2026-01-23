@@ -2023,6 +2023,13 @@ public:
     void SetIsOfflineWebComponent() override;
 
     /**
+     * @brief Send cancel fling event.
+     *
+     */
+    /*--ark web()--*/
+    void WebSendCancelFlingEvent() override;
+    
+    /**
      * @brief Update web ltpo info.
      */
     void UpdateWebLtpoInfo() override;

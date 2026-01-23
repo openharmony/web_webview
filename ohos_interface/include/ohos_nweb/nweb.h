@@ -2454,6 +2454,12 @@ public:
     virtual void SetIsOfflineWebComponent() {}
 
     /**
+     * @brief Send cancel fling event.
+     *
+     */
+    virtual void WebSendCancelFlingEvent() {}
+
+    /**
      * @brief Update web ltpo info.
      */
     virtual void UpdateWebLtpoInfo() {}

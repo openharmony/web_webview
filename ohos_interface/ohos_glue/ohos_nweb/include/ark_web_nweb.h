@@ -2278,10 +2278,17 @@ public:
     virtual void SetIsOfflineWebComponent() = 0;
 
     /**
+     * @brief Send cancel fling event.
+     *
+     */
+    /*--ark web()--*/
+    virtual void WebSendCancelFlingEvent() = 0;
+
+    /**
      * @brief Update web ltpo info.
      */
     /*--ark web()--*/
-    virtual void UpdateWebLtpoInfo() = 0;   
+    virtual void UpdateWebLtpoInfo() = 0;
 };
 
 } // namespace OHOS::ArkWeb
