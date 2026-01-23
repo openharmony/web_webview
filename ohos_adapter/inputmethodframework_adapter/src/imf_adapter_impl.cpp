@@ -348,10 +348,9 @@ bool IMFAdapterImpl::AttachWithRequestKeyboardReason(std::shared_ptr<IMFTextList
     attachOptions.isShowKeyboard = isShowKeyboard;
     attachOptions.requestKeyboardReason = static_cast<OHOS::MiscServices::RequestKeyboardReason>(requestKeyboardReason);
     WVLOG_I(
-        "web inputmethod attach, isShowKeyboard=%{public}d, requestKeyboardReason=%{public}d, textConfig=%{public}s",
+        "web inputmethod attach, isShowKeyboard=%{public}d, requestKeyboardReason=%{public}d",
         isShowKeyboard,
-        requestKeyboardReason,
-        textConfig.ToString().c_str());
+        requestKeyboardReason);
     auto controller = MiscServices::InputMethodController::GetInstance();
     if (!controller) {
         WVLOG_E("MiscServices::InputMethodController::GetInstance failed");
