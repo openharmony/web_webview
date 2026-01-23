@@ -146,6 +146,23 @@ int RestoreconRecurseMock(const char *path)
     return g_restoreconRecurseMockValue;
 }
 
+int g_mountMockValue = 0;
+
+void SetMountMockValue(int mockValue)
+{
+    g_mountMockValue = mockValue;
+}
+
+int MountMock(const char *source, const char *target, const char *type, unsigned long flag, const void *data)
+{
+    UNUSED(source);
+    UNUSED(target);
+    UNUSED(type);
+    UNUSED(flag);
+    UNUSED(data);
+    return g_mountMockValue;
+}
+
 #ifdef __cplusplus
 }
 #endif

@@ -115,6 +115,7 @@ ARKWEB_EXPORT bool ReserveAddressSpace();
 ARKWEB_EXPORT void CreateRelroFileInSubProc();
 ARKWEB_EXPORT void* LoadWithRelroFile(const std::string& lib, Dl_namespace* dlns);
 #endif
+ARKWEB_EXPORT void CreateArkWebSandboxPathIfNeed();
 } // namespace OHOS::ArkWeb
 
 #endif // WEB_WEBVIEW_ARKWEB_UTILS_ARKWEB_UTILS_H
