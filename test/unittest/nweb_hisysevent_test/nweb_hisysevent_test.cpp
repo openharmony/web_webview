@@ -16,6 +16,8 @@
 
 #include <gtest/gtest.h>
 
+#include "arkweb_utils.h"
+
 namespace OHOS::NWeb {
 
 class NWebHiSysEventTest : public ::testing::Test {
@@ -30,6 +32,11 @@ TEST_F(NWebHiSysEventTest, ReportCreateWebInstanceTime)
     int64_t useTime = 1000;
 
     int result = EventReport::ReportCreateWebInstanceTime(nwebId, useTime);
+    EXPECT_EQ(result, 0);
+
+    OHOS::ArkWeb::SetBundleNameInner("test");
+    OHOS::ArkWeb::SetApiVersionInner("test");
+    result = EventReport::ReportCreateWebInstanceTime(nwebId, useTime);
     EXPECT_EQ(result, 0);
 
     result = EventReport::ReportCreateWebInstanceTime(nwebId, useTime);
