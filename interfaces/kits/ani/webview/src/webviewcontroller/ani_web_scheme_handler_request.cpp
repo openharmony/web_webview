@@ -149,7 +149,10 @@ static ani_object GetRequestResourceType(ani_env* env, ani_object object)
     }
     ani_int resourceType = 0;
     ani_enum enumType;
-    env->FindEnum(ANI_CLASS_WEB_RESOURCETYPE, &enumType);
+    if (env->FindEnum(ANI_CLASS_WEB_RESOURCETYPE, &enumType) != ANI_OK) {
+        WVLOG_E("find enum object failed");
+        return nullptr;
+    }
     auto* request = reinterpret_cast<WebSchemeHandlerRequest*>(AniParseUtils::Unwrap(env, object));
     if (!request) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
@@ -157,7 +160,10 @@ static ani_object GetRequestResourceType(ani_env* env, ani_object object)
     }
     resourceType = static_cast<ani_int>(request->GetRequestResourceType());
     ani_enum_item state;
-    env->Enum_GetEnumItemByIndex(enumType, resourceType, &state);
+    if (env->Enum_GetEnumItemByIndex(enumType, resourceType, &state) != ANI_OK) {
+        WVLOG_E("find enumItem failed");
+        return nullptr;
+    }
     return state;
 }
 
@@ -212,8 +218,15 @@ bool GetHeaderProcessItems(ani_env* env, std::vector<std::pair<std::string, std:
             WVLOG_E("getHeader new object error.");
             return false;
         }
-        env->String_NewUTF8(values[i].first.c_str(), values[i].first.size(), &headerKey);
-        env->String_NewUTF8(values[i].second.c_str(), values[i].second.size(), &headerValue);
+        if ((status = env->String_NewUTF8(values[i].first.c_str(), values[i].first.size(), &headerKey)) != ANI_OK) {
+            WVLOG_E("get string object headerKey failed");
+            return false;
+        }
+        
+        if ((env->String_NewUTF8(values[i].second.c_str(), values[i].second.size(), &headerValue)) != ANI_OK) {
+            WVLOG_E("get string object headerValue failed");
+            return false;
+        }
 
         if ((status = env->Object_SetPropertyByName_Ref(webHeaderObj, "headerKey", static_cast<ani_ref>(headerKey))) !=
             ANI_OK) {

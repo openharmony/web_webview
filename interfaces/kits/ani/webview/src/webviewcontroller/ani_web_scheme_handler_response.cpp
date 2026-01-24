@@ -84,7 +84,11 @@ static ani_string JsGetUrl(ani_env *env, ani_object object)
     if (result == nullptr) {
         return url;
     }
-    env->String_NewUTF8(result, strlen(result), &url);
+    if (env->String_NewUTF8(result, strlen(result), &url) != ANI_OK) {
+        WVLOG_E("create string object failed");
+        OH_ArkWeb_ReleaseString(result);
+        return url;
+    }
     OH_ArkWeb_ReleaseString(result);
     return url;
 }
@@ -137,7 +141,11 @@ static ani_string JsGetMimeType(ani_env* env, ani_object object)
     if (result == nullptr) {
         return mimeType;
     }
-    env->String_NewUTF8(result, strlen(result), &mimeType);
+    if (env->String_NewUTF8(result, strlen(result), &mimeType) != ANI_OK) {
+        WVLOG_E("create string object failed");
+        OH_ArkWeb_ReleaseString(result);
+        return mimeType;
+    }
     OH_ArkWeb_ReleaseString(result);
     return mimeType;
 }
@@ -190,7 +198,11 @@ static ani_string JsGetEncoding(ani_env* env, ani_object object)
     if (result == nullptr) {
         return encoding;
     }
-    env->String_NewUTF8(result, strlen(result), &encoding);
+    if (env->String_NewUTF8(result, strlen(result), &encoding) != ANI_OK) {
+        WVLOG_E("create string object failed");
+        OH_ArkWeb_ReleaseString(result);
+        return encoding;
+    }
     OH_ArkWeb_ReleaseString(result);
     return encoding;
 }
@@ -338,7 +350,11 @@ static ani_string JsGetHeaderByName(ani_env* env, ani_object object, ani_object 
     if (result == nullptr) {
         return headerValue;
     }
-    env->String_NewUTF8(result, strlen(result), &headerValue);
+    if (env->String_NewUTF8(result, strlen(result), &headerValue) != ANI_OK) {
+        WVLOG_E("create string object failed");
+        OH_ArkWeb_ReleaseString(result);
+        return headerValue;
+    }
     OH_ArkWeb_ReleaseString(result);
     return headerValue;
 }

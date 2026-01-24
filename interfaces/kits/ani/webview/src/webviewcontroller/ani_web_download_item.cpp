@@ -526,7 +526,7 @@ static ani_object DeserializeInternal(ani_env* env, ani_object object, ani_objec
 
     ani_object webDownloadUnserialized = {};
     if (AniParseUtils::CreateObjectVoid(env, ANI_CLASS_WEB_DOWNLOAD_ITEM, webDownloadUnserialized) == false) {
-        WVLOG_E("CreateObjectVoid failed");
+        delete webDownloadItem;
         return nullptr;
     }
 

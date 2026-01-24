@@ -1094,8 +1094,14 @@ static ani_object GetPageOffset(ani_env *env, ani_object object)
     controller->GetPageOffset(&offsetX, &offsetY);
 
     if (AniParseUtils::CreateObjectVoid(env, ANI_CLASS_SCROLL_OFFSET_INNER, offset)) {
-        env->Object_SetPropertyByName_Double(offset, "x", static_cast<ani_double>(offsetX));
-        env->Object_SetPropertyByName_Double(offset, "y", static_cast<ani_double>(offsetY));
+        if (env->Object_SetPropertyByName_Double(offset, "x", static_cast<ani_double>(offsetX)) != ANI_OK) {
+            WVLOG_E("setProperty x failed");
+            return nullptr;
+        }
+        if (env->Object_SetPropertyByName_Double(offset, "y", static_cast<ani_double>(offsetY)) != ANI_OK) {
+            WVLOG_E("setProperty y failed");
+            return nullptr;
+        }
     }
     return offset;
 }
@@ -1150,7 +1156,7 @@ static ani_boolean IsAdsBlockEnabledForCurPage(ani_env *env, ani_object object)
     if (!controller) {
         return ANI_FALSE;
     }
-    if(!controller->IsAdsBlockEnabledForCurPage()) {
+    if (!controller->IsAdsBlockEnabledForCurPage()) {
         WVLOG_E("IsAdsBlockEnabledForCurPage failed.");
         return ANI_FALSE;
     }
@@ -1167,7 +1173,7 @@ static ani_boolean IsIntelligentTrackingPreventionEnabled(ani_env *env, ani_obje
     if (!controller) {
         return ANI_FALSE;
     }
-    if(!controller->IsIntelligentTrackingPreventionEnabled()) {
+    if (!controller->IsIntelligentTrackingPreventionEnabled()) {
         WVLOG_E("IsIntelligentTrackingPreventionEnabled failed.");
         return ANI_FALSE;
     }
@@ -1181,7 +1187,7 @@ static void AddIntelligentTrackingPreventionBypassingList(ani_env *env, ani_obje
         return;
     }
     std::vector<std::string> hosts;
-    if(!AniParseUtils::GetStringList(env, stringArrayObj, hosts)) {
+    if (!AniParseUtils::GetStringList(env, stringArrayObj, hosts)) {
         WVLOG_E("GetStringList failed.");
         return;
     }
@@ -1197,7 +1203,7 @@ static void RemoveIntelligentTrackingPreventionBypassingList(ani_env *env, ani_o
         return;
     }
     std::vector<std::string> hosts;
-    if(!AniParseUtils::GetStringList(env, stringArrayObj, hosts)) {
+    if (!AniParseUtils::GetStringList(env, stringArrayObj, hosts)) {
         WVLOG_E("GetStringList failed.");
         return;
     }
@@ -1215,6 +1221,7 @@ static void ClearIntelligentTrackingPreventionBypassingList(ani_env *env, ani_ob
     NWebHelper::Instance().ClearIntelligentTrackingPreventionBypassingList();
     return;
 }
+
 static void SetHostIP(ani_env *env, ani_object object, ani_object hostNameObj, ani_object addressObj,
     ani_int aliveTime)
 {
@@ -1240,6 +1247,7 @@ static void SetHostIP(ani_env *env, ani_object object, ani_object hostNameObj, a
     NWebHelper::Instance().SetHostIP(hostName, address, aliveTimeInt);
     return;
 }
+
 static void ClearHostIP(ani_env *env, ani_object object, ani_object hostNameObj)
 {
     if (!env) {
@@ -1808,8 +1816,13 @@ static ani_ref GetBackForwardEntries(ani_env *env, ani_object object)
     }
     webHistoryList->IncRefCount();
 
-    env->Object_SetPropertyByName_Int(backForwardObj, "currentIndex", static_cast<ani_int>(currentIndex));
-    env->Object_SetPropertyByName_Int(backForwardObj, "size", static_cast<ani_int>(size));
+    if (env->Object_SetPropertyByName_Int(backForwardObj, "currentIndex", static_cast<ani_int>(currentIndex))
+        != ANI_OK) {
+        return nullptr;
+    }
+    if (env->Object_SetPropertyByName_Int(backForwardObj, "size", static_cast<ani_int>(size)) != ANI_OK) {
+        return nullptr;
+    }
     return backForwardObj;
 }
 
@@ -2570,7 +2583,10 @@ static ani_enum_item GetSecurityLevel(ani_env* env, ani_object object)
         return result;
     }
     ani_enum enumType;
-    env->FindEnum(WEB_CONTROLLER_SECURITY_LEVEL_ENUM_NAME, &enumType);
+    if (env->FindEnum(WEB_CONTROLLER_SECURITY_LEVEL_ENUM_NAME, &enumType) != ANI_OK) {
+        WVLOG_E("find enum object failed");
+        return result;
+    }
     ani_int securityLevel = controller->GetSecurityLevel(env);
     env->Enum_GetEnumItemByIndex(enumType, securityLevel, &result);
     return result;
@@ -3045,8 +3061,8 @@ static bool CreateWebMessagePortObj(
         WVLOG_E("new WebMessagePort failed");
         return false;
     }
-    if (!AniParseUtils::Wrap(
-            env, obj, ANI_WEB_MESSAGE_PORT_INNER_CLASS_NAME, reinterpret_cast<ani_long>(webMessagePort))) {
+    if (!AniParseUtils::Wrap(env, obj, ANI_WEB_MESSAGE_PORT_INNER_CLASS_NAME,
+                             reinterpret_cast<ani_long>(webMessagePort))) {
         WVLOG_E("WebMessagePort wrap failed");
         delete webMessagePort;
         webMessagePort = nullptr;
@@ -3122,7 +3138,9 @@ static ani_object CreateWebMessagePortsObj(
             return nullptr;
         }
         if (isUndefined != ANI_TRUE) {
-            env->Object_SetPropertyByName_Ref(obj, "isExtentionType", isExtentionType);
+            if (env->Object_SetPropertyByName_Ref(obj, "isExtentionType", isExtentionType) != ANI_OK) {
+                return nullptr;
+            }
         } else {
             ani_boolean tempExtentionType = ANI_FALSE;
             ani_object boolInfoObj = CreateWebMessagePortsObjOfBoolean(env, tempExtentionType);
@@ -3605,13 +3623,13 @@ static void AddResourceToMemoryCache(ani_env* env, ani_object object, OfflineRes
         return;
     }
     if (env->ArrayBuffer_GetInfo(reinterpret_cast<ani_arraybuffer>(resourceValue.resourceArrayBuffer),
-            reinterpret_cast<void**>(&arrayBufferUint8), &byteLength) != ANI_OK) {
+                                 reinterpret_cast<void**>(&arrayBufferUint8), &byteLength) != ANI_OK) {
         WVLOG_E("ArrayBuffer_GetInfo failed");
         return;
     }
     std::vector<uint8_t> postData(arrayBufferUint8, arrayBufferUint8 + byteLength);
-    if (!AniParseUtils::ParseStringArrayMap(
-            env, static_cast<ani_object>(resourceValue.responseHeadersArray), responseHeaders)) {
+    if (!AniParseUtils::ParseStringArrayMap(env, static_cast<ani_object>(resourceValue.responseHeadersArray),
+        responseHeaders)) {
         WVLOG_E("InjectOfflineResources ParseStringArrayMap fail");
         return;
     }
@@ -3655,8 +3673,8 @@ static void AddResourcesToMemoryCache(
             WVLOG_E("urlList error");
             continue;
         }
-        if (env->Object_GetPropertyByName_Ref(
-                static_cast<ani_object>(resourceMapItem), "resource", &resourceArrayBuffer) != ANI_OK) {
+        if (env->Object_GetPropertyByName_Ref(static_cast<ani_object>(resourceMapItem), "resource",
+            &resourceArrayBuffer) != ANI_OK) {
             AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
             WVLOG_E("resource error");
             continue;
@@ -3773,7 +3791,10 @@ static std::shared_ptr<NWebEnginePrefetchArgs> ParsePrefetchArgs(ani_env* env, a
 
     ani_ref formDataObj = nullptr;
     std::string formData;
-    env->Object_GetPropertyByName_Ref(request, "formData", &formDataObj);
+    if (env->Object_GetPropertyByName_Ref(request, "formData", &formDataObj) != ANI_OK) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return nullptr;
+    }
     if (!AniParseUtils::ParseString(env, formDataObj, formData)) {
         AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
         return nullptr;
@@ -4136,7 +4157,9 @@ bool ParseJsLengthResourceToInt(ani_env* env, ani_object jsLength, PixelUnit& ty
         return false;
     }
     ani_ref jsResourceType = nullptr;
-    env->Object_GetPropertyByName_Ref(jsLength, "type", &jsResourceType);
+    if (env->Object_GetPropertyByName_Ref(jsLength, "type", &jsResourceType) != ANI_OK) {
+        return false;
+    }
     if (AniParseUtils::IsDouble(env, static_cast<ani_object>(jsResourceType))) {
         int32_t resourceTypeNum;
         ParseJsLengthDoubleToInt(env, jsResourceType, resourceTypeNum);
@@ -4454,8 +4477,6 @@ ani_object PrecompileJavaScriptPromise(ani_env* env, ani_object object, std::str
     }
 
     WVLOG_D("PrecompileJavaScript Begin");
-    ani_vm* vm = nullptr;
-    env->GetVM(&vm);
     ani_resolver resolver {};
     ani_object promise {};
     ani_status status = env->Promise_New(&resolver, &promise);
@@ -4522,7 +4543,7 @@ ani_object PrecompileJavaScript(
         uint8_t* arrayBuffer = nullptr;
         ani_size byteLength;
         if (env->ArrayBuffer_GetInfo(reinterpret_cast<ani_arraybuffer>(script), reinterpret_cast<void**>(&arrayBuffer),
-                &byteLength) != ANI_OK) {
+            &byteLength) != ANI_OK) {
             WVLOG_E("ArrayBuffer_GetInfo failed");
             AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
             return result;
@@ -5046,17 +5067,16 @@ ani_object ConvertToAniHandlerOfBooleanArray(ani_env* env, std::shared_ptr<NWebM
         WVLOG_E("WebMessageExt new array ref error.");
         return array;
     }
-
+    ani_class booleanCls {};
+    if (ANI_OK != env->FindClass("std.core.Boolean", &booleanCls)) {
+        return nullptr;
+    }
+    ani_method ctor {};
+    if (ANI_OK != env->Class_FindMethod(booleanCls, "<ctor>", "z:", &ctor)) {
+        return nullptr;
+    }
     for (size_t i = 0; i < valueSize; i++) {
         ani_boolean item = static_cast<ani_boolean>(values[i]);
-        ani_class booleanCls {};
-        if (ANI_OK != env->FindClass("std.core.Boolean", &booleanCls)) {
-            return nullptr;
-        }
-        ani_method ctor {};
-        if (ANI_OK != env->Class_FindMethod(booleanCls, "<ctor>", "z:", &ctor)) {
-            return nullptr;
-        }
         ani_object obj {};
         if (env->Object_New(booleanCls, ctor, &obj, item) != ANI_OK) {
             return nullptr;
@@ -5089,16 +5109,16 @@ ani_object ConvertToAniHandlerOfDoubleArray(ani_env* env, std::shared_ptr<NWebMe
         return array;
     }
 
+    ani_class cls {};
+    if (ANI_OK != env->FindClass("std.core.Double", &cls)) {
+        return nullptr;
+    }
+    ani_method ctor {};
+    if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", "d:", &ctor)) {
+        return nullptr;
+    }
     for (size_t i = 0; i < valueSize; i++) {
         ani_double item = static_cast<ani_double>(values[i]);
-        ani_class cls {};
-        if (ANI_OK != env->FindClass("std.core.Double", &cls)) {
-            return nullptr;
-        }
-        ani_method ctor {};
-        if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", "d:", &ctor)) {
-            return nullptr;
-        }
         ani_object obj {};
         if (env->Object_New(cls, ctor, &obj, item) != ANI_OK) {
             return nullptr;
@@ -5131,16 +5151,16 @@ ani_object ConvertToAniHandlerOfInt64Array(ani_env* env, std::shared_ptr<NWebMes
         return array;
     }
 
+    ani_class cls {};
+    if (ANI_OK != env->FindClass("std.core.Long", &cls)) {
+        return nullptr;
+    }
+    ani_method ctor {};
+    if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", "l:", &ctor)) {
+        return nullptr;
+    }
     for (size_t i = 0; i < valueSize; i++) {
         ani_long item = static_cast<ani_long>(values[i]);
-        ani_class cls {};
-        if (ANI_OK != env->FindClass("std.core.Long", &cls)) {
-            return nullptr;
-        }
-        ani_method ctor {};
-        if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", "l:", &ctor)) {
-            return nullptr;
-        }
         ani_object obj {};
         if (env->Object_New(cls, ctor, &obj, item) != ANI_OK) {
             return nullptr;
@@ -5387,9 +5407,8 @@ static void RunJavaScriptInternal(
     }
     ani_class functionClass;
     env->FindClass("std.core.Function", &functionClass);
-    ani_boolean isFunction;
-    env->Object_InstanceOf(callback, functionClass, &isFunction);
-    if (!isFunction) {
+    ani_boolean isFunction = false;
+    if (env->Object_InstanceOf(callback, functionClass, &isFunction) != ANI_OK || !isFunction) {
         WVLOG_E("callback is not fountion");
         return;
     }
@@ -5874,7 +5893,10 @@ static void StoreWebArchivePromiseInternal(
         std::vector<ani_ref> resultRef(RESULT_COUNT);
         resultRef[0] = NWebError::AniBusinessError::CreateError(env, INVALID_RESOURCE);
         ani_string str {};
-        env->String_NewUTF8(result.c_str(), result.size(), &str);
+        if (env->String_NewUTF8(result.c_str(), result.size(), &str) != ANI_OK) {
+            WVLOG_E("create string object failed");
+            return;
+        }
         resultRef[1] = static_cast<ani_ref>(str);
         if (!result.empty()) {
             env->PromiseResolver_Resolve(deferred, resultRef[1]);
@@ -5912,7 +5934,10 @@ static ani_object StoreWebArchivePromise(ani_env* env, ani_object object, ani_st
     int32_t nwebId = controller->GetWebId();
     ani_object promise;
     ani_resolver deferred;
-    env->Promise_New(&deferred, &promise);
+    if (env->Promise_New(&deferred, &promise) != ANI_OK) {
+        WVLOG_E("cretae promise object failed");
+        return nullptr;
+    }
     StoreWebArchivePromiseInternal(env, baseNameStr, autoNameStr, deferred, nwebId);
     return promise;
 }
@@ -6039,7 +6064,9 @@ static ani_object GetCertificateSync(ani_env* env, ani_object object)
         }
         void* data = nullptr;
         ani_arraybuffer buffer = nullptr;
-        env->CreateArrayBuffer(certChainDerData[i].size(), &data, &buffer);
+        if (env->CreateArrayBuffer(certChainDerData[i].size(), &data, &buffer) != ANI_OK) {
+            return certificateObj;
+        }
         int retCode =
             memcpy_s(data, certChainDerData[i].size(), certChainDerData[i].data(), certChainDerData[i].size());
         if (retCode != 0) {
@@ -6047,7 +6074,6 @@ static ani_object GetCertificateSync(ani_env* env, ani_object object)
         }
         if ((status = env->Array_Set(static_cast<ani_array>(certificateObj), i,
             static_cast<ani_ref>(buffer))) != ANI_OK) {
-            WVLOG_E("error in set element");
             return certificateObj;
         }
     }
@@ -6200,7 +6226,10 @@ static void ParsePrintRangeAdapter(ani_env* env, ani_object pageRange, PrintAttr
         printAttr.pageRange.startPage, printAttr.pageRange.endPage);
 
     ani_size length = 0;
-    env->Array_GetLength(pagesArrayInt, &length);
+    if (env->Array_GetLength(pagesArrayInt, &length) != ANI_OK) {
+        WVLOG_E("get array length failed");
+        return;
+    }
     for (uint32_t i = 0; i < length; ++i) {
         ani_int pagesInt = 0;
         ani_ref intRef {};

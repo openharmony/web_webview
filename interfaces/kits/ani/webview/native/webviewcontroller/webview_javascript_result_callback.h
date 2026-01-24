@@ -142,6 +142,12 @@ public:
                 WVLOG_E("aniObjRef_ not delete");
             }
         }
+        if (webviewObj_) {
+            ani_env* env = GetAniEnv();
+            if (env) {
+                env->GlobalReference_Delete(webviewObj_);
+            }
+        }
     }
 
     napi_env GetEnv() const
@@ -160,6 +166,7 @@ public:
 
     ani_ref GetWebviewObject()
     {
+        std::unique_lock<std::mutex> lock(mutex_);
         return webviewObj_;
     }
 
@@ -261,6 +268,7 @@ public:
         if (!isMethodsSetup_) {
             SetUpMethods();
         }
+        std::unique_lock<std::mutex> lock(mutex_);
         return methods_;
     }
 
@@ -269,6 +277,7 @@ public:
         if (!isMethodsSetup_) {
             SetUpMethods();
         }
+        std::unique_lock<std::mutex> lock(mutex_);
         if (asyncMethods_.empty()) {
             return methods_;
         }
@@ -285,11 +294,13 @@ public:
 
     std::vector<std::string> GetAsyncMethodNames()
     {
+        std::unique_lock<std::mutex> lock(mutex_);
         return asyncMethods_;
     }
 
     std::string GetPermission()
     {
+        std::unique_lock<std::mutex> lock(mutex_);
         return permission_;
     }
 
@@ -322,9 +333,12 @@ public:
             AniSetUpMethods();
             return false;
         }
-        for (std::vector<std::string>::iterator iter = methods_.begin(); iter != methods_.end(); ++iter) {
-            if (*iter == methodName) {
-                return true;
+        {
+            std::unique_lock<std::mutex> lock(mutex_);
+            for (std::vector<std::string>::iterator iter = methods_.begin(); iter != methods_.end(); ++iter) {
+                if (*iter == methodName) {
+                    return true;
+                }
             }
         }
         return false;

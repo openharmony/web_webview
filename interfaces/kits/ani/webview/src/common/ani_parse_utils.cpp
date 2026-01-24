@@ -230,7 +230,7 @@ std::shared_ptr<CacheOptions> AniParseUtils::ParseCacheOptions(ani_env *env, ani
         return defaultCacheOptions;
     }
 
-    if(!ParseStringArrayMap(env, static_cast<ani_object>(cacheOptionsArray), responseHeaders)){
+    if (!ParseStringArrayMap(env, static_cast<ani_object>(cacheOptionsArray), responseHeaders)) {
         WVLOG_E("PrecompileJavaScript defaultCacheOptions");
         return defaultCacheOptions;
     }
@@ -247,7 +247,10 @@ bool AniParseUtils::ParseStringArray(ani_env* env, ani_object argv, std::vector<
     ani_boolean isArray = ANI_FALSE;
     ani_int arrayLength;
     ani_array arrayRef;
-    env->FindClass("std.core.Array", &cls);
+    if (env->FindClass("std.core.Array", &cls) != ANI_OK) {
+        WVLOG_E("find array class failed");
+        return false;
+    }
     env->Object_InstanceOf(argv, cls, &isArray);
     if (!isArray) {
         WVLOG_E("argv must be array");
@@ -281,8 +284,11 @@ bool AniParseUtils::ParseStringArrayMap(ani_env* env, ani_object argv, std::map<
     ani_class cls;
     ani_boolean isArray = ANI_FALSE;
     ani_array arrayRef;
-    ani_double arrayLength;
-    env->FindClass("std.core.Array", &cls);
+    ani_int arrayLength;
+    if (env->FindClass("std.core.Array", &cls) != ANI_OK) {
+        WVLOG_E("find array class failed");
+        return false;
+    }
     env->Object_InstanceOf(argv, cls, &isArray);
     if (!isArray) {
         WVLOG_E("argv must be array");
@@ -290,8 +296,11 @@ bool AniParseUtils::ParseStringArrayMap(ani_env* env, ani_object argv, std::map<
     }
 
     arrayRef = static_cast<ani_array>(argv);
-    env->Object_GetPropertyByName_Double(argv, "length", &arrayLength);
-    for (ani_double i = 0; i < arrayLength; i++) {
+    if (env->Object_GetPropertyByName_Int(argv, "length", &arrayLength) != ANI_OK) {
+        WVLOG_E("get array length failed");
+        return false;
+    }
+    for (ani_int i = 0; i < arrayLength; i++) {
         ani_ref arrayItem = nullptr;
         env->Array_Get(arrayRef, i, &arrayItem);
         ani_ref keyObj = nullptr;
@@ -600,9 +609,15 @@ ani_object AniParseUtils::CreateDouble(ani_env* env, ani_double val)
     }
     static constexpr const char* className = "std.core.Double";
     ani_class doubleCls {};
-    env->FindClass(className, &doubleCls);
+    if (env->FindClass(className, &doubleCls) != ANI_OK) {
+        WVLOG_E("find double class failed");
+        return nullptr;
+    }
     ani_method ctor {};
-    env->Class_FindMethod(doubleCls, "<ctor>", "d:", &ctor);
+    if (env->Class_FindMethod(doubleCls, "<ctor>", "d:", &ctor) != ANI_OK) {
+        WVLOG_E("find double ctor failed");
+        return nullptr;
+    }
     ani_object obj {};
     if (env->Object_New(doubleCls, ctor, &obj, static_cast<ani_double>(val)) != ANI_OK) {
         WVLOG_E("CreateDouble Failed");
@@ -617,9 +632,15 @@ ani_object AniParseUtils::CreateInt(ani_env *env, ani_int val)
 {
     static constexpr const char* className = "std.core.Int";
     ani_class intCls {};
-    env->FindClass(className, &intCls);
+    if (env->FindClass(className, &intCls) != ANI_OK) {
+        WVLOG_E("find int class failed");
+        return nullptr;
+    }
     ani_method ctor {};
-    env->Class_FindMethod(intCls, "<ctor>", "i:", &ctor);
+    if (env->Class_FindMethod(intCls, "<ctor>", "i:", &ctor) != ANI_OK) {
+        WVLOG_E("find int ctor failed");
+        return nullptr;
+    }
     ani_object obj {};
     if (env->Object_New(intCls, ctor, &obj, static_cast<ani_int>(val)) != ANI_OK) {
         WVLOG_E("CreateInt Failed");
@@ -688,7 +709,10 @@ bool AniParseUtils::ParseBoolean(ani_env* env, ani_ref ref, bool& outValue)
     }
 
     ani_boolean boolValue;
-    env->Object_CallMethodByName_Boolean(static_cast<ani_object>(ref), "toBoolean", ":z", &boolValue);
+    if (env->Object_CallMethodByName_Boolean(static_cast<ani_object>(ref), "toBoolean", ":z", &boolValue) != ANI_OK) {
+        WVLOG_E("get bool value failed");
+        return false;
+    }
     outValue = static_cast<bool>(boolValue);
     return true;
 }
@@ -711,7 +735,10 @@ bool AniParseUtils::ParseInt64(ani_env* env, ani_ref ref, int64_t& outValue)
     }
 
     ani_long value;
-    env->Object_CallMethodByName_Long(static_cast<ani_object>(ref), "toLong", ":l", &value);
+    if (env->Object_CallMethodByName_Long(static_cast<ani_object>(ref), "toLong", ":l", &value) != ANI_OK) {
+        WVLOG_E("get long value failed");
+        return false;
+    }
     outValue = static_cast<int64_t>(value);
     return true;
 }
@@ -735,7 +762,10 @@ bool AniParseUtils::ParseDouble(ani_env* env, ani_ref ref, double& outValue)
     }
 
     ani_double value;
-    env->Object_CallMethodByName_Double(static_cast<ani_object>(ref), "toDouble", ":d", &value);
+    if (env->Object_CallMethodByName_Double(static_cast<ani_object>(ref), "toDouble", ":d", &value) != ANI_OK) {
+        WVLOG_E("get double value failed");
+        return false;
+    }
     outValue = static_cast<double>(value);
     return true;
 }
@@ -822,7 +852,10 @@ bool AniParseUtils::ParseBooleanArray(ani_env* env, ani_object argv, std::vector
     ani_boolean isArray = ANI_FALSE;
     ani_int arrayLength;
     ani_array arrayRef;
-    env->FindClass("std.core.Array", &cls);
+    if (env->FindClass("std.core.Array", &cls) != ANI_OK) {
+        WVLOG_E("find array class failed");
+        return false;
+    }
     env->Object_InstanceOf(argv, cls, &isArray);
     if (!isArray) {
         WVLOG_E("argv must be array");
@@ -830,7 +863,10 @@ bool AniParseUtils::ParseBooleanArray(ani_env* env, ani_object argv, std::vector
     }
 
     arrayRef = static_cast<ani_array>(argv);
-    env->Object_GetPropertyByName_Int(argv, "length", &arrayLength);
+    if (env->Object_GetPropertyByName_Int(argv, "length", &arrayLength) != ANI_OK) {
+        WVLOG_E("get array length failed");
+        return false;
+    }
     for (ani_int i = 0; i < arrayLength; i++) {
         ani_ref arrayItem = nullptr;
         env->Array_Get(arrayRef, i, &arrayItem);
@@ -860,7 +896,10 @@ bool AniParseUtils::ParseDoubleArray(ani_env* env, ani_object argv, std::vector<
     }
 
     arrayRef = static_cast<ani_array>(argv);
-    env->Object_GetPropertyByName_Int(argv, "length", &arrayLength);
+    if (env->Object_GetPropertyByName_Int(argv, "length", &arrayLength) != ANI_OK) {
+        WVLOG_E("get array length failed");
+        return false;
+    }
     for (ani_int i = 0; i < arrayLength; i++) {
         ani_ref arrayItem = nullptr;
         if (env->Array_Get(arrayRef, i, &arrayItem) != ANI_OK) {
@@ -972,7 +1011,10 @@ ani_ref ConvertToAniHandlerOfString(ani_env* env, std::shared_ptr<NWebMessage> s
     }
     std::string msgStr = src->GetString();
     ani_string dstTemp;
-    env->String_NewUTF8(msgStr.c_str(), msgStr.size(), &dstTemp);
+    if (env->String_NewUTF8(msgStr.c_str(), msgStr.size(), &dstTemp) != ANI_OK) {
+        WVLOG_E("create object failed");
+        return nullptr;
+    }
     return static_cast<ani_ref>(dstTemp);
 }
 
@@ -1020,7 +1062,10 @@ ani_ref ConvertToAniHandlerOfBoolean(ani_env* env, std::shared_ptr<NWebMessage> 
     }
 
     ani_object boolInfoObj;
-    env->Object_New(bool_cls, boolInfoCtor, &boolInfoObj, static_cast<ani_boolean>(src->GetBoolean()));
+    if (env->Object_New(bool_cls, boolInfoCtor, &boolInfoObj, static_cast<ani_boolean>(src->GetBoolean())) != ANI_OK) {
+        WVLOG_E("create bool object failed");
+        return nullptr;
+    }
     return static_cast<ani_ref>(boolInfoObj);
 }
 
@@ -1046,7 +1091,11 @@ ani_ref ConvertToAniHandlerOfInteger(ani_env* env, std::shared_ptr<NWebMessage> 
     }
 
     ani_object integerInfoObj;
-    env->Object_New(integer_cls, integerInfoCtor, &integerInfoObj, static_cast<ani_long>(src->GetInt64()));
+    if (env->Object_New(integer_cls, integerInfoCtor, &integerInfoObj, static_cast<ani_long>(src->GetInt64()))
+        != ANI_OK) {
+        WVLOG_E("create object failed");
+        return nullptr;
+    }
     return static_cast<ani_ref>(integerInfoObj);
 }
 
@@ -1072,7 +1121,11 @@ ani_ref ConvertToAniHandlerOfDouble(ani_env* env, std::shared_ptr<NWebMessage> s
     }
 
     ani_object doubleInfoObj;
-    env->Object_New(double_cls, doubleInfoCtor, &doubleInfoObj, static_cast<ani_long>(src->GetDouble()));
+    if (env->Object_New(double_cls, doubleInfoCtor, &doubleInfoObj, static_cast<ani_long>(src->GetDouble()))
+        != ANI_OK) {
+        WVLOG_E("create double object failed");
+        return nullptr;
+    }
     return static_cast<ani_ref>(doubleInfoObj);
 }
 
@@ -1104,7 +1157,10 @@ ani_ref ConvertToAniHandlerOfError(ani_env* env, std::shared_ptr<NWebMessage> sr
     }
 
     ani_object errObj;
-    env->Object_New(errCls, errInfoCtor, &errObj, message);
+    if (env->Object_New(errCls, errInfoCtor, &errObj, message) != ANI_OK) {
+        WVLOG_E("create error object failed");
+        return nullptr;
+    }
     return static_cast<ani_ref>(errObj);
 }
 
@@ -1163,16 +1219,17 @@ ani_ref ConvertToAniHandlerOfBooleanArr(ani_env* env, std::shared_ptr<NWebMessag
         return array;
     }
 
+    ani_class booleanCls {};
+    if (ANI_OK != env->FindClass("std.core.Boolean", &booleanCls)) {
+        return nullptr;
+    }
+    ani_method ctor {};
+    if (ANI_OK != env->Class_FindMethod(booleanCls, "<ctor>", "z:", &ctor)) {
+        return nullptr;
+    }
+
     for (size_t i = 0; i < valueSize; i++) {
         ani_boolean item = static_cast<ani_boolean>(values[i]);
-        ani_class booleanCls {};
-        if (ANI_OK != env->FindClass("std.core.Boolean", &booleanCls)) {
-            return nullptr;
-        }
-        ani_method ctor {};
-        if (ANI_OK != env->Class_FindMethod(booleanCls, "<ctor>", "z:", &ctor)) {
-            return nullptr;
-        }
         ani_object obj {};
         if (env->Object_New(booleanCls, ctor, &obj, item) != ANI_OK) {
             return nullptr;
@@ -1206,16 +1263,18 @@ ani_ref ConvertToAniHandlerOfDoubleArr(ani_env* env, std::shared_ptr<NWebMessage
         return array;
     }
 
+    ani_class cls {};
+    if (ANI_OK != env->FindClass("std.core.Double", &cls)) {
+        WVLOG_E("find double class failed");
+        return nullptr;
+    }
+    ani_method ctor {};
+    if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", "d:", &ctor)) {
+        return nullptr;
+    }
+
     for (size_t i = 0; i < valueSize; i++) {
         ani_double item = static_cast<ani_double>(values[i]);
-        ani_class cls {};
-        if (ANI_OK != env->FindClass("std.core.Double", &cls)) {
-            return nullptr;
-        }
-        ani_method ctor {};
-        if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", "d:", &ctor)) {
-            return nullptr;
-        }
         ani_object obj {};
         if (env->Object_New(cls, ctor, &obj, item) != ANI_OK) {
             return nullptr;
@@ -1249,16 +1308,17 @@ ani_ref ConvertToAniHandlerOfInt64Arr(ani_env* env, std::shared_ptr<NWebMessage>
         return array;
     }
 
+    ani_class cls {};
+    if (ANI_OK != env->FindClass("std.core.Long", &cls)) {
+        return nullptr;
+    }
+    ani_method ctor {};
+    if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", "l:", &ctor)) {
+        return nullptr;
+    }
+
     for (size_t i = 0; i < valueSize; i++) {
         ani_long item = static_cast<ani_long>(values[i]);
-        ani_class cls {};
-        if (ANI_OK != env->FindClass("std.core.Long", &cls)) {
-            return nullptr;
-        }
-        ani_method ctor {};
-        if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", "l:", &ctor)) {
-            return nullptr;
-        }
         ani_object obj {};
         if (env->Object_New(cls, ctor, &obj, item) != ANI_OK) {
             return nullptr;
@@ -1296,7 +1356,10 @@ ani_ref AniParseUtils::ConvertNWebToAniValue(ani_env* env, std::shared_ptr<NWebM
         WVLOG_E("This type not support");
         std::string msgStr = "This type not support";
         ani_string dstTemp;
-        env->String_NewUTF8(msgStr.c_str(), msgStr.size(), &dstTemp);
+        if (env->String_NewUTF8(msgStr.c_str(), msgStr.size(), &dstTemp) != ANI_OK) {
+            WVLOG_E("create object failed");
+            return nullptr;
+        }
         return static_cast<ani_ref>(dstTemp);
     }
     return it->second(env, src);

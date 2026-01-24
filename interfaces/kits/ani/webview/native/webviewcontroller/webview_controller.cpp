@@ -1120,7 +1120,6 @@ void WebviewController::PutNetworkAvailable(bool available)
 ErrCode WebviewController::HasImagesCallback(ani_vm *vm, ani_ref jsCallback)
 {
     if (vm == nullptr) {
-        WVLOG_E("vm is nullptr");
         return NWebError::INIT_ERROR;
     }
     ani_env* env = nullptr;
@@ -1154,14 +1153,14 @@ ErrCode WebviewController::HasImagesCallback(ani_vm *vm, ani_ref jsCallback)
             WVLOG_E("FunctionalObject_Call failed, status is : %{public}d", stat);
             return NWebError::INIT_ERROR;
         }
-        env->GlobalReference_Delete(jsCallback);
+        if (env->GlobalReference_Delete(jsCallback) != ANI_OK) {
+            WVLOG_E("delete globalReference failed");
+        }
         return NWebError::INIT_ERROR;
     }
-
     if (jsCallback == nullptr) {
         return NWebError::PARAM_CHECK_ERROR;
     }
-
     auto callbackImpl = std::make_shared<WebviewHasImageCallback>(vm, jsCallback, nullptr);
     if (callbackImpl) {
         nweb_ptr->HasImages(callbackImpl);
