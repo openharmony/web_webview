@@ -29,7 +29,7 @@ ohos_unittest("nweb_hiviewdfx_adapter_test") {
 
   configs = [ ":module_private_config" ]
 
-  deps = [ "../../../../ohos_adapter:nweb_ohos_adapter" ]
+  deps = [ "../../../../ohos_adapter:nweb_ohos_adapter", "../../../../arkweb_utils:libarkweb_utils" ]
 
   external_deps = [
     "ability_runtime:app_context",

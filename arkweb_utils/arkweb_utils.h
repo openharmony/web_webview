@@ -59,6 +59,9 @@ do { \
 #endif
 
 #define APP_ENGINE_VERSION_PREFIX "#--appEngineVersion="
+#define APP_BUNDLE_NAME_PREFIX "#--appBundleName="
+#define APP_API_VERSION_PREFIX "#--appApiVersion="
+#define APP_VERSION_PREFIX "#--appVersion="
 
 namespace OHOS::ArkWeb {
 
@@ -80,7 +83,16 @@ ARKWEB_EXPORT void setActiveWebEngineVersion(ArkWebEngineVersion version);
 ARKWEB_EXPORT void SetActiveWebPlayGround(ArkWebEngineVersion version);
 ARKWEB_EXPORT ArkWebEngineVersion getActiveWebEngineVersion();
 ARKWEB_EXPORT ArkWebEngineType getActiveWebEngineType();
+ARKWEB_EXPORT std::string GetBundleName();
+ARKWEB_EXPORT std::string GetApiVersion();
+ARKWEB_EXPORT std::string GetAppVersion();
 ARKWEB_EXPORT void SetActiveWebEngineVersionInner(ArkWebEngineVersion version);
+ARKWEB_EXPORT void SetBundleNameInner(const std::string& bundleName);
+ARKWEB_EXPORT void SetApiVersionInner(const std::string& apiVersion);
+ARKWEB_EXPORT void SetAppVersionInner(const std::string& appVersion);
+ARKWEB_EXPORT void InitAppInfo();
+ARKWEB_EXPORT std::string ExtractAndRemoveParam(std::string& renderCmd, const std::string& prefix);
+ARKWEB_EXPORT void UpdateAppInfoFromCmdline(std::string& renderCmd);
 ARKWEB_EXPORT bool IsActiveWebEngineEvergreen();
 ARKWEB_EXPORT void SelectWebcoreBeforeProcessRun(const std::string& appBundleName);
 

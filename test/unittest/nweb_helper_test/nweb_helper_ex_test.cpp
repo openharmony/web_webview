@@ -30,6 +30,7 @@
 #include "nweb_init_params.h"
 #include "nweb_user_agent_metadata.h"
 #include "application_context.h"
+#include "scene_board_judgement.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -344,6 +345,9 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetConfigPath_005, TestSize.Level1)
  */
 HWTEST_F(NwebHelperTest, NWebHelper_LoadNWebSDK_006, TestSize.Level1)
 {
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        GTEST_SKIP();
+    }
     auto nwebEngineMock = std::make_shared<MockNWebEngine>();
     NWebHelper::Instance().nwebEngine_ = nwebEngineMock;
     bool result = NWebHelper::Instance().LoadNWebSDK();
@@ -396,6 +400,9 @@ HWTEST_F(NwebHelperTest, NWebHelper_LoadNWebSDK_006, TestSize.Level1)
  */
 HWTEST_F(NwebHelperTest, NWebHelper_WebDownloadItem_IsPaused_007, TestSize.Level1)
 {
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        GTEST_SKIP();
+    }
     NWebHelper::Instance().nwebEngine_ = std::make_shared<MockNWebEngine>();
     bool result = NWebHelper::Instance().LoadNWebSDK();
     EXPECT_TRUE(result);
@@ -455,6 +462,9 @@ HWTEST_F(NwebHelperTest, NWebHelper_WebDownloadItem_IsPaused_007, TestSize.Level
  */
 HWTEST_F(NwebHelperTest, NWebHelper_LoadWebEngine_008, TestSize.Level1)
 {
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        GTEST_SKIP();
+    }
     NWebHelper::Instance().nwebEngine_ = nullptr;
     std::shared_ptr<NWebCreateInfoImpl> create_info = std::make_shared<NWebCreateInfoImpl>();
     std::shared_ptr<NWeb> nweb = NWebHelper::Instance().CreateNWeb(create_info);

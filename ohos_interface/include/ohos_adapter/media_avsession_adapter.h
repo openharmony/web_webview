@@ -90,6 +90,8 @@ public:
     virtual void UpdateUiPlayPosition(int64_t position) {}
 
     virtual void MediaCastStopped() {}
+
+    virtual void NotifyCastControlShow(bool is_show) {}
 };
 
 class MediaAVSessionAdapter {

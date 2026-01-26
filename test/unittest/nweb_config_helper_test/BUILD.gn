@@ -39,6 +39,7 @@ ohos_unittest("nweb_config_helper_test") {
     "libxml2:libxml2",
     "webview:libnweb",
     "window_manager:libwm",
+    "window_manager:libwsutils",
   ]
   cflags_cc = [ "--coverage" ]
   ldflags = [ "--coverage" ]
