@@ -1158,6 +1158,11 @@ void ArkWebNWebImpl::WebSendTouchpadFlingEvent(double x,
         ArkWebBasicVectorStructToClass<int32_t, ArkWebInt32Vector>(pressedCodes));
 }
 
+void ArkWebNWebImpl::WebSendCancelFlingEvent()
+{
+    nweb_nweb_->WebSendCancelFlingEvent();
+}
+
 void ArkWebNWebImpl::SendAccessibilityHoverEvent(int32_t x, int32_t y)
 {
     nweb_nweb_->SendAccessibilityHoverEvent(x, y);

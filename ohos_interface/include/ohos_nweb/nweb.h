@@ -2452,6 +2452,12 @@ public:
      * @brief Set is offline web Component.
      */
     virtual void SetIsOfflineWebComponent() {}
+
+    /**
+     * @brief Send cancel fling event.
+     *
+     */
+    virtual void WebSendCancelFlingEvent() {}
 };
 } // namespace OHOS::NWeb
 

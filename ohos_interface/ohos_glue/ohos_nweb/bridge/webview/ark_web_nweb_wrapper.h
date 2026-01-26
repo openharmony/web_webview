@@ -2021,6 +2021,13 @@ public:
      * @brief Set is offline web Component.
      */
     void SetIsOfflineWebComponent() override;
+
+    /**
+     * @brief Send cancel fling event.
+     *
+     */
+    /*--ark web()--*/
+    void WebSendCancelFlingEvent() override;
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };
