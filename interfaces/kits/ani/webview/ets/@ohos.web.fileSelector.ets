@@ -22,6 +22,8 @@ import {
   SymbolGlyph,
   FileSelectorParam,
   FileSelectorResult,
+  FileSelectorMode,
+  AcceptableFileType,
   OnShowFileSelectorEvent,
   DismissDialogAction,
   DismissReason,
@@ -41,6 +43,34 @@ import cameraPicker from '@ohos.multimedia.cameraPicker'
 import camera from '@ohos.multimedia.camera'
 import deviceInfo from '@ohos.deviceInfo'
 import { UIContext } from '@ohos.arkui.UIContext'
+import picker from '@ohos.file.picker'
+import fileIo, { Watcher, WatchEventListener } from '@ohos.file.fs'
+import Environment from '@ohos.file.environment'
+import fileUri from '@ohos.file.fileuri'
+
+const defaultBasicPath = 'file://docs'
+const defaultPublicPath = initDefaultPublicPath()
+
+const publicDirectoryMap = new Map<string, string>([
+  ['desktop', defaultPublicPath + 'desktop'],
+  ['documents', defaultPublicPath + 'documents'],
+  ['downloads', defaultPublicPath + 'download'],
+  ['music', defaultPublicPath + 'music'],
+  ['pictures', defaultPublicPath + 'images'],
+  ['videos', defaultPublicPath + 'videos'],
+])
+
+function initDefaultPublicPath() {
+  if (deviceInfo.deviceType.toLowerCase() !== '2in1') {
+    return ''
+  }
+  const path = Environment.getUserDownloadDir()
+  const pathEndIndex = path.lastIndexOf('/')
+  if (pathEndIndex !== -1) {
+    return path.substring(0, pathEndIndex + 1)
+  }
+  return ''
+}
 
 class SelectorDialog {
   private customDialogComponentId: int = 0
@@ -137,6 +167,7 @@ class SelectorDialog {
       } as Margin)
       .width('calc(100% - 32vp)')
       .justifyContent(FlexAlign.Center)
+      .flexShrink(0)
     }
     .height('auto')
   }
@@ -236,7 +267,7 @@ function selectPicture(event: OnShowFileSelectorEvent) {
 
 function takePhoto(event: OnShowFileSelectorEvent) {
   const pickerProfileOptions: cameraPicker.PickerProfile = {
-    'cameraPosition': camera.CameraPosition.CAMERA_POSITION_BACK,
+    cameraPosition: camera.CameraPosition.CAMERA_POSITION_BACK,
   }
   const acceptTypes = event.fileSelector.getAcceptType()
   const mediaType: cameraPicker.PickerMediaType[] = []
@@ -263,6 +294,145 @@ function takePhoto(event: OnShowFileSelectorEvent) {
 }
 
 function selectFile(event: OnShowFileSelectorEvent) {
-  event.result.handleFileList([])
-  UIContext.resolveUIContext()?.getPromptAction().showToast({ message: '无法打开文件功能，请检查是否具备文件功能' })
+  const documentPicker = new picker.DocumentViewPicker(UIContext.resolveUIContext()?.getHostContext()!)
+  let result: string[] = []
+  if (event.fileSelector.getMode() !== FileSelectorMode.FILE_SAVE_MODE) {
+    documentPicker.select(createDocumentSelectionOptions(event.fileSelector)).then((documentSelectResult) => {
+      result = documentSelectResult
+    }).catch((error) => {
+      console.log('selectFile error: ' + JSON.stringify(error))
+      UIContext.resolveUIContext()?.getPromptAction().showToast({
+        message: '无法打开文件功能，请检查是否具备文件功能'
+      })
+    }).finally(() => {
+      event.result.handleFileList(result)
+    })
+  } else {
+    documentPicker.save(createDocumentSaveOptions(event.fileSelector)).then((documentSaveResult) => {
+      const filePaths: string[] = documentSaveResult
+      let tempUri = ''
+      if (filePaths.length > 0) {
+        const fileName = filePaths[0].substr(filePaths[0].lastIndexOf('/'))
+        const tempPath = UIContext.resolveUIContext()?.getHostContext()!.filesDir + fileName
+        tempUri = fileUri.getUriFromPath(tempPath)
+        const randomAccessFile = fileIo.createRandomAccessFileSync(tempPath, fileIo.OpenMode.CREATE)
+        randomAccessFile.close()
+
+        let watcher: Watcher | undefined = undefined
+        const listener: WatchEventListener = () => {
+          fileIo.copy(tempUri, filePaths[0]).then(() => {
+            console.log('Web save file succeeded in copying.')
+            fileIo.unlink(tempPath)
+          }).catch((err) => {
+            console.error(`Web save file failed to copy: ${JSON.stringify(err)}`)
+          }).finally(() => {
+            watcher?.stop()
+          })
+        }
+        watcher = fileIo.createWatcher(tempPath, 0x4, listener)
+        watcher.start()
+      }
+      result.push(tempUri)
+    }).catch((error) => {
+      console.log('saveFile error: ' + JSON.stringify(error))
+      UIContext.resolveUIContext()?.getPromptAction().showToast({
+        message: '无法打开文件功能，请检查是否具备文件功能'
+      })
+    }).finally(() => {
+      event.result.handleFileList(result)
+    })
+  }
+}
+
+function createDocumentSelectionOptions(param: FileSelectorParam) {
+  const documentSelectOptions: picker.DocumentSelectOptions = {}
+  const currentDevice = deviceInfo.deviceType.toLowerCase()
+  try {
+    const defaultSelectNumber = 500
+    const defaultSelectMode = picker.DocumentSelectMode.MIXED
+    documentSelectOptions.maxSelectNumber = defaultSelectNumber
+    documentSelectOptions.selectMode = defaultSelectMode
+    if (currentDevice === '2in1') {
+      documentSelectOptions.defaultFilePathUri = getDefaultPath(param)
+    }
+    const mode = param.getMode()
+    switch (mode) {
+      case FileSelectorMode.FILE_OPEN_MODE:
+        documentSelectOptions.maxSelectNumber = 1
+        documentSelectOptions.selectMode = picker.DocumentSelectMode.FILE
+        break
+      case FileSelectorMode.FILE_OPEN_MULTIPLE_MODE:
+        documentSelectOptions.selectMode = picker.DocumentSelectMode.FILE
+        break
+      case FileSelectorMode.FILE_OPEN_FOLDER_MODE:
+        documentSelectOptions.selectMode = picker.DocumentSelectMode.FOLDER
+        break
+      default:
+        break
+    }
+    documentSelectOptions.fileSuffixFilters = []
+    const suffix = param.getAcceptType().join(',')
+    const accepts = param.getAcceptableFileTypes()
+    const descriptions = param.getDescriptions()
+    if (accepts && accepts.length > 0) {
+      suffixFromAccepts(documentSelectOptions.fileSuffixFilters!, descriptions, accepts)
+    } else if (suffix) {
+      documentSelectOptions.fileSuffixFilters!.push(suffix)
+    }
+    if (currentDevice !== 'phone' && !param.isAcceptAllOptionExcluded()) {
+      documentSelectOptions.fileSuffixFilters!.push('.*')
+    }
+  } catch (error) {
+    console.log('selectFile error: ' + JSON.stringify(error))
+  }
+  return documentSelectOptions
+}
+
+function createDocumentSaveOptions(param: FileSelectorParam) {
+  const documentSaveOptions: picker.DocumentSaveOptions = {}
+  const currentDevice = deviceInfo.deviceType.toLowerCase()
+  try {
+    documentSaveOptions.pickerMode = picker.DocumentPickerMode.DEFAULT
+    documentSaveOptions.fileSuffixChoices = []
+    documentSaveOptions.newFileNames = [param.getSuggestedName()]
+    if (currentDevice === '2in1') {
+      documentSaveOptions.defaultFilePathUri = getDefaultPath(param)
+    }
+    const suffix = param.getAcceptType().join(',')
+    const accepts = param.getAcceptableFileTypes()
+    const descriptions = param.getDescriptions()
+    if (accepts && accepts.length > 0) {
+      suffixFromAccepts(documentSaveOptions.fileSuffixChoices!, descriptions, accepts)
+    } else if (suffix) {
+      documentSaveOptions.fileSuffixChoices!.push(suffix)
+    }
+    if (currentDevice !== 'phone' && !param.isAcceptAllOptionExcluded()) {
+      documentSaveOptions.fileSuffixChoices!.push('.*')
+    }
+  } catch (error) {
+    console.log('saveFile error: ' + JSON.stringify(error))
+  }
+  return documentSaveOptions
+}
+
+function getDefaultPath(param: FileSelectorParam) {
+  let path = param.getDefaultPath()
+  if (publicDirectoryMap.get(path) !== undefined) {
+    path = publicDirectoryMap.get(path)!
+  }
+  return defaultBasicPath + path
+}
+
+function suffixFromAccepts(suffix: string[], descriptions: string[], accepts: AcceptableFileType[][]) {
+  const n = accepts.length
+  for (let i = 0; i < n; i++) {
+    const m = accepts[i].length
+    const extList: string[] = []
+    for (let j = 0; j < m; j++) {
+      extList.push(accepts[i][j].acceptableType.join(','))
+    }
+    const ext = extList.join(',')
+    const desc = descriptions[i] + '(' + ext + ')' + '|'
+    suffix.push(desc + ext)
+  }
 }
