@@ -1924,6 +1924,10 @@ ani_object ParseNwebValue2AniValueV2(ani_env* env, std::shared_ptr<T> value,
 } // namespace
 void JavaScriptOb::AniSetUpMethods()
 {
+    std::unique_lock<std::mutex> lock(mutex_);
+    if (isMethodsSetup_) {
+        return;
+    }
     ani_object obj = static_cast<ani_object>(GetAniValue());
     ani_env* env = GetAniEnv();
     if (env == nullptr) {
@@ -1976,7 +1980,6 @@ void JavaScriptOb::AniSetUpMethods()
             methods_.push_back(methodName);
         }
     }
-    std::unique_lock<std::mutex> lock(mutex_);
     isMethodsSetup_ = true;
 }
 
