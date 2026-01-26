@@ -550,6 +550,7 @@ class SelectorDialog extends ViewPU {
       });
       Row.width('calc(100% - 32vp)');
       Row.justifyContent(FlexAlign.Center);
+      Row.flexShrink(0);
     }, Row);
     this.observeComponentCreation2((elmtId, isInitialRender) => {
       Text.create(this.general_cancel);
