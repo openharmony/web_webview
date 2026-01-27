@@ -46,23 +46,49 @@ public:
 
     double GetLeft() override
     {
-        return 0.0;
+        return left_;
     }
 
     double GetTop() override
     {
-        return 0.0;
+        return top_;
     }
 
     double GetWidth() override
     {
-        return 0.0;
+        return width_;
     }
 
     double GetHeight() override
     {
-        return 0.0;
+        return height_;
     }
+
+    void SetLeft(double left)
+    {
+        left_ = left;
+    }
+
+    void SetTop(double top)
+    {
+        top_ = top;
+    }
+
+    void SetWidth(double width)
+    {
+        width_ = width;
+    }
+
+    void SetHeight(double height)
+    {
+        height_ = height;
+    }
+
+private:
+    double left_ = 0.0;
+    double top_ = 0.0;
+    double width_ = 0.0;
+    double height_  = 0.0;
 };
 
 class IMFInputAttributeAdapterMock : public IMFInputAttributeAdapter {
@@ -588,4 +614,178 @@ HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_013, TestSize.Lev
     listenerTest2->NotifyPanelStatusInfo(info2);
 }
 
+/**
+@tc.name: NWebIMFAdapterTest_IMFAdapterImpl_014.
+@tc.desc: IMF adapter unittest.
+@tc.type: FUNC.
+@tc.require:
+*/
+HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_014, TestSize.Level1)
+{
+    auto imf_adapter = OhosAdapterHelper::GetInstance().CreateMMIAdapter();
+    EXPECT_NE(imf_adapter, nullptr);
+    auto config = std::make_shared<IMFTextConfigTest>();
+    bool result = g_imf->AttachParamsCheck(nullptr, true, config, false);
+    EXPECT_FALSE(result);
+}
+
+/**
+@tc.name: NWebIMFAdapterTest_IMFAdapterImpl_015.
+@tc.desc: IMF adapter unittest.
+@tc.type: FUNC.
+@tc.require:
+*/
+HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_015, TestSize.Level1)
+{
+    auto imf_adapter = OhosAdapterHelper::GetInstance().CreateMMIAdapter();
+    EXPECT_NE(imf_adapter, nullptr);
+    auto listener = std::make_shared<IMFTextListenerTest>();
+    bool result = g_imf->AttachParamsCheck(listener, true, nullptr, false);
+    EXPECT_FALSE(result);
+}
+
+/**
+@tc.name: NWebIMFAdapterTest_IMFAdapterImpl_016.
+@tc.desc: IMF adapter unittest.
+@tc.type: FUNC.
+@tc.require:
+*/
+HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_016, TestSize.Level1)
+{
+    auto imf_adapter = OhosAdapterHelper::GetInstance().CreateMMIAdapter();
+    EXPECT_NE(imf_adapter, nullptr);
+    auto listener = std::make_shared<IMFTextListenerTest>();
+    auto config = std::make_shared<IMFTextConfigTest>();
+    bool result = g_imf->AttachParamsCheck(listener, true, config, false);
+    EXPECT_TRUE(result);
+}
+
+/**
+@tc.name: NWebIMFAdapterTest_IMFAdapterImpl_017.
+@tc.desc: IMF adapter unittest.
+@tc.type: FUNC.
+@tc.require:
+*/
+HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_017, TestSize.Level1)
+{
+    auto imf_adapter = OhosAdapterHelper::GetInstance().CreateMMIAdapter();
+    EXPECT_NE(imf_adapter, nullptr);
+    auto listener = std::make_shared<IMFTextListenerTest>();
+    auto config = std::make_shared<IMFTextConfigTest>();
+    auto adapter = std::make_shared<IMFAdapterImpl>();
+    adapter->textListener_ = new (std::nothrow) IMFTextListenerAdapterImpl(listener);
+    bool result = g_imf->AttachParamsCheck(listener, true, config, true);
+    EXPECT_TRUE(result);
+}
+
+/**
+@tc.name: NWebIMFAdapterTest_IMFAdapterImpl_018.
+@tc.desc: IMF adapter unittest.
+@tc.type: FUNC.
+@tc.require:
+*/
+HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_018, TestSize.Level1)
+{
+    std::unordered_map<std::string, std::variant<std::string, bool, int32_t>> resultMap;
+    std::string validJson = R"({"userName":"testUser","hasAccount":"true"})";
+    std::string invalidJson = R"({"userName":,"hasAccount":"false"})";
+    std::string emptyJson = "{}";
+    std::string nullJson = "null";
+    std::string mallocFailedJson = "a";
+
+    EXPECT_TRUE(g_imf->ParseFillContentJsonValue(validJson, resultMap));
+
+    std::string jsonMissingUserName = R"({"hasAccount":"false"})";
+    resultMap.clear();
+    EXPECT_TRUE(g_imf->ParseFillContentJsonValue(jsonMissingUserName, resultMap));
+    EXPECT_EQ(resultMap.find("userName"), resultMap.end());
+
+    std::string jsonMissingHasAccount = R"({"userName":"user1"})";
+    resultMap.clear();
+    EXPECT_TRUE(g_imf->ParseFillContentJsonValue(jsonMissingHasAccount, resultMap));
+    EXPECT_EQ(resultMap.find("hasAccount"), resultMap.end());
+
+    resultMap.clear();
+    EXPECT_FALSE(g_imf->ParseFillContentJsonValue(invalidJson, resultMap));
+    EXPECT_TRUE(resultMap.empty());
+
+    resultMap.clear();
+    EXPECT_TRUE(g_imf->ParseFillContentJsonValue(emptyJson, resultMap));
+    EXPECT_TRUE(resultMap.empty());
+
+    resultMap.clear();
+    EXPECT_FALSE(g_imf->ParseFillContentJsonValue(nullJson, resultMap));
+    EXPECT_TRUE(resultMap.empty());
+
+    resultMap.clear();
+    EXPECT_FALSE(g_imf->ParseFillContentJsonValue(mallocFailedJson, resultMap));
+    EXPECT_TRUE(resultMap.empty());
+
+    std::string jsonNullUserName = R"({"userName":"null","hasAccount":"true"})";
+    resultMap.clear();
+    EXPECT_TRUE(g_imf->ParseFillContentJsonValue(jsonNullUserName, resultMap));
+    EXPECT_EQ(resultMap.find("userName"), resultMap.end());
+
+    std::string jsonNullHasAccount = R"({"userName":"null","hasAccount":"true"})";
+    resultMap.clear();
+    EXPECT_TRUE(g_imf->ParseFillContentJsonValue(jsonNullHasAccount, resultMap));
+    EXPECT_EQ(resultMap.find("hasAccount"), resultMap.end());
+}
+
+/**
+@tc.name: NWebIMFAdapterTest_IMFAdapterImpl_019.
+@tc.desc: IMF adapter unittest.
+@tc.type: FUNC.
+@tc.require:
+*/
+HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_019, TestSize.Level1)
+{
+    auto imf_adapter = OhosAdapterHelper::GetInstance().CreateMMIAdapter();
+    EXPECT_NE(imf_adapter, nullptr);
+    auto mockCursorInfo = std::make_shared<IMFCursorInfoAdapterMock>();
+    const float testLeft = 100.0f;
+    const float testTop = 200.0f;
+    const float testWidth = 10.0f;
+    const float testHeight = 20.0f;
+
+    mockCursorInfo->SetLeft(testLeft);
+    mockCursorInfo->SetTop(testTop);
+    mockCursorInfo->SetWidth(testWidth);
+    mockCursorInfo->SetHeight(testHeight);
+
+    g_imf->OnCursorUpdate(mockCursorInfo);
+    EXPECT_TRUE(true);
+
+    auto zeroCursorInfo = std::make_shared<IMFCursorInfoAdapterMock>();
+    zeroCursorInfo->SetLeft(0.0f);
+    zeroCursorInfo->SetTop(0.0f);
+    zeroCursorInfo->SetWidth(0.0f);
+    zeroCursorInfo->SetHeight(0.0f);
+    g_imf->OnCursorUpdate(zeroCursorInfo);
+    EXPECT_TRUE(true);
+
+    auto negativeCursorInfo = std::make_shared<IMFCursorInfoAdapterMock>();
+    negativeCursorInfo->SetLeft(-10.0f);
+    negativeCursorInfo->SetTop(-10.0f);
+    negativeCursorInfo->SetWidth(-10.0f);
+    negativeCursorInfo->SetHeight(-10.0f);
+    g_imf->OnCursorUpdate(negativeCursorInfo);
+    EXPECT_TRUE(true);
+
+    auto failControllerCursorInfo = std::make_shared<IMFCursorInfoAdapterMock>();
+    failControllerCursorInfo->SetLeft(10.0f);
+    failControllerCursorInfo->SetTop(10.0f);
+    failControllerCursorInfo->SetWidth(10.0f);
+    failControllerCursorInfo->SetHeight(10.0f);
+    g_imf->OnCursorUpdate(failControllerCursorInfo);
+    EXPECT_TRUE(true);
+
+    auto abnormalCursorInfo = std::make_shared<IMFCursorInfoAdapterMock>();
+    abnormalCursorInfo->SetLeft(std::numeric_limits<float>::quiet_NaN());
+    abnormalCursorInfo->SetTop(std::numeric_limits<float>::infinity());
+    abnormalCursorInfo->SetWidth(-std::numeric_limits<float>::max());
+    abnormalCursorInfo->SetHeight(-std::numeric_limits<float>::max());
+    g_imf->OnCursorUpdate(abnormalCursorInfo);
+    EXPECT_TRUE(true);
+}
 } // namespace OHOS::NWeb
