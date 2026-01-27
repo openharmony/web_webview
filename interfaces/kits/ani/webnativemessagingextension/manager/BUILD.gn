@@ -54,6 +54,7 @@ ohos_shared_library("web_native_messaging_extension_manager_ani_kit") {
     "ability_runtime:ability_context_native",
     "ability_runtime:ani_base_context",
     "ability_runtime:ani_common",
+    "ability_runtime:napi_common",
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
