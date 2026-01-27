@@ -1365,24 +1365,6 @@ void ArkWebNWebWrapper::SetBackForwardCacheOptions(int32_t size, int32_t timeToL
     ark_web_nweb_->SetBackForwardCacheOptions(size, timeToLive);
 }
 
-void ArkWebNWebWrapper::RegisterArkJSfunction(const std::string& object_name,
-    const std::vector<std::string>& method_list, const std::vector<std::string>& async_method_list,
-    const int32_t object_id,
-    const std::string& permission)
-{
-    ArkWebString stName = ArkWebStringClassToStruct(object_name);
-    ArkWebStringVector stMethods = ArkWebStringVectorClassToStruct(method_list);
-    ArkWebStringVector stAsyncMethods = ArkWebStringVectorClassToStruct(async_method_list);
-    ArkWebString stPermission = ArkWebStringClassToStruct(permission);
-
-    ark_web_nweb_->RegisterArkJSfunction(stName, stMethods, stAsyncMethods, object_id, stPermission);
-
-    ArkWebStringStructRelease(stName);
-    ArkWebStringVectorStructRelease(stMethods);
-    ArkWebStringVectorStructRelease(stAsyncMethods);
-    ArkWebStringStructRelease(stPermission);
-}
-
 void ArkWebNWebWrapper::RegisterArkJSfunctionV2(const std::string& object_name,
     const std::vector<std::string>& method_list, const std::vector<std::string>& async_method_list,
     const int32_t object_id,
