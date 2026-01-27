@@ -1052,7 +1052,7 @@ export default namespace webview {
             if(args.length <= 0) {
                 return method.invoke(obj, []);
             }
-            const methodArgs: FixedArray<Object> = new Object[args.length];
+            const methodArgs: FixedArray<Object> = new FixedArray<Object>(args.length);
             for (let argIdx = 0; argIdx < args.length; argIdx++) {
                 const arg = args[argIdx];
                 methodArgs[argIdx] = arg;
