@@ -721,12 +721,12 @@ HWTEST_F(NWebIMFAdapterTest, NWebIMFAdapterTest_IMFAdapterImpl_018, TestSize.Lev
     EXPECT_FALSE(g_imf->ParseFillContentJsonValue(mallocFailedJson, resultMap));
     EXPECT_TRUE(resultMap.empty());
 
-    std::string jsonNullUserName = R"({"userName":"null","hasAccount":"true"})";
+    std::string jsonNullUserName = R"({"userName":null,"hasAccount":"true"})";
     resultMap.clear();
     EXPECT_TRUE(g_imf->ParseFillContentJsonValue(jsonNullUserName, resultMap));
     EXPECT_EQ(resultMap.find("userName"), resultMap.end());
 
-    std::string jsonNullHasAccount = R"({"userName":"null","hasAccount":"true"})";
+    std::string jsonNullHasAccount = R"({"userName":"user2","hasAccount":null})";
     resultMap.clear();
     EXPECT_TRUE(g_imf->ParseFillContentJsonValue(jsonNullHasAccount, resultMap));
     EXPECT_EQ(resultMap.find("hasAccount"), resultMap.end());
