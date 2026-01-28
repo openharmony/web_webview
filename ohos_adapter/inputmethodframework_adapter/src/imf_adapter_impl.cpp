@@ -515,7 +515,7 @@ void IMFTextListenerAdapterImpl::NotifyPanelStatusInfo(const MiscServices::Panel
     MiscServices::Trigger triggerFrom = info.trigger;
     if (listener_) {
         listener_->WebSetImeShow(info.visible);
-        if (triggerFrom == MiscServices::Trigger::IME_APP) {
+        if (triggerFrom == MiscServices::Trigger::IME_APP && !info.visible) {
             WVLOG_I("IMFTextListenerAdapterImpl::NotifyPanelStatusInfo, info.IME_APP");
             listener_->KeyboardUpperRightCornerHide();
         }
