@@ -978,7 +978,7 @@ export default namespace webview {
             let certChainData = this.getCertificateSync();
             let p = taskpool.execute(():undefined => {
                     return undefined});
-            p.then((results : Any) => {
+            p.then(async (results : Any) => {
                 const certs: Array<cert.X509Cert> = [];
                 for (let i = 0; i < certChainData.length; i++) {
                     let certsUint8Array = new Uint8Array(certChainData[i]);
