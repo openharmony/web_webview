@@ -14,13 +14,13 @@
  */
 #include "web_native_messaging_manager.h"
 
+#include <cstdio>
 #include "web_native_messaging_log.h"
 #include "i_web_extension_connection_callback.h"
 #include "iservice_registry.h"
 #include "ipc_skeleton.h"
 #include "accesstoken_kit.h"
 #include "connect_native_request.h"
-#include <fcntl.h>
 #include "system_ability.h"
 #include "web_native_messaging_common.h"
 #include "system_ability_definition.h"
@@ -43,12 +43,12 @@ constexpr int32_t RANDOM_CONNECT_ID_BASE_RANGE = 1000000;
 static uint32_t GetRandomUint32FromUrandom(void)
 {
     uint32_t random;
-    int32_t fd = open("/dev/urandom", O_RDONLY);
-    if (fd < 0) {
+    FILE *file = fopen("/dev/urandom", "r");
+    if (file == nullptr) {
         return 0;
     }
-    ssize_t len = read(fd, &random, sizeof(random));
-    close(fd);
+    size_t len = fread(&random, 1, sizeof(random), file);
+    fclose(file);
     if (len != sizeof(random)) {
         return 0;
     }
