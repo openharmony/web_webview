@@ -58,6 +58,13 @@ public:
      */
     void SetAgentNeedHighlight(bool enabled) override;
 
+    /**
+     * @brief Request web dom json string
+     *
+     * @param callback request callabck
+     */
+    void RequestWebDomJsonString(ArkWebRefPtr<ArkWebMessageValueCallback> callback) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebAgentManager> nweb_agent_manager_;
 };

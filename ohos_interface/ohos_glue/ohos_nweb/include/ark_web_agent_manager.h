@@ -20,6 +20,8 @@
 #include "base/include/ark_web_base_ref_counted.h"
 #include "base/include/ark_web_types.h"
 
+#include "ohos_nweb/include/ark_web_message_value_callback.h"
+
 namespace OHOS::ArkWeb {
 
 /*--ark web(source=webcore)--*/
@@ -58,6 +60,14 @@ public:
      */
     /*--ark web()--*/
     virtual void SetAgentNeedHighlight(bool enabled) {}
+
+    /**
+     * @brief Request web dom json string
+     *
+     * @param callback request callabck
+     */
+    /*--ark web()--*/
+    virtual void RequestWebDomJsonString(ArkWebRefPtr<ArkWebMessageValueCallback> callback) = 0;
 };
 
 } // namespace OHOS::ArkWeb
