@@ -1876,7 +1876,7 @@ export default namespace webview {
                 p1.then((e : Any) => {
                     let r = e as Array<WebStorageOrigin>;
                     resolve(r);
-                }).catch((error: Error): Array<WebStorageOrigin> => {
+                }).catch((error: Error) => {
                     reject(error);
                 });
             });
@@ -1903,7 +1903,7 @@ export default namespace webview {
                 p1.then((e : Any) => {
                     let r = e as double;
                     resolve(r);
-                }).catch((error: Error): double => {
+                }).catch((error: Error) => {
                     reject(error);
                 });
             });
@@ -1929,7 +1929,7 @@ export default namespace webview {
                 p1.then((e : Any) => {
                     let r = e as double;
                     resolve(r);
-                }).catch((error: Error): double => {
+                }).catch((error: Error) => {
                     reject(error);
                 });
             });
@@ -2059,7 +2059,7 @@ export default namespace webview {
                 p1.then((e : Any) => {
                     let r = e as Array<string>;
                     resolve(r);
-                }).catch((error: Error): Array<string> => {
+                }).catch((error: Error) => {
                     reject(error);
                 });
             });
@@ -2097,7 +2097,7 @@ export default namespace webview {
                 p1.then((e : Any) => {
                     let r = e as boolean;
                     resolve(r);
-                }).catch((error: Error): boolean => {
+                }).catch((error: Error) => {
                     reject(error);
                 });
             });
