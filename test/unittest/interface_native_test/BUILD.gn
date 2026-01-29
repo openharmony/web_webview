@@ -147,7 +147,7 @@ ohos_unittest("web_native_messaging_extension_context_info_test") {
 
   external_deps = [
     "ability_base:want",
-     "ability_runtime:app_context",
+    "ability_runtime:app_context",
     "ability_runtime:appkit_native",
     "ability_runtime:napi_common",
     "ability_runtime:ability_start_options",
@@ -316,6 +316,49 @@ ohos_unittest("web_native_messaging_service_test") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+  ]
+}
+
+ohos_unittest("connect_native_request_test") {
+  module_out_path = "webview/security"
+  sources = [ "connect_native_request_test.cpp" ]
+  sources += [
+    "${webview_path}/sa/web_native_messaging/service/connect_native_request.cpp",
+    "${webview_path}/sa/web_native_messaging/common/connection_native_info_parcel.cpp",
+  ]
+
+  include_dirs = [
+    "$webview_path/sa/include",
+    "$webview_path/sa/web_native_messaging/client",
+    "$webview_path/sa/web_native_messaging/common",
+    "$webview_path/sa/web_native_messaging/service",
+    "$webview_path/ohos_nweb/include",
+    "${target_gen_dir}/../../../sa/web_native_messaging",
+    "${target_gen_dir}",
+    "${target_gen_dir}/../../ohos_nweb/include",
+    "${webview_path}/interfaces/kits/napi/web_native_messaging_extension/extension/include",
+    "${webview_path}/interfaces/kits/napi/web_native_messaging_extension/extension_client/include",
+    "mock"
+  ]
+
+  deps = [
+    "${webview_path}/interfaces/kits/napi/web_native_messaging_extension/extension_client:web_extension_client",
+    "${webview_path}/interfaces/kits/napi/web_native_messaging_extension/extension:web_extension",
+    ":web_native_messaging_service_interface",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_manager",
+    "ability_runtime:napi_common",
+    "ability_runtime:ability_context_native",
+    "access_token:libaccesstoken_sdk",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
     "googletest:gmock_main",
     "googletest:gtest_main",
   ]
@@ -504,6 +547,7 @@ group("unittest") {
   deps = [
     ":arkweb_interface_test",
     ":arkweb_scheme_handler_test",
+    ":connect_native_request_test",
     ":ets_web_native_messaging_extension_context_test",
     ":native_interface_arkweb_test",
     ":native_javascript_execute_callback_test",

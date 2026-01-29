@@ -586,5 +586,442 @@ HWTEST_F(WebNativeMessagingManagerTest, CreateNativeRequest001, testing::ext::Te
     ASSERT_NE(request5, nullptr);
 }
 
+/**
+ * @tc.name: CreateNativeRequest002
+ * @tc.desc: CreateNativeRequest() - test memory allocation failure
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, CreateNativeRequest002, testing::ext::TestSize.Level0)
+{
+    int errorNum = 0;
+    ConnectNativeParams params;
+    params.callerUserId = 1;
+    AAFwk::Want want;
+    FillWant(want);
+
+    AppExecFwk::ExtensionAbilityInfo extensionInfo;
+    extensionInfo.name = "ability";
+    extensionInfo.type = AppExecFwk::ExtensionAbilityType::WEB_NATIVE_MESSAGING;
+    AppExecFwk::BundleMgrClient::mockExtensionAbilityInfo.emplace_back(extensionInfo);
+    AppExecFwk::BundleMgrClient::mockRet = true;
+
+    auto request = manager_->CreateNativeRequest(want, params, errorNum);
+    ASSERT_NE(request, nullptr);
+    EXPECT_EQ(errorNum, ConnectNativeRet::SUCCESS);
+}
+
+/**
+ * @tc.name: DeleteIpcConnect
+ * @tc.desc: DeleteIpcConnect()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, DeleteIpcConnect, testing::ext::TestSize.Level0)
+{
+    Security::AccessToken::AccessTokenID tkid = 0x123;
+    std::string bundleName = "test_bundle";
+    std::string abilityName = "ability";
+    sptr<IRemoteObject> token = new IRemoteObjectMocker();
+
+    manager_->DeleteIpcConnect(tkid, bundleName);
+    EXPECT_TRUE(manager_->AbilityConnectMap_.empty());
+
+    manager_->NewIpcConnection(tkid, bundleName, abilityName, token, 1);
+    EXPECT_FALSE(manager_->AbilityConnectMap_.empty());
+
+    manager_->DeleteIpcConnect(tkid, bundleName);
+    EXPECT_TRUE(manager_->AbilityConnectMap_.empty());
+
+    manager_->DeleteIpcConnect(tkid, bundleName);
+    EXPECT_TRUE(manager_->AbilityConnectMap_.empty());
+}
+
+/**
+ * @tc.name: IsIpcConnectExist
+ * @tc.desc: IsIpcConnectExist()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, IsIpcConnectExist, testing::ext::TestSize.Level0)
+{
+    Security::AccessToken::AccessTokenID tkid = 0x123;
+    std::string bundleName = "test_bundle";
+    std::string abilityName = "ability";
+    sptr<IRemoteObject> token = new IRemoteObjectMocker();
+
+    EXPECT_FALSE(manager_->IsIpcConnectExist());
+
+    manager_->NewIpcConnection(tkid, bundleName, abilityName, token, 1);
+    EXPECT_TRUE(manager_->IsIpcConnectExist());
+
+    manager_->DeleteIpcConnect(tkid, bundleName);
+    EXPECT_FALSE(manager_->IsIpcConnectExist());
+}
+
+/**
+ * @tc.name: CleanAbilityConnection
+ * @tc.desc: CleanAbilityConnection()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, CleanAbilityConnection, testing::ext::TestSize.Level0)
+{
+    Security::AccessToken::AccessTokenID tkid = 0x123;
+    std::string bundleName = "test_bundle";
+    std::string abilityName = "ability";
+    sptr<IRemoteObject> token = new IRemoteObjectMocker();
+
+    manager_->Init();
+    manager_->NewIpcConnection(tkid, bundleName, abilityName, token, 1);
+
+    manager_->CleanAbilityConnection(tkid, bundleName);
+    EXPECT_FALSE(manager_->IsIpcConnectExist());
+
+    manager_->NewIpcConnection(tkid, bundleName, abilityName, token, 1);
+    manager_->CleanAbilityConnection(tkid, bundleName);
+    EXPECT_FALSE(manager_->IsIpcConnectExist());
+}
+
+/**
+ * @tc.name: GetPidExtensionBundleName
+ * @tc.desc: GetPidExtensionBundleName()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, GetPidExtensionBundleName, testing::ext::TestSize.Level0)
+{
+    Security::AccessToken::AccessTokenID tkid = 0x123;
+    std::string bundleName = "test_bundle";
+    std::string abilityName = "ability";
+    sptr<IRemoteObject> token = new IRemoteObjectMocker();
+    std::string result;
+
+    EXPECT_FALSE(manager_->GetPidExtensionBundleName(-1, result));
+    EXPECT_FALSE(manager_->GetPidExtensionBundleName(0, result));
+
+    EXPECT_FALSE(manager_->GetPidExtensionBundleName(100, result));
+
+    auto ipcConnect = manager_->NewIpcConnection(tkid, bundleName, abilityName, token, 1);
+    int32_t testPid = 9999;
+    ipcConnect->targetExtensionPid_ = testPid;
+
+    EXPECT_TRUE(manager_->GetPidExtensionBundleName(testPid, result));
+    EXPECT_EQ(result, bundleName);
+
+    std::string result2;
+    EXPECT_FALSE(manager_->GetPidExtensionBundleName(8888, result2));
+}
+
+/**
+ * @tc.name: NewIpcConnectionUnlock
+ * @tc.desc: NewIpcConnectionUnlock()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, NewIpcConnectionUnlock, testing::ext::TestSize.Level0)
+{
+    Security::AccessToken::AccessTokenID tkid = 0x123;
+    std::string bundleName = "test_bundle";
+    std::string abilityName = "ability";
+    sptr<IRemoteObject> token = new IRemoteObjectMocker();
+    int32_t userId = 100;
+
+    auto ipcConnect = manager_->NewIpcConnectionUnlock(tkid, bundleName, abilityName, token, userId);
+    ASSERT_NE(ipcConnect, nullptr);
+    EXPECT_EQ(ipcConnect->callerUserId_, userId);
+
+    auto found = manager_->LookUpIpcConnectionUnlock(tkid, bundleName);
+    EXPECT_EQ(found, ipcConnect);
+}
+
+/**
+ * @tc.name: NewIpcConnection
+ * @tc.desc: NewIpcConnection()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, NewIpcConnection, testing::ext::TestSize.Level0)
+{
+    Security::AccessToken::AccessTokenID tkid = 0x456;
+    std::string bundleName = "test_bundle2";
+    std::string abilityName = "ability2";
+    sptr<IRemoteObject> token = new IRemoteObjectMocker();
+    int32_t userId = 200;
+
+    auto ipcConnect = manager_->NewIpcConnection(tkid, bundleName, abilityName, token, userId);
+    ASSERT_NE(ipcConnect, nullptr);
+    EXPECT_EQ(ipcConnect->callerUserId_, userId);
+}
+
+/**
+ * @tc.name: LookUpIpcConnectionUnlock
+ * @tc.desc: LookUpIpcConnectionUnlock()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, LookUpIpcConnectionUnlock, testing::ext::TestSize.Level0)
+{
+    Security::AccessToken::AccessTokenID tkid = 0x789;
+    std::string bundleName = "test_bundle3";
+    std::string abilityName = "ability3";
+    sptr<IRemoteObject> token = new IRemoteObjectMocker();
+
+    auto result = manager_->LookUpIpcConnectionUnlock(tkid, bundleName);
+    EXPECT_EQ(result, nullptr);
+
+    auto ipcConnect = manager_->NewIpcConnectionUnlock(tkid, bundleName, abilityName, token, 1);
+    auto found = manager_->LookUpIpcConnectionUnlock(tkid, bundleName);
+    EXPECT_EQ(found, ipcConnect);
+
+    std::string wrongBundleName = "wrong_bundle";
+    auto notFound = manager_->LookUpIpcConnectionUnlock(tkid, wrongBundleName);
+    EXPECT_EQ(notFound, nullptr);
+}
+
+/**
+ * @tc.name: LookUpIpcConnection
+ * @tc.desc: LookUpIpcConnection()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, LookUpIpcConnection, testing::ext::TestSize.Level0)
+{
+    Security::AccessToken::AccessTokenID tkid = 0xABC;
+    std::string bundleName = "test_bundle4";
+    std::string abilityName = "ability4";
+    sptr<IRemoteObject> token = new IRemoteObjectMocker();
+
+    auto result = manager_->LookUpIpcConnection(tkid, bundleName);
+    EXPECT_EQ(result, nullptr);
+
+    auto ipcConnect = manager_->NewIpcConnection(tkid, bundleName, abilityName, token, 1);
+    auto found = manager_->LookUpIpcConnection(tkid, bundleName);
+    EXPECT_EQ(found, ipcConnect);
+
+    Security::AccessToken::AccessTokenID wrongTkid = 0xDEF;
+    auto notFound = manager_->LookUpIpcConnection(wrongTkid, bundleName);
+    EXPECT_EQ(notFound, nullptr);
+}
+
+/**
+ * @tc.name: ExitSaProcess
+ * @tc.desc: ExitSaProcess()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, ExitSaProcess, testing::ext::TestSize.Level0)
+{
+    Security::AccessToken::AccessTokenID tkid = 0x111;
+    std::string bundleName = "test_bundle5";
+    std::string abilityName = "ability5";
+    sptr<IRemoteObject> token = new IRemoteObjectMocker();
+
+    manager_->NewIpcConnection(tkid, bundleName, abilityName, token, 1);
+    manager_->ExitSaProcess();
+    EXPECT_TRUE(manager_->IsIpcConnectExist());
+
+    manager_->DeleteIpcConnect(tkid, bundleName);
+    manager_->ExitSaProcess();
+}
+
+/**
+ * @tc.name: Dump
+ * @tc.desc: Dump()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, Dump, testing::ext::TestSize.Level0)
+{
+    std::vector<std::u16string> args;
+    int32_t ret = manager_->Dump(-1, args);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+
+    args.push_back(u"-h");
+    ret = manager_->Dump(1, args);
+    EXPECT_EQ(ret, ERR_OK);
+
+    args.clear();
+    args.push_back(u"-d");
+    ret = manager_->Dump(1, args);
+    EXPECT_EQ(ret, ERR_OK);
+
+    args.clear();
+    ret = manager_->Dump(1, args);
+    EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: Init
+ * @tc.desc: Init()
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, Init, testing::ext::TestSize.Level0)
+{
+    auto testManager = std::make_shared<WebNativeMessagingManager>();
+    bool result = testManager->Init();
+    EXPECT_TRUE(result);
+    EXPECT_NE(testManager->runner_, nullptr);
+    EXPECT_NE(testManager->serviceHandler_, nullptr);
+    EXPECT_NE(testManager->delayExitTask_, nullptr);
+}
+
+/**
+ * @tc.name: ConnectWebNativeMessagingExtension002
+ * @tc.desc: ConnectWebNativeMessagingExtension() - test retry logic
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, ConnectWebNativeMessagingExtension002, testing::ext::TestSize.Level0)
+{
+    std::string bundleName = "test_bundle";
+    std::string abilityName = "ability";
+    sptr<IRemoteObject> token = new IRemoteObjectMocker();
+    sptr<IRemoteObject> callback = new IRemoteObjectMocker();
+
+    AAFwk::Want want;
+    FillWant(want);
+
+    int connectionId = 123;
+    int errorNum = 0;
+
+    MockAccesstokenKit::MockAccessTokenKitRet(PermissionState::PERMISSION_GRANTED);
+    HapTokenInfo tt = { 0 };
+    tt.bundleName = bundleName;
+    MockAccesstokenKit::MockGetHapTokenInfo(tt);
+
+    AppExecFwk::BundleMgrClient::mockRet = true;
+    AppExecFwk::ExtensionAbilityInfo extensionInfo;
+    extensionInfo.name = "ability";
+    extensionInfo.type = AppExecFwk::ExtensionAbilityType::WEB_NATIVE_MESSAGING;
+    AppExecFwk::BundleMgrClient::mockExtensionAbilityInfo.emplace_back(extensionInfo);
+
+    manager_->Init();
+    manager_->ConnectWebNativeMessagingExtension(token, want, callback, connectionId, errorNum);
+}
+
+/**
+ * @tc.name: DisconnectWebNativeMessagingExtension002
+ * @tc.desc: DisconnectWebNativeMessagingExtension() - test additional branches
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, DisconnectWebNativeMessagingExtension002, testing::ext::TestSize.Level0)
+{
+    int connectionId = 123;
+    int errorNum = 0;
+    std::string bundleName = "test_bundle";
+
+    auto aa = std::make_shared<ConnectionNativeRequest>();
+    aa->targetBundleName_ = bundleName;
+    aa->SetInnerConnectionId(connectionId);
+    aa->targetExtensionPid_ = g_callingPid;
+    aa->callerTokenId_ = g_callingTkid;
+    aa->callerPid_ = g_callingPid;
+    aa->callerConnectionId_ = connectionId;
+
+    ConnectionNativeRequest::InsertRequestMap(aa);
+    MockAccesstokenKit::MockAccessTokenKitRet(PermissionState::PERMISSION_GRANTED);
+
+    std::string abilityName = "ability";
+    sptr<IRemoteObject> token = new IRemoteObjectMocker();
+
+    manager_->Init();
+    auto ipcConnect = manager_->NewIpcConnection(g_callingTkid, bundleName, abilityName, token, 1);
+    ipcConnect->pendingRequests_.clear();
+    ipcConnect->pendingRequests_.emplace_back(aa);
+
+    auto bb = std::make_shared<ConnectionNativeRequest>();
+    bb->targetBundleName_ = bundleName;
+    bb->SetInnerConnectionId(456);
+    bb->targetExtensionPid_ = g_callingPid;
+    ipcConnect->pendingRequests_.emplace_back(bb);
+
+    manager_->DisconnectWebNativeMessagingExtension(connectionId, errorNum);
+    EXPECT_EQ(errorNum, ConnectNativeRet::SUCCESS);
+    ConnectionNativeRequest::RemoveRequestMap(connectionId);
+}
+
+/**
+ * @tc.name: StartAbility002
+ * @tc.desc: StartAbility() - test with null token and different bundle
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, StartAbility002, testing::ext::TestSize.Level0)
+{
+    int errorNum = 0;
+    std::string bundleName = "test_bundle";
+
+    AAFwk::Want want;
+    FillWant(want);
+    want.SetBundle(bundleName);
+
+    AAFwk::StartOptions startOptions;
+
+    MockAccesstokenKit::MockAccessTokenKitRet(PermissionState::PERMISSION_GRANTED);
+    manager_->StartAbility(nullptr, want, startOptions, errorNum);
+}
+
+/**
+ * @tc.name: StopNativeConnectionFromExtension002
+ * @tc.desc: StopNativeConnectionFromExtension() - test successful disconnect
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, StopNativeConnectionFromExtension002, testing::ext::TestSize.Level0)
+{
+    int32_t errorNum = 0;
+    int32_t innerConnectId = 456;
+    int32_t connectionId = 789;
+    std::string bundleName = "test_bundle";
+
+    auto aa = std::make_shared<ConnectionNativeRequest>();
+    aa->targetBundleName_ = bundleName;
+    aa->SetInnerConnectionId(innerConnectId);
+    aa->targetExtensionPid_ = g_callingPid;
+    aa->callerTokenId_ = g_callingTkid;
+    aa->callerPid_ = g_callingPid;
+    aa->callerConnectionId_ = connectionId;
+
+    ConnectionNativeRequest::InsertRequestMap(aa);
+    std::string abilityName = "ability";
+    sptr<IRemoteObject> token = new IRemoteObjectMocker();
+
+    manager_->Init();
+    auto ipcConnect = manager_->NewIpcConnection(g_callingTkid, bundleName, abilityName, token, 1);
+    ipcConnect->pendingRequests_.clear();
+    ipcConnect->pendingRequests_.emplace_back(aa);
+
+    auto bb = std::make_shared<ConnectionNativeRequest>();
+    bb->targetBundleName_ = bundleName;
+    bb->SetInnerConnectionId(457);
+    bb->targetExtensionPid_ = g_callingPid;
+    ipcConnect->pendingRequests_.emplace_back(bb);
+
+    manager_->StopNativeConnectionFromExtension(innerConnectId, errorNum);
+    EXPECT_EQ(errorNum, ConnectNativeRet::SUCCESS);
+    ConnectionNativeRequest::RemoveRequestMap(innerConnectId);
+}
+
+/**
+ * @tc.name: LookUpOrNewIpcConnection002
+ * @tc.desc: LookUpOrNewIpcConnection() - test lookup existing
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, LookUpOrNewIpcConnection002, testing::ext::TestSize.Level0)
+{
+    Security::AccessToken::AccessTokenID tkid = 0x222;
+    std::string bundleName = "test_bundle_lookup";
+    std::string abilityName = "ability";
+    sptr<IRemoteObject> token = new IRemoteObjectMocker();
+    auto ipcConnect1 = manager_->NewIpcConnection(tkid, bundleName, abilityName, token, 1);
+    ASSERT_NE(ipcConnect1, nullptr);
+
+    auto ipcConnect2 = manager_->LookUpOrNewIpcConnection(tkid, bundleName, abilityName, token, 1);
+    EXPECT_EQ(ipcConnect1, ipcConnect2);
+}
 } // namespace NWeb
 } // namespace OHOS
