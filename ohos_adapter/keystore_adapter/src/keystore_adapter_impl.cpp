@@ -218,8 +218,8 @@ std::string KeystoreAdapterImpl::AssetQuery(const std::string assetHandle)
 {
     Asset_Blob alias = { .size = (uint32_t)(assetHandle.length()), .data = (uint8_t*)assetHandle.c_str() };
     Asset_Attr attr[] = {
-        { .tag = ASSET_TAG_ALIAS, .value.blob = alias },
-        { .tag = ASSET_TAG_RETURN_TYPE, .value.u32 = ASSET_RETURN_ALL },
+        { .tag = ASSET_TAG_ALIAS, .value = { .blob = alias } },
+        { .tag = ASSET_TAG_RETURN_TYPE, .value = { .u32 = ASSET_RETURN_ALL } },
     };
 
     Asset_ResultSet resultSet = { 0 };
