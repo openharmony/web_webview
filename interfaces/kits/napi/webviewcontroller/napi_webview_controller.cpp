@@ -24,6 +24,7 @@
 #include <securec.h>
 #include <unistd.h>
 #include <uv.h>
+#include <nlohmann/json.hpp>
 
 #include "arkweb_utils.h"
 #include "application_context.h"
@@ -5528,53 +5529,37 @@ WebPrintWriteResultCallback ParseWebPrintWriteResultCallback(napi_env env, napi_
     return nullptr;
 }
 
-void ParseCustomOptions(napi_env env, napi_value customOption, PrintAttributesAdapter& printAttr)
+void ParseCustomOptions(PrintAttributesAdapter& printAttr)
 {
-    if (!customOption) {
-        WVLOG_D("No custom option");
-        return;
-    }
-
-    bool isArray = false;
-    napi_is_array(env, customOption, &isArray);
-    if (!isArray) {
-        WVLOG_E("Custom option is not array");
-        return;
-    }
-
     printAttr.display_header_footer = UINT32_MAX;
     printAttr.print_backgrounds = UINT32_MAX;
-    uint32_t arrayLen = 0;
-    napi_get_array_length(env, customOption, &arrayLen);
-    if (arrayLen == 0) {
-        WVLOG_D("Custom option has length 0");
+
+    if (printAttr.option.empty()) {
+        WVLOG_D("No Custom Option");
         return;
     }
 
-    for (uint32_t i = 0; i < arrayLen; i++) {
-        napi_value item = nullptr;
-        napi_get_element(env, customOption, i, &item);
+    nlohmann::json option = nlohmann::json::parse(printAttr.option, nullptr, false);
+    if (option.is_discarded()) {
+        WVLOG_D("Custom Option Format Error");
+        return;
+    }
 
-        napi_value optionNameValue = nullptr;
-        napi_value isSelectValue = nullptr;
-        napi_get_named_property(env, item, "optionName", &optionNameValue);
-        napi_get_named_property(env, item, "value", &isSelectValue);
-        std::string optionName;
-        bool isSelect = false;
-        if (optionNameValue) {
-            NapiParseUtils::ParseString(env, optionNameValue, optionName);
-        }
-        if (isSelectValue) {
-            NapiParseUtils::ParseBoolean(env, isSelectValue, isSelect);
-        }
-
-        if (optionName == "print_backgrounds") {
-            printAttr.print_backgrounds = isSelect;
-        } else if (optionName == "display_header_footer") {
-            printAttr.display_header_footer = isSelect;
+    if (option.contains("header_and_footer") && option["header_and_footer"].contains("value")) {
+        auto value = option["header_and_footer"]["value"];
+        if (value.is_boolean()) {
+            printAttr.display_header_footer = value.get<bool>();
         }
     }
-    WVLOG_D("display_header_footer = %{public}u print_backgrounds = %{public}u",
+
+    if (option.contains("background_graphics") && option["background_graphics"].contains("value")) {
+        auto value = option["background_graphics"]["value"];
+        if (value.is_boolean()) {
+            printAttr.print_backgrounds = value.get<bool>();
+        }
+    }
+
+    WVLOG_D("Parse Custom Option: Header=%{public}u, Background=%{public}u",
         printAttr.display_header_footer, printAttr.print_backgrounds);
 }
 
@@ -5593,7 +5578,6 @@ bool ParseWebPrintAttrParams(napi_env env, napi_value obj, PrintAttributesAdapte
     napi_value duplexMode = nullptr;
     napi_value margin = nullptr;
     napi_value option = nullptr;
-    napi_value customOption = nullptr;
     napi_get_named_property(env, obj, "copyNumber", &copyNumber);
     napi_get_named_property(env, obj, "pageRange", &pageRange);
     napi_get_named_property(env, obj, "isSequential", &isSequential);
@@ -5602,8 +5586,7 @@ bool ParseWebPrintAttrParams(napi_env env, napi_value obj, PrintAttributesAdapte
     napi_get_named_property(env, obj, "colorMode", &colorMode);
     napi_get_named_property(env, obj, "duplexMode", &duplexMode);
     napi_get_named_property(env, obj, "margin", &margin);
-    napi_get_named_property(env, obj, "option", &option);
-    napi_get_named_property(env, obj, "customOption", &customOption);
+    napi_get_named_property(env, obj, "options", &option);
     if (copyNumber) {
         NapiParseUtils::ParseUint32(env, copyNumber, printAttr.copyNumber);
     }
@@ -5625,7 +5608,7 @@ bool ParseWebPrintAttrParams(napi_env env, napi_value obj, PrintAttributesAdapte
     ParsePrintRangeAdapter(env, pageRange, printAttr);
     ParsePrintPageSizeAdapter(env, pageSize, printAttr);
     ParsePrintMarginAdapter(env, margin, printAttr);
-    ParseCustomOptions(env, customOption, printAttr);
+    ParseCustomOptions(printAttr);
     return true;
 }
 
