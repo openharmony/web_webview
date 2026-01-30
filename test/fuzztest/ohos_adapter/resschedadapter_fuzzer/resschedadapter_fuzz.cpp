@@ -75,6 +75,7 @@ bool ResSchedAdapterFuzzTest(const uint8_t* data, size_t size)
         adapter.ReportWindowStatus(status, pid, windowId, nwebId);
         adapter.ReportScene(status, ResSchedSceneAdapter::CLICK, nwebId);
         adapter.ReportScene(status, ResSchedSceneAdapter::LOAD_URL, nwebId);
+        adapter.ReportSubwindowCall(status, pid, tid);
     }
 
     adapter.ReportProcessInUse(0);
@@ -82,12 +83,14 @@ bool ResSchedAdapterFuzzTest(const uint8_t* data, size_t size)
     adapter.ReportKeyThread(statuses[0], pid, tid, static_cast<ResSchedRoleAdapter>(-1));
     adapter.ReportAudioData(statuses[0], pid, 0);
     adapter.ReportSiteIsolationMode(true);
+    adapter.ReportSubwindowCall(statuses[0], pid, 0);
 
     adapter.ReportWindowId(0, nwebId);
     adapter.ReportKeyThread(statuses[0], -1, tid, ResSchedRoleAdapter::USER_INTERACT);
     adapter.ReportAudioData(statuses[0], pid, -1);
     adapter.ReportWindowStatus(statuses[0], pid, windowId, -1);
     adapter.ReportNWebInit(ResSchedStatusAdapter::WEB_SCENE_EXIT, -1);
+    adapter.ReportSubwindowCall(statuses[0], pid, -1);
 
     return true;
 }
