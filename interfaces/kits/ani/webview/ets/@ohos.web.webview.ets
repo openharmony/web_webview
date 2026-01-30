@@ -1457,6 +1457,36 @@ export default namespace webview {
         constructor() {};
     }
 
+    export enum WebHttpCookieSameSitePolicy {
+        NONE = 0,
+        LAX = 1,
+        STRICT = 2
+    }
+
+    export interface WebHttpCookie {
+ 	    samesitePolicy: WebHttpCookieSameSitePolicy;
+ 	    expiresDate: string;
+ 	    name: string;
+ 	    isSessionCookie: boolean;
+ 	    value: string;
+ 	    path: string;
+ 	    isHttpOnly: boolean;
+ 	    isSecure: boolean;
+ 	    domain: string;
+ 	}
+
+    export class WebHttpCookieinner implements WebHttpCookie {
+        samesitePolicy: WebHttpCookieSameSitePolicy = WebHttpCookieSameSitePolicy.NONE;
+ 	    expiresDate: string = "";
+ 	    name: string = "";
+ 	    isSessionCookie: boolean = false;
+ 	    value: string = "";
+ 	    path: string = "";
+ 	    isHttpOnly: boolean = false;
+ 	    isSecure: boolean = false;
+ 	    domain: string = "";
+    }
+
     export class WebCookieManager {
         static {
             loadLibraryWithPermissionCheck("webview_ani.z", "@ohos.web.webview");
@@ -1659,6 +1689,21 @@ export default namespace webview {
                 });
             });
             return pPromise;
+        }
+
+        native static fetchAllCookiesSync(incognito: boolean): Array<WebHttpCookie>;
+        static fetchAllCookies(incognito: boolean): Promise<Array<WebHttpCookie>> {
+            let p = new Promise<Array<WebHttpCookie>>((resolve: (v: Array<WebHttpCookie>) => void,
+            reject: (error: Error) => void) => {
+                let p1 = taskpool.execute(WebCookieManager.fetchAllCookiesSync, incognito);
+                p1.then((e : Any) => {
+                    let r = e as Array<WebHttpCookie>;
+                    resolve(r);
+                }).catch((error: Error) => {
+                    reject(error);
+                });
+            });
+            return p;
         }
     }
 

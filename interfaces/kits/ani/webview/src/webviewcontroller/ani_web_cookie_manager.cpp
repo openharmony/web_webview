@@ -28,6 +28,8 @@ using namespace NWebError;
 using NWebError::NO_ERROR;
 namespace {
 const char* WEB_COOKIE_MANAGER_CLASS_NAME = "@ohos.web.webview.webview.WebCookieManager";
+static const char* ANI_CLASS_WEB_HTTP_COOKIE_INNER = "@ohos.web.webview.webview.WebHttpCookieinner";
+static const char* ANI_CLASS_WEB_HTTP_COOKIE_SAME_SITE_POLICY = "@ohos.web.webview.webview.WebHttpCookieSameSitePolicy";
 }
 
 const std::string TASK_ID = "configCookieAsync";
@@ -469,6 +471,137 @@ static ani_string JsFetchCookieSync(ani_env *env, ani_object aniClass, ani_strin
     return result;
 }
 
+static bool SetStringToObj(ani_env *env, ani_object obj, const char *propertyName, const std::string &propertyValue)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    if (obj == nullptr) {
+        WVLOG_E("obj is nullptr");
+        return false;
+    }
+    ani_string aniStr = nullptr;
+    if (env->String_NewUTF8(propertyValue.c_str(), propertyValue.size(), &aniStr) != ANI_OK) {
+        WVLOG_E("create aniStr failed");
+        return false;
+    }
+    if (env->Object_SetPropertyByName_Ref(obj, propertyName, aniStr) != ANI_OK) {
+        WVLOG_E("set property failed");
+        return false;
+    }
+    return true;
+}
+
+static bool SetBooleanToObj(ani_env *env, ani_object obj, const char *propertyName, ani_boolean propertyValue)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    if (obj == nullptr) {
+        WVLOG_E("obj is nullptr");
+        return false;
+    }
+    if (env->Object_SetPropertyByName_Boolean(obj, propertyName, propertyValue) != ANI_OK) {
+        WVLOG_E("set property failed");
+        return false;
+    }
+    return true;
+}
+
+static bool SetRefToObj(ani_env* env, ani_object obj, const char* propertyName, int32_t propertyValue)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return false;
+    }
+    if (obj == nullptr) {
+        WVLOG_E("obj is nullptr");
+        return false;
+    }
+    ani_enum_item eType;
+    if (AniParseUtils::GetEnumItemByIndex(env, ANI_CLASS_WEB_HTTP_COOKIE_SAME_SITE_POLICY, propertyValue, eType)) {
+        if (env->Object_SetPropertyByName_Ref(obj, propertyName, eType) != ANI_OK) {
+            WVLOG_E("set property failed status ");
+            return false;
+        };
+    }
+
+    return true;
+}
+
+static ani_object CreateWebCookieManagerObj(ani_env* env, std::shared_ptr<NWebCookie> cookie)
+{
+    ani_object obj = {};
+    bool ret = AniParseUtils::CreateObjectVoid(env, ANI_CLASS_WEB_HTTP_COOKIE_INNER, obj);
+    if (!ret) {
+        WVLOG_E("CreateObjectVoid failed");
+        return nullptr;
+    }
+    if (!SetRefToObj(env, obj, "samesitePolicy", cookie->GetSamesitePolicy()) ||
+        !SetStringToObj(env, obj, "expiresDate", cookie->GetExpiresDate()) ||
+        !SetStringToObj(env, obj, "name", cookie->GetName()) ||
+        !SetBooleanToObj(env, obj, "isSessionCookie", cookie->GetIsSessionCookie()) ||
+        !SetStringToObj(env, obj, "value", cookie->GetValue()) ||
+        !SetStringToObj(env, obj, "path", cookie->GetPath()) ||
+        !SetBooleanToObj(env, obj, "isHttpOnly", cookie->GetIsHttpOnly()) ||
+        !SetBooleanToObj(env, obj, "isSecure", cookie->GetIsSecure()) ||
+        !SetStringToObj(env, obj, "domain", cookie->GetDomain())) {
+        WVLOG_E("set NWebWebCookieManager failed");
+        return nullptr;
+    }
+    return obj;
+}
+
+static ani_object JsFetchAllCookieSync(ani_env* env, ani_object aniClass, ani_boolean incognito)
+{
+    WVLOG_D("[COOKIE] JsFetchAllCookieSync");
+    ani_object arrayObj = nullptr;
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    ani_class arrayCls = nullptr;
+    if (env->FindClass("std.core.Array", &arrayCls) != ANI_OK) {
+        WVLOG_E("find class std/core/Array; failed");
+        return nullptr;
+    }
+    ani_method arrayCtor;
+    if (env->Class_FindMethod(arrayCls, "<ctor>", "i:", &arrayCtor) != ANI_OK) {
+        WVLOG_E("find class std/core/Array; failed");
+        return nullptr;
+    }
+
+    std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
+        OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
+    if (cookieManager == nullptr) {
+        WVLOG_E("cookieManager is nullptr");
+        return nullptr;
+    }
+
+    bool incognitoMode = static_cast<bool>(incognito);
+    std::vector<std::shared_ptr<NWebCookie>> cookies = cookieManager->GetAllCookies(incognitoMode);
+    if (env->Object_New(arrayCls, arrayCtor, &arrayObj, cookies.size()) != ANI_OK) {
+        WVLOG_E("Object_New Array failed");
+        return nullptr;
+    }
+    ani_size index = 0;
+    for (auto cookie : cookies) {
+        ani_object obj = CreateWebCookieManagerObj(env, cookie);
+        if (obj == nullptr) {
+            WVLOG_E("obj is nullptr");
+            continue;
+        }
+        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "iY:", index, obj) != ANI_OK) {
+            WVLOG_E("Object_CallMethodByName_Void failed");
+            break;
+        }
+        index++;
+    }
+    return arrayObj;
+}
+
 static ani_boolean JsIsThirdPartyCookieAllowed(ani_env *env, ani_object aniClass)
 {
     WVLOG_D("[COOKIE] JsIsThirdPartyCookieAllowed");
@@ -563,6 +696,7 @@ ani_status StsWebCookieManagerInit(ani_env *env)
         ani_native_function { "isThirdPartyCookieAllowed",
             nullptr, reinterpret_cast<void *>(JsIsThirdPartyCookieAllowed) },
         ani_native_function { "fetchCookieSync", nullptr, reinterpret_cast<void *>(JsFetchCookieSync) },
+        ani_native_function { "fetchAllCookiesSync", nullptr, reinterpret_cast<void *>(JsFetchAllCookieSync) },
         ani_native_function { "saveCookieSync", nullptr, reinterpret_cast<void *>(JsSaveCookieSync) },
         ani_native_function { "clearAllCookiesSync", nullptr, reinterpret_cast<void *>(JsClearAllCookiesSync) },
         ani_native_function {
