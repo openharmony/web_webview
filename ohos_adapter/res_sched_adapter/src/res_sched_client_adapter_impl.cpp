@@ -43,6 +43,7 @@ const std::unordered_map<ResSchedTypeAdapter, uint32_t> RES_TYPE_MAP = {
     { ResSchedTypeAdapter::RES_TYPE_WEBVIEW_AUDIO_STATUS_CHANGE, ResType::RES_TYPE_WEBVIEW_AUDIO_STATUS_CHANGE },
     { ResSchedTypeAdapter::RES_TYPE_WEBVIEW_SCREEN_CAPTURE, ResType::RES_TYPE_WEBVIEW_SCREEN_CAPTURE },
     { ResSchedTypeAdapter::RES_TYPE_WEBVIEW_VIDEO_STATUS_CHANGE, ResType::RES_TYPE_WEBVIEW_VIDEO_STATUS_CHANGE },
+    { ResSchedTypeAdapter::RES_TYPE_WEB_SUBWIN_CALL_STATUS_CHANGE, ResType::RES_TYPE_WEB_SUBWIN_TASK },
 };
 
 const std::unordered_map<ResSchedStatusAdapter, int64_t> RES_STATUS_MAP = {
@@ -58,6 +59,8 @@ const std::unordered_map<ResSchedStatusAdapter, int64_t> RES_STATUS_MAP = {
     { ResSchedStatusAdapter::SCREEN_CAPTURE_STOP, ResType::WebScreenCapture::WEB_SCREEN_CAPTURE_STOP },
     { ResSchedStatusAdapter::VIDEO_PLAYING_START, ResType::WebVideoState::WEB_VIDEO_PLAYING_START },
     { ResSchedStatusAdapter::VIDEO_PLAYING_STOP, ResType::WebVideoState::WEB_VIDEO_PLAYING_STOP },
+    { ResSchedStatusAdapter::WEB_SUBWIN_CALL_START, ResType::WebVideoState::WEB_SUBWIN_CALL_START },
+    { ResSchedStatusAdapter::WEB_SUBWIN_CALL_STOP, ResType::WebVideoState::WEB_SUBWIN_CALL_STOP },
 };
 
 const std::unordered_map<ResSchedRoleAdapter, ResType::ThreadRole> RES_ROLE_MAP = {
@@ -494,6 +497,25 @@ bool ResSchedClientAdapter::ReportVideoPlaying(ResSchedStatusAdapter statusAdapt
         { PID, std::to_string(pid) } };
     WVLOG_D("ReportVideoPlaying status: %{public}d, uid: %{public}d, pid: %{public}d",
         static_cast<int32_t>(status), uid, pid);
+    ResSchedClient::GetInstance().ReportData(resType, status, mapPayload);
+
+    return true;
+}
+
+bool ResSchedClientAdapter::ReportSubwindowCall(ResSchedStatusAdapter statusAdapter, pid_t pid, pid_t tid)
+{
+    static uint32_t resType = ResType::RES_TYPE_WEB_SUBWIN_TASK;
+
+    int64_t status;
+    if (!ConvertStatus(statusAdapter, status)) {
+        return false;
+    }
+
+    uid_t uid = getuid();
+    std::unordered_map<std::string, std::string> mapPayload { { UID, std::to_string(uid) },
+        { PID, std::to_string(pid) }, { TID, std::to_string(tid) } };
+    WVLOG_D("ReportSubwindowCall status: %{public}d, uid: %{public}d, pid: %{public}d, tid:%{public}d",
+        static_cast<int32_t>(status), uid, pid, tid);
     ResSchedClient::GetInstance().ReportData(resType, status, mapPayload);
 
     return true;
