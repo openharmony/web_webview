@@ -59,8 +59,8 @@ const std::unordered_map<ResSchedStatusAdapter, int64_t> RES_STATUS_MAP = {
     { ResSchedStatusAdapter::SCREEN_CAPTURE_STOP, ResType::WebScreenCapture::WEB_SCREEN_CAPTURE_STOP },
     { ResSchedStatusAdapter::VIDEO_PLAYING_START, ResType::WebVideoState::WEB_VIDEO_PLAYING_START },
     { ResSchedStatusAdapter::VIDEO_PLAYING_STOP, ResType::WebVideoState::WEB_VIDEO_PLAYING_STOP },
-    { ResSchedStatusAdapter::WEB_SUBWIN_CALL_START, ResType::webSubwinCall::WEB_SUBWIN_CALL_START },
-    { ResSchedStatusAdapter::WEB_SUBWIN_CALL_STOP, ResType::webSubwinCall::WEB_SUBWIN_CALL_STOP },
+    { ResSchedStatusAdapter::WEB_SUBWIN_CALL_START, ResType::WebSubwinCall::WEB_SUBWIN_CALL_START },
+    { ResSchedStatusAdapter::WEB_SUBWIN_CALL_STOP, ResType::WebSubwinCall::WEB_SUBWIN_CALL_STOP },
 };
 
 const std::unordered_map<ResSchedRoleAdapter, ResType::ThreadRole> RES_ROLE_MAP = {
