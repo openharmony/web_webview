@@ -127,24 +127,10 @@ HWTEST_F(ConvertPrintingParametersTest, ConvertPrintingParameters_CustomOptions_
 {
     // Init
     auto attrs = defaultAttrs_;
-    std::vector<Print::PrintCustomOption> customOption;
 
     // Set custom options
-    Print::PrintCustomOption optionA;
-    optionA.SetOptionName("display_header_footer");
-    optionA.SetType(static_cast<uint32_t>(OHOS::Print::ComponentType::SWITCH));
-    optionA.SetOptionResourceName("rid_display_header_footer");
-    optionA.SetIsSelect(true);
-    customOption.push_back(optionA);
-
-    Print::PrintCustomOption optionB;
-    optionB.SetOptionName("print_backgrounds");
-    optionB.SetType(static_cast<uint32_t>(OHOS::Print::ComponentType::SWITCH));
-    optionB.SetOptionResourceName("rid_print_backgrounds");
-    optionB.SetIsSelect(false);
-    customOption.push_back(optionB);
-
-    attrs.SetCustomOption(customOption);
+    std::string option = "{\"header_and_footer\":{\"value\":true},\"background_graphics\":{\"value\":false}}";
+    attrs.SetOption(option);
 
     // Test
     PrintDocumentAdapterImpl adapter(nullptr);

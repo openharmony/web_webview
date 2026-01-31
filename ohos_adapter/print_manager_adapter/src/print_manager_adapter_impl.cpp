@@ -15,37 +15,43 @@
 
 #include "print_manager_adapter_impl.h"
 
+#include <nlohmann/json.hpp>
 #include "nweb_log.h"
 
 namespace OHOS::NWeb {
 namespace {
 #if defined(NWEB_PRINT_ENABLE)
+static const std::string OptionStart = "{\"custom_option\":{";
+static const std::string OptionEnd = "}}";
+
+static const std::string HeaderStart = "\"header_and_footer\":{\"default_value\":";
+static const std::string HeaderEnd = "},";
+
+static const std::string BackgroundStart = "\"background_graphics\":{\"default_value\":";
+static const std::string BackgroundEnd = "},";
+
 std::shared_ptr<OHOS::Print::PrintAttributes> CreateAttrsWithCustomOption(const PrintAttributesAdapter& printAttr)
 {
     auto attr = std::make_shared<OHOS::Print::PrintAttributes>();
-    std::vector<OHOS::Print::PrintCustomOption> customOption;
+    std::string customOptions;
 
     if (printAttr.display_header_footer != UINT32_MAX) {
-        OHOS::Print::PrintCustomOption option;
-        option.SetOptionName("display_header_footer");
-        option.SetType(static_cast<uint32_t>(OHOS::Print::ComponentType::SWITCH));
-        option.SetOptionResourceName("rid_display_header_footer");
-        option.SetIsSelect(!!printAttr.display_header_footer);
-        customOption.push_back(option);
+        std::string option = !!printAttr.display_header_footer ? "true" : "false";
+        customOptions += HeaderStart + option + HeaderEnd;
     }
 
     if (printAttr.print_backgrounds != UINT32_MAX) {
-        OHOS::Print::PrintCustomOption option;
-        option.SetOptionName("print_backgrounds");
-        option.SetType(static_cast<uint32_t>(OHOS::Print::ComponentType::SWITCH));
-        option.SetOptionResourceName("rid_print_backgrounds");
-        option.SetIsSelect(!!printAttr.print_backgrounds);
-        customOption.push_back(option);
+        std::string option = !!printAttr.print_backgrounds ? "true" : "false";
+        customOptions += BackgroundStart + option + BackgroundEnd;
     }
 
-    attr->SetCustomOption(customOption);
+    // remove last comma
+    if (!customOptions.empty() && customOptions.back() == ',') {
+        customOptions.pop_back();
+    }
 
-    WVLOG_D("Start Print With display_header_footer = %{public}u, print_backgrounds = %{public}u",
+    attr->SetOption(OptionStart + customOptions + OptionEnd);
+    WVLOG_D("Start Print With Custom Option: Header=%{public}u, Background=%{public}u",
         printAttr.display_header_footer, printAttr.print_backgrounds);
     return attr;
 }
@@ -142,6 +148,40 @@ PrintDocumentAdapterImpl::PrintDocumentAdapterImpl(const std::shared_ptr<PrintDo
     cb_ = cb;
 }
 
+static void ParseCustomOptions(const OHOS::Print::PrintAttributes& attrs, PrintAttributesAdapter& printAttr)
+{
+    printAttr.display_header_footer = UINT32_MAX;
+    printAttr.print_backgrounds = UINT32_MAX;
+
+    if (!attrs.HasOption()) {
+        WVLOG_D("No Custom Option");
+        return;
+    }
+
+    nlohmann::json option = nlohmann::json::parse(attrs.GetOption(), nullptr, false);
+    if (option.is_discarded()) {
+        WVLOG_D("Custom Option Format Error");
+        return;
+    }
+
+    if (option.contains("header_and_footer") && option["header_and_footer"].contains("value")) {
+        auto value = option["header_and_footer"]["value"];
+        if (value.is_boolean()) {
+            printAttr.display_header_footer = value.get<bool>();
+        }
+    }
+
+    if (option.contains("background_graphics") && option["background_graphics"].contains("value")) {
+        auto value = option["background_graphics"]["value"];
+        if (value.is_boolean()) {
+            printAttr.print_backgrounds = value.get<bool>();
+        }
+    }
+
+    WVLOG_D("Parse Custom Option: Header=%{public}u, Background=%{public}u",
+        printAttr.display_header_footer, printAttr.print_backgrounds);
+}
+
 PrintAttributesAdapter PrintDocumentAdapterImpl::ConvertPrintingParameters(OHOS::Print::PrintAttributes attrs)
 {
     PrintAttributesAdapter printAttributesAdapter;
@@ -173,23 +213,7 @@ PrintAttributesAdapter PrintDocumentAdapterImpl::ConvertPrintingParameters(OHOS:
     printMarginAdapter.left = printMargin.GetLeft();
     printMarginAdapter.right = printMargin.GetRight();
     printAttributesAdapter.margin = printMarginAdapter;
-    printAttributesAdapter.display_header_footer = UINT32_MAX;
-    printAttributesAdapter.print_backgrounds = UINT32_MAX;
-    if (attrs.HasCustomOption()) {
-        std::vector<Print::PrintCustomOption> customOption;
-        attrs.GetCustomOption(customOption);
-        for (auto op : customOption) {
-            if (op.GetOptionName() == "print_backgrounds") {
-                printAttributesAdapter.print_backgrounds = op.GetIsSelect();
-            } else if (op.GetOptionName() == "display_header_footer") {
-                printAttributesAdapter.display_header_footer = op.GetIsSelect();
-            }
-        }
-        WVLOG_D("display_header_footer = %{public}u, print_backgrounds = %{public}u",
-            printAttributesAdapter.display_header_footer, printAttributesAdapter.print_backgrounds);
-    } else {
-        WVLOG_D("No Custom Option");
-    }
+    ParseCustomOptions(attrs, printAttributesAdapter);
     return printAttributesAdapter;
 }
 
