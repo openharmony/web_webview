@@ -348,7 +348,7 @@ HWTEST_F(ResSchedAdapterImplTest, ResSchedAdapterImplTest_ReportSceneInternal_00
 }
 
 /**
- * @tc.name: ResSchedAdapterImplTest_ReportAudioData_010
+ * @tc.name: ResSchedAdapterImplTest_ReportSubwindowCall_010
  * @tc.desc: ReportSubwindowCall.
  * @tc.type: FUNC
  * @tc.require:
