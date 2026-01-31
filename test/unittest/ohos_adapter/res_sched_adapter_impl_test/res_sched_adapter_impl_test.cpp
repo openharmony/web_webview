@@ -353,7 +353,7 @@ HWTEST_F(ResSchedAdapterImplTest, ResSchedAdapterImplTest_ReportSceneInternal_00
  * @tc.type: FUNC
  * @tc.require:
  */
-HWTEST_F(ResSchedAdapterImplTest, ResSchedAdapterImplTest_ReportSubwindowCall_003, TestSize.Level1)
+HWTEST_F(ResSchedAdapterImplTest, ResSchedAdapterImplTest_ReportSubwindowCall_010, TestSize.Level1)
 {
     auto resAdapter = std::make_shared<ResSchedClientAdapter>();
     EXPECT_NE(resAdapter, nullptr);
