@@ -52,6 +52,8 @@ static std::mutex g_appInfoMutex;
 
 static void* g_reservedAddress = nullptr;
 static size_t g_reservedSize = 0;
+static bool g_shareRelroEnabled = false;
+static bool g_arkwebEngineAccessible = false;
 const int SHARED_RELRO_UID = 1037;
 const std::string ARK_WEB_ENGINE_LIB_NAME = "libarkweb_engine.so";
 const std::string SHARED_RELRO_DIR = "/data/service/el1/public/for-all-app/shared_relro";
@@ -832,28 +834,92 @@ int DlcloseArkWebLib()
     return 0;
 }
 
+// Check if target exists or not.
+bool CheckTargetExists(const std::filesystem::path& path)
+{
+    std::error_code ec;
+    bool targetExists = std::filesystem::exists(path, ec);
+    if (ec) {
+        WVLOG_E("CheckTargetExists: error checking target: %{public}s.", ec.message().c_str());
+        return false;
+    }
+    return targetExists;
+}
+
+/**
+ * Create arkweb engine sandbox in appspawn process when appspawn preload arkweb engine is disabled and
+ * share relro is enabled.
+ */
+void CreateArkWebSandboxPathIfNeed()
+{
+#if (defined(webview_arm64) && !defined(ASAN_DETECTOR))
+    if (CheckTargetExists(SANDBOX_REAL_PATH)) {
+        WVLOG_I("%{public}s already exists.", SANDBOX_REAL_PATH.c_str());
+        return;
+    }
+    bool shareRelroEnabled = OHOS::system::GetBoolParameter("web.shareRelro.enabled", false);
+    bool preloadArkwebEngineEnabled = OHOS::system::GetBoolParameter(APPSPAWN_PRELOAD_ARKWEB_ENGINE, false);
+    WVLOG_I("%{public}s does not exist, share relro enabled: %{public}d, preload arkweb engine enabled: %{public}d.",
+            SANDBOX_REAL_PATH.c_str(), shareRelroEnabled, preloadArkwebEngineEnabled);
+    if (!preloadArkwebEngineEnabled && shareRelroEnabled) {
+        CreateRealSandboxPath();
+    }
+#else
+    WVLOG_I("This is not webview_arm64, no need to create arkweb sandbox path.");
+#endif
+}
+
+/**
+ * Mount akrweb engine lib to arkweb engine sandbox when appspawn preload arkweb engine is disabled and
+ * share relro is enabled.
+ */
+void MountArkwebEngineLib()
+{
+#if (defined(webview_arm64) && !defined(ASAN_DETECTOR))
+    if (!CheckTargetExists(SANDBOX_REAL_PATH)) {
+        WVLOG_I("%{public}s does not exist.", SANDBOX_REAL_PATH.c_str());
+        return;
+    }
+
+    const std::string bundleName = OHOS::system::GetParameter(PERSIST_ARKWEBCORE_PACKAGE_NAME, "");
+    if (bundleName.empty()) {
+        WVLOG_E("bundleName is null.");
+        return;
+    }
+
+    const std::string realPath = EL1_BUNDLE_PUBLIC + bundleName;
+    WVLOG_I("RealPath: %{public}s, SANDBOX_REAL_PATH: %{public}s.",
+            realPath.c_str(), SANDBOX_REAL_PATH.c_str());
+    if (mount(realPath.c_str(), SANDBOX_REAL_PATH.c_str(), nullptr, MS_BIND | MS_REC, nullptr) != 0) {
+        WVLOG_E("Mount error: %{public}s.", strerror(errno));
+        return;
+    }
+#else
+    WVLOG_I("This is not webview_arm64, no need to mount arkweb engine lib.");
+#endif
+}
+
 bool NeedShareRelro()
 {
     // Check if share relro is enabled
-    static bool isShareRelroEnabled = OHOS::system::GetBoolParameter("web.shareRelro.enabled", false);
-    if (!isShareRelroEnabled) {
+    g_shareRelroEnabled = OHOS::system::GetBoolParameter("web.shareRelro.enabled", false);
+    if (!g_shareRelroEnabled) {
         WVLOG_I("NeedShareRelro: share relro is disabled.");
         return false;
     }
 
-    // Check if ark_web_engine_lib is accessible
     std::string arkwebLibPath = GetArkwebLibPath();
     std::filesystem::path arkwebEngineLibPath = arkwebLibPath + "/" + ARK_WEB_ENGINE_LIB_NAME;
-    std::error_code ec;
-    static bool arkwebEngineAccessible = std::filesystem::exists(arkwebEngineLibPath, ec);
-    if (ec) {
-        WVLOG_E("NeedShareRelro: error checking file: %{public}s.", ec.message().c_str());
-        return false;
+    g_arkwebEngineAccessible = CheckTargetExists(arkwebEngineLibPath);
+    if (!g_arkwebEngineAccessible) {
+        WVLOG_I("Arkweb engine lib is not accessible, try to mount it.");
+        MountArkwebEngineLib();
+        g_arkwebEngineAccessible = CheckTargetExists(arkwebEngineLibPath);
     }
 
-    // Need to share relro only when share relro is enabled and ark_web_engine_lib is accessible
-    WVLOG_I("NeedShareRelro:share relro is enabled, webEngine accessible:%{public}d.", arkwebEngineAccessible);
-    return arkwebEngineAccessible;
+    // Need to share relro only when share relro is enabled and arkweb engine lib is accessible
+    WVLOG_I("NeedShareRelro:share relro is enabled, webEngine accessible:%{public}d.", g_arkwebEngineAccessible);
+    return g_arkwebEngineAccessible;
 }
 
 bool ReserveAddressSpace()
@@ -875,7 +941,9 @@ bool ReserveAddressSpace()
 
 void* CreateRelroFile(const std::string& lib, Dl_namespace* dlns)
 {
-    if (!NeedShareRelro()) {
+    if (!g_shareRelroEnabled || !g_arkwebEngineAccessible) {
+        WVLOG_I("CreateRelroFile:share relro enabled: %{public}d, webEngine accessible:%{public}d.",
+                g_shareRelroEnabled, g_arkwebEngineAccessible);
         return nullptr;
     }
     if (!g_reservedAddress) {
@@ -950,7 +1018,9 @@ void CreateRelroFileInSubProc()
 
 void* LoadWithRelroFile(const std::string& lib, Dl_namespace* dlns)
 {
-    if (!NeedShareRelro()) {
+    if (!g_shareRelroEnabled || !g_arkwebEngineAccessible) {
+        WVLOG_I("LoadWithRelroFile:share relro enabled: %{public}d, webEngine accessible:%{public}d.",
+                g_shareRelroEnabled, g_arkwebEngineAccessible);
         return nullptr;
     }
     if (!g_reservedAddress) {

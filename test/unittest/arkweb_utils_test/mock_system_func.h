@@ -49,6 +49,8 @@ int SetGidMock(gid_t gid);
 void SetRestoreconRecurseMockValue(int mockValue);
 int RestoreconRecurseMock(const char *path);
 
+void SetMountMockValue(int mockValue);
+int MountMock(const char *source, const char *target, const char *type, unsigned long flag, const void *data);
 #ifdef __cplusplus
 }
 #endif
