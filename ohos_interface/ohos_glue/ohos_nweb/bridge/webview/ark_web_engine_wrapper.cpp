@@ -413,8 +413,10 @@ void ArkWebEngineWrapper::LibraryLoaded(std::shared_ptr<OHOS::NWeb::NWebEngineIn
 std::string ArkWebEngineWrapper::DumpArkWebInfo(const std::string& param)
 {
     ArkWebString arkwebStr = ArkWebStringClassToStruct(param);
-    std::string structToClass = ArkWebStringStructToClass(ark_web_engine_->DumpArkWebInfo(arkwebStr));
+    ArkWebString arkwebResultStr = ark_web_engine_->DumpArkWebInfo(arkwebStr);
+    std::string structToClass = ArkWebStringStructToClass(arkwebResultStr);
     ArkWebStringStructRelease(arkwebStr);
+    ArkWebStringStructRelease(arkwebResultStr);
     return structToClass;
 }
 
