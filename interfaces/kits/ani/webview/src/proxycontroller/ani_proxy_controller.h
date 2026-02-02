@@ -24,7 +24,7 @@ namespace NWeb {
 class ProxyChangedCallbackImpl : public NWebProxyChangedCallback {
 public:
     ProxyChangedCallbackImpl(ani_env* env, ani_ref callback) : env_(env), callback_(callback) {}
-    ~ProxyChangedCallbackImpl() = default;
+    ~ProxyChangedCallbackImpl();
 
     void OnChanged() override;
 

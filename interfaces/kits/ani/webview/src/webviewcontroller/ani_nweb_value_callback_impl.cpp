@@ -88,11 +88,14 @@ NWebValueCallbackImpl::NWebValueCallbackImpl(ani_vm* vm, ani_fn_object callback,
         return;
     }
     ani_env* env = nullptr;
-    if (auto status = vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
+    auto status = vm_->GetEnv(ANI_VERSION_1, &env);
+    if (status != ANI_OK) {
         WVLOG_E("[WebMessagePort] GetEnv status is : %{public}d", status);
         return;
     }
-    env->GlobalReference_Create(static_cast<ani_ref>(callback), &callback_);
+    if (env) {
+        env->GlobalReference_Create(static_cast<ani_ref>(callback), &callback_);
+    }
 }
 
 NWebValueCallbackImpl::~NWebValueCallbackImpl()
@@ -102,11 +105,14 @@ NWebValueCallbackImpl::~NWebValueCallbackImpl()
         return;
     }
     ani_env* env = nullptr;
-    if (auto status = vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
+    auto status = vm_->GetEnv(ANI_VERSION_1, &env);
+    if (status != ANI_OK) {
         WVLOG_E("[WebMessagePort] GetEnv status is : %{public}d", status);
         return;
     }
-    env->GlobalReference_Delete(callback_);
+    if (env) {
+        env->GlobalReference_Delete(callback_);
+    }
 }
 
 void NWebValueCallbackImpl::OnReceiveValue(std::shared_ptr<NWebMessage> result)
@@ -114,7 +120,8 @@ void NWebValueCallbackImpl::OnReceiveValue(std::shared_ptr<NWebMessage> result)
     WVLOG_D("[WebMessagePort] NWebValueCallbackImpl::OnReceiveValue() Start");
     ani_env* env = nullptr;
     ani_options aniArgs { 0, nullptr };
-    if (auto status = vm_->AttachCurrentThread(&aniArgs, ANI_VERSION_1, &env) != ANI_OK) {
+    auto status = vm_->AttachCurrentThread(&aniArgs, ANI_VERSION_1, &env);
+    if (status != ANI_OK) {
         WVLOG_E("[WebMessagePort] GetEnv status is : %{public}d", status);
         return;
     }

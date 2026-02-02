@@ -45,6 +45,15 @@ static void JsConstructor(ani_env* env, ani_object object)
     }
 }
 
+ProxyChangedCallbackImpl::~ProxyChangedCallbackImpl()
+{
+    if (env_ && callback_) {
+        if (env_->GlobalReference_Delete(callback_) != ANI_OK) {
+            WVLOG_E("delete global reference failed");
+        }
+    }
+}
+
 void ProxyChangedCallbackImpl::OnChanged()
 {
     ani_ref jsCallback = nullptr;
@@ -53,7 +62,10 @@ void ProxyChangedCallbackImpl::OnChanged()
         WVLOG_E("env is nullptr");
         return;
     }
-    env_->GlobalReference_Create(callback_, &jsCallback);
+    if (env_->GlobalReference_Create(callback_, &jsCallback) != ANI_OK) {
+        WVLOG_E("create global reference object failed");
+        return;
+    }
     auto status = env_->FunctionalObject_Call(static_cast<ani_fn_object>(jsCallback), ZERO, nullptr, &result);
     if (status != ANI_OK) {
         WVLOG_E("onChanged functionalObject_Call status: %{public}d", status);

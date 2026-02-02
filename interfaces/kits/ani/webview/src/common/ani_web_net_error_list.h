@@ -261,7 +261,7 @@ constexpr int32_t ERR_DNS_NO_MATCHING_SUPPORTED_ALPN = -811;
 
 const std::unordered_map<int32_t, int32_t>& GetErrorMap()
 {
-    static const auto errorMap = [] {
+    static const std::unordered_map<int32_t, int32_t> errorMap = [] {
         const std::vector<int32_t> codes = {
             NET_OK,
             ERR_IO_PENDING,

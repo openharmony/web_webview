@@ -48,7 +48,9 @@ WebviewJavaScriptExecuteCallback::WebviewJavaScriptExecuteCallback(
     }
     env->GetVM(&vm_);
     if (callback) {
-        env->GlobalReference_Create(callback, &callbackRef_);
+        if (env->GlobalReference_Create(callback, &callbackRef_) != ANI_OK) {
+            WVLOG_E("create golbal reference failed");
+        }
     }
 }
 
@@ -387,7 +389,10 @@ static ani_enum_item GetType(ani_env* env, ani_object object)
     typeMode = static_cast<ani_int>(webJsMessageExt->GetType());
     WVLOG_I("webJsMessageExt mode = %{public}d", static_cast<int32_t>(typeMode));
     ani_enum_item mode;
-    env->Enum_GetEnumItemByIndex(enumType, typeMode, &mode);
+    if (env->Enum_GetEnumItemByIndex(enumType, typeMode, &mode) != ANI_OK) {
+        WVLOG_E("get enum failed");
+        return nullptr;
+    }
     return mode;
 }
 

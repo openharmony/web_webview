@@ -239,8 +239,8 @@ void WebSchemeHandler::RequestStopAfterWorkCb(RequestStopParam* param)
         delete param;
         return;
     }
-    if (auto status = vm_->GetEnv(ANI_VERSION_1, &param->env_) != ANI_OK) {
-        WVLOG_E("RequestStopAfterWorkCb: GetEnv status is : %{public}d", status);
+    if (vm_->GetEnv(ANI_VERSION_1, &param->env_) != ANI_OK) {
+        WVLOG_E("RequestStopAfterWorkCb: GetEnv failed");
         delete param;
         return;
     }
@@ -301,8 +301,8 @@ void WebSchemeHandler::RequestStop(const ArkWeb_ResourceRequest* resourceRequest
     }
     ani_env* env = nullptr;
     ani_options aniArgs { 0, nullptr };
-    if (auto status = vm_->AttachCurrentThread(&aniArgs, ANI_VERSION_1, &env) != ANI_OK) {
-        WVLOG_E("RequestStop: AttachCurrentThread status is : %{public}d", status);
+    if (vm_->AttachCurrentThread(&aniArgs, ANI_VERSION_1, &env) != ANI_OK) {
+        WVLOG_E("RequestStop: AttachCurrentThread failed");
         return;
     }
     if (env == nullptr) {
@@ -509,7 +509,10 @@ void WebHttpBodyStream::ExecuteInit(ArkWeb_NetError result)
     }
 
     ani_ref resultRef;
-    asyncCtx->env->GetUndefined(&resultRef);
+    if (asyncCtx->env->GetUndefined(&resultRef) != ANI_OK) {
+        WVLOG_E("WebHttpBodyStream::ExecuteInit get undefined failed");
+        return;
+    }
 
     if (asyncCtx->errCode != 0) {
         resultRef = NWebError::AniBusinessError::CreateError(asyncCtx->env, NWebError::HTTP_BODY_STREAN_INIT_FAILED);
@@ -560,7 +563,11 @@ void WebHttpBodyStream::ExecuteRead(uint8_t* buffer, int bytesRead)
     }
     ani_arraybuffer arraybuffer;
     void* bufferData = nullptr;
-    env_->CreateArrayBuffer(asyncCtx->bytesRead, &bufferData, &arraybuffer);
+    if (env_->CreateArrayBuffer(asyncCtx->bytesRead, &bufferData, &arraybuffer) != ANI_OK) {
+        WVLOG_E("WebHttpBodyStream::ExecuteRead CreateArrayBuffer failed");
+        delete asyncCtx;
+        return;
+    }
     if (memcpy_s(bufferData, asyncCtx->bytesRead, asyncCtx->buffer, asyncCtx->bytesRead) != 0 &&
         asyncCtx->bytesRead > 0) {
         WVLOG_E("WebHttpBodyStream::ExecuteRead memcpy failed");

@@ -1668,7 +1668,10 @@ void ParseDictionaryAniValue2NwebValueV2(
     ani_size arrayLength;
     ani_array arrayRef {};
     arrayRef = static_cast<ani_array>(result);
-    env->Array_GetLength(arrayRef, &arrayLength);
+    if (env->Array_GetLength(arrayRef, &arrayLength) != ANI_OK) {
+        WVLOG_E("get array length failed");
+        return;
+    }
     uint32_t size = static_cast<uint32_t>(arrayLength);
     size = std::min(size, MAX_DATA_LENGTH);
     for (uint32_t i = 0; i < size; i++) {
@@ -1819,7 +1822,9 @@ ani_ref ParseBinNwebValue2AniValueV2(ani_env* env, const std::shared_ptr<T>& val
         return nullptr;
     }
     ani_ref aniValue = nullptr;
-    env->GetUndefined(&aniValue);
+    if (env->GetUndefined(&aniValue) != ANI_OK) {
+        return nullptr;
+    }
     int length = 0;
     auto buff = value->GetBinary(length);
     JavaScriptOb::ObjectID objId;
@@ -1827,7 +1832,6 @@ ani_ref ParseBinNwebValue2AniValueV2(ani_env* env, const std::shared_ptr<T>& val
     std::vector<std::string> strList;
     StringSplit(str, ';', strList);
     if (strList.size() < JS_BRIDGE_BINARY_ARGS_COUNT) {
-        env->GetUndefined(&aniValue);
         return aniValue;
     }
 
@@ -1916,9 +1920,6 @@ ani_object ParseNwebValue2AniValueV2(ani_env* env, std::shared_ptr<T> value,
             WVLOG_E("ParseNwebValue2AniValueV2 invalid type");
             break;
     }
-
-    ani_ref refTmp = static_cast<ani_ref>(aniValue);
-    env->GetUndefined(&refTmp);
     return aniValue;
 }
 } // namespace
@@ -1950,7 +1951,10 @@ void JavaScriptOb::AniSetUpMethods()
     ani_size arrayLength;
     ani_array arrayRef {};
     arrayRef = static_cast<ani_array>(result);
-    env->Array_GetLength(arrayRef, &arrayLength);
+    if (env->Array_GetLength(arrayRef, &arrayLength) != ANI_OK) {
+        WVLOG_E("get array length failed");
+        return;
+    }
     uint32_t size = static_cast<uint32_t>(arrayLength);
     size = std::min(size, MAX_DATA_LENGTH);
     for (uint32_t i = 0; i < size; i++) {

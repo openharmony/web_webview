@@ -31,7 +31,6 @@ const char* WEB_COOKIE_MANAGER_CLASS_NAME = "@ohos.web.webview.webview.WebCookie
 }
 
 const std::string TASK_ID = "configCookieAsync";
-constexpr int32_t PARAM_NUM = 1;
 constexpr long RESULT_OK = 1;
 
 static void ClearSessionCookieSync(ani_env *env, ani_object aniClass)
@@ -207,7 +206,10 @@ NWebConfigCookieCallbackImpl::NWebConfigCookieCallbackImpl(ani_env* env, ani_ref
     }
     env->GetVM(&vm_);
     if (callback) {
-        env->GlobalReference_Create(callback, &callback_);
+        if (env->GlobalReference_Create(callback, &callback_) != ANI_OK) {
+            WVLOG_E("global reference failed");
+            return;
+        }
     }
 }
 
@@ -244,7 +246,10 @@ void UvAfterWorkCbPromise(std::shared_ptr<NWebConfigCookieCallbackImpl> cookieOb
             WVLOG_E("promise reject error status = %{public}d", status);
         }
     } else {
-        env->GetNull(&resultRef);
+        if (env->GetNull(&resultRef) != ANI_OK) {
+            WVLOG_E("getNull parameter failed");
+            return;
+        }
         if ((status = env->PromiseResolver_Resolve(resolver, resultRef)) != ANI_OK) {
             WVLOG_E("promise reject error status = %{public}d", status);
         }
@@ -276,7 +281,7 @@ void UvJsCallbackThreadWoker(std::shared_ptr<NWebConfigCookieCallbackImpl> cooki
             }
         }
         if ((status = env->FunctionalObject_Call(static_cast<ani_fn_object>(cookieObj->GetCallBack()),
-            PARAM_NUM, &resultRef, &callbackResult)) != ANI_OK) {
+            1, &resultRef, &callbackResult)) != ANI_OK) {
             WVLOG_E("callback function execute error status = %{public}d", status);
         }
     }
@@ -336,7 +341,10 @@ static ani_object JsSetCookiePromise(ani_env *env, ani_object aniClass, ani_stri
             OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
         if (cookieManager == nullptr) {
             ani_ref jsResult = nullptr;
-            env->GetUndefined(&jsResult);
+            if (env->GetUndefined(&jsResult) != ANI_OK) {
+                WVLOG_E("getUndefined parameter failed");
+                return nullptr;
+            }
             if (env ->PromiseResolver_Reject(resolver, static_cast<ani_error>(jsResult)) != ANI_OK) {
                 WVLOG_E("promise reject error");
                 return nullptr;
@@ -379,9 +387,12 @@ static void JsSetCookieCallback(ani_env *env, ani_object aniClass, ani_string ur
         if (jsCallback) {
             ani_ref callbackResult = nullptr;
             if ((status = env->FunctionalObject_Call(static_cast<ani_fn_object>(jsCallback),
-                PARAM_NUM, &jsResult, &callbackResult)) != ANI_OK) {
+                1, &jsResult, &callbackResult)) != ANI_OK) {
                 WVLOG_E("callback function execute error status = %{public}d", status);
-                }
+            }
+            if (env->GlobalReference_Delete(jsCallback) != ANI_OK) {
+                WVLOG_E("delete reference failed");
+            }
         }
     } else {
         auto callbackImpl = std::make_shared<OHOS::NWeb::NWebConfigCookieCallbackImpl>(env, callback, nullptr);
