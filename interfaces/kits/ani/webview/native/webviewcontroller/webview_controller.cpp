@@ -1945,7 +1945,6 @@ ErrCode WebviewController::SetUrlTrustList(const std::string& urlTrustList, std:
     }
     return ret;
 }
-
 bool WebviewController::ParseJsLengthResourceToInt(
     napi_env env, napi_value jsLength, PixelUnit &type, int32_t &result) const
 {

@@ -7036,14 +7036,14 @@ napi_value NapiWebviewController::SetUrlTrustList(napi_env env, napi_callback_in
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_undefined(env, &result));
 
-    napi_value thisVar = nullptr;	 
-    size_t argc = INTEGER_ONE;	 
-    napi_value argv[INTEGER_ONE] = { 0 };	 
-    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);	 
-    if (argc != INTEGER_ONE) {	 
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,	 
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));	 
-        return result;	 
+    napi_value thisVar = nullptr;
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
+        return result;
     }
 
     std::string urlTrustList;
