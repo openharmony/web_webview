@@ -338,7 +338,8 @@ void SelectWebcoreBeforeProcessRun(const std::string& appBundleName)
 void PreloadArkWebLibForBrowser()
 {
     ParseCloudCfg();
-    if (!(access(PRECONFIG_LEGACY_HAP_PATH.c_str(), F_OK) == 0)) {
+    struct stat statbuf;
+    if (!(fstatat(AT_FDCWD, PRECONFIG_LEGACY_HAP_PATH.c_str(), &statbuf, AT_SYMLINK_NOFOLLOW) == 0)) {
         if (OHOS::system::SetParameter("web.engine.enforce",
                 std::to_string(static_cast<int>(ArkWebEngineType::EVERGREEN)))) {
             WVLOG_I("Set param web.engine.enforce with %{public}d", static_cast<int>(ArkWebEngineType::EVERGREEN));
@@ -560,7 +561,9 @@ std::string GetArkwebLibPath()
     } else {
         path = ARK_WEB_CORE_HAP_LIB_PATH;
 #if defined(IS_ASAN) && defined(webview_arm64)
-        if ((access(WEBVIEW_RELATIVE_SANDBOX_PATH_FOR_LIBRARY.c_str(), F_OK) == 0)) {
+        struct stat statbuf;
+        if ((fstatat(AT_FDCWD, WEBVIEW_RELATIVE_SANDBOX_PATH_FOR_LIBRARY.c_str(),
+            &statbuf, AT_SYMLINK_NOFOLLOW) == 0)) {
             path = ARK_WEB_CORE_HAP_LIB_PATH_ASAN;
         }
 #endif
@@ -599,7 +602,8 @@ std::string GetArkwebRelativePathForBundle()
 {
     std::string path;
 #if defined(IS_ASAN) && defined(webview_arm64)
-    if (!(access(WEBVIEW_RELATIVE_SANDBOX_PATH_FOR_LIBRARY.c_str(), F_OK) == 0)) {
+    struct stat statbuf;
+    if (!(fstatat(AT_FDCWD, WEBVIEW_RELATIVE_SANDBOX_PATH_FOR_LIBRARY.c_str(), &statbuf, AT_SYMLINK_NOFOLLOW) == 0)) {
         path = "arkwebcore/libs/arm64";
     } else {
         path = ARK_WEB_CORE_ASAN_PATH_FOR_BUNDLE;
