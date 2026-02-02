@@ -49,7 +49,7 @@ static bool CheckArrayParams(ani_env* env, ani_object arrayObject)
     }
     ani_class cls;
     ani_boolean isArray = ANI_FALSE;
-    if (env->FindClass("escompat.Array", &cls) != ANI_OK) {
+    if (env->FindClass("std.core.Array", &cls) != ANI_OK) {
         WVLOG_E("no array class");
         return false;
     }
