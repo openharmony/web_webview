@@ -27,8 +27,6 @@
 #include "ohos_nweb/include/ark_web_nweb_create_info.h"
 #include "ohos_nweb/include/ark_web_web_storage.h"
 #include "ohos_nweb/include/ark_web_proxy_changed_callback.h"
-#include "ohos_nweb/include/ark_web_user_agent_metadata.h"
-#include "ohos_nweb/include/ark_web_user_agent_metadata_ack.h"
 
 namespace OHOS::ArkWeb {
 
@@ -223,12 +221,6 @@ public:
      */
     /*--ark web()--*/
     virtual ArkWebString DumpArkWebInfo(const ArkWebString& param) = 0;
-
-    /*--ark web()--*/
-    virtual void SetUserAgentClientHintsEnabled(bool enabled) = 0;
-
-    /*--ark web()--*/
-    virtual bool GetUserAgentClientHintsEnabled() = 0;
 };
 
 } // namespace OHOS::ArkWeb

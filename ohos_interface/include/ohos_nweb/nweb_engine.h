@@ -149,13 +149,6 @@ public:
     virtual std::string DumpArkWebInfo(const std::string& param) {
         return "";
     }
-
-    virtual void SetUserAgentClientHintsEnabled(bool enabled) {}
-
-    virtual bool GetUserAgentClientHintsEnabled()
-    {
-        return false;
-    }
 };
 
 } // namespace OHOS::NWeb

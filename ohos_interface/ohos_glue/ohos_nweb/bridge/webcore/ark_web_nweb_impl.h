@@ -1962,26 +1962,6 @@ public:
     void CallExecuteBlanklessCallback(int32_t state, const ArkWebString& reason) override;
 
     /**
-     * @brief Forces a full reload of the current page, bypassing the browser cache.
-     */
-    void ReloadIgnoreCache() override;
-
-    /**
-     * @brief Sets the User-Agent metadata corresponding to the User-Agent.
-     *
-     * @param userAgent The User-Agent string.
-     * @param metaData The UserAgentMetadata for the userAgent.
-     */
-    void SetUserAgentMetadata(const ArkWebString& userAgent, ArkWebRefPtr<ArkWebUserAgentMetadata> metadata) override;
-
-    /**
-     * @brief Get the User-Agent metadata corresponding to the User-Agent.
-     *
-     * @param userAgent The User-Agent string.
-     */
-    ArkWebRefPtr<ArkWebUserAgentMetadataAck> GetUserAgentMetadata(const ArkWebString& userAgent) override;
-
-    /**
      * @brief Set is offline web Component.
      */
     void SetIsOfflineWebComponent() override;

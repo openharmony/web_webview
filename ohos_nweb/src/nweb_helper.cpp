@@ -1493,30 +1493,4 @@ std::string NWebHelper::DumpArkWebInfo(const std::string& param)
 
     return nwebEngine_->DumpArkWebInfo(param);
 }
-
-void NWebHelper::SetUserAgentClientHintsEnabled(bool enabled)
-{
-    if (!initFlag_) {
-        WVLOG_E("SetUserAgentClientHintsEnabled, not initialized");
-        return;
-    }
-    if (!nwebEngine_) {
-        WVLOG_E("web engine is nullptr");
-        return;
-    }
-    nwebEngine_->SetUserAgentClientHintsEnabled(enabled);
-}
- 
-bool NWebHelper::GetUserAgentClientHintsEnabled()
-{
-    if (!initFlag_) {
-        WVLOG_E("GetUserAgentClientHintsEnabled, not initialized");
-        return false;
-    }
-    if (!nwebEngine_) {
-        WVLOG_E("web engine is nullptr");
-        return false;
-    }
-    return nwebEngine_->GetUserAgentClientHintsEnabled();
-}
 } // namespace OHOS::NWeb

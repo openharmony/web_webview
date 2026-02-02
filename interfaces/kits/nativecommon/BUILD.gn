@@ -39,10 +39,6 @@ ohos_shared_library("webview_common") {
     "web_scheme_handler_request.h",
     "web_scheme_handler_response.cpp",
     "web_scheme_handler_response.h",
-    "nweb_user_agent_brand_version_impl.cpp",
-    "nweb_user_agent_brand_version_impl.h",
-    "nweb_user_agent_metadata_impl.cpp",
-    "nweb_user_agent_metadata_impl.h",
   ]
 
   deps = [

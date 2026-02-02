@@ -55,8 +55,6 @@
 #include "ohos_nweb/cpptoc/ark_web_touch_point_info_vector_cpptoc.h"
 #include "ohos_nweb/cpptoc/ark_web_value_vector_cpptoc.h"
 #include "ohos_nweb/bridge/ark_web_command_action_impl.h"
-#include "ohos_nweb/bridge/ark_web_user_agent_metadata_impl.h"
-#include "ohos_nweb/bridge/ark_web_user_agent_metadata_ack_wrapper.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
 #include "../../base/include/ark_web_errno.h"
@@ -2071,33 +2069,6 @@ void ArkWebNWebWrapper::CallExecuteBlanklessCallback(int32_t state, const std::s
     ArkWebString stReason = ArkWebStringClassToStruct(reason);
     ark_web_nweb_->CallExecuteBlanklessCallback(state, stReason);
     ArkWebStringStructRelease(stReason);
-}
-
-void ArkWebNWebWrapper::ReloadIgnoreCache()
-{
-    ark_web_nweb_->ReloadIgnoreCache();
-}
-
-void ArkWebNWebWrapper::SetUserAgentMetadata(
-    const std::string& userAgent, std::shared_ptr<OHOS::NWeb::NWebUserAgentMetadata> metadata)
-{
-    ArkWebString stUserAgent = ArkWebStringClassToStruct(userAgent);
-    ArkWebRefPtr<ArkWebUserAgentMetadata> ark_web_metadata = new ArkWebUserAgentMetadataImpl(metadata);
-
-    ark_web_nweb_->SetUserAgentMetadata(stUserAgent, ark_web_metadata);
-    ArkWebStringStructRelease(stUserAgent);
-}
-
-std::shared_ptr<OHOS::NWeb::NWebUserAgentMetadata> ArkWebNWebWrapper::GetUserAgentMetadata(const std::string& userAgent)
-{
-    ArkWebString stUserAgent = ArkWebStringClassToStruct(userAgent);
-    ArkWebRefPtr<ArkWebUserAgentMetadataAck> ark_web_metadata = ark_web_nweb_->GetUserAgentMetadata(stUserAgent);
-    if (CHECK_REF_PTR_IS_NULL(ark_web_metadata)) {
-        ArkWebStringStructRelease(stUserAgent);
-        return nullptr;
-    }
-    ArkWebStringStructRelease(stUserAgent);
-    return std::make_shared<ArkWebUserAgentMetadataAckWrapper>(ark_web_metadata);
 }
 
 void ArkWebNWebWrapper::SetIsOfflineWebComponent()

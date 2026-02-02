@@ -386,14 +386,6 @@ void WebviewController::Refresh()
     }
 }
 
-void WebviewController::ReloadIgnoreCache()
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (nweb_ptr) {
-        nweb_ptr->ReloadIgnoreCache();
-    }
-}
-
 ErrCode WebviewController::ZoomIn()
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
@@ -2548,28 +2540,6 @@ void WebviewController::WaitForAttachedInternal(ani_env *env, ani_int timeout, a
 
     QueueAsyncWork(env, param->asyncWork);
     return;
-}
-
-void WebviewController::SetUserAgentMetadata(
-    const std::string& userAgent, std::shared_ptr<NWebUserAgentMetadata> metadata)
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (!nweb_ptr) {
-        WVLOG_E("nweb is nullptr");
-        return;
-    }
-
-    nweb_ptr->SetUserAgentMetadata(userAgent, metadata);
-}
-
-std::shared_ptr<NWebUserAgentMetadata> WebviewController::GetUserAgentMetadata(const std::string& userAgent)
-{
-    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (!nweb_ptr) {
-        WVLOG_E("nweb is nullptr");
-        return nullptr;
-    }
-    return nweb_ptr->GetUserAgentMetadata(userAgent);
 }
 } // namespace NWeb
 } // namespace OHOS
