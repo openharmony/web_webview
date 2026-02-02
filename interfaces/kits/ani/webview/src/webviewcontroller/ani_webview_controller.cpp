@@ -1564,6 +1564,7 @@ static void Refresh(ani_env *env, ani_object object)
 {
     WVLOG_D("[WebviewCotr] Refresh");
     if (!env) {
+        WVLOG_E("env is nullptr");
         return;
     }
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
@@ -1576,6 +1577,7 @@ static void Refresh(ani_env *env, ani_object object)
 
 static void ReloadIgnoreCache(ani_env *env, ani_object object, ani_boolean aniIgnoreCache)
 {
+    WVLOG_D("[WebviewCotr] ReloadIgnoreCache");
     if (!env) {
         WVLOG_E("env is nullptr");
         return;
@@ -1583,6 +1585,7 @@ static void ReloadIgnoreCache(ani_env *env, ani_object object, ani_boolean aniIg
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
     if (!controller || !controller->IsInit()) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        WVLOG_E("reload failed, ani unwrap webviewController failed");
         return;
     }
     bool ignoreCache = static_cast<bool>(aniIgnoreCache);
