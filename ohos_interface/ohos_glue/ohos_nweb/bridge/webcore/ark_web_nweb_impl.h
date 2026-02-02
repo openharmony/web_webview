@@ -1248,20 +1248,6 @@ public:
     int SetUrlTrustListWithErrMsg(const ArkWebString& urlTrustList, ArkWebString& detailErrMsg) override;
 
     /**
-     * @brief Set url trust list with error message.
-     *
-     * @param urlTrustList The url trust list.
-     * @param allowOpaqueOrigin If true, loading of opaque origin URLs (e.g., javascript, data) is
-     *     allowed. If false, it is not allowed.
-     * @param supportWildcard If true, wildcard matching is supported (e.g., *.example.com matches all
-     *     subdomains). If false, wildcard matching is not supported.
-     * @param detailErrMsg The detail error message.
-     */
-    /*--ark web()--*/
-    int SetUrlTrustListWithErrMsg(const ArkWebString& urlTrustList,
-        bool allowOpaqueOrigin, bool supportWildcard, ArkWebString& detailErrMsg) override;
-
-    /**
      * @brief Send the accessibility hover event coordinate.
      *
      * @param x horizontal location of coordinate.

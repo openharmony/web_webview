@@ -796,7 +796,6 @@ export default namespace webview {
         native setDownloadDelegate(delegate: WebDownloadDelegate): void;
         native getBackForwardEntries(): BackForwardList;
         native setUrlTrustList(urlTrustList: string): void;
-        native setUrlTrustList(urlTrustList: string, allowOpaqueOrigin: boolean, supportWildcard: boolean): void;
         native enableIntelligentTrackingPrevention(enable: boolean): void;
         native searchNext(forward: boolean): void;
         native static getDefaultUserAgent(): string;

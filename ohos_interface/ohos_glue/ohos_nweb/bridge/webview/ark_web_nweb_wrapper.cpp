@@ -1264,19 +1264,6 @@ int ArkWebNWebWrapper::SetUrlTrustListWithErrMsg(
     return res;
 }
 
-int ArkWebNWebWrapper::SetUrlTrustListWithErrMsg(const std::string& urlTrustList,
-    bool allowOpaqueOrigin, bool supportWildcard, std::string& detailErrMsg)
-{
-    ArkWebString stUrlTrustList = ArkWebStringClassToStruct(urlTrustList);
-    ArkWebString stDetailErrMsg = ark_web_string_default;
-    int res = ark_web_nweb_->SetUrlTrustListWithErrMsg(stUrlTrustList,
-        allowOpaqueOrigin, supportWildcard, stDetailErrMsg);
-    detailErrMsg = ArkWebStringStructToClass(stDetailErrMsg);
-    ArkWebStringStructRelease(stUrlTrustList);
-    ArkWebStringStructRelease(stDetailErrMsg);
-    return res;
-}
-
 void ArkWebNWebWrapper::PutSpanstringConvertHtmlCallback(
     std::shared_ptr<OHOS::NWeb::NWebSpanstringConvertHtmlCallback> callback)
 {
