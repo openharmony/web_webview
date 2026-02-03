@@ -1152,7 +1152,7 @@ ani_ref ConvertToAniHandlerOfError(ani_env* env, std::shared_ptr<NWebMessage> sr
 
     ani_method errInfoCtor;
     if ((status = env->Class_FindMethod(errCls, "<ctor>",
-        "C{std.core.String}C{escompat.ErrorOptions}:", &errInfoCtor)) != ANI_OK) {
+        "C{std.core.String}C{std.core.ErrorOptions}:", &errInfoCtor)) != ANI_OK) {
         WVLOG_E("error in FindMethod status : %{public}d", status);
         return nullptr;
     }

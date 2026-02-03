@@ -86,10 +86,10 @@ ani_object WrapStsError(ani_env* env, const std::string& msg)
         return nullptr;
     }
 
-    if ((status = env->FindClass("escompat.Error", &cls)) != ANI_OK) {
+    if ((status = env->FindClass("std.core.Error", &cls)) != ANI_OK) {
         return nullptr;
     }
-    if ((status = env->Class_FindMethod(cls, "<ctor>", "C{std.core.String}C{escompat.ErrorOptions}:", &method)) !=
+    if ((status = env->Class_FindMethod(cls, "<ctor>", "C{std.core.String}C{std.core.ErrorOptions}:", &method)) !=
         ANI_OK) {
         return nullptr;
     }
@@ -108,7 +108,7 @@ ani_ref CreateStsError(ani_env* env, ani_int code, const std::string& msg)
         return nullptr;
     }
     ani_method ctor;
-    if ((status = env->Class_FindMethod(cls, "<ctor>", "iC{escompat.Error}:", &ctor)) != ANI_OK) {
+    if ((status = env->Class_FindMethod(cls, "<ctor>", "iC{std.core.Error}:", &ctor)) != ANI_OK) {
         return nullptr;
     }
     ani_object error = WrapStsError(env, msg);
