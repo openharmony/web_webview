@@ -806,9 +806,9 @@ HWTEST_F(DisplayManagerAdapterImplTest, DisplayManagerAdapterImplTest_027, TestS
     EXPECT_NE(displayManagerAdapterImpl, nullptr);
     EXPECT_NE(displayManagerAdapterImpl->GetDefaultDisplayId(), DISPLAY_ID_INVALID);
     EXPECT_NE(displayManagerAdapterImpl->GetDefaultDisplay(), nullptr);
-    EXPECT_EQ(displayManagerAdapterImpl->RegisterDisplayListener(listener), 1);
+    EXPECT_EQ(displayManagerAdapterImpl->RegisterDisplayListener(listener), 2);
     EXPECT_FALSE(displayManagerAdapterImpl->UnregisterDisplayListener(1));
-    EXPECT_FALSE(displayManagerAdapterImpl->UnregisterDisplayListener(2));
+    EXPECT_TRUE(displayManagerAdapterImpl->UnregisterDisplayListener(2));
 
     std::shared_ptr<FoldStatusListenerAdapter> foldListener = std::make_shared<FoldStatusListenerAdapterTest>();
     EXPECT_EQ(displayManagerAdapterImpl->RegisterFoldStatusListener(foldListener), 0);
@@ -1333,12 +1333,12 @@ HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_006, TestSize.Level1)
 }
 
 /**
- * @tc.name: OnChange_006.
+ * @tc.name: OnChange_007.
  * @tc.desc: test OnChange.
  * @tc.type: FUNC
  * @tc.require:
  */
-HWTEST_F(DisplayManagerAdapterImplTest, OnChange_006, TestSize.Level1)
+HWTEST_F(DisplayManagerAdapterImplTest, OnChange_007, TestSize.Level1)
 {
     std::unique_ptr<DisplayListenerAdapterImpl> displayListenerAdapterImpl =
         std::make_unique<DisplayListenerAdapterImpl>(nullptr);
@@ -1354,6 +1354,873 @@ HWTEST_F(DisplayManagerAdapterImplTest, OnChange_006, TestSize.Level1)
     displayListenerAdapterImpl->cachedDisplayedInfo_.refreshRate_ = 100;
     EXPECT_TRUE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(
         DisplayManager::GetInstance().GetDefaultDisplayId()));
+}
+
+/**
+ * @tc.name: GetDpi_007.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_007, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: OnChange_008.
+ * @tc.desc: test OnChange.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, OnChange_008, TestSize.Level1)
+{
+    std::unique_ptr<DisplayListenerAdapterImpl> displayListenerAdapterImpl =
+        std::make_unique<DisplayListenerAdapterImpl>(nullptr);
+    EXPECT_FALSE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(static_cast<DisplayId>(1)));
+    auto displayPtr = DisplayManager::GetInstance().GetDefaultDisplay();
+    ASSERT_NE(displayPtr, nullptr);
+    auto displayInfo = displayPtr->GetDisplayInfo();
+    ASSERT_NE(displayInfo, nullptr);
+    EXPECT_FALSE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(
+        DisplayManager::GetInstance().GetDefaultDisplayId()));
+    auto nwebDisplayInfo =  displayListenerAdapterImpl->ConvertDisplayInfo(*displayInfo);
+    displayListenerAdapterImpl->cachedDisplayedInfo_ = nwebDisplayInfo;
+    displayListenerAdapterImpl->cachedDisplayedInfo_.refreshRate_ = 100;
+    EXPECT_TRUE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(
+        DisplayManager::GetInstance().GetDefaultDisplayId()));
+}
+
+/**
+ * @tc.name: GetDpi_008.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_008, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: OnChange_009.
+ * @tc.desc: test OnChange.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, OnChange_009, TestSize.Level1)
+{
+    std::unique_ptr<DisplayListenerAdapterImpl> displayListenerAdapterImpl =
+        std::make_unique<DisplayListenerAdapterImpl>(nullptr);
+    EXPECT_FALSE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(static_cast<DisplayId>(1)));
+    auto displayPtr = DisplayManager::GetInstance().GetDefaultDisplay();
+    ASSERT_NE(displayPtr, nullptr);
+    auto displayInfo = displayPtr->GetDisplayInfo();
+    ASSERT_NE(displayInfo, nullptr);
+    EXPECT_FALSE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(
+        DisplayManager::GetInstance().GetDefaultDisplayId()));
+    auto nwebDisplayInfo =  displayListenerAdapterImpl->ConvertDisplayInfo(*displayInfo);
+    displayListenerAdapterImpl->cachedDisplayedInfo_ = nwebDisplayInfo;
+    displayListenerAdapterImpl->cachedDisplayedInfo_.refreshRate_ = 100;
+    EXPECT_TRUE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(
+        DisplayManager::GetInstance().GetDefaultDisplayId()));
+}
+
+/**
+ * @tc.name: GetDpi_009.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_009, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: OnChange_010.
+ * @tc.desc: test OnChange.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, OnChange_010, TestSize.Level1)
+{
+    std::unique_ptr<DisplayListenerAdapterImpl> displayListenerAdapterImpl =
+        std::make_unique<DisplayListenerAdapterImpl>(nullptr);
+    EXPECT_FALSE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(static_cast<DisplayId>(1)));
+    auto displayPtr = DisplayManager::GetInstance().GetDefaultDisplay();
+    ASSERT_NE(displayPtr, nullptr);
+    auto displayInfo = displayPtr->GetDisplayInfo();
+    ASSERT_NE(displayInfo, nullptr);
+    EXPECT_FALSE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(
+        DisplayManager::GetInstance().GetDefaultDisplayId()));
+    auto nwebDisplayInfo =  displayListenerAdapterImpl->ConvertDisplayInfo(*displayInfo);
+    displayListenerAdapterImpl->cachedDisplayedInfo_ = nwebDisplayInfo;
+    displayListenerAdapterImpl->cachedDisplayedInfo_.refreshRate_ = 100;
+    EXPECT_TRUE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(
+        DisplayManager::GetInstance().GetDefaultDisplayId()));
+}
+
+/**
+ * @tc.name: GetDpi_010.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_010, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: OnChange_011.
+ * @tc.desc: test OnChange.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, OnChange_011, TestSize.Level1)
+{
+    std::unique_ptr<DisplayListenerAdapterImpl> displayListenerAdapterImpl =
+        std::make_unique<DisplayListenerAdapterImpl>(nullptr);
+    EXPECT_FALSE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(static_cast<DisplayId>(1)));
+    auto displayPtr = DisplayManager::GetInstance().GetDefaultDisplay();
+    ASSERT_NE(displayPtr, nullptr);
+    auto displayInfo = displayPtr->GetDisplayInfo();
+    ASSERT_NE(displayInfo, nullptr);
+    EXPECT_FALSE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(
+        DisplayManager::GetInstance().GetDefaultDisplayId()));
+    auto nwebDisplayInfo =  displayListenerAdapterImpl->ConvertDisplayInfo(*displayInfo);
+    displayListenerAdapterImpl->cachedDisplayedInfo_ = nwebDisplayInfo;
+    displayListenerAdapterImpl->cachedDisplayedInfo_.refreshRate_ = 100;
+    EXPECT_TRUE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(
+        DisplayManager::GetInstance().GetDefaultDisplayId()));
+}
+
+/**
+ * @tc.name: GetDpi_011.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_011, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: OnChange_012.
+ * @tc.desc: test OnChange.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, OnChange_012, TestSize.Level1)
+{
+    std::unique_ptr<DisplayListenerAdapterImpl> displayListenerAdapterImpl =
+        std::make_unique<DisplayListenerAdapterImpl>(nullptr);
+    EXPECT_FALSE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(static_cast<DisplayId>(1)));
+    auto displayPtr = DisplayManager::GetInstance().GetDefaultDisplay();
+    ASSERT_NE(displayPtr, nullptr);
+    auto displayInfo = displayPtr->GetDisplayInfo();
+    ASSERT_NE(displayInfo, nullptr);
+    EXPECT_FALSE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(
+        DisplayManager::GetInstance().GetDefaultDisplayId()));
+    auto nwebDisplayInfo =  displayListenerAdapterImpl->ConvertDisplayInfo(*displayInfo);
+    displayListenerAdapterImpl->cachedDisplayedInfo_ = nwebDisplayInfo;
+    displayListenerAdapterImpl->cachedDisplayedInfo_.refreshRate_ = 100;
+    EXPECT_TRUE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(
+        DisplayManager::GetInstance().GetDefaultDisplayId()));
+}
+
+/**
+ * @tc.name: GetDpi_012.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_012, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: OnChange_013.
+ * @tc.desc: test OnChange.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, OnChange_013, TestSize.Level1)
+{
+    std::unique_ptr<DisplayListenerAdapterImpl> displayListenerAdapterImpl =
+        std::make_unique<DisplayListenerAdapterImpl>(nullptr);
+    EXPECT_FALSE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(static_cast<DisplayId>(1)));
+    auto displayPtr = DisplayManager::GetInstance().GetDefaultDisplay();
+    ASSERT_NE(displayPtr, nullptr);
+    auto displayInfo = displayPtr->GetDisplayInfo();
+    ASSERT_NE(displayInfo, nullptr);
+    EXPECT_FALSE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(
+        DisplayManager::GetInstance().GetDefaultDisplayId()));
+    auto nwebDisplayInfo =  displayListenerAdapterImpl->ConvertDisplayInfo(*displayInfo);
+    displayListenerAdapterImpl->cachedDisplayedInfo_ = nwebDisplayInfo;
+    displayListenerAdapterImpl->cachedDisplayedInfo_.refreshRate_ = 100;
+    EXPECT_TRUE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(
+        DisplayManager::GetInstance().GetDefaultDisplayId()));
+}
+
+/**
+ * @tc.name: GetDpi_013.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_013, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: OnChange_014.
+ * @tc.desc: test OnChange.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, OnChange_014, TestSize.Level1)
+{
+    std::unique_ptr<DisplayListenerAdapterImpl> displayListenerAdapterImpl =
+        std::make_unique<DisplayListenerAdapterImpl>(nullptr);
+    EXPECT_FALSE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(static_cast<DisplayId>(1)));
+    auto displayPtr = DisplayManager::GetInstance().GetDefaultDisplay();
+    ASSERT_NE(displayPtr, nullptr);
+    auto displayInfo = displayPtr->GetDisplayInfo();
+    ASSERT_NE(displayInfo, nullptr);
+    EXPECT_FALSE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(
+        DisplayManager::GetInstance().GetDefaultDisplayId()));
+    auto nwebDisplayInfo =  displayListenerAdapterImpl->ConvertDisplayInfo(*displayInfo);
+    displayListenerAdapterImpl->cachedDisplayedInfo_ = nwebDisplayInfo;
+    displayListenerAdapterImpl->cachedDisplayedInfo_.refreshRate_ = 100;
+    EXPECT_TRUE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(
+        DisplayManager::GetInstance().GetDefaultDisplayId()));
+}
+
+/**
+ * @tc.name: GetDpi_014.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_014, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: OnChange_015.
+ * @tc.desc: test OnChange.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, OnChange_015, TestSize.Level1)
+{
+    std::unique_ptr<DisplayListenerAdapterImpl> displayListenerAdapterImpl =
+        std::make_unique<DisplayListenerAdapterImpl>(nullptr);
+    EXPECT_FALSE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(static_cast<DisplayId>(1)));
+    auto displayPtr = DisplayManager::GetInstance().GetDefaultDisplay();
+    ASSERT_NE(displayPtr, nullptr);
+    auto displayInfo = displayPtr->GetDisplayInfo();
+    ASSERT_NE(displayInfo, nullptr);
+    EXPECT_FALSE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(
+        DisplayManager::GetInstance().GetDefaultDisplayId()));
+    auto nwebDisplayInfo =  displayListenerAdapterImpl->ConvertDisplayInfo(*displayInfo);
+    displayListenerAdapterImpl->cachedDisplayedInfo_ = nwebDisplayInfo;
+    displayListenerAdapterImpl->cachedDisplayedInfo_.refreshRate_ = 100;
+    EXPECT_TRUE(displayListenerAdapterImpl->CheckOnlyRefreshRateDecreased(
+        DisplayManager::GetInstance().GetDefaultDisplayId()));
+}
+
+/**
+ * @tc.name: GetDpi_015.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_015, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_016.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_016, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_017.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_017, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_018.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_018, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_019.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_019, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_020.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_020, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_021.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_021, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_022.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_022, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_023.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_023, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_024.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_024, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_025.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_025, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_026.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_026, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_027.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_027, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_028.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_028, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_029.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_029, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_030.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_030, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_031.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_031, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_032.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_032, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_033.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_033, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_034.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_034, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_035.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_035, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_036.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_036, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_037.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_037, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_038.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_038, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_039.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_039, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_040.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_040, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_041.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_041, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_042.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_042, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_043.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_043, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_044.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_044, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_045.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_045, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_046.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_046, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_047.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_047, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_048.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_048, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_049.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_049, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_050.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_050, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
+}
+
+/**
+ * @tc.name: GetDpi_051.
+ * @tc.desc: test GetDpi.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, GetDpi_051, TestSize.Level1)
+{
+    std::unique_ptr<DisplayAdapterImpl> displayAdapterImpl = std::make_unique<DisplayAdapterImpl>(nullptr);
+    EXPECT_NE(displayAdapterImpl, nullptr);
+
+    displayAdapterImpl->display_ = nullptr;
+    EXPECT_EQ(displayAdapterImpl->GetDpi(), -1);
 }
 }
 }
