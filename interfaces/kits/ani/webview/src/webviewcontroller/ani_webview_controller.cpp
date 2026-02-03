@@ -52,9 +52,6 @@
 #include "nweb_cache_options_impl.h"
 #include "ani_nweb_value_callback_impl.h"
 #include "nweb_store_web_archive_callback.h"
-#include "nweb_user_agent_brand_version_impl.h"
-#include "nweb_user_agent_metadata_impl.h"
-#include "ani_user_agent_metadata.h"
 
 #include "bundle_mgr_proxy.h"
 #include "if_system_ability_manager.h"
@@ -538,10 +535,6 @@ static void Clean(ani_env *env, ani_object object)
         }
     } else if (clsName == "ProxyConfig") {
         delete reinterpret_cast<ProxyConfig *>(ptr);
-    } else if (clsName == "UserAgentMetadata") {
-        delete reinterpret_cast<NWebUserAgentMetadataImpl *>(ptr);
-    } else if (clsName == "UserAgentBrandVersion") {
-        delete reinterpret_cast<NWebUserAgentBrandVersionImpl *>(ptr);
     } else if (clsName == "WebSchemeHandlerResponse") {
         delete reinterpret_cast<WebSchemeHandlerResponse *>(ptr);
     } else if (clsName == "WebDownloadDelegate") {
@@ -1531,25 +1524,6 @@ static void Refresh(ani_env *env, ani_object object)
         return;
     }
     controller->Refresh();
-}
-
-static void ReloadIgnoreCache(ani_env *env, ani_object object, ani_boolean aniIgnoreCache)
-{
-    if (!env) {
-        WVLOG_E("env is nullptr");
-        return;
-    }
-    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
-    if (!controller || !controller->IsInit()) {
-        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
-        return;
-    }
-    bool ignoreCache = static_cast<bool>(aniIgnoreCache);
-    if (ignoreCache) {
-        controller->ReloadIgnoreCache();
-    } else {
-        controller->Refresh();
-    }
 }
 
 static void StartDownload(ani_env *env, ani_object object, ani_object urlObj)
@@ -6784,95 +6758,6 @@ static void SetScrollbarMode(ani_env *env, ani_object object, ani_enum_item mode
     NWebHelper::Instance().SetScrollbarMode(static_cast<OHOS::NWeb::ScrollbarMode>(modeInt));
 }
 
-static void SetUserAgentClientHintsEnabled(ani_env* env, ani_object object, ani_boolean aniEnable)
-{
-    if (IS_CALLING_FROM_M114() || !env) {
-        WVLOG_E("SetUserAgentClientHintsEnabled unsupported engine version: M114 or env is nullptr");
-        return;
-    }
-    WVLOG_D("SetUserAgentClientHintsEnabled enable:%{public}d", aniEnable);
-    NWebHelper::Instance().SetUserAgentClientHintsEnabled(static_cast<bool>(aniEnable));
-}
-
-static ani_boolean GetUserAgentClientHintsEnabled(ani_env* env, ani_object object)
-{
-    if (IS_CALLING_FROM_M114() || !env) {
-        WVLOG_E("GetUserAgentClientHintsEnabled unsupported engine version: M114 or env is nullptr");
-        return ANI_FALSE;
-    }
-    WVLOG_D("GetUserAgentClientHintsEnabled.");
-    return static_cast<ani_boolean>(NWebHelper::Instance().GetUserAgentClientHintsEnabled());
-}
-
-static void SetUserAgentMetadata(ani_env* env, ani_object object, ani_object aniUserAgent, ani_object aniMetadata)
-{
-    if (IS_CALLING_FROM_M114() || !env) {
-        WVLOG_E("SetUserAgentMetadata unsupported engine version: M114 or env is nullptr");
-        return;
-    }
-    WVLOG_D("webviewController SetUserAgentMetadata.");
-    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
-    if (!controller || !controller->IsInit()) {
-        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
-        return;
-    }
-    std::string userAgent;
-    if (!AniParseUtils::ParseString(env, aniUserAgent, userAgent)) {
-        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "userAgent", "string"));
-        return;
-    }
-    auto* metadata = reinterpret_cast<NWebUserAgentMetadataImpl*>(AniParseUtils::Unwrap(env, aniMetadata));
-    if (!metadata) {
-        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
-        return;
-    }
-    std::vector<std::string> strBrand;
-    std::vector<std::string> strMajorVersion;
-    std::vector<std::string> strFullVersion;
-    metadata->GetBrandVersionList(strBrand, strMajorVersion, strFullVersion);
-    UserAgentMetadataInfo metadataInfo { .arch = metadata->GetArchitecture(),
-        .bitness = metadata->GetBitness(),
-        .formFactors = metadata->GetFormFactors(),
-        .fullVersion = metadata->GetFullVersion(),
-        .isMobile = metadata->GetMobile(),
-        .model = metadata->GetModel(),
-        .platform = metadata->GetPlatform(),
-        .platformVersion = metadata->GetPlatformVersion(),
-        .isWow64 = metadata->GetWow64() };
-    auto ptrMetadata = std::make_shared<OHOS::NWeb::NWebUserAgentMetadataImpl>(
-        strBrand, strMajorVersion, strFullVersion, metadataInfo);
-    controller->SetUserAgentMetadata(userAgent, ptrMetadata);
-}
-
-static ani_object GetUserAgentMetadata(ani_env* env, ani_object object, ani_object aniUserAgent)
-{
-    if (IS_CALLING_FROM_M114() || !env) {
-        WVLOG_E("GetUserAgentMetadata unsupported engine version: M114 or env is nullptr");
-        return nullptr;
-    }
-    WVLOG_D("webviewController GetUserAgentMetadata ");
-    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
-    if (!controller || !controller->IsInit()) {
-        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
-        return nullptr;
-    }
-    std::string userAgent;
-    if (!AniParseUtils::ParseString(env, aniUserAgent, userAgent)) {
-        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "userAgent", "string"));
-        return nullptr;
-    }
-    auto metadata = controller->GetUserAgentMetadata(userAgent);
-    if (!metadata) {
-        WVLOG_E("GetUserAgentMetadata is null");
-        return nullptr;
-    }
-    ani_object metadataObj = {};
-    metadataObj = CreateUserAgentMetadataObject(env, metadata);
-    return metadataObj;
-}
-
 static void SetSiteIsolationMode(ani_env *env, ani_object object, ani_enum_item mode)
 {
     WVLOG_D("[WebviewCotr] SetSiteIsolationMode");
@@ -7343,8 +7228,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "zoomIn", nullptr, reinterpret_cast<void *>(ZoomIn) },
         ani_native_function { "getLastHitTest", nullptr, reinterpret_cast<void *>(GetLastHitTest) },
         ani_native_function { "getPageHeight", nullptr, reinterpret_cast<void *>(GetPageHeight) },
-        ani_native_function { "reload", nullptr, reinterpret_cast<void *>(Refresh) },
-        ani_native_function { "reloadIgnoreCache", nullptr, reinterpret_cast<void *>(ReloadIgnoreCache) },
+        ani_native_function { "refresh", nullptr, reinterpret_cast<void *>(Refresh) },
         ani_native_function { "stop", nullptr, reinterpret_cast<void *>(Stop) },
         ani_native_function { "clearSslCache", nullptr, reinterpret_cast<void *>(clearSslCache) },
         ani_native_function { "clearMatches", nullptr, reinterpret_cast<void *>(clearMatches) },
@@ -7447,8 +7331,6 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void *>(OffControllerAttachStateChange) },
         ani_native_function { "waitForAttachedPromise", nullptr, reinterpret_cast<void *>(WaitForAttachedPromise) },
         ani_native_function { "setWebDetach", nullptr, reinterpret_cast<void *>(SetWebDetach) },
-        ani_native_function { "setUserAgentMetadata", nullptr, reinterpret_cast<void*>(SetUserAgentMetadata) },
-        ani_native_function { "getUserAgentMetadata", nullptr, reinterpret_cast<void*>(GetUserAgentMetadata) },
     };
     status = env->Class_BindNativeMethods(webviewControllerCls, instanceMethods.data(), instanceMethods.size());
     if (status != ANI_OK) {
@@ -7517,10 +7399,6 @@ ani_status StsWebviewControllerInit(ani_env *env)
                               reinterpret_cast<void*>(IsActiveWebEngineEvergreen) },
         ani_native_function { "setScrollbarMode", nullptr,
                               reinterpret_cast<void *>(SetScrollbarMode) },
-        ani_native_function {
-            "setUserAgentClientHintsEnabled", nullptr, reinterpret_cast<void*>(SetUserAgentClientHintsEnabled) },
-        ani_native_function {
-            "getUserAgentClientHintsEnabled", nullptr, reinterpret_cast<void*>(GetUserAgentClientHintsEnabled) },
     };
     status = env->Class_BindStaticNativeMethods(webviewControllerCls, controllerStaticMethods.data(),
         controllerStaticMethods.size());

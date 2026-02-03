@@ -443,10 +443,6 @@ private:
     static napi_value SetSocketIdleTimeout(napi_env env, napi_callback_info info);
     static napi_value SetSoftKeyboardBehaviorMode(napi_env env, napi_callback_info info);
     static napi_value SetScrollbarMode(napi_env env, napi_callback_info info);
-    static napi_value SetUserAgentClientHintsEnabled(napi_env env, napi_callback_info info);
-    static napi_value GetUserAgentClientHintsEnabled(napi_env env, napi_callback_info info);
-    static napi_value SetUserAgentMetadata(napi_env env, napi_callback_info info);
-    static napi_value GetUserAgentMetadata(napi_env env, napi_callback_info info);
 };
 
 class ArkWebTransfer {

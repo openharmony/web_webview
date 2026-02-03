@@ -96,10 +96,6 @@ ohos_shared_library("webview_napi") {
     "webviewcontroller/webview_hasimage_callback.cpp",
     "webviewcontroller/webview_javascript_execute_callback.cpp",
     "webviewcontroller/webview_javascript_result_callback.cpp",
-    "webviewcontroller/napi_user_agent_brand_version.cpp",
-    "webviewcontroller/napi_user_agent_brand_version.h",
-    "webviewcontroller/napi_user_agent_metadata.cpp",
-    "webviewcontroller/napi_user_agent_metadata.h",
   ]
 
   use_exceptions = true

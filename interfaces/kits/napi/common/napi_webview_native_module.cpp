@@ -18,8 +18,6 @@
 #include "napi/native_node_api.h"
 #include "napi_geolocation_permission.h"
 #include "napi_native_media_player.h"
-#include "napi_user_agent_brand_version.h"
-#include "napi_user_agent_metadata.h"
 #include "napi_web_adsblock_manager.h"
 #include "napi_web_async_controller.h"
 #include "napi_webview_controller.h"
@@ -65,8 +63,6 @@ static napi_value WebViewExport(napi_env env, napi_value exports)
     NapiProxyController::Init(env, exports);
     NapiProxyConfig::Init(env, exports);
     NapiProxyRule::Init(env, exports);
-    NapiUserAgentBrandVersion::Init(env, exports);
-    NapiUserAgentMetadata::Init(env, exports);
     return exports;
 }
 EXTERN_C_END

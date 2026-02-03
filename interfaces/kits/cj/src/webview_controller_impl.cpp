@@ -266,14 +266,6 @@ namespace OHOS::Webview {
         }
     }
 
-    void WebviewControllerImpl::ReloadIgnoreCache()
-    {
-        auto nweb_ptr = NWeb::NWebHelper::Instance().GetNWeb(nwebId_);
-        if (nweb_ptr) {
-            nweb_ptr->ReloadIgnoreCache();
-        }
-    }
-
     int32_t WebviewControllerImpl::SetAudioMuted(bool mute)
     {
         auto nweb_ptr = NWeb::NWebHelper::Instance().GetNWeb(nwebId_);

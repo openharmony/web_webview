@@ -55,8 +55,6 @@
 #include "ohos_nweb/ctocpp/ark_web_touch_point_info_vector_ctocpp.h"
 #include "ohos_nweb/ctocpp/ark_web_value_vector_ctocpp.h"
 #include "ohos_nweb/bridge/ark_web_command_action_wrapper.h"
-#include "ohos_nweb/bridge/ark_web_user_agent_metadata_wrapper.h"
-#include "ohos_nweb/bridge/ark_web_user_agent_metadata_ack_impl.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
 
@@ -1746,28 +1744,6 @@ int32_t ArkWebNWebImpl::SetBlanklessLoadingParams(const ArkWebString& key, bool 
 void ArkWebNWebImpl::CallExecuteBlanklessCallback(int32_t state, const ArkWebString& reason)
 {
     return nweb_nweb_->CallExecuteBlanklessCallback(state, ArkWebStringStructToClass(reason));
-}
-
-void ArkWebNWebImpl::ReloadIgnoreCache()
-{
-    nweb_nweb_->ReloadIgnoreCache();
-}
-
-void ArkWebNWebImpl::SetUserAgentMetadata(const ArkWebString& userAgent, ArkWebRefPtr<ArkWebUserAgentMetadata> metadata)
-{
-    std::shared_ptr<OHOS::NWeb::NWebUserAgentMetadata> nweb_metadata =
-        std::make_shared<ArkWebUserAgentMetadataWrapper>(metadata);
-    nweb_nweb_->SetUserAgentMetadata(ArkWebStringStructToClass(userAgent), nweb_metadata);
-}
-
-ArkWebRefPtr<ArkWebUserAgentMetadataAck> ArkWebNWebImpl::GetUserAgentMetadata(const ArkWebString& userAgent)
-{
-    std::shared_ptr<OHOS::NWeb::NWebUserAgentMetadata> nweb_metadata =
-        nweb_nweb_->GetUserAgentMetadata(ArkWebStringStructToClass(userAgent));
-    if (CHECK_SHARED_PTR_IS_NULL(nweb_metadata)) {
-        return nullptr;
-    }
-    return new ArkWebUserAgentMetadataAckImpl(nweb_metadata);
 }
 
 void ArkWebNWebImpl::SetIsOfflineWebComponent()
