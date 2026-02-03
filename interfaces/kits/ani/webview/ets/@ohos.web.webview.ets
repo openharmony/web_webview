@@ -1605,6 +1605,7 @@ export default namespace webview {
                     let r: string = e as string;
                     resolve(r);
                 }, (error: Error): void => {
+                    reject(error);
                 });
             });
             return pPromise;
@@ -1656,6 +1657,7 @@ export default namespace webview {
                     let r: string = e as string;
                     resolve(r);
                 }, (error: Error): void => {
+                    reject(error);
                 });
             });
             return pPromise;

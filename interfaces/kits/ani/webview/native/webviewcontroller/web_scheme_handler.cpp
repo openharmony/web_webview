@@ -158,7 +158,6 @@ void WebSchemeHandler::RequestStart(
     if (resourceHandler == nullptr) {
         WVLOG_E("RequestStart, new resourceHandler failed");
         schemeHandlerRequest->DecStrongRef(schemeHandlerRequest);
-        resourceHandler->DecStrongRef(resourceHandler);
         env->DestroyLocalScope();
         return;
     }
@@ -485,7 +484,6 @@ void WebHttpBodyStream::Read(int bufLen, ani_ref jsCallback, ani_resolver readRe
 
 void WebHttpBodyStream::ExecuteInit(ArkWeb_NetError result)
 {
-    WVLOG_D("WebHttpBodyStream::ExecuteInit");
     if (!env_) {
         WVLOG_E("WebHttpBodyStream::ExecuteInit env_ is nullptr");
         return;
@@ -511,6 +509,7 @@ void WebHttpBodyStream::ExecuteInit(ArkWeb_NetError result)
     ani_ref resultRef;
     if (asyncCtx->env->GetUndefined(&resultRef) != ANI_OK) {
         WVLOG_E("WebHttpBodyStream::ExecuteInit get undefined failed");
+        delete asyncCtx;
         return;
     }
 
