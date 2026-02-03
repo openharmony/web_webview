@@ -2008,35 +2008,6 @@ ErrCode WebviewController::SetUrlTrustList(const std::string& urlTrustList, std:
     }
     return ret;
 }
-
-ErrCode WebviewController::SetUrlTrustList(const std::string& urlTrustList,
-    bool allowOpaqueOrigin, bool supportWildcard, std::string& detailErrMsg)
-{
-    auto nwebPtr = NWebHelper::Instance().GetNWeb(nwebId_);
-    if (!nwebPtr) {
-        return NWebError::INIT_ERROR;
-    }
-
-    int ret = NWebError::NO_ERROR;
-    int setUrlTrustListRet = nwebPtr->SetUrlTrustListWithErrMsg(urlTrustList,
-        allowOpaqueOrigin, supportWildcard, detailErrMsg);
-    switch (setUrlTrustListRet) {
-        case static_cast<int>(UrlListSetResult::INIT_ERROR):
-            ret = NWebError::INIT_ERROR;
-            break;
-        case static_cast<int>(UrlListSetResult::PARAM_ERROR):
-            ret = NWebError::PARAM_CHECK_ERROR;
-            break;
-        case static_cast<int>(UrlListSetResult::SET_OK):
-            ret = NWebError::NO_ERROR;
-            break;
-        default:
-            ret = NWebError::PARAM_CHECK_ERROR;
-            break;
-    }
-    return ret;
-}
-
 bool WebviewController::ParseJsLengthResourceToInt(
     napi_env env, napi_value jsLength, PixelUnit &type, int32_t &result) const
 {

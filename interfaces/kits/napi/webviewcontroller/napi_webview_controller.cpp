@@ -7029,32 +7029,6 @@ napi_value NapiWebviewController::WebPageSnapshot(napi_env env, napi_callback_in
     return result;
 }
 
-void SetUrlTrustListWithWildcard(napi_env env, napi_value* argv,
-    WebviewController* webviewController, std::string& urlTrustList)
-{
-    bool allowOpaqueOrigin = false;
-    if (!NapiParseUtils::ParseBoolean(env, argv[INTEGER_ONE], allowOpaqueOrigin)) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "allowOpaqueOrigin", "boolean"));
-        return;
-    }
-    bool supportWildcard = false;
-    if (!NapiParseUtils::ParseBoolean(env, argv[INTEGER_TWO], supportWildcard)) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "supportWildcard", "boolean"));
-        return;
-    }
-    std::string detailMsg;
-    ErrCode ret = webviewController->SetUrlTrustList(urlTrustList,
-        allowOpaqueOrigin, supportWildcard, detailMsg);
-    if (ret != NO_ERROR) {
-        WVLOG_E("SetUrlTrustList failed, error code: %{public}d", ret);
-        BusinessError::ThrowErrorByErrcode(env, ret,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_DETAIL_ERROR_MSG, detailMsg.c_str()));
-        return;
-    }
-}
-
 napi_value NapiWebviewController::SetUrlTrustList(napi_env env, napi_callback_info info)
 {
     WVLOG_D("SetUrlTrustList invoked");
@@ -7063,12 +7037,12 @@ napi_value NapiWebviewController::SetUrlTrustList(napi_env env, napi_callback_in
     NAPI_CALL(env, napi_get_undefined(env, &result));
 
     napi_value thisVar = nullptr;
-    size_t argc = INTEGER_THREE;
-    napi_value argv[INTEGER_THREE] = { 0 };
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
-    if (argc != INTEGER_ONE && argc != INTEGER_THREE) {
-        BusinessError::ThrowErrorByErrcode(env, NWebError::PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_TWO, "one", "three"));
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
         return result;
     }
 
@@ -7087,11 +7061,6 @@ napi_value NapiWebviewController::SetUrlTrustList(napi_env env, napi_callback_in
     WebviewController* webviewController = GetWebviewController(env, info);
     if (!webviewController) {
         WVLOG_E("webview controller is null or not init");
-        return result;
-    }
-
-    if (argc == INTEGER_THREE) {
-        SetUrlTrustListWithWildcard(env, argv, webviewController, urlTrustList);
         return result;
     }
 

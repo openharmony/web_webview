@@ -403,9 +403,6 @@ public:
 
     ErrCode SetUrlTrustList(const std::string& urlTrustList, std::string& detailErrMsg);
 
-    ErrCode SetUrlTrustList(const std::string& urlTrustList,
-        bool allowOpaqueOrigin, bool supportWildcard, std::string& detailErrMsg);
-
     void EnableAdsBlock(bool enable);
 
     bool IsAdsBlockEnabled() const;
