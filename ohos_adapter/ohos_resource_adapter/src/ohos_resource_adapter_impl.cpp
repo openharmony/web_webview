@@ -22,8 +22,10 @@
 #include <cstring>
 #include <unistd.h>
 #include <vector>
+#include <fcntl.h>
 #include <fstream>
 #include <json/json.h>
+#include <sys/stat.h>
 
 #include "arkweb_utils.h"
 #include "application_context.h"
@@ -38,7 +40,6 @@
 #include "parameter.h"
 #include "parameters.h"
 #include "system_ability_definition.h"
-#include <sys/stat.h>
 
 using namespace OHOS::AbilityBase;
 
@@ -157,22 +158,22 @@ std::string GetArkWebHapPath(const std::string& arkWebCoreHapPathOverride,
     }
     errorMessage.emplace_back("access nweb install path failed", errno);
 
-    if (fstatat(AT_FDCWD, WEBVIEW_SANDBOX_HAP_PATH.c_str(), &statbuf, AT_SYMLINK_NOFOLLOW) == 0) {
+    if (fstatat(AT_FDCWD, WEBVIEW_SANDBOX_HAP_PATH, &statbuf, AT_SYMLINK_NOFOLLOW) == 0) {
         WVLOG_D("exit WEBVIEW_SANDBOX_HAP_PATH");
         return WEBVIEW_SANDBOX_HAP_PATH;
     }
     errorMessage.emplace_back("access arkwebcore hap sandbox path failed", errno);
-    if (fstatat(AT_FDCWD, WEBVIEW_APP_HAP_PATH2.c_str(), &statbuf, AT_SYMLINK_NOFOLLOW) == 0) {
+    if (fstatat(AT_FDCWD, WEBVIEW_APP_HAP_PATH2, &statbuf, AT_SYMLINK_NOFOLLOW) == 0) {
         WVLOG_D("exit WEBVIEW_APP_HAP_PATH2");
         return WEBVIEW_APP_HAP_PATH2;
     }
     errorMessage.emplace_back("access ohos nweb hap path failed", errno);
-    if (fstatat(AT_FDCWD, WEBVIEW_APP_HAP_PATH.c_str(), &statbuf, AT_SYMLINK_NOFOLLOW) == 0) {
+    if (fstatat(AT_FDCWD, WEBVIEW_APP_HAP_PATH, &statbuf, AT_SYMLINK_NOFOLLOW) == 0) {
         WVLOG_D("exit WEBVIEW_APP_HAP_PATH");
         return WEBVIEW_APP_HAP_PATH;
     }
     errorMessage.emplace_back("access nweb hap path failed", errno);
-    if (fstatat(AT_FDCWD, WEBVIEW_HAP_PATH.c_str(), &statbuf, AT_SYMLINK_NOFOLLOW) == 0) {
+    if (fstatat(AT_FDCWD, WEBVIEW_HAP_PATH, &statbuf, AT_SYMLINK_NOFOLLOW) == 0) {
         WVLOG_D("exit WEBVIEW_HAP_PATH");
         return WEBVIEW_HAP_PATH;
     }
