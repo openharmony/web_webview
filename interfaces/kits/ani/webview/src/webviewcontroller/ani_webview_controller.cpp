@@ -2500,7 +2500,7 @@ bool SetCustomizeScheme(ani_env* env, ani_object WebCustomSchemeObj, Scheme& sch
     return true;
 }
 
-int32_t CustomizeSchemesArrayDataHandler(ani_env* env, ani_object schemes)
+int32_t CustomizeSchemesArrayDataHandler(ani_env* env, ani_object schemes, bool lazyInitWebEngine = false)
 {
     if (!env) {
         WVLOG_E("env is nullptr");
@@ -2540,7 +2540,7 @@ int32_t CustomizeSchemesArrayDataHandler(ani_env* env, ani_object schemes)
     }
     int32_t registerResult;
     for (auto it = schemeVector.begin(); it != schemeVector.end(); ++it) {
-        if (OHOS::NWeb::NWebHelper::Instance().HasLoadWebEngine() == false) {
+        if (lazyInitWebEngine && OHOS::NWeb::NWebHelper::Instance().HasLoadWebEngine() == false) {
             OHOS::NWeb::NWebHelper::Instance().SaveSchemeVector(it->name.c_str(), it->option);
         } else {
             registerResult = OH_ArkWeb_RegisterCustomSchemes(it->name.c_str(), it->option);
@@ -2562,6 +2562,28 @@ static void CustomizeSchemes(ani_env* env, ani_object object, ani_object schemes
         WVLOG_E("There exist web component which has been already created.");
     }
     int32_t registerResult = CustomizeSchemesArrayDataHandler(env, schemes);
+    if (registerResult == NO_ERROR) {
+        return;
+    }
+    if (registerResult == PARAM_CHECK_ERROR) {
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "schemeName", "string"));
+        return;
+    }
+    AniBusinessError::ThrowErrorByErrCode(env, REGISTER_CUSTOM_SCHEME_FAILED);
+    return;
+}
+
+static void CustomizeSchemesLazyInit(ani_env* env, ani_object object, ani_object schemes, ani_boolean lazyInitWebEngine)
+{
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    if (WebviewController::existNweb_) {
+        WVLOG_E("There exist web component which has been already created.");
+    }
+    int32_t registerResult = CustomizeSchemesArrayDataHandler(env, schemes, static_cast<bool>(lazyInitWebEngine));
     if (registerResult == NO_ERROR) {
         return;
     }
@@ -7552,7 +7574,9 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "setHttpDns", nullptr, reinterpret_cast<void *>(SetHttpDns) },
         ani_native_function { "clearServiceWorkerWebSchemeHandler", nullptr,
                               reinterpret_cast<void *>(ClearServiceWorkerWebSchemeHandler) },
-        ani_native_function { "customizeSchemes", nullptr, reinterpret_cast<void *>(CustomizeSchemes) },
+        ani_native_function { "customizeSchemes", "C{std.core.Array}:", reinterpret_cast<void *>(CustomizeSchemes) },
+        ani_native_function {
+            "customizeSchemes", "C{std.core.Array}z:", reinterpret_cast<void *>(CustomizeSchemesLazyInit) },
         ani_native_function { "setServiceWorkerWebSchemeHandler", nullptr,
                               reinterpret_cast<void *>(SetServiceWorkerWebSchemeHandler) },
         ani_native_function {

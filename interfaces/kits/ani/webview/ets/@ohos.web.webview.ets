@@ -825,6 +825,7 @@ export default namespace webview {
         native clearHistory(): void;
         native setWebSchemeHandler(scheme: string, handler: WebSchemeHandler): void;
         native static customizeSchemes(schemes: Array<WebCustomScheme>): void;
+        native static customizeSchemes(schemes: Array<WebCustomScheme>, lazyInitWebEngine: boolean): void;
         native static setServiceWorkerWebSchemeHandler(scheme: string, handler: WebSchemeHandler): void;
         native clearWebSchemeHandler(): void;
         native terminateRenderProcess(): boolean;
