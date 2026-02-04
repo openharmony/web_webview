@@ -912,9 +912,21 @@ Object.defineProperty(webview.WebviewController.prototype, 'innerWebNativeMessag
 
 Object.defineProperty(webview.WebviewController.prototype, 'innerNativeMessageDisconnect', {
   value: function (callback) {
-    let connectId = callback.connectId;
-    console.log(`Messaging disconnect connectId= ${connectId}`);
-    webNativeMessagingExtensionManager.disconnectNative(connectId);
+    try {
+      if (!callback) {
+        console.error('Messaging disconnect failed: callback is undefined or null');
+        return;
+      }
+      let connectId = callback.connectId;
+      if (connectId === undefined || connectId === null) {
+        console.error('Messaging disconnect failed: connectId is undefined or null');
+        return;
+      }
+      console.log(`Messaging disconnect connectId= ${connectId}`);
+      webNativeMessagingExtensionManager.disconnectNative(connectId);
+    } catch (error) {
+      console.error(`Messaging disconnect error: ${JSON.stringify(error)}`);
+    }
   }
 });
 
