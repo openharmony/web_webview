@@ -26,7 +26,7 @@ ohos_unittest("nweb_helper_test") {
 
   include_dirs = [ "../common" ]
 
-  deps = [ "$webview_path/ohos_nweb:web_configs" ]
+  deps = [ "$webview_path/ohos_nweb:web_configs", "$webview_path/arkweb_utils:libarkweb_utils" ]
 
   external_deps = [
     "ability_runtime:app_context",

@@ -58,9 +58,7 @@ ohos_shared_library("libarkweb_utils") {
     "hilog:libhilog",
     "jsoncpp:jsoncpp",
     "bundle_framework:appexecfwk_base",
-    "selinux_adapter:librestorecon",
-    "ability_runtime:app_context",
-    "bundle_framework:appexecfwk_core"
+    "selinux_adapter:librestorecon"
   ]
 
   include_dirs = [
