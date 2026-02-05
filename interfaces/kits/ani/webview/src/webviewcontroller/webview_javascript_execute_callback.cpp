@@ -560,6 +560,32 @@ static ani_object GetArray(ani_env* env, ani_object object)
     return arr;
 }
 
+static ani_string GetErrorDescription(ani_env* env, ani_object object)
+{
+    WVLOG_D("GetErrorDescription webJsMessageExt start");
+    ani_string result = nullptr;
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return result;
+    }
+
+    WebJsMessageExt* webJsMessageExt = reinterpret_cast<WebJsMessageExt*>(AniParseUtils::Unwrap(env, object));
+    if (!webJsMessageExt) {
+        WVLOG_E("unwrap webJsMessageExt failed.");
+        return result;
+    }
+
+    auto message = webJsMessageExt->GetJsMsgResult();
+    if (!message) {
+        WVLOG_E("message failed.");
+        return result;
+    }
+    std::string msgStr = message->GetErrorDescription();
+    env->String_NewUTF8(msgStr.c_str(), msgStr.length(), &result);
+    WVLOG_I("GetErrorDescription msgStr = %{public}s", msgStr.c_str());
+    return result;
+}
+
 ani_status StsJsMessageExtInit(ani_env* env)
 {
     if (!env) {
@@ -579,6 +605,7 @@ ani_status StsJsMessageExtInit(ani_env* env)
         ani_native_function { "getBoolean", nullptr, reinterpret_cast<void*>(GetBoolean) },
         ani_native_function { "getArrayBuffer", nullptr, reinterpret_cast<void*>(GetArrayBuffer) },
         ani_native_function { "getArray", nullptr, reinterpret_cast<void*>(GetArray) },
+        ani_native_function { "getErrorDescription", nullptr, reinterpret_cast<void*>(GetErrorDescription) },
     };
 
     status = env->Class_BindNativeMethods(jsMessageExtCls, allMethods.data(), allMethods.size());
