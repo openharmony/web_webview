@@ -521,13 +521,14 @@ static bool SetRefToObj(ani_env* env, ani_object obj, const char* propertyName, 
         return false;
     }
     ani_enum_item eType;
-    if (AniParseUtils::GetEnumItemByIndex(env, ANI_CLASS_WEB_HTTP_COOKIE_SAME_SITE_POLICY, propertyValue, eType)) {
-        if (env->Object_SetPropertyByName_Ref(obj, propertyName, eType) != ANI_OK) {
-            WVLOG_E("set property failed status ");
-            return false;
-        };
+    if (!AniParseUtils::GetEnumItemByIndex(env, ANI_CLASS_WEB_HTTP_COOKIE_SAME_SITE_POLICY, propertyValue, eType)) {
+        WVLOG_E("getenumitembyindex failed");
+        return false;
     }
-
+    if (env->Object_SetPropertyByName_Ref(obj, propertyName, eType) != ANI_OK) {
+        WVLOG_E("set property failed status ");
+        return false;
+    }
     return true;
 }
 
