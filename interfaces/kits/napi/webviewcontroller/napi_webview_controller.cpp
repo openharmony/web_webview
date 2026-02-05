@@ -346,7 +346,8 @@ std::shared_ptr<NWebEnginePrefetchArgs> ParsePrefetchArgs(napi_env env, napi_val
     std::string url;
     napi_get_named_property(env, preArgs, "url", &urlObj);
     if (!ParsePrepareUrl(env, urlObj, url)) {
-        BusinessError::ThrowErrorByErrcode(env, INVALID_URL);
+        BusinessError::ThrowErrorByErrcode(env, INVALID_URL,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::URL_INVALID_OR_TOO_LONG));
         return nullptr;
     }
 
@@ -3390,7 +3391,12 @@ napi_value NapiWebviewController::PostUrl(napi_env env, napi_callback_info info)
             WVLOG_E("PostData failed");
             return result;
         }
-        BusinessError::ThrowErrorByErrcode(env, ret);
+        if (ret == NWebError::INVALID_URL) {
+            BusinessError::ThrowErrorByErrcode(env, INVALID_URL,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::URL_INVALID));
+        } else {
+            BusinessError::ThrowErrorByErrcode(env, ret);
+        }
         return result;
     }
     NAPI_CALL(env, napi_get_undefined(env, &result));
@@ -3424,7 +3430,8 @@ napi_value NapiWebviewController::LoadUrl(napi_env env, napi_callback_info info)
     }
     std::string webSrc;
     if (!webviewController->ParseUrl(env, argv[INTEGER_ZERO], webSrc)) {
-        BusinessError::ThrowErrorByErrcode(env, INVALID_URL);
+        BusinessError::ThrowErrorByErrcode(env, INVALID_URL,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::URL_INVALID));
         return nullptr;
     }
     if (argc == INTEGER_ONE) {
@@ -3433,7 +3440,12 @@ napi_value NapiWebviewController::LoadUrl(napi_env env, napi_callback_info info)
             if (ret == NWEB_ERROR) {
                 return nullptr;
             }
-            BusinessError::ThrowErrorByErrcode(env, ret);
+            if (ret == NWebError::INVALID_URL) {
+                BusinessError::ThrowErrorByErrcode(env, INVALID_URL,
+                    NWebError::FormatString(ParamCheckErrorMsgTemplate::URL_INVALID));
+            } else {
+                BusinessError::ThrowErrorByErrcode(env, ret);
+            }
             return nullptr;
         }
         NAPI_CALL(env, napi_get_undefined(env, &result));
@@ -3481,7 +3493,12 @@ napi_value NapiWebviewController::LoadUrlWithHttpHeaders(napi_env env, napi_call
             WVLOG_E("LoadUrl failed.");
             return nullptr;
         }
-        BusinessError::ThrowErrorByErrcode(env, ret);
+        if (ret == NWebError::INVALID_URL) {
+            BusinessError::ThrowErrorByErrcode(env, INVALID_URL,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::URL_INVALID));
+        } else {
+            BusinessError::ThrowErrorByErrcode(env, ret);
+        }
         return nullptr;
     }
     NAPI_CALL(env, napi_get_undefined(env, &result));
@@ -5099,7 +5116,8 @@ napi_value NapiWebviewController::PrefetchPage(napi_env env, napi_callback_info 
     }
     std::string url;
     if (!ParsePrepareUrl(env, argv[INTEGER_ZERO], url)) {
-        BusinessError::ThrowErrorByErrcode(env, INVALID_URL);
+        BusinessError::ThrowErrorByErrcode(env, INVALID_URL,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::URL_INVALID_OR_TOO_LONG));
         return nullptr;
     }
     std::map<std::string, std::string> additionalHttpHeaders;
@@ -5182,7 +5200,8 @@ napi_value NapiWebviewController::PrepareForPageLoad(napi_env env, napi_callback
 
     std::string url;
     if (!ParsePrepareUrl(env, argv[INTEGER_ZERO], url)) {
-        BusinessError::ThrowErrorByErrcode(env, INVALID_URL);
+        BusinessError::ThrowErrorByErrcode(env, INVALID_URL,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::URL_INVALID_OR_TOO_LONG));
         return nullptr;
     }
 
@@ -5775,7 +5794,8 @@ napi_value NapiWebviewController::StartDownload(napi_env env, napi_callback_info
 
     std::string url;
     if (!ParsePrepareUrl(env, argv[INTEGER_ZERO], url)) {
-        BusinessError::ThrowErrorByErrcode(env, INVALID_URL);
+        BusinessError::ThrowErrorByErrcode(env, INVALID_URL,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::URL_INVALID_OR_TOO_LONG));
         return nullptr;
     }
     int32_t nwebId = webviewController->GetWebId();
@@ -6621,7 +6641,8 @@ void NapiWebviewController::AddResourceItemToMemoryCache(napi_env env,
         if (errCode == PARAM_CHECK_ERROR) {
             WVLOG_E("BusinessError: 401. The type of 'urlList' must be Array of string.");
         }
-        BusinessError::ThrowErrorByErrcode(env, errCode);
+        BusinessError::ThrowErrorByErrcode(env, errCode,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::URL_INVALID_OR_TOO_LONG));
         return;
     }
 
@@ -6728,7 +6749,8 @@ napi_value NapiWebviewController::WarmupServiceWorker(napi_env env, napi_callbac
 
     std::string url;
     if (!ParsePrepareUrl(env, argv[INTEGER_ZERO], url)) {
-        BusinessError::ThrowErrorByErrcode(env, INVALID_URL);
+        BusinessError::ThrowErrorByErrcode(env, INVALID_URL,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::URL_INVALID_OR_TOO_LONG));
         return result;
     }
 

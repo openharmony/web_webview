@@ -247,7 +247,8 @@ napi_value NapiWebCookieManager::JsGetCookie(napi_env env, napi_callback_info in
     }
 
     if (cookieContent == "" && !isValid) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::INVALID_URL);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::INVALID_URL,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::INVALID_URL_FOR_COOKIE));
         return nullptr;
     }
     napi_create_string_utf8(env, cookieContent.c_str(), cookieContent.length(), &result);
@@ -303,7 +304,8 @@ napi_value NapiWebCookieManager::JsSetCookie(napi_env env, napi_callback_info in
         isSet = cookieManager->SetCookieSync(url, value, incognitoMode, includeHttpOnly);
     }
     if (isSet == NWebError::INVALID_URL) {
-        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::INVALID_URL);
+        NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::INVALID_URL,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::INVALID_URL_FOR_COOKIE));
         return nullptr;
     } else if (isSet == NWebError::INVALID_COOKIE_VALUE) {
         NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::INVALID_COOKIE_VALUE);
@@ -1052,8 +1054,9 @@ void NWebFetchCookieCallbackImpl::UvJsCallbackThreadWoker(uv_work_t *work, int s
     napi_value result[INTEGER_TWO] = { 0 };
     if (data->callback_) {
         napi_get_null(data->env_, &result[INTEGER_ONE]);
-        if (data->result_.c_str() == std::to_string(NWebError::INVALID_URL)) {
-            result[INTEGER_ZERO] = NWebError::BusinessError::CreateError(data->env_, NWebError::INVALID_URL);
+        if (data->result_ == std::to_string(NWebError::INVALID_URL)) {
+            result[INTEGER_ZERO] = NWebError::BusinessError::CreateError(data->env_, NWebError::INVALID_URL,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::INVALID_URL_FOR_COOKIE));
         } else {
             napi_get_undefined(data->env_, &result[INTEGER_ZERO]);
             napi_create_string_utf8(data->env_, data->result_.c_str(), NAPI_AUTO_LENGTH, &result[INTEGER_ONE]);
@@ -1067,10 +1070,11 @@ void NWebFetchCookieCallbackImpl::UvJsCallbackThreadWoker(uv_work_t *work, int s
         napi_call_function(data->env_, nullptr, onGetCookieFunc, INTEGER_TWO, &args[INTEGER_ZERO], &callbackResult);
         napi_delete_reference(data->env_, data->callback_);
     } else if (data->deferred_) {
-        result[INTEGER_ZERO] = NWebError::BusinessError::CreateError(data->env_, NWebError::INVALID_URL);
+        result[INTEGER_ZERO] = NWebError::BusinessError::CreateError(data->env_, NWebError::INVALID_URL,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::INVALID_URL_FOR_COOKIE));
         napi_create_string_utf8(data->env_, data->result_.c_str(), NAPI_AUTO_LENGTH, &result[INTEGER_ONE]);
         napi_value args[INTEGER_TWO] = {result[INTEGER_ZERO], result[INTEGER_ONE]};
-        if (data->result_.c_str() == std::to_string(NWebError::INVALID_URL)) {
+        if (data->result_ == std::to_string(NWebError::INVALID_URL)) {
             napi_reject_deferred(data->env_, data->deferred_, args[INTEGER_ZERO]);
         } else {
             napi_resolve_deferred(data->env_, data->deferred_, args[INTEGER_ONE]);
@@ -1231,7 +1235,12 @@ void NWebConfigCookieCallbackImpl::UvJsCallbackThreadWoker(uv_work_t *work, int 
     if (data->callback_) {
         napi_value result[INTEGER_ONE] = {0};
         if (data->result_ != 1) {
-            result[INTEGER_ZERO] = NWebError::BusinessError::CreateError(data->env_, data->result_);
+            if (data->result_ == NWebError::INVALID_URL) {
+                result[INTEGER_ZERO] = NWebError::BusinessError::CreateError(data->env_, data->result_,
+                    NWebError::FormatString(ParamCheckErrorMsgTemplate::INVALID_URL_FOR_COOKIE));
+            } else {
+                result[INTEGER_ZERO] = NWebError::BusinessError::CreateError(data->env_, data->result_);
+            }
         } else {
             napi_get_null(data->env_, &result[INTEGER_ZERO]);
         }
@@ -1246,7 +1255,12 @@ void NWebConfigCookieCallbackImpl::UvJsCallbackThreadWoker(uv_work_t *work, int 
     } else if (data->deferred_) {
         napi_value result[INTEGER_ONE] = {0};
         if (data->result_ != 1) {
-            result[INTEGER_ZERO] = NWebError::BusinessError::CreateError(data->env_, data->result_);
+            if (data->result_ == NWebError::INVALID_URL) {
+                result[INTEGER_ZERO] = NWebError::BusinessError::CreateError(data->env_, data->result_,
+                    NWebError::FormatString(ParamCheckErrorMsgTemplate::INVALID_URL_FOR_COOKIE));
+            } else {
+                result[INTEGER_ZERO] = NWebError::BusinessError::CreateError(data->env_, data->result_);
+            }
             napi_reject_deferred(data->env_, data->deferred_, result[INTEGER_ZERO]);
         } else {
             napi_get_null(data->env_, &result[INTEGER_ZERO]);

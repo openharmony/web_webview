@@ -66,6 +66,10 @@ namespace ParamCheckErrorMsgTemplate {
         "BusinessError 401: Parameter error. The type of '%s' and '%s' can not be ignored.";
     const char* PARAM_TYPE_INVALID = "BusinessError 401: Parameter error. The type of '%s' is invalid.";
     const char* PARAM_DETAIL_ERROR_MSG = "BusinessError 401: Parameter error. detail: %s.";
+    const char* INVALID_URL_FOR_COOKIE = "URL error. No valid cookie found for the specified URL.";
+    const char* URL_INVALID_OR_TOO_LONG = "URL error. The webpage corresponding to the URL is invalid, "
+        "or the URL length exceeds 2*1024*1024.";
+    const char* URL_INVALID = "URL error. The webpage corresponding to the URL is invalid.";
 }
 namespace NWebError {
 std::unordered_map<ErrCode, std::string> g_errCodeMsgMap = {
