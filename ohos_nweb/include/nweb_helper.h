@@ -167,6 +167,7 @@ public:
 private:
     NWebHelper() = default;
     bool GetWebEngine(bool fromArk);
+    void InitAppInfo();
     bool InitWebEngine();
 
 private:

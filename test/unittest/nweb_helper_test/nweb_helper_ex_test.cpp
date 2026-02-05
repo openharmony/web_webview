@@ -30,6 +30,7 @@
 #include "nweb_init_params.h"
 #include "nweb_user_agent_metadata.h"
 #include "application_context.h"
+#include "arkweb_utils.h"
 #include "scene_board_judgement.h"
 
 using namespace testing;
@@ -737,6 +738,53 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetWebEngine_001, TestSize.Level1)
     g_applicationContext.reset(contextMock);
     result = NWebHelper::Instance().GetWebEngine(true);
     EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: NWebHelper_InitAppInfo_NullAppInfo
+ * @tc.desc: InitAppInfo.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NwebHelperTest_InitAppInfo_NullAppInfo, TestSize.Level1)
+{
+    auto applicationContext = AbilityRuntime::ApplicationContext::GetInstance();
+    applicationContext->AttachContextImpl(nullptr);
+
+    auto appInfo = applicationContext->GetApplicationInfo();
+    EXPECT_EQ(appInfo, nullptr);
+
+    NWebHelper::Instance().InitAppInfo();
+
+    EXPECT_EQ(OHOS::ArkWeb::GetBundleName(), "");
+    EXPECT_EQ(OHOS::ArkWeb::GetApiVersion(), "");
+    EXPECT_EQ(OHOS::ArkWeb::GetAppVersion(), "");
+}
+
+/**
+ * @tc.name: NWebHelper_InitAppInfo
+ * @tc.desc: InitAppInfo.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NwebHelperTest_InitAppInfo, TestSize.Level1)
+{
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    auto applicationContext = AbilityRuntime::ApplicationContext::GetInstance();
+    std::shared_ptr<AppExecFwk::ApplicationInfo> info = std::make_shared<AppExecFwk::ApplicationInfo>();
+    info->bundleName = "com.example.app";
+    info->apiCompatibleVersion = 1;
+    info->versionName = "1.0.0";
+    contextImpl->SetApplicationInfo(info);
+    applicationContext->AttachContextImpl(contextImpl);
+    std::shared_ptr<AppExecFwk::ApplicationInfo> ans = AbilityRuntime::ApplicationContext
+        ::GetInstance()->GetApplicationInfo();
+    EXPECT_NE(ans, nullptr);
+
+    NWebHelper::Instance().InitAppInfo();
+    EXPECT_EQ(OHOS::ArkWeb::GetBundleName(), "com.example.app");
+    EXPECT_EQ(OHOS::ArkWeb::GetApiVersion(), "1");
+    EXPECT_EQ(OHOS::ArkWeb::GetAppVersion(), "1.0.0");
 }
 
 /**

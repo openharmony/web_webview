@@ -765,6 +765,23 @@ std::shared_ptr<OHOS::NWeb::NWebEngineInitArgs> NWebHelper::GetInitArgs()
     return initArgs;
 }
 
+void NWebHelper::InitAppInfo()
+{
+    auto appContext = AbilityRuntime::ApplicationContext::GetInstance();
+    if (!appContext) {
+        WVLOG_E("InitAppInfo failed for appContext is null.");
+        return;
+    }
+    auto appInfo = appContext->GetApplicationInfo();
+    if (!appInfo) {
+        WVLOG_E("InitAppInfo failed for appInfo is null.");
+        return;
+    }
+    OHOS::ArkWeb::SetBundleNameInner(appInfo->bundleName);
+    OHOS::ArkWeb::SetApiVersionInner(std::to_string(appInfo->apiCompatibleVersion));
+    OHOS::ArkWeb::SetAppVersionInner(appInfo->versionName);
+}
+
 bool NWebHelper::InitWebEngine()
 {
     if (initFlag_) {
@@ -780,7 +797,7 @@ bool NWebHelper::InitWebEngine()
     initFlag_ = true;
     initWebEngine_ = true;
 
-    OHOS::ArkWeb::InitAppInfo();
+    InitAppInfo();
 
     WVLOG_I("succeed to init web engine");
     return true;

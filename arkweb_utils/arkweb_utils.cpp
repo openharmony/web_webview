@@ -14,7 +14,6 @@
  */
 #include "arkweb_utils.h"
 
-#include "application_context.h"
 #include "parameters.h"
 #include "nweb_log.h"
 #include "json/json.h"
@@ -408,23 +407,6 @@ void SetAppVersionInner(const std::string& appVersion)
 {
     std::lock_guard<std::mutex> lock(g_appInfoMutex);
     g_appVersion = appVersion;
-}
-
-void InitAppInfo()
-{
-    auto appContext = AbilityRuntime::ApplicationContext::GetInstance();
-    if (!appContext) {
-        WVLOG_E("InitAppInfo failed for appContext is null.");
-        return;
-    }
-    auto appInfo = appContext->GetApplicationInfo();
-    if (!appInfo) {
-        WVLOG_E("InitAppInfo failed for appInfo is null.");
-        return;
-    }
-    SetBundleNameInner(appInfo->bundleName);
-    SetApiVersionInner(std::to_string(appInfo->apiCompatibleVersion));
-    SetAppVersionInner(appInfo->versionName);
 }
 
 std::string ExtractAndRemoveParam(std::string& renderCmd, const std::string& prefix)
