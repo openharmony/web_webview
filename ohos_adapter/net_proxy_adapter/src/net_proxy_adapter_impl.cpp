@@ -249,6 +249,7 @@ bool NetProxyAdapterImpl::StartListen()
     bool ret = EventFwk::CommonEventManager::SubscribeCommonEvent(commonEventSubscriber_);
     if (ret == false) {
         WVLOG_E("start netproxy listen, subscribe common event failed");
+        commonEventSubscriber_ = nullptr;
         return false;
     }
 
