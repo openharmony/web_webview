@@ -346,5 +346,23 @@ HWTEST_F(ResSchedAdapterImplTest, ResSchedAdapterImplTest_ReportSceneInternal_00
     result = resAdapter->ReportScene(ResSchedStatusAdapter::WEB_ACTIVE, ResSchedSceneAdapter::LOAD_URL, -1);
     EXPECT_TRUE(result);
 }
+
+/**
+ * @tc.name: ResSchedAdapterImplTest_ReportSubwindowCall_010
+ * @tc.desc: ReportSubwindowCall.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(ResSchedAdapterImplTest, ResSchedAdapterImplTest_ReportSubwindowCall_010, TestSize.Level1)
+{
+    auto resAdapter = std::make_shared<ResSchedClientAdapter>();
+    EXPECT_NE(resAdapter, nullptr);
+    bool result = resAdapter->ReportSubwindowCall(static_cast<ResSchedStatusAdapter>(-1), 1, 1);
+    EXPECT_FALSE(result);
+    result = resAdapter->ReportSubwindowCall(ResSchedStatusAdapter::WEB_SUBWIN_CALL_START, 1, 1);
+    EXPECT_TRUE(result);
+    result = resAdapter->ReportSubwindowCall(ResSchedStatusAdapter::WEB_SUBWIN_CALL_STOP, 1, 1);
+    EXPECT_TRUE(result);
+}
 }
 } // namespace NWeb

@@ -56,6 +56,9 @@ public:
 
     /*--ark web()--*/
     static void ReportSiteIsolationMode(bool mode);
+
+    /*--ark web()--*/
+    static bool ReportSubwindowCall(int32_t statusAdapter, pid_t pid, pid_t tid);
 };
 
 } // namespace OHOS::ArkWeb

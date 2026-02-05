@@ -78,4 +78,9 @@ void ArkResSchedClientAdapter::ReportSiteIsolationMode(bool mode)
     NWeb::ResSchedClientAdapter::ReportSiteIsolationMode(mode);
 }
 
+bool ArkResSchedClientAdapter::ReportSubwindowCall(int32_t statusAdapter, pid_t pid, pid_t tid)
+{
+    return NWeb::ResSchedClientAdapter::ReportSubwindowCall((NWeb::ResSchedStatusAdapter)statusAdapter, pid, tid);
+}
+
 } // namespace OHOS::ArkWeb
