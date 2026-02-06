@@ -22,8 +22,10 @@
 #include <cstring>
 #include <unistd.h>
 #include <vector>
+#include <fcntl.h>
 #include <fstream>
 #include <json/json.h>
+#include <sys/stat.h>
 
 #include "arkweb_utils.h"
 #include "application_context.h"
@@ -131,9 +133,10 @@ std::string GetArkWebHapPath(const std::string& arkWebCoreHapPathOverride,
                              std::vector<std::pair<std::string, int>>& errorMessage)
 {
     std::string prefixPath = WEBVIEW_SANDBOX_PATH;
-    if (access(arkWebCoreHapPathOverride.c_str(), F_OK) == 0) {
+    struct stat statbuf;
+    if (fstatat(AT_FDCWD, arkWebCoreHapPathOverride.c_str(), &statbuf, AT_SYMLINK_NOFOLLOW) == 0) {
         std::string sandboxPath = OhosResourceAdapterImpl::ConvertToSandboxPath(arkWebCoreHapPathOverride, prefixPath);
-        if (access(sandboxPath.c_str(), F_OK) == 0) {
+        if (fstatat(AT_FDCWD, sandboxPath.c_str(), &statbuf, AT_SYMLINK_NOFOLLOW) == 0) {
             WVLOG_D("eixt HAP_arkWebCoreHapPathOverride");
             return sandboxPath;
         }
@@ -142,35 +145,35 @@ std::string GetArkWebHapPath(const std::string& arkWebCoreHapPathOverride,
 
     const std::string& webPlayGround = NWebConfigHelper::Instance().GetWebPlayGroundHapPath();
     if (!webPlayGround.empty()) {
-        if (access(webPlayGround.c_str(), F_OK) == 0) {
+        if (fstatat(AT_FDCWD, webPlayGround.c_str(), &statbuf, AT_SYMLINK_NOFOLLOW) == 0) {
             return webPlayGround;
         }
         WVLOG_E("GetWebPlayGroundHapPath file not found, %{public}s", webPlayGround.c_str());
     }
 
     std::string installPath = OHOS::ArkWeb::GetArkwebInstallPath();
-    if (access(installPath.c_str(), F_OK) == 0) {
+    if (fstatat(AT_FDCWD, installPath.c_str(), &statbuf, AT_SYMLINK_NOFOLLOW) == 0) {
         WVLOG_D("exit install_path,%{public}s", installPath.c_str());
         return installPath;
     }
     errorMessage.emplace_back("access nweb install path failed", errno);
 
-    if (access(WEBVIEW_SANDBOX_HAP_PATH, F_OK) == 0) {
+    if (fstatat(AT_FDCWD, WEBVIEW_SANDBOX_HAP_PATH, &statbuf, AT_SYMLINK_NOFOLLOW) == 0) {
         WVLOG_D("exit WEBVIEW_SANDBOX_HAP_PATH");
         return WEBVIEW_SANDBOX_HAP_PATH;
     }
     errorMessage.emplace_back("access arkwebcore hap sandbox path failed", errno);
-    if (access(WEBVIEW_APP_HAP_PATH2, F_OK) == 0) {
+    if (fstatat(AT_FDCWD, WEBVIEW_APP_HAP_PATH2, &statbuf, AT_SYMLINK_NOFOLLOW) == 0) {
         WVLOG_D("exit WEBVIEW_APP_HAP_PATH2");
         return WEBVIEW_APP_HAP_PATH2;
     }
     errorMessage.emplace_back("access ohos nweb hap path failed", errno);
-    if (access(WEBVIEW_APP_HAP_PATH, F_OK) == 0) {
+    if (fstatat(AT_FDCWD, WEBVIEW_APP_HAP_PATH, &statbuf, AT_SYMLINK_NOFOLLOW) == 0) {
         WVLOG_D("exit WEBVIEW_APP_HAP_PATH");
         return WEBVIEW_APP_HAP_PATH;
     }
     errorMessage.emplace_back("access nweb hap path failed", errno);
-    if (access(WEBVIEW_HAP_PATH, F_OK) == 0) {
+    if (fstatat(AT_FDCWD, WEBVIEW_HAP_PATH, &statbuf, AT_SYMLINK_NOFOLLOW) == 0) {
         WVLOG_D("exit WEBVIEW_HAP_PATH");
         return WEBVIEW_HAP_PATH;
     }
