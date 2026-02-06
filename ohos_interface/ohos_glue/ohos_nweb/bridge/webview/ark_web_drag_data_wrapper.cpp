@@ -152,4 +152,9 @@ OHOS::NWeb::NWebDragData::DragOperationsMask ArkWebDragDataWrapper::GetAllowedDr
 {
     return static_cast<OHOS::NWeb::NWebDragData::DragOperationsMask>(ark_web_drag_data_->GetAllowedDragOperation());
 }
+
+void ArkWebDragDataWrapper::ClearDragData()
+{
+    ark_web_drag_data_->ClearDragData();
+}
 } // namespace OHOS::ArkWeb

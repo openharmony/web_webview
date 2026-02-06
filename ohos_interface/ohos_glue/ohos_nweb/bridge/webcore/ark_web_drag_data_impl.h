@@ -114,6 +114,11 @@ public:
      */
     int GetAllowedDragOperation() override;
 
+    /**
+     * @brief clear drag data for current drag.
+     */
+    void ClearDragData() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebDragData> nweb_drag_data_;
 };

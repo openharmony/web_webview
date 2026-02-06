@@ -108,4 +108,9 @@ int ArkWebDragDataImpl::GetAllowedDragOperation()
     return static_cast<int>(nweb_drag_data_->GetAllowedDragOperation());
 }
 
+void ArkWebDragDataImpl::ClearDragData()
+{
+    nweb_drag_data_->ClearDragData();
+}
+
 } // namespace OHOS::ArkWeb

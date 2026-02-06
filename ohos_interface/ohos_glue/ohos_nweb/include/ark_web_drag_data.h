@@ -127,6 +127,12 @@ public:
      */
     /*--ark web()--*/
     virtual int GetAllowedDragOperation() = 0;
+
+    /**
+     * @Description: clear drag data for current drag.
+     */
+    /*--ark web()--*/
+    virtual void ClearDragData() = 0;
 };
 
 } // namespace OHOS::ArkWeb
