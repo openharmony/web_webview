@@ -560,10 +560,12 @@ static ani_object GetArray(ani_env* env, ani_object object)
     return arr;
 }
 
-static ani_string GetErrorDescription(ani_env* env, ani_object object)
+static ani_object GetErrorDescription(ani_env* env, ani_object object)
 {
     WVLOG_D("GetErrorDescription webJsMessageExt start");
-    ani_string result = nullptr;
+    ani_object result = nullptr;
+    ani_string resultString = nullptr;
+    ani_ref resultNull = nullptr;
     if (!env) {
         WVLOG_E("env is nullptr");
         return result;
@@ -581,8 +583,15 @@ static ani_string GetErrorDescription(ani_env* env, ani_object object)
         return result;
     }
     std::string msgStr = message->GetErrorDescription();
-    env->String_NewUTF8(msgStr.c_str(), msgStr.length(), &result);
-    WVLOG_I("GetErrorDescription msgStr = %{public}s", msgStr.c_str());
+    if (!msgStr.empty()) {
+        env->String_NewUTF8(msgStr.c_str(), msgStr.length(), &resultString);
+        WVLOG_I("GetErrorDescription msgStr = %{public}s", msgStr.c_str());
+        result = static_cast<ani_object>(resultString);
+    } else {
+        env->GetNull(&resultNull);
+        result = static_cast<ani_object>(resultNull);
+    }
+
     return result;
 }
 
