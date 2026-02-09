@@ -2254,7 +2254,7 @@ export default namespace webview {
         native getBoolean(): boolean;
         native getArrayBuffer(): ArrayBuffer;
         native getArray(): Array<string | double | long | boolean>;
-        native getErrorDescription(): string;
+        native getErrorDescription(): string | null;
     }
 
     export class PrefetchOptions {
