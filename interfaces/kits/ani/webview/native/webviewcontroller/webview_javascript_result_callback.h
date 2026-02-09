@@ -33,7 +33,11 @@
 #include "nweb_value.h"
 #include "uv.h"
 #include "ani.h"
+#ifdef WEBVIEW_UNIT_TEST
+#include "test_mock_ani_parse_utils.h"
+#else
 #include "ani_parse_utils.h"
+#endif
 #include "event_handler.h"
 
 namespace OHOS::NWeb {
