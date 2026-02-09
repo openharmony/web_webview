@@ -16,13 +16,23 @@
 #include <array>
 #include <iostream>
 
+#ifndef WEBVIEW_UNIT_TEST
+#define WEBVIEW_ANI_STATIC static
+#else
+#define WEBVIEW_ANI_STATIC
+#endif
+
+#ifdef WEBVIEW_UNIT_TEST
+#include "test_mock_webview_controller.h"
+#include "test_mock_ani_business_error.h"
+#include "test_mock_ani_parse_utils.h"
+#else
 #include "webview_controller.h"
-
 #include "ani_webview_controller.h"
-
 #include "ani_business_error.h"
-#include "ani_class_name.h"
 #include "ani_parse_utils.h"
+#endif
+#include "ani_class_name.h"
 #include "nweb_init_params.h"
 
 #include <cstdlib>
@@ -68,7 +78,6 @@
 #include "pixel_map_ani.h"
 #include "pixel_map_taihe_ani.h"
 #include "proxy_config.h"
-#include "ani_parse_utils.h"
 #include "web_scheme_handler_response.h"
 #include "web_download_item.h"
 #include "ani_webview_createpdf_execute_callback.h"
@@ -332,7 +341,7 @@ std::shared_ptr<NWebPrefetchOptions> GetPrefetchOptions(ani_env *env, ani_object
 }
 }
 
-static void InitializeWebEngine(ani_env *env, ani_object aniClass)
+WEBVIEW_ANI_STATIC void InitializeWebEngine(ani_env *env, ani_object aniClass)
 {
     WVLOG_D("InitializeWebEngine invoked.");
     if (!env) {
@@ -622,7 +631,7 @@ static void Constructor(ani_env *env, ani_object object, ani_string webTagObject
     }
 }
 
-static void OnActive(ani_env *env, ani_object object)
+WEBVIEW_ANI_STATIC void OnActive(ani_env *env, ani_object object)
 {
     if (!env) {
         WVLOG_E("env is nullptr");
@@ -637,7 +646,7 @@ static void OnActive(ani_env *env, ani_object object)
     controller->OnActive();
 }
 
-static void OnInactive(ani_env *env, ani_object object)
+WEBVIEW_ANI_STATIC void OnInactive(ani_env *env, ani_object object)
 {
     if (!env) {
         WVLOG_E("env is nullptr");
@@ -652,7 +661,7 @@ static void OnInactive(ani_env *env, ani_object object)
     controller->OnInactive();
 }
 
-static ani_int GetWebId(ani_env *env, ani_object object)
+WEBVIEW_ANI_STATIC ani_int GetWebId(ani_env *env, ani_object object)
 {
     int32_t webId = -1;
     if (!env) {
@@ -669,7 +678,7 @@ static ani_int GetWebId(ani_env *env, ani_object object)
     return static_cast<ani_int>(webId);
 }
 
-static ani_int InnerGetWebId(ani_env *env, ani_object object)
+WEBVIEW_ANI_STATIC ani_int InnerGetWebId(ani_env *env, ani_object object)
 {
     int32_t webId = -1;
     if (!env) {
@@ -3329,7 +3338,7 @@ static ani_int GetPageHeight(ani_env *env, ani_object object)
     return static_cast<ani_int>(pageHeight);
 }
 
-static ani_boolean TerminateRenderProcess(ani_env* env, ani_object object)
+WEBVIEW_ANI_STATIC ani_boolean TerminateRenderProcess(ani_env* env, ani_object object)
 {
     WVLOG_D("TerminateRenderProcess");
     if (!env) {
@@ -3350,7 +3359,7 @@ static ani_boolean TerminateRenderProcess(ani_env* env, ani_object object)
     return ANI_TRUE;
 }
 
-static void SetRenderProcessMode(ani_env* env, ani_object object, ani_enum_item mode)
+WEBVIEW_ANI_STATIC void SetRenderProcessMode(ani_env* env, ani_object object, ani_enum_item mode)
 {
     WVLOG_D("[WebviewCotr] SetRenderProcessMode");
     if (!env) {
@@ -3373,7 +3382,7 @@ static void SetRenderProcessMode(ani_env* env, ani_object object, ani_enum_item 
     NWebHelper::Instance().SetRenderProcessMode(static_cast<RenderProcessMode>(renderProcessMode));
 }
 
-static ani_enum_item GetRenderProcessMode(ani_env* env, ani_object object)
+WEBVIEW_ANI_STATIC ani_enum_item GetRenderProcessMode(ani_env* env, ani_object object)
 {
     ani_int renderProcessMode = 0;
     ani_enum enumType;
@@ -3396,7 +3405,7 @@ static ani_enum_item GetRenderProcessMode(ani_env* env, ani_object object)
     return mode;
 }
 
-static void PauseAllTimers(ani_env* env, ani_object object)
+WEBVIEW_ANI_STATIC void PauseAllTimers(ani_env* env, ani_object object)
 {
     if (!env) {
         WVLOG_E("env is nullptr");
@@ -3407,7 +3416,7 @@ static void PauseAllTimers(ani_env* env, ani_object object)
     return;
 }
 
-static void ResumeAllTimers(ani_env* env, ani_object object)
+WEBVIEW_ANI_STATIC void ResumeAllTimers(ani_env* env, ani_object object)
 {
     if (!env) {
         WVLOG_E("env is nullptr");
@@ -3486,7 +3495,7 @@ static ani_boolean IsIncognitoMode(ani_env *env, ani_object object)
     return ANI_TRUE;
 }
 
-static ani_object SerializeWebState(ani_env* env, ani_object object)
+WEBVIEW_ANI_STATIC ani_object SerializeWebState(ani_env* env, ani_object object)
 {
     ani_object result = nullptr;
     if (!env) {
@@ -7077,7 +7086,7 @@ static void SetSoftKeyboardBehaviorMode(ani_env *env, ani_object object, ani_enu
     controller->SetSoftKeyboardBehaviorMode(static_cast<int>(modeInt));
 }
 
-static ani_enum_item GetAttachState(ani_env *env, ani_object object)
+WEBVIEW_ANI_STATIC ani_enum_item GetAttachState(ani_env *env, ani_object object)
 {
     WVLOG_D("Entry GetAttachState");
 
@@ -7108,7 +7117,7 @@ static ani_enum_item GetAttachState(ani_env *env, ani_object object)
     return result;
 }
 
-static void OnControllerAttachStateChange(ani_env *env, ani_object object, ani_object callback)
+WEBVIEW_ANI_STATIC void OnControllerAttachStateChange(ani_env *env, ani_object object, ani_object callback)
 {
     WVLOG_D("Entry OnControllerAttachStateChange");
     if (!env) {
@@ -7139,7 +7148,7 @@ static void OnControllerAttachStateChange(ani_env *env, ani_object object, ani_o
     return;
 }
 
-static void OffControllerAttachStateChange(ani_env *env, ani_object object, ani_object callback)
+WEBVIEW_ANI_STATIC void OffControllerAttachStateChange(ani_env *env, ani_object object, ani_object callback)
 {
     WVLOG_D("Entry OffControllerAttachStateChange");
     if (!env) {
@@ -7170,7 +7179,7 @@ static void OffControllerAttachStateChange(ani_env *env, ani_object object, ani_
     return;
 }
 
-static ani_object WaitForAttachedPromise(ani_env *env, ani_object object, ani_int timeout)
+WEBVIEW_ANI_STATIC ani_object WaitForAttachedPromise(ani_env *env, ani_object object, ani_int timeout)
 {
     WVLOG_D("Entry WaitForAttachedPromise");
     if (!env) {
@@ -7323,7 +7332,7 @@ void PrefetchPage(ani_env* env, ani_object object, ani_object aniUrl,
     }
 }
 
-static void SetWebDetach(ani_env *env, ani_object object, ani_int nwebId)
+WEBVIEW_ANI_STATIC void SetWebDetach(ani_env *env, ani_object object, ani_int nwebId)
 {
     WVLOG_D("Entry SetWebDetach nwebId: %{public}d", nwebId);
     if (!env) {

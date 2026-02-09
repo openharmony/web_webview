@@ -1,0 +1,86 @@
+# Copyright (c) 2025 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/test.gni")
+import("../../../config.gni")
+import("../../../web_aafwk.gni")
+
+module_output_path = "webview/Web_Framework"
+
+config("module_private_config") {
+  visibility = [ ":*" ]
+
+  include_dirs = [
+    ".",  # 当前目录优先，让源文件找到mock头文件
+    "$webview_path/interfaces/kits/ani/webview/src",
+    "$webview_path/interfaces/kits/ani/webview/src/common",
+    "$webview_path/interfaces/kits/ani/webview/src/webviewcontroller",
+    "$webview_path/interfaces/kits/ani/webview/src/proxycontroller",
+    "$webview_path/interfaces/kits/ani/webview/native",
+    "$webview_path/interfaces/kits/ani/webview/native/webviewcontroller",
+    "$webview_path/interfaces/kits/ani/webview/native/common",
+    "$webview_path/interfaces/kits/ani",
+    "$webview_path/interfaces/kits/nativecommon",
+    "$webview_path/ohos_nweb/include",
+    "$webview_path/ohos_interface/include/ohos_nweb",
+    "$webview_path/ohos_interface/include/ohos_adapter",
+    "$webview_path/interfaces/native",
+    "$webview_path/ohos_adapter",
+    "$webview_path/ohos_adapter/ohos_resource_adapter/include",
+    "$webview_path/ohos_adapter/system_properties_adapter/include",
+  ]
+}
+
+ohos_unittest("ani_webview_controller_test") {
+  module_out_path = module_output_path
+
+  sources = [ "ani_webview_controller_unittest.cpp" ]
+
+  configs = [ ":module_private_config" ]
+
+  use_exceptions = true
+
+  deps = [
+    "../../../arkweb_utils:libarkweb_utils",
+    "../../../interfaces/kits/ani/webview:webview_ani",
+    "../../../ohos_adapter:nweb_ohos_adapter",
+    "../../../ohos_nweb:libnweb",
+  ]
+
+  external_deps = [
+    "ability_base:extractortool",
+    "ability_runtime:app_context",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+    "graphic_2d:libnative_image",
+    "hilog:libhilog",
+    "image_framework:image_ani",
+    "image_framework:image_native",
+    "image_framework:image_taihe",
+    "init:libbegetutil",
+    "napi:ace_napi",
+    "runtime_core:ani",
+    "runtime_core:ani_helpers",
+    "window_manager:libwm",
+  ]
+
+  defines = [ "WEBVIEW_UNIT_TEST" ]
+}
+
+group("unittest") {
+  testonly = true
+  deps = [ ":ani_webview_controller_test" ]
+}
