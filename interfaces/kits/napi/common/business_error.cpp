@@ -39,36 +39,12 @@ napi_value BusinessError::CreateError(napi_env env, int32_t err, const std::stri
 
 void BusinessError::ThrowErrorByErrcode(napi_env env, int32_t errCode)
 {
-    const std::string msg = GetErrMsgByErrCode(errCode);
-
-    napi_value message = nullptr;
-    napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message);
-
-    napi_value error = nullptr;
-    napi_create_error(env, nullptr, message, &error);
-
-    napi_value codeValue = nullptr;
-    napi_create_int32(env, errCode, &codeValue);
-    napi_set_named_property(env, error, "code", codeValue);
-
-    napi_throw(env, error);
+    napi_throw_error(env, std::to_string(errCode).c_str(), GetErrMsgByErrCode(errCode).c_str());
 }
 
 void BusinessError::ThrowErrorByErrcode(napi_env env, int32_t errCode, const std::string& errorMsg)
 {
-    napi_value message = nullptr;
-    napi_create_string_utf8(env, errorMsg.c_str(), NAPI_AUTO_LENGTH, &message);
-
-    napi_value error = nullptr;
-    napi_create_error(env, nullptr, message, &error);
-
-    napi_value codeValue = nullptr;
-    napi_create_int32(env, errCode, &codeValue);
-    napi_set_named_property(env, error, "code", codeValue);
-
-    napi_throw(env, error);
+    napi_throw_error(env, std::to_string(errCode).c_str(), errorMsg.c_str());
 }
-
-
 }
 }

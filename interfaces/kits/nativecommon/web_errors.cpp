@@ -70,6 +70,8 @@ namespace ParamCheckErrorMsgTemplate {
     const char* URL_INVALID_OR_TOO_LONG = "URL error. The webpage corresponding to the URL is invalid, "
         "or the URL length exceeds 2*1024*1024.";
     const char* URL_INVALID = "URL error. The webpage corresponding to the URL is invalid.";
+    const char* JS_RETURN_EMPTY_ARRAYBUFFER =
+        "Calling a JS method that returns an empty ArrayBuffer via runJavaScript.";
 }
 namespace NWebError {
 std::unordered_map<ErrCode, std::string> g_errCodeMsgMap = {
