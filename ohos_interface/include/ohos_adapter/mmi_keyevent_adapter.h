@@ -126,6 +126,9 @@ enum KeyEvent {
     KEYCODE_NUMPAD_ADD = 2116,
     KEYCODE_NUMPAD_DOT = 2117,
     KEYCODE_NUMPAD_ENTER = 2119,
+    KEYCODE_COPY = 2620,
+    KEYCODE_PASTE = 2622,
+    KEYCODE_CUT = 2624,
 };
 
 } // namespace MMIAdapter
