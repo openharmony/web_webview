@@ -122,5 +122,8 @@ const int32_t KeyEvent::KEYCODE_NUMPAD_SUBTRACT = OHOS::MMI::KeyEvent::KEYCODE_N
 const int32_t KeyEvent::KEYCODE_NUMPAD_ADD = OHOS::MMI::KeyEvent::KEYCODE_NUMPAD_ADD;
 const int32_t KeyEvent::KEYCODE_NUMPAD_DOT = OHOS::MMI::KeyEvent::KEYCODE_NUMPAD_DOT;
 const int32_t KeyEvent::KEYCODE_NUMPAD_ENTER = OHOS::MMI::KeyEvent::KEYCODE_NUMPAD_ENTER;
+const int32_t KeyEvent::KEYCODE_COPY = OHOS::MMI::KeyEvent::KEYCODE_COPY;
+const int32_t KeyEvent::KEYCODE_PASTE = OHOS::MMI::KeyEvent::KEYCODE_PASTE;
+const int32_t KeyEvent::KEYCODE_CUT = OHOS::MMI::KeyEvent::KEYCODE_CUT;
 } // namespace MMIAdapter
 } // namespace OHOS::NWeb
