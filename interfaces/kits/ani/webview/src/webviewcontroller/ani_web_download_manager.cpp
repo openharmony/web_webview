@@ -40,6 +40,12 @@ static void ResumeDownload(ani_env* env, ani_object object, ani_object webDownlo
         WVLOG_E("env is nullptr");
         return;
     }
+
+    ani_boolean isUndefined = ANI_FALSE;
+    if (env->Reference_IsUndefined(webDownloadItem, &isUndefined) != ANI_OK || isUndefined) {
+        WVLOG_E("webDownloadItem is undefined");
+        return;
+    }
     if (!WebDownloadManager::HasValidDelegate()) {
         AniBusinessError::ThrowErrorByErrCode(env, NWebError::NO_DOWNLOAD_DELEGATE_SET);
         return;

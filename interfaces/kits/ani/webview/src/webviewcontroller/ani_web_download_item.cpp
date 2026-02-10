@@ -42,6 +42,79 @@ namespace {
 const char* ANI_CLASS_WEB_DOWNLOAD_ITEM = "@ohos.web.webview.webview.WebDownloadItem";
 } // namespace
 
+constexpr int32_t ERROR_UNKNOWN = 0;
+constexpr int32_t FILE_FAILED = 1;
+constexpr int32_t FILE_ACCESS_DENIED = 2;
+constexpr int32_t FILE_NO_SPACE = 3;
+constexpr int32_t FILE_NAME_TOO_LONG = 5;
+constexpr int32_t FILE_TOO_LARGE = 6;
+constexpr int32_t FILE_TRANSIENT_ERROR = 10;
+constexpr int32_t FILE_BLOCKED = 11;
+constexpr int32_t FILE_TOO_SHORT = 13;
+constexpr int32_t FILE_HASH_MISMATCH = 14;
+constexpr int32_t FILE_SAME_AS_SOURCE = 15;
+constexpr int32_t NETWORK_FAILED = 20;
+constexpr int32_t NETWORK_TIMEOUT = 21;
+constexpr int32_t NETWORK_DISCONNECTED = 22;
+constexpr int32_t NETWORK_SERVER_DOWN = 23;
+constexpr int32_t NETWORK_INVALID_REQUEST = 24;
+constexpr int32_t SERVER_FAILED = 30;
+constexpr int32_t SERVER_NO_RANGE = 31;
+constexpr int32_t SERVER_BAD_CONTENT = 33;
+constexpr int32_t SERVER_UNAUTHORIZED = 34;
+constexpr int32_t SERVER_CERT_PROBLEM = 35;
+constexpr int32_t SERVER_FORBIDDEN = 36;
+constexpr int32_t SERVER_UNREACHABLE = 37;
+constexpr int32_t SERVER_CONTENT_LENGTH_MISMATCH = 38;
+constexpr int32_t SERVER_CROSS_ORIGIN_REDIRECT = 39;
+constexpr int32_t USER_CANCELED = 40;
+constexpr int32_t USER_SHUTDOWN = 41;
+constexpr int32_t CRASH = 50;
+
+static const std::unordered_map<int32_t, int32_t>& ConvertErrorCodeMap()
+{
+    static const std::unordered_map<int32_t, int32_t> errorCodeMap = []() {
+        std::vector<int32_t> codes = {
+            ERROR_UNKNOWN,
+            FILE_FAILED,
+            FILE_ACCESS_DENIED,
+            FILE_NO_SPACE,
+            FILE_NAME_TOO_LONG,
+            FILE_TOO_LARGE,
+            FILE_TRANSIENT_ERROR,
+            FILE_BLOCKED,
+            FILE_TOO_SHORT,
+            FILE_HASH_MISMATCH,
+            FILE_SAME_AS_SOURCE,
+            NETWORK_FAILED,
+            NETWORK_TIMEOUT,
+            NETWORK_DISCONNECTED,
+            NETWORK_SERVER_DOWN,
+            NETWORK_INVALID_REQUEST,
+            SERVER_FAILED,
+            SERVER_NO_RANGE,
+            SERVER_BAD_CONTENT,
+            SERVER_UNAUTHORIZED,
+            SERVER_CERT_PROBLEM,
+            SERVER_FORBIDDEN,
+            SERVER_UNREACHABLE,
+            SERVER_CONTENT_LENGTH_MISMATCH,
+            SERVER_CROSS_ORIGIN_REDIRECT,
+            USER_CANCELED,
+            USER_SHUTDOWN,
+            CRASH,
+        };
+        std::unordered_map<int32_t, int32_t> map;
+        map.reserve(codes.size());
+        for (size_t i = 0; i < codes.size(); ++i) {
+            map[codes[i]] = static_cast<int32_t>(i);
+        }
+        return map;
+    }();
+
+    return errorCodeMap;
+}
+
 static ani_string GetUrl(ani_env* env, ani_object object)
 {
     WVLOG_D("[DOWNLOAD] WebDownloadItem::GetUrl");
@@ -264,7 +337,14 @@ static ani_enum_item GetLastErrorCode(ani_env* env, ani_object object)
     }
 
     ani_int errorCodeTemp = static_cast<ani_int>(webDownloadItem->lastErrorCode);
-    if (env->Enum_GetEnumItemByIndex(enumType, errorCodeTemp, &errorCode) != ANI_OK) {
+    const std::unordered_map<int32_t, int32_t> tempMap = ConvertErrorCodeMap();
+    auto it = tempMap.find(errorCodeTemp);
+    if (it == tempMap.end()) {
+        WVLOG_E("can not find ErrorCode in convertMap");
+        return errorCode;
+    }
+    ani_int convertErrorCode = it->second;
+    if (env->Enum_GetEnumItemByIndex(enumType, convertErrorCode, &errorCode) != ANI_OK) {
         WVLOG_E("GetEnum error");
         return errorCode;
     }

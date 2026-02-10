@@ -2526,14 +2526,15 @@ bool SetCustomizeScheme(ani_env* env, ani_object WebCustomSchemeObj, Scheme& sch
 int32_t CustomizeSchemesArrayDataHandler(ani_env* env, ani_object schemes, bool lazyInitWebEngine = false)
 {
     if (!env) {
-        WVLOG_E("env is nullptr");
         return PARAM_CHECK_ERROR;
     }
     ani_int schemesLength = 0;
     if (env->Object_GetPropertyByName_Int(schemes, "length", &schemesLength) != ANI_OK) {
         return PARAM_CHECK_ERROR;
     }
-    WVLOG_D("schemesLength :  %{public}d", schemesLength);
+    if (schemesLength > MAX_CUSTOM_SCHEME_SIZE) {
+        return PARAM_CHECK_ERROR;
+    }
     ani_class WebCustomSchemeClass;
     if (env->FindClass(ANI_WEB_CUSTOM_SCHEME_CLASS, &WebCustomSchemeClass) != ANI_OK) {
         WVLOG_E("Find WebCustomScheme Class failed");
@@ -2551,7 +2552,6 @@ int32_t CustomizeSchemesArrayDataHandler(ani_env* env, ani_object schemes, bool 
         ani_boolean isWebCustomScheme = false;
         env->Object_InstanceOf(WebCustomSchemeObj, WebCustomSchemeClass, &isWebCustomScheme);
         if (!isWebCustomScheme) {
-            WVLOG_E("not WebCustomScheme");
             return PARAM_CHECK_ERROR;
         }
         Scheme scheme;
@@ -5467,9 +5467,8 @@ static void RunJavaScriptInternal(
         WVLOG_I("nweb_ptr is null");
         ani_status status;
         std::vector<ani_ref> resultRef(CALLBACK_PARAM_LENGTH);
-        resultRef[0] = OHOS::NWeb::CreateStsError(
-            env, static_cast<ani_int>(NWebError::INIT_ERROR), GetErrMsgByErrCode(INIT_ERROR));
-        env->GetNull(&resultRef[1]);
+        resultRef[0] = NWebError::AniBusinessError::CreateError(env, NWebError::INIT_ERROR);
+        env->GetUndefined(&resultRef[1]);
         ani_ref jsCallback = nullptr;
         env->GlobalReference_Create(callback, &jsCallback);
         if (jsCallback) {
@@ -5512,8 +5511,7 @@ static ani_object RunJavaScriptInternalPromise(
     int32_t nwebId = controller->GetNWebId();
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId);
     if (!nweb_ptr) {
-        ani_ref JsResult = OHOS::NWeb::CreateStsError(
-            env, static_cast<ani_int>(NWebError::INIT_ERROR), GetErrMsgByErrCode(INIT_ERROR));
+        ani_ref JsResult = NWebError::AniBusinessError::CreateError(env, NWebError::INIT_ERROR);
         if (env->PromiseResolver_Reject(resolver, reinterpret_cast<ani_error>(JsResult)) != ANI_OK) {
             WVLOG_E("reject promise error");
         } else {
@@ -5532,6 +5530,8 @@ static void RunJSBackToOriginal(ani_env* env, ani_object object, ani_object scri
     bool parseResult = false;
     if (AniParseUtils::IsString(env, script)) {
         parseResult = AniParseUtils::ParseString(env, script, scriptStr);
+    } else {
+        parseResult = AniParseUtils::ParseArrayBuffer(env, script, scriptStr);
     }
 
     if (!parseResult) {
@@ -5548,6 +5548,8 @@ static ani_object RunJSBackToOriginal(ani_env* env, ani_object object, ani_objec
     bool parseResult = false;
     if (AniParseUtils::IsString(env, script)) {
         parseResult = AniParseUtils::ParseString(env, script, scriptStr);
+    } else {
+        parseResult = AniParseUtils::ParseArrayBuffer(env, script, scriptStr);
     }
 
     if (!parseResult) {
