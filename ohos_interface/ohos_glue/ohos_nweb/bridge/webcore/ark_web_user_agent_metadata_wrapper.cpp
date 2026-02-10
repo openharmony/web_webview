@@ -114,9 +114,9 @@ void ArkWebUserAgentMetadataWrapper::SetWow64(const bool isWow64)
 void ArkWebUserAgentMetadataWrapper::GetBrandVersionList(
     std::vector<std::string>& brand, std::vector<std::string>& majorVersion, std::vector<std::string>& fullVersion)
 {
-    ArkWebStringVector stBrand;
-    ArkWebStringVector stMajorVersion;
-    ArkWebStringVector stFullVersion;
+    ArkWebStringVector stBrand = ark_web_string_vector_default;
+    ArkWebStringVector stMajorVersion = ark_web_string_vector_default;
+    ArkWebStringVector stFullVersion = ark_web_string_vector_default;
     ark_web_user_agent_metadata_->GetBrandVersionList(stBrand, stMajorVersion, stFullVersion);
     brand = ArkWebStringVectorStructToClass(stBrand);
     majorVersion = ArkWebStringVectorStructToClass(stMajorVersion);

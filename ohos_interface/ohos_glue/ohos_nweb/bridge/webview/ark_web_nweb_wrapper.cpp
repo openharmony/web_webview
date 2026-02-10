@@ -2096,8 +2096,15 @@ void ArkWebNWebWrapper::SetUserAgentMetadata(
 {
     ArkWebString stUserAgent = ArkWebStringClassToStruct(userAgent);
     ArkWebRefPtr<ArkWebUserAgentMetadata> ark_web_metadata = new ArkWebUserAgentMetadataImpl(metadata);
-
-    ark_web_nweb_->SetUserAgentMetadata(stUserAgent, ark_web_metadata);
+    if (CHECK_REF_PTR_IS_NULL(ark_web_metadata)) {
+        ArkWebStringStructRelease(stUserAgent);
+        return;
+    }
+    if (CHECK_SHARED_PTR_IS_NULL(metadata)) {
+        ark_web_nweb_->SetUserAgentMetadata(stUserAgent, nullptr);
+    } else {
+        ark_web_nweb_->SetUserAgentMetadata(stUserAgent, ark_web_metadata);
+    }
     ArkWebStringStructRelease(stUserAgent);
 }
 
