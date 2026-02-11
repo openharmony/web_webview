@@ -1765,9 +1765,13 @@ void ArkWebNWebImpl::ReloadIgnoreCache()
 
 void ArkWebNWebImpl::SetUserAgentMetadata(const ArkWebString& userAgent, ArkWebRefPtr<ArkWebUserAgentMetadata> metadata)
 {
-    std::shared_ptr<OHOS::NWeb::NWebUserAgentMetadata> nweb_metadata =
-        std::make_shared<ArkWebUserAgentMetadataWrapper>(metadata);
-    nweb_nweb_->SetUserAgentMetadata(ArkWebStringStructToClass(userAgent), nweb_metadata);
+    if (CHECK_REF_PTR_IS_NULL(metadata)) {
+        nweb_nweb_->SetUserAgentMetadata(ArkWebStringStructToClass(userAgent), nullptr);
+    } else {
+        std::shared_ptr<OHOS::NWeb::NWebUserAgentMetadata> nweb_metadata =
+            std::make_shared<ArkWebUserAgentMetadataWrapper>(metadata);
+        nweb_nweb_->SetUserAgentMetadata(ArkWebStringStructToClass(userAgent), nweb_metadata);
+    }
 }
 
 ArkWebRefPtr<ArkWebUserAgentMetadataAck> ArkWebNWebImpl::GetUserAgentMetadata(const ArkWebString& userAgent)
