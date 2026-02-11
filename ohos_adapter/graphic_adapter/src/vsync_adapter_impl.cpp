@@ -28,7 +28,7 @@
 namespace OHOS::NWeb {
 namespace {
 const std::string THREAD_NAME = "VSync-webview";
-constexpr int32_t WEBVIEW_FRAME_RATE_TYPE = 4;
+constexpr int32_t WEBVIEW_FRAME_RATE_TYPE = (1 << 7);
 const std::string APS_CLIENT_SO = "/system/lib64/libaps_client.z.so";
 }
 
