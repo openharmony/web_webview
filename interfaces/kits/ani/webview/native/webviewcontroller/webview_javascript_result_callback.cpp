@@ -1,5 +1,5 @@
-/*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+/**
+ * Copyright (c) 2022-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1681,15 +1681,14 @@ void ParseDictionaryAniValue2NwebValueV2(
             WVLOG_E("ParseDictionaryAniValue2NwebValue array call fail");
             continue;
         }
-        ani_tuple_value element = static_cast<ani_tuple_value>(arrayItem);
         ani_ref keyResult;
-        s = env->TupleValue_GetItem_Ref(element, 0, &keyResult);
+        s = env->Object_GetFieldByName_Ref(static_cast<ani_object>(arrayItem), "$0", &keyResult);
         if (s != ANI_OK) {
             WVLOG_E("ParseDictionaryAniValue2NwebValueV2 TupleValue key fail ");
             continue;
         }
         ani_ref valueResult;
-        s = env->TupleValue_GetItem_Ref(element, 1, &valueResult);
+        s = env->Object_GetFieldByName_Ref(static_cast<ani_object>(arrayItem), "$1", &valueResult);
         if (s != ANI_OK) {
             WVLOG_E("ParseDictionaryAniValue2NwebValueV2 TupleValue value fail ");
             continue;
@@ -1968,9 +1967,8 @@ void JavaScriptOb::AniSetUpMethods()
             WVLOG_E("AniSetUpMethods array call fail");
             continue;
         }
-        ani_tuple_value element = static_cast<ani_tuple_value>(arrayItem);
         ani_ref keyResult;
-        s = env->TupleValue_GetItem_Ref(element, 0, &keyResult);
+        s = env->Object_GetFieldByName_Ref(static_cast<ani_object>(arrayItem), "$0", &keyResult);
         if (s != ANI_OK) {
             WVLOG_E("PAniSetUpMethods TupleValue key fail ");
             continue;
