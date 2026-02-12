@@ -1151,13 +1151,20 @@ ani_ref ConvertToAniHandlerOfError(ani_env* env, std::shared_ptr<NWebMessage> sr
     }
 
     ani_method errInfoCtor;
-    if ((status = env->Class_FindMethod(errCls, "<ctor>", nullptr, &errInfoCtor)) != ANI_OK) {
+    if ((status = env->Class_FindMethod(errCls, "<ctor>",
+        "C{std.core.String}C{escompat.ErrorOptions}:", &errInfoCtor)) != ANI_OK) {
         WVLOG_E("error in FindMethod status : %{public}d", status);
         return nullptr;
     }
 
+    ani_ref undefinedArgument;
+    if (ANI_OK != env->GetUndefined(&undefinedArgument)) {
+        WVLOG_E("Failed to get undefined");
+        return nullptr;
+    }
+
     ani_object errObj;
-    if (env->Object_New(errCls, errInfoCtor, &errObj, message) != ANI_OK) {
+    if (env->Object_New(errCls, errInfoCtor, &errObj, message, undefinedArgument) != ANI_OK) {
         WVLOG_E("create error object failed");
         return nullptr;
     }
