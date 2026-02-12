@@ -232,19 +232,19 @@ int ProcessEventFirstMeaningfulPaintDone(const std::string& eventName, HiSysEven
 
     const std::int64_t value1 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[0], PAGE_LOAD_KEY_LISTS[1]);
     const std::int64_t value2 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[1], PAGE_LOAD_KEY_LISTS[2]);
-    const std::uint32_t value3 = (std::uint32_t)GetValueInt64(input, PAGE_LOAD_KEY_LISTS[2], PAGE_LOAD_KEY_LISTS[24]);
+    const std::uint32_t value3 = (uint32_t)GetValueInt64(input, PAGE_LOAD_KEY_LISTS[2], PAGE_LOAD_KEY_LISTS[24]);
     const std::int64_t value4 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[24], PAGE_LOAD_KEY_LISTS[20]);
     const std::int64_t value5 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[20], PAGE_LOAD_KEY_LISTS[21]);
     const std::int64_t value6 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[21], PAGE_LOAD_KEY_LISTS[26]);
     const std::int64_t value7 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[26], PAGE_LOAD_KEY_LISTS[25]);
-    const std::int64_t value8 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[25], "");
+    const bool value8 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[25], "");
 
     auto newData = std::make_tuple(
         PAGE_LOAD_KEY_LISTS[0], value1, PAGE_LOAD_KEY_LISTS[1], value2,
         PAGE_LOAD_KEY_LISTS[2], value3, PAGE_LOAD_KEY_LISTS[24], value4,
         PAGE_LOAD_KEY_LISTS[20], value5, PAGE_LOAD_KEY_LISTS[21], value6,
         PAGE_LOAD_KEY_LISTS[26], value7, PAGE_LOAD_KEY_LISTS[25], value8);
-        
+ 
     auto mergeData = std::tuple_cat(newData, sysData);
     return ForwardToHiSysEvent(eventName, type, mergeData);
 }
