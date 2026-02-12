@@ -1031,7 +1031,7 @@ static void ScrollTo(ani_env *env, ani_object object, ani_double x, ani_double y
         controller->ScrollTo(static_cast<float>(x), static_cast<float>(y));
     } else {
         ani_int duration;
-        if (env->Object_CallMethodByName_Int(durationObj, "intValue", nullptr, &duration) != ANI_OK) {
+        if (env->Object_CallMethodByName_Int(durationObj, "toInt", nullptr, &duration) != ANI_OK) {
             AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
                 NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "duration", "int"));
             return;
@@ -1057,7 +1057,7 @@ static void ScrollBy(ani_env *env, ani_object object, ani_double deltaX, ani_dou
         controller->ScrollBy(static_cast<float>(deltaX), static_cast<float>(deltaY));
     } else {
         ani_int duration;
-        if (env->Object_CallMethodByName_Int(durationObj, "intValue", nullptr, &duration) != ANI_OK) {
+        if (env->Object_CallMethodByName_Int(durationObj, "toInt", nullptr, &duration) != ANI_OK) {
             AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
                 NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "duration", "int"));
             return;
