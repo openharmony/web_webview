@@ -19,6 +19,7 @@
 #include <iostream>
 #include <map>
 #include <set>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
