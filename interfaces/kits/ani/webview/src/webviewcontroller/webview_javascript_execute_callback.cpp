@@ -138,7 +138,8 @@ bool CreateArgs(std::shared_ptr<WebviewJavaScriptExecuteCallback> jsObj, std::sh
     }
     ani_status status;
     if (result->GetType() == NWebValue::Type::STRING && result->GetString().empty()) {
-        resultRef[0] = NWebError::AniBusinessError::CreateError(env, NWebError::INVALID_RESOURCE);
+        resultRef[0] = NWebError::AniBusinessError::CreateError(env, NWebError::INVALID_RESOURCE,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::JS_RETURN_EMPTY_ARRAYBUFFER));
         if ((status = env->GetUndefined(&resultRef[1])) != ANI_OK) {
             WVLOG_E("create null resultRef[1] error");
             return false;
@@ -191,7 +192,8 @@ static void UvAfterWorkCbPromise(std::shared_ptr<WebviewJavaScriptExecuteCallbac
         return;
     }
     ani_status status;
-    resultRef[0] = NWebError::AniBusinessError::CreateError(env, NWebError::INVALID_RESOURCE);
+    resultRef[0] = NWebError::AniBusinessError::CreateError(env, NWebError::INVALID_RESOURCE,
+        NWebError::FormatString(ParamCheckErrorMsgTemplate::JS_RETURN_EMPTY_ARRAYBUFFER));
     if (!(jsObj->GetExtension())) {
         WVLOG_E("TriggerJsCallback extension is false");
         resultRef[1] = OHOS::NWeb::AniParseUtils::ConvertNWebToAniValue(env, result);
