@@ -916,7 +916,6 @@ Object.defineProperty(webview.WebviewController.prototype, 'innerNativeMessageDi
 Object.defineProperty(webview.WebviewController.prototype, 'innerCanIUse', {
   value: function (callback) {
     let result = canIUse(callback.syscap);
-    console.log(`canIUse ${callback.syscap} supported is ${result}`);
     return result;
   }
 });
