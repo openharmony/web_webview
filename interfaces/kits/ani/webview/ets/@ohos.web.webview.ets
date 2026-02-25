@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2025-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -979,7 +979,7 @@ export default namespace webview {
             let certChainData = this.getCertificateSync();
             let p = taskpool.execute(():undefined => {
                     return undefined});
-            p.then((results : Any) => {
+            p.then(async (results : Any) => {
                 const certs: Array<cert.X509Cert> = [];
                 for (let i = 0; i < certChainData.length; i++) {
                     let certsUint8Array = new Uint8Array(certChainData[i]);
@@ -1067,7 +1067,7 @@ export default namespace webview {
         setFieldForObject(target: Map<string, Object>, name: string, val: Object): Map<string, Object> {
             try {
                 target.set(name, val);
-            } catch (e: Error) {
+            } catch (e) {
                 console.error(e);
             }
             return target;
@@ -1636,6 +1636,7 @@ export default namespace webview {
                     let r: string = e as string;
                     resolve(r);
                 }, (error: Error): void => {
+                    reject(error);
                 });
             });
             return pPromise;
@@ -1687,6 +1688,7 @@ export default namespace webview {
                     let r: string = e as string;
                     resolve(r);
                 }, (error: Error): void => {
+                    reject(error);
                 });
             });
             return pPromise;

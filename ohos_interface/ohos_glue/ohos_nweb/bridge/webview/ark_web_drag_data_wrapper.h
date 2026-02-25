@@ -117,6 +117,11 @@ public:
      */
     void SetAllowedDragOperation(DragOperationsMask allowed_op) override {}
 
+    /**
+     * @brief clear drag data for current drag.
+     */
+    void ClearDragData() override;
+
 private:
     ArkWebRefPtr<ArkWebDragData> ark_web_drag_data_;
 };

@@ -111,6 +111,9 @@ public:
 
     // set allowed drag operation for current drag.
     virtual void SetAllowedDragOperation(DragOperationsMask allowed_op) {};
+
+    // clear drag data for current drag.
+    virtual void ClearDragData() {}
 };
 
 } // namespace OHOS::NWeb
