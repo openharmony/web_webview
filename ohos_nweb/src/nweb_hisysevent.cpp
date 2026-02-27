@@ -40,6 +40,11 @@ enum EventType {
 constexpr char INSTANCE_INITIALIZE_TIME[] = "INSTANCE_INITIALIZE_TIME";
 constexpr char INSTANCE_ID[] = "INSTANCE_ID";
 constexpr char USED_TIME[] = "USED_TIME";
+constexpr char WEB_MSDP_SCENE_ERROR[] = "WEB_MSDP_SCENE_ERROR";
+constexpr char EVENT_TYPE[] = "EVENT_TYPE";
+constexpr char ERROR_TYPE[] = "ERROR_TYPE";
+constexpr char ERROR_INFO[] = "ERROR_INFO";
+constexpr char ERROR_NODE[] = "ERROR_NODE";
 
 static std::string g_webEngineType = "";
 static std::string g_defaultWebEngineType = "";
@@ -72,5 +77,19 @@ int EventReport::ReportCreateWebInstanceTime(uint32_t nwebId, int64_t usedTime)
 {
     auto data = std::make_tuple(INSTANCE_ID, nwebId, USED_TIME, usedTime);
     return ForwardToHiSysEvent(INSTANCE_INITIALIZE_TIME, STATISTIC, data);
+}
+
+int EventReport::ReportHighlightSpecifiedContentEvent(
+    const std::string& eventType,
+    const std::string& errorType,
+    const std::string& content,
+    const std::string& errorNode)
+{
+    auto data = std::make_tuple(
+        EVENT_TYPE, eventType,
+        ERROR_TYPE, errorType,
+        ERROR_INFO, content,
+        ERROR_NODE, errorNode);
+    return ForwardToHiSysEvent(WEB_MSDP_SCENE_ERROR, FAULT, data);
 }
 } // namespace OHOS::NWeb

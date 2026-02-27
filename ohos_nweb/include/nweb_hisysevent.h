@@ -17,6 +17,7 @@
 #define OHOS_NWEB_HISYSEVENT_H
 
 #include <cstdint>
+#include <string>
 
 namespace OHOS::NWeb {
 class EventReport {
@@ -24,6 +25,12 @@ public:
     ~EventReport() = default;
 
     static int ReportCreateWebInstanceTime(uint32_t nwebId, int64_t usedTime);
+    
+    static int ReportHighlightSpecifiedContentEvent(
+    const std::string& eventType,
+    const std::string& errorType,
+    const std::string& content,
+    const std::string& errorNode);
 };
 } // namespace OHOS::NWeb
 #endif  // OHOS_NWEB_HISYSEVENT_H
