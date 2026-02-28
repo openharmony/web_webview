@@ -244,7 +244,7 @@ int ProcessEventFirstMeaningfulPaintDone(const std::string& eventName, HiSysEven
         PAGE_LOAD_KEY_LISTS[2], value3, PAGE_LOAD_KEY_LISTS[24], value4,
         PAGE_LOAD_KEY_LISTS[20], value5, PAGE_LOAD_KEY_LISTS[21], value6,
         PAGE_LOAD_KEY_LISTS[26], value7, PAGE_LOAD_KEY_LISTS[25], value8);
- 
+
     auto mergeData = std::tuple_cat(newData, sysData);
     return ForwardToHiSysEvent(eventName, type, mergeData);
 }
