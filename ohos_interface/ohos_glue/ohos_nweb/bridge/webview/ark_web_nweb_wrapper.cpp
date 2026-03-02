@@ -2124,4 +2124,9 @@ void ArkWebNWebWrapper::SetIsOfflineWebComponent()
 {
     ark_web_nweb_->SetIsOfflineWebComponent();
 }
+
+void ArkWebNWebWrapper::UpdateWebLtpoInfo()
+{
+    ark_web_nweb_->UpdateWebLtpoInfo();
+}
 } // namespace OHOS::ArkWeb

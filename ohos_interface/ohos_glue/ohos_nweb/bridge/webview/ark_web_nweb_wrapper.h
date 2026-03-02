@@ -2012,6 +2012,11 @@ public:
      */
     /*--ark web()--*/
     void WebSendCancelFlingEvent() override;
+    
+    /**
+     * @brief Update web ltpo info.
+     */
+    void UpdateWebLtpoInfo() override;
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };

@@ -2270,6 +2270,12 @@ public:
      */
     /*--ark web()--*/
     virtual void WebSendCancelFlingEvent() = 0;
+
+    /**
+     * @brief Update web ltpo info.
+     */
+    /*--ark web()--*/
+    virtual void UpdateWebLtpoInfo() = 0;
 };
 
 } // namespace OHOS::ArkWeb
