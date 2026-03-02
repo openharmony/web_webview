@@ -175,6 +175,7 @@ enum MenuCommandId {
     CI_UNDO = 7,
     CI_PASTE_AND_MATCH_STYLE = 8,
     CI_REQUEST_AUTOFILL = 9,
+    CI_IMAGE_SAVE = 10,
 };
 
 class OHOS_NWEB_EXPORT NWebContextMenuCallback {
