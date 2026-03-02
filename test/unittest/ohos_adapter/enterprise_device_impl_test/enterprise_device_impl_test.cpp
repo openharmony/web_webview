@@ -93,7 +93,7 @@ public:
  * @tc.type: FUNC
  * @tc.require:
  */
-HWTEST_F(EnterpriseDeviceImplTest, EnterpriseDeviceImplTest_BackgroundTaskAdapter_001, TestSize.Level1)
+HWTEST_F(EnterpriseDeviceImplTest, EnterpriseDeviceImplTest_BackgroundTaskAdapter_001, TestSize.Level0)
 {
 #if defined(NWEB_ENTERPRISE_DEVICE_MANAGER_ENABLE)
     std::string policies = "web_test";
