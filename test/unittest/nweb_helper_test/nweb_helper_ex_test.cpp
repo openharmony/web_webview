@@ -1317,6 +1317,25 @@ HWTEST_F(NwebHelperTest, NWebHelper_RemoveNWebActiveStatus_001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: NWebHelper_IsNWebInActiveStatusMap_001
+ * @tc.desc: IsNWebInActiveStatusMap.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_IsNWebInActiveStatusMap_001, TestSize.Level1)
+{
+    int32_t nwebId = -1;
+    EXPECT_EQ(NWebHelper::Instance().IsNWebInActiveStatusMap(nwebId), false);
+
+    nwebId = 1;
+    NWebHelper::Instance().RemoveNWebActiveStatus(nwebId);
+    EXPECT_EQ(NWebHelper::Instance().IsNWebInActiveStatusMap(nwebId), false);
+
+    NWebHelper::Instance().SetNWebActiveStatus(nwebId, true);
+    EXPECT_EQ(NWebHelper::Instance().IsNWebInActiveStatusMap(nwebId), true);
+}
+
+/**
  * @tc.name: NWebHelper_DumpArkWebInfo_001
  * @tc.desc: DumpArkWebInfo.
  * @tc.type: FUNC

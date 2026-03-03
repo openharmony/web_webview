@@ -1502,6 +1502,22 @@ void NWebHelper::RemoveNWebActiveStatus(int32_t nwebId)
     nwebActiveStatusMap_.erase(nwebId);
 }
 
+bool NWebHelper::IsNWebInActiveStatusMap(int32_t nwebId)
+{
+    if (nwebId == -1) {
+        WVLOG_W("NWeb id is invalid");
+        return false;
+    }
+    auto iter = nwebActiveStatusMap_.find(nwebId);
+    if (iter != nwebActiveStatusMap_.end()) {
+        WVLOG_D("Find nwebId: %{public}d", nwebId);
+        return true;
+    } else {
+        WVLOG_W("No nwebId: %{public}d in nwebActiveStatusMap_", nwebId);
+        return false;
+    }
+}
+
 std::string NWebHelper::DumpArkWebInfo(const std::string& param)
 {
     if (nwebEngine_ == nullptr) {
