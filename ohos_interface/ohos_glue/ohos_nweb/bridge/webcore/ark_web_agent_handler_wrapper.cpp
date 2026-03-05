@@ -16,6 +16,7 @@
 #include "ohos_nweb/bridge/ark_web_agent_handler_wrapper.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
+#include "ohos_nweb/bridge/ark_web_string_vector_value_callback_impl.h"
 
 namespace OHOS::ArkWeb {
 
@@ -32,6 +33,53 @@ void ArkWebAgentHandlerWrapper::ReportEventJson(const std::string& json)
     }
 
     ArkWebStringStructRelease(stJson);
+}
+
+void ArkWebAgentHandlerWrapper::OnCreateAISession(AISessionType type, const std::string& id, const std::string& params,
+    std::shared_ptr<OHOS::NWeb::NWebStringVectorValueCallback> callback)
+{
+    ArkWebString stId = ArkWebStringClassToStruct(id);
+    ArkWebString stParams = ArkWebStringClassToStruct(params);
+    ArkWebRefPtr<ArkWebStringVectorValueCallback> ark_web_callback = nullptr;
+    if (!CHECK_SHARED_PTR_IS_NULL(callback)) {
+        ark_web_callback = new ArkWebStringVectorValueCallbackImpl(callback);
+    }
+
+    if (ark_web_agent_handler_) {
+        ark_web_agent_handler_->OnCreateAISession(static_cast<int>(type), stId, stParams, ark_web_callback);
+    }
+
+    ArkWebStringStructRelease(stId);
+    ArkWebStringStructRelease(stParams);
+}
+
+void ArkWebAgentHandlerWrapper::OnExecuteAIAction(AISessionType type, const std::string& id, const std::string& params,
+    std::shared_ptr<OHOS::NWeb::NWebStringVectorValueCallback> callback)
+{
+    ArkWebString stId = ArkWebStringClassToStruct(id);
+    ArkWebString stParams = ArkWebStringClassToStruct(params);
+    ArkWebRefPtr<ArkWebStringVectorValueCallback> ark_web_callback = nullptr;
+    if (!CHECK_SHARED_PTR_IS_NULL(callback)) {
+        ark_web_callback = new ArkWebStringVectorValueCallbackImpl(callback);
+    }
+
+    if (ark_web_agent_handler_) {
+        ark_web_agent_handler_->OnExecuteAIAction(static_cast<int>(type), stId, stParams, ark_web_callback);
+    }
+
+    ArkWebStringStructRelease(stId);
+    ArkWebStringStructRelease(stParams);
+}
+
+void ArkWebAgentHandlerWrapper::OnDestroyAISession(AISessionType type, const std::string& id)
+{
+    ArkWebString stId = ArkWebStringClassToStruct(id);
+
+    if (ark_web_agent_handler_) {
+        ark_web_agent_handler_->OnDestroyAISession(static_cast<int>(type), stId);
+    }
+
+    ArkWebStringStructRelease(stId);
 }
 
 } // namespace OHOS::ArkWeb

@@ -35,6 +35,14 @@ public:
      */
     void ReportEventJson(const ArkWebString& json) override;
 
+    void OnCreateAISession(int type, const ArkWebString& id, const ArkWebString& params,
+        ArkWebRefPtr<ArkWebStringVectorValueCallback> callback) override;
+
+    void OnExecuteAIAction(int type, const ArkWebString& id, const ArkWebString& params,
+        ArkWebRefPtr<ArkWebStringVectorValueCallback> callback) override;
+
+    void OnDestroyAISession(int type, const ArkWebString& id) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebAgentHandler> nweb_agent_handler_;
 };
