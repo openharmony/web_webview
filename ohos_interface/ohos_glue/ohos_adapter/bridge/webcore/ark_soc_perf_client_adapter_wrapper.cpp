@@ -25,7 +25,7 @@ void ArkSocPerfClientAdapterWrapper::ApplySocPerfConfigById(int32_t id)
     if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::UI)) {
         content::GetUIThreadTaskRunner()->PostTask(FROM_HERE,
             base::BindOnce(&ArkSocPerfClientAdapterWrapper::ApplySocPerfConfigById,
-                base::Unretained(this), id));
+                weak_ptr_factory_.GetWeakPtr(), id));
         return;
     }
     ctocpp_->ApplySocPerfConfigById(id);
@@ -36,7 +36,7 @@ void ArkSocPerfClientAdapterWrapper::ApplySocPerfConfigByIdEx(int32_t id, bool o
     if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::UI)) {
         content::GetUIThreadTaskRunner()->PostTask(FROM_HERE,
             base::BindOnce(&ArkSocPerfClientAdapterWrapper::ApplySocPerfConfigByIdEx,
-                base::Unretained(this), id, onOffTag));
+                weak_ptr_factory_.GetWeakPtr(), id, onOffTag));
         return;
     }
     ctocpp_->ApplySocPerfConfigByIdEx(id, onOffTag);
