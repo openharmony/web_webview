@@ -24,7 +24,7 @@ namespace OHOS::NWeb {
 
 class OHOS_NWEB_EXPORT NWebAgentHandler {
 public:
-    enum AISessionType { TRANSLATOR = 1, LANGUAGE_DETECTOR, SUMMARIZER, WRITER, REWRITER, PROMPT, PROOFREADER };
+    enum AISessionType { TRANSLATOR = 0, LANGUAGE_DETECTOR, SUMMARIZER, WRITER, REWRITER, PROMPT, PROOFREADER };
 
     NWebAgentHandler() = default;
 
