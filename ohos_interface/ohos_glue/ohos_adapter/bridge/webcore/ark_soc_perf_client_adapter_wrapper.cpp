@@ -14,7 +14,6 @@
  */
 
 #include "ohos_adapter/bridge/ark_soc_perf_client_adapter_wrapper.h"
-#include "content/public/browser/browser_thread.h"
 
 namespace OHOS::ArkWeb {
 
@@ -23,13 +22,23 @@ ArkSocPerfClientAdapterWrapper::ArkSocPerfClientAdapterWrapper(ArkWebRefPtr<ArkS
 
 void ArkSocPerfClientAdapterWrapper::ApplySocPerfConfigById(int32_t id)
 {
-    DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
+    if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::UI)) {
+        content::GetUIThreadTaskRunner()->PostTask(FROM_HERE,
+            base::BindOnce(&ArkSocPerfClientAdapterWrapper::ApplySocPerfConfigById,
+                base::Unretained(this), id));
+        return;
+    }
     ctocpp_->ApplySocPerfConfigById(id);
 }
 
 void ArkSocPerfClientAdapterWrapper::ApplySocPerfConfigByIdEx(int32_t id, bool onOffTag)
 {
-    DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
+    if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::UI)) {
+        content::GetUIThreadTaskRunner()->PostTask(FROM_HERE,
+            base::BindOnce(&ArkSocPerfClientAdapterWrapper::ApplySocPerfConfigByIdEx,
+                base::Unretained(this), id, onOffTag));
+        return;
+    }
     ctocpp_->ApplySocPerfConfigByIdEx(id, onOffTag);
 }
 
