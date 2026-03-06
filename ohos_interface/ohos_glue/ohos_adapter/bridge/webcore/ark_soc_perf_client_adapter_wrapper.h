@@ -21,7 +21,6 @@
 #include "soc_perf_client_adapter.h"
 
 #include "base/include/ark_web_types.h"
-#include "base/memory/weak_ptr.h"
 
 namespace OHOS::ArkWeb {
 class ArkSocPerfClientAdapterWrapper : public OHOS::NWeb::SocPerfClientAdapter {
@@ -34,7 +33,6 @@ public:
 
 private:
     ArkWebRefPtr<ArkSocPerfClientAdapter> ctocpp_;
-    base::WeakPtrFactory<ArkSocPerfClientAdapterWrapper> weak_ptr_factory_{this};
 };
 
 } // namespace OHOS::ArkWeb
