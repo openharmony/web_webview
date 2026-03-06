@@ -1801,6 +1801,7 @@ napi_value NapiWebviewController::OnInactive(napi_env env, napi_callback_info in
 
 napi_value NapiWebviewController::Refresh(napi_env env, napi_callback_info info)
 {
+    WVLOG_D("NapiWebviewController::Refresh");
     napi_value thisVar = nullptr;
     napi_value result = nullptr;
     size_t argc = INTEGER_ONE;
@@ -1815,7 +1816,8 @@ napi_value NapiWebviewController::Refresh(napi_env env, napi_callback_info info)
     if (argc == INTEGER_ONE) {
         napi_valuetype valueType = napi_undefined;
         napi_typeof(env, argv[INTEGER_ZERO], &valueType);
-        if (!NapiParseUtils::ParseBoolean(env, argv[0], ignoreCache) && valueType != napi_undefined) {
+        if (!NapiParseUtils::ParseBoolean(env, argv[0], ignoreCache) && valueType != napi_undefined &&
+            valueType != napi_null) {
             BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
                 NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "ignoreCache", "boolean"));
             return result;
