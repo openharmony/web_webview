@@ -22,23 +22,11 @@ ArkSocPerfClientAdapterWrapper::ArkSocPerfClientAdapterWrapper(ArkWebRefPtr<ArkS
 
 void ArkSocPerfClientAdapterWrapper::ApplySocPerfConfigById(int32_t id)
 {
-    if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::UI)) {
-        content::GetUIThreadTaskRunner()->PostTask(FROM_HERE,
-            base::BindOnce(&ArkSocPerfClientAdapterWrapper::ApplySocPerfConfigById,
-                weak_ptr_factory_.GetWeakPtr(), id));
-        return;
-    }
     ctocpp_->ApplySocPerfConfigById(id);
 }
 
 void ArkSocPerfClientAdapterWrapper::ApplySocPerfConfigByIdEx(int32_t id, bool onOffTag)
 {
-    if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::UI)) {
-        content::GetUIThreadTaskRunner()->PostTask(FROM_HERE,
-            base::BindOnce(&ArkSocPerfClientAdapterWrapper::ApplySocPerfConfigByIdEx,
-                weak_ptr_factory_.GetWeakPtr(), id, onOffTag));
-        return;
-    }
     ctocpp_->ApplySocPerfConfigByIdEx(id, onOffTag);
 }
 
