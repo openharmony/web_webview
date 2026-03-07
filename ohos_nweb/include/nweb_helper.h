@@ -157,6 +157,7 @@ public:
     bool GetNWebActiveStatus(int32_t nwebId);
     void SetNWebActiveStatus(int32_t nwebId, bool nwebActiveStatus);
     void RemoveNWebActiveStatus(int32_t nwebId);
+    bool IsNWebInActiveStatusMap(int32_t nwebId);
 
     std::string DumpArkWebInfo(const std::string& param = "");
 
