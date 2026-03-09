@@ -26,6 +26,8 @@ class OHOS_NWEB_EXPORT NWebAgentHandler {
 public:
     enum AISessionType { TRANSLATOR = 0, LANGUAGE_DETECTOR, SUMMARIZER, WRITER, REWRITER, PROMPT, PROOFREADER };
 
+    enum AISessionResultType { SUCCESS = 0, FAILURE, RUNNING };
+
     NWebAgentHandler() = default;
 
     virtual ~NWebAgentHandler() = default;
