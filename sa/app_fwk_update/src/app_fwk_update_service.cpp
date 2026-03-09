@@ -91,6 +91,10 @@ AppFwkUpdateService::~AppFwkUpdateService() {}
 
 ErrCode AppFwkUpdateService::NotifyFWKAfterBmsStart()
 {
+    if (IPCSkeleton::GetCallingUid() != FOUNDATION_UID) {
+        WVLOG_E("GetCallingUid is not FOUNDATION_UID");
+        return ERR_INVALID_VALUE;
+    }
     const std::string bundleName = OHOS::system::GetParameter(PERSIST_ARKWEBCORE_PACKAGE_NAME, "");
     if (bundleName.empty()) {
         WVLOG_E("NotifyFWKAfterBmsStart bundleName is empty");
@@ -110,6 +114,10 @@ ErrCode AppFwkUpdateService::NotifyFWKAfterBmsStart()
 
 ErrCode AppFwkUpdateService::NotifyArkWebInstallSuccess()
 {
+    if (IPCSkeleton::GetCallingUid() != FOUNDATION_UID) {
+        WVLOG_E("GetCallingUid is not FOUNDATION_UID");
+        return ERR_INVALID_VALUE;
+    }
     int preloadMode = OHOS::system::GetIntParameter("const.startup.nwebspawn.preloadMode", 0);
     bool bootCompleted = OHOS::system::GetBoolParameter("bootevent.boot.completed", false);
     WVLOG_I("NwebSpawn preload render lib mode: %{public}d, boot completed: %{public}d", preloadMode, bootCompleted);
