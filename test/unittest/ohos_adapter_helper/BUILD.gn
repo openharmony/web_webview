@@ -12,7 +12,6 @@
 # limitations under the License.
 
 import("//base/web/webview/web_aafwk.gni")
-import("//base/web/webview/web_aafwk.gni")
 import("//build/test.gni")
 import("$webview_path/config.gni")
 

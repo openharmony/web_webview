@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
+import("//base/web/webview/web_aafwk.gni")
 
 module_output_path = "webview/Web_Framework"
 
