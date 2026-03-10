@@ -36,13 +36,16 @@ ohos_unittest("system_properties_adapter_test") {
     "../../../../ohos_nweb:web_configs",
   ]
 
+  deps += [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
+
   external_deps = [
     "c_utils:utils",
     "googletest:gmock_main",
     "googletest:gtest_main",
     "hilog:libhilog",
     "libxml2:libxml2",
-    "webview:libnweb",
     "ability_runtime:ability_connect_callback_stub",
     "bundle_framework:appexecfwk_core",
   ]

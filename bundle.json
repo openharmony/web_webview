@@ -42,12 +42,15 @@
                 "camera_framework",
                 "cellular_data",
                 "certificate_manager",
+                "cJSON",
                 "common_event_service",
                 "config_policy",
                 "core_service",
                 "data_share",
                 "drivers_interface_display",
+                "drivers_interface_camera",
                 "enterprise_device_management",
+                "ets_frontend",
                 "eventhandler",
                 "file_api",
                 "graphic_2d",
@@ -88,9 +91,11 @@
                 "drm_framework",
                 "drivers_peripheral_display",
                 "selinux_adapter",
+                "resource_management",
                 "runtime_core",
                 "jsoncpp",
-                "os_account"
+                "os_account",
+                "zlib"
             ]
         },
         "build": {

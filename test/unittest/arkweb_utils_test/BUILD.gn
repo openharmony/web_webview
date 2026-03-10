@@ -38,7 +38,9 @@ ohos_unittest("arkweb_utils_test") {
     "$webview_path/arkweb_utils:libarkweb_utils",
     "$webview_path/ohos_adapter:nweb_ohos_adapter"
   ]
-
+  deps += [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
   external_deps = [
     "ability_runtime:app_context",
     "ability_runtime:app_manager",
@@ -55,7 +57,6 @@ ohos_unittest("arkweb_utils_test") {
     "bundle_framework:appexecfwk_base",
     "graphic_2d:librender_service_client",
     "init:libbegetutil",
-    "webview:libnweb",
     "window_manager:libwm",
     "selinux_adapter:librestorecon"
   ]

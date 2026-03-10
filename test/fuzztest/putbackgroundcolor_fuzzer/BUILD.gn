@@ -34,12 +34,14 @@ ohos_fuzztest("PutBackgroundColorFuzzTest") {
     "../../unittest/common/nweb_create_window.cpp",
     "putbackgroundcolor_fuzzer.cpp",
   ]
+  deps = [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
   external_deps = [
     "c_utils:utils",
     "graphic_2d:librender_service_base",
     "graphic_2d:librender_service_client",
     "hilog:libhilog",
-    "webview:libnweb",
     "window_manager:libwm",
     "ability_runtime:ability_connect_callback_stub",
   ]
