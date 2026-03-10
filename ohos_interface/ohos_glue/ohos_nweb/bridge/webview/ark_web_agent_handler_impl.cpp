@@ -16,6 +16,7 @@
 #include "ohos_nweb/bridge/ark_web_agent_handler_impl.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
+#include "ohos_nweb/bridge/ark_web_string_vector_value_callback_wrapper.h"
 
 namespace OHOS::ArkWeb {
 
@@ -26,6 +27,41 @@ ArkWebAgentHandlerImpl::ArkWebAgentHandlerImpl(std::shared_ptr<OHOS::NWeb::NWebA
 void ArkWebAgentHandlerImpl::ReportEventJson(const ArkWebString& json)
 {
     nweb_agent_handler_->ReportEventJson(ArkWebStringStructToClass(json));
+}
+
+void ArkWebAgentHandlerImpl::OnCreateAISession(int type, const ArkWebString& id, const ArkWebString& params,
+    ArkWebRefPtr<ArkWebStringVectorValueCallback> callback)
+{
+    std::shared_ptr<OHOS::NWeb::NWebStringVectorValueCallback> nweb_callback = nullptr;
+    if (!CHECK_REF_PTR_IS_NULL(callback)) {
+        nweb_callback = std::make_shared<ArkWebStringVectorValueCallbackWrapper>(callback);
+    }
+    nweb_agent_handler_->OnCreateAISession(
+        static_cast<OHOS::NWeb::NWebAgentHandler::AISessionType>(type),
+        ArkWebStringStructToClass(id),
+        ArkWebStringStructToClass(params),
+        nweb_callback);
+}
+
+void ArkWebAgentHandlerImpl::OnExecuteAIAction(int type, const ArkWebString& id, const ArkWebString& params,
+    ArkWebRefPtr<ArkWebStringVectorValueCallback> callback)
+{
+    std::shared_ptr<OHOS::NWeb::NWebStringVectorValueCallback> nweb_callback = nullptr;
+    if (!CHECK_REF_PTR_IS_NULL(callback)) {
+        nweb_callback = std::make_shared<ArkWebStringVectorValueCallbackWrapper>(callback);
+    }
+    nweb_agent_handler_->OnExecuteAIAction(
+        static_cast<OHOS::NWeb::NWebAgentHandler::AISessionType>(type),
+        ArkWebStringStructToClass(id),
+        ArkWebStringStructToClass(params),
+        nweb_callback);
+}
+
+void ArkWebAgentHandlerImpl::OnDestroyAISession(int type, const ArkWebString& id)
+{
+    nweb_agent_handler_->OnDestroyAISession(
+        static_cast<OHOS::NWeb::NWebAgentHandler::AISessionType>(type),
+        ArkWebStringStructToClass(id));
 }
 
 } // namespace OHOS::ArkWeb

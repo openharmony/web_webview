@@ -17,12 +17,17 @@
 #define NWEB_AGENT_HANDLER_H
 
 #include "nweb_export.h"
+#include "nweb_value_callback.h"
 #include <string>
 
 namespace OHOS::NWeb {
 
 class OHOS_NWEB_EXPORT NWebAgentHandler {
 public:
+    enum AISessionType { TRANSLATOR = 0, LANGUAGE_DETECTOR, SUMMARIZER, WRITER, REWRITER, PROMPT, PROOFREADER };
+
+    enum AISessionResultType { SUCCESS = 0, FAILURE, RUNNING };
+
     NWebAgentHandler() = default;
 
     virtual ~NWebAgentHandler() = default;
@@ -33,6 +38,36 @@ public:
      * @param json The JSON string describing the event.
      */
     virtual void ReportEventJson(const std::string& json) {}
+
+    /**
+     * @brief Called when creating AI session.
+     *
+     * @param type The type enum of the AI session.
+     * @param id The ID string of the AI session.
+     * @param params The JSON string describing the params.
+     * @param callback The callback object notifying the result.
+     */
+    virtual void OnCreateAISession(AISessionType type, const std::string& id, const std::string& params,
+        std::shared_ptr<NWebStringVectorValueCallback> callback) {}
+
+    /**
+     * @brief Called when executing AI action.
+     *
+     * @param type The type enum of the AI session.
+     * @param id The ID string of the AI session.
+     * @param params The JSON string describing the params.
+     * @param callback The callback object notifying the result.
+     */
+    virtual void OnExecuteAIAction(AISessionType type, const std::string& id, const std::string& params,
+        std::shared_ptr<NWebStringVectorValueCallback> callback) {}
+
+    /**
+     * @brief Called when destroying AI session.
+     *
+     * @param type The type enum of the AI session.
+     * @param id The ID string of the AI session.
+     */
+    virtual void OnDestroyAISession(AISessionType type, const std::string& id) {}
 };
 
 } // namespace OHOS::NWeb

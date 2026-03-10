@@ -20,6 +20,7 @@
 #include "base/include/ark_web_base_ref_counted.h"
 #include "base/include/ark_web_types.h"
 #include <string>
+#include "ohos_nweb/include/ark_web_string_vector_value_callback.h"
 
 namespace OHOS::ArkWeb {
 
@@ -33,6 +34,39 @@ public:
      */
     /*--ark web()--*/
     virtual void ReportEventJson(const ArkWebString& json) = 0;
+
+    /**
+     * @brief Called when creating AI session.
+     *
+     * @param type The type enum of the AI session.
+     * @param id The ID string of the AI session.
+     * @param params The JSON string describing the params.
+     * @param callback The callback object notifying the result.
+     */
+    /*--ark web()--*/
+    virtual void OnCreateAISession(int type, const ArkWebString& id, const ArkWebString& params,
+        ArkWebRefPtr<ArkWebStringVectorValueCallback> callback) = 0;
+
+    /**
+     * @brief Called when executing AI action.
+     *
+     * @param type The type enum of the AI session.
+     * @param id The ID string of the AI session.
+     * @param params The JSON string describing the params.
+     * @param callback The callback object notifying the result.
+     */
+    /*--ark web()--*/
+    virtual void OnExecuteAIAction(int type, const ArkWebString& id, const ArkWebString& params,
+        ArkWebRefPtr<ArkWebStringVectorValueCallback> callback) = 0;
+
+    /**
+     * @brief Called when destroying AI session.
+     *
+     * @param type The type enum of the AI session.
+     * @param id The ID string of the AI session.
+     */
+    /*--ark web()--*/
+    virtual void OnDestroyAISession(int type, const ArkWebString& id) = 0;
 };
 
 } // namespace OHOS::ArkWeb
