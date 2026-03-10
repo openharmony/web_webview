@@ -34,7 +34,7 @@ ohos_unittest("nweb_surface_adapter_test") {
 
   configs = [ ":module_private_config" ]
 
-  deps += [
+  deps = [
     "$webview_path/ohos_nweb:libnweb",
   ]
 

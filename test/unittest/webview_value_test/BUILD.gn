@@ -21,7 +21,7 @@ ohos_unittest("webview_value_test") {
 
   sources = [ "webview_value_test.cpp" ]
 
-  deps += [
+  deps = [
     "$webview_path/ohos_nweb:libnweb",
   ]
 
