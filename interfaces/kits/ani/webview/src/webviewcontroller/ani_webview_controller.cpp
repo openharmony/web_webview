@@ -6523,6 +6523,7 @@ static void SetSocketIdleTimeout(ani_env* env, ani_object object, ani_int timeou
         return;
     }
 
+    WVLOG_D("SetSocketIdleTimeout start");
     int32_t socketIdleTimeout =
         std::clamp(static_cast<int32_t>(timeout), MIN_SOCKET_IDLE_TIMEOUT, MAX_SOCKET_IDLE_TIMEOUT);
     NWebHelper::Instance().SetSocketIdleTimeout(socketIdleTimeout);
@@ -7547,7 +7548,6 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "restoreWebState", nullptr, reinterpret_cast<void*>(RestoreWebState) },
         ani_native_function { "getCertificateSync", nullptr, reinterpret_cast<void*>(GetCertificateSync) },
         ani_native_function { "jsProxy", nullptr, reinterpret_cast<void *>(InnerJsProxy) },
-        ani_native_function { "setSocketIdleTimeout", nullptr, reinterpret_cast<void *>(SetSocketIdleTimeout) },
         ani_native_function { "setErrorPageEnabled", nullptr, reinterpret_cast<void*>(SetErrorPageEnabled) },
         ani_native_function { "getErrorPageEnabled", nullptr, reinterpret_cast<void*>(GetErrorPageEnabled) },
         ani_native_function { "getBlanklessInfoWithKey", nullptr, reinterpret_cast<void*>(GetBlanklessInfoWithKey) },
@@ -7640,6 +7640,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
             "setUserAgentClientHintsEnabled", nullptr, reinterpret_cast<void*>(SetUserAgentClientHintsEnabled) },
         ani_native_function {
             "getUserAgentClientHintsEnabled", nullptr, reinterpret_cast<void*>(GetUserAgentClientHintsEnabled) },
+        ani_native_function { "setSocketIdleTimeout", nullptr, reinterpret_cast<void *>(SetSocketIdleTimeout) },
     };
     status = env->Class_BindStaticNativeMethods(webviewControllerCls, controllerStaticMethods.data(),
         controllerStaticMethods.size());
