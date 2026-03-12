@@ -78,6 +78,7 @@ const int32_t KeyEvent::KEYCODE_BACKSLASH = OHOS::MMI::KeyEvent::KEYCODE_BACKSLA
 const int32_t KeyEvent::KEYCODE_SEMICOLON = OHOS::MMI::KeyEvent::KEYCODE_SEMICOLON;
 const int32_t KeyEvent::KEYCODE_APOSTROPHE = OHOS::MMI::KeyEvent::KEYCODE_APOSTROPHE;
 const int32_t KeyEvent::KEYCODE_SLASH = OHOS::MMI::KeyEvent::KEYCODE_SLASH;
+const int32_t KeyEvent::KEYCODE_MENU = OHOS::MMI::KeyEvent::KEYCODE_MENU;
 const int32_t KeyEvent::KEYCODE_PAGE_UP = OHOS::MMI::KeyEvent::KEYCODE_PAGE_UP;
 const int32_t KeyEvent::KEYCODE_PAGE_DOWN = OHOS::MMI::KeyEvent::KEYCODE_PAGE_DOWN;
 const int32_t KeyEvent::KEYCODE_ESCAPE = OHOS::MMI::KeyEvent::KEYCODE_ESCAPE;
