@@ -33,7 +33,7 @@ bool AshmemCreateFuzzTest(const uint8_t* data, size_t size)
     }
     AshmemAdapter ashmem;
     FuzzedDataProvider fdp(data, size);
-    int32_t idx_char_size = fdp.ConsumeIntegralInRang<int32_t>(1, 1000);
+    int32_t idx_char_size = fdp.ConsumeIntegralInRange<int32_t>(1, 1000);
     char* name = new (std::nothrow) char[idx_char_size + 1] { 0 };
     if (name == nullptr) {
         return false;
