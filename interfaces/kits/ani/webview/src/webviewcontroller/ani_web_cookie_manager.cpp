@@ -208,7 +208,10 @@ NWebConfigCookieCallbackImpl::NWebConfigCookieCallbackImpl(ani_env* env, ani_ref
         WVLOG_E("env is nullptr");
         return;
     }
-    env->GetVM(&vm_);
+    if (env->GetVM(&vm_) != ANI_OK) {
+        WVLOG_E("Failed to get VM from env");
+        return;
+    }
     if (callback) {
         if (env->GlobalReference_Create(callback, &callback_) != ANI_OK) {
             WVLOG_E("global reference failed");

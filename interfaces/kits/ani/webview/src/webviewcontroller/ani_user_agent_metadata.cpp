@@ -188,7 +188,10 @@ static void SetFormFactors(ani_env* env, ani_object object, ani_object formFacto
     ani_array arrayRef {};
     arrayRef = static_cast<ani_array>(formFactorsObject);
     ani_size arrayLen = 0;
-    env->Array_GetLength(arrayRef, &arrayLen);
+    if (env->Array_GetLength(arrayRef, &arrayLen) != ANI_OK || arrayLen > SIZE_MAX) {
+        WVLOG_E("Invalid array length");
+        return;
+    }
     ani_class enumClass;
     if (env->FindClass(ANI_USER_AGENT_FORM_FACTOR_ENUM_NAME, &enumClass) != ANI_OK) {
         WVLOG_E("SetFormFactors no enum");

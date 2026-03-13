@@ -3832,7 +3832,9 @@ static std::shared_ptr<NWebEnginePrefetchArgs> ParsePrefetchArgs(ani_env* env, a
 
     ani_ref methodObj = nullptr;
     std::string method;
-    env->Object_GetPropertyByName_Ref(request, "method", &methodObj);
+    if (env->Object_GetPropertyByName_Ref(request, "method", &methodObj) != ANI_OK) {
+        return nullptr;
+    }
     if (!ParsePrepareRequestMethod(env, methodObj, method)) {
         AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
         return nullptr;
@@ -5950,7 +5952,9 @@ static void StoreWebArchivePromiseInternal(
         }
         resultRef[1] = static_cast<ani_ref>(str);
         if (!result.empty()) {
-            env->PromiseResolver_Resolve(deferred, resultRef[1]);
+            if (env->PromiseResolver_Resolve(deferred, resultRef[1]) != ANI_OK) {
+                WVLOG_E("PromiseResolver_Resolve fail");
+            }
         } else {
             env->PromiseResolver_Reject(deferred, reinterpret_cast<ani_error>(resultRef[0]));
         }
