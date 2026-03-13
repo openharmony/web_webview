@@ -767,6 +767,7 @@ HWTEST_F(AppFwkUpdateServiceTest, NotifyFWKAfterBmsStart_001, testing::ext::Test
  */
 HWTEST_F(AppFwkUpdateServiceTest, NotifyFWKAfterBmsStart_002, testing::ext::TestSize.Level0)
 {
+    SetCallingUidValue(5523);
     AppSpawnClientHandle clientHandle = reinterpret_cast<AppSpawnClientHandle>(1);
     AppSpawnReqMsgHandle reqHandle = reinterpret_cast<AppSpawnReqMsgHandle>(1);
 
@@ -791,6 +792,7 @@ HWTEST_F(AppFwkUpdateServiceTest, NotifyFWKAfterBmsStart_002, testing::ext::Test
  */
 HWTEST_F(AppFwkUpdateServiceTest, NotifyFWKAfterBmsStart_003, testing::ext::TestSize.Level0)
 {
+    SetCallingUidValue(5523);
     EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientInit(APPSPAWN_SERVER_NAME, _)).WillRepeatedly(Return(-1));
     EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(_, _, _)).Times(0);
     EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientSendMsg(_, _, _)).Times(0);
@@ -807,6 +809,7 @@ HWTEST_F(AppFwkUpdateServiceTest, NotifyFWKAfterBmsStart_003, testing::ext::Test
  */
 HWTEST_F(AppFwkUpdateServiceTest, NotifyFWKAfterBmsStart_004, testing::ext::TestSize.Level0)
 {
+    SetCallingUidValue(5523);
     AppSpawnClientHandle clientHandle = reinterpret_cast<AppSpawnClientHandle>(1);
     AppSpawnReqMsgHandle reqHandle = reinterpret_cast<AppSpawnReqMsgHandle>(1);
 
@@ -831,6 +834,7 @@ HWTEST_F(AppFwkUpdateServiceTest, NotifyFWKAfterBmsStart_004, testing::ext::Test
  */
 HWTEST_F(AppFwkUpdateServiceTest, NotifyArkWebInstallSuccess_001, testing::ext::TestSize.Level0)
 {
+    SetCallingUidValue(5523);
     g_intParameter = 0;
     g_boolParameter = 0;
     EXPECT_EQ(service_->NotifyArkWebInstallSuccess(), ERR_OK);
@@ -848,6 +852,7 @@ HWTEST_F(AppFwkUpdateServiceTest, NotifyArkWebInstallSuccess_001, testing::ext::
  */
 HWTEST_F(AppFwkUpdateServiceTest, NotifyArkWebInstallSuccess_002, testing::ext::TestSize.Level0)
 {
+    SetCallingUidValue(5523);
     g_intParameter = 1;
     g_boolParameter = 1;
     g_setParameter = 0;
