@@ -1001,7 +1001,7 @@ export default namespace webview {
             });
         }
 
-        native setSocketIdleTimeout(timeout: int): void;
+        native static setSocketIdleTimeout(timeout: int): void;
         native static enablePrivateNetworkAccess(enable: boolean): void;
         native static isPrivateNetworkAccessEnabled(): boolean;
         native setErrorPageEnabled(enable: boolean): void;
