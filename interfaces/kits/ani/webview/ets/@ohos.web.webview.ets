@@ -694,6 +694,7 @@ export default namespace webview {
         SYSTEM_DEFAULT = 0,
         M114 = 1,
         M132 = 2,
+        M144 = 3,
         ARKWEB_EVERGREEN = 99999
     }
 

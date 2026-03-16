@@ -113,6 +113,11 @@ typedef enum {
      * @since 20
      */
     ARKWEB_M132 = 2,
+    /**
+     * ArkWeb M144 version.
+     * @since 26
+     */
+    ARKWEB_M144 = 3,
 
     /**
      * ArkWeb Evergreen Web Engine, always use the new ArkWeb Engine.
