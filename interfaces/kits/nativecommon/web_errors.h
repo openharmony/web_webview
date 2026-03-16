@@ -36,6 +36,7 @@ namespace ParamCheckErrorMsgTemplate {
    extern const char* INVALID_URL_FOR_COOKIE;
    extern const char* URL_INVALID_OR_TOO_LONG;
    extern const char* URL_INVALID;
+   extern const char* JS_RETURN_EMPTY_ARRAYBUFFER;
 }
 namespace NWebError {
 constexpr ErrCode NWEB_ERROR = -1;
