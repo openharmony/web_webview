@@ -40,7 +40,11 @@ const char* WEB_DATA_BASE_CLASS_NAME = "@ohos.web.webview.webview.WebDataBase";
 bool GetStringPara(ani_env* env, ani_string dataStr)
 {
     ani_size bufferSize = 0;
-    env->String_GetUTF8Size(dataStr, &bufferSize);
+    ani_status status = env->String_GetUTF8Size(dataStr, &bufferSize);
+    if (status != ANI_OK) {
+        WVLOG_E("GetStringPara String_GetUTF8Size failed, status: %{public}d", status);
+        return false;
+    }
     if (bufferSize > MAX_STRING_LENGTH) {
         return false;
     }
@@ -50,7 +54,11 @@ bool GetStringPara(ani_env* env, ani_string dataStr)
 bool GetSize(ani_env* env, ani_string pwd, ani_size& outValue)
 {
     ani_size bufferSize = 0;
-    env->String_GetUTF8Size(pwd, &bufferSize);
+    ani_status status = env->String_GetUTF8Size(pwd, &bufferSize);
+    if (status != ANI_OK) {
+        WVLOG_E("GetSize String_GetUTF8Size failed, status: %{public}d", status);
+        return false;
+    }
     if (bufferSize > MAX_PWD_LENGTH) {
         WVLOG_E("bufferSize exceed MAX_PWD_LENGTH");
         return false;
@@ -62,7 +70,11 @@ bool GetSize(ani_env* env, ani_string pwd, ani_size& outValue)
 bool GetCharPara(ani_env* env, ani_string pwd, ani_size bufferSize)
 {
     ani_size jsStringLength = 0;
-    env->String_GetUTF8Size(pwd, &jsStringLength);
+    ani_status status = env->String_GetUTF8Size(pwd, &jsStringLength);
+    if (status != ANI_OK) {
+        WVLOG_E("GetCharPara String_GetUTF8Size failed, status: %{public}d", status);
+        return false;
+    }
     if (jsStringLength != bufferSize) {
         return false;
     }
