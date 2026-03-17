@@ -44,6 +44,7 @@ const std::string BASE_WEB_CONFIG = "baseWebConfig";
 const std::string WEB_ANIMATION_DYNAMIC_SETTING_CONFIG = "property_animation_dynamic_settings";
 const std::string WEB_ANIMATION_DYNAMIC_APP = "dynamic_apps";
 const std::string WEB_LTPO_STRATEGY = "ltpo_strategy";
+const std::string WEB_LOAD_URL_CONFIG = "load_url_config";
 const std::string WEB_LOAD_URL = "load_url";
 const std::string WEB_DVSYNC_CONFIG = "dvsync_config";
 const std::string WEB_DVSYNC_SWITCH = "dvsync_switch";
@@ -403,6 +404,10 @@ void NWebConfigHelper::ParseWebConfigXml(const std::string& configFilePath,
             ParseNWebDvsync(dvsyncConfigNodePtr);
         }
     }
+    xmlNodePtr loadUrlConfigNodePtr = GetChildrenNode(rootPtr, WEB_LOAD_URL_CONFIG);
+    if (loadUrlConfigNodePtr != nullptr) {
+        ParseNWebLoadUrl(loadUrlConfigNodePtr);
+    }
     xmlNodePtr windowOrientationNodePtr = GetChildrenNode(rootPtr, WEB_WINDOW_ORIENTATION_CONFIG);
     if (windowOrientationNodePtr != nullptr) {
         WVLOG_D("read config from window orientation node");
@@ -431,10 +436,6 @@ void NWebConfigHelper::ParseNWebLTPOConfig(xmlNodePtr nodePtr)
         }
         if (settingName == WEB_LTPO_STRATEGY) {
             ParseNWebLTPOStrategy(curNodePtr);
-            continue;
-        }
-        if (settingName == WEB_LOAD_URL) {
-            ParseNWebLoadUrl(curNodePtr);
             continue;
         }
         std::vector<FrameRateSetting> frameRateSetting;
@@ -492,14 +493,24 @@ void NWebConfigHelper::ParseNWebLTPOStrategy(xmlNodePtr nodePtr)
 
 void NWebConfigHelper::ParseNWebLoadUrl(xmlNodePtr nodePtr)
 {
-    xmlChar *content = xmlNodeGetContent(nodePtr);
-    if (content == nullptr) {
-        WVLOG_E("read load_url xml node error");
-        return;
+    for (xmlNodePtr curNodePtr = nodePtr->xmlChildrenNode; curNodePtr; curNodePtr = curNodePtr->next) {
+        if (curNodePtr->name == nullptr || curNodePtr->type == XML_COMMENT_NODE) {
+            WVLOG_E("invalid node!");
+            continue;
+        }
+        std::string nodeName = reinterpret_cast<const char *>(curNodePtr->name);
+        if (nodeName == WEB_LOAD_URL) {
+            xmlChar *content = xmlNodeGetContent(curNodePtr);
+            if (content == nullptr) {
+                WVLOG_E("read load_url xml node error");
+                return;
+            }
+            loadUrl_ = atoi((char *)content);
+            xmlFree(content);
+            WVLOG_D("load_url is: %{public}d", loadUrl_);
+            return;
+        }
     }
-    loadUrl_ = atoi((char *)content);
-    xmlFree(content);
-    WVLOG_D("load_url is: %{public}d", loadUrl_);
 }
 
 int32_t NWebConfigHelper::GetLoadUrl()
