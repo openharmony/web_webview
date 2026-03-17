@@ -54,6 +54,7 @@ const auto XML_ATTR_NAME = "name";
 const auto XML_BUNDLE_NAME = "bundle_name";
 const auto XML_ENABLE_WINDOW_ORIENTATION = "enable_window_orientation";
 const std::string WEB_LTPO_STRATEGY = "ltpo_strategy";
+const std::string WEB_LOAD_URL = "load_url";
 const std::string WEB_DVSYNC_SWITCH = "dvsync_switch";
 
 class MockNWebConfigHelper : public NWebConfigHelper {
@@ -252,6 +253,109 @@ HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLTPOStrategy_003, TestS
     }
     xmlFreeDoc(doc);
     EXPECT_EQ(NWebConfigHelper::Instance().ltpoStrategy_, 0);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebLoadUrl_001
+ * @tc.desc: ParseNWebLoadUrl when nodePtr is null.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrl_001, TestSize.Level1)
+{
+    xmlNodePtr nodePtr = nullptr;
+    NWebConfigHelper::Instance().loadUrl_ = 100;
+    xmlChar *content = xmlNodeGetContent(nodePtr);
+    EXPECT_EQ(content, nullptr);
+    NWebConfigHelper::Instance().ParseNWebLoadUrl(nodePtr);
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrl_, 100);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebLoadUrl_002
+ * @tc.desc: ParseNWebLoadUrl when nodePtr'value is 3.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrl_002, TestSize.Level1)
+{
+    const char * xmlContent = "<property_animation_dynamic_settings>\n"
+                               "<DynamicSettings name=\"load_url\">3</DynamicSettings>\n"
+                              "</property_animation_dynamic_settings>";
+
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+    xmlNodePtr nodePtr = xmlDocGetRootElement(doc);
+    EXPECT_NE(nodePtr, nullptr);
+    NWebConfigHelper::Instance().loadUrl_ = 100;
+
+    for (xmlNodePtr curNodePtr = nodePtr->xmlChildrenNode; curNodePtr; curNodePtr = curNodePtr->next) {
+        if (curNodePtr->name == nullptr || curNodePtr->type == XML_COMMENT_NODE) {
+            continue;
+        }
+        char* namePtr = (char *)xmlGetProp(curNodePtr, BAD_CAST("name"));
+        if (namePtr == nullptr) {
+            continue;
+        }
+        std::string settingName(namePtr);
+        xmlFree(namePtr);
+        if (settingName == WEB_LOAD_URL) {
+            NWebConfigHelper::Instance().ParseNWebLoadUrl(curNodePtr);
+            break;
+        }
+    }
+    xmlFreeDoc(doc);
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrl_, 3);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebLoadUrl_003
+ * @tc.desc: ParseNWebLoadUrl when nodePtr'value is 0.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrl_003, TestSize.Level1)
+{
+    const char * xmlContent = "<property_animation_dynamic_settings>\n"
+                               "<DynamicSettings name=\"load_url\">0</DynamicSettings>\n"
+                              "</property_animation_dynamic_settings>";
+
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+    xmlNodePtr nodePtr = xmlDocGetRootElement(doc);
+    EXPECT_NE(nodePtr, nullptr);
+    NWebConfigHelper::Instance().loadUrl_ = 100;
+
+    for (xmlNodePtr curNodePtr = nodePtr->xmlChildrenNode; curNodePtr; curNodePtr = curNodePtr->next) {
+        if (curNodePtr->name == nullptr || curNodePtr->type == XML_COMMENT_NODE) {
+            continue;
+        }
+        char* namePtr = (char *)xmlGetProp(curNodePtr, BAD_CAST("name"));
+        if (namePtr == nullptr) {
+            continue;
+        }
+        std::string settingName(namePtr);
+        xmlFree(namePtr);
+        if (settingName == WEB_LOAD_URL) {
+            NWebConfigHelper::Instance().ParseNWebLoadUrl(curNodePtr);
+            break;
+        }
+    }
+    xmlFreeDoc(doc);
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrl_, 0);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_GetLoadUrl_001
+ * @tc.desc: GetLoadUrl returns the correct load URL value.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_GetLoadUrl_001, TestSize.Level1)
+{
+    NWebConfigHelper::Instance().loadUrl_ = 5;
+    int32_t result = NWebConfigHelper::Instance().GetLoadUrl();
+    EXPECT_EQ(result, 5);
 }
 
 /**
