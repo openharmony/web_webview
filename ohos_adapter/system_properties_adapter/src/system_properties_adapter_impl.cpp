@@ -378,6 +378,11 @@ int32_t SystemPropertiesAdapterImpl::GetLTPOStrategy()
     return NWebConfigHelper::Instance().GetLTPOStrategy();
 }
 
+int32_t SystemPropertiesAdapterImpl::GetLoadUrl()
+{
+    return NWebConfigHelper::Instance().GetLoadUrl();
+}
+
 std::string SystemPropertiesAdapterImpl::GetVulkanStatus()
 {
     if ((OHOS::system::GetParameter("const.gpu.vendor", "0").compare("higpu.v200") == 0)
