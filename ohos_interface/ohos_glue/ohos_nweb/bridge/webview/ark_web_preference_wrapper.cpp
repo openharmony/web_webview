@@ -641,4 +641,11 @@ void ArkWebPreferenceWrapper::SetEnableAutoFill(bool enable)
         ark_web_preference_->SetEnableAutoFill(enable);
     }
 }
+
+void ArkWebPreferenceWrapper::SetEnableDrag(bool enable)
+{
+    if (ark_web_preference_) {
+        ark_web_preference_->SetEnableDrag(enable);
+    }
+}
 } // namespace OHOS::ArkWeb

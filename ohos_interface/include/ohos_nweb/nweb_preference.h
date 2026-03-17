@@ -718,6 +718,13 @@ public:
      * @param enable bool: Indicates the flag whether autofill is enabled.
      */
     virtual void SetEnableAutoFill(bool enable) {}
+
+    /**
+     * @brief Enables or disables drag.
+     *
+     * @param enable bool: Indicates the flag whether drag is enabled.
+     */
+    virtual void SetEnableDrag(bool enable) {}
 };
 
 } // namespace OHOS::NWeb

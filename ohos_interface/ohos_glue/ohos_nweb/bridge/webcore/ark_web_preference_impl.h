@@ -716,6 +716,13 @@ public:
      */
     void SetEnableAutoFill(bool enable) override;
 
+    /**
+     * @brief Sets whether enable drag.
+     *
+     * @param enable bool: Indicates the flag whether drag is enabled.
+     */
+    void SetEnableDrag(bool enable) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebPreference> nweb_preference_;
 };

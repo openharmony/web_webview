@@ -560,4 +560,11 @@ void ArkWebPreferenceImpl::SetEnableAutoFill(bool enable)
         nweb_preference_->SetEnableAutoFill(enable);
     }
 }
+
+void ArkWebPreferenceImpl::SetEnableDrag(bool enable)
+{
+    if (nweb_preference_) {
+        nweb_preference_->SetEnableDrag(enable);
+    }
+}
 } // namespace OHOS::ArkWeb
