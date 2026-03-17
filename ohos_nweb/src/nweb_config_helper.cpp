@@ -44,6 +44,7 @@ const std::string BASE_WEB_CONFIG = "baseWebConfig";
 const std::string WEB_ANIMATION_DYNAMIC_SETTING_CONFIG = "property_animation_dynamic_settings";
 const std::string WEB_ANIMATION_DYNAMIC_APP = "dynamic_apps";
 const std::string WEB_LTPO_STRATEGY = "ltpo_strategy";
+const std::string WEB_LOAD_URL = "load_url";
 const std::string WEB_DVSYNC_CONFIG = "dvsync_config";
 const std::string WEB_DVSYNC_SWITCH = "dvsync_switch";
 const std::string WEB_WINDOW_ORIENTATION_CONFIG = "window_orientation_config";
@@ -432,6 +433,10 @@ void NWebConfigHelper::ParseNWebLTPOConfig(xmlNodePtr nodePtr)
             ParseNWebLTPOStrategy(curNodePtr);
             continue;
         }
+        if (settingName == WEB_LOAD_URL) {
+            ParseNWebLoadUrl(curNodePtr);
+            continue;
+        }
         std::vector<FrameRateSetting> frameRateSetting;
         for (xmlNodePtr curDynamicNodePtr = curNodePtr->xmlChildrenNode; curDynamicNodePtr;
             curDynamicNodePtr = curDynamicNodePtr->next) {
@@ -483,6 +488,23 @@ void NWebConfigHelper::ParseNWebLTPOStrategy(xmlNodePtr nodePtr)
     ltpoStrategy_ = atoi((char *)content);
     xmlFree(content);
     WVLOG_D("ltpo strategy is: %{public}d", ltpoStrategy_);
+}
+
+void NWebConfigHelper::ParseNWebLoadUrl(xmlNodePtr nodePtr)
+{
+    xmlChar *content = xmlNodeGetContent(nodePtr);
+    if (content == nullptr) {
+        WVLOG_E("read load_url xml node error");
+        return;
+    }
+    loadUrl_ = atoi((char *)content);
+    xmlFree(content);
+    WVLOG_D("load_url is: %{public}d", loadUrl_);
+}
+
+int32_t NWebConfigHelper::GetLoadUrl()
+{
+    return loadUrl_;
 }
 
 bool NWebConfigHelper::IsLTPODynamicApp(const std::string& bundleName)
