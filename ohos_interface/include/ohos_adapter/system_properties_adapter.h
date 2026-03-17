@@ -95,6 +95,8 @@ public:
 
     virtual int32_t GetLTPOStrategy() = 0;
 
+    virtual int32_t GetLoadUrl() = 0;
+
     virtual std::string GetUserAgentBaseOSName() = 0;
 
     virtual std::string GetUserAgentOSVersion() = 0;
