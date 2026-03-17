@@ -84,6 +84,8 @@ public:
 
     int32_t GetLTPOStrategy() override;
 
+    int32_t GetLoadUrl() override;
+
     std::string GetVulkanStatus() override;
 
     std::string GetCompatibleDeviceType() override;
