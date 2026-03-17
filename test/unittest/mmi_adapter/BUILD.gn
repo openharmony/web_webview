@@ -37,6 +37,7 @@ ohos_unittest("nweb_mmi_adapter_test") {
     "googletest:gtest_main",
     "hilog:libhilog",
     "input:libmmi-client",
+    "ipc:ipc_core",
   ]
 }
 

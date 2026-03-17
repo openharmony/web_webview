@@ -33,7 +33,10 @@ ohos_fuzztest("DatabaseOnCreateFuzzTest") {
   sources = [ "databaseoncreate_fuzzer.cpp" ]
   deps = [ "$webview_path/ohos_adapter:nweb_ohos_adapter" ]
 
-  external_deps = [ "relational_store:native_rdb" ]
+  external_deps = [ 
+    "relational_store:native_rdb",
+    "c_utils:utils",
+  ]
 }
 
 group("fuzztest") {

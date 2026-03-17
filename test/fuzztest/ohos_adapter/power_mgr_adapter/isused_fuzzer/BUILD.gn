@@ -39,6 +39,8 @@ ohos_fuzztest("IsUsedFuzzTest") {
     external_deps = [
       "hilog:libhilog",
       "power_manager:powermgr_client",
+      "c_utils:utils",
+      "ipc:ipc_core",
     ]
   }
 }

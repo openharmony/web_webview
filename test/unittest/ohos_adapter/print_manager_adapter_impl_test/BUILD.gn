@@ -47,6 +47,8 @@ ohos_unittest("print_manager_adapter_impl_test") {
     "googletest:gtest_main",
     "jsoncpp:jsoncpp",
     "napi:ace_napi",
+    "ipc:ipc_core",
+    "ability_base:want",
   ]
 
   if (webview_print_enable) {
