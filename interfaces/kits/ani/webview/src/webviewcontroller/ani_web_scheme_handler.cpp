@@ -49,7 +49,10 @@ static void OnRequestStart(ani_env* env, ani_object object, ani_fn_object callba
         return;
     }
     ani_vm* vm = nullptr;
-    env->GetVM(&vm);
+    if (env->GetVM(&vm) != ANI_OK) {
+        WVLOG_E("get vm from env error");
+        return;
+    }
     webSchemeHandler->PutRequestStart(env, vm, callback);
 }
 
@@ -88,7 +91,10 @@ static void OnRequestStop(ani_env* env, ani_object object, ani_fn_object callbac
         return;
     }
     ani_vm* vm = nullptr;
-    env->GetVM(&vm);
+    if (env->GetVM(&vm) != ANI_OK) {
+        WVLOG_E("get vm from env error");
+        return;
+    }
     webSchemeHandler->PutRequestStop(env, vm, callback);
 }
 

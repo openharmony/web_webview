@@ -237,7 +237,10 @@ bool GetHeaderProcessItems(ani_env* env, std::vector<std::pair<std::string, std:
             WVLOG_E("getHeader Get headerValue failed");
             return false;
         }
-        env->Array_Set(array, i, webHeaderObj);
+        if (ANI_OK != env->Array_Set(array, i, webHeaderObj)) {
+            WVLOG_E("Array set failed");
+            return false;
+        }
     }
     return true;
 }
