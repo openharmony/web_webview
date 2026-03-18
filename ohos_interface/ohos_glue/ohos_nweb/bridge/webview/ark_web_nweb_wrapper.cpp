@@ -2129,4 +2129,14 @@ void ArkWebNWebWrapper::UpdateWebLtpoInfo()
 {
     ark_web_nweb_->UpdateWebLtpoInfo();
 }
+
+void ArkWebNWebWrapper::SetScrollbarLayoutPolicy(int policy)
+{
+    ark_web_nweb_->SetScrollbarLayoutPolicy(policy);
+}
+
+void ArkWebNWebWrapper::SetIsSystemRtlEnable(bool enable)
+{
+    ark_web_nweb_->SetIsSystemRtlEnable(enable);
+}
 } // namespace OHOS::ArkWeb

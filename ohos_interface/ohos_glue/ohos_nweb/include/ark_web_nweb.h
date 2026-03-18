@@ -2276,6 +2276,24 @@ public:
      */
     /*--ark web()--*/
     virtual void UpdateWebLtpoInfo() = 0;
+
+    /**
+     * @brief Set web user interface direction policy.
+     *        Controls whether the UI direction follows content or system settings.
+     *
+     * @param policy The direction policy: 0=Content (follow content), 1=System (follow system settings).
+     */
+    /*--ark web()--*/
+    virtual void SetScrollbarLayoutPolicy(int policy) = 0;
+
+    /**
+     * @brief Set whether system RTL is enabled.
+     *        When enabled, RTL layout direction will be used based on system settings.
+     *
+     * @param enable True to enable system RTL, false to disable.
+     */
+    /*--ark web()--*/
+    virtual void SetIsSystemRtlEnable(bool enable) = 0;
 };
 
 } // namespace OHOS::ArkWeb
