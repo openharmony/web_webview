@@ -118,13 +118,6 @@ public:
     virtual int32_t GetInitialCongestionWindowSize() = 0;
 
     virtual int32_t GetIntParameter(const std::string& key, int32_t defaultValue) = 0;
-
-    virtual std::string GetTopPriorityConfigPath(const std::string& relativePath) { return ""; }
-
-    virtual std::vector<std::string> GetConfigPathsInPriorityOrder(const std::string& relativePath)
-    {
-        return std::vector<std::string>();
-    }
 };
 
 } // namespace OHOS::NWeb
