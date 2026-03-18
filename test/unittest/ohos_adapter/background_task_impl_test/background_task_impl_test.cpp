@@ -70,7 +70,7 @@ void BackgroundTaskImplTest::TearDown(void)
  * @tc.type: FUNC
  * @tc.require:
  */
-HWTEST_F(BackgroundTaskImplTest, BackgroundTaskImplTest_BackgroundTaskAdapter_001, TestSize.Level1)
+HWTEST_F(BackgroundTaskImplTest, BackgroundTaskImplTest_BackgroundTaskAdapter_001, TestSize.Level0)
 {
     g_errCode = 0;
     bool result = BackgroundTaskAdapter::RequestBackgroundRunning(true, BackgroundModeAdapter::DATA_TRANSFER);
@@ -102,7 +102,7 @@ HWTEST_F(BackgroundTaskImplTest, BackgroundTaskImplTest_BackgroundTaskAdapter_00
  * @tc.type: FUNC
  * @tc.require:
  */
-HWTEST_F(BackgroundTaskImplTest, BackgroundTaskImplTest_BackgroundTaskAdapter_002, TestSize.Level1)
+HWTEST_F(BackgroundTaskImplTest, BackgroundTaskImplTest_BackgroundTaskAdapter_002, TestSize.Level0)
 {
     std::shared_ptr<BackgroundStateChangeCallbackAdapter> callback =
         std::make_shared<BackgroundStateChangeCallbackAdapterMock>();
@@ -118,7 +118,7 @@ HWTEST_F(BackgroundTaskImplTest, BackgroundTaskImplTest_BackgroundTaskAdapter_00
  * @tc.type: FUNC
  * @tc.require:
  */
-HWTEST_F(BackgroundTaskImplTest, BackgroundTaskImplTest_BackgroundTaskAdapter_003, TestSize.Level1)
+HWTEST_F(BackgroundTaskImplTest, BackgroundTaskImplTest_BackgroundTaskAdapter_003, TestSize.Level0)
 {
     std::shared_ptr<BackgroundStateChangeCallbackAdapter> callback =
         std::make_shared<BackgroundStateChangeCallbackAdapterMock>();
@@ -156,7 +156,7 @@ HWTEST_F(BackgroundTaskImplTest, BackgroundTaskImplTest_BackgroundTaskAdapter_00
  * @tc.type: FUNC
  * @tc.require:
  */
-HWTEST_F(BackgroundTaskImplTest, BackgroundTaskImplTest_BackgroundTaskAdapter_004, TestSize.Level1)
+HWTEST_F(BackgroundTaskImplTest, BackgroundTaskImplTest_BackgroundTaskAdapter_004, TestSize.Level0)
 {
     std::shared_ptr<BackgroundStateChangeCallbackAdapter> callback =
         std::make_shared<BackgroundStateChangeCallbackAdapterMock>();
