@@ -36,6 +36,7 @@ ohos_fuzztest("ExistHttpAuthCredentialsFuzzTest") {
   external_deps = [ 
     "relational_store:native_rdb",
     "c_utils:utils",
+    "bounds_checking_function:libsec_shared",
   ]
 }
 
