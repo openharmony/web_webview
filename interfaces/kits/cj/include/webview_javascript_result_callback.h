@@ -57,11 +57,13 @@ public:
 
     std::vector<std::string> GetMethodNames()
     {
+        std::unique_lock<std::mutex> lock(mutex_);
         return methods_;
     }
 
     std::string GetPermission()
     {
+        std::unique_lock<std::mutex> lock(mutex_);
         return permission_;
     }
 
@@ -76,7 +78,7 @@ public:
             WEBVIEWLOGE("HasMethod methodName null");
             return -1;
         }
-
+        std::unique_lock<std::mutex> lock(mutex_);
         if (!isMethodsSetup_) {
             return -1;
         }
@@ -91,11 +93,8 @@ public:
 
     std::function<char*(const char*)> FindMethod(const std::string& methodName)
     {
-        if (!isMethodsSetup_) {
-            return nullptr;
-        }
         auto index = HasMethod(methodName);
-        if (index != -1) {
+        if (index != -1 && index < static_cast<int>(cjFuncs_.size())) {
             return cjFuncs_[index];
         }
         return nullptr;
