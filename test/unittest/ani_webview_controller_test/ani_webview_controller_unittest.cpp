@@ -75,6 +75,33 @@ protected:
         return ANI_OK;
     }
 
+    static ani_status MockObject_SetPropertyByName_Double(ani_env* env, ani_object object, const char* name,
+        ani_double value)
+    {
+        if (g_setPropertyByNameDoubleShouldFail) {
+            return ANI_ERROR;
+        }
+        return ANI_OK;
+    }
+
+    static ani_status MockObject_SetPropertyByName_Ref(ani_env* env, ani_object object, const char* name,
+        ani_ref value)
+    {
+        if (g_setPropertyByNameRefShouldFail) {
+            return ANI_ERROR;
+        }
+        return ANI_OK;
+    }
+
+    static ani_status MockString_NewUTF8(ani_env* env, const char* str, size_t length, ani_string* result)
+    {
+        if (g_stringNewUTF8ShouldFail) {
+            return ANI_ERROR;
+        }
+        *result = reinterpret_cast<ani_string>(GetMockObject(POOL_INDEX_STRING));
+        return ANI_OK;
+    }
+
     static ani_status MockCreateArrayBuffer(ani_env* env, size_t length, void** data_result,
         ani_arraybuffer* arraybuffer_result)
     {
@@ -93,25 +120,30 @@ protected:
 
     // vtable offset enumeration
     enum VTableOffset {
-        VT_FIND_ENUM = 16,                    // FindEnum offset
-        VT_REFERENCE_IS_UNDEFINED = 39,      // Reference_IsUndefined offset
-        VT_ENUM_GET_ENUM_ITEM_BY_INDEX = 86, // Enum_GetEnumItemByIndex offset
-        VT_ENUMITEM_GET_VALUE_INT = 88,      // EnumItem_GetValue_Int offset
-        VT_CREATE_ARRAY_BUFFER = 384,        // CreateArrayBuffer offset
-        VT_PROMISE_NEW = 386                 // Promise_New offset
+        VT_FIND_ENUM = 16,                            // FindEnum offset
+        VT_REFERENCE_IS_UNDEFINED = 39,               // Reference_IsUndefined offset
+        VT_STRING_NEW_UTF8 = 47,                      // String_NewUTF8 offset
+        VT_ENUM_GET_ENUM_ITEM_BY_INDEX = 86,          // Enum_GetEnumItemByIndex offset
+        VT_ENUMITEM_GET_VALUE_INT = 88,               // EnumItem_GetValue_Int offset
+        VT_OBJECT_SET_PROPERTY_BY_NAME_DOUBLE = 298,  // Object_SetPropertyByName_Double offset
+        VT_OBJECT_SET_PROPERTY_BY_NAME_REF = 299,     // Object_SetPropertyByName_Ref offset
+        // Attention:Object_CallMethodByName_Int(342) is variadic function, mock cause segfault
+        VT_CREATE_ARRAY_BUFFER = 384,                 // CreateArrayBuffer offset
+        VT_PROMISE_NEW = 386                          // Promise_New offset
     };
 
     // Address pool index enumeration
     enum MockPoolIndex {
-        POOL_INDEX_ENV = 0,           // env pointer
-        POOL_INDEX_CALLBACK = 1,      // callback object
-        POOL_INDEX_MODE = 2,          // mode enum item
-        POOL_INDEX_ANI_CLASS = 3,     // aniClass object
-        POOL_INDEX_ENUM_ITEM = 4,     // ani_enum_item (Mock return value)
-        POOL_INDEX_RESOLVER = 5,      // ani_resolver (Mock return value)
-        POOL_INDEX_PROMISE = 6,       // ani_object promise (Mock return value)
-        POOL_INDEX_ARRAY_BUFFER = 7,  // ani_arraybuffer (Mock return value)
-        POOL_INDEX_NULL_CONTROLLER = 8 // controller (nullptr scenario)
+        POOL_INDEX_ENV = 0,                 // env pointer
+        POOL_INDEX_CALLBACK = 1,            // callback object
+        POOL_INDEX_MODE = 2,                // mode enum item
+        POOL_INDEX_ANI_CLASS = 3,           // aniClass object
+        POOL_INDEX_ENUM_ITEM = 4,           // ani_enum_item (Mock return value)
+        POOL_INDEX_RESOLVER = 5,            // ani_resolver (Mock return value)
+        POOL_INDEX_PROMISE = 6,             // ani_object promise (Mock return value)
+        POOL_INDEX_ARRAY_BUFFER = 7,        // ani_arraybuffer (Mock return value)
+        POOL_INDEX_NULL_CONTROLLER = 8,     // controller (nullptr scenario)
+        POOL_INDEX_STRING = 9               // ani_string (Mock return value)
     };
 
     static constexpr ani_int TEST_WEB_ID = 100;     // test WebId
@@ -131,6 +163,12 @@ protected:
     static bool g_enumItemGetValueShouldFail;
     static ani_int g_enumItemGetValueResult;
     static bool g_createArrayBufferShouldFail;
+    static bool g_objectCallMethodShouldFail;
+    static ani_int g_objectCallMethodResult;
+    static bool g_setPropertyByNameDoubleShouldFail;
+    static bool g_setPropertyByNameRefShouldFail;
+    static bool g_stringNewUTF8ShouldFail;
+    static bool g_setSiteIsolationModeShouldFail;
 
     // Mock object address pool - each element has unique address
     static char g_mockObjectPool[MOCK_POOL_SIZE];
@@ -158,8 +196,11 @@ protected:
             // Set vtable function pointers
             g_fakeVtable[VT_FIND_ENUM] = (void*)MockFindEnum;
             g_fakeVtable[VT_REFERENCE_IS_UNDEFINED] = (void*)MockReference_IsUndefined;
+            g_fakeVtable[VT_STRING_NEW_UTF8] = (void*)MockString_NewUTF8;
             g_fakeVtable[VT_ENUM_GET_ENUM_ITEM_BY_INDEX] = (void*)MockEnum_GetEnumItemByIndex;
             g_fakeVtable[VT_ENUMITEM_GET_VALUE_INT] = (void*)MockEnumItem_GetValue_Int;
+            g_fakeVtable[VT_OBJECT_SET_PROPERTY_BY_NAME_DOUBLE] = (void*)MockObject_SetPropertyByName_Double;
+            g_fakeVtable[VT_OBJECT_SET_PROPERTY_BY_NAME_REF] = (void*)MockObject_SetPropertyByName_Ref;
             g_fakeVtable[VT_CREATE_ARRAY_BUFFER] = (void*)MockCreateArrayBuffer;
             g_fakeVtable[VT_PROMISE_NEW] = (void*)MockPromise_New;
             g_vtableInitialized = true;
@@ -186,8 +227,15 @@ protected:
         g_enumItemGetValueShouldFail = false;
         g_enumItemGetValueResult = 0;
         g_createArrayBufferShouldFail = false;
+        g_objectCallMethodShouldFail = false;
+        g_objectCallMethodResult = 0;
+        g_setPropertyByNameDoubleShouldFail = false;
+        g_setPropertyByNameRefShouldFail = false;
+        g_stringNewUTF8ShouldFail = false;
+        g_setSiteIsolationModeShouldFail = false;
         OHOS::NWeb::AniParseUtils::g_isFunctionResult = true;
         OHOS::NWeb::WebviewController::g_terminateRenderProcessShouldFail = false;
+        OHOS::NWeb::AniParseUtils::g_createObjectVoidShouldFail = false;
     }
 
     void TearDown() override
@@ -229,6 +277,12 @@ bool AniWebviewControllerTest::g_enumItemGetValueShouldFail = false;
 ani_int AniWebviewControllerTest::g_enumItemGetValueResult = 0;
 bool AniWebviewControllerTest::g_createArrayBufferShouldFail = false;
 char AniWebviewControllerTest::g_mockObjectPool[AniWebviewControllerTest::MOCK_POOL_SIZE] = {0};
+bool AniWebviewControllerTest::g_objectCallMethodShouldFail = false;
+ani_int AniWebviewControllerTest::g_objectCallMethodResult = 0;
+bool AniWebviewControllerTest::g_setPropertyByNameDoubleShouldFail = false;
+bool AniWebviewControllerTest::g_setPropertyByNameRefShouldFail = false;
+bool AniWebviewControllerTest::g_stringNewUTF8ShouldFail = false;
+bool AniWebviewControllerTest::g_setSiteIsolationModeShouldFail = false;
 
 using OHOS::NWeb::OnActive;
 using OHOS::NWeb::OnInactive;
@@ -248,6 +302,21 @@ using OHOS::NWeb::ResumeAllTimers;
 using OHOS::NWeb::SerializeWebState;
 using OHOS::NWeb::TerminateRenderProcess;
 using OHOS::NWebError::PARAM_CHECK_ERROR;
+using OHOS::NWeb::GetSiteIsolationMode;
+using OHOS::NWeb::SetSiteIsolationMode;
+using OHOS::NWeb::SetWebDestroyMode;
+using OHOS::NWeb::ZoomOut;
+using OHOS::NWeb::ZoomIn;
+using OHOS::NWeb::Zoom;
+using OHOS::NWeb::GetPageOffset;
+using OHOS::NWeb::PageDown;
+using OHOS::NWeb::PageUp;
+using OHOS::NWeb::GetLastHitTest;
+using OHOS::NWeb::GetScrollOffset;
+using OHOS::NWeb::SlideScroll;
+using OHOS::NWeb::RequestFocus;
+using OHOS::NWeb::SetScrollbarMode;
+using OHOS::NWeb::GetScrollable;
 
 /**
  * @tc.name: OnActive_Success
@@ -995,4 +1064,842 @@ TEST_F(AniWebviewControllerTest, TerminateRenderProcess_ErrorScenarios)
     result = TerminateRenderProcess(env, reinterpret_cast<ani_object>(testController_));
     EXPECT_EQ(result, ANI_FALSE);
     OHOS::NWeb::WebviewController::g_terminateRenderProcessShouldFail = false;
+}
+
+/**
+ * @tc.name: GetSiteIsolationMode_Success
+ * @tc.desc: GetSiteIsolationMode.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, GetSiteIsolationMode_Success)
+{
+    ani_env* env = CreateMockAniEnv();
+    ani_enum_item result = GetSiteIsolationMode(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_NE(result, nullptr);
+}
+
+/**
+ * @tc.name: GetSiteIsolationMode_ErrorScenarios
+ * @tc.desc: GetSiteIsolationMode.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, GetSiteIsolationMode_ErrorScenarios)
+{
+    // env is nullptr
+    ani_enum_item result = GetSiteIsolationMode(nullptr, reinterpret_cast<ani_object>(testController_));
+    EXPECT_EQ(result, nullptr);
+
+    // FindEnum fails
+    g_findEnumShouldFail = true;
+    ani_env* env = CreateMockAniEnv();
+    result = GetSiteIsolationMode(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_EQ(result, nullptr);
+    g_findEnumShouldFail = false;
+
+    // Enum_GetEnumItemByIndex fails
+    g_enumGetItemShouldFail = true;
+    result = GetSiteIsolationMode(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_EQ(result, nullptr);
+    g_enumGetItemShouldFail = false;
+}
+
+/**
+ * @tc.name: SetSiteIsolationMode_Success
+ * @tc.desc: SetSiteIsolationMode.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, SetSiteIsolationMode_Success)
+{
+    // Set Mock return value: mode is not undefined
+    g_referenceIsUndefinedResult = ANI_FALSE;
+    // SiteIsolationMode enum value
+    g_enumItemGetValueResult = 0;
+
+    ani_env* env = CreateMockAniEnv();
+    ani_enum_item mode = reinterpret_cast<ani_enum_item>(GetMockObject(POOL_INDEX_MODE));
+    SetSiteIsolationMode(env, reinterpret_cast<ani_object>(testController_), mode);
+    EXPECT_FALSE(WasErrorThrown());
+}
+
+/**
+ * @tc.name: SetSiteIsolationMode_ErrorScenarios
+ * @tc.desc: SetSiteIsolationMode.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, SetSiteIsolationMode_ErrorScenarios)
+{
+    ani_enum_item mode = reinterpret_cast<ani_enum_item>(GetMockObject(POOL_INDEX_MODE));
+
+    // env is nullptr
+    SetSiteIsolationMode(nullptr, reinterpret_cast<ani_object>(testController_), mode);
+    EXPECT_FALSE(WasErrorThrown());
+
+    // mode is undefined
+    g_referenceIsUndefinedResult = ANI_TRUE;
+    ani_env* env = CreateMockAniEnv();
+    SetSiteIsolationMode(env, reinterpret_cast<ani_object>(testController_), mode);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), PARAM_CHECK_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    g_referenceIsUndefinedResult = ANI_FALSE;
+
+    // Reference_IsUndefined fails
+    g_referenceIsUndefinedShouldFail = true;
+    SetSiteIsolationMode(env, reinterpret_cast<ani_object>(testController_), mode);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), PARAM_CHECK_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    g_referenceIsUndefinedShouldFail = false;
+
+    // EnumItem_GetValue_Int fails
+    g_enumItemGetValueShouldFail = true;
+    SetSiteIsolationMode(env, reinterpret_cast<ani_object>(testController_), mode);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), PARAM_CHECK_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    g_enumItemGetValueShouldFail = false;
+
+    // mode value out of range (less than PARTIAL)
+    g_enumItemGetValueResult = static_cast<ani_int>(OHOS::NWeb::SiteIsolationMode::PARTIAL) - 1;
+    SetSiteIsolationMode(env, reinterpret_cast<ani_object>(testController_), mode);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), PARAM_CHECK_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    g_enumItemGetValueResult = 0;
+
+    // mode value out of range (greater than STRICT)
+    g_enumItemGetValueResult = static_cast<ani_int>(OHOS::NWeb::SiteIsolationMode::STRICT) + 1;
+    SetSiteIsolationMode(env, reinterpret_cast<ani_object>(testController_), mode);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), PARAM_CHECK_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    g_enumItemGetValueResult = 0;
+}
+
+/**
+ * @tc.name: SetWebDestroyMode_Success
+ * @tc.desc: SetWebDestroyMode.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, SetWebDestroyMode_Success)
+{
+    // Set Mock return value: mode is not undefined
+    g_referenceIsUndefinedResult = ANI_FALSE;
+    // WebDestroyMode enum value
+    g_enumItemGetValueResult = 0;
+
+    ani_env* env = CreateMockAniEnv();
+    ani_enum_item mode = reinterpret_cast<ani_enum_item>(GetMockObject(POOL_INDEX_MODE));
+    SetWebDestroyMode(env, reinterpret_cast<ani_object>(testController_), mode);
+    EXPECT_FALSE(WasErrorThrown());
+}
+
+/**
+ * @tc.name: SetWebDestroyMode_ErrorScenarios
+ * @tc.desc: SetWebDestroyMode.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, SetWebDestroyMode_ErrorScenarios)
+{
+    ani_enum_item mode = reinterpret_cast<ani_enum_item>(GetMockObject(POOL_INDEX_MODE));
+
+    // env is nullptr
+    SetWebDestroyMode(nullptr, reinterpret_cast<ani_object>(testController_), mode);
+    EXPECT_FALSE(WasErrorThrown());
+
+    // mode is undefined
+    g_referenceIsUndefinedResult = ANI_TRUE;
+    ani_env* env = CreateMockAniEnv();
+    SetWebDestroyMode(env, reinterpret_cast<ani_object>(testController_), mode);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), PARAM_CHECK_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    g_referenceIsUndefinedResult = ANI_FALSE;
+
+    // Reference_IsUndefined fails
+    g_referenceIsUndefinedShouldFail = true;
+    SetWebDestroyMode(env, reinterpret_cast<ani_object>(testController_), mode);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), PARAM_CHECK_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    g_referenceIsUndefinedShouldFail = false;
+
+    // EnumItem_GetValue_Int fails
+    g_enumItemGetValueShouldFail = true;
+    SetWebDestroyMode(env, reinterpret_cast<ani_object>(testController_), mode);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), PARAM_CHECK_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    g_enumItemGetValueShouldFail = false;
+
+    // mode value out of range (less than NORMAL_MODE)
+    g_enumItemGetValueResult = static_cast<ani_int>(OHOS::NWeb::WebDestroyMode::NORMAL_MODE) - 1;
+    SetWebDestroyMode(env, reinterpret_cast<ani_object>(testController_), mode);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), PARAM_CHECK_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    g_enumItemGetValueResult = 0;
+
+    // mode value out of range (greater than FAST_MODE)
+    g_enumItemGetValueResult = static_cast<ani_int>(OHOS::NWeb::WebDestroyMode::FAST_MODE) + 1;
+    SetWebDestroyMode(env, reinterpret_cast<ani_object>(testController_), mode);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), PARAM_CHECK_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    g_enumItemGetValueResult = 0;
+}
+
+/**
+ * @tc.name: GetScrollable_Success
+ * @tc.desc: GetScrollable.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, GetScrollable_Success)
+{
+    ani_env* env = GetMockEnv();
+    ani_boolean result = GetScrollable(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_FALSE(WasErrorThrown());
+    EXPECT_EQ(result, ANI_TRUE);
+}
+
+/**
+ * @tc.name: GetScrollable_ErrorScenarios
+ * @tc.desc: GetScrollable.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, GetScrollable_ErrorScenarios)
+{
+    // env is nullptr
+    ani_boolean result = GetScrollable(nullptr, reinterpret_cast<ani_object>(testController_));
+    EXPECT_FALSE(WasErrorThrown());
+    EXPECT_EQ(result, ANI_TRUE);
+
+    // controller is nullptr
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = nullptr;
+    ani_env* env = GetMockEnv();
+    result = GetScrollable(env, reinterpret_cast<ani_object>(GetMockObject(POOL_INDEX_NULL_CONTROLLER)));
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    EXPECT_EQ(result, ANI_TRUE);
+    OHOS::NWeb::AniBusinessError::Reset();
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = testController_;
+
+    // controller not initialized
+    SetControllerInitialized(false);
+    result = GetScrollable(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    EXPECT_EQ(result, ANI_TRUE);
+    OHOS::NWeb::AniBusinessError::Reset();
+    SetControllerInitialized(true);
+}
+
+/**
+ * @tc.name: RequestFocus_Success
+ * @tc.desc: RequestFocus.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, RequestFocus_Success)
+{
+    ani_env* env = GetMockEnv();
+    RequestFocus(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_TRUE(testController_->WasRequestFocusCalled());
+    EXPECT_FALSE(WasErrorThrown());
+}
+
+/**
+ * @tc.name: RequestFocus_ErrorScenarios
+ * @tc.desc: RequestFocus.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, RequestFocus_ErrorScenarios)
+{
+    // env is nullptr
+    RequestFocus(nullptr, reinterpret_cast<ani_object>(testController_));
+    EXPECT_FALSE(WasErrorThrown());
+
+    // controller is nullptr
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = nullptr;
+    ani_env* env = GetMockEnv();
+    RequestFocus(env, reinterpret_cast<ani_object>(GetMockObject(POOL_INDEX_NULL_CONTROLLER)));
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = testController_;
+
+    // controller not initialized
+    SetControllerInitialized(false);
+    RequestFocus(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    SetControllerInitialized(true);
+}
+
+/**
+ * @tc.name: SlideScroll_Success
+ * @tc.desc: SlideScroll.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, SlideScroll_Success)
+{
+    ani_env* env = GetMockEnv();
+    SlideScroll(env, reinterpret_cast<ani_object>(testController_), 0, 0);
+    EXPECT_TRUE(testController_->WasSlideScrollCalled());
+    EXPECT_FALSE(WasErrorThrown());
+}
+
+/**
+ * @tc.name: SlideScroll_ErrorScenarios
+ * @tc.desc: SlideScroll.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, SlideScroll_ErrorScenarios)
+{
+    // env is nullptr
+    SlideScroll(nullptr, reinterpret_cast<ani_object>(testController_), 0, 0);
+    EXPECT_FALSE(WasErrorThrown());
+
+    // controller is nullptr
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = nullptr;
+    ani_env* env = GetMockEnv();
+    SlideScroll(env, reinterpret_cast<ani_object>(GetMockObject(POOL_INDEX_NULL_CONTROLLER)), 0, 0);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = testController_;
+
+    // controller not initialized
+    SetControllerInitialized(false);
+    SlideScroll(env, reinterpret_cast<ani_object>(testController_), 0, 0);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    SetControllerInitialized(true);
+}
+
+/**
+ * @tc.name: PageUp_Success
+ * @tc.desc: PageUp.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, PageUp_Success)
+{
+    ani_env* env = GetMockEnv();
+    PageUp(env, reinterpret_cast<ani_object>(testController_), ANI_TRUE);
+    EXPECT_TRUE(testController_->WasPageUpCalled());
+    EXPECT_FALSE(WasErrorThrown());
+}
+
+/**
+ * @tc.name: PageUp_ErrorScenarios
+ * @tc.desc: PageUp.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, PageUp_ErrorScenarios)
+{
+    // env is nullptr
+    PageUp(nullptr, reinterpret_cast<ani_object>(testController_), ANI_TRUE);
+    EXPECT_FALSE(WasErrorThrown());
+
+    // controller is nullptr
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = nullptr;
+    ani_env* env = GetMockEnv();
+    PageUp(env, reinterpret_cast<ani_object>(GetMockObject(POOL_INDEX_NULL_CONTROLLER)), ANI_TRUE);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = testController_;
+
+    // controller not initialized
+    SetControllerInitialized(false);
+    PageUp(env, reinterpret_cast<ani_object>(testController_), ANI_TRUE);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    SetControllerInitialized(true);
+}
+
+/**
+ * @tc.name: PageDown_Success
+ * @tc.desc: PageDown.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, PageDown_Success)
+{
+    ani_env* env = GetMockEnv();
+    PageDown(env, reinterpret_cast<ani_object>(testController_), ANI_FALSE);
+    EXPECT_TRUE(testController_->WasPageDownCalled());
+    EXPECT_FALSE(WasErrorThrown());
+}
+
+/**
+ * @tc.name: PageDown_ErrorScenarios
+ * @tc.desc: PageDown.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, PageDown_ErrorScenarios)
+{
+    // env is nullptr
+    PageDown(nullptr, reinterpret_cast<ani_object>(testController_), ANI_FALSE);
+    EXPECT_FALSE(WasErrorThrown());
+
+    // controller is nullptr
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = nullptr;
+    ani_env* env = GetMockEnv();
+    PageDown(env, reinterpret_cast<ani_object>(GetMockObject(POOL_INDEX_NULL_CONTROLLER)), ANI_FALSE);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = testController_;
+
+    // controller not initialized
+    SetControllerInitialized(false);
+    PageDown(env, reinterpret_cast<ani_object>(testController_), ANI_FALSE);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    SetControllerInitialized(true);
+}
+
+/**
+ * @tc.name: ZoomOut_Success
+ * @tc.desc: ZoomOut.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, ZoomOut_Success)
+{
+    ani_env* env = GetMockEnv();
+    ZoomOut(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_TRUE(testController_->WasZoomOutCalled());
+    EXPECT_FALSE(WasErrorThrown());
+}
+
+/**
+ * @tc.name: ZoomOut_ErrorScenarios
+ * @tc.desc: ZoomOut.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, ZoomOut_ErrorScenarios)
+{
+    // env is nullptr
+    ZoomOut(nullptr, reinterpret_cast<ani_object>(testController_));
+    EXPECT_FALSE(WasErrorThrown());
+
+    // controller is nullptr
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = nullptr;
+    ani_env* env = GetMockEnv();
+    ZoomOut(env, reinterpret_cast<ani_object>(GetMockObject(POOL_INDEX_NULL_CONTROLLER)));
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = testController_;
+
+    // controller not initialized
+    SetControllerInitialized(false);
+    ZoomOut(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    SetControllerInitialized(true);
+
+    // ZoomOut returns NWEB_ERROR
+    testController_->SetZoomOutReturnValue(OHOS::NWeb::NWEB_ERROR);
+    ZoomOut(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_FALSE(WasErrorThrown());
+    testController_->Reset();
+    SetControllerInitialized(true);
+
+    // ZoomOut returns other error code
+    testController_->SetZoomOutReturnValue(OHOS::NWeb::PARAM_CHECK_ERROR);
+    ZoomOut(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), OHOS::NWeb::PARAM_CHECK_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    testController_->Reset();
+    SetControllerInitialized(true);
+}
+
+/**
+ * @tc.name: ZoomIn_Success
+ * @tc.desc: ZoomIn.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, ZoomIn_Success)
+{
+    ani_env* env = GetMockEnv();
+    ZoomIn(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_TRUE(testController_->WasZoomInCalled());
+    EXPECT_FALSE(WasErrorThrown());
+}
+
+/**
+ * @tc.name: ZoomIn_ErrorScenarios
+ * @tc.desc: ZoomIn.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, ZoomIn_ErrorScenarios)
+{
+    // env is nullptr
+    ZoomIn(nullptr, reinterpret_cast<ani_object>(testController_));
+    EXPECT_FALSE(WasErrorThrown());
+
+    // controller is nullptr
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = nullptr;
+    ani_env* env = GetMockEnv();
+    ZoomIn(env, reinterpret_cast<ani_object>(GetMockObject(POOL_INDEX_NULL_CONTROLLER)));
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = testController_;
+
+    // controller not initialized
+    SetControllerInitialized(false);
+    ZoomIn(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    SetControllerInitialized(true);
+
+    // ZoomIn returns NWEB_ERROR
+    testController_->SetZoomInReturnValue(OHOS::NWeb::NWEB_ERROR);
+    ZoomIn(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_FALSE(WasErrorThrown());
+    testController_->Reset();
+    SetControllerInitialized(true);
+
+    // ZoomIn returns other error code
+    testController_->SetZoomInReturnValue(OHOS::NWeb::PARAM_CHECK_ERROR);
+    ZoomIn(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), OHOS::NWeb::PARAM_CHECK_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    testController_->Reset();
+    SetControllerInitialized(true);
+}
+
+/**
+ * @tc.name: Zoom_Success
+ * @tc.desc: Zoom.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, Zoom_Success)
+{
+    ani_env* env = GetMockEnv();
+    Zoom(env, reinterpret_cast<ani_object>(testController_), 0);
+    EXPECT_TRUE(testController_->WasZoomCalled());
+    EXPECT_FALSE(WasErrorThrown());
+}
+
+/**
+ * @tc.name: Zoom_ErrorScenarios
+ * @tc.desc: Zoom.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, Zoom_ErrorScenarios)
+{
+    // env is nullptr
+    Zoom(nullptr, reinterpret_cast<ani_object>(testController_), 0);
+    EXPECT_FALSE(WasErrorThrown());
+
+    // controller is nullptr
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = nullptr;
+    ani_env* env = GetMockEnv();
+    Zoom(env, reinterpret_cast<ani_object>(GetMockObject(POOL_INDEX_NULL_CONTROLLER)), 0);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = testController_;
+
+    // controller not initialized
+    SetControllerInitialized(false);
+    Zoom(env, reinterpret_cast<ani_object>(testController_), 0);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    SetControllerInitialized(true);
+
+    // Zoom returns NWEB_ERROR
+    testController_->SetZoomReturnValue(OHOS::NWeb::NWEB_ERROR);
+    Zoom(env, reinterpret_cast<ani_object>(testController_), 0);
+    EXPECT_FALSE(WasErrorThrown());
+    testController_->Reset();
+    SetControllerInitialized(true);
+
+    // Zoom returns other error code
+    testController_->SetZoomReturnValue(OHOS::NWeb::PARAM_CHECK_ERROR);
+    Zoom(env, reinterpret_cast<ani_object>(testController_), 0);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), OHOS::NWeb::PARAM_CHECK_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    testController_->Reset();
+    SetControllerInitialized(true);
+}
+
+/**
+ * @tc.name: GetScrollOffset_Success
+ * @tc.desc: GetScrollOffset.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, GetScrollOffset_Success)
+{
+    ani_env* env = CreateMockAniEnv();
+    ani_object result = GetScrollOffset(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_TRUE(testController_->WasGetScrollOffsetCalled());
+    EXPECT_FALSE(WasErrorThrown());
+    EXPECT_NE(result, nullptr);
+}
+
+/**
+ * @tc.name: GetScrollOffset_ErrorScenarios
+ * @tc.desc: GetScrollOffset.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, GetScrollOffset_ErrorScenarios)
+{
+    // env is nullptr
+    ani_object result = GetScrollOffset(nullptr, reinterpret_cast<ani_object>(testController_));
+    EXPECT_FALSE(WasErrorThrown());
+    EXPECT_EQ(result, nullptr);
+
+    // controller is nullptr
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = nullptr;
+    ani_env* env = GetMockEnv();
+    result = GetScrollOffset(env, reinterpret_cast<ani_object>(GetMockObject(POOL_INDEX_NULL_CONTROLLER)));
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    EXPECT_EQ(result, nullptr);
+    OHOS::NWeb::AniBusinessError::Reset();
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = testController_;
+
+    // controller not initialized
+    SetControllerInitialized(false);
+    result = GetScrollOffset(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    EXPECT_EQ(result, nullptr);
+    OHOS::NWeb::AniBusinessError::Reset();
+    SetControllerInitialized(true);
+}
+
+/**
+ * @tc.name: GetLastHitTest_Success
+ * @tc.desc: GetLastHitTest.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, GetLastHitTest_Success)
+{
+    ani_env* env = CreateMockAniEnv();
+    ani_object result = GetLastHitTest(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_TRUE(testController_->WasGetLastHitTestCalled());
+    EXPECT_NE(result, nullptr);
+    EXPECT_FALSE(WasErrorThrown());
+}
+
+/**
+ * @tc.name: GetLastHitTest_ErrorScenarios
+ * @tc.desc: GetLastHitTest.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, GetLastHitTest_ErrorScenarios)
+{
+    // env is nullptr
+    ani_object result = GetLastHitTest(nullptr, reinterpret_cast<ani_object>(testController_));
+    EXPECT_FALSE(WasErrorThrown());
+
+    // controller is nullptr
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = nullptr;
+    ani_env* env = GetMockEnv();
+    result = GetLastHitTest(env, reinterpret_cast<ani_object>(GetMockObject(POOL_INDEX_NULL_CONTROLLER)));
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = testController_;
+
+    // controller not initialized
+    SetControllerInitialized(false);
+    result = GetLastHitTest(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    SetControllerInitialized(true);
+
+    // CreateObjectVoid fails
+    OHOS::NWeb::AniParseUtils::g_createObjectVoidShouldFail = true;
+    result = GetLastHitTest(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_TRUE(testController_->WasGetLastHitTestCalled());
+    EXPECT_EQ(result, nullptr);
+    EXPECT_FALSE(WasErrorThrown());
+    OHOS::NWeb::AniParseUtils::g_createObjectVoidShouldFail = false;
+}
+
+/**
+ * @tc.name: SetScrollbarMode_Success
+ * @tc.desc: SetScrollbarMode.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, SetScrollbarMode_Success)
+{
+    // Test with valid mode value
+    g_referenceIsUndefinedResult = ANI_FALSE;
+    g_enumItemGetValueResult = 1;  // Valid scrollbar mode
+    ani_env* env = CreateMockAniEnv();
+    ani_enum_item mode = reinterpret_cast<ani_enum_item>(GetMockObject(POOL_INDEX_MODE));
+    SetScrollbarMode(env, reinterpret_cast<ani_object>(testController_), mode);
+    EXPECT_FALSE(WasErrorThrown());
+}
+
+/**
+ * @tc.name: SetScrollbarMode_ErrorScenarios
+ * @tc.desc: SetScrollbarMode.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, SetScrollbarMode_ErrorScenarios)
+{
+    ani_enum_item mode = reinterpret_cast<ani_enum_item>(GetMockObject(POOL_INDEX_MODE));
+
+    // env is nullptr
+    SetScrollbarMode(nullptr, reinterpret_cast<ani_object>(testController_), mode);
+    EXPECT_FALSE(WasErrorThrown());
+
+    // controller is nullptr
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = nullptr;
+    ani_env* env = CreateMockAniEnv();
+    SetScrollbarMode(env, reinterpret_cast<ani_object>(GetMockObject(POOL_INDEX_NULL_CONTROLLER)), mode);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = testController_;
+
+    // controller not initialized
+    SetControllerInitialized(false);
+    SetScrollbarMode(env, reinterpret_cast<ani_object>(testController_), mode);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    SetControllerInitialized(true);
+
+    // mode is undefined
+    g_referenceIsUndefinedResult = ANI_TRUE;
+    SetScrollbarMode(env, reinterpret_cast<ani_object>(testController_), mode);
+    EXPECT_FALSE(WasErrorThrown());
+    g_referenceIsUndefinedResult = ANI_FALSE;
+
+    // Reference_IsUndefined fails
+    g_referenceIsUndefinedShouldFail = true;
+    SetScrollbarMode(env, reinterpret_cast<ani_object>(testController_), mode);
+    EXPECT_FALSE(WasErrorThrown());
+    g_referenceIsUndefinedShouldFail = false;
+
+    // EnumItem_GetValue_Int fails
+    g_enumItemGetValueShouldFail = true;
+    SetScrollbarMode(env, reinterpret_cast<ani_object>(testController_), mode);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), PARAM_CHECK_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    g_enumItemGetValueShouldFail = false;
+
+    // mode value out of range (less than OVERLAY_LAYOUT_SCROLLBAR)
+    g_enumItemGetValueResult = static_cast<ani_int>(OHOS::NWeb::ScrollbarMode::OVERLAY_LAYOUT_SCROLLBAR) - 1;
+    SetScrollbarMode(env, reinterpret_cast<ani_object>(testController_), mode);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), PARAM_CHECK_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+
+    // mode value out of range (greater than FORCE_DISPLAY_SCROLLBAR)
+    g_enumItemGetValueResult = static_cast<ani_int>(OHOS::NWeb::ScrollbarMode::FORCE_DISPLAY_SCROLLBAR) + 1;
+    SetScrollbarMode(env, reinterpret_cast<ani_object>(testController_), mode);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), PARAM_CHECK_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    g_enumItemGetValueResult = 0;
+}
+
+/**
+ * @tc.name: GetPageOffset_Success
+ * @tc.desc: GetPageOffset.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, GetPageOffset_Success)
+{
+    ani_env* env = CreateMockAniEnv();
+    ani_object result = GetPageOffset(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_TRUE(testController_->WasGetPageOffsetCalled());
+    EXPECT_NE(result, nullptr);
+    EXPECT_FALSE(WasErrorThrown());
+}
+
+/**
+ * @tc.name: GetPageOffset_ErrorScenarios
+ * @tc.desc: GetPageOffset.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, GetPageOffset_ErrorScenarios)
+{
+    // env is nullptr
+    ani_object result = GetPageOffset(nullptr, reinterpret_cast<ani_object>(testController_));
+    EXPECT_FALSE(WasErrorThrown());
+
+    // controller is nullptr
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = nullptr;
+    ani_env* env = GetMockEnv();
+    result = GetPageOffset(env, reinterpret_cast<ani_object>(GetMockObject(POOL_INDEX_NULL_CONTROLLER)));
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    OHOS::NWeb::AniParseUtils::g_testControllerPtr = testController_;
+
+    // controller not initialized
+    SetControllerInitialized(false);
+    result = GetPageOffset(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), INIT_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    SetControllerInitialized(true);
+
+    // CreateObjectVoid fails
+    OHOS::NWeb::AniParseUtils::g_createObjectVoidShouldFail = true;
+    env = GetMockEnv();
+    result = GetPageOffset(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_EQ(result, nullptr);
+    EXPECT_FALSE(WasErrorThrown());
+    OHOS::NWeb::AniParseUtils::g_createObjectVoidShouldFail = false;
+
+    // Object_SetPropertyByName_Double fails on 'x' property
+    env = CreateMockAniEnv();
+    g_setPropertyByNameDoubleShouldFail = true;
+    result = GetPageOffset(env, reinterpret_cast<ani_object>(testController_));
+    EXPECT_EQ(result, nullptr);
+    EXPECT_FALSE(WasErrorThrown());
+    g_setPropertyByNameDoubleShouldFail = false;
 }

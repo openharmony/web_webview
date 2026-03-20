@@ -695,7 +695,7 @@ WEBVIEW_ANI_STATIC ani_int InnerGetWebId(ani_env *env, ani_object object)
     return static_cast<ani_int>(webId);
 }
 
-static ani_boolean GetScrollable(ani_env *env, ani_object object)
+WEBVIEW_ANI_STATIC ani_boolean GetScrollable(ani_env *env, ani_object object)
 {
     if (!env) {
         WVLOG_E("env is nullptr");
@@ -710,7 +710,7 @@ static ani_boolean GetScrollable(ani_env *env, ani_object object)
     return static_cast<ani_boolean>(controller->GetScrollable());
 }
 
-static void RequestFocus(ani_env *env, ani_object object)
+WEBVIEW_ANI_STATIC void RequestFocus(ani_env *env, ani_object object)
 {
     if (!env) {
         WVLOG_E("env is nullptr");
@@ -1040,7 +1040,8 @@ static void ScrollTo(ani_env *env, ani_object object, ani_double x, ani_double y
             static_cast<float>(x), static_cast<float>(y), static_cast<int32_t>(duration));
     }
 }
-static void ScrollBy(ani_env *env, ani_object object, ani_double deltaX, ani_double deltaY, ani_object durationObj)
+WEBVIEW_ANI_STATIC void ScrollBy(ani_env *env, ani_object object, ani_double deltaX, ani_double deltaY,
+    ani_object durationObj)
 {
     if (!env) {
         WVLOG_E("env is nullptr");
@@ -1066,7 +1067,7 @@ static void ScrollBy(ani_env *env, ani_object object, ani_double deltaX, ani_dou
             static_cast<float>(deltaX), static_cast<float>(deltaY), static_cast<int32_t>(duration));
     }
 }
-static ani_object GetScrollOffset(ani_env *env, ani_object object)
+WEBVIEW_ANI_STATIC ani_object GetScrollOffset(ani_env *env, ani_object object)
 {
     ani_object offset = {};
     if (!env) {
@@ -1088,7 +1089,7 @@ static ani_object GetScrollOffset(ani_env *env, ani_object object)
     }
     return offset;
 }
-static ani_object GetPageOffset(ani_env *env, ani_object object)
+WEBVIEW_ANI_STATIC ani_object GetPageOffset(ani_env *env, ani_object object)
 {
     if (IS_CALLING_FROM_M114()) {
         AniBusinessError::ThrowErrorByErrCode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
@@ -1120,7 +1121,7 @@ static ani_object GetPageOffset(ani_env *env, ani_object object)
     }
     return offset;
 }
-static void SlideScroll(ani_env *env, ani_object object, ani_double vx, ani_double vy)
+WEBVIEW_ANI_STATIC void SlideScroll(ani_env *env, ani_object object, ani_double vx, ani_double vy)
 {
     if (!env) {
         WVLOG_E("env is nullptr");
@@ -1134,7 +1135,7 @@ static void SlideScroll(ani_env *env, ani_object object, ani_double vx, ani_doub
     controller->SlideScroll(static_cast<float>(vx), static_cast<float>(vy));
 }
 
-static void PageDown(ani_env *env, ani_object object, ani_boolean bottom)
+WEBVIEW_ANI_STATIC void PageDown(ani_env *env, ani_object object, ani_boolean bottom)
 {
     if (!env) {
         WVLOG_E("env is nullptr");
@@ -1147,7 +1148,7 @@ static void PageDown(ani_env *env, ani_object object, ani_boolean bottom)
     }
     controller->ScrollPageDown(static_cast<bool>(bottom));
 }
-static void PageUp(ani_env *env, ani_object object, ani_boolean top)
+WEBVIEW_ANI_STATIC void PageUp(ani_env *env, ani_object object, ani_boolean top)
 {
     if (!env) {
         WVLOG_E("env is nullptr");
@@ -1443,7 +1444,7 @@ static void PrepareForPageLoad(
     return;
 }
 
-static void Zoom(ani_env *env, ani_object object, ani_double factor)
+WEBVIEW_ANI_STATIC void Zoom(ani_env *env, ani_object object, ani_double factor)
 {
     if (!env) {
         WVLOG_E("env is nullptr");
@@ -1463,7 +1464,7 @@ static void Zoom(ani_env *env, ani_object object, ani_double factor)
         AniBusinessError::ThrowErrorByErrCode(env, ret);
     }
 }
-static void ZoomOut(ani_env *env, ani_object object)
+WEBVIEW_ANI_STATIC void ZoomOut(ani_env *env, ani_object object)
 {
     if (!env) {
         WVLOG_E("env is nullptr");
@@ -1483,7 +1484,7 @@ static void ZoomOut(ani_env *env, ani_object object)
         AniBusinessError::ThrowErrorByErrCode(env, ret);
     }
 }
-static void ZoomIn(ani_env *env, ani_object object)
+WEBVIEW_ANI_STATIC void ZoomIn(ani_env *env, ani_object object)
 {
     if (!env) {
         WVLOG_E("env is nullptr");
@@ -1504,7 +1505,7 @@ static void ZoomIn(ani_env *env, ani_object object)
     }
 }
 
-static ani_object GetLastHitTest(ani_env *env, ani_object object)
+WEBVIEW_ANI_STATIC ani_object GetLastHitTest(ani_env *env, ani_object object)
 {
     ani_object hitTestValue = {};
     if (!env) {
@@ -6838,7 +6839,7 @@ static void ClearBlanklessLoadingCache(ani_env* env, ani_object object, ani_obje
     NWebHelper::Instance().ClearBlanklessLoadingCache(keys);
 }
 
-static void SetWebDestroyMode(ani_env *env, ani_object object, ani_enum_item mode)
+WEBVIEW_ANI_STATIC void SetWebDestroyMode(ani_env *env, ani_object object, ani_enum_item mode)
 {
     WVLOG_D("[WebviewCotr] SetWebDestroyMode");
     if (!env) {
@@ -6871,7 +6872,7 @@ static void SetWebDestroyMode(ani_env *env, ani_object object, ani_enum_item mod
     NWebHelper::Instance().SetWebDestroyMode(static_cast<WebDestroyMode>(webDestroyMode));
 }
 
-static void SetScrollbarMode(ani_env *env, ani_object object, ani_enum_item mode)
+WEBVIEW_ANI_STATIC void SetScrollbarMode(ani_env *env, ani_object object, ani_enum_item mode)
 {
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
@@ -6991,7 +6992,7 @@ static ani_object GetUserAgentMetadata(ani_env* env, ani_object object, ani_obje
     return metadataObj;
 }
 
-static void SetSiteIsolationMode(ani_env *env, ani_object object, ani_enum_item mode)
+WEBVIEW_ANI_STATIC void SetSiteIsolationMode(ani_env *env, ani_object object, ani_enum_item mode)
 {
     WVLOG_D("[WebviewCotr] SetSiteIsolationMode");
     if (!env) {
@@ -7038,7 +7039,7 @@ static void SetSiteIsolationMode(ani_env *env, ani_object object, ani_enum_item 
     WVLOG_I("SetSiteIsolationMode mode res %{public}d", res);
 }
 
-static ani_enum_item GetSiteIsolationMode(ani_env *env, ani_object object)
+WEBVIEW_ANI_STATIC ani_enum_item GetSiteIsolationMode(ani_env *env, ani_object object)
 {
     WVLOG_D("[WebviewCotr] GetSiteIsolationMode");
     ani_int siteIsolationMode = 0;
