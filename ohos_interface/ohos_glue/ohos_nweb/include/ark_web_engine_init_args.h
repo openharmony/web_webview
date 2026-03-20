@@ -51,6 +51,9 @@ public:
 
     /*--ark web()--*/
     virtual bool GetEmulateTouchFromMouseEvent() = 0;
+
+    /*--ark web()--*/
+    virtual bool GetUseCloudControlAutoLayoutConfig() = 0;
 };
 
 } // namespace OHOS::ArkWeb

@@ -2294,6 +2294,14 @@ public:
      */
     /*--ark web()--*/
     virtual void SetIsSystemRtlEnable(bool enable) = 0;
+
+    /**
+     * @brief Set WebAutoLayoutConfig.
+     *
+     * @param config json string.
+     */
+    /*--ark web()--*/
+    virtual void SetWebAutoLayoutConfig(const ArkWebString& config) = 0;
 };
 
 } // namespace OHOS::ArkWeb

@@ -242,6 +242,16 @@ public:
     {
         return emulateTouchFromMouseEvent_;
     }
+
+    void SetUseCloudControlAutoLayoutConfig(bool useCloudControlAutoLayoutConfig)
+    {
+        useCloudControlAutoLayoutConfig_ = useCloudControlAutoLayoutConfig;
+    }
+ 
+    bool GetUseCloudControlAutoLayoutConfig() override
+    {
+        return useCloudControlAutoLayoutConfig_;
+    }
 private:
     std::string dumpPath_;
 
@@ -254,6 +264,7 @@ private:
     std::list<std::string> argsToDelete_;
     std::string sharedRenderProcessToken_;
     bool emulateTouchFromMouseEvent_ = false;
+    bool useCloudControlAutoLayoutConfig_ = false;
 };
 
 class NWebEnginePrefetchArgsImpl : public NWebEnginePrefetchArgs {

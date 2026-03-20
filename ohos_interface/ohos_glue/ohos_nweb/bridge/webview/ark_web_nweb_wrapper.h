@@ -2031,6 +2031,13 @@ public:
      * @param enable True to enable system RTL, false to disable.
      */
     void SetIsSystemRtlEnable(bool enable) override;
+
+    /**
+     * @brief Set WebAutoLayoutConfig.
+     *
+     * @param config json string.
+     */
+    void SetWebAutoLayoutConfig(const std::string& config) override;
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };

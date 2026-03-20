@@ -83,4 +83,9 @@ bool ArkWebEngineInitArgsWrapper::GetEmulateTouchFromMouseEvent()
     return ark_web_engine_init_args_->GetEmulateTouchFromMouseEvent();
 }
 
+bool ArkWebEngineInitArgsWrapper::GetUseCloudControlAutoLayoutConfig()
+{
+    return ark_web_engine_init_args_->GetUseCloudControlAutoLayoutConfig();
+}
+
 } // namespace OHOS::ArkWeb

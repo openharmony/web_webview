@@ -2139,4 +2139,11 @@ void ArkWebNWebWrapper::SetIsSystemRtlEnable(bool enable)
 {
     ark_web_nweb_->SetIsSystemRtlEnable(enable);
 }
+
+void ArkWebNWebWrapper::SetWebAutoLayoutConfig(const std::string& config)
+{
+    ArkWebString stConfig = ArkWebStringClassToStruct(config);
+    ark_web_nweb_->SetWebAutoLayoutConfig(stConfig);
+    ArkWebStringStructRelease(stConfig);
+}
 } // namespace OHOS::ArkWeb

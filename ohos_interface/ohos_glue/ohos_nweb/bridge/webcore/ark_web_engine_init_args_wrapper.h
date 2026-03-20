@@ -45,6 +45,8 @@ public:
 
     bool GetEmulateTouchFromMouseEvent() override;
 
+    bool GetUseCloudControlAutoLayoutConfig() override;
+
 private:
     ArkWebRefPtr<ArkWebEngineInitArgs> ark_web_engine_init_args_;
 };
