@@ -30,11 +30,17 @@ namespace NWeb {
 // Forward declaration
 class CacheOptions;
 
-// Mock AniParseUtils class: Implement all methods with default return values
 class AniParseUtils {
 public:
+    // AniParseUtils Mock Object Pool Index
+    enum AniMockObjectPoolIndex {
+        ANI_MOCK_OBJECT_VOID_OBJ = 0,      // CreateObjectVoid function index
+        ANI_MOCK_OBJECT_MAX_SIZE = 10      // Object pool size
+    };
+
+    // General Mock Object Pool
+    static char g_aniMockObjectPool[ANI_MOCK_OBJECT_MAX_SIZE];
     // Method required for current test
-    // Return real WebviewController object pointer
     static void* Unwrap(ani_env* env, const ani_object& object)
     {
         return g_testControllerPtr;
@@ -48,7 +54,15 @@ public:
     {
         return true;
     }
-    static bool CreateObjectVoid(ani_env* env, const char* className, ani_object& object) { return true; }
+    static bool CreateObjectVoid(ani_env* env, const char* className, ani_object& object)
+    {
+        if (g_createObjectVoidShouldFail) {
+            return false;
+        }
+
+        object = reinterpret_cast<ani_object>(&g_aniMockObjectPool[ANI_MOCK_OBJECT_VOID_OBJ]);
+        return true;
+    }
     static bool GetEnumItemByIndex(ani_env* env, const char* enumName, int32_t typeIndex, ani_enum_item& eType)
     {
         return true;
@@ -99,21 +113,30 @@ public:
     static bool ParseArrayBuffer(ani_env* env, ani_object script, std::string& outValue) { return true; }
     static bool GetRefProperty(ani_env* env, ani_object param, const char* name, ani_ref& value) { return true; }
 
-    // Global test pointer: Points to Mock WebviewController object (void* type, use reinterpret_cast)
+    // Points to Mock WebviewController object (void* type, use reinterpret_cast)
     static void* g_testControllerPtr;
 
-    // Test helper variable: Control IsFunction return value
+    // Control IsFunction return value
     static bool g_isFunctionResult;
 
-    // Test helper variable: Control EnumItem_GetValue_Int behavior
+    // Control EnumItem_GetValue_Int behavior
     static ani_status g_enumGetIntStatus;
     static ani_int g_enumGetIntResult;
+
+    // Control CreateObjectVoid behavior
+    static bool g_createObjectVoidShouldFail;
+
+    // Control Object_SetPropertyByName_Double behavior
+    static bool g_setPropertyByNameDoubleShouldFail;
 };
 
 void* AniParseUtils::g_testControllerPtr = nullptr;
 bool AniParseUtils::g_isFunctionResult = true;
 ani_status AniParseUtils::g_enumGetIntStatus = ANI_OK;
 ani_int AniParseUtils::g_enumGetIntResult = 0;
+bool AniParseUtils::g_createObjectVoidShouldFail = false;
+bool AniParseUtils::g_setPropertyByNameDoubleShouldFail = false;
+char AniParseUtils::g_aniMockObjectPool[ANI_MOCK_OBJECT_MAX_SIZE] = {0};
 
 } // namespace NWeb
 } // namespace OHOS

@@ -24,6 +24,7 @@
 #include <memory>
 #include <functional>
 #include "web_errors.h"
+#include "nweb.h"
 
 
 // Forward declaration of napi related types
@@ -51,7 +52,6 @@ class WebSchemeHandler;
 class NWebPrefetchOptions;
 class NWebPDFConfigArgs;
 class NWebHistoryList;
-class HitTestResult;
 class NWebMessage;
 class NWebRomValue;
 class NWebUserAgentMetadata;
@@ -134,6 +134,22 @@ class WebRegObj {
     bool m_isMarked;
 };
 
+// Mock implementation of HitTestResult for testing
+class MockHitTestResult : public HitTestResult {
+public:
+    MockHitTestResult() : type_(1), extra_("test_hit_test_extra") {}
+
+    void SetType(int type) override { type_ = type; }
+    int GetType() override { return type_; }
+    std::string GetExtra() override { return extra_; }
+
+    void SetExtra(const std::string& extra) { extra_ = extra; }
+
+private:
+    int type_;
+    std::string extra_;
+};
+
 class WebMessageExt {
 public:
     explicit WebMessageExt(std::shared_ptr<NWebMessage> data, std::shared_ptr<NWebRomValue> value = nullptr)
@@ -202,8 +218,11 @@ public:
 class WebviewController {
 public:
     explicit WebviewController(const std::string& tag = "")
-        : tag_(tag), isInitialized_(false), onActiveCalled_(false), onInactiveCalled_(false),
-          webId_(-1), scrollX_(0), scrollY_(0)
+        : tag_(tag), isInitialized_(false), onActiveCalled_(false), onInactiveCalled_(false), webId_(-1), scrollX_(0),
+          scrollY_(0), scrollByCalled_(false), zoomOutCalled_(false), zoomInCalled_(false), zoomCalled_(false),
+          zoomOutReturnValue_(0), zoomInReturnValue_(0), zoomReturnValue_(0), getPageOffsetCalled_(false),
+          pageDownCalled_(false), pageUpCalled_(false), getLastHitTestCalled_(false), getScrollOffsetCalled_(false),
+          slideScrollCalled_(false), requestFocusCalled_(false)
     {
         if (!tag_.empty()) {
             webTagSet_.insert(tag_);
@@ -288,7 +307,7 @@ public:
 
     void ScrollBy(float deltaX, float deltaY)
     {
-        // Mock implementation
+        scrollByCalled_ = true;
     }
 
     void ScrollToWithAnime(float x, float y, int32_t duration)
@@ -308,37 +327,32 @@ public:
 
     void GetScrollOffset(float* offsetX, float* offsetY)
     {
-        // Mock implementation
+        getScrollOffsetCalled_ = true;
     }
 
     void GetPageOffset(float* offsetX, float* offsetY)
     {
-        // Mock implementation
+        getPageOffsetCalled_ = true;
     }
 
     void SlideScroll(float vx, float vy)
     {
-        // Mock implementation
+        slideScrollCalled_ = true;
     }
 
     void ScrollPageDown(bool bottom)
     {
-        // Mock implementation
+        pageDownCalled_ = true;
     }
 
     void ScrollPageUp(bool top)
     {
-        // Mock implementation
+        pageUpCalled_ = true;
     }
 
-    bool GetScrollable() const
+    bool GetScrollable()
     {
-        return false;
-    }
-
-    void SetScrollable(bool enable)
-    {
-        // Mock implementation
+        return true;
     }
 
     void SetScrollable(bool enable, int32_t scrollType)
@@ -398,22 +412,25 @@ public:
 
     ErrCode ZoomIn()
     {
-        return 0;
+        zoomInCalled_ = true;
+        return zoomInReturnValue_;
     }
 
     ErrCode ZoomOut()
     {
-        return 0;
+        zoomOutCalled_ = true;
+        return zoomOutReturnValue_;
     }
 
     ErrCode Zoom(float factor)
     {
-        return 0;
+        zoomCalled_ = true;
+        return zoomReturnValue_;
     }
 
     void RequestFocus()
     {
-        // Mock implementation
+        requestFocusCalled_ = true;
     }
 
     void ClearClientAuthenticationCache()
@@ -443,7 +460,11 @@ public:
 
     std::shared_ptr<HitTestResult> GetLastHitTest()
     {
-        return nullptr;
+        getLastHitTestCalled_ = true;
+        if (!mockHitTestResult_) {
+            mockHitTestResult_ = std::make_shared<MockHitTestResult>();
+        }
+        return mockHitTestResult_;
     }
 
     void SearchNext(bool forward)
@@ -989,6 +1010,21 @@ public:
         isInitialized_ = initialized;
     }
 
+    void SetZoomOutReturnValue(int returnValue)
+    {
+        zoomOutReturnValue_ = returnValue;
+    }
+
+    void SetZoomInReturnValue(int returnValue)
+    {
+        zoomInReturnValue_ = returnValue;
+    }
+
+    void SetZoomReturnValue(int returnValue)
+    {
+        zoomReturnValue_ = returnValue;
+    }
+
     bool WasOnActiveCalled() const
     {
         return onActiveCalled_;
@@ -1006,7 +1042,33 @@ public:
         onInactiveCalled_ = false;
         scrollX_ = 0;
         scrollY_ = 0;
+        scrollByCalled_ = false;
+        zoomOutCalled_ = false;
+        zoomInCalled_ = false;
+        zoomCalled_ = false;
+        zoomOutReturnValue_ = 0;
+        zoomInReturnValue_ = 0;
+        zoomReturnValue_ = 0;
+        getPageOffsetCalled_ = false;
+        pageDownCalled_ = false;
+        pageUpCalled_ = false;
+        getLastHitTestCalled_ = false;
+        getScrollOffsetCalled_ = false;
+        slideScrollCalled_ = false;
+        requestFocusCalled_ = false;
     }
+
+    bool WasZoomOutCalled() const { return zoomOutCalled_; }
+    bool WasZoomInCalled() const { return zoomInCalled_; }
+    bool WasZoomCalled() const { return zoomCalled_; }
+    bool WasGetPageOffsetCalled() const { return getPageOffsetCalled_; }
+    bool WasPageDownCalled() const { return pageDownCalled_; }
+    bool WasPageUpCalled() const { return pageUpCalled_; }
+    bool WasGetLastHitTestCalled() const { return getLastHitTestCalled_; }
+    bool WasGetScrollOffsetCalled() const { return getScrollOffsetCalled_; }
+    bool WasSlideScrollCalled() const { return slideScrollCalled_; }
+    bool WasRequestFocusCalled() const { return requestFocusCalled_; }
+    bool WasScrollByCalled() const { return scrollByCalled_; }
 
     const std::string& GetTag() const
     {
@@ -1027,6 +1089,21 @@ private:
     int32_t webId_;
     float scrollX_;
     float scrollY_;
+    bool scrollByCalled_;
+    bool zoomOutCalled_;
+    bool zoomInCalled_;
+    bool zoomCalled_;
+    int zoomOutReturnValue_;
+    int zoomInReturnValue_;
+    int zoomReturnValue_;
+    bool getPageOffsetCalled_;
+    bool pageDownCalled_;
+    bool pageUpCalled_;
+    bool getLastHitTestCalled_;
+    bool getScrollOffsetCalled_;
+    bool slideScrollCalled_;
+    bool requestFocusCalled_;
+    std::shared_ptr<HitTestResult> mockHitTestResult_;
 };
 
 std::set<std::string> WebviewController::webTagSet_;
