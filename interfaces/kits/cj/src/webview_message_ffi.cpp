@@ -26,6 +26,7 @@
 #include "parameters.h"
 #include "pixel_map.h"
 #include "cj_lambda.h"
+#include "webview_value.h"
 
 using namespace OHOS::FFI;
 using namespace OHOS::NWeb;
@@ -39,16 +40,19 @@ extern "C" {
     {
         WEBVIEWLOGD("message port post message");
         auto webMsg = std::make_shared<OHOS::NWeb::NWebMessage>(NWebValue::Type::NONE);
+        auto romMsg = std::make_shared<OHOS::NWeb::WebViewValue>(NWebRomValue::Type::NONE);
         std::string message(stringValue);
         webMsg->SetType(NWebValue::Type::STRING);
         webMsg->SetString(message);
+        romMsg->SetType(NWebRomValue::Type::STRING);
+        romMsg->SetString(message);
         WebMessagePortImpl *msgPort = FFIData::GetData<WebMessagePortImpl>(msgPortId);
         if (msgPort == nullptr) {
             WEBVIEWLOGE("post message failed, ffi unwrap msg port failed");
             *errCode = NWebError::CAN_NOT_POST_MESSAGE;
             return;
         }
-        *errCode = msgPort->PostPortMessage(webMsg);
+        *errCode = msgPort->PostPortMessage(webMsg, romMsg);
         return;
     }
 
@@ -56,16 +60,19 @@ extern "C" {
     {
         WEBVIEWLOGD("message port post message");
         auto webMsg = std::make_shared<OHOS::NWeb::NWebMessage>(NWebValue::Type::NONE);
+        auto romMsg = std::make_shared<OHOS::NWeb::WebViewValue>(NWebRomValue::Type::NONE);
         std::vector<uint8_t> vecData(arrBuf.head, arrBuf.head + arrBuf.size);
         webMsg->SetType(NWebValue::Type::BINARY);
         webMsg->SetBinary(vecData);
+        romMsg->SetType(NWebRomValue::Type::BINARY);
+        romMsg->SetBinary(vecData);
         WebMessagePortImpl *msgPort = FFIData::GetData<WebMessagePortImpl>(msgPortId);
         if (msgPort == nullptr) {
             WEBVIEWLOGE("post message failed, ffi unwrap msg port failed");
             *errCode = NWebError::CAN_NOT_POST_MESSAGE;
             return;
         }
-        *errCode = msgPort->PostPortMessage(webMsg);
+        *errCode = msgPort->PostPortMessage(webMsg, romMsg);
         return;
     }
 
@@ -88,7 +95,7 @@ extern "C" {
             *errCode = NWebError::PARAM_CHECK_ERROR;
             return;
         }
-        *errCode = msgPort->PostPortMessage(webMessageExt->GetData());
+        *errCode = msgPort->PostPortMessage(webMessageExt->GetData(), webMessageExt->GetValue());
         return;
     }
 
@@ -146,7 +153,8 @@ extern "C" {
     int64_t FfiOHOSWebMessageExtImplConstructor()
     {
         auto webMsg = std::make_shared<OHOS::NWeb::NWebMessage>(NWebValue::Type::NONE);
-        WebMessageExtImpl* nativeWebMessageExtImpl = FFIData::Create<WebMessageExtImpl>(webMsg);
+        auto romMsg = std::make_shared<OHOS::NWeb::WebViewValue>(NWebRomValue::Type::NONE);
+        WebMessageExtImpl* nativeWebMessageExtImpl = FFIData::Create<WebMessageExtImpl>(webMsg, romMsg);
         if (nativeWebMessageExtImpl == nullptr) {
             WEBVIEWLOGE("new webMessageExt failed");
             return -1;
