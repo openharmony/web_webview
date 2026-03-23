@@ -787,7 +787,7 @@ void NWebHelper::InitAppInfo()
 bool NWebHelper::InitWebEngine()
 {
     if (initFlag_) {
-        WVLOG_E("NWebHelper::InitWebEngine initFlag_ is true");
+        WVLOG_I("NWebHelper::InitWebEngine initFlag_ is true");
         return true;
     }
 
