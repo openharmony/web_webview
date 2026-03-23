@@ -721,7 +721,9 @@ std::shared_ptr<OHOS::NWeb::NWebEngineInitArgs> NWebHelper::GetInitArgs()
     NWebAdapterHelper::Instance().ParseConfig(initArgs);
 
     initArgs->AddArg(std::string("--user-data-dir=").append(ctx->GetBaseDir()));
+    WVLOG_I("user data dir: %{public}s", ctx->GetBaseDir().c_str());
     initArgs->AddArg(std::string("--bundle-installation-dir=").append(bundlePath_));
+    WVLOG_I("bundle installation dir: %{public}s", bundlePath_.c_str());
     initArgs->AddArg(NWebConfigHelper::Instance().GetWebPlayGroundInitArg());
 
     std::string arkWebInstallPath = OHOS::system::GetParameter("persist.arkwebcore.install_path", "");
@@ -785,11 +787,13 @@ void NWebHelper::InitAppInfo()
 bool NWebHelper::InitWebEngine()
 {
     if (initFlag_) {
+        WVLOG_E("NWebHelper::InitWebEngine initFlag_ is true");
         return true;
     }
 
     auto initArgs = GetInitArgs();
     if (!initArgs) {
+        WVLOG_E("NWebHelper::InitWebEngine GetInitArgs is nullptr");
         return false;
     }
 
