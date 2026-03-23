@@ -2038,6 +2038,13 @@ public:
      * @param config json string.
      */
     void SetWebAutoLayoutConfig(const std::string& config) override;
+
+    /**
+     * @brief Update web keyboard appearance mode.
+     *
+     * @param mode The IME immersive mode.
+     */
+    void SetKeyboardImmersiveMode(int32_t mode) override;
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };

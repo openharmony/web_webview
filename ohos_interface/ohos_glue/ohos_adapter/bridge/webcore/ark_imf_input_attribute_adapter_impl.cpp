@@ -31,4 +31,9 @@ int32_t ArkIMFInputAttributeAdapterImpl::GetEnterKeyType()
 {
     return real_->GetEnterKeyType();
 }
+
+int32_t ArkIMFInputAttributeAdapterImpl::GetKeyboardImmersiveMode()
+{
+    return real_->GetKeyboardImmersiveMode();
+}
 } // namespace OHOS::ArkWeb
