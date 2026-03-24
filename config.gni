@@ -28,6 +28,7 @@ declare_args() {
   webview_enable_heif_decoder = false
   webview_drm_enable = true
   webview_preload_render_lib = true
+  webview_app_fwk_update_enable = true
 
   if (defined(global_parts_info) &&
       !defined(global_parts_info.resourceschedule_soc_perf)) {

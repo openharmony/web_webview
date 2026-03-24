@@ -15,7 +15,9 @@
         "syscap": [
             "SystemCapability.Web.Webview.Core"
         ],
-        "features": [],
+        "features": [
+            "webview_app_fwk_update_enable"
+        ],
         "adapted_system_type": [
             "standard"
         ],
@@ -107,7 +109,6 @@
                 "//base/web/webview/ohos_nweb:nweb_hap",
                 "//base/web/webview/ohos_adapter:nweb_ohos_adapter",
                 "//base/web/webview/ohos_wrapper:nweb_ohos_wrapper",
-                "//base/web/webview/sa/app_fwk_update:app_fwk_update_service",
                 "//base/web/webview/sa/web_native_messaging:web_native_messaging",
                 "//base/web/webview/arkweb_utils:libarkweb_utils"
             ],

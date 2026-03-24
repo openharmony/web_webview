@@ -15,6 +15,7 @@
 import("//base/web/webview/web_aafwk.gni")
 import("//build/config/features.gni")
 import("//build/test.gni")
+import("../../../config.gni")
 
 ##############################fuzztest##########################################
 ohos_fuzztest("VerifyPackageInstallFuzzTest") {
@@ -75,9 +76,11 @@ ohos_fuzztest("VerifyPackageInstallFuzzTest") {
 group("fuzztest") {
   testonly = true
   deps = []
-  deps += [
-    # deps file
-    ":VerifyPackageInstallFuzzTest",
-  ]
+  if (webview_app_fwk_update_enable) {
+    deps += [
+      # deps file
+      ":VerifyPackageInstallFuzzTest",
+    ]
+  }
 }
 ###############################################################################

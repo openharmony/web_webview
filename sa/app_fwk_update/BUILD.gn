@@ -12,6 +12,7 @@
 # limitations under the License.
 import("//build/config/components/idl_tool/idl.gni")
 import("//build/ohos.gni")
+import("../../config.gni")
 
 group("app_fwk_update") {
   deps = [
@@ -50,55 +51,61 @@ ohos_prebuilt_etc("app_fwk_update_service_cfg") {
   part_name = "webview"
 }
 
-ohos_shared_library("app_fwk_update_service") {
-  defines = [ "HILOG_TAG=\"app_fwk_update_service\"" ]
-  shlib_type = "sa"
-  version_script = "libapp_fwk_update_service.map"
-  output_values = get_target_outputs(":app_fwk_update_service_interface")
-  sources = [
-    "../app_fwk_update/include/app_fwk_update_service.h",
-    "../app_fwk_update/src/app_fwk_update_client.cpp",
-    "../app_fwk_update/src/app_fwk_update_load_callback.cpp",
-    "../app_fwk_update/src/app_fwk_update_service.cpp",
-  ]
-  sources += filter_include(output_values, [ "*.cpp" ])
-  deps = [ ":app_fwk_update_service_interface" ]
-  public_configs = [ ":web_sa_interface" ]
-  include_dirs = [
-    "../app_fwk_update/include",
-    "${target_gen_dir}/../../ohos_nweb/include",
-    "../../ohos_nweb/include",
-    "${target_gen_dir}",
-  ]
+if (!webview_app_fwk_update_enable) {
+  ohos_shared_library("app_fwk_update_service") {
+    install_enable = false
+  }
+} else {
+  ohos_shared_library("app_fwk_update_service") {
+    defines = [ "HILOG_TAG=\"app_fwk_update_service\"" ]
+    shlib_type = "sa"
+    version_script = "libapp_fwk_update_service.map"
+    output_values = get_target_outputs(":app_fwk_update_service_interface")
+    sources = [
+      "../app_fwk_update/include/app_fwk_update_service.h",
+      "../app_fwk_update/src/app_fwk_update_client.cpp",
+      "../app_fwk_update/src/app_fwk_update_load_callback.cpp",
+      "../app_fwk_update/src/app_fwk_update_service.cpp",
+    ]
+    sources += filter_include(output_values, [ "*.cpp" ])
+    deps = [ ":app_fwk_update_service_interface" ]
+    public_configs = [ ":web_sa_interface" ]
+    include_dirs = [
+      "../app_fwk_update/include",
+      "${target_gen_dir}/../../ohos_nweb/include",
+      "../../ohos_nweb/include",
+      "${target_gen_dir}",
+    ]
 
-  cflags = [
-    "-Wall",
-    "-Werror",
-    "-g3",
-  ]
+    cflags = [
+      "-Wall",
+      "-Werror",
+      "-g3",
+    ]
 
-  external_deps = [
-    "ability_base:want",
-    "ability_base:zuri",
-    "ability_runtime:ability_manager",
-    "ability_runtime:napi_common",
-    "appspawn:appspawn_client",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
-    "c_utils:utils",
-    "common_event_service:cesfwk_core",
-    "common_event_service:cesfwk_innerkits",
-    "eventhandler:libeventhandler",
-    "hilog:libhilog",
-    "hitrace:hitrace_meter",
-    "init:libbeget_proxy",
-    "init:libbegetutil",
-    "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
-  ]
+    external_deps = [
+      "ability_base:want",
+      "ability_base:zuri",
+      "ability_runtime:ability_manager",
+      "ability_runtime:napi_common",
+      "appspawn:appspawn_client",
+      "bundle_framework:appexecfwk_base",
+      "bundle_framework:appexecfwk_core",
+      "c_utils:utils",
+      "common_event_service:cesfwk_core",
+      "common_event_service:cesfwk_innerkits",
+      "eventhandler:libeventhandler",
+      "hilog:libhilog",
+      "hitrace:hitrace_meter",
+      "init:libbeget_proxy",
+      "init:libbegetutil",
+      "ipc:ipc_core",
+      "safwk:system_ability_fwk",
+      "samgr:samgr_proxy",
+    ]
 
-  #innerapi_tags = [ "platformsdk" ]
-  subsystem_name = "web"
-  part_name = "webview"
+    #innerapi_tags = [ "platformsdk" ]
+    subsystem_name = "web"
+    part_name = "webview"
+  }
 }
