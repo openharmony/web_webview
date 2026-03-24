@@ -1803,4 +1803,9 @@ void ArkWebNWebImpl::SetIsSystemRtlEnable(bool enable)
 {
     nweb_nweb_->SetIsSystemRtlEnable(enable);
 }
+
+void ArkWebNWebImpl::SetWebAutoLayoutConfig(const ArkWebString& config)
+{
+    nweb_nweb_->SetWebAutoLayoutConfig(ArkWebStringStructToClass(config));
+}
 } // namespace OHOS::ArkWeb

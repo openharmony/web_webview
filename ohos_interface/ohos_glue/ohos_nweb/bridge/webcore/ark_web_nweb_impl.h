@@ -2024,6 +2024,13 @@ public:
       * @param enable True to enable system RTL, false to disable.
       */
     void SetIsSystemRtlEnable(bool enable) override;
+     
+    /**
+     * @brief Set WebAutoLayoutConfig.
+     *
+     * @param config json string.
+     */
+    void SetWebAutoLayoutConfig(const ArkWebString& config) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };
