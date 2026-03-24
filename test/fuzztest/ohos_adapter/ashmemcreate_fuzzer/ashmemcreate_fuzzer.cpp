@@ -30,14 +30,14 @@ bool AshmemCreateFuzzTest(const uint8_t* data, size_t size)
     if ((data == nullptr) || (size == 0)) {
         return false;
     }
-    AshmemAdapter ashmem; 
+    AshmemAdapter ashmem;
     char* name = new (std::nothrow) char[size + 1] { 0 };
     if (name == nullptr) {
         return false;
     }
     if (memcpy_s(name, size, data, size) != 0) {
         delete[] name;
-        return false;	 
+        return false;
     }
     int fd = ashmem.AshmemCreate(name, size);
     if (fd >= 0) {
