@@ -47,6 +47,7 @@ const std::string WEB_LTPO_STRATEGY = "ltpo_strategy";
 const std::string WEB_DVSYNC_CONFIG = "dvsync_config";
 const std::string WEB_DVSYNC_SWITCH = "dvsync_switch";
 const std::string WEB_WINDOW_ORIENTATION_CONFIG = "window_orientation_config";
+const std::string WEB_NATIVE_MESSAGING_EXTENSION_CONFIG = "webNativeMessagingExtensionConfig";
 const std::string WEB_ALL_BUNDLE_NAME = "*";
 const auto XML_ATTR_NAME = "name";
 const auto XML_ATTR_MIN = "min";
@@ -400,6 +401,11 @@ void NWebConfigHelper::ParseWebConfigXml(const std::string& configFilePath,
         WVLOG_D("read config from window orientation node");
         ParseWindowOrientationConfig(windowOrientationNodePtr, initArgs);
     }
+    xmlNodePtr nativeMessagingNodePtr = GetChildrenNode(rootPtr, WEB_NATIVE_MESSAGING_EXTENSION_CONFIG);
+    if (nativeMessagingNodePtr != nullptr) {
+        WVLOG_D("read config from native messaging node");
+        ParseNativeMessagingConfig(nativeMessagingNodePtr);
+    }
     xmlFreeDoc(docPtr);
 }
 
@@ -687,4 +693,48 @@ std::string NWebConfigHelper::GetBundleName()
     return bundleName_;
 }
 
+void NWebConfigHelper::ParseNativeMessagingConfig(xmlNodePtr nodePtr)
+{
+    for (xmlNodePtr curNodePtr = nodePtr->xmlChildrenNode; curNodePtr != nullptr;
+        curNodePtr = curNodePtr->next) {
+        if (curNodePtr->name == nullptr || curNodePtr->type == XML_COMMENT_NODE) {
+            WVLOG_E("invalid node!");
+            continue;
+        }
+        for (xmlNodePtr childPtr = curNodePtr->xmlChildrenNode; childPtr != nullptr;
+            childPtr = childPtr->next) {
+            if (ParseNativeMessagingSetting(childPtr)) {
+                nativeMessagingEnabled_ = true;
+                WVLOG_D("Native messaging enabled: %{public}d", nativeMessagingEnabled_);
+            }
+        }
+    }
+}
+
+bool NWebConfigHelper::ParseNativeMessagingSetting(xmlNodePtr childNodePtr)
+{
+    if (childNodePtr->name == nullptr || childNodePtr->type == XML_COMMENT_NODE) {
+        WVLOG_E("invalid node!");
+        return false;
+    }
+    std::string childNodeName = reinterpret_cast<const char*>(childNodePtr->name);
+    if (childNodeName != "nativeMessagingSetting") {
+        WVLOG_E("invalid node name for native messaging setting: %{public}s", childNodeName.c_str());
+        return false;
+    }
+    xmlChar* content = xmlNodeGetContent(childNodePtr);
+    if (content == nullptr) {
+        WVLOG_E("read xml node error: nodeName:(%{public}s)", childNodePtr->name);
+        return false;
+    }
+    std::string contentStr = reinterpret_cast<const char*>(content);
+    bool enabled = (contentStr == "true");
+    xmlFree(content);
+    return enabled;
+}
+
+bool NWebConfigHelper::IsNativeMessagingEnabled()
+{
+    return nativeMessagingEnabled_;
+}
 } // namespace OHOS::NWeb

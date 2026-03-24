@@ -58,6 +58,7 @@ ohos_shared_library("webnativemessagingextensionmanager_napi") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "libxml2:libxml2",
   ]
 
   deps = [
@@ -67,6 +68,7 @@ ohos_shared_library("webnativemessagingextensionmanager_napi") {
     "../../../../../ohos_nweb:libnweb",
     "../../../../../sa/web_native_messaging:web_native_messaging_kit",
     "../../../../native:ohweb",
+    "../../../../../ohos_nweb:web_configs",
   ]
 
   relative_install_dir = "module/web"

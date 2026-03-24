@@ -44,6 +44,7 @@ public:
     bool IsWebPlayGroundEnable();
     const std::string& GetWebPlayGroundInitArg();
     const std::string& GetWebPlayGroundHapPath();
+    bool IsNativeMessagingEnabled();
 
 private:
     NWebConfigHelper();
@@ -60,6 +61,8 @@ private:
     void ParseNWebDvsync(xmlNodePtr nodePtr);
     void ParseNWebDvsyncSwitch(xmlNodePtr nodePtr);
     void ParseWindowOrientationConfig(xmlNodePtr nodePtr, std::shared_ptr<NWebEngineInitArgsImpl> initArgs);
+    void ParseNativeMessagingConfig(xmlNodePtr nodePtr);
+    bool ParseNativeMessagingSetting(xmlNodePtr childNodePtr);
     bool IsDeveloperModeEnabled();
     bool IsPerfConfigEmpty();
 
@@ -77,6 +80,7 @@ private:
     const std::string SINGLE_PROCESS = "--single-process";
     const std::string PLAY_GROUND_HAP_PATH = "/data/storage/el1/bundle/entry/resources/resfile/nweb.hap";
     bool web_play_ground_enabled_ = false;
+    bool nativeMessagingEnabled_ = false;
 };
 } // namespace OHOS
 
