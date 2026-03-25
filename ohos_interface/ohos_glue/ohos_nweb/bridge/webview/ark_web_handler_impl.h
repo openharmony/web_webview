@@ -839,6 +839,11 @@ public:
      */
     void OnMediaCastEnter() override;
 
+    /**
+     * @brief Called when the input method is attached.
+     */
+    void OnInputMethodAttached() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };

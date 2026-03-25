@@ -879,6 +879,11 @@ public:
      *
      */
     void OnMediaCastEnter() override;
+
+    /**
+     * @brief Called when the input method is attached.
+     */
+    void OnInputMethodAttached() override;
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };
