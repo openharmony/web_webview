@@ -6879,11 +6879,6 @@ WEBVIEW_ANI_STATIC void SetScrollbarMode(ani_env *env, ani_object object, ani_en
         return;
     }
 
-    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
-    if (!controller || !controller->IsInit()) {
-        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
-        return;
-    }
     ani_boolean isUndefined = ANI_FALSE;
     if (env->Reference_IsUndefined(mode, &isUndefined) != ANI_OK || isUndefined) {
         return;
