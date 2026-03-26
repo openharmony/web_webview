@@ -36,10 +36,9 @@ ohos_fuzztest("FormatAdapterFuzzTest") {
 
   defines = [ "NWEB_CAMERA_ENABLE" ]
 
-  deps = [ 
+  deps = [
     "$webview_path/ohos_adapter:nweb_ohos_adapter",
-    "$webview_path/ohos_nweb:libnweb"
-
+    "$webview_path/ohos_nweb:libnweb",
   ]
 
   external_deps = [
