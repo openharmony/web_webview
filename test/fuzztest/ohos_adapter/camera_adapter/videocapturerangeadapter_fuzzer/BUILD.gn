@@ -36,8 +36,11 @@ ohos_fuzztest("VideoCaptureRangeAdapterFuzzTest") {
 
   defines = [ "NWEB_CAMERA_ENABLE" ]
 
-  deps = [ "$webview_path/ohos_adapter:nweb_ohos_adapter" ]
-
+  deps = [
+    "$webview_path/ohos_adapter:nweb_ohos_adapter",
+    "$webview_path/ohos_nweb:libnweb",
+  ]
+  
   external_deps = [
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",
@@ -47,7 +50,6 @@ ohos_fuzztest("VideoCaptureRangeAdapterFuzzTest") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "webview:libnweb",
   ]
   if (webview_camera_enable) {
     external_deps += [

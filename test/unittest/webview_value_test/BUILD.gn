@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
+import("//base/web/webview/web_aafwk.gni")
 
 module_output_path = "webview/Networking"
 
@@ -20,11 +21,14 @@ ohos_unittest("webview_value_test") {
 
   sources = [ "webview_value_test.cpp" ]
 
+  deps = [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
+
   external_deps = [
     "c_utils:utils",
     "googletest:gtest_main",
     "hilog:libhilog",
-    "webview:libnweb",
   ]
 }
 

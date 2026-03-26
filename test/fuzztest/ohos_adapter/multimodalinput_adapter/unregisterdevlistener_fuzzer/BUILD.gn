@@ -37,6 +37,7 @@ ohos_fuzztest("UnregisterDevListenerFuzzTest") {
     "c_utils:utils",
     "hilog:libhilog",
     "input:libmmi-client",
+    "ipc:ipc_core",
   ]
 }
 

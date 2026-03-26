@@ -43,6 +43,9 @@ ohos_fuzztest("VerifyPackageInstallFuzzTest") {
     "${webview_path}/sa/app_fwk_update:app_fwk_update_service",
     "${webview_path}/sa/app_fwk_update:app_fwk_update_service_interface",
   ]
+  deps += [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
@@ -66,7 +69,6 @@ ohos_fuzztest("VerifyPackageInstallFuzzTest") {
     "safwk:system_ability_fwk",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "webview:libnweb",
     "window_manager:libwm",
   ]
 }

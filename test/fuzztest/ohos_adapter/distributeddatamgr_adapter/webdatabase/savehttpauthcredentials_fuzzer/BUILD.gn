@@ -37,6 +37,8 @@ ohos_fuzztest("SaveHttpAuthCredentialsFuzzTest") {
     "googletest:gmock_rtti",
     "googletest:gtest_rtti",
     "relational_store:native_rdb",
+    "c_utils:utils",
+    "bounds_checking_function:libsec_shared",
   ]
 }
 

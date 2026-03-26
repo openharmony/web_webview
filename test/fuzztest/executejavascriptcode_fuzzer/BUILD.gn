@@ -39,9 +39,11 @@ ohos_fuzztest("ExecuteJavaScriptCodeFuzzTest") {
     "graphic_2d:librender_service_base",
     "graphic_2d:librender_service_client",
     "hilog:libhilog",
-    "webview:libnweb",
     "window_manager:libwm",
     "ability_runtime:ability_connect_callback_stub",
+  ]
+  deps = [
+    "$webview_path/ohos_nweb:libnweb"
   ]
 }
 

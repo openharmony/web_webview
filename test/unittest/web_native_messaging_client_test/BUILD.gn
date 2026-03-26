@@ -34,6 +34,10 @@ ohos_unittest("web_native_messaging_client_test") {
     "$webview_path/ohos_nweb:web_configs",
   ]
 
+  deps += [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
+
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
@@ -48,7 +52,6 @@ ohos_unittest("web_native_messaging_client_test") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "webview:libnweb",
     "window_manager:libwm",
     "window_manager:libwsutils",
   ]
@@ -72,6 +75,10 @@ ohos_unittest("web_extension_connection_callback_test") {
     "$webview_path/ohos_nweb:web_configs",
   ]
 
+  deps += [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
+
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
@@ -86,7 +93,6 @@ ohos_unittest("web_extension_connection_callback_test") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "webview:libnweb",
     "window_manager:libwm",
   ]
 }
@@ -109,6 +115,10 @@ ohos_unittest("web_extension_connection_callback_stub_test") {
     "$webview_path/ohos_nweb:web_configs",
   ]
 
+  deps += [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
+
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
@@ -123,7 +133,6 @@ ohos_unittest("web_extension_connection_callback_stub_test") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "webview:libnweb",
     "window_manager:libwm",
   ]
 }
@@ -146,6 +155,10 @@ ohos_unittest("web_native_messaging_load_callback_test") {
     "$webview_path/ohos_nweb:web_configs",
   ]
 
+  deps += [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
+
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
@@ -160,7 +173,6 @@ ohos_unittest("web_native_messaging_load_callback_test") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "webview:libnweb",
     "window_manager:libwm",
   ]
 }

@@ -34,11 +34,13 @@ ohos_fuzztest("GetCookieManagerFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
   sources = [ "getcookiemanager_fuzzer.cpp" ]
+  deps = [ 
+    "$webview_path/ohos_nweb:libnweb"
+  ]
   external_deps = [
     "c_utils:utils",
     "graphic_2d:librender_service_client",
     "hilog:libhilog",
-    "webview:libnweb",
     "window_manager:libwm",
     "ability_runtime:ability_connect_callback_stub",
   ]

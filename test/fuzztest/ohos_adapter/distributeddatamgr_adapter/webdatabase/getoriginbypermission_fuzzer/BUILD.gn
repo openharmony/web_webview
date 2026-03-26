@@ -33,7 +33,11 @@ ohos_fuzztest("GetOriginByPermissionFuzzTest") {
   sources = [ "getoriginbypermission_fuzzer.cpp" ]
   deps = [ "$webview_path/ohos_adapter:nweb_ohos_adapter" ]
 
-  external_deps = [ "relational_store:native_rdb" ]
+  external_deps = [ 
+    "relational_store:native_rdb",
+    "c_utils:utils",
+    "bounds_checking_function:libsec_shared",
+  ]
 }
 
 group("fuzztest") {
