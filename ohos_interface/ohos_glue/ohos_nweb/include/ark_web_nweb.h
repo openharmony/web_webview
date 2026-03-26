@@ -2302,6 +2302,14 @@ public:
      */
     /*--ark web()--*/
     virtual void SetWebAutoLayoutConfig(const ArkWebString& config) = 0;
+
+    /**
+     * @brief Update web keyboard appearance mode.
+     *
+     * @param mode The IME immersive mode.
+     */
+    /*--ark web()--*/
+    virtual void SetKeyboardImmersiveMode(int32_t mode) = 0;
 };
 
 } // namespace OHOS::ArkWeb

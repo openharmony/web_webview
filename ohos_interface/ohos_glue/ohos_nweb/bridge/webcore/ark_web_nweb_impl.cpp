@@ -1808,4 +1808,9 @@ void ArkWebNWebImpl::SetWebAutoLayoutConfig(const ArkWebString& config)
 {
     nweb_nweb_->SetWebAutoLayoutConfig(ArkWebStringStructToClass(config));
 }
+
+void ArkWebNWebImpl::SetKeyboardImmersiveMode(int32_t mode)
+{
+    nweb_nweb_->SetKeyboardImmersiveMode(mode);
+}
 } // namespace OHOS::ArkWeb

@@ -2477,6 +2477,13 @@ public:
      * @param config json string.
      */
     virtual void SetWebAutoLayoutConfig(const std::string& config) {}
+
+    /**
+     * @brief Update web keyboard appearance mode.
+     *
+     * @param mode The IME immersive mode.
+     */
+    virtual void SetKeyboardImmersiveMode(int32_t mode) {}
 };
 } // namespace OHOS::NWeb
 

@@ -292,6 +292,7 @@ bool IMFAdapterImpl::Attach(std::shared_ptr<IMFTextListenerAdapter> listener, bo
     
     MiscServices::InputAttribute inputAttribute = { .inputPattern = config->GetInputAttribute()->GetInputPattern(),
         .enterKeyType = config->GetInputAttribute()->GetEnterKeyType(),
+        .immersiveMode = config->GetInputAttribute()->GetKeyboardImmersiveMode(),
         .isTextPreviewSupported = true };
 
     MiscServices::CursorInfo imfInfo = { .left = config->GetCursorInfo()->GetLeft(),
@@ -332,6 +333,7 @@ bool IMFAdapterImpl::AttachWithRequestKeyboardReason(std::shared_ptr<IMFTextList
 
     MiscServices::InputAttribute inputAttribute = { .inputPattern = config->GetInputAttribute()->GetInputPattern(),
         .enterKeyType = config->GetInputAttribute()->GetEnterKeyType(),
+        .immersiveMode = config->GetInputAttribute()->GetKeyboardImmersiveMode(),
         .isTextPreviewSupported = true };
 
     MiscServices::CursorInfo imfInfo = { .left = config->GetCursorInfo()->GetLeft(),

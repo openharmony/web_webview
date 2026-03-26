@@ -2031,6 +2031,13 @@ public:
      * @param config json string.
      */
     void SetWebAutoLayoutConfig(const ArkWebString& config) override;
+
+    /**
+     * @brief Update web keyboard appearance mode.
+     *
+     * @param mode The IME immersive mode.
+     */
+    void SetKeyboardImmersiveMode(int32_t mode) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

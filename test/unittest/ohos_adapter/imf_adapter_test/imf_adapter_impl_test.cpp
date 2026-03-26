@@ -106,6 +106,11 @@ public:
     {
         return 0;
     }
+
+    int32_t GetKeyboardImmersiveMode() override
+    {
+        return 0;
+    }
 };
 
 class IMFSelectionRangeAdapterMock : public IMFSelectionRangeAdapter {

@@ -2146,4 +2146,9 @@ void ArkWebNWebWrapper::SetWebAutoLayoutConfig(const std::string& config)
     ark_web_nweb_->SetWebAutoLayoutConfig(stConfig);
     ArkWebStringStructRelease(stConfig);
 }
+
+void ArkWebNWebWrapper::SetKeyboardImmersiveMode(int32_t mode)
+{
+    ark_web_nweb_->SetKeyboardImmersiveMode(mode);
+}
 } // namespace OHOS::ArkWeb
