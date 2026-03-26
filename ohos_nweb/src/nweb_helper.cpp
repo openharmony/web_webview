@@ -71,6 +71,9 @@ const uint32_t NWEB_SURFACE_MAX_HEIGHT = 7680;
     DO(WebDownloadItem_FullPath);                     \
     DO(WebDownloadItem_Url);                          \
     DO(WebDownloadItem_OriginalUrl);                  \
+    DO(WebDownloadItem_ReferrerUrl);                  \
+    DO(WebDownloadItem_UrlChain);                     \
+    DO(WebDownloadItem_UrlChainSize);                 \
     DO(WebDownloadItem_SuggestedFileName);            \
     DO(WebDownloadItem_ContentDisposition);           \
     DO(WebDownloadItem_ETag);                         \
@@ -92,6 +95,9 @@ const uint32_t NWEB_SURFACE_MAX_HEIGHT = 7680;
     DO(WebDownloadItem_SetTotalBytes);                \
     DO(WebDownloadItem_SetReceivedSlices);            \
     DO(WebDownloadItem_SetGuid);                      \
+    DO(WebDownloadItem_SetOriginalUrl);               \
+    DO(WebDownloadItem_SetReferrerUrl);               \
+    DO(WebDownloadItem_SetUrlChain);                  \
     DO(DestroyBeforeDownloadCallbackWrapper);         \
     DO(DestroyDownloadItemCallbackWrapper)
 
@@ -378,6 +384,33 @@ extern "C" char* WebDownloadItem_OriginalUrl(const NWebDownloadItem* downloadIte
     return g_nwebCApi->impl_WebDownloadItem_OriginalUrl(downloadItem);
 }
 
+extern "C" char* WebDownloadItem_ReferrerUrl(const NWebDownloadItem* downloadItem)
+{
+    if (!g_nwebCApi->impl_WebDownloadItem_ReferrerUrl) {
+        WVLOG_E("WebDownloadItem_ReferrerUrl not found.");
+        return nullptr;
+    }
+    return g_nwebCApi->impl_WebDownloadItem_ReferrerUrl(downloadItem);
+}
+
+extern "C" char** WebDownloadItem_UrlChain(const NWebDownloadItem* downloadItem)
+{
+    if (!g_nwebCApi->impl_WebDownloadItem_UrlChain) {
+        WVLOG_E("WebDownloadItem_UrlChain not found.");
+        return nullptr;
+    }
+    return g_nwebCApi->impl_WebDownloadItem_UrlChain(downloadItem);
+}
+
+extern "C" int64_t WebDownloadItem_UrlChainSize(const NWebDownloadItem* downloadItem)
+{
+    if (!g_nwebCApi->impl_WebDownloadItem_UrlChainSize) {
+        WVLOG_E("WebDownloadItem_UrlChainSize not found.");
+        return 0;
+    }
+    return g_nwebCApi->impl_WebDownloadItem_UrlChainSize(downloadItem);
+}
+
 extern "C" char* WebDownloadItem_SuggestedFileName(const NWebDownloadItem* downloadItem)
 {
     if (!g_nwebCApi->impl_WebDownloadItem_SuggestedFileName) {
@@ -520,6 +553,33 @@ extern "C" void WebDownloadItem_SetUrl(NWebDownloadItem* downloadItem, const cha
         return;
     }
     g_nwebCApi->impl_WebDownloadItem_SetUrl(downloadItem, url);
+}
+
+extern "C" void WebDownloadItem_SetOriginalUrl(NWebDownloadItem* downloadItem, const char* originalUrl)
+{
+    if (!g_nwebCApi->impl_WebDownloadItem_SetOriginalUrl) {
+        WVLOG_E("WebDownloadItem_SetOriginalUrl not found.");
+        return;
+    }
+    g_nwebCApi->impl_WebDownloadItem_SetOriginalUrl(downloadItem, originalUrl);
+}
+
+extern "C" void WebDownloadItem_SetReferrerUrl(NWebDownloadItem* downloadItem, const char* referrerUrl)
+{
+    if (!g_nwebCApi->impl_WebDownloadItem_SetReferrerUrl) {
+        WVLOG_E("WebDownloadItem_SetReferrerUrl not found.");
+        return;
+    }
+    g_nwebCApi->impl_WebDownloadItem_SetReferrerUrl(downloadItem, referrerUrl);
+}
+
+extern "C" void WebDownloadItem_SetUrlChain(NWebDownloadItem* downloadItem, char** urlChain, int64_t size)
+{
+    if (!g_nwebCApi->impl_WebDownloadItem_SetUrlChain) {
+        WVLOG_E("WebDownloadItem_SetUrlChain not found.");
+        return;
+    }
+    g_nwebCApi->impl_WebDownloadItem_SetUrlChain(downloadItem, urlChain, size);
 }
 
 extern "C" void WebDownloadItem_SetFullPath(NWebDownloadItem* downloadItem, const char* fullPath)

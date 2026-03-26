@@ -137,6 +137,50 @@ static ani_string GetUrl(ani_env* env, ani_object object)
     return result;
 }
 
+static ani_string GetOriginalUrl(ani_env* env, ani_object object)
+{
+    WVLOG_D("[DOWNLOAD] WebDownloadItem::GetOriginalUrl");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    auto* webDownloadItem = reinterpret_cast<WebDownloadItem*>(AniParseUtils::Unwrap(env, object));
+    if (!webDownloadItem) {
+        WVLOG_E("[DOWNLOAD]unwrap webDownloadItem failed");
+        return nullptr;
+    }
+
+    std::string originalUrl = webDownloadItem->originalUrl;
+    ani_string result;
+    if (env->String_NewUTF8(originalUrl.c_str(), originalUrl.size(), &result) != ANI_OK) {
+        WVLOG_E("create stringObj error");
+        return nullptr;
+    }
+    return result;
+}
+
+static ani_string GetReferrerUrl(ani_env* env, ani_object object)
+{
+    WVLOG_D("[DOWNLOAD] WebDownloadItem::GetReferrerUrl");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+    auto* webDownloadItem = reinterpret_cast<WebDownloadItem*>(AniParseUtils::Unwrap(env, object));
+    if (!webDownloadItem) {
+        WVLOG_E("[DOWNLOAD]unwrap webDownloadItem failed");
+        return nullptr;
+    }
+
+    std::string referrerUrl = webDownloadItem->referrerUrl;
+    ani_string result;
+    if (env->String_NewUTF8(referrerUrl.c_str(), referrerUrl.size(), &result) != ANI_OK) {
+        WVLOG_E("create stringObj error");
+        return nullptr;
+    }
+    return result;
+}
+
 static ani_string GetGuid(ani_env* env, ani_object object)
 {
     WVLOG_D("[DOWNLOAD] WebDownloadItem::GetGuid");
@@ -502,6 +546,7 @@ void SetWebDownloadPb(browser_service::WebDownload& webDownloadPb, const WebDown
     webDownloadPb.set_url(webDownloadItem->url);
     webDownloadPb.set_etag(webDownloadItem->etag);
     webDownloadPb.set_original_url(webDownloadItem->originalUrl);
+    webDownloadPb.set_referrer_url(webDownloadItem->referrerUrl);
     webDownloadPb.set_suggested_file_name(webDownloadItem->suggestedFileName);
     webDownloadPb.set_content_disposition(webDownloadItem->contentDisposition);
     webDownloadPb.set_mime_type(webDownloadItem->mimeType);
@@ -511,6 +556,9 @@ void SetWebDownloadPb(browser_service::WebDownload& webDownloadPb, const WebDown
     webDownloadPb.set_last_error_code(webDownloadItem->lastErrorCode);
     webDownloadPb.set_received_slices(webDownloadItem->receivedSlices);
     webDownloadPb.set_download_path(webDownloadItem->downloadPath);
+    for (const auto& url : webDownloadItem->urlChain) {
+        webDownloadPb.add_url_chain(url);
+    }
 }
 
 static ani_object SerializeInternal(ani_env* env, ani_object object)
@@ -557,6 +605,7 @@ void GetWebDownloadPb(const browser_service::WebDownload& webDownloadPb, WebDown
     webDownloadItem->url = webDownloadPb.url();
     webDownloadItem->etag = webDownloadPb.etag();
     webDownloadItem->originalUrl = webDownloadPb.original_url();
+    webDownloadItem->referrerUrl = webDownloadPb.referrer_url();
     webDownloadItem->suggestedFileName = webDownloadPb.suggested_file_name();
     webDownloadItem->contentDisposition = webDownloadPb.content_disposition();
     webDownloadItem->mimeType = webDownloadPb.mime_type();
@@ -566,6 +615,8 @@ void GetWebDownloadPb(const browser_service::WebDownload& webDownloadPb, WebDown
     webDownloadItem->lastErrorCode = webDownloadPb.last_error_code();
     webDownloadItem->receivedSlices = webDownloadPb.received_slices();
     webDownloadItem->downloadPath = webDownloadPb.download_path();
+    auto& url_chain = webDownloadPb.url_chain();
+    webDownloadItem->urlChain.assign(url_chain.begin(), url_chain.end());
 }
 
 static ani_object DeserializeInternal(ani_env* env, ani_object object, ani_object arrayObject)
@@ -645,6 +696,8 @@ ani_status StsWebDownLoadItemInit(ani_env* env)
     std::array allMethods = {
         ani_native_function { "<ctor>", nullptr, reinterpret_cast<void*>(Constructor) },
         ani_native_function { "getUrl", nullptr, reinterpret_cast<void*>(GetUrl) },
+        ani_native_function { "getOriginalUrl", nullptr, reinterpret_cast<void*>(GetOriginalUrl) },
+        ani_native_function { "getReferrerUrl", nullptr, reinterpret_cast<void*>(GetReferrerUrl) },
         ani_native_function { "getGuid", nullptr, reinterpret_cast<void*>(GetGuid) },
         ani_native_function { "getPercentComplete", nullptr, reinterpret_cast<void*>(GetPercentComplete) },
         ani_native_function { "getSuggestedFileName", nullptr, reinterpret_cast<void*>(GetSuggestedFileName) },

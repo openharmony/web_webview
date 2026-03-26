@@ -200,6 +200,15 @@ void WebDownloadManager::ResumeDownload(const WebDownloadItem *webDownload)
     WebDownloadItem_SetTotalBytes(downloadItem, webDownload->totalBytes);
     WebDownloadItem_SetReceivedSlices(downloadItem, webDownload->receivedSlices.c_str());
     WebDownloadItem_SetLastModified(downloadItem, webDownload->lastModified.c_str());
+    WebDownloadItem_SetOriginalUrl(downloadItem, webDownload->originalUrl.c_str());
+    WebDownloadItem_SetReferrerUrl(downloadItem, webDownload->referrerUrl.c_str());
+    if (!webDownload->urlChain.empty()) {
+        std::vector<char*> urlChainArray;
+        for (const auto& url : webDownload->urlChain) {
+            urlChainArray.push_back(const_cast<char*>(url.c_str()));
+        }
+        WebDownloadItem_SetUrlChain(downloadItem, urlChainArray.data(), urlChainArray.size());
+    }
     WebDownloader_ResumeDownloadStatic(downloadItem);
     return;
 }

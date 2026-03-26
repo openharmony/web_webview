@@ -67,4 +67,8 @@ message WebDownload {
   optional string download_path = 18;
 
   optional string guid = 19;
+
+  optional string referrer_url = 20;
+
+  repeated string url_chain = 21;
 }
