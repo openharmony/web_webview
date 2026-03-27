@@ -1426,4 +1426,9 @@ void ArkWebHandlerWrapper::OnMediaCastEnter()
 {
     ark_web_handler_->OnMediaCastEnter();
 }
+
+void ArkWebHandlerWrapper::OnInputMethodAttached()
+{
+    ark_web_handler_->OnInputMethodAttached();
+}
 } // namespace OHOS::ArkWeb
