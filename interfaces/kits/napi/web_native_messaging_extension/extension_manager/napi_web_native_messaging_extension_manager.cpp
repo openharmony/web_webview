@@ -463,7 +463,7 @@ napi_value NapiWebNativeMessagingExtensionManager::ConnectNative(napi_env env, n
     napi_value result = nullptr;
     napi_create_int32(env, -1, &result);
     if (!NWebConfigHelper::Instance().IsNativeMessagingEnabled()) {
-        WNMLOG_E("ConnectNative: Native Messaging feature is disabled.");
+        WNMLOG_E("ConnectNative: Capability not supported.");
         NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::CAPABILITY_NOT_SUPPORTED_ERROR);
         return result;
     }
@@ -547,7 +547,7 @@ void NapiWebNativeMessagingExtensionManager::DisconnectNativeComplete(napi_env e
 napi_value NapiWebNativeMessagingExtensionManager::DisconnectNative(napi_env env, napi_callback_info info)
 {
     if (!NWebConfigHelper::Instance().IsNativeMessagingEnabled()) {
-        WNMLOG_E("DisconnectNative: Native Messaging feature is disabled.");
+        WNMLOG_E("DisconnectNative: Capability not supported.");
         NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::CAPABILITY_NOT_SUPPORTED_ERROR);
         return nullptr;
     }
