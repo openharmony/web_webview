@@ -45,11 +45,9 @@ import deviceInfo from '@ohos.deviceInfo'
 import { UIContext } from '@ohos.arkui.UIContext'
 import picker from '@ohos.file.picker'
 import fileIo, { Watcher, WatchEventListener } from '@ohos.file.fs'
-import Environment from '@ohos.file.environment'
 import fileUri from '@ohos.file.fileuri'
 
-const defaultBasicPath = 'file://docs'
-const defaultPublicPath = initDefaultPublicPath()
+const defaultPublicPath = '/storage/Users/currentUser/'
 
 const publicDirectoryMap = new Map<string, string>([
   ['desktop', defaultPublicPath + 'desktop'],
@@ -59,18 +57,6 @@ const publicDirectoryMap = new Map<string, string>([
   ['pictures', defaultPublicPath + 'images'],
   ['videos', defaultPublicPath + 'videos'],
 ])
-
-function initDefaultPublicPath() {
-  if (deviceInfo.deviceType.toLowerCase() !== '2in1') {
-    return ''
-  }
-  const path = Environment.getUserDownloadDir()
-  const pathEndIndex = path.lastIndexOf('/')
-  if (pathEndIndex !== -1) {
-    return path.substring(0, pathEndIndex + 1)
-  }
-  return ''
-}
 
 class SelectorDialog {
   private customDialogComponentId: int = 0
@@ -352,9 +338,7 @@ function createDocumentSelectionOptions(param: FileSelectorParam) {
     const defaultSelectMode = picker.DocumentSelectMode.MIXED
     documentSelectOptions.maxSelectNumber = defaultSelectNumber
     documentSelectOptions.selectMode = defaultSelectMode
-    if (currentDevice === '2in1') {
-      documentSelectOptions.defaultFilePathUri = getDefaultPath(param)
-    }
+    documentSelectOptions.defaultFilePathUri = getDefaultPath(param)
     const mode = param.getMode()
     switch (mode) {
       case FileSelectorMode.FILE_OPEN_MODE:
@@ -395,9 +379,7 @@ function createDocumentSaveOptions(param: FileSelectorParam) {
     documentSaveOptions.pickerMode = picker.DocumentPickerMode.DEFAULT
     documentSaveOptions.fileSuffixChoices = []
     documentSaveOptions.newFileNames = [param.getSuggestedName()]
-    if (currentDevice === '2in1') {
-      documentSaveOptions.defaultFilePathUri = getDefaultPath(param)
-    }
+    documentSaveOptions.defaultFilePathUri = getDefaultPath(param)
     const suffix = param.getAcceptType().join(',')
     const accepts = param.getAcceptableFileTypes()
     const descriptions = param.getDescriptions()
@@ -420,7 +402,7 @@ function getDefaultPath(param: FileSelectorParam) {
   if (publicDirectoryMap.get(path) !== undefined) {
     path = publicDirectoryMap.get(path)!
   }
-  return defaultBasicPath + path
+  return fileUri.getUriFromPath(path)
 }
 
 function suffixFromAccepts(suffix: string[], descriptions: string[], accepts: AcceptableFileType[][]) {
