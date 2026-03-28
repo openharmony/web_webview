@@ -487,9 +487,10 @@ std::string GetAppVersion()
 ArkWebEngineVersion CalculateActiveWebEngineVersion()
 {
     int webEngineEnforce = OHOS::system::GetIntParameter("web.engine.enforce", 0);
-    if (webEngineEnforce == static_cast<int>(ArkWebEngineType::EVERGREEN)) {
-        WVLOG_I("CalculateActiveWebEngineVersion, enforce EVERGREEN");
-        return static_cast<ArkWebEngineVersion>(ArkWebEngineType::EVERGREEN);
+    if (webEngineEnforce == static_cast<int>(ArkWebEngineType::EVERGREEN) ||
+        webEngineEnforce == static_cast<int>(ArkWebEngineType::LEGACY)) {
+        WVLOG_I("CalculateActiveWebEngineVersion, enforce %{public}d", webEngineEnforce);
+        return static_cast<ArkWebEngineVersion>(webEngineEnforce);
     }
 
     if (g_appEngineVersion != static_cast<int>(ArkWebEngineVersion::SYSTEM_DEFAULT)) {

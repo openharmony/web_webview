@@ -1021,6 +1021,8 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
             static_cast<int32_t>(ArkWeb::ArkWebEngineVersion::M114))),
         DECLARE_NAPI_STATIC_PROPERTY("M132", NapiParseUtils::ToInt32Value(env,
             static_cast<int32_t>(ArkWeb::ArkWebEngineVersion::M132))),
+        DECLARE_NAPI_STATIC_PROPERTY("M144", NapiParseUtils::ToInt32Value(env,
+            static_cast<int32_t>(ArkWeb::ArkWebEngineVersion::M144))),
         DECLARE_NAPI_STATIC_PROPERTY("ARKWEB_EVERGREEN", NapiParseUtils::ToInt32Value(env,
             static_cast<int32_t>(ArkWeb::ArkWebEngineVersion::SYSTEM_EVERGREEN))),
     };

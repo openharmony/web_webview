@@ -108,10 +108,15 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_SetActiveWebEngineVersionInner_003, Te
 
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_getActiveWebEngineType_001, TestSize.Level1) {
     int webEngineEnforce = OHOS::system::GetIntParameter("web.engine.enforce", 0);
-    OHOS::system::SetParameter("web.engine.enforce", std::to_string(2));
 
+    OHOS::system::SetParameter("web.engine.enforce", std::to_string(2));
     auto res = getActiveWebEngineType();
-    EXPECT_EQ(res, ArkWebEngineType::EVERGREEN);
+    EXPECT_EQ(res, ArkWebEngineType::LEGACY);
+
+    OHOS::system::SetParameter("web.engine.enforce", std::to_string(3));
+    res = getActiveWebEngineType();
+    EXPECT_EQ(res, ArkWebEngineType::LEGACY);
+
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
 }
 
@@ -128,7 +133,7 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_getActiveWebEngineType_002, TestSize.L
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_getActiveWebEngineType_003, TestSize.Level1) {
     int webEngineEnforce = OHOS::system::GetIntParameter("web.engine.enforce", 0);
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(0));
-    setActiveWebEngineVersion(ArkWebEngineVersion::M114);
+    setActiveWebEngineVersion(ArkWebEngineVersion::M132);
 
     auto res = getActiveWebEngineType();
     EXPECT_EQ(res, ArkWebEngineType::LEGACY);
@@ -138,7 +143,7 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_getActiveWebEngineType_003, TestSize.L
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetArkwebLibPath_001, TestSize.Level1) {
     int webEngineEnforce = OHOS::system::GetIntParameter("web.engine.enforce", 0);
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(0));
-    setActiveWebEngineVersion(ArkWebEngineVersion::M114);
+    setActiveWebEngineVersion(ArkWebEngineVersion::M132);
 
     auto res = GetArkwebLibPath();
     EXPECT_EQ(res, ARK_WEB_CORE_LEGACY_HAP_LIB_PATH);
@@ -158,7 +163,7 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetArkwebLibPath_002, TestSize.Level1)
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetArkwebNameSpace_001, TestSize.Level1) {
     int webEngineEnforce = OHOS::system::GetIntParameter("web.engine.enforce", 0);
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(0));
-    setActiveWebEngineVersion(ArkWebEngineVersion::M114);
+    setActiveWebEngineVersion(ArkWebEngineVersion::M132);
 
     auto res = GetArkwebNameSpace();
     EXPECT_EQ(res, "nweb_ns_legacy");
@@ -178,7 +183,7 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetArkwebNameSpace_002, TestSize.Level
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetArkwebRelativePathForBundle_001, TestSize.Level1) {
     int webEngineEnforce = OHOS::system::GetIntParameter("web.engine.enforce", 0);
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(0));
-    setActiveWebEngineVersion(ArkWebEngineVersion::M114);
+    setActiveWebEngineVersion(ArkWebEngineVersion::M132);
 
     auto res = GetArkwebRelativePathForBundle();
 #if defined(IS_ASAN)
@@ -206,7 +211,7 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetArkwebRelativePathForBundle_002, Te
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetArkwebInstallPath_001, TestSize.Level1) {
     int webEngineEnforce = OHOS::system::GetIntParameter("web.engine.enforce", 0);
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(0));
-    setActiveWebEngineVersion(ArkWebEngineVersion::M114);
+    setActiveWebEngineVersion(ArkWebEngineVersion::M132);
 
     auto aclPath = GetArkwebInstallPath();
     bool res = (aclPath == SANDBOX_LEGACY_HAP_PATH || aclPath == PRECONFIG_LEGACY_HAP_PATH);
@@ -232,11 +237,11 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_GetArkwebInstallPath_002, TestSize.Lev
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_IsActiveWebEngineEvergreen_001, TestSize.Level1)
 {
     OHOS::system::SetParameter("web.engine.enforce", "0");
-    setActiveWebEngineVersion(ArkWebEngineVersion::M114);
-    EXPECT_FALSE(IsActiveWebEngineEvergreen());
     setActiveWebEngineVersion(ArkWebEngineVersion::M132);
+    EXPECT_FALSE(IsActiveWebEngineEvergreen());
+    setActiveWebEngineVersion(ArkWebEngineVersion::M144);
     EXPECT_TRUE(IsActiveWebEngineEvergreen());
-    setActiveWebEngineVersion(ArkWebEngineVersion::M114);
+    setActiveWebEngineVersion(ArkWebEngineVersion::M132);
     EXPECT_FALSE(IsActiveWebEngineEvergreen());
     setActiveWebEngineVersion(ArkWebEngineVersion::SYSTEM_EVERGREEN);
     EXPECT_TRUE(IsActiveWebEngineEvergreen());
@@ -248,7 +253,7 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_SelectWebcoreBeforeProcessRun_001, Tes
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(0));
 
     SelectWebcoreBeforeProcessRun(appBundleName);
-    EXPECT_EQ(getActiveWebEngineVersion(), ArkWebEngineVersion::M132);
+    EXPECT_EQ(getActiveWebEngineVersion(), ArkWebEngineVersion::M144);
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
 }
 
@@ -258,7 +263,7 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_SelectWebcoreBeforeProcessRun_002, Tes
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(0));
 
     SelectWebcoreBeforeProcessRun(appBundleName);
-    EXPECT_EQ(getActiveWebEngineVersion(), ArkWebEngineVersion::M132);
+    EXPECT_EQ(getActiveWebEngineVersion(), ArkWebEngineVersion::M144);
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
 }
 
@@ -301,7 +306,7 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ProcessDefaultParam_003, TestSize.Leve
     std::string key = "web.engine.default";
     Json::Value value = static_cast<int>(ArkWebEngineType::LEGACY);
     ProcessDefaultParam(value);
-    EXPECT_EQ(OHOS::system::GetIntParameter(key, 0), 1);
+    EXPECT_EQ(OHOS::system::GetIntParameter(key, 0), 2);
 }
 
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ProcessDefaultParam_004, TestSize.Level1)
@@ -309,7 +314,7 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ProcessDefaultParam_004, TestSize.Leve
     std::string key = "web.engine.default";
     Json::Value value = static_cast<int>(ArkWebEngineType::EVERGREEN);
     ProcessDefaultParam(value);
-    EXPECT_EQ(OHOS::system::GetIntParameter(key, 0), 2);
+    EXPECT_EQ(OHOS::system::GetIntParameter(key, 0), 3);
 }
 
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ProcessEnforceParam_001, TestSize.Level1)
@@ -341,7 +346,7 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ProcessEnforceParam_004, TestSize.Leve
     std::string key = "web.engine.enforce";
     Json::Value value = static_cast<int>(ArkWebEngineType::EVERGREEN);
     ProcessEnforceParam(value);
-    EXPECT_EQ(OHOS::system::GetIntParameter(key, 0), 2);
+    EXPECT_EQ(OHOS::system::GetIntParameter(key, 0), 3);
 }
 
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ProcessLegacyAppParam_001, TestSize.Level1)
@@ -402,7 +407,7 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ProcessParamItem_003, TestSize.Level1)
     std::string key = "web.engine.default";
     Json::Value value = static_cast<int>(ArkWebEngineType::EVERGREEN);
     ProcessParamItem(key, value);
-    EXPECT_EQ(OHOS::system::GetIntParameter(key, 0), 2);
+    EXPECT_EQ(OHOS::system::GetIntParameter(key, 0), 3);
 }
 
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ProcessParamItem_004, TestSize.Level1)
@@ -410,7 +415,7 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ProcessParamItem_004, TestSize.Level1)
     std::string key = "web.engine.enforce";
     Json::Value value = static_cast<int>(ArkWebEngineType::EVERGREEN);
     ProcessParamItem(key, value);
-    EXPECT_EQ(OHOS::system::GetIntParameter(key, 0), 2);
+    EXPECT_EQ(OHOS::system::GetIntParameter(key, 0), 3);
 }
 
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_ProcessParamItem_005, TestSize.Level1)
@@ -613,10 +618,10 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_NoAppVersion, TestSize.Level1)
 */
 HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_NormalScene, TestSize.Level1)
 {
-    std::string renderCmd = "#--appEngineVersion=2#--appBundleName=test#--appApiVersion=1#--appVersion=3";
+    std::string renderCmd = "#--appEngineVersion=3#--appBundleName=test#--appApiVersion=1#--appVersion=3";
     UpdateAppInfoFromCmdline(renderCmd);
     EXPECT_EQ(OHOS::ArkWeb::getActiveWebEngineVersion(),
-        static_cast<OHOS::ArkWeb::ArkWebEngineVersion>(2));
+        static_cast<OHOS::ArkWeb::ArkWebEngineVersion>(3));
     EXPECT_EQ(OHOS::ArkWeb::GetBundleName(), "test");
     EXPECT_EQ(OHOS::ArkWeb::GetApiVersion(), "1");
     EXPECT_EQ(OHOS::ArkWeb::GetAppVersion(), "3");
