@@ -1192,6 +1192,15 @@ public:
      */
     /*--ark web()--*/
     virtual void OnInputMethodAttached() {}
+
+    /**
+     * @brief Nested scrolling scenarios determine whether consumption is needed.
+     *
+     * @param x is the horizontal offset.
+     * @param y is the vertical offset.
+     */
+    /*--ark web()--*/
+    virtual bool OnNestedScrollV2(float& x, float& y) = 0;
 };
 
 } // namespace OHOS::ArkWeb

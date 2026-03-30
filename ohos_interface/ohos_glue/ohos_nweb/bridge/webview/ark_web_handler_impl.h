@@ -844,6 +844,13 @@ public:
      */
     void OnInputMethodAttached() override;
 
+    /**
+     * @brief Nested scrolling scenarios determine whether consumption is needed.
+     *
+     * @param x is the horizontal offset.
+     * @param y is the vertical offset.
+     */
+    bool OnNestedScrollV2(float& x, float& y) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };
