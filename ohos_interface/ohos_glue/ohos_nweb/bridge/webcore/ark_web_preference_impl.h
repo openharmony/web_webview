@@ -723,6 +723,13 @@ public:
      */
     void SetEnableDrag(bool enable) override;
 
+    /**
+     * @brief Sets whether smart edge is enabled.
+     *
+     * @param state bool: Indicates the flag whether smart edge is enabled.
+     */
+    void SetSmartEdgeState(bool state) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebPreference> nweb_preference_;
 };

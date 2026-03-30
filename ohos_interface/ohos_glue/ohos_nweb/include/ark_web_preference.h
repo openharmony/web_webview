@@ -819,6 +819,14 @@ public:
      */
     /*--ark web()--*/
     virtual void SetEnableDrag(bool enable) = 0;
+
+    /**
+     * @brief Set smart edge state.
+     *
+     * @param state bool: Indicates the flag whether smart edge is open.
+     */
+    /*--ark web()--*/
+    virtual void SetSmartEdgeState(bool state) = 0;
 };
 
 } // namespace OHOS::ArkWeb

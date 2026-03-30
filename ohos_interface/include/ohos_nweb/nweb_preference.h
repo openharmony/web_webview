@@ -725,6 +725,13 @@ public:
      * @param enable bool: Indicates the flag whether drag is enabled.
      */
     virtual void SetEnableDrag(bool enable) {}
+
+    /**
+     * @brief Set smart edge state.
+     *
+     * @param state bool: Indicates the flag whether smart edge is open.
+     */
+    virtual void SetSmartEdgeState(bool state) {}
 };
 
 } // namespace OHOS::NWeb
