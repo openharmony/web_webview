@@ -498,7 +498,7 @@ void NWebConfigHelper::ParseNWebLoadUrlStrategy(xmlNodePtr nodePtr)
             continue;
         }
         std::string nodeName = reinterpret_cast<const char *>(curNodePtr->name);
-        if (nodeName == WEB_LOAD_URL) {
+        if (nodeName == WEB_LOAD_URL_STRATEGY) {
             xmlChar *content = xmlNodeGetContent(curNodePtr);
             if (content == nullptr) {
                 WVLOG_E("read load_url xml node error");
