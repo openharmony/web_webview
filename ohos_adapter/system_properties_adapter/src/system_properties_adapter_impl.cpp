@@ -378,11 +378,6 @@ int32_t SystemPropertiesAdapterImpl::GetLTPOStrategy()
     return NWebConfigHelper::Instance().GetLTPOStrategy();
 }
 
-int32_t SystemPropertiesAdapterImpl::GetLoadUrl()
-{
-    return NWebConfigHelper::Instance().GetLoadUrl();
-}
-
 std::string SystemPropertiesAdapterImpl::GetVulkanStatus()
 {
     if ((OHOS::system::GetParameter("const.gpu.vendor", "0").compare("higpu.v200") == 0)
@@ -441,5 +436,10 @@ std::string SystemPropertiesAdapterImpl::GetStringParameter(const std::string& k
 int32_t SystemPropertiesAdapterImpl::GetIntParameter(const std::string& key, int32_t defaultValue)
 {
     return OHOS::system::GetIntParameter(key, defaultValue);
+}
+
+int32_t SystemPropertiesAdapterImpl::GetLoadUrlStrategy()
+{
+    return NWebConfigHelper::Instance().GetLoadUrlStrategy();
 }
 } // namespace OHOS::NWeb
