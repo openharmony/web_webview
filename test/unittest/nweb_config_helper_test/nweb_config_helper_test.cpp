@@ -55,6 +55,7 @@ const auto XML_BUNDLE_NAME = "bundle_name";
 const auto XML_ENABLE_WINDOW_ORIENTATION = "enable_window_orientation";
 const std::string WEB_LTPO_STRATEGY = "ltpo_strategy";
 const std::string WEB_LOAD_URL_STRATEGY = "load_url_strategy";
+const std::string WEB_LOAD_URL_CONFIG = "load_url_config";
 const std::string WEB_DVSYNC_SWITCH = "dvsync_switch";
 
 class MockNWebConfigHelper : public NWebConfigHelper {
@@ -375,7 +376,6 @@ HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseWebConfigXml_WithLoadUrlCon
 
     // Find load_url_config node and call ParseNWebLoadUrlStrategy directly
     // This covers the same logic branch as ParseWebConfigXml would
-    const std::string WEB_LOAD_URL_CONFIG = "load_url_config";
     xmlNodePtr loadUrlConfigNodePtr = nullptr;
     for (xmlNodePtr curNodePtr = rootPtr->xmlChildrenNode; curNodePtr; curNodePtr = curNodePtr->next) {
         if (curNodePtr->name == nullptr || curNodePtr->type == XML_COMMENT_NODE) {
@@ -417,7 +417,6 @@ HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseWebConfigXml_WithLoadUrlCon
     EXPECT_NE(rootPtr, nullptr);
 
     // Find load_url_config node (should be nullptr)
-    const std::string WEB_LOAD_URL_CONFIG = "load_url_config";
     xmlNodePtr loadUrlConfigNodePtr = nullptr;
     for (xmlNodePtr curNodePtr = rootPtr->xmlChildrenNode; curNodePtr; curNodePtr = curNodePtr->next) {
         if (curNodePtr->name == nullptr || curNodePtr->type == XML_COMMENT_NODE) {
