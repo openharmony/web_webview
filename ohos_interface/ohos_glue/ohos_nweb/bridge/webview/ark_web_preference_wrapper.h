@@ -720,6 +720,13 @@ public:
      */
     void SetEnableDrag(bool enable) override;
 
+    /**
+     * @brief Set smart edge state.
+     *
+     * @param state bool: Indicates the flag whether smart edge is open.
+     */
+    void SetSmartEdgeState(bool state) override;
+
 private:
     ArkWebRefPtr<ArkWebPreference> ark_web_preference_;
 };
