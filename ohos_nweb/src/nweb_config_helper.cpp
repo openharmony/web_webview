@@ -492,6 +492,10 @@ void NWebConfigHelper::ParseNWebLTPOStrategy(xmlNodePtr nodePtr)
 
 void NWebConfigHelper::ParseNWebLoadUrlStrategy(xmlNodePtr nodePtr)
 {
+    if (nodePtr == nullptr) {
+        WVLOG_E("nodePtr is nullptr");
+        return;
+    }
     for (xmlNodePtr curNodePtr = nodePtr->xmlChildrenNode; curNodePtr; curNodePtr = curNodePtr->next) {
         if (curNodePtr->name == nullptr || curNodePtr->type == XML_COMMENT_NODE) {
             WVLOG_E("invalid node!");
