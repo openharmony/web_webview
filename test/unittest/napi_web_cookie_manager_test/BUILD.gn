@@ -21,11 +21,14 @@ ohos_unittest("napi_web_cookie_manager_test") {
 
   sources = [ "napi_web_cookie_manager_test.cpp" ]
 
+  deps = [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
+
   external_deps = [
     "c_utils:utils",
     "googletest:gtest_main",
     "hilog:libhilog",
-    "webview:libnweb",
     "window_manager:libwm",
     "ability_runtime:ability_connect_callback_stub",
   ]

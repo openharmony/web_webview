@@ -68,7 +68,8 @@ namespace OHOS::Webview {
         return NWebError::NO_ERROR;
     }
 
-    ErrCode WebMessagePortImpl::PostPortMessage(std::shared_ptr<NWeb::NWebMessage> data)
+    ErrCode WebMessagePortImpl::PostPortMessage(std::shared_ptr<NWeb::NWebMessage> data,
+        std::shared_ptr<NWeb::NWebRomValue> value)
     {
         auto nweb_ptr = NWeb::NWebHelper::Instance().GetNWeb(nwebId_);
         if (!nweb_ptr) {
@@ -79,7 +80,11 @@ namespace OHOS::Webview {
             WEBVIEWLOGE("can't post message, message port already closed");
             return NWebError::CAN_NOT_POST_MESSAGE;
         }
-        nweb_ptr->PostPortMessage(portHandle_, data);
+        nweb_ptr->PostPortMessageV2(portHandle_, value);
+        if (ArkWebGetErrno() != RESULT_OK) {
+            // for compatibility with the old version of ArkWeb core
+            nweb_ptr->PostPortMessage(portHandle_, data);
+        }
         return NWebError::NO_ERROR;
     }
 

@@ -811,6 +811,14 @@ public:
      */
     /*--ark web()--*/
     virtual void SetEnableAutoFill(bool enable) = 0;
+
+    /**
+     * @brief Enables or disables drag.
+     *
+     * @param enable bool: Indicates the flag whether drag is enabled.
+     */
+    /*--ark web()--*/
+    virtual void SetEnableDrag(bool enable) = 0;
 };
 
 } // namespace OHOS::ArkWeb

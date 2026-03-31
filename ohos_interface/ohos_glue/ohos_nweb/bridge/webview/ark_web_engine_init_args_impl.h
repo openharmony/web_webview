@@ -46,6 +46,8 @@ public:
 
     bool GetEmulateTouchFromMouseEvent() override;
 
+    bool GetUseCloudControlAutoLayoutConfig() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebEngineInitArgs> nweb_engine_init_args_;
 };

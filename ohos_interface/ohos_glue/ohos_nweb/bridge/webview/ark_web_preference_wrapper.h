@@ -713,6 +713,13 @@ public:
      */
     void SetEnableAutoFill(bool enable) override;
 
+    /**
+     * @brief Sets whether enable drag.
+     *
+     * @param enable bool: Indicates the flag whether drag is enabled.
+     */
+    void SetEnableDrag(bool enable) override;
+
 private:
     ArkWebRefPtr<ArkWebPreference> ark_web_preference_;
 };

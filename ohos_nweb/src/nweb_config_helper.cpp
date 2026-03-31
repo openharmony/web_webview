@@ -49,6 +49,7 @@ const std::string WEB_LOAD_URL = "load_url";
 const std::string WEB_DVSYNC_CONFIG = "dvsync_config";
 const std::string WEB_DVSYNC_SWITCH = "dvsync_switch";
 const std::string WEB_WINDOW_ORIENTATION_CONFIG = "window_orientation_config";
+const std::string WEB_NATIVE_MESSAGING_EXTENSION_CONFIG = "webNativeMessagingExtensionConfig";
 const std::string WEB_ALL_BUNDLE_NAME = "*";
 const auto XML_ATTR_NAME = "name";
 const auto XML_ATTR_MIN = "min";
@@ -260,13 +261,6 @@ void NWebConfigHelper::ReadConfigIfNeeded()
     }
 }
 
-/**
- * @brief Returns the configured top priority path;
- * If it does not exist, returns the default path, /system/ + configFileName.
- *
- * @param configFileName The relative path of the file, e.g., "etc/web/web_config.xml".
- * @return The top priority path, e.g., "/sys_prod/varient/hw_oem/factory/etc/web/web_config.xml".
- */
 std::string NWebConfigHelper::GetConfigPath(const std::string &configFileName)
 {
     char buf[PATH_MAX + 1];
@@ -412,6 +406,11 @@ void NWebConfigHelper::ParseWebConfigXml(const std::string& configFilePath,
     if (windowOrientationNodePtr != nullptr) {
         WVLOG_D("read config from window orientation node");
         ParseWindowOrientationConfig(windowOrientationNodePtr, initArgs);
+    }
+    xmlNodePtr nativeMessagingNodePtr = GetChildrenNode(rootPtr, WEB_NATIVE_MESSAGING_EXTENSION_CONFIG);
+    if (nativeMessagingNodePtr != nullptr) {
+        WVLOG_D("read config from native messaging node");
+        ParseNativeMessagingConfig(nativeMessagingNodePtr);
     }
     xmlFreeDoc(docPtr);
 }
@@ -727,37 +726,48 @@ std::string NWebConfigHelper::GetBundleName()
     return bundleName_;
 }
 
-/**
- * Returns all configured CCM paths, sorted in ascending order of priority,
- * provided that configuration files exist under these paths.
- *
- * @param relativePath The relative path of the file, e.g., "etc/web/web_config.xml".
- * @return List of paths, e.g., ["/system/etc/web/web_config.xml", "/sys_prod/etc/web/web_config.xml"].
- */
-std::vector<std::string> NWebConfigHelper::GetConfigPathsInPriorityOrder(const std::string& relativePath)
+void NWebConfigHelper::ParseNativeMessagingConfig(xmlNodePtr nodePtr)
 {
-    std::vector<std::string> paths;
-    if (relativePath.empty()) {
-        return paths;
-    }
-    CfgFiles* cfgFiles = GetCfgFiles(relativePath.c_str());
-    if (cfgFiles == nullptr) {
-        WVLOG_E("GetPathsInPriorityOrder failed, can not found path");
-        return paths;
-    }
-
-    // order by priority asc
-    for (int32_t i = 0; i < MAX_CFG_POLICY_DIRS_CNT; i++) {
-        char* cfgFilePath = cfgFiles->paths[i];
-        if (!cfgFilePath || *(cfgFilePath) == '\0') {
-            break;
-        }
-        if (strlen(cfgFilePath) == 0 || strlen(cfgFilePath) > PATH_MAX) {
+    for (xmlNodePtr curNodePtr = nodePtr->xmlChildrenNode; curNodePtr != nullptr;
+        curNodePtr = curNodePtr->next) {
+        if (curNodePtr->name == nullptr || curNodePtr->type == XML_COMMENT_NODE) {
+            WVLOG_E("invalid node!");
             continue;
         }
-        paths.push_back(std::string(cfgFilePath));
+        for (xmlNodePtr childPtr = curNodePtr->xmlChildrenNode; childPtr != nullptr;
+            childPtr = childPtr->next) {
+            if (ParseNativeMessagingSetting(childPtr)) {
+                nativeMessagingEnabled_ = true;
+                WVLOG_D("Native messaging enabled: %{public}d", nativeMessagingEnabled_);
+            }
+        }
     }
-    FreeCfgFiles(cfgFiles);
-    return paths;
+}
+
+bool NWebConfigHelper::ParseNativeMessagingSetting(xmlNodePtr childNodePtr)
+{
+    if (childNodePtr->name == nullptr || childNodePtr->type == XML_COMMENT_NODE) {
+        WVLOG_E("invalid node!");
+        return false;
+    }
+    std::string childNodeName = reinterpret_cast<const char*>(childNodePtr->name);
+    if (childNodeName != "nativeMessagingSetting") {
+        WVLOG_E("invalid node name for native messaging setting: %{public}s", childNodeName.c_str());
+        return false;
+    }
+    xmlChar* content = xmlNodeGetContent(childNodePtr);
+    if (content == nullptr) {
+        WVLOG_E("read xml node error: nodeName:(%{public}s)", childNodePtr->name);
+        return false;
+    }
+    std::string contentStr = reinterpret_cast<const char*>(content);
+    bool enabled = (contentStr == "true");
+    xmlFree(content);
+    return enabled;
+}
+
+bool NWebConfigHelper::IsNativeMessagingEnabled()
+{
+    return nativeMessagingEnabled_;
 }
 } // namespace OHOS::NWeb

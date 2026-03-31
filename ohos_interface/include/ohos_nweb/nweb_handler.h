@@ -1461,6 +1461,11 @@ public:
      *
      */
     virtual void OnMediaCastEnter() {}
+
+    /**
+     * @brief Called when the input method is attached.
+     */
+    virtual void OnInputMethodAttached() {}
 };
 
 } // namespace OHOS::NWeb

@@ -19,7 +19,6 @@
 #include <dlfcn.h>
 #include <securec.h>
 #include <unistd.h>
-#include <fuzzer/FuzzedDataProvider.h>
 
 #include "graphic_adapter.h"
 
@@ -28,21 +27,19 @@ using namespace OHOS::NWeb;
 namespace OHOS {
 bool AshmemCreateFuzzTest(const uint8_t* data, size_t size)
 {
-    if ((data == nullptr) || (size == 0) || (size < sizeof(size_t))) {
+    if ((data == nullptr) || (size == 0)) {
         return false;
     }
     AshmemAdapter ashmem;
-    FuzzedDataProvider fdp(data, size);
-    int32_t idx_char_size = fdp.ConsumeIntegralInRange<int32_t>(1, 1000);
-    char* name = new (std::nothrow) char[idx_char_size + 1] { 0 };
+    char* name = new (std::nothrow) char[size + 1] { 0 };
     if (name == nullptr) {
         return false;
     }
-    if (memcpy_s(name, sizeof(int), data, sizeof(int)) != 0) {
+    if (memcpy_s(name, size, data, size) != 0) {
         delete[] name;
         return false;
     }
-    int fd = ashmem.AshmemCreate(name, idx_char_size);
+    int fd = ashmem.AshmemCreate(name, size);
     if (fd >= 0) {
         close(fd);
     }

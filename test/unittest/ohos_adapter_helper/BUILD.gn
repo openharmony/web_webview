@@ -12,7 +12,6 @@
 # limitations under the License.
 
 import("//base/web/webview/web_aafwk.gni")
-import("//base/web/webview/web_aafwk.gni")
 import("//build/test.gni")
 import("$webview_path/config.gni")
 
@@ -51,6 +50,10 @@ ohos_unittest("ohos_adapter_helper_test") {
     "${webview_path}/ohos_glue:ohos_nweb_glue_source",
   ]
 
+  deps += [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
+
   external_deps = [
     "ability_base:base",
     "ability_base:want",
@@ -75,7 +78,6 @@ ohos_unittest("ohos_adapter_helper_test") {
     "resource_management:global_resmgr",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "webview:libnweb",
     "window_manager:libwm",
   ]
 }

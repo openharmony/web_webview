@@ -33,10 +33,12 @@ ohos_fuzztest("SetWebDebugFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
   sources = [ "setwebdebug_fuzzer.cpp" ]
+  deps = [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
-    "webview:libnweb",
     "window_manager:libwm",
     "ability_runtime:ability_connect_callback_stub",
   ]

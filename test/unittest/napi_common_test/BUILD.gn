@@ -44,6 +44,10 @@ ohos_unittest("napi_common_test") {
     "$webview_path/ohos_adapter:nweb_ohos_adapter",
   ]
 
+  deps += [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
+
   external_deps = [
     "ability_base:extractortool",
     "ability_runtime:app_context",
@@ -62,7 +66,6 @@ ohos_unittest("napi_common_test") {
     "napi:ace_napi",
     "protobuf:protobuf_lite",
     "samgr:samgr_proxy",
-    "webview:libnweb",
     "window_manager:libwm",
   ]
 }

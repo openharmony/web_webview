@@ -53,6 +53,7 @@ ohos_unittest("ani_webview_controller_test") {
   deps = [
     "../../../arkweb_utils:libarkweb_utils",
     "../../../interfaces/kits/ani/webview:webview_ani",
+    "../../../interfaces/kits/nativecommon:webview_common",
     "../../../ohos_adapter:nweb_ohos_adapter",
     "../../../ohos_nweb:libnweb",
   ]

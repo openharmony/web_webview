@@ -72,7 +72,11 @@
             <factoryLevel>1</factoryLevel>
         </factoryConfig>
     </baseWebConfig>
-
+    <webNativeMessagingExtensionConfig>
+        <nativeMessagingConfig>
+            <nativeMessagingSetting>false</nativeMessagingSetting>
+        </nativeMessagingConfig>
+    </webNativeMessagingExtensionConfig>
     <property_animation_dynamic_settings>
         <DynamicSettings name="ltpo_strategy">0</DynamicSettings>
         <DynamicSettings name="fling">

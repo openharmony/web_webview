@@ -518,11 +518,7 @@ const std::unordered_map<int32_t, int32_t>& GetErrorMap()
 int32_t GetErrorIndex(int32_t errorCode)
 {
     const auto& map = GetErrorMap();
-    try {
-        return map.at(errorCode);
-    } catch (const std::out_of_range&) {
-        return -1;
-    }
+    return map.at(errorCode);
 }
 } // namespace NWeb
 } // namespace OHOS

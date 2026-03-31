@@ -2129,4 +2129,26 @@ void ArkWebNWebWrapper::UpdateWebLtpoInfo()
 {
     ark_web_nweb_->UpdateWebLtpoInfo();
 }
+
+void ArkWebNWebWrapper::SetScrollbarLayoutPolicy(int policy)
+{
+    ark_web_nweb_->SetScrollbarLayoutPolicy(policy);
+}
+
+void ArkWebNWebWrapper::SetIsSystemRtlEnable(bool enable)
+{
+    ark_web_nweb_->SetIsSystemRtlEnable(enable);
+}
+
+void ArkWebNWebWrapper::SetWebAutoLayoutConfig(const std::string& config)
+{
+    ArkWebString stConfig = ArkWebStringClassToStruct(config);
+    ark_web_nweb_->SetWebAutoLayoutConfig(stConfig);
+    ArkWebStringStructRelease(stConfig);
+}
+
+void ArkWebNWebWrapper::SetKeyboardImmersiveMode(int32_t mode)
+{
+    ark_web_nweb_->SetKeyboardImmersiveMode(mode);
+}
 } // namespace OHOS::ArkWeb

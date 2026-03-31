@@ -2017,6 +2017,34 @@ public:
      * @brief Update web ltpo info.
      */
     void UpdateWebLtpoInfo() override;
+
+    /**
+     * @brief Set web user interface direction policy.
+     *        Controls whether the UI direction follows content or system settings.
+     * @param policy The direction policy: 0=Content (follow content), 1=System (follow system settings).
+     */
+    void SetScrollbarLayoutPolicy(int policy) override;
+
+    /**
+     * @brief Set whether system RTL is enabled.
+     *        When enabled, RTL layout direction will be used based on system settings.
+     * @param enable True to enable system RTL, false to disable.
+     */
+    void SetIsSystemRtlEnable(bool enable) override;
+
+    /**
+     * @brief Set WebAutoLayoutConfig.
+     *
+     * @param config json string.
+     */
+    void SetWebAutoLayoutConfig(const std::string& config) override;
+
+    /**
+     * @brief Update web keyboard appearance mode.
+     *
+     * @param mode The IME immersive mode.
+     */
+    void SetKeyboardImmersiveMode(int32_t mode) override;
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };

@@ -1186,6 +1186,12 @@ public:
      */
     /*--ark web()--*/
     virtual void OnMediaCastEnter() = 0;
+
+    /**
+     * @brief Called when the input method is attached.
+     */
+    /*--ark web()--*/
+    virtual void OnInputMethodAttached() {}
 };
 
 } // namespace OHOS::ArkWeb

@@ -26,7 +26,9 @@ ohos_unittest("arkweb_scheme_handler_test") {
     "$webview_path/interfaces/native:ohweb",
     "$webview_path/ohos_nweb:web_configs",
   ]
-
+  deps += [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
   external_deps = [
     "ability_runtime:app_context",
     "bundle_framework:appexecfwk_base",
@@ -37,7 +39,6 @@ ohos_unittest("arkweb_scheme_handler_test") {
     "graphic_2d:librender_service_client",
     "hilog:libhilog",
     "libxml2:libxml2",
-    "webview:libnweb",
     "window_manager:libwm",
   ]
 }
@@ -54,6 +55,10 @@ ohos_unittest("arkweb_interface_test") {
     "$webview_path/ohos_nweb:web_configs",
   ]
 
+  deps += [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
+
   external_deps = [
     "ability_runtime:app_context",
     "bundle_framework:appexecfwk_base",
@@ -64,7 +69,6 @@ ohos_unittest("arkweb_interface_test") {
     "graphic_2d:librender_service_client",
     "hilog:libhilog",
     "libxml2:libxml2",
-    "webview:libnweb",
     "window_manager:libwm",
   ]
 }
@@ -81,6 +85,10 @@ ohos_unittest("native_javascript_execute_callback_test") {
     "$webview_path/ohos_nweb:web_configs",
   ]
 
+  deps += [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
+
   external_deps = [
     "ability_runtime:app_context",
     "bundle_framework:appexecfwk_base",
@@ -90,7 +98,6 @@ ohos_unittest("native_javascript_execute_callback_test") {
     "googletest:gtest_main",
     "graphic_2d:librender_service_client",
     "hilog:libhilog",
-    "webview:libnweb",
     "window_manager:libwm",
   ]
 }
@@ -111,6 +118,10 @@ ohos_unittest("native_interface_arkweb_test") {
     "$webview_path/ohos_nweb:web_configs",
   ]
 
+  deps += [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
+
   external_deps = [
     "ability_runtime:app_context",
     "bundle_framework:appexecfwk_base",
@@ -121,7 +132,6 @@ ohos_unittest("native_interface_arkweb_test") {
     "graphic_2d:librender_service_client",
     "hilog:libhilog",
     "init:libbegetutil",
-    "webview:libnweb",
     "window_manager:libwm",
   ]
 }
@@ -145,6 +155,10 @@ ohos_unittest("web_native_messaging_extension_context_info_test") {
     "$webview_path/ohos_nweb:web_configs",
   ]
 
+  deps += [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
+
   external_deps = [
     "ability_base:want",
     "ability_runtime:app_context",
@@ -163,7 +177,6 @@ ohos_unittest("web_native_messaging_extension_context_info_test") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "webview:libnweb",
     "window_manager:libwm",
   ]
 }
@@ -187,6 +200,10 @@ ohos_unittest("web_native_messaging_extension_context_test") {
     "$webview_path/ohos_nweb:web_configs",
   ]
 
+  deps += [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
+
   external_deps = [
     "ability_base:want",
     "ability_runtime:app_context",
@@ -205,7 +222,6 @@ ohos_unittest("web_native_messaging_extension_context_test") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "webview:libnweb",
     "window_manager:libwm",
   ]
 }
@@ -230,6 +246,10 @@ ohos_unittest("web_native_messaging_extension_proxy_test") {
     "$webview_path/interfaces/kits/napi/web_native_messaging_extension/extension_client:web_extension_client",
   ]
 
+  deps += [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
+
   external_deps = [
     "ability_runtime:app_context",
     "bundle_framework:appexecfwk_base",
@@ -240,7 +260,6 @@ ohos_unittest("web_native_messaging_extension_proxy_test") {
     "graphic_2d:librender_service_client",
     "hilog:libhilog",
     "init:libbegetutil",
-    "webview:libnweb",
     "window_manager:libwm",
     "napi:ace_napi"
   ]

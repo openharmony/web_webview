@@ -42,10 +42,10 @@ ohos_source_set("webview_register") {
   subsystem_name = "web"
 }
 
-group("js_export") {
-  public_deps = [
-    ":webview_export_abc",
-    ":webview_export_js",
-    ":webview_register",
-  ]
-}
+# group("js_export") {
+#   public_deps = [
+#     ":webview_export_abc",
+#     ":webview_export_js",
+#     ":webview_register",
+#   ]
+# }

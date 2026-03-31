@@ -38,6 +38,10 @@ ohos_unittest("ohos_resource_adapter_test") {
     "../../../../ohos_adapter:nweb_ohos_adapter"
   ]
 
+  deps += [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
+
   external_deps = [
     "ability_base:extractortool",
     "ability_runtime:app_context",
@@ -50,7 +54,6 @@ ohos_unittest("ohos_resource_adapter_test") {
     "init:libbegetutil",
     "libxml2:libxml2",
     "relational_store:native_rdb",
-    "webview:libnweb",
     "zlib:libz",
   ]
 }

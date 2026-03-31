@@ -40,7 +40,6 @@ errMsgMap.set(PARAM_CHECK_ERROR, ERROR_MSG_INVALID_PARAM);
 let customDialogComponentId = 0;
 let onShowFileSelectorEvent = undefined;
 
-let defaultBasicPath = 'file://docs';
 let defaultPublicPath = '/storage/Users/currentUser/';
 
 let publicDirectoryMap = new Map([
@@ -255,7 +254,7 @@ function getDefaultPath(param) {
   if (publicDirectoryMap.get(path) !== undefined) {
     path = publicDirectoryMap.get(path);
   }
-  return defaultBasicPath + path;
+  return fileUri.getUriFromPath(path);
 }
 
 function suffixFromAccepts(suffix, descriptions, accepts) {

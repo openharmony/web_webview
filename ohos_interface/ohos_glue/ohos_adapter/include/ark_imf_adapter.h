@@ -46,6 +46,9 @@ public:
 
     /*--ark web()--*/
     virtual int32_t GetEnterKeyType() = 0;
+
+    /*--ark web()--*/
+    virtual int32_t GetKeyboardImmersiveMode() = 0;
 };
 
 /*--ark web(source=webcore)--*/

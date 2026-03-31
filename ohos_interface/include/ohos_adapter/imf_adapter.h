@@ -57,6 +57,13 @@ enum class IMFAdapterDirection : int32_t {
     RIGHT,
 };
 
+enum class IMFAdapterKeyboardAppearanceType : int32_t {
+    NONE_IMMERSIVE = 0,
+    IMMERSIVE = 1,
+    LIGHT_IMMERSIVE = 2,
+    DARK_IMMERSIVE = 3
+};
+
 class IMFCursorInfoAdapter {
 public:
     IMFCursorInfoAdapter() = default;
@@ -81,6 +88,11 @@ public:
     virtual int32_t GetInputPattern() = 0;
 
     virtual int32_t GetEnterKeyType() = 0;
+
+    virtual int32_t GetKeyboardImmersiveMode()
+    {
+        return 0;
+    }
 };
 
 class IMFSelectionRangeAdapter {

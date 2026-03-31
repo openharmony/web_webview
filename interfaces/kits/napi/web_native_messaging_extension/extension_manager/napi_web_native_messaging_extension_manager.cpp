@@ -27,6 +27,7 @@
 #include "napi_common_want.h"
 #include "nweb_napi_scope.h"
 #include "napi_parse_utils.h"
+#include "nweb_config_helper.h"
 #include "securec.h"
 #include "system_properties_adapter_impl.h"
 #include "web_extension_connection_callback.h"
@@ -461,7 +462,7 @@ napi_value NapiWebNativeMessagingExtensionManager::ConnectNative(napi_env env, n
 {
     napi_value result = nullptr;
     napi_create_int32(env, -1, &result);
-    if (SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType() != ProductDeviceType::DEVICE_TYPE_2IN1) {
+    if (!NWebConfigHelper::Instance().IsNativeMessagingEnabled()) {
         WNMLOG_E("ConnectNative: Capability not supported.");
         NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::CAPABILITY_NOT_SUPPORTED_ERROR);
         return result;
@@ -545,7 +546,7 @@ void NapiWebNativeMessagingExtensionManager::DisconnectNativeComplete(napi_env e
 
 napi_value NapiWebNativeMessagingExtensionManager::DisconnectNative(napi_env env, napi_callback_info info)
 {
-    if (SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType() != ProductDeviceType::DEVICE_TYPE_2IN1) {
+    if (!NWebConfigHelper::Instance().IsNativeMessagingEnabled()) {
         WNMLOG_E("DisconnectNative: Capability not supported.");
         NWebError::BusinessError::ThrowErrorByErrcode(env, NWebError::CAPABILITY_NOT_SUPPORTED_ERROR);
         return nullptr;

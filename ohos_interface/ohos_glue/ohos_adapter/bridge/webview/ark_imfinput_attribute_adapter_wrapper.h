@@ -30,6 +30,8 @@ public:
 
     int32_t GetEnterKeyType() override;
 
+    int32_t  GetKeyboardImmersiveMode() override;
+
 private:
     ArkWebRefPtr<ArkIMFInputAttributeAdapter> ctocpp_;
 };

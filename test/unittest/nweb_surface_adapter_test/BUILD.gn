@@ -34,6 +34,10 @@ ohos_unittest("nweb_surface_adapter_test") {
 
   configs = [ ":module_private_config" ]
 
+  deps = [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
+
   external_deps = [
     "c_utils:utils",
     "googletest:gmock_main",
@@ -44,7 +48,6 @@ ohos_unittest("nweb_surface_adapter_test") {
     "hilog:libhilog",
     "image_framework:image_native",
     "input:libmmi-client",
-    "webview:libnweb",
     "window_manager:libwm",
     "ability_runtime:ability_connect_callback_stub",
   ]

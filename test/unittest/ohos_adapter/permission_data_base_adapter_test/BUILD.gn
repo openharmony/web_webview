@@ -35,6 +35,10 @@ ohos_unittest("permission_data_base_adapter_test") {
 
   deps = [ "../../../../ohos_adapter:nweb_ohos_adapter" ]
 
+  deps += [
+    "$webview_path/ohos_nweb:libnweb",
+  ]
+
   external_deps = [
     "ability_base:base",
     "ability_base:want",
@@ -48,7 +52,6 @@ ohos_unittest("permission_data_base_adapter_test") {
     "googletest:gtest_main",
     "hilog:libhilog",
     "relational_store:native_rdb",
-    "webview:libnweb",
     "window_manager:libwm",
   ]
 }

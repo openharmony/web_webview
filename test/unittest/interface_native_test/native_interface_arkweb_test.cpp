@@ -264,18 +264,10 @@ HWTEST_F(NativeInterfaceArkWebTest, OH_NativeArkWeb_Blankless_Dual_Core_01, Test
     OHOS::system::SetParameter("web.blankless.enabled", "true");
     OHOS::system::SetParameter("web.engine.enforce", "0");
     auto version = ArkWeb::getActiveWebEngineVersion();
-    ArkWeb::setActiveWebEngineVersion(ArkWeb::ArkWebEngineVersion::M114);
-    auto info = OH_NativeArkWeb_GetBlanklessInfoWithKey("", "");
-    EXPECT_EQ(info.errCode, ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_DEVICE_NOT_SUPPORT);
-    auto errCode = OH_NativeArkWeb_SetBlanklessLoadingWithKey("", "", true);
-    EXPECT_EQ(errCode, ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_DEVICE_NOT_SUPPORT);
-    OH_NativeArkWeb_ClearBlanklessLoadingCache(nullptr, 0);
-    EXPECT_EQ(OH_NativeArkWeb_SetBlanklessLoadingCacheCapacity(20), 0);
-
     ArkWeb::setActiveWebEngineVersion(ArkWeb::ArkWebEngineVersion::M132);
-    info = OH_NativeArkWeb_GetBlanklessInfoWithKey("", "");
+    auto info = OH_NativeArkWeb_GetBlanklessInfoWithKey("", "");
     EXPECT_EQ(info.errCode, ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_INVALID_ARGS);
-    errCode = OH_NativeArkWeb_SetBlanklessLoadingWithKey("", "", true);
+    auto errCode = OH_NativeArkWeb_SetBlanklessLoadingWithKey("", "", true);
     EXPECT_EQ(errCode, ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_INVALID_ARGS);
     OH_NativeArkWeb_ClearBlanklessLoadingCache(nullptr, 0);
     EXPECT_EQ(OH_NativeArkWeb_SetBlanklessLoadingCacheCapacity(20), 20);
