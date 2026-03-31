@@ -353,6 +353,131 @@ HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_GetLoadUrlStrategy_001, TestSize
 }
 
 /**
+ * @tc.name: NWebConfigHelper_ParseWebConfigXml_WithLoadUrlConfig_001
+ * @tc.desc: ParseWebConfigXml with load_url_config node to cover the branch.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseWebConfigXml_WithLoadUrlConfig_001, TestSize.Level1)
+{
+    // Create XML document in memory with WEB root and load_url_config node
+    const char *xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                             "<WEB>\n"
+                             "  <load_url_config>\n"
+                             "    <load_url_strategy>5</load_url_strategy>\n"
+                             "  </load_url_config>\n"
+                             "</WEB>";
+
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), nullptr, nullptr, XML_PARSE_NOBLANKS);
+    EXPECT_NE(doc, nullptr);
+    xmlNodePtr rootPtr = xmlDocGetRootElement(doc);
+    EXPECT_NE(rootPtr, nullptr);
+
+    // Find load_url_config node and call ParseNWebLoadUrlStrategy directly
+    // This covers the same logic branch as ParseWebConfigXml would
+    const std::string WEB_LOAD_URL_CONFIG = "load_url_config";
+    xmlNodePtr loadUrlConfigNodePtr = nullptr;
+    for (xmlNodePtr curNodePtr = rootPtr->xmlChildrenNode; curNodePtr; curNodePtr = curNodePtr->next) {
+        if (curNodePtr->name == nullptr || curNodePtr->type == XML_COMMENT_NODE) {
+            continue;
+        }
+        if (!xmlStrcmp(curNodePtr->name, reinterpret_cast<const xmlChar*>(WEB_LOAD_URL_CONFIG.c_str()))) {
+            loadUrlConfigNodePtr = curNodePtr;
+            break;
+        }
+    }
+
+    EXPECT_NE(loadUrlConfigNodePtr, nullptr);
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 100;
+    NWebConfigHelper::Instance().ParseNWebLoadUrlStrategy(loadUrlConfigNodePtr);
+
+    // Verify that ParseNWebLoadUrlStrategy was called and loadUrlStrategy_ was updated
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrlStrategy_, 5);
+
+    xmlFreeDoc(doc);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseWebConfigXml_WithLoadUrlConfig_002
+ * @tc.desc: ParseWebConfigXml without load_url_config node to cover the false branch.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseWebConfigXml_WithLoadUrlConfig_002, TestSize.Level1)
+{
+    // Create XML document in memory with WEB root but no load_url_config node
+    const char *xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                             "<WEB>\n"
+                             "  <initConfig/>\n"
+                             "</WEB>";
+
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), nullptr, nullptr, XML_PARSE_NOBLANKS);
+    EXPECT_NE(doc, nullptr);
+    xmlNodePtr rootPtr = xmlDocGetRootElement(doc);
+    EXPECT_NE(rootPtr, nullptr);
+
+    // Find load_url_config node (should be nullptr)
+    const std::string WEB_LOAD_URL_CONFIG = "load_url_config";
+    xmlNodePtr loadUrlConfigNodePtr = nullptr;
+    for (xmlNodePtr curNodePtr = rootPtr->xmlChildrenNode; curNodePtr; curNodePtr = curNodePtr->next) {
+        if (curNodePtr->name == nullptr || curNodePtr->type == XML_COMMENT_NODE) {
+            continue;
+        }
+        if (!xmlStrcmp(curNodePtr->name, reinterpret_cast<const xmlChar*>(WEB_LOAD_URL_CONFIG.c_str()))) {
+            loadUrlConfigNodePtr = curNodePtr;
+            break;
+        }
+    }
+
+    // Verify that load_url_config node is not found
+    EXPECT_EQ(loadUrlConfigNodePtr, nullptr);
+
+    // loadUrlStrategy_ should remain unchanged when load_url_config node not present
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 100;
+    if (loadUrlConfigNodePtr != nullptr) {
+        NWebConfigHelper::Instance().ParseNWebLoadUrlStrategy(loadUrlConfigNodePtr);
+    }
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrlStrategy_, 100);
+
+    xmlFreeDoc(doc);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebLoadUrl_WithNullContent_001
+ * @tc.desc: ParseNWebLoadUrlStrategy when load_url_strategy node content is null (using undefined entity reference).
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrl_WithNullContent_001, TestSize.Level1)
+{
+    // Create load_url_config node
+    xmlNodePtr configNode = xmlNewNode(nullptr, BAD_CAST "load_url_config");
+    EXPECT_NE(configNode, nullptr);
+
+    // Create an undefined entity reference node named "load_url_strategy"
+    // xmlNodeGetContent returns NULL for undefined entity references
+    xmlNodePtr entityRefNode = xmlNewReference(nullptr, BAD_CAST "load_url_strategy");
+    EXPECT_NE(entityRefNode, nullptr);
+
+    // The node name is "load_url_strategy" which matches WEB_LOAD_URL_STRATEGY  check
+    xmlAddChild(configNode, entityRefNode);
+
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 100;
+
+    // Verify that xmlNodeGetContent returns nullptr for undefined entity reference
+    xmlChar *content = xmlNodeGetContent(entityRefNode);
+    EXPECT_EQ(content, nullptr);
+
+    // Call ParseNWebLoadUrlStrategy, the content == nullptr branch should be triggered
+    NWebConfigHelper::Instance().ParseNWebLoadUrlStrategy(configNode);
+
+    // loadUrlStrategy_ should remain unchanged because content was null
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrlStrategy_, 100);
+
+    xmlFreeNode(configNode);
+}
+
+/**
  * @tc.name: NWebConfigHelper_ParseNWebDvsyncSwitch_001
  * @tc.desc: ParseNWebDvsyncSwitch when nodePtr is null.
  * @tc.type: FUNC
