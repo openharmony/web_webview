@@ -367,6 +367,9 @@ int32_t ArkSystemPropertiesAdapterWrapper::GetIntParameter(const std::string& ke
 
 int32_t ArkSystemPropertiesAdapterWrapper::GetLoadUrlStrategy()
 {
+    if (!ctocpp_) {
+        return 0;
+    }
     int32_t result = ctocpp_->GetLoadUrlStrategy();
     return result;
 }
