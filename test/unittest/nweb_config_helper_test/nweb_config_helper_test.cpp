@@ -54,7 +54,7 @@ const auto XML_ATTR_NAME = "name";
 const auto XML_BUNDLE_NAME = "bundle_name";
 const auto XML_ENABLE_WINDOW_ORIENTATION = "enable_window_orientation";
 const std::string WEB_LTPO_STRATEGY = "ltpo_strategy";
-const std::string WEB_LOAD_URL = "load_url";
+const std::string WEB_LOAD_URL_STRATEGY = "load_url_strategy";
 const std::string WEB_DVSYNC_SWITCH = "dvsync_switch";
 
 class MockNWebConfigHelper : public NWebConfigHelper {
@@ -256,26 +256,26 @@ HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLTPOStrategy_003, TestS
 }
 
 /**
- * @tc.name: NWebConfigHelper_ParseNWebLoadUrl_001
- * @tc.desc: ParseNWebLoadUrl when nodePtr is null.
+ * @tc.name: NWebConfigHelper_ParseNWebLoadUrlStrategy_001
+ * @tc.desc: ParseNWebLoadUrlStrategy when nodePtr is null.
  * @tc.type: FUNC
  * @tc.require:
  */
-HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrl_001, TestSize.Level1)
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrlStrategy_001, TestSize.Level1)
 {
     xmlNodePtr nodePtr = nullptr;
     NWebConfigHelper::Instance().loadUrl_ = 100;
-    NWebConfigHelper::Instance().ParseNWebLoadUrl(nodePtr);
+    NWebConfigHelper::Instance().ParseNWebLoadUrlStrategy(nodePtr);
     EXPECT_EQ(NWebConfigHelper::Instance().loadUrl_, 100);
 }
 
 /**
- * @tc.name: NWebConfigHelper_ParseNWebLoadUrl_002
- * @tc.desc: ParseNWebLoadUrl when load_url value is 3.
+ * @tc.name: NWebConfigHelper_ParseNWebLoadUrlStrategy_002
+ * @tc.desc: ParseNWebLoadUrlStrategy when load_url value is 3.
  * @tc.type: FUNC
  * @tc.require:
  */
-HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrl_002, TestSize.Level1)
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrlStrategy_002, TestSize.Level1)
 {
     const char * xmlContent = "<load_url_config>\n"
                                "<load_url>3</load_url>\n"
@@ -287,18 +287,18 @@ HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrl_002, TestSize.L
     EXPECT_NE(nodePtr, nullptr);
     NWebConfigHelper::Instance().loadUrl_ = 100;
 
-    NWebConfigHelper::Instance().ParseNWebLoadUrl(nodePtr);
+    NWebConfigHelper::Instance().ParseNWebLoadUrlStrategy(nodePtr);
     xmlFreeDoc(doc);
     EXPECT_EQ(NWebConfigHelper::Instance().loadUrl_, 3);
 }
 
 /**
- * @tc.name: NWebConfigHelper_ParseNWebLoadUrl_003
- * @tc.desc: ParseNWebLoadUrl when load_url value is 0.
+ * @tc.name: NWebConfigHelper_ParseNWebLoadUrlStrategy_003
+ * @tc.desc: ParseNWebLoadUrlStrategy when load_url value is 0.
  * @tc.type: FUNC
  * @tc.require:
  */
-HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrl_003, TestSize.Level1)
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrlStrategy_003, TestSize.Level1)
 {
     const char * xmlContent = "<load_url_config>\n"
                                "<load_url>0</load_url>\n"
@@ -310,18 +310,18 @@ HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrl_003, TestSize.L
     EXPECT_NE(nodePtr, nullptr);
     NWebConfigHelper::Instance().loadUrl_ = 100;
 
-    NWebConfigHelper::Instance().ParseNWebLoadUrl(nodePtr);
+    NWebConfigHelper::Instance().ParseNWebLoadUrlStrategy(nodePtr);
     xmlFreeDoc(doc);
     EXPECT_EQ(NWebConfigHelper::Instance().loadUrl_, 0);
 }
 
 /**
- * @tc.name: NWebConfigHelper_ParseNWebLoadUrl_004
- * @tc.desc: ParseNWebLoadUrl when load_url_config has no load_url child.
+ * @tc.name: NWebConfigHelper_ParseNWebLoadUrlStrategy_004
+ * @tc.desc: ParseNWebLoadUrlStrategy when load_url_config has no load_url child.
  * @tc.type: FUNC
  * @tc.require:
  */
-HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrl_004, TestSize.Level1)
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrlStrategy_004, TestSize.Level1)
 {
     const char * xmlContent = "<load_url_config>\n"
                                "<other_tag>5</other_tag>\n"
@@ -333,7 +333,7 @@ HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrl_004, TestSize.L
     EXPECT_NE(nodePtr, nullptr);
     NWebConfigHelper::Instance().loadUrl_ = 100;
 
-    NWebConfigHelper::Instance().ParseNWebLoadUrl(nodePtr);
+    NWebConfigHelper::Instance().ParseNWebLoadUrlStrategy(nodePtr);
     xmlFreeDoc(doc);
     // loadUrl_ should remain unchanged when load_url child not found
     EXPECT_EQ(NWebConfigHelper::Instance().loadUrl_, 100);
