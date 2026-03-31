@@ -84,8 +84,6 @@ public:
 
     int32_t GetLTPOStrategy() override;
 
-    int32_t GetLoadUrl() override;
-
     std::string GetVulkanStatus() override;
 
     std::string GetCompatibleDeviceType() override;
@@ -103,6 +101,8 @@ public:
     std::string GetStringParameter(const std::string& key, const std::string& defaultValue) override;
 
     int32_t GetIntParameter(const std::string& key, int32_t defaultValue) override;
+
+    int32_t GetLoadUrlStrategy() override;
 
 private:
     SystemPropertiesAdapterImpl();
