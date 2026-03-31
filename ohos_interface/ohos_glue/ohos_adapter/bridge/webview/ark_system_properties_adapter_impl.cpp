@@ -232,4 +232,9 @@ int32_t ArkSystemPropertiesAdapterImpl::GetIntParameter(const ArkWebString& key,
 {
     return real_.GetIntParameter(ArkWebStringStructToClass(key), defaultValue);
 }
+
+int32_t ArkSystemPropertiesAdapterImpl::GetLoadUrlStrategy()
+{
+    return real_.GetLoadUrlStrategy();
+}
 } // namespace OHOS::ArkWeb
