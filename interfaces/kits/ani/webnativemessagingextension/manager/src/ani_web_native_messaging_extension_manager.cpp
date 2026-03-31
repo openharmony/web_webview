@@ -28,6 +28,7 @@
 #include "ani_parse_utils.h"
 #include "context.h"
 #include "napi_parse_utils.h"
+#include "nweb_config_helper.h"
 #include "nweb_log.h"
 #include "system_properties_adapter_impl.h"
 #include "web_native_messaging_client.h"
@@ -505,8 +506,7 @@ static ani_int ConnectNative(ani_env* env,
         WVLOG_E("env is nullptr");
         return result;
     }
-    if (SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType() !=
-             ProductDeviceType::DEVICE_TYPE_2IN1) {
+    if (!NWebConfigHelper::Instance().IsNativeMessagingEnabled()) {
         WNMLOG_E("ConnectNative: Capability not supported.");
         AniBusinessError::ThrowErrorByErrCode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
         return result;
@@ -550,7 +550,7 @@ static void DisconnectNativeSync(ani_env* env, ani_int aniConnectId)
         WVLOG_E("env is nullptr");
         return;
     }
-    if (SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType() != ProductDeviceType::DEVICE_TYPE_2IN1) {
+    if (!NWebConfigHelper::Instance().IsNativeMessagingEnabled()) {
         WNMLOG_E("DisconnectNative: Capability not supported.");
         AniBusinessError::ThrowErrorByErrCode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
         return;
