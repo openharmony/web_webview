@@ -884,6 +884,14 @@ public:
      * @brief Called when the input method is attached.
      */
     void OnInputMethodAttached() override;
+
+    /**
+     * @brief Nested scrolling scenarios determine whether consumption is needed.
+     *
+     * @param x is the horizontal offset.
+     * @param y is the vertical offset.
+     */
+    bool OnNestedScrollV2(float& x, float& y) override;
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };

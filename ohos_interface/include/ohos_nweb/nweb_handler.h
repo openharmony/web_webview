@@ -1466,6 +1466,17 @@ public:
      * @brief Called when the input method is attached.
      */
     virtual void OnInputMethodAttached() {}
+
+    /**
+     * @brief Nested scrolling scenarios determine whether consumption is needed.
+     *
+     * @param x is the horizontal offset.
+     * @param y is the vertical offset.
+     */
+    virtual bool OnNestedScrollV2(float& x, float& y)
+    {
+        return false;
+    }
 };
 
 } // namespace OHOS::NWeb

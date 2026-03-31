@@ -1431,4 +1431,9 @@ void ArkWebHandlerWrapper::OnInputMethodAttached()
 {
     ark_web_handler_->OnInputMethodAttached();
 }
+
+bool ArkWebHandlerWrapper::OnNestedScrollV2(float& x, float& y)
+{
+    return ark_web_handler_->OnNestedScrollV2(x, y);
+}
 } // namespace OHOS::ArkWeb
