@@ -271,14 +271,14 @@ HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrlStrategy_001, Te
 
 /**
  * @tc.name: NWebConfigHelper_ParseNWebLoadUrlStrategy_002
- * @tc.desc: ParseNWebLoadUrlStrategy when load_url value is 3.
+ * @tc.desc: ParseNWebLoadUrlStrategy when load_url_strategy value is 3.
  * @tc.type: FUNC
  * @tc.require:
  */
 HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrlStrategy_002, TestSize.Level1)
 {
     const char * xmlContent = "<load_url_config>\n"
-                               "<load_url>3</load_url>\n"
+                               "<load_url_strategy>3</load_url_strategy>\n"
                               "</load_url_config>";
 
     xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
@@ -294,14 +294,14 @@ HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrlStrategy_002, Te
 
 /**
  * @tc.name: NWebConfigHelper_ParseNWebLoadUrlStrategy_003
- * @tc.desc: ParseNWebLoadUrlStrategy when load_url value is 0.
+ * @tc.desc: ParseNWebLoadUrlStrategy when load_url_strategy value is 0.
  * @tc.type: FUNC
  * @tc.require:
  */
 HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrlStrategy_003, TestSize.Level1)
 {
     const char * xmlContent = "<load_url_config>\n"
-                               "<load_url>0</load_url>\n"
+                               "<load_url_strategy>0</load_url_strategy>\n"
                               "</load_url_config>";
 
     xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
@@ -317,7 +317,7 @@ HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrlStrategy_003, Te
 
 /**
  * @tc.name: NWebConfigHelper_ParseNWebLoadUrlStrategy_004
- * @tc.desc: ParseNWebLoadUrlStrategy when load_url_config has no load_url child.
+ * @tc.desc: ParseNWebLoadUrlStrategy when load_url_config has no load_url_strategy child.
  * @tc.type: FUNC
  * @tc.require:
  */
