@@ -45,7 +45,7 @@ const std::string WEB_ANIMATION_DYNAMIC_SETTING_CONFIG = "property_animation_dyn
 const std::string WEB_ANIMATION_DYNAMIC_APP = "dynamic_apps";
 const std::string WEB_LTPO_STRATEGY = "ltpo_strategy";
 const std::string WEB_LOAD_URL_CONFIG = "load_url_config";
-const std::string WEB_LOAD_URL = "load_url";
+const std::string WEB_LOAD_URL_STRATEGY = "load_url_strategy";
 const std::string WEB_DVSYNC_CONFIG = "dvsync_config";
 const std::string WEB_DVSYNC_SWITCH = "dvsync_switch";
 const std::string WEB_WINDOW_ORIENTATION_CONFIG = "window_orientation_config";
@@ -400,7 +400,7 @@ void NWebConfigHelper::ParseWebConfigXml(const std::string& configFilePath,
     }
     xmlNodePtr loadUrlConfigNodePtr = GetChildrenNode(rootPtr, WEB_LOAD_URL_CONFIG);
     if (loadUrlConfigNodePtr != nullptr) {
-        ParseNWebLoadUrl(loadUrlConfigNodePtr);
+        ParseNWebLoadUrlStrategy(loadUrlConfigNodePtr);
     }
     xmlNodePtr windowOrientationNodePtr = GetChildrenNode(rootPtr, WEB_WINDOW_ORIENTATION_CONFIG);
     if (windowOrientationNodePtr != nullptr) {
@@ -490,7 +490,7 @@ void NWebConfigHelper::ParseNWebLTPOStrategy(xmlNodePtr nodePtr)
     WVLOG_D("ltpo strategy is: %{public}d", ltpoStrategy_);
 }
 
-void NWebConfigHelper::ParseNWebLoadUrl(xmlNodePtr nodePtr)
+void NWebConfigHelper::ParseNWebLoadUrlStrategy(xmlNodePtr nodePtr)
 {
     for (xmlNodePtr curNodePtr = nodePtr->xmlChildrenNode; curNodePtr; curNodePtr = curNodePtr->next) {
         if (curNodePtr->name == nullptr || curNodePtr->type == XML_COMMENT_NODE) {
@@ -504,17 +504,17 @@ void NWebConfigHelper::ParseNWebLoadUrl(xmlNodePtr nodePtr)
                 WVLOG_E("read load_url xml node error");
                 return;
             }
-            loadUrl_ = atoi((char *)content);
+            loadUrlStrategy_ = atoi((char *)content);
             xmlFree(content);
-            WVLOG_D("load_url is: %{public}d", loadUrl_);
+            WVLOG_D("load_url is: %{public}d", loadUrlStrategy_);
             return;
         }
     }
 }
 
-int32_t NWebConfigHelper::GetLoadUrl()
+int32_t NWebConfigHelper::GetLoadUrlStrategy()
 {
-    return loadUrl_;
+    return loadUrlStrategy_;
 }
 
 bool NWebConfigHelper::IsLTPODynamicApp(const std::string& bundleName)
