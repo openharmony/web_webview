@@ -264,9 +264,9 @@ HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLTPOStrategy_003, TestS
 HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrlStrategy_001, TestSize.Level1)
 {
     xmlNodePtr nodePtr = nullptr;
-    NWebConfigHelper::Instance().loadUrl_ = 100;
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 100;
     NWebConfigHelper::Instance().ParseNWebLoadUrlStrategy(nodePtr);
-    EXPECT_EQ(NWebConfigHelper::Instance().loadUrl_, 100);
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrlStrategy_, 100);
 }
 
 /**
@@ -285,11 +285,11 @@ HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrlStrategy_002, Te
     EXPECT_NE(doc, nullptr);
     xmlNodePtr nodePtr = xmlDocGetRootElement(doc);
     EXPECT_NE(nodePtr, nullptr);
-    NWebConfigHelper::Instance().loadUrl_ = 100;
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 100;
 
     NWebConfigHelper::Instance().ParseNWebLoadUrlStrategy(nodePtr);
     xmlFreeDoc(doc);
-    EXPECT_EQ(NWebConfigHelper::Instance().loadUrl_, 3);
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrlStrategy_, 3);
 }
 
 /**
@@ -308,11 +308,11 @@ HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrlStrategy_003, Te
     EXPECT_NE(doc, nullptr);
     xmlNodePtr nodePtr = xmlDocGetRootElement(doc);
     EXPECT_NE(nodePtr, nullptr);
-    NWebConfigHelper::Instance().loadUrl_ = 100;
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 100;
 
     NWebConfigHelper::Instance().ParseNWebLoadUrlStrategy(nodePtr);
     xmlFreeDoc(doc);
-    EXPECT_EQ(NWebConfigHelper::Instance().loadUrl_, 0);
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrlStrategy_, 0);
 }
 
 /**
@@ -331,24 +331,24 @@ HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrlStrategy_004, Te
     EXPECT_NE(doc, nullptr);
     xmlNodePtr nodePtr = xmlDocGetRootElement(doc);
     EXPECT_NE(nodePtr, nullptr);
-    NWebConfigHelper::Instance().loadUrl_ = 100;
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 100;
 
     NWebConfigHelper::Instance().ParseNWebLoadUrlStrategy(nodePtr);
     xmlFreeDoc(doc);
-    // loadUrl_ should remain unchanged when load_url child not found
-    EXPECT_EQ(NWebConfigHelper::Instance().loadUrl_, 100);
+    // loadUrlStrategy_ should remain unchanged when load_url child not found
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrlStrategy_, 100);
 }
 
 /**
- * @tc.name: NWebConfigHelper_GetLoadUrl_001
- * @tc.desc: GetLoadUrl returns the correct load URL value.
+ * @tc.name: NWebConfigHelper_GetLoadUrlStrategy_001
+ * @tc.desc: GetLoadUrlStrategy returns the correct load URL value.
  * @tc.type: FUNC
  * @tc.require:
  */
-HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_GetLoadUrl_001, TestSize.Level1)
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_GetLoadUrlStrategy_001, TestSize.Level1)
 {
-    NWebConfigHelper::Instance().loadUrl_ = 5;
-    int32_t result = NWebConfigHelper::Instance().GetLoadUrl();
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 5;
+    int32_t result = NWebConfigHelper::Instance().GetLoadUrlStrategy();
     EXPECT_EQ(result, 5);
 }
 
