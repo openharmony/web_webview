@@ -17,6 +17,7 @@
 #define OHOS_NWEB_ANI_WEB_DOWNLOAD_ITEM_H
 
 #include <string>
+#include <vector>
 #include <ani.h>
 
 #include "nweb_c_api.h"
@@ -41,6 +42,8 @@ public:
     std::string url;
     std::string etag;
     std::string originalUrl;
+    std::string referrerUrl;
+    std::vector<std::string> urlChain;
     std::string suggestedFileName;
     std::string contentDisposition;
     std::string mimeType;

@@ -387,6 +387,12 @@ HWTEST_F(NwebHelperTest, NWebHelper_LoadNWebSDK_006, TestSize.Level1)
     EXPECT_EQ(receivedBytes, 0);
     char* originalUrl = WebDownloadItem_OriginalUrl(downloadItem);
     EXPECT_EQ(originalUrl, nullptr);
+    char* referrerUrl = WebDownloadItem_ReferrerUrl(downloadItem);
+    EXPECT_EQ(referrerUrl, nullptr);
+    char** urlChain = WebDownloadItem_UrlChain(downloadItem);
+    EXPECT_EQ(urlChain, nullptr);
+    int64_t urlChainSize = WebDownloadItem_UrlChainSize(downloadItem);
+    EXPECT_EQ(urlChainSize, 0);
     char* fileName = WebDownloadItem_SuggestedFileName(downloadItem);
     EXPECT_EQ(fileName, nullptr);
     char* disposition = WebDownloadItem_ContentDisposition(downloadItem);
@@ -434,6 +440,9 @@ HWTEST_F(NwebHelperTest, NWebHelper_WebDownloadItem_IsPaused_007, TestSize.Level
     WebDownloadItem_SetReceivedBytes(downloadItem, 1);
     WebDownloadItem_SetTotalBytes(downloadItem, 1);
     WebDownloadItem_SetReceivedSlices(downloadItem, "test_web");
+    WebDownloadItem_SetOriginalUrl(downloadItem, "test_web");
+    WebDownloadItem_SetReferrerUrl(downloadItem, "test_web");
+    WebDownloadItem_SetUrlChain(downloadItem, nullptr, 0);
     char* guid = WebDownloadItem_Guid(downloadItem);
     EXPECT_EQ(guid, nullptr);
     int64_t totalBytes = WebDownloadItem_TotalBytes(downloadItem);

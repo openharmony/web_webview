@@ -97,6 +97,12 @@ NWEB_EXPORT void WebDownloadItem_SetMimeType(NWebDownloadItem *downloadItem, con
 
 NWEB_EXPORT void WebDownloadItem_SetUrl(NWebDownloadItem *downloadItem, const char *url);
 
+NWEB_EXPORT void WebDownloadItem_SetOriginalUrl(NWebDownloadItem *downloadItem, const char *originalUrl);
+
+NWEB_EXPORT void WebDownloadItem_SetReferrerUrl(NWebDownloadItem *downloadItem, const char *referrerUrl);
+
+NWEB_EXPORT void WebDownloadItem_SetUrlChain(NWebDownloadItem *downloadItem, char** urlChain, int64_t size);
+
 NWEB_EXPORT void WebDownloadItem_SetReceivedSlices(NWebDownloadItem *downloadItem, const char *receivedSlices);
 
 NWEB_EXPORT void WebDownloadItem_SetGuid(NWebDownloadItem *downloadItem, const char *guid);
@@ -120,6 +126,12 @@ NWEB_EXPORT char *WebDownloadItem_FullPath(const NWebDownloadItem *downloadItem)
 NWEB_EXPORT char *WebDownloadItem_Url(const NWebDownloadItem *downloadItem);
 
 NWEB_EXPORT char *WebDownloadItem_OriginalUrl(const NWebDownloadItem *downloadItem);
+
+NWEB_EXPORT char *WebDownloadItem_ReferrerUrl(const NWebDownloadItem *downloadItem);
+
+NWEB_EXPORT char** WebDownloadItem_UrlChain(const NWebDownloadItem *downloadItem);
+
+NWEB_EXPORT int64_t WebDownloadItem_UrlChainSize(const NWebDownloadItem *downloadItem);
 
 NWEB_EXPORT char *WebDownloadItem_SuggestedFileName(const NWebDownloadItem *downloadItem);
 

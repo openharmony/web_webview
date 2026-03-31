@@ -48,6 +48,8 @@ public:
     static napi_value JS_GetLastErrorCode(napi_env env, napi_callback_info cbinfo);
     static napi_value JS_GetMethod(napi_env env, napi_callback_info cbinfo);
     static napi_value JS_GetUrl(napi_env env, napi_callback_info cbinfo);
+    static napi_value JS_GetOriginalUrl(napi_env env, napi_callback_info cbinfo);
+    static napi_value JS_GetReferrerUrl(napi_env env, napi_callback_info cbinfo);
     static napi_value JS_GetSuggestedFileName(napi_env env, napi_callback_info cbinfo);
     static napi_value JS_GetFullPath(napi_env env, napi_callback_info cbinfo);
     static napi_value JS_Start(napi_env env, napi_callback_info cbinfo);

@@ -27,6 +27,7 @@ WebDownloadItem::WebDownloadItem(ani_env* env)
       url(""),
       etag(""),
       originalUrl(""),
+      referrerUrl(""),
       suggestedFileName(""),
       contentDisposition(""),
       mimeType(""),
@@ -54,6 +55,7 @@ WebDownloadItem::WebDownloadItem(ani_env* env, NWebDownloadItem *downloadItem)
       url(""),
       etag(""),
       originalUrl(""),
+      referrerUrl(""),
       suggestedFileName(""),
       contentDisposition(""),
       mimeType(""),
@@ -75,6 +77,19 @@ WebDownloadItem::WebDownloadItem(ani_env* env, NWebDownloadItem *downloadItem)
     this->fullPath = std::string(WebDownloadItem_FullPath(downloadItem));
     this->url = std::string(WebDownloadItem_Url(downloadItem));
     this->originalUrl = std::string(WebDownloadItem_OriginalUrl(downloadItem));
+    char* referrer = WebDownloadItem_ReferrerUrl(downloadItem);
+    if (referrer) {
+        this->referrerUrl = std::string(referrer);
+    }
+    char** urlChainArray = WebDownloadItem_UrlChain(downloadItem);
+    int64_t urlChainSize = WebDownloadItem_UrlChainSize(downloadItem);
+    if (urlChainArray && urlChainSize > 0) {
+        for (int64_t i = 0; i < urlChainSize; i++) {
+            if (urlChainArray[i]) {
+                this->urlChain.push_back(std::string(urlChainArray[i]));
+            }
+        }
+    }
     this->suggestedFileName = std::string(WebDownloadItem_SuggestedFileName(downloadItem));
     this->contentDisposition = std::string(WebDownloadItem_ContentDisposition(downloadItem));
     this->method = std::string(WebDownloadItem_Method(downloadItem));

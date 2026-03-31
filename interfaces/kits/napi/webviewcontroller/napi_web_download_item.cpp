@@ -500,6 +500,60 @@ napi_value NapiWebDownloadItem::JS_GetFullPath(napi_env env, napi_callback_info 
     return fullPath;
 }
 
+napi_value NapiWebDownloadItem::JS_GetOriginalUrl(napi_env env, napi_callback_info cbinfo)
+{
+    WVLOG_D("[DOWNLOAD] NapiWebDownloadItem::JS_GetOriginalUrl");
+    size_t argc = 1;
+    napi_value argv[1] = {0};
+    napi_value thisVar = nullptr;
+    void *data = nullptr;
+    WebDownloadItem *webDownloadItem = nullptr;
+    napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, &data);
+
+    napi_unwrap(env, thisVar, (void **)&webDownloadItem);
+
+    if (!webDownloadItem) {
+        WVLOG_E("[DOWNLOAD] unwrap webDownloadItem failed");
+        return nullptr;
+    }
+
+    napi_value originalUrl;
+    napi_status status = napi_create_string_utf8(env, webDownloadItem->originalUrl.c_str(),
+                                                 NAPI_AUTO_LENGTH, &originalUrl);
+    if (status != napi_ok) {
+        WVLOG_E("[DOWNLOAD] NapiWebDownloadItem::JS_GetOriginalUrl failed");
+        return nullptr;
+    }
+    return originalUrl;
+}
+
+napi_value NapiWebDownloadItem::JS_GetReferrerUrl(napi_env env, napi_callback_info cbinfo)
+{
+    WVLOG_D("[DOWNLOAD] NapiWebDownloadItem::JS_GetReferrerUrl");
+    size_t argc = 1;
+    napi_value argv[1] = {0};
+    napi_value thisVar = nullptr;
+    void *data = nullptr;
+    WebDownloadItem *webDownloadItem = nullptr;
+    napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, &data);
+
+    napi_unwrap(env, thisVar, (void **)&webDownloadItem);
+
+    if (!webDownloadItem) {
+        WVLOG_E("[DOWNLOAD] unwrap webDownloadItem failed");
+        return nullptr;
+    }
+
+    napi_value referrerUrl;
+    napi_status status = napi_create_string_utf8(env, webDownloadItem->referrerUrl.c_str(),
+                                                 NAPI_AUTO_LENGTH, &referrerUrl);
+    if (status != napi_ok) {
+        WVLOG_E("[DOWNLOAD] NapiWebDownloadItem::JS_GetReferrerUrl failed");
+        return nullptr;
+    }
+    return referrerUrl;
+}
+
 napi_value NapiWebDownloadItem::JS_Continue(napi_env env, napi_callback_info cbinfo)
 {
     WVLOG_I("NapiWebDownloadItem::JS_Continue");
@@ -676,6 +730,7 @@ void SetWebDownloadPb(browser_service::WebDownload &webDownloadPb, const WebDown
     webDownloadPb.set_url(webDownloadItem->url);
     webDownloadPb.set_etag(webDownloadItem->etag);
     webDownloadPb.set_original_url(webDownloadItem->originalUrl);
+    webDownloadPb.set_referrer_url(webDownloadItem->referrerUrl);
     webDownloadPb.set_suggested_file_name(webDownloadItem->suggestedFileName);
     webDownloadPb.set_content_disposition(webDownloadItem->contentDisposition);
     webDownloadPb.set_mime_type(webDownloadItem->mimeType);
@@ -685,6 +740,9 @@ void SetWebDownloadPb(browser_service::WebDownload &webDownloadPb, const WebDown
     webDownloadPb.set_last_error_code(webDownloadItem->lastErrorCode);
     webDownloadPb.set_received_slices(webDownloadItem->receivedSlices);
     webDownloadPb.set_download_path(webDownloadItem->downloadPath);
+    for (const auto& url : webDownloadItem->urlChain) {
+        webDownloadPb.add_url_chain(url);
+    }
 }
 
 napi_value NapiWebDownloadItem::JS_Serialize(napi_env env, napi_callback_info cbinfo)
@@ -766,6 +824,7 @@ napi_value NapiWebDownloadItem::JS_Deserialize(napi_env env, napi_callback_info 
     webDownloadItem->url = webDownloadPb.url();
     webDownloadItem->etag = webDownloadPb.etag();
     webDownloadItem->originalUrl = webDownloadPb.original_url();
+    webDownloadItem->referrerUrl = webDownloadPb.referrer_url();
     webDownloadItem->suggestedFileName = webDownloadPb.suggested_file_name();
     webDownloadItem->contentDisposition = webDownloadPb.content_disposition();
     webDownloadItem->mimeType = webDownloadPb.mime_type();
@@ -775,6 +834,8 @@ napi_value NapiWebDownloadItem::JS_Deserialize(napi_env env, napi_callback_info 
     webDownloadItem->lastErrorCode = webDownloadPb.last_error_code();
     webDownloadItem->receivedSlices = webDownloadPb.received_slices();
     webDownloadItem->downloadPath = webDownloadPb.download_path();
+    auto& url_chain = webDownloadPb.url_chain();
+    webDownloadItem->urlChain.assign(url_chain.begin(), url_chain.end());
 
     napi_value webDownloadUnserialized;
     napi_create_object(env, &webDownloadUnserialized);
@@ -818,6 +879,8 @@ void NapiWebDownloadItem::ExportWebDownloadItemClass(napi_env env, napi_value* e
         DECLARE_NAPI_FUNCTION("getMethod", JS_GetMethod),
         DECLARE_NAPI_FUNCTION("getMimeType", JS_GetMimeType),
         DECLARE_NAPI_FUNCTION("getUrl", JS_GetUrl),
+        DECLARE_NAPI_FUNCTION("getOriginalUrl", JS_GetOriginalUrl),
+        DECLARE_NAPI_FUNCTION("getReferrerUrl", JS_GetReferrerUrl),
         DECLARE_NAPI_FUNCTION("getSuggestedFileName", JS_GetSuggestedFileName),
         DECLARE_NAPI_FUNCTION("start", JS_Start),
         DECLARE_NAPI_FUNCTION("continue", JS_Continue),
@@ -1071,6 +1134,8 @@ napi_status NapiWebDownloadItem::DefineProperties(napi_env env, napi_value *obje
         DECLARE_NAPI_FUNCTION("getMethod", JS_GetMethod),
         DECLARE_NAPI_FUNCTION("getMimeType", JS_GetMimeType),
         DECLARE_NAPI_FUNCTION("getUrl", JS_GetUrl),
+        DECLARE_NAPI_FUNCTION("getOriginalUrl", JS_GetOriginalUrl),
+        DECLARE_NAPI_FUNCTION("getReferrerUrl", JS_GetReferrerUrl),
         DECLARE_NAPI_FUNCTION("getSuggestedFileName", JS_GetSuggestedFileName),
         DECLARE_NAPI_FUNCTION("continue", JS_Continue),
         DECLARE_NAPI_FUNCTION("start", JS_Start),

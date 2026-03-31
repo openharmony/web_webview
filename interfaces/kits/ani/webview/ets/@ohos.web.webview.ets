@@ -1340,6 +1340,8 @@ export default namespace webview {
         native constructor();
 
         native getUrl(): string;
+        native getOriginalUrl(): string;
+        native getReferrerUrl(): string;
         native getGuid(): string;
         native getPercentComplete(): int;
         native getSuggestedFileName(): string;
