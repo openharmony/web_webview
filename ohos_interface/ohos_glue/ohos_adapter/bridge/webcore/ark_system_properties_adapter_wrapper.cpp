@@ -364,4 +364,10 @@ int32_t ArkSystemPropertiesAdapterWrapper::GetIntParameter(const std::string& ke
     ArkWebStringStructRelease(str);
     return result;
 }
+
+int32_t ArkSystemPropertiesAdapterWrapper::GetLoadUrlStrategy()
+{
+    int32_t result = ctocpp_->GetLoadUrlStrategy();
+    return result;
+}
 } // namespace OHOS::ArkWeb
