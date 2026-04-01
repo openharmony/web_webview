@@ -156,6 +156,8 @@ public:
     {
         return false;
     }
+
+    virtual void SetWholeWebDrawing() = 0;
 };
 
 } // namespace OHOS::NWeb

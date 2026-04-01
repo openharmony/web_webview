@@ -544,7 +544,10 @@ action("webview_glue_nweb_prepare") {
     "//base/web/webview/ohos_interface/ohos_glue/ohos_nweb/ctocpp/webview/ark_web_value_vector_ctocpp.cpp",
     "//base/web/webview/ohos_interface/ohos_glue/ohos_nweb/ctocpp/webview/ark_web_web_storage_origin_vector_ctocpp.cpp",
     "//base/web/webview/ohos_interface/ohos_glue/ohos_nweb/ctocpp/webview/ark_web_web_storage_origin_vector_ctocpp.h",
-    "//base/web/webview/ohos_interface/ohos_glue/ohos_nweb/ctocpp/webview/ark_web_select_popup_menu_item_vector_ctocpp.h"
+    "//base/web/webview/ohos_interface/ohos_glue/ohos_nweb/ctocpp/webview/ark_web_select_popup_menu_item_vector_ctocpp.h",
+    "//base/web/webview/ohos_interface/ohos_glue/ohos_nweb/bridge/webview/ark_web_all_ssl_error_info_wrapper.cpp",
+    "//base/web/webview/ohos_interface/ohos_glue/ohos_nweb/bridge/webview/ark_web_all_ssl_error_info_wrapper.h",
+    "//base/web/webview/ohos_interface/ohos_glue/ohos_nweb/include/ark_web_all_ssl_error_info.h"
   ]
   args = [
     "--command-type",

@@ -1616,4 +1616,15 @@ bool NWebHelper::GetUserAgentClientHintsEnabled()
     }
     return nwebEngine_->GetUserAgentClientHintsEnabled();
 }
+
+void NWebHelper::SetWholeWebDrawing()
+{
+    WVLOG_I("===== Engine set whole =====");
+    if (nwebEngine_ == nullptr) {
+        WVLOG_E("web engine is nullptr");
+        return;
+    }
+    WVLOG_I("===== go webview engine =====");
+    nwebEngine_->SetWholeWebDrawing();
+}
 } // namespace OHOS::NWeb

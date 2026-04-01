@@ -18,6 +18,7 @@
 #pragma once
 
 #include "ohos_nweb/include/ark_web_access_request.h"
+#include "ohos_nweb/include/ark_web_all_ssl_error_info.h"
 #include "ohos_nweb/include/ark_web_applink_callback.h"
 #include "ohos_nweb/include/ark_web_console_log.h"
 #include "ohos_nweb/include/ark_web_context_menu_callback.h"
@@ -947,19 +948,11 @@ public:
     /**
      * @Description Called when an SSL error occurs during the loading of resources (for the main frame and subframes).
      * @Input result: handler of result.
-     * @Input error: error code.
-     * @Input url: request url
-     * @Input originalUrl: original url.
-     * @Input referrer: referrer url.
-     * @Input isFatalError: whether the error is a fatal error.
-     * @Input isMainFrame: whether the request is made for the main frame.
-     * @Input certChainData: cert chain data.
      * @Return: true/false
      */
     /*--ark web()--*/
-    virtual bool OnAllSslErrorRequestByJSV2(ArkWebRefPtr<ArkWebJsAllSslErrorResult> result, int error,
-        const ArkWebString& url, const ArkWebString& originalUrl, const ArkWebString& referrer, bool isFatalError,
-        bool isMainFrame, const ArkWebStringVector& certChainData) = 0;
+    virtual bool OnAllSslErrorRequestByJSV2(ArkWebRefPtr<ArkWebJsAllSslErrorResult> result,
+        ArkWebRefPtr<ArkWebAllSslErrorInfo> info) = 0;
 
     /**
      * @brief Called when you need to show magnifier.

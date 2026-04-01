@@ -138,6 +138,8 @@ public:
     void SetUserAgentClientHintsEnabled(bool enabled) override;
 
     bool GetUserAgentClientHintsEnabled() override;
+
+    void SetWholeWebDrawing() override;
 private:
     ArkWebRefPtr<ArkWebEngine> ark_web_engine_;
 };

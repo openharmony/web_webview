@@ -138,6 +138,8 @@ public:
 
     bool GetUserAgentClientHintsEnabled() override;
 
+    void SetWholeWebDrawing() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebEngine> nweb_engine_;
 };

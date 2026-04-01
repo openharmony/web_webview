@@ -429,4 +429,9 @@ bool ArkWebEngineWrapper::GetUserAgentClientHintsEnabled()
 {
     return ark_web_engine_->GetUserAgentClientHintsEnabled();
 }
+
+void ArkWebEngineWrapper::SetWholeWebDrawing()
+{
+    ark_web_engine_->SetWholeWebDrawing();
+}
 } // namespace OHOS::ArkWeb

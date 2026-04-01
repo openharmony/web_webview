@@ -369,4 +369,9 @@ bool ArkWebEngineImpl::GetUserAgentClientHintsEnabled()
 {
     return nweb_engine_->GetUserAgentClientHintsEnabled();
 }
+
+void ArkWebEngineImpl::SetWholeWebDrawing()
+{
+    nweb_engine_->SetWholeWebDrawing();
+}
 } // namespace OHOS::ArkWeb

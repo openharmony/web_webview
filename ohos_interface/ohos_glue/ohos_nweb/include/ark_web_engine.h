@@ -229,6 +229,9 @@ public:
 
     /*--ark web()--*/
     virtual bool GetUserAgentClientHintsEnabled() = 0;
+
+    /*--ark web()--*/
+    virtual void SetWholeWebDrawing() = 0;
 };
 
 } // namespace OHOS::ArkWeb

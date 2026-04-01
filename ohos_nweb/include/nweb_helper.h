@@ -165,6 +165,8 @@ public:
 
     bool GetUserAgentClientHintsEnabled();
 
+    void SetWholeWebDrawing();
+
 private:
     NWebHelper() = default;
     bool GetWebEngine(bool fromArk);
