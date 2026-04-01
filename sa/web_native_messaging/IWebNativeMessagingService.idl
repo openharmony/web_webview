@@ -21,5 +21,7 @@ interface OHOS.NWeb.IWebNativeMessagingService {
         [in] IRemoteObject connectionCallback, [in] int connectionId, [out] int errorNum);
     void DisconnectWebNativeMessagingExtension([in] int connectionId, [out] int errorNum);
     void StartAbility([in] IRemoteObject token, [in] Want want, [in] StartOptions options, [out] int errorNum);
+    void StartAbilityForResult([in] IRemoteObject token, [in] Want want, [in] StartOptions options,
+        [in] int requestCode, [out] int errorNum);
     void StopNativeConnectionFromExtension([in] int connectionId, [out] int errorNum);
 }

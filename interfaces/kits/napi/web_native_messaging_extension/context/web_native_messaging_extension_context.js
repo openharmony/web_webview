@@ -22,11 +22,16 @@ let TAG = 'NativeMessaging';
 class WebNativeMessagingExtensionContext extends ExtensionContext {
     constructor(obj) {
         super(obj);
+        this.requestCodeCounter_ = 0;
     }
 
     startAbility(want, options) {
         hilog.sLogI(domainID, TAG, 'startAbility');
         return this.__context_impl__.startAbility(want, options);
+    }
+
+    startAbilityForResult(want, options) {
+        return this.__context_impl__.startAbilityForResult(want, options);
     }
 
     terminateSelf() {

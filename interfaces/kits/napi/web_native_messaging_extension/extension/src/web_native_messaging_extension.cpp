@@ -50,5 +50,16 @@ int32_t WebNativeMessagingExtension::DisconnectNative(WNMEConnectionInfo& connec
     return 0;
 }
 
+void WebNativeMessagingExtension::OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &want)
+{
+    WNMLOG_I("Extension::OnAbilityResult, requestCode: %{public}d", requestCode);
+    auto context = GetContext();
+    if (context) {
+        context->OnAbilityResult(requestCode, resultCode, want);
+    } else {
+        WNMLOG_E("Extension::OnAbilityResult, context is null");
+    }
+}
+
 } // namespace NWeb
 } // namespace OHOS

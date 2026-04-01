@@ -41,6 +41,8 @@ public:
         const sptr<IRemoteObject>& connectCallback, int32_t connectionId);
     int DisconnectWebNativeMessagingExtension(int32_t connectionId);
     int StartAbility(const sptr<IRemoteObject>& token, const AAFwk::Want& want, const AAFwk::StartOptions& options);
+    int StartAbilityForResult(const sptr<IRemoteObject>& token, const AAFwk::Want& want,
+        const AAFwk::StartOptions& options, int requestCode);
     int StopNativeConnectionFromExtension(int32_t connectionId);
     void SetUserDefineDiedRecipient(std::function<void()> deathCallback)
     {

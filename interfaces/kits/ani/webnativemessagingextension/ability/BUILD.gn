@@ -35,6 +35,7 @@ ohos_shared_library("web_native_messaging_extension_context_ani_kit") {
     "../../webview/src/common/ani_business_error.cpp",
     "../../webview/src/common/ani_parse_utils.cpp",
     "../../../../../sa/web_native_messaging/common/web_native_messaging_common.cpp", 
+    "./src/web_native_messaging_extension_context_ani.cpp",
   ]
 
   deps = [

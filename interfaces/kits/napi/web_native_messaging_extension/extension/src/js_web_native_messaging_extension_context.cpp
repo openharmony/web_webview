@@ -15,15 +15,20 @@
 
 #include "js_web_native_messaging_extension_context.h"
 
+#include <napi/native_api.h>
 #include "js_extension_context.h"
 #include "js_error_utils.h"
 #include "napi_common_ability.h"
+#include "napi_common_want.h"
+#include <js_native_api.h>
+#include <js_native_api_types.h>
 #include "web_native_messaging_common.h"
 #include "web_native_messaging_log.h"
 
 namespace OHOS {
 namespace NWeb {
 using namespace AbilityRuntime;
+using RuntimeTask = std::function<void(int, const AAFwk::Want &, bool)>;
 namespace {
 constexpr int32_t ARGC_ZERO = 0;
 constexpr int32_t ARGC_ONE = 1;
@@ -57,6 +62,11 @@ public:
     static napi_value StartAbility(napi_env env, napi_callback_info info)
     {
         GET_NAPI_INFO_AND_CALL(env, info, JsWebNativeMessagingExtensionContext, OnStartAbility);
+    }
+
+    static napi_value StartAbilityForResult(napi_env env, napi_callback_info info)
+    {
+        GET_NAPI_INFO_AND_CALL(env, info, JsWebNativeMessagingExtensionContext, OnStartAbilityForResult);
     }
 
     static napi_value TerminateSelf(napi_env env, napi_callback_info info)
@@ -185,6 +195,40 @@ private:
         return true;
     }
 
+    napi_value CreatePromiseWithErrorHandling(napi_env env, napi_deferred& deferred, napi_value& promise)
+    {
+        napi_status status = napi_create_promise(env, &deferred, &promise);
+        if (status != napi_ok) {
+            WNMLOG_E("napi_create_promise failed");
+            return CreateJsUndefined(env);
+        }
+
+        auto context = context_.lock();
+        if (!context) {
+            WNMLOG_E("context is null");
+            napi_value error =
+                CreateJsErrorByNativeErr(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+            napi_reject_deferred(env, deferred, error);
+            return promise;
+        }
+        return nullptr;
+    }
+
+    napi_value CreateAbilityResultObject(napi_env env, int resultCode, const AAFwk::Want &resultWant)
+    {
+        napi_value abilityResultObj = nullptr;
+        napi_create_object(env, &abilityResultObj);
+
+        napi_value resultCodeValue = nullptr;
+        napi_create_int32(env, resultCode, &resultCodeValue);
+        napi_set_named_property(env, abilityResultObj, "resultCode", resultCodeValue);
+
+        napi_value wantObj = AppExecFwk::WrapWant(env, resultWant);
+        napi_set_named_property(env, abilityResultObj, "want", wantObj);
+
+        return abilityResultObj;
+    }
+
     napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info)
     {
         WNMLOG_I("OnStartAbility");
@@ -230,6 +274,57 @@ private:
             env, CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
         return result;
     }
+    napi_value OnStartAbilityForResult(napi_env env, NapiCallbackInfo &info)
+    {
+        if (info.argc < ARGC_ONE) {
+            WNMLOG_E("invalid arg");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+        size_t unwrapArgc = 0;
+        AAFwk::Want want;
+        AAFwk::StartOptions startOptions;
+        if (!CheckStartAbilityInputParam(env, info, want, startOptions, unwrapArgc)) {
+            WNMLOG_E("Failed, input param type invalid");
+            ThrowInvalidParamError(env, "Parse param want failed, type must be Want");
+            return CreateJsUndefined(env);
+        }
+        napi_deferred deferred = nullptr;
+        napi_value promise = nullptr;
+        if (CreatePromiseWithErrorHandling(env, deferred, promise) != nullptr) {
+            return promise;
+        }
+        auto context = context_.lock();
+        if (!context) {
+            napi_value error = CreateJsErrorByNativeErr(env,
+                static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+            napi_reject_deferred(env, deferred, error);
+            return promise;
+        }
+        int requestCode = context->GenerateCurRequestCode();
+        RuntimeTask task = [env, deferred, this](int resultCode, const AAFwk::Want &resultWant, bool isInner) {
+            WNMLOG_I("RuntimeTask called, resultCode: %{public}d, isInner: %{public}d", resultCode, isInner);
+            if (isInner) {
+                napi_value error = NativeMessageError::IsNativeMessagingErr(resultCode) ?
+                    CreateNMJsError(env, resultCode) : CreateJsErrorByNativeErr(env, resultCode);
+                napi_reject_deferred(env, deferred, error);
+                return;
+            }
+            napi_value abilityResultObj = CreateAbilityResultObject(env, resultCode, resultWant);
+            napi_resolve_deferred(env, deferred, abilityResultObj);
+        };
+        want.SetParam(AAFwk::Want::PARAM_RESV_FOR_RESULT, true);
+        ErrCode err = context->StartAbilityForResult(want, startOptions, requestCode, std::move(task));
+        if (err != ERR_OK) {
+            WNMLOG_E("StartAbilityForResult failed: %{public}d", err);
+            napi_value error = NativeMessageError::IsNativeMessagingErr(err) ?
+                CreateNMJsError(env, err) : CreateJsErrorByNativeErr(env, err);
+            napi_reject_deferred(env, deferred, error);
+        } else {
+            WNMLOG_I("StartAbilityForResult succeeded, waiting for result");
+        }
+        return promise;
+    }
 };
 } // namespace
 
@@ -251,10 +346,14 @@ napi_value CreateJsWebNativeMessagingExtensionContext(napi_env env,
     BindNativeFunction(
         env, objValue, "startAbility", moduleName, JsWebNativeMessagingExtensionContext::StartAbility);
     BindNativeFunction(
+        env, objValue, "startAbilityForResult", moduleName,
+        JsWebNativeMessagingExtensionContext::StartAbilityForResult);
+    BindNativeFunction(
         env, objValue, "terminateSelf", moduleName, JsWebNativeMessagingExtensionContext::TerminateSelf);
     BindNativeFunction(
         env, objValue, "stopNativeConnection",
         moduleName, JsWebNativeMessagingExtensionContext::StopNativeConnection);
+
     return objValue;
 }
 } // namespace NWeb

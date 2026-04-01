@@ -56,6 +56,9 @@ public:
     void DisconnectWebNativeMessagingExtension(int32_t connectionId, int32_t& errorNum);
     void StartAbility(const sptr<IRemoteObject>& token,
         const AAFwk::Want& want, const AAFwk::StartOptions& startOptions, int32_t& errorNum);
+    void StartAbilityForResult(const sptr<IRemoteObject>& token,
+        const AAFwk::Want& want, const AAFwk::StartOptions& startOptions,
+        int32_t requestCode, int32_t& errorNum);
     void StopNativeConnectionFromExtension(int32_t innerConnectId, int32_t& errorNum);
 
     void CleanAbilityConnection(Security::AccessToken::AccessTokenID tokenId, std::string& bundleName) override;

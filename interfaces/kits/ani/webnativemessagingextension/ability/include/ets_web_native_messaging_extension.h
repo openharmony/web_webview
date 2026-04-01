@@ -40,6 +40,8 @@ public:
 
     void OnStop() override;
 
+    void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want& want) override;
+
     virtual int32_t ConnectNative(WNMEConnectionInfo& connection) override;
 
     virtual int32_t DisconnectNative(WNMEConnectionInfo& connection) override;

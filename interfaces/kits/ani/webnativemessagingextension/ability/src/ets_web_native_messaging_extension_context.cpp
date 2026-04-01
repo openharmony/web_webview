@@ -38,6 +38,7 @@ static const char* CLEANER_CLASS_NAME =
     "@ohos.web.WebNativeMessagingExtensionContext.Cleaner";
 static const char* WEB_NATIVE_MESSAGING_EXTENSION_CONTEXT_CLASS_NAME =
     "@ohos.web.WebNativeMessagingExtensionContext.WebNativeMessagingExtensionContext";
+static constexpr const char *ABILITY_RESULT_CLASS_NAME = "ability.abilityResult.AbilityResultInner";
 
 class ETSWebNativeMessagingExtensionContext final {
 public:
@@ -99,13 +100,23 @@ public:
         }
         etsExtensionContext->OnStopNativeConnection(env, obj, connectionId);
     }
+
+    static ani_object StartAbilityForResult(ani_env* env, ani_object obj, ani_object want, ani_object options)
+    {
+        auto etsExtensionContext = GetEtsAbilityContext(env, obj);
+        if (etsExtensionContext == nullptr) {
+            WNMLOG_E("etsExtensionContext is null");
+            return nullptr;
+        }
+        return etsExtensionContext->OnStartAbilityForResult(env, obj, want, options);
+    }
 private:
     std::weak_ptr<WebNativeMessagingExtensionContext> context_;
 
     static ETSWebNativeMessagingExtensionContext *GetEtsAbilityContext(
         ani_env *env, ani_object aniObj)
     {
-        WNMLOG_D("GetEtsAbilityContext");
+        WNMLOG_I("GetEtsAbilityContext");
         ani_class cls = nullptr;
         ani_long nativeContextLong;
         ani_field contextField = nullptr;
@@ -115,7 +126,7 @@ private:
             return nullptr;
         }
         if ((status = env->FindClass(
-            WEB_NATIVE_MESSAGING_EXTENSION_CONTEXT_CLASS_NAME, &cls)) != ANI_OK) {
+            WEB_NATIVE_MESSAGING_EXTENSION_CONTEXT_CLASS_NAME, &cls)) != ANI_OK || !cls) {
             WNMLOG_E("Failed to find class, status : %{public}d", status);
             return nullptr;
         }
@@ -152,18 +163,16 @@ private:
     }
 
     bool CheckStartAbilityInputParam(ani_env* env, ani_object aniWant, ani_object options,
-        AAFwk::Want& want, AAFwk::StartOptions& startOptions) const
+        AAFwk::Want& want, AAFwk::StartOptions& startOptions)
     {
         if (!AppExecFwk::UnwrapWant(env, aniWant, want)) {
-            WNMLOG_E("Parse param want failed");
+            WNMLOG_E("parse want failed");
+            EtsErrorUtil::ThrowInvalidParamError(env, "Parse param want failed, want must be Want.");
             return false;
         }
-        ani_boolean isUndefined = ANI_TRUE;
-        env->Reference_IsUndefined(options, &isUndefined);
-        if (isUndefined == ANI_FALSE) {
-            if (!AppExecFwk::UnwrapStartOptions(env, options, startOptions)) {
-                WNMLOG_E("Parse param options failed");
-            }
+        if (options) {
+            AppExecFwk::UnwrapStartOptions(env, options, startOptions);
+            UnwrapCompletionHandlerInStartOptions(env, options, startOptions);
         }
         return true;
     }
@@ -220,6 +229,236 @@ private:
             AniBusinessError::ThrowErrorByErrCode(env, *innerErrCode);
         }
     }
+
+    bool RejectWithError(ani_env* env, ani_resolver resolver, int32_t errCode)
+    {
+        int32_t jsErrorCode = errCode;
+        std::string errorMsg;
+        if (NativeMessageError::IsNativeMessagingErr(errCode)) {
+            jsErrorCode = NativeMessageError::NativeCodeToJsCode(errCode, errorMsg);
+        } else {
+            errorMsg = GetErrMsgByErrCode(errCode);
+        }
+        ani_ref jsResult = AniBusinessError::CreateError(env, jsErrorCode, errorMsg);
+        if (jsResult == nullptr) {
+            return false;
+        }
+        ani_status status = env->PromiseResolver_Reject(resolver, static_cast<ani_error>(jsResult));
+        return status == ANI_OK;
+    }
+
+    bool CreatePromiseAndCheckContext(ani_env* env, ani_resolver& resolver, ani_object& promise,
+        std::shared_ptr<WebNativeMessagingExtensionContext>& context)
+    {
+        ani_status status = env->Promise_New(&resolver, &promise);
+        if (status != ANI_OK) {
+            WNMLOG_E("Promise_New failed, status: %{public}d", status);
+            return false;
+        }
+
+        context = context_.lock();
+        if (!context) {
+            WNMLOG_E("[WNWN_SAFR] context is null");
+            int32_t errCode = static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+            if (!RejectWithError(env, resolver, errCode)) {
+                return false;
+            }
+            return true;
+        }
+        return true;
+    }
+
+    RuntimeTask CreateRuntimeTask(ani_env* env, ani_resolver resolver)
+    {
+        return [env, resolver, this](int resultCode, const AAFwk::Want& resultWant, bool isInner) {
+            WNMLOG_I("RuntimeTask, resultCode: %{public}d, isInner: %{public}d", resultCode, isInner);
+            if (isInner) {
+                WNMLOG_E("Inner error, rejecting with error code: %{public}d", resultCode);
+                RejectWithError(env, resolver, resultCode);
+                return;
+            }
+            ani_object abilityResultObj = WrapAbilityResult(env, resultCode, resultWant);
+            ani_status status = env->PromiseResolver_Resolve(resolver, abilityResultObj);
+            if (status != ANI_OK) {
+                WNMLOG_E("PromiseResolver_Resolve failed, status: %{public}d", status);
+            }
+        };
+    }
+
+    bool ExecuteStartAbilityForResult(ani_env* env, std::shared_ptr<WebNativeMessagingExtensionContext> context,
+        const AAFwk::Want& want, const AAFwk::StartOptions& startOptions, ani_resolver resolver)
+    {
+        int requestCode = context->GenerateCurRequestCode();
+        AAFwk::Want modifiedWant = want;
+        modifiedWant.SetParam(AAFwk::Want::PARAM_RESV_FOR_RESULT, true);
+
+        RuntimeTask task = CreateRuntimeTask(env, resolver);
+        ErrCode err = context->StartAbilityForResult(modifiedWant, startOptions, requestCode, std::move(task));
+        if (err != ERR_OK) {
+            WNMLOG_E("StartAbilityForResult failed: %{public}d", err);
+            if (!RejectWithError(env, resolver, err)) {
+                return false;
+            }
+        } else {
+            WNMLOG_I("StartAbilityForResult succeeded, callback registered");
+        }
+        return true;
+    }
+
+    bool CreateAbilityResultObject(ani_env* env, int resultCode, ani_object& resultObj)
+    {
+        ani_class resultCls = nullptr;
+        ani_status status = env->FindClass("ability.abilityResult.AbilityResultInner", &resultCls);
+        if (status != ANI_OK || resultCls == nullptr) {
+            WNMLOG_E("Failed to find AbilityResult class");
+            return false;
+        }
+        ani_method resultCtor = nullptr;
+        status = env->Class_FindMethod(resultCls, "<ctor>", nullptr, &resultCtor);
+        if (status != ANI_OK || resultCtor == nullptr) {
+            WNMLOG_E("Failed to find AbilityResult constructor");
+            return false;
+        }
+        status = env->Object_New(resultCls, resultCtor, &resultObj);
+        if (status != ANI_OK || resultObj == nullptr) {
+            WNMLOG_E("Failed to create AbilityResult object");
+            return false;
+        }
+        ani_object resultCodeObj = nullptr;
+        status = env->Class_FindMethod(resultCls, "<ctor>", "I:", &resultCtor);
+        if (status != ANI_OK || resultCtor == nullptr) {
+            WNMLOG_E("Failed to find Integer constructor");
+            return false;
+        }
+        status = env->Object_New(resultCls, resultCtor, &resultCodeObj, resultCode);
+        if (status != ANI_OK || resultCodeObj == nullptr) {
+            WNMLOG_E("[WNM_SAF] Failed to create resultCode object");
+            return false;
+        }
+        status = env->Object_SetPropertyByName_Ref(resultObj, "resultCode", resultCodeObj);
+        if (status != ANI_OK) {
+            WNMLOG_E("Failed to set resultCode property");
+            return false;
+        }
+        return true;
+    }
+
+    bool SetWantProperty(ani_env *env, ani_object resultObj, const AAFwk::Want &want)
+    {
+        ani_status status = env->Object_SetPropertyByName_Ref(resultObj, "want", AppExecFwk::WrapWant(env, want));
+        if (status != ANI_OK) {
+            WNMLOG_E("Object_SetPropertyByName_Ref status: %{public}d", status);
+            return false;
+        }
+        return true;
+    }
+
+    void UnwrapCompletionHandlerInStartOptions(ani_env *env, ani_object param, AAFwk::StartOptions &options)
+    {
+        WNMLOG_D("UnwrapCompletionHandlerInStartOptions called");
+        if (env == nullptr) {
+            WNMLOG_E("env null");
+            return;
+        }
+        auto context = context_.lock();
+        if (!context) {
+            WNMLOG_E("null context");
+            return;
+        }
+        ani_status status = ANI_ERROR;
+        ani_ref completionHandler;
+        if ((status = env->Object_GetPropertyByName_Ref(param, "completionHandler", &completionHandler)) != ANI_OK) {
+            WNMLOG_E("null completionHandler");
+            return;
+        }
+        ani_ref refCompletionHandler = nullptr;
+        if (env->GlobalReference_Create(completionHandler, &refCompletionHandler) != ANI_OK || !refCompletionHandler) {
+            WNMLOG_E("Failed to create global ref for completionHandler");
+            return;
+        }
+        OnRequestResult onRequestSucc;
+        OnRequestResult onRequestFail;
+        AppExecFwk::CreateOnRequestResultCallback(env, refCompletionHandler, "onRequestSuccess", onRequestSucc);
+        AppExecFwk::CreateOnRequestResultCallback(env, refCompletionHandler, "onRequestFailure", onRequestFail);
+        uint64_t time = static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::high_resolution_clock::now().time_since_epoch())
+                                                  .count());
+        std::string requestId = std::to_string(time);
+        options.requestId_ = requestId;
+    }
+
+    ani_object WrapAbilityResult(ani_env *env, int32_t resultCode, const AAFwk::Want &want)
+    {
+        if (env == nullptr) {
+            WNMLOG_E("null env");
+            return nullptr;
+        }
+        ani_class cls = nullptr;
+        ani_status status = env->FindClass(ABILITY_RESULT_CLASS_NAME, &cls);
+        if (status != ANI_OK) {
+            WNMLOG_E("FindClass status: %{public}d", status);
+            return nullptr;
+        }
+        ani_method ctor = nullptr;
+        if ((status = env->Class_FindMethod(cls, "<ctor>", nullptr, &ctor)) != ANI_OK) {
+            WNMLOG_E("Class_FindMethod status: %{public}d", status);
+            return nullptr;
+        }
+        ani_object resultObj = nullptr;
+        if ((status = env->Object_New(cls, ctor, &resultObj)) != ANI_OK) {
+            WNMLOG_E("Object_New status: %{public}d", status);
+            return nullptr;
+        }
+        ani_method resultCodeSetter = nullptr;
+        if ((status = env->Class_FindMethod(cls, "<set>resultCode", nullptr, &resultCodeSetter)) != ANI_OK) {
+            WNMLOG_E("Class_FindMethod status: %{public}d", status);
+            return nullptr;
+        }
+        if ((status = env->Object_CallMethod_Void(resultObj, resultCodeSetter, resultCode)) != ANI_OK) {
+            WNMLOG_E("Object_CallMethod_Void status: %{public}d", status);
+            return nullptr;
+        }
+        ani_method wantSetter = nullptr;
+        if ((status = env->Class_FindMethod(cls, "<set>want", nullptr, &wantSetter)) != ANI_OK) {
+            WNMLOG_E("Class_FindMethod status: %{public}d", status);
+            return nullptr;
+        }
+        ani_object wantObj = AppExecFwk::WrapWant(env, want);
+        if ((status = env->Object_CallMethod_Void(resultObj, wantSetter, wantObj)) != ANI_OK) {
+            WNMLOG_E("Object_CallMethod_Void status: %{public}d", status);
+            return nullptr;
+        }
+        return resultObj;
+    }
+    ani_object OnStartAbilityForResult(ani_env* env, ani_object obj, ani_object wantObj, ani_object startOptionsObj)
+    {
+        if (env == nullptr) {
+            WVLOG_E("env is nullptr");
+            return nullptr;
+        }
+        AAFwk::Want want;
+        AAFwk::StartOptions startOptions;
+        if (!CheckStartAbilityInputParam(env, wantObj, startOptionsObj, want, startOptions)) {
+            AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+                                         "Parse param want failed, must be a want");
+            return nullptr;
+        }
+
+        ani_resolver resolver {};
+        ani_object promise = nullptr;
+        std::shared_ptr<WebNativeMessagingExtensionContext> context;
+        if (!CreatePromiseAndCheckContext(env, resolver, promise, context)) {
+            return nullptr;
+        }
+        if (context == nullptr) {
+            return promise;
+        }
+
+        if (!ExecuteStartAbilityForResult(env, context, want, startOptions, resolver)) {
+            return nullptr;
+        }
+        return promise;
+    }
 };
 } // namespace
 
@@ -237,6 +476,8 @@ bool BindNativeMethods(ani_env *env, ani_class &cls)
             reinterpret_cast<void *>(ETSWebNativeMessagingExtensionContext::TerminateSelf) },
         ani_native_function { "stopNativeConnectionSync", nullptr,
             reinterpret_cast<void *>(ETSWebNativeMessagingExtensionContext::StopNativeConnection) },
+        ani_native_function { "startAbilityForResultSync", nullptr,
+            reinterpret_cast<void *>(ETSWebNativeMessagingExtensionContext::StartAbilityForResult) },
     };
     if ((status = env->Class_BindNativeMethods(cls, functions.data(), functions.size())) != ANI_OK
             && status != ANI_ALREADY_BINDED) {
@@ -276,7 +517,7 @@ ani_ref CreateEtsWebNativeMessagingExtensionContext(ani_env* env,
 
     if ((status = env->FindClass(
         WEB_NATIVE_MESSAGING_EXTENSION_CONTEXT_CLASS_NAME, &cls)) != ANI_OK ||
-        cls == nullptr) {
+        !cls) {
         WNMLOG_E("Failed to find class, status : %{public}d", status);
         return nullptr;
     }
