@@ -57,6 +57,7 @@
 #include "system_properties_adapter_impl.h"
 #include "nweb_message_ext.h"
 #include "webview_value.h"
+#include "nweb_security_options_impl.h"
 
 #include "napi_user_agent_metadata.h"
 
@@ -802,6 +803,7 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_FUNCTION("getRenderProcessMode", NapiWebviewController::GetRenderProcessMode),
         DECLARE_NAPI_STATIC_FUNCTION("setSiteIsolationMode", NapiWebviewController::SetSiteIsolationMode),
         DECLARE_NAPI_STATIC_FUNCTION("getSiteIsolationMode", NapiWebviewController::GetSiteIsolationMode),
+        DECLARE_NAPI_STATIC_FUNCTION("enableAdvancedSecurityMode", NapiWebviewController::EnableAdvancedSecurityMode),
         DECLARE_NAPI_FUNCTION("precompileJavaScript", NapiWebviewController::PrecompileJavaScript),
         DECLARE_NAPI_FUNCTION("injectOfflineResources", NapiWebviewController::InjectOfflineResources),
         DECLARE_NAPI_STATIC_FUNCTION("setHostIP", NapiWebviewController::SetHostIP),
@@ -8415,6 +8417,83 @@ napi_value NapiWebviewController::GetSiteIsolationMode(
     int32_t mode = static_cast<int32_t>(NWebHelper::Instance().GetSiteIsolationMode());
     NAPI_CALL(env, napi_create_int32(env, mode, &result));
     WVLOG_I("NapiWebviewController::GetSiteIsolationMode result: %{public}d", mode);
+    return result;
+}
+
+void ParseBooleanProperty(napi_env env, napi_value obj, const char* name, bool& value)
+{
+    bool hasProp = false;
+    napi_has_named_property(env, obj, name, &hasProp);
+    if (hasProp) {
+        napi_value propValue = nullptr;
+        napi_get_named_property(env, obj, name, &propValue);
+        NapiParseUtils::ParseBoolean(env, propValue, value);
+    }
+}
+
+std::shared_ptr<NWebSecurityOptions> ParseSecurityOptions(napi_env env, napi_value obj)
+{
+    bool disableJIT = false;
+    ParseBooleanProperty(env, obj, "disableJITCompilation", disableJIT);
+
+    bool disableWasm = false;
+    ParseBooleanProperty(env, obj, "disableWebAssembly", disableWasm);
+
+    bool disableWebGL = false;
+    ParseBooleanProperty(env, obj, "disableWebGL", disableWebGL);
+
+    bool disablePDF = false;
+    ParseBooleanProperty(env, obj, "disablePDFViewer", disablePDF);
+
+    bool disableMathML = false;
+    ParseBooleanProperty(env, obj, "disableMathML", disableMathML);
+
+    bool disableSW = false;
+    ParseBooleanProperty(env, obj, "disableServiceWorker", disableSW);
+
+    bool disableUDP = false;
+    ParseBooleanProperty(env, obj, "disableNonProxyUDP", disableUDP);
+
+    return std::make_shared<NWebSecurityOptionsImpl>(
+        disableJIT, disableWasm, disableWebGL, disablePDF, disableMathML, disableSW, disableUDP);
+}
+
+napi_value NapiWebviewController::EnableAdvancedSecurityMode(
+    napi_env env, napi_callback_info info)
+{
+    WVLOG_I("enable advanced security mode.");
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_W("EnableAdvancedSecurityMode unsupported engine version: M114");
+        BusinessError::ThrowErrorByErrcode(env, INIT_ERROR,
+            "InitError 17100001: function EnableAdvancedSecurityMode isn't existing");
+        return nullptr;
+    }
+
+    napi_value result = nullptr;
+    napi_value thisVar = nullptr;
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+
+    NAPI_CALL(env, napi_get_undefined(env, &result));
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            "BusinessError 401: Parameter error. The number of params must be one.");
+        return result;
+    }
+
+    napi_value obj = argv[INTEGER_ZERO];
+    std::shared_ptr<NWebSecurityOptions> options = ParseSecurityOptions(env, obj);
+    if (!options) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            "BusinessError 401: Parameter error. Failed to parse security options.");
+        return result;
+    }
+
+    NWebHelper::Instance().EnableAdvancedSecurityMode(options);
+    WVLOG_I("NapiWebviewController::EnableAdvancedSecurityMode done");
+
     return result;
 }
 

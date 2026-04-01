@@ -204,6 +204,19 @@ enum class SetSiteIsolationModeErr : int32_t {
     ALREADY_SET_ERR = 4,
 };
 
+class OHOS_NWEB_EXPORT NWebSecurityOptions {
+public:
+    virtual ~NWebSecurityOptions() = default;
+
+    virtual bool GetDisableJITCompilation() = 0;
+    virtual bool GetDisableWebAssembly() = 0;
+    virtual bool GetDisableWebGL() = 0;
+    virtual bool GetDisablePDFViewer() = 0;
+    virtual bool GetDisableMathML() = 0;
+    virtual bool GetDisableServiceWorker() = 0;
+    virtual bool GetDisableNonProxyUDP() = 0;
+};
+
 class NWebTouchPointInfo {
 public:
     virtual ~NWebTouchPointInfo() = default;

@@ -353,6 +353,8 @@ private:
 
     static napi_value GetSiteIsolationMode(napi_env env, napi_callback_info info);
 
+    static napi_value EnableAdvancedSecurityMode(napi_env env, napi_callback_info info);
+
     static napi_value PrecompileJavaScript(napi_env env, napi_callback_info info);
 
     static napi_value InjectOfflineResources(napi_env env, napi_callback_info info);

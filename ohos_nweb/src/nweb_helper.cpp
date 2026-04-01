@@ -1154,6 +1154,16 @@ SiteIsolationMode NWebHelper::GetSiteIsolationMode()
     return nwebEngine_->GetSiteIsolationMode();
 }
 
+void NWebHelper::EnableAdvancedSecurityMode(std::shared_ptr<NWebSecurityOptions> options)
+{
+    if (nwebEngine_ == nullptr) {
+        WVLOG_E("web engine is nullptr");
+        return;
+    }
+
+    nwebEngine_->EnableAdvancedSecurityMode(options);
+}
+
 void NWebHelper::SetHostIP(const std::string& hostName, const std::string& address, int32_t aliveTime)
 {
     if (nwebEngine_ == nullptr) {
