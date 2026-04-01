@@ -46,6 +46,7 @@ ohos_shared_library("web_native_messaging_extension_manager_ani_kit") {
     "../../../../../ohos_nweb:libnweb",
     "../../../../../ohos_adapter:nweb_ohos_adapter",
     "../../../../../sa/web_native_messaging:web_native_messaging_kit",
+    "../../../../../ohos_nweb:web_configs",
   ]
 
   external_deps = [
@@ -62,6 +63,7 @@ ohos_shared_library("web_native_messaging_extension_manager_ani_kit") {
     "ipc:ipc_core",
     "runtime_core:ani",
     "safwk:system_ability_fwk",
+    "libxml2:libxml2",
   ]
 
   part_name = "webview"

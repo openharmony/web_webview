@@ -81,6 +81,7 @@ private:
     const std::string PLAY_GROUND_HAP_PATH = "/data/storage/el1/bundle/entry/resources/resfile/nweb.hap";
     bool web_play_ground_enabled_ = false;
     bool nativeMessagingEnabled_ = false;
+    bool isConfigParsed_ = false;
 };
 } // namespace OHOS
 

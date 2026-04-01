@@ -328,6 +328,8 @@ void NWebConfigHelper::ParseConfig(std::shared_ptr<NWebEngineInitArgsImpl> initA
     if (cfgFiles == nullptr) {
         WVLOG_E("Not found webConfigxml,read system config");
         ParseWebConfigXml(defaultConfigPath, initArgs);
+        std::lock_guard<std::mutex> lock(lock_);
+        isConfigParsed_ = true;
         return;
     }
 
@@ -346,6 +348,10 @@ void NWebConfigHelper::ParseConfig(std::shared_ptr<NWebEngineInitArgsImpl> initA
         ParseWebConfigXml(cfgFiles->paths[i], initArgs);
     }
     FreeCfgFiles(cfgFiles);
+    {
+        std::lock_guard<std::mutex> lock(lock_);
+        isConfigParsed_ = true;
+    }
 }
 
 void NWebConfigHelper::ParseWebConfigXml(const std::string& configFilePath,
@@ -735,6 +741,17 @@ bool NWebConfigHelper::ParseNativeMessagingSetting(xmlNodePtr childNodePtr)
 
 bool NWebConfigHelper::IsNativeMessagingEnabled()
 {
+    {
+        std::lock_guard<std::mutex> lock(lock_);
+        if (isConfigParsed_) {
+            return nativeMessagingEnabled_;
+        }
+    }
+    
+    std::shared_ptr<NWebEngineInitArgsImpl> initArgs = std::make_shared<NWebEngineInitArgsImpl>();
+    NWebConfigHelper::Instance().ParseConfig(initArgs);
+    
+    std::lock_guard<std::mutex> lock(lock_);
     return nativeMessagingEnabled_;
 }
 } // namespace OHOS::NWeb
