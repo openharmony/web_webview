@@ -200,6 +200,17 @@ action("webview_glue_base_prepare") {
   deps = [ ":webview_interface_prepare" ]
 }
 
+# 生成 nweb 桥接文件
+action("webview_glue_nweb_generate") {
+  script = "${webview_path}/ohos_interface/ohos_glue/scripts/bridge_gen.sh"
+  args = [
+    "nweb",
+    "--stamp",
+    rebase_path("${target_gen_dir}/${target_name}.stamp", root_build_dir),
+  ]
+  outputs = ["${target_gen_dir}/${target_name}.stamp"]
+}
+
 action("webview_glue_nweb_prepare") {
   script = "${webview_path}/copy_files.py"
   depfile = "$target_gen_dir/$target_name.d"
@@ -556,6 +567,19 @@ action("webview_glue_nweb_prepare") {
     "--outfile",
     rebase_path(output_file, "${root_build_dir}"),
   ]
+
+  deps = [ ":webview_glue_nweb_generate" ]
+}
+
+# 生成 adapter 桥接文件
+action("webview_glue_adapter_generate") {
+  script = "${webview_path}/ohos_interface/ohos_glue/scripts/bridge_gen.sh"
+  args = [
+    "adapter",
+    "--stamp",
+    rebase_path("${target_gen_dir}/${target_name}.stamp", root_build_dir),
+  ]
+  outputs = ["${target_gen_dir}/${target_name}.stamp"]
 }
 
 action("webview_glue_adapter_prepare") {
@@ -932,4 +956,6 @@ action("webview_glue_adapter_prepare") {
     "--outfile",
     rebase_path(output_file, "${root_build_dir}"),
   ]
+
+  deps = [ ":webview_glue_adapter_generate" ]
 }

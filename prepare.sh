@@ -92,6 +92,20 @@ handle_develop_commond() {
   local ohos_glue_dir=${1}/${2}
   [ -n "${ohos_glue_dir}" ] && rm -rf ${ohos_glue_dir} && mkdir -p ${ohos_glue_dir}
 
+  # 模块名映射
+  local module=""
+  case "${2}" in
+    webcore) module="nweb" ;;
+    webview) module="adapter" ;;
+    *)
+      echo "Error: Unknown module '${2}' for develop command" >&2
+      return 1
+    ;;
+  esac
+
+  # 调用 bridge_gen.sh 生成桥接文件
+  ${INTERFACE_OHOS_GLUE_DIR}/scripts/bridge_gen.sh ${module}
+
   handle_copy_dir ${INTERFACE_OHOS_GLUE_DIR}/base ${ohos_glue_dir}/base
   handle_copy_dir ${INTERFACE_OHOS_GLUE_DIR}/scripts ${ohos_glue_dir}/scripts
   handle_copy_dir ${INTERFACE_OHOS_GLUE_DIR}/ohos_nweb/include ${ohos_glue_dir}/ohos_nweb/include
