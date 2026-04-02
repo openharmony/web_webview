@@ -93,7 +93,7 @@ public:
 
     virtual bool Release() = 0;
 
-    virtual bool Pause() {}
+    virtual bool Pause() {return false;}
 
     virtual int32_t SetCapturerReadCallback(std::shared_ptr<AudioCapturerReadCallbackAdapter> callbck) = 0;
 
