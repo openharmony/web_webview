@@ -1828,7 +1828,7 @@ public:
     /**
      * @brief Set web should ignore zoom limit.
      */
-    void SetForceEnableZoom(bool forceEnableZoom) const override;
+    void SetForceEnableZoomPublic(bool forceEnableZoom) const override;
 
     /**
      * @brief Set the config for blank screen detection.

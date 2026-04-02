@@ -158,6 +158,8 @@ public:
 
     void ClearHostIP(const std::string& hostName) {}
 
+    void SetWholeWebDrawing() {}
+
     void SetAppCustomUserAgent(const std::string& userAgent) {}
 
     void SetUserAgentForHosts(const std::string& userAgent, const std::vector<std::string>& hosts) {}
@@ -650,11 +652,11 @@ HWTEST_F(NwebHelperTest, NWebHelper_EnableWholeWebPageDrawing_001, TestSize.Leve
 
     auto nwebengineMock = std::make_shared<MockNWebEngine>();
     NWebHelper::Instance().nwebEngine_ = nwebengineMock;
-    NWebHelper::Instance().EnableWholeWebPageDrawing();
+    NWebHelper::Instance().SetWholeWebDrawing();
     EXPECT_NE(NWebHelper::Instance().nwebEngine_, nullptr);
 
     NWebHelper::Instance().nwebEngine_ = nullptr;
-    NWebHelper::Instance().EnableWholeWebPageDrawing();
+    NWebHelper::Instance().SetWholeWebDrawing();
 }
 
 /**

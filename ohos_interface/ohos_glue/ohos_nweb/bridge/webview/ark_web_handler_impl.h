@@ -634,9 +634,8 @@ public:
 
     void OnLoadFinished(const ArkWebString& url) override;
 
-    bool OnAllSslErrorRequestByJSV2(ArkWebRefPtr<ArkWebJsAllSslErrorResult> result, int error, const ArkWebString& url,
-        const ArkWebString& originalUrl, const ArkWebString& referrer, bool isFatalError, bool isMainFrame,
-        const ArkWebStringVector& certChainData) override;
+    bool OnAllSslErrorRequestByJSV2(ArkWebRefPtr<ArkWebJsAllSslErrorResult> result,
+        ArkWebRefPtr<ArkWebAllSslErrorInfo> info) override;
 
     /**
      * @brief Called when you need to show magnifier.

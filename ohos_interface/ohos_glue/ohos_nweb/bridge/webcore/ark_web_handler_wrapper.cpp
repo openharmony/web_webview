@@ -16,6 +16,7 @@
 #include "ohos_nweb/bridge/ark_web_handler_wrapper.h"
 
 #include "ohos_nweb/bridge/ark_web_access_request_impl.h"
+#include "ohos_nweb/bridge/ark_web_all_ssl_error_info_impl.h"
 #include "ohos_nweb/bridge/ark_web_applink_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_console_log_impl.h"
 #include "ohos_nweb/bridge/ark_web_context_menu_callback_impl.h"
@@ -1169,24 +1170,17 @@ void ArkWebHandlerWrapper::OnLoadFinished(const std::string& url) {
 }
 
 bool ArkWebHandlerWrapper::OnAllSslErrorRequestByJSV2(std::shared_ptr<OHOS::NWeb::NWebJSAllSslErrorResult> result,
-    ArkWebSslError error, const std::string& url, const std::string& originalUrl, const std::string& referrer,
-    bool isFatalError, bool isMainFrame, const std::vector<std::string>& certChainData)
+    std::shared_ptr<OHOS::NWeb::NWebAllSslErrorInfo> nwebAllSslError)
 {
-    ArkWebStringVector stCertChainData = ArkWebStringVectorClassToStruct(certChainData);
-
-    bool flag = false;
-    if (CHECK_SHARED_PTR_IS_NULL(result)) {
-        flag = ark_web_handler_->OnAllSslErrorRequestByJSV2(nullptr, static_cast<int>(error),
-            ArkWebStringClassToStruct(url), ArkWebStringClassToStruct(originalUrl), ArkWebStringClassToStruct(referrer),
-            isFatalError, isMainFrame, stCertChainData);
-    } else {
-        flag = ark_web_handler_->OnAllSslErrorRequestByJSV2(new ArkWebJsAllSslErrorResultImpl(result),
-        static_cast<int>(error), ArkWebStringClassToStruct(url), ArkWebStringClassToStruct(originalUrl),
-        ArkWebStringClassToStruct(referrer), isFatalError, isMainFrame, stCertChainData);
+    if (CHECK_SHARED_PTR_IS_NULL(nwebAllSslError)) {
+        return false;
     }
 
-    ArkWebStringVectorStructRelease(stCertChainData);
-    return flag; 
+    if (CHECK_SHARED_PTR_IS_NULL(result)) {
+        return ark_web_handler_->OnAllSslErrorRequestByJSV2(nullptr, new ArkWebAllSslErrorInfoImpl(nwebAllSslError));
+    }
+    return ark_web_handler_->OnAllSslErrorRequestByJSV2(new ArkWebJsAllSslErrorResultImpl(result),
+        new ArkWebAllSslErrorInfoImpl(nwebAllSslError));
 }
 
 void ArkWebHandlerWrapper::ShowMagnifier()

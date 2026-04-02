@@ -1819,7 +1819,7 @@ public:
      * @brief Set web should ignore zoom limit.
      */
     /*--ark web()--*/
-    void SetForceEnableZoom(bool forceEnableZoom) override;
+    void SetForceEnableZoomPublic(bool forceEnableZoom) override;
 
     /**
      * @brief Set the config for blank screen detection.

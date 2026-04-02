@@ -436,4 +436,9 @@ void ArkWebEngineWrapper::EnableAdvancedSecurityMode(
 {
     ark_web_engine_->EnableAdvancedSecurityMode(new ArkWebSecurityOptionsImpl(options));
 }
+
+void ArkWebEngineWrapper::SetWholeWebDrawing()
+{
+    ark_web_engine_->SetWholeWebDrawing();
+}
 } // namespace OHOS::ArkWeb
