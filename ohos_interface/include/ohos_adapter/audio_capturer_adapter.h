@@ -102,6 +102,8 @@ public:
     virtual int32_t GetFrameCount(uint32_t& frameCount) = 0;
 
     virtual int64_t GetAudioTime() = 0;
+
+    virtual bool Pause() {}
 };
 
 } // namespace OHOS::NWeb
