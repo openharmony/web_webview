@@ -101,7 +101,7 @@ function takePhoto(callback) {
   }
   let result = [];
   cameraPicker.pick(getContext(this), mediaType, pickerProfileOptions)
-    .then((pickerResult) => {
+    ?.then((pickerResult) => {
       result.push(pickerResult.resultUri);
     }).catch((error) => {
       console.log('selectFile error:' + JSON.stringify(error));
@@ -149,28 +149,8 @@ function selectFile(callback) {
       });
   } else {
     documentPicker.save(createDocumentSaveOptions(callback.fileparam))
-      .then((documentSaveResult) => {
-        let filePaths = documentSaveResult;
-        let tempUri = '';
-        if (filePaths.length > 0) {
-          let fileName = filePaths[0].substr(filePaths[0].lastIndexOf('/'));
-          let tempPath = getContext(this).filesDir + fileName;
-          tempUri = fileUri.getUriFromPath(tempPath);
-          let randomAccessFile = fileIo.createRandomAccessFileSync(tempPath, fileIo.OpenMode.CREATE);
-          randomAccessFile.close();
-
-          let watcher = fileIo.createWatcher(tempPath, 0x4, () => {
-            fileIo.copy(tempUri, filePaths[0]).then(() => {
-              console.log('Web save file succeeded in copying. ');
-              fileIo.unlink(tempPath);
-            }).catch((err) => {
-              console.error(`Web save file failed to copy: ${JSON.stringify(err)}`);
-            }).finally(() => {
-              watcher.stop();
-            });
-          });
-          watcher.start();
-        }
+      .then((documentSaveResult)=>{
+        let tempUri = saveFile(documentSaveResult);
         result.push(tempUri);
       }).catch((error) => {
         console.log('saveFile error: ' + JSON.stringify(error));
@@ -180,6 +160,73 @@ function selectFile(callback) {
         onShowFileSelectorEvent = undefined;
       });
   }
+}
+
+function saveFile(documentSaveResult) {
+  let filePaths = documentSaveResult;
+  let tempUri = '';
+  if (filePaths.length > 0) {
+    let tempPath = '';
+    try {
+      let fileName = filePaths[0].substr(filePaths[0].lastIndexOf('/'));
+      tempPath = getContext(this).filesDir + fileName;
+      tempUri = fileUri.getUriFromPath(tempPath); 
+      let randomAccessFile = fileIo.createRandomAccessFileSync(tempPath, fileIo.OpenMode.CREATE); 
+      randomAccessFile.close();
+    } catch (err) {
+      console.error(`saveFile failed when getPath with error message: ${err.message}, error code: ${err.code}`);
+    }
+
+    let watcher = fileIo.createWatcher(tempPath, 0x4, () => {
+      let tempFile = null;
+      let destinyFile = null;
+      let arrayBuffer;
+      Promise.all([fileIo.lstat(tempPath),
+      fileIo.open(tempPath, fileIo.OpenMode.READ_ONLY),
+      fileIo.open(filePaths[0], fileIo.OpenMode.READ_WRITE)])
+        .then(([stat, tmpFile, destFile]) => {
+          tempFile = tmpFile;
+          destinyFile = destFile;
+          arrayBuffer = new ArrayBuffer(stat.size);
+          return fileIo.read(tempFile.fd, arrayBuffer);
+        })
+        .then(readLen => {
+          if (readLen) {
+            console.log(`saveFile read data to file succeed and size is ${readLen}`);
+            return fileIo.write(destinyFile.fd, arrayBuffer);
+          }
+          throw new Error('read file is Empty');
+        })
+        .then(writeLen => {
+          if (writeLen) {
+            console.log(`saveFile write data to file succeed and size is ${writeLen}`);
+            return;
+          }
+          throw new Error('write file length is 0');
+        })
+        .catch((err) => {
+          console.error(`saveFile failed with error message: ${err.message}, error code: ${err.code}`);
+        })
+        .finally(() => {
+          let finalSet = new Set();
+          if (tempFile) {
+            finalSet.add(fileIo.close(tempFile));
+          }
+          if (destinyFile) {
+            finalSet.add(fileIo.close(destinyFile));
+          }
+          watcher.stop();
+          return Promise.all(finalSet).finally(() => {
+            fileIo.unlink(tempPath);
+          });
+        })
+        .catch((err) => {
+          console.error(`saveFile end failed with error message: ${err.message}, error code: ${err.code}`);
+        })
+    });
+    watcher.start();
+  }
+  return tempUri;
 }
 
 function createDocumentSelectionOptions(param) {
