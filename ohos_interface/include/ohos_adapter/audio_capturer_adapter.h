@@ -93,6 +93,8 @@ public:
 
     virtual bool Release() = 0;
 
+    virtual bool Pause() {}
+
     virtual int32_t SetCapturerReadCallback(std::shared_ptr<AudioCapturerReadCallbackAdapter> callbck) = 0;
 
     virtual int32_t GetBufferDesc(std::shared_ptr<BufferDescAdapter> bufferDesc) = 0;
@@ -102,8 +104,6 @@ public:
     virtual int32_t GetFrameCount(uint32_t& frameCount) = 0;
 
     virtual int64_t GetAudioTime() = 0;
-
-    virtual bool Pause() {}
 };
 
 } // namespace OHOS::NWeb
