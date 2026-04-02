@@ -95,6 +95,7 @@
 #include "arkweb_utils.h"
 #include "system_properties_adapter_impl.h"
 #include "ani_prefetch_options.h"
+#include "nweb_security_options_impl.h"
 #include "prefetch_options.h"
 #include "webview_value.h"
 
@@ -6987,6 +6988,68 @@ static ani_object GetUserAgentMetadata(ani_env* env, ani_object object, ani_obje
     return metadataObj;
 }
 
+void ParseBooleanProperty(ani_env *env, ani_object obj, const char* name, bool& value)
+{
+    ani_boolean propObj;
+    if (env->Object_GetPropertyByName_Boolean(obj, name, &propObj) == ANI_OK) {
+        value = static_cast<bool>(propObj);
+    }
+}
+
+std::shared_ptr<NWebSecurityOptions> ParseSecurityOptions(ani_env *env, ani_object optionsObj)
+{
+    bool disableJIT = false;
+    ParseBooleanProperty(env, optionsObj, "disableJITCompilation", disableJIT);
+
+    bool disableWasm = false;
+    ParseBooleanProperty(env, optionsObj, "disableWebAssembly", disableWasm);
+
+    bool disableWebGL = false;
+    ParseBooleanProperty(env, optionsObj, "disableWebGL", disableWebGL);
+
+    bool disablePDF = false;
+    ParseBooleanProperty(env, optionsObj, "disablePDFViewer", disablePDF);
+
+    bool disableMathML = false;
+    ParseBooleanProperty(env, optionsObj, "disableMathML", disableMathML);
+
+    bool disableSW = false;
+    ParseBooleanProperty(env, optionsObj, "disableServiceWorker", disableSW);
+
+    bool disableUDP = false;
+    ParseBooleanProperty(env, optionsObj, "disableNonProxyUDP", disableUDP);
+
+    return std::make_shared<NWebSecurityOptionsImpl>(
+        disableJIT, disableWasm, disableWebGL, disablePDF, disableMathML, disableSW, disableUDP);
+}
+
+WEBVIEW_ANI_STATIC void EnableAdvancedSecurityMode(ani_env *env, ani_object object, ani_object optionsObj)
+{
+    WVLOG_D("[WebviewCotr] EnableAdvancedSecurityMode");
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_W("EnableAdvancedSecurityMode unsupported engine version: M114");
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    ani_boolean isUndefined = ANI_TRUE;
+    env->Reference_IsUndefined(optionsObj, &isUndefined);
+    if (isUndefined == ANI_TRUE) {
+        AniBusinessError::ThrowError(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "options", "SecurityOptions"));
+        return;
+    }
+
+    auto options = ParseSecurityOptions(env, optionsObj);
+    NWebHelper::Instance().EnableAdvancedSecurityMode(options);
+    WVLOG_I("EnableAdvancedSecurityMode done");
+}
+
 WEBVIEW_ANI_STATIC void SetSiteIsolationMode(ani_env *env, ani_object object, ani_enum_item mode)
 {
     WVLOG_D("[WebviewCotr] SetSiteIsolationMode");
@@ -7616,6 +7679,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "setUserAgentForHosts", nullptr, reinterpret_cast<void *>(SetUserAgentForHosts) },
         ani_native_function { "setSiteIsolationMode", nullptr, reinterpret_cast<void *>(SetSiteIsolationMode) },
         ani_native_function { "getSiteIsolationMode", nullptr, reinterpret_cast<void *>(GetSiteIsolationMode) },
+        ani_native_function { "enableAdvancedSecurityMode", nullptr,
+                              reinterpret_cast<void *>(EnableAdvancedSecurityMode) },
         ani_native_function { "enablePrivateNetworkAccess", nullptr,
                               reinterpret_cast<void*>(EnablePrivateNetworkAccess) },
         ani_native_function { "isPrivateNetworkAccessEnabled", nullptr,

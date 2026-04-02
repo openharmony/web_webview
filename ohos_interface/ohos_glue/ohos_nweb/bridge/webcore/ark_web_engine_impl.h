@@ -138,6 +138,7 @@ public:
 
     bool GetUserAgentClientHintsEnabled() override;
 
+    void EnableAdvancedSecurityMode(ArkWebRefPtr<ArkWebSecurityOptions> options) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebEngine> nweb_engine_;
 };

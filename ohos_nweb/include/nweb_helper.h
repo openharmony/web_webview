@@ -165,6 +165,7 @@ public:
 
     bool GetUserAgentClientHintsEnabled();
 
+    void EnableAdvancedSecurityMode(std::shared_ptr<NWebSecurityOptions> options);
 private:
     NWebHelper() = default;
     bool GetWebEngine(bool fromArk);
