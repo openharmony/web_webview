@@ -492,17 +492,19 @@ void NWebConfigHelper::ParseNWebLTPOStrategy(xmlNodePtr nodePtr)
 
 void NWebConfigHelper::ParseNWebLoadUrlStrategy(xmlNodePtr nodePtr)
 {
-    if (nodePtr == nullptr) {
-        WVLOG_E("nodePtr is nullptr");
-        return;
-    }
     for (xmlNodePtr curNodePtr = nodePtr->xmlChildrenNode; curNodePtr; curNodePtr = curNodePtr->next) {
         if (curNodePtr->name == nullptr || curNodePtr->type == XML_COMMENT_NODE) {
             WVLOG_E("invalid node!");
             continue;
         }
-        std::string nodeName = reinterpret_cast<const char *>(curNodePtr->name);
-        if (nodeName == WEB_LOAD_URL_STRATEGY) {
+        char* namePtr = (char*)xmlGetProp(curNodePtr, BAD_CAST(XML_ATTR_NAME));
+        if (!namePtr) {
+            WVLOG_E("invalid node!");
+            continue;
+        }
+        std::string settingName(namePtr);
+        xmlFree(namePtr);
+        if (settingName == WEB_LOAD_URL_STRATEGY) {
             xmlChar *content = xmlNodeGetContent(curNodePtr);
             if (content == nullptr) {
                 WVLOG_E("read load_url xml node error");
