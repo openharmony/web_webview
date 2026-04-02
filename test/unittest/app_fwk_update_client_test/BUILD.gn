@@ -71,7 +71,10 @@ ohos_unittest("app_fwk_update_client_test") {
 
 group("unittest") {
   testonly = true
-  deps = [
-    ":app_fwk_update_client_test",
-  ]
+  deps = []
+  if (webview_app_fwk_update_enable) {
+    deps += [
+      ":app_fwk_update_client_test",
+    ]
+  }
 }
