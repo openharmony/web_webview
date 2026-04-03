@@ -26,6 +26,7 @@ namespace OHOS::NWeb {
 
 class NWebMessage;
 class NWebWebStorageOrigin;
+class NWebImageInfo;
 
 class OHOS_NWEB_EXPORT NWebBoolValueCallback {
 public:
@@ -76,6 +77,13 @@ public:
     virtual ~NWebArrayBufferValueCallback() = default;
 
     virtual void OnReceiveValue(const char* value, const long size) = 0;
+};
+
+class OHOS_NWEB_EXPORT NWebImageInfoCallback {
+public:
+    virtual ~NWebImageInfoCallback() = default;
+ 
+    virtual void OnReceivedValue(int32_t errorCode, const std::vector<std::shared_ptr<NWebImageInfo>>& imageInfos) = 0;
 };
 } // namespace OHOS::NWeb
 

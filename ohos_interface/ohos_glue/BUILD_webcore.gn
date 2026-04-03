@@ -550,6 +550,16 @@ component("ohos_nweb_glue_source") {
     "ohos_nweb/cpptoc/ark_web_cookie_cpptoc.h",
     "ohos_nweb/cpptoc/ark_web_cookie_vector_cpptoc.cpp",
     "ohos_nweb/cpptoc/ark_web_cookie_vector_cpptoc.h",
+    "ohos_nweb/bridge/ark_web_image_info_impl.cpp",
+    "ohos_nweb/bridge/ark_web_image_info_impl.h",
+    "ohos_nweb/cpptoc/ark_web_image_info_cpptoc.cpp",
+    "ohos_nweb/cpptoc/ark_web_image_info_cpptoc.h",
+    "ohos_nweb/cpptoc/ark_web_image_info_vector_cpptoc.cpp",
+    "ohos_nweb/cpptoc/ark_web_image_info_vector_cpptoc.h",
+    "ohos_nweb/bridge/ark_web_image_info_callback_wrapper.cpp",
+    "ohos_nweb/bridge/ark_web_image_info_callback_wrapper.h",
+    "ohos_nweb/ctocpp/ark_web_image_info_callback_ctocpp.cpp",
+    "ohos_nweb/ctocpp/ark_web_image_info_callback_ctocpp.h",
   ]
 
   deps = [ "//ohos_glue:ohos_base_glue_source" ]

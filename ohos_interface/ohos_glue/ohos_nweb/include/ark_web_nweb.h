@@ -55,6 +55,7 @@
 #include "ohos_nweb/include/ark_web_command_action.h"
 #include "ohos_nweb/include/ark_web_user_agent_metadata.h"
 #include "ohos_nweb/include/ark_web_user_agent_metadata_ack.h"
+#include "ohos_nweb/include/ark_web_image_info_callback.h"
 
 namespace OHOS::ArkWeb {
 
@@ -2310,6 +2311,16 @@ public:
      */
     /*--ark web()--*/
     virtual void SetKeyboardImmersiveMode(int32_t mode) = 0;
+
+    /**
+     * @brief get image infos by urls.
+     *
+     * @param imageUrls image urls.
+     * @param imageInfos ArkWebImageInfoVector: image infos
+     */
+    /*--ark web()--*/
+    virtual void GetImageInfosByUrls(const ArkWebStringVector &imageUrls,
+                                     ArkWebRefPtr<ArkWebImageInfoCallback> callback) = 0;
 };
 
 } // namespace OHOS::ArkWeb
