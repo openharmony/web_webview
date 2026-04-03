@@ -412,6 +412,25 @@ public:
     virtual NavigationPolicy GetNavigationPolicy() = 0;
 };
 
+class NWebAllSslErrorInfo {
+public:
+    virtual ~NWebAllSslErrorInfo() = default;
+
+    virtual SslError GetError() = 0;
+
+    virtual std::string GetUrl() = 0;
+
+    virtual std::string GetOriginalUrl() = 0;
+
+    virtual std::string GetReferrer() = 0;
+
+    virtual bool GetIsFatalError() = 0;
+
+    virtual bool GetIsMainFrame() = 0;
+
+    virtual std::vector<std::string> GetCertChainData() = 0;
+};
+
 class OHOS_NWEB_EXPORT NWebHandler {
 public:
     NWebHandler() = default;
@@ -1243,9 +1262,8 @@ public:
     
     virtual void EnableSecurityLayer(bool isNeedSecurityLayer) {}
 
-    virtual bool OnAllSslErrorRequestByJSV2(std::shared_ptr<NWebJSAllSslErrorResult> result, SslError error,
-        const std::string& url, const std::string& originalUrl, const std::string& referrer, bool isFatalError,
-        bool isMainFrame, const std::vector<std::string>& certChainData)
+    virtual bool OnAllSslErrorRequestByJSV2(std::shared_ptr<NWebJSAllSslErrorResult> result,
+        std::shared_ptr<NWebAllSslErrorInfo> nwebAllSslError)
     {
         return false;
     }

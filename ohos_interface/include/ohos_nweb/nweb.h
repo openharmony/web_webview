@@ -2251,7 +2251,7 @@ public:
      * @brief Set web should ignore zoom limit.
      */
     /*--ark web()--*/
-    virtual void SetForceEnableZoom(bool forceEnableZoom) const {}
+    virtual void SetForceEnableZoomPublic(bool forceEnableZoom) const {}
 
     /**
      * @brief Set the config for blank screen detection.

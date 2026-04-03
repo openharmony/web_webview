@@ -671,9 +671,8 @@ public:
 
     void OnLoadFinished(const std::string& url) override;
 
-    bool OnAllSslErrorRequestByJSV2(std::shared_ptr<OHOS::NWeb::NWebJSAllSslErrorResult> result, ArkWebSslError error,
-        const std::string& url, const std::string& originalUrl, const std::string& referrer, bool isFatalError,
-        bool isMainFrame, const std::vector<std::string>& certChainData) override;
+    bool OnAllSslErrorRequestByJSV2(std::shared_ptr<OHOS::NWeb::NWebJSAllSslErrorResult> result,
+        std::shared_ptr<OHOS::NWeb::NWebAllSslErrorInfo> nwebAllSslError) override;
 
     /**
      * @brief Called when you need to show magnifier.

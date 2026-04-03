@@ -1906,10 +1906,10 @@ void ArkWebNWebWrapper::PrefetchPageV2(
     ArkWebStringMapStructRelease(stHeaders);
 }
 
-void ArkWebNWebWrapper::SetForceEnableZoom(bool forceEnableZoom) const
+void ArkWebNWebWrapper::SetForceEnableZoomPublic(bool forceEnableZoom) const
 {
     WVLOG_E("forceEnableZoom = %{public}d", forceEnableZoom);
-    ark_web_nweb_->SetForceEnableZoom(forceEnableZoom);
+    ark_web_nweb_->SetForceEnableZoomPublic(forceEnableZoom);
 }
 
 void ArkWebNWebWrapper::SetBlankScreenDetectionConfig(bool enable, const std::vector<double>& detectionTiming,

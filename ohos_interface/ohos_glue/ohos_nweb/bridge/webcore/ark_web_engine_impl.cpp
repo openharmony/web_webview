@@ -377,4 +377,9 @@ void ArkWebEngineImpl::EnableAdvancedSecurityMode(ArkWebRefPtr<ArkWebSecurityOpt
         std::make_shared<ArkWebSecurityOptionsWrapper>(options);
     nweb_engine_->EnableAdvancedSecurityMode(nweb_options);
 }
+
+void ArkWebEngineImpl::SetWholeWebDrawing()
+{
+    nweb_engine_->SetWholeWebDrawing();
+}
 } // namespace OHOS::ArkWeb

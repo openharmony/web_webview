@@ -233,6 +233,9 @@ public:
 
     /*--ark web()--*/
     virtual void EnableAdvancedSecurityMode(ArkWebRefPtr<ArkWebSecurityOptions> options) = 0;
+
+    /*--ark web()--*/
+    virtual void SetWholeWebDrawing() = 0;
 };
 
 } // namespace OHOS::ArkWeb

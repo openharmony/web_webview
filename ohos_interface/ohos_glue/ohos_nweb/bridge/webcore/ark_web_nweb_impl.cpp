@@ -1618,10 +1618,10 @@ void ArkWebNWebImpl::PrefetchPageV2(const ArkWebString& url, const ArkWebStringM
         minTimeBetweenPrefetchesMs, ignoreCacheControlNoStore);
 }
 
-void ArkWebNWebImpl::SetForceEnableZoom(bool forceEnableZoom)
+void ArkWebNWebImpl::SetForceEnableZoomPublic(bool forceEnableZoom)
 {
     WVLOG_E("forceEnableZoom = %{public}d", forceEnableZoom);
-    nweb_nweb_->SetForceEnableZoom(forceEnableZoom);
+    nweb_nweb_->SetForceEnableZoomPublic(forceEnableZoom);
 }
 
 void ArkWebNWebImpl::SetBlankScreenDetectionConfig(bool enable, const ArkWebDoubleVector& detectionTiming,
