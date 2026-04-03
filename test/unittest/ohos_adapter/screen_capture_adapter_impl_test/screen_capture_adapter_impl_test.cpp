@@ -715,7 +715,7 @@ HWTEST_F(ScreenCaptureAdapterImplTest, ScreenCaptureAdapterImplTest_AcquireVideo
     sptr<OHOS::SurfaceBuffer> surfacebuffer = new SurfaceBufferImpl(0);
     EXPECT_NE(surfacebuffer, nullptr);
     adapterImpl->screenCapture_.reset(mock);
-    EXPECT_CALL(*mock, AcquireVideoBuffer(::testing::_, ::testing::_, ::testing::_, ::testing::))
+    EXPECT_CALL(*mock, AcquireVideoBuffer(::testing::_, ::testing::_, ::testing::_, ::testing::_))
         .Times(1)
         .WillRepeatedly(::testing::Return(surfacebuffer));
 
