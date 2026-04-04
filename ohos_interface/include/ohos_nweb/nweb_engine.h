@@ -76,8 +76,6 @@ public:
 
     virtual SiteIsolationMode GetSiteIsolationMode() { return SiteIsolationMode::PARTIAL; }
 
-    virtual void EnableAdvancedSecurityMode(std::shared_ptr<NWebSecurityOptions> options) {}
-
     virtual void ClearPrefetchedResource(const std::vector<std::string>& cache_key_list) = 0;
 
     virtual void WarmupServiceWorker(const std::string& url) = 0;

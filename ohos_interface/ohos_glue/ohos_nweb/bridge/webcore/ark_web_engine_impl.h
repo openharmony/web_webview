@@ -138,8 +138,6 @@ public:
 
     bool GetUserAgentClientHintsEnabled() override;
 
-    void EnableAdvancedSecurityMode(ArkWebRefPtr<ArkWebSecurityOptions> options) override;
-
     void SetWholeWebDrawing() override;
 
 private:

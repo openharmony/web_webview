@@ -27,7 +27,6 @@
 #include "ohos_nweb/bridge/ark_web_proxy_changed_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_user_agent_metadata_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_user_agent_metadata_ack_impl.h"
-#include "ohos_nweb/bridge/ark_web_security_options_wrapper.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
 
@@ -369,13 +368,6 @@ void ArkWebEngineImpl::SetUserAgentClientHintsEnabled(bool enabled)
 bool ArkWebEngineImpl::GetUserAgentClientHintsEnabled()
 {
     return nweb_engine_->GetUserAgentClientHintsEnabled();
-}
-
-void ArkWebEngineImpl::EnableAdvancedSecurityMode(ArkWebRefPtr<ArkWebSecurityOptions> options)
-{
-    std::shared_ptr<OHOS::NWeb::NWebSecurityOptions> nweb_options =
-        std::make_shared<ArkWebSecurityOptionsWrapper>(options);
-    nweb_engine_->EnableAdvancedSecurityMode(nweb_options);
 }
 
 void ArkWebEngineImpl::SetWholeWebDrawing()
