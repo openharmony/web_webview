@@ -824,6 +824,41 @@ std::shared_ptr<OHOS::NWeb::NWebEngineInitArgs> NWebHelper::GetInitArgs()
 
     initArgs->AddArg(std::string("--socket-idle-timeout=").append(std::to_string(socketIdleTimeout_)));
 
+    if (securityOptions_) {
+        bool disableJit = securityOptions_->GetDisableJITCompilation();
+        bool disableWasm = securityOptions_->GetDisableWebAssembly();
+        bool disableWebgl = securityOptions_->GetDisableWebGL();
+        bool disablePdf = securityOptions_->GetDisablePDFViewer();
+        bool disableMathml = securityOptions_->GetDisableMathML();
+        bool disableSw = securityOptions_->GetDisableServiceWorker();
+        bool disableUdp = securityOptions_->GetDisableNonProxyUDP();
+        if (disableJit) {
+            initArgs->AddArg("--js-flags=--jitless");
+        }
+        if (disableWasm) {
+            initArgs->AddArg("--disable-blink-features=WebAssembly");
+        }
+        if (disableWebgl) {
+            initArgs->AddArg("--disable-webgl");
+            initArgs->AddArg("--disable-webgl2");
+        }
+        if (disablePdf) {
+            initArgs->AddArg("--disable-pdf-viewer");
+        }
+        if (disableMathml) {
+            initArgs->AddArg("--disable-mathml");
+        }
+        if (disableSw) {
+            initArgs->AddArg("--disable-service-worker");
+        }
+        if (disableUdp) {
+            initArgs->AddArg("--disable-non-proxy-udp");
+        }
+        WVLOG_I("advanced security mode: jit=%{public}d, wasm=%{public}d, webgl=%{public}d, "
+                "pdf=%{public}d, mathml=%{public}d, sw=%{public}d, udp=%{public}d",
+            disableJit, disableWasm, disableWebgl, disablePdf, disableMathml, disableSw, disableUdp);
+    }
+
     return initArgs;
 }
 
@@ -1156,12 +1191,13 @@ SiteIsolationMode NWebHelper::GetSiteIsolationMode()
 
 void NWebHelper::EnableAdvancedSecurityMode(std::shared_ptr<NWebSecurityOptions> options)
 {
-    if (nwebEngine_ == nullptr) {
-        WVLOG_E("web engine is nullptr");
+    if (options == nullptr) {
+        WVLOG_E("NWebSecurityOptions is nullptr");
         return;
     }
 
-    nwebEngine_->EnableAdvancedSecurityMode(options);
+    securityOptions_ = options;
+    WVLOG_I("EnableAdvancedSecurityMode: stored securityOptions");
 }
 
 void NWebHelper::SetHostIP(const std::string& hostName, const std::string& address, int32_t aliveTime)

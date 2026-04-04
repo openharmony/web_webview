@@ -735,5 +735,75 @@ HWTEST_F(NwebHelperTest, NWebHelper_RemoveAllCache_001, TestSize.Level1)
     NWebHelper::Instance().RemoveAllCache(true);
 }
 
+/**
+ * @tc.name: NWebHelper_EnableAdvancedSecurityMode_001
+ * @tc.desc: EnableAdvancedSecurityMode with nullptr.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_EnableAdvancedSecurityMode_001, TestSize.Level1)
+{
+    NWebHelper::Instance().EnableAdvancedSecurityMode(nullptr);
+    EXPECT_EQ(NWebHelper::Instance().securityOptions_, nullptr);
+}
+
+/**
+ * @tc.name: NWebHelper_EnableAdvancedSecurityMode_002
+ * @tc.desc: EnableAdvancedSecurityMode with valid options.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_EnableAdvancedSecurityMode_002, TestSize.Level1)
+{
+    auto options = std::make_shared<NWebSecurityOptionsImpl>(
+        true, true, true, true, true, true, true);
+    NWebHelper::Instance().EnableAdvancedSecurityMode(options);
+    EXPECT_NE(NWebHelper::Instance().securityOptions_, nullptr);
+    EXPECT_TRUE(NWebHelper::Instance().securityOptions_->GetDisableJITCompilation());
+    EXPECT_TRUE(NWebHelper::Instance().securityOptions_->GetDisableWebAssembly());
+    EXPECT_TRUE(NWebHelper::Instance().securityOptions_->GetDisableWebGL());
+    EXPECT_TRUE(NWebHelper::Instance().securityOptions_->GetDisablePDFViewer());
+    EXPECT_TRUE(NWebHelper::Instance().securityOptions_->GetDisableMathML());
+    EXPECT_TRUE(NWebHelper::Instance().securityOptions_->GetDisableServiceWorker());
+    EXPECT_TRUE(NWebHelper::Instance().securityOptions_->GetDisableNonProxyUDP());
+}
+
+/**
+ * @tc.name: NWebHelper_EnableAdvancedSecurityMode_003
+ * @tc.desc: EnableAdvancedSecurityMode with all false options.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_EnableAdvancedSecurityMode_003, TestSize.Level1)
+{
+    auto options = std::make_shared<NWebSecurityOptionsImpl>(
+        false, false, false, false, false, false, false);
+    NWebHelper::Instance().EnableAdvancedSecurityMode(options);
+    EXPECT_NE(NWebHelper::Instance().securityOptions_, nullptr);
+    EXPECT_FALSE(NWebHelper::Instance().securityOptions_->GetDisableJITCompilation());
+    EXPECT_FALSE(NWebHelper::Instance().securityOptions_->GetDisableWebAssembly());
+    EXPECT_FALSE(NWebHelper::Instance().securityOptions_->GetDisableWebGL());
+}
+
+/**
+ * @tc.name: NWebHelper_EnableAdvancedSecurityMode_004
+ * @tc.desc: EnableAdvancedSecurityMode replace existing options.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_EnableAdvancedSecurityMode_004, TestSize.Level1)
+{
+    auto options1 = std::make_shared<NWebSecurityOptionsImpl>(
+        true, false, false, false, false, false, false);
+    NWebHelper::Instance().EnableAdvancedSecurityMode(options1);
+    EXPECT_TRUE(NWebHelper::Instance().securityOptions_->GetDisableJITCompilation());
+
+    auto options2 = std::make_shared<NWebSecurityOptionsImpl>(
+        false, true, false, false, false, false, false);
+    NWebHelper::Instance().EnableAdvancedSecurityMode(options2);
+    EXPECT_FALSE(NWebHelper::Instance().securityOptions_->GetDisableJITCompilation());
+    EXPECT_TRUE(NWebHelper::Instance().securityOptions_->GetDisableWebAssembly());
+}
+
 } // namespace OHOS::NWeb
 }

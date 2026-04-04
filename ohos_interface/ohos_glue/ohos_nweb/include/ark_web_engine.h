@@ -29,7 +29,6 @@
 #include "ohos_nweb/include/ark_web_proxy_changed_callback.h"
 #include "ohos_nweb/include/ark_web_user_agent_metadata.h"
 #include "ohos_nweb/include/ark_web_user_agent_metadata_ack.h"
-#include "ohos_nweb/include/ark_web_security_options.h"
 
 namespace OHOS::ArkWeb {
 
@@ -230,9 +229,6 @@ public:
 
     /*--ark web()--*/
     virtual bool GetUserAgentClientHintsEnabled() = 0;
-
-    /*--ark web()--*/
-    virtual void EnableAdvancedSecurityMode(ArkWebRefPtr<ArkWebSecurityOptions> options) = 0;
 
     /*--ark web()--*/
     virtual void SetWholeWebDrawing() = 0;

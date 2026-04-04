@@ -329,6 +329,34 @@ private:
     bool ignoreCacheControlNoStore_ = false;
 };
 
+class NWebSecurityOptionsImpl : public NWebSecurityOptions {
+public:
+    NWebSecurityOptionsImpl(bool disableJIT, bool disableWasm, bool disableWebGL,
+        bool disablePDF, bool disableMathML, bool disableSW, bool disableUDP)
+        : disable_jit_(disableJIT), disable_wasm_(disableWasm), disable_webgl_(disableWebGL),
+          disable_pdf_(disablePDF), disable_mathml_(disableMathML),
+          disable_service_worker_(disableSW), disable_udp_(disableUDP) {}
+
+    ~NWebSecurityOptionsImpl() override = default;
+
+    bool GetDisableJITCompilation() override { return disable_jit_; }
+    bool GetDisableWebAssembly() override { return disable_wasm_; }
+    bool GetDisableWebGL() override { return disable_webgl_; }
+    bool GetDisablePDFViewer() override { return disable_pdf_; }
+    bool GetDisableMathML() override { return disable_mathml_; }
+    bool GetDisableServiceWorker() override { return disable_service_worker_; }
+    bool GetDisableNonProxyUDP() override { return disable_udp_; }
+
+private:
+    bool disable_jit_ = false;
+    bool disable_wasm_ = false;
+    bool disable_webgl_ = false;
+    bool disable_pdf_ = false;
+    bool disable_mathml_ = false;
+    bool disable_service_worker_ = false;
+    bool disable_udp_ = false;
+};
+
 class NWebPDFConfigArgsImpl : public NWebPDFConfigArgs {
 public:
     NWebPDFConfigArgsImpl(const double width, const double height, const double scale, const double marginTop,

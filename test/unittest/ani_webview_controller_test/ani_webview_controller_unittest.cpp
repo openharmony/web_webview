@@ -304,6 +304,8 @@ using OHOS::NWeb::TerminateRenderProcess;
 using OHOS::NWebError::PARAM_CHECK_ERROR;
 using OHOS::NWeb::GetSiteIsolationMode;
 using OHOS::NWeb::SetSiteIsolationMode;
+using OHOS::NWeb::EnableAdvancedSecurityMode;
+using OHOS::NWeb::ParseSecurityOptions;
 using OHOS::NWeb::SetWebDestroyMode;
 using OHOS::NWeb::ZoomOut;
 using OHOS::NWeb::ZoomIn;
@@ -1902,4 +1904,50 @@ TEST_F(AniWebviewControllerTest, GetPageOffset_ErrorScenarios)
     EXPECT_EQ(result, nullptr);
     EXPECT_FALSE(WasErrorThrown());
     g_setPropertyByNameDoubleShouldFail = false;
+}
+
+/**
+ * @tc.name: EnableAdvancedSecurityMode_Success
+ * @tc.desc: EnableAdvancedSecurityMode.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, EnableAdvancedSecurityMode_Success)
+{
+    g_referenceIsUndefinedResult = ANI_FALSE;
+    ani_env* env = CreateMockAniEnv();
+    ani_object optionsObj = reinterpret_cast<ani_object>(GetMockObject(POOL_INDEX_MODE));
+    EnableAdvancedSecurityMode(env, reinterpret_cast<ani_object>(testController_), optionsObj);
+    EXPECT_FALSE(WasErrorThrown());
+}
+
+/**
+ * @tc.name: EnableAdvancedSecurityMode_ErrorScenarios
+ * @tc.desc: EnableAdvancedSecurityMode.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, EnableAdvancedSecurityMode_ErrorScenarios)
+{
+    ani_object optionsObj = reinterpret_cast<ani_object>(GetMockObject(POOL_INDEX_MODE));
+
+    // env is nullptr
+    EnableAdvancedSecurityMode(nullptr, reinterpret_cast<ani_object>(testController_), optionsObj);
+    EXPECT_FALSE(WasErrorThrown());
+
+    // optionsObj is undefined
+    g_referenceIsUndefinedResult = ANI_TRUE;
+    ani_env* env = CreateMockAniEnv();
+    EnableAdvancedSecurityMode(env, reinterpret_cast<ani_object>(testController_), optionsObj);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), PARAM_CHECK_ERROR);
+    OHOS::NWeb::AniBusinessError::Reset();
+    g_referenceIsUndefinedResult = ANI_FALSE;
+
+    // Reference_IsUndefined fails
+    g_referenceIsUndefinedShouldFail = true;
+    EnableAdvancedSecurityMode(env, reinterpret_cast<ani_object>(testController_), optionsObj);
+    EXPECT_TRUE(WasErrorThrown());
+    OHOS::NWeb::AniBusinessError::Reset();
+    g_referenceIsUndefinedShouldFail = false;
 }

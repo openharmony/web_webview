@@ -142,7 +142,6 @@ enum ArkWebBridgeType {
     ARK_WEB_IMAGE_INFO_CALLBACK = 118,
     ARK_WEB_USER_AGENT_METADATA = 119,
     ARK_WEB_USER_AGENT_METADATA_ACK = 120,
-    ARK_WEB_SECURITY_OPTIONS = 121,
     /*Note: The end of nweb interface bridge type*/
     ARK_WEB_NWEB_INTERFACE_BUTT,
 

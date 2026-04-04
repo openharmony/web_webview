@@ -187,6 +187,7 @@ private:
     std::shared_ptr<NWebEngine> nwebEngine_ = nullptr;
     std::vector<NwebScheme> schemeVector_;
     std::vector<std::string> backForwardCacheCmdLine_;
+    std::shared_ptr<NWebSecurityOptions> securityOptions_;
     mutable std::mutex lock_;
     std::map<int32_t, bool> nwebActiveStatusMap_;
 };
