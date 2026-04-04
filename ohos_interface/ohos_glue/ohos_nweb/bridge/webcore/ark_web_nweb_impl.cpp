@@ -57,6 +57,8 @@
 #include "ohos_nweb/bridge/ark_web_command_action_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_user_agent_metadata_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_user_agent_metadata_ack_impl.h"
+#include "ohos_nweb/cpptoc/ark_web_image_info_vector_cpptoc.h"
+#include "ohos_nweb/bridge/ark_web_image_info_callback_wrapper.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
 
@@ -1812,5 +1814,16 @@ void ArkWebNWebImpl::SetWebAutoLayoutConfig(const ArkWebString& config)
 void ArkWebNWebImpl::SetKeyboardImmersiveMode(int32_t mode)
 {
     nweb_nweb_->SetKeyboardImmersiveMode(mode);
+}
+
+void ArkWebNWebImpl::GetImageInfosByUrls(const ArkWebStringVector &imageUrls,
+                                         ArkWebRefPtr<ArkWebImageInfoCallback> callback)
+{
+    if (CHECK_REF_PTR_IS_NULL(callback)) {
+        nweb_nweb_->GetImageInfosByUrls(ArkWebStringVectorStructToClass(imageUrls), nullptr);
+        return;
+    }
+    nweb_nweb_->GetImageInfosByUrls(ArkWebStringVectorStructToClass(imageUrls),
+                                    std::make_shared<ArkWebImageInfoCallbackWrapper>(callback));
 }
 } // namespace OHOS::ArkWeb

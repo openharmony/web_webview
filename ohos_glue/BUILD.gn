@@ -553,6 +553,16 @@ action("ohos_glue_nweb_prepare") {
     "${glue_build_gen_dir}/ohos_nweb/ctocpp/ark_web_cookie_vector_ctocpp.h",
     "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_blankless_callback_impl.cpp",
     "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_blankless_callback_impl.h",
+    "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_image_info_wrapper.cpp",
+    "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_image_info_wrapper.h",
+    "${glue_build_gen_dir}/ohos_nweb/ctocpp/ark_web_image_info_ctocpp.cpp",
+    "${glue_build_gen_dir}/ohos_nweb/ctocpp/ark_web_image_info_ctocpp.h",
+    "${glue_build_gen_dir}/ohos_nweb/ctocpp/ark_web_image_info_vector_ctocpp.cpp",
+    "${glue_build_gen_dir}/ohos_nweb/ctocpp/ark_web_image_info_vector_ctocpp.h",
+    "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_image_info_callback_impl.cpp",
+    "${glue_build_gen_dir}/ohos_nweb/bridge/ark_web_image_info_callback_impl.h",
+    "${glue_build_gen_dir}/ohos_nweb/cpptoc/ark_web_image_info_callback_cpptoc.cpp",
+    "${glue_build_gen_dir}/ohos_nweb/cpptoc/ark_web_image_info_callback_cpptoc.h",
   ]
 
   deps = [

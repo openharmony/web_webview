@@ -2038,6 +2038,15 @@ public:
      * @param mode The IME immersive mode.
      */
     void SetKeyboardImmersiveMode(int32_t mode) override;
+
+    /**
+     * @brief get image infos by urls.
+     *
+     * @param imageUrls imageurls.
+     * @param callback the getimage callback
+     */
+    void GetImageInfosByUrls(const ArkWebStringVector &imageUrls,
+                             ArkWebRefPtr<ArkWebImageInfoCallback> callback) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

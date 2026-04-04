@@ -437,7 +437,36 @@ class OHOS_NWEB_EXPORT NWebJsProxyMethod {
     
         virtual void OnHandle(int32_t number, const std::vector<std::string>& param) = 0;
     };
-    
+
+class OHOS_NWEB_EXPORT NWebImageInfo {
+public:
+    virtual  ~NWebImageInfo() = default;
+ 
+    virtual int32_t GetWidth() = 0;
+ 
+    virtual int32_t GetHeight() = 0;
+ 
+    virtual int32_t GetAlphaType() = 0;
+ 
+    virtual int32_t GetColorType() = 0;
+ 
+    virtual uint32_t *GetData() = 0;
+ 
+    virtual uint32_t GetDataSize() = 0;
+ 
+    virtual void SetWidth(int32_t width) = 0;
+ 
+    virtual void SetHeight(int32_t height) = 0;
+ 
+    virtual void SetAlphaType(int32_t alphaType) = 0;
+ 
+    virtual void SetColorType(int32_t colorType) = 0;
+ 
+    virtual void SetData(uint32_t *data) = 0;
+ 
+    virtual void SetDataSize(uint32_t dataSize) = 0;
+};
+
 class OHOS_NWEB_EXPORT NWeb : public std::enable_shared_from_this<NWeb> {
 public:
     NWeb() = default;
@@ -2497,6 +2526,15 @@ public:
      * @param mode The IME immersive mode.
      */
     virtual void SetKeyboardImmersiveMode(int32_t mode) {}
+
+    /**
+     * @brief get pixelmap by url.
+     *
+     * @param imageUrls image urls.
+     * @param imageInfos image infos.
+     */
+    virtual void GetImageInfosByUrls(const std::vector<std::string>& imageUrls,
+                                     std::shared_ptr<NWebImageInfoCallback> callback) {}
 };
 } // namespace OHOS::NWeb
 

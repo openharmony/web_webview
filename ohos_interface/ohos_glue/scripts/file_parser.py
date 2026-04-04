@@ -449,6 +449,7 @@ _simpletypes = {
     'ArkWebCookieVector': [
         'ArkWebCookieVector', 'ark_web_cookie_vector_default'
     ],
+    'ArkWebImageInfoVector':['ArkWebImageInfoVector', 'ark_web_touch_point_info_vector_default'],
 }
 
 
