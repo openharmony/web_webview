@@ -712,6 +712,9 @@ void NWebConfigHelper::ParseNativeMessagingConfig(xmlNodePtr nodePtr)
             if (ParseNativeMessagingSetting(childPtr)) {
                 nativeMessagingEnabled_ = true;
                 WVLOG_D("Native messaging enabled: %{public}d", nativeMessagingEnabled_);
+            } else {
+                nativeMessagingEnabled_ = false;
+                WVLOG_D("Native messaging disabled: %{public}d", nativeMessagingEnabled_);
             }
         }
     }
