@@ -1194,6 +1194,12 @@ public:
      */
     /*--ark web()--*/
     virtual bool OnNestedScrollV2(float& x, float& y) = 0;
+
+    /**
+     * @brief Modify web component renderfit.
+     */
+    /*--ark web()--*/
+    virtual void ModifyRenderFit(int32_t fitType) = 0;
 };
 
 } // namespace OHOS::ArkWeb

@@ -891,6 +891,12 @@ public:
      * @param y is the vertical offset.
      */
     bool OnNestedScrollV2(float& x, float& y) override;
+
+    /**
+     * @brief Modify the web component renderfit.
+     *
+     */
+    void ModifyRenderFit(int32_t fitType) override;
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };
