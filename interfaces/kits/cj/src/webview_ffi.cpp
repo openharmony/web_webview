@@ -58,6 +58,7 @@ constexpr int INTEGER_THREE = 3;
 constexpr char URL_REGEXPR[] = "^http(s)?:\\/\\/.+";
 constexpr size_t MAX_URL_TRUST_LIST_STR_LEN = 10 * 1024 * 1024;
 std::atomic<bool> g_inWebPageSnapshot {false};
+constexpr int64_t INVALID_FFI_DATA_ID = 0;
 
 bool CheckUrl(std::string url)
 {
@@ -74,34 +75,53 @@ bool CheckUrl(std::string url)
     return true;
 }
 
-NWeb::WebSnapshotCallback CreateWebPageSnapshotResultCallback(bool check, int32_t inputWidth, int32_t inputHeight,
-    int32_t inputSizeType, const std::function<void(RetDataCSnapshotResult)>& callbackRef)
+int64_t CreatePixelMapForSnapshot(const uint8_t* data, int32_t width, int32_t height)
 {
-    return [check, inputWidth, inputHeight, inputSizeType, callbackRef](
+    if (data == nullptr || width <= 0 || height <= 0) {
+        WEBVIEWLOGE("CreatePixelMapForSnapshot invalid param, width: %{public}d, height: %{public}d", width, height);
+        return INVALID_FFI_DATA_ID;
+    }
+    OHOS::Media::InitializationOptions opt;
+    opt.size.width = width;
+    opt.size.height = height;
+    opt.pixelFormat = OHOS::Media::PixelFormat::RGBA_8888;
+    opt.alphaType = OHOS::Media::AlphaType::IMAGE_ALPHA_TYPE_OPAQUE;
+    opt.editable = true;
+    std::unique_ptr<Media::PixelMap> pixelMap = Media::PixelMapImpl::CreatePixelMap(opt);
+    if (pixelMap == nullptr) {
+        WEBVIEWLOGE("CreatePixelMapForSnapshot create pixel map error");
+        return INVALID_FFI_DATA_ID;
+    }
+    uint64_t stride = static_cast<uint64_t>(width) << 2;
+    uint64_t bufferSize = stride * static_cast<uint64_t>(height);
+    pixelMap->WritePixels(data, bufferSize);
+    auto nativeImage = FFIData::Create<Media::PixelMapImpl>(move(pixelMap));
+    if (nativeImage == nullptr) {
+        WEBVIEWLOGE("CreatePixelMapForSnapshot FFIData create pixel map error");
+        return INVALID_FFI_DATA_ID;
+    }
+    return nativeImage->GetID();
+}
+
+NWeb::WebSnapshotCallback CreateWebPageSnapshotResultCallback(const std::string& inputId, int32_t inputWidth,
+    int32_t inputHeight, int32_t inputSizeType, const std::function<void(RetDataCSnapshotResult)>& callbackRef)
+{
+    return [inputId, inputWidth, inputHeight, inputSizeType, callbackRef](
             const char* returnId, bool returnStatus, float radio, void* returnData,
             int returnWidth, int returnHeight) {
             RetDataCSnapshotResult ret = { .code = NWebError::INIT_ERROR, .data = { .id = nullptr, .imageId = 0,
                 .status = true, .width = 0, .height = 0, .widthType = 1, .heightType = 1 } };
-            OHOS::Media::InitializationOptions opt;
-            opt.size.width = static_cast<int32_t>(returnWidth);
-            opt.size.height = static_cast<int32_t>(returnHeight);
-            opt.pixelFormat = OHOS::Media::PixelFormat::RGBA_8888;
-            opt.alphaType = OHOS::Media::AlphaType::IMAGE_ALPHA_TYPE_OPAQUE;
-            opt.editable = true;
-            std::unique_ptr<Media::PixelMap> pixelMap = Media::PixelMapImpl::CreatePixelMap(opt);
-            if (pixelMap != nullptr) {
-                uint64_t stride = static_cast<uint64_t>(returnWidth) << 2;
-                uint64_t bufferSize = stride * static_cast<uint64_t>(returnHeight);
-                pixelMap->WritePixels(static_cast<const uint8_t*>(returnData), bufferSize);
-            } else {
-                WEBVIEWLOGE("WebPageSnapshot create pixel map error");
-            }
+            ret.data.imageId = CreatePixelMapForSnapshot(static_cast<const uint8_t*>(returnData), returnWidth,
+                returnHeight);
+            ret.data.status = (ret.data.imageId > INVALID_FFI_DATA_ID) ? returnStatus : false;
+
             int returnJsWidth = 0;
             int returnJsHeight = 0;
             if (radio > 0) {
                 returnJsWidth = returnWidth / radio;
                 returnJsHeight = returnHeight / radio;
             }
+            bool check = (inputSizeType == static_cast<int32_t>(NWeb::PixelUnit::VP));
             if (check) {
                 if (std::abs(returnJsWidth - inputWidth) < INTEGER_THREE) {
                     returnJsWidth = inputWidth;
@@ -111,16 +131,11 @@ NWeb::WebSnapshotCallback CreateWebPageSnapshotResultCallback(bool check, int32_
                 }
             }
             ret.code = NWebError::NO_ERROR;
-            ret.data.status = check;
             ret.data.width = returnJsWidth;
             ret.data.height = returnJsHeight;
             ret.data.widthType = inputSizeType;
             ret.data.heightType = inputSizeType;
-            ret.data.id = MallocCString(returnId);
-            auto nativeImage = FFIData::Create<Media::PixelMapImpl>(move(pixelMap));
-            if (nativeImage != nullptr) {
-                ret.data.imageId = nativeImage->GetID();
-            }
+            ret.data.id = returnStatus ? MallocCString(returnId) : MallocCString(inputId);
             callbackRef(ret);
             g_inWebPageSnapshot = false;
         };
@@ -1923,13 +1938,9 @@ extern "C" {
             g_inWebPageSnapshot = false;
             return NWebError::PARAM_CHECK_ERROR;
         }
-        bool pixelCheck = false;
-        if (nativeSnapshotSizeType != NWeb::PixelUnit::VP) {
-            pixelCheck = true;
-        }
         auto onChange = CJLambda::Create(callbackRef);
         auto resultCallback = CreateWebPageSnapshotResultCallback(
-            pixelCheck, nativeSnapshotSizeWidth, nativeSnapshotSizeHeight,
+            nativeSnapshotId, nativeSnapshotSizeWidth, nativeSnapshotSizeHeight,
             static_cast<int32_t>(nativeSnapshotSizeType), onChange);
         int32_t ret = nativeWebviewCtl->WebPageSnapshot(nativeSnapshotId.c_str(),
             nativeSnapshotSizeType, nativeSnapshotSizeWidth, nativeSnapshotSizeHeight, std::move(resultCallback));
