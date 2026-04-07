@@ -1430,4 +1430,9 @@ bool ArkWebHandlerWrapper::OnNestedScrollV2(float& x, float& y)
 {
     return ark_web_handler_->OnNestedScrollV2(x, y);
 }
+
+void ArkWebHandlerWrapper::ModifyRenderFit(int32_t fitType)
+{
+    ark_web_handler_->ModifyRenderFit(fitType);
+}
 } // namespace OHOS::ArkWeb

@@ -1495,6 +1495,11 @@ public:
     {
         return false;
     }
+
+    /**
+     * @brief Modify web component renderfit.
+     */
+    virtual void ModifyRenderFit(int32_t fitType) {}
 };
 
 } // namespace OHOS::NWeb
