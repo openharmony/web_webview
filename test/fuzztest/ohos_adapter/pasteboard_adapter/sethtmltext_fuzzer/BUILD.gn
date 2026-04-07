@@ -41,6 +41,7 @@ ohos_fuzztest("SetHtmlTextFuzzTest") {
     "pasteboard:pasteboard_client",
     "pasteboard:pasteboard_data",
     "hilog:libhilog",
+    "udmf:udmf_client",
   ]
 }
 

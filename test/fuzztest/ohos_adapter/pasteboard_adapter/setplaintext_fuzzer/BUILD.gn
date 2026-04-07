@@ -40,6 +40,7 @@ ohos_fuzztest("SetPlainTextFuzzTest") {
     "image_framework:image_native",
     "pasteboard:pasteboard_client",
     "hilog:libhilog",
+    "udmf:udmf_client",
   ]
 }
 
