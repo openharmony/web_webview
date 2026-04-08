@@ -26,6 +26,7 @@ class ArkCameraStatusCallbackAdapterImpl : public ArkCameraStatusCallbackAdapter
 public:
     explicit ArkCameraStatusCallbackAdapterImpl(std::shared_ptr<OHOS::NWeb::CameraStatusCallbackAdapter>);
     void OnCameraStatusChanged(int32_t cameraStatusAdapter, const ArkWebString callBackDeviceId) override;
+    void OnFlashlightStatusChanged(int32_t flashStatusAdapter, const ArkWebString cameraID) override;
 
 private:
     std::shared_ptr<OHOS::NWeb::CameraStatusCallbackAdapter> real_;

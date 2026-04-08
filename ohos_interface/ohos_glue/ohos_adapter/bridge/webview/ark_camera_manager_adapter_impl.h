@@ -44,6 +44,14 @@ public:
 
     bool IsFlashModeSupported(int32_t flashMode) override;
 
+    int32_t GetSupportedFlashModes(ArkWebInt32Vector& flashModesAdapter) override;
+
+    bool HasFlash() override;
+
+    int32_t GetCurrentFlashMode(int32_t& flashModeAdapter) override;
+
+    int32_t SetFlashMode(int32_t flashMode) override;
+
     int32_t RestartSession() override;
 
     int32_t StopSession(int32_t stopType) override;

@@ -29,4 +29,11 @@ void ArkCameraStatusCallbackAdapterImpl::OnCameraStatusChanged(
         (NWeb::CameraStatusAdapter)cameraStatusAdapter, ArkWebStringStructToClass(callBackDeviceId));
 }
 
+void ArkCameraStatusCallbackAdapterImpl::OnFlashlightStatusChanged(
+    int32_t flashStatusAdapter, const ArkWebString cameraID)
+{
+    real_->OnFlashlightStatusChanged(
+        (NWeb::FlashStatusAdapter)flashStatusAdapter, ArkWebStringStructToClass(cameraID));
+}
+
 } // namespace OHOS::ArkWeb

@@ -43,6 +43,14 @@ public:
 
     bool IsFlashModeSupported(NWeb::FlashModeAdapter flashMode) override;
 
+    int32_t GetSupportedFlashModes(std::vector<NWeb::FlashModeAdapter>& flashModesAdapter) override;
+
+    bool HasFlash() override;
+
+    int32_t GetCurrentFlashMode(NWeb::FlashModeAdapter& flashModeAdapter) override;
+
+    int32_t SetFlashMode(NWeb::FlashModeAdapter flashMode) override;
+
     int32_t RestartSession() override;
 
     int32_t StopSession(NWeb::CameraStopType stopType) override;

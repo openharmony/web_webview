@@ -110,6 +110,8 @@ public:
     ~CameraStatusCallbackAdapterMock() override = default;
 
     void OnCameraStatusChanged(CameraStatusAdapter cameraStatusAdapter, std::string callBackDeviceId) override {}
+
+    void OnFlashlightStatusChanged(FlashStatusAdapter flashStatusAdapter, const std::string cameraID) override {}
 };
 
 class CameraManagerMock : public CameraManager {
@@ -614,6 +616,30 @@ HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_CameraStatus_012, TestSize
     CameraStatusAdapter status = adapter.GetCameraStatus();
     EXPECT_EQ(status, CameraStatusAdapter::AVAILABLE);
     adapter.SetCameraStatus(status);
+}
+
+/**
+ * @tc.name: CameraAdapterImplTest_GetAdapterFlashMode_013
+ * @tc.desc: GetAdapterFlashMode.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_GetAdapterFlashMode_013, TestSize.Level1)
+{
+    auto callback = std::make_shared<CameraStatusCallbackAdapterMock>();
+    CameraManagerAdapterImpl& adapter = CameraManagerAdapterImpl::GetInstance();
+    int32_t result = adapter.Create(callback);
+    EXPECT_EQ(result, 0);
+    FlashModeAdapter flashMode = adapter.GetAdapterFlashMode(FlashMode::FLASH_MODE_CLOSE);
+    EXPECT_EQ(flashMode, FlashModeAdapter::FLASH_MODE_CLOSE);
+    flashMode = adapter.GetAdapterFlashMode(FlashMode::FLASH_MODE_OPEN);
+    EXPECT_EQ(flashMode, FlashModeAdapter::FLASH_MODE_OPEN);
+    flashMode = adapter.GetAdapterFlashMode(FlashMode::FLASH_MODE_AUTO);
+    EXPECT_EQ(flashMode, FlashModeAdapter::FLASH_MODE_AUTO);
+    flashMode = adapter.GetAdapterFlashMode(FlashMode::FLASH_MODE_ALWAYS_OPEN);
+    EXPECT_EQ(flashMode, FlashModeAdapter::FLASH_MODE_ALWAYS_OPEN);
+    flashMode = adapter.GetAdapterFlashMode(static_cast<FlashMode>(-1));
+    EXPECT_EQ(flashMode, FlashModeAdapter::FLASH_MODE_CLOSE);
 }
 
 } // namespace OHOS::NWeb

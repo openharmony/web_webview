@@ -32,4 +32,12 @@ void ArkCameraStatusCallbackAdapterWrapper::OnCameraStatusChanged(
     ArkWebStringStructRelease(str);
 }
 
+void ArkCameraStatusCallbackAdapterWrapper::OnFlashlightStatusChanged(
+    NWeb::FlashStatusAdapter flashStatusAdapter, const std::string cameraID)
+{
+    ArkWebString str = ArkWebStringClassToStruct(cameraID);
+    ctocpp_->OnFlashlightStatusChanged((int32_t)flashStatusAdapter, str);
+    ArkWebStringStructRelease(str);
+}
+
 } // namespace OHOS::ArkWeb

@@ -91,6 +91,12 @@ enum class CameraStatusAdapter : int32_t {
     UNAVAILABLE,
 };
 
+enum class FlashStatusAdapter : int32_t {
+    OFF = 0,
+    ON,
+    UNAVAILABLE,
+};
+
 enum CameraManagerAdapterCode : int32_t {
     CAMERA_OK = 0,
     CAMERA_ERROR = -1,
@@ -240,6 +246,8 @@ public:
     virtual ~CameraStatusCallbackAdapter() = default;
 
     virtual void OnCameraStatusChanged(CameraStatusAdapter cameraStatusAdapter, const std::string callBackDeviceId) = 0;
+
+    virtual void OnFlashlightStatusChanged(FlashStatusAdapter flashStatusAdapter, const std::string cameraID) = 0;
 };
 
 class CameraManagerAdapter {
@@ -265,6 +273,14 @@ public:
     virtual FocusModeAdapter GetCurrentFocusMode() = 0;
 
     virtual bool IsFlashModeSupported(FlashModeAdapter flashMode) = 0;
+
+    virtual int32_t GetSupportedFlashModes(std::vector<FlashModeAdapter>& flashModesAdapter) = 0;
+
+    virtual bool HasFlash() = 0;
+
+    virtual int32_t GetCurrentFlashMode(FlashModeAdapter& flashModeAdapter) = 0;
+
+    virtual int32_t SetFlashMode(FlashModeAdapter flashMode) = 0;
 
     virtual int32_t RestartSession() = 0;
 

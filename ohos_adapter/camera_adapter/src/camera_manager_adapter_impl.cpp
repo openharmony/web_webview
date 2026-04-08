@@ -87,11 +87,24 @@ const std::unordered_map<FlashModeAdapter, FlashMode> FLASH_MODE_MAP = {
     { FlashModeAdapter::FLASH_MODE_ALWAYS_OPEN, FLASH_MODE_ALWAYS_OPEN },
 };
 
+const std::unordered_map<FlashMode, FlashModeAdapter> ADAPTER_FLASH_MODE_MAP = {
+    { FLASH_MODE_CLOSE, FlashModeAdapter::FLASH_MODE_CLOSE },
+    { FLASH_MODE_OPEN, FlashModeAdapter::FLASH_MODE_OPEN },
+    { FLASH_MODE_AUTO, FlashModeAdapter::FLASH_MODE_AUTO },
+    { FLASH_MODE_ALWAYS_OPEN, FlashModeAdapter::FLASH_MODE_ALWAYS_OPEN },
+};
+
 const std::unordered_map<CameraStatus, CameraStatusAdapter> CAMERA_STATUS_MAP = {
     { CAMERA_STATUS_APPEAR, CameraStatusAdapter::APPEAR },
     { CAMERA_STATUS_DISAPPEAR, CameraStatusAdapter::DISAPPEAR },
     { CAMERA_STATUS_AVAILABLE, CameraStatusAdapter::AVAILABLE },
     { CAMERA_STATUS_UNAVAILABLE, CameraStatusAdapter::UNAVAILABLE },
+};
+
+const std::unordered_map<FlashStatus, FlashStatusAdapter> FLASH_STATUS_MAP = {
+    { FLASH_STATUS_OFF, FlashStatusAdapter::OFF },
+    { FLASH_STATUS_ON, FlashStatusAdapter::ON },
+    { FLASH_STATUS_UNAVAILABLE, FlashStatusAdapter::UNAVAILABLE },
 };
 
 const std::unordered_map<CameraErrorType, std::string> ERROR_TYPE_MAP = {
@@ -182,6 +195,16 @@ FlashMode CameraManagerAdapterImpl::GetOriFlashMode(FlashModeAdapter flashMode)
     return item->second;
 }
 
+FlashModeAdapter CameraManagerAdapterImpl::GetAdapterFlashMode(FlashMode flashMode)
+{
+    auto item = ADAPTER_FLASH_MODE_MAP.find(flashMode);
+    if (item == ADAPTER_FLASH_MODE_MAP.end()) {
+        WVLOG_E("ori flash mode %{public}d not found", flashMode);
+        return FlashModeAdapter::FLASH_MODE_CLOSE;
+    }
+    return item->second;
+}
+
 FocusModeAdapter CameraManagerAdapterImpl::GetAdapterFocusMode(FocusMode focusMode)
 {
     auto item = ADAPTER_FOCUS_MODE_MAP.find(focusMode);
@@ -190,6 +213,101 @@ FocusModeAdapter CameraManagerAdapterImpl::GetAdapterFocusMode(FocusMode focusMo
         return FocusModeAdapter::FOCUS_MODE_MANUAL;
     }
     return item->second;
+}
+
+int32_t CameraManagerAdapterImpl::TransToAdapterFlashModes(
+    std::vector<FlashMode>& flashModes, std::vector<FlashModeAdapter>& flashModesAdapter)
+{
+    for (auto flashMode : flashModes) {
+        flashModesAdapter.push_back(GetAdapterFlashMode(flashMode));
+    }
+
+    return CAMERA_OK;
+}
+
+int32_t CameraManagerAdapterImpl::GetSupportedFlashModes(std::vector<FlashModeAdapter>& flashModesAdapter)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (captureSession_ == nullptr) {
+        WVLOG_E("captureSession is nullptr when get supported flash modes");
+        return CAMERA_ERROR;
+    }
+    std::vector<FlashMode> flashModes;
+    if (captureSession_->GetSupportedFlashModes(flashModes) != SUCCESS) {
+        WVLOG_E("get inner flash modes failed");
+        return CAMERA_ERROR;
+    }
+
+    TransToAdapterFlashModes(flashModes, flashModesAdapter);
+
+    return CAMERA_OK;
+}
+
+bool CameraManagerAdapterImpl::HasFlash()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (captureSession_ == nullptr) {
+        WVLOG_E("captureSession is nullptr when check has flash");
+        return false;
+    }
+    return captureSession_->HasFlash();
+}
+
+int32_t CameraManagerAdapterImpl::GetCurrentFlashMode(FlashModeAdapter& flashModeAdapter)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (captureSession_ == nullptr) {
+        WVLOG_E("captureSession is nullptr when get current flash mode");
+        return CAMERA_ERROR;
+    }
+
+    FlashMode flashMode = captureSession_->GetFlashMode();
+    flashModeAdapter = GetAdapterFlashMode(flashMode);
+    return CAMERA_OK;
+}
+
+int32_t CameraManagerAdapterImpl::SetFlashMode(FlashModeAdapter flashMode)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (captureSession_ == nullptr) {
+        WVLOG_E("captureSession is nullptr when set flash mode");
+        return CAMERA_ERROR;
+    }
+    WVLOG_I("SetFlashMode: captureSession set flash mode");
+    captureSession_->LockForControl();
+    if (captureSession_->SetFlashMode(GetOriFlashMode(flashMode)) != CAMERA_OK) {
+        WVLOG_E("SetFlashMode: set flash mode failed");
+        captureSession_->UnlockForControl();
+        return CAMERA_ERROR;
+    }
+    captureSession_->UnlockForControl();
+    if (flashMode == FlashModeAdapter::FLASH_MODE_ALWAYS_OPEN) {
+        isFlashing_ = true;
+    } else if (flashMode == FlashModeAdapter::FLASH_MODE_CLOSE) {
+        isFlashing_ = false;
+    }
+    return CAMERA_OK;
+}
+
+void CameraManagerAdapterImpl::RestartTorch()
+{
+    FlashModeAdapter flashMode = FlashModeAdapter::FLASH_MODE_ALWAYS_OPEN;
+    WVLOG_I("RestartTorch: start restart torch");
+    if (!isCapturing_) {
+        WVLOG_E("RestartTorch: this web tab is not capturing");
+        return;
+    }
+    if (captureSession_ == nullptr) {
+        WVLOG_E("captureSession is nullptr when restart torch");
+        return;
+    }
+    captureSession_->LockForControl();
+    if (captureSession_->SetFlashMode(GetOriFlashMode(flashMode)) != CAMERA_OK) {
+        WVLOG_E("RestartTorch: restart torch failed");
+        captureSession_->UnlockForControl();
+        return;
+    }
+    captureSession_->UnlockForControl();
 }
 
 CameraManagerAdapterImpl& CameraManagerAdapterImpl::GetInstance()
@@ -644,6 +762,10 @@ int32_t CameraManagerAdapterImpl::RestartSession()
         return CAMERA_ERROR;
     }
     status_ = CameraStatusAdapter::UNAVAILABLE;
+
+    if (isFlashing_) {
+        RestartTorch();
+    }
     return CAMERA_OK;
 }
 
@@ -660,6 +782,7 @@ int32_t CameraManagerAdapterImpl::StopSession(CameraStopType stopType)
 
     if (stopType == CameraStopType::NORMAL) {
         isCapturing_ = false;
+        isFlashing_ = false;
     }
     return CAMERA_OK;
 }
@@ -1069,6 +1192,16 @@ CameraStatusAdapter CameraManagerAdapterCallback::GetAdapterCameraStatus(CameraS
     return item->second;
 }
 
+FlashStatusAdapter CameraManagerAdapterCallback::GetAdapterFlashStatus(FlashStatus status) const
+{
+    auto item = FLASH_STATUS_MAP.find(status);
+    if (item == FLASH_STATUS_MAP.end()) {
+        WVLOG_E("ori flash status %{public}d not found", static_cast<int32_t>(status));
+        return FlashStatusAdapter::UNAVAILABLE;
+    }
+    return item->second;
+}
+
 void CameraManagerAdapterCallback::OnCameraStatusChanged(const CameraStatusInfo& cameraStatusInfo) const
 {
     std::string callbackDeviceId;
@@ -1105,6 +1238,14 @@ void CameraManagerAdapterCallback::OnCameraStatusChanged(const CameraStatusInfo&
 void CameraManagerAdapterCallback::OnFlashlightStatusChanged(
     const std::string& cameraID, const FlashStatus flashStatus) const
 {
-    return;
+    std::string currentDeviceId = CameraManagerAdapterImpl::GetInstance().GetCurrentDeviceId();
+    WVLOG_I("OnFlashlightStatusChanged: cameraID %{public}s, currentDeviceId %{public}s, flashStatus %{public}d",
+        cameraID.c_str(), currentDeviceId.c_str(), static_cast<int32_t>(flashStatus));
+
+    if (statusCallback_) {
+        FlashStatusAdapter flashStatusAdapter = GetAdapterFlashStatus(flashStatus);
+        WVLOG_I("start do flashlight statusCallback");
+        statusCallback_->OnFlashlightStatusChanged(flashStatusAdapter, cameraID);
+    }
 }
 } // namespace OHOS::NWeb
