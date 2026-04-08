@@ -6989,9 +6989,11 @@ static ani_object GetUserAgentMetadata(ani_env* env, ani_object object, ani_obje
 
 void ParseBooleanProperty(ani_env *env, ani_object obj, const char* name, bool& value)
 {
-    ani_boolean propObj;
-    if (env->Object_GetPropertyByName_Boolean(obj, name, &propObj) == ANI_OK) {
-        value = static_cast<bool>(propObj);
+    ani_ref propRef = nullptr;
+    if (AniParseUtils::GetRefProperty(env, obj, name, propRef)) {
+        if (!AniParseUtils::ParseBoolean(env, propRef, value)) {
+            WVLOG_W("ParseBooleanProperty: name=%{public}s, ParseBoolean failed, using default value", name);
+        }
     }
 }
 
