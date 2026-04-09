@@ -92,4 +92,15 @@ int EventReport::ReportHighlightSpecifiedContentEvent(
         ERROR_NODE, errorNode);
     return ForwardToHiSysEvent(WEB_MSDP_SCENE_ERROR, FAULT, data);
 }
+int EventReport::ReportMSDPError(std::string eventType, std::string errorType, std::string errorInfo,
+    std::string nodePath)
+{
+    if (nodePath.empty()) {
+        return ForwardToHiSysEvent(WEB_MSDP_SCENE_ERROR, FAULT,
+            std::make_tuple(EVENT_TYPE, eventType, ERROR_TYPE, errorType, ERROR_INFO, errorInfo));
+    } else {
+        return ForwardToHiSysEvent(WEB_MSDP_SCENE_ERROR, FAULT,
+            std::make_tuple(EVENT_TYPE, eventType, ERROR_TYPE, errorType, ERROR_INFO, errorInfo, ERROR_NODE, nodePath));
+    }
+}
 } // namespace OHOS::NWeb

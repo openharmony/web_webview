@@ -31,6 +31,9 @@ public:
     const std::string& errorType,
     const std::string& content,
     const std::string& errorNode);
+
+    static int ReportMSDPError(std::string eventType, std::string errorType, std::string errorInfo,
+        std::string nodePath = "");
 };
 } // namespace OHOS::NWeb
 #endif  // OHOS_NWEB_HISYSEVENT_H
