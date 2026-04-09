@@ -55,7 +55,7 @@ typedef struct {
 } ArkWeb_JavaScriptBridgeData;
 
 /**
- * @brief Defines the data type carried in a ArkWeb_WebMessage.
+ * @brief Defines the data type carried in an ArkWeb_WebMessage.
  *
  * @since 12
  */
@@ -69,7 +69,7 @@ typedef enum ArkWeb_WebMessageType {
 } ArkWeb_WebMessageType;
 
 /**
- * @brief Defines the data type carried in a ArkWeb_JavaScriptValue.
+ * @brief Defines the data type carried in an ArkWeb_JavaScriptValue.
  *
  * @since 16
  */
@@ -252,7 +252,7 @@ typedef struct {
     void (*runJavaScript)(const char* webTag, const ArkWeb_JavaScriptObject* javascriptObject);
     /** Register the JavaScript object and method list. */
     void (*registerJavaScriptProxy)(const char* webTag, const ArkWeb_ProxyObject* proxyObject);
-    /** Deletes the registered object which th given name. */
+    /** Deletes the registered object which the given name. */
     void (*deleteJavaScriptRegister)(const char* webTag, const char* objName);
     /** Refresh the current web page. */
     void (*refresh)(const char* webTag);
@@ -292,7 +292,7 @@ typedef struct {
 
     /**
      * @brief Get the url of the last frame that calls the JavaScriptProxy.
-     *        This should be call on the thread which JavaScriptProxy called.
+     *        This should be called on the thread which JavaScriptProxy called.
      *
      * @return The url of the last frame that calls the JavaScriptProxy.
      * @since 14

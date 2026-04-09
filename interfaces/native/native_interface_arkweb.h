@@ -17,13 +17,13 @@
  * @addtogroup Web
  * @{
  *
- * @brief Provides APIs to use javascript proxy and run javascirpt code.
+ * @brief Provides APIs to use javascript proxy and run javascript code.
  * @since 11
  */
 /**
  * @file native_interface_arkweb.h
  *
- * @brief Declares the APIs to use javascript proxy and run javascirpt code.
+ * @brief Declares the APIs to use javascript proxy and run javascript code.
  * @library libohweb.so
  * @syscap SystemCapability.Web.Webview.Core
  * @since 11

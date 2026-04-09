@@ -190,7 +190,7 @@ typedef void (*ArkWeb_OnRequestStart)(const ArkWeb_SchemeHandler* schemeHandler,
 
 /*
  * @brief Callback when the request is completed. This will called on the IO thread.
- *        Should destory the resourceRequest by ArkWeb_ResourceRequest_Destroy and use ArkWeb_ResourceHandler_Destroy
+ *        Should destroy the resourceRequest by ArkWeb_ResourceRequest_Destroy and use ArkWeb_ResourceHandler_Destroy
  *        destroy the ArkWeb_ResourceHandler received in ArkWeb_OnRequestStart.
  * @param schemeHandler The ArkWeb_SchemeHandler.
  * @param resourceRequest The ArkWeb_ResourceRequest.
@@ -561,7 +561,7 @@ bool OH_ArkWebResourceRequest_IsRedirect(const ArkWeb_ResourceRequest* resourceR
 bool OH_ArkWebResourceRequest_IsMainFrame(const ArkWeb_ResourceRequest* resourceRequest);
 
 /*
- * @brief Get if this is a request is triggered by user gesutre.
+ * @brief Get if this is a request is triggered by user gesture.
  * @param resourceRequest The ArkWeb_ResourceRequest.
  * @return True if this is triggered by user gesture; false otherwise.
  *
@@ -634,7 +634,7 @@ int32_t OH_ArkWeb_ClearSchemeHandlers(const char* webTag);
 
 /*
  * @brief Create a SchemeHandler.
- * @param schemeHandler Return the created SchemeHandler. Use OH_ArkWeb_DestroySchemeHandler destroy it when donn't
+ * @param schemeHandler Return the created SchemeHandler. Use OH_ArkWeb_DestroySchemeHandler destroy it when don't
  *                      need it.
  *
  * @syscap SystemCapability.Web.Webview.Core
@@ -698,7 +698,7 @@ int32_t OH_ArkWebSchemeHandler_SetOnRequestStop(ArkWeb_SchemeHandler* schemeHand
 
 /*
  * @brief Create a Response for a request.
- * @param Return the created Response. Use OH_ArkWeb_DestroyResponse to destroy when donn't need it.
+ * @param Return the created Response. Use OH_ArkWeb_DestroyResponse to destroy when don't need it.
  *
  * @syscap SystemCapability.Web.Webview.Core
  * @since 12
