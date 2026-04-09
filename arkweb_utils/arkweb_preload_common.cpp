@@ -21,6 +21,7 @@
 #ifndef webview_x86_64
 #include <sys/sysinfo.h>
 #endif
+#include "ace_forward_compatibility.h"
 
 namespace OHOS::ArkWeb {
 
@@ -118,14 +119,11 @@ static int GetRenderPreLoadMode(const int32_t &ramSize)
 #if defined(PRELOAD_RENDER_LIB) && (!defined(ASAN_DETECTOR))
     return static_cast<int>(RenderPreLoadMode::PRELOAD_FULL);
 #endif
-    int preloadMode = OHOS::system::GetIntParameter("const.startup.nwebspawn.preloadMode", 0);
-    if (preloadMode == static_cast<int>(RenderPreLoadMode::PRELOAD_NO)) {
-        return preloadMode;
-    }
     if (ramSize <= RAM_SIZE_8G * SIZE_KB) {
         return static_cast<int>(RenderPreLoadMode::PRELOAD_NO);
     }
-    return static_cast<int>(RenderPreLoadMode::PRELOAD_PARTIAL);
+    int preloadMode = OHOS::system::GetIntParameter("const.startup.nwebspawn.preloadMode", 0);
+    return preloadMode;
 }
 
 static void PreloadArkWebLibForRender(const int &preloadMode)
@@ -148,5 +146,7 @@ void PreloadArkWebLibForRender()
     const int preloadMode = GetRenderPreLoadMode(ramSize);
     WVLOG_I("NwebSpawn preload render lib mode: %{public}d", preloadMode);
     PreloadArkWebLibForRender(preloadMode);
+
+    OHOS::Ace::AceForwardCompatibility::ReclaimFileCache(getpid());
 }
 } // namespace OHOS::ArkWeb
