@@ -1848,8 +1848,9 @@ extern "C" {
         bool ret = WebviewControllerImpl::SetWebServiceWorkerSchemeHandler(scheme.c_str(), nativeWebSchemeHandler);
         if (!ret) {
             WEBVIEWLOGE("SetServiceWorkerWebSchemeHandler failed")
+            return NWebError::PARAM_CHECK_ERROR;
         }
-        return ret;
+        return NWebError::NO_ERROR;
     }
 
     int32_t FfiOHOSWebviewCtlClearServiceWorkerWebSchemeHandler()
