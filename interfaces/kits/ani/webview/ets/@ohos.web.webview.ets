@@ -1017,6 +1017,7 @@ export default namespace webview {
         native static setWebDestroyMode(mode: WebDestroyMode): void;
         native static setScrollbarMode(mode: ScrollbarMode): void;
         native setSoftKeyboardBehaviorMode(mode: WebSoftKeyboardBehaviorMode): void;
+        native static enableAdvancedSecurityMode(securityParams: SecurityParams): void;
         native getAttachState(): ControllerAttachState;
         native onControllerAttachStateChange(callback: Callback<ControllerAttachState>): void;
         native offControllerAttachStateChange(callback?: Callback<ControllerAttachState>): void;
@@ -2320,6 +2321,26 @@ export default namespace webview {
                     writeResultCallback: (jobId: string, writeResult: print.PrintFileCreationState) => void): void;
 
         native onJobStateChanged(jobId: string, state: print.PrintDocumentAdapterState): void;
+    }
+
+    export interface SecurityParams {
+        disableJITCompilation?: boolean;
+        disableWebAssembly?: boolean;
+        disableWebGL?: boolean;
+        disablePDFViewer?: boolean;
+        disableMathML?: boolean;
+        disableServiceWorker?: boolean;
+        disableNonProxyUDP?: boolean;
+    }
+
+    export class SecurityParamsInner implements SecurityParams {
+        disableJITCompilation?: boolean;
+        disableWebAssembly?: boolean;
+        disableWebGL?: boolean;
+        disablePDFViewer?: boolean;
+        disableMathML?: boolean;
+        disableServiceWorker?: boolean;
+        disableNonProxyUDP?: boolean;
     }
 
     export enum UserAgentFormFactor {
