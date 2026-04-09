@@ -43,4 +43,30 @@ TEST_F(NWebHiSysEventTest, ReportCreateWebInstanceTime)
     EXPECT_EQ(result, 0);
 }
 
+TEST_F(NWebHiSysEventTest, ReportMSDPError)
+{
+    std::string eventType = "TEST_EVENT";
+    std::string errorType = "TEST_ERROR";
+    std::string errorInfo = "Test error info";
+    std::string nodePath = "/test/node/path";
+
+    // Test with nodePath
+    int result = EventReport::ReportMSDPError(eventType, errorType, errorInfo, nodePath);
+    EXPECT_EQ(result, 0);
+
+    // Test without nodePath (default empty)
+    result = EventReport::ReportMSDPError(eventType, errorType, errorInfo);
+    EXPECT_EQ(result, 0);
+
+    OHOS::ArkWeb::SetBundleNameInner("test");
+    OHOS::ArkWeb::SetApiVersionInner("test");
+
+    // Test with nodePath again
+    result = EventReport::ReportMSDPError(eventType, errorType, errorInfo, nodePath);
+    EXPECT_EQ(result, 0);
+
+    // Test without nodePath again
+    result = EventReport::ReportMSDPError(eventType, errorType, errorInfo);
+    EXPECT_EQ(result, 0);
+}
 }
