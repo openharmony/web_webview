@@ -780,6 +780,7 @@ std::shared_ptr<OHOS::NWeb::NWebEngineInitArgs> NWebHelper::GetInitArgs()
 
     NWebAdapterHelper::Instance().ParseConfig(initArgs);
 
+    initArgs->AddArg(std::string("--arkweb-app-data-dir=").append(ctx->GetBaseDir()));
     initArgs->AddArg(std::string("--user-data-dir=").append(ctx->GetBaseDir()));
     WVLOG_I("user data dir: %{public}s", ctx->GetBaseDir().c_str());
     initArgs->AddArg(std::string("--bundle-installation-dir=").append(bundlePath_));

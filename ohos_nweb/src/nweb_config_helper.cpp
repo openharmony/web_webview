@@ -167,7 +167,11 @@ const std::unordered_map<std::string_view, std::function<std::string(std::string
     { "settingConfig/disableNextPreviousFlag",
         [](std::string& contentStr) {
             return contentStr == "true" ? std::string("--ohos-disable-next-previous-flag") : std::string();
-        } }
+        } },
+ 	{ "settingConfig/disableUserDataDirSeparation",
+ 	    [](std::string& contentStr) {
+ 	        return contentStr == "true" ? std::string("--disable-user-data-dir-separation") : std::string();
+ 	    } }
 };
 } // namespace
 
