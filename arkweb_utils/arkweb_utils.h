@@ -80,6 +80,20 @@ enum class ArkWebEngineType {
     PLAYGROUND = static_cast<int>(ArkWebEngineVersion::PLAYGROUND),
 };
 
+// Compact mapping of ArkWebEngineVersion for HISTOGRAM_ENUMERATION.
+enum class ArkWebEngineVersionMetrics {
+    UNKNOWN_METRICS = 0,
+    SYSTEM_DEFAULT = 1,
+    SYSTEM_EVERGREEN = 2,
+    PLAYGROUND = 3,
+    M114 = 4,
+    M132 = 5,
+    M144 = 6,
+    COUNT,
+};
+
+ARKWEB_EXPORT ArkWebEngineVersionMetrics MapToMetricsVersion(ArkWebEngineVersion version);
+
 ARKWEB_EXPORT void setActiveWebEngineVersion(ArkWebEngineVersion version);
 ARKWEB_EXPORT void SetActiveWebPlayGround(ArkWebEngineVersion version);
 ARKWEB_EXPORT ArkWebEngineVersion getActiveWebEngineVersion();

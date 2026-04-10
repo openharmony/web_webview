@@ -32,6 +32,7 @@
                 "ability_runtime",
                 "access_token",
                 "ace_engine",
+                "api_metrics",
                 "app_file_service",
                 "appspawn",
                 "audio_framework",

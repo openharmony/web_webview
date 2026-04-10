@@ -13,6 +13,7 @@
 
 import("//build/config/components/ets_frontend/ets2abc_config.gni")
 import("//build/ohos.gni")
+import("../../../../config.gni")
 
 ohos_shared_library("webview_ani") {
   shlib_type = "ani"
@@ -159,6 +160,13 @@ ohos_shared_library("webview_ani") {
     "window_manager:libwm",
     "eventhandler:libeventhandler",
   ]
+
+  defines = []
+  if (webview_api_metrics_enable) {
+    external_deps += [ "api_metrics:histogrammanager" ]
+    defines += [ "WEBVIEW_API_METRICS_ENABLE" ]
+  }
+
   part_name = "webview"
   subsystem_name = "web"
 }

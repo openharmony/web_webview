@@ -26,6 +26,9 @@
 #include "arkweb_type.h"
 #include "arkweb_utils.h"
 #include "event_handler.h"
+#ifdef WEBVIEW_API_METRICS_ENABLE
+#include "histogram_plugin_macros.h"
+#endif
 #include "native_arkweb_utils.h"
 #include "native_javascript_execute_callback.h"
 #include "nweb.h"
@@ -457,12 +460,23 @@ void OH_ArkWebCookieManager_SaveCookieAsync(OH_ArkWeb_OnCookieSaveCallback callb
 }
 
 void OH_NativeArkWeb_SetActiveWebEngineVersion(ArkWebEngineVersion webEngineVersion) {
-    OHOS::ArkWeb::setActiveWebEngineVersion(
-        static_cast<OHOS::ArkWeb::ArkWebEngineVersion>(static_cast<int>(webEngineVersion)));
+    auto version = static_cast<OHOS::ArkWeb::ArkWebEngineVersion>(static_cast<int32_t>(webEngineVersion));
+    OHOS::ArkWeb::setActiveWebEngineVersion(version);
+#ifdef WEBVIEW_API_METRICS_ENABLE
+    HISTOGRAM_ENUMERATION("ArkWeb.DualCore.C.OH_NativeArkWeb_SetActiveWebEngineVersion",
+                          static_cast<int32_t>(OHOS::ArkWeb::MapToMetricsVersion(version)),
+                          static_cast<int32_t>(OHOS::ArkWeb::ArkWebEngineVersionMetrics::COUNT) - 1);
+#endif
 }
 
 ArkWebEngineVersion OH_NativeArkWeb_GetActiveWebEngineVersion() {
-    return static_cast<ArkWebEngineVersion>(static_cast<int>(OHOS::ArkWeb::getActiveWebEngineVersion()));
+    auto version = OHOS::ArkWeb::getActiveWebEngineVersion();
+#ifdef WEBVIEW_API_METRICS_ENABLE
+    HISTOGRAM_ENUMERATION("ArkWeb.DualCore.C.OH_NativeArkWeb_GetActiveWebEngineVersion",
+                          static_cast<int32_t>(OHOS::ArkWeb::MapToMetricsVersion(version)),
+                          static_cast<int32_t>(OHOS::ArkWeb::ArkWebEngineVersionMetrics::COUNT) - 1);
+#endif
+    return static_cast<ArkWebEngineVersion>(static_cast<int32_t>(version));
 }
 
 bool OH_NativeArkWeb_IsActiveWebEngineEvergreen() {

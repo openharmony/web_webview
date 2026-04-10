@@ -67,6 +67,9 @@
 #include "ani_user_agent_metadata.h"
 
 #include "bundle_mgr_proxy.h"
+#ifdef WEBVIEW_API_METRICS_ENABLE
+#include "histogram_plugin_macros.h"
+#endif
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "parameters.h"
@@ -7425,7 +7428,6 @@ static ani_enum_item GetActiveWebEngineVersion(ani_env *env, ani_object object)
         return nullptr;
     }
 
-    ani_int aniVersion = 0;
     ani_enum enumType;
     ani_status status = ANI_ERROR;
     if ((status = env->FindEnum(ANI_ENUM_ARK_WEB_ENGINE_VERSION, &enumType)) != ANI_OK) {
@@ -7433,9 +7435,15 @@ static ani_enum_item GetActiveWebEngineVersion(ani_env *env, ani_object object)
         return nullptr;
     }
 
-    aniVersion = static_cast<ani_int>(OHOS::ArkWeb::getActiveWebEngineVersion());
+    auto version = OHOS::ArkWeb::getActiveWebEngineVersion();
+#ifdef WEBVIEW_API_METRICS_ENABLE
+    HISTOGRAM_ENUMERATION("ArkWeb.DualCore.ArkTS.Sta.getActiveWebEngineVersion",
+                          static_cast<int32_t>(OHOS::ArkWeb::MapToMetricsVersion(version)),
+                          static_cast<int32_t>(OHOS::ArkWeb::ArkWebEngineVersionMetrics::COUNT) - 1);
+#endif
     ani_enum_item aniEnumState;
-    if ((status = (env->Enum_GetEnumItemByIndex(enumType, aniVersion, &aniEnumState))) != ANI_OK) {
+    if ((status = (env->Enum_GetEnumItemByIndex(enumType, static_cast<ani_int>(version),
+                                                &aniEnumState))) != ANI_OK) {
         WVLOG_E("Enum_GetEnumItemByIndex failed, status: %{public}d", status);
         return nullptr;
     }
@@ -7460,7 +7468,13 @@ static void SetActiveWebEngineVersion(ani_env *env, ani_object object, ani_enum_
     }
 
     WVLOG_D("SetActiveWebEngineVersion start");
-    OHOS::ArkWeb::setActiveWebEngineVersion(static_cast<OHOS::ArkWeb::ArkWebEngineVersion>(aniVersion));
+    auto version = static_cast<OHOS::ArkWeb::ArkWebEngineVersion>(aniVersion);
+    OHOS::ArkWeb::setActiveWebEngineVersion(version);
+#ifdef WEBVIEW_API_METRICS_ENABLE
+    HISTOGRAM_ENUMERATION("ArkWeb.DualCore.ArkTS.Sta.setActiveWebEngineVersion",
+                          static_cast<int32_t>(OHOS::ArkWeb::MapToMetricsVersion(version)),
+                          static_cast<int32_t>(OHOS::ArkWeb::ArkWebEngineVersionMetrics::COUNT) - 1);
+#endif
 }
 
 static ani_boolean IsActiveWebEngineEvergreen(ani_env *env, ani_object object)

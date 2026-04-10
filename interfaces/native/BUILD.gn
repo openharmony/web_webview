@@ -13,6 +13,7 @@
 
 import("//build/ohos.gni")
 import("//build/ohos/ndk/ndk.gni")
+import("../../config.gni")
 
 ohos_ndk_headers("web_header") {
   dest_dir = "$ndk_headers_out_dir/web/"
@@ -63,6 +64,13 @@ ohos_shared_library("ohweb") {
     "../../arkweb_utils:libarkweb_utils",
     "../../ohos_nweb:libnweb",
   ]
+
+  defines = []
+  if (webview_api_metrics_enable) {
+    external_deps += [ "api_metrics:histogrammanager" ]
+    defines += [ "WEBVIEW_API_METRICS_ENABLE" ]
+  }
+
   relative_install_dir = "ndk"
   part_name = "webview"
   subsystem_name = "web"
