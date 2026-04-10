@@ -97,7 +97,8 @@
                 "runtime_core",
                 "jsoncpp",
                 "os_account",
-                "zlib"
+                "zlib",
+                "ace_engine"
             ]
         },
         "build": {
