@@ -539,7 +539,7 @@ export default namespace webview {
             const staticRef = input as NativeMediaPlayerHandlerinner;
             if (staticRef) {
                 let addr = staticRef.nativePtr;
-                let module = ESValue.load("@ohos.web.webview");
+                let module = ESValue.load(`@ohos:web.webview`);
                 let initFunc = module.getProperty("__createNativeMediaPlayerHandlerTransfer__");
                 if (initFunc) {
                     let dynamicRef = initFunc.invoke(ESValue.wrap(addr));
@@ -623,7 +623,7 @@ export default namespace webview {
             const staticRef = input as BackForwardListinner;
             if (staticRef) {
                 let addr = staticRef.nativePtr;
-                let module = ESValue.load("@ohos.web.webview");
+                let module = ESValue.load(`@ohos:web.webview`);
                 let initFunc = module.getProperty("__createBackForwardListTransfer__");
                 if (initFunc) {
                     let dynamicRef = initFunc.invoke(
@@ -1075,7 +1075,7 @@ export default namespace webview {
             return target;
         }
     }
-    
+
     export class jsProxyCallbackWrapper {
         myFun_: (...args: Array<Object|string|number|undefined|null>) => Any = (...args: Array<Object|string|number|undefined|null>) => { return "" };
         constructor(myFun: (...args: Array<Object|string|number|undefined|null>)=> Any) {
@@ -1210,7 +1210,7 @@ export default namespace webview {
             const staticRef = input as WebSchemeHandlerRequest;
             if (staticRef) {
                 let addr = staticRef.nativePtr;
-                let module = ESValue.load("@ohos.web.webview");
+                let module = ESValue.load(`@ohos:web.webview`);
                 let initFunc = module.getProperty("__createWebSchemeHandlerRequestTransfer__");
                 if (initFunc) {
                     let dynamicRef = initFunc.invoke(ESValue.wrap(addr));
@@ -1274,7 +1274,7 @@ export default namespace webview {
             const staticRef = input as WebResourceHandler;
             if (staticRef) {
                 let addr = staticRef.nativePtr;
-                let module = ESValue.load("@ohos.web.webview");
+                let module = ESValue.load(`@ohos:web.webview`);
                 let initFunc = module.getProperty("__createWebResourceHandlerTransfer__");
                 if (initFunc) {
                     let dynamicRef = initFunc.invoke(ESValue.wrap(addr));
@@ -1887,7 +1887,7 @@ export default namespace webview {
             }
             if (staticRef) {
                 let addr = staticRef.nativePtr;
-                let module = ESValue.load("@ohos.web.webview");
+                let module = ESValue.load(`@ohos:web.webview`);
                 let initFunc = module.getProperty("__createWebMessagePortTransfer__");
                 if (initFunc) {
                     let dynamicRef = initFunc.invoke(ESValue.wrap(extType), ESValue.wrap(addr));
