@@ -304,8 +304,7 @@ HWTEST_F(ArkWebPreloadCommonTest, GetRenderPreLoadMode_LargeRAM_NoMode_001, Test
  */
 HWTEST_F(ArkWebPreloadCommonTest, PreloadArkWebLibForRender_NoPreload_001, TestSize.Level1)
 {
-    PreloadArkWebLibForRender(0);
-    // No crash = pass, no libs loaded
+    EXPECT_NO_FATAL_FAILURE(PreloadArkWebLibForRender(0));
 }
 
 /**
@@ -314,8 +313,7 @@ HWTEST_F(ArkWebPreloadCommonTest, PreloadArkWebLibForRender_NoPreload_001, TestS
 HWTEST_F(ArkWebPreloadCommonTest, PreloadArkWebLibForRender_PartialPreload_001, TestSize.Level1)
 {
     SetDlopenMockValue(reinterpret_cast<void *>(0x1));
-    PreloadArkWebLibForRender(1);
-    // Should call dlopen for adapter glue only
+    EXPECT_NO_FATAL_FAILURE(PreloadArkWebLibForRender(1));
 }
 
 /**
@@ -330,7 +328,7 @@ HWTEST_F(ArkWebPreloadCommonTest, PreloadArkWebLibForRender_FullPreload_001, Tes
 
     SetDlopenMockValue(reinterpret_cast<void *>(0x1));
     SetDlopenNsMockValue(reinterpret_cast<void *>(0x1));
-    PreloadArkWebLibForRender(2);
+    EXPECT_NO_FATAL_FAILURE(PreloadArkWebLibForRender(2));
 
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
 }
@@ -343,8 +341,7 @@ HWTEST_F(ArkWebPreloadCommonTest, PreloadArkWebLibForRender_FullPreload_001, Tes
 HWTEST_F(ArkWebPreloadCommonTest, PreloadArkWebEngineLib_EmptyPath_001, TestSize.Level1)
 {
     OHOS::system::SetParameter("persist.arkwebcore.package_name", "");
-    PreloadArkWebEngineLib();
-    // Should log error and return without crash
+    EXPECT_NO_FATAL_FAILURE(PreloadArkWebEngineLib());
 }
 
 /**
@@ -358,7 +355,7 @@ HWTEST_F(ArkWebPreloadCommonTest, PreloadArkWebEngineLib_ValidPath_001, TestSize
     setActiveWebEngineVersion(ArkWebEngineVersion::SYSTEM_DEFAULT);
 
     SetDlopenNsMockValue(reinterpret_cast<void *>(0x1));
-    PreloadArkWebEngineLib();
+    EXPECT_NO_FATAL_FAILURE(PreloadArkWebEngineLib());
 
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
 }
@@ -374,8 +371,7 @@ HWTEST_F(ArkWebPreloadCommonTest, PreloadArkWebEngineLib_DlopenFail_001, TestSiz
     setActiveWebEngineVersion(ArkWebEngineVersion::SYSTEM_DEFAULT);
 
     SetDlopenNsMockValue(nullptr);
-    PreloadArkWebEngineLib();
-    // Should log error but not crash
+    EXPECT_NO_FATAL_FAILURE(PreloadArkWebEngineLib());
 
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
 }
@@ -388,8 +384,7 @@ HWTEST_F(ArkWebPreloadCommonTest, PreloadArkWebEngineLib_DlopenFail_001, TestSiz
 HWTEST_F(ArkWebPreloadCommonTest, PreloadOHOSAdptGlueSrcLib_DlopenSuccess_001, TestSize.Level1)
 {
     SetDlopenMockValue(reinterpret_cast<void *>(0x1));
-    PreloadOHOSAdptGlueSrcLib();
-    // Should succeed without crash
+    EXPECT_NO_FATAL_FAILURE(PreloadOHOSAdptGlueSrcLib());
 }
 
 /**
@@ -398,8 +393,7 @@ HWTEST_F(ArkWebPreloadCommonTest, PreloadOHOSAdptGlueSrcLib_DlopenSuccess_001, T
 HWTEST_F(ArkWebPreloadCommonTest, PreloadOHOSAdptGlueSrcLib_DlopenFail_001, TestSize.Level1)
 {
     SetDlopenMockValue(nullptr);
-    PreloadOHOSAdptGlueSrcLib();
-    // Should log error but not crash
+    EXPECT_NO_FATAL_FAILURE(PreloadOHOSAdptGlueSrcLib());
     SetDlopenMockValue(reinterpret_cast<void *>(0x1)); // Restore
 }
 
@@ -418,7 +412,7 @@ HWTEST_F(ArkWebPreloadCommonTest, PreloadArkWebLibForRender_Entry_001, TestSize.
     SetSysinfoMockValue(0);
     SetDlopenMockValue(reinterpret_cast<void *>(0x1));
     SetDlopenNsMockValue(reinterpret_cast<void *>(0x1));
-    PreloadArkWebLibForRender();
+    EXPECT_NO_FATAL_FAILURE(PreloadArkWebLibForRender());
 
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
 }
@@ -433,8 +427,7 @@ HWTEST_F(ArkWebPreloadCommonTest, PreloadArkWebLibForRender_SysinfoFail_001, Tes
     SetSysinfoMockValue(-1); // Simulate sysinfo failure
     SetDlopenMockValue(reinterpret_cast<void *>(0x1));
     SetDlopenNsMockValue(reinterpret_cast<void *>(0x1));
-    PreloadArkWebLibForRender();
-    // With sysinfo returning 0, ramSize=0 <= threshold, so PRELOAD_NO
+    EXPECT_NO_FATAL_FAILURE(PreloadArkWebLibForRender());
 
     SetSysinfoMockValue(0); // Restore
 }
