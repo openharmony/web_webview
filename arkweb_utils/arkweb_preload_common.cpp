@@ -129,7 +129,7 @@ static int GetRenderPreLoadMode(const int32_t &ramSize)
 static void PreloadArkWebLibForRender(const int &preloadMode)
 {
     if (preloadMode == static_cast<int>(RenderPreLoadMode::PRELOAD_PARTIAL)) {
-        PreloadOHOSAdptGlueSrcLib();
+        PreloadArkWebEngineLib();
     }
     if (preloadMode == static_cast<int>(RenderPreLoadMode::PRELOAD_FULL)) {
         PreloadOHOSAdptGlueSrcLib();        
