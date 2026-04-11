@@ -278,7 +278,7 @@ public:
 
     virtual bool HasFlash() = 0;
 
-    virtual int32_t GetCurrentFlashMode(FlashModeAdapter& flashModeAdapter) = 0;
+    virtual FlashModeAdapter GetFlashMode() = 0;
 
     virtual int32_t SetFlashMode(FlashModeAdapter flashMode) = 0;
 

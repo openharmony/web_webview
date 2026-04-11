@@ -72,9 +72,9 @@ bool CameraManagerAdapterImpl::HasFlash()
     return false;
 }
 
-int32_t CameraManagerAdapterImpl::GetCurrentFlashMode(FlashModeAdapter& flashModeAdapter)
+FlashModeAdapter CameraManagerAdapterImpl::GetFlashMode()
 {
-    return -1;
+    return FlashModeAdapter::FLASH_MODE_CLOSE;
 }
 
 int32_t CameraManagerAdapterImpl::SetFlashMode(FlashModeAdapter flashMode)

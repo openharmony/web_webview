@@ -253,17 +253,16 @@ bool CameraManagerAdapterImpl::HasFlash()
     return captureSession_->HasFlash();
 }
 
-int32_t CameraManagerAdapterImpl::GetCurrentFlashMode(FlashModeAdapter& flashModeAdapter)
+FlashModeAdapter CameraManagerAdapterImpl::GetFlashMode()
 {
     std::lock_guard<std::mutex> lock(mutex_);
     if (captureSession_ == nullptr) {
         WVLOG_E("captureSession is nullptr when get current flash mode");
-        return CAMERA_ERROR;
+        return FlashModeAdapter::FLASH_MODE_CLOSE;
     }
 
     FlashMode flashMode = captureSession_->GetFlashMode();
-    flashModeAdapter = GetAdapterFlashMode(flashMode);
-    return CAMERA_OK;
+    return GetAdapterFlashMode(flashMode);
 }
 
 int32_t CameraManagerAdapterImpl::SetFlashMode(FlashModeAdapter flashMode)

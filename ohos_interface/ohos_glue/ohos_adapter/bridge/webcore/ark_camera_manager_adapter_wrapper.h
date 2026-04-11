@@ -47,7 +47,7 @@ public:
 
     bool HasFlash() override;
 
-    int32_t GetCurrentFlashMode(NWeb::FlashModeAdapter& flashModeAdapter) override;
+    NWeb::FlashModeAdapter GetFlashMode() override;
 
     int32_t SetFlashMode(NWeb::FlashModeAdapter flashMode) override;
 

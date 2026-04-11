@@ -130,12 +130,9 @@ bool ArkCameraManagerAdapterImpl::HasFlash()
     return real_.HasFlash();
 }
 
-int32_t ArkCameraManagerAdapterImpl::GetCurrentFlashMode(int32_t& flashModeAdapter)
+int32_t ArkCameraManagerAdapterImpl::GetFlashMode()
 {
-    OHOS::NWeb::FlashModeAdapter adapter;
-    int32_t result = real_.GetCurrentFlashMode(adapter);
-    flashModeAdapter = (int32_t)adapter;
-    return result;
+    return (int32_t)real_.GetFlashMode();
 }
 
 int32_t ArkCameraManagerAdapterImpl::SetFlashMode(int32_t flashMode)

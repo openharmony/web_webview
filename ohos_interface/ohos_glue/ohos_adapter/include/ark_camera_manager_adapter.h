@@ -241,7 +241,7 @@ public:
     virtual bool HasFlash() = 0;
 
     /*--ark web()--*/
-    virtual int32_t GetCurrentFlashMode(int32_t& flashModeAdapter) = 0;
+    virtual int32_t GetFlashMode() = 0;
 
     /*--ark web()--*/
     virtual int32_t SetFlashMode(int32_t flashMode) = 0;

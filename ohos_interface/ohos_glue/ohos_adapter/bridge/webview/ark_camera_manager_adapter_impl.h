@@ -48,7 +48,7 @@ public:
 
     bool HasFlash() override;
 
-    int32_t GetCurrentFlashMode(int32_t& flashModeAdapter) override;
+    int32_t GetFlashMode() override;
 
     int32_t SetFlashMode(int32_t flashMode) override;
 

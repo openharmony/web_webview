@@ -154,15 +154,12 @@ bool ArkCameraManagerAdapterWrapper::HasFlash()
     return ctocpp_->HasFlash();
 }
 
-int32_t ArkCameraManagerAdapterWrapper::GetCurrentFlashMode(NWeb::FlashModeAdapter& flashModeAdapter)
+NWeb::FlashModeAdapter ArkCameraManagerAdapterWrapper::GetFlashMode()
 {
     if (!ctocpp_) {
-        return -1;
+        return NWeb::FlashModeAdapter::FLASH_MODE_CLOSE;
     }
-    int32_t temp;
-    int32_t result = ctocpp_->GetCurrentFlashMode(temp);
-    flashModeAdapter = (NWeb::FlashModeAdapter)temp;
-    return result;
+    return (NWeb::FlashModeAdapter)ctocpp_->GetFlashMode();
 }
 
 int32_t ArkCameraManagerAdapterWrapper::SetFlashMode(NWeb::FlashModeAdapter flashMode)
