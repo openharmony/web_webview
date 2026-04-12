@@ -42,6 +42,7 @@ ohos_unittest("nweb_pasteboard_adapter_test") {
     "image_framework:image_native",
     "pasteboard:pasteboard_client",
     "pasteboard:pasteboard_data",
+    "udmf:udmf_client",
   ]
 }
 

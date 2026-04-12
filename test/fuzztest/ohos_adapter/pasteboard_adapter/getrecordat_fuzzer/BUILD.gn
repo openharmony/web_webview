@@ -42,6 +42,7 @@ ohos_fuzztest("GetRecordAtFuzzTest") {
     "pasteboard:pasteboard_client",
     "pasteboard:pasteboard_data",
     "hilog:libhilog",
+    "udmf:udmf_client",
   ]
 }
 
