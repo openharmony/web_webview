@@ -648,11 +648,4 @@ void ArkWebPreferenceWrapper::SetEnableDrag(bool enable)
         ark_web_preference_->SetEnableDrag(enable);
     }
 }
-
-void ArkWebPreferenceWrapper::SetSmartEdgeState(bool state)
-{
-    if (ark_web_preference_) {
-        ark_web_preference_->SetSmartEdgeState(state);
-    }
-}
 } // namespace OHOS::ArkWeb
