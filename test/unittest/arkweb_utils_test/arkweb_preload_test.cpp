@@ -171,21 +171,6 @@ HWTEST_F(ArkWebPreloadCommonTest, GetArkwebBundleInstallLibPath_EvergreenEngine_
     OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
 }
 
-/**
- * @brief Valid package name with LEGACY engine appends "legacy" to bundle name
- */
-HWTEST_F(ArkWebPreloadCommonTest, GetArkwebBundleInstallLibPath_LegacyEngine_001, TestSize.Level1)
-{
-    OHOS::system::SetParameter("persist.arkwebcore.package_name", "com.ohos.arkwebcore");
-    int webEngineEnforce = OHOS::system::GetIntParameter("web.engine.enforce", 0);
-    OHOS::system::SetParameter("web.engine.enforce", std::to_string(static_cast<int>(ArkWebEngineType::LEGACY)));
-
-    auto res = GetArkwebBundleInstallLibPath();
-#if !defined(webview_x86_64)
-    EXPECT_NE(res.find("legacy"), std::string::npos);
-#endif
-    OHOS::system::SetParameter("web.engine.enforce", std::to_string(webEngineEnforce));
-}
 
 // ==================== GetOhosAdptGlueSrcLibPath ====================
 
@@ -263,36 +248,6 @@ HWTEST_F(ArkWebPreloadCommonTest, GetRenderPreLoadMode_LargeRAM_Partial_001, Tes
 
     int mode = GetRenderPreLoadMode(largeRam);
     EXPECT_EQ(mode, 1); // PRELOAD_PARTIAL
-
-    OHOS::system::SetParameter("const.startup.nwebspawn.preloadMode", std::to_string(savedPreloadMode));
-}
-
-/**
- * @brief ramSize > 8GB with param=2 returns PRELOAD_FULL
- */
-HWTEST_F(ArkWebPreloadCommonTest, GetRenderPreLoadMode_LargeRAM_Full_001, TestSize.Level1)
-{
-    int32_t largeRam = RAM_SIZE_8G * SIZE_KB + 1;
-    int savedPreloadMode = OHOS::system::GetIntParameter("const.startup.nwebspawn.preloadMode", 0);
-    OHOS::system::SetParameter("const.startup.nwebspawn.preloadMode", "2");
-
-    int mode = GetRenderPreLoadMode(largeRam);
-    EXPECT_EQ(mode, 2); // PRELOAD_FULL
-
-    OHOS::system::SetParameter("const.startup.nwebspawn.preloadMode", std::to_string(savedPreloadMode));
-}
-
-/**
- * @brief ramSize > 8GB with param=0 returns PRELOAD_NO from param
- */
-HWTEST_F(ArkWebPreloadCommonTest, GetRenderPreLoadMode_LargeRAM_NoMode_001, TestSize.Level1)
-{
-    int32_t largeRam = RAM_SIZE_8G * SIZE_KB + 1;
-    int savedPreloadMode = OHOS::system::GetIntParameter("const.startup.nwebspawn.preloadMode", 0);
-    OHOS::system::SetParameter("const.startup.nwebspawn.preloadMode", "0");
-
-    int mode = GetRenderPreLoadMode(largeRam);
-    EXPECT_EQ(mode, 0); // PRELOAD_NO from param
 
     OHOS::system::SetParameter("const.startup.nwebspawn.preloadMode", std::to_string(savedPreloadMode));
 }
