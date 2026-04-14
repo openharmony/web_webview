@@ -62,6 +62,26 @@ bool CameraManagerAdapterImpl::IsFlashModeSupported(FlashModeAdapter focusMode)
     return false;
 }
 
+int32_t CameraManagerAdapterImpl::GetSupportedFlashModes(std::vector<FlashModeAdapter>& flashModesAdapter)
+{
+    return -1;
+}
+
+bool CameraManagerAdapterImpl::HasFlash()
+{
+    return false;
+}
+
+FlashModeAdapter CameraManagerAdapterImpl::GetFlashMode()
+{
+    return FlashModeAdapter::FLASH_MODE_CLOSE;
+}
+
+int32_t CameraManagerAdapterImpl::SetFlashMode(FlashModeAdapter flashMode)
+{
+    return -1;
+}
+
 int32_t CameraManagerAdapterImpl::RestartSession()
 {
     return -1;

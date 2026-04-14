@@ -129,6 +129,47 @@ bool ArkCameraManagerAdapterWrapper::IsFlashModeSupported(NWeb::FlashModeAdapter
     return ctocpp_->IsFlashModeSupported((int32_t)flashMode);
 }
 
+int32_t ArkCameraManagerAdapterWrapper::GetSupportedFlashModes(
+    std::vector<NWeb::FlashModeAdapter>& flashModesAdapter)
+{
+    if (!ctocpp_) {
+        return -1;
+    }
+    ArkWebInt32Vector vec = {0, nullptr, nullptr};
+    int32_t result = ctocpp_->GetSupportedFlashModes(vec);
+    for (int count = 0; count < vec.size; count++) {
+        flashModesAdapter.push_back((NWeb::FlashModeAdapter)vec.value[count]);
+    }
+
+    ArkWebBasicVectorStructRelease(vec);
+
+    return result;
+}
+
+bool ArkCameraManagerAdapterWrapper::HasFlash()
+{
+    if (!ctocpp_) {
+        return false;
+    }
+    return ctocpp_->HasFlash();
+}
+
+NWeb::FlashModeAdapter ArkCameraManagerAdapterWrapper::GetFlashMode()
+{
+    if (!ctocpp_) {
+        return NWeb::FlashModeAdapter::FLASH_MODE_CLOSE;
+    }
+    return (NWeb::FlashModeAdapter)ctocpp_->GetFlashMode();
+}
+
+int32_t ArkCameraManagerAdapterWrapper::SetFlashMode(NWeb::FlashModeAdapter flashMode)
+{
+    if (!ctocpp_) {
+        return -1;
+    }
+    return ctocpp_->SetFlashMode((int32_t)flashMode);
+}
+
 int32_t ArkCameraManagerAdapterWrapper::RestartSession()
 {
     if (!ctocpp_) {

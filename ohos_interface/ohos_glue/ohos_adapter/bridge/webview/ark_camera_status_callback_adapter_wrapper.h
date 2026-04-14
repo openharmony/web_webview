@@ -28,6 +28,9 @@ public:
 
     void OnCameraStatusChanged(
         NWeb::CameraStatusAdapter cameraStatusAdapter, const std::string callBackDeviceId) override;
+    
+    void OnFlashlightStatusChanged(
+        NWeb::FlashStatusAdapter flashStatusAdapter, const std::string cameraID) override;
 
 private:
     ArkWebRefPtr<ArkCameraStatusCallbackAdapter> ctocpp_;

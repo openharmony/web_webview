@@ -71,6 +71,7 @@ public:
 
 private:
     CameraStatusAdapter GetAdapterCameraStatus(CameraStatus status) const;
+    FlashStatusAdapter GetAdapterFlashStatus(FlashStatus status) const;
     std::shared_ptr<CameraStatusCallbackAdapter> statusCallback_;
 };
 #endif
@@ -99,6 +100,16 @@ public:
     FocusModeAdapter GetCurrentFocusMode() override;
 
     bool IsFlashModeSupported(FlashModeAdapter flashMode) override;
+
+    int32_t GetSupportedFlashModes(std::vector<FlashModeAdapter>& flashModesAdapter) override;
+
+    bool HasFlash() override;
+
+    FlashModeAdapter GetFlashMode() override;
+
+    int32_t SetFlashMode(FlashModeAdapter flashMode) override;
+
+    void RestartTorch();
 
     int32_t RestartSession() override;
 
@@ -131,6 +142,9 @@ private:
     FocusMode GetOriFocusMode(FocusModeAdapter focusMode);
     FocusModeAdapter GetAdapterFocusMode(FocusMode focusMode);
     FlashMode GetOriFlashMode(FlashModeAdapter flashMode);
+    FlashModeAdapter GetAdapterFlashMode(FlashMode flashMode);
+    int32_t TransToAdapterFlashModes(
+        std::vector<FlashMode>& flashModes, std::vector<FlashModeAdapter>& flashModesAdapter);
     int32_t ReleaseSession();
     int32_t ReleaseSessionResource(const std::string& deviceId);
     int32_t InitCameraInput(const std::string& deviceId);
@@ -160,6 +174,7 @@ private:
     std::mutex mutex_;
     bool inputInitedFlag_ = false;
     bool isCapturing_ = false;
+    bool isFlashing_ = false;
     bool isForegound_ = false;
     std::shared_ptr<CameraManagerAdapterCallback> cameraMngrCallback_;
     std::string wantedDeviceId_;

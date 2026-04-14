@@ -173,6 +173,9 @@ class ArkCameraStatusCallbackAdapter : public virtual ArkWebBaseRefCounted {
 public:
     /*--ark web()--*/
     virtual void OnCameraStatusChanged(int32_t cameraStatusAdapter, const ArkWebString callBackDeviceId) = 0;
+
+    /*--ark web()--*/
+    virtual void OnFlashlightStatusChanged(int32_t flashStatusAdapter, const ArkWebString cameraID) = 0;
 };
 
 /*--ark web(source=webview)--*/
@@ -230,6 +233,18 @@ public:
 
     /*--ark web()--*/
     virtual ArkWebString GetCurrentDeviceId() = 0;
+
+    /*--ark web()--*/
+    virtual int32_t GetSupportedFlashModes(ArkWebInt32Vector& flashModesAdapter) = 0;
+
+    /*--ark web()--*/
+    virtual bool HasFlash() = 0;
+
+    /*--ark web()--*/
+    virtual int32_t GetFlashMode() = 0;
+
+    /*--ark web()--*/
+    virtual int32_t SetFlashMode(int32_t flashMode) = 0;
 };
 
 } // namespace OHOS::ArkWeb
