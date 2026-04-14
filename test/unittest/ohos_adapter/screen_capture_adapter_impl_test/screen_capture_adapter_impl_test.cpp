@@ -56,7 +56,7 @@ public:
     MOCK_METHOD0(StopScreenRecording, int32_t());
     MOCK_METHOD0(PresentPicker, int32_t());
     MOCK_METHOD2(AcquireAudioBuffer, int32_t(std::shared_ptr<AudioBuffer>&, AudioCaptureSourceType));
-    MOCK_METHOD3(AcquireVideoBuffer, sptr<OHOS::SurfaceBuffer>(int32_t&, int64_t&, OHOS::Rect&));
+    MOCK_METHOD4(AcquireVideoBuffer, sptr<OHOS::SurfaceBuffer>(int32_t&, int64_t&, OHOS::Rect&, OHOS::Rect&));
     MOCK_METHOD1(ReleaseAudioBuffer, int32_t(AudioCaptureSourceType));
     MOCK_METHOD0(ReleaseVideoBuffer, int32_t());
     MOCK_METHOD0(Release, int32_t());
@@ -717,7 +717,7 @@ HWTEST_F(ScreenCaptureAdapterImplTest, ScreenCaptureAdapterImplTest_AcquireVideo
     sptr<OHOS::SurfaceBuffer> surfacebuffer = new SurfaceBufferImpl(0);
     EXPECT_NE(surfacebuffer, nullptr);
     adapterImpl->screenCapture_.reset(mock);
-    EXPECT_CALL(*mock, AcquireVideoBuffer(::testing::_, ::testing::_, ::testing::_))
+    EXPECT_CALL(*mock, AcquireVideoBuffer(::testing::_, ::testing::_, ::testing::_, ::testing::_))
         .Times(1)
         .WillRepeatedly(::testing::Return(surfacebuffer));
 
