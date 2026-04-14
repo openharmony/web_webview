@@ -49,7 +49,9 @@ static bool GetStringPara(ani_env* env, ani_string dataStr)
     }
     constexpr int32_t maxStringLength = 40960;
     ani_size bufferSize = 0;
-    env->String_GetUTF8Size(dataStr, &bufferSize);
+    if (ANI_OK != env->String_GetUTF8Size(dataStr, &bufferSize)) {
+        WVLOG_E("GetUTF8Size Failed.");
+    }
     if (bufferSize > maxStringLength) {
         WVLOG_E("buffer exceed maxStringLength");
         return false;

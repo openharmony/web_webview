@@ -42,7 +42,9 @@ WebviewCreatePDFExecuteCallback::WebviewCreatePDFExecuteCallback(ani_env *env,
         return;
     }
     ani_vm *vm = nullptr;
-    env->GetVM(&vm);
+    if (ANI_OK != env->GetVM(&vm)) {
+        WVLOG_E("GetVM failed");
+    }
     aniVm_ = vm;
     callback_ = callback;
 }
@@ -67,7 +69,9 @@ void WebviewCreatePDFExecuteCallback::ReleaseBuffer()
             WVLOG_E("vm GetEnv, err: %{private}d", status);
             return;
         }
-        env->GlobalReference_Delete(callbackRef_);
+        if (ANI_OK != env->GlobalReference_Delete(callbackRef_)) {
+            WVLOG_E("GlobalReference_Delete failed");
+        }
     }
 }
 
@@ -107,7 +111,9 @@ void WebviewCreatePDFExecuteCallback::OnReceiveValue(const char* value, const lo
     }
     size_ = size;
     ThreadAfterCb(env);
-    aniVm_->DetachCurrentThread();
+    if (ANI_OK != aniVm_->DetachCurrentThread()) {
+        WVLOG_E("DetachCurrentThread failed");
+    }
     return;
 }
 
@@ -126,7 +132,9 @@ void WebviewCreatePDFExecuteCallback::ThreadAfterCb(ani_env *env)
         return;
     }
     callback_(env, result_, size_, std::move(callbackRef_));
-    env->DestroyLocalScope();
+    if (ANI_OK != env->DestroyLocalScope()) {
+        WVLOG_E("DestroyLocalScope failed");
+    }
     ReleaseBuffer();
 }
 
@@ -151,7 +159,9 @@ static ani_object GetArrayBuffer(ani_env* env, ani_object object)
     }
     ani_arraybuffer arraybuffer;
     void* bufferData = nullptr;
-    env->CreateArrayBuffer(size, &bufferData, &arraybuffer);
+    if (ANI_OK != env->CreateArrayBuffer(size, &bufferData, &arraybuffer)) {
+        WVLOG_E("unwrap webArrayBufferExt failed.");
+    }
     if (bufferData == nullptr) {
         WVLOG_E("bufferData is null after array buffer creation");
         return nullptr;
