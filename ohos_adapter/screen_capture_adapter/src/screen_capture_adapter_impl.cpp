@@ -389,8 +389,7 @@ std::shared_ptr<SurfaceBufferAdapter> ScreenCaptureAdapterImpl::AcquireVideoBuff
     int32_t fence;
     int64_t timestamp;
     OHOS::Rect region;
-    OHOS::Rect rsRect;
-    sptr<OHOS::SurfaceBuffer> surfaceBuffer = screenCapture_->AcquireVideoBuffer(fence, timestamp, region, rsRect);
+    sptr<OHOS::SurfaceBuffer> surfaceBuffer = screenCapture_->AcquireVideoBuffer(fence, timestamp, region);
     if (surfaceBuffer == nullptr) {
         WVLOG_E("acquire video buffer failed");
         return nullptr;
