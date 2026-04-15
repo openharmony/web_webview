@@ -856,6 +856,14 @@ public:
      *
      */
     void ModifyRenderFit(int32_t fitType) override;
+
+    /**
+     * @brief Determines whether to consume the scroll velocity in nested scrolling scenarios.
+     *
+     * @param velocity_x The velocity of x axis.
+     * @param velocity_y The velocity of y axis.
+     */
+    bool OnNestedFling(float& velocity_x, float& velocity_y) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };

@@ -1200,6 +1200,15 @@ public:
      */
     /*--ark web()--*/
     virtual void ModifyRenderFit(int32_t fitType) = 0;
+
+    /**
+     * @brief Determines whether to consume the scroll velocity in nested scrolling scenarios.
+     *
+     * @param velocity_x The velocity of x axis.
+     * @param velocity_y The velocity of y axis.
+     */
+    /*--ark web()--*/
+    virtual bool OnNestedFling(float& velocity_x, float& velocity_y) = 0;
 };
 
 } // namespace OHOS::ArkWeb

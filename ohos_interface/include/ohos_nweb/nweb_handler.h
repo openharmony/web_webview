@@ -1500,6 +1500,17 @@ public:
      * @brief Modify web component renderfit.
      */
     virtual void ModifyRenderFit(int32_t fitType) {}
+
+    /**
+     * @brief Determines whether to consume the scroll velocity in nested scrolling scenarios.
+     *
+     * @param velocity_x The velocity of x axis.
+     * @param velocity_y The velocity of y axis.
+     */
+    virtual bool OnNestedFling(float& velocity_x, float& velocity_y)
+    {
+        return false;
+    }
 };
 
 } // namespace OHOS::NWeb
