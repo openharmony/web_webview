@@ -4251,18 +4251,18 @@ def main():
         if not class_name.startswith('Ark'):
             if class_config['system'] == 'ohos_nweb':
                 if class_name.startswith('NWeb'):
-                    arkts_class_name = 'Ark' + class_name
+                    arkts_class_name = 'Ark%s' % class_name
                 elif not class_name.startswith('ArkWeb'):
-                    arkts_class_name = 'ArkWeb' + class_name
+                    arkts_class_name = 'ArkWeb%s' % class_name
             elif class_config['system'] == 'ohos_adapter' and not class_name.startswith('Ark'):
-                arkts_class_name = 'Ark' + class_name
+                arkts_class_name = 'Ark%s' % class_name
         # 去掉 ArkNWeb 前缀中的 NWeb
         if arkts_class_name.startswith('ArkNWeb'):
-            arkts_class_name = 'ArkWeb' + arkts_class_name[7:]
+            arkts_class_name = 'ArkWeb%s' % arkts_class_name[7:]
         arkts_interface = parser.parse_arkts_interface(class_config['arkweb'], arkts_class_name)
         nweb_interface = parser.parse_nweb_interface(class_config['nweb'], class_name)
         if not arkts_interface and not arkts_class_name.endswith('Adapter'):
-            arkts_class_name_with_adapter = arkts_class_name + 'Adapter'
+            arkts_class_name_with_adapter = '%sAdapter' % arkts_class_name
             print(f"  尝试使用类名: {arkts_class_name_with_adapter}")
             arkts_interface = parser.parse_arkts_interface(class_config['arkweb'], arkts_class_name_with_adapter)
             if arkts_interface:
@@ -4280,23 +4280,23 @@ def main():
             if system == 'ohos_adapter':
                 # ohos_adapter: 优先添加 Adapter 后缀
                 if not nweb_class_name.endswith('Adapter'):
-                    nweb_attempts.append(nweb_class_name + 'Adapter')
+                    nweb_attempts.append('%sAdapter' % nweb_class_name)
                 # 尝试添加 NWeb 前缀
                 if not nweb_class_name.startswith('NWeb'):
-                    nweb_attempts.append('NWeb' + nweb_class_name)
+                    nweb_attempts.append('NWeb%s' % nweb_class_name)
                 # 同时添加 NWeb 前缀和 Adapter 后缀
                 if not nweb_class_name.startswith('NWeb') and not nweb_class_name.endswith('Adapter'):
-                    nweb_attempts.append('NWeb' + nweb_class_name + 'Adapter')
+                    nweb_attempts.append('NWeb%sAdapter' % nweb_class_name)
             elif system == 'ohos_nweb':
                 # ohos_nweb: 优先添加 NWeb 前缀
                 if not nweb_class_name.startswith('NWeb'):
-                    nweb_attempts.append('NWeb' + nweb_class_name)
+                    nweb_attempts.append('NWeb%s' % nweb_class_name)
                 # 尝试添加 Adapter 后缀
                 if not nweb_class_name.endswith('Adapter'):
-                    nweb_attempts.append(nweb_class_name + 'Adapter')
+                    nweb_attempts.append('%sAdapter' % nweb_class_name)
                 # 同时添加 NWeb 前缀和 Adapter 后缀
                 if not nweb_class_name.startswith('NWeb') and not nweb_class_name.endswith('Adapter'):
-                    nweb_attempts.append('NWeb' + nweb_class_name + 'Adapter')
+                    nweb_attempts.append('NWeb%sAdapter' % nweb_class_name)
 
             # 按顺序尝试每个候选类名
             for attempt_name in nweb_attempts:
