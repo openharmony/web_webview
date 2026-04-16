@@ -1250,4 +1250,9 @@ void ArkWebHandlerImpl::ModifyRenderFit(int32_t fitType)
 {
     nweb_handler_->ModifyRenderFit(fitType);
 }
+
+bool ArkWebHandlerImpl::OnNestedFling(float& velocity_x, float& velocity_y)
+{
+    return nweb_handler_->OnNestedFling(velocity_x, velocity_y);
+}
 } // namespace OHOS::ArkWeb
