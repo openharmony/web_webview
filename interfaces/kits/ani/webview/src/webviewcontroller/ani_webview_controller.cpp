@@ -914,19 +914,23 @@ bool AsyncCallback(ani_env *env, ani_ref call, ani_object stsErrCode, ani_object
         return false;
     }
     ani_method method = {};
-    if ((status = env->Class_FindMethod(
-        clsCall, INVOKE_METHOD_NAME, nullptr, &method)) != ANI_OK) {
+    if ((status = env->Class_FindMethod(clsCall, INVOKE_METHOD_NAME,
+        "X{C{@ohos.base.BusinessError}C{std.core.Null}}C{std.core.Object}:", &method)) != ANI_OK) {
         WVLOG_E("Class_FindMethod fail, status: %{public}d", status);
         return false;
     }
     if (!stsErrCode) {
         ani_ref nullRef = nullptr;
-        env->GetNull(&nullRef);
+        if (ANI_OK != env->GetNull(&nullRef)) {
+            WVLOG_E("GetNull failed");
+        }
         stsErrCode = reinterpret_cast<ani_object>(nullRef);
     }
     if (!retObj) {
         ani_ref undefinedRef = nullptr;
-        env->GetUndefined(&undefinedRef);
+        if (env->GetUndefined(&undefinedRef)) {
+            WVLOG_E("GetUndefined failed");
+        }
         retObj = reinterpret_cast<ani_object>(undefinedRef);
     }
     if ((status = env->Object_CallMethod_Void(static_cast<ani_object>(call), method, stsErrCode, retObj)) != ANI_OK) {
