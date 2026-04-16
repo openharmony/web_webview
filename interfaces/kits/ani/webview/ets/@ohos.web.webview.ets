@@ -1050,8 +1050,17 @@ export default namespace webview {
         native static isActiveWebEngineEvergreen(): boolean;
         native jsProxy(obj: Object, name: string, methodList: Array<string>, asyncMethodList?: Array<string>, permission?: string): void;
         jsProxyInvokeMethod(obj: Object, name: string, args: Array<Object>): Any {
-            let clsVal = Type.of(obj) as ClassType;
-            let method = clsVal.getMethodByName(name);
+            let method: reflect.InstanceMethod | undefined = undefined
+            for (let clsVal = Class.of(obj); clsVal != Class.from<Object>(); clsVal = clsVal.getSuper()!) {
+                method = clsVal.getInstanceMethod(name)
+                if (method != undefined) {
+                    break
+                }
+            }
+            if (method == undefined) {
+                throw new TypeError("no instance method \"" + name + "\"")
+            }
+
             if(args.length <= 0) {
                 return method.invoke(obj, []);
             }
