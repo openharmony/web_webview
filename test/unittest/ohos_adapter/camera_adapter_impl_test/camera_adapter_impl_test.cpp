@@ -642,4 +642,219 @@ HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_GetAdapterFlashMode_013, T
     EXPECT_EQ(flashMode, FlashModeAdapter::FLASH_MODE_CLOSE);
 }
 
+/**
+ * @tc.name: CameraAdapterImplTest_GetAdapterFlashStatus_014
+ * @tc.desc: GetAdapterFlashStatus.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_GetAdapterFlashStatus_014, TestSize.Level1)
+{
+    auto callback = std::make_shared<CameraStatusCallbackAdapterMock>();
+    CameraManagerAdapterCallback adapterCallback(callback);
+    FlashStatusAdapter status = adapterCallback.GetAdapterFlashStatus(FlashStatus::FLASH_STATUS_OFF);
+    EXPECT_EQ(status, FlashStatusAdapter::OFF);
+    status = adapterCallback.GetAdapterFlashStatus(FlashStatus::FLASH_STATUS_ON);
+    EXPECT_EQ(status, FlashStatusAdapter::ON);
+    status = adapterCallback.GetAdapterFlashStatus(FlashStatus::FLASH_STATUS_UNAVAILABLE);
+    EXPECT_EQ(status, FlashStatusAdapter::UNAVAILABLE);
+    status = adapterCallback.GetAdapterFlashStatus(static_cast<FlashStatus>(-1));
+    EXPECT_EQ(status, FlashStatusAdapter::UNAVAILABLE);
+}
+
+/**
+ * @tc.name: CameraAdapterImplTest_TransToAdapterFlashModes_015
+ * @tc.desc: TransToAdapterFlashModes.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_TransToAdapterFlashModes_015, TestSize.Level1)
+{
+    auto callback = std::make_shared<CameraStatusCallbackAdapterMock>();
+    CameraManagerAdapterImpl& adapter = CameraManagerAdapterImpl::GetInstance();
+    int32_t result = adapter.Create(callback);
+    EXPECT_EQ(result, 0);
+    std::vector<FlashMode> flashModes;
+    std::vector<FlashModeAdapter> flashModesAdapter;
+    result = adapter.TransToAdapterFlashModes(flashModes, flashModesAdapter);
+    EXPECT_EQ(result, 0);
+    EXPECT_TRUE(flashModesAdapter.empty());
+    flashModes.push_back(FlashMode::FLASH_MODE_CLOSE);
+    flashModes.push_back(FlashMode::FLASH_MODE_OPEN);
+    flashModes.push_back(FlashMode::FLASH_MODE_ALWAYS_OPEN);
+    result = adapter.TransToAdapterFlashModes(flashModes, flashModesAdapter);
+    EXPECT_EQ(result, 0);
+    EXPECT_EQ(flashModesAdapter.size(), 3U);
+    EXPECT_EQ(flashModesAdapter[0], FlashModeAdapter::FLASH_MODE_CLOSE);
+    EXPECT_EQ(flashModesAdapter[1], FlashModeAdapter::FLASH_MODE_OPEN);
+    EXPECT_EQ(flashModesAdapter[2], FlashModeAdapter::FLASH_MODE_ALWAYS_OPEN);
+    // Test invalid FlashMode value
+    flashModes.clear();
+    flashModesAdapter.clear();
+    flashModes.push_back(static_cast<FlashMode>(999));
+    result = adapter.TransToAdapterFlashModes(flashModes, flashModesAdapter);
+    EXPECT_EQ(result, 0);
+    EXPECT_EQ(flashModesAdapter.size(), 1U);
+    EXPECT_EQ(flashModesAdapter[0], FlashModeAdapter::FLASH_MODE_CLOSE);
+}
+
+/**
+ * @tc.name: CameraAdapterImplTest_HasFlash_016
+ * @tc.desc: HasFlash.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_HasFlash_016, TestSize.Level1)
+{
+    auto callback = std::make_shared<CameraStatusCallbackAdapterMock>();
+    CameraManagerAdapterImpl& adapter = CameraManagerAdapterImpl::GetInstance();
+    int32_t result = adapter.Create(callback);
+    EXPECT_EQ(result, 0);
+    bool hasFlash = adapter.HasFlash();
+    EXPECT_FALSE(hasFlash);
+    sptr<CaptureSession> captureSession = g_cameraManager->CreateCaptureSession();
+    EXPECT_NE(captureSession, nullptr);
+    adapter.captureSession_ = captureSession;
+    hasFlash = adapter.HasFlash();
+    bool expectedHasFlash = captureSession->HasFlash();
+    EXPECT_EQ(hasFlash, expectedHasFlash);
+}
+
+/**
+ * @tc.name: CameraAdapterImplTest_GetFlashMode_017
+ * @tc.desc: GetFlashMode.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_GetFlashMode_017, TestSize.Level1)
+{
+    auto callback = std::make_shared<CameraStatusCallbackAdapterMock>();
+    CameraManagerAdapterImpl& adapter = CameraManagerAdapterImpl::GetInstance();
+    int32_t result = adapter.Create(callback);
+    EXPECT_EQ(result, 0);
+    FlashModeAdapter flashMode = adapter.GetFlashMode();
+    EXPECT_EQ(flashMode, FlashModeAdapter::FLASH_MODE_CLOSE);
+    sptr<CaptureSession> captureSession = g_cameraManager->CreateCaptureSession();
+    EXPECT_NE(captureSession, nullptr);
+    adapter.captureSession_ = captureSession;
+    flashMode = adapter.GetFlashMode();
+    EXPECT_EQ(flashMode, FlashModeAdapter::FLASH_MODE_CLOSE);
+}
+
+/**
+ * @tc.name: CameraAdapterImplTest_SetFlashMode_018
+ * @tc.desc: SetFlashMode.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_SetFlashMode_018, TestSize.Level1)
+{
+    auto callback = std::make_shared<CameraStatusCallbackAdapterMock>();
+    CameraManagerAdapterImpl& adapter = CameraManagerAdapterImpl::GetInstance();
+    int32_t result = adapter.Create(callback);
+    EXPECT_EQ(result, 0);
+    result = adapter.SetFlashMode(FlashModeAdapter::FLASH_MODE_ALWAYS_OPEN);
+    EXPECT_EQ(result, CAMERA_ERROR);
+    EXPECT_FALSE(adapter.isFlashing_);
+    result = adapter.SetFlashMode(FlashModeAdapter::FLASH_MODE_CLOSE);
+    EXPECT_EQ(result, CAMERA_ERROR);
+    EXPECT_FALSE(adapter.isFlashing_);
+    result = adapter.SetFlashMode(FlashModeAdapter::FLASH_MODE_OPEN);
+    EXPECT_EQ(result, CAMERA_ERROR);
+    EXPECT_FALSE(adapter.isFlashing_);
+    sptr<CaptureSession> captureSession = g_cameraManager->CreateCaptureSession();
+    EXPECT_NE(captureSession, nullptr);
+    adapter.captureSession_ = captureSession;
+    result = adapter.SetFlashMode(FlashModeAdapter::FLASH_MODE_ALWAYS_OPEN);
+    EXPECT_TRUE(result == CAMERA_OK || result == CAMERA_ERROR);
+    if (result == CAMERA_OK) {
+        EXPECT_TRUE(adapter.isFlashing_);
+    } else {
+        EXPECT_FALSE(adapter.isFlashing_);
+    }
+    result = adapter.SetFlashMode(FlashModeAdapter::FLASH_MODE_CLOSE);
+    EXPECT_TRUE(result == CAMERA_OK || result == CAMERA_ERROR);
+    if (result == CAMERA_OK) {
+        EXPECT_FALSE(adapter.isFlashing_);
+    } else {
+        EXPECT_FALSE(adapter.isFlashing_);
+    }
+    bool wasFlashing = adapter.isFlashing_;
+    result = adapter.SetFlashMode(FlashModeAdapter::FLASH_MODE_OPEN);
+    EXPECT_TRUE(result == CAMERA_OK || result == CAMERA_ERROR);
+    if (result == CAMERA_OK) {
+        EXPECT_EQ(adapter.isFlashing_, wasFlashing);
+    } else {
+        EXPECT_EQ(adapter.isFlashing_, wasFlashing);
+    }
+}
+
+/**
+ * @tc.name: CameraAdapterImplTest_RestartTorch_019
+ * @tc.desc: RestartTorch.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_RestartTorch_019, TestSize.Level1)
+{
+    auto callback = std::make_shared<CameraStatusCallbackAdapterMock>();
+    CameraManagerAdapterImpl& adapter = CameraManagerAdapterImpl::GetInstance();
+    int32_t result = adapter.Create(callback);
+    EXPECT_EQ(result, 0);
+
+    adapter.isCapturing_ = false;
+    adapter.RestartTorch();
+    EXPECT_FALSE(adapter.isFlashing_);
+
+    adapter.isCapturing_ = true;
+    adapter.RestartTorch();
+    EXPECT_FALSE(adapter.isFlashing_);
+
+    sptr<CaptureSession> captureSession = g_cameraManager->CreateCaptureSession();
+    EXPECT_NE(captureSession, nullptr);
+    adapter.captureSession_ = captureSession;
+    adapter.isCapturing_ = true;
+
+    result = adapter.SetFlashMode(FlashModeAdapter::FLASH_MODE_OPEN);
+    bool wasFlashing = adapter.isFlashing_;
+
+    adapter.RestartTorch();
+    EXPECT_EQ(adapter.isFlashing_, wasFlashing);
+}
+
+/**
+ * @tc.name: CameraAdapterImplTest_GetSupportedFlashModes_020
+ * @tc.desc: GetSupportedFlashModes.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(CameraAdapterImplTest, CameraAdapterImplTest_GetSupportedFlashModes_020, TestSize.Level1)
+{
+    auto callback = std::make_shared<CameraStatusCallbackAdapterMock>();
+    CameraManagerAdapterImpl& adapter = CameraManagerAdapterImpl::GetInstance();
+    int32_t result = adapter.Create(callback);
+    EXPECT_EQ(result, 0);
+    std::vector<FlashModeAdapter> flashModesAdapter;
+    result = adapter.GetSupportedFlashModes(flashModesAdapter);
+    EXPECT_EQ(result, CAMERA_ERROR);
+    EXPECT_TRUE(flashModesAdapter.empty());
+    sptr<CaptureSession> captureSession = g_cameraManager->CreateCaptureSession();
+    EXPECT_NE(captureSession, nullptr);
+    adapter.captureSession_ = captureSession;
+    result = adapter.GetSupportedFlashModes(flashModesAdapter);
+    EXPECT_TRUE(result == CAMERA_OK || result == CAMERA_ERROR);
+    if (result == CAMERA_OK) {
+        // Verify the returned modes are valid
+        EXPECT_FALSE(flashModesAdapter.empty());
+        for (const auto& mode : flashModesAdapter) {
+            EXPECT_TRUE(mode == FlashModeAdapter::FLASH_MODE_CLOSE ||
+                        mode == FlashModeAdapter::FLASH_MODE_OPEN ||
+                        mode == FlashModeAdapter::FLASH_MODE_AUTO ||
+                        mode  == FlashModeAdapter::FLASH_MODE_ALWAYS_OPEN);
+        }
+    } else {
+        EXPECT_TRUE(flashModesAdapter.empty());
+    }
+}
+
 } // namespace OHOS::NWeb
