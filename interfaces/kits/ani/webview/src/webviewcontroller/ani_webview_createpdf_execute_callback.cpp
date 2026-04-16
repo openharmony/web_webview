@@ -182,7 +182,6 @@ static ani_object GetArrayBuffer(ani_env* env, ani_object object)
         WVLOG_E("Object_New failed, status is %{public}d.", status);
         return nullptr;
     }
-
     for (ani_int i = 0; i < size; i++) {
         ani_int value = pdfResult[i];
         status = env->Object_CallMethodByName_Void(arrayObject, "set", "ib:", i, static_cast<ani_byte>(value));
