@@ -295,4 +295,38 @@ int ArkHiSysEventAdapterImpl::Write(const ArkWebString& eventName, uint32_t type
 
     return real_.Write(s_eventName, (OHOS::NWeb::HiSysEventAdapter::EventType)type, data);
 }
+
+int ArkHiSysEventAdapterImpl::Write(const ArkWebString& eventName, uint32_t type, const ArkWebString key1,
+    const ArkWebString value1, const ArkWebString key2, const ArkWebString value2, const ArkWebString key3,
+    const ArkWebString value3, const ArkWebString key4, const ArkWebString value4, const ArkWebString key5,
+    const ArkWebString value5, const ArkWebString key6, const ArkWebString value6, const ArkWebString key7,
+    const ArkWebString value7, const ArkWebString key8, const ArkWebString value8, const ArkWebString key9,
+    const ArkWebString value9, const ArkWebString key10, const ArkWebString value10)
+{
+    std::string s_eventName = ArkWebStringStructToClass(eventName);
+    std::string s_key1 = ArkWebStringStructToClass(key1);
+    std::string s_value1 = ArkWebStringStructToClass(value1);
+    std::string s_key2 = ArkWebStringStructToClass(key2);
+    std::string s_value2 = ArkWebStringStructToClass(value2);
+    std::string s_key3 = ArkWebStringStructToClass(key3);
+    std::string s_value3 = ArkWebStringStructToClass(value3);
+    std::string s_key4 = ArkWebStringStructToClass(key4);
+    std::string s_value4 = ArkWebStringStructToClass(value4);
+    std::string s_key5 = ArkWebStringStructToClass(key5);
+    std::string s_value5 = ArkWebStringStructToClass(value5);
+    std::string s_key6 = ArkWebStringStructToClass(key6);
+    std::string s_value6 = ArkWebStringStructToClass(value6);
+    std::string s_key7 = ArkWebStringStructToClass(key7);
+    std::string s_value7 = ArkWebStringStructToClass(value7);
+    std::string s_key8 = ArkWebStringStructToClass(key8);
+    std::string s_value8 = ArkWebStringStructToClass(value8);
+    std::string s_key9 = ArkWebStringStructToClass(key9);
+    std::string s_value9 = ArkWebStringStructToClass(value9);
+    std::string s_key10 = ArkWebStringStructToClass(key10);
+    std::string s_value10 = ArkWebStringStructToClass(value10);
+    std::tuple data = std::make_tuple(s_key1, s_value1, s_key2, s_value2, s_key3, s_value3, s_key4, s_value4, s_key5,
+        s_value5, s_key6, s_value6, s_key7, s_value7, s_key8, s_value8, s_key9, s_value9, s_key10, s_value10);
+
+    return real_.Write(s_eventName, (OHOS::NWeb::HiSysEventAdapter::EventType)type, data);
+}
 } // namespace OHOS::ArkWeb
