@@ -325,4 +325,67 @@ HWTEST(HiViewDFXAdapterTest, NormalScene_06, TestSize.Level1)
         "testEvent", HiSysEventAdapter::EventType::BEHAVIOR, { "testkey1", "0"});
     EXPECT_EQ(ret, 0);
 }
+
+/**
+* @tc.name: NormalScene_07.
+* @tc.desc: test normal scene of HiViewDFXAdapter with 10 key-value pairs.
+* @tc.type: FUNC.
+* @tc.require:
+*/
+HWTEST(HiViewDFXAdapterTest, NormalScene_07, TestSize.Level1)
+{
+    const std::tuple<const std::string, const std::string, const std::string, const std::string,
+        const std::string, const std::string, const std::string, const std::string,
+        const std::string, const std::string, const std::string, const std::string,
+        const std::string, const std::string, const std::string, const std::string,
+        const std::string, const std::string, const std::string, const std::string> data(
+        "testkey1", "testvalue1", "testkey2", "testvalue2", "testkey3", "testvalue3",
+        "testkey4", "testvalue4", "testkey5", "testvalue5", "testkey6", "testvalue6",
+        "testkey7", "testvalue7", "testkey8", "testvalue8", "testkey9", "testvalue9",
+        "testkey10", "testvalue10");
+    int ret = OhosAdapterHelper::GetInstance().GetHiSysEventAdapterInstance().Write(
+        "testEvent", HiSysEventAdapter::EventType::STATISTIC, data);
+    EXPECT_EQ(ret, 0);
+}
+
+/**
+* @tc.name: NormalScene_08.
+* @tc.desc: test normal scene of HiViewDFXAdapter with 10 key-value pairs with empty values.
+* @tc.type: FUNC.
+* @tc.require:
+*/
+HWTEST(HiViewDFXAdapterTest, NormalScene_08, TestSize.Level1)
+{
+    const std::tuple<const std::string, const std::string, const std::string, const std::string,
+        const std::string, const std::string, const std::string, const std::string,
+        const std::string, const std::string, const std::string, const std::string,
+        const std::string, const std::string, const std::string, const std::string,
+        const std::string, const std::string, const std::string, const std::string> data(
+        "key1", "", "key2", "", "key3", "", "key4", "", "key5", "",
+        "key6", "", "key7", "", "key8", "", "key9", "", "key10", "");
+    int ret = OhosAdapterHelper::GetInstance().GetHiSysEventAdapterInstance().Write(
+        "testEvent", HiSysEventAdapter::EventType::STATISTIC, data);
+    EXPECT_EQ(ret, 0);
+}
+
+/**
+* @tc.name: NormalScene_09.
+* @tc.desc: test normal scene of HiViewDFXAdapter with 10 key-value pairs for memory dfx report.
+* @tc.type: FUNC.
+* @tc.require:
+*/
+HWTEST(HiViewDFXAdapterTest, NormalScene_09, TestSize.Level1)
+{
+    const std::tuple<const std::string, const std::string, const std::string, const std::string,
+        const std::string, const std::string, const std::string, const std::string,
+        const std::string, const std::string, const std::string, const std::string,
+        const std::string, const std::string, const std::string, const std::string,
+        const std::string, const std::string, const std::string, const std::string> data(
+        "PID", "1234", "RSS", "5678", "PSS", "1245", "SWAP_PSS", "2354", "FD_NUM", "2",
+        "OOM_SCORE_ADJ", "0", "JS_HEAP_TOTAL", "2048", "JS_HEAP_USED", "2048",
+        "PA", "123456", "GPU_MEM", "5678");
+    int ret = OhosAdapterHelper::GetInstance().GetHiSysEventAdapterInstance().Write(
+        "BASIC_RENDER_MEM", HiSysEventAdapter::EventType::STATISTIC, data);
+    EXPECT_EQ(ret, 0);
+}
 } // namespace OHOS::NWeb

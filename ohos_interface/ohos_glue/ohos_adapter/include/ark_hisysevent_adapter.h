@@ -103,6 +103,14 @@ public:
     /*--ark web()--*/
     virtual int Write(const ArkWebString& eventName, uint32_t type, const ArkWebString key1,
         const int32_t value1) = 0;
+
+    /*--ark web()--*/
+    virtual int Write(const ArkWebString& eventName, uint32_t type, const ArkWebString key1, const ArkWebString value1,
+        const ArkWebString key2, const ArkWebString value2, const ArkWebString key3, const ArkWebString value3,
+        const ArkWebString key4, const ArkWebString value4, const ArkWebString key5, const ArkWebString value5,
+        const ArkWebString key6, const ArkWebString value6, const ArkWebString key7, const ArkWebString value7,
+        const ArkWebString key8, const ArkWebString value8, const ArkWebString key9, const ArkWebString value9,
+        const ArkWebString key10, const ArkWebString value10) = 0;
 };
 
 } // namespace OHOS::ArkWeb

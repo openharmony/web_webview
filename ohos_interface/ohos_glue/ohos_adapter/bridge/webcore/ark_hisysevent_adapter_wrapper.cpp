@@ -503,4 +503,64 @@ int ArkHiSysEventAdapterWrapper::Write(const std::string& eventName, EventType t
     return result;
 }
 
+int ArkHiSysEventAdapterWrapper::Write(const std::string& eventName, EventType type,
+    const std::tuple<const std::string, const std::string, const std::string, const std::string,
+        const std::string, const std::string, const std::string, const std::string,
+        const std::string, const std::string, const std::string, const std::string,
+        const std::string, const std::string, const std::string, const std::string,
+        const std::string, const std::string, const std::string, const std::string>& data)
+{
+    if (!ctocpp_) {
+        return -1;
+    }
+    ArkWebString ark_event_name = ArkWebStringClassToStruct(eventName);
+    ArkWebString ark_key1 = ArkWebStringClassToStruct(std::get<0>(data));
+    ArkWebString ark_value1 = ArkWebStringClassToStruct(std::get<1>(data));
+    ArkWebString ark_key2 = ArkWebStringClassToStruct(std::get<2>(data));
+    ArkWebString ark_value2 = ArkWebStringClassToStruct(std::get<3>(data));
+    ArkWebString ark_key3 = ArkWebStringClassToStruct(std::get<4>(data));
+    ArkWebString ark_value3 = ArkWebStringClassToStruct(std::get<5>(data));
+    ArkWebString ark_key4 = ArkWebStringClassToStruct(std::get<6>(data));
+    ArkWebString ark_value4 = ArkWebStringClassToStruct(std::get<7>(data));
+    ArkWebString ark_key5 = ArkWebStringClassToStruct(std::get<8>(data));
+    ArkWebString ark_value5 = ArkWebStringClassToStruct(std::get<9>(data));
+    ArkWebString ark_key6 = ArkWebStringClassToStruct(std::get<10>(data));
+    ArkWebString ark_value6 = ArkWebStringClassToStruct(std::get<11>(data));
+    ArkWebString ark_key7 = ArkWebStringClassToStruct(std::get<12>(data));
+    ArkWebString ark_value7 = ArkWebStringClassToStruct(std::get<13>(data));
+    ArkWebString ark_key8 = ArkWebStringClassToStruct(std::get<14>(data));
+    ArkWebString ark_value8 = ArkWebStringClassToStruct(std::get<15>(data));
+    ArkWebString ark_key9 = ArkWebStringClassToStruct(std::get<16>(data));
+    ArkWebString ark_value9 = ArkWebStringClassToStruct(std::get<17>(data));
+    ArkWebString ark_key10 = ArkWebStringClassToStruct(std::get<18>(data));
+    ArkWebString ark_value10 = ArkWebStringClassToStruct(std::get<19>(data));
+
+    int result = ctocpp_->Write(ark_event_name, (uint32_t)type, ark_key1, ark_value1, ark_key2, ark_value2, ark_key3,
+        ark_value3, ark_key4, ark_value4, ark_key5, ark_value5, ark_key6, ark_value6, ark_key7, ark_value7, ark_key8,
+        ark_value8, ark_key9, ark_value9, ark_key10, ark_value10);
+
+    ArkWebStringStructRelease(ark_event_name);
+    ArkWebStringStructRelease(ark_key1);
+    ArkWebStringStructRelease(ark_value1);
+    ArkWebStringStructRelease(ark_key2);
+    ArkWebStringStructRelease(ark_value2);
+    ArkWebStringStructRelease(ark_key3);
+    ArkWebStringStructRelease(ark_value3);
+    ArkWebStringStructRelease(ark_key4);
+    ArkWebStringStructRelease(ark_value4);
+    ArkWebStringStructRelease(ark_key5);
+    ArkWebStringStructRelease(ark_value5);
+    ArkWebStringStructRelease(ark_key6);
+    ArkWebStringStructRelease(ark_value6);
+    ArkWebStringStructRelease(ark_key7);
+    ArkWebStringStructRelease(ark_value7);
+    ArkWebStringStructRelease(ark_key8);
+    ArkWebStringStructRelease(ark_value8);
+    ArkWebStringStructRelease(ark_key9);
+    ArkWebStringStructRelease(ark_value9);
+    ArkWebStringStructRelease(ark_key10);
+    ArkWebStringStructRelease(ark_value10);
+
+    return result;
+}
 } // namespace OHOS::ArkWeb

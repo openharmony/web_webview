@@ -94,6 +94,13 @@ public:
 
     int Write(const std::string& eventName, EventType type,
         const std::tuple<const std::string, const int32_t>& data) override;
+
+    int Write(const std::string& eventName, EventType type,
+        const std::tuple<const std::string, const std::string, const std::string, const std::string,
+                        const std::string, const std::string, const std::string, const std::string,
+                        const std::string, const std::string, const std::string, const std::string,
+                        const std::string, const std::string, const std::string, const std::string,
+                        const std::string, const std::string, const std::string, const std::string>& data) override;
 };
 } // namespace OHOS::NWeb
 

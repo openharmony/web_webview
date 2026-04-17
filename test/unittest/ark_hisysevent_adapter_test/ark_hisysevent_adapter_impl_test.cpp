@@ -98,6 +98,13 @@ public:
 
     MOCK_METHOD(int, Write, (const std::string&, EventType,
     (const std::tuple<const std::string, const int32_t>&)), (override));
+
+    MOCK_METHOD(int, Write, (const std::string&, EventType,
+    (const std::tuple<const std::string, const std::string, const std::string, const std::string,
+    const std::string, const std::string, const std::string, const std::string,
+    const std::string, const std::string, const std::string, const std::string,
+    const std::string, const std::string, const std::string, const std::string,
+    const std::string, const std::string, const std::string, const std::string>&)), (override));
 };
 
 class ArkHiSysEventAdapterImplTest : public testing::Test
