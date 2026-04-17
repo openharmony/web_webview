@@ -7476,6 +7476,27 @@ static ani_boolean IsActiveWebEngineEvergreen(ani_env *env, ani_object object)
     return ANI_TRUE;
 }
 
+static ani_string GetLastPostMessageURL(ani_env *env, ani_object object)
+{
+    ani_string lastPostMessageUrl = nullptr;
+
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return lastPostMessageUrl;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return lastPostMessageUrl;
+    }
+
+    std::string result = controller->GetLastPostMessageURL();
+    env->String_NewUTF8(result.c_str(), result.size(), &lastPostMessageUrl);
+
+    return lastPostMessageUrl;
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     WVLOG_D("[DOWNLOAD] StsWebviewControllerInit");
@@ -7634,6 +7655,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "setWebDetach", nullptr, reinterpret_cast<void *>(SetWebDetach) },
         ani_native_function { "setUserAgentMetadata", nullptr, reinterpret_cast<void*>(SetUserAgentMetadata) },
         ani_native_function { "getUserAgentMetadata", nullptr, reinterpret_cast<void*>(GetUserAgentMetadata) },
+        ani_native_function { "getLastPostMessageURL", nullptr, reinterpret_cast<void *>(GetLastPostMessageURL) },
     };
     status = env->Class_BindNativeMethods(webviewControllerCls, instanceMethods.data(), instanceMethods.size());
     if (status != ANI_OK) {

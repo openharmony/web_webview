@@ -1826,4 +1826,9 @@ void ArkWebNWebImpl::GetImageInfosByUrls(const ArkWebStringVector &imageUrls,
     nweb_nweb_->GetImageInfosByUrls(ArkWebStringVectorStructToClass(imageUrls),
                                     std::make_shared<ArkWebImageInfoCallbackWrapper>(callback));
 }
+
+ArkWebString ArkWebNWebImpl::GetLastPostMessageURL()
+{
+    return ArkWebStringClassToStruct(nweb_nweb_->GetLastPostMessageURL());
+}
 } // namespace OHOS::ArkWeb

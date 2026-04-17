@@ -1035,6 +1035,11 @@ public:
         return onInactiveCalled_;
     }
 
+    std::string GetLastPostMessageURL()
+    {
+        return "";
+    }
+
     void Reset()
     {
         isInitialized_ = false;

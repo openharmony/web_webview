@@ -2060,6 +2060,19 @@ extern "C" {
         }
         return nativeWebviewCtl->AvoidVisibleViewportBottom(avoidHeight);
     }
+
+    RetDataCString FfiOHOSWebviewCtlGetLastPostMessageURL(int64_t id)
+    {
+        RetDataCString ret = { .code = NWebError::INIT_ERROR, .data = nullptr };
+        auto nativeWebviewCtl = FFIData::GetData<WebviewControllerImpl>(id);
+        if (nativeWebviewCtl == nullptr || !nativeWebviewCtl->IsInit()) {
+            return ret;
+        }
+        std::string lastPostMessageUrl = nativeWebviewCtl->GetLastPostMessageURL();
+        ret.code = NWebError::NO_ERROR;
+        ret.data = MallocCString(lastPostMessageUrl);
+        return ret;
+    }
 }
 }
 }

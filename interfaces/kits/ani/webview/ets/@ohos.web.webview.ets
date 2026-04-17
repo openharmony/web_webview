@@ -1083,6 +1083,7 @@ export default namespace webview {
             }
             return target;
         }
+        native getLastPostMessageURL(): string;
     }
 
     export class jsProxyCallbackWrapper {

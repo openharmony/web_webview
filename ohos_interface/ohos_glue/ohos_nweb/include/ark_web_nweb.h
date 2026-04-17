@@ -2321,6 +2321,14 @@ public:
     /*--ark web()--*/
     virtual void GetImageInfosByUrls(const ArkWebStringVector &imageUrls,
                                      ArkWebRefPtr<ArkWebImageInfoCallback> callback) = 0;
+
+    /**
+     * @brief Get URL of frame that sent the last postMessage to native application.
+     *
+     * @return the url of frame that sent the last postMessage to native application.
+     */
+    /*--ark web()--*/
+    virtual ArkWebString GetLastPostMessageURL() = 0;
 };
 
 } // namespace OHOS::ArkWeb
