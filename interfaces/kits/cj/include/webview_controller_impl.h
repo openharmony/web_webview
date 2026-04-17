@@ -27,6 +27,7 @@
 #include "nweb_web_message.h"
 #include "nweb_message_ext.h"
 #include "web_scheme_handler_request.h"
+#include "webview_value.h"
 
 namespace OHOS::Webview {
 enum class WebHitTestType : int {
@@ -369,7 +370,7 @@ public:
 
     ErrCode ClosePort();
 
-    ErrCode PostPortMessage(std::shared_ptr<NWeb::NWebMessage> data);
+    ErrCode PostPortMessage(std::shared_ptr<NWeb::NWebMessage> data, std::shared_ptr<NWeb::NWebRomValue> value);
 
     ErrCode SetPortMessageCallback(std::shared_ptr<NWeb::NWebMessageValueCallback> callback);
 
@@ -389,7 +390,8 @@ private:
 class WebMessageExtImpl : public OHOS::FFI::FFIData {
     DECL_TYPE(WebMessageExtImpl, OHOS::FFI::FFIData)
 public:
-    explicit WebMessageExtImpl(std::shared_ptr<NWeb::NWebMessage> data) : data_(data) {}
+    explicit WebMessageExtImpl(std::shared_ptr<NWeb::NWebMessage> data,
+        std::shared_ptr<NWeb::NWebRomValue> value = nullptr) : data_(data), value_(value) {}
     explicit WebMessageExtImpl(std::shared_ptr<NWeb::NWebHapValue> data)
     {
         data_ = NWeb::ConvertNwebHap2NwebMessage(data);
@@ -401,29 +403,36 @@ public:
         type_ = type;
         WebMessageType jsType = static_cast<WebMessageType>(type);
         NWeb::NWebValue::Type nwebType = NWeb::NWebValue::Type::NONE;
+        NWeb::NWebRomValue::Type romType = NWeb::NWebRomValue::Type::NONE;
         switch (jsType) {
             case WebMessageType::STRING: {
                 nwebType = NWeb::NWebValue::Type::STRING;
+                romType = NWeb::NWebRomValue::Type::STRING;
                 break;
             }
             case WebMessageType::NUMBER: {
                 nwebType = NWeb::NWebValue::Type::DOUBLE;
+                romType = NWeb::NWebRomValue::Type::DOUBLE;
                 break;
             }
             case WebMessageType::BOOLEAN: {
                 nwebType = NWeb::NWebValue::Type::BOOLEAN;
+                romType = NWeb::NWebRomValue::Type::BOOLEAN;
                 break;
             }
             case WebMessageType::ARRAYBUFFER: {
                 nwebType = NWeb::NWebValue::Type::BINARY;
+                romType = NWeb::NWebRomValue::Type::BINARY;
                 break;
             }
             case WebMessageType::ARRAY: {
                 nwebType = NWeb::NWebValue::Type::STRINGARRAY;
+                romType = NWeb::NWebRomValue::Type::STRINGARRAY;
                 break;
             }
             case WebMessageType::ERROR: {
                 nwebType = NWeb::NWebValue::Type::ERROR;
+                romType = NWeb::NWebRomValue::Type::ERROR;
                 break;
             }
             default: {
@@ -433,6 +442,9 @@ public:
         }
         if (data_) {
             data_->SetType(nwebType);
+        }
+        if (value_) {
+            value_->SetType(romType);
         }
     }
 
@@ -490,6 +502,10 @@ public:
             data_->SetType(NWeb::NWebValue::Type::STRING);
             data_->SetString(value);
         }
+        if (value_) {
+            value_->SetType(NWeb::NWebRomValue::Type::STRING);
+            value_->SetString(value);
+        }
     }
 
     void SetNumber(double value)
@@ -497,6 +513,10 @@ public:
         if (data_) {
             data_->SetType(NWeb::NWebValue::Type::DOUBLE);
             data_->SetDouble(value);
+        }
+        if (value_) {
+            value_->SetType(NWeb::NWebRomValue::Type::DOUBLE);
+            value_->SetDouble(value);
         }
     }
 
@@ -506,6 +526,10 @@ public:
             data_->SetType(NWeb::NWebValue::Type::BOOLEAN);
             data_->SetBoolean(value);
         }
+        if (value_) {
+            value_->SetType(NWeb::NWebRomValue::Type::BOOLEAN);
+            value_->SetBool(value);
+        }
     }
 
     void SetArrayBuffer(std::vector<uint8_t>& value)
@@ -513,6 +537,10 @@ public:
         if (data_) {
             data_->SetType(NWeb::NWebValue::Type::BINARY);
             data_->SetBinary(value);
+        }
+        if (value_) {
+            value_->SetType(NWeb::NWebRomValue::Type::BINARY);
+            value_->SetBinary(value);
         }
     }
 
@@ -522,6 +550,10 @@ public:
             data_->SetType(NWeb::NWebValue::Type::STRINGARRAY);
             data_->SetStringArray(value);
         }
+        if (value_) {
+            value_->SetType(NWeb::NWebRomValue::Type::STRINGARRAY);
+            value_->SetStringArray(value);
+        }
     }
 
     void SetDoubleArray(std::vector<double> value)
@@ -529,6 +561,10 @@ public:
         if (data_) {
             data_->SetType(NWeb::NWebValue::Type::DOUBLEARRAY);
             data_->SetDoubleArray(value);
+        }
+        if (value_) {
+            value_->SetType(NWeb::NWebRomValue::Type::DOUBLEARRAY);
+            value_->SetDoubleArray(value);
         }
     }
 
@@ -538,6 +574,10 @@ public:
             data_->SetType(NWeb::NWebValue::Type::INT64ARRAY);
             data_->SetInt64Array(value);
         }
+        if (value_) {
+            value_->SetType(NWeb::NWebRomValue::Type::INT64ARRAY);
+            value_->SetInt64Array(value);
+        }
     }
 
     void SetBooleanArray(std::vector<bool> value)
@@ -545,6 +585,10 @@ public:
         if (data_) {
             data_->SetType(NWeb::NWebValue::Type::BOOLEANARRAY);
             data_->SetBooleanArray(value);
+        }
+        if (value_) {
+            value_->SetType(NWeb::NWebRomValue::Type::BOOLEANARRAY);
+            value_->SetBoolArray(value);
         }
     }
 
@@ -555,16 +599,26 @@ public:
             data_->SetErrName(name);
             data_->SetErrMsg(message);
         }
+        if (value_) {
+            value_->SetType(NWeb::NWebRomValue::Type::ERROR);
+            value_->SetErrName(name);
+            value_->SetErrMsg(message);
+        }
     }
 
-    std::shared_ptr<NWeb::NWebMessage> GetData()
+    std::shared_ptr<NWeb::NWebMessage> GetData() const
     {
         return data_;
+    }
+    std::shared_ptr<NWeb::NWebRomValue> GetValue() const
+    {
+        return value_;
     }
 
 private:
     int type_ = 0;
     std::shared_ptr<NWeb::NWebMessage> data_;
+    std::shared_ptr<NWeb::NWebRomValue> value_;
 };
 
 class NWebMessageCallbackImpl : public NWeb::NWebMessageValueCallback {
