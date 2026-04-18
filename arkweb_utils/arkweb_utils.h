@@ -58,6 +58,25 @@ do { \
 #define RETURN_IF_CALLING_FROM_M114()
 #endif
 
+#if !defined(CROSS_PLATFORM)
+#define IS_CALLING_FROM_M132() \
+    (OHOS::ArkWeb::getActiveWebEngineVersion() == OHOS::ArkWeb::ArkWebEngineVersion::M132)
+#else
+#define IS_CALLING_FROM_M132() false
+#endif
+
+#if !defined(CROSS_PLATFORM)
+#define RETURN_IF_CALLING_FROM_M132() \
+do { \
+    if (IS_CALLING_FROM_M132()) { \
+        OHOS::ArkWeb::LogForUnsupportedFunc(OHOS::ArkWeb::ArkWebEngineVersion::M132, __func__); \
+        return; \
+    } \
+} while (0)
+#else
+#define RETURN_IF_CALLING_FROM_M132()
+#endif
+
 #define APP_ENGINE_VERSION_PREFIX "#--appEngineVersion="
 #define APP_BUNDLE_NAME_PREFIX "#--appBundleName="
 #define APP_API_VERSION_PREFIX "#--appApiVersion="
