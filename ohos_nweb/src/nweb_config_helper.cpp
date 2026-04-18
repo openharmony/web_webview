@@ -44,6 +44,8 @@ const std::string BASE_WEB_CONFIG = "baseWebConfig";
 const std::string WEB_ANIMATION_DYNAMIC_SETTING_CONFIG = "property_animation_dynamic_settings";
 const std::string WEB_ANIMATION_DYNAMIC_APP = "dynamic_apps";
 const std::string WEB_LTPO_STRATEGY = "ltpo_strategy";
+const std::string WEB_LOAD_URL_CONFIG = "load_url_config";
+const std::string WEB_LOAD_URL_STRATEGY = "load_url_strategy";
 const std::string WEB_DVSYNC_CONFIG = "dvsync_config";
 const std::string WEB_DVSYNC_SWITCH = "dvsync_switch";
 const std::string WEB_WINDOW_ORIENTATION_CONFIG = "window_orientation_config";
@@ -402,6 +404,10 @@ void NWebConfigHelper::ParseWebConfigXml(const std::string& configFilePath,
             ParseNWebDvsync(dvsyncConfigNodePtr);
         }
     }
+    xmlNodePtr loadUrlConfigNodePtr = GetChildrenNode(rootPtr, WEB_LOAD_URL_CONFIG);
+    if (loadUrlConfigNodePtr != nullptr) {
+        ParseNWebLoadUrlStrategy(loadUrlConfigNodePtr);
+    }
     xmlNodePtr windowOrientationNodePtr = GetChildrenNode(rootPtr, WEB_WINDOW_ORIENTATION_CONFIG);
     if (windowOrientationNodePtr != nullptr) {
         WVLOG_D("read config from window orientation node");
@@ -488,6 +494,39 @@ void NWebConfigHelper::ParseNWebLTPOStrategy(xmlNodePtr nodePtr)
     ltpoStrategy_ = atoi((char *)content);
     xmlFree(content);
     WVLOG_D("ltpo strategy is: %{public}d", ltpoStrategy_);
+}
+
+void NWebConfigHelper::ParseNWebLoadUrlStrategy(xmlNodePtr nodePtr)
+{
+    for (xmlNodePtr curNodePtr = nodePtr->xmlChildrenNode; curNodePtr; curNodePtr = curNodePtr->next) {
+        if (curNodePtr->name == nullptr || curNodePtr->type == XML_COMMENT_NODE) {
+            WVLOG_E("invalid node!");
+            continue;
+        }
+        char* namePtr = (char*)xmlGetProp(curNodePtr, BAD_CAST(XML_ATTR_NAME));
+        if (!namePtr) {
+            WVLOG_E("invalid node!");
+            continue;
+        }
+        std::string settingName(namePtr);
+        xmlFree(namePtr);
+        if (settingName == WEB_LOAD_URL_STRATEGY) {
+            xmlChar *content = xmlNodeGetContent(curNodePtr);
+            if (content == nullptr) {
+                WVLOG_E("read load_url xml node error");
+                return;
+            }
+            loadUrlStrategy_ = atoi((char *)content);
+            xmlFree(content);
+            WVLOG_D("load_url is: %{public}d", loadUrlStrategy_);
+            return;
+        }
+    }
+}
+
+int32_t NWebConfigHelper::GetLoadUrlStrategy()
+{
+    return loadUrlStrategy_;
 }
 
 bool NWebConfigHelper::IsLTPODynamicApp(const std::string& bundleName)

@@ -437,4 +437,9 @@ int32_t SystemPropertiesAdapterImpl::GetIntParameter(const std::string& key, int
 {
     return OHOS::system::GetIntParameter(key, defaultValue);
 }
+
+int32_t SystemPropertiesAdapterImpl::GetLoadUrlStrategy()
+{
+    return NWebConfigHelper::Instance().GetLoadUrlStrategy();
+}
 } // namespace OHOS::NWeb

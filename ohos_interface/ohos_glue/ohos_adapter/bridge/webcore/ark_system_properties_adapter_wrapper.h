@@ -97,6 +97,8 @@ public:
 
     int32_t GetIntParameter(const std::string& key, int32_t defaultValue) override;
 
+    int32_t GetLoadUrlStrategy() override;
+
 private:
     ArkWebRefPtr<ArkSystemPropertiesAdapter> ctocpp_;
 };

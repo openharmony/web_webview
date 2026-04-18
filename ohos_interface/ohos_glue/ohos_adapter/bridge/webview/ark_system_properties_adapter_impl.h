@@ -96,6 +96,8 @@ public:
 
     int32_t GetIntParameter(const ArkWebString& key, int32_t defaultValue) override;
 
+    int32_t GetLoadUrlStrategy() override;
+
 private:
     NWeb::SystemPropertiesAdapter& real_;
 

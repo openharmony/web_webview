@@ -140,6 +140,9 @@ public:
 
     /*--ark web()--*/
     virtual int32_t GetIntParameter(const ArkWebString& key, int32_t defaultValue) = 0;
+
+    /*--ark web()--*/
+    virtual int32_t GetLoadUrlStrategy() = 0;
 };
 
 } // namespace OHOS::ArkWeb

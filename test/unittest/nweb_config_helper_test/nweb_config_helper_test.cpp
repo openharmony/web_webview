@@ -54,6 +54,8 @@ const auto XML_ATTR_NAME = "name";
 const auto XML_BUNDLE_NAME = "bundle_name";
 const auto XML_ENABLE_WINDOW_ORIENTATION = "enable_window_orientation";
 const std::string WEB_LTPO_STRATEGY = "ltpo_strategy";
+const std::string WEB_LOAD_URL_STRATEGY = "load_url_strategy";
+const std::string WEB_LOAD_URL_CONFIG = "load_url_config";
 const std::string WEB_DVSYNC_SWITCH = "dvsync_switch";
 
 class MockNWebConfigHelper : public NWebConfigHelper {
@@ -931,6 +933,376 @@ HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ReadConfigIfNeeded_ShouldNotPars
     MockNWebConfigHelper *mock = new MockNWebConfigHelper();
     EXPECT_CALL(*mock, ParseConfig(initArgs)).Times(0);
     delete mock;
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebLoadUrlStrategy_001
+ * @tc.desc: ParseNWebLoadUrlStrategy when nodePtr has comment child node.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrlStrategy_001, TestSize.Level1)
+{
+    const char *xmlContent = "<load_url_config>\n"
+                              "<!-- this is a comment -->\n"
+                             "</load_url_config>";
+
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+    xmlNodePtr nodePtr = xmlDocGetRootElement(doc);
+    EXPECT_NE(nodePtr, nullptr);
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 100;
+
+    NWebConfigHelper::Instance().ParseNWebLoadUrlStrategy(nodePtr);
+    xmlFreeDoc(doc);
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrlStrategy_, 100);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebLoadUrlStrategy_002
+ * @tc.desc: ParseNWebLoadUrlStrategy when child node has no name attribute.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrlStrategy_002, TestSize.Level1)
+{
+    const char *xmlContent = "<load_url_config>\n"
+                              "<DynamicSettings>3</DynamicSettings>\n"
+                             "</load_url_config>";
+
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+    xmlNodePtr nodePtr = xmlDocGetRootElement(doc);
+    EXPECT_NE(nodePtr, nullptr);
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 100;
+
+    NWebConfigHelper::Instance().ParseNWebLoadUrlStrategy(nodePtr);
+    xmlFreeDoc(doc);
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrlStrategy_, 100);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebLoadUrlStrategy_003
+ * @tc.desc: ParseNWebLoadUrlStrategy when name attribute is not load_url_strategy.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrlStrategy_003, TestSize.Level1)
+{
+    const char *xmlContent = "<load_url_config>\n"
+                              "<DynamicSettings name=\"other_strategy\">3</DynamicSettings>\n"
+                             "</load_url_config>";
+
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+    xmlNodePtr nodePtr = xmlDocGetRootElement(doc);
+    EXPECT_NE(nodePtr, nullptr);
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 100;
+
+    NWebConfigHelper::Instance().ParseNWebLoadUrlStrategy(nodePtr);
+    xmlFreeDoc(doc);
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrlStrategy_, 100);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebLoadUrlStrategy_004
+ * @tc.desc: ParseNWebLoadUrlStrategy when node content is null.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrlStrategy_004, TestSize.Level1)
+{
+    const char *xmlContent = "<load_url_config>\n"
+                              "<DynamicSettings name=\"load_url_strategy\"/>\n"
+                             "</load_url_config>";
+
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+    xmlNodePtr nodePtr = xmlDocGetRootElement(doc);
+    EXPECT_NE(nodePtr, nullptr);
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 100;
+
+    NWebConfigHelper::Instance().ParseNWebLoadUrlStrategy(nodePtr);
+    xmlFreeDoc(doc);
+    // When content is empty string, atoi returns 0
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrlStrategy_, 0);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebLoadUrlStrategy_005
+ * @tc.desc: ParseNWebLoadUrlStrategy when value is 3.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrlStrategy_005, TestSize.Level1)
+{
+    const char *xmlContent = "<load_url_config>\n"
+                              "<DynamicSettings name=\"load_url_strategy\">3</DynamicSettings>\n"
+                             "</load_url_config>";
+
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+    xmlNodePtr nodePtr = xmlDocGetRootElement(doc);
+    EXPECT_NE(nodePtr, nullptr);
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 100;
+
+    NWebConfigHelper::Instance().ParseNWebLoadUrlStrategy(nodePtr);
+    xmlFreeDoc(doc);
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrlStrategy_, 3);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebLoadUrlStrategy_006
+ * @tc.desc: ParseNWebLoadUrlStrategy when value is 0.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrlStrategy_006, TestSize.Level1)
+{
+    const char *xmlContent = "<load_url_config>\n"
+                              "<DynamicSettings name=\"load_url_strategy\">0</DynamicSettings>\n"
+                             "</load_url_config>";
+
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+    xmlNodePtr nodePtr = xmlDocGetRootElement(doc);
+    EXPECT_NE(nodePtr, nullptr);
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 100;
+
+    NWebConfigHelper::Instance().ParseNWebLoadUrlStrategy(nodePtr);
+    xmlFreeDoc(doc);
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrlStrategy_, 0);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebLoadUrlStrategy_007
+ * @tc.desc: ParseNWebLoadUrlStrategy with multiple child nodes and load_url_strategy is the last one.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrlStrategy_007, TestSize.Level1)
+{
+    const char *xmlContent = "<load_url_config>\n"
+                              "<DynamicSettings name=\"other1\">1</DynamicSettings>\n"
+                              "<DynamicSettings name=\"other2\">2</DynamicSettings>\n"
+                              "<DynamicSettings name=\"load_url_strategy\">5</DynamicSettings>\n"
+                             "</load_url_config>";
+
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+    xmlNodePtr nodePtr = xmlDocGetRootElement(doc);
+    EXPECT_NE(nodePtr, nullptr);
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 100;
+
+    NWebConfigHelper::Instance().ParseNWebLoadUrlStrategy(nodePtr);
+    xmlFreeDoc(doc);
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrlStrategy_, 5);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebLoadUrlStrategy_008
+ * @tc.desc: ParseNWebLoadUrlStrategy with negative value.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrlStrategy_008, TestSize.Level1)
+{
+    const char *xmlContent = "<load_url_config>\n"
+                              "<DynamicSettings name=\"load_url_strategy\">-1</DynamicSettings>\n"
+                             "</load_url_config>";
+
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+    xmlNodePtr nodePtr = xmlDocGetRootElement(doc);
+    EXPECT_NE(nodePtr, nullptr);
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 100;
+
+    NWebConfigHelper::Instance().ParseNWebLoadUrlStrategy(nodePtr);
+    xmlFreeDoc(doc);
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrlStrategy_, -1);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebLoadUrlStrategy_009
+ * @tc.desc: ParseNWebLoadUrlStrategy with invalid non-numeric value.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLoadUrlStrategy_009, TestSize.Level1)
+{
+    const char *xmlContent = "<load_url_config>\n"
+                              "<DynamicSettings name=\"load_url_strategy\">invalid</DynamicSettings>\n"
+                             "</load_url_config>";
+
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+    xmlNodePtr nodePtr = xmlDocGetRootElement(doc);
+    EXPECT_NE(nodePtr, nullptr);
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 100;
+
+    NWebConfigHelper::Instance().ParseNWebLoadUrlStrategy(nodePtr);
+    xmlFreeDoc(doc);
+    // atoi returns 0 for non-numeric strings
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrlStrategy_, 0);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_GetLoadUrlStrategy_001
+ * @tc.desc: Test GetLoadUrlStrategy returns correct value.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_GetLoadUrlStrategy_001, TestSize.Level1)
+{
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 42;
+    EXPECT_EQ(NWebConfigHelper::Instance().GetLoadUrlStrategy(), 42);
+
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 0;
+    EXPECT_EQ(NWebConfigHelper::Instance().GetLoadUrlStrategy(), 0);
+
+    NWebConfigHelper::Instance().loadUrlStrategy_ = -5;
+    EXPECT_EQ(NWebConfigHelper::Instance().GetLoadUrlStrategy(), -5);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseWebConfigXml_LoadUrlConfig_001
+ * @tc.desc: ParseWebConfigXml with valid load_url_config node.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseWebConfigXml_LoadUrlConfig_001, TestSize.Level1)
+{
+    const char *xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                             "<WEB>\n"
+                              "<load_url_config>\n"
+                              "<DynamicSettings name=\"load_url_strategy\">7</DynamicSettings>\n"
+                              "</load_url_config>\n"
+                             "</WEB>";
+
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+
+    std::string tempConfigPath = "/data/local/tmp/test_load_url_config_001.xml";
+    FILE *file = fopen(tempConfigPath.c_str(), "w");
+    EXPECT_NE(file, nullptr);
+    fprintf(file, "%s", xmlContent);
+    fclose(file);
+
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 100;
+    NWebConfigHelper::Instance().ParseWebConfigXml(tempConfigPath, initArgs);
+
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrlStrategy_, 7);
+
+    // Cleanup
+    remove(tempConfigPath.c_str());
+    xmlFreeDoc(doc);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseWebConfigXml_LoadUrlConfig_002
+ * @tc.desc: ParseWebConfigXml without load_url_config node.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseWebConfigXml_LoadUrlConfig_002, TestSize.Level1)
+{
+    const char *xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                             "<WEB>\n"
+                              "<initConfig>\n"
+                              "<renderConfig>\n"
+                              "<renderProcessCount>20</renderProcessCount>\n"
+                              "</renderConfig>\n"
+                              "</initConfig>\n"
+                             "</WEB>";
+
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+
+    std::string tempConfigPath = "/data/local/tmp/test_load_url_config_002.xml";
+    FILE *file = fopen(tempConfigPath.c_str(), "w");
+    EXPECT_NE(file, nullptr);
+    fprintf(file, "%s", xmlContent);
+    fclose(file);
+
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 100;
+    NWebConfigHelper::Instance().ParseWebConfigXml(tempConfigPath, initArgs);
+
+    // loadUrlStrategy_ should remain unchanged when load_url_config node is absent
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrlStrategy_, 100);
+
+    // Cleanup
+    remove(tempConfigPath.c_str());
+    xmlFreeDoc(doc);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseWebConfigXml_LoadUrlConfig_003
+ * @tc.desc: ParseWebConfigXml with empty load_url_config node.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseWebConfigXml_LoadUrlConfig_003, TestSize.Level1)
+{
+    const char *xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                             "<WEB>\n"
+                              "<load_url_config>\n"
+                              "</load_url_config>\n"
+                             "</WEB>";
+
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+
+    std::string tempConfigPath = "/data/local/tmp/test_load_url_config_003.xml";
+    FILE *file = fopen(tempConfigPath.c_str(), "w");
+    EXPECT_NE(file, nullptr);
+    fprintf(file, "%s", xmlContent);
+    fclose(file);
+
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 100;
+    NWebConfigHelper::Instance().ParseWebConfigXml(tempConfigPath, initArgs);
+
+    // loadUrlStrategy_ should remain unchanged when load_url_config is empty
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrlStrategy_, 100);
+
+    // Cleanup
+    remove(tempConfigPath.c_str());
+    xmlFreeDoc(doc);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseWebConfigXml_LoadUrlConfig_004
+ * @tc.desc: ParseWebConfigXml with comment in load_url_config node.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseWebConfigXml_LoadUrlConfig_004, TestSize.Level1)
+{
+    const char *xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                             "<WEB>\n"
+                              "<load_url_config>\n"
+                              "<!-- this is a comment -->\n"
+                              "<DynamicSettings name=\"load_url_strategy\">2</DynamicSettings>\n"
+                              "</load_url_config>\n"
+                             "</WEB>";
+
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+
+    std::string tempConfigPath = "/data/local/tmp/test_load_url_config_004.xml";
+    FILE *file = fopen(tempConfigPath.c_str(), "w");
+    EXPECT_NE(file, nullptr);
+    fprintf(file, "%s", xmlContent);
+    fclose(file);
+
+    NWebConfigHelper::Instance().loadUrlStrategy_ = 100;
+    NWebConfigHelper::Instance().ParseWebConfigXml(tempConfigPath, initArgs);
+
+    // Should skip comment and parse the valid node
+    EXPECT_EQ(NWebConfigHelper::Instance().loadUrlStrategy_, 2);
+
+    // Cleanup
+    remove(tempConfigPath.c_str());
+    xmlFreeDoc(doc);
 }
 } // NWebConfig
 } // OHOS```

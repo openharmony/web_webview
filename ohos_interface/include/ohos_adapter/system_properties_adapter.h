@@ -118,6 +118,8 @@ public:
     virtual int32_t GetInitialCongestionWindowSize() = 0;
 
     virtual int32_t GetIntParameter(const std::string& key, int32_t defaultValue) = 0;
+
+    virtual int32_t GetLoadUrlStrategy() = 0;
 };
 
 } // namespace OHOS::NWeb
