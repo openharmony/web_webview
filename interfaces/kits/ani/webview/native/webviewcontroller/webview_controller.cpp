@@ -2599,5 +2599,16 @@ std::shared_ptr<NWebUserAgentMetadata> WebviewController::GetUserAgentMetadata(c
     }
     return nweb_ptr->GetUserAgentMetadata(userAgent);
 }
+
+std::string WebviewController::GetLastPostMessageURL()
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        WVLOG_E("nweb is nullptr");
+        return "";
+    }
+
+    return nweb_ptr->GetLastPostMessageURL();
+}
 } // namespace NWeb
 } // namespace OHOS

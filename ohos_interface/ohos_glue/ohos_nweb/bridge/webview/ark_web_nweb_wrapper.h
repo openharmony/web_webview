@@ -2054,6 +2054,14 @@ public:
      */
     void GetImageInfosByUrls(const std::vector<std::string>& imageUrls,
                              const std::shared_ptr<OHOS::NWeb::NWebImageInfoCallback> callback) override;
+
+    /**
+     * @brief Get URL of frame that sent the last postMessage to native application.
+     *
+     * @return the url of frame that sent the last postMessage to native application.
+     *         Return empty string if no postMessage has been called.
+     */
+    std::string GetLastPostMessageURL() override;
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };

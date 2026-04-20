@@ -2535,6 +2535,17 @@ public:
      */
     virtual void GetImageInfosByUrls(const std::vector<std::string>& imageUrls,
                                      std::shared_ptr<NWebImageInfoCallback> callback) {}
+
+    /**
+     * @brief Get URL of frame that sent the last postMessage to native application.
+     *
+     * @return the url of frame that sent the last postMessage to native application.
+     *         Return empty string if no postMessage has been called.
+     */
+    virtual std::string GetLastPostMessageURL()
+    {
+        return "";
+    }
 };
 } // namespace OHOS::NWeb
 

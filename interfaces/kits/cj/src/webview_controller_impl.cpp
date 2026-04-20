@@ -1585,4 +1585,13 @@ namespace OHOS::Webview {
         }
         return nweb_ptr->GetErrorPageEnabled();
     }
+    
+    std::string WebviewControllerImpl::GetLastPostMessageURL()
+    {
+        auto nweb_ptr = NWeb::NWebHelper::Instance().GetNWeb(nwebId_);
+        if (!nweb_ptr) {
+            return "";
+        }
+        return nweb_ptr->GetLastPostMessageURL();
+    }
 }

@@ -329,6 +329,8 @@ public:
 
     bool GetErrorPageEnabled();
 
+    std::string GetLastPostMessageURL();
+
 public:
     static std::string customeSchemeCmdLine_;
     static bool existNweb_;

@@ -490,6 +490,8 @@ public:
 
     std::shared_ptr<NWebUserAgentMetadata> GetUserAgentMetadata(const std::string& userAgent);
 
+    std::string GetLastPostMessageURL();
+
 private:
     int ConverToWebHitTestType(int hitType);
 

@@ -2166,4 +2166,9 @@ void ArkWebNWebWrapper::GetImageInfosByUrls(const std::vector<std::string>& imag
     }
     ArkWebStringVectorStructRelease(image_urls_struct);
 }
+
+std::string ArkWebNWebWrapper::GetLastPostMessageURL()
+{
+    return ArkWebStringStructToClass(ark_web_nweb_->GetLastPostMessageURL());
+}
 } // namespace OHOS::ArkWeb
