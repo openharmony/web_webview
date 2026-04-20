@@ -1302,11 +1302,7 @@ extern "C" {
             return ret;
         }
         std::string lastCallingFrameUrl = nativeWebviewCtl->GetLastJavascriptProxyCallingFrameUrl();
-        if (lastCallingFrameUrl == "") {
-            ret.code = NWebError::INIT_ERROR;
-        } else {
-            ret.code = NWebError::NO_ERROR;
-        }
+        ret.code = NWebError::NO_ERROR;
         ret.data = MallocCString(lastCallingFrameUrl);
         return ret;
     }
