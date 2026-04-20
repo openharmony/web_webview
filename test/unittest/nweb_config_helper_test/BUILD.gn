@@ -23,7 +23,10 @@ ohos_unittest("nweb_config_helper_test") {
 
   include_dirs = [ "../common" ]
 
-  deps = [ "$webview_path/ohos_nweb:web_configs" ]
+  deps = [ 
+    "$webview_path/ohos_nweb:web_configs",
+    "$webview_path/ohos_nweb:libnweb" 
+  ]
 
   external_deps = [
     "ability_runtime:app_context",
@@ -37,7 +40,6 @@ ohos_unittest("nweb_config_helper_test") {
     "hilog:libhilog",
     "init:libbegetutil",
     "libxml2:libxml2",
-    "webview:libnweb",
     "window_manager:libwm",
     "window_manager:libwsutils",
   ]
