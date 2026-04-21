@@ -266,8 +266,8 @@ int32_t LocationProxyAdapterImpl::StartLocating(
     std::lock_guard<std::mutex> lock(locating_mutex_);
     static int32_t count = 0;
     int32_t id = -1;
-    if (!startLocatingFunc_ || !callback) {
-        WVLOG_E("get Locator::GetInstance() failed or callback is nullptr");
+    if (!startLocatingFunc_ || !callback || !requestConfig) {
+        WVLOG_E("get Locator::GetInstance() failed or callback/requestConfig is nullptr");
         return -1;
     }
     sptr<OHOS::Location::ILocatorCallback> iCallback =
