@@ -14,6 +14,7 @@
  */
 
 #include "ohos_nweb/bridge/ark_web_nweb_impl.h"
+#include "ohos_nweb/bridge/ark_web_command_action_manager_impl.h"
 
 #include "ohos_nweb/bridge/ark_web_accessibility_event_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_accessibility_node_info_impl.h"
@@ -1830,5 +1831,16 @@ void ArkWebNWebImpl::GetImageInfosByUrls(const ArkWebStringVector &imageUrls,
 ArkWebString ArkWebNWebImpl::GetLastPostMessageURL()
 {
     return ArkWebStringClassToStruct(nweb_nweb_->GetLastPostMessageURL());
+}
+
+ArkWebRefPtr<ArkWebCommandActionManager> ArkWebNWebImpl::GetCommandActionManager()
+{
+    std::shared_ptr<OHOS::NWeb::NWebCommandActionManager> nweb_command_action_manager =
+        nweb_nweb_->GetCommandActionManager();
+    if (CHECK_SHARED_PTR_IS_NULL(nweb_command_action_manager)) {
+        return nullptr;
+    }
+
+    return new ArkWebCommandActionManagerImpl(nweb_command_action_manager);
 }
 } // namespace OHOS::ArkWeb

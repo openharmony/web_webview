@@ -27,6 +27,8 @@
 #include "nweb_agent_manager.h"
 #include "nweb_download_callback.h"
 #include "nweb_drag_data.h"
+#include "nweb_command_action_info.h"
+#include "nweb_command_action_manager.h"
 #include "nweb_export.h"
 #include "nweb_find_callback.h"
 #include "nweb_history_list.h"
@@ -2545,6 +2547,17 @@ public:
     virtual std::string GetLastPostMessageURL()
     {
         return "";
+    }
+
+    /**
+     * @brief Get the NWebCommandActionManager that manages command action features.
+     *
+     * @return a shared_ptr to NWebCommandActionManager. If not supported, returns nullptr.
+     */
+    /*--ark web()--*/
+    virtual std::shared_ptr<NWebCommandActionManager> GetCommandActionManager()
+    {
+        return nullptr;
     }
 };
 } // namespace OHOS::NWeb

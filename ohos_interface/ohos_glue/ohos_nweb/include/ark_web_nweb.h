@@ -53,6 +53,8 @@
 #include "ohos_nweb/include/ark_web_touch_point_info_vector.h"
 #include "ohos_nweb/include/ark_web_vault_plain_text_callback.h"
 #include "ohos_nweb/include/ark_web_command_action.h"
+#include "ohos_nweb/include/ark_web_command_action_info.h"
+#include "ohos_nweb/include/ark_web_command_action_manager.h"
 #include "ohos_nweb/include/ark_web_user_agent_metadata.h"
 #include "ohos_nweb/include/ark_web_user_agent_metadata_ack.h"
 #include "ohos_nweb/include/ark_web_image_info_callback.h"
@@ -2329,6 +2331,14 @@ public:
      */
     /*--ark web()--*/
     virtual ArkWebString GetLastPostMessageURL() = 0;
+
+    /**
+     * @brief Get the ArkWebCommandActionManager for command action operations.
+     *
+     * @return ArkWebCommandActionManager wrapper.
+     */
+    /*--ark web()--*/
+    virtual ArkWebRefPtr<ArkWebCommandActionManager> GetCommandActionManager() = 0;
 };
 
 } // namespace OHOS::ArkWeb
