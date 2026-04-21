@@ -266,21 +266,12 @@ int32_t LocationProxyAdapterImpl::StartLocating(
     std::lock_guard<std::mutex> lock(locating_mutex_);
     static int32_t count = 0;
     int32_t id = -1;
-    if (!startLocatingFunc_ || !callback) {
-        WVLOG_E("get Locator::GetInstance() failed or callback is nullptr");
-        return -1;
-    }
-    auto reqImpl = reinterpret_cast<LocationRequestConfigImpl*>(requestConfig.get());
-    if (!reqImpl) {
-        WVLOG_E("requestConfig is invalid");
+    if (!startLocatingFunc_ || !callback || !requestConfig) {
+        WVLOG_E("get Locator::GetInstance() failed or callback/requestConfig is nullptr");
         return -1;
     }
     sptr<OHOS::Location::ILocatorCallback> iCallback =
         sptr<OHOS::Location::ILocatorCallback>(new LocationCallbackImpl(callback));
-    if (!iCallback) {
-        WVLOG_E("create iCallback failed");
-        return -1;
-    }
     id = count++;
     if (count < 0) {
         count = 0;
@@ -291,7 +282,9 @@ int32_t LocationProxyAdapterImpl::StartLocating(
         return -1;
     }
 
-    bool ret = startLocatingFunc_(reqImpl->GetConfig(), iCallback);
+    bool ret = startLocatingFunc_(
+        reinterpret_cast<LocationRequestConfigImpl*>(requestConfig.get())->GetConfig(),
+        iCallback);
     if (!ret) {
         WVLOG_E("StartLocating failed, id:%{public}d", id);
         reg_.erase(id);
