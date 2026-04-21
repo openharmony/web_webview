@@ -1207,6 +1207,9 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_PROPERTY(
             "FORCE_DISPLAY_SCROLLBAR",
             NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(ScrollbarMode::FORCE_DISPLAY_SCROLLBAR))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "OVERLAY_VISUAL_SCROLLBAR",
+            NapiParseUtils::ToInt32Value(env, static_cast<int32_t>(ScrollbarMode::OVERLAY_VISUAL_SCROLLBAR))),
     };
     napi_define_class(env, WEB_SCROLLBAR_MODE_ENUM_NAME.c_str(), WEB_SCROLLBAR_MODE_ENUM_NAME.length(),
         NapiParseUtils::CreateEnumConstructor, nullptr,
@@ -8598,7 +8601,7 @@ napi_value NapiWebviewController::SetScrollbarMode(napi_env env, napi_callback_i
     }
 
     if (scrollbarMode < static_cast<int>(ScrollbarMode::OVERLAY_LAYOUT_SCROLLBAR) ||
-        scrollbarMode > static_cast<int>(ScrollbarMode::FORCE_DISPLAY_SCROLLBAR)) {
+        scrollbarMode > static_cast<int>(ScrollbarMode::OVERLAY_VISUAL_SCROLLBAR)) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_TYPE_INVALID, "mode"));
         return result;

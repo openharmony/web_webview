@@ -366,7 +366,8 @@ enum class WebDestroyMode {
 
 enum class ScrollbarMode {
     OVERLAY_LAYOUT_SCROLLBAR,
-    FORCE_DISPLAY_SCROLLBAR
+    FORCE_DISPLAY_SCROLLBAR,
+    OVERLAY_VISUAL_SCROLLBAR
 };
 
 enum class NavigationPolicy : int32_t {

@@ -1836,8 +1836,8 @@ TEST_F(AniWebviewControllerTest, SetScrollbarMode_ErrorScenarios)
     EXPECT_EQ(GetLastErrorCode(), PARAM_CHECK_ERROR);
     OHOS::NWeb::AniBusinessError::Reset();
 
-    // mode value out of range (greater than FORCE_DISPLAY_SCROLLBAR)
-    g_enumItemGetValueResult = static_cast<ani_int>(OHOS::NWeb::ScrollbarMode::FORCE_DISPLAY_SCROLLBAR) + 1;
+    // mode value out of range (greater than OVERLAY_VISUAL_SCROLLBAR)
+    g_enumItemGetValueResult = static_cast<ani_int>(OHOS::NWeb::ScrollbarMode::OVERLAY_VISUAL_SCROLLBAR) + 1;
     SetScrollbarMode(env, reinterpret_cast<ani_object>(testController_), mode);
     EXPECT_TRUE(WasErrorThrown());
     EXPECT_EQ(GetLastErrorCode(), PARAM_CHECK_ERROR);

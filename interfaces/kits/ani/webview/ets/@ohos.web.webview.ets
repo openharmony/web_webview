@@ -56,7 +56,8 @@ export default namespace webview {
 
     export enum ScrollbarMode {
         OVERLAY_LAYOUT_SCROLLBAR,
-        FORCE_DISPLAY_SCROLLBAR
+        FORCE_DISPLAY_SCROLLBAR,
+        OVERLAY_VISUAL_SCROLLBAR
     };
 
     export enum WebSoftKeyboardBehaviorMode {

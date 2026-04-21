@@ -6894,7 +6894,7 @@ WEBVIEW_ANI_STATIC void SetScrollbarMode(ani_env *env, ani_object object, ani_en
         return;
     }
     if (modeInt < static_cast<int>(ScrollbarMode::OVERLAY_LAYOUT_SCROLLBAR) ||
-            modeInt > static_cast<int>(ScrollbarMode::FORCE_DISPLAY_SCROLLBAR)) {
+            modeInt > static_cast<int>(ScrollbarMode::OVERLAY_VISUAL_SCROLLBAR)) {
         AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
         return;
     }
