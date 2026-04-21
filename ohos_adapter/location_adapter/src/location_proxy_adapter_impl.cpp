@@ -270,8 +270,17 @@ int32_t LocationProxyAdapterImpl::StartLocating(
         WVLOG_E("get Locator::GetInstance() failed or callback is nullptr");
         return -1;
     }
+    auto reqImpl = reinterpret_cast<LocationRequestConfigImpl*>(requestConfig.get());
+    if (!reqImpl) {
+        WVLOG_E("requestConfig is invalid");
+        return -1;
+    }
     sptr<OHOS::Location::ILocatorCallback> iCallback =
         sptr<OHOS::Location::ILocatorCallback>(new LocationCallbackImpl(callback));
+    if (!iCallback) {
+        WVLOG_E("create iCallback failed");
+        return -1;
+    }
     id = count++;
     if (count < 0) {
         count = 0;
@@ -282,9 +291,7 @@ int32_t LocationProxyAdapterImpl::StartLocating(
         return -1;
     }
 
-    bool ret = startLocatingFunc_(
-        reinterpret_cast<LocationRequestConfigImpl*>(requestConfig.get())->GetConfig(),
-        iCallback);
+    bool ret = startLocatingFunc_(reqImpl->GetConfig(), iCallback);
     if (!ret) {
         WVLOG_E("StartLocating failed, id:%{public}d", id);
         reg_.erase(id);
