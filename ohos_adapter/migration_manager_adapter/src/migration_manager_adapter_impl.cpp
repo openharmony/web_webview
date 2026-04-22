@@ -128,7 +128,11 @@ void MigrationManagerAdapterImpl::SetMigrationParam(
 
 bool MigrationManagerAdapterImpl::SendMigrationRequest(std::shared_ptr<std::string> jsonData)
 {
-    WVLOG_I("send migration reqeust start.");
+    WVLOG_I("send migration request start.");
+    if (!jsonData) {
+        WVLOG_E("SendMigrationRequest jsonData is null.");
+        return false;
+    }
     if (callback_) {
         callback_->SetJsonData(*jsonData);
     }
