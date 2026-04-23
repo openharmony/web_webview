@@ -403,7 +403,7 @@ HWTEST(HiViewDFXAdapterTest, NormalScene_10, TestSize.Level1)
     int ret = OhosAdapterHelper::GetInstance().GetHiSysEventAdapterInstance().Write(
         eventName, HiSysEventAdapter::EventType::STATISTIC, data);
     EXPECT_EQ(ret, 0);
-    int ret = OhosAdapterHelper::GetInstance().GetHiSysEventAdapterInstance().Write(
+    ret = OhosAdapterHelper::GetInstance().GetHiSysEventAdapterInstance().Write(
         eventName2, HiSysEventAdapter::EventType::STATISTIC, data);
     EXPECT_EQ(ret, 0);
 }
