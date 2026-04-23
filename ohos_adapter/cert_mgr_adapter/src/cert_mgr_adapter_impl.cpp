@@ -518,7 +518,7 @@ bool CertManagerAdapterImpl::GetTrustAnchorsForHostName(
     int32_t ret = OHOS::NetManagerStandard::NetworkSecurityConfig::GetInstance().
         GetTrustAnchorsForHostName(hostname, certs);
     if (ret != OHOS::NetManagerStandard::NETMANAGER_SUCCESS) {
-        WVLOG_E("GetTrustAnchorsForHostName for hostname:%{public}s failed",
+        WVLOG_E("GetTrustAnchorsForHostName for hostname:%{private}s failed",
             hostname.c_str());
         return false;
     }
@@ -532,13 +532,13 @@ bool CertManagerAdapterImpl::GetPinSetForHostName(
     int32_t ret = OHOS::NetManagerStandard::NetworkSecurityConfig::GetInstance().
         GetPinSetForHostName(hostname, pinsString);
     if (ret != OHOS::NetManagerStandard::NETMANAGER_SUCCESS) {
-        WVLOG_E("GetPinSetForHostName for hostname:%{public}s failed, ret:%{public}d",
+        WVLOG_E("GetPinSetForHostName for hostname:%{private}s failed, ret:%{public}d",
             hostname.c_str(), ret);
         return false;
     }
  
     if (pinsString.empty()) {
-        WVLOG_D("GetPinSetForHostName for hostname:%{public}s is empty", hostname.c_str());
+        WVLOG_D("GetPinSetForHostName for hostname:%{private}s is empty", hostname.c_str());
         return true;
     }
     size_t start = 0;
