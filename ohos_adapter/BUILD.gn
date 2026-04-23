@@ -427,4 +427,8 @@ ohos_shared_library("nweb_ohos_adapter") {
     "//base/web/webview/arkweb_utils:libarkweb_utils",
     "../ohos_glue:ohos_base_glue_source",
   ]
+
+  if (webview_histogram_metrics_enable) {
+    defines += [ "ARKWEB_HISTOGRAM_METRICS_ENABLE" ]
+  }
 }
