@@ -515,12 +515,40 @@ int32_t CertManagerAdapterImpl::SignV2(const uint8_t* uri, const uint8_t* certDa
 bool CertManagerAdapterImpl::GetTrustAnchorsForHostName(
     const std::string& hostname, std::vector<std::string>& certs)
 {
-    return false;
+    int32_t ret = OHOS::NetManagerStandard::NetworkSecurityConfig::GetInstance().
+        GetTrustAnchorsForHostName(hostname, certs);
+    if (ret != OHOS::NetManagerStandard::NETMANAGER_SUCCESS) {
+        WVLOG_E("GetTrustAnchorsForHostName for hostname:%{public}s failed",
+            hostname.c_str());
+        return false;
+    }
+    return true;
 }
 
 bool CertManagerAdapterImpl::GetPinSetForHostName(
     const std::string& hostname, std::vector<std::string>& pins)
 {
-    return false;
+    std::string pinsString;
+    int32_t ret = OHOS::NetManagerStandard::NetworkSecurityConfig::GetInstance().
+        GetPinSetForHostName(hostname, pinsString);
+    if (ret != OHOS::NetManagerStandard::NETMANAGER_SUCCESS) {
+        WVLOG_E("GetPinSetForHostName for hostname:%{public}s failed, ret:%{public}d",
+            hostname.c_str(), ret);
+        return false;
+    }
+ 
+    if (pinsString.empty()) {
+        WVLOG_D("GetPinSetForHostName for hostname:%{public}s is empty", hostname.c_str());
+        return true;
+    }
+    size_t start = 0;
+    size_t pos = pinsString.find(";", start);
+    while (pos != std::string::npos) {
+        pins.emplace_back(pinsString.substr(start, pos - start));
+        start = pos + 1;
+        pos = pinsString.find(";", start);
+    }
+    pins.emplace_back(pinsString.substr(start));
+    return true;
 }
 }
