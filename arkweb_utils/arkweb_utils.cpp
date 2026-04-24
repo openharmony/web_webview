@@ -461,6 +461,26 @@ void UpdateAppInfoFromCmdline(std::string& renderCmd)
     }
 }
 
+ArkWebEngineVersionMetrics MapToMetricsVersion(ArkWebEngineVersion version)
+{
+    switch (version) {
+        case ArkWebEngineVersion::SYSTEM_DEFAULT:
+            return ArkWebEngineVersionMetrics::SYSTEM_DEFAULT;
+        case ArkWebEngineVersion::SYSTEM_EVERGREEN:
+            return ArkWebEngineVersionMetrics::SYSTEM_EVERGREEN;
+        case ArkWebEngineVersion::PLAYGROUND:
+            return ArkWebEngineVersionMetrics::PLAYGROUND;
+        case ArkWebEngineVersion::M114:
+            return ArkWebEngineVersionMetrics::M114;
+        case ArkWebEngineVersion::M132:
+            return ArkWebEngineVersionMetrics::M132;
+        case ArkWebEngineVersion::M144:
+            return ArkWebEngineVersionMetrics::M144;
+    }
+    WVLOG_W("Unexpected ArkWebEngineVersion: %{public}d", static_cast<int32_t>(version));
+    return ArkWebEngineVersionMetrics::UNKNOWN_METRICS;
+}
+
 ArkWebEngineVersion getActiveWebEngineVersion()
 {
     return g_activeEngineVersion;

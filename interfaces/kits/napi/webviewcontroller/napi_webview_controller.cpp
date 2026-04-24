@@ -29,6 +29,9 @@
 #include "arkweb_utils.h"
 #include "application_context.h"
 #include "business_error.h"
+#ifdef WEBVIEW_API_METRICS_ENABLE
+#include "histogram_plugin_macros.h"
+#endif
 #include "napi_parse_utils.h"
 #include "nweb_napi_scope.h"
 #include "native_engine/native_engine.h"
@@ -8278,7 +8281,13 @@ napi_value NapiWebviewController::SetActiveWebEngineVersion(napi_env env, napi_c
             return result;
     }
 
-    OHOS::ArkWeb::setActiveWebEngineVersion(static_cast<OHOS::ArkWeb::ArkWebEngineVersion>(webEngineVersion));
+    auto version = static_cast<OHOS::ArkWeb::ArkWebEngineVersion>(webEngineVersion);
+    OHOS::ArkWeb::setActiveWebEngineVersion(version);
+#ifdef WEBVIEW_API_METRICS_ENABLE
+    HISTOGRAM_ENUMERATION("ArkWeb.DualCore.ArkTS.Dyn.setActiveWebEngineVersion",
+                          static_cast<int32_t>(OHOS::ArkWeb::MapToMetricsVersion(version)),
+                          static_cast<int32_t>(OHOS::ArkWeb::ArkWebEngineVersionMetrics::COUNT) - 1);
+#endif
     NAPI_CALL(env, napi_get_undefined(env, &result));
     return result;
 }
@@ -8286,8 +8295,13 @@ napi_value NapiWebviewController::SetActiveWebEngineVersion(napi_env env, napi_c
 napi_value NapiWebviewController::GetActiveWebEngineVersion(napi_env env, napi_callback_info info)
 {
     napi_value result = nullptr;
-    int return_value = static_cast<int>(OHOS::ArkWeb::getActiveWebEngineVersion());
-    napi_create_int32(env, return_value, &result);
+    auto version = OHOS::ArkWeb::getActiveWebEngineVersion();
+#ifdef WEBVIEW_API_METRICS_ENABLE
+    HISTOGRAM_ENUMERATION("ArkWeb.DualCore.ArkTS.Dyn.getActiveWebEngineVersion",
+                          static_cast<int32_t>(OHOS::ArkWeb::MapToMetricsVersion(version)),
+                          static_cast<int32_t>(OHOS::ArkWeb::ArkWebEngineVersionMetrics::COUNT) - 1);
+#endif
+    napi_create_int32(env, static_cast<int32_t>(version), &result);
     return result;
 }
 
