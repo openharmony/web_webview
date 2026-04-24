@@ -43,4 +43,13 @@ int32_t ArkWebCommandActionManagerWrapper::HandleSelectCommand(
     return ark_web_command_action_manager_->HandleSelectCommand(new ArkWebCommandActionInfoImpl(info));
 }
 
+int32_t ArkWebCommandActionManagerWrapper::HandleGestureCommand(
+    std::shared_ptr<OHOS::NWeb::NWebCommandActionInfo> info)
+{
+    if (CHECK_SHARED_PTR_IS_NULL(info)) {
+        return ark_web_command_action_manager_->HandleGestureCommand(nullptr);
+    }
+    return ark_web_command_action_manager_->HandleGestureCommand(new ArkWebCommandActionInfoImpl(info));
+}
+
 }  // namespace OHOS::ArkWeb

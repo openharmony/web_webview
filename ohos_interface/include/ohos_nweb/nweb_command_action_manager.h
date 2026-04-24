@@ -30,6 +30,7 @@ public:
 
     virtual int32_t HandleInputCommand(std::shared_ptr<NWebCommandActionInfo> info) = 0;
     virtual int32_t HandleSelectCommand(std::shared_ptr<NWebCommandActionInfo> info) = 0;
+    virtual int32_t HandleGestureCommand(std::shared_ptr<NWebCommandActionInfo> action) = 0;
 };
 
 }  // namespace OHOS::NWeb

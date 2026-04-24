@@ -45,6 +45,14 @@ public:
      */
     int32_t HandleSelectCommand(ArkWebRefPtr<ArkWebCommandActionInfo> info) override;
 
+    /**
+     * @brief Handle gesture command action.
+     *
+     * @param info The command action info for gesture events.
+     * @return The result of command. 0 on success, negative error code on failure.
+     */
+    int32_t HandleGestureCommand(ArkWebRefPtr<ArkWebCommandActionInfo> info) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebCommandActionManager> nweb_command_action_manager_;
 };

@@ -58,6 +58,46 @@ public:
     {
         return {};
     }
+
+    virtual double GetX() const
+    {
+        return 0.0;
+    }
+
+    virtual double GetY() const
+    {
+        return 0.0;
+    }
+
+    virtual double GetDistanceX() const
+    {
+        return 0.0;
+    }
+
+    virtual double GetDistanceY() const
+    {
+        return 0.0;
+    }
+
+    virtual float GetScale() const
+    {
+        return 1.0f;
+    }
+
+    virtual int32_t GetDuration() const
+    {
+        return 0;
+    }
+
+    virtual int32_t GetTapCount() const
+    {
+        return 1;
+    }
+
+    virtual int32_t GetSpeed() const
+    {
+        return 0;
+    }
 };
 
 } // namespace OHOS::NWeb

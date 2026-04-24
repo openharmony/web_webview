@@ -49,4 +49,44 @@ ArkWebInt32Vector ArkWebCommandActionInfoImpl::GetOptionIndexes()
     return ArkWebBasicVectorClassToStruct<int, ArkWebInt32Vector>(info_->GetOptionIndexes());
 }
 
+double ArkWebCommandActionInfoImpl::GetX()
+{
+    return info_->GetX();
+}
+
+double ArkWebCommandActionInfoImpl::GetY()
+{
+    return info_->GetY();
+}
+
+double ArkWebCommandActionInfoImpl::GetDistanceX()
+{
+    return info_->GetDistanceX();
+}
+
+double ArkWebCommandActionInfoImpl::GetDistanceY()
+{
+    return info_->GetDistanceY();
+}
+
+float ArkWebCommandActionInfoImpl::GetScale()
+{
+    return info_->GetScale();
+}
+
+int32_t ArkWebCommandActionInfoImpl::GetDuration()
+{
+    return info_->GetDuration();
+}
+
+int32_t ArkWebCommandActionInfoImpl::GetTapCount()
+{
+    return info_->GetTapCount();
+}
+
+int32_t ArkWebCommandActionInfoImpl::GetSpeed()
+{
+    return info_->GetSpeed();
+}
+
 }  // namespace OHOS::ArkWeb

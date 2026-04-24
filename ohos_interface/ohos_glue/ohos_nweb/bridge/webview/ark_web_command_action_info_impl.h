@@ -35,6 +35,15 @@ public:
     ArkWebStringVector GetOptionValues() override;
     ArkWebInt32Vector GetOptionIndexes() override;
 
+    double GetX() override;
+    double GetY() override;
+    double GetDistanceX() override;
+    double GetDistanceY() override;
+    float GetScale() override;
+    int32_t GetDuration() override;
+    int32_t GetTapCount() override;
+    int32_t GetSpeed() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebCommandActionInfo> info_;
 };
