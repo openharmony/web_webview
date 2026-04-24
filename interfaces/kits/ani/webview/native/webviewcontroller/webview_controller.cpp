@@ -175,8 +175,11 @@ void WebviewController::TriggerStateChangeCallback(const std::string& type)
             std::vector<ani_ref> vec;
             vec.push_back(stateRst);
             ani_ref callbackResult = nullptr;
-            regObj.m_regEnv->FunctionalObject_Call(reinterpret_cast<ani_fn_object>(regObj.m_regHandlerRef), vec.size(),
-                vec.data(), &callbackResult);
+            if (regObj.m_regEnv->FunctionalObject_Call(
+                reinterpret_cast<ani_fn_object>(regObj.m_regHandlerRef), vec.size(),
+                vec.data(), &callbackResult) != ANI_OK) {
+                WVLOG_E("FunctionalObject_Call failed");
+            }
         }
     }
 
