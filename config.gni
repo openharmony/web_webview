@@ -29,6 +29,7 @@ declare_args() {
   webview_drm_enable = true
   webview_preload_render_lib = true
   webview_app_fwk_update_enable = true
+  webview_api_metrics_enable = true
   webview_histogram_metrics_enable = true
 
   if (defined(global_parts_info) &&
@@ -93,6 +94,10 @@ declare_args() {
   if (defined(global_parts_info) &&
       !defined(global_parts_info.multimedia_drm_framework)) {
     webview_drm_enable = false
+  }
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.hiviewdfx_api_metrics)) {
+    webview_api_metrics_enable = false
   }
 }
 

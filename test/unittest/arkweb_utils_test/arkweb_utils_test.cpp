@@ -626,4 +626,34 @@ HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_NormalScene, TestSize.Level1)
     EXPECT_EQ(OHOS::ArkWeb::GetApiVersion(), "1");
     EXPECT_EQ(OHOS::ArkWeb::GetAppVersion(), "3");
 }
+
+/**
+ * @brief MapToMetricsVersion maps each valid ArkWebEngineVersion correctly.
+ */
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_MapToMetricsVersion_001, TestSize.Level1)
+{
+    EXPECT_EQ(MapToMetricsVersion(ArkWebEngineVersion::SYSTEM_DEFAULT),
+              ArkWebEngineVersionMetrics::SYSTEM_DEFAULT);
+    EXPECT_EQ(MapToMetricsVersion(ArkWebEngineVersion::SYSTEM_EVERGREEN),
+              ArkWebEngineVersionMetrics::SYSTEM_EVERGREEN);
+    EXPECT_EQ(MapToMetricsVersion(ArkWebEngineVersion::PLAYGROUND),
+              ArkWebEngineVersionMetrics::PLAYGROUND);
+    EXPECT_EQ(MapToMetricsVersion(ArkWebEngineVersion::M114),
+              ArkWebEngineVersionMetrics::M114);
+    EXPECT_EQ(MapToMetricsVersion(ArkWebEngineVersion::M132),
+              ArkWebEngineVersionMetrics::M132);
+    EXPECT_EQ(MapToMetricsVersion(ArkWebEngineVersion::M144),
+              ArkWebEngineVersionMetrics::M144);
+}
+
+/**
+ * @brief MapToMetricsVersion returns UNKNOWN_METRICS for unrecognized values.
+ */
+HWTEST_F(ArkWebUtilsTest, ArkWebUtilsTest_MapToMetricsVersion_002, TestSize.Level1)
+{
+    EXPECT_EQ(MapToMetricsVersion(static_cast<ArkWebEngineVersion>(9999)),
+              ArkWebEngineVersionMetrics::UNKNOWN_METRICS);
+    EXPECT_EQ(MapToMetricsVersion(static_cast<ArkWebEngineVersion>(-1)),
+              ArkWebEngineVersionMetrics::UNKNOWN_METRICS);
+}
 } // namespace OHOS::NWeb

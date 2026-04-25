@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("../../../config.gni")
 
 config("web_public_config") {
   visibility = [ ":*" ]
@@ -137,6 +138,12 @@ ohos_shared_library("webview_napi") {
     "../../../ohos_glue:ohos_base_glue_source",
     "//base/web/webview/arkweb_utils:libarkweb_utils"
   ]
+
+  defines = []
+  if (webview_api_metrics_enable) {
+    external_deps += [ "api_metrics:histogrammanager" ]
+    defines += [ "WEBVIEW_API_METRICS_ENABLE" ]
+  }
 
   relative_install_dir = "module/web"
 

@@ -414,4 +414,19 @@ HWTEST_F(CertMgrAdapterTest, CertMgrAdapterTest_InitCertList_007, TestSize.Level
     result = adapter.GetCertDataBySubject(subjectName, certData, CM_SYSTEM_TRUSTED_STORE);
     EXPECT_NE(result, 0);
 }
+
+/**
+ * @tc.name: CertMgrAdapterTest_GetPinSetForHostName_008
+ * @tc.desc: GetPinSetForHostName.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(CertMgrAdapterTest, CertMgrAdapterTest_GetPinSetForHostName_008, TestSize.Level1)
+{
+    CertManagerAdapterImpl adapter;
+    const std::string hostname = "testweb";
+    std::vector<std::string> pins;
+    bool result = adapter.GetPinSetForHostName(hostname, pins);
+    EXPECT_TRUE(result);
+}
 } // namespace OHOS

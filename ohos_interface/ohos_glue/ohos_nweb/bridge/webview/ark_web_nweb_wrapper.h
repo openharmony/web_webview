@@ -2062,6 +2062,14 @@ public:
      *         Return empty string if no postMessage has been called.
      */
     std::string GetLastPostMessageURL() override;
+
+    /**
+     * @brief Get the NWebCommandActionManager for command action operations.
+     *
+     * @return ArkWebCommandActionManager wrapper.
+     */
+    std::shared_ptr<OHOS::NWeb::NWebCommandActionManager> GetCommandActionManager() override;
+
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };
