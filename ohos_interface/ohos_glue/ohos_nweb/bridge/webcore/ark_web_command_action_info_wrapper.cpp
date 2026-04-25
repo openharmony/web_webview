@@ -48,12 +48,18 @@ std::string ArkWebCommandActionInfoWrapper::GetInputValue() const
 
 std::vector<std::string> ArkWebCommandActionInfoWrapper::GetOptionValues() const
 {
-    return ArkWebStringVectorStructToClass(info_->GetOptionValues());
+    ArkWebStringVector vector = info_->GetOptionValues();
+    std::vector<std::string> result = ArkWebStringVectorStructToClass(info_->GetOptionValues());
+    ArkWebStringVectorStructRelease(vector);
+    return result;
 }
 
 std::vector<int32_t> ArkWebCommandActionInfoWrapper::GetOptionIndexes() const
 {
-    return ArkWebBasicVectorStructToClass<int32_t, ArkWebInt32Vector>(info_->GetOptionIndexes());
+    ArkWebInt32Vector vector = info_->GetOptionIndexes();
+    std::vector<int32_t> result = ArkWebBasicVectorStructToClass<int32_t, ArkWebInt32Vector>(info_->GetOptionIndexes());
+    ArkWebBasicVectorStructRelease<ArkWebInt32Vector>(vector);
+    return result;
 }
 
 } // namespace OHOS::ArkWeb
