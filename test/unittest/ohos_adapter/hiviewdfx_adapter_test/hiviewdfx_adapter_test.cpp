@@ -388,4 +388,23 @@ HWTEST(HiViewDFXAdapterTest, NormalScene_09, TestSize.Level1)
         "BASIC_RENDER_MEM", HiSysEventAdapter::EventType::STATISTIC, data);
     EXPECT_EQ(ret, 0);
 }
+
+/**
+ * @tc.name: NormalScene_10.
+ * @tc.desc: test normal scene of uma/ukm report
+ * @tc.type: FUNC.
+ * @tc.require:
+ */
+HWTEST(HiViewDFXAdapterTest, NormalScene_10, TestSize.Level1)
+{
+    const std::string eventName = "UMA_METRICS_LOG_UPLOAD";
+    const std::string eventName2 = "UKM_METRICS_LOG_UPLOAD";
+    const std::tuple<const std::string, const std::string> data("testkey", "0");
+    int ret = OhosAdapterHelper::GetInstance().GetHiSysEventAdapterInstance().Write(
+        eventName, HiSysEventAdapter::EventType::STATISTIC, data);
+    EXPECT_EQ(ret, 0);
+    ret = OhosAdapterHelper::GetInstance().GetHiSysEventAdapterInstance().Write(
+        eventName2, HiSysEventAdapter::EventType::STATISTIC, data);
+    EXPECT_EQ(ret, 0);
+}
 } // namespace OHOS::NWeb

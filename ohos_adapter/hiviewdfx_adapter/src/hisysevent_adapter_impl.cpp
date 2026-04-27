@@ -210,7 +210,7 @@ int ProcessEventPageLoadTime(const std::string& eventName, HiSysEventAdapter::Ev
         PAGE_LOAD_KEY_LISTS[18], value19, PAGE_LOAD_KEY_LISTS[19], value20,
         PAGE_LOAD_KEY_LISTS[20], value21, PAGE_LOAD_KEY_LISTS[21], value22,
         PAGE_LOAD_KEY_LISTS[22], value23, PAGE_LOAD_KEY_LISTS[23], value24);
-        
+
     auto mergeData = std::tuple_cat(newData, sysData);
     return ForwardToHiSysEvent(eventName, type, mergeData);
 }
@@ -261,6 +261,17 @@ int HiSysEventAdapterImpl::Write(const std::string& eventName, EventType type,
         int result = ProcessEventFirstMeaningfulPaintDone(eventName, type, data);
         return result;
     }
+#ifdef ARKWEB_HISTOGRAM_METRICS_ENABLE
+    if (eventName == "UMA_METRICS_LOG_UPLOAD") {
+        auto sysData = std::make_tuple("HISTOGRAM_TYPE", "arkweb.histogram.uma",
+            "HISTOGRAM_CONTENT", std::get<1>(data));
+        return ForwardToHiSysEvent("HISTOGRAM_UMA_UKM", type, sysData);
+    } else if (eventName == "UKM_METRICS_LOG_UPLOAD") {
+        auto sysData = std::make_tuple("HISTOGRAM_TYPE", "arkweb.histogram.ukm",
+            "HISTOGRAM_CONTENT", std::get<1>(data));
+        return ForwardToHiSysEvent("HISTOGRAM_UMA_UKM", type, sysData);
+    }
+#endif
     return ForwardToHiSysEvent(eventName, type, data);
 }
 
