@@ -27,6 +27,7 @@
 #include "web_download_item.h"
 #include "web_download.pb.h"
 #include "web_errors.h"
+#include "napi_webview_controller.h"
 
 namespace download {
 enum DownloadInterruptReason {
@@ -568,6 +569,10 @@ napi_value NapiWebDownloadItem::JS_Continue(napi_env env, napi_callback_info cbi
         WVLOG_E("[DOWNLOAD] unwrap webDownloadItem failed");
         return nullptr;
     }
+    if (!webDownloadItem->before_download_callback) {
+        WVLOG_E("[DOWNLOAD] before_download_callback function is nullptr");
+        return nullptr;
+    }
 
     WebDownload_Continue(webDownloadItem->before_download_callback, webDownloadItem->downloadPath.c_str());
     return nullptr;
@@ -703,12 +708,21 @@ napi_value NapiWebDownloadItem::JS_Start(napi_env env, napi_callback_info cbinfo
         return nullptr;
     }
 
+    if (pathLen > URL_MAXIMUM) {
+        WVLOG_E("[DOWNLOAD] Download file path greater than 2MB");
+        return nullptr;
+    }
+
     char stringValue[pathLen + 1];
     size_t jsStringLength = 0;
     napi_get_value_string_utf8(env, argv[0], stringValue, pathLen + 1, &jsStringLength);
     if (jsStringLength != pathLen) {
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
                 "BusinessError: 401. Parameter error. The type of 'downloadPath' must be a valid path string.");
+        return nullptr;
+    }
+    if (!webDownloadItem->before_download_callback) {
+        WVLOG_E("before_download_callback function is null ");
         return nullptr;
     }
     webDownloadItem->hasStarted = true;
