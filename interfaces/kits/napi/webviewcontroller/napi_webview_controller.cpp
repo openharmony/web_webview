@@ -69,7 +69,6 @@ using namespace NWebError;
 using NWebError::NO_ERROR;
 
 namespace {
-constexpr uint32_t URL_MAXIMUM = 2 * 1024 * 1024;
 constexpr int32_t MAX_WAIT_FOR_ATTACH_TIMEOUT = 300000;
 constexpr uint32_t SOCKET_MAXIMUM = 6;
 constexpr char URL_REGEXPR[] = "^http(s)?:\\/\\/.+";
@@ -6070,7 +6069,7 @@ bool GetHostList(napi_env env, napi_value array, std::vector<std::string>& hosts
 
         size_t hostLen = 0;
         napi_get_value_string_utf8(env, hostItem, nullptr, 0, &hostLen);
-        if (hostLen == 0 || hostLen > UINT_MAX) {
+        if (hostLen == 0 || hostLen > URL_MAXIMUM) {
             WVLOG_E("hostitem length is invalid");
             return false;
         }
