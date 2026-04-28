@@ -34,6 +34,14 @@ public:
     std::string GetInputValue() const override;
     std::vector<std::string> GetOptionValues() const override;
     std::vector<int32_t> GetOptionIndexes() const override;
+    double GetX() const override;
+    double GetY() const override;
+    double GetDistanceX() const override;
+    double GetDistanceY() const override;
+    float GetScale() const override;
+    int32_t GetDuration() const override;
+    int32_t GetTapCount() const override;
+    int32_t GetSpeed() const override;
 
 private:
     ArkWebRefPtr<ArkWebCommandActionInfo> info_;

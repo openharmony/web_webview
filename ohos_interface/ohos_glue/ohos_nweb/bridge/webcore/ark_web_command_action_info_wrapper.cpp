@@ -62,4 +62,43 @@ std::vector<int32_t> ArkWebCommandActionInfoWrapper::GetOptionIndexes() const
     return result;
 }
 
+double ArkWebCommandActionInfoWrapper::GetX() const
+{
+    return info_->GetX();
+}
+
+double ArkWebCommandActionInfoWrapper::GetY() const
+{
+    return info_->GetY();
+}
+
+double ArkWebCommandActionInfoWrapper::GetDistanceX() const
+{
+    return info_->GetDistanceX();
+}
+
+double ArkWebCommandActionInfoWrapper::GetDistanceY() const
+{
+    return info_->GetDistanceY();
+}
+
+float ArkWebCommandActionInfoWrapper::GetScale() const
+{
+    return info_->GetScale();
+}
+
+int32_t ArkWebCommandActionInfoWrapper::GetDuration() const
+{
+    return info_->GetDuration();
+}
+
+int32_t ArkWebCommandActionInfoWrapper::GetTapCount() const
+{
+    return info_->GetTapCount();
+}
+
+int32_t ArkWebCommandActionInfoWrapper::GetSpeed() const
+{
+    return info_->GetSpeed();
+}
 } // namespace OHOS::ArkWeb

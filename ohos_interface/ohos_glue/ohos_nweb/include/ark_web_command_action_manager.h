@@ -46,6 +46,15 @@ public:
      */
     /*--ark web()--*/
     virtual int32_t HandleSelectCommand(ArkWebRefPtr<ArkWebCommandActionInfo> info) = 0;
+
+    /**
+     * @brief Handle gesture command action.
+     *
+     * @param action The command action info for gesture events.
+     * @return The result of command. 0 on success, negative error code on failure.
+     */
+    /*--ark web()--*/
+    virtual int32_t HandleGestureCommand(ArkWebRefPtr<ArkWebCommandActionInfo> action) = 0;
 };
 
 }  // namespace OHOS::ArkWeb

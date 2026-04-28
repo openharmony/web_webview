@@ -65,6 +65,62 @@ public:
      */
     /*--ark web()--*/
     virtual ArkWebInt32Vector GetOptionIndexes() = 0;
+
+    /**
+     * @brief Get X coordinate for gesture events.
+     * @return X coordinate value.
+     */
+    /*--ark web()--*/
+    virtual double GetX() = 0;
+
+    /**
+     * @brief Get Y coordinate for gesture events.
+     * @return Y coordinate value.
+     */
+    /*--ark web()--*/
+    virtual double GetY() = 0;
+
+    /**
+     * @brief Get horizontal distance for scroll gesture.
+     * @return Horizontal distance value in pixels.
+     */
+    /*--ark web()--*/
+    virtual double GetDistanceX() = 0;
+
+    /**
+     * @brief Get vertical distance for scroll gesture.
+     * @return Vertical distance value in pixels.
+     */
+    /*--ark web()--*/
+    virtual double GetDistanceY() = 0;
+
+    /**
+     * @brief Get scale factor for pinch gesture.
+     * @return Scale factor value.
+     */
+    /*--ark web()--*/
+    virtual float GetScale() = 0;
+
+    /**
+     * @brief Get tap duration for tap gesture.
+     * @return Duration in milliseconds.
+     */
+    /*--ark web()--*/
+    virtual int32_t GetDuration() = 0;
+
+    /**
+     * @brief Get tap count for tap gesture.
+     * @return Number of taps.
+     */
+    /*--ark web()--*/
+    virtual int32_t GetTapCount() = 0;
+
+    /**
+     * @brief Get speed for scroll or pinch gesture.
+     * @return Speed in pixels per second.
+     */
+    /*--ark web()--*/
+    virtual int32_t GetSpeed() = 0;
 };
 
 }  // namespace OHOS::ArkWeb
