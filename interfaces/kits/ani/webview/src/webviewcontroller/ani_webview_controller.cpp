@@ -7511,6 +7511,29 @@ static ani_string GetLastPostMessageURL(ani_env *env, ani_object object)
     return lastPostMessageUrl;
 }
 
+static ani_boolean InnerGetWebDebuggingAccess(ani_env* env, ani_object object)
+{
+    WVLOG_D("InnerGetWebDebuggingAccess start");
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+    bool webDebuggingAccess = WebviewController::webDebuggingAccess_;
+    return static_cast<ani_boolean>(webDebuggingAccess);
+}
+
+static ani_int InnerGetWebDebuggingPort(ani_env* env, ani_object object)
+{
+    WVLOG_D("InnerGetWebDebuggingPort start");
+    ani_int port = 0;
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return port;
+    }
+    int32_t webDebuggingPort = WebviewController::webDebuggingPort_;
+    return static_cast<ani_int>(webDebuggingPort);
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     WVLOG_D("[DOWNLOAD] StsWebviewControllerInit");
@@ -7670,6 +7693,9 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "setUserAgentMetadata", nullptr, reinterpret_cast<void*>(SetUserAgentMetadata) },
         ani_native_function { "getUserAgentMetadata", nullptr, reinterpret_cast<void*>(GetUserAgentMetadata) },
         ani_native_function { "getLastPostMessageURL", nullptr, reinterpret_cast<void *>(GetLastPostMessageURL) },
+        ani_native_function { "innerGetWebDebuggingAccess", nullptr,
+                              reinterpret_cast<void *>(InnerGetWebDebuggingAccess) },
+        ani_native_function { "innerGetWebDebuggingPort", nullptr, reinterpret_cast<void *>(InnerGetWebDebuggingPort) },
     };
     status = env->Class_BindNativeMethods(webviewControllerCls, instanceMethods.data(), instanceMethods.size());
     if (status != ANI_OK) {

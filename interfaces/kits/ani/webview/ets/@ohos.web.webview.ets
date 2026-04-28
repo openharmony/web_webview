@@ -732,6 +732,8 @@ export default namespace webview {
         native onInactive(): void;
         native getWebId(): int;
         native innerGetWebId(): int;
+        native innerGetWebDebuggingAccess(): boolean;
+        native innerGetWebDebuggingPort(): int;
         native getScrollable(): boolean;
         native requestFocus(): void;
         native clearClientAuthenticationCache(): void;
