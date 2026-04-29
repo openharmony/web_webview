@@ -6656,6 +6656,10 @@ void NapiWebviewController::AddResourceItemToMemoryCache(napi_env env,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::URL_INVALID_OR_TOO_LONG));
         return;
     }
+    if (urlList.empty()) {
+        WVLOG_E("The urlList must not be empty");
+        return;
+    }
 
     std::vector<uint8_t> resource = webviewController->ParseUint8Array(env, resourceValue.resource);
     if (resource.empty() || resource.size() > MAX_RESOURCE_SIZE) {

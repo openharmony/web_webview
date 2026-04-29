@@ -1864,6 +1864,11 @@ void WebviewController::InjectOfflineResource(const std::vector<std::string>& ur
         return;
     }
 
+    if (urlList.empty()) {
+        WVLOG_E("urlList is empty");
+        return;
+    }
+
     std::string originUrl = urlList[0];
     if (urlList.size() == 1) {
         nweb_ptr->InjectOfflineResource(originUrl, originUrl, resource, response_headers, type);
