@@ -16,12 +16,17 @@
 #ifndef OHOS_NWEB_WEB_NATIVE_MESSAGING_EXTENSION_CONTEXT_H
 #define OHOS_NWEB_WEB_NATIVE_MESSAGING_EXTENSION_CONTEXT_H
 
+#include <functional>
+#include <map>
+
 #include "extension_context.h"
 #include "start_options.h"
 #include "want.h"
 
 namespace OHOS {
 namespace NWeb {
+using RuntimeTask = std::function<void(int, const AAFwk::Want &, bool)>;
+
 class WebNativeMessagingExtensionContext : public AbilityRuntime::ExtensionContext {
 public:
     WebNativeMessagingExtensionContext() = default;
@@ -29,9 +34,23 @@ public:
 
     ErrCode StartAbility(const OHOS::AAFwk::Want& want, const OHOS::AAFwk::StartOptions startOptions);
 
+    ErrCode StartAbilityForResult(const OHOS::AAFwk::Want& want,
+        const OHOS::AAFwk::StartOptions startOptions, int requestCode);
+
+    ErrCode StartAbilityForResult(const OHOS::AAFwk::Want& want,
+        const OHOS::AAFwk::StartOptions startOptions, int requestCode, RuntimeTask&& task);
+
     ErrCode TerminateSelf();
 
     ErrCode StopNativeConnection(int32_t connectionId);
+
+    void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want& resultData);
+
+    int GenerateCurRequestCode();
+
+private:
+    std::map<int, RuntimeTask> resultCallbacks_;
+    int curRequestCode_ = 0;
 };
 } // namespace NWeb
 } // namespace OHOS

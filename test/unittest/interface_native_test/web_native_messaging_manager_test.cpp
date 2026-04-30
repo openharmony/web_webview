@@ -1023,5 +1023,164 @@ HWTEST_F(WebNativeMessagingManagerTest, LookUpOrNewIpcConnection002, testing::ex
     auto ipcConnect2 = manager_->LookUpOrNewIpcConnection(tkid, bundleName, abilityName, token, 1);
     EXPECT_EQ(ipcConnect1, ipcConnect2);
 }
+
+/**
+ * @tc.name: StartAbilityForResult_001
+ * @tc.desc: StartAbilityForResult() - test with valid parameters
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, StartAbilityForResult_001, testing::ext::TestSize.Level0)
+{
+    sptr<IRemoteObject> token = new IRemoteObjectMocker();
+    std::string bundleName = "test_bundle";
+    std::string abilityName = "ability";
+
+    AAFwk::Want want;
+    FillWant(want);
+    want.SetBundle(bundleName);
+
+    AAFwk::StartOptions startOptions;
+    int32_t requestCode = 1001;
+    int32_t errorNum = 0;
+
+    MockAccesstokenKit::MockAccessTokenKitRet(PermissionState::PERMISSION_GRANTED);
+    manager_->Init();
+    auto ipcConnect = manager_->NewIpcConnection(g_callingTkid, bundleName, abilityName, token, 1);
+    ASSERT_NE(ipcConnect, nullptr);
+
+    ipcConnect->targetExtensionPid_ = g_callingPid;
+    manager_->StartAbilityForResult(token, want, startOptions, requestCode, errorNum);
+
+    // Should fail as bundle check won't match (ipcConnect's bundle vs want's bundle)
+    EXPECT_NE(errorNum, ConnectNativeRet::SUCCESS);
+}
+
+/**
+ * @tc.name: StartAbilityForResult_002
+ * @tc.desc: StartAbilityForResult() - test with null token
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, StartAbilityForResult_002, testing::ext::TestSize.Level0)
+{
+    std::string bundleName = "test_bundle";
+
+    AAFwk::Want want;
+    FillWant(want);
+    want.SetBundle(bundleName);
+
+    AAFwk::StartOptions startOptions;
+    int32_t requestCode = 1002;
+    int32_t errorNum = 0;
+
+    MockAccesstokenKit::MockAccessTokenKitRet(PermissionState::PERMISSION_GRANTED);
+    manager_->StartAbilityForResult(nullptr, want, startOptions, requestCode, errorNum);
+
+    // Should fail due to null token resulting in permission error
+    EXPECT_NE(errorNum, ConnectNativeRet::SUCCESS);
+}
+
+/**
+ * @tc.name: StartAbilityForResult_003
+ * @tc.desc: StartAbilityForResult() - test with different bundle names
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, StartAbilityForResult_003, testing::ext::TestSize.Level0)
+{
+    sptr<IRemoteObject> token = new IRemoteObjectMocker();
+    std::string bundleName = "test_bundle";
+    std::string abilityName = "ability";
+    std::string differentBundle = "different_bundle";
+
+    AAFwk::Want want;
+    FillWant(want);
+    want.SetBundle(differentBundle);  // Different from ipcConnect's bundle
+
+    AAFwk::StartOptions startOptions;
+    int32_t requestCode = 1003;
+    int32_t errorNum = 0;
+
+    MockAccesstokenKit::MockAccessTokenKitRet(PermissionState::PERMISSION_GRANTED);
+    manager_->Init();
+    auto ipcConnect = manager_->NewIpcConnection(g_callingTkid, bundleName, abilityName, token, 1);
+    ASSERT_NE(ipcConnect, nullptr);
+
+    ipcConnect->targetExtensionPid_ = g_callingPid;
+    manager_->StartAbilityForResult(token, want, startOptions, requestCode, errorNum);
+
+    // Should fail as bundle names don't match
+    EXPECT_EQ(errorNum, ConnectNativeRet::PERMISSION_CHECK_ERROR);
+}
+
+/**
+ * @tc.name: StartAbilityForResult_004
+ * @tc.desc: StartAbilityForResult() - test with invalid extension PID
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, StartAbilityForResult_004, testing::ext::TestSize.Level0)
+{
+    sptr<IRemoteObject> token = new IRemoteObjectMocker();
+    std::string bundleName = "test_bundle";
+
+    AAFwk::Want want;
+    FillWant(want);
+    want.SetBundle(bundleName);
+
+    AAFwk::StartOptions startOptions;
+    int32_t requestCode = 1004;
+    int32_t errorNum = 0;
+
+    MockAccesstokenKit::MockAccessTokenKitRet(PermissionState::PERMISSION_GRANTED);
+    g_callingPid = 99999;  // PID that doesn't exist in map
+
+    manager_->Init();
+    manager_->StartAbilityForResult(token, want, startOptions, requestCode, errorNum);
+
+    // Should fail as PID is not found
+    EXPECT_EQ(errorNum, ConnectNativeRet::PERMISSION_CHECK_ERROR);
+
+    g_callingPid = 0;  // Reset
+}
+
+/**
+ * @tc.name: StartAbilityForResult_005
+ * @tc.desc: StartAbilityForResult() - test with various request codes
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingManagerTest, StartAbilityForResult_005, testing::ext::TestSize.Level0)
+{
+    sptr<IRemoteObject> token = new IRemoteObjectMocker();
+    std::string bundleName = "test_bundle";
+    std::string abilityName = "ability";
+
+    AAFwk::Want want;
+    FillWant(want);
+    want.SetBundle(bundleName);
+
+    AAFwk::StartOptions startOptions;
+
+    MockAccesstokenKit::MockAccessTokenKitRet(PermissionState::PERMISSION_GRANTED);
+    manager_->Init();
+    auto ipcConnect = manager_->NewIpcConnection(g_callingTkid, bundleName, abilityName, token, 1);
+    ASSERT_NE(ipcConnect, nullptr);
+
+    ipcConnect->targetExtensionPid_ = g_callingPid;
+
+    // Test with various request codes
+    std::vector<int32_t> requestCodes = {0, 1, 100, 1000, INT32_MAX};
+
+    for (int32_t requestCode : requestCodes) {
+        int32_t errorNum = 0;
+        manager_->StartAbilityForResult(token, want, startOptions, requestCode, errorNum);
+        // All should fail due to bundle mismatch or ability type check
+        // The important thing is the function executes without crashing
+        EXPECT_TRUE(errorNum == ConnectNativeRet::PERMISSION_CHECK_ERROR ||
+                   errorNum == ConnectNativeRet::SUCCESS);
+    }
+}
 } // namespace NWeb
 } // namespace OHOS

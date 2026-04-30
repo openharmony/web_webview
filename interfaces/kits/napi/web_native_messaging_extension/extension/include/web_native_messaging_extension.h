@@ -32,6 +32,8 @@ public:
     virtual int32_t ConnectNative(WNMEConnectionInfo& connection);
 
     virtual int32_t DisconnectNative(WNMEConnectionInfo& connection);
+
+    void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want& want) override;
 };
 } // namespace NWeb
 } // namespace OHOS

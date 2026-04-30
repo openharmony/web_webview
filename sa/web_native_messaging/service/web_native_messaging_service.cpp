@@ -65,6 +65,17 @@ ErrCode WebNativeMessagingService::StartAbility(const sptr<IRemoteObject>& token
     manager_->StartAbility(token, want, startOptions, errorNum);
     return ERR_OK;
 }
+ErrCode WebNativeMessagingService::StartAbilityForResult(const sptr<IRemoteObject>& token,
+    const AAFwk::Want& want, const AAFwk::StartOptions& startOptions,
+    int32_t requestCode, int32_t& errorNum)
+{
+    if (!manager_) {
+        errorNum = ConnectNativeRet::SERVICE_INIT_ERROR;
+        return ERR_OK;
+    }
+    manager_->StartAbilityForResult(token, want, startOptions, requestCode, errorNum);
+    return ERR_OK;
+}
 
 ErrCode WebNativeMessagingService::StopNativeConnectionFromExtension(int32_t connectionId, int32_t& errorNum)
 {

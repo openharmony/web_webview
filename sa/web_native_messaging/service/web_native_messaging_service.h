@@ -36,6 +36,9 @@ public:
     ErrCode DisconnectWebNativeMessagingExtension(int32_t connectionId, int32_t& errorNum) override;
     ErrCode StartAbility(const sptr<IRemoteObject>& token,
         const AAFwk::Want& want, const AAFwk::StartOptions& startOptions, int32_t& errorNum) override;
+    ErrCode StartAbilityForResult(const sptr<IRemoteObject>& token,
+        const AAFwk::Want& want, const AAFwk::StartOptions& startOptions,
+        int32_t requestCode, int32_t& errorNum) override;
     ErrCode StopNativeConnectionFromExtension(int32_t connectionId, int32_t& errorNum) override;
     int32_t Dump(int fd, const std::vector<std::u16string>& args) override;
 

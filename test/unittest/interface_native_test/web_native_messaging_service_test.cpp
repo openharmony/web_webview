@@ -383,5 +383,89 @@ HWTEST_F(WebNativeMessagingServiceTest, OnStart, testing::ext::TestSize.Level0)
     service_->OnStart(*reason);
     EXPECT_TRUE(1);
 }
+
+/**
+ * @tc.name: StartAbilityForResult_001
+ * @tc.desc: StartAbilityForResult() with valid parameters
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingServiceTest, StartAbilityForResult_001, testing::ext::TestSize.Level0)
+{
+    sptr<IRemoteObject> token = new IRemoteObjectMocker();
+    AAFwk::Want want;
+    std::string bundleName = "web_native_messaging_service_test";
+    want.SetBundle(bundleName);
+
+    AppExecFwk::ElementName element;
+    element.SetAbilityName("WebNativeMessagingExtensionAbility");
+    element.SetBundleName("web_native_messaging_service_test");
+    element.SetDeviceID("12345");
+    want.SetElement(element);
+    want.SetType("12345");
+
+    AAFwk::StartOptions startOptions;
+    int32_t requestCode = 1001;
+    int32_t errorNum = 0;
+
+    service_->StartAbilityForResult(token, want, startOptions, requestCode, errorNum);
+    ASSERT_NE(errorNum, ERR_OK);
+
+    service_->manager_ = nullptr;
+    service_->StartAbilityForResult(token, want, startOptions, requestCode, errorNum);
+    ASSERT_NE(errorNum, ERR_OK);
+}
+
+/**
+ * @tc.name: StartAbilityForResult_002
+ * @tc.desc: StartAbilityForResult() with different request codes
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingServiceTest, StartAbilityForResult_002, testing::ext::TestSize.Level0)
+{
+    sptr<IRemoteObject> token = new IRemoteObjectMocker();
+    AAFwk::Want want;
+    want.SetBundle("web_native_messaging_service_test");
+
+    AppExecFwk::ElementName element;
+    element.SetAbilityName("TestAbility");
+    element.SetBundleName("web_native_messaging_service_test");
+    want.SetElement(element);
+
+    AAFwk::StartOptions startOptions;
+    int32_t errorNum = 0;
+
+    // Test with various request codes
+    std::vector<int32_t> requestCodes = {0, 1, 100, 1000, INT32_MAX};
+
+    for (int32_t requestCode : requestCodes) {
+        errorNum = 0;
+        service_->StartAbilityForResult(token, want, startOptions, requestCode, errorNum);
+        // Should fail since manager is not properly initialized
+        ASSERT_NE(errorNum, ERR_OK);
+    }
+}
+
+/**
+ * @tc.name: StartAbilityForResult_003
+ * @tc.desc: StartAbilityForResult() with null manager
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(WebNativeMessagingServiceTest, StartAbilityForResult_003, testing::ext::TestSize.Level0)
+{
+    sptr<IRemoteObject> token = new IRemoteObjectMocker();
+    AAFwk::Want want;
+    want.SetBundle("web_native_messaging_service_test");
+
+    AAFwk::StartOptions startOptions;
+    int32_t requestCode = 1003;
+    int32_t errorNum = 0;
+
+    service_->manager_ = nullptr;
+    service_->StartAbilityForResult(token, want, startOptions, requestCode, errorNum);
+    ASSERT_EQ(errorNum, ConnectNativeRet::SERVICE_INIT_ERROR);
+}
 } // namespace NWeb
 } // namespace OHOS

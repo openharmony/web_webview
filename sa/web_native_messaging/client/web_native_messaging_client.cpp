@@ -153,6 +153,27 @@ int WebNativeMessagingClient::StartAbility(const sptr<IRemoteObject>& token,
     return errorNum;
 }
 
+int WebNativeMessagingClient::StartAbilityForResult(const sptr<IRemoteObject>& token,
+    const AAFwk::Want& want, const AAFwk::StartOptions& options, int requestCode)
+{
+    auto proxy = GetWebNativeMessagingProxy();
+    if (proxy == nullptr) {
+        WNMLOG_E("start ability for result failed, proxy is null");
+        return ConnectNativeRet::IPC_ERROR;
+    }
+
+    int32_t errorNum = 0;
+    int32_t ret =
+        proxy->StartAbilityForResult(token, want, options, requestCode, errorNum);
+    if (ret != 0) {
+        WNMLOG_E("Service proxy call failed: %{public}d", ret);
+        return ConnectNativeRet::IPC_ERROR;
+    }
+    WNMLOG_D("Service proxy call succeeded, requestCode: %{public}d, errorNum: %{public}d",
+        requestCode, errorNum);
+    return errorNum;
+}
+
 int WebNativeMessagingClient::StopNativeConnectionFromExtension(int32_t connectionId)
 {
     auto proxy = GetWebNativeMessagingProxy();

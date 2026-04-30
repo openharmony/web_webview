@@ -16,6 +16,7 @@
 import ExtensionContext from 'application.ExtensionContext';
 import Want from '@ohos.app.ability.Want';
 import StartOptions from '@ohos.app.ability.StartOptions';
+import { AbilityResult } from 'ability.abilityResult';
 
 export class Cleaner {
     public ptr: long = 0;
@@ -36,7 +37,10 @@ let unregisterToken = new object();
 
 export default class WebNativeMessagingExtensionContext extends ExtensionContext {
     static {
-        loadLibraryWithPermissionCheck("web_native_messaging_extension_context_ani_kit.z", "@ohos.web.WebNativeMessagingExtensionContext");
+        loadLibraryWithPermissionCheck(
+            "web_native_messaging_extension_context_ani_kit.z",
+            "@ohos.web.WebNativeMessagingExtensionContext"
+        );
     }
 
     constructor(context: long) {
@@ -107,5 +111,10 @@ export default class WebNativeMessagingExtensionContext extends ExtensionContext
             });
         });
         return pPromise;
+    }
+
+    native startAbilityForResultSync(want: Want, options?: StartOptions): Promise<AbilityResult>;
+    startAbilityForResult(want: Want, options?: StartOptions): Promise<AbilityResult> {
+        return this.startAbilityForResultSync(want, options);
     }
 }

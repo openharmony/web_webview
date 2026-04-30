@@ -310,6 +310,16 @@ void ETSWebNativeMessagingExtension::OnStop()
     OnDestroy();
 }
 
+void ETSWebNativeMessagingExtension::OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want& want)
+{
+    auto context = GetContext();
+    if (context) {
+        context->OnAbilityResult(requestCode, resultCode, want);
+    } else {
+        WNMLOG_E("ANI Extension::OnAbilityResult, context is null");
+    }
+}
+
 void ETSWebNativeMessagingExtension::GetSrcPath(std::string& srcPath)
 {
     if (!Extension::abilityInfo_->srcEntrance.empty()) {

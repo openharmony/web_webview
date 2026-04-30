@@ -31,6 +31,17 @@ ErrCode WebNativeMessagingExtensionContext::StartAbility(const OHOS::AAFwk::Want
     return err;
 }
 
+ErrCode WebNativeMessagingExtensionContext::StartAbilityForResult(const OHOS::AAFwk::Want& want,
+    const OHOS::AAFwk::StartOptions startOptions, int requestCode)
+{
+    ErrCode err = WebNativeMessagingClient::GetInstance().StartAbilityForResult(
+        token_, want, startOptions, requestCode);
+    if (err != ERR_OK) {
+        WNMLOG_E("failed %{public}d", err);
+    }
+    return err;
+}
+
 ErrCode WebNativeMessagingExtensionContext::TerminateSelf()
 {
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, -1, nullptr);
@@ -47,6 +58,49 @@ ErrCode WebNativeMessagingExtensionContext::StopNativeConnection(int32_t connect
         WNMLOG_E("failed %{public}d", err);
     }
     return err;
+}
+
+ErrCode WebNativeMessagingExtensionContext::StartAbilityForResult(const OHOS::AAFwk::Want& want,
+    const OHOS::AAFwk::StartOptions startOptions, int requestCode, RuntimeTask&& task)
+{
+    WNMLOG_I(" Context::StartAbilityForResult, requestCode: %{public}d", requestCode);
+    resultCallbacks_.insert(std::make_pair(requestCode, std::move(task)));
+
+    OHOS::AAFwk::Want modifiedWant = want;
+    modifiedWant.SetParam(OHOS::AAFwk::Want::PARAM_RESV_FOR_RESULT, true);
+
+    ErrCode err = WebNativeMessagingClient::GetInstance().StartAbilityForResult(
+        token_, modifiedWant, startOptions, requestCode);
+    if (err != ERR_OK) {
+        WNMLOG_E("Client StartAbilityForResult failed: %{public}d, removing callback", err);
+        resultCallbacks_.erase(requestCode);
+    } else {
+        WNMLOG_I("Client StartAbilityForResult succeeded, callback registered, "
+            "requestCode: %{public}d", requestCode);
+    }
+    return err;
+}
+
+void WebNativeMessagingExtensionContext::OnAbilityResult(
+    int requestCode, int resultCode, const AAFwk::Want& resultData)
+{
+    WNMLOG_I("Context::OnAbilityResult , requestCode: %{public}d ", requestCode);
+
+    auto callback = resultCallbacks_.find(requestCode);
+    if (callback != resultCallbacks_.end()) {
+        if (callback->second) {
+            callback->second(resultCode, resultData, false);
+        }
+        resultCallbacks_.erase(callback);
+    } else {
+        WNMLOG_W("No callback found for requestCode: %{public}d", requestCode);
+    }
+}
+
+int WebNativeMessagingExtensionContext::GenerateCurRequestCode()
+{
+    curRequestCode_ = (curRequestCode_ == INT_MAX) ? 0 : (curRequestCode_ + 1);
+    return curRequestCode_;
 }
 
 } // namespace NWeb

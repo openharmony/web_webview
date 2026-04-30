@@ -39,6 +39,10 @@ using namespace testing;
 using namespace OHOS;
 using namespace NWeb;
 
+namespace {
+constexpr int ERROR_NUM_PARAM_INDEX = 4;  // Index of errorNum parameter in StartAbilityForResult
+}  // namespace
+
 class MockWebNativeMessagingService : public IWebNativeMessagingService {
 public:
     MOCK_METHOD(int32_t, RegisterClient, (const std::string&), ());
@@ -110,6 +114,10 @@ public:
     MOCK_METHOD(int32_t, StartAbility,
         (const sptr<IRemoteObject>& token, const AAFwk::Want& want, const AAFwk::StartOptions& options,
             int32_t& errorNum),
+        (override));
+    MOCK_METHOD(int32_t, StartAbilityForResult,
+        (const sptr<IRemoteObject>& token, const AAFwk::Want& want, const AAFwk::StartOptions& options,
+            int32_t requestCode, int32_t& errorNum),
         (override));
     MOCK_METHOD(int32_t, StopNativeConnectionFromExtension, (int32_t connectionId, int32_t& errorNum), (override));
     sptr<IRemoteObject> AsObject() override
@@ -441,7 +449,7 @@ TEST_F(WebNativeMessagingClientTest, ConnectWebNativeMessagingExtension_ShouldRe
     const int32_t connectionId = 123;
     const int32_t expectedErrorNum = ConnectNativeRet::SUCCESS;
     ON_CALL(*mockService_, ConnectWebNativeMessagingExtension(token, _, callback, connectionId, _))
-        .WillByDefault(DoAll(SetArgReferee<4>(expectedErrorNum), Return(0)));
+        .WillByDefault(DoAll(SetArgReferee<ERROR_NUM_PARAM_INDEX>(expectedErrorNum), Return(0)));
     int result = client_.ConnectWebNativeMessagingExtension(token, {}, callback, connectionId);
     EXPECT_EQ(result, expectedErrorNum);
 }
@@ -602,5 +610,44 @@ TEST_F(WebNativeMessagingClientTest, DeathRecipient_ShouldClearProxyAndTriggerCa
     EXPECT_EQ(client_.GetWebNativeMessaging(), nullptr);
 }
 
+/**
+ * @tc.name: WebNativeMessagingClientTest_StartAbilityForResult_001
+ * @tc.desc: Verify successful StartAbilityForResult with valid parameters
+ * @tc.type: Func
+ * @tc.require:
+ */
+TEST_F(WebNativeMessagingClientTest, StartAbilityForResult_ShouldReturnSuccessForValidParams)
+{
+    client_.SetWebNativeMessagingProxy(mockService_->AsObject());
+    sptr<IRemoteObject> token = new MockRemoteObject();
+    AAFwk::Want want;
+    AAFwk::StartOptions options;
+    const int32_t requestCode = 1001;
+    const int32_t expectedErrorNum = ConnectNativeRet::SUCCESS;
+
+    ON_CALL(*mockService_, StartAbilityForResult(token, _, _, requestCode, _))
+        .WillByDefault(DoAll(SetArgReferee<ERROR_NUM_PARAM_INDEX>(expectedErrorNum), Return(0)));
+
+    int result = client_.StartAbilityForResult(token, want, options, requestCode);
+    EXPECT_EQ(result, expectedErrorNum);
+}
+
+/**
+ * @tc.name: WebNativeMessagingClientTest_StartAbilityForResult_002
+ * @tc.desc: Verify StartAbilityForResult result when proxy is null
+ * @tc.type: Func
+ * @tc.require:
+ */
+TEST_F(WebNativeMessagingClientTest, StartAbilityForResult_ShouldReturnIpcErrorWhenProxyIsNull)
+{
+    client_.SetWebNativeMessagingProxy(nullptr);
+    sptr<IRemoteObject> token = new MockRemoteObject();
+    AAFwk::Want want;
+    AAFwk::StartOptions options;
+    const int32_t requestCode = 1002;
+
+    int result = client_.StartAbilityForResult(token, want, options, requestCode);
+    EXPECT_EQ(result, ConnectNativeRet::IPC_ERROR);
+}
 } // namespace NWeb
 } // namespace OHOS

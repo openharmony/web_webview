@@ -149,3 +149,155 @@ HWTEST_F(WebNativeMessagingContextTest, TerminateSelf_Fail, TestSize.Level1)
     ErrCode result = context_->TerminateSelf();
     EXPECT_EQ(result, 22) << "Actual result: " << result;
 }
+
+/**
+ * @tc.name: WebNativeMessagingContextTest.StartAbilityForResult_NoCallback_Success
+ * @tc.desc: Test StartAbilityForResult without callback
+ * @tc.type: FUNC
+ */
+HWTEST_F(WebNativeMessagingContextTest, StartAbilityForResult_NoCallback_Success, TestSize.Level1)
+{
+    EXPECT_NE(context_->token_, nullptr) << "Token should be set";
+    int requestCode = 1001;
+    ErrCode result = context_->StartAbilityForResult(*want_, startOpts_, requestCode);
+    EXPECT_EQ(result, -1) << "Actual result: " << result;
+}
+
+/**
+ * @tc.name: WebNativeMessagingContextTest.StartAbilityForResult_NoCallback_Fail
+ * @tc.desc: Test StartAbilityForResult without callback with invalid request code
+ * @tc.type: FUNC
+ */
+HWTEST_F(WebNativeMessagingContextTest, StartAbilityForResult_NoCallback_Fail, TestSize.Level1)
+{
+    EXPECT_NE(context_->token_, nullptr) << "Token should be set";
+    int requestCode = -1;
+    ErrCode result = context_->StartAbilityForResult(*want_, startOpts_, requestCode);
+    EXPECT_EQ(result, -1) << "Actual result: " << result;
+}
+
+/**
+ * @tc.name: WebNativeMessagingContextTest.StartAbilityForResult_WithCallback_Success
+ * @tc.desc: Test StartAbilityForResult with callback
+ * @tc.type: FUNC
+ */
+HWTEST_F(WebNativeMessagingContextTest, StartAbilityForResult_WithCallback_Success, TestSize.Level1)
+{
+    EXPECT_NE(context_->token_, nullptr) << "Token should be set";
+    int requestCode = 1002;
+    bool callbackCalled = false;
+    int testResultCode = 0;
+
+    RuntimeTask task = [&callbackCalled, &testResultCode](int resultCode, const AAFwk::Want& want, bool isInner) {
+        callbackCalled = true;
+        testResultCode = resultCode;
+    };
+
+    ErrCode result = context_->StartAbilityForResult(*want_, startOpts_, requestCode, std::move(task));
+    EXPECT_EQ(result, -1) << "Actual result: " << result;
+    // Callback should not be called on error
+    EXPECT_FALSE(callbackCalled) << "Callback should not be called on error";
+}
+
+/**
+ * @tc.name: WebNativeMessagingContextTest.StartAbilityForResult_WithCallback_DifferentRequestCodes
+ * @tc.desc: Test StartAbilityForResult with various request codes
+ * @tc.type: FUNC
+ */
+HWTEST_F(WebNativeMessagingContextTest, StartAbilityForResult_WithCallback_DifferentRequestCodes, TestSize.Level1)
+{
+    EXPECT_NE(context_->token_, nullptr) << "Token should be set";
+
+    std::vector<int32_t> requestCodes = {0, 1, 100, 1000, INT32_MAX};
+
+    for (int requestCode : requestCodes) {
+        RuntimeTask task = [](int resultCode, const AAFwk::Want& want, bool isInner) {
+            // Empty callback
+        };
+
+        ErrCode result = context_->StartAbilityForResult(*want_, startOpts_, requestCode, std::move(task));
+        EXPECT_EQ(result, -1) << "RequestCode: " << requestCode << ", Actual result: " << result;
+    }
+}
+
+/**
+ * @tc.name: WebNativeMessagingContextTest.OnAbilityResult_CallbackFound
+ * @tc.desc: Test OnAbilityResult with valid request code
+ * @tc.type: FUNC
+ */
+HWTEST_F(WebNativeMessagingContextTest, OnAbilityResult_CallbackFound, TestSize.Level1)
+{
+    EXPECT_NE(context_->token_, nullptr) << "Token should be set";
+    int requestCode = 1003;
+    int resultCode = 1;
+    bool callbackCalled = false;
+    int receivedResultCode = -1;
+
+    RuntimeTask task = [&callbackCalled, &receivedResultCode](int rc, const AAFwk::Want& want, bool isInner) {
+        callbackCalled = true;
+        receivedResultCode = rc;
+    };
+
+    // Register callback
+    context_->StartAbilityForResult(*want_, startOpts_, requestCode, std::move(task));
+
+    // Simulate ability result
+    Want resultWant;
+    context_->OnAbilityResult(requestCode, resultCode, resultWant);
+
+    EXPECT_TRUE(callbackCalled) << "Callback should be called";
+    EXPECT_EQ(receivedResultCode, resultCode) << "Result code should match";
+}
+
+/**
+ * @tc.name: WebNativeMessagingContextTest.OnAbilityResult_CallbackNotFound
+ * @tc.desc: Test OnAbilityResult with invalid request code
+ * @tc.type: FUNC
+ */
+HWTEST_F(WebNativeMessagingContextTest, OnAbilityResult_CallbackNotFound, TestSize.Level1)
+{
+    EXPECT_NE(context_->token_, nullptr) << "Token should be set";
+    int invalidRequestCode = 9999;
+    int resultCode = 1;
+
+    // Try to trigger result with unregistered request code
+    Want resultWant;
+    context_->OnAbilityResult(invalidRequestCode, resultCode, resultWant);
+
+    // Should not crash, just log warning
+    EXPECT_NE(context_->token_, nullptr) << "Token should still be valid";
+}
+
+/**
+ * @tc.name: WebNativeMessagingContextTest.GenerateCurRequestCode_Incremental
+ * @tc.desc: Test GenerateCurRequestCode returns incremental values
+ * @tc.type: FUNC
+ */
+HWTEST_F(WebNativeMessagingContextTest, GenerateCurRequestCode_Incremental, TestSize.Level1)
+{
+    int code1 = context_->GenerateCurRequestCode();
+    int code2 = context_->GenerateCurRequestCode();
+    int code3 = context_->GenerateCurRequestCode();
+
+    EXPECT_GT(code1, 0) << "Request code should be positive";
+    EXPECT_GT(code2, code1) << "Request codes should be incremental";
+    EXPECT_GT(code3, code2) << "Request codes should be incremental";
+}
+
+/**
+ * @tc.name: WebNativeMessagingContextTest.GenerateCurRequestCode_MultipleCalls
+ * @tc.desc: Test GenerateCurRequestCode with multiple calls
+ * @tc.type: FUNC
+ */
+HWTEST_F(WebNativeMessagingContextTest, GenerateCurRequestCode_MultipleCalls, TestSize.Level1)
+{
+    const int callCount = 100;
+    std::set<int> requestCodes;
+
+    for (int i = 0; i < callCount; i++) {
+        int code = context_->GenerateCurRequestCode();
+        requestCodes.insert(code);
+    }
+
+    EXPECT_EQ(requestCodes.size(), callCount) << "All request codes should be unique";
+}

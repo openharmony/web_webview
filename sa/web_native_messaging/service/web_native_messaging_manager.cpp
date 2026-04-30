@@ -453,7 +453,46 @@ void WebNativeMessagingManager::StartAbility(const sptr<IRemoteObject>& token,
     }
     errorNum = ConnectNativeRet::SUCCESS;
 }
+void WebNativeMessagingManager::StartAbilityForResult(const sptr<IRemoteObject>& token,
+    const AAFwk::Want& want, const AAFwk::StartOptions& startOptions,
+    int32_t requestCode, int32_t& errorNum)
+{
+    int32_t userId = IPCSkeleton::GetCallingUid() / UID_TRANSFORM_DIVISOR;
+    int32_t pid = IPCSkeleton::GetCallingPid();
+    std::string extensionBundleName;
+    if (!GetPidExtensionBundleName(pid, extensionBundleName)) {
+        WNMLOG_E("pid %{public}d is not native messaging extension.", pid);
+        errorNum = ConnectNativeRet::PERMISSION_CHECK_ERROR;
+        return;
+    }
 
+    if (extensionBundleName != want.GetBundle()) {
+        WNMLOG_E("start ability is not extension app.");
+        errorNum = ConnectNativeRet::PERMISSION_CHECK_ERROR;
+        return;
+    }
+ 
+    if (!CheckAbilityIsUIAbility(want.GetBundle(), want.GetElement().GetAbilityName(), userId)) {
+        WNMLOG_E("start ability is not UIAbility.");
+        errorNum = ConnectNativeRet::PERMISSION_CHECK_ERROR;
+        return;
+    }
+
+    auto client = AAFwk::AbilityManagerClient::GetInstance();
+    if (client == nullptr) {
+        WNMLOG_E("client is null.");
+        errorNum = ConnectNativeRet::IPC_ERROR;
+        return;
+    }
+
+    ErrCode err = client->StartAbilityForResultAsCaller(want, startOptions, token, requestCode, userId);
+    if (err != ERR_OK) {
+        WNMLOG_E("StartAbilityForResultAsCaller failed: %{public}d.", err);
+        errorNum = err;
+        return;
+    }
+    errorNum = ConnectNativeRet::SUCCESS;
+}
 void WebNativeMessagingManager::StopNativeConnectionFromExtension(int32_t innerConnectId, int32_t& errorNum)
 {
     int32_t pid = IPCSkeleton::GetCallingPid();
