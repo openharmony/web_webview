@@ -1679,4 +1679,13 @@ void NWebHelper::SetWholeWebDrawing()
     WVLOG_I("===== go webview engine =====");
     nwebEngine_->SetWholeWebDrawing();
 }
+
+void NWebHelper::DumpArkWebJSHeap(int32_t fd, int32_t renderPid, bool needSnapshot, bool needGC, bool needRaw)
+{
+    if (nwebEngine_ == nullptr) {
+        WVLOG_E("web engine has not been initialized, can not dump JS Heap!");
+        return;
+    }
+    nwebEngine_->DumpArkWebJSHeap(fd, renderPid, needSnapshot, needGC, needRaw);
+}
 } // namespace OHOS::NWeb

@@ -169,6 +169,9 @@ public:
 
     void SetWholeWebDrawing();
 
+    void DumpArkWebJSHeap(
+        int32_t fd = -1, int32_t renderPid = -1, bool needSnapshot = false, bool needGC = false, bool needRaw = false);
+
 private:
     NWebHelper() = default;
     bool GetWebEngine(bool fromArk);

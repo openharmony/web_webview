@@ -140,6 +140,8 @@ public:
 
     void SetWholeWebDrawing() override;
 
+    void DumpArkWebJSHeap(int32_t fd, int32_t renderPid, bool needSnapshot, bool needGC, bool needRaw) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebEngine> nweb_engine_;
 };

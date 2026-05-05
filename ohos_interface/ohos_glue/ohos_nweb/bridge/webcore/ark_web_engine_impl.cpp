@@ -374,4 +374,9 @@ void ArkWebEngineImpl::SetWholeWebDrawing()
 {
     nweb_engine_->SetWholeWebDrawing();
 }
+
+void ArkWebEngineImpl::DumpArkWebJSHeap(int32_t fd, int32_t renderPid, bool needSnapshot, bool needGC, bool needRaw)
+{
+    nweb_engine_->DumpArkWebJSHeap(fd, renderPid, needSnapshot, needGC, needRaw);
+}
 } // namespace OHOS::ArkWeb
