@@ -158,6 +158,8 @@ public:
     }
 
     virtual void SetWholeWebDrawing() = 0;
+
+    virtual void DumpArkWebJSHeap(int32_t fd, int32_t renderPid, bool needSnapshot, bool needGC, bool needRaw) {}
 };
 
 } // namespace OHOS::NWeb

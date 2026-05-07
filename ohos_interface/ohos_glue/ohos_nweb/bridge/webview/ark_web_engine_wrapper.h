@@ -140,6 +140,8 @@ public:
     bool GetUserAgentClientHintsEnabled() override;
 
     void SetWholeWebDrawing() override;
+
+    void DumpArkWebJSHeap(int32_t fd, int32_t renderPid, bool needSnapshot, bool needGC, bool needRaw) override;
 private:
     ArkWebRefPtr<ArkWebEngine> ark_web_engine_;
 };

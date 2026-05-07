@@ -232,6 +232,9 @@ public:
 
     /*--ark web()--*/
     virtual void SetWholeWebDrawing() = 0;
+
+    /*--ark web()--*/
+    virtual void DumpArkWebJSHeap(int32_t fd, int32_t renderPid, bool needSnapshot, bool needGC, bool needRaw) = 0;
 };
 
 } // namespace OHOS::ArkWeb
