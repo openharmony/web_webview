@@ -111,6 +111,10 @@ public:
         const ArkWebString key6, const ArkWebString value6, const ArkWebString key7, const ArkWebString value7,
         const ArkWebString key8, const ArkWebString value8, const ArkWebString key9, const ArkWebString value9,
         const ArkWebString key10, const ArkWebString value10) = 0;
+
+    /*--ark web()--*/
+    virtual int Write(const ArkWebString& eventName, uint32_t type, const ArkWebString url,
+        const int32_t reason, const int32_t count) = 0;
 };
 
 } // namespace OHOS::ArkWeb
