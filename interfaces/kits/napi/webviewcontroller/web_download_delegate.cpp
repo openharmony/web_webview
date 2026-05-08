@@ -59,7 +59,6 @@ void WebDownloadDelegate::RemoveSelfRef()
     if (delegate_) {
         uint32_t refCount;
         napi_reference_unref(env_, delegate_, &refCount);
-        WVLOG_I("[DOWNLOAD] WebDownloadDelegate::RemoveSelfRef after decrease refCount is %{public}d", refCount);
         if (refCount == 0) {
             napi_delete_reference(env_, delegate_);
             delegate_ = nullptr;
