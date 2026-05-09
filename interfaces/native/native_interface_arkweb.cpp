@@ -295,6 +295,11 @@ ArkWeb_BlanklessErrorCode OH_NativeArkWeb_SetBlanklessLoadingWithKey(const char*
         return ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_DEVICE_NOT_SUPPORT;
     }
 
+    if (key == nullptr) {
+        WVLOG_E("blankless OH_NativeArkWeb_SetBlanklessLoadingWithKey key is nullptr");
+        return ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_INVALID_ARGS;
+    }
+
     size_t keyLen = strlen(key);
     if (keyLen == 0 || keyLen > MAX_KEY_LENGTH) {
         WVLOG_E("blankless OH_NativeArkWeb_SetBlanklessLoadingWithKey key length is invalid");
