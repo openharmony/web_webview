@@ -97,6 +97,9 @@ constexpr int32_t MAX_SOCKET_IDLE_TIMEOUT = 300;
 constexpr int32_t MAX_BLANKLESS_DURATION_TIME = 2000;
 constexpr int32_t MIN_BLANKLESS_DURATION_TIME = 200;
 constexpr int64_t MAX_EXPIRATION_TIME = 30LL * 24 * 3600 * 1000; // 计算30天后的UTC毫秒数
+#ifdef WEBVIEW_API_METRICS_ENABLE
+constexpr int32_t HISTOGRAM_API_BOOL_COUNTS = 1;
+#endif
 using WebPrintWriteResultCallback = std::function<void(std::string, uint32_t)>;
 
 bool ParsePrepareUrl(napi_env env, napi_value urlObj, std::string& url)
@@ -3313,6 +3316,9 @@ napi_value NapiWebviewController::StoreWebArchiveInternal(napi_env env, napi_cal
 
 napi_value NapiWebviewController::GetHitTestValue(napi_env env, napi_callback_info info)
 {
+#ifdef WEBVIEW_API_METRICS_ENABLE
+    HISTOGRAM_BOOLEAN("ArkWeb.InteractionEffect.getHitTestValue", HISTOGRAM_API_BOOL_COUNTS);
+#endif
     napi_value result = nullptr;
     WebviewController *webviewController = GetWebviewController(env, info);
     if (!webviewController) {
@@ -3569,6 +3575,9 @@ napi_value NapiWebviewController::LoadData(napi_env env, napi_callback_info info
 
 napi_value NapiWebviewController::GetHitTest(napi_env env, napi_callback_info info)
 {
+#ifdef WEBVIEW_API_METRICS_ENABLE
+    HISTOGRAM_BOOLEAN("ArkWeb.InteractionEffect.getHitTest", HISTOGRAM_API_BOOL_COUNTS);
+#endif
     napi_value result = nullptr;
     WebviewController *webviewController = GetWebviewController(env, info);
     if (!webviewController) {
