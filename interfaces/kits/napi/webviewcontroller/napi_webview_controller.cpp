@@ -5772,7 +5772,22 @@ napi_value NapiWebviewController::SetDownloadDelegate(napi_env env, napi_callbac
         (void)RemoveDownloadDelegateRef(env, thisVar);
         return nullptr;
     }
-    napi_create_reference(env, obj, 1, &delegate->delegate_);
+    napi_status status;
+    uint32_t result = 0;
+    if (delegate->delegate_ != nullptr) {
+        status = napi_reference_ref(env, delegate->delegate_, &result);
+        if (status != napi_ok) {
+            WVLOG_E("Failed to ref existing download delegate reference");
+        }
+        WVLOG_I("Download delegate ref count increased to: %{public}d", result);
+    } else {
+        status = napi_create_reference(env, obj, 1, &delegate->delegate_);
+        if (status != napi_ok) {
+            WVLOG_E("Failed to create download delegate reference");
+            return nullptr;
+        }
+        WVLOG_I("New download delegate reference created with count 1");
+    }
 
     WebviewController *webviewController = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&webviewController));
