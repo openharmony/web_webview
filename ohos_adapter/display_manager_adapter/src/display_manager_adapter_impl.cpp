@@ -479,7 +479,7 @@ std::shared_ptr<DisplayAdapter> DisplayManagerAdapterImpl::GetDefaultDisplay()
     // In the case of VASSISTANT_SCREEN_NAME, use GetDefaultDisplaySync() to obtain virtual screen information;
     // Otherwise, maintain the existing logic.
     sptr<Display> display = DisplayManager::GetInstance().GetDefaultDisplaySync(true);
-    if (display->GetName() != VASSISTANT_SCREEN_NAME) {
+    if (display == nullptr || display->GetName() != VASSISTANT_SCREEN_NAME) {
         display = DisplayManager::GetInstance().GetDefaultDisplay();
     }
     return std::make_shared<DisplayAdapterImpl>(display);
