@@ -1410,8 +1410,8 @@ extern "C" {
         for (int64_t i = 0; i < count; i++) {
             COfflineResourceMap map = maps.head[i];
             std::vector<std::string> urlList;
-            for (int i = 0; i < map.urlList.size; i++) {
-                urlList.push_back(std::string(map.urlList.head[i]));
+            for (int j = 0; j < map.urlList.size; j++) {
+                urlList.push_back(std::string(map.urlList.head[j]));
             }
             for (auto url : urlList) {
                 if (!CheckUrl(url)) {
@@ -1419,13 +1419,13 @@ extern "C" {
                 }
             }
             std::vector<uint8_t> resource;
-            for (int i = 0; i < map.resourceCSize; i++) {
-                resource.push_back(map.resource[i]);
+            for (int j = 0; j < map.resourceCSize; j++) {
+                resource.push_back(map.resource[j]);
             }
             std::map<std::string, std::string> responseHeaders;
-            for (int i = 0; i < map.responseHeaders.size; i++) {
-                std::string key = map.responseHeaders.head[i].headerKey;
-                std::string value = map.responseHeaders.head[i].headerValue;
+            for (int j = 0; j < map.responseHeaders.size; j++) {
+                std::string key = map.responseHeaders.head[j].headerKey;
+                std::string value = map.responseHeaders.head[j].headerValue;
                 responseHeaders[key] = value;
             }
             uint32_t type = map.type;
