@@ -210,6 +210,8 @@ void NapiGeolocationPermission::GetPermissionStateComplete(napi_env env, napi_st
     GetOriginPermissionStateParam *param = static_cast<GetOriginPermissionStateParam *>(data);
     NApiScope scope(env);
     if (!scope.IsVaild()) {
+        delete param;
+        param = nullptr;
         return;
     }
     napi_value setResult[RESULT_COUNT] = {0};
@@ -237,6 +239,8 @@ void NapiGeolocationPermission::GetPermissionStatePromiseComplete(napi_env env, 
     GetOriginPermissionStateParam *param = static_cast<GetOriginPermissionStateParam *>(data);
     NApiScope scope(env);
     if (!scope.IsVaild()) {
+        delete param;
+        param = nullptr;
         return;
     }
     napi_value setResult[RESULT_COUNT] = {0};
@@ -393,6 +397,8 @@ void NapiGeolocationPermission::GetOriginComplete(napi_env env, napi_status stat
     GetPermissionOriginsParam *param = static_cast<GetPermissionOriginsParam *>(data);
     NApiScope scope(env);
     if (!scope.IsVaild()) {
+        delete param;
+        param = nullptr;
         return;
     }
     napi_value setResult[RESULT_COUNT] = {0};
@@ -426,6 +432,7 @@ void NapiGeolocationPermission::GetOriginsPromiseComplete(napi_env env, napi_sta
     NApiScope scope(env);
     if (!scope.IsVaild()) {
         delete param;
+        param = nullptr;
         return;
     }
     napi_value setResult[RESULT_COUNT] = {0};
