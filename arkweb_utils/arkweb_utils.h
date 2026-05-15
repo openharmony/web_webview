@@ -128,6 +128,7 @@ ARKWEB_EXPORT std::string ExtractAndRemoveParam(std::string& renderCmd, const st
 ARKWEB_EXPORT void UpdateAppInfoFromCmdline(std::string& renderCmd);
 ARKWEB_EXPORT bool IsActiveWebEngineEvergreen();
 ARKWEB_EXPORT void SelectWebcoreBeforeProcessRun(const std::string& appBundleName);
+ARKWEB_EXPORT bool IsDataMigrate(const std::string& appBundleName);
 
 ARKWEB_EXPORT std::string GetArkwebLibPath();
 ARKWEB_EXPORT std::string GetArkwebNameSpace();
