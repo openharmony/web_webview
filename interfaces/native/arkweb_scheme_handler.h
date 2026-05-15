@@ -848,7 +848,7 @@ void OH_ArkWebResponse_GetCharset(const ArkWeb_Response* response, char** charse
  * @param response The ArkWeb_Response.
  * @param name The name of the header.
  * @param value The value of the header.
- * @bool overwirte If true will overwrite the exsits header, if false otherwise.
+ * @bool overwrite If true will overwrite the exists header, if false otherwise.
  * @return 0 if success; otherwise if fail. refer to arkweb_error_code.h.
  *
  * @syscap SystemCapability.Web.Webview.Core
