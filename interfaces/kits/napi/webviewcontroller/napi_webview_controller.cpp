@@ -1264,13 +1264,14 @@ napi_value NapiWebviewController::JsConstructor(napi_env env, napi_callback_info
             WVLOG_E("native webTag is empty");
             return nullptr;
         }
+        std::lock_guard<std::mutex> lock(WebviewController::webTagMtx_);
+        WebviewController::webTagSet_.insert(webTag);
         webviewController = new (std::nothrow) WebviewController(webTag);
         WVLOG_I("new webview controller webname:%{public}s", webTag.c_str());
     } else {
         webTag = WebviewController::GenerateWebTag();
         webviewController = new (std::nothrow) WebviewController(webTag);
     }
-    WebviewController::webTagSet_.insert(webTag);
 
     if (webviewController == nullptr) {
         WVLOG_E("new webview controller failed");
