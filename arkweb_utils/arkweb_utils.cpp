@@ -44,6 +44,7 @@ static bool g_webEngineInitFlag = false;
 static ArkWebEngineVersion g_activeEngineVersion = ArkWebEngineVersion::SYSTEM_DEFAULT;
 static int g_cloudEnableAppVersion = static_cast<int>(ArkWebEngineVersion::SYSTEM_DEFAULT);
 static std::unique_ptr<std::unordered_set<std::string>> g_legacyApp = nullptr;
+static std::unique_ptr<std::unordered_set<std::string>> g_dataMigrateApp = nullptr;
 static std::string g_bundleName = "";
 static std::string g_apiVersion = "";
 static std::string g_appVersion = "";
@@ -58,6 +59,8 @@ const std::string ARK_WEB_ENGINE_LIB_NAME = "libarkweb_engine.so";
 const std::string SHARED_RELRO_DIR = "/data/service/el1/public/for-all-app/shared_relro";
 const std::string NWEB_RELRO_PATH = SHARED_RELRO_DIR + "/libwebviewchromium64.relro";
 const size_t RESERVED_VMA_SIZE = 512 * 1024 * 1024;
+const std::string DATA_MIGRATE_APP_ALL = "All";
+const std::string DATA_MIGRATE_APP_NONE = "None";
 
 #if defined(webview_arm64)
 const std::string ARK_WEB_CORE_MOCK_HAP_LIB_PATH =
@@ -203,6 +206,26 @@ static void ProcessLegacyAppParam(const Json::Value& value)
     WVLOG_I("Successfully stored legacyApp in heap memory using smart pointer.");
 }
 
+static void ProcessDataMigrateAppParam(const Json::Value& value)
+{
+    if (!value.isArray()) {
+        WVLOG_E("Unsupported type for param web.engine.dataMigrateApp, must be array");
+        return;
+    }
+
+    auto appSet = std::make_unique<std::unordered_set<std::string>>();
+    for (const auto& item : value) {
+        if (item.isString()) {
+            appSet->insert(item.asString());
+        } else {
+            WVLOG_E("Non-string item found in array for web.engine.dataMigrateApp, skipping.");
+        }
+    }
+
+    g_dataMigrateApp = std::move(appSet);
+    WVLOG_I("Successfully stored dataMigrateApp in heap memory using smart pointer.");
+}
+
 static void ProcessParamItem(const std::string& key, const Json::Value& value)
 {
     if (key.find(WEB_PARAM_PREFIX) != 0) {
@@ -216,6 +239,8 @@ static void ProcessParamItem(const std::string& key, const Json::Value& value)
         ProcessEnforceParam(value);
     } else if (key == "web.engine.legacyApp") {
         ProcessLegacyAppParam(value);
+    } else if (key == "web.engine.dataMigrateApp") {
+        ProcessDataMigrateAppParam(value);
     } else {
         WVLOG_E("Unsupported key for param %{public}s", key.c_str());
     }
@@ -332,6 +357,18 @@ void SelectWebcoreBeforeProcessRun(const std::string& appBundleName)
     g_activeEngineVersion = CalculateActiveWebEngineVersion();
 
     g_legacyApp.reset();
+}
+
+bool IsDataMigrate(const std::string& appBundleName)
+{
+    WVLOG_I("IsDataMigrate for app %{public}s.", appBundleName.c_str());
+    if (g_dataMigrateApp && g_dataMigrateApp->find(DATA_MIGRATE_APP_NONE) != g_dataMigrateApp->end()) {
+        return false;
+    }
+    if (g_dataMigrateApp && g_dataMigrateApp->find(DATA_MIGRATE_APP_ALL) != g_dataMigrateApp->end()) {
+        return true;
+    }
+    return g_dataMigrateApp && g_dataMigrateApp->find(appBundleName) != g_dataMigrateApp->end();
 }
 
 void PreloadArkWebLibForBrowser()
