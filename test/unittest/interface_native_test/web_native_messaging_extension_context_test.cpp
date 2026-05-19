@@ -244,7 +244,6 @@ HWTEST_F(WebNativeMessagingContextTest, OnAbilityResult_CallbackFound, TestSize.
     // Simulate ability result
     Want resultWant;
     context_->OnAbilityResult(requestCode, resultCode, resultWant);
-
 }
 
 /**
