@@ -21,6 +21,7 @@
 #include "paste_data_record.h"
 #include "pasteboard_client.h"
 #include "pasteboard_observer.h"
+#include "pixel_map.h"
 
 namespace OHOS::NWeb {
 class PasteboardObserverAdapterImpl : public MiscServices::PasteboardObserver {
