@@ -433,13 +433,11 @@ int HiSysEventAdapterImpl::Write(const std::string& eventName, EventType type,
 }
 
 int HiSysEventAdapterImpl::Write(const std::string& eventName, EventType type,
-    const std::tuple<const std::string, const int32_t, const int32_t>& data)
+    const std::tuple<const int32_t, const int32_t>& data)
 {
-    std::tuple<const std::string, const std::string,
-        const std::string, const int32_t, const std::string, const int32_t> reportData = {
-        "BLANK_SCREEN_URL", std::get<0>(data),
-        "BLANK_SCREEN_REASON", std::get<1>(data),
-        "BLANK_SCREEN_COUNT", std::get<2>(data)
+    std::tuple<const std::string, const int32_t, const std::string, const int32_t> reportData = {
+        "BLANK_SCREEN_REASON", std::get<0>(data),
+        "BLANK_SCREEN_COUNT", std::get<1>(data)
     };
     return ForwardToHiSysEvent(eventName, type, reportData);
 }

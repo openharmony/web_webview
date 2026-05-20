@@ -107,7 +107,7 @@ public:
     const std::string, const std::string, const std::string, const std::string>&)), (override));
 
     MOCK_METHOD(int, Write, (const std::string&, EventType,
-    (const std::tuple<const std::string, const int32_t, const int32_t>&)), (override));
+    (const std::tuple<const int32_t, const int32_t>&)), (override));
 };
 
 class ArkHiSysEventAdapterImplTest : public testing::Test
@@ -508,14 +508,13 @@ TEST_F(ArkHiSysEventAdapterImplTest, Write15)
 {
     ArkWebString eventName = ArkWebStringClassToStruct("testEvent");
     uint32_t type = 1;
-    ArkWebString url = ArkWebStringClassToStruct("url_test");
     int32_t reason = 1;
     int32_t count = 100;
     EXPECT_CALL(*mockAdapter, Write(
         testing::_,
         testing::_,
-        testing::A<const std::tuple<const std::string, const int32_t, const int32_t>&>()))
+        testing::A<const std::tuple<const int32_t, const int32_t>&>()))
         .WillOnce(testing::Return(0));
-    int result = adapterImpl->Write(eventName, type, url, reason, count);
+    int result = adapterImpl->Write(eventName, type, reason, count);
     EXPECT_EQ(result, 0);
 }
