@@ -4,7 +4,7 @@
 
 > **⚠️ 重要提示**:
 >
-> **推荐优先使用 [PARAM 参数配置](./HOW_TO_ADD_PARAM_CONFIG.md)**
+> **推荐优先使用 [PARAM 参数配置](HOW_TO_ADD_PARAM_CONFIG.md)**
 >
 > PARAM 参数相比 web_config.xml 具有以下优势:
 > - ✅ **运行时可修改** - 无需重新编译,立即生效
@@ -24,7 +24,7 @@
 > - ✅ 调试选项 (日志级别、trace 等)
 > - ✅ 运行时动态配置
 >
-> 详见: [HOW_TO_ADD_PARAM_CONFIG.md](./HOW_TO_ADD_PARAM_CONFIG.md)
+> 详见: [HOW_TO_ADD_PARAM_CONFIG.md](HOW_TO_ADD_PARAM_CONFIG.md)
 
 ## 配置系统架构
 
@@ -377,11 +377,11 @@ WVLOG_D("web config file path:%{public}s", cfgFilePath.c_str());
 - PARAM 参数运行时覆盖
 - 通过 `WriteConfigValueToSysPara()` 将 XML 配置写入参数
 
-详见: [HOW_TO_ADD_PARAM_CONFIG.md](./HOW_TO_ADD_PARAM_CONFIG.md)
+详见: [HOW_TO_ADD_PARAM_CONFIG.md](HOW_TO_ADD_PARAM_CONFIG.md)
 
 ## 参考资料
 
-- [HOW_TO_ADD_PARAM_CONFIG.md](./HOW_TO_ADD_PARAM_CONFIG.md) - PARAM 参数配置指南 (推荐)
+- [HOW_TO_ADD_PARAM_CONFIG.md](HOW_TO_ADD_PARAM_CONFIG.md) - PARAM 参数配置指南 (推荐)
 - [主 README](../README.md) - 项目概述
-- [AGENT.md](../AGENT.md) - 代码仓指南
+- [AGENTS.md](../AGENTS.md) - 代码仓指南
 - Chromium 命令行参数列表: `chrome_switches.cc` (Chromium 源码)
