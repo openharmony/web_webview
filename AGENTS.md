@@ -43,6 +43,7 @@
 |------|------|
 | 编译特性开关、条件编译、可选功能的自动检测与 Mock | `docs/knowledge/HOW_TO_ADD_BUILD_FEATURE.md` |
 | PARAM 参数配置（运行时可修改，推荐） | `docs/knowledge/HOW_TO_ADD_PARAM_CONFIG.md` |
+| 胶水层接口、双向解耦、nweb/adapter 方向、代码生成桥接 | `docs/knowledge/HOW_TO_ADD_GLUE_LAYER_INTERFACE.md` |
 | XML 配置（编译时配置，需重编） | `docs/knowledge/HOW_TO_ADD_XML_CONFIG.md` |
 
 各模块详细文档：
