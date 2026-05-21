@@ -2063,6 +2063,15 @@ public:
      */
     ArkWebRefPtr<ArkWebCommandActionManager> GetCommandActionManager() override;
 
+    /**
+     * @brief Execute AI page command.
+     *
+     * @param command JSON-formatted AI page command.
+     * @param callback Callback used to receive the command execution result.
+     */
+    void ExecuteAIPageCommand(
+        const ArkWebString& command, ArkWebRefPtr<ArkWebStringValueCallback> callback) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

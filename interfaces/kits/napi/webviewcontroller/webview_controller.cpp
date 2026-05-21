@@ -34,6 +34,7 @@
 #include "nweb_store_web_archive_callback.h"
 #include "web_errors.h"
 #include "webview_blankless_callback.h"
+#include "webview_ai_page_command_callback.h"
 #include "webview_createpdf_execute_callback.h"
 #include "webview_hasimage_callback.h"
 #include "webview_javascript_execute_callback.h"
@@ -1060,6 +1061,24 @@ void WebviewController::RunJavaScriptPromise(const std::string &script, napi_env
 
     auto callbackImpl = std::make_shared<WebviewJavaScriptExecuteCallback>(env, nullptr, deferred, extention);
     nweb_ptr->ExecuteJavaScript(script, callbackImpl, extention);
+}
+
+void WebviewController::ExecuteAIPageCommand(const std::string& command, napi_env env, napi_deferred deferred)
+{
+    if (deferred == nullptr) {
+        WVLOG_E("deferred is nullptr");
+        return;
+    }
+
+    auto nwebPtr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nwebPtr) {
+        napi_value jsResult = NWebError::BusinessError::CreateError(env, NWebError::INIT_ERROR);
+        napi_reject_deferred(env, deferred, jsResult);
+        return;
+    }
+
+    auto callback = std::make_shared<WebviewAIPageCommandCallback>(env, deferred);
+    nwebPtr->ExecuteAIPageCommand(command, callback);
 }
 
 void WebviewController::RunJavaScriptCallbackExt(

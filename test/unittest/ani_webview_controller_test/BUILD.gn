@@ -44,7 +44,10 @@ config("module_private_config") {
 ohos_unittest("ani_webview_controller_test") {
   module_out_path = module_output_path
 
-  sources = [ "ani_webview_controller_unittest.cpp" ]
+  sources = [
+    "ani_webview_controller_unittest.cpp",
+    "$webview_path/interfaces/kits/ani/webview/src/webviewcontroller/ani_webview_ai_page_command_callback.cpp",
+  ]
 
   configs = [ ":module_private_config" ]
 

@@ -918,6 +918,7 @@ export default namespace webview {
         runJavaScript(script: string): Promise<string> {
             return this.runJavaScriptPromise(script);
         }
+        native executeAIPageCommand(command: string): Promise<string>;
         native runJavaScriptCallbackExt(script: string | ArrayBuffer, callback: AsyncCallback<JsMessageExt>): void;
         runJavaScriptExt(script: string | ArrayBuffer, callback: AsyncCallback<JsMessageExt>): void {
             this.runJavaScriptCallbackExt(script, callback);
