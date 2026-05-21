@@ -237,4 +237,9 @@ int32_t ArkSystemPropertiesAdapterImpl::GetLoadUrlStrategy()
 {
     return real_.GetLoadUrlStrategy();
 }
+
+int32_t ArkSystemPropertiesAdapterImpl::GetLTPOIntConfig(ArkWebString configName, int32_t defaultValue)
+{
+    return real_.GetLTPOIntConfig(ArkWebStringStructToClass(configName), defaultValue);
+}
 } // namespace OHOS::ArkWeb

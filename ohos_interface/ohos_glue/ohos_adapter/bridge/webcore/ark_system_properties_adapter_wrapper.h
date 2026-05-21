@@ -99,6 +99,8 @@ public:
 
     int32_t GetLoadUrlStrategy() override;
 
+    int32_t GetLTPOIntConfig(const std::string& configName, int32_t defaultValue) override;
+
 private:
     ArkWebRefPtr<ArkSystemPropertiesAdapter> ctocpp_;
 };

@@ -37,6 +37,7 @@ public:
     std::vector<FrameRateSetting> GetPerfConfig(const std::string& settingName);
     bool IsLTPODynamicApp(const std::string& bundleName);
     int32_t GetLTPOStrategy();
+    int32_t GetLTPOIntConfig(const std::string& configName, int32_t defaultValue);
     int32_t GetLoadUrlStrategy();
     int safeGetPropAsInt(xmlNode* node, const xmlChar* propName, int defaultValue);
     std::string GetBundleName();
@@ -59,6 +60,7 @@ private:
     void ParseDeleteConfig(const xmlNodePtr &rootPtr, std::shared_ptr<NWebEngineInitArgsImpl> initArgs);
     void ParseNWebLTPOApp(xmlNodePtr nodePtr);
     void ParseNWebLTPOStrategy(xmlNodePtr nodePtr);
+    void ParseNWebLTPOIntConfig(xmlNodePtr nodePtr, const std::string& configName);
     void ParseNWebLoadUrlStrategy(xmlNodePtr nodePtr);
     void ParseNWebDvsync(xmlNodePtr nodePtr);
     void ParseNWebDvsyncSwitch(xmlNodePtr nodePtr);
@@ -71,6 +73,7 @@ private:
     std::map<std::string, std::string> perfConfig_;
     std::map<std::string, std::vector<FrameRateSetting>> ltpoConfig_;
     std::set<std::string> ltpoAllowedApps_ {};
+    std::map<std::string, int> ltpoIntConfig_;
     int32_t ltpoStrategy_ {0};
     int32_t loadUrlStrategy_ {0};
     std::string bundleName_;

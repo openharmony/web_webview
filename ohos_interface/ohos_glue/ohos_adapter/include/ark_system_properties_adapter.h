@@ -143,6 +143,9 @@ public:
 
     /*--ark web()--*/
     virtual int32_t GetLoadUrlStrategy() = 0;
+
+    /*--ark web()--*/
+    virtual int32_t GetLTPOIntConfig(ArkWebString configName, int32_t defaultValue) = 0;
 };
 
 } // namespace OHOS::ArkWeb
