@@ -1468,6 +1468,11 @@ int32_t NWebAdapterHelper::GetLTPOStrategy()
     return NWebConfigHelper::Instance().GetLTPOStrategy();
 }
 
+int32_t NWebAdapterHelper::GetLTPOIntConfig(const std::string& configName, int32_t defaultValue)
+{
+    return NWebConfigHelper::Instance().GetLTPOIntConfig(configName, defaultValue);
+}
+
 std::string NWebAdapterHelper::GetBundleName()
 {
     return NWebConfigHelper::Instance().GetBundleName();

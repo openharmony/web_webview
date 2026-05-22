@@ -436,4 +436,9 @@ int32_t SystemPropertiesAdapterImpl::GetLoadUrlStrategy()
 {
     return NWebConfigHelper::Instance().GetLoadUrlStrategy();
 }
+
+int32_t SystemPropertiesAdapterImpl::GetLTPOIntConfig(const std::string& configName, int32_t defaultValue)
+{
+    return NWebConfigHelper::Instance().GetLTPOIntConfig(configName, defaultValue);
+}
 } // namespace OHOS::NWeb

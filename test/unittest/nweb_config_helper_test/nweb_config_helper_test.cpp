@@ -1304,5 +1304,192 @@ HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseWebConfigXml_LoadUrlConfig_
     remove(tempConfigPath.c_str());
     xmlFreeDoc(doc);
 }
+
+/**
+ * @tc.name: NWebConfigHelper_GetLTPOIntConfig_001
+ * @tc.desc: Test GetLTPOIntConfig returns correct value for existing config.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_GetLTPOIntConfig_001, TestSize.Level1)
+{
+    NWebConfigHelper::Instance().ltpoIntConfig_["throttle_strategy"] = 5;
+    NWebConfigHelper::Instance().ltpoIntConfig_["throttle_timeout"] = 3000;
+    NWebConfigHelper::Instance().ltpoIntConfig_["throttle_ratio"] = 75;
+
+    EXPECT_EQ(NWebConfigHelper::Instance().GetLTPOIntConfig("throttle_strategy", 0), 5);
+    EXPECT_EQ(NWebConfigHelper::Instance().GetLTPOIntConfig("throttle_timeout", 0), 3000);
+    EXPECT_EQ(NWebConfigHelper::Instance().GetLTPOIntConfig("throttle_ratio", 0), 75);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_GetLTPOIntConfig_002
+ * @tc.desc: Test GetLTPOIntConfig returns default value for non-existing config.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_GetLTPOIntConfig_002, TestSize.Level1)
+{
+    NWebConfigHelper::Instance().ltpoIntConfig_.clear();
+
+    EXPECT_EQ(NWebConfigHelper::Instance().GetLTPOIntConfig("unknown_config", 0), 0);
+    EXPECT_EQ(NWebConfigHelper::Instance().GetLTPOIntConfig("unknown_config", 10), 10);
+    EXPECT_EQ(NWebConfigHelper::Instance().GetLTPOIntConfig("unknown_config", -5), -5);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebLTPOIntConfig_001
+ * @tc.desc: Test ParseNWebLTPOIntConfig with valid node.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLTPOIntConfig_001, TestSize.Level1)
+{
+    const char *xmlContent = "<property_animation_dynamic_settings>\n"
+                               "<DynamicSettings name=\"throttle_strategy\">2</DynamicSettings>\n"
+                              "</property_animation_dynamic_settings>";
+
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+    xmlNodePtr nodePtr = xmlDocGetRootElement(doc);
+    EXPECT_NE(nodePtr, nullptr);
+
+    NWebConfigHelper::Instance().ltpoIntConfig_.clear();
+    NWebConfigHelper::Instance().ParseNWebLTPOConfig(nodePtr);
+
+    xmlFreeDoc(doc);
+    EXPECT_EQ(NWebConfigHelper::Instance().ltpoIntConfig_["throttle_strategy"], 2);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebLTPOIntConfig_002
+ * @tc.desc: Test ParseNWebLTPOIntConfig with multiple throttle configs.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLTPOIntConfig_002, TestSize.Level1)
+{
+    const char *xmlContent = "<property_animation_dynamic_settings>\n"
+                               "<DynamicSettings name=\"throttle_strategy\">1</DynamicSettings>\n"
+                               "<DynamicSettings name=\"throttle_timeout\">2000</DynamicSettings>\n"
+                               "<DynamicSettings name=\"throttle_ratio\">60</DynamicSettings>\n"
+                              "</property_animation_dynamic_settings>";
+
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+    xmlNodePtr nodePtr = xmlDocGetRootElement(doc);
+    EXPECT_NE(nodePtr, nullptr);
+
+    NWebConfigHelper::Instance().ltpoIntConfig_.clear();
+    NWebConfigHelper::Instance().ParseNWebLTPOConfig(nodePtr);
+
+    xmlFreeDoc(doc);
+    EXPECT_EQ(NWebConfigHelper::Instance().ltpoIntConfig_["throttle_strategy"], 1);
+    EXPECT_EQ(NWebConfigHelper::Instance().ltpoIntConfig_["throttle_timeout"], 2000);
+    EXPECT_EQ(NWebConfigHelper::Instance().ltpoIntConfig_["throttle_ratio"], 60);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseNWebLTPOIntConfig_003
+ * @tc.desc: Test ParseNWebLTPOIntConfig with zero value.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseNWebLTPOIntConfig_003, TestSize.Level1)
+{
+    const char *xmlContent = "<property_animation_dynamic_settings>\n"
+                               "<DynamicSettings name=\"throttle_strategy\">0</DynamicSettings>\n"
+                               "<DynamicSettings name=\"throttle_timeout\">0</DynamicSettings>\n"
+                               "<DynamicSettings name=\"throttle_ratio\">0</DynamicSettings>\n"
+                              "</property_animation_dynamic_settings>";
+
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+    xmlNodePtr nodePtr = xmlDocGetRootElement(doc);
+    EXPECT_NE(nodePtr, nullptr);
+
+    NWebConfigHelper::Instance().ltpoIntConfig_.clear();
+    NWebConfigHelper::Instance().ParseNWebLTPOConfig(nodePtr);
+
+    xmlFreeDoc(doc);
+    EXPECT_EQ(NWebConfigHelper::Instance().ltpoIntConfig_["throttle_strategy"], 0);
+    EXPECT_EQ(NWebConfigHelper::Instance().ltpoIntConfig_["throttle_timeout"], 0);
+    EXPECT_EQ(NWebConfigHelper::Instance().ltpoIntConfig_["throttle_ratio"], 0);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseWebConfigXml_LTPOIntConfig_001
+ * @tc.desc: Test ParseWebConfigXml with valid throttle configs.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseWebConfigXml_LTPOIntConfig_001, TestSize.Level1)
+{
+    const char *xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                             "<WEB>\n"
+                              "<property_animation_dynamic_settings>\n"
+                              "<DynamicSettings name=\"throttle_strategy\">3</DynamicSettings>\n"
+                              "<DynamicSettings name=\"throttle_timeout\">5000</DynamicSettings>\n"
+                              "<DynamicSettings name=\"throttle_ratio\">80</DynamicSettings>\n"
+                              "</property_animation_dynamic_settings>\n"
+                             "</WEB>";
+
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+
+    std::string tempConfigPath = "/data/local/tmp/test_ltpointconfig_001.xml";
+    FILE *file = fopen(tempConfigPath.c_str(), "w");
+    EXPECT_NE(file, nullptr);
+    fprintf(file, "%s", xmlContent);
+    fclose(file);
+
+    NWebConfigHelper::Instance().ltpoIntConfig_.clear();
+    NWebConfigHelper::Instance().ParseWebConfigXml(tempConfigPath, initArgs);
+
+    EXPECT_EQ(NWebConfigHelper::Instance().ltpoIntConfig_["throttle_strategy"], 3);
+    EXPECT_EQ(NWebConfigHelper::Instance().ltpoIntConfig_["throttle_timeout"], 5000);
+    EXPECT_EQ(NWebConfigHelper::Instance().ltpoIntConfig_["throttle_ratio"], 80);
+
+    remove(tempConfigPath.c_str());
+    xmlFreeDoc(doc);
+}
+
+/**
+ * @tc.name: NWebConfigHelper_ParseWebConfigXml_LTPOIntConfig_002
+ * @tc.desc: Test ParseWebConfigXml with mixed ltpo and throttle configs.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NWebConfigHelperTest, NWebConfigHelper_ParseWebConfigXml_LTPOIntConfig_002, TestSize.Level1)
+{
+    const char *xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                             "<WEB>\n"
+                              "<property_animation_dynamic_settings>\n"
+                              "<DynamicSettings name=\"ltpo_strategy\">4</DynamicSettings>\n"
+                              "<DynamicSettings name=\"throttle_strategy\">2</DynamicSettings>\n"
+                              "<DynamicSettings name=\"throttle_timeout\">4000</DynamicSettings>\n"
+                              "</property_animation_dynamic_settings>\n"
+                             "</WEB>";
+
+    xmlDocPtr doc = xmlReadMemory(xmlContent, strlen(xmlContent), NULL, NULL, 0);
+    EXPECT_NE(doc, nullptr);
+
+    std::string tempConfigPath = "/data/local/tmp/test_ltpointconfig_002.xml";
+    FILE *file = fopen(tempConfigPath.c_str(), "w");
+    EXPECT_NE(file, nullptr);
+    fprintf(file, "%s", xmlContent);
+    fclose(file);
+
+    NWebConfigHelper::Instance().ltpoIntConfig_.clear();
+    NWebConfigHelper::Instance().ltpoStrategy_ = 0;
+    NWebConfigHelper::Instance().ParseWebConfigXml(tempConfigPath, initArgs);
+
+    EXPECT_EQ(NWebConfigHelper::Instance().ltpoStrategy_, 4);
+    EXPECT_EQ(NWebConfigHelper::Instance().ltpoIntConfig_["throttle_strategy"], 2);
+    EXPECT_EQ(NWebConfigHelper::Instance().ltpoIntConfig_["throttle_timeout"], 4000);
+
+    remove(tempConfigPath.c_str());
+    xmlFreeDoc(doc);
+}
 } // NWebConfig
 } // OHOS```

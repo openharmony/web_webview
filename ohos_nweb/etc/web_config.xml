@@ -79,6 +79,9 @@
     </webNativeMessagingExtensionConfig>
     <property_animation_dynamic_settings>
         <DynamicSettings name="ltpo_strategy">0</DynamicSettings>
+        <DynamicSettings name="throttle_strategy">0</DynamicSettings>
+        <DynamicSettings name="throttle_timeout">5000</DynamicSettings>
+        <DynamicSettings name="throttle_ratio">10</DynamicSettings>
         <DynamicSettings name="fling">
             <SpeedThresholds name="1" min="77" max="-1" preferred_fps="120"/>
             <SpeedThresholds name="2" min="25" max="77" preferred_fps="90"/>

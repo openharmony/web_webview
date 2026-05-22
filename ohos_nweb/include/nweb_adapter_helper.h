@@ -46,6 +46,7 @@ public:
     std::vector<FrameRateSetting> GetPerfConfig(const std::string& settingName);
     bool IsLTPODynamicApp(const std::string& bundleName);
     int32_t GetLTPOStrategy();
+    int32_t GetLTPOIntConfig(const std::string& configName, int32_t defaultValue);
     std::string GetBundleName();
 private:
     NWebAdapterHelper() = default;

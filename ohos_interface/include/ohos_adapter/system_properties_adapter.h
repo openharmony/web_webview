@@ -120,6 +120,8 @@ public:
     virtual int32_t GetIntParameter(const std::string& key, int32_t defaultValue) = 0;
 
     virtual int32_t GetLoadUrlStrategy() = 0;
+
+    virtual int32_t GetLTPOIntConfig(const std::string& configName, int32_t defaultValue) = 0;
 };
 
 } // namespace OHOS::NWeb

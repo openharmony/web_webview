@@ -51,6 +51,9 @@ const std::string WEB_DVSYNC_SWITCH = "dvsync_switch";
 const std::string WEB_WINDOW_ORIENTATION_CONFIG = "window_orientation_config";
 const std::string WEB_NATIVE_MESSAGING_EXTENSION_CONFIG = "webNativeMessagingExtensionConfig";
 const std::string WEB_ALL_BUNDLE_NAME = "*";
+const std::string WEB_THROTTLE_STRATEGY = "throttle_strategy";
+const std::string WEB_THROTTLE_TIMEOUT = "throttle_timeout";
+const std::string WEB_THROTTLE_RATIO = "throttle_ratio";
 const auto XML_ATTR_NAME = "name";
 const auto XML_ATTR_MIN = "min";
 const auto XML_ATTR_MAX = "max";
@@ -443,6 +446,11 @@ void NWebConfigHelper::ParseNWebLTPOConfig(xmlNodePtr nodePtr)
             ParseNWebLTPOStrategy(curNodePtr);
             continue;
         }
+        if (settingName == WEB_THROTTLE_STRATEGY || settingName == WEB_THROTTLE_TIMEOUT
+            || settingName == WEB_THROTTLE_RATIO) {
+            ParseNWebLTPOIntConfig(curNodePtr, settingName);
+            continue;
+        }
         std::vector<FrameRateSetting> frameRateSetting;
         for (xmlNodePtr curDynamicNodePtr = curNodePtr->xmlChildrenNode; curDynamicNodePtr;
             curDynamicNodePtr = curDynamicNodePtr->next) {
@@ -496,6 +504,18 @@ void NWebConfigHelper::ParseNWebLTPOStrategy(xmlNodePtr nodePtr)
     WVLOG_D("ltpo strategy is: %{public}d", ltpoStrategy_);
 }
 
+void NWebConfigHelper::ParseNWebLTPOIntConfig(xmlNodePtr nodePtr, const std::string& configName)
+{
+    xmlChar *content = xmlNodeGetContent(nodePtr);
+    if (content == nullptr) {
+        WVLOG_E("read ltpo xml node error");
+        return;
+    }
+    ltpoIntConfig_[configName] = atoi((char *)content);
+    xmlFree(content);
+    WVLOG_D("ltpo %{public}s is: %{public}d", configName.c_str(), ltpoIntConfig_[configName]);
+}
+
 void NWebConfigHelper::ParseNWebLoadUrlStrategy(xmlNodePtr nodePtr)
 {
     for (xmlNodePtr curNodePtr = nodePtr->xmlChildrenNode; curNodePtr; curNodePtr = curNodePtr->next) {
@@ -537,6 +557,14 @@ bool NWebConfigHelper::IsLTPODynamicApp(const std::string& bundleName)
 int32_t NWebConfigHelper::GetLTPOStrategy()
 {
     return ltpoStrategy_;
+}
+
+int32_t NWebConfigHelper::GetLTPOIntConfig(const std::string& configName, int32_t defaultValue)
+{
+    if (ltpoIntConfig_.find(configName) != ltpoIntConfig_.end()) {
+        return ltpoIntConfig_[configName];
+    }
+    return defaultValue;
 }
 
 void NWebConfigHelper::ParseNWebDvsync(xmlNodePtr nodePtr)

@@ -373,4 +373,15 @@ int32_t ArkSystemPropertiesAdapterWrapper::GetLoadUrlStrategy()
     int32_t result = ctocpp_->GetLoadUrlStrategy();
     return result;
 }
+
+int32_t ArkSystemPropertiesAdapterWrapper::GetLTPOIntConfig(const std::string& configName, int32_t defaultValue)
+{
+    if (!ctocpp_) {
+        return defaultValue;
+    }
+    ArkWebString ark_config_name = ArkWebStringClassToStruct(configName);
+    int32_t result = ctocpp_->GetLTPOIntConfig(ark_config_name, defaultValue);
+    ArkWebStringStructRelease(ark_config_name);
+    return result;
+}
 } // namespace OHOS::ArkWeb

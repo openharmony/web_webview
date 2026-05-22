@@ -98,6 +98,8 @@ public:
 
     int32_t GetLoadUrlStrategy() override;
 
+    int32_t GetLTPOIntConfig(ArkWebString configName, int32_t defaultValue) override;
+
 private:
     NWeb::SystemPropertiesAdapter& real_;
 
