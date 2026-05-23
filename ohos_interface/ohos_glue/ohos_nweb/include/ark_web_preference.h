@@ -819,6 +819,15 @@ public:
      */
     /*--ark web()--*/
     virtual void SetEnableDrag(bool enable) = 0;
+
+    /**
+     * @brief Sets whether to enable touch event feature detection.
+     *        When enabled, exposes ontouchstart/end/move/cancel properties on window
+     *
+     * @param enable bool: Indicates the flag whether touch event feature detection is enabled.
+     */
+    /*--ark web()--*/
+    virtual void PutTouchEventFeatureDetectionEnabled(bool enable) = 0;
 };
 
 } // namespace OHOS::ArkWeb

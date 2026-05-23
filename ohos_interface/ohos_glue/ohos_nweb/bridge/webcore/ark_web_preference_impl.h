@@ -723,6 +723,13 @@ public:
      */
     void SetEnableDrag(bool enable) override;
 
+    /**
+     * @brief Sets whether to enable touch event feature detection.
+     *
+     * @param enable bool: Indicates the flag whether touch event feature detection is enabled.
+     */
+    void PutTouchEventFeatureDetectionEnabled(bool enable) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebPreference> nweb_preference_;
 };

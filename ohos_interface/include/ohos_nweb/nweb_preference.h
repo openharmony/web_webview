@@ -725,6 +725,14 @@ public:
      * @param enable bool: Indicates the flag whether drag is enabled.
      */
     virtual void SetEnableDrag(bool enable) {}
+
+    /**
+     * @brief Sets whether to enable touch event feature detection.
+     *        When enabled, exposes ontouchstart/end/move/cancel properties on window
+     *
+     * @param enable bool: Indicates the flag whether touch event feature detection is enabled.
+     */
+    virtual void PutTouchEventFeatureDetectionEnabled(bool enable) {}
 };
 
 } // namespace OHOS::NWeb
