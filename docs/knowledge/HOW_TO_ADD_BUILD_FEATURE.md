@@ -465,7 +465,7 @@ if (webview_bluetooth_enable && webview_audio_enable) {
 
 5. **文档更新**
    - 在相关 README.md 中说明新功能
-   - 更新 AGENT.md 中的开关列表
+   - 更新 AGENTS.md 中的开关列表
    - 添加使用示例
 
 ### ❌ 避免做法
@@ -601,7 +601,7 @@ declare_args() {
 - **[config.gni](./config.gni)** - 所有特性开关定义
 - **[ohos_adapter/README.md](./ohos_adapter/README.md)** - 适配器层详细文档
 - **[ohos_wrapper/README.md](./ohos_wrapper/README.md)** - 封装层文档
-- **[AGENT.md](./AGENT.md)** - 项目概述和开发指南
+- **[AGENTS.md](../AGENTS.md)** - 项目概述和开发指南
 - **[BUILD.gn 语法](https://gn.googlesource.com/gn/+/main/docs/reference.md)** - GN 构建系统文档
 
 ## 示例总结

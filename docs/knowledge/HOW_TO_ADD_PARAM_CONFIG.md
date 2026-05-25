@@ -18,7 +18,7 @@
 > - ✅ 运行时动态配置
 > - ✅ 需要现场调整的参数
 >
-> **不适用场景** (请使用 [web_config.xml](./HOW_TO_ADD_XML_CONFIG.md)):
+> **不适用场景** (请使用 [web_config.xml](HOW_TO_ADD_XML_CONFIG.md)):
 > - ❌ 核心架构配置 (渲染进程数、多进程模式)
 > - ❌ 启动时必须确定的配置
 > - ❌ 安全敏感的默认配置
@@ -579,9 +579,9 @@ hilog -T PARAM
 - `ohos_nweb/include/nweb_config_helper.h` - 配置辅助类头文件
 
 ### 相关文档
-- [HOW_TO_ADD_XML_CONFIG.md](./HOW_TO_ADD_XML_CONFIG.md) - web_config.xml 配置指南
+- [HOW_TO_ADD_XML_CONFIG.md](HOW_TO_ADD_XML_CONFIG.md) - web_config.xml 配置指南
 - [README.md](./README.md) - 项目概述
-- [AGENT.md](../AGENT.md) - 代码仓指南
+- [AGENTS.md](../AGENTS.md) - 代码仓指南
 
 ## 配置方式对比
 
@@ -619,7 +619,7 @@ hilog -T PARAM
 3. 通过 `WriteConfigValueToSysPara()` 将特定 XML 配置写入参数
 4. PARAM 参数可覆盖 web_config.xml 的设置
 
-详见: [HOW_TO_ADD_XML_CONFIG.md](./HOW_TO_ADD_XML_CONFIG.md)
+详见: [HOW_TO_ADD_XML_CONFIG.md](HOW_TO_ADD_XML_CONFIG.md)
 
 ## 参考资料
 
