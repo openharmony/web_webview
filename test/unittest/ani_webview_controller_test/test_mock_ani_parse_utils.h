@@ -47,7 +47,11 @@ public:
     }
 
     // Mock implementation for other methods (return default values)
-    static bool ParseString(ani_env* env, ani_ref ref, std::string& outValue) { return true; }
+    static bool ParseString(ani_env* env, ani_ref ref, std::string& outValue)
+    {
+        outValue = g_parseStringValue;
+        return g_parseStringResult;
+    }
     static bool IsString(ani_env* env, const ani_object& object) { return false; }
     static bool IsResource(ani_env* env, const ani_object& object) { return false; }
     static bool Wrap(ani_env* env, const ani_object& object, const char* className, const ani_long& thisVar)
@@ -119,6 +123,10 @@ public:
     // Control IsFunction return value
     static bool g_isFunctionResult;
 
+    // Control ParseString behavior
+    static bool g_parseStringResult;
+    static std::string g_parseStringValue;
+
     // Control EnumItem_GetValue_Int behavior
     static ani_status g_enumGetIntStatus;
     static ani_int g_enumGetIntResult;
@@ -132,6 +140,8 @@ public:
 
 void* AniParseUtils::g_testControllerPtr = nullptr;
 bool AniParseUtils::g_isFunctionResult = true;
+bool AniParseUtils::g_parseStringResult = true;
+std::string AniParseUtils::g_parseStringValue = "";
 ani_status AniParseUtils::g_enumGetIntStatus = ANI_OK;
 ani_int AniParseUtils::g_enumGetIntResult = 0;
 bool AniParseUtils::g_createObjectVoidShouldFail = false;

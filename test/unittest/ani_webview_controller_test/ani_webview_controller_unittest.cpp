@@ -236,6 +236,8 @@ protected:
         OHOS::NWeb::AniParseUtils::g_isFunctionResult = true;
         OHOS::NWeb::WebviewController::g_terminateRenderProcessShouldFail = false;
         OHOS::NWeb::AniParseUtils::g_createObjectVoidShouldFail = false;
+        OHOS::NWeb::AniParseUtils::g_parseStringResult = true;
+        OHOS::NWeb::AniParseUtils::g_parseStringValue = "";
     }
 
     void TearDown() override
@@ -319,6 +321,34 @@ using OHOS::NWeb::SlideScroll;
 using OHOS::NWeb::RequestFocus;
 using OHOS::NWeb::SetScrollbarMode;
 using OHOS::NWeb::GetScrollable;
+using OHOS::NWeb::ExecuteAIPageCommand;
+using OHOS::NWebError::COMMAND_FORMAT_ERROR;
+
+/**
+ * @tc.name: ExecuteAIPageCommand_CommandFormatError
+ * @tc.desc: ExecuteAIPageCommand rejects command strings that are not JSON objects.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+TEST_F(AniWebviewControllerTest, ExecuteAIPageCommand_CommandFormatError)
+{
+    ani_env* env = GetMockEnv();
+
+    OHOS::NWeb::AniParseUtils::g_parseStringValue = "invalid json";
+    ani_object result = ExecuteAIPageCommand(env, reinterpret_cast<ani_object>(testController_),
+        reinterpret_cast<ani_object>(GetMockObject(POOL_INDEX_STRING)));
+    EXPECT_EQ(result, nullptr);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), COMMAND_FORMAT_ERROR);
+
+    OHOS::NWeb::AniBusinessError::Reset();
+    OHOS::NWeb::AniParseUtils::g_parseStringValue = "[]";
+    result = ExecuteAIPageCommand(env, reinterpret_cast<ani_object>(testController_),
+        reinterpret_cast<ani_object>(GetMockObject(POOL_INDEX_STRING)));
+    EXPECT_EQ(result, nullptr);
+    EXPECT_TRUE(WasErrorThrown());
+    EXPECT_EQ(GetLastErrorCode(), COMMAND_FORMAT_ERROR);
+}
 
 /**
  * @tc.name: OnActive_Success

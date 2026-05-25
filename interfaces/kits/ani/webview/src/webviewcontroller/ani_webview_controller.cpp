@@ -46,6 +46,11 @@
 #include <regex>
 #include <vector>
 
+#ifndef JSON_NOEXCEPTION
+#define JSON_NOEXCEPTION
+#endif
+#include <nlohmann/json.hpp>
+
 #include "application_context.h"
 #include "ohos_resource_adapter_impl.h"
 
@@ -54,6 +59,7 @@
 
 #include "nweb_log.h"
 #include "web_errors.h"
+#include "ani_webview_ai_page_command_callback.h"
 #include "webview_hasimage_callback.h"
 #include "webview_javascript_execute_callback.h"
 #include "webview_javascript_result_callback.h"
@@ -144,6 +150,13 @@ constexpr size_t BFCACHE_DEFAULT_TIMETOLIVE = 600;
 const char* WEB_CONTROLLER_SECURITY_LEVEL_ENUM_NAME = "@ohos.web.webview.webview.SecurityLevel";
 constexpr double MINIMAL_ERROR = 0.000001;
 using WebPrintWriteResultCallback = std::function<void(const std::string&, uint32_t)>;
+
+bool IsJsonObjectCommand(const std::string& command)
+{
+    nlohmann::json commandJson = nlohmann::json::parse(command, nullptr, false);
+    return !commandJson.is_discarded() && commandJson.is_object();
+}
+
 struct PDFMarginConfig {
     double top = TEN_MILLIMETER_TO_INCH;
     double bottom = TEN_MILLIMETER_TO_INCH;
@@ -5729,6 +5742,51 @@ static ani_object RunJavaScriptPromise(ani_env* env, ani_object object, ani_obje
     return RunJSPromise(env, object, script, false);
 }
 
+static ani_object ExecuteAIPageCommand(ani_env* env, ani_object object, ani_object commandObj)
+{
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
+
+    std::string command;
+    if (!AniParseUtils::ParseString(env, commandObj, command)) {
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "command", "string"));
+        return nullptr;
+    }
+    if (!IsJsonObjectCommand(command)) {
+        AniBusinessError::ThrowErrorByErrCode(env, COMMAND_FORMAT_ERROR);
+        return nullptr;
+    }
+
+    auto* controller = reinterpret_cast<WebviewController*>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return nullptr;
+    }
+
+    ani_object promise = nullptr;
+    ani_resolver resolver = nullptr;
+    if (env->Promise_New(&resolver, &promise) != ANI_OK) {
+        WVLOG_E("create promise object error");
+        return nullptr;
+    }
+
+    auto nweb = NWebHelper::Instance().GetNWeb(controller->GetNWebId());
+    if (!nweb) {
+        ani_ref jsError = NWebError::AniBusinessError::CreateError(env, NWebError::INIT_ERROR);
+        if (env->PromiseResolver_Reject(resolver, reinterpret_cast<ani_error>(jsError)) != ANI_OK) {
+            WVLOG_E("PromiseResolver_Reject failed");
+        }
+        return promise;
+    }
+
+    auto callback = std::make_shared<AniWebviewAIPageCommandCallback>(env, resolver);
+    nweb->ExecuteAIPageCommand(command, callback);
+    return promise;
+}
+
 static void RunJavaScriptCallbackExt(ani_env* env, ani_object object, ani_object script, ani_object callbackObj)
 {
     WVLOG_D("start RunJavaScriptCallback");
@@ -7663,6 +7721,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "deleteJavaScriptRegister", nullptr, reinterpret_cast<void *>(DeleteJavaScriptRegister) },
         ani_native_function { "runJavaScriptCallback", nullptr, reinterpret_cast<void *>(RunJavaScriptCallback) },
         ani_native_function { "runJavaScriptPromise", nullptr, reinterpret_cast<void *>(RunJavaScriptPromise) },
+        ani_native_function { "executeAIPageCommand", nullptr, reinterpret_cast<void *>(ExecuteAIPageCommand) },
         ani_native_function { "runJavaScriptCallbackExt", nullptr, reinterpret_cast<void *>(RunJavaScriptCallbackExt) },
         ani_native_function { "runJavaScriptPromiseExt", nullptr, reinterpret_cast<void *>(RunJavaScriptPromiseExt) },
         ani_native_function { "setBackForwardCacheOptions", nullptr,

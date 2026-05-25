@@ -2339,6 +2339,16 @@ public:
      */
     /*--ark web()--*/
     virtual ArkWebRefPtr<ArkWebCommandActionManager> GetCommandActionManager() = 0;
+
+    /**
+     * @brief Execute AI page command.
+     *
+     * @param command JSON-formatted command parameter.
+     * @param callback command execution result. Empty result means null.
+     */
+    /*--ark web()--*/
+    virtual void ExecuteAIPageCommand(
+        const ArkWebString& command, ArkWebRefPtr<ArkWebStringValueCallback> callback) = 0;
 };
 
 } // namespace OHOS::ArkWeb

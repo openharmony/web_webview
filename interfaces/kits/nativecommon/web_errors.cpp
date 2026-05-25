@@ -46,6 +46,8 @@ const std::string REGISTER_CUSTOM_SCHEME_FAILED_MSG = "Failed to register custom
 const std::string HTTP_BODY_STREAN_INIT_FAILED_MSG = "Failed to initialize the HTTP body stream.";
 const std::string RESOURCE_HANDLER_INVALID_MSG = "The resource handler is invalid.";
 const std::string NOT_ALLOWED_PORT_MSG = "The port number is not within the allowed range.";
+const std::string COMMAND_FORMAT_ERROR_MSG = "Command format error. The command parameter does not conform to "
+    "the JSON format requirements.";
 const std::string UNKNOWN_ERROR_MSG = "Unknown error message.";
 const std::string INVALID_NET_ERROR_MSG = "The errorCode is either ARKWEB_NET_OK or "
     "outside the range of error codes in WebNetErrorList";
@@ -98,6 +100,7 @@ std::unordered_map<ErrCode, std::string> g_errCodeMsgMap = {
     {HTTP_BODY_STREAN_INIT_FAILED, HTTP_BODY_STREAN_INIT_FAILED_MSG},
     {RESOURCE_HANDLER_INVALID, RESOURCE_HANDLER_INVALID_MSG},
     {NOT_ALLOWED_PORT, NOT_ALLOWED_PORT_MSG},
+    {COMMAND_FORMAT_ERROR, COMMAND_FORMAT_ERROR_MSG},
     {INVALID_NET_ERROR, INVALID_NET_ERROR_MSG},
 };
 

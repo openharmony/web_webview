@@ -1843,4 +1843,16 @@ ArkWebRefPtr<ArkWebCommandActionManager> ArkWebNWebImpl::GetCommandActionManager
 
     return new ArkWebCommandActionManagerImpl(nweb_command_action_manager);
 }
+
+void ArkWebNWebImpl::ExecuteAIPageCommand(
+    const ArkWebString& command, ArkWebRefPtr<ArkWebStringValueCallback> callback)
+{
+    std::string commandStr = ArkWebStringStructToClass(command);
+    if (CHECK_REF_PTR_IS_NULL(callback)) {
+        nweb_nweb_->ExecuteAIPageCommand(commandStr, nullptr);
+        return;
+    }
+
+    nweb_nweb_->ExecuteAIPageCommand(commandStr, std::make_shared<ArkWebStringValueCallbackWrapper>(callback));
+}
 } // namespace OHOS::ArkWeb

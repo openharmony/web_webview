@@ -2560,6 +2560,20 @@ public:
     {
         return nullptr;
     }
+
+    /**
+     * Execute AI page command.
+     *
+     * @param command JSON-formatted command parameter
+     * @param callback command execution result. Empty result means null.
+     */
+    virtual void ExecuteAIPageCommand(const std::string& command, std::shared_ptr<NWebStringValueCallback> callback)
+    {
+        (void)command;
+        if (callback) {
+            callback->OnReceiveValue("");
+        }
+    }
 };
 } // namespace OHOS::NWeb
 

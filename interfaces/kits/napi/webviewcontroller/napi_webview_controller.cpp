@@ -102,6 +102,12 @@ constexpr int32_t HISTOGRAM_API_BOOL_COUNTS = 1;
 #endif
 using WebPrintWriteResultCallback = std::function<void(std::string, uint32_t)>;
 
+bool IsJsonObjectCommand(const std::string& command)
+{
+    nlohmann::json commandJson = nlohmann::json::parse(command, nullptr, false);
+    return !commandJson.is_discarded() && commandJson.is_object();
+}
+
 bool ParsePrepareUrl(napi_env env, napi_value urlObj, std::string& url)
 {
     napi_valuetype valueType = napi_null;
@@ -731,6 +737,7 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("innerCompleteWindowNew", NapiWebviewController::InnerCompleteWindowNew),
         DECLARE_NAPI_FUNCTION("deleteJavaScriptRegister", NapiWebviewController::DeleteJavaScriptRegister),
         DECLARE_NAPI_FUNCTION("runJavaScript", NapiWebviewController::RunJavaScript),
+        DECLARE_NAPI_FUNCTION("executeAIPageCommand", NapiWebviewController::ExecuteAIPageCommand),
         DECLARE_NAPI_FUNCTION("runJavaScriptExt", NapiWebviewController::RunJavaScriptExt),
         DECLARE_NAPI_FUNCTION("createPdf", NapiWebviewController::RunCreatePDFExt),
         DECLARE_NAPI_FUNCTION("getUrl", NapiWebviewController::GetUrl),
@@ -3867,6 +3874,50 @@ napi_value NapiWebviewController::RunJavaScript(napi_env env, napi_callback_info
 napi_value NapiWebviewController::RunJavaScriptExt(napi_env env, napi_callback_info info)
 {
     return RunJS(env, info, true);
+}
+
+napi_value NapiWebviewController::ExecuteAIPageCommand(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+
+    napi_get_undefined(env, &result);
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
+        return result;
+    }
+
+    std::string command;
+    if (!NapiParseUtils::ParseString(env, argv[INTEGER_ZERO], command)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "command", "string"));
+        return result;
+    }
+    if (!IsJsonObjectCommand(command)) {
+        BusinessError::ThrowErrorByErrcode(env, COMMAND_FORMAT_ERROR);
+        return result;
+    }
+
+    WebviewController* webviewController = nullptr;
+    napi_unwrap(env, thisVar, reinterpret_cast<void**>(&webviewController));
+    if (!webviewController || !webviewController->IsInit()) {
+        BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
+        return result;
+    }
+
+    napi_deferred deferred = nullptr;
+    napi_value promise = nullptr;
+    napi_create_promise(env, &deferred, &promise);
+    if (promise && deferred) {
+        webviewController->ExecuteAIPageCommand(command, env, deferred);
+        return promise;
+    }
+
+    return result;
 }
 
 napi_value NapiWebviewController::RunJS(napi_env env, napi_callback_info info, bool extention)

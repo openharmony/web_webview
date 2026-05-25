@@ -281,6 +281,8 @@ public:
 
     void RunJavaScriptPromise(const std::string &script, napi_env env, napi_deferred deferred, bool extention);
 
+    void ExecuteAIPageCommand(const std::string& command, napi_env env, napi_deferred deferred);
+
     void RunJavaScriptCallbackExt(
         const int fd, const size_t scriptLength, napi_env env, napi_ref jsCallback, bool extention);
 

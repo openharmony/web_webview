@@ -194,6 +194,8 @@ private:
 
     static napi_value RunJavaScript(napi_env env, napi_callback_info info);
 
+    static napi_value ExecuteAIPageCommand(napi_env env, napi_callback_info info);
+
     static napi_value RunJavaScriptExt(napi_env env, napi_callback_info info);
 
     static napi_value RunJS(napi_env env, napi_callback_info info, bool extention);

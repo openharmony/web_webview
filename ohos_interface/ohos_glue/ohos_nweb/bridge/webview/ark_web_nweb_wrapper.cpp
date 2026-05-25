@@ -2182,4 +2182,18 @@ std::shared_ptr<OHOS::NWeb::NWebCommandActionManager> ArkWebNWebWrapper::GetComm
 
     return std::make_shared<ArkWebCommandActionManagerWrapper>(ark_web_command_action_manager);
 }
+
+void ArkWebNWebWrapper::ExecuteAIPageCommand(
+    const std::string& command, std::shared_ptr<OHOS::NWeb::NWebStringValueCallback> callback)
+{
+    ArkWebString stCommand = ArkWebStringClassToStruct(command);
+
+    if (CHECK_SHARED_PTR_IS_NULL(callback)) {
+        ark_web_nweb_->ExecuteAIPageCommand(stCommand, nullptr);
+    } else {
+        ark_web_nweb_->ExecuteAIPageCommand(stCommand, new ArkWebStringValueCallbackImpl(callback));
+    }
+
+    ArkWebStringStructRelease(stCommand);
+}
 } // namespace OHOS::ArkWeb
