@@ -31,7 +31,8 @@ public:
 
     virtual ~BrowserClient() = default;
 
-    virtual sptr<IRemoteObject> QueryRenderSurface(int32_t surface_id) override;
+    virtual std::pair<sptr<IRemoteObject>, sptr<IRemoteObject>> QueryRenderSurface(
+        int32_t surfaceId, uint64_t& nodeId) override;
 
     virtual void ReportThread(int32_t status, int32_t process_id, int32_t thread_id, int32_t role) override;
 

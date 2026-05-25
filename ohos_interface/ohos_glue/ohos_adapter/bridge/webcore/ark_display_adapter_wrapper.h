@@ -69,6 +69,7 @@ public:
     int32_t GetPhysicalHeight() override;
 
     float GetDefaultVirtualPixelRatio() override;
+
 private:
     ArkWebRefPtr<ArkDisplayAdapter> ctocpp_;
 };

@@ -103,4 +103,12 @@ std::vector<std::shared_ptr<OHOS::NWeb::DisplayAdapter>> ArkDisplayManagerAdapte
     return result;
 }
 
+bool ArkDisplayManagerAdapterWrapper::IsSinglePhysicalDisplayForFold()
+{
+    if (!ctocpp_) {
+        return false;
+    }
+    return ctocpp_->IsSinglePhysicalDisplayForFold();
+}
+
 } // namespace OHOS::ArkWeb

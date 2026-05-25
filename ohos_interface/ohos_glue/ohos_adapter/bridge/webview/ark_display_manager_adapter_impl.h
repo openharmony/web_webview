@@ -44,6 +44,8 @@ public:
 
     ArkDisplayAdapterVector GetAllDisplays() override;
 
+    bool IsSinglePhysicalDisplayForFold() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::DisplayManagerAdapter> real_;
 

@@ -59,6 +59,16 @@ bool ArkWebEngineInitArgsImpl::GetIsMultiRendererProcess()
     return nweb_engine_init_args_->GetIsMultiRendererProcess();
 }
 
+uint64_t ArkWebEngineInitArgsImpl::GetSurfaceNodeId()
+{
+    return nweb_engine_init_args_->GetSurfaceNodeId();
+}
+
+uint64_t ArkWebEngineInitArgsImpl::GetSurfaceRSHandle()
+{
+    return nweb_engine_init_args_->GetSurfaceRSHandle();
+}
+
 ArkWebString ArkWebEngineInitArgsImpl::GetSharedRenderProcessToken()
 {
     return ArkWebStringClassToStruct(nweb_engine_init_args_->GetSharedRenderProcessToken());

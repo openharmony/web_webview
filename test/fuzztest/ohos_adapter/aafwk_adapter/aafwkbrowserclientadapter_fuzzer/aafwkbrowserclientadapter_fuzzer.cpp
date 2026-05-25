@@ -41,7 +41,8 @@ constexpr int MAX_SET_NUMBER = 1000;
 class MockBrowserClient : public BrowserClient {
     explicit MockBrowserClient(const sptr<IRemoteObject>& impl);
 
-    sptr<IRemoteObject> QueryRenderSurface(int32_t surface_id);
+    std::pair<sptr<IRemoteObject>, sptr<IRemoteObject>> QueryRenderSurface(
+        int32_t surface_id, uint64_t& node_id);
 
     void ReportThread(int32_t status, int32_t process_id, int32_t thread_id, int32_t role);
 
@@ -50,10 +51,12 @@ class MockBrowserClient : public BrowserClient {
     void DestroyRenderSurface(int32_t surface_id);
 };
 
-sptr<IRemoteObject> MockBrowserClient::QueryRenderSurface(int32_t surface_id)
+std::pair<sptr<IRemoteObject>, sptr<IRemoteObject>> MockBrowserClient::QueryRenderSurface(
+    int32_t surface_id, uint64_t& node_id)
 {
     (void)surface_id;
-    return nullptr;
+    (void)node_id;
+    return { nullptr, nullptr };
 }
 
 void MockBrowserClient::ReportThread(int32_t status, int32_t process_id, int32_t thread_id, int32_t role)
@@ -80,7 +83,9 @@ bool AafwkBrowserClientAdapterFuzzTest(const uint8_t* data, size_t size)
     sptr<IRemoteObject> impl;
     auto client = new BrowserClient(impl);
     int32_t surface_id = 0;
-    client->QueryRenderSurface(surface_id);
+    uint64_t node_id = 0;
+
+    client->QueryRenderSurface(surface_id, node_id);
     int32_t status = 0;
     int32_t process_id = 0;
     int32_t thread_id = 0;
