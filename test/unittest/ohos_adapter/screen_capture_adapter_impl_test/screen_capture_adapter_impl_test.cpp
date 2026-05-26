@@ -74,6 +74,7 @@ public:
     MOCK_METHOD2(GetMultiDisplayCaptureCapability, int32_t(const std::vector<uint64_t>&, MultiDisplayCapability&));
     MOCK_METHOD0(PauseScreenCapture, int32_t());
     MOCK_METHOD0(ResumeScreenCapture, int32_t());
+    MOCK_METHOD4(AddWatermark, int32_t(std::shared_ptr<AVBuffer>&, int32_t, int32_t, int32_t&));
 };
 } // namespace Media
 namespace NWeb {
