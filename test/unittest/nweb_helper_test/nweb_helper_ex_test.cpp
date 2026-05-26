@@ -186,6 +186,9 @@ public:
 
     void LibraryLoaded(std::shared_ptr<NWebEngineInitArgs> init_args, bool lazy) {}
 
+    MOCK_METHOD(void, DumpArkWebJSHeap,
+        (int32_t fd, int32_t renderPid, bool needSnapshot, bool needGC, bool needRaw), (override));
+
     MOCK_METHOD(void, SetWebDebuggingAccessAndPort,
         (bool isEnableDebug, int32_t port), (override));
 
@@ -1380,6 +1383,35 @@ HWTEST_F(NwebHelperTest, NWebHelper_DumpArkWebInfo_001, TestSize.Level1)
 
     result = NWebHelper::Instance().DumpArkWebInfo("");
     EXPECT_NE(result.size(), 0);
+}
+
+/**
+ * @tc.name: NWebHelper_DumpArkWebJSHeap_001
+ * @tc.desc: DumpArkWebJSHeap.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_DumpArkWebJSHeap_001, TestSize.Level1)
+{
+    const int32_t fd = 1;
+    const int32_t renderPid = 1000;
+    const bool needSnapshot = true;
+    const bool needGC = false;
+    const bool needRaw = false;
+
+    LOG_SetCallback(MyLogCallback);
+    g_errlog.clear();
+    NWebHelper::Instance().nwebEngine_ = nullptr;
+    NWebHelper::Instance().DumpArkWebJSHeap(fd, renderPid, needSnapshot, needGC, needRaw);
+    EXPECT_TRUE(g_errlog.find("web engine has not been initialized") != std::string::npos);
+
+    auto nwebEngineMock = std::make_shared<MockNWebEngine>();
+    NWebHelper::Instance().nwebEngine_ = nwebEngineMock;
+    EXPECT_CALL(*nwebEngineMock, DumpArkWebJSHeap(fd, renderPid, needSnapshot, needGC, needRaw)).Times(1);
+    NWebHelper::Instance().DumpArkWebJSHeap(fd, renderPid, needSnapshot, needGC, needRaw);
+
+    NWebHelper::Instance().nwebEngine_ = nullptr;
+    LOG_SetCallback(nullptr);
 }
 
 /**
