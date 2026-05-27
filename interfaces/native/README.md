@@ -598,5 +598,4 @@ ArkTS 应用 → interfaces/napi → nativecommon → ohos_nweb → ArkWebCore.h
 - **[../kits/nativecommon/README.md](../kits/nativecommon/README.md)** - nativecommon 通用组件库文档
 - **[../kits/napi/README.md](../kits/napi/README.md)** - NAPI 接口文档
 - **[../../ohos_nweb/README.md](../../ohos_nweb/README.md)** - 核心 WebView 引擎
-- **[../ohos_interface/README.md](../ohos_interface/README.md)** - 接口层总览
 - **[../../AGENT.md](../../AGENT.md)** - 代码仓指南
