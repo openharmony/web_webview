@@ -173,6 +173,10 @@ public:
     virtual std::unique_ptr<CertManagerAdapter> GetCertManagerAdapter() {return nullptr;}
 
     virtual std::unique_ptr<BackgroundTaskAdapter> CreateBackgroundTaskAdapter() {return nullptr;}
+
+    virtual SurfaceControlAdapter& GetSurfaceControlAdapter() = 0;
+
+    virtual SurfaceTransactionAdapter& GetSurfaceTransactionAdapter() = 0;
 };
 
 } // namespace OHOS::NWeb
