@@ -71,6 +71,7 @@
 #include "ohos_adapter/bridge/ark_sensor_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_soc_perf_client_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_surface_buffer_adapter_impl.h"
+#include "ohos_adapter/bridge/ark_surface_control_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_system_properties_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_vsync_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_web_date_timezone_info_impl.h"
@@ -460,6 +461,20 @@ ArkWebRefPtr<ArkBackgroundTaskAdapter> ArkOhosAdapterHelperImpl::CreateBackgroun
     std::unique_ptr<NWeb::BackgroundTaskAdapter> adapter = real_.CreateBackgroundTaskAdapter();
     std::shared_ptr<NWeb::BackgroundTaskAdapter> shared = std::move(adapter);
     return new ArkBackgroundTaskAdapterImpl(shared);
+}
+
+ArkWebRefPtr<ArkSurfaceControlAdapter> ArkOhosAdapterHelperImpl::GetSurfaceControlAdapter()
+{
+    static NWeb::SurfaceControlAdapter& instance = real_.GetSurfaceControlAdapter();
+    static ArkWebRefPtr<ArkSurfaceControlAdapter> impl = new ArkSurfaceControlAdapterImpl(instance);
+    return impl;
+}
+
+ArkWebRefPtr<ArkSurfaceTransactionAdapter> ArkOhosAdapterHelperImpl::GetSurfaceTransactionAdapter()
+{
+    static NWeb::SurfaceTransactionAdapter& instance = real_.GetSurfaceTransactionAdapter();
+    static ArkWebRefPtr<ArkSurfaceTransactionAdapter> impl = new ArkSurfaceTransactionAdapterImpl(instance);
+    return impl;
 }
 
 } // namespace OHOS::ArkWeb

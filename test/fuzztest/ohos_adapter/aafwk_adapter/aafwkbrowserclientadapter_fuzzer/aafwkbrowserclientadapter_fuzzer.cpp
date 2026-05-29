@@ -41,7 +41,8 @@ constexpr int MAX_SET_NUMBER = 1000;
 class MockBrowserClient : public BrowserClient {
     explicit MockBrowserClient(const sptr<IRemoteObject>& impl);
 
-    sptr<IRemoteObject> QueryRenderSurface(int32_t surface_id);
+    std::pair<sptr<IRemoteObject>, sptr<IRemoteObject>> QueryRenderSurface(
+        int32_t surfaceId, uint64_t& nodeId);
 
     void ReportThread(int32_t status, int32_t process_id, int32_t thread_id, int32_t role);
 
@@ -50,10 +51,12 @@ class MockBrowserClient : public BrowserClient {
     void DestroyRenderSurface(int32_t surface_id);
 };
 
-sptr<IRemoteObject> MockBrowserClient::QueryRenderSurface(int32_t surface_id)
+std::pair<sptr<IRemoteObject>, sptr<IRemoteObject>> MockBrowserClient::QueryRenderSurface(
+    int32_t surfaceId, uint64_t& nodeId)
 {
-    (void)surface_id;
-    return nullptr;
+    (void)surfaceId;
+    (void)nodeId;
+    return { nullptr, nullptr };
 }
 
 void MockBrowserClient::ReportThread(int32_t status, int32_t process_id, int32_t thread_id, int32_t role)
@@ -79,8 +82,10 @@ bool AafwkBrowserClientAdapterFuzzTest(const uint8_t* data, size_t size)
 {
     sptr<IRemoteObject> impl;
     auto client = new BrowserClient(impl);
-    int32_t surface_id = 0;
-    client->QueryRenderSurface(surface_id);
+    int32_t surfaceId = 0;
+    uint64_t nodeId = 0;
+
+    client->QueryRenderSurface(surfaceId, nodeId);
     int32_t status = 0;
     int32_t process_id = 0;
     int32_t thread_id = 0;
@@ -89,16 +94,16 @@ bool AafwkBrowserClientAdapterFuzzTest(const uint8_t* data, size_t size)
 
     sptr<Surface> surface;
     client->ReportThread(status, process_id, thread_id, role);
-    client->PassSurface(surface, surface_id);
-    client->DestroyRenderSurface(surface_id);
+    client->PassSurface(surface, surfaceId);
+    client->DestroyRenderSurface(surfaceId);
 
     std::shared_ptr<AafwkBrowserClientAdapterImpl> clientAdapter = std::make_shared<AafwkBrowserClientAdapterImpl>();
-    clientAdapter->QueryRenderSurface(surface_id);
+    clientAdapter->QueryRenderSurface(surfaceId);
     ResSchedStatusAdapter newstatus = ResSchedStatusAdapter::THREAD_CREATED;
     ResSchedRoleAdapter newrole = ResSchedRoleAdapter::USER_INTERACT;
     clientAdapter->ReportThread(newstatus, process_id, thread_id, newrole);
-    clientAdapter->PassSurface(surface_id);
-    clientAdapter->DestroyRenderSurface(surface_id);
+    clientAdapter->PassSurface(surfaceId);
+    clientAdapter->DestroyRenderSurface(surfaceId);
     return true;
 }
 } // namespace OHOS

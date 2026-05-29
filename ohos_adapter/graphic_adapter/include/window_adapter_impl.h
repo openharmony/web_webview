@@ -40,6 +40,8 @@ public:
     void AddNativeWindowRef(NWebNativeWindow window) override;
 
     void NativeWindowUnRef(NWebNativeWindow window) override;
+
+    void SetWindowNodeIdAndRSHandle(void* nativeWindow, uint64_t nodeId, uint64_t handle) override;
 };
 } // namespace OHOS::NWeb
 

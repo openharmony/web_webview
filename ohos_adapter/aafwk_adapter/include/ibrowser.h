@@ -20,8 +20,9 @@
 #include "irender_scheduler.h"
 #include "surface.h"
 
-namespace OHOS{
-namespace NWeb{
+namespace OHOS {
+namespace NWeb {
+
 /**
  * @class IBrowser
  * Ipc interface of render process to app mgr service
@@ -30,7 +31,8 @@ class IBrowser : public IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.appexecfwk.Browser");
 
-    virtual sptr<IRemoteObject> QueryRenderSurface(int32_t surface_id) = 0;
+    virtual std::pair<sptr<IRemoteObject>, sptr<IRemoteObject>> QueryRenderSurface(
+        int32_t surfaceId, uint64_t& nodeId) = 0;
 
     virtual void ReportThread(int32_t status, int32_t process_id, int32_t thread_id, int32_t role) = 0;
 
