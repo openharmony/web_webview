@@ -46,7 +46,6 @@ public:
 
     std::vector<std::shared_ptr<OHOS::NWeb::DisplayAdapter>> GetAllDisplays() override;
 
-    bool IsSinglePhysicalDisplayForFold() override;
 private:
     ArkWebRefPtr<ArkDisplayManagerAdapter> ctocpp_;
 };

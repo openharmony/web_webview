@@ -119,8 +119,6 @@ public:
     virtual std::string GetSharedRenderProcessToken() {return "";}
     virtual bool GetEmulateTouchFromMouseEvent() {return false;}
     virtual bool GetUseCloudControlAutoLayoutConfig() {return false;}
-    virtual uint64_t GetSurfaceNodeId() = 0;
-    virtual uint64_t GetSurfaceRSHandle() = 0;
 };
 
 class OHOS_NWEB_EXPORT NWebOutputFrameCallback {

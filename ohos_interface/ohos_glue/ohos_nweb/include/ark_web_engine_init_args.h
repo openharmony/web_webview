@@ -47,9 +47,6 @@ public:
     virtual bool GetIsMultiRendererProcess() = 0;
 
     /*--ark web()--*/
-    virtual uint64_t GetSurfaceNodeId() = 0;
-
-    /*--ark web()--*/
     virtual ArkWebString GetSharedRenderProcessToken() = 0;
 
     /*--ark web()--*/
@@ -57,9 +54,6 @@ public:
 
     /*--ark web()--*/
     virtual bool GetUseCloudControlAutoLayoutConfig() = 0;
-
-    /*--ark web()--*/
-    virtual uint64_t GetSurfaceRSHandle() = 0;
 };
 
 } // namespace OHOS::ArkWeb

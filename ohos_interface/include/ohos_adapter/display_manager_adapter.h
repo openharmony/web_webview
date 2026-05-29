@@ -186,8 +186,6 @@ public:
     virtual std::shared_ptr<DisplayAdapter> GetPrimaryDisplay() = 0;
 
     virtual std::vector<std::shared_ptr<DisplayAdapter>> GetAllDisplays() = 0;
-
-    virtual bool IsSinglePhysicalDisplayForFold() = 0;
 };
 
 } // namespace OHOS::NWeb

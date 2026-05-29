@@ -47,10 +47,6 @@ public:
 
     bool GetUseCloudControlAutoLayoutConfig() override;
 
-    uint64_t GetSurfaceNodeId() override;
-
-    uint64_t GetSurfaceRSHandle() override;
-
 private:
     ArkWebRefPtr<ArkWebEngineInitArgs> ark_web_engine_init_args_;
 };

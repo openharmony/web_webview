@@ -71,7 +71,6 @@
 #include "soc_perf_client_adapter_impl.h"
 #include "screenlock_manager_adapter_impl.h"
 #include "surface_adapter_impl.h"
-#include "surface_control_adapter_impl.h"
 #include "system_properties_adapter_impl.h"
 #include "vsync_adapter_impl.h"
 #include "window_adapter_impl.h"
@@ -402,15 +401,5 @@ std::unique_ptr<ScreenlockManagerAdapter> OhosAdapterHelperImpl::CreateScreenloc
 std::unique_ptr<BackgroundTaskAdapter> OhosAdapterHelperImpl::CreateBackgroundTaskAdapter()
 {
     return std::make_unique<BackgroundTaskAdapterImpl>();
-}
-
-SurfaceControlAdapter& OhosAdapterHelperImpl::GetSurfaceControlAdapter()
-{
-    return SurfaceControlAdapterImpl::GetInstance();
-}
-
-SurfaceTransactionAdapter& OhosAdapterHelperImpl::GetSurfaceTransactionAdapter()
-{
-    return SurfaceTransactionAdapterImpl::GetInstance();
 }
 } // namespace OHOS::NWeb

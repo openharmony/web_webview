@@ -93,9 +93,4 @@ ArkDisplayAdapterVector ArkDisplayManagerAdapterImpl::GetAllDisplays()
     return result;
 }
 
-bool ArkDisplayManagerAdapterImpl::IsSinglePhysicalDisplayForFold()
-{
-    return real_->IsSinglePhysicalDisplayForFold();
-}
-
 } // namespace OHOS::ArkWeb

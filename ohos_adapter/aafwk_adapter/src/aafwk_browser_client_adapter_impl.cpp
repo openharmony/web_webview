@@ -39,33 +39,28 @@ bool BrowserClient::WriteInterfaceToken(MessageParcel &data)
     return true;
 }
 
-std::pair<sptr<IRemoteObject>, sptr<IRemoteObject>> BrowserClient::QueryRenderSurface(
-    int32_t surfaceId, uint64_t& nodeId)
+sptr<IRemoteObject> BrowserClient::QueryRenderSurface(int32_t surface_id)
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option; // this should be a sync binder
     if (!WriteInterfaceToken(data)) {
-        WVLOG_E("Write token failed.");
-        return { nullptr, nullptr };
+        return nullptr;
     }
-    data.WriteInt32(surfaceId);
+    data.WriteInt32(surface_id);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         WVLOG_E("Remote is NULL.");
-        return { nullptr, nullptr };
+        return nullptr;
     }
     int32_t ret = remote->SendRequest(
         static_cast<uint32_t>(IBrowser::Message::QUERY_RENDER_SURFACE),
         data, reply, option);
     if (ret != NO_ERROR) {
         WVLOG_E("SendRequest failed, error code = %{public}d", ret);
-        return { nullptr, nullptr };
     }
     sptr<IRemoteObject> surface = reply.ReadRemoteObject();
-    sptr<IRemoteObject> connectToRender = reply.ReadRemoteObject();
-    nodeId = reply.ReadUint64();
-    return { surface, connectToRender };
+    return surface;
 }
 
 void BrowserClient::ReportThread(int32_t status, int32_t process_id, int32_t thread_id, int32_t role)
@@ -156,9 +151,7 @@ void* AafwkBrowserClientAdapterImpl::QueryRenderSurface(int32_t surface_id)
 {
     std::unique_lock<std::mutex> window_map_lock(window_map_mutex_);
     if (GetInstance().browserHost_) {
-        uint64_t node_id = 0;
-        auto [surfaceObject, connectToRenderObj] =
-            GetInstance().browserHost_->QueryRenderSurface(surface_id, node_id);
+        sptr<IRemoteObject> surfaceObject = GetInstance().browserHost_->QueryRenderSurface(surface_id);
         // get return value
         sptr<IBufferProducer> bufferProducer = iface_cast<IBufferProducer>(surfaceObject);
         sptr<Surface> surface = Surface::CreateSurfaceAsProducer(bufferProducer);
@@ -168,15 +161,6 @@ void* AafwkBrowserClientAdapterImpl::QueryRenderSurface(int32_t surface_id)
             return nullptr;
         }
         uint64_t usage = BUFFER_USAGE_MEM_DMA;
-        if (window->surface != nullptr) {
-            window->surface->SetUserData("delegate_node_id", std::to_string(node_id));
-            if (connectToRenderObj != nullptr) {
-                connectToRenderObj->IncStrongRef(nullptr);
-                uintptr_t handle = reinterpret_cast<intptr_t>(connectToRenderObj.GetRefPtr());
-                window->surface->SetUserData("delegate_connect_to_render", std::to_string(handle));
-            }
-        }
-
         NativeWindowHandleOpt(window, SET_USAGE, usage);
         window_map_.emplace(surface_id, window);
         void* newNativeWindow = reinterpret_cast<NWebNativeWindow>(window);
