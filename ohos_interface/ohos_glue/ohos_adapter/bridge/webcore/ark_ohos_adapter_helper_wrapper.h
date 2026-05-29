@@ -130,10 +130,6 @@ public:
 
     std::unique_ptr<NWeb::BackgroundTaskAdapter> CreateBackgroundTaskAdapter() override;
 
-    NWeb::SurfaceControlAdapter& GetSurfaceControlAdapter() override;
-
-    NWeb::SurfaceTransactionAdapter& GetSurfaceTransactionAdapter() override;
-
 private:
     ArkWebRefPtr<ArkOhosAdapterHelper> ctocpp_;
 };

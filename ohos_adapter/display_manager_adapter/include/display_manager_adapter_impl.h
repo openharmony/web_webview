@@ -133,7 +133,6 @@ public:
     static std::mutex foldStatusRegMutex;
     std::shared_ptr<DisplayAdapter> GetPrimaryDisplay() override;
     std::vector<std::shared_ptr<DisplayAdapter>> GetAllDisplays() override;
-    bool IsSinglePhysicalDisplayForFold() override;
 private:
     ListenerMap reg_;
 };

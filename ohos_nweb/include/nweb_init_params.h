@@ -252,23 +252,6 @@ public:
     {
         return useCloudControlAutoLayoutConfig_;
     }
-
-    void SetSurfaceNodeIdAndRSHandle(uint64_t nodeId, uint64_t rsHandle)
-    {
-        rsHandle_ = rsHandle;
-        surfaceNodeId_ = nodeId;
-    }
-
-    uint64_t GetSurfaceNodeId() override
-    {
-        return surfaceNodeId_;
-    }
-
-    uint64_t GetSurfaceRSHandle() override
-    {
-        return rsHandle_;
-    }
-
 private:
     std::string dumpPath_;
 
@@ -276,9 +259,6 @@ private:
     bool isFrameInfoDump_ = false;
     bool isEnhanceSurface_ = false;
     bool isMultiRendererProcess_ = false;
-
-    uintptr_t rsHandle_ = 0;
-    uint64_t surfaceNodeId_ = 0;
 
     std::list<std::string> argsToAdd_;
     std::list<std::string> argsToDelete_;

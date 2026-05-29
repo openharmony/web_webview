@@ -60,8 +60,7 @@ public:
 
     ~AafwkBrowserHostImpl() override = default;
 
-    std::pair<sptr<IRemoteObject>, sptr<IRemoteObject>> QueryRenderSurface(
-        int32_t surfaceId, uint64_t& nodeId) override;
+    sptr<IRemoteObject> QueryRenderSurface(int32_t surface_id) override;
 
     void ReportThread(int32_t status, int32_t process_id, int32_t thread_id, int32_t role) override;
 

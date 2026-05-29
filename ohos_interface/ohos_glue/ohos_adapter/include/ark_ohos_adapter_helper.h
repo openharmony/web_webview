@@ -230,12 +230,6 @@ public:
 
     /*--ark web()--*/
     virtual ArkWebRefPtr<ArkBackgroundTaskAdapter> CreateBackgroundTaskAdapter() = 0;
-
-    /*--ark web()--*/
-    virtual ArkWebRefPtr<ArkSurfaceControlAdapter> GetSurfaceControlAdapter() = 0;
-
-    /*--ark web()--*/
-    virtual ArkWebRefPtr<ArkSurfaceTransactionAdapter> GetSurfaceTransactionAdapter() = 0;
 };
 
 } // namespace OHOS::ArkWeb

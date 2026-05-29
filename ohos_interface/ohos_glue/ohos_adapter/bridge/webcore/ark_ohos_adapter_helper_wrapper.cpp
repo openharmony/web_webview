@@ -66,7 +66,6 @@
 #include "ohos_adapter/bridge/ark_sensor_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_soc_perf_client_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_surface_buffer_adapter_wrapper.h"
-#include "ohos_adapter/bridge/ark_surface_control_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_system_properties_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_vsync_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_web_timezone_info_wrapper.h"
@@ -558,17 +557,4 @@ std::unique_ptr<NWeb::BackgroundTaskAdapter> ArkOhosAdapterHelperWrapper::Create
 
     return std::make_unique<ArkBackgroundTaskAdapterWrapper>(adapter);
 }
-
-NWeb::SurfaceControlAdapter& ArkOhosAdapterHelperWrapper::GetSurfaceControlAdapter()
-{
-    static ArkSurfaceControlAdapterWrapper instance(ctocpp_->GetSurfaceControlAdapter());
-    return instance;
-}
-
-NWeb::SurfaceTransactionAdapter& ArkOhosAdapterHelperWrapper::GetSurfaceTransactionAdapter()
-{
-    static ArkSurfaceTransactionAdapterWrapper instance(ctocpp_->GetSurfaceTransactionAdapter());
-    return instance;
-}
-
 } // namespace OHOS::ArkWeb
