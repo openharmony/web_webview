@@ -75,6 +75,7 @@ public:
     MOCK_METHOD0(PauseScreenCapture, int32_t());
     MOCK_METHOD0(ResumeScreenCapture, int32_t());
     MOCK_METHOD4(AddWatermark, int32_t(std::shared_ptr<AVBuffer>&, int32_t, int32_t, int32_t&));
+    MOCK_METHOD1(SetContentAutoRotation, int32_t(bool));
 };
 } // namespace Media
 namespace NWeb {
