@@ -648,4 +648,11 @@ void ArkWebPreferenceWrapper::SetEnableDrag(bool enable)
         ark_web_preference_->SetEnableDrag(enable);
     }
 }
+
+void ArkWebPreferenceWrapper::PutTouchEventFeatureDetectionEnabled(bool enable)
+{
+    if (ark_web_preference_) {
+        ark_web_preference_->PutTouchEventFeatureDetectionEnabled(enable);
+    }
+}
 } // namespace OHOS::ArkWeb
