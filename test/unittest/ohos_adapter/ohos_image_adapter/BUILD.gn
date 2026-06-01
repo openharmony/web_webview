@@ -49,6 +49,7 @@ ohos_unittest("ohos_image_decoder_adapter_test") {
     external_deps += [
       "image_framework:image_native",
       "image_framework:image_utils",
+      "graphic_surface:surface",
     ]
   }
 
