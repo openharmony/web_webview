@@ -99,7 +99,10 @@
                 "jsoncpp",
                 "os_account",
                 "zlib",
-                "ace_engine"
+                "ace_engine",
+                "egl",
+                "opengles",
+                "jsoncpp"
             ]
         },
         "build": {
