@@ -87,6 +87,7 @@ ohos_shared_library("web_configs") {
     "config_policy:configpolicy_util",
     "c_utils:utils",
     "hilog:libhilog",
+    "icu:shared_icuuc",
     "init:libbegetutil",
     "ipc:ipc_core",
     "libxml2:libxml2",
