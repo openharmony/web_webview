@@ -1716,6 +1716,16 @@ void ArkWebNWebImpl::SetSoftKeyboardBehaviorMode(int mode)
     return nweb_nweb_->SetSoftKeyboardBehaviorMode(static_cast<OHOS::NWeb::WebSoftKeyboardBehaviorMode>(mode));
 }
 
+void ArkWebNWebImpl::SetVideoSurface(void* native_window)
+{
+    nweb_nweb_->SetVideoSurface(native_window);
+}
+
+void ArkWebNWebImpl::RequestMediaControl(int32_t action, const ArkWebString& param)
+{
+    nweb_nweb_->RequestMediaControl(action, ArkWebStringStructToClass(param));
+}
+
 ArkWebRefPtr<ArkWebAgentManager> ArkWebNWebImpl::GetAgentManager()
 {
     std::shared_ptr<OHOS::NWeb::NWebAgentManager> nweb_agent_manager = nweb_nweb_->GetAgentManager();

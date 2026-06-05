@@ -2155,6 +2155,18 @@ void ArkWebNWebWrapper::SetKeyboardImmersiveMode(int32_t mode)
     ark_web_nweb_->SetKeyboardImmersiveMode(mode);
 }
 
+void ArkWebNWebWrapper::SetVideoSurface(void* native_window)
+{
+    ark_web_nweb_->SetVideoSurface(native_window);
+}
+
+void ArkWebNWebWrapper::RequestMediaControl(int32_t action, const std::string& param)
+{
+    ArkWebString stParam = ArkWebStringClassToStruct(param);
+    ark_web_nweb_->RequestMediaControl(action, stParam);
+    ArkWebStringStructRelease(stParam);
+}
+
 void ArkWebNWebWrapper::GetImageInfosByUrls(const std::vector<std::string>& imageUrls,
                                             const std::shared_ptr<OHOS::NWeb::NWebImageInfoCallback> callback)
 {

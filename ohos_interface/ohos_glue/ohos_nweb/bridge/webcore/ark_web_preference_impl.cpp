@@ -574,4 +574,11 @@ void ArkWebPreferenceImpl::PutTouchEventFeatureDetectionEnabled(bool enable)
         nweb_preference_->PutTouchEventFeatureDetectionEnabled(enable);
     }
 }
+
+void ArkWebPreferenceImpl::PutFullScreenVideoOverlayEnable(bool enable)
+{
+    if (nweb_preference_) {
+        nweb_preference_->PutFullScreenVideoOverlayEnable(enable);
+    }
+}
 } // namespace OHOS::ArkWeb

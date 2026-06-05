@@ -2574,6 +2574,21 @@ public:
             callback->OnReceiveValue("");
         }
     }
+
+    /**
+     * @brief Set the native window surface for video rendering.
+     *
+     * @param native_window Pointer to the native window used for video output.
+     */
+    virtual void SetVideoSurface(void* native_window) {}
+
+    /**
+     * @brief Request media control action.
+     *
+     * @param action The media control action to perform.
+     * @param param The parameter string for the media control action.
+     */
+    virtual void RequestMediaControl(int32_t action, const std::string& param) {}
 };
 } // namespace OHOS::NWeb
 

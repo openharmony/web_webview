@@ -352,6 +352,11 @@ void ArkWebPreferenceWrapper::PutMediaPlayGestureAccess(bool flag)
     ark_web_preference_->PutMediaPlayGestureAccess(flag);
 }
 
+void ArkWebPreferenceWrapper::PutFullScreenVideoOverlayEnable(bool enable)
+{
+    ark_web_preference_->PutFullScreenVideoOverlayEnable(enable);
+}
+
 std::string ArkWebPreferenceWrapper::StandardFontFamilyName()
 {
     ArkWebString stName = ark_web_preference_->StandardFontFamilyName();
