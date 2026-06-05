@@ -348,8 +348,6 @@ static void ParseCloudCfg()
 
 void SelectWebcoreBeforeProcessRun(const std::string& appBundleName)
 {
-    WVLOG_I("SelectWebcoreBeforeProcessRun for app %{public}s.", appBundleName.c_str());
-
     if (g_legacyApp && g_legacyApp->find(appBundleName) != g_legacyApp->end()) {
         g_cloudEnableAppVersion = static_cast<int>(ArkWebEngineType::LEGACY);
     }
@@ -391,7 +389,8 @@ void PreloadArkWebLibForBrowser()
 void setActiveWebEngineVersion(ArkWebEngineVersion version)
 {
     if (g_webEngineInitFlag) {
-        WVLOG_E("library resources have been loaded, can't set appEngineVersion");
+        WVLOG_E("library resources have been loaded, can't set appEngineVersion: %{public}d",
+                static_cast<int>(version));
         return;
     }
 
