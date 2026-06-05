@@ -45,6 +45,7 @@ OpenHarmony 系统服务层
 | 添加运行时可修改的配置参数（推荐方式） | `docs/knowledge/HOW_TO_ADD_PARAM_CONFIG.md` |
 | 添加编译时配置项（需重编）、XML 配置 | `docs/knowledge/HOW_TO_ADD_XML_CONFIG.md` |
 | 编译特性开关、条件编译、可选功能的自动检测与 Mock | `docs/knowledge/HOW_TO_ADD_BUILD_FEATURE.md` |
+| 定位适配器的真实实现、判断实现在本仓库还是 arkweb 仓库 | `docs/knowledge/HOW_TO_LOCATE_ADAPTER_IMPL.md` |
 
 ### 领域词汇速查
 
