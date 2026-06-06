@@ -380,6 +380,9 @@ int32_t SystemPropertiesAdapterImpl::GetLTPOStrategy()
 
 std::string SystemPropertiesAdapterImpl::GetVulkanStatus()
 {
+    if (GetDeviceInfoProductModel() == "emulator") {
+        return "false";
+    }
     return OHOS::system::GetParameter("web.ohos.vulkan", "None");
 }
 
