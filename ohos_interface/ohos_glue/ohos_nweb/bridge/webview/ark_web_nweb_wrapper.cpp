@@ -1138,11 +1138,6 @@ void ArkWebNWebWrapper::DragResize(uint32_t width, uint32_t height, uint32_t pre
     ark_web_nweb_->DragResize(width, height, pre_height, pre_width);
 }
 
-void ArkWebNWebWrapper::OnTouchCancelById(int32_t id, double x, double y, bool from_overlay)
-{
-    ark_web_nweb_->OnTouchCancelById(id, x, y, from_overlay);
-}
-
 void ArkWebNWebWrapper::InjectOfflineResource(const std::string& url, const std::string& origin,
     const std::vector<uint8_t>& resource, const std::map<std::string, std::string>& responseHeaders, const int type)
 {

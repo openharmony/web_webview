@@ -1410,8 +1410,6 @@ public:
 
     virtual void OnCreateNativeMediaPlayer(std::shared_ptr<NWebCreateNativeMediaPlayerCallback> callback) = 0;
 
-    virtual void OnTouchCancelById(int32_t id, double x, double y, bool from_overlay) = 0;
-
     /**
      * Inject Offline Resource into Memory Cache.
      *

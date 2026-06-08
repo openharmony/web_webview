@@ -1032,8 +1032,6 @@ public:
     /*--ark web()--*/
     void DragResize(uint32_t width, uint32_t height, uint32_t pre_height, uint32_t pre_width) override;
 
-    void OnTouchCancelById(int32_t id, double x, double y, bool from_overlay) override;
-
     /**
      * @brief Inject offline resource into MemoryCache.
      *
