@@ -79,8 +79,16 @@ public:
 class ApplicationContextMock : public ApplicationContext {
 public:
     MOCK_CONST_METHOD0(GetBaseDir, std::string());
-    MOCK_CONST_METHOD0(GetBundleName, std::string());
-    MOCK_CONST_METHOD0(GetApplicationInfo, std::shared_ptr<AppExecFwk::ApplicationInfo>());
+};
+
+class AppInfoMockContext : public ApplicationContext {
+public:
+    std::string GetBaseDir() const override { return "/data/app/el2/100/base/com.example.app"; }
+    std::string GetBundleName() const override { return "com.example.app"; }
+    std::shared_ptr<AppExecFwk::ApplicationInfo> GetApplicationInfo() const override { return appInfo_; }
+    void SetAppInfo(std::shared_ptr<AppExecFwk::ApplicationInfo> info) { appInfo_ = info; }
+private:
+    std::shared_ptr<AppExecFwk::ApplicationInfo> appInfo_;
 };
 
 class MockNWebEngine : public OHOS::NWeb::NWebEngine {
@@ -1591,10 +1599,6 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetInitArgs_003, TestSize.Level1)
     ASSERT_NE(contextMock, nullptr);
     EXPECT_CALL(*contextMock, GetBaseDir())
         .WillRepeatedly(::testing::Return("/data/app/el2/100/base/com.example.app"));
-    EXPECT_CALL(*contextMock, GetBundleName())
-        .WillRepeatedly(::testing::Return("com.example.app"));
-    EXPECT_CALL(*contextMock, GetApplicationInfo())
-        .WillRepeatedly(::testing::Return(nullptr));
     g_applicationContext.reset(contextMock);
 
     NWebHelper::Instance().customSchemeCmdLine_.clear();
@@ -1621,10 +1625,6 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetInitArgs_004, TestSize.Level1)
     ASSERT_NE(contextMock, nullptr);
     EXPECT_CALL(*contextMock, GetBaseDir())
         .WillRepeatedly(::testing::Return("/data/app/el2/100/base/com.example.app"));
-    EXPECT_CALL(*contextMock, GetBundleName())
-        .WillRepeatedly(::testing::Return("com.example.app"));
-    EXPECT_CALL(*contextMock, GetApplicationInfo())
-        .WillRepeatedly(::testing::Return(nullptr));
     g_applicationContext.reset(contextMock);
 
     std::string savedCmd = NWebHelper::Instance().customSchemeCmdLine_;
@@ -1651,10 +1651,6 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetInitArgs_005, TestSize.Level1)
     ASSERT_NE(contextMock, nullptr);
     EXPECT_CALL(*contextMock, GetBaseDir())
         .WillRepeatedly(::testing::Return("/data/app/el2/100/base/com.example.app"));
-    EXPECT_CALL(*contextMock, GetBundleName())
-        .WillRepeatedly(::testing::Return("com.example.app"));
-    EXPECT_CALL(*contextMock, GetApplicationInfo())
-        .WillRepeatedly(::testing::Return(nullptr));
     g_applicationContext.reset(contextMock);
 
     bool savedAutoPreconnect = NWebHelper::Instance().autoPreconnectEnabled_;
@@ -1681,10 +1677,6 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetInitArgs_006, TestSize.Level1)
     ASSERT_NE(contextMock, nullptr);
     EXPECT_CALL(*contextMock, GetBaseDir())
         .WillRepeatedly(::testing::Return("/data/app/el2/100/base/com.example.app"));
-    EXPECT_CALL(*contextMock, GetBundleName())
-        .WillRepeatedly(::testing::Return("com.example.app"));
-    EXPECT_CALL(*contextMock, GetApplicationInfo())
-        .WillRepeatedly(::testing::Return(nullptr));
     g_applicationContext.reset(contextMock);
 
     auto savedCmdLines = NWebHelper::Instance().backForwardCacheCmdLine_;
@@ -1707,16 +1699,11 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetInitArgs_006, TestSize.Level1)
  */
 HWTEST_F(NwebHelperTest, NWebHelper_GetInitArgs_007, TestSize.Level1)
 {
-    ApplicationContextMock *contextMock = new ApplicationContextMock();
+    AppInfoMockContext *contextMock = new AppInfoMockContext();
     ASSERT_NE(contextMock, nullptr);
-    EXPECT_CALL(*contextMock, GetBaseDir())
-        .WillRepeatedly(::testing::Return("/data/app/el2/100/base/com.example.app"));
-    EXPECT_CALL(*contextMock, GetBundleName())
-        .WillRepeatedly(::testing::Return("com.example.app"));
     auto appInfo = std::make_shared<AppExecFwk::ApplicationInfo>();
     appInfo->apiTargetVersion = 12;
-    EXPECT_CALL(*contextMock, GetApplicationInfo())
-        .WillRepeatedly(::testing::Return(appInfo));
+    contextMock->SetAppInfo(appInfo);
     g_applicationContext.reset(contextMock);
 
     NWebHelper::Instance().customSchemeCmdLine_.clear();
@@ -1742,10 +1729,6 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetInitArgs_008, TestSize.Level1)
     ASSERT_NE(contextMock, nullptr);
     EXPECT_CALL(*contextMock, GetBaseDir())
         .WillRepeatedly(::testing::Return("/data/app/el2/100/base/com.example.app"));
-    EXPECT_CALL(*contextMock, GetBundleName())
-        .WillRepeatedly(::testing::Return("com.example.app"));
-    EXPECT_CALL(*contextMock, GetApplicationInfo())
-        .WillRepeatedly(::testing::Return(nullptr));
     g_applicationContext.reset(contextMock);
 
     NWebHelper::Instance().customSchemeCmdLine_.clear();
@@ -1773,10 +1756,6 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetInitArgs_009, TestSize.Level1)
     ASSERT_NE(contextMock, nullptr);
     EXPECT_CALL(*contextMock, GetBaseDir())
         .WillRepeatedly(::testing::Return("/data/app/el2/100/base/com.example.app"));
-    EXPECT_CALL(*contextMock, GetBundleName())
-        .WillRepeatedly(::testing::Return("com.example.app"));
-    EXPECT_CALL(*contextMock, GetApplicationInfo())
-        .WillRepeatedly(::testing::Return(nullptr));
     g_applicationContext.reset(contextMock);
 
     NWebHelper::Instance().customSchemeCmdLine_.clear();
