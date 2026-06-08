@@ -26,6 +26,7 @@
 
 #if defined(NWEB_CAMERA_ENABLE)
 #include "camera_manager.h"
+#include "iconsumer_surface.h"
 #endif
 
 namespace OHOS::NWeb {
