@@ -16,6 +16,7 @@
 #ifndef NWEB_WEBVIEW_CONTROLLER_H
 #define NWEB_WEBVIEW_CONTROLLER_H
 
+#include <atomic>
 #include <filesystem>
 #include <memory>
 #include <string>
@@ -547,7 +548,8 @@ public:
     static bool webDebuggingAccess_;
     static int32_t webDebuggingPort_;
     static std::set<std::string> webTagSet_;
-    static int32_t webTagStrId_;
+    static std::atomic<int32_t> webTagStrId_;
+    static std::mutex webTagMtx_;
 
 private:
     std::mutex webMtx_;

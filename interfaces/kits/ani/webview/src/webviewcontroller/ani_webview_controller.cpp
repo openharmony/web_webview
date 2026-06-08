@@ -633,13 +633,14 @@ static void Constructor(ani_env *env, ani_object object, ani_string webTagObject
             return;
         }
         WVLOG_I("new webview controller webname:%{public}s", webTag.c_str());
+        std::lock_guard<std::mutex> lock(WebviewController::webTagMtx_);
+        WebviewController::webTagSet_.insert(webTag);
     }
     WebviewController* controller = new (std::nothrow) WebviewController(webTag);
     if (!controller) {
         WVLOG_E("new webview controller failed");
         return;
     }
-    WebviewController::webTagSet_.insert(webTag);
     if (!AniParseUtils::Wrap(env, object, ANI_CLASS_WEBVIEW_CONTROLLER, reinterpret_cast<ani_long>(controller))) {
         WVLOG_E("webview controller wrap failed");
         delete controller;

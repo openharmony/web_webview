@@ -23,6 +23,7 @@
 #include <vector>
 #include <memory>
 #include <functional>
+#include <mutex>
 #include "web_errors.h"
 #include "nweb.h"
 
@@ -1081,6 +1082,7 @@ public:
     }
 
     static std::set<std::string> webTagSet_;
+    static std::mutex webTagMtx_;
     static bool existNweb_;
     static bool webDebuggingAccess_;
     static int32_t webDebuggingPort_;
@@ -1112,6 +1114,7 @@ private:
 };
 
 std::set<std::string> WebviewController::webTagSet_;
+std::mutex WebviewController::webTagMtx_;
 bool WebviewController::existNweb_ = false;
 bool WebviewController::webDebuggingAccess_ = false;
 int32_t WebviewController::webDebuggingPort_ = 0;

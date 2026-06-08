@@ -105,7 +105,8 @@ bool WebviewController::existNweb_ = false;
 bool WebviewController::webDebuggingAccess_ = OHOS::system::GetBoolParameter("web.debug.devtools", false);
 int32_t WebviewController::webDebuggingPort_ = 0;
 std::set<std::string> WebviewController::webTagSet_;
-int32_t WebviewController::webTagStrId_ = 0;
+std::atomic<int32_t> WebviewController::webTagStrId_ = 0;
+std::mutex WebviewController::webTagMtx_;
 
 WebviewController::WebviewController(int32_t nwebId) : nwebId_(nwebId)
 {
@@ -652,12 +653,16 @@ void WebviewController::RequestFocus()
 
 std::string WebviewController::GenerateWebTag()
 {
-    std::string webTag = "arkweb:" + std::to_string(WebviewController::webTagStrId_);
-    while (WebviewController::webTagSet_.find(webTag) != WebviewController::webTagSet_.end()) {
-        WebviewController::webTagStrId_++;
-        webTag = "arkweb:" + std::to_string(WebviewController::webTagStrId_);
+    std::lock_guard<std::mutex> lock(webTagMtx_);
+    while (true) {
+        std::string webTag = "arkweb:" + std::to_string(webTagStrId_.load());
+        if (webTagSet_.find(webTag) == webTagSet_.end()) {
+            webTagSet_.insert(webTag);
+            webTagStrId_++;
+            return webTag;
+        }
+        webTagStrId_++;
     }
-    return webTag;
 }
 
 bool WebviewController::GetRawFileUrl(const std::string &fileName,
