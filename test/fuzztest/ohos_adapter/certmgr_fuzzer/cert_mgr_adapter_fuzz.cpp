@@ -15,6 +15,7 @@
  */
 
 #include "cert_mgr_adapter_fuzz.h"
+#include <fuzzer/FuzzedDataProvider.h>
 
 #include <array>
 #include <cstdint>
@@ -28,6 +29,7 @@ using namespace OHOS::NWeb;
 
 void CertManagerAdapterFuzzTest(const uint8_t* data, size_t size)
 {
+    constexpr size_t STRING_MAX_LENGTH = 100;
     CertManagerAdapterImpl adapter;
 
     uint8_t certData[MAX_LEN_CERTIFICATE];
@@ -45,14 +47,17 @@ void CertManagerAdapterFuzzTest(const uint8_t* data, size_t size)
 
     uint8_t signData[MAX_LEN_CERTIFICATE];
     uint32_t signDataLen = sizeof(signData);
-    std::string strData = std::string(reinterpret_cast<const char*>(data), size);
-    adapter.Sign(reinterpret_cast<const uint8_t*>(strData.c_str()), certData, sizeof(certData), signData, signDataLen);
+    FuzzedDataProvider dataProvider(data, size);
+    std::string uri = dataProvider.ConsumeRandomLengthString(STRING_MAX_LENGTH);
+    adapter.Sign(reinterpret_cast<const uint8_t*>(uri.c_str()), certData, sizeof(certData), signData, signDataLen);
+
+    std::string hostname = dataProvider.ConsumeRandomLengthString(STRING_MAX_LENGTH);
 
     std::vector<std::string> certs;
-    adapter.GetTrustAnchorsForHostName(strData, certs);
+    adapter.GetTrustAnchorsForHostName(hostname, certs);
 
     std::vector<std::string> pins;
-    adapter.GetPinSetForHostName(strData, pins);
+    adapter.GetPinSetForHostName(hostname, pins);
 
     adapter.GetCertMaxSize();
     adapter.GetAppCertMaxSize();
