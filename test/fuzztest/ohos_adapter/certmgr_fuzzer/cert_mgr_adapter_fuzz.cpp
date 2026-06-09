@@ -45,14 +45,14 @@ void CertManagerAdapterFuzzTest(const uint8_t* data, size_t size)
 
     uint8_t signData[MAX_LEN_CERTIFICATE];
     uint32_t signDataLen = sizeof(signData);
-    std::string uri = "test_uri";
-    adapter.Sign(reinterpret_cast<const uint8_t*>(uri.c_str()), certData, sizeof(certData), signData, signDataLen);
+    std::string strData = std::string(reinterpret_cast<const char*>(data), size);
+    adapter.Sign(reinterpret_cast<const uint8_t*>(strData.c_str()), certData, sizeof(certData), signData, signDataLen);
 
     std::vector<std::string> certs;
-    adapter.GetTrustAnchorsForHostName("example.com", certs);
+    adapter.GetTrustAnchorsForHostName(strData, certs);
 
     std::vector<std::string> pins;
-    adapter.GetPinSetForHostName("example.com", pins);
+    adapter.GetPinSetForHostName(strData, pins);
 
     adapter.GetCertMaxSize();
     adapter.GetAppCertMaxSize();
