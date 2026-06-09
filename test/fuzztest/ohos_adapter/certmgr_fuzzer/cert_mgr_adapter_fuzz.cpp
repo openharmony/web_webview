@@ -29,7 +29,7 @@ using namespace OHOS::NWeb;
 
 void CertManagerAdapterFuzzTest(const uint8_t* data, size_t size)
 {
-    constexpr size_t STRING_MAX_LENGTH = 100;
+    constexpr size_t stringMaxLength = 100;
     CertManagerAdapterImpl adapter;
 
     uint8_t certData[MAX_LEN_CERTIFICATE];
@@ -48,10 +48,10 @@ void CertManagerAdapterFuzzTest(const uint8_t* data, size_t size)
     uint8_t signData[MAX_LEN_CERTIFICATE];
     uint32_t signDataLen = sizeof(signData);
     FuzzedDataProvider dataProvider(data, size);
-    std::string uri = dataProvider.ConsumeRandomLengthString(STRING_MAX_LENGTH);
+    std::string uri = dataProvider.ConsumeRandomLengthString(stringMaxLength);
     adapter.Sign(reinterpret_cast<const uint8_t*>(uri.c_str()), certData, sizeof(certData), signData, signDataLen);
 
-    std::string hostname = dataProvider.ConsumeRandomLengthString(STRING_MAX_LENGTH);
+    std::string hostname = dataProvider.ConsumeRandomLengthString(stringMaxLength);
 
     std::vector<std::string> certs;
     adapter.GetTrustAnchorsForHostName(hostname, certs);
