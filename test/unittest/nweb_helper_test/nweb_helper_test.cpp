@@ -472,7 +472,6 @@ HWTEST_F(NwebHelperTest, NWebHelper_WebDownloadItem_IsPaused_007, TestSize.Level
 HWTEST_F(NwebHelperTest, NWebHelper_LoadWebEngine_008, TestSize.Level1)
 {
     NWebHelper::Instance().nwebEngine_ = nullptr;
-    NWebHelper::Instance().LoadNWebSDK();
     std::shared_ptr<NWebCreateInfoImpl> create_info = std::make_shared<NWebCreateInfoImpl>();
     std::shared_ptr<NWeb> nweb = NWebHelper::Instance().CreateNWeb(create_info);
     EXPECT_EQ(nweb, nullptr);
