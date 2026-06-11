@@ -219,7 +219,6 @@ ohos_shared_library("nweb_ohos_adapter") {
     "screenlock_mgr:screenlock_client",
     "time_service:time_client",
     "udmf:udmf_client",
-    "udmf:udmf_core",
     "window_manager:libdm",
     "window_manager:libdm_ndk",
     "libxml2:libxml2",
