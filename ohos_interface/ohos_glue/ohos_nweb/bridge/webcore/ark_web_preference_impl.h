@@ -730,6 +730,13 @@ public:
      */
     void PutTouchEventFeatureDetectionEnabled(bool enable) override;
 
+    /**
+     * @brief Set whether to enable fullscreen video overlay. The default is false.
+     *
+     * @param enable bool: Indicates the flag whether fullscreen video overlay is enabled.
+     */
+    void PutFullScreenVideoOverlayEnable(bool enable) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebPreference> nweb_preference_;
 };

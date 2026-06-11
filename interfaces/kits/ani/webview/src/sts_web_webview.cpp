@@ -20,6 +20,7 @@
 #include <iostream>
 
 #include "ani_native_media_player_handler.h"
+#include "ani_full_screen_video_overlay_handler.h"
 #include "ani_webview_controller.h"
 #include "ani_proxy_config.h"
 #include "ani_web_storage.h"
@@ -65,6 +66,8 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
     StsCleanerInit(env);
     StsWebStorageInit(env);
     StsNativeMediaPlayerHandlerinnerInit(env);
+    StsFullScreenVideoOverlayHandlerInnerInit(env);
+    StsOverlayCleanerInit(env);
     StsWebAdsBlockManagerInit(env);
     StsWebDataBaseInit(env);
     StsPdfDataInit(env);

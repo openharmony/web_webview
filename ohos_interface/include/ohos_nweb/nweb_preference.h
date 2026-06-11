@@ -733,6 +733,13 @@ public:
      * @param enable bool: Indicates the flag whether touch event feature detection is enabled.
      */
     virtual void PutTouchEventFeatureDetectionEnabled(bool enable) {}
+
+    /**
+     * @brief Enables or disables full screen video overlay.
+     *
+     * @param enable bool: Indicates the flag whether full screen video overlay is enabled.
+     */
+    virtual void PutFullScreenVideoOverlayEnable(bool enable) {}
 };
 
 } // namespace OHOS::NWeb

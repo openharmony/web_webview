@@ -1246,6 +1246,16 @@ bool ArkWebHandlerImpl::OnNestedScrollV2(float& x, float& y)
     return nweb_handler_->OnNestedScrollV2(x, y);
 }
 
+void ArkWebHandlerImpl::OnFullScreenOverlayEnter(const char* media_info)
+{
+    nweb_handler_->OnFullScreenOverlayEnter(media_info);
+}
+
+void ArkWebHandlerImpl::OnVideoStatusChanged(const int action, const ArkWebStringMap &param)
+{
+    nweb_handler_->OnVideoStatusChanged(action, ArkWebStringMapStructToClass(param));
+}
+
 void ArkWebHandlerImpl::ModifyRenderFit(int32_t fitType)
 {
     nweb_handler_->ModifyRenderFit(fitType);

@@ -2346,6 +2346,23 @@ public:
     /*--ark web()--*/
     virtual void ExecuteAIPageCommand(
         const ArkWebString& command, ArkWebRefPtr<ArkWebStringValueCallback> callback) = 0;
+
+    /**
+     * @brief Set the native window for video surface rendering.
+     *
+     * @param native_window The native window handle for video rendering.
+     */
+    /*--ark web()--*/
+    virtual void SetVideoSurface(void* native_window) = 0;
+
+    /**
+     * @brief Request media control action.
+     *
+     * @param action The media control action type.
+     * @param param The parameter string for the media control action.
+     */
+    /*--ark web()--*/
+    virtual void RequestMediaControl(int32_t action, const ArkWebString& param) = 0;
 };
 
 } // namespace OHOS::ArkWeb

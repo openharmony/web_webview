@@ -1209,6 +1209,23 @@ public:
      */
     /*--ark web()--*/
     virtual bool OnNestedFling(float& velocity_x, float& velocity_y) = 0;
+
+    /**
+     * @brief Called when the page enters fullscreen video overlay mode.
+     *
+     * @param mediaInfo The media information string of the fullscreen video.
+     */
+    /*--ark web()--*/
+    virtual void OnFullScreenOverlayEnter(const char* mediaInfo) = 0;
+
+    /**
+     * @brief Called when the video playback status has changed.
+     *
+     * @param action The action type of the video status change.
+     * @param param The parameter map containing video status details.
+     */
+    /*--ark web()--*/
+    virtual void OnVideoStatusChanged(const int action, const ArkWebStringMap &param) = 0;
 };
 
 } // namespace OHOS::ArkWeb

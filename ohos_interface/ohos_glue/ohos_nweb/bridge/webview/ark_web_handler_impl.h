@@ -864,6 +864,21 @@ public:
      * @param velocity_y The velocity of y axis.
      */
     bool OnNestedFling(float& velocity_x, float& velocity_y) override;
+
+    /**
+     * @brief Called when the page enters fullscreen video overlay mode.
+     *
+     * @param mediaInfo The media information string of the fullscreen video.
+     */
+    void OnFullScreenOverlayEnter(const char* mediaInfo) override;
+
+    /**
+     * @brief Called when the video playback status has changed.
+     *
+     * @param action The action type of the video status change.
+     * @param param The parameter map containing video status details.
+     */
+    void OnVideoStatusChanged(const int action, const ArkWebStringMap &param) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };
