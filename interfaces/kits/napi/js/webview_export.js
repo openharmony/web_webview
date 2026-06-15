@@ -2390,15 +2390,19 @@ class SelectorDialog extends ViewPU {
   }
 
   aboutToBeDeleted() {
-    commonEventManager.unsubscribe(this.subscriber, (err) => {
-      if (err) {
-        console.error(`Failed to unsubscribe. Code is ${err.code}, message is ${err.message}`);
-        return;
-      }
-      // When a subscriber is no longer in use, it should be set to undefined to prevent memory leaks.
-      this.subscriber = undefined;
-      console.info('Succeeded in unsubscribing.');
-    });
+    try {
+      commonEventManager.unsubscribe(this.subscriber, (err) => {
+        if (err) {
+          console.error(`Failed to unsubscribe. Code is ${err.code}, message is ${err.message}`);
+          return;
+        }
+        // When a subscriber is no longer in use, it should be set to undefined to prevent memory leaks.
+        this.subscriber = undefined;
+        console.info('Succeeded in unsubscribing.');
+      });
+    } catch (err) {
+      console.error(`Failed to unsubscribe. Code is ${err.code}, message is ${err.message}`);
+    }
     this.__choose_to_upload.aboutToBeDeleted();
     this.__general_cancel.aboutToBeDeleted();
     this.__taking_photos_or_videos.aboutToBeDeleted();

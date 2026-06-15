@@ -1546,5 +1546,239 @@ HWTEST_F(NwebHelperTest, NWebHelper_ExEnableAdvancedSecurityMode_005, TestSize.L
     EXPECT_FALSE(NWebHelper::Instance().securityOptions_->GetDisableJITCompilation());
     EXPECT_FALSE(NWebHelper::Instance().securityOptions_->GetDisableWebAssembly());
 }
+
+/**
+ * @tc.name: NWebHelper_EnableBackForwardCache_002
+ * @tc.desc: EnableBackForwardCache with none enabled.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_EnableBackForwardCache_002, TestSize.Level1)
+{
+    NWebHelper::Instance().backForwardCacheCmdLine_.clear();
+    NWebHelper::Instance().EnableBackForwardCache(false, false);
+    EXPECT_EQ(NWebHelper::Instance().backForwardCacheCmdLine_.size(), 1u);
+}
+
+/**
+ * @tc.name: NWebHelper_EnableBackForwardCache_003
+ * @tc.desc: EnableBackForwardCache with only native embed.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_EnableBackForwardCache_003, TestSize.Level1)
+{
+    NWebHelper::Instance().backForwardCacheCmdLine_.clear();
+    NWebHelper::Instance().EnableBackForwardCache(true, false);
+    EXPECT_EQ(NWebHelper::Instance().backForwardCacheCmdLine_.size(), 2u);
+}
+
+/**
+ * @tc.name: NWebHelper_EnableBackForwardCache_004
+ * @tc.desc: EnableBackForwardCache with only media take over.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_EnableBackForwardCache_004, TestSize.Level1)
+{
+    NWebHelper::Instance().backForwardCacheCmdLine_.clear();
+    NWebHelper::Instance().EnableBackForwardCache(false, true);
+    EXPECT_EQ(NWebHelper::Instance().backForwardCacheCmdLine_.size(), 2u);
+}
+
+/**
+ * @tc.name: NWebHelper_IsLazyInitializeWebEngine_002
+ * @tc.desc: IsLazyInitializeWebEngine with lazy initialized and engine not init.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_IsLazyInitializeWebEngine_002, TestSize.Level1)
+{
+    NWebHelper::Instance().lazyInitializeWebEngine_ = true;
+    NWebHelper::Instance().initWebEngine_ = false;
+    EXPECT_TRUE(NWebHelper::Instance().IsLazyInitializeWebEngine());
+
+    NWebHelper::Instance().lazyInitializeWebEngine_ = true;
+    NWebHelper::Instance().initWebEngine_ = true;
+    EXPECT_FALSE(NWebHelper::Instance().IsLazyInitializeWebEngine());
+}
+
+/**
+ * @tc.name: NWebHelper_LoadNWebSDK_NullEngine
+ * @tc.desc: LoadNWebSDK with null engine.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_LoadNWebSDK_NullEngine, TestSize.Level1)
+{
+    NWebHelper::Instance().nwebEngine_ = nullptr;
+    EXPECT_FALSE(NWebHelper::Instance().LoadNWebSDK());
+}
+
+/**
+ * @tc.name: NWebHelper_HasLoadWebEngine_002
+ * @tc.desc: HasLoadWebEngine with null engine.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_HasLoadWebEngine_002, TestSize.Level1)
+{
+    NWebHelper::Instance().nwebEngine_ = nullptr;
+    EXPECT_FALSE(NWebHelper::Instance().HasLoadWebEngine());
+}
+
+/**
+ * @tc.name: NWebHelper_PrepareForPageLoad_NullEngine
+ * @tc.desc: PrepareForPageLoad with init flag set but null engine.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_PrepareForPageLoad_NullEngine, TestSize.Level1)
+{
+    NWebHelper::Instance().initFlag_ = true;
+    NWebHelper::Instance().nwebEngine_ = nullptr;
+    NWebHelper::Instance().PrepareForPageLoad("web_test", true, 0);
+    EXPECT_EQ(NWebHelper::Instance().nwebEngine_, nullptr);
+}
+
+/**
+ * @tc.name: NWebHelper_WarmupServiceWorker_NullEngine
+ * @tc.desc: WarmupServiceWorker with init flag set but null engine.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_WarmupServiceWorker_NullEngine, TestSize.Level1)
+{
+    NWebHelper::Instance().initFlag_ = true;
+    NWebHelper::Instance().nwebEngine_ = nullptr;
+    NWebHelper::Instance().WarmupServiceWorker("web_test");
+    EXPECT_EQ(NWebHelper::Instance().nwebEngine_, nullptr);
+}
+
+/**
+ * @tc.name: NWebHelper_PrefetchResource_NullEngine
+ * @tc.desc: PrefetchResource with init flag set but null engine.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_PrefetchResource_NullEngine, TestSize.Level1)
+{
+    NWebHelper::Instance().initFlag_ = true;
+    NWebHelper::Instance().nwebEngine_ = nullptr;
+    NWebHelper::Instance().PrefetchResource(nullptr, {}, "web_test", 0);
+    EXPECT_EQ(NWebHelper::Instance().nwebEngine_, nullptr);
+}
+
+/**
+ * @tc.name: NWebHelper_GetInitArgs_SecurityOptions
+ * @tc.desc: GetInitArgs with advanced security options and command line args.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_GetInitArgs_SecurityOptions, TestSize.Level1)
+{
+    ApplicationContextMock *contextMock = new ApplicationContextMock();
+    ASSERT_NE(contextMock, nullptr);
+    g_applicationContext.reset(contextMock);
+    EXPECT_CALL(*contextMock, GetBaseDir())
+        .WillRepeatedly(::testing::Return("test_dir"));
+    NWebHelper::Instance().bundlePath_ = "test_bundle";
+
+    NWebHelper::Instance().autoPreconnectEnabled_ = false;
+    NWebHelper::Instance().SetCustomSchemeCmdLine("custom-scheme");
+    auto options = std::make_shared<NWebSecurityOptionsImpl>(
+        true, true, true, true, true, true, true);
+    NWebHelper::Instance().securityOptions_ = options;
+    auto args = NWebHelper::Instance().GetInitArgs();
+    EXPECT_NE(args, nullptr);
+
+    auto options2 = std::make_shared<NWebSecurityOptionsImpl>(
+        false, false, false, false, false, false, false);
+    NWebHelper::Instance().securityOptions_ = options2;
+    NWebHelper::Instance().autoPreconnectEnabled_ = true;
+    auto args2 = NWebHelper::Instance().GetInitArgs();
+    EXPECT_NE(args2, nullptr);
+
+    NWebHelper::Instance().securityOptions_.reset();
+    NWebHelper::Instance().SetCustomSchemeCmdLine("");
+    g_applicationContext.reset();
+}
+
+/**
+ * @tc.name: NWebHelper_DumpArkWebInfo_002
+ * @tc.desc: DumpArkWebInfo with valid engine.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_DumpArkWebInfo_002, TestSize.Level1)
+{
+    auto nwebengineMock = std::make_shared<MockNWebEngine>();
+    NWebHelper::Instance().nwebEngine_ = nwebengineMock;
+    std::string result = NWebHelper::Instance().DumpArkWebInfo("test");
+    EXPECT_EQ(result, "");
+    NWebHelper::Instance().nwebEngine_ = nullptr;
+}
+
+/**
+ * @tc.name: NWebHelper_SetSiteIsolationMode_NullEngine
+ * @tc.desc: SetSiteIsolationMode and GetSiteIsolationMode with null engine.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_SetSiteIsolationMode_NullEngine, TestSize.Level1)
+{
+    NWebHelper::Instance().nwebEngine_ = nullptr;
+    EXPECT_EQ(NWebHelper::Instance().SetSiteIsolationMode(SiteIsolationMode::PARTIAL), 0);
+    EXPECT_EQ(NWebHelper::Instance().GetSiteIsolationMode(), SiteIsolationMode::PARTIAL);
+}
+
+/**
+ * @tc.name: NWebHelper_InitWebEngine_Success
+ * @tc.desc: InitWebEngine success path with valid engine and init args.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_InitWebEngine_Success, TestSize.Level1)
+{
+    ApplicationContextMock *contextMock = new ApplicationContextMock();
+    ASSERT_NE(contextMock, nullptr);
+    g_applicationContext.reset(contextMock);
+    EXPECT_CALL(*contextMock, GetBaseDir())
+        .WillRepeatedly(::testing::Return("test_dir"));
+    NWebHelper::Instance().bundlePath_ = "test_bundle";
+
+    auto nwebEngineMock = std::make_shared<MockNWebEngine>();
+    NWebHelper::Instance().nwebEngine_ = nwebEngineMock;
+    NWebHelper::Instance().initFlag_ = false;
+    bool result = NWebHelper::Instance().InitWebEngine();
+    EXPECT_TRUE(result);
+
+    NWebHelper::Instance().initFlag_ = false;
+    NWebHelper::Instance().initWebEngine_ = false;
+    NWebHelper::Instance().nwebEngine_ = nullptr;
+    g_applicationContext.reset();
+}
+
+/**
+ * @tc.name: NWebHelper_SetProxyOverride_Success
+ * @tc.desc: SetProxyOverride success path with valid engine.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_SetProxyOverride_Success, TestSize.Level1)
+{
+    auto nwebEngineMock = std::make_shared<MockNWebEngine>();
+    NWebHelper::Instance().nwebEngine_ = nwebEngineMock;
+    NWebHelper::Instance().initFlag_ = true;
+    std::vector<std::string> proxyUrls = {"http://127.0.0.1:8080"};
+    std::vector<std::string> proxySchemeFilters = {"http", "https"};
+    std::vector<std::string> bypassRules = {"localhost"};
+    bool reverseBypass = false;
+    NWebHelper::Instance().SetProxyOverride(
+        proxyUrls, proxySchemeFilters, bypassRules, reverseBypass, nullptr);
+    EXPECT_NE(NWebHelper::Instance().nwebEngine_, nullptr);
+    NWebHelper::Instance().nwebEngine_ = nullptr;
+    NWebHelper::Instance().initFlag_ = false;
+}
 } // namespace OHOS::NWeb
 }
