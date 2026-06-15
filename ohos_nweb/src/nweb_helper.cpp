@@ -780,8 +780,7 @@ std::shared_ptr<OHOS::NWeb::NWebEngineInitArgs> NWebHelper::GetInitArgs()
 
     NWebAdapterHelper::Instance().ParseConfig(initArgs);
     std::string isDataMigrate = OHOS::ArkWeb::IsDataMigrate(ctx->GetBundleName())? "true" : "false";
-    initArgs->AddArg(std::string("--enable-user-data-dir-separation=").append(isDataMigrate));
-    initArgs->AddArg(std::string("--arkweb-app-data-dir=").append(ctx->GetBaseDir()));
+    initArgs->AddArg(std::string("--enable-cache-data-dir-separation=").append(isDataMigrate));
     initArgs->AddArg(std::string("--user-data-dir=").append(ctx->GetBaseDir()));
     WVLOG_I("user data dir: %{public}s", ctx->GetBaseDir().c_str());
     initArgs->AddArg(std::string("--bundle-installation-dir=").append(bundlePath_));
@@ -1390,7 +1389,7 @@ std::shared_ptr<NWeb> NWebAdapterHelper::CreateNWeb(sptr<Surface> surface,
         NWebConfigHelper::Instance().SetBundleName(bundleName);
         initArgs->AddArg(std::string("--bundle-name=").append(bundleName));
         std::string isDataMigrate = OHOS::ArkWeb::IsDataMigrate(bundleName)? "true" : "false";
-        initArgs->AddArg(std::string("--enable-user-data-dir-separation=").append(isDataMigrate));
+        initArgs->AddArg(std::string("--enable-cache-data-dir-separation=").append(isDataMigrate));
     }
 
     auto nweb = NWebHelper::Instance().CreateNWeb(createInfo);
@@ -1421,7 +1420,7 @@ std::shared_ptr<NWeb> NWebAdapterHelper::CreateNWeb(void* enhanceSurfaceInfo,
         return nullptr;
     }
     std::string isDataMigrate = OHOS::ArkWeb::IsDataMigrate(ctx->GetBundleName())? "true" : "false";
-    initArgs->AddArg(std::string("--enable-user-data-dir-separation=").append(isDataMigrate));
+    initArgs->AddArg(std::string("--enable-cache-data-dir-separation=").append(isDataMigrate));
     initArgs->AddArg(NWebConfigHelper::Instance().GetWebPlayGroundInitArg());
     if (!NWebHelper::Instance().IsAutoPreconnectEnabled()) {
         initArgs->AddArg(std::string("--disable-auto-preconnect"));
