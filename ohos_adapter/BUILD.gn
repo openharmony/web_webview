@@ -201,6 +201,7 @@ ohos_shared_library("nweb_ohos_adapter") {
     "hitrace:hitrace_meter",
     "huks:libhukssdk",
     "i18n:intl_util",
+    "icu:shared_icuuc",
     "image_framework:image_native",
     "imf:inputmethod_client",
     "init:libbeget_proxy",
