@@ -2203,4 +2203,19 @@ void ArkWebNWebWrapper::ExecuteAIPageCommand(
 
     ArkWebStringStructRelease(stCommand);
 }
+
+std::shared_ptr<OHOS::NWeb::NWebAccessibilityNodeInfo> ArkWebNWebWrapper::GetAccessibilityNodeInfoByParams(
+    int64_t accessibility_id, int32_t direction, int32_t element_type,
+    const std::map<std::string, std::string>& params)
+{
+    ArkWebStringMap stParams = ArkWebStringMapClassToStruct(params);
+    ArkWebRefPtr<ArkWebAccessibilityNodeInfo> ark_web_accessibility_node_info =
+        ark_web_nweb_->GetAccessibilityNodeInfoByParams(accessibility_id, direction, element_type, stParams);
+    ArkWebStringMapStructRelease(stParams);
+    if (CHECK_REF_PTR_IS_NULL(ark_web_accessibility_node_info)) {
+        return nullptr;
+    }
+
+    return std::make_shared<ArkWebAccessibilityNodeInfoWrapper>(ark_web_accessibility_node_info);
+}
 } // namespace OHOS::ArkWeb
