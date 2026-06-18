@@ -2598,7 +2598,14 @@ public:
      */
     virtual std::shared_ptr<NWebAccessibilityNodeInfo> GetAccessibilityNodeInfoByParams(
         int64_t accessibilityId, int32_t direction, int32_t elementType,
-        const std::map<std::string, std::string>& params) = 0;
+        const std::map<std::string, std::string>& params)
+    {
+        (void)accessibilityId;
+        (void)direction;
+        (void)elementType;
+        (void)params;
+        return nullptr;
+    }
 };
 } // namespace OHOS::NWeb
 
