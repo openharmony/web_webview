@@ -1756,6 +1756,14 @@ public:
     void SetErrorPageEnabled(bool enable) override;
 
     /**
+     * @brief Set whether enable the error page with iframe support.
+     *
+     * @param enable bool: Whether enable the error page.
+     * @param includeIframe bool: Whether include iframe error page.
+     */
+    void SetErrorPageEnabledWithIframe(bool enable, bool includeIframe) override;
+
+    /**
      * @brief Get whether default error page feature is enabled.
      */
     bool GetErrorPageEnabled() override;

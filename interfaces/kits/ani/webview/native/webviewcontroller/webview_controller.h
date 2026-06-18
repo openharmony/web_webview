@@ -457,6 +457,8 @@ public:
 
     ErrCode SetErrorPageEnabled(bool enable);
 
+    ErrCode SetErrorPageEnabledWithIframe(bool enable, bool includeIframe);
+
     bool GetErrorPageEnabled();
 
     int32_t GetBlanklessInfoWithKey(const std::string& key, double* similarity, int32_t* loadingTime);

@@ -1958,6 +1958,18 @@ public:
     virtual void SetErrorPageEnabled(bool enable) = 0;
 
     /**
+     * @brief Set whether enable the error page with iframe support. onOverrideErrorPage will be triggered when the page error.
+     * When includeIframe is true, iframe custom error page will be enabled. If there is no custom error page from
+     * onOverrideErrorPage, the default arkweb error page will be used. When includeIframe is false, it behaves
+     * the same as the original SetErrorPageEnabled.
+     *
+     * @param enable bool: Whether enable the error page.
+     * @param includeIframe bool: Whether include iframe error page.
+     */
+    /*--ark web()--*/
+    virtual void SetErrorPageEnabledWithIframe(bool enable, bool includeIframe) = 0;
+
+    /**
      * @brief Get whether default error page feature is enabled.
      */
     /*--ark web()--*/

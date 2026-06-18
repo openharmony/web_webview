@@ -7950,13 +7950,13 @@ napi_value NapiWebviewController::SetErrorPageEnabled(napi_env env, napi_callbac
 
     napi_value result = nullptr;
     napi_value thisVar = nullptr;
-    size_t argc = INTEGER_ONE;
-    napi_value argv[INTEGER_ONE] = {0};
+    size_t argc = INTEGER_TWO;
+    napi_value argv[INTEGER_TWO] = {0};
 
     NAPI_CALL(env, napi_get_undefined(env, &result));
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
-    if (argc != INTEGER_ONE) {
-        WVLOG_E("BusinessError: 401. Args count of 'SetErrorPageEnabled' must be 1.");
+    if (argc < INTEGER_ONE || argc > INTEGER_TWO) {
+        WVLOG_E("BusinessError: 401. Args count of 'SetErrorPageEnabled' must be 1 or 2.");
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
         return nullptr;
     }
@@ -7974,7 +7974,20 @@ napi_value NapiWebviewController::SetErrorPageEnabled(napi_env env, napi_callbac
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
-    ErrCode ret = controller->SetErrorPageEnabled(errorPageEnabled);
+
+    ErrCode ret = NO_ERROR;
+    if (argc == INTEGER_ONE) {
+        ret = controller->SetErrorPageEnabled(errorPageEnabled);
+    } else {
+        bool includeIframe = false;
+        if (!NapiParseUtils::ParseBoolean(env, argv[1], includeIframe)) {
+            BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "includeIframe", "boolean"));
+            return nullptr;
+        }
+        ret = controller->SetErrorPageEnabledWithIframe(errorPageEnabled, includeIframe);
+    }
+
     if (ret != NO_ERROR) {
         BusinessError::ThrowErrorByErrcode(env, ret);
         return nullptr;

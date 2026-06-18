@@ -1536,6 +1536,11 @@ void ArkWebNWebImpl::SetErrorPageEnabled(bool enable)
     nweb_nweb_->SetErrorPageEnabled(enable);
 }
 
+void ArkWebNWebImpl::SetErrorPageEnabledWithIframe(bool enable, bool includeIframe)
+{
+    nweb_nweb_->SetErrorPageEnabledWithIframe(enable, includeIframe);
+}
+
 bool ArkWebNWebImpl::GetErrorPageEnabled()
 {
     return nweb_nweb_->GetErrorPageEnabled();

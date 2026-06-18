@@ -6657,6 +6657,32 @@ static void SetErrorPageEnabled(ani_env* env, ani_object object, ani_boolean ani
     }
 }
 
+static void SetErrorPageEnabledWithIframe(ani_env* env, ani_object object, ani_boolean aniEnable, ani_boolean aniIncludeIframe)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_E("SetErrorPageEnabledWithIframe unsupported engine version: M114");
+        return;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    WVLOG_D("SetErrorPageEnabledWithIframe start");
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+
+    bool enable = static_cast<bool>(aniEnable);
+    bool includeIframe = static_cast<bool>(aniIncludeIframe);
+    ErrCode ret = controller->SetErrorPageEnabledWithIframe(enable, includeIframe);
+    if (ret != NO_ERROR) {
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+    }
+}
+
 static ani_boolean GetErrorPageEnabled(ani_env* env, ani_object object)
 {
     if (IS_CALLING_FROM_M114()) {
@@ -7793,6 +7819,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "getCertificateSync", nullptr, reinterpret_cast<void*>(GetCertificateSync) },
         ani_native_function { "jsProxy", nullptr, reinterpret_cast<void *>(InnerJsProxy) },
         ani_native_function { "setErrorPageEnabled", nullptr, reinterpret_cast<void*>(SetErrorPageEnabled) },
+        ani_native_function { "setErrorPageEnabled", "z:", reinterpret_cast<void*>(SetErrorPageEnabledWithIframe) },
         ani_native_function { "getErrorPageEnabled", nullptr, reinterpret_cast<void*>(GetErrorPageEnabled) },
         ani_native_function { "getBlanklessInfoWithKey", nullptr, reinterpret_cast<void*>(GetBlanklessInfoWithKey) },
         ani_native_function { "setBlanklessLoadingWithKey", nullptr,
