@@ -882,6 +882,11 @@ public:
         return 0;
     }
 
+    ErrCode SetErrorPageEnabledWithIframe(bool enable, bool includeIframe)
+    {
+        return 0;
+    }
+
     bool GetErrorPageEnabled()
     {
         return false;
