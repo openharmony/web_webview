@@ -446,6 +446,7 @@ ohos_unittest("web_native_messaging_manager_test") {
 ohos_unittest("ets_web_native_messaging_extension_context_test") {
   module_out_path = "webview/security"
   sources = [ "ets_web_native_messaging_extension_context_test.cpp" ]
+  defines = [ "ani_env=AniEnv" ]
   include_dirs = [
     "${webview_path}/interfaces/kits/ani/webnativemessagingextension/ability/include",
     "${webview_path}/interfaces/kits/ani/webnativemessagingextension/ability/src",
@@ -468,6 +469,48 @@ ohos_unittest("ets_web_native_messaging_extension_context_test") {
     "googletest:gmock_main",
     "googletest:gtest_main",
     "hilog:libhilog",
+  ]
+}
+
+ohos_unittest("ets_web_native_messaging_extension_context_real_test") {
+  module_out_path = "webview/security"
+  sources = [ "${webview_path}/test/unittest/interface_native_test/ets_messaging_real_test/ets_messaging_real_test.cpp" ]
+  include_dirs = [
+    "${webview_path}/test/unittest/interface_native_test/ets_messaging_real_test",
+    "${webview_path}/interfaces/kits/ani/webnativemessagingextension/ability/include",
+    "${webview_path}/interfaces/kits/ani/webnativemessagingextension/ability/src",
+    "${webview_path}/interfaces/kits/ani/webview/src/common",
+  ]
+
+  defines = [
+    "Class_BindNativeMethods=ClassBindNativeMethods",
+    "Class_FindMethod=ClassFindMethod",
+    "Class_FindField=ClassFindField",
+    "Object_New=ObjectNew",
+    "Object_GetField_Long=ObjectGetFieldLong",
+    "Object_GetFieldByName_Long=ObjectGetFieldByNameLong",
+    "Object_SetPropertyByName_Ref=ObjectSetPropertyByNameRef",
+    "Object_CallMethod_Void=ObjectCallMethodVoid",
+    "Object_GetPropertyByName_Ref=ObjectGetPropertyByNameRef",
+    "Promise_New=PromiseNew",
+    "PromiseResolver_Reject=PromiseResolverReject",
+    "PromiseResolver_Resolve=PromiseResolverResolve",
+    "GlobalReference_Create=GlobalReferenceCreate",
+    "PARAM_RESV_FOR_RESULT=paramResvForResult",
+    "ani_env=AniEnv",
+    "ani_native_function=AniNativeFunction",
+  ]
+
+  deps = [
+    "${webview_path}/ohos_nweb:web_configs",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+    "hilog:libhilog",
+    "runtime_core:ani",
   ]
 }
 
@@ -568,6 +611,7 @@ group("unittest") {
     ":arkweb_scheme_handler_test",
     ":connect_native_request_test",
     ":ets_web_native_messaging_extension_context_test",
+    ":ets_web_native_messaging_extension_context_real_test",
     ":native_interface_arkweb_test",
     ":native_javascript_execute_callback_test",
     ":web_native_messaging_extension_context_info_test",
