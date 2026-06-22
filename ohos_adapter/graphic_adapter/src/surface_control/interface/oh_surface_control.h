@@ -73,8 +73,6 @@ public:
         static void SetOnComplete(
             OH_SurfaceTransaction* transaction, void* context, OH_SurfaceTransaction_OnComplete func);
 
-        static void SetOnCommit(OH_SurfaceTransaction* transaction, void* context, OH_SurfaceTransaction_OnCommit func);
-
         // 事务操作
         static void Reparent(
             OH_SurfaceTransaction* transaction, OH_SurfaceControl* surfaceControl, OH_SurfaceControl* newParent);

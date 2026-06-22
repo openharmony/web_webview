@@ -22,6 +22,8 @@
 #include <vector>
 
 #include "surface_control.h"
+#include "ipc_callbacks/rs_delegate_composite_callback.h"
+#include "feature/delegate_composite/rs_delegate_composite_listener.h"
 #include "common/rs_common_def.h"
 
 namespace OHOS {
@@ -43,7 +45,6 @@ private:
 class RSC_EXPORT SurfaceTransaction {
 public:
     using OnCompleteCallback = std::function<void(uint64_t timestamp)>;
-    using OnCommitCallback = std::function<void(SurfaceTransactionStats* state)>;
     using BufferReleaseCallback = SurfaceControl::BufferReleaseCallback;
 
     SurfaceTransaction(OHNativeWindow* nativeWindow);
@@ -51,7 +52,6 @@ public:
 
     void Commit();
     void SetOnComplete(const OnCompleteCallback& callback);
-    void SetOnCommit(const OnCommitCallback& callback);
     void Reparent(SurfaceControl* surfaceControl, SurfaceControl* newParent);
     void SetVisibility(SurfaceControl* surfaceControl, bool visibility);
     void SetZOrder(SurfaceControl* surfaceControl, int32_t zOrder);
@@ -82,10 +82,10 @@ private:
     SurfaceTransaction& operator=(SurfaceTransaction&&) = delete;
     static void OnCompleteCallBack(uint64_t timestamp, uint64_t srcId, std::queue<uint64_t> seqNums);
     OnCompleteCallback onCompleteCallback_;
-    OnCommitCallback onCommitCallback_;
     std::vector<std::function<void()>> transactionCommands_;
     std::vector<std::function<void()>> bufferCommands_;
     std::set<sptr<SurfaceControl>> surfaceControls_;
+    sptr<Rosen::SurfaceTransactionListener> listener_ = nullptr;
     uint64_t seqNum_ = 0;
     std::atomic<uint64_t> commandSeqNum_ = 0;
     std::map<uint64_t, SurfaceTransaction::OnCompleteCallback> onCompleteCallbackMap_;

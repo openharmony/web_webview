@@ -85,20 +85,6 @@ void SurfaceControlUtils::Transaction::SetOnComplete(
     }
 }
 
-void SurfaceControlUtils::Transaction::SetOnCommit(
-    OH_SurfaceTransaction* transaction, void* context, OH_SurfaceTransaction_OnCommit func)
-{
-    auto* txn = reinterpret_cast<SurfaceTransaction*>(transaction);
-    CHECK_NULL_POINTER(txn);
-    if (func) {
-        txn->SetOnCommit([context, func](SurfaceTransactionStats* state) {
-            func(context, reinterpret_cast<OH_SurfaceTransactionStats*>(state));
-        });
-    } else {
-        txn->SetOnCommit({});
-    }
-}
-
 void SurfaceControlUtils::Transaction::Reparent(
     OH_SurfaceTransaction* transaction, OH_SurfaceControl* surfaceControl, OH_SurfaceControl* newParent)
 {

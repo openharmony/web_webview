@@ -47,6 +47,8 @@ public:
     static sptr<SurfaceControl> CreateFromWindow(NativeWindow* window, const char* name);
     static sptr<SurfaceControl> Create(const char* name);
     static std::shared_ptr<OHOS::Rosen::RSUIContext> GetRSUIContext();
+    static void SetConnectToRenderObject(OHOS::sptr<OHOS::IRemoteObject> rsHandle);
+    static OHOS::sptr<OHOS::IRemoteObject> GetConnectToRenderObject();
 
     void SetParent(SurfaceControl* newParent);
     void SetVisibility(bool visibility);
@@ -87,7 +89,6 @@ private:
     static inline std::mutex rsUiContextMutex_;
     static inline OHOS::sptr<OHOS::IRemoteObject> connectToRender_ = nullptr;
     static inline std::shared_ptr<OHOS::Rosen::RSUIDirector> rsUIDirector_ = nullptr;
-    static void SetConnectToRenderObject(OHOS::sptr<OHOS::IRemoteObject> connectToRender);
 };
 } // namespace OHOS::NWeb
 

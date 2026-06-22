@@ -24,6 +24,8 @@
 #include "nweb_log.h"
 #include "surface_transaction_helper.h"
 #include "common/rs_optional_trace.h"
+#include "surface/window.h"
+#include "native_window.h"
 
 using namespace OHOS::Rosen;
 using OHOS::Rosen::RSUIContextManager;
@@ -96,12 +98,54 @@ SurfaceTransaction::SurfaceTransaction(OHNativeWindow* nativeWindow)
 {
     if (nativeWindow == nullptr) {
         WVLOG_E("SurfaceTransaction constructor failed, nativeWindow is nullptr");
+        return;
+    }
+
+    OHOS::sptr<OHOS::Surface> surface = nativeWindow->surface;
+    if (surface == nullptr) {
+        WVLOG_E("Surface is nullptr");
+        return;
+    }
+
+    std::string fetchedRSHandle = surface->GetUserData("delegate_connect_to_render");
+    sptr<IRemoteObject> rsHandle = nullptr;
+    if (!fetchedRSHandle.empty()) {
+        uint64_t handle = static_cast<uint64_t>(std::stoull(fetchedRSHandle));
+        if (handle != 0) {
+            IRemoteObject* rawPtr = reinterpret_cast<IRemoteObject*>(handle);
+            rsHandle = OHOS::sptr<IRemoteObject>(rawPtr);
+            rawPtr->DecStrongRef(nullptr);
+        } else {
+            WVLOG_E("Handle is invalid");
+            return;
+        }
+    } else {
+        WVLOG_E("get fetchedRSHandle fail");
+        return;
+    }
+    if (rsHandle == nullptr) {
+        WVLOG_E("rsHandle is nullptr");
+        return;
+    }
+    SurfaceControl::SetConnectToRenderObject(rsHandle);
+    WVLOG_I("SurfaceTransaction set rsHandle success");
+
+    listener_ = sptr<SurfaceTransactionListener>::MakeSptr(rsHandle);
+    if (listener_) {
+        listener_->RegisterCommandCompleteCallBack(SurfaceTransaction::OnCompleteCallBack);
+    } else {
+        WVLOG_E("Create SurfaceTransactionListener fail");
     }
 }
 
 SurfaceTransaction::~SurfaceTransaction()
 {
     RS_TRACE_NAME_FMT("SurfaceTransaction::~SurfaceTransaction(), seqNum_=%llu", seqNum_);
+    if (listener_) {
+        SurfaceTransactionCallBackHelper::GetInstance().UnRegisterCallBack(listener_->GetUniqueId());
+        listener_->UnRegisterCommandCompleteCallBack();
+        listener_ = nullptr;
+    }
 }
 
 void SurfaceTransaction::Commit()
@@ -113,12 +157,23 @@ void SurfaceTransaction::Commit()
     }
     auto transaction = uiContext->GetRSTransaction();
 
-    RS_TRACE_NAME_FMT("webview:commit: transaction_commandSize:%u buffer_commandSize:%u surface_controlSize:%u, "
-        "transaction=%d", transactionCommands_.size(), bufferCommands_.size(), surfaceControls_.size(),
-        transaction != nullptr);
-    
-    ScopedTransaction scopedTransaction;
+    RS_TRACE_NAME_FMT("transactionCommands size:%u, bufferCommands size:%u, surfaceControls size:%u, transaction=%d",
+        transactionCommands_.size(), bufferCommands_.size(), surfaceControls_.size(), transaction != nullptr);
 
+    ScopedTransaction scopedTransaction;
+    if (listener_) {
+        uint64_t seqNum = 0;
+        std::unique_ptr<OHOS::Rosen::RSCommand> cmd = listener_->GetCommand(seqNum);
+        if (cmd) {
+            scopedTransaction.AddCommand(std::move(cmd));
+            SurfaceTransactionCallBackHelper::GetInstance().RegisterCallBack(
+                listener_->GetUniqueId(), seqNum, onCompleteCallback_);
+        } else {
+            WVLOG_E("GetCommand fail");
+        }
+    } else {
+        WVLOG_E("SurfaceTransaction:: Commit fail, Listener is nullptr");
+    }
     for (auto& command : transactionCommands_) {
         command();
     }
@@ -136,11 +191,6 @@ void SurfaceTransaction::SetOnComplete(const OnCompleteCallback& callback)
     onCompleteCallback_ = callback;
 }
 
-void SurfaceTransaction::SetOnCommit(const OnCommitCallback& callback)
-{
-    onCommitCallback_ = callback;
-}
-
 void SurfaceTransaction::Reparent(SurfaceControl* surfaceControl, SurfaceControl* newParent)
 {
     if (!surfaceControl) {
@@ -153,7 +203,9 @@ void SurfaceTransaction::Reparent(SurfaceControl* surfaceControl, SurfaceControl
 
     transactionCommands_.push_back(
         [surface = sptr<SurfaceControl>(surfaceControl), parent = sptr<SurfaceControl>(newParent)] {
-            surface->SetParent(parent.GetRefPtr());
+            if (surface) {
+                surface->SetParent(parent.GetRefPtr());
+            }
         });
 }
 
