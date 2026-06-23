@@ -98,6 +98,20 @@ std::string ArkWebCookieManagerWrapper::ReturnCookie(const std::string& url, boo
     return objCookie;
 }
 
+std::string ArkWebCookieManagerWrapper::ReturnCookie(const std::string& url, bool& is_valid, bool incognito_mode,
+    bool includePartitionedCookies)
+{
+    ArkWebString stUrl = ArkWebStringClassToStruct(url);
+
+    ArkWebString stCookie = ark_web_cookie_manager_->ReturnCookie(stUrl, is_valid, incognito_mode,
+        includePartitionedCookies);
+
+    std::string objCookie = ArkWebStringStructToClass(stCookie);
+    ArkWebStringStructRelease(stUrl);
+    ArkWebStringStructRelease(stCookie);
+    return objCookie;
+}
+
 void ArkWebCookieManagerWrapper::ReturnCookie(
     const std::string& url, std::shared_ptr<OHOS::NWeb::NWebStringValueCallback> callback)
 {
@@ -200,6 +214,21 @@ void ArkWebCookieManagerWrapper::GetCookieAsync(
         ark_web_cookie_manager_->GetCookieAsync(stUrl, incognitoMode, nullptr);
     } else {
         ark_web_cookie_manager_->GetCookieAsync(stUrl, incognitoMode, new ArkWebStringValueCallbackImpl(callback));
+    }
+
+    ArkWebStringStructRelease(stUrl);
+}
+
+void ArkWebCookieManagerWrapper::GetCookieAsync(const std::string& url, bool incognitoMode,
+    bool includePartitionedCookies, std::shared_ptr<OHOS::NWeb::NWebStringValueCallback> callback)
+{
+    ArkWebString stUrl = ArkWebStringClassToStruct(url);
+
+    if (CHECK_SHARED_PTR_IS_NULL(callback)) {
+        ark_web_cookie_manager_->GetCookieAsync(stUrl, incognitoMode, includePartitionedCookies, nullptr);
+    } else {
+        ark_web_cookie_manager_->GetCookieAsync(stUrl, incognitoMode,
+            includePartitionedCookies, new ArkWebStringValueCallbackImpl(callback));
     }
 
     ArkWebStringStructRelease(stUrl);

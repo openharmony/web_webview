@@ -1645,6 +1645,7 @@ export default namespace webview {
         }
 
         native static fetchCookieSync(url: string, incognito?: boolean): string;
+        native static fetchCookieSync(url: string, incognito?: boolean, includePartitionedCookies?: boolean): string;
         static fetchCookie(url: string): Promise<string> {
             let pPromise = new Promise<string>((resolve: (v: string) => void, reject: (error: Error) => void) => {
                 let pPromise1 = taskpool.execute((): string => {
@@ -1701,6 +1702,21 @@ export default namespace webview {
             let pPromise = new Promise<string>((resolve: (v: string) => void, reject: (error: Error) => void) => {
                 let pPromise1 = taskpool.execute((): string => {
                     return WebCookieManager.fetchCookieSync(url, incognito);
+                });
+                pPromise1.then((e: Any) => {
+                    let r: string = e as string;
+                    resolve(r);
+                }, (error: Error): void => {
+                    reject(error);
+                });
+            });
+            return pPromise;
+        }
+
+        static fetchCookie(url: string, incognito: boolean, includePartitionedCookies: boolean): Promise<string> {
+            let pPromise = new Promise<string>((resolve: (v: string) => void, reject: (error: Error) => void) => {
+                let pPromise1 = taskpool.execute((): string => {
+                    return WebCookieManager.fetchCookieSync(url, incognito, includePartitionedCookies);
                 });
                 pPromise1.then((e: Any) => {
                     let r: string = e as string;

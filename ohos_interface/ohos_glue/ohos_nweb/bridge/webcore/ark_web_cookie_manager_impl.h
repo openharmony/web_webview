@@ -195,6 +195,12 @@ public:
 
     ArkWebCookieVector GetAllCookies(bool incognitoMode) override;
 
+    ArkWebString ReturnCookie(const ArkWebString& url, bool& is_valid, bool incognito_mode,
+        bool includePartitionedCookies) override;
+
+    void GetCookieAsync(const ArkWebString& url, bool incognitoMode,
+        bool includePartitionedCookies, ArkWebRefPtr<ArkWebStringValueCallback> callback) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebCookieManager> nweb_cookie_manager_;
 };
