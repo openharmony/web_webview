@@ -130,6 +130,10 @@ public:
 
     ArkWebRefPtr<ArkBackgroundTaskAdapter> CreateBackgroundTaskAdapter() override;
 
+    ArkWebRefPtr<ArkSurfaceControlAdapter> GetSurfaceControlAdapter() override;
+
+    ArkWebRefPtr<ArkSurfaceTransactionAdapter> GetSurfaceTransactionAdapter() override;
+
 private:
     NWeb::OhosAdapterHelper& real_;
 

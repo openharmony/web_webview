@@ -109,6 +109,7 @@ action("webview_interface_prepare") {
     "//base/web/webview/ohos_interface/include/ohos_adapter/ohos_init_web_adapter.h",
     "//base/web/webview/ohos_interface/include/ohos_adapter/ohos_adapter_helper.h",
     "//base/web/webview/ohos_interface/include/ohos_adapter/graphic_adapter.h",
+    "//base/web/webview/ohos_interface/include/ohos_adapter/surface_control_adapter.h",
     "//base/web/webview/ohos_interface/include/ohos_adapter/hisysevent_adapter.h",
     "//base/web/webview/ohos_interface/include/ohos_adapter/event_handler_adapter.h",
     "//base/web/webview/ohos_interface/include/ohos_adapter/media_codec_adapter.h",

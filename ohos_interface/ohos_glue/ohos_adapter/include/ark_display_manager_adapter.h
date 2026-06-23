@@ -241,6 +241,13 @@ public:
      */
     /*--ark web()--*/
     virtual ArkDisplayAdapterVector GetAllDisplays() = 0;
+
+    /**
+     * @Description: Check and set single display.
+     * @Return: Is single display.
+     */
+    /*--ark web()--*/
+    virtual bool IsSinglePhysicalDisplayForFold() = 0;
 };
 
 } // namespace OHOS::ArkWeb
