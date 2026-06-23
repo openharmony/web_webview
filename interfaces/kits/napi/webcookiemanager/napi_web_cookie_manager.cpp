@@ -140,8 +140,8 @@ void FetchCookieAsyncCallback(napi_env env, napi_ref jsCallback, std::string url
     }
 }
 
-void FetchCookieAsyncPromise(napi_env env, napi_deferred deferred, std::string url, bool incognitoMode
-    , bool includePartitionedCookies)
+void FetchCookieAsyncPromise(napi_env env, size_t argc, napi_deferred deferred, std::string url,
+    bool incognitoMode, bool includePartitionedCookies)
 {
     std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
         OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
@@ -149,7 +149,7 @@ void FetchCookieAsyncPromise(napi_env env, napi_deferred deferred, std::string u
         napi_value jsResult = nullptr;
         napi_get_undefined(env, &jsResult);
         napi_reject_deferred(env, deferred, jsResult);
-    } else if (!includePartitionedCookies)  {
+    } else if (argc <= INTEGER_TWO)  {
         auto callbackImpl = std::make_shared<OHOS::NWeb::NWebFetchCookieCallbackImpl>(env, nullptr, deferred);
         cookieManager->GetCookieAsync(url, incognitoMode, callbackImpl);
     } else {
@@ -214,7 +214,7 @@ napi_value NapiWebCookieManager::JsFetchCookieAsync(napi_env env, napi_callback_
     napi_value promise = nullptr;
     napi_create_promise(env, &deferred, &promise);
     if (promise && deferred) {
-        FetchCookieAsyncPromise(env, deferred, url, incognitoMode, includePartitionedCookies);
+        FetchCookieAsyncPromise(env, argc, deferred, url, incognitoMode, includePartitionedCookies);
     }
     return promise;
 }
