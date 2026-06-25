@@ -624,7 +624,7 @@ class XComponentDialog extends ViewPU {
       this.windowSizeWidth = px2vp(displayData.width);
       this.isPortrait = this.windowSizeHeight > this.windowSizeWidth;
     } catch (err) {
-      console.error(`[FullscreenVideoOverlay] getDefaultDisplaySync failed: ${err}`);
+      console.error(`[FullscreenVideoOverlay] getDefaultDisplaySync failed`);
     }
   }
 
