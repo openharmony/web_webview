@@ -16,8 +16,8 @@
 #include <cstdarg>
 #include "surface_control_adapter_impl.h"
 
-#include "foundation/graphic/graphic_surface/interfaces/inner_api/surface/window.h"
-#include "foundation/graphic/graphic_surface/surface/include/native_window.h"
+#include "surface/window.h"
+#include "native_window.h"
 #include "nweb_log.h"
 #include "surface_control/interface/oh_surface_control.h"
 
