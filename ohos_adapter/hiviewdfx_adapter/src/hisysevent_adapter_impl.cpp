@@ -21,6 +21,7 @@
 #include "arkweb_utils.h"
 #include "parameters.h"
 
+
 namespace OHOS::NWeb {
 namespace {
 const HiviewDFX::HiSysEvent::EventType EVENT_TYPES[] = {
@@ -53,7 +54,7 @@ int64_t GetValueInt64(const std::string& input, const std::string& key1, const s
 {
     long long result = 0;
     std::string key = "";
-    if(key2 == key) {
+    if (key2 == key) {
         std::string::size_type keyPosition1 = input.find(key1, 0);
         if (keyPosition1 != std::string::npos) {
             std::string waitConvertString = input.substr(keyPosition1 + key1.size());
@@ -76,7 +77,7 @@ int64_t GetValueInt64(const std::string& input, const std::string& key1, const s
     return -1;
 }
 
-const static std::string PAGE_LOAD_KEY_LISTS[] = {
+const static std::string  PAGE_LOAD_KEY_LISTS[] = {
     "NAVIGATION_ID",
     "NAVIGATION_START",
     "REDIRECT_COUNT",
@@ -229,7 +230,6 @@ int ProcessEventFirstMeaningfulPaintDone(const std::string& eventName, HiSysEven
     };
 
     const std::string input = std::get<0>(data);
-
     const std::int64_t value1 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[0], PAGE_LOAD_KEY_LISTS[1]);
     const std::int64_t value2 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[1], PAGE_LOAD_KEY_LISTS[2]);
     const std::uint32_t value3 = (uint32_t)GetValueInt64(input, PAGE_LOAD_KEY_LISTS[2], PAGE_LOAD_KEY_LISTS[24]);
