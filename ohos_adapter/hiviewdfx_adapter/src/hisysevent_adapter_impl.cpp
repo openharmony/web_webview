@@ -261,17 +261,6 @@ int HiSysEventAdapterImpl::Write(const std::string& eventName, EventType type,
         int result = ProcessEventFirstMeaningfulPaintDone(eventName, type, data);
         return result;
     }
-#ifdef ARKWEB_HISTOGRAM_METRICS_ENABLE
-    if (eventName == "UMA_METRICS_LOG_UPLOAD") {
-        auto sysData = std::make_tuple("HISTOGRAM_TYPE", "arkweb.histogram.uma",
-            "HISTOGRAM_CONTENT", std::get<1>(data));
-        return ForwardToHiSysEvent("HISTOGRAM_UMA_UKM", type, sysData);
-    } else if (eventName == "UKM_METRICS_LOG_UPLOAD") {
-        auto sysData = std::make_tuple("HISTOGRAM_TYPE", "arkweb.histogram.ukm",
-            "HISTOGRAM_CONTENT", std::get<1>(data));
-        return ForwardToHiSysEvent("HISTOGRAM_UMA_UKM", type, sysData);
-    }
-#endif
     return ForwardToHiSysEvent(eventName, type, data);
 }
 
