@@ -274,7 +274,6 @@ public:
     /*--ark web()--*/
     virtual void GetCookieAsync(const ArkWebString& url, bool incognitoMode,
         bool includePartitionedCookies, ArkWebRefPtr<ArkWebStringValueCallback> callback) = 0;
-
 };
 
 } // namespace OHOS::ArkWeb

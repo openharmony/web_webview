@@ -447,6 +447,36 @@ static void JsPutAcceptThirdPartyCookieEnabled(ani_env* env, ani_object aniClass
     return;
 }
 
+static bool JsFetchCookieSyncParseParam(ani_env *env, ani_string url, ani_object incognito,
+    std::string& urlStr, bool& incognitoMode)
+{
+    ani_boolean isUndefined = ANI_TRUE;
+    env->Reference_IsUndefined(url, &isUndefined);
+    if (isUndefined == ANI_TRUE) {
+        WVLOG_E("url is undefined");
+        return false;
+    }
+    if (!AniParseUtils::ParseString(env, url, urlStr)) {
+        WVLOG_E("Parse url failed.");
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "url", "string"));
+        return false;
+    }
+
+    isUndefined = ANI_TRUE;
+    env->Reference_IsUndefined(incognito, &isUndefined);
+    if (isUndefined != ANI_TRUE) {
+        ani_boolean bIncognito = ANI_FALSE;
+        if (env->Object_CallMethodByName_Boolean(incognito, "toBoolean", ":z", &bIncognito) != ANI_OK) {
+            AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
+            return false;
+        }
+        incognitoMode = static_cast<bool>(bIncognito);
+    }
+    return true;
+}
+
 static ani_string JsFetchCookieSync(ani_env *env, ani_object aniClass, ani_string url, ani_object incognito)
 {
     WVLOG_D("[COOKIE] JsFetchCookieSync.");
@@ -455,31 +485,10 @@ static ani_string JsFetchCookieSync(ani_env *env, ani_object aniClass, ani_strin
         WVLOG_E("env is nullptr");
         return result;
     }
-    ani_boolean isUndefined = ANI_TRUE;
-    env->Reference_IsUndefined(url, &isUndefined);
-    if (isUndefined == ANI_TRUE) {
-        WVLOG_E("is undefined");
-        return result;
-    }
     std::string urlStr;
-    if (!AniParseUtils::ParseString(env, url, urlStr)) {
-        WVLOG_E("Parse url failed.");
-        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "url", "string"));
-        return result;
-    }
-
     bool incognitoMode = false;
-    isUndefined = ANI_TRUE;
-    env->Reference_IsUndefined(incognito, &isUndefined);
-    if (isUndefined != ANI_TRUE) {
-        ani_boolean bIncognito;
-        if (env->Object_CallMethodByName_Boolean(incognito, "toBoolean", ":z", &bIncognito) != ANI_OK) {
-            AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
-            return result;
-        }
-        incognitoMode = static_cast<bool>(bIncognito);
+    if (!JsFetchCookieSyncParseParam(env, url, incognito, urlStr, incognitoMode)) {
+        return result;
     }
 
     std::string cookieContent = "";
@@ -498,48 +507,28 @@ static ani_string JsFetchCookieSync(ani_env *env, ani_object aniClass, ani_strin
     return result;
 }
 
-static ani_string JsFetchCookieSyncIncludePartitioned(ani_env *env, ani_object aniClass, ani_string url, ani_object incognito,
-    ani_object includePartitioned)
+static ani_string JsFetchCookieSyncIncludePartitioned(ani_env *env, ani_object aniClass, ani_string url,
+    ani_object incognito, ani_object includePartitioned)
 {
+    WVLOG_D("[COOKIE] JsFetchCookieSyncIncludePartitioned.");
     ani_string result = {};
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return result;
     }
-    ani_boolean isUndefined = ANI_TRUE;
-    env->Reference_IsUndefined(url, &isUndefined);
-    if (isUndefined == ANI_TRUE) {
-        WVLOG_E("is undefined");
-        return result;
-    }
     std::string urlStr;
-    if (!AniParseUtils::ParseString(env, url, urlStr)) {
-        WVLOG_E("Parse url failed.");
-        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "url", "string"));
-        return result;
-    }
-
     bool incognitoMode = false;
-    isUndefined = ANI_TRUE;
-    env->Reference_IsUndefined(incognito, &isUndefined);
-    if (isUndefined != ANI_TRUE) {
-        ani_boolean bIncognito = ANI_FALSE;
-        if (env->Object_CallMethodByName_Boolean(incognito, "toBoolean", ":z", &bIncognito) != ANI_OK) {
-            AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
-            return result;
-        }
-        incognitoMode = static_cast<bool>(bIncognito);
+    if (!JsFetchCookieSyncParseParam(env, url, incognito, urlStr, incognitoMode)) {
+        return result;
     }
 
     bool includePartitionedCookies = false;
-    isUndefined = ANI_TRUE;
+    ani_boolean isUndefined = ANI_TRUE;
     env->Reference_IsUndefined(includePartitioned, &isUndefined);
     if (isUndefined != ANI_TRUE) {
         ani_boolean bIncludePartitioned = ANI_FALSE;
         if (env->Object_CallMethodByName_Boolean(
-                includePartitioned, "toBoolean", ":z", &bIncludePartitioned) != ANI_OK) {
+            includePartitioned, "toBoolean", ":z", &bIncludePartitioned) != ANI_OK) {
             AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
                 NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR,
                     "includePartitionedCookies", "boolean"));
