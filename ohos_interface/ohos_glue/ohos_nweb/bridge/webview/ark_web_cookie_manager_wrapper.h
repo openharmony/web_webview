@@ -220,7 +220,7 @@ public:
 
     std::vector<std::shared_ptr<OHOS::NWeb::NWebCookie>> GetAllCookies(bool incognitoMode) override;
 
-    std::string ReturnCookie(const std::string& url, bool& is_valid, bool incognito_mode,
+    std::string ReturnCookie(const std::string& url, bool& is_valid, bool incognitoMode,
         bool includePartitionedCookies) override;
 
     void GetCookieAsync(const std::string& url, bool incognitoMode,
