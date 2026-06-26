@@ -519,9 +519,9 @@ class XComponentDialog extends ViewPU {
       this.__state = new ObservedPropertyObjectPU(new VideoPlayerState(), this, "state");
       this.addProvidedVar("state", this.__state, false);
       this.__adaptPadding = new ObservedPropertySimplePU(16, this, "adaptPadding");
-      this.__windowSizeHeight = new ObservedPropertySimplePU(px2vp(display.getDefaultDisplaySync().height), this, "windowSizeHeight");
-      this.__windowSizeWidth = new ObservedPropertySimplePU(px2vp(display.getDefaultDisplaySync().width), this, "windowSizeWidth");
-      this.__isPortrait = new ObservedPropertySimplePU(this.windowSizeHeight > this.windowSizeWidth, this, "isPortrait");
+      this.__windowSizeHeight = new ObservedPropertySimplePU(0, this, "windowSizeHeight");
+      this.__windowSizeWidth = new ObservedPropertySimplePU(0, this, "windowSizeWidth");
+      this.__isPortrait = new ObservedPropertySimplePU(false, this, "isPortrait");
       this.controller = undefined;
       this.xComponentController = new XComponentController();
       this.setInitiallyProvidedValue(params);
@@ -612,8 +612,20 @@ class XComponentDialog extends ViewPU {
   }
 
   aboutToAppear() {
+    this.readDisplaySize();
     this.initState();
     this.logic.showBars();
+  }
+
+  readDisplaySize() {
+    try {
+      let displayData = display.getDefaultDisplaySync();
+      this.windowSizeHeight = px2vp(displayData.height);
+      this.windowSizeWidth = px2vp(displayData.width);
+      this.isPortrait = this.windowSizeHeight > this.windowSizeWidth;
+    } catch (err) {
+      console.error(`[FullscreenVideoOverlay] getDefaultDisplaySync failed`);
+    }
   }
 
   initialRender() {
@@ -2340,6 +2352,9 @@ class VideoGestureManager {
      * @param width The width of the playback container.
      */
     gestureUpdate(offsetX, width) {
+      if (width <= 0) {
+        return;
+      }
       const minReference = 120;
       const DAMPING = this._state.totalSecond <= minReference ? 0.2 : 0.4;
       const referenceDuration = Math.max(this._state.totalSecond, minReference);
