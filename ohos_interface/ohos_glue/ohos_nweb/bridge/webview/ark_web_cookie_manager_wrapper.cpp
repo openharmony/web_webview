@@ -98,12 +98,12 @@ std::string ArkWebCookieManagerWrapper::ReturnCookie(const std::string& url, boo
     return objCookie;
 }
 
-std::string ArkWebCookieManagerWrapper::ReturnCookie(const std::string& url, bool& is_valid, bool incognito_mode,
+std::string ArkWebCookieManagerWrapper::ReturnCookie(const std::string& url, bool& isValid, bool incognitoMode,
     bool includePartitionedCookies)
 {
     ArkWebString stUrl = ArkWebStringClassToStruct(url);
 
-    ArkWebString stCookie = ark_web_cookie_manager_->ReturnCookie(stUrl, is_valid, incognito_mode,
+    ArkWebString stCookie = ark_web_cookie_manager_->ReturnCookie(stUrl, isValid, incognitoMode,
         includePartitionedCookies);
 
     std::string objCookie = ArkWebStringStructToClass(stCookie);

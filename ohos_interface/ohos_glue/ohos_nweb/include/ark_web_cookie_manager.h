@@ -253,6 +253,7 @@ public:
      * @brief Gets all the cookies for the given URL. This is sync method
      *
      * @param url the URL for which the cookies are requested.
+     * @param isValid true if the returned cookie is valid, false otherwise.
      * @param incognitoMode true if web is in the incognito mode, false
      *        otherwise.
      * @param includePartitionedCookies If true, allows fetching first-party partitioned cookies.
@@ -260,7 +261,7 @@ public:
      * @return the cookie value for given URL.
      */
     /*--ark web()--*/
-    virtual ArkWebString ReturnCookie(const ArkWebString& url, bool& is_valid, bool incognitoMode,
+    virtual ArkWebString ReturnCookie(const ArkWebString& url, bool& isValid, bool incognitoMode,
         bool includePartitionedCookies) = 0;
 
     /**

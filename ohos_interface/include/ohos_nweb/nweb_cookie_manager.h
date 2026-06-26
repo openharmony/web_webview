@@ -242,12 +242,12 @@ public:
      * @brief Gets all the cookies for the given URL. This is sync method
      *
      * @param url the URL for which the cookies are requested.
-     * @param value the cookie as a string, using the format of the 'Set-Cookie' HTTP response header.
-     * @param incognito_mode true if web is in the incognito mode, false otherwise.
-     * @param includePartitionedCookies - If true, allows fetching first-party partitioned cookies.
+     * @param isValid true if the returned cookie is valid, false otherwise.
+     * @param incognitoMode true if web is in the incognito mode, false otherwise.
+     * @param includePartitionedCookies If true, allows fetching first-party partitioned cookies.
      * @return the cookie value for given URL.
      */
-    virtual std::string ReturnCookie(const std::string& url, bool& is_valid, bool incognito_mode,
+    virtual std::string ReturnCookie(const std::string& url, bool& isValid, bool incognitoMode,
         bool includePartitionedCookies) { return std::string(); }
 
     /**

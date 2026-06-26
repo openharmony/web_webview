@@ -82,11 +82,11 @@ ArkWebString ArkWebCookieManagerImpl::ReturnCookie(const ArkWebString& url, bool
         nweb_cookie_manager_->ReturnCookie(ArkWebStringStructToClass(url), is_valid, incognito_mode));
 }
 
-ArkWebString ArkWebCookieManagerImpl::ReturnCookie(const ArkWebString& url, bool& is_valid, bool incognito_mode,
+ArkWebString ArkWebCookieManagerImpl::ReturnCookie(const ArkWebString& url, bool& isValid, bool incognitoMode,
     bool includePartitionedCookies)
 {
     return ArkWebStringClassToStruct(nweb_cookie_manager_->ReturnCookie(
-        ArkWebStringStructToClass(url), is_valid, incognito_mode, includePartitionedCookies));
+        ArkWebStringStructToClass(url), isValid, incognitoMode, includePartitionedCookies));
 }
 
 void ArkWebCookieManagerImpl::ReturnCookie(const ArkWebString& url, ArkWebRefPtr<ArkWebStringValueCallback> callback)
