@@ -23,6 +23,15 @@ config("web_ex_cfg") {
 }
 
 ohos_source_set("connect_info") {
+    sanitize = {
+        cfi = true
+        cfi_cross_dso = true
+        cfi_vcall_icall_only = true
+        debug = false
+    }
+    if (target_cpu == "arm64") {
+        branch_protector_ret = "pac_ret"
+    }
     include_dirs = [
         "include",
         "../../../../../ohos_nweb/include",
