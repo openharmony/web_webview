@@ -157,6 +157,28 @@ bool IsJsonObjectCommand(const std::string& command)
     return !commandJson.is_discarded() && commandJson.is_object();
 }
 
+bool ResolveEmptyStringPromiseIfCallingFromM132(ani_env* env, ani_resolver resolver, const char* funcName)
+{
+    if (!IS_CALLING_FROM_M132()) {
+        return false;
+    }
+
+    OHOS::ArkWeb::LogForUnsupportedFunc(OHOS::ArkWeb::ArkWebEngineVersion::M132, funcName);
+    ani_string stringValue = nullptr;
+    if (env->String_NewUTF8("", 0, &stringValue) != ANI_OK) {
+        WVLOG_E("String_NewUTF8 failed");
+        ani_ref jsError = NWebError::AniBusinessError::CreateError(env, NWebError::INIT_ERROR);
+        if (env->PromiseResolver_Reject(resolver, reinterpret_cast<ani_error>(jsError)) != ANI_OK) {
+            WVLOG_E("PromiseResolver_Reject failed");
+        }
+        return true;
+    }
+    if (env->PromiseResolver_Resolve(resolver, static_cast<ani_ref>(stringValue)) != ANI_OK) {
+        WVLOG_E("PromiseResolver_Resolve failed");
+    }
+    return true;
+}
+
 struct PDFMarginConfig {
     double top = TEN_MILLIMETER_TO_INCH;
     double bottom = TEN_MILLIMETER_TO_INCH;
@@ -5772,6 +5794,10 @@ static ani_object ExecuteAIPageCommand(ani_env* env, ani_object object, ani_obje
     if (env->Promise_New(&resolver, &promise) != ANI_OK) {
         WVLOG_E("create promise object error");
         return nullptr;
+    }
+
+    if (ResolveEmptyStringPromiseIfCallingFromM132(env, resolver, __func__)) {
+        return promise;
     }
 
     auto nweb = NWebHelper::Instance().GetNWeb(controller->GetNWebId());
