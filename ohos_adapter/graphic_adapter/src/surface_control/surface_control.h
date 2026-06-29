@@ -21,7 +21,7 @@
 #include <refbase.h>
 #include <vector>
 #include <mutex>
-#include "commonlibrary/c_utils/base/include/unique_fd.h"
+#include "unique_fd.h"
 #include "surface_type.h"
 #include "common/rs_common_def.h"
 #include "surface_buffer.h"
