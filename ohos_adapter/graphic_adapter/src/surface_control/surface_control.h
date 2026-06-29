@@ -21,13 +21,15 @@
 #include <refbase.h>
 #include <vector>
 #include <mutex>
-#include "unique_fd.h"
-#include "surface_type.h"
+
 #include "common/rs_common_def.h"
+#include "rs_trace.h"
 #include "surface_buffer.h"
+#include "surface_type.h"
 #include "transaction/rs_render_service_client.h"
 #include "ui/rs_surface_node.h"
 #include "ui/rs_ui_director.h"
+#include "unique_fd.h"
 
 struct NativeWindow;
 namespace OHOS {
@@ -75,7 +77,7 @@ public:
 
 private:
     SurfaceControl(std::shared_ptr<OHOS::Rosen::RSSurfaceNode> surfaceNode,
-        std::shared_ptr<OHOS::Rosen::RSNode> parentNode);
+        std::shared_ptr<OHOS::Rosen::RSNode> parentNode, bool isRootSurface);
     ~SurfaceControl() override;
 
     SurfaceControl(const SurfaceControl&) = delete;
@@ -85,6 +87,7 @@ private:
 
     std::shared_ptr<OHOS::Rosen::RSSurfaceNode> surfaceNode_ = nullptr;
     std::shared_ptr<OHOS::Rosen::RSNode> parentNode_ = nullptr;
+    bool isRootSurface_ = false;
 
     static inline std::mutex rsUiContextMutex_;
     static inline OHOS::sptr<OHOS::IRemoteObject> connectToRender_ = nullptr;

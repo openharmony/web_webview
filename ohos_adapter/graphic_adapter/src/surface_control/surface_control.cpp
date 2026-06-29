@@ -18,9 +18,9 @@
 #include <iostream>
 #include <mutex>
 #include "surface_buffer.h"
+#include "surface_transaction.h"
 #include "surface/window.h"
 #include "native_window.h"
-#include "rs_trace.h"
 #include "nweb_log.h"
 #include "transaction/rs_interfaces.h"
 #include "ui/rs_display_node.h"
@@ -45,11 +45,11 @@ namespace {
     } while (0)
 
 #define API_COMPATIBLE_VERSION 18 // compatible with RS version 1.8, set by surface node
-class RSSurfaceNodeReleaseBufferWoker {
+class RSSurfaceNodeReleaseBufferWorker {
 public:
-    static std::shared_ptr<RSSurfaceNodeReleaseBufferWoker> GetInstance();
-    explicit RSSurfaceNodeReleaseBufferWoker(OHOS::sptr<OHOS::IRemoteObject> connectToRender);
-    ~RSSurfaceNodeReleaseBufferWoker();
+    static std::shared_ptr<RSSurfaceNodeReleaseBufferWorker> GetInstance();
+    explicit RSSurfaceNodeReleaseBufferWorker(OHOS::sptr<OHOS::IRemoteObject> connectToRender);
+    ~RSSurfaceNodeReleaseBufferWorker();
 
     void RegisterNode(std::shared_ptr<Rosen::RSSurfaceNode> nodePtr);
     void UnRegisterNode(std::shared_ptr<Rosen::RSSurfaceNode> nodePtr);
@@ -102,34 +102,6 @@ uint32_t ToARGB(float red, float green, float blue, float alpha)
            static_cast<uint32_t>(green * channelMax) << greenShift |
            static_cast<uint32_t>(blue * channelMax) << blueShift;
 }
-
-class ScopedTransaction {
-public:
-    ScopedTransaction()
-    {
-        auto uiContext = SurfaceControl::GetRSUIContext();
-        if (uiContext) {
-            transaction_ = uiContext->GetRSTransaction();
-            if (transaction_) {
-                transaction_->Begin();
-            } else {
-                WVLOG_E("Transaction is nullptr");
-            }
-        } else {
-            WVLOG_E("UIContext is nullptr");
-        }
-    }
-
-    ~ScopedTransaction()
-    {
-        if (transaction_) {
-            transaction_->Commit();
-        }
-    }
-
-private:
-    std::shared_ptr<RSTransactionHandler> transaction_;
-};
 } // namespace
 
 std::shared_ptr<OHOS::Rosen::RSUIContext> SurfaceControl::GetRSUIContext()
@@ -177,18 +149,18 @@ sptr<SurfaceControl> SurfaceControl::CreateFromWindow(NativeWindow* window, cons
 
     auto uiContext = SurfaceControl::GetRSUIContext();
     if (!uiContext) {
-        WVLOG_E("UIContext is nullptr.");
+        WVLOG_E("DelegateModeDebugTag UIContext is nullptr");
         return nullptr;
     }
 
     auto parentNode = uiContext->GetNodeMap().GetNode(nodeId);
     if (!parentNode) {
-        WVLOG_E("ParentNode is nullptr, reCreate in nodeId=[%{public}" PRIu64 "]", nodeId);
+        WVLOG_E("DelegateModeDebugTag ParentNode is nullptr, reCreate in nodeId=[%{public}" PRIu64 "]", nodeId);
         parentNode = Rosen::RSProxyNode::Create(nodeId, "root_proxy", uiContext);
     }
 
     if (!parentNode) {
-        WVLOG_E("Recreate parent failed");
+        WVLOG_E("DelegateModeDebugTag recreate parent failed");
         return nullptr;
     }
 
@@ -199,7 +171,7 @@ sptr<SurfaceControl> SurfaceControl::CreateFromWindow(NativeWindow* window, cons
     }
     parentNode->OHOS::Rosen::RSNode::AddChild(surfaceNode, -1);
     WVLOG_I("CreateFromWindow success, nodeId: %{public}" PRIu64, nodeId);
-    return new SurfaceControl(std::move(surfaceNode), std::move(parentNode));
+    return new SurfaceControl(std::move(surfaceNode), std::move(parentNode), true);
 }
 
 sptr<SurfaceControl> SurfaceControl::Create(const char* name)
@@ -207,42 +179,38 @@ sptr<SurfaceControl> SurfaceControl::Create(const char* name)
     ScopedTransaction scopedTransaction;
     auto uiContext = SurfaceControl::GetRSUIContext();
     if (!uiContext) {
-        WVLOG_E("UIContext is nullptr.");
+        WVLOG_E("DelegateModeDebugTag UIContext is nullptr");
         return nullptr;
     }
     auto surfaceNode = CreateSurfaceNode(name, uiContext, RSSurfaceNodeType::SELF_DRAWING_NODE, false);
-    return new SurfaceControl(std::move(surfaceNode), std::shared_ptr<OHOS::Rosen::RSNode>());
+    return new SurfaceControl(std::move(surfaceNode), std::shared_ptr<OHOS::Rosen::RSNode>(), false);
 }
 
-SurfaceControl::SurfaceControl(
-    std::shared_ptr<Rosen::RSSurfaceNode> surfaceNode, std::shared_ptr<OHOS::Rosen::RSNode> parentNode)
-    : surfaceNode_(std::move(surfaceNode)), parentNode_(std::move(parentNode))
+SurfaceControl::SurfaceControl(std::shared_ptr<Rosen::RSSurfaceNode> surfaceNode,
+    std::shared_ptr<OHOS::Rosen::RSNode> parentNode, bool isRootSurface)
+    : surfaceNode_(std::move(surfaceNode)), parentNode_(std::move(parentNode)), isRootSurface_(isRootSurface)
 {
     if (surfaceNode_) {
         surfaceNode_->SetDelegateMode(true);
         surfaceNode_->SetPivot(0, 0);
-        auto instance = RSSurfaceNodeReleaseBufferWoker::GetInstance();
+        auto instance = RSSurfaceNodeReleaseBufferWorker::GetInstance();
         if (instance != nullptr) {
             instance->RegisterNode(surfaceNode_);
-        } else {
-            WVLOG_E("Constructor GetInstance failed");
         }
     } else {
         WVLOG_E("Constructor surfaceNode_ is nullptr");
     }
 
     if (!parentNode_) {
-        WVLOG_W("Constructor parentNode_ is nullptr");
+        WVLOG_I("Constructor parentNode_ is nullptr");
     }
 }
 
 SurfaceControl::~SurfaceControl()
 {
-    auto instance = RSSurfaceNodeReleaseBufferWoker::GetInstance();
+    auto instance = RSSurfaceNodeReleaseBufferWorker::GetInstance();
     if (instance != nullptr) {
         instance->UnRegisterNode(surfaceNode_);
-    } else {
-        WVLOG_E("Destructor GetInstance failed");
     }
     if (parentNode_) {
         parentNode_->OHOS::Rosen::RSNode::RemoveChild(surfaceNode_);
@@ -408,7 +376,7 @@ void SurfaceControl::SetHardwareEnableHint(bool enable)
 
 bool SurfaceControl::IsRootSurface() const
 {
-    return parentNode_ != nullptr;
+    return isRootSurface_;
 }
 
 void SurfaceControl::ClearBufferQueueCache(bool cleanAll)
@@ -418,27 +386,27 @@ void SurfaceControl::ClearBufferQueueCache(bool cleanAll)
     surfaceNode_->CleanBuffer(cleanAll);
 }
 
-RSSurfaceNodeReleaseBufferWoker::RSSurfaceNodeReleaseBufferWoker(OHOS::sptr<OHOS::IRemoteObject> connectToRender)
+RSSurfaceNodeReleaseBufferWorker::RSSurfaceNodeReleaseBufferWorker(OHOS::sptr<OHOS::IRemoteObject> connectToRender)
 {
-    RS_TRACE_NAME("RSSurfaceNodeReleaseBufferWoker::RSSurfaceNodeReleaseBufferWoker");
+    RS_TRACE_NAME("RSSurfaceNodeReleaseBufferWorker::RSSurfaceNodeReleaseBufferWorker");
     connectToRender_ = connectToRender;
     RegisterReleaseBufferListener();
 }
 
-RSSurfaceNodeReleaseBufferWoker::~RSSurfaceNodeReleaseBufferWoker()
+RSSurfaceNodeReleaseBufferWorker::~RSSurfaceNodeReleaseBufferWorker()
 {
-    RS_TRACE_NAME("RSSurfaceNodeReleaseBufferWoker::~RSSurfaceNodeReleaseBufferWoker");
+    RS_TRACE_NAME("RSSurfaceNodeReleaseBufferWorker::~RSSurfaceNodeReleaseBufferWorker");
     UnRegisterReleaseBufferListener();
 }
 
-std::shared_ptr<RSSurfaceNodeReleaseBufferWoker> RSSurfaceNodeReleaseBufferWoker::GetInstance()
+std::shared_ptr<RSSurfaceNodeReleaseBufferWorker> RSSurfaceNodeReleaseBufferWorker::GetInstance()
 {
-    static std::shared_ptr<RSSurfaceNodeReleaseBufferWoker> instance =
-        std::make_shared<RSSurfaceNodeReleaseBufferWoker>(SurfaceControl::GetConnectToRenderObject());
+    static std::shared_ptr<RSSurfaceNodeReleaseBufferWorker> instance =
+        std::make_shared<RSSurfaceNodeReleaseBufferWorker>(SurfaceControl::GetConnectToRenderObject());
     return instance;
 }
 
-void RSSurfaceNodeReleaseBufferWoker::RegisterNode(std::shared_ptr<Rosen::RSSurfaceNode> nodePtr)
+void RSSurfaceNodeReleaseBufferWorker::RegisterNode(std::shared_ptr<Rosen::RSSurfaceNode> nodePtr)
 {
     std::lock_guard<std::mutex> lock(mutex);
     if (!nodePtr) {
@@ -455,7 +423,7 @@ void RSSurfaceNodeReleaseBufferWoker::RegisterNode(std::shared_ptr<Rosen::RSSurf
     return;
 }
 
-void RSSurfaceNodeReleaseBufferWoker::UnRegisterNode(std::shared_ptr<Rosen::RSSurfaceNode> nodePtr)
+void RSSurfaceNodeReleaseBufferWorker::UnRegisterNode(std::shared_ptr<Rosen::RSSurfaceNode> nodePtr)
 {
     std::lock_guard<std::mutex> lock(mutex);
     if (!nodePtr) {
@@ -472,7 +440,7 @@ void RSSurfaceNodeReleaseBufferWoker::UnRegisterNode(std::shared_ptr<Rosen::RSSu
         surfaceNodeMap_.size(), findit, id);
 }
 
-std::shared_ptr<Rosen::RSSurfaceNode> RSSurfaceNodeReleaseBufferWoker::LocalGetNodeById(NodeId id)
+std::shared_ptr<Rosen::RSSurfaceNode> RSSurfaceNodeReleaseBufferWorker::LocalGetNodeById(NodeId id)
 {
     std::lock_guard<std::mutex> lock(mutex);
     RS_TRACE_NAME_FMT("find surfaceNodeMap_ size=%u", surfaceNodeMap_.size());
@@ -483,7 +451,7 @@ std::shared_ptr<Rosen::RSSurfaceNode> RSSurfaceNodeReleaseBufferWoker::LocalGetN
     return nullptr;
 }
 
-void RSSurfaceNodeReleaseBufferWoker::OnReleaseBufferCallback(std::queue<OnCompletedRet> queue)
+void RSSurfaceNodeReleaseBufferWorker::OnReleaseBufferCallback(std::queue<OnCompletedRet> queue)
 {
     auto instance = GetInstance();
     if (instance == nullptr) {
@@ -502,14 +470,14 @@ void RSSurfaceNodeReleaseBufferWoker::OnReleaseBufferCallback(std::queue<OnCompl
     }
 }
 
-void RSSurfaceNodeReleaseBufferWoker::RegisterReleaseBufferListener()
+void RSSurfaceNodeReleaseBufferWorker::RegisterReleaseBufferListener()
 {
     auto& listener = SurfaceNodeBufferReleaseListener::GetInstance();
     listener.SetConnectToRender(connectToRender_);
     listener.RegisterReleaseBufferCallBack(OnReleaseBufferCallback);
 }
 
-void RSSurfaceNodeReleaseBufferWoker::UnRegisterReleaseBufferListener()
+void RSSurfaceNodeReleaseBufferWorker::UnRegisterReleaseBufferListener()
 {
     SurfaceNodeBufferReleaseListener::GetInstance().UnRegisterReleaseBufferCallBack();
 }

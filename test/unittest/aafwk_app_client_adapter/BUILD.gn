@@ -19,7 +19,9 @@ module_output_path = "webview/security"
 config("module_private_config") {
   visibility = [ ":*" ]
 
-  include_dirs = [ "../../../ohos_adapter/aafwk_adapter/include" ]
+  include_dirs = [
+    "../../../ohos_adapter/aafwk_adapter/include",
+  ]
 }
 
 ohos_unittest("nweb_aafwk_client_test") {

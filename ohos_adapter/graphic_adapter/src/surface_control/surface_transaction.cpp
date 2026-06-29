@@ -32,46 +32,6 @@ using OHOS::Rosen::RSUIContextManager;
 
 namespace OHOS {
 namespace NWeb {
-namespace {
-class ScopedTransaction {
-public:
-    ScopedTransaction()
-    {
-        std::shared_ptr<OHOS::Rosen::RSUIContext> uiContext = SurfaceControl::GetRSUIContext();
-        if (uiContext) {
-            transaction_ = uiContext->GetRSTransaction();
-        }
-        if (transaction_) {
-            transaction_->Begin();
-        } else {
-            RS_TRACE_NAME("ScopedTransaction init fail, transaction is invalid");
-        }
-    }
-
-    ~ScopedTransaction()
-    {
-        if (transaction_) {
-            transaction_->Commit();
-            RS_TRACE_NAME("ScopedTransaction commit ok");
-        } else {
-            RS_TRACE_NAME("ScopedTransaction commit fail, transaction is invalid");
-        }
-    }
-
-    void AddCommand(std::unique_ptr<OHOS::Rosen::RSCommand> cmd)
-    {
-        if (transaction_) {
-            transaction_->AddCommand(cmd, true);
-        } else {
-            RS_TRACE_NAME("ScopedTransaction AddCommand, transaction is invalid");
-        }
-    }
-
-private:
-    std::shared_ptr<Rosen::RSTransactionHandler> transaction_ = nullptr;
-};
-} // namespace
-
 void SurfaceTransaction::OnCompleteCallBack(uint64_t timestamp, uint64_t srcId, std::queue<uint64_t> seqNums)
 {
     RS_TRACE_NAME_FMT("SurfaceTransaction::OnCompleteCallBack, timestamp=%llu, srcId=%llu, seqNums size=%u",
@@ -83,7 +43,7 @@ void SurfaceTransaction::OnCompleteCallBack(uint64_t timestamp, uint64_t srcId, 
         auto cb = SurfaceTransactionCallBackHelper::GetInstance().GetCallBack(srcId, seqNum);
         if (!cb) {
             RS_OPTIONAL_TRACE_NAME_FMT("error: not find callback:srcId=%llu, seqNum=%llu", srcId, seqNum);
-            WVLOG_E("OnCompleteCallback fail, not find callback, srcId=%" PRIu64
+            WVLOG_E("DelegateModeDebugTag: OnCompleteCallback fail, not find callback, srcId=%" PRIu64
                 ", seqNum=%" PRIu64, srcId, seqNum);
             continue;
         }
@@ -97,13 +57,13 @@ void SurfaceTransaction::OnCompleteCallBack(uint64_t timestamp, uint64_t srcId, 
 SurfaceTransaction::SurfaceTransaction(OHNativeWindow* nativeWindow)
 {
     if (nativeWindow == nullptr) {
-        WVLOG_E("SurfaceTransaction constructor failed, nativeWindow is nullptr");
+        WVLOG_E("DelegateModeDebugTag: window is nullptr");
         return;
     }
 
     OHOS::sptr<OHOS::Surface> surface = nativeWindow->surface;
     if (surface == nullptr) {
-        WVLOG_E("Surface is nullptr");
+        WVLOG_E("DelegateModeDebugTag: surface is nullptr");
         return;
     }
 
@@ -116,15 +76,15 @@ SurfaceTransaction::SurfaceTransaction(OHNativeWindow* nativeWindow)
             rsHandle = OHOS::sptr<IRemoteObject>(rawPtr);
             rawPtr->DecStrongRef(nullptr);
         } else {
-            WVLOG_E("Handle is invalid");
+            WVLOG_E("DelegateModeDebugTag: handle is invalid");
             return;
         }
     } else {
-        WVLOG_E("get fetchedRSHandle fail");
+        WVLOG_E("DelegateModeDebugTag: get fetchedRSHandle fail");
         return;
     }
     if (rsHandle == nullptr) {
-        WVLOG_E("rsHandle is nullptr");
+        WVLOG_E("DelegateModeDebugTag: rsHandle is nullptr");
         return;
     }
     SurfaceControl::SetConnectToRenderObject(rsHandle);
@@ -134,13 +94,13 @@ SurfaceTransaction::SurfaceTransaction(OHNativeWindow* nativeWindow)
     if (listener_) {
         listener_->RegisterCommandCompleteCallBack(SurfaceTransaction::OnCompleteCallBack);
     } else {
-        WVLOG_E("Create SurfaceTransactionListener fail");
+        WVLOG_E("DelegateModeDebugTag: create SurfaceTransactionListener fail");
     }
 }
 
 SurfaceTransaction::~SurfaceTransaction()
 {
-    RS_TRACE_NAME_FMT("SurfaceTransaction::~SurfaceTransaction(), seqNum_=%llu", seqNum_);
+    RS_TRACE_NAME_FMT("SurfaceTransaction::~SurfaceTransaction()");
     if (listener_) {
         SurfaceTransactionCallBackHelper::GetInstance().UnRegisterCallBack(listener_->GetUniqueId());
         listener_->UnRegisterCommandCompleteCallBack();
@@ -152,12 +112,12 @@ void SurfaceTransaction::Commit()
 {
     auto uiContext = SurfaceControl::GetRSUIContext();
     if (!uiContext) {
-        WVLOG_E("SurfaceTransaction::Commit fail, uiContext is invalid");
+        WVLOG_E("DelegateModeDebugTag: SurfaceTransaction::Commit fail, uiContext is invalid");
         return;
     }
     auto transaction = uiContext->GetRSTransaction();
 
-    RS_TRACE_NAME_FMT("transactionCommands size:%u, bufferCommands size:%u, surfaceControls size:%u, transaction=%d",
+    RS_TRACE_NAME_FMT("transactionCommands_ size:%u bufferCommands_ size:%u surfaceControls_ size:%u, transaction=%d",
         transactionCommands_.size(), bufferCommands_.size(), surfaceControls_.size(), transaction != nullptr);
 
     ScopedTransaction scopedTransaction;
@@ -169,11 +129,12 @@ void SurfaceTransaction::Commit()
             SurfaceTransactionCallBackHelper::GetInstance().RegisterCallBack(
                 listener_->GetUniqueId(), seqNum, onCompleteCallback_);
         } else {
-            WVLOG_E("GetCommand fail");
+            WVLOG_E("DelegateModeDebugTag: GetCommand fail");
         }
     } else {
-        WVLOG_E("SurfaceTransaction:: Commit fail, Listener is nullptr");
+        WVLOG_E("DelegateModeDebugTag: SurfaceTransaction:: Commit err, listener is nullptr");
     }
+
     for (auto& command : transactionCommands_) {
         command();
     }
