@@ -42,6 +42,8 @@ public:
 
     void NativeWindowUnRef(void* window) override;
 
+    void SetWindowNodeIdAndRSHandle(void* nativeWindow, uint64_t nodeId, uint64_t handle) override;
+
 private:
     NWeb::WindowAdapter& real_;
 

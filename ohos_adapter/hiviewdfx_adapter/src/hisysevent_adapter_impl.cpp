@@ -21,6 +21,7 @@
 #include "arkweb_utils.h"
 #include "parameters.h"
 
+
 namespace OHOS::NWeb {
 namespace {
 const HiviewDFX::HiSysEvent::EventType EVENT_TYPES[] = {
@@ -53,7 +54,7 @@ int64_t GetValueInt64(const std::string& input, const std::string& key1, const s
 {
     long long result = 0;
     std::string key = "";
-    if(key2 == key) {
+    if (key2 == key) {
         std::string::size_type keyPosition1 = input.find(key1, 0);
         if (keyPosition1 != std::string::npos) {
             std::string waitConvertString = input.substr(keyPosition1 + key1.size());
@@ -76,7 +77,7 @@ int64_t GetValueInt64(const std::string& input, const std::string& key1, const s
     return -1;
 }
 
-const static std::string PAGE_LOAD_KEY_LISTS[] = {
+const static std::string  PAGE_LOAD_KEY_LISTS[] = {
     "NAVIGATION_ID",
     "NAVIGATION_START",
     "REDIRECT_COUNT",
@@ -174,7 +175,7 @@ int ProcessEventPageLoadTime(const std::string& eventName, HiSysEventAdapter::Ev
 
     const std::int64_t value1 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[0], PAGE_LOAD_KEY_LISTS[1]);
     const std::int64_t value2 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[1], PAGE_LOAD_KEY_LISTS[2]);
-    const std::uint32_t value3 = (std::uint32_t)GetValueInt64(input, PAGE_LOAD_KEY_LISTS[2], PAGE_LOAD_KEY_LISTS[3]);
+    const std::uint32_t value3 = (uint32_t)GetValueInt64(input, PAGE_LOAD_KEY_LISTS[2], PAGE_LOAD_KEY_LISTS[3]);
     const std::int64_t value4 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[3], PAGE_LOAD_KEY_LISTS[4]);
     const std::int64_t value5 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[4], PAGE_LOAD_KEY_LISTS[5]);
     const std::int64_t value6 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[5], PAGE_LOAD_KEY_LISTS[6]);
@@ -195,7 +196,7 @@ int ProcessEventPageLoadTime(const std::string& eventName, HiSysEventAdapter::Ev
     const std::int64_t value21 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[20], PAGE_LOAD_KEY_LISTS[21]);
     const std::int64_t value22 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[21], PAGE_LOAD_KEY_LISTS[22]);
     const std::int64_t value23 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[22], PAGE_LOAD_KEY_LISTS[23]);
-    const bool value24 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[23], "");
+    const std::int64_t value24 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[23], "");
 
     auto newData = std::make_tuple(
         PAGE_LOAD_KEY_LISTS[0], value1, PAGE_LOAD_KEY_LISTS[1], value2,
@@ -229,7 +230,6 @@ int ProcessEventFirstMeaningfulPaintDone(const std::string& eventName, HiSysEven
     };
 
     const std::string input = std::get<0>(data);
-
     const std::int64_t value1 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[0], PAGE_LOAD_KEY_LISTS[1]);
     const std::int64_t value2 = GetValueInt64(input, PAGE_LOAD_KEY_LISTS[1], PAGE_LOAD_KEY_LISTS[2]);
     const std::uint32_t value3 = (uint32_t)GetValueInt64(input, PAGE_LOAD_KEY_LISTS[2], PAGE_LOAD_KEY_LISTS[24]);
@@ -261,17 +261,6 @@ int HiSysEventAdapterImpl::Write(const std::string& eventName, EventType type,
         int result = ProcessEventFirstMeaningfulPaintDone(eventName, type, data);
         return result;
     }
-#ifdef ARKWEB_HISTOGRAM_METRICS_ENABLE
-    if (eventName == "UMA_METRICS_LOG_UPLOAD") {
-        auto sysData = std::make_tuple("HISTOGRAM_TYPE", "arkweb.histogram.uma",
-            "HISTOGRAM_CONTENT", std::get<1>(data));
-        return ForwardToHiSysEvent("HISTOGRAM_UMA_UKM", type, sysData);
-    } else if (eventName == "UKM_METRICS_LOG_UPLOAD") {
-        auto sysData = std::make_tuple("HISTOGRAM_TYPE", "arkweb.histogram.ukm",
-            "HISTOGRAM_CONTENT", std::get<1>(data));
-        return ForwardToHiSysEvent("HISTOGRAM_UMA_UKM", type, sysData);
-    }
-#endif
     return ForwardToHiSysEvent(eventName, type, data);
 }
 

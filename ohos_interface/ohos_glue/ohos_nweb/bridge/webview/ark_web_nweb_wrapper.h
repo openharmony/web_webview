@@ -2094,6 +2094,10 @@ public:
     /*--ark web()--*/
     void RequestMediaControl(int32_t action, const std::string& param) override;
 
+    std::shared_ptr<OHOS::NWeb::NWebAccessibilityNodeInfo> GetAccessibilityNodeInfoByParams(
+        int64_t accessibility_id, int32_t direction, int32_t element_type,
+        const std::map<std::string, std::string>& params) override;
+
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };

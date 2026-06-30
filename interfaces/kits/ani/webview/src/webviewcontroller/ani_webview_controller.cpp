@@ -1207,7 +1207,8 @@ static ani_boolean IsIntelligentTrackingPreventionEnabled(ani_env *env, ani_obje
         return ANI_FALSE;
     }
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
-    if (!controller) {
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return ANI_FALSE;
     }
     if (!controller->IsIntelligentTrackingPreventionEnabled()) {
@@ -1388,8 +1389,9 @@ static void EnableIntelligentTrackingPrevention(ani_env *env, ani_object object,
         return;
     }
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
-    if (!controller) {
-        WVLOG_E("controller is nullptr");
+    if (!controller || !controller->IsInit()) {
+        WVLOG_E("controller is nullptr or not init");
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
     WVLOG_I("enable/disable intelligent tracking prevention.");

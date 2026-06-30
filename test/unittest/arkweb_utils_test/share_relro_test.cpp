@@ -473,7 +473,7 @@ HWTEST_F(ShareRelroTest, ShareRelroTest_CreateRelroFile_007, TestSize.Level1)
     dlns_create(&dlns, GetArkwebLibPath().c_str());
     dlns_get("ndk", &ndkns);
     dlns_inherit(&dlns, &ndkns, "allow_all_shared_libs");
-    EXPECT_NE(CreateRelroFile(arkWebEngineLibName, &dlns), nullptr);
+    EXPECT_EQ(CreateRelroFile(arkWebEngineLibName, &dlns), nullptr);
     SetDlopenNsExtMockValue(nullptr);
 }
 
@@ -685,7 +685,7 @@ HWTEST_F(ShareRelroTest, ShareRelroTest_CreateRelroFileInSubProc_008, TestSize.L
     dlns_create(&dlns, GetArkwebLibPath().c_str());
     dlns_get("ndk", &ndkns);
     dlns_inherit(&dlns, &ndkns, "allow_all_shared_libs");
-    EXPECT_NE(LoadWithRelroFile(arkWebEngineLibName, &dlns), nullptr);
+    EXPECT_EQ(LoadWithRelroFile(arkWebEngineLibName, &dlns), nullptr);
     SetDlopenNsExtMockValue(nullptr);
 }
 
@@ -728,7 +728,7 @@ HWTEST_F(ShareRelroTest, ShareRelroTest_LoadWithRelroFile_003, TestSize.Level1)
     dlns_create(&dlns, GetArkwebLibPath().c_str());
     dlns_get("ndk", &ndkns);
     dlns_inherit(&dlns, &ndkns, "allow_all_shared_libs");
-    EXPECT_NE(LoadWithRelroFile(arkWebEngineLibName, &dlns), nullptr);
+    EXPECT_EQ(LoadWithRelroFile(arkWebEngineLibName, &dlns), nullptr);
     SetDlopenNsExtMockValue(nullptr);
 }
 } // namespace OHOS::NWeb

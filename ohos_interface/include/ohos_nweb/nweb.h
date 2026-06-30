@@ -119,6 +119,8 @@ public:
     virtual std::string GetSharedRenderProcessToken() {return "";}
     virtual bool GetEmulateTouchFromMouseEvent() {return false;}
     virtual bool GetUseCloudControlAutoLayoutConfig() {return false;}
+    virtual uint64_t GetSurfaceNodeId() { return 0; }
+    virtual uint64_t GetSurfaceRSHandle() { return 0; }
 };
 
 class OHOS_NWEB_EXPORT NWebOutputFrameCallback {
@@ -2587,6 +2589,25 @@ public:
      * @param param The parameter string for the media control action.
      */
     virtual void RequestMediaControl(int32_t action, const std::string& param) {}
+
+    /**
+     * Get the information of the accessibility node by query params in the browser.
+     * @param accessibilityId The accessibility id of the original accessibility node.
+     * @param direction The focus move direction of the original accessibility node.
+     * @param elementType The required element type to query.
+     * @param params The optional params used to query the accessibility node.
+     * @return The obtained information of the accessibility node.
+     */
+    virtual std::shared_ptr<NWebAccessibilityNodeInfo> GetAccessibilityNodeInfoByParams(
+        int64_t accessibilityId, int32_t direction, int32_t elementType,
+        const std::map<std::string, std::string>& params)
+    {
+        (void)accessibilityId;
+        (void)direction;
+        (void)elementType;
+        (void)params;
+        return nullptr;
+    }
 };
 } // namespace OHOS::NWeb
 

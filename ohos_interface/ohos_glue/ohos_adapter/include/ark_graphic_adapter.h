@@ -173,6 +173,9 @@ public:
 
     /*--ark web()--*/
     virtual void NativeWindowUnRef(void* window) = 0;
+
+    /*--ark web()--*/
+    virtual void SetWindowNodeIdAndRSHandle(void* nativeWindow, uint64_t nodeId, uint64_t handle) {}
 };
 
 /*--ark web(source=webview)--*/
@@ -293,6 +296,105 @@ public:
     /*--ark web()--*/
     virtual int32_t FlushBuffer(ArkWebRefPtr<ArkSurfaceBufferAdapter> buffer, int32_t fence,
         ArkWebRefPtr<ArkBufferFlushConfigAdapter> config) = 0;
+};
+
+/*--ark web(source=webview)--*/
+class ArkSurfaceControlAdapter : public virtual ArkWebBaseRefCounted {
+public:
+    /*--ark web()--*/
+    virtual void* CreateSurfaceControlFromNativeWindow(void* parent, const char* name) = 0;
+
+    /*--ark web()--*/
+    virtual void* Create(const char* name) = 0;
+
+    /*--ark web()--*/
+    virtual void Release(void* surfaceControl) = 0;
+};
+
+/*--ark web(source=webview)--*/
+class ArkSurfaceTransactionAdapter : public virtual ArkWebBaseRefCounted {
+public:
+    /*--ark web()--*/
+    virtual void* CreateSurfaceTransaction(void* nativeWindow) = 0;
+
+    /*--ark web()--*/
+    virtual void DeleteTransaction(void* transaction) = 0;
+
+    /*--ark web()--*/
+    virtual void Commit(void* transaction) = 0;
+
+    /*--ark web()--*/
+    virtual void SetOnComplete(void* transaction, void* context, void* func) = 0;
+
+    /*--ark web()--*/
+    virtual void Reparent(void* transaction, void* surfaceControl, void* newParent) = 0;
+
+    /*--ark web()--*/
+    virtual void SetVisibility(void* transaction, void* surfaceControl, int8_t visibility) = 0;
+
+    /*--ark web()--*/
+    virtual void SetZOrder(void* transaction, void* surfaceControl, int32_t zOrder) = 0;
+
+    /*--ark web()--*/
+    virtual void SetBuffer(void* transaction, void* surfaceControl, void* buffer, int acquireFenceFd, void* context,
+        void* func) = 0;
+
+    /*--ark web()--*/
+    virtual void SetBounds(void* transaction, void* surfaceControl, float x, float y, float w, float h) = 0;
+
+    /*--ark web()--*/
+    virtual void SetPivot(void* transaction, void* surfaceControl, float x, float y) = 0;
+
+    /*--ark web()--*/
+    virtual void SetBufferTransform(void* transaction, void* surfaceControl, int32_t transform) = 0;
+
+    /*--ark web()--*/
+    virtual void SetTranslate(
+        void* transaction, void* surfaceControl, float translateX, float translateY, float translateZ) = 0;
+
+    /*--ark web()--*/
+    virtual void SetDamageRegion(void* transaction, void* surfaceControl, const void* rects, uint32_t count) = 0;
+
+    /*--ark web()--*/
+    virtual void SetBufferAlpha(void* transaction, void* surfaceControl, float alpha) = 0;
+
+    /*--ark web()--*/
+    virtual void SetForegroundColor(
+        void* transaction, void* surfaceControl, float red, float green, float blue, float alpha) = 0;
+
+    /*--ark web()--*/
+    virtual void SetBackgroundColor(
+        void* transaction, void* surfaceControl, float red, float green, float blue, float alpha) = 0;
+
+    /*--ark web()--*/
+    virtual void SetBorderColor(
+        void* transaction, void* surfaceControl, float red, float green, float blue, float alpha) = 0;
+
+    /*--ark web()--*/
+    virtual void SetBorderWidth(
+        void* transaction, void* surfaceControl, float left, float top, float right, float bottom) = 0;
+
+    /*--ark web()--*/
+    virtual void SetBorderStyle(
+        void* transaction, void* surfaceControl, uint32_t left, uint32_t top, uint32_t right, uint32_t bottom) = 0;
+
+    /*--ark web()--*/
+    virtual void SetHardwareEnableHint(void* transaction, void* surfaceControl, bool enable) = 0;
+
+    /*--ark web()--*/
+    virtual void SetName(void* transaction, void* surfaceControl, const char* name) = 0;
+
+    /*--ark web()--*/
+    virtual void SetFrameGravity(void* transaction, void* surfaceControl, int32_t gravity) = 0;
+
+    /*--ark web()--*/
+    virtual void SetSrcRect(void* transaction, void* surfaceControl, float x, float y, float w, float h) = 0;
+
+    /*--ark web()--*/
+    virtual void SetDisplayRect(void* transaction, void* surfaceControl, float x, float y, float w, float h) = 0;
+
+    /*--ark web()--*/
+    virtual void ClearBufferQueueCache(void* transaction, void* surfaceControl, bool cleanAll) = 0;
 };
 } // namespace OHOS::ArkWeb
 

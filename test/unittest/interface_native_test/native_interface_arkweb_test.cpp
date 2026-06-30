@@ -153,6 +153,8 @@ HWTEST_F(NativeInterfaceArkWebTest,
     bool enabled = OHOS::system::GetBoolParameter("web.blankless.enabled", false);
 
     OHOS::system::SetParameter("web.blankless.enabled", "true");
+    auto info0 = OH_NativeArkWeb_GetBlanklessInfoWithKey("", nullptr);
+    EXPECT_EQ(info0.errCode, ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_INVALID_ARGS);
     auto info1 = OH_NativeArkWeb_GetBlanklessInfoWithKey("", "");
     EXPECT_EQ(info1.errCode, ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_INVALID_ARGS);
     auto info2 = OH_NativeArkWeb_GetBlanklessInfoWithKey("", "OH_NativeArkWeb_GetBlanklessInfoWithKey");

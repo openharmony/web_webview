@@ -262,6 +262,11 @@ ArkWeb_BlanklessInfo OH_NativeArkWeb_GetBlanklessInfoWithKey(const char* webTag,
         return { ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_DEVICE_NOT_SUPPORT, 0.0, 0 };
     }
 
+    if (key == nullptr) {
+        WVLOG_E("blankless OH_NativeArkWeb_GetBlanklessInfoWithKey key is nullptr");
+        return { ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_INVALID_ARGS, 0.0, 0 };
+    }
+
     size_t keyLen = strlen(key);
     if (keyLen == 0 || keyLen > MAX_KEY_LENGTH) {
         WVLOG_E("blankless OH_NativeArkWeb_GetBlanklessInfoWithKey key length is invalid");

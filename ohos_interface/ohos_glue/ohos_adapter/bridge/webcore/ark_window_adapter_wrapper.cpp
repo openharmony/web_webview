@@ -82,4 +82,12 @@ void ArkWindowAdapterWrapper::NativeWindowUnRef(ArkWebNativeWindow window)
     }
     ctocpp_->NativeWindowUnRef(window);
 }
+
+void ArkWindowAdapterWrapper::SetWindowNodeIdAndRSHandle(void* nativeWindow, uint64_t nodeId, uint64_t handle)
+{
+    if (!ctocpp_) {
+        return;
+    }
+    ctocpp_->SetWindowNodeIdAndRSHandle(nativeWindow, nodeId, handle);
+}
 } // namespace OHOS::ArkWeb

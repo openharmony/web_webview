@@ -60,4 +60,9 @@ void ArkWindowAdapterImpl::NativeWindowUnRef(void* window)
 {
     return real_.NativeWindowUnRef(window);
 }
+
+void ArkWindowAdapterImpl::SetWindowNodeIdAndRSHandle(void* nativeWindow, uint64_t nodeId, uint64_t handle)
+{
+    return real_.SetWindowNodeIdAndRSHandle(nativeWindow, nodeId, handle);
+}
 } // namespace OHOS::ArkWeb

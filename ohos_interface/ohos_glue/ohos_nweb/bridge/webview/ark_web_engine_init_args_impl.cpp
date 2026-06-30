@@ -74,4 +74,14 @@ bool ArkWebEngineInitArgsImpl::GetUseCloudControlAutoLayoutConfig()
     return nweb_engine_init_args_->GetUseCloudControlAutoLayoutConfig();
 }
 
+uint64_t ArkWebEngineInitArgsImpl::GetSurfaceNodeId()
+{
+    return nweb_engine_init_args_->GetSurfaceNodeId();
+}
+
+uint64_t ArkWebEngineInitArgsImpl::GetSurfaceRSHandle()
+{
+    return nweb_engine_init_args_->GetSurfaceRSHandle();
+}
+
 } // namespace OHOS::ArkWeb
