@@ -35,6 +35,15 @@ gen_js_obj("webview_export_abc") {
 }
 
 ohos_source_set("webview_register") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    cfi_vcall_icall_only = true
+    debug = false
+  }
+  if (target_cpu == "arm64") {
+      branch_protector_ret = "pac_ret"
+  }
   sources = [ "webview_export_module.cpp" ]
   external_deps = [ "napi:ace_napi" ]
 
