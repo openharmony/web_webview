@@ -447,6 +447,36 @@ static void JsPutAcceptThirdPartyCookieEnabled(ani_env* env, ani_object aniClass
     return;
 }
 
+static bool JsFetchCookieSyncParseParam(ani_env *env, ani_string url, ani_object incognito,
+    std::string& urlStr, bool& incognitoMode)
+{
+    ani_boolean isUndefined = ANI_TRUE;
+    env->Reference_IsUndefined(url, &isUndefined);
+    if (isUndefined == ANI_TRUE) {
+        WVLOG_E("url is undefined");
+        return false;
+    }
+    if (!AniParseUtils::ParseString(env, url, urlStr)) {
+        WVLOG_E("Parse url failed.");
+        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "url", "string"));
+        return false;
+    }
+
+    isUndefined = ANI_TRUE;
+    env->Reference_IsUndefined(incognito, &isUndefined);
+    if (isUndefined != ANI_TRUE) {
+        ani_boolean bIncognito = ANI_FALSE;
+        if (env->Object_CallMethodByName_Boolean(incognito, "toBoolean", ":z", &bIncognito) != ANI_OK) {
+            AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
+            return false;
+        }
+        incognitoMode = static_cast<bool>(bIncognito);
+    }
+    return true;
+}
+
 static ani_string JsFetchCookieSync(ani_env *env, ani_object aniClass, ani_string url, ani_object incognito)
 {
     WVLOG_D("[COOKIE] JsFetchCookieSync.");
@@ -455,31 +485,10 @@ static ani_string JsFetchCookieSync(ani_env *env, ani_object aniClass, ani_strin
         WVLOG_E("env is nullptr");
         return result;
     }
-    ani_boolean isUndefined = ANI_TRUE;
-    env->Reference_IsUndefined(url, &isUndefined);
-    if (isUndefined == ANI_TRUE) {
-        WVLOG_E("is undefined");
-        return result;
-    }
     std::string urlStr;
-    if (!AniParseUtils::ParseString(env, url, urlStr)) {
-        WVLOG_E("Parse url failed.");
-        AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
-            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "url", "string"));
-        return result;
-    }
-
     bool incognitoMode = false;
-    isUndefined = ANI_TRUE;
-    env->Reference_IsUndefined(incognito, &isUndefined);
-    if (isUndefined != ANI_TRUE) {
-        ani_boolean bIncognito;
-        if (env->Object_CallMethodByName_Boolean(incognito, "toBoolean", ":z", &bIncognito) != ANI_OK) {
-            AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
-                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "incognito", "boolean"));
-            return result;
-        }
-        incognitoMode = static_cast<bool>(bIncognito);
+    if (!JsFetchCookieSyncParseParam(env, url, incognito, urlStr, incognitoMode)) {
+        return result;
     }
 
     std::string cookieContent = "";
@@ -488,6 +497,52 @@ static ani_string JsFetchCookieSync(ani_env *env, ani_object aniClass, ani_strin
     bool isValid = true;
     if (cookieManager != nullptr) {
         cookieContent = cookieManager->ReturnCookie(urlStr, isValid, incognitoMode);
+    }
+    if (cookieContent == "" && !isValid) {
+        AniBusinessError::ThrowError(env, NWebError::INVALID_URL,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::INVALID_URL_FOR_COOKIE));
+        return result;
+    }
+    env->String_NewUTF8(cookieContent.c_str(), cookieContent.size(), &result);
+    return result;
+}
+
+static ani_string JsFetchCookieSyncIncludePartitioned(ani_env *env, ani_object aniClass, ani_string url,
+    ani_object incognito, ani_object includePartitioned)
+{
+    WVLOG_D("[COOKIE] JsFetchCookieSyncIncludePartitioned.");
+    ani_string result = {};
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return result;
+    }
+    std::string urlStr;
+    bool incognitoMode = false;
+    if (!JsFetchCookieSyncParseParam(env, url, incognito, urlStr, incognitoMode)) {
+        return result;
+    }
+
+    bool includePartitionedCookies = false;
+    ani_boolean isUndefined = ANI_TRUE;
+    env->Reference_IsUndefined(includePartitioned, &isUndefined);
+    if (isUndefined != ANI_TRUE) {
+        ani_boolean bIncludePartitioned = ANI_FALSE;
+        if (env->Object_CallMethodByName_Boolean(
+            includePartitioned, "toBoolean", ":z", &bIncludePartitioned) != ANI_OK) {
+            AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR,
+                    "includePartitionedCookies", "boolean"));
+            return result;
+        }
+        includePartitionedCookies = static_cast<bool>(bIncludePartitioned);
+    }
+
+    std::string cookieContent = "";
+    std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager =
+        OHOS::NWeb::NWebHelper::Instance().GetCookieManager();
+    bool isValid = true;
+    if (cookieManager != nullptr) {
+        cookieContent = cookieManager->ReturnCookie(urlStr, isValid, incognitoMode, includePartitionedCookies);
     }
     if (cookieContent == "" && !isValid) {
         AniBusinessError::ThrowError(env, NWebError::INVALID_URL,
@@ -723,7 +778,11 @@ ani_status StsWebCookieManagerInit(ani_env *env)
             reinterpret_cast<void *>(JsPutAcceptThirdPartyCookieEnabled) },
         ani_native_function { "isThirdPartyCookieAllowed",
             nullptr, reinterpret_cast<void *>(JsIsThirdPartyCookieAllowed) },
-        ani_native_function { "fetchCookieSync", nullptr, reinterpret_cast<void *>(JsFetchCookieSync) },
+        ani_native_function { "fetchCookieSync", "C{std.core.String}C{std.core.Boolean}:C{std.core.String}",
+            reinterpret_cast<void *>(JsFetchCookieSync) },
+        ani_native_function { "fetchCookieSync",
+            "C{std.core.String}C{std.core.Boolean}C{std.core.Boolean}:C{std.core.String}",
+            reinterpret_cast<void *>(JsFetchCookieSyncIncludePartitioned) },
         ani_native_function { "fetchAllCookiesSync", nullptr, reinterpret_cast<void *>(JsFetchAllCookieSync) },
         ani_native_function { "saveCookieSync", nullptr, reinterpret_cast<void *>(JsSaveCookieSync) },
         ani_native_function { "clearAllCookiesSync", nullptr, reinterpret_cast<void *>(JsClearAllCookiesSync) },
