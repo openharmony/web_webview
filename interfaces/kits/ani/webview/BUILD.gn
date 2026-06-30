@@ -17,6 +17,9 @@ import("../../../../config.gni")
 
 ohos_shared_library("webview_ani") {
   shlib_type = "ani"
+  if (target_cpu == "arm64") {
+    branch_protector_ret = "pac_ret"
+  }
   sanitize = {
     cfi = true
     cfi_cross_dso = true

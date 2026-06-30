@@ -19,6 +19,11 @@ ohos_shared_library("libarkweb_utils") {
   if (target_cpu == "arm64") {
     branch_protector_ret = "pac_ret"
   }
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
 
   public_configs = [
     ":arkweb_utils_public_interface"
