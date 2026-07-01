@@ -228,6 +228,9 @@ ohos_shared_library("nweb_ohos_adapter") {
     "window_manager:libdm",
     "window_manager:libdm_ndk",
     "libxml2:libxml2",
+    "egl:libEGL",
+    "opengles:libGLES",
+    "jsoncpp:jsoncpp",
   ]
   external_deps += [ "ability_base:want" ]
 

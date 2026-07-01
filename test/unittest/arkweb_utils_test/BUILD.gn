@@ -58,7 +58,8 @@ ohos_unittest("arkweb_utils_test") {
     "graphic_2d:librender_service_client",
     "init:libbegetutil",
     "window_manager:libwm",
-    "selinux_adapter:librestorecon"
+    "selinux_adapter:librestorecon",
+    "jsoncpp:jsoncpp",
   ]
 }
 
@@ -102,7 +103,8 @@ ohos_unittest("share_relro_test") {
     "graphic_2d:librender_service_client",
     "init:libbegetutil",
     "window_manager:libwm",
-    "selinux_adapter:librestorecon"
+    "selinux_adapter:librestorecon",
+    "jsoncpp:jsoncpp",
   ]
 }
 
