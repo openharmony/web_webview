@@ -650,7 +650,7 @@ void NWebConfigHelper::ParseWindowOrientationConfig(xmlNodePtr nodePtr,
         std::shared_ptr<AbilityRuntime::ApplicationContext> ctx =
             AbilityRuntime::ApplicationContext::GetApplicationContext();
         if (ctx) {
-            std::string curBundleName = ctx->GetBundleName();
+            curBundleName = ctx->GetBundleName();
         }
         if (curBundleName.empty()) {
             WVLOG_E("invalid curBundleName, no need to continue!");
