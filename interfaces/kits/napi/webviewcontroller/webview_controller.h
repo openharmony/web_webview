@@ -514,9 +514,11 @@ public:
 
     ErrCode SetErrorPageEnabled(bool enable);
 
-    ErrCode SetErrorPageEnabledWithIframe(bool enable, bool includeIframe);
-
     bool GetErrorPageEnabled();
+
+    ErrCode SetErrorPageEnabled(bool enable, bool includeSubframe);
+ 
+    bool GetSubframeErrorPageEnabled();
 
     void SetUserAgentMetadata(const std::string& userAgent, std::shared_ptr<NWebUserAgentMetadata> metaData);
 

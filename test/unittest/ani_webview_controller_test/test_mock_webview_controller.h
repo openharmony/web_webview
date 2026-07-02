@@ -882,12 +882,17 @@ public:
         return 0;
     }
 
-    ErrCode SetErrorPageEnabledWithIframe(bool enable, bool includeIframe)
+    bool GetErrorPageEnabled()
+    {
+        return false;
+    }
+
+    ErrCode SetErrorPageEnabled(bool enable, bool includeSubframe)
     {
         return 0;
     }
-
-    bool GetErrorPageEnabled()
+ 
+    bool GetSubframeErrorPageEnabled()
     {
         return false;
     }

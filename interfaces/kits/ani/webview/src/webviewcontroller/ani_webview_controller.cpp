@@ -6635,7 +6635,7 @@ static ani_boolean IsPrivateNetworkAccessEnabled(ani_env* env, ani_object object
 static void SetErrorPageEnabled(ani_env* env, ani_object object, ani_boolean aniEnable)
 {
     if (IS_CALLING_FROM_M114()) {
-        WVLOG_E("SetErrorPageEnabled unsupported engine version: M114");
+        WVLOG_W("SetErrorPageEnabled unsupported engine version: M114");
         return;
     }
     if (env == nullptr) {
@@ -6657,27 +6657,28 @@ static void SetErrorPageEnabled(ani_env* env, ani_object object, ani_boolean ani
     }
 }
 
-static void SetErrorPageEnabledWithIframe(ani_env* env, ani_object object, ani_boolean aniEnable, ani_boolean aniIncludeIframe)
+static void SetErrorPageEnabledWithSubframe(ani_env* env, ani_object object,
+    ani_boolean aniEnable, ani_boolean aniIncludeSubframe)
 {
     if (IS_CALLING_FROM_M114()) {
-        WVLOG_E("SetErrorPageEnabledWithIframe unsupported engine version: M114");
+        WVLOG_W("SetErrorPageEnabledWithSubframe unsupported engine version: M114");
         return;
     }
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
         return;
     }
-
-    WVLOG_D("SetErrorPageEnabledWithIframe start");
+ 
+    WVLOG_D("SetErrorPageEnabledWithSubframe in ani start");
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
     if (!controller || !controller->IsInit()) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
-
+ 
     bool enable = static_cast<bool>(aniEnable);
-    bool includeIframe = static_cast<bool>(aniIncludeIframe);
-    ErrCode ret = controller->SetErrorPageEnabledWithIframe(enable, includeIframe);
+    bool includeSubframe = static_cast<bool>(aniIncludeSubframe);
+    ErrCode ret = controller->SetErrorPageEnabled(enable, includeSubframe);
     if (ret != NO_ERROR) {
         AniBusinessError::ThrowErrorByErrCode(env, ret);
     }
@@ -6686,7 +6687,7 @@ static void SetErrorPageEnabledWithIframe(ani_env* env, ani_object object, ani_b
 static ani_boolean GetErrorPageEnabled(ani_env* env, ani_object object)
 {
     if (IS_CALLING_FROM_M114()) {
-        WVLOG_E("GetErrorPageEnabled unsupported engine version: M114");
+        WVLOG_W("GetErrorPageEnabled unsupported engine version: M114");
         return ANI_FALSE;
     }
 
@@ -6698,6 +6699,27 @@ static ani_boolean GetErrorPageEnabled(ani_env* env, ani_object object)
     }
 
     return static_cast<ani_boolean>(controller->GetErrorPageEnabled());
+}
+
+static ani_boolean GetSubframeErrorPageEnabled(ani_env* env, ani_object object)
+{
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_W("GetSubframeErrorPageEnabled unsupported engine version: M114");
+        return ANI_FALSE;
+    }
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return ANI_FALSE;
+    }
+ 
+    WVLOG_D("GetSubframeErrorPageEnabled in ani start");
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return ANI_FALSE;
+    }
+ 
+    return static_cast<ani_boolean>(controller->GetSubframeErrorPageEnabled());
 }
 
 bool ParseBlanklessString(ani_env* env, ani_ref ref, std::string& outValue)
@@ -7819,8 +7841,10 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "getCertificateSync", nullptr, reinterpret_cast<void*>(GetCertificateSync) },
         ani_native_function { "jsProxy", nullptr, reinterpret_cast<void *>(InnerJsProxy) },
         ani_native_function { "setErrorPageEnabled", nullptr, reinterpret_cast<void*>(SetErrorPageEnabled) },
-        ani_native_function { "setErrorPageEnabled", "z:", reinterpret_cast<void*>(SetErrorPageEnabledWithIframe) },
+        ani_native_function { "setErrorPageEnabled", "zz:", reinterpret_cast<void*>(SetErrorPageEnabledWithSubframe) },
         ani_native_function { "getErrorPageEnabled", nullptr, reinterpret_cast<void*>(GetErrorPageEnabled) },
+        ani_native_function { "getSubframeErrorPageEnabled", nullptr,
+                              reinterpret_cast<void*>(GetSubframeErrorPageEnabled) },
         ani_native_function { "getBlanklessInfoWithKey", nullptr, reinterpret_cast<void*>(GetBlanklessInfoWithKey) },
         ani_native_function { "setBlanklessLoadingWithKey", nullptr,
                               reinterpret_cast<void*>(SetBlanklessLoadingWithKey) },

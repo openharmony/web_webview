@@ -1536,14 +1536,19 @@ void ArkWebNWebImpl::SetErrorPageEnabled(bool enable)
     nweb_nweb_->SetErrorPageEnabled(enable);
 }
 
-void ArkWebNWebImpl::SetErrorPageEnabledWithIframe(bool enable, bool includeIframe)
-{
-    nweb_nweb_->SetErrorPageEnabledWithIframe(enable, includeIframe);
-}
-
 bool ArkWebNWebImpl::GetErrorPageEnabled()
 {
     return nweb_nweb_->GetErrorPageEnabled();
+}
+
+void ArkWebNWebImpl::SetErrorPageEnabled(bool enable, bool includeSubframe)
+{
+    nweb_nweb_->SetErrorPageEnabled(enable, includeSubframe);
+}
+ 
+bool ArkWebNWebImpl::GetSubframeErrorPageEnabled()
+{
+    return nweb_nweb_->GetSubframeErrorPageEnabled();
 }
 
 int32_t ArkWebNWebImpl::GetWebDestroyMode()
