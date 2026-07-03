@@ -354,22 +354,24 @@ HWTEST_F(MediaCodecEncoderAdapterImplTest, MediaCodecEncoderAdapterImpl_Surface_
     const std::string mimetype = "video/avc";
     bool supportYUVI420 = false;
     OH_AVCapability* avCap = OH_AVCodec_GetCapabilityByCategory(mimetype.c_str(), false, SOFTWARE);
-    if (avCap != nullptr) {
-        const int32_t* pixelFormats = nullptr;
-        uint32_t pixelFormatNum = 0;
-        int32_t ret = OH_AVCapability_GetVideoSupportedPixelFormats(avCap, &pixelFormats, &pixelFormatNum);
-        if (ret == AV_ERR_OK && pixelFormats != nullptr && pixelFormatNum > 0) {
-            for (uint32_t i = 0; i < pixelFormatNum; ++i) {
-                if (pixelFormats[i] == (int32_t)VideoPixelFormat::YUVI420) {
-                    supportYUVI420 = true;
-                    break;
-                }
+    if (!avCap) {
+        return;
+    }
+    const int32_t* pixelFormats = nullptr;
+    uint32_t pixelFormatNum = 0;
+    int32_t ret = OH_AVCapability_GetVideoSupportedPixelFormats(avCap, &pixelFormats, &pixelFormatNum);
+    if (ret == AV_ERR_OK && pixelFormats != nullptr && pixelFormatNum > 0) {
+        for (uint32_t i = 0; i < pixelFormatNum; ++i) {
+            if (pixelFormats[i] == (int32_t)VideoPixelFormat::YUVI420) {
+                supportYUVI420 = true;
+                break;
             }
         }
-        if (!supportYUVI420) {
-            return;
-        }
     }
+    if (!supportYUVI420) {
+        return;
+    }
+
     EXPECT_EQ(mediaCodecEncoderAdapterImpl->CreateVideoCodecByMime(mimetype), CodecCodeAdapter::OK);
     EXPECT_EQ(mediaCodecEncoderAdapterImpl->Configure(config_), CodecCodeAdapter::OK);
     std::shared_ptr<ProducerSurfaceAdapter> surfaceAdapter =
