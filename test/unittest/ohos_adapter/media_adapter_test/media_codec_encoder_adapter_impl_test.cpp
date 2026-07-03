@@ -16,6 +16,7 @@
 #include "gtest/gtest.h"
 #define private public
 #include "avcodec_list.h"
+#include "native_avcapability.h"
 #include "avcodec_video_encoder_impl.h"
 #include "media_codec_encoder_adapter_impl.h"
 #include "media_codec_list_adapter_impl.h"
@@ -351,6 +352,26 @@ HWTEST_F(MediaCodecEncoderAdapterImplTest, MediaCodecEncoderAdapterImpl_GetList_
 HWTEST_F(MediaCodecEncoderAdapterImplTest, MediaCodecEncoderAdapterImpl_Surface_001, TestSize.Level1)
 {
     const std::string mimetype = "video/avc";
+    bool supportYUVI420 = false;
+    OH_AVCapability* avCap = OH_AVCodec_GetCapabilityByCategory(mimetype.c_str(), false, SOFTWARE);
+    if (!avCap) {
+        return;
+    }
+    const int32_t* pixelFormats = nullptr;
+    uint32_t pixelFormatNum = 0;
+    int32_t ret = OH_AVCapability_GetVideoSupportedPixelFormats(avCap, &pixelFormats, &pixelFormatNum);
+    if (ret == AV_ERR_OK && pixelFormats != nullptr && pixelFormatNum > 0) {
+        for (uint32_t i = 0; i < pixelFormatNum; ++i) {
+            if (pixelFormats[i] == (int32_t)VideoPixelFormat::YUVI420) {
+                supportYUVI420 = true;
+                break;
+            }
+        }
+    }
+    if (!supportYUVI420) {
+        return;
+    }
+
     EXPECT_EQ(mediaCodecEncoderAdapterImpl->CreateVideoCodecByMime(mimetype), CodecCodeAdapter::OK);
     EXPECT_EQ(mediaCodecEncoderAdapterImpl->Configure(config_), CodecCodeAdapter::OK);
     std::shared_ptr<ProducerSurfaceAdapter> surfaceAdapter =
@@ -365,7 +386,7 @@ HWTEST_F(MediaCodecEncoderAdapterImplTest, MediaCodecEncoderAdapterImpl_Surface_
 
     auto fulshConfigAdapter = std::make_shared<BufferFlushConfigAdapterMock>();
     EXPECT_NE(fulshConfigAdapter, nullptr);
-    int32_t ret = surfaceAdapter->FlushBuffer(SurfaceBufferAdapter, fence, fulshConfigAdapter);
+    ret = surfaceAdapter->FlushBuffer(SurfaceBufferAdapter, fence, fulshConfigAdapter);
     EXPECT_NE(ret, 0);
 
     uint32_t index = 0;
