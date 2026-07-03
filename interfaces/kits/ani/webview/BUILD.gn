@@ -165,12 +165,6 @@ ohos_shared_library("webview_ani") {
     "window_manager:libwm",
   ]
 
-  defines = []
-  if (webview_api_metrics_enable) {
-    external_deps += [ "api_metrics:histogrammanager" ]
-    defines += [ "WEBVIEW_API_METRICS_ENABLE" ]
-  }
-
   part_name = "webview"
   subsystem_name = "web"
 }
