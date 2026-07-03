@@ -935,8 +935,7 @@ struct VideoPlayerTitle {
           .id('btnBack')
 
           Text(this.state.title)
-            .fontSize(14)
-            .maxFontSize(20)
+            .maxFontSize('20fp')
             .minFontSize(14)
             .heightAdaptivePolicy(TextHeightAdaptivePolicy.MIN_FONT_SIZE_FIRST)
             .maxLines(2)
@@ -955,6 +954,15 @@ struct VideoPlayerTitle {
               }
             })
         }
+
+        // Keep this empty Row as a second Flex child: it gives the title Row a
+        // definite width budget so minFontSize/maxFontSize + ellipsis engage and
+        // the title shrinks instead of overflowing in portrait. Mirrors
+        // webview_export.js. Do not remove.
+        Row({ space: 16 } as RowOptions) {
+        }
+        .flexShrink(0)
+        .margin({ start: LengthMetrics.vp(8) })
       }
       .width('100%')
       .height(56)
