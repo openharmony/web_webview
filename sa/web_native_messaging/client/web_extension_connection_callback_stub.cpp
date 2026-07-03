@@ -61,4 +61,4 @@ int32_t WebExtensionConnectionCallbackStub::OnRemoteRequest(
     }
     return 0;
 }
-} // namespace OHOS::NWeb
+} // namespace OHOS::NWeb end
