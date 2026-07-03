@@ -401,7 +401,7 @@ ani_class CreateProxyForH5Object(ani_env* env, ani_object* result)
         return nullptr;
     }
     ani_object callObj {};
-    status = env->Object_New(jsProxyCallbackCls, ctor, &callObj, nullptr);
+    status = env->Object_New(jsProxyCallbackCls, ctor, &callObj);
     if (status != ANI_OK) {
         WVLOG_E("CreateProxyForH5Object create object call fail");
         return nullptr;

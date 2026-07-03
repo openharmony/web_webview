@@ -1092,9 +1092,6 @@ export default namespace webview {
 
     export class jsProxyCallbackWrapper {
         myFun_: (...args: Array<Object|string|number|undefined|null>) => Any = (...args: Array<Object|string|number|undefined|null>) => { return "" };
-        constructor(myFun: (...args: Array<Object|string|number|undefined|null>)=> Any) {
-            this.myFun_ = myFun;
-        }
 
         native callNativeFunc(ptr: long, argv: double, args: Array<Object>): void;
         getCallback(ptr: long): (...args: Array<Object|string|number|undefined|null>) => Any {
