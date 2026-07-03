@@ -45,7 +45,7 @@ const int DEFAULT_HEIGHT = 1396;
 const int32_t MAX_WIDTH = 7681;
 const int32_t LTPO_STRATEGY = 1;
 const uint32_t MAX_URLS_COUNT = 100;
-const std::string INSTALLATION_DIR = "/data/app/el1/bundle/public/com.ohos.arkwebcore";
+const std::string MOCK_INSTALLATION_DIR = "/data/app/el1/bundle/public/com.ohos.arkwebcore_mock";
 std::shared_ptr<AbilityRuntime::ApplicationContext> g_applicationContext = nullptr;
 } // namespace
 
@@ -289,7 +289,7 @@ HWTEST_F(NwebHelperTest, NWebHelper_GetConfigPath_005, TestSize.Level1)
     NWebHelper::Instance().bundlePath_.clear();
     NWebHelper::Instance().EnableBackForwardCache(true, true);
     NWebHelper::Instance().SetCustomSchemeCmdLine("single-process");
-    NWebHelper::Instance().SetBundlePath(INSTALLATION_DIR);
+    NWebHelper::Instance().SetBundlePath(MOCK_INSTALLATION_DIR);
     NWebHelper::Instance().SetAutoPreconnect(true);
     bool result = NWebHelper::Instance().InitAndRun(false);
     EXPECT_FALSE(result);
