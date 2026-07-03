@@ -386,7 +386,7 @@ HWTEST_F(MediaCodecEncoderAdapterImplTest, MediaCodecEncoderAdapterImpl_Surface_
 
     auto fulshConfigAdapter = std::make_shared<BufferFlushConfigAdapterMock>();
     EXPECT_NE(fulshConfigAdapter, nullptr);
-    int32_t ret = surfaceAdapter->FlushBuffer(SurfaceBufferAdapter, fence, fulshConfigAdapter);
+    ret = surfaceAdapter->FlushBuffer(SurfaceBufferAdapter, fence, fulshConfigAdapter);
     EXPECT_NE(ret, 0);
 
     uint32_t index = 0;
