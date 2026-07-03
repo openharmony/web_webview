@@ -498,7 +498,7 @@ public:
         if (ani_env_) {
             ani_status s = ani_env_->GlobalReference_Create(obj, &result);
             if (s != ANI_OK) {
-                WVLOG_E("JavaScriptOb SetWebviewObject status=%{public}d", s);
+                WVLOG_E("JavaScriptOb SetWebviewObject status= %{public}d", s);
             }
         }
         webviewObj_ = result;
