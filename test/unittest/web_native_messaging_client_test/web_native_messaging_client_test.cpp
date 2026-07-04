@@ -520,11 +520,7 @@ TEST_F(WebNativeMessagingClientTest, DisconnectWebNativeMessagingExtension_Shoul
 {
     ON_CALL(*mockClient, GetWebNativeMessagingProxy()).WillByDefault(Return(nullptr));
     int result = mockClient->DisconnectWebNativeMessagingExtension(1);
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        EXPECT_EQ(result, ConnectNativeRet::PERMISSION_CHECK_ERROR);
-    } else {
-        EXPECT_NE(result, ConnectNativeRet::PERMISSION_CHECK_ERROR);
-    }
+    EXPECT_EQ(result, ConnectNativeRet::IPC_ERROR);
 }
 
 /**
