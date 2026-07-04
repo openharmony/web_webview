@@ -21,7 +21,9 @@ ohos_shared_library("web_native_messaging_extension_manager_ani_kit") {
     cfi_cross_dso = true
     debug = false
   }
-
+  if (target_cpu == "arm64") {
+      branch_protector_ret = "pac_ret"
+  }
   include_dirs = [ 
     "./include",
     "../../../nativecommon",
