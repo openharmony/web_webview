@@ -69,6 +69,15 @@ config("nweb_glue_interface") {
 }
 
 ohos_shared_library("web_configs") {
+  if (target_cpu == "arm64") {
+    branch_protector_ret = "pac_ret"
+  }
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   include_dirs = [
     "${target_gen_dir}/include",
     "../ohos_interface/include/ohos_nweb",
@@ -104,6 +113,11 @@ ohos_shared_library("libnweb") {
   output_name = "arkweb_core_loader"
   if (target_cpu == "arm64") {
     branch_protector_ret = "pac_ret"
+  }
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
   }
 
   configs = [

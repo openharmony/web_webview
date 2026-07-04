@@ -53,10 +53,28 @@ ohos_prebuilt_etc("app_fwk_update_service_cfg") {
 
 if (!webview_app_fwk_update_enable) {
   ohos_shared_library("app_fwk_update_service") {
+    if (target_cpu == "arm64") {
+      branch_protector_ret = "pac_ret"
+    }
+    sanitize = {
+      cfi = true
+      cfi_cross_dso = true
+      debug = false
+    }
+
     install_enable = false
   }
 } else {
   ohos_shared_library("app_fwk_update_service") {
+    if (target_cpu == "arm64") {
+      branch_protector_ret = "pac_ret"
+    }
+    sanitize = {
+      cfi = true
+      cfi_cross_dso = true
+      debug = false
+    }
+
     defines = [ "HILOG_TAG=\"app_fwk_update_service\"" ]
     shlib_type = "sa"
     version_script = "libapp_fwk_update_service.map"
