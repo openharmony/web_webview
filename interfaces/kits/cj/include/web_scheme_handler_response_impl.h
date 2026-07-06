@@ -18,7 +18,6 @@
 
 #include <cstdint>
 #include <map>
-#include <uv.h>
 
 #include "arkweb_scheme_handler.h"
 #include "ffi_remote_data.h"
