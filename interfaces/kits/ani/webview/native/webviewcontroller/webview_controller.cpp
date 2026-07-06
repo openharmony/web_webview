@@ -2367,7 +2367,7 @@ ErrCode WebviewController::SetErrorPageEnabled(bool enable, bool includeSubframe
     nweb_ptr->SetErrorPageEnabled(enable, includeSubframe);
     return NWebError::NO_ERROR;
 }
- 
+
 bool WebviewController::GetSubframeErrorPageEnabled()
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
