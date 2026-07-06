@@ -17,8 +17,10 @@
 #define ARK_PLAYER_ADAPTER_WRAPPER_H
 #pragma once
 
+#include <vector>
 #include "media_adapter.h"
 #include "ohos_adapter/include/ark_media_adapter.h"
+#include "ark_media_source_data_handler_impl.h"
 
 namespace OHOS::ArkWeb {
 

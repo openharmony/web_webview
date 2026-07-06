@@ -339,9 +339,9 @@ int64_t LoaderCallbackImpl::Open(std::shared_ptr<Media::LoadingRequest>& request
 {
     WVLOG_I("LoaderCallbackImpl::Open enter");
     std::lock_guard<std::mutex> lock(mutex_);
-    int64_t uuid = request->GetUniqueId();
-    requests_[uuid] = request;
-    return handler_->HandleDataOpen(request->GetUrl(), request->GetHeader());
+    int64_t handle = handler_->HandleDataOpen(request->GetUrl(), request->GetHeader());
+    requests_[handle] = request;
+    return handle;
 }
 
 void LoaderCallbackImpl::Read(int64_t uuid, int64_t offset, int64_t length)

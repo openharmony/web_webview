@@ -663,6 +663,10 @@ public:
      * @brief Set whether to connect to media avsession.
      */
     void PutWebMediaAVSessionEnabled(bool enable) override;
+
+    /**
+     * Set whether to enable hls media network proxy.
+     */
     void PutWebMediaNetworkProxyEnabled(bool enable) override;
 
     /**
