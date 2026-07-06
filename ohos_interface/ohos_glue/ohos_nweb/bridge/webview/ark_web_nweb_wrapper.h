@@ -2077,6 +2077,27 @@ public:
     void ExecuteAIPageCommand(
         const std::string& command, std::shared_ptr<OHOS::NWeb::NWebStringValueCallback> callback) override;
 
+    /**
+     * @brief Set the native window for video surface rendering.
+     *
+     * @param native_window The native window handle for video rendering.
+     */
+    /*--ark web()--*/
+    void SetVideoSurface(void* native_window) override;
+
+    /**
+     * @brief Request media control action.
+     *
+     * @param action The media control action type.
+     * @param param The parameter string for the media control action.
+     */
+    /*--ark web()--*/
+    void RequestMediaControl(int32_t action, const std::string& param) override;
+
+    std::shared_ptr<OHOS::NWeb::NWebAccessibilityNodeInfo> GetAccessibilityNodeInfoByParams(
+        int64_t accessibility_id, int32_t direction, int32_t element_type,
+        const std::map<std::string, std::string>& params) override;
+
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };

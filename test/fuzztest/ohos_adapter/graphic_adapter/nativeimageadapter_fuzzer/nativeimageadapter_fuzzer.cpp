@@ -16,6 +16,7 @@
 #include "nativeimageadapter_fuzzer.h"
 
 #include <cstring>
+#include <fuzzer/FuzzedDataProvider.h>
 
 #define private public
 #include "native_image_adapter_impl.h"
@@ -24,6 +25,7 @@
 using namespace OHOS::NWeb;
 
 namespace OHOS {
+constexpr int MAX_SET_NUMBER = 1000;
 
 bool NativeImageAdapterFuzzTest(const uint8_t* data, size_t size)
 {
@@ -32,10 +34,11 @@ bool NativeImageAdapterFuzzTest(const uint8_t* data, size_t size)
     }
     NativeImageAdapterImpl adapter;
 
+    FuzzedDataProvider dataProvider(data, size);
     void** windowBuffer = nullptr;
     int* acquireFenceFd = nullptr;
-    uint32_t textureId = 0;
-    uint32_t textureTarget = 0;
+    uint32_t textureId = dataProvider.ConsumeIntegralInRange(0, MAX_SET_NUMBER);
+    uint32_t textureTarget = dataProvider.ConsumeIntegralInRange(0, MAX_SET_NUMBER);
     void* windowBuffer2 = nullptr;
     void** nativeBuffer = nullptr;
     uint32_t* width = nullptr;
@@ -43,7 +46,7 @@ bool NativeImageAdapterFuzzTest(const uint8_t* data, size_t size)
     uint64_t* surfaceId = nullptr;
     float matrix[16] = {0};
     std::shared_ptr<FrameAvailableListener> listener = nullptr;
-    int fenceFd = 0;
+    int fenceFd = dataProvider.ConsumeIntegralInRange(0, MAX_SET_NUMBER);
 
     adapter.AcquireNativeWindowBuffer(windowBuffer, acquireFenceFd);
     adapter.AquireNativeWindowFromNativeImage();

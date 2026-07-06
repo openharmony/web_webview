@@ -59,6 +59,7 @@
 #include "screen_capture_adapter.h"
 #include "screenlock_manager_adapter.h"
 #include "soc_perf_client_adapter.h"
+#include "surface_control_adapter.h"
 #include "system_properties_adapter.h"
 #include "sensor_adapter.h"
 #include "background_task_adapter.h"
@@ -173,6 +174,10 @@ public:
     virtual std::unique_ptr<CertManagerAdapter> GetCertManagerAdapter() {return nullptr;}
 
     virtual std::unique_ptr<BackgroundTaskAdapter> CreateBackgroundTaskAdapter() {return nullptr;}
+
+    virtual SurfaceControlAdapter& GetSurfaceControlAdapter() = 0;
+
+    virtual SurfaceTransactionAdapter& GetSurfaceTransactionAdapter() = 0;
 };
 
 } // namespace OHOS::NWeb

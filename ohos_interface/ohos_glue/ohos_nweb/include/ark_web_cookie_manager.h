@@ -248,6 +248,33 @@ public:
      */
     /*--ark web()--*/
     virtual ArkWebCookieVector GetAllCookies(bool incognitoMode) = 0;
+
+    /**
+     * @brief Gets all the cookies for the given URL. This is sync method
+     *
+     * @param url the URL for which the cookies are requested.
+     * @param isValid true if the returned cookie is valid, false otherwise.
+     * @param incognitoMode true if web is in the incognito mode, false
+     *        otherwise.
+     * @param includePartitionedCookies If true, allows fetching first-party partitioned cookies.
+     *
+     * @return the cookie value for given URL.
+     */
+    /*--ark web()--*/
+    virtual ArkWebString ReturnCookie(const ArkWebString& url, bool& isValid, bool incognitoMode,
+        bool includePartitionedCookies) = 0;
+
+    /**
+     * @brief Gets all the cookies for the given URL async.
+     *
+     * @param url the URL for which the cookies are requested.
+     * @param incognitoMode true if web is in the incognito mode, false otherwise.
+     * @param includePartitionedCookies If true, allows fetching first-party partitioned cookies.
+     * @param callback a callback which is executed when the cookies have been gotten.
+     */
+    /*--ark web()--*/
+    virtual void GetCookieAsync(const ArkWebString& url, bool incognitoMode,
+        bool includePartitionedCookies, ArkWebRefPtr<ArkWebStringValueCallback> callback) = 0;
 };
 
 } // namespace OHOS::ArkWeb

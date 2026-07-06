@@ -42,11 +42,16 @@ public:
     bool GetIsEnhanceSurface() override;
 
     bool GetIsMultiRendererProcess() override;
+
     ArkWebString GetSharedRenderProcessToken() override;
 
     bool GetEmulateTouchFromMouseEvent() override;
 
     bool GetUseCloudControlAutoLayoutConfig() override;
+
+    uint64_t GetSurfaceNodeId() override;
+
+    uint64_t GetSurfaceRSHandle() override;
 
 private:
     std::shared_ptr<OHOS::NWeb::NWebEngineInitArgs> nweb_engine_init_args_;

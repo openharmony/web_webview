@@ -1645,11 +1645,26 @@ export default namespace webview {
         }
 
         native static fetchCookieSync(url: string, incognito?: boolean): string;
-        static fetchCookie(url: string): Promise<string> {
+        native static fetchCookieSync(url: string, incognito?: boolean, includePartitionedCookies?: boolean): string;
+
+        private static fetchCookieAsync(url: string, incognito?: boolean, includePartitionedCookies?: boolean): Promise<string> {
             let pPromise = new Promise<string>((resolve: (v: string) => void, reject: (error: Error) => void) => {
-                let pPromise1 = taskpool.execute((): string => {
-                    return WebCookieManager.fetchCookieSync(url);
-                });
+                let taskFunc: () => string;
+                if (includePartitionedCookies !== undefined) {
+                    taskFunc = (): string => {
+                        return WebCookieManager.fetchCookieSync(url, incognito, includePartitionedCookies);
+                    };
+                } else if (incognito !== undefined) {
+                    taskFunc = (): string => {
+                        return WebCookieManager.fetchCookieSync(url, incognito);
+                    };
+                } else {
+                    taskFunc = (): string => {
+                        return WebCookieManager.fetchCookieSync(url);
+                    };
+                }
+
+                let pPromise1 = taskpool.execute(taskFunc);
                 pPromise1.then((e: Any) => {
                     let r: string = e as string;
                     resolve(r);
@@ -1659,6 +1674,11 @@ export default namespace webview {
             });
             return pPromise;
         }
+
+        static fetchCookie(url: string): Promise<string> {
+            return WebCookieManager.fetchCookieAsync(url);
+        }
+
         static fetchCookie(url: string, callback: AsyncCallback<string>): void {
             let pCallback = taskpool.execute((): string => {
                 return WebCookieManager.fetchCookieSync(url);
@@ -1698,18 +1718,11 @@ export default namespace webview {
         }
 
         static fetchCookie(url: string, incognito: boolean): Promise<string> {
-            let pPromise = new Promise<string>((resolve: (v: string) => void, reject: (error: Error) => void) => {
-                let pPromise1 = taskpool.execute((): string => {
-                    return WebCookieManager.fetchCookieSync(url, incognito);
-                });
-                pPromise1.then((e: Any) => {
-                    let r: string = e as string;
-                    resolve(r);
-                }, (error: Error): void => {
-                    reject(error);
-                });
-            });
-            return pPromise;
+            return WebCookieManager.fetchCookieAsync(url, incognito);
+        }
+
+        static fetchCookie(url: string, incognito: boolean, includePartitionedCookies: boolean): Promise<string> {
+            return WebCookieManager.fetchCookieAsync(url, incognito, includePartitionedCookies);
         }
 
         native static fetchAllCookiesSync(incognito: boolean): Array<WebHttpCookie>;

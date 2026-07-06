@@ -2346,6 +2346,40 @@ public:
     /*--ark web()--*/
     virtual void ExecuteAIPageCommand(
         const ArkWebString& command, ArkWebRefPtr<ArkWebStringValueCallback> callback) = 0;
+
+    /**
+     * @brief Set the native window for video surface rendering.
+     *
+     * @param native_window The native window handle for video rendering.
+     */
+    /*--ark web()--*/
+    virtual void SetVideoSurface(void* native_window) = 0;
+
+    /**
+     * @brief Request media control action.
+     *
+     * @param action The media control action type.
+     * @param param The parameter string for the media control action.
+     */
+    /*--ark web()--*/
+    virtual void RequestMediaControl(int32_t action, const ArkWebString& param) = 0;
+
+    /**
+     * @brief Get the information of the accessibility node by query params in
+     *        the browser.
+     *
+     * @param accessibility_id: The accessibility id of the original accessibility
+     *        node.
+     * @param direction: The focus move direction of the original accessibility
+     *        node.
+     * @param element_type: The required element type to query.
+     * @param params: The optional params used to query the accessibility node.
+     *
+     * @return The obtained information of the accessibility node.
+     */
+    /*--ark web()--*/
+    virtual ArkWebRefPtr<ArkWebAccessibilityNodeInfo> GetAccessibilityNodeInfoByParams(
+        int64_t accessibility_id, int32_t direction, int32_t element_type, const ArkWebStringMap& params) = 0;
 };
 
 } // namespace OHOS::ArkWeb

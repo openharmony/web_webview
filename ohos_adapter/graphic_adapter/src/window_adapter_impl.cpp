@@ -124,4 +124,20 @@ void WindowAdapterImpl::NativeWindowUnRef(NWebNativeWindow window)
         WVLOG_E("cancel window reference failed.");
     }
 }
+
+void WindowAdapterImpl::SetWindowNodeIdAndRSHandle(void* nativeWindow, uint64_t nodeId, uint64_t handle)
+{
+    OHNativeWindow* window = reinterpret_cast<OHNativeWindow*>(nativeWindow);
+    if (window == nullptr) {
+        WVLOG_E("Native window is nullptr, set node id failed");
+        return;
+    }
+    OHOS::sptr<OHOS::Surface> surface = window->surface;
+    if (surface) {
+        surface->SetUserData("delegate_node_id", std::to_string(nodeId));
+        surface->SetUserData("delegate_connect_to_render", std::to_string(handle));
+    } else {
+        WVLOG_E("surface is nullptr, set user data failed");
+    }
+}
 } // namespace OHOS::NWeb

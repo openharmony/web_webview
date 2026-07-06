@@ -57,6 +57,7 @@ ohos_unittest("screen_capture_adapter_impl_test") {
       "audio_framework:audio_client",
       "av_codec:av_codec_client",
       "player_framework:media_client",
+      "media_foundation:media_foundation",
       "window_manager:libwm",
     ]
   }

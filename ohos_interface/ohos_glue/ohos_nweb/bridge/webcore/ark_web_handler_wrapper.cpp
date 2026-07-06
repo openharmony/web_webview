@@ -1440,4 +1440,16 @@ bool ArkWebHandlerWrapper::OnNestedFling(float& velocity_x, float& velocity_y)
 {
     return ark_web_handler_->OnNestedFling(velocity_x, velocity_y);
 }
+
+void ArkWebHandlerWrapper::OnFullScreenOverlayEnter(const char* mediaInfo)
+{
+    ark_web_handler_->OnFullScreenOverlayEnter(mediaInfo);
+}
+
+void ArkWebHandlerWrapper::OnVideoStatusChanged(const int action, const std::map<std::string, std::string> &param)
+{
+    ArkWebStringMap paramStruct = ArkWebStringMapClassToStruct(param);
+    ark_web_handler_->OnVideoStatusChanged(action, paramStruct);
+    ArkWebStringMapStructRelease(paramStruct);
+}
 } // namespace OHOS::ArkWeb

@@ -23,6 +23,11 @@ ohos_shared_library("nweb_ohos_adapter") {
   if (target_cpu == "arm64") {
     branch_protector_ret = "pac_ret"
   }
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
 
   if (target_cpu == "arm") {
     libs = [
@@ -84,6 +89,11 @@ ohos_shared_library("nweb_ohos_adapter") {
     "graphic_adapter/src/ashmem_adapter_impl.cpp",
     "graphic_adapter/src/native_image_adapter_impl.cpp",
     "graphic_adapter/src/surface_adapter_impl.cpp",
+    "graphic_adapter/src/surface_control_adapter_impl.cpp",
+    "graphic_adapter/src/surface_control/surface_control.cpp",
+    "graphic_adapter/src/surface_control/surface_transaction.cpp",
+    "graphic_adapter/src/surface_control/surface_transaction_helper.cpp",
+    "graphic_adapter/src/surface_control/interface/oh_surface_control.cpp",
     "graphic_adapter/src/vsync_adapter_impl.cpp",
     "graphic_adapter/src/window_adapter_impl.cpp",
     "hiviewdfx_adapter/src/hilog_adapter.cpp",
@@ -201,6 +211,7 @@ ohos_shared_library("nweb_ohos_adapter") {
     "hitrace:hitrace_meter",
     "huks:libhukssdk",
     "i18n:intl_util",
+    "icu:shared_icuuc",
     "image_framework:image_native",
     "imf:inputmethod_client",
     "init:libbeget_proxy",
@@ -219,10 +230,12 @@ ohos_shared_library("nweb_ohos_adapter") {
     "screenlock_mgr:screenlock_client",
     "time_service:time_client",
     "udmf:udmf_client",
-    "udmf:udmf_core",
     "window_manager:libdm",
     "window_manager:libdm_ndk",
     "libxml2:libxml2",
+    "egl:libEGL",
+    "opengles:libGLES",
+    "jsoncpp:jsoncpp",
   ]
   external_deps += [ "ability_base:want" ]
 

@@ -18,6 +18,11 @@ ohos_shared_library("nweb_ohos_wrapper") {
   if (target_cpu == "arm64") {
     branch_protector_ret = "pac_ret"
   }
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
 
   sources = []
 

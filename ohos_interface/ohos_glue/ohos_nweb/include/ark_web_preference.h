@@ -834,6 +834,14 @@ public:
      */
     /*--ark web()--*/
     virtual void PutTouchEventFeatureDetectionEnabled(bool enable) = 0;
+
+    /**
+     * @brief Enables or disables full screen video overlay.
+     *
+     * @param enable bool: Indicates the flag whether full screen video overlay is enabled.
+     */
+    /*--ark web()--*/
+    virtual void PutFullScreenVideoOverlayEnable(bool enable) = 0;
 };
 
 } // namespace OHOS::ArkWeb

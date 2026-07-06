@@ -1711,6 +1711,16 @@ void ArkWebNWebImpl::SetSoftKeyboardBehaviorMode(int mode)
     return nweb_nweb_->SetSoftKeyboardBehaviorMode(static_cast<OHOS::NWeb::WebSoftKeyboardBehaviorMode>(mode));
 }
 
+void ArkWebNWebImpl::SetVideoSurface(void* native_window)
+{
+    nweb_nweb_->SetVideoSurface(native_window);
+}
+
+void ArkWebNWebImpl::RequestMediaControl(int32_t action, const ArkWebString& param)
+{
+    nweb_nweb_->RequestMediaControl(action, ArkWebStringStructToClass(param));
+}
+
 ArkWebRefPtr<ArkWebAgentManager> ArkWebNWebImpl::GetAgentManager()
 {
     std::shared_ptr<OHOS::NWeb::NWebAgentManager> nweb_agent_manager = nweb_nweb_->GetAgentManager();
@@ -1849,5 +1859,18 @@ void ArkWebNWebImpl::ExecuteAIPageCommand(
     }
 
     nweb_nweb_->ExecuteAIPageCommand(commandStr, std::make_shared<ArkWebStringValueCallbackWrapper>(callback));
+}
+
+ArkWebRefPtr<ArkWebAccessibilityNodeInfo> ArkWebNWebImpl::GetAccessibilityNodeInfoByParams(
+    int64_t accessibility_id, int32_t direction, int32_t element_type, const ArkWebStringMap& params)
+{
+    std::shared_ptr<OHOS::NWeb::NWebAccessibilityNodeInfo> nweb_accessibility_node_info =
+        nweb_nweb_->GetAccessibilityNodeInfoByParams(
+            accessibility_id, direction, element_type, ArkWebStringMapStructToClass(params));
+    if (CHECK_SHARED_PTR_IS_NULL(nweb_accessibility_node_info)) {
+        return nullptr;
+    }
+
+    return new ArkWebAccessibilityNodeInfoImpl(nweb_accessibility_node_info);
 }
 } // namespace OHOS::ArkWeb

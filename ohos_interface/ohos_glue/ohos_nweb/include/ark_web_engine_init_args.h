@@ -54,6 +54,12 @@ public:
 
     /*--ark web()--*/
     virtual bool GetUseCloudControlAutoLayoutConfig() = 0;
+
+    /*--ark web()--*/
+    virtual uint64_t GetSurfaceNodeId() = 0;
+
+    /*--ark web()--*/
+    virtual uint64_t GetSurfaceRSHandle() = 0;
 };
 
 } // namespace OHOS::ArkWeb

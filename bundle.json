@@ -63,6 +63,7 @@
                 "hitrace",
                 "huks",
                 "i18n",
+                "icu",
                 "image_framework",
                 "imf",
                 "init",
@@ -99,7 +100,9 @@
                 "jsoncpp",
                 "os_account",
                 "zlib",
-                "ace_engine"
+                "ace_engine",
+                "egl",
+                "opengles"
             ]
         },
         "build": {
@@ -302,6 +305,7 @@
                 "//base/web/webview/test/fuzztest/ohos_adapter/pasteboard_adapter/removepasteboardchangedobserver_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ohos_adapter/cert_mgr_adapter/getcertmaxsize_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ohos_adapter/cert_mgr_adapter/getusercertdata_fuzzer:fuzztest",
+                "//base/web/webview/test/fuzztest/ohos_adapter/certmgr_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ohos_adapter/media_adapter/bufferinfoadapterimpl_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ohos_adapter/media_adapter/capabilitydataadapterimpl_fuzzer:fuzztest",
                 "//base/web/webview/test/fuzztest/ohos_adapter/media_adapter/codecformatadapterimpl_fuzzer:fuzztest",

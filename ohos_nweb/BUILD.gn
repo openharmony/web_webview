@@ -11,10 +11,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//build/config/components/ets_frontend/ets2abc_config.gni")
 import("//build/ohos.gni")
 import("../config.gni")
 import("../web_aafwk.gni")
-import("//build/config/components/ets_frontend/ets2abc_config.gni")
 
 webview_root_path = webview_path
 if (target_cpu == "arm64") {
@@ -47,6 +47,7 @@ if (use_hwasan) {
 config("nweb_config") {
   include_dirs = [ "${target_gen_dir}/include" ]
   include_dirs += [ "include" ]
+  include_dirs += [ "../interfaces/kits/nativecommon" ]
 
   cflags = [
     "-Wall",
@@ -68,6 +69,15 @@ config("nweb_glue_interface") {
 }
 
 ohos_shared_library("web_configs") {
+  if (target_cpu == "arm64") {
+    branch_protector_ret = "pac_ret"
+  }
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   include_dirs = [
     "${target_gen_dir}/include",
     "../ohos_interface/include/ohos_nweb",
@@ -81,16 +91,17 @@ ohos_shared_library("web_configs") {
   ]
 
   external_deps = [
+    "ability_runtime:ability_connect_callback_stub",
     "ability_runtime:app_context",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "config_policy:configpolicy_util",
     "c_utils:utils",
+    "config_policy:configpolicy_util",
     "hilog:libhilog",
+    "icu:shared_icuuc",
     "init:libbegetutil",
     "ipc:ipc_core",
     "libxml2:libxml2",
-    "ability_runtime:ability_connect_callback_stub",
     "samgr:samgr_proxy",
   ]
 
@@ -103,6 +114,11 @@ ohos_shared_library("libnweb") {
   if (target_cpu == "arm64") {
     branch_protector_ret = "pac_ret"
   }
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
 
   configs = [
     ":nweb_config",
@@ -110,6 +126,7 @@ ohos_shared_library("libnweb") {
   ]
   public_configs = [ ":nweb_public_interface" ]
   sources = [
+    "../interfaces/kits/nativecommon/full_screen_video_overlay_handler_wrapper.cpp",
     "src/nweb_enhance_surface_adapter.cpp",
     "src/nweb_helper.cpp",
     "src/nweb_hisysevent.cpp",
@@ -124,10 +141,10 @@ ohos_shared_library("libnweb") {
     ":web.para.dac",
     ":web_config",
     ":web_configs",
+    "${webview_path}/arkweb_utils:libarkweb_utils",
     "${webview_path}/ohos_glue:ohos_adapter_glue_source",
     "${webview_path}/ohos_glue:ohos_base_glue_source",
     "${webview_path}/ohos_glue:ohos_nweb_glue_source",
-    "${webview_path}/arkweb_utils:libarkweb_utils",
   ]
 
   if (webview_app_fwk_update_enable) {
@@ -213,9 +230,9 @@ ohos_executable("chrome_crashpad_handler") {
 
   sources = [ "src/nweb_crashpad_handler_main.cpp" ]
 
-  external_deps = [ 
+  external_deps = [
+    "bundle_framework:appexecfwk_base",
     "hilog:libhilog",
-    "bundle_framework:appexecfwk_base", 
   ]
 
   if (target_cpu == "arm64") {

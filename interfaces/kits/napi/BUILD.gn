@@ -38,6 +38,11 @@ ohos_shared_library("webview_napi") {
   if (target_cpu == "arm64") {
     branch_protector_ret = "pac_ret"
   }
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
 
   public_configs = [ ":web_public_config" ]
 
@@ -155,6 +160,11 @@ ohos_shared_library("webview_napi") {
 ohos_shared_library("neterrorlist_napi") {
   if (target_cpu == "arm64") {
     branch_protector_ret = "pac_ret"
+  }
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
   }
 
   public_configs = [ ":web_public_config" ]

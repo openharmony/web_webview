@@ -33,6 +33,7 @@
 #ifndef ARKWEB_TYPE_H
 #define ARKWEB_TYPE_H
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -542,7 +543,7 @@ typedef struct {
  * @since 12
  */
 #define ARKWEB_MEMBER_EXISTS(s, f) \
-    ((intptr_t) & ((s)->f) - (intptr_t)(s) + sizeof((s)->f) <= *reinterpret_cast<size_t*>(s))
+    ((intptr_t) & ((s)->f) - (intptr_t)(s) + sizeof((s)->f) <= *(size_t *)(s))
 
 /**
  * @brief Return false if the struct member does not exist, otherwise true.

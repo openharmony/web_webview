@@ -25,7 +25,7 @@
 #include "surface/window.h"
 #include "native_window.h"
 #include "external_window.h"
-
+#include "transaction/rs_interfaces.h"
 #include "../../../ohos_interface/ohos_glue/base/include/ark_web_errno.h"
 
 namespace OHOS::NWeb {
@@ -75,14 +75,35 @@ int BrowserHost::OnRemoteRequest(uint32_t code, MessageParcel &data,
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
-int BrowserHost::HandleQueryRenderSurface(MessageParcel &data, MessageParcel &reply)
+int BrowserHost::HandleQueryRenderSurface(MessageParcel& data, MessageParcel& reply)
 {
-    int surface_id = data.ReadInt32();
+    int surfaceId = data.ReadInt32();
+    uint64_t nodeId = 0;
 
-    // call child class, get surface void* from kelnel
-    // -> aafwk_browser_host_impl.cpp
-    sptr<IRemoteObject> surfaceObj = QueryRenderSurface(surface_id);
-    reply.WriteRemoteObject(surfaceObj);
+    auto [surfaceObj, rsHandle] = QueryRenderSurface(surfaceId, nodeId);
+    if (!reply.WriteRemoteObject(surfaceObj)) {
+        WVLOG_E("OH_NativeWindow_WriteToParcel surfaceObj failed");
+        return ERR_INVALID_STATE;
+    }
+
+    if (!reply.WriteUint64(nodeId)) {
+        WVLOG_E("OH_NativeWindow_WriteToParcel nodeId failed");
+        return ERR_INVALID_STATE;
+    }
+
+    bool hasRSHandle = (rsHandle != nullptr);
+    if (!reply.WriteBool(hasRSHandle)) {
+        WVLOG_E("OH_NativeWindow_WriteToParcel hasRSHandle failed");
+        return ERR_INVALID_STATE;
+    }
+
+    if (hasRSHandle) {
+        if (!reply.WriteRemoteObject(rsHandle)) {
+            WVLOG_E("OH_NativeWindow_WriteToParcel rsHandle failed");
+            return ERR_INVALID_STATE;
+        }
+    }
+
     return 0;
 }
 
@@ -123,18 +144,19 @@ int BrowserHost::HandleDestroyRenderSurface(MessageParcel &data, MessageParcel &
 AafwkBrowserHostImpl::AafwkBrowserHostImpl(std::shared_ptr<AafwkBrowserHostAdapter> adapter)
     : browserHostAdapter_(adapter) {}
 
-sptr<IRemoteObject> AafwkBrowserHostImpl::QueryRenderSurface(int32_t surface_id)
+std::pair<sptr<IRemoteObject>, sptr<IRemoteObject>> AafwkBrowserHostImpl::QueryRenderSurface(
+    int32_t surfaceId, uint64_t& nodeId)
 {
-    WVLOG_D("browser host impl get request for window id = %{public}d", surface_id);
+    WVLOG_D("browser host impl get request for window id = %{public}d", surfaceId);
     if (browserHostAdapter_ == nullptr) {
-        return nullptr;
+        return { nullptr, nullptr };
     }
     // send to kernel (Browser)
     bool withRef = true;
-    void* window = browserHostAdapter_->GetSurfaceFromKernelWithRef(surface_id);
+    void* window = browserHostAdapter_->GetSurfaceFromKernelWithRef(surfaceId);
     if (ArkWebGetErrno() != RESULT_OK) {
-        WVLOG_D("retry request for window id = %{public}d", surface_id);
-        window = browserHostAdapter_->GetSurfaceFromKernel(surface_id);
+        WVLOG_W("retry request for window id = %{public}d", surfaceId);
+        window = browserHostAdapter_->GetSurfaceFromKernel(surfaceId);
         withRef = false;
     }
     if (window) {
@@ -146,11 +168,33 @@ sptr<IRemoteObject> AafwkBrowserHostImpl::QueryRenderSurface(int32_t surface_id)
 
         WVLOG_D("browser host impl get request window");
         if (surface != nullptr) {
-            return surface->GetProducer()->AsObject();
+            std::string fetchedNodeId = surface->GetUserData("delegate_node_id");
+            if (!fetchedNodeId.empty()) {
+                nodeId = std::stoull(fetchedNodeId);
+            }
+            std::string fetchedRSHandle = surface->GetUserData("delegate_connect_to_render");
+            sptr<IRemoteObject> rsHandle = nullptr;
+            if (!fetchedRSHandle.empty()) {
+                uint64_t handle = static_cast<uint64_t>(std::stoull(fetchedRSHandle));
+                if (handle != 0) {
+                    IRemoteObject* rawPtr = reinterpret_cast<IRemoteObject*>(handle);
+                    if (rawPtr != nullptr) {
+                        rsHandle = sptr<IRemoteObject>(rawPtr);
+                    }
+                } else {
+                    WVLOG_W("Handle is null");
+                }
+            }
+
+            if (surface->GetProducer() == nullptr) {
+                WVLOG_W("Surface producer is null");
+                return { nullptr, nullptr };
+            }
+            return { surface->GetProducer()->AsObject(), rsHandle };
         }
     }
     WVLOG_E("browser host impl get surface from kernel failed");
-    return nullptr;
+    return { nullptr, nullptr };
 }
 
 void AafwkBrowserHostImpl::ReportThread(int32_t status, int32_t process_id, int32_t thread_id, int32_t role)
@@ -181,9 +225,11 @@ void AafwkBrowserHostImpl::PassSurface(sptr<Surface> surface, int64_t surface_id
 void AafwkBrowserHostImpl::DestroyRenderSurface(int32_t surface_id)
 {
     if (browserHostAdapter_ == nullptr) {
+        WVLOG_E("Destroy failed. surfaceId: %{public}d", surface_id);
         return;
     }
     browserHostAdapter_->DestroySurfaceFromKernel(surface_id);
     WVLOG_D("Destroy render surface id is %{public}d", surface_id);
 }
+
 } // namespace OHOS::NWeb

@@ -252,6 +252,23 @@ public:
     {
         return useCloudControlAutoLayoutConfig_;
     }
+
+    void SetSurfaceNodeIdAndRSHandle(uint64_t nodeId, uint64_t rsHandle)
+    {
+        rsHandle_ = rsHandle;
+        surfaceNodeId_ = nodeId;
+    }
+
+    uint64_t GetSurfaceNodeId() override
+    {
+        return surfaceNodeId_;
+    }
+
+    uint64_t GetSurfaceRSHandle() override
+    {
+        return rsHandle_;
+    }
+
 private:
     std::string dumpPath_;
 
@@ -265,6 +282,8 @@ private:
     std::string sharedRenderProcessToken_;
     bool emulateTouchFromMouseEvent_ = false;
     bool useCloudControlAutoLayoutConfig_ = false;
+    uint64_t rsHandle_ = 0;
+    uint64_t surfaceNodeId_ = 0;
 };
 
 class NWebEnginePrefetchArgsImpl : public NWebEnginePrefetchArgs {

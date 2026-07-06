@@ -1512,6 +1512,21 @@ public:
     {
         return false;
     }
+
+    /**
+     * @brief Called when the media enters full-screen overlay mode.
+     *
+     * @param mediaInfo The media information in JSON format.
+     */
+    virtual void OnFullScreenOverlayEnter(const char* mediaInfo) {}
+
+    /**
+     * @brief Called when the video status has changed.
+     *
+     * @param action The video status action.
+     * @param param The parameters related to the video status change.
+     */
+    virtual void OnVideoStatusChanged(const int action, const std::map<std::string, std::string> &param) {}
 };
 
 } // namespace OHOS::NWeb

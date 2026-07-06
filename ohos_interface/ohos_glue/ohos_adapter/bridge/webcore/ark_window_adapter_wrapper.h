@@ -44,6 +44,8 @@ public:
 
     void NativeWindowUnRef(ArkWebNativeWindow window) override;
 
+    void SetWindowNodeIdAndRSHandle(void* nativeWindow, uint64_t nodeId, uint64_t handle) override;
+
 private:
     ArkWebRefPtr<ArkWindowAdapter> ctocpp_;
 };

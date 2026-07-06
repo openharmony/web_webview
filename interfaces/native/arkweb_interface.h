@@ -33,6 +33,8 @@
 #ifndef ARKWEB_INTERFACE_H
 #define ARKWEB_INTERFACE_H
 
+#include <stdbool.h>
+
 #include "arkweb_type.h"
 
 #ifdef __cplusplus

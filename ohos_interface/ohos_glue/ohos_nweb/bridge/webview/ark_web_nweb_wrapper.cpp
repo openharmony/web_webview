@@ -2150,6 +2150,18 @@ void ArkWebNWebWrapper::SetKeyboardImmersiveMode(int32_t mode)
     ark_web_nweb_->SetKeyboardImmersiveMode(mode);
 }
 
+void ArkWebNWebWrapper::SetVideoSurface(void* native_window)
+{
+    ark_web_nweb_->SetVideoSurface(native_window);
+}
+
+void ArkWebNWebWrapper::RequestMediaControl(int32_t action, const std::string& param)
+{
+    ArkWebString stParam = ArkWebStringClassToStruct(param);
+    ark_web_nweb_->RequestMediaControl(action, stParam);
+    ArkWebStringStructRelease(stParam);
+}
+
 void ArkWebNWebWrapper::GetImageInfosByUrls(const std::vector<std::string>& imageUrls,
                                             const std::shared_ptr<OHOS::NWeb::NWebImageInfoCallback> callback)
 {
@@ -2190,5 +2202,20 @@ void ArkWebNWebWrapper::ExecuteAIPageCommand(
     }
 
     ArkWebStringStructRelease(stCommand);
+}
+
+std::shared_ptr<OHOS::NWeb::NWebAccessibilityNodeInfo> ArkWebNWebWrapper::GetAccessibilityNodeInfoByParams(
+    int64_t accessibility_id, int32_t direction, int32_t element_type,
+    const std::map<std::string, std::string>& params)
+{
+    ArkWebStringMap stParams = ArkWebStringMapClassToStruct(params);
+    ArkWebRefPtr<ArkWebAccessibilityNodeInfo> ark_web_accessibility_node_info =
+        ark_web_nweb_->GetAccessibilityNodeInfoByParams(accessibility_id, direction, element_type, stParams);
+    ArkWebStringMapStructRelease(stParams);
+    if (CHECK_REF_PTR_IS_NULL(ark_web_accessibility_node_info)) {
+        return nullptr;
+    }
+
+    return std::make_shared<ArkWebAccessibilityNodeInfoWrapper>(ark_web_accessibility_node_info);
 }
 } // namespace OHOS::ArkWeb

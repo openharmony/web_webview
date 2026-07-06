@@ -73,9 +73,6 @@
 #include "ani_user_agent_metadata.h"
 
 #include "bundle_mgr_proxy.h"
-#ifdef WEBVIEW_API_METRICS_ENABLE
-#include "histogram_plugin_macros.h"
-#endif
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "parameters.h"
@@ -129,6 +126,8 @@ constexpr int32_t BLANKLESS_ERR_INVALID_ARGS = 2;
 constexpr int32_t BLANKLESS_ERR_NOT_INITED = 3;
 constexpr int32_t BLANKLESS_ERR_DURATION_OUT_OF_RANGE = 6;
 constexpr int32_t BLANKLESS_ERR_EXPIRATION_TIME_OUT_OF_RANGE = 7;
+constexpr uint32_t MAX_KEYS_COUNT = 100;
+constexpr size_t MAX_KEY_LENGTH = 2048;
 constexpr int32_t MAX_BLANKLESS_DURATION_TIME = 2000;
 constexpr int32_t MIN_BLANKLESS_DURATION_TIME = 200;
 constexpr int64_t MAX_EXPIRATION_TIME = 30LL * 24 * 3600 * 1000; // 计算30天后的UTC毫秒数
@@ -1207,7 +1206,8 @@ static ani_boolean IsIntelligentTrackingPreventionEnabled(ani_env *env, ani_obje
         return ANI_FALSE;
     }
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
-    if (!controller) {
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return ANI_FALSE;
     }
     if (!controller->IsIntelligentTrackingPreventionEnabled()) {
@@ -1388,8 +1388,9 @@ static void EnableIntelligentTrackingPrevention(ani_env *env, ani_object object,
         return;
     }
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
-    if (!controller) {
-        WVLOG_E("controller is nullptr");
+    if (!controller || !controller->IsInit()) {
+        WVLOG_E("controller is nullptr or not init");
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
     WVLOG_I("enable/disable intelligent tracking prevention.");
@@ -6673,6 +6674,62 @@ static ani_boolean GetErrorPageEnabled(ani_env* env, ani_object object)
     return static_cast<ani_boolean>(controller->GetErrorPageEnabled());
 }
 
+bool ParseBlanklessString(ani_env* env, ani_ref ref, std::string& outValue)
+{
+    ani_string str = static_cast<ani_string>(ref);
+    ani_size strSize;
+    auto status = env->String_GetUTF8Size(str, &strSize);
+    if (status != ANI_OK) {
+        WVLOG_E("blankless ParseBlanklessString String_GetUTF8Size failed, status: %{public}d", status);
+        return false;
+    }
+
+    if (strSize == 0 || strSize > MAX_KEY_LENGTH) {
+        WVLOG_E("blankless ParseBlanklessString string length is invalid");
+        return false;
+    }
+
+    std::vector<char> buffer(strSize + 1);
+    char* utfBuffer = buffer.data();
+    ani_size bytes_written = 0;
+    status = env->String_GetUTF8(str, utfBuffer, strSize + 1, &bytes_written);
+    if (status != ANI_OK) {
+        WVLOG_E("blankless ParseBlanklessString String_GetUTF8 failed, status: %{public}d", status);
+        return false;
+    }
+
+    utfBuffer[bytes_written] = '\0';
+    outValue = std::string(utfBuffer, strSize);
+    return true;
+}
+
+bool ParseBlanklessStringArray(ani_env* env, ani_object keysObj, std::vector<std::string>& outValue)
+{
+    ani_array keysArray = static_cast<ani_array>(keysObj);
+    ani_size aniLength;
+    if (env->Array_GetLength(keysArray, &aniLength) != ANI_OK) {
+        WVLOG_E("blankless ParseBlanklessStringArray get array size failed");
+        return false;
+    }
+
+    uint32_t arrLen = static_cast<uint32_t>(aniLength);
+    if (arrLen > MAX_KEYS_COUNT) {
+        WVLOG_W("blankless ParseBlanklessStringArray array size should not exceed 100");
+        arrLen = MAX_KEYS_COUNT;
+    }
+
+    for (uint32_t i = 0; i < arrLen; i++) {
+        ani_ref keyItem = nullptr;
+        env->Array_Get(keysArray, i, &keyItem);
+        std::string key;
+        if (ParseBlanklessString(env, keyItem, key)) {
+            outValue.push_back(key);
+        }
+    }
+
+    return true;
+}
+
 ani_object CreateBlanklessInfo(ani_env* env, int32_t errCode, double similarity, int32_t loadingTime)
 {
     ani_object result = {};
@@ -6708,7 +6765,7 @@ ani_object GetBlanklessInfoWithKey(ani_env* env, ani_object object, ani_object k
     }
 
     std::string key;
-    if (!AniParseUtils::ParseString(env, keyObj, key)) {
+    if (!ParseBlanklessString(env, static_cast<ani_ref>(keyObj), key)) {
         WVLOG_E("GetBlanklessInfoWithKey ParseString failed");
         return CreateBlanklessInfo(env, BLANKLESS_ERR_INVALID_ARGS, 0.0, 0);
     }
@@ -6744,7 +6801,7 @@ ani_enum_item SetBlanklessLoadingWithKey(ani_env* env, ani_object object, ani_ob
 
     ani_enum_item result;
     std::string key;
-    if (!AniParseUtils::ParseString(env, keyObj, key)) {
+    if (!ParseBlanklessString(env, static_cast<ani_ref>(keyObj), key)) {
         WVLOG_E("SetBlanklessLoadingWithKey ParseString failed");
         AniParseUtils::GetEnumItemByIndex(env, ANI_ENUM_WEB_BLANKLESS_ERROR_CODE, BLANKLESS_ERR_INVALID_ARGS, result);
         return result;
@@ -6825,15 +6882,9 @@ ani_enum_item SetBlanklessLoadingWithParams(ani_env* env, ani_object object, ani
 
     ani_enum_item result;
     std::string key;
-    if (!AniParseUtils::ParseString(env, keyObj, key)) {
+    if (!ParseBlanklessString(env, static_cast<ani_ref>(keyObj), key)) {
         WVLOG_E("SetBlanklessLoadingWithKey ParseString failed");
         AniParseUtils::GetEnumItemByIndex(env, ANI_ENUM_WEB_BLANKLESS_ERROR_CODE, BLANKLESS_ERR_INVALID_ARGS, result);
-        return result;
-    }
-
-    if (!controller->IsInit()) {
-        WVLOG_E("SetBlanklessLoadingWithKey controller is not inited");
-        AniParseUtils::GetEnumItemByIndex(env, ANI_ENUM_WEB_BLANKLESS_ERROR_CODE, BLANKLESS_ERR_NOT_INITED, result);
         return result;
     }
 
@@ -6841,6 +6892,12 @@ ani_enum_item SetBlanklessLoadingWithParams(ani_env* env, ani_object object, ani
     if (auto parseResult = ParseBlanklessLoadingParam(env, param, aniParam); parseResult != BLANKLESS_SUCCESS) {
         WVLOG_E("SetBlanklessLoadingWithKey ParseParam failed");
         AniParseUtils::GetEnumItemByIndex(env, ANI_ENUM_WEB_BLANKLESS_ERROR_CODE, parseResult, result);
+        return result;
+    }
+
+    if (!controller->IsInit()) {
+        WVLOG_E("SetBlanklessLoadingWithKey controller is not inited");
+        AniParseUtils::GetEnumItemByIndex(env, ANI_ENUM_WEB_BLANKLESS_ERROR_CODE, BLANKLESS_ERR_NOT_INITED, result);
         return result;
     }
 
@@ -6898,8 +6955,14 @@ static void ClearBlanklessLoadingCache(ani_env* env, ani_object object, ani_obje
         NWebHelper::Instance().ClearBlanklessLoadingCache(keys);
         return;
     }
-    if (!AniParseUtils::GetStringList(env, keysObj, keys)) {
-        WVLOG_E("GetStringList failed.");
+
+    if (!ParseBlanklessStringArray(env, keysObj, keys)) {
+        WVLOG_E("ClearBlanklessLoadingCache parse string array failed");
+        return;
+    }
+
+    if (keys.size() == 0) {
+        WVLOG_W("ClearBlanklessLoadingCache valid keys are 0");
         return;
     }
     NWebHelper::Instance().ClearBlanklessLoadingCache(keys);
@@ -7504,11 +7567,6 @@ static ani_enum_item GetActiveWebEngineVersion(ani_env *env, ani_object object)
     }
 
     auto version = OHOS::ArkWeb::getActiveWebEngineVersion();
-#ifdef WEBVIEW_API_METRICS_ENABLE
-    HISTOGRAM_ENUMERATION("ArkWeb.DualCore.ArkTS.Sta.getActiveWebEngineVersion",
-                          static_cast<int32_t>(OHOS::ArkWeb::MapToMetricsVersion(version)),
-                          static_cast<int32_t>(OHOS::ArkWeb::ArkWebEngineVersionMetrics::COUNT) - 1);
-#endif
     ani_enum_item aniEnumState;
     if ((status = (env->Enum_GetEnumItemByIndex(enumType, static_cast<ani_int>(version),
                                                 &aniEnumState))) != ANI_OK) {
@@ -7538,11 +7596,6 @@ static void SetActiveWebEngineVersion(ani_env *env, ani_object object, ani_enum_
     WVLOG_D("SetActiveWebEngineVersion start");
     auto version = static_cast<OHOS::ArkWeb::ArkWebEngineVersion>(aniVersion);
     OHOS::ArkWeb::setActiveWebEngineVersion(version);
-#ifdef WEBVIEW_API_METRICS_ENABLE
-    HISTOGRAM_ENUMERATION("ArkWeb.DualCore.ArkTS.Sta.setActiveWebEngineVersion",
-                          static_cast<int32_t>(OHOS::ArkWeb::MapToMetricsVersion(version)),
-                          static_cast<int32_t>(OHOS::ArkWeb::ArkWebEngineVersionMetrics::COUNT) - 1);
-#endif
 }
 
 static ani_boolean IsActiveWebEngineEvergreen(ani_env *env, ani_object object)
