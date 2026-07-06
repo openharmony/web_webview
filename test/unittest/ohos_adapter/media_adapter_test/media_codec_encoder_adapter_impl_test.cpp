@@ -353,7 +353,7 @@ HWTEST_F(MediaCodecEncoderAdapterImplTest, MediaCodecEncoderAdapterImpl_Surface_
 {
     const std::string mimetype = "video/avc";
     bool supportYUVI420 = false;
-    OH_AVCapability* avCap = OH_AVCodec_GetCapabilityByCategory(mimetype.c_str(), false, SOFTWARE);
+    OH_AVCapability* avCap = OH_AVCodec_GetCapabilityByCategory(mimetype.c_str(), true, HARDWARE);
     if (!avCap) {
         return;
     }
