@@ -6668,14 +6668,14 @@ static void SetErrorPageEnabledWithSubframe(ani_env* env, ani_object object,
         WVLOG_E("env is nullptr");
         return;
     }
- 
+
     WVLOG_D("SetErrorPageEnabledWithSubframe in ani start");
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
     if (!controller || !controller->IsInit()) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return;
     }
- 
+
     bool enable = static_cast<bool>(aniEnable);
     bool includeSubframe = static_cast<bool>(aniIncludeSubframe);
     ErrCode ret = controller->SetErrorPageEnabled(enable, includeSubframe);
@@ -6711,14 +6711,14 @@ static ani_boolean GetSubframeErrorPageEnabled(ani_env* env, ani_object object)
         WVLOG_E("env is nullptr");
         return ANI_FALSE;
     }
- 
+
     WVLOG_D("GetSubframeErrorPageEnabled in ani start");
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
     if (!controller || !controller->IsInit()) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
         return ANI_FALSE;
     }
- 
+
     return static_cast<ani_boolean>(controller->GetSubframeErrorPageEnabled());
 }
 
