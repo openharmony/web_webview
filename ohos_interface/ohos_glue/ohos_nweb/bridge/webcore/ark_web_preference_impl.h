@@ -666,6 +666,7 @@ public:
      * Set whether to connect to media avsession.
      */
     void PutWebMediaAVSessionEnabled(bool enable) override;
+    void PutWebMediaNetworkProxyEnabled(bool enable) override;
 
     /**
      * @brief Set the scale of the font-weight.The default is 1.0f.

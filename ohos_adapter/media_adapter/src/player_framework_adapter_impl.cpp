@@ -21,6 +21,8 @@
 #include "surface/window.h"
 #include "native_window.h"
 
+#include <securec.h>
+
 namespace OHOS::NWeb {
 namespace {
 bool IsUnsupportType(int32_t errorCode)
@@ -326,6 +328,127 @@ int32_t PlayerAdapterImpl::SetMediaSourceHeader(const std::string& url,
     std::shared_ptr<Media::AVMediaSource> mediaSource = std::make_shared<Media::AVMediaSource>(url, header);
     Media::AVPlayStrategy strategy;
     return player_->SetMediaSource(mediaSource, strategy);
+}
+
+// --- LoaderCallbackImpl ---
+
+LoaderCallbackImpl::LoaderCallbackImpl(std::shared_ptr<MediaSourceDataHandler> handler)
+    : handler_(std::move(handler)) {}
+
+int64_t LoaderCallbackImpl::Open(std::shared_ptr<Media::LoadingRequest>& request)
+{
+    WVLOG_I("LoaderCallbackImpl::Open enter");
+    std::lock_guard<std::mutex> lock(mutex_);
+    int64_t uuid = request->GetUniqueId();
+    requests_[uuid] = request;
+    return handler_->HandleDataOpen(request->GetUrl(), request->GetHeader());
+}
+
+void LoaderCallbackImpl::Read(int64_t uuid, int64_t offset, int64_t length)
+{
+    WVLOG_I("LoaderCallbackImpl::Read enter");
+    handler_->HandleDataRead(uuid, offset, length);
+}
+
+void LoaderCallbackImpl::Close(int64_t uuid)
+{
+    WVLOG_I("LoaderCallbackImpl::Close enter");
+    std::lock_guard<std::mutex> lock(mutex_);
+    handler_->HandleDataClose(uuid);
+    requests_.erase(uuid);
+}
+
+void LoaderCallbackImpl::OnRespondHeader(int64_t uuid,
+    std::map<std::string, std::string> header, std::string redirectUrl)
+{
+    WVLOG_I("LoaderCallbackImpl::OnRespondHeader enter");
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto it = requests_.find(uuid);
+    if (it != requests_.end()) {
+        it->second->RespondHeader(uuid, header, redirectUrl);
+    }
+}
+
+void LoaderCallbackImpl::OnRespondData(int64_t uuid, int64_t offset,
+    const std::vector<uint8_t>& data)
+{
+    WVLOG_I("LoaderCallbackImpl::OnRespondData enter");
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto it = requests_.find(uuid);
+    if (it == requests_.end() || data.empty()) {
+        return;
+    }
+    // AVSharedMemory is abstract (no Create); AVSharedMemoryBase is the concrete
+    // class. The constructor only stores size/flags/name (base_ == nullptr) — Init()
+    // allocates + mmaps the ashmem, so GetBase() is valid only after it succeeds.
+    // Mirrors player_framework's custom_loader_callback.cpp.
+    auto mem = std::make_shared<Media::AVSharedMemoryBase>(
+        static_cast<int32_t>(data.size()), Media::AVSharedMemory::FLAGS_READ_WRITE, "hlsProxyData");
+    if (mem->Init() != 0 || mem->GetBase() == nullptr) {
+        WVLOG_E("AVSharedMemoryBase Init failed, size=%{public}zu", data.size());
+        return;
+    }
+    if (memcpy_s(mem->GetBase(), data.size(), data.data(), data.size()) != EOK) {
+        WVLOG_E("memcpy_s failed, size=%{public}zu", data.size());
+        return;
+    }
+    it->second->RespondData(uuid, offset, mem);
+}
+
+void LoaderCallbackImpl::OnFinishLoading(int64_t uuid, int32_t errorCode)
+{
+    WVLOG_I("LoaderCallbackImpl::OnFinishLoading enter");
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto it = requests_.find(uuid);
+    if (it != requests_.end()) {
+        it->second->FinishLoading(uuid, errorCode);
+        requests_.erase(uuid);
+    }
+}
+
+// --- PlayerAdapterImpl HLS methods ---
+
+int32_t PlayerAdapterImpl::SetMediaSourceHeaderForHls(const std::string& url,
+    const std::map<std::string, std::string>& header,
+    std::shared_ptr<MediaSourceDataHandler> handler)
+{
+    WVLOG_I("PlayerAdapterImpl::SetMediaSourceHeaderForHls enter");
+    if (!player_ || !handler) {
+        WVLOG_E("player_ or handler is nullptr");
+        return -1;
+    }
+    loader_callback_ = std::make_shared<LoaderCallbackImpl>(std::move(handler));
+    auto mediaSource = std::make_shared<Media::AVMediaSource>(url, header);
+    mediaSource->mediaSourceLoaderCb_ = loader_callback_;
+    Media::AVPlayStrategy strategy;
+    return player_->SetMediaSource(mediaSource, strategy);
+}
+
+void PlayerAdapterImpl::OnDataRespondHeader(int64_t uuid,
+    const std::map<std::string, std::string>& header,
+    const std::string& redirectUrl)
+{
+    WVLOG_I("PlayerAdapterImpl::OnDataRespondHeader enter");
+    if (loader_callback_) {
+        loader_callback_->OnRespondHeader(uuid, header, redirectUrl);
+    }
+}
+
+void PlayerAdapterImpl::OnDataRespondData(int64_t uuid, int64_t offset,
+    const std::vector<uint8_t>& data)
+{
+    WVLOG_I("PlayerAdapterImpl::OnDataRespondData enter");
+    if (loader_callback_) {
+        loader_callback_->OnRespondData(uuid, offset, data);
+    }
+}
+
+void PlayerAdapterImpl::OnDataFinishLoading(int64_t uuid, int32_t errorCode)
+{
+    WVLOG_I("PlayerAdapterImpl::OnDataFinishLoading enter");
+    if (loader_callback_) {
+        loader_callback_->OnFinishLoading(uuid, errorCode);
+    }
 }
 
 } // namespace OHOS::NWeb

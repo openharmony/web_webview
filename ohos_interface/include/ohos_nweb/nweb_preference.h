@@ -673,6 +673,11 @@ public:
     virtual void PutWebMediaAVSessionEnabled(bool enable) {}
 
     /**
+     * Set whether to enable media network proxy (HLS proxy download).
+     */
+    virtual void PutWebMediaNetworkProxyEnabled(bool enable) {}
+
+    /**
      * Set whether to use the intrinsic size. The default is false.
      */
     virtual void SetIntrinsicSizeEnable(bool enable) {}

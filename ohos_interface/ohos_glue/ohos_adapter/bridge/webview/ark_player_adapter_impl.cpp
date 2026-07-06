@@ -16,6 +16,7 @@
 #include "ohos_adapter/bridge/ark_player_adapter_impl.h"
 
 #include "ohos_adapter/bridge/ark_iconsumer_surface_adapter_impl.h"
+#include "ohos_adapter/bridge/ark_media_source_data_handler_wrapper.h"
 #include "ohos_adapter/bridge/ark_player_callback_adapter_wrapper.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
@@ -101,6 +102,38 @@ int32_t ArkPlayerAdapterImpl::SetMediaSourceHeader(const ArkWebString& url,
     std::string surl = ArkWebStringStructToClass(url);
     std::map<std::string, std::string> sheader = ArkWebStringMapStructToClass(header);
     return real_->SetMediaSourceHeader(surl, sheader);
+}
+
+int32_t ArkPlayerAdapterImpl::SetMediaSourceHeaderForHls(const ArkWebString& url,
+    const ArkWebStringMap& header, ArkWebRefPtr<ArkMediaSourceDataHandler> handler)
+{
+    std::string surl = ArkWebStringStructToClass(url);
+    std::map<std::string, std::string> sheader = ArkWebStringMapStructToClass(header);
+    if (CHECK_REF_PTR_IS_NULL(handler)) {
+        return real_->SetMediaSourceHeaderForHls(surl, sheader, nullptr);
+    }
+    return real_->SetMediaSourceHeaderForHls(surl, sheader,
+        std::make_shared<ArkMediaSourceDataHandlerWrapper>(handler));
+}
+
+void ArkPlayerAdapterImpl::OnDataRespondHeader(int64_t uuid, const ArkWebStringMap& header,
+    const ArkWebString& redirectUrl)
+{
+    std::map<std::string, std::string> sheader = ArkWebStringMapStructToClass(header);
+    std::string sredirect = ArkWebStringStructToClass(redirectUrl);
+    real_->OnDataRespondHeader(uuid, sheader, sredirect);
+}
+
+void ArkPlayerAdapterImpl::OnDataRespondData(int64_t uuid, int64_t offset,
+    const ArkWebUint8Vector& data)
+{
+    std::vector<uint8_t> sdata = ArkWebBasicVectorStructToClass<uint8_t, ArkWebUint8Vector>(data);
+    real_->OnDataRespondData(uuid, offset, sdata);
+}
+
+void ArkPlayerAdapterImpl::OnDataFinishLoading(int64_t uuid, int32_t errorCode)
+{
+    real_->OnDataFinishLoading(uuid, errorCode);
 }
 
 } // namespace OHOS::ArkWeb

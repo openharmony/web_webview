@@ -54,6 +54,16 @@ public:
 
     int32_t SetMediaSourceHeader(const std::string& url, const std::map<std::string, std::string>& header) override;
 
+    int32_t SetMediaSourceHeaderForHls(const std::string& url, const std::map<std::string, std::string>& header,
+                                       std::shared_ptr<OHOS::NWeb::MediaSourceDataHandler> handler) override;
+
+    void OnDataRespondHeader(int64_t uuid, const std::map<std::string, std::string>& header,
+                             const std::string& redirectUrl) override;
+
+    void OnDataRespondData(int64_t uuid, int64_t offset, const std::vector<uint8_t>& data) override;
+
+    void OnDataFinishLoading(int64_t uuid, int32_t errorCode) override;
+
 private:
     ArkWebRefPtr<ArkPlayerAdapter> ctocpp_;
 };
