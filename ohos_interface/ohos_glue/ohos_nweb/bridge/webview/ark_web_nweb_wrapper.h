@@ -1767,7 +1767,7 @@ public:
      * @param includeSubframe bool: Whether also enable error page for iframes.
      */
     void SetErrorPageEnabled(bool enable, bool includeSubframe) override;
- 
+
     /**
      * @brief Get whether iframe error page feature is enabled.
      */

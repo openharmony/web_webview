@@ -891,7 +891,7 @@ public:
     {
         return 0;
     }
- 
+
     bool GetSubframeErrorPageEnabled()
     {
         return false;

@@ -8030,14 +8030,14 @@ napi_value NapiWebviewController::GetSubframeErrorPageEnabled(napi_env env, napi
         NAPI_CALL(env, napi_get_boolean(env, iframeErrorPageEnabled, &result));
         return result;
     }
- 
+
     WVLOG_D("GetSubframeErrorPageEnabled start");
     WebviewController *controller = GetWebviewController(env, info);
     if (!controller || !controller->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
- 
+
     iframeErrorPageEnabled = controller->GetSubframeErrorPageEnabled();
     NAPI_CALL(env, napi_get_boolean(env, iframeErrorPageEnabled, &result));
     return result;

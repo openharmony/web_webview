@@ -2389,7 +2389,7 @@ public:
      */
     /*--ark web()--*/
     virtual void SetErrorPageEnabled(bool enable, bool includeSubframe) = 0;
- 
+
     /**
      * @brief Get whether iframe error page feature is enabled.
      */

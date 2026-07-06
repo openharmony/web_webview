@@ -460,7 +460,7 @@ public:
     bool GetErrorPageEnabled();
 
     ErrCode SetErrorPageEnabled(bool enable, bool includeSubframe);
- 
+
     bool GetSubframeErrorPageEnabled();
 
     int32_t GetBlanklessInfoWithKey(const std::string& key, double* similarity, int32_t* loadingTime);
