@@ -2931,25 +2931,7 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultV2(
         WVLOG_E("get javaScript result, jsobj null");
         return;
     }
-
-    auto engine = reinterpret_cast<NativeEngine*>(jsObj->GetAniEnv());
-    if (engine == nullptr) {
-        WVLOG_E("get javaScript result, engine is null");
-        return;
-    }
-
-    if (pthread_self() == engine->GetTid()) {
-        GetJavaScriptResultSelfV2(args, method, routingId, objectId, result);
-    } else {
-        WVLOG_D("get javaScript result, not in js thread, post task to js thread");
-        auto nwebId = GetNWebId();
-        ani_env* env = jsObj->GetAniEnv();
-        std::vector<ani_object> argv = {};
-        for (auto& input : args) {
-            argv.push_back(ParseNwebValue2AniValueV2(env, input, GetObjectMap(), nwebId, routingId, objectId));
-        }
-        PostGetJavaScriptResultToJsThreadV2(argv, method, routingId, objectId, result);
-    }
+    GetJavaScriptResultSelfV2(args, method, routingId, objectId, result);
 }
 
 void WebviewJavaScriptResultCallBack::GetJavaScriptResultSelfV2(const std::vector<std::shared_ptr<NWebHapValue>>& args,
