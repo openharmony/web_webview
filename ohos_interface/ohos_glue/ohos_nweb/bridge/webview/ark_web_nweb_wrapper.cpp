@@ -1810,6 +1810,16 @@ bool ArkWebNWebWrapper::GetErrorPageEnabled()
     return ark_web_nweb_->GetErrorPageEnabled();
 }
 
+void ArkWebNWebWrapper::SetErrorPageEnabled(bool enable, bool includeSubframe)
+{
+    ark_web_nweb_->SetErrorPageEnabled(enable, includeSubframe);
+}
+
+bool ArkWebNWebWrapper::GetSubframeErrorPageEnabled()
+{
+    return ark_web_nweb_->GetSubframeErrorPageEnabled();
+}
+
 ArkWebDestroyMode ArkWebNWebWrapper::GetWebDestroyMode()
 {
     int res = ark_web_nweb_->GetWebDestroyMode();

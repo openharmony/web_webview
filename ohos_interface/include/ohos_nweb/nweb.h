@@ -2608,6 +2608,21 @@ public:
         (void)params;
         return nullptr;
     }
+
+    /**
+     * @brief Set whether enable the error page. onOverrideErrorPage will be triggered when the page error.
+     *
+     * @param enable bool: Whether enable the error page.
+     * @param includeSubframe bool: Whether also enable the error page for iframes. Default false.
+     *         When enable is false, both main frame and iframe error pages are disabled.
+     *         When enable is true and includeSubframe is true, iframe error pages are also enabled.
+     */
+    virtual void SetErrorPageEnabled(bool enable, bool includeSubframe) {}
+
+    /**
+     * @brief Get whether iframe error page feature is enabled.
+     */
+    virtual bool GetSubframeErrorPageEnabled() { return false; }
 };
 } // namespace OHOS::NWeb
 

@@ -1541,6 +1541,16 @@ bool ArkWebNWebImpl::GetErrorPageEnabled()
     return nweb_nweb_->GetErrorPageEnabled();
 }
 
+void ArkWebNWebImpl::SetErrorPageEnabled(bool enable, bool includeSubframe)
+{
+    nweb_nweb_->SetErrorPageEnabled(enable, includeSubframe);
+}
+
+bool ArkWebNWebImpl::GetSubframeErrorPageEnabled()
+{
+    return nweb_nweb_->GetSubframeErrorPageEnabled();
+}
+
 int32_t ArkWebNWebImpl::GetWebDestroyMode()
 {
     return static_cast<int32_t>(nweb_nweb_->GetWebDestroyMode());

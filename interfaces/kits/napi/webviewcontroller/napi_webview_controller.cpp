@@ -775,6 +775,7 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("isSafeBrowsingEnabled", NapiWebviewController::IsSafeBrowsingEnabled),
         DECLARE_NAPI_FUNCTION("setErrorPageEnabled", NapiWebviewController::SetErrorPageEnabled),
         DECLARE_NAPI_FUNCTION("getErrorPageEnabled", NapiWebviewController::GetErrorPageEnabled),
+        DECLARE_NAPI_FUNCTION("getSubframeErrorPageEnabled", NapiWebviewController::GetSubframeErrorPageEnabled),
         DECLARE_NAPI_FUNCTION("getSecurityLevel", NapiWebviewController::GetSecurityLevel),
         DECLARE_NAPI_FUNCTION("isIncognitoMode", NapiWebviewController::IsIncognitoMode),
         DECLARE_NAPI_FUNCTION("setPrintBackground", NapiWebviewController::SetPrintBackground),
@@ -7950,15 +7951,16 @@ napi_value NapiWebviewController::SetErrorPageEnabled(napi_env env, napi_callbac
 
     napi_value result = nullptr;
     napi_value thisVar = nullptr;
-    size_t argc = INTEGER_ONE;
-    napi_value argv[INTEGER_ONE] = {0};
+    size_t argc = INTEGER_TWO;
+    napi_value argv[INTEGER_TWO] = {0};
 
     NAPI_CALL(env, napi_get_undefined(env, &result));
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
-    if (argc != INTEGER_ONE) {
-        WVLOG_E("BusinessError: 401. Args count of 'SetErrorPageEnabled' must be 1.");
-        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
-        return nullptr;
+    if (argc != INTEGER_ONE && argc != INTEGER_TWO) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(
+                ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_TWO, "one", "two"));
+        return result;
     }
 
     bool errorPageEnabled = false;
@@ -7968,13 +7970,28 @@ napi_value NapiWebviewController::SetErrorPageEnabled(napi_env env, napi_callbac
         return nullptr;
     }
 
+    bool includeSubframe = false;
+    if (argc == INTEGER_TWO) {
+        if (!NapiParseUtils::ParseBoolean(env, argv[1], includeSubframe)) {
+            BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+                NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "includeSubframe", "boolean"));
+            return nullptr;
+        }
+    }
+
     WebviewController *controller = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&controller);
     if ((!controller) || (status != napi_ok) || !controller->IsInit()) {
         BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
         return nullptr;
     }
-    ErrCode ret = controller->SetErrorPageEnabled(errorPageEnabled);
+
+    ErrCode ret;
+    if (argc == INTEGER_ONE) {
+        ret = controller->SetErrorPageEnabled(errorPageEnabled);
+    } else {
+        ret = controller->SetErrorPageEnabled(errorPageEnabled, includeSubframe);
+    }
     if (ret != NO_ERROR) {
         BusinessError::ThrowErrorByErrcode(env, ret);
         return nullptr;
@@ -8001,6 +8018,28 @@ napi_value NapiWebviewController::GetErrorPageEnabled(napi_env env, napi_callbac
 
     getErrorPageEnabled = controller->GetErrorPageEnabled();
     NAPI_CALL(env, napi_get_boolean(env, getErrorPageEnabled, &result));
+    return result;
+}
+
+napi_value NapiWebviewController::GetSubframeErrorPageEnabled(napi_env env, napi_callback_info info)
+{
+    napi_value result = nullptr;
+    bool iframeErrorPageEnabled = false;
+    if (IS_CALLING_FROM_M114()) {
+        WVLOG_W("GetSubframeErrorPageEnabled unsupported engine version: M114");
+        NAPI_CALL(env, napi_get_boolean(env, iframeErrorPageEnabled, &result));
+        return result;
+    }
+
+    WVLOG_D("GetSubframeErrorPageEnabled start");
+    WebviewController *controller = GetWebviewController(env, info);
+    if (!controller || !controller->IsInit()) {
+        BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
+        return nullptr;
+    }
+
+    iframeErrorPageEnabled = controller->GetSubframeErrorPageEnabled();
+    NAPI_CALL(env, napi_get_boolean(env, iframeErrorPageEnabled, &result));
     return result;
 }
 

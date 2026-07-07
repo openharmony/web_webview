@@ -437,6 +437,7 @@ private:
     static napi_value AvoidVisibleViewportBottom(napi_env env, napi_callback_info info);
     static napi_value SetErrorPageEnabled(napi_env env, napi_callback_info info);
     static napi_value GetErrorPageEnabled(napi_env env, napi_callback_info info);
+    static napi_value GetSubframeErrorPageEnabled(napi_env env, napi_callback_info info);
     static napi_value EnablePrivateNetworkAccess(napi_env env, napi_callback_info info);
     static napi_value IsPrivateNetworkAccessEnabled(napi_env env, napi_callback_info info);
     static napi_value SetWebDestroyMode(napi_env env, napi_callback_info info);
