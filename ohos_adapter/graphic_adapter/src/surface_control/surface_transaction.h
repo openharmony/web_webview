@@ -25,6 +25,7 @@
 #include "ipc_callbacks/rs_delegate_composite_callback.h"
 #include "feature/delegate_composite/rs_delegate_composite_listener.h"
 #include "common/rs_common_def.h"
+#include "ui/rs_ui_context_manager.h"
 
 namespace OHOS {
 namespace NWeb {
@@ -40,6 +41,46 @@ private:
     SurfaceTransactionStats& operator=(const SurfaceTransactionStats&) = delete;
     SurfaceTransactionStats(SurfaceTransactionStats&&) = delete;
     SurfaceTransactionStats& operator=(SurfaceTransactionStats&&) = delete;
+};
+
+class ScopedTransaction {
+public:
+    ScopedTransaction()
+    {
+        std::shared_ptr<OHOS::Rosen::RSUIContext> uiContext = SurfaceControl::GetRSUIContext();
+        if (uiContext) {
+            transaction_ = uiContext->GetRSTransaction();
+        }
+        if (transaction_) {
+            transaction_->Begin();
+        } else {
+            RS_TRACE_NAME("ScopedTransaction init fail, transaction is nullptr");
+        }
+    }
+
+    ~ScopedTransaction()
+    {
+        if (transaction_) {
+            transaction_->Commit();
+            RS_TRACE_NAME("~ScopedTransaction commit success");
+        } else {
+            RS_TRACE_NAME("~ScopedTransaction commit fail, transaction is nullptr");
+        }
+    }
+
+    void AddCommand(std::unique_ptr<OHOS::Rosen::RSCommand> cmd)
+    {
+        if (transaction_) {
+            transaction_->AddCommand(cmd, true);
+        } else {
+            RS_TRACE_NAME("ScopedTransaction AddCommand, transaction is nullptr");
+        }
+    }
+
+    ScopedTransaction(const ScopedTransaction&) = delete;
+    ScopedTransaction& operator=(const ScopedTransaction&) = delete;
+private:
+    std::shared_ptr<OHOS::Rosen::RSTransactionHandler> transaction_ = nullptr;
 };
 
 class RSC_EXPORT SurfaceTransaction {
@@ -86,9 +127,6 @@ private:
     std::vector<std::function<void()>> bufferCommands_;
     std::set<sptr<SurfaceControl>> surfaceControls_;
     sptr<Rosen::SurfaceTransactionListener> listener_ = nullptr;
-    uint64_t seqNum_ = 0;
-    std::atomic<uint64_t> commandSeqNum_ = 0;
-    std::map<uint64_t, SurfaceTransaction::OnCompleteCallback> onCompleteCallbackMap_;
 };
 } // namespace NWeb
 } // namespace OHOS

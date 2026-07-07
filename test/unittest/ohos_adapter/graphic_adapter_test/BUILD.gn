@@ -18,6 +18,8 @@ config("module_private_config") {
 
   include_dirs = [
     "../../../../ohos_adapter/graphic_adapter/include",
+    "../../../../ohos_adapter/graphic_adapter/src/surface_control",
+    "../../../../ohos_adapter/graphic_adapter/src/surface_control/interface",
     "../../../../ohos_nweb/include",
   ]
 }
@@ -47,6 +49,85 @@ ohos_unittest("graphic_adapter_test") {
     "graphic_2d:libnative_image",
     "hilog:libhilog",
     "relational_store:native_rdb",
+  ]
+}
+
+ohos_unittest("surface_control_test") {
+  module_out_path = "webview/surface_control"
+
+  sources = [ "surface_control_test.cpp" ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [ "../../../../ohos_adapter:nweb_ohos_adapter" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+    "graphic_2d:librender_service_base",
+    "graphic_2d:librender_service_client",
+    "graphic_surface:surface",
+    "hilog:libhilog",
+  ]
+}
+
+ohos_unittest("oh_surface_control_test") {
+  module_out_path = "webview/oh_surface_control"
+
+  sources = [ "oh_surface_control_test.cpp" ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [ "../../../../ohos_adapter:nweb_ohos_adapter" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+    "graphic_2d:librender_service_base",
+    "graphic_2d:librender_service_client",
+    "graphic_surface:surface",
+    "hilog:libhilog",
+  ]
+}
+
+ohos_unittest("surface_transaction_test") {
+  module_out_path = "webview/surface_transaction"
+
+  sources = [ "surface_transaction_test.cpp" ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [ "../../../../ohos_adapter:nweb_ohos_adapter" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+    "graphic_2d:librender_service_base",
+    "graphic_2d:librender_service_client",
+    "graphic_surface:surface",
+    "hilog:libhilog",
+  ]
+}
+
+ohos_unittest("surface_transaction_helper_test") {
+  module_out_path = "webview/surface_transaction_helper"
+
+  sources = [ "surface_transaction_helper_test.cpp" ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [ "../../../../ohos_adapter:nweb_ohos_adapter" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+    "graphic_2d:librender_service_base",
+    "graphic_2d:librender_service_client",
+    "hilog:libhilog",
   ]
 }
 
@@ -98,11 +179,40 @@ ohos_unittest("ashmem_adapter_impl_test") {
   ]
 }
 
+ohos_unittest("surface_control_adapter_impl_test") {
+  module_out_path = "webview/render_gpu"
+
+  sources = [ "surface_control_adapter_impl_test.cpp" ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [ "../../../../ohos_adapter:nweb_ohos_adapter" ]
+
+  external_deps = [
+    "ability_runtime:app_manager",
+    "c_utils:utils",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+    "graphic_2d:libcomposer",
+    "graphic_2d:librender_service_base",
+    "graphic_2d:librender_service_client",
+    "graphic_surface:surface",
+    "graphic_2d:libnative_image",
+    "hilog:libhilog",
+    "relational_store:native_rdb",
+  ]
+}
+
 group("unittest") {
   testonly = true
   deps = [
     ":ashmem_adapter_impl_test",
     ":graphic_adapter_test",
     ":surface_adapter_impl_test",
+    ":surface_control_test",
+    ":surface_control_adapter_impl_test",
+    ":oh_surface_control_test",
+    ":surface_transaction_test",
+    ":surface_transaction_helper_test",
   ]
 }

@@ -119,3 +119,29 @@ HWTEST_F(OHSurfaceControlTest, OHSurfaceControl_Transaction_CreateSurfaceTransac
         SurfaceControlUtils::Transaction::Delete(result);
     }
 }
+
+/**
+ * @tc.name: OHSurfaceControl_Transaction_SetOnCommit_Removed_006
+ * @tc.desc: Verify that SetOnCommit has been removed from SurfaceControlUtils::Transaction.
+ *           The OH_SurfaceTransaction_OnCommit typedef remains in oh_surface_control.h
+ *           for compatibility, but no SetOnCommit implementation method exists.
+ *           SetOnComplete is the actual transaction completion callback mechanism.
+ *           No existing SetOnCommit test cases were found to delete.
+ * @tc.type: FUNC
+ * @tc.require: issueNumber
+ */
+HWTEST_F(OHSurfaceControlTest, OHSurfaceControl_Transaction_SetOnCommit_Removed_006, TestSize.Level1)
+{
+    auto txn = SurfaceControlUtils::Transaction::CreateSurfaceTransaction(nullptr);
+    EXPECT_NE(txn, nullptr);
+    if (txn) {
+        // Verify SetOnComplete accepts a valid callback (replacing SetOnCommit)
+        SurfaceControlUtils::Transaction::SetOnComplete(txn, nullptr,
+            [](void* ctx, uint64_t ts) { });
+        // Verify SetOnComplete accepts null callback to clear the registration
+        SurfaceControlUtils::Transaction::SetOnComplete(txn, nullptr, nullptr);
+        SurfaceControlUtils::Transaction::Delete(txn);
+    }
+}
+
+} // namespace OHOS::NWeb

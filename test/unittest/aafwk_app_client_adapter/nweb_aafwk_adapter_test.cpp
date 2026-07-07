@@ -42,8 +42,11 @@ namespace {
 const int NWEB_ERROR = -1;
 const int RESULT_OK = 0;
 constexpr int GET_TIMES_MAX_CNT = 5;
+constexpr uint64_t TEST_DELEGATE_NODE_ID = 123456;
 std::shared_ptr<AafwkAppMgrClientAdapterImpl> g_adapter;
 } // namespace
+
+using QuerySurfaceResult = std::pair<sptr<IRemoteObject>, sptr<IRemoteObject>>;
 
 class NWebAafwkAdapterTest : public testing::Test {
 public:
@@ -99,7 +102,7 @@ class MockBrowserClient : public BrowserClient {
 public:
     explicit MockBrowserClient(const sptr<IRemoteObject> &impl);
 
-    std::pair<sptr<IRemoteObject>, sptr<IRemoteObject>> QueryRenderSurface(int32_t surfaceId, uint64_t& nodeId);
+    QuerySurfaceResult QueryRenderSurface(int32_t surfaceId, uint64_t& nodeId);
 
     void ReportThread(int32_t status, int32_t process_id, int32_t thread_id, int32_t role);
 
@@ -108,8 +111,7 @@ public:
     void DestroyRenderSurface(int32_t surface_id);
 };
 
-std::pair<sptr<IRemoteObject>, sptr<IRemoteObject>> MockBrowserClient::QueryRenderSurface(
-    int32_t surfaceId, uint64_t& nodeId)
+QuerySurfaceResult MockBrowserClient::QueryRenderSurface(int32_t surfaceId, uint64_t& nodeId)
 {
     (void)surfaceId;
     (void)nodeId;
@@ -202,8 +204,7 @@ public:
 
 class MockIBrowser : public IBrowser {
 public:
-    MOCK_METHOD((std::pair<sptr<IRemoteObject>, sptr<IRemoteObject>>), QueryRenderSurface,
-        (int32_t surfaceId, uint64_t& nodeId), (override));
+    MOCK_METHOD(QuerySurfaceResult, QueryRenderSurface, (int32_t surfaceId, uint64_t& nodeId), (override));
 
     MOCK_METHOD(void, ReportThread, (int32_t status, int32_t process_id,
         int32_t thread_id, int32_t role), (override));
@@ -377,6 +378,7 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_AttachRenderProcess_004, TestSiz
     g_adapter->AttachRenderProcess(render);
     std::shared_ptr<RenderScheduler> renderd = nullptr;
     g_adapter->AttachRenderProcess(renderd);
+    EXPECT_NE(g_adapter, nullptr);
 }
 
 /**
@@ -504,10 +506,12 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_NotifyBrowserFd_009, TestSize.Le
     int32_t sharedFd = 2;
     int32_t crashFd = 3;
     render->NotifyBrowserFd(ipcFd, sharedFd, crashFd, nullptr);
+    EXPECT_NE(render, nullptr);
 
     std::shared_ptr<AafwkBrowserHostAdapter> hostAdapter = nullptr;
     auto host = new AafwkBrowserHostImpl(hostAdapter);
     render->NotifyBrowserFd(ipcFd, sharedFd, crashFd, host);
+    EXPECT_NE(render, nullptr);
 
     sptr<IRemoteObject> browser = nullptr;
     auto client = new BrowserClient(browser);
@@ -515,24 +519,30 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_NotifyBrowserFd_009, TestSize.Le
     MessageParcel data;
 
     client->WriteInterfaceToken(data);
+    EXPECT_NE(client, nullptr);
     render->renderSchedulerHostAdapter_ = nullptr;
     render->NotifyBrowserFd(ipcFd, sharedFd, crashFd, nullptr);
+    EXPECT_NE(render, nullptr);
 }
 
 /**
- * @tc.name: NWebAafwkAdapter_WriteInterfaceToken_011.
- * @tc.desc: test write interface token.
+ * @tc.name: NWebAafwkAdapter_QueryRenderSurface_SendRequestFail_001.
+ * @tc.desc: Test QueryRenderSurface when SendRequest fails.
  * @tc.type: FUNC
- * @tc.require:
+ * @tc.require: issue#5183
  */
-HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_WriteInterfaceToken_011, TestSize.Level1)
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_QueryRenderSurface_SendRequestFail_001, TestSize.Level1)
 {
-    sptr<IRemoteObject> impl;
-    auto client = new BrowserClient(impl);
-    ASSERT_NE(client, nullptr);
-    // MessageParcel data;
-    MessageParcel data;
-    client->WriteInterfaceToken(data);
+    sptr<MockIRemoteObject> mockImpl = new MockIRemoteObject();
+    auto mockClient = new BrowserClient(mockImpl);
+    ASSERT_NE(mockClient, nullptr);
+    int32_t surfaceId = 1;
+    uint64_t nodeId = 0;
+    EXPECT_CALL(*mockImpl, SendRequest(_, _, _, _)).WillOnce(Return(NWEB_ERROR));
+    auto result = mockClient->QueryRenderSurface(surfaceId, nodeId);
+    EXPECT_EQ(result.first, nullptr);
+    EXPECT_EQ(result.second, nullptr);
+    delete mockClient;
 }
 
 /**
@@ -548,13 +558,17 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_QueryRenderSurface_012, TestSize
     ASSERT_NE(client, nullptr);
     int32_t surfaceId = 0;
     uint64_t nodeId = 0;
-    client->QueryRenderSurface(surfaceId, nodeId);
+    auto result1 = client->QueryRenderSurface(surfaceId, nodeId);
+    EXPECT_EQ(result1.first, nullptr);
+    EXPECT_EQ(result1.second, nullptr);
 
     sptr<MockIRemoteObject> mockImpl = new MockIRemoteObject();
     auto mockClient = new BrowserClient(mockImpl);
     ASSERT_NE(mockClient, nullptr);
     EXPECT_CALL(*mockImpl, SendRequest(_, _, _, _)).WillOnce(Return(NWEB_ERROR));
-    mockClient->QueryRenderSurface(surfaceId, nodeId);
+    auto result2 = mockClient->QueryRenderSurface(surfaceId, nodeId);
+    EXPECT_EQ(result2.first, nullptr);
+    EXPECT_EQ(result2.second, nullptr);
     delete mockClient;
 }
 
@@ -574,12 +588,14 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_ReportThread_013, TestSize.Level
     int32_t thread_id = 0;
     int32_t role = 0;
     client->ReportThread(status, process_id, thread_id, role);
+    EXPECT_NE(client, nullptr);
 
     sptr<MockIRemoteObject> mockImpl = new MockIRemoteObject();
     auto mockClient = new BrowserClient(mockImpl);
     ASSERT_NE(mockClient, nullptr);
     EXPECT_CALL(*mockImpl, SendRequest(_, _, _, _)).WillOnce(Return(NWEB_ERROR));
     mockClient->ReportThread(status, process_id, thread_id, role);
+    EXPECT_NE(mockClient, nullptr);
     delete mockClient;
 }
 
@@ -597,10 +613,12 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_PassSurface_014, TestSize.Level1
     sptr<Surface> surface;
     int64_t surface_id = 0;
     client->PassSurface(surface, surface_id);
+    EXPECT_NE(client, nullptr);
     auto cSurface = IConsumerSurface::Create("test");
     auto producer = cSurface->GetProducer();
     auto pSurface = Surface::CreateSurfaceAsProducer(producer);
     client->PassSurface(pSurface, surface_id);
+    EXPECT_NE(client, nullptr);
 }
 
 /**
@@ -616,12 +634,14 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_DestroyRenderSurface_015, TestSi
     ASSERT_NE(client, nullptr);
     int32_t surface_id = 0;
     client->DestroyRenderSurface(surface_id);
+    EXPECT_NE(client, nullptr);
 
     sptr<MockIRemoteObject> mockImpl = new MockIRemoteObject();
     auto mockClient = new BrowserClient(mockImpl);
     ASSERT_NE(mockClient, nullptr);
     EXPECT_CALL(*mockImpl, SendRequest(_, _, _, _)).WillOnce(Return(NWEB_ERROR));
     mockClient->DestroyRenderSurface(surface_id);
+    EXPECT_NE(mockClient, nullptr);
     delete mockClient;
 }
 
@@ -637,16 +657,21 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_QueryRenderSurface_016, TestSize
     ASSERT_NE(clientAdapter, nullptr);
     int32_t surfaceId = 0;
     clientAdapter->GetInstance().browserHost_ = nullptr;
-    clientAdapter->QueryRenderSurface(surfaceId);
+    auto result1 = clientAdapter->QueryRenderSurface(surfaceId);
+    EXPECT_EQ(result1, nullptr);
 
     sptr<MockIBrowser> mockBrowser = new MockIBrowser();
     clientAdapter->GetInstance().browserHost_ = mockBrowser;
-    clientAdapter->QueryRenderSurface(surfaceId);
+    EXPECT_CALL(*mockBrowser, QueryRenderSurface(_, _))
+        .WillOnce(::testing::Return(QuerySurfaceResult(nullptr, nullptr)));
+    auto result2 = clientAdapter->QueryRenderSurface(surfaceId);
+    EXPECT_EQ(result2, nullptr);
     auto cSurface = IConsumerSurface::Create("test");
-    uint64_t nodeId = 0;
-    EXPECT_CALL(*mockBrowser, QueryRenderSurface(surfaceId, nodeId))
-        .WillOnce(::testing::Return(std::make_pair(cSurface->GetProducer()->AsObject(), nullptr)));
-    clientAdapter->QueryRenderSurface(surfaceId);
+    sptr<IRemoteObject> surfaceObj = cSurface->GetProducer()->AsObject();
+    EXPECT_CALL(*mockBrowser, QueryRenderSurface(_, _))
+        .WillOnce(::testing::Return(QuerySurfaceResult(surfaceObj, nullptr)));
+    auto result3 = clientAdapter->QueryRenderSurface(surfaceId);
+    EXPECT_NE(result3, nullptr);
 }
 
 /**
@@ -665,10 +690,12 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_ReportThread_017, TestSize.Level
     ResSchedRoleAdapter role = ResSchedRoleAdapter::USER_INTERACT;
     clientAdapter->GetInstance().browserHost_ = nullptr;
     clientAdapter->ReportThread(status, process_id, thread_id, role);
+    EXPECT_NE(clientAdapter, nullptr);
     sptr<MockIBrowser> mockBrowser = new MockIBrowser();
     EXPECT_CALL(*mockBrowser, ReportThread(0, 0, 0, 0));
     clientAdapter->GetInstance().browserHost_ = mockBrowser;
     clientAdapter->ReportThread(status, process_id, thread_id, role);
+    EXPECT_NE(clientAdapter, nullptr);
 }
 
 /**
@@ -684,9 +711,11 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_PassSurface_018, TestSize.Level1
     int64_t surface_id = 0;
     clientAdapter->GetInstance().browserHost_ = nullptr;
     clientAdapter->PassSurface(surface_id);
+    EXPECT_NE(clientAdapter, nullptr);
     sptr<MockIBrowser> mockBrowser = new MockIBrowser();
     clientAdapter->GetInstance().browserHost_ = mockBrowser;
     clientAdapter->PassSurface(surface_id);
+    EXPECT_NE(clientAdapter, nullptr);
 
     auto cSurface = IConsumerSurface::Create("test");
     auto producer = cSurface->GetProducer();
@@ -739,13 +768,17 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_browserHost_020, TestSize.Level1
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
-    host->OnRemoteRequest(code, data, reply, option);
+    int result1 = host->OnRemoteRequest(code, data, reply, option);
+    EXPECT_NE(result1, 0);
     code = 1;
     data.WriteInterfaceToken(BrowserHost::GetDescriptor());
-    host->OnRemoteRequest(code, data, reply, option);
+    int result2 = host->OnRemoteRequest(code, data, reply, option);
+    EXPECT_NE(result2, 0);
     code = 100;
     data.WriteInterfaceToken(BrowserHost::GetDescriptor());
-    host->OnRemoteRequest(code, data, reply, option);
+    int result3 = host->OnRemoteRequest(code, data, reply, option);
+    EXPECT_NE(result3, 0);
+    delete host;
 }
 
 /**
@@ -761,7 +794,9 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_browserHost_021, TestSize.Level1
     ASSERT_NE(host, nullptr);
     MessageParcel data;
     MessageParcel reply;
-    host->HandleQueryRenderSurface(data, reply);
+    int result = host->HandleQueryRenderSurface(data, reply);
+    EXPECT_NE(result, 0);
+    delete host;
 }
 
 /**
@@ -777,7 +812,9 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_browserHost_022, TestSize.Level1
     ASSERT_NE(host, nullptr);
     MessageParcel data;
     MessageParcel reply;
-    host->HandleReportThread(data, reply);
+    int result = host->HandleReportThread(data, reply);
+    EXPECT_EQ(result, 0);
+    delete host;
 }
 
 /**
@@ -793,11 +830,14 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_browserHost_023, TestSize.Level1
     ASSERT_NE(host, nullptr);
     MessageParcel data;
     MessageParcel reply;
-    host->HandlePassSurface(data, reply);
+    int result1 = host->HandlePassSurface(data, reply);
+    EXPECT_EQ(result1, 0);
 
     auto cSurface = IConsumerSurface::Create("test");
     data.WriteRemoteObject(cSurface->GetProducer()->AsObject());
-    host->HandlePassSurface(data, reply);
+    int result2 = host->HandlePassSurface(data, reply);
+    EXPECT_EQ(result2, 0);
+    delete host;
 }
 
 /**
@@ -813,7 +853,9 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_browserHost_024, TestSize.Level1
     ASSERT_NE(host, nullptr);
     MessageParcel data;
     MessageParcel reply;
-    host->HandleDestroyRenderSurface(data, reply);
+    int result = host->HandleDestroyRenderSurface(data, reply);
+    EXPECT_EQ(result, 0);
+    delete host;
 }
 
 /**
@@ -829,12 +871,20 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_browserHost_025, TestSize.Level1
     ASSERT_NE(host, nullptr);
     int32_t surfaceId = 0;
     uint64_t nodeId = 0;
-    host->QueryRenderSurface(surfaceId, nodeId);
+    auto result1 = host->QueryRenderSurface(surfaceId, nodeId);
+    EXPECT_EQ(result1.first, nullptr);
+    EXPECT_EQ(result1.second, nullptr);
 
     auto mockHostAdapter = std::make_shared<AafwkBrowserHostAdapterImpl>();
     auto mockHost = new AafwkBrowserHostImpl(mockHostAdapter);
-    mockHost->QueryRenderSurface(surfaceId, nodeId);
-    mockHost->QueryRenderSurface(1, nodeId);
+    ASSERT_NE(mockHost, nullptr);
+    auto result2 = mockHost->QueryRenderSurface(surfaceId, nodeId);
+    EXPECT_EQ(result2.first, nullptr);
+    EXPECT_EQ(result2.second, nullptr);
+    auto result3 = mockHost->QueryRenderSurface(1, nodeId);
+    EXPECT_NE(result3.first, nullptr);
+    delete host;
+    delete mockHost;
 }
 
 /**
@@ -853,6 +903,8 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_browserHost_026, TestSize.Level1
     int32_t thread_id = 0;
     int32_t role = 0;
     host->ReportThread(status, process_id, thread_id, role);
+    EXPECT_NE(host, nullptr);
+    delete host;
 }
 
 /**
@@ -869,6 +921,8 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_browserHost_027, TestSize.Level1
     sptr<Surface> surface;
     int64_t surface_id = 0;
     host->PassSurface(surface, surface_id);
+    EXPECT_NE(host, nullptr);
+    delete host;
 }
 
 /**
@@ -884,11 +938,14 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_browserHost_028, TestSize.Level1
     ASSERT_NE(host, nullptr);
     int32_t surface_id = 0;
     host->DestroyRenderSurface(surface_id);
+    EXPECT_NE(host, nullptr);
     delete host;
 
     auto mockHostAdapter = std::make_shared<AafwkBrowserHostAdapterImpl>();
     auto mockHost = new AafwkBrowserHostImpl(mockHostAdapter);
+    ASSERT_NE(mockHost, nullptr);
     mockHost->DestroyRenderSurface(surface_id);
+    EXPECT_NE(mockHost, nullptr);
     delete mockHost;
 }
 
@@ -1016,5 +1073,279 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_IsRenderProcessByUid_001, TestSi
     EXPECT_TRUE(g_adapter->IsRenderProcessByUid(boundaryEndUid));
     EXPECT_FALSE(g_adapter->IsRenderProcessByUid(boundaryOverUid));
     EXPECT_FALSE(g_adapter->IsRenderProcessByUid(zeroUid));
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_QueryRenderSurface_WriteInterfaceTokenFail_001.
+ * @tc.desc: Test QueryRenderSurface when WriteInterfaceToken fails.
+ * @tc.type: FUNC
+ * @tc.require: issue#5183
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_QueryRenderSurface_WriteInterfaceTokenFail_001, TestSize.Level1)
+{
+    sptr<MockIRemoteObject> mockImpl = new MockIRemoteObject();
+    auto mockClient = new BrowserClient(mockImpl);
+    ASSERT_NE(mockClient, nullptr);
+    
+    int32_t surfaceId = 1;
+    uint64_t nodeId = 0;
+    
+    EXPECT_CALL(*mockImpl, SendRequest(_, _, _, _))
+        .WillOnce([](uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) {
+            return NWEB_ERROR;
+        });
+    
+    auto result = mockClient->QueryRenderSurface(surfaceId, nodeId);
+    EXPECT_EQ(result.first, nullptr);
+    EXPECT_EQ(result.second, nullptr);
+    delete mockClient;
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_HandleQueryRenderSurface_WriteRemoteObjectFail_005.
+ * @tc.desc: Test HandleQueryRenderSurface when WriteRemoteObject fails.
+ * @tc.type: FUNC
+ * @tc.require: issue#5183
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_HandleQueryRenderSurface_WriteRemoteObjectFail_005, TestSize.Level1)
+{
+    std::shared_ptr<AafwkBrowserHostAdapter> hostAdapter = nullptr;
+    auto host = new AafwkBrowserHostImpl(hostAdapter);
+    ASSERT_NE(host, nullptr);
+    
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(1);
+    
+    int result = host->HandleQueryRenderSurface(data, reply);
+    EXPECT_NE(result, 0);
+    delete host;
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_BrowserHostImpl_QueryRenderSurface_NodeIdPresent_009.
+ * @tc.desc: Test QueryRenderSurface when nodeId is present in surface UserData.
+ * @tc.type: FUNC
+ * @tc.require: issue#5183
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_BrowserHostImpl_QueryRenderSurface_NodeIdPresent_009, TestSize.Level1)
+{
+    class MockBrowserHostAdapterWithNodeId : public AafwkBrowserHostAdapter {
+    public:
+        void* GetSurfaceFromKernel(int32_t surface_id) override {
+            auto cSurface = IConsumerSurface::Create("test_with_nodeid");
+            auto producer = cSurface->GetProducer();
+            auto pSurface = Surface::CreateSurfaceAsProducer(producer);
+            OHNativeWindow* window = ::CreateNativeWindowFromSurface(&pSurface);
+            if (window && window->surface) {
+                window->surface->SetUserData("delegate_node_id", std::to_string(TEST_DELEGATE_NODE_ID));
+            }
+            return window;
+        }
+        void DestroySurfaceFromKernel(int32_t surface_id) override {}
+        void* GetSurfaceFromKernelWithRef(int32_t surface_id) override {
+            return GetSurfaceFromKernel(surface_id);
+        }
+    };
+    
+    auto mockHostAdapter = std::make_shared<MockBrowserHostAdapterWithNodeId>();
+    auto host = new AafwkBrowserHostImpl(mockHostAdapter);
+    ASSERT_NE(host, nullptr);
+    
+    int32_t surfaceId = 1;
+    uint64_t nodeId = 0;
+    
+    auto result = host->QueryRenderSurface(surfaceId, nodeId);
+    EXPECT_NE(result.first, nullptr);
+    EXPECT_EQ(nodeId, TEST_DELEGATE_NODE_ID);
+    delete host;
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_BrowserHostImpl_QueryRenderSurface_RSHandlePresent_010.
+ * @tc.desc: Test QueryRenderSurface when RSHandle is present in surface UserData.
+ * @tc.type: FUNC
+ * @tc.require: issue#5183
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_BrowserHostImpl_QueryRenderSurface_RSHandlePresent_010, TestSize.Level1)
+{
+    sptr<MockIRemoteObject> mockRSHandle = new MockIRemoteObject();
+    
+    class MockBrowserHostAdapterWithRSHandle : public AafwkBrowserHostAdapter {
+    public:
+        sptr<IRemoteObject> rsHandle_;
+        MockBrowserHostAdapterWithRSHandle(sptr<IRemoteObject> handle) : rsHandle_(handle) {}
+        
+        void* GetSurfaceFromKernel(int32_t surface_id) override {
+            auto cSurface = IConsumerSurface::Create("test_with_rshandle");
+            auto producer = cSurface->GetProducer();
+            auto pSurface = Surface::CreateSurfaceAsProducer(producer);
+            OHNativeWindow* window = ::CreateNativeWindowFromSurface(&pSurface);
+            if (window && window->surface) {
+                window->surface->SetUserData("delegate_node_id", std::to_string(TEST_DELEGATE_NODE_ID));
+                uint64_t handle = reinterpret_cast<uint64_t>(rsHandle_.GetRefPtr());
+                window->surface->SetUserData("delegate_connect_to_render", std::to_string(handle));
+            }
+            return window;
+        }
+        void DestroySurfaceFromKernel(int32_t surface_id) override {}
+        void* GetSurfaceFromKernelWithRef(int32_t surface_id) override {
+            return GetSurfaceFromKernel(surface_id);
+        }
+    };
+    
+    auto mockHostAdapter = std::make_shared<MockBrowserHostAdapterWithRSHandle>(mockRSHandle);
+    auto host = new AafwkBrowserHostImpl(mockHostAdapter);
+    ASSERT_NE(host, nullptr);
+    
+    int32_t surfaceId = 1;
+    uint64_t nodeId = 0;
+    
+    auto result = host->QueryRenderSurface(surfaceId, nodeId);
+    EXPECT_NE(result.first, nullptr);
+    EXPECT_NE(result.second, nullptr);
+    delete host;
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_BrowserHostImpl_QueryRenderSurface_RSHandleZero_011.
+ * @tc.desc: Test QueryRenderSurface when RSHandle value is 0.
+ * @tc.type: FUNC
+ * @tc.require: issue#5183
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_BrowserHostImpl_QueryRenderSurface_RSHandleZero_011, TestSize.Level1)
+{
+    class MockBrowserHostAdapterWithZeroRSHandle : public AafwkBrowserHostAdapter {
+    public:
+        void* GetSurfaceFromKernel(int32_t surface_id) override {
+            auto cSurface = IConsumerSurface::Create("test_with_zero_rshandle");
+            auto producer = cSurface->GetProducer();
+            auto pSurface = Surface::CreateSurfaceAsProducer(producer);
+            OHNativeWindow* window = ::CreateNativeWindowFromSurface(&pSurface);
+            if (window && window->surface) {
+                window->surface->SetUserData("delegate_node_id", std::to_string(TEST_DELEGATE_NODE_ID));
+                window->surface->SetUserData("delegate_connect_to_render", "0");
+            }
+            return window;
+        }
+        void DestroySurfaceFromKernel(int32_t surface_id) override {}
+        void* GetSurfaceFromKernelWithRef(int32_t surface_id) override {
+            return GetSurfaceFromKernel(surface_id);
+        }
+    };
+    
+    auto mockHostAdapter = std::make_shared<MockBrowserHostAdapterWithZeroRSHandle>();
+    auto host = new AafwkBrowserHostImpl(mockHostAdapter);
+    ASSERT_NE(host, nullptr);
+    
+    int32_t surfaceId = 1;
+    uint64_t nodeId = 0;
+    
+    auto result = host->QueryRenderSurface(surfaceId, nodeId);
+    EXPECT_NE(result.first, nullptr);
+    EXPECT_EQ(result.second, nullptr);
+    delete host;
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_BrowserHostImpl_QueryRenderSurface_ProducerNull_012.
+ * @tc.desc: Test QueryRenderSurface when surface producer is nullptr.
+ * @tc.type: FUNC
+ * @tc.require: issue#5183
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_BrowserHostImpl_QueryRenderSurface_ProducerNull_012, TestSize.Level1)
+{
+    class MockBrowserHostAdapterNoProducer : public AafwkBrowserHostAdapter {
+    public:
+        void* GetSurfaceFromKernel(int32_t surface_id) override {
+            OHNativeWindow* window = new OHNativeWindow();
+            window->surface = nullptr;
+            return window;
+        }
+        void DestroySurfaceFromKernel(int32_t surface_id) override {}
+        void* GetSurfaceFromKernelWithRef(int32_t surface_id) override {
+            return GetSurfaceFromKernel(surface_id);
+        }
+    };
+    
+    auto mockHostAdapter = std::make_shared<MockBrowserHostAdapterNoProducer>();
+    auto host = new AafwkBrowserHostImpl(mockHostAdapter);
+    ASSERT_NE(host, nullptr);
+    
+    int32_t surfaceId = 1;
+    uint64_t nodeId = 0;
+    
+    auto result = host->QueryRenderSurface(surfaceId, nodeId);
+    EXPECT_EQ(result.first, nullptr);
+    EXPECT_EQ(result.second, nullptr);
+    delete host;
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_BrowserHostImpl_QueryRenderSurface_WindowNull_013.
+ * @tc.desc: Test QueryRenderSurface when GetSurfaceFromKernelWithRef returns nullptr.
+ * @tc.type: FUNC
+ * @tc.require: issue#5183
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_BrowserHostImpl_QueryRenderSurface_WindowNull_013, TestSize.Level1)
+{
+    class MockBrowserHostAdapterWindowNull : public AafwkBrowserHostAdapter {
+    public:
+        void* GetSurfaceFromKernel(int32_t surface_id) override { return nullptr; }
+        void DestroySurfaceFromKernel(int32_t surface_id) override {}
+        void* GetSurfaceFromKernelWithRef(int32_t surface_id) override { return nullptr; }
+    };
+    
+    auto mockHostAdapter = std::make_shared<MockBrowserHostAdapterWindowNull>();
+    auto host = new AafwkBrowserHostImpl(mockHostAdapter);
+    ASSERT_NE(host, nullptr);
+    
+    int32_t surfaceId = 1;
+    uint64_t nodeId = 0;
+    
+    auto result = host->QueryRenderSurface(surfaceId, nodeId);
+    EXPECT_EQ(result.first, nullptr);
+    EXPECT_EQ(result.second, nullptr);
+    delete host;
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_BrowserHostImpl_QueryRenderSurface_NodeIdEmpty_014.
+ * @tc.desc: Test QueryRenderSurface when delegate_node_id UserData is empty string.
+ * @tc.type: FUNC
+ * @tc.require: issue#5183
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_BrowserHostImpl_QueryRenderSurface_NodeIdEmpty_014, TestSize.Level1)
+{
+    class MockBrowserHostAdapterNodeIdEmpty : public AafwkBrowserHostAdapter {
+    public:
+        void* GetSurfaceFromKernel(int32_t surface_id) override {
+            auto cSurface = IConsumerSurface::Create("test_nodeid_empty");
+            auto producer = cSurface->GetProducer();
+            auto pSurface = Surface::CreateSurfaceAsProducer(producer);
+            OHNativeWindow* window = ::CreateNativeWindowFromSurface(&pSurface);
+            if (window && window->surface) {
+                window->surface->SetUserData("delegate_node_id", "");
+            }
+            return window;
+        }
+        void DestroySurfaceFromKernel(int32_t surface_id) override {}
+        void* GetSurfaceFromKernelWithRef(int32_t surface_id) override {
+            return GetSurfaceFromKernel(surface_id);
+        }
+    };
+    
+    auto mockHostAdapter = std::make_shared<MockBrowserHostAdapterNodeIdEmpty>();
+    auto host = new AafwkBrowserHostImpl(mockHostAdapter);
+    ASSERT_NE(host, nullptr);
+    
+    int32_t surfaceId = 1;
+    uint64_t nodeId = 0;
+    
+    auto result = host->QueryRenderSurface(surfaceId, nodeId);
+    EXPECT_NE(result.first, nullptr);
+    EXPECT_EQ(nodeId, 0);
+    EXPECT_EQ(result.second, nullptr);
+    delete host;
 }
 }

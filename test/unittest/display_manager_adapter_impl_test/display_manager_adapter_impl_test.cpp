@@ -832,5 +832,57 @@ HWTEST_F(DisplayManagerAdapterImplTest, DisplayManagerAdapterImplTest_031, TestS
         static_cast<NativeDisplayManager_FoldDisplayMode>(100));
     EXPECT_EQ(listener->GetLastStatus(), OHOS::NWeb::FoldStatus::UNKNOWN);
 }
+
+/**
+ * @tc.name: DisplayManagerAdapterImplTest_032.
+ * @tc.desc: test IsSinglePhysicalDisplayForFold returns false when fold status is not HALF_FOLD.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, DisplayManagerAdapterImplTest_032, TestSize.Level1)
+{
+    std::shared_ptr<DisplayManagerAdapterImpl> displayManagerAdapterImpl =
+        std::make_shared<DisplayManagerAdapterImpl>();
+    ASSERT_NE(displayManagerAdapterImpl, nullptr);
+    bool result = displayManagerAdapterImpl->IsSinglePhysicalDisplayForFold();
+    OHOS::Rosen::FoldStatus foldStatus = DisplayManager::GetInstance().GetFoldStatus();
+    if (foldStatus != OHOS::Rosen::FoldStatus::HALF_FOLD) {
+        EXPECT_FALSE(result);
+    } else {
+        EXPECT_TRUE(result);
+    }
+}
+
+/**
+ * @tc.name: DisplayManagerAdapterImplTest_033.
+ * @tc.desc: test IsSinglePhysicalDisplayForFold can be called without crash and returns a valid bool.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(DisplayManagerAdapterImplTest, DisplayManagerAdapterImplTest_033, TestSize.Level1)
+{
+    std::shared_ptr<DisplayManagerAdapterImpl> displayManagerAdapterImpl =
+        std::make_shared<DisplayManagerAdapterImpl>();
+    ASSERT_NE(displayManagerAdapterImpl, nullptr);
+    bool result = displayManagerAdapterImpl->IsSinglePhysicalDisplayForFold();
+    OHOS::Rosen::FoldStatus foldStatus = DisplayManager::GetInstance().GetFoldStatus();
+    if (foldStatus == OHOS::Rosen::FoldStatus::HALF_FOLD) {
+        std::vector<sptr<OHOS::Rosen::Display>> displays = DisplayManager::GetInstance().GetAllDisplays();
+        bool foundSpecificDisplay = false;
+        for (auto& display : displays) {
+            if (display && display->GetId() == 999) {
+                foundSpecificDisplay = true;
+                break;
+            }
+        }
+        if (foundSpecificDisplay) {
+            EXPECT_TRUE(result);
+        } else {
+            EXPECT_FALSE(result);
+        }
+    } else {
+        EXPECT_FALSE(result);
+    }
+}
 }
 }
