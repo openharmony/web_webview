@@ -116,8 +116,6 @@ public:
     napi_ref get() const { return ref_; }
     napi_env env() const { return env_; }
 
-    void release() { ref_ = nullptr; }
-
     NapiRefGuard(const NapiRefGuard&) = delete;
     NapiRefGuard& operator=(const NapiRefGuard&) = delete;
 
