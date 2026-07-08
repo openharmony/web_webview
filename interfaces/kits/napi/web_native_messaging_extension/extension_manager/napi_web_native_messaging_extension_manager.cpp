@@ -366,7 +366,11 @@ static bool ParseConnectionCallbackFunction(napi_env env, napi_value preArgs,
         return false;
     }
 
-    napi_create_reference(env, methodVal, INTEGER_ONE, &methodRef);
+    napi_status status = napi_create_reference(env, methodVal, INTEGER_ONE, &methodRef);
+    if (status != napi_ok) {
+        WNMLOG_E("create reference failed, status: %{public}d", status);
+        return false;
+    }
     return true;
 }
 
