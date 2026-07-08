@@ -130,7 +130,6 @@ void NWebValueCallbackImpl::OnReceiveValue(std::shared_ptr<NWebMessage> result)
         vm_->DetachCurrentThread();
         return;
     }
-    auto engine = reinterpret_cast<NativeEngine*>(env);
     if (!mainHandler_) {
         std::shared_ptr<OHOS::AppExecFwk::EventRunner> runner = OHOS::AppExecFwk::EventRunner::GetMainEventRunner();
         if (!runner) {
@@ -144,12 +143,7 @@ void NWebValueCallbackImpl::OnReceiveValue(std::shared_ptr<NWebMessage> result)
         vm_->DetachCurrentThread();
         return;
     }
-    if (pthread_self() == engine->GetTid()) {
-        NWebValueCallbackImpl::WebMessageCallback(env, result);
-    } else {
-        auto task = [this, result]() { NWebValueCallbackImpl::WebMessageOnReceiveValueCallback(result); };
-        mainHandler_->PostTask(task, TASK_ID);
-    }
+    NWebValueCallbackImpl::WebMessageCallback(env, result);
     vm_->DetachCurrentThread();
 }
 
