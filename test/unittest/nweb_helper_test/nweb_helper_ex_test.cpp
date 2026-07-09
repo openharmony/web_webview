@@ -737,6 +737,60 @@ HWTEST_F(NwebHelperTest, NWebHelper_ParseNWebLTPOApp_001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: NWebHelper_GetLTPOIntConfig_001
+ * @tc.desc: GetLTPOIntConfig with existing config returns configured value.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_GetLTPOIntConfig_001, TestSize.Level1)
+{
+    NWebConfigHelper::Instance().ltpoIntConfig_["throttle_strategy"] = 5;
+    NWebConfigHelper::Instance().ltpoIntConfig_["throttle_timeout"] = 3000;
+    NWebConfigHelper::Instance().ltpoIntConfig_["throttle_ratio"] = 75;
+
+    EXPECT_EQ(NWebConfigHelper::Instance().GetLTPOIntConfig("throttle_strategy", 0), 5);
+    EXPECT_EQ(NWebConfigHelper::Instance().GetLTPOIntConfig("throttle_timeout", 0), 3000);
+    EXPECT_EQ(NWebConfigHelper::Instance().GetLTPOIntConfig("throttle_ratio", 0), 75);
+    EXPECT_EQ(NWebAdapterHelper::Instance().GetLTPOIntConfig("throttle_strategy", 0), 5);
+    EXPECT_EQ(NWebAdapterHelper::Instance().GetLTPOIntConfig("throttle_timeout", 0), 3000);
+    EXPECT_EQ(NWebAdapterHelper::Instance().GetLTPOIntConfig("throttle_ratio", 0), 75);
+}
+
+/**
+ * @tc.name: NWebHelper_GetLTPOIntConfig_002
+ * @tc.desc: GetLTPOIntConfig with non-existing config returns default value.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_GetLTPOIntConfig_002, TestSize.Level1)
+{
+    NWebConfigHelper::Instance().ltpoIntConfig_.clear();
+
+    EXPECT_EQ(NWebConfigHelper::Instance().GetLTPOIntConfig("unknown_config", 0), 0);
+    EXPECT_EQ(NWebConfigHelper::Instance().GetLTPOIntConfig("unknown_config", 10), 10);
+    EXPECT_EQ(NWebConfigHelper::Instance().GetLTPOIntConfig("unknown_config", -5), -5);
+    EXPECT_EQ(NWebAdapterHelper::Instance().GetLTPOIntConfig("unknown_config", 0), 0);
+    EXPECT_EQ(NWebAdapterHelper::Instance().GetLTPOIntConfig("unknown_config", 10), 10);
+    EXPECT_EQ(NWebAdapterHelper::Instance().GetLTPOIntConfig("unknown_config", -5), -5);
+}
+
+/**
+ * @tc.name: NWebHelper_GetLTPOIntConfig_003
+ * @tc.desc: GetLTPOIntConfig with empty config name returns default value.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(NwebHelperTest, NWebHelper_GetLTPOIntConfig_003, TestSize.Level1)
+{
+    NWebConfigHelper::Instance().ltpoIntConfig_.clear();
+
+    EXPECT_EQ(NWebConfigHelper::Instance().GetLTPOIntConfig("", 0), 0);
+    EXPECT_EQ(NWebConfigHelper::Instance().GetLTPOIntConfig("", -1), -1);
+    EXPECT_EQ(NWebAdapterHelper::Instance().GetLTPOIntConfig("", 0), 0);
+    EXPECT_EQ(NWebAdapterHelper::Instance().GetLTPOIntConfig("", 100), 100);
+}
+
+/**
  * @tc.name: NWebHelper_GetWebEngine_001
  * @tc.desc: GetWebEngine.
  * @tc.type: FUNC
