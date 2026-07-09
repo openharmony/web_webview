@@ -496,3 +496,95 @@ bool OH_NativeArkWeb_IsActiveWebEngineEvergreen() {
 void OH_NativeArkWeb_LazyInitializeWebEngineInCookieManager(bool lazy) {
     OHOS::NWeb::NWebHelper::Instance().SetLazyInitializeWebEngine(lazy);
 }
+
+ArkWeb_ErrorCode OH_ArkWebCookieManager_FetchCookieSync(const char* url, bool incognito, bool includeHttpOnly,
+    bool includePartitionedCookies, char** cookieValue)
+{
+    if (getpid() != gettid() && !OHOS::NWeb::NWebHelper::Instance().HasLoadWebEngine()) {
+        WVLOG_E("cookieManager not initialize");
+        return ArkWeb_ErrorCode::ARKWEB_COOKIE_MANAGER_NOT_INITIALIZED;
+    }
+
+    bool lazy = OHOS::NWeb::NWebHelper::Instance().IsLazyInitializeWebEngine();
+    if (!OHOS::NWeb::NWebHelper::Instance().LoadWebEngine(true, !lazy)) {
+        WVLOG_E("NativeArkWeb webEngineHandle is nullptr");
+        return ArkWeb_ErrorCode::ARKWEB_LIBRARY_OPEN_FAILURE;
+    }
+
+    ArkWeb_ErrorCode (*fetchCookieSync)(const char* url, bool incognito, bool includeHttpOnly,
+        bool includePartitionedCookies, char** cookieValue) = nullptr;
+
+#define ARKWEB_NATIVE_LOAD_FN_PTR(apiMember, funcImpl) LoadFunction(#funcImpl, &(apiMember))
+    ARKWEB_NATIVE_LOAD_FN_PTR(fetchCookieSync, OH_ArkWebCookieManager_FetchCookieSync);
+#undef ARKWEB_NATIVE_LOAD_FN_PTR
+    if (!fetchCookieSync) {
+        WVLOG_E("failed to load function OH_ArkWebCookieManager_FetchCookieSync");
+        return ArkWeb_ErrorCode::ARKWEB_LIBRARY_SYMBOL_NOT_FOUND;
+    }
+    return fetchCookieSync(url, incognito, includeHttpOnly, includePartitionedCookies, cookieValue);
+}
+
+static void FetchCookieAsync(const char* url, bool incognito, bool includeHttpOnly,
+    bool includePartitionedCookies, OH_ArkWeb_OnCookieFetchCallback callback)
+{
+    bool lazy = OHOS::NWeb::NWebHelper::Instance().IsLazyInitializeWebEngine();
+    if (!OHOS::NWeb::NWebHelper::Instance().LoadWebEngine(true, !lazy)) {
+        WVLOG_E("NativeArkWeb webEngineHandle is nullptr");
+        if (callback) {
+            callback(ArkWeb_ErrorCode::ARKWEB_LIBRARY_OPEN_FAILURE, nullptr);
+        }
+        return;
+    }
+
+    void (*fetchCookieAsync)(const char* url, bool incognito, bool includeHttpOnly,
+        bool includePartitionedCookies, OH_ArkWeb_OnCookieFetchCallback callback) = nullptr;
+
+#define ARKWEB_NATIVE_LOAD_FN_PTR(apiMember, funcImpl) LoadFunction(#funcImpl, &(apiMember))
+    ARKWEB_NATIVE_LOAD_FN_PTR(fetchCookieAsync, OH_ArkWebCookieManager_FetchCookieAsync);
+#undef ARKWEB_NATIVE_LOAD_FN_PTR
+    if (!fetchCookieAsync) {
+        WVLOG_E("failed to load function OH_ArkWebCookieManager_FetchCookieAsync");
+        if (callback) {
+            callback(ArkWeb_ErrorCode::ARKWEB_LIBRARY_SYMBOL_NOT_FOUND, nullptr);
+        }
+        return;
+    }
+
+    fetchCookieAsync(url, incognito, includeHttpOnly, includePartitionedCookies, callback);
+}
+
+void PostFetchCookieToUIThread(const char* url, bool incognito, bool includeHttpOnly,
+    bool includePartitionedCookies, OH_ArkWeb_OnCookieFetchCallback callback)
+{
+    auto mainHandler = GetMainThreadEventHandler();
+    if (!mainHandler) {
+        WVLOG_E("get main event runner failed");
+        if (callback) {
+            callback(ArkWeb_ErrorCode::ARKWEB_ERROR_UNKNOWN, nullptr);
+        }
+        return;
+    }
+
+    std::string urlStr = std::string(url ? url : "");
+    bool succ = mainHandler->PostTask([urlStr, incognito, includeHttpOnly, includePartitionedCookies, callback]() {
+        FetchCookieAsync(urlStr.c_str(), incognito, includeHttpOnly, includePartitionedCookies, callback);
+        }, "", 0, OHOS::AppExecFwk::EventQueue::Priority::HIGH, {});
+    if (!succ) {
+        WVLOG_E("post cookie task to UI thread failed");
+        if (callback) {
+            callback(ArkWeb_ErrorCode::ARKWEB_ERROR_UNKNOWN, nullptr);
+        }
+    }
+}
+
+void OH_ArkWebCookieManager_FetchCookieAsync(const char* url, bool incognito, bool includeHttpOnly,
+    bool includePartitionedCookies, OH_ArkWeb_OnCookieFetchCallback callback)
+{
+    if (getpid() != gettid() && !OHOS::NWeb::NWebHelper::Instance().HasLoadWebEngine()) {
+        WVLOG_D("post fetch cookie to UI thread");
+        PostFetchCookieToUIThread(url, incognito, includeHttpOnly, includePartitionedCookies, callback);
+        return;
+    }
+
+    FetchCookieAsync(url, incognito, includeHttpOnly, includePartitionedCookies, callback);
+}

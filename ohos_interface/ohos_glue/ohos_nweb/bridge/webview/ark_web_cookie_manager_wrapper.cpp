@@ -199,6 +199,18 @@ std::string ArkWebCookieManagerWrapper::ReturnCookieWithHttpOnly(
     return "";
 }
 
+std::string ArkWebCookieManagerWrapper::ReturnCookieWithHttpOnly(const std::string& url, bool& isValid,
+    bool incognitoMode, bool includeHttpOnly, bool includePartitionedCookies)
+{
+    return "";
+}
+
+void ArkWebCookieManagerWrapper::ReturnCookieWithHttpOnly(const std::string& url, bool incognitoMode,
+    bool includeHttpOnly, bool includePartitionedCookies, std::shared_ptr<OHOS::NWeb::NWebStringValueCallback> callback)
+{
+    return;
+}
+
 int ArkWebCookieManagerWrapper::SetCookieWithHttpOnly(
     const std::string& url, const std::string& value, bool incognito_mode, bool includeHttpOnly)
 {
