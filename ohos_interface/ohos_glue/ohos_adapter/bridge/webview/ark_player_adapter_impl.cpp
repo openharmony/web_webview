@@ -96,41 +96,34 @@ int32_t ArkPlayerAdapterImpl::SetVideoSurfaceNew(void* native_window)
     return real_->SetVideoSurfaceNew(native_window);
 }
 
-int32_t ArkPlayerAdapterImpl::SetMediaSourceHeader(const ArkWebString& url,
-    const ArkWebStringMap& header)
-{
-    std::string surl = ArkWebStringStructToClass(url);
-    std::map<std::string, std::string> sheader = ArkWebStringMapStructToClass(header);
-    return real_->SetMediaSourceHeader(surl, sheader);
-}
-
 int32_t ArkPlayerAdapterImpl::SetMediaSourceHeaderForHls(const ArkWebString& url,
     const ArkWebStringMap& header, ArkWebRefPtr<ArkMediaSourceDataHandler> handler)
 {
     std::string surl = ArkWebStringStructToClass(url);
-    std::map<std::string, std::string> sheader = ArkWebStringMapStructToClass(header);
-    if (CHECK_REF_PTR_IS_NULL(handler)) {
-        return real_->SetMediaSourceHeaderForHls(surl, sheader, nullptr);
-    }
-    return real_->SetMediaSourceHeaderForHls(surl, sheader,
-        std::make_shared<ArkMediaSourceDataHandlerWrapper>(handler));
+    auto sheader = ArkWebStringMapStructToClass(header);
+    auto nweb_handler = handler ?
+        std::make_shared<ArkMediaSourceDataHandlerWrapper>(handler) : nullptr;
+    return real_->SetMediaSourceHeaderForHls(surl, sheader, nweb_handler);
 }
-
-void ArkPlayerAdapterImpl::OnDataRespondHeader(int64_t uuid, const ArkWebStringMap& header,
-    const ArkWebString& redirectUrl)
+ 
+void ArkPlayerAdapterImpl::OnDataRespondHeader(int64_t uuid,
+    const ArkWebStringMap& header, const ArkWebString& redirectUrl)
 {
-    std::map<std::string, std::string> sheader = ArkWebStringMapStructToClass(header);
-    std::string sredirect = ArkWebStringStructToClass(redirectUrl);
-    real_->OnDataRespondHeader(uuid, sheader, sredirect);
+    auto sheader = ArkWebStringMapStructToClass(header);
+    auto sredirectUrl = ArkWebStringStructToClass(redirectUrl);
+    real_->OnDataRespondHeader(uuid, sheader, sredirectUrl);
 }
-
+ 
 void ArkPlayerAdapterImpl::OnDataRespondData(int64_t uuid, int64_t offset,
     const ArkWebUint8Vector& data)
 {
-    std::vector<uint8_t> sdata = ArkWebBasicVectorStructToClass<uint8_t, ArkWebUint8Vector>(data);
-    real_->OnDataRespondData(uuid, offset, sdata);
+    if (data.size == 0 || data.value == nullptr) {
+        return;
+    }
+    std::vector<uint8_t> vdata(data.value, data.value + data.size);
+    real_->OnDataRespondData(uuid, offset, vdata);
 }
-
+ 
 void ArkPlayerAdapterImpl::OnDataFinishLoading(int64_t uuid, int32_t errorCode)
 {
     real_->OnDataFinishLoading(uuid, errorCode);

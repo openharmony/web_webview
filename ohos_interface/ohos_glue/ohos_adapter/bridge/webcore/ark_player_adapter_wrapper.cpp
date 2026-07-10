@@ -114,36 +114,38 @@ int32_t ArkPlayerAdapterWrapper::SetMediaSourceHeaderForHls(const std::string& u
 {
     ArkWebString surl = ArkWebStringClassToStruct(url);
     ArkWebStringMap sheader = ArkWebStringMapClassToStruct(header);
-    int32_t result;
-    if (CHECK_SHARED_PTR_IS_NULL(handler)) {
-        result = ctocpp_->SetMediaSourceHeaderForHls(surl, sheader, nullptr);
-    } else {
-        result = ctocpp_->SetMediaSourceHeaderForHls(surl, sheader,
-            new ArkMediaSourceDataHandlerImpl(handler));
-    }
+    ArkWebRefPtr<ArkMediaSourceDataHandler> c_handler = handler ?
+        new ArkMediaSourceDataHandlerImpl(handler) : nullptr;
+    int32_t result = ctocpp_->SetMediaSourceHeaderForHls(surl, sheader, c_handler);
     ArkWebStringStructRelease(surl);
     ArkWebStringMapStructRelease(sheader);
     return result;
 }
-
+ 
 void ArkPlayerAdapterWrapper::OnDataRespondHeader(int64_t uuid,
     const std::map<std::string, std::string>& header, const std::string& redirectUrl)
 {
     ArkWebStringMap sheader = ArkWebStringMapClassToStruct(header);
-    ArkWebString sredirect = ArkWebStringClassToStruct(redirectUrl);
-    ctocpp_->OnDataRespondHeader(uuid, sheader, sredirect);
+    ArkWebString sredirectUrl = ArkWebStringClassToStruct(redirectUrl);
+    ctocpp_->OnDataRespondHeader(uuid, sheader, sredirectUrl);
     ArkWebStringMapStructRelease(sheader);
-    ArkWebStringStructRelease(sredirect);
+    ArkWebStringStructRelease(sredirectUrl);
 }
-
+ 
 void ArkPlayerAdapterWrapper::OnDataRespondData(int64_t uuid, int64_t offset,
     const std::vector<uint8_t>& data)
 {
-    ArkWebUint8Vector sdata = ArkWebBasicVectorClassToStruct<uint8_t, ArkWebUint8Vector>(data);
-    ctocpp_->OnDataRespondData(uuid, offset, sdata);
-    ArkWebBasicVectorStructRelease(sdata);
+    ArkWebUint8Vector vdata;
+    vdata.size = static_cast<int>(data.size());
+    vdata.value = new uint8_t[vdata.size];
+    if (memcpy_s(vdata.value, vdata.size, data.data(), vdata.size) != EOK) {
+        delete[] vdata.value;
+        return;
+    }
+    vdata.ark_web_mem_free_func = [](void* p) { delete[] static_cast<uint8_t*>(p); };
+    ctocpp_->OnDataRespondData(uuid, offset, vdata);
 }
-
+ 
 void ArkPlayerAdapterWrapper::OnDataFinishLoading(int64_t uuid, int32_t errorCode)
 {
     ctocpp_->OnDataFinishLoading(uuid, errorCode);
