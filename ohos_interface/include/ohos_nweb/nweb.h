@@ -195,6 +195,7 @@ enum class FocusReason : int32_t {
 enum class RenderProcessMode : int32_t {
     SINGLE_MODE = 0,
     MULTIPLE_MODE = 1,
+    DEFAULT_MODE = 2,
 };
 
 enum class SiteIsolationMode {
