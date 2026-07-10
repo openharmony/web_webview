@@ -81,6 +81,10 @@ typedef void (*OH_ArkWeb_OnCookieSaveCallback)(ArkWeb_ErrorCode errorCode);
  * @brief Defines the callback function type invoked when the cookie fetching operation completes.
  *
  * @param errorCode The result code of the cookie fetching operation.
+ *        {@link ARKWEB_SUCCESS} fetch cookie success.
+ *        {@link ARKWEB_INVALID_URL} invalid url.
+ *        {@link ARKWEB_LIBRARY_OPEN_FAILURE} Failed to open the library.
+ *        {@link ARKWEB_LIBRARY_SYMBOL_NOT_FOUND} The required symbol was not found in the library.
  * @param cookieValue Get the cookie value corresponding to the URL. This function will allocate memory for the
  *                    cookieValue string and caller must release the string by {@link OH_ArkWeb_ReleaseString}.
  * @since 26.0.0
@@ -406,6 +410,12 @@ bool OH_NativeArkWeb_IsActiveWebEngineEvergreen();
  *         <li>{@link ARKWEB_SUCCESS} fetch cookie success.</li>
  *         <li>{@link ARKWEB_INVALID_URL} invalid url.</li>
  *         <li>{@link ARKWEB_INVALID_PARAM} cookieValue is nullptr.</li>
+ *         <li>{@link ARKWEB_LIBRARY_OPEN_FAILURE} Failed to open the library.</li>
+ *         <li>{@link ARKWEB_LIBRARY_SYMBOL_NOT_FOUND} The required symbol was not found in the library.</li>
+ *         <li>{@link ARKWEB_COOKIE_MANAGER_NOT_INITIALIZED} It is not allowed to call on a non-UI thread without
+ *                                                           initializing the CookieManager interface. please
+ *                                                           initialize the CookieManager interface using
+ *                                                           OH_ArkWeb_GetNativeAPI first.</li>
  *     </ul>
  * @since 26.0.0
  */
