@@ -96,6 +96,14 @@ int32_t ArkPlayerAdapterImpl::SetVideoSurfaceNew(void* native_window)
     return real_->SetVideoSurfaceNew(native_window);
 }
 
+int32_t ArkPlayerAdapterImpl::SetMediaSourceHeader(const ArkWebString& url,
+    const ArkWebStringMap& header)
+{
+    std::string surl = ArkWebStringStructToClass(url);
+    std::map<std::string, std::string> sheader = ArkWebStringMapStructToClass(header);
+    return real_->SetMediaSourceHeader(surl, sheader);
+}
+
 int32_t ArkPlayerAdapterImpl::SetMediaSourceHeaderForHls(const ArkWebString& url,
     const ArkWebStringMap& header, ArkWebRefPtr<ArkMediaSourceDataHandler> handler)
 {
