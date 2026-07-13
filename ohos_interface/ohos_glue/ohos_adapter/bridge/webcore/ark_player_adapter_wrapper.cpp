@@ -138,10 +138,7 @@ void ArkPlayerAdapterWrapper::OnDataRespondData(int64_t uuid, int64_t offset,
     ArkWebUint8Vector vdata;
     vdata.size = static_cast<int>(data.size());
     vdata.value = new uint8_t[vdata.size];
-    if (memcpy_s(vdata.value, vdata.size, data.data(), vdata.size) != EOK) {
-        delete[] vdata.value;
-        return;
-    }
+    memcpy(vdata.value, data.data(), vdata.size);
     vdata.ark_web_mem_free_func = [](void* p) { delete[] static_cast<uint8_t*>(p); };
     ctocpp_->OnDataRespondData(uuid, offset, vdata);
 }
