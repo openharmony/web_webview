@@ -102,6 +102,28 @@ constexpr int32_t HISTOGRAM_API_BOOL_COUNTS = 1;
 #endif
 using WebPrintWriteResultCallback = std::function<void(std::string, uint32_t)>;
 
+class NapiRefGuard {
+public:
+    NapiRefGuard(napi_env env, napi_ref ref) : env_(env), ref_(ref) {}
+
+    ~NapiRefGuard()
+    {
+        if (ref_) {
+            napi_delete_reference(env_, ref_);
+        }
+    }
+
+    napi_ref get() const { return ref_; }
+    napi_env env() const { return env_; }
+
+    NapiRefGuard(const NapiRefGuard&) = delete;
+    NapiRefGuard& operator=(const NapiRefGuard&) = delete;
+
+private:
+    napi_env env_ = nullptr;
+    napi_ref ref_ = nullptr;
+};
+
 bool IsJsonObjectCommand(const std::string& command)
 {
     nlohmann::json commandJson = nlohmann::json::parse(command, nullptr, false);
@@ -5597,24 +5619,24 @@ WebPrintWriteResultCallback ParseWebPrintWriteResultCallback(napi_env env, napi_
     napi_ref jsCallback = nullptr;
     napi_create_reference(env, argv, 1, &jsCallback);
     if (jsCallback) {
+        auto guard = std::make_shared<NapiRefGuard>(env, jsCallback);
         WebPrintWriteResultCallback callbackImpl =
-            [env, jCallback = std::move(jsCallback)](std::string jobId, uint32_t state) {
-            if (!env) {
+            [guard](std::string jobId, uint32_t state) {
+            if (!guard->env()) {
                 return;
             }
-            NApiScope scope(env);
+            NApiScope scope(guard->env());
             if (!scope.IsVaild()) {
                 return;
             }
             napi_value setResult[INTEGER_TWO] = {0};
-            napi_create_string_utf8(env, jobId.c_str(), NAPI_AUTO_LENGTH, &setResult[INTEGER_ZERO]);
-            napi_create_uint32(env, state, &setResult[INTEGER_ONE]);
+            napi_create_string_utf8(guard->env(), jobId.c_str(), NAPI_AUTO_LENGTH, &setResult[INTEGER_ZERO]);
+            napi_create_uint32(guard->env(), state, &setResult[INTEGER_ONE]);
             napi_value args[INTEGER_TWO] = {setResult[INTEGER_ZERO], setResult[INTEGER_ONE]};
             napi_value callback = nullptr;
-            napi_get_reference_value(env, jCallback, &callback);
+            napi_get_reference_value(guard->env(), guard->get(), &callback);
             napi_value callbackResult = nullptr;
-            napi_call_function(env, nullptr, callback, INTEGER_TWO, args, &callbackResult);
-            napi_delete_reference(env, jCallback);
+            napi_call_function(guard->env(), nullptr, callback, INTEGER_TWO, args, &callbackResult);
         };
         return callbackImpl;
     }
