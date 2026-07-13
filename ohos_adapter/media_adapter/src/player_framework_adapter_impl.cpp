@@ -343,6 +343,10 @@ int64_t LoaderCallbackImpl::Open(std::shared_ptr<Media::LoadingRequest>& request
         return -1;
     }
     int64_t handle = handler_->HandleDataOpen(request->GetUrl(), request->GetHeader());
+    if (handle <= 0) {
+        WVLOG_E("LoaderCallbackImpl::Open handler = %ld", handle);
+        return -1;
+    }
     requests_[handle] = request;
     return handle;
 }
@@ -366,7 +370,7 @@ void LoaderCallbackImpl::Close(int64_t uuid)
 }
 
 void LoaderCallbackImpl::OnRespondHeader(int64_t uuid,
-    std::map<std::string, std::string> header, std::string redirectUrl)
+    const std::map<std::string, std::string>& header, const std::string& redirectUrl)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     auto it = requests_.find(uuid);

@@ -51,8 +51,8 @@ public:
     void Close(int64_t uuid) override;
 
     // Called by PlayerAdapterImpl when Chromium pushes data back
-    void OnRespondHeader(int64_t uuid, std::map<std::string, std::string> header,
-                         std::string redirectUrl);
+    void OnRespondHeader(int64_t uuid, const std::map<std::string, std::string>& header,
+                         const std::string& redirectUrl);
     void OnRespondData(int64_t uuid, int64_t offset, const std::vector<uint8_t>& data);
     void OnFinishLoading(int64_t uuid, int32_t errorCode);
 
