@@ -344,7 +344,7 @@ int64_t LoaderCallbackImpl::Open(std::shared_ptr<Media::LoadingRequest>& request
     }
     int64_t handle = handler_->HandleDataOpen(request->GetUrl(), request->GetHeader());
     if (handle <= 0) {
-        WVLOG_E("LoaderCallbackImpl::Open handler = %ld", handle);
+        WVLOG_E("LoaderCallbackImpl::Open handler less than 0");
         return -1;
     }
     requests_[handle] = request;
