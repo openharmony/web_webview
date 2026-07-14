@@ -58,6 +58,8 @@ ohos_shared_library("webnativemessagingextensionmanager_napi") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "node:node_header_notice",
+    "libuv:uv",
     "libxml2:libxml2",
   ]
 

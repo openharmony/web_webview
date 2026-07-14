@@ -160,6 +160,8 @@ ohos_shared_library("webview_ani") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "node:node_header_notice",
+    "libuv:uv",
     "protobuf:protobuf_lite",
     "runtime_core:ani",
     "runtime_core:ani_helpers",

@@ -125,6 +125,8 @@ ohos_shared_library("webview_napi") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "node:node_header_notice",
+    "libuv:uv",
     "protobuf:protobuf_lite",
     "samgr:samgr_proxy",
     "window_manager:libwm",
@@ -174,7 +176,10 @@ ohos_shared_library("neterrorlist_napi") {
     "web_net_error_code/napi_web_net_errorcode_module.cpp",
   ]
 
-  external_deps = [ "napi:ace_napi" ]
+  external_deps = [
+    "napi:ace_napi",
+    "node:node_header_notice",
+  ]
 
   relative_install_dir = "module/web"
 
