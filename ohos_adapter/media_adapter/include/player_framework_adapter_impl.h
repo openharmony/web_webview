@@ -18,6 +18,9 @@
 
 #include "media_adapter.h"
 #include "player.h"
+#include "loading_request.h"
+
+#include <mutex>
 
 namespace OHOS::NWeb {
 class PlayerCallbackImpl : public Media::PlayerCallback {
@@ -32,6 +35,31 @@ public:
 
 private:
     std::shared_ptr<PlayerCallbackAdapter> callbackAdapter_ = nullptr;
+};
+
+// LoaderCallbackImpl: implements Media::LoaderCallback to bridge
+// player framework's data requests to Chromium's network stack via MediaSourceDataHandler.
+class LoaderCallbackImpl : public Media::LoaderCallback {
+public:
+    explicit LoaderCallbackImpl(std::shared_ptr<MediaSourceDataHandler> handler);
+
+    ~LoaderCallbackImpl() = default;
+
+    // Called by PlayerServer IPC when HiStreamer needs data
+    int64_t Open(std::shared_ptr<Media::LoadingRequest>& request) override;
+    void Read(int64_t uuid, int64_t offset, int64_t length) override;
+    void Close(int64_t uuid) override;
+
+    // Called by PlayerAdapterImpl when Chromium pushes data back
+    void OnRespondHeader(int64_t uuid, const std::map<std::string, std::string>& header,
+                         const std::string& redirectUrl);
+    void OnRespondData(int64_t uuid, int64_t offset, const std::vector<uint8_t>& data);
+    void OnFinishLoading(int64_t uuid, int32_t errorCode);
+
+private:
+    std::mutex mutex_;
+    std::map<int64_t, std::shared_ptr<Media::LoadingRequest>> requests_;
+    std::shared_ptr<MediaSourceDataHandler> handler_;
 };
 
 class PlayerAdapterImpl : public PlayerAdapter {
@@ -68,8 +96,23 @@ public:
 
     int32_t SetMediaSourceHeader(const std::string& url, const std::map<std::string, std::string>& header) override;
 
+    // HLS proxy download: creates AVMediaSource with LoaderCallback
+    int32_t SetMediaSourceHeaderForHls(
+        const std::string& url,
+        const std::map<std::string, std::string>& header,
+        std::shared_ptr<MediaSourceDataHandler> handler) override;
+
+    // Data response from Chromium
+    void OnDataRespondHeader(int64_t uuid,
+        const std::map<std::string, std::string>& header,
+        const std::string& redirectUrl) override;
+    void OnDataRespondData(int64_t uuid, int64_t offset,
+        const std::vector<uint8_t>& data) override;
+    void OnDataFinishLoading(int64_t uuid, int32_t errorCode) override;
+
 private:
     std::shared_ptr<Media::Player> player_ = nullptr;
+    std::shared_ptr<LoaderCallbackImpl> loader_callback_;
 };
 } // namespace OHOS::NWeb
 

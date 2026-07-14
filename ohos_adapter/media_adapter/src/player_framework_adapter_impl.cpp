@@ -20,6 +20,8 @@
 #include "surface_adapter_impl.h"
 #include "surface/window.h"
 #include "native_window.h"
+#include <cstdint>
+#include <securec.h>
 
 namespace OHOS::NWeb {
 namespace {
@@ -326,6 +328,143 @@ int32_t PlayerAdapterImpl::SetMediaSourceHeader(const std::string& url,
     std::shared_ptr<Media::AVMediaSource> mediaSource = std::make_shared<Media::AVMediaSource>(url, header);
     Media::AVPlayStrategy strategy;
     return player_->SetMediaSource(mediaSource, strategy);
+}
+
+// --- LoaderCallbackImpl ---
+
+LoaderCallbackImpl::LoaderCallbackImpl(std::shared_ptr<MediaSourceDataHandler> handler)
+    : handler_(std::move(handler)) {}
+
+int64_t LoaderCallbackImpl::Open(std::shared_ptr<Media::LoadingRequest>& request)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (!handler_ || !request) {
+        WVLOG_E("LoaderCallbackImpl::Open handler_ request is nullptr");
+        return -1;
+    }
+    int64_t handle = handler_->HandleDataOpen(request->GetUrl(), request->GetHeader());
+    if (handle <= 0) {
+        WVLOG_E("LoaderCallbackImpl::Open handler less than 0");
+        return -1;
+    }
+    requests_[handle] = request;
+    return handle;
+}
+
+void LoaderCallbackImpl::Read(int64_t uuid, int64_t offset, int64_t length)
+{
+    if (!handler_) {
+        WVLOG_E("LoaderCallbackImpl::Read handler_ is nullptr");
+    }
+    handler_->HandleDataRead(uuid, offset, length);
+}
+
+void LoaderCallbackImpl::Close(int64_t uuid)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (!handler_) {
+        WVLOG_E("LoaderCallbackImpl::Close handler_ is nullptr");
+    }
+    handler_->HandleDataClose(uuid);
+    requests_.erase(uuid);
+}
+
+void LoaderCallbackImpl::OnRespondHeader(int64_t uuid,
+    const std::map<std::string, std::string>& header, const std::string& redirectUrl)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto it = requests_.find(uuid);
+    if (it != requests_.end()) {
+        if (!it->second) {
+            WVLOG_E("LoaderCallbackImpl::OnRespondHeader it->second is nullptr");
+            return;
+        }
+        it->second->RespondHeader(uuid, header, redirectUrl);
+    }
+}
+
+void LoaderCallbackImpl::OnRespondData(int64_t uuid, int64_t offset,
+    const std::vector<uint8_t>& data)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto it = requests_.find(uuid);
+    if (it == requests_.end() || data.empty()) {
+        return;
+    }
+    if (data.size() > INT32_MAX) {
+        WVLOG_E("data size exceeds INT32_MAX");
+        return;
+    }
+    auto mem = std::make_shared<Media::AVSharedMemoryBase>(
+        static_cast<int32_t>(data.size()), Media::AVSharedMemory::FLAGS_READ_WRITE, "hlsProxyData");
+    if (mem->Init() != 0 || mem->GetBase() == nullptr) {
+        WVLOG_E("AVSharedMemoryBase Init failed, size=%{public}zu", data.size());
+        return;
+    }
+    if (memcpy_s(mem->GetBase(), data.size(), data.data(), data.size()) != EOK) {
+        WVLOG_E("memcpy_s failed, size=%{public}zu", data.size());
+        return;
+    }
+    if (!it->second) {
+        WVLOG_E("LoaderCallbackImpl::OnRespondData it->second is nullptr");
+        return;
+    }
+    it->second->RespondData(uuid, offset, mem);
+}
+
+void LoaderCallbackImpl::OnFinishLoading(int64_t uuid, int32_t errorCode)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto it = requests_.find(uuid);
+    if (it != requests_.end()) {
+        if (!it->second) {
+            WVLOG_E("LoaderCallbackImpl::OnFinishLoading it->second is nullptr");
+            return;
+        }
+        it->second->FinishLoading(uuid, errorCode);
+        requests_.erase(uuid);
+    }
+}
+
+// --- PlayerAdapterImpl HLS methods ---
+
+int32_t PlayerAdapterImpl::SetMediaSourceHeaderForHls(const std::string& url,
+    const std::map<std::string, std::string>& header,
+    std::shared_ptr<MediaSourceDataHandler> handler)
+{
+    if (!player_ || !handler) {
+        WVLOG_E("player_ or handler is nullptr");
+        return -1;
+    }
+    loader_callback_ = std::make_shared<LoaderCallbackImpl>(std::move(handler));
+    auto mediaSource = std::make_shared<Media::AVMediaSource>(url, header);
+    mediaSource->mediaSourceLoaderCb_ = loader_callback_;
+    Media::AVPlayStrategy strategy;
+    return player_->SetMediaSource(mediaSource, strategy);
+}
+
+void PlayerAdapterImpl::OnDataRespondHeader(int64_t uuid,
+    const std::map<std::string, std::string>& header,
+    const std::string& redirectUrl)
+{
+    if (loader_callback_) {
+        loader_callback_->OnRespondHeader(uuid, header, redirectUrl);
+    }
+}
+
+void PlayerAdapterImpl::OnDataRespondData(int64_t uuid, int64_t offset,
+    const std::vector<uint8_t>& data)
+{
+    if (loader_callback_) {
+        loader_callback_->OnRespondData(uuid, offset, data);
+    }
+}
+
+void PlayerAdapterImpl::OnDataFinishLoading(int64_t uuid, int32_t errorCode)
+{
+    if (loader_callback_) {
+        loader_callback_->OnFinishLoading(uuid, errorCode);
+    }
 }
 
 } // namespace OHOS::NWeb

@@ -17,8 +17,10 @@
 #define ARK_PLAYER_ADAPTER_WRAPPER_H
 #pragma once
 
+#include <vector>
 #include "media_adapter.h"
 #include "ohos_adapter/include/ark_media_adapter.h"
+#include "ark_media_source_data_handler_impl.h"
 
 namespace OHOS::ArkWeb {
 
@@ -53,6 +55,16 @@ public:
     int32_t SetVideoSurfaceNew(void* native_window) override;
 
     int32_t SetMediaSourceHeader(const std::string& url, const std::map<std::string, std::string>& header) override;
+
+    int32_t SetMediaSourceHeaderForHls(const std::string& url, const std::map<std::string, std::string>& header,
+                                       std::shared_ptr<OHOS::NWeb::MediaSourceDataHandler> handler) override;
+
+    void OnDataRespondHeader(int64_t uuid, const std::map<std::string, std::string>& header,
+                             const std::string& redirectUrl) override;
+
+    void OnDataRespondData(int64_t uuid, int64_t offset, const std::vector<uint8_t>& data) override;
+
+    void OnDataFinishLoading(int64_t uuid, int32_t errorCode) override;
 
 private:
     ArkWebRefPtr<ArkPlayerAdapter> ctocpp_;

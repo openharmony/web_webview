@@ -16,6 +16,7 @@
 #include "ohos_adapter/bridge/ark_player_adapter_wrapper.h"
 
 #include "ohos_adapter/bridge/ark_iconsumer_surface_adapter_wrapper.h"
+#include "ohos_adapter/bridge/ark_media_source_data_handler_impl.h"
 #include "ohos_adapter/bridge/ark_player_callback_adapter_impl.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
@@ -105,6 +106,43 @@ int32_t ArkPlayerAdapterWrapper::SetMediaSourceHeader(const std::string& url,
     ArkWebStringStructRelease(surl);
     ArkWebStringMapStructRelease(sheader);
     return result;
+}
+
+int32_t ArkPlayerAdapterWrapper::SetMediaSourceHeaderForHls(const std::string& url,
+    const std::map<std::string, std::string>& header,
+    std::shared_ptr<OHOS::NWeb::MediaSourceDataHandler> handler)
+{
+    ArkWebString surl = ArkWebStringClassToStruct(url);
+    ArkWebStringMap sheader = ArkWebStringMapClassToStruct(header);
+    ArkWebRefPtr<ArkMediaSourceDataHandler> c_handler = handler ?
+        new ArkMediaSourceDataHandlerImpl(handler) : nullptr;
+    int32_t result = ctocpp_->SetMediaSourceHeaderForHls(surl, sheader, c_handler);
+    ArkWebStringStructRelease(surl);
+    ArkWebStringMapStructRelease(sheader);
+    return result;
+}
+ 
+void ArkPlayerAdapterWrapper::OnDataRespondHeader(int64_t uuid,
+    const std::map<std::string, std::string>& header, const std::string& redirectUrl)
+{
+    ArkWebStringMap sheader = ArkWebStringMapClassToStruct(header);
+    ArkWebString sredirectUrl = ArkWebStringClassToStruct(redirectUrl);
+    ctocpp_->OnDataRespondHeader(uuid, sheader, sredirectUrl);
+    ArkWebStringMapStructRelease(sheader);
+    ArkWebStringStructRelease(sredirectUrl);
+}
+ 
+void ArkPlayerAdapterWrapper::OnDataRespondData(int64_t uuid, int64_t offset,
+    const std::vector<uint8_t>& data)
+{
+    ArkWebUint8Vector vdata = ArkWebBasicVectorClassToStruct<uint8_t, ArkWebUint8Vector>(data);
+    ctocpp_->OnDataRespondData(uuid, offset, vdata);
+    ArkWebBasicVectorStructRelease(vdata);
+}
+ 
+void ArkPlayerAdapterWrapper::OnDataFinishLoading(int64_t uuid, int32_t errorCode)
+{
+    ctocpp_->OnDataFinishLoading(uuid, errorCode);
 }
 
 } // namespace OHOS::ArkWeb
