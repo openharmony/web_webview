@@ -105,6 +105,7 @@ ohos_shared_library("web_extension") {
         "ipc:ipc_napi",
         "ipc:ipc_single",
         "napi:ace_napi",
+        "node:node_header_notice",
         "runtime_core:ani",
     ]
 
@@ -144,6 +145,7 @@ ohos_shared_library("web_native_messaging_extension_module") {
         "hilog:libhilog",
         "ipc:ipc_core",
         "napi:ace_napi",
+        "node:node_header_notice",
         "ipc:ipc_napi",
         "ipc:ipc_single",
     ]

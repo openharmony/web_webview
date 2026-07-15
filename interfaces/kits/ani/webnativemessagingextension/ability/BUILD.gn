@@ -69,6 +69,8 @@ ohos_shared_library("web_native_messaging_extension_context_ani_kit") {
     "ipc:ipc_napi",
     "runtime_core:ani",
     "safwk:system_ability_fwk",
+    "node:node_header_notice",
+    "libuv:uv",
   ]
 
   part_name = "webview"
