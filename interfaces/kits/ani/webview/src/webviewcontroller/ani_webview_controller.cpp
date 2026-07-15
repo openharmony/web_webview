@@ -7840,7 +7840,7 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "restoreWebState", nullptr, reinterpret_cast<void*>(RestoreWebState) },
         ani_native_function { "getCertificateSync", nullptr, reinterpret_cast<void*>(GetCertificateSync) },
         ani_native_function { "jsProxy", nullptr, reinterpret_cast<void *>(InnerJsProxy) },
-        ani_native_function { "setErrorPageEnabled", nullptr, reinterpret_cast<void*>(SetErrorPageEnabled) },
+        ani_native_function { "setErrorPageEnabled", "z:", reinterpret_cast<void*>(SetErrorPageEnabled) },
         ani_native_function { "setErrorPageEnabled", "zz:", reinterpret_cast<void*>(SetErrorPageEnabledWithSubframe) },
         ani_native_function { "getErrorPageEnabled", nullptr, reinterpret_cast<void*>(GetErrorPageEnabled) },
         ani_native_function { "getSubframeErrorPageEnabled", nullptr,
