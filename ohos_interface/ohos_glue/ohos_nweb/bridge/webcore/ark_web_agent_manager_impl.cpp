@@ -44,6 +44,13 @@ void ArkWebAgentManagerImpl::SetContentChangeDetectionConfig(int32_t min_report_
     }
 }
 
+void ArkWebAgentManagerImpl:SetDomExtractionConfig(bool reportDomTree)
+{
+    if (nweb_agent_manager_) {
+        nweb_agent_manager_->SetDomExtractionConfig(reportDomTree);
+    }
+}
+
 void ArkWebAgentManagerImpl::SetAgentNeedHighlight(bool enabled)
 {
     if (nweb_agent_manager_) {
