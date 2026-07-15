@@ -54,6 +54,14 @@ public:
     virtual void SetContentChangeDetectionConfig(int32_t min_report_time, float text_content_ratio) = 0;
 
     /**
+     * @brief Set the config for content change detection.
+     *
+     * @param reportDomTree Whether DOM extraction is enabled.
+     */
+    /*--ark web()--*/
+    virtual void SetDomExtractionConfig(bool reportDomTree) = 0;
+
+    /**
      * @brief Enable or disable highlight when in agent.
      *
      * @param enabled true to enable highlight, false to disable.

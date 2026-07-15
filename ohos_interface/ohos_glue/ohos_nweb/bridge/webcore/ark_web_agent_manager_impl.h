@@ -52,6 +52,13 @@ public:
     void SetContentChangeDetectionConfig(int32_t min_report_time, float text_content_ratio) override;
 
     /**
+     * @brief Set the config for content change detection.
+     *
+     * @param reportDomTree Whether DOM extraction is enabled.
+     */
+    void SetDomExtractionConfig(bool reportDomTree)  override;
+
+    /**
      * @brief Enable or disable highlight when in agent.
      *
      * @param enabled true to enable highlight, false to disable.
