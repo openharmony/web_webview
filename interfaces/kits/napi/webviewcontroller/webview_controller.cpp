@@ -21,6 +21,7 @@
 #include <regex>
 
 #include "application_context.h"
+#include "arkweb_utils.h"
 #include "business_error.h"
 #include "napi_parse_utils.h"
 #include "nweb_napi_scope.h"
@@ -73,6 +74,21 @@ struct WaitForAttachParam {
     WebviewController* webviewController;
     int32_t state;
 };
+
+bool ResolveEmptyStringPromiseIfCallingFromM132(napi_env env, napi_deferred deferred, const char* funcName)
+{
+    if (!IS_CALLING_FROM_M132()) {
+        return false;
+    }
+
+    OHOS::ArkWeb::LogForUnsupportedFunc(OHOS::ArkWeb::ArkWebEngineVersion::M132, funcName);
+    napi_value result = nullptr;
+    if (napi_create_string_utf8(env, "", 0, &result) != napi_ok) {
+        napi_get_undefined(env, &result);
+    }
+    napi_resolve_deferred(env, deferred, result);
+    return true;
+}
 
 bool GetAppBundleNameAndModuleName(std::string& bundleName, std::string& moduleName)
 {
@@ -1072,6 +1088,10 @@ void WebviewController::ExecuteAIPageCommand(const std::string& command, napi_en
 {
     if (deferred == nullptr) {
         WVLOG_E("deferred is nullptr");
+        return;
+    }
+
+    if (ResolveEmptyStringPromiseIfCallingFromM132(env, deferred, __func__)) {
         return;
     }
 
