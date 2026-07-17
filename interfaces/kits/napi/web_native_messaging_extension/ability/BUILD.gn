@@ -63,6 +63,7 @@ ohos_shared_library("webnativemessagingextensionability_napi") {
     external_deps = [
         "napi:ace_napi",
         "node:node_header_notice",
+        "libuv:uv",
     ]
 
     cflags = [
