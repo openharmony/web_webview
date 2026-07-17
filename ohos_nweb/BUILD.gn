@@ -244,6 +244,12 @@ ohos_executable("chrome_crashpad_handler") {
     defines += [ "webview_x86_64" ]
   }
 
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   subsystem_name = "web"
   part_name = "webview"
 }
