@@ -150,6 +150,7 @@ AudioSystemManagerAdapterImpl& AudioSystemManagerAdapterImpl::GetInstance()
 bool AudioSystemManagerAdapterImpl::GetDeviceIdByDescriptor(
     AudioDeviceDescriptor* audioDeviceDescriptor, int32_t& deviceId)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     if (audioDeviceDescriptor == nullptr) {
         return false;
     }
@@ -248,6 +249,7 @@ int32_t AudioSystemManagerAdapterImpl::AbandonAudioFocus(const std::shared_ptr<A
 int32_t AudioSystemManagerAdapterImpl::SetAudioManagerInterruptCallback(
     std::shared_ptr<AudioManagerCallbackAdapter> callback)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     if (callback == nullptr) {
         WVLOG_E("set audio manager interrupt callback is nullptr");
         return AUDIO_NULL_ERROR;
@@ -264,6 +266,7 @@ int32_t AudioSystemManagerAdapterImpl::SetAudioManagerInterruptCallback(
 
 int32_t AudioSystemManagerAdapterImpl::UnsetAudioManagerInterruptCallback()
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     int32_t ret = AudioSystemManager::GetInstance()->UnsetAudioManagerInterruptCallback();
     if (ret != AudioStandard::SUCCESS) {
         WVLOG_E("audio manager unset interrupt callback failed, code: %{public}d", ret);
