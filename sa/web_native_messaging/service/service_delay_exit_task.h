@@ -25,7 +25,7 @@ namespace OHOS::NWeb {
 class ServiceDelayExitTask {
 public:
     ServiceDelayExitTask(const std::shared_ptr<ServiceEventHandler>& handler, std::function<void ()> exitTask);
-    virtual ~ServiceDelayExitTask() = default;
+    virtual ~ServiceDelayExitTask() { Stop(); }
 
     void Start();
     void Stop();

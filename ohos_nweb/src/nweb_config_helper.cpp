@@ -818,17 +818,11 @@ bool NWebConfigHelper::ParseNativeMessagingSetting(xmlNodePtr childNodePtr)
 
 bool NWebConfigHelper::IsNativeMessagingEnabled()
 {
-    {
-        std::lock_guard<std::mutex> lock(lock_);
-        if (isConfigParsed_) {
-            return nativeMessagingEnabled_;
-        }
-    }
-    
-    std::shared_ptr<NWebEngineInitArgsImpl> initArgs = std::make_shared<NWebEngineInitArgsImpl>();
-    NWebConfigHelper::Instance().ParseConfig(initArgs);
-    
     std::lock_guard<std::mutex> lock(lock_);
+    if (!isConfigParsed_) {
+        std::shared_ptr<NWebEngineInitArgsImpl> initArgs = std::make_shared<NWebEngineInitArgsImpl>();
+        NWebConfigHelper::Instance().ParseConfig(initArgs);
+    }
     return nativeMessagingEnabled_;
 }
 

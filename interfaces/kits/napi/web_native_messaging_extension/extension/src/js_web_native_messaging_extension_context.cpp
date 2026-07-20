@@ -317,7 +317,7 @@ private:
         ErrCode err = context->StartAbilityForResult(want, startOptions, requestCode, std::move(task));
         if (err != ERR_OK) {
             WNMLOG_E("StartAbilityForResult failed: %{public}d", err);
-            napi_value error = NativeMessageError::IsNativeMessagingErr(err) ?
+        napi_value error = NativeMessageError::IsNativeMessagingErr(err) ?
                 CreateNMJsError(env, err) : CreateJsErrorByNativeErr(env, err);
             napi_reject_deferred(env, deferred, error);
         } else {
@@ -341,7 +341,6 @@ napi_value CreateJsWebNativeMessagingExtensionContext(napi_env env,
         WNMLOG_E("napi_wrap failed");
         return nullptr;
     }
-
     const char *moduleName = "JsWebNativeMessagingExtensionContext";
     BindNativeFunction(
         env, objValue, "startAbility", moduleName, JsWebNativeMessagingExtensionContext::StartAbility);

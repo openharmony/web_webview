@@ -138,6 +138,10 @@ void JsWebNativeMessagingExtension::BindContext(napi_env env, napi_value obj)
         return;
     }
     auto workContext = new (std::nothrow) std::weak_ptr<WebNativeMessagingExtensionContext>(context);
+    if (workContext == nullptr) {
+        WNMLOG_E("null workContext");
+        return;
+    }
     napi_coerce_to_native_binding_object(
         env, contextObj, DetachCallbackFunc, AttachWebNativeMessagingExtensionContext, workContext, nullptr);
     context->Bind(jsRuntime_, shellContextRef_.get());
@@ -267,6 +271,10 @@ int32_t JsWebNativeMessagingExtension::DisconnectNative(WNMEConnectionInfo& conn
 
 void JsWebNativeMessagingExtension::OnDestroy()
 {
+    if (jsObj_ == nullptr) {
+        WNMLOG_E("jsObj_ is nullptr, skip onDestroy");
+        return;
+    }
     AbilityRuntime::HandleScope handleScope(jsRuntime_);
     napi_env env = jsRuntime_.GetNapiEnv();
     napi_value abilityObj = jsObj_->GetNapiValue();
@@ -296,12 +304,28 @@ void JsWebNativeMessagingExtension::OnStop()
 
 void JsWebNativeMessagingExtension::GetSrcPath(std::string& srcPath)
 {
-    if (!Extension::abilityInfo_->srcEntrance.empty()) {
-        srcPath.append(Extension::abilityInfo_->moduleName + "/");
-        srcPath.append(Extension::abilityInfo_->srcEntrance);
-        srcPath.erase(srcPath.rfind('.'));
-        srcPath.append(".abc");
+    if (Extension::abilityInfo_->srcEntrance.empty()) {
+        return;
     }
+
+    if (Extension::abilityInfo_->srcEntrance.find("..") != std::string::npos ||
+        Extension::abilityInfo_->moduleName.find("..") != std::string::npos) {
+        WNMLOG_E("Path traversal detected in srcEntrance or moduleName");
+        return;
+    }
+
+    srcPath.append(Extension::abilityInfo_->moduleName);
+    if (!Extension::abilityInfo_->moduleName.empty() && 
+        !Extension::abilityInfo_->srcEntrance.empty()) {
+        srcPath.append("/");
+    }
+    srcPath.append(Extension::abilityInfo_->srcEntrance);
+
+    auto pos = srcPath.rfind('.');
+    if (pos != std::string::npos && pos < srcPath.size()) {
+        srcPath.erase(pos);
+    }
+    srcPath.append(".abc");
 }
 
 } // namespace NWeb

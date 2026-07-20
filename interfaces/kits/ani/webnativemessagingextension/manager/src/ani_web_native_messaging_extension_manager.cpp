@@ -214,6 +214,23 @@ void CallETSOnFailedMethod(ani_env* env, ani_ref callback,
         WNMLOG_E("Object_CallMethod_Void error, status: %{public}d", status);
     }
 }
+void HandleOnFailedCallBack(ani_env* env, std::shared_ptr<AniExtensionConnectionCallbackParam> param)
+{
+    int32_t errorCodeIndex;
+    std::string errorMsg;
+    TransformOnFailedErrorCode(param->errorNum_, errorCodeIndex, errorMsg);
+    ani_enum_item codeEnum;
+    if (!AniParseUtils::GetEnumItemByIndex(env, NM_ERROR_CODE, errorCodeIndex, codeEnum)) {
+        WNMLOG_E("GetEnumItemByIndex failed");
+        return;
+    }
+    ani_string aniErrorMsg = nullptr;
+    if (auto status = env->String_NewUTF8(errorMsg.c_str(), errorMsg.size(), &aniErrorMsg) != ANI_OK) {
+        WNMLOG_E("String_NewUTF8 error status is %{public}d", status);
+        return;
+    }
+    CallETSOnFailedMethod(env, param->aniRef_, aniErrorMsg, codeEnum);
+}
 
 void InvokeConnectNativeCallback(std::shared_ptr<AniExtensionConnectionCallbackParam> param,
     std::shared_ptr<AniExtensionConnectionCallback> object)
@@ -246,17 +263,7 @@ void InvokeConnectNativeCallback(std::shared_ptr<AniExtensionConnectionCallbackP
         }
         case ConnectCallbackType::ON_FAILED_TYPE: {
             RemoveConnection(param->result_.connectionId);
-            int32_t errorCodeIndex;
-            std::string errorMsg;
-            TransformOnFailedErrorCode(param->errorNum_, errorCodeIndex, errorMsg);
-            ani_enum_item codeEnum;
-            AniParseUtils::GetEnumItemByIndex(env, NM_ERROR_CODE, errorCodeIndex, codeEnum);
-            ani_string aniErrorMsg = nullptr;
-            if (auto status = env->String_NewUTF8(errorMsg.c_str(), errorMsg.size(), &aniErrorMsg) != ANI_OK) {
-                WNMLOG_E("String_NewUTF8 error status is %{public}d", status);
-                return;
-            }
-            CallETSOnFailedMethod(env, param->aniRef_, aniErrorMsg, codeEnum);
+            HandleOnFailedCallBack(env, param);
             break;
         }
         default: {

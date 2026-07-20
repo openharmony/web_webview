@@ -288,6 +288,12 @@ static void UvInvokeDeleteJsCall(uv_work_t* work, int status)
         delete work;
         return;
     }
+    if (status != 0) {
+        WNMLOG_E("UvInvokeDeleteJsCall status error: %{public}d, skip delete js call", status);
+        delete data;
+        delete work;
+        return;
+    }
     DoDeleteJsCall(data);
     delete data;
     delete work;

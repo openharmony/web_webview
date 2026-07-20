@@ -1533,17 +1533,16 @@ napi_value NapiWebviewController::InnerGetThisVar(napi_env env, napi_callback_in
 {
     WVLOG_D("InnerGetThisVar start");
     napi_value thisVar = nullptr;
-    napi_value result = nullptr;
     napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, nullptr);
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
     if ((!webviewController) || (status != napi_ok)) {
         WVLOG_E("webviewController is nullptr.");
-        napi_create_int64(env, 0, &result);
-    } else {
-        napi_create_int64(env, reinterpret_cast<int64_t>(webviewController), &result);
+        napi_value result = nullptr;
+        napi_get_null(env, &result);
+        return result;
     }
-    return result;
+    return thisVar;
 }
 
 napi_value NapiWebviewController::SetWebId(napi_env env, napi_callback_info info)
