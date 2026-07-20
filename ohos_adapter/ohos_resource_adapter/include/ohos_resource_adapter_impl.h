@@ -101,6 +101,7 @@ private:
     std::shared_ptr<OHOS::AbilityBase::Extractor> sysExtractor_;
     std::shared_ptr<OHOS::AbilityBase::Extractor> extractor_;
     static std::string arkWebCoreHapPathOverride_;
+    static std::mutex arkWebCoreHapPathMutex_;
 };
 }  // namespace OHOS::NWeb
 

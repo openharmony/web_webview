@@ -52,7 +52,7 @@ void ProxyConfig::ClearImplicitRules()
 
 void ProxyConfig::EnableReverseBypass(const bool enable)
 {
-    enbaleReverseBypass_ = enable;
+    enableReverseBypass_ = enable;
 }
 
 const std::vector<std::string>& ProxyConfig::GetBypassRules()
@@ -67,7 +67,7 @@ const std::vector<ProxyRule>& ProxyConfig::GetProxyRules()
 
 bool ProxyConfig::IsReverseBypassEnabled()
 {
-    return enbaleReverseBypass_;
+    return enableReverseBypass_;
 }
 } // namespace NWeb
 } // namespace OHOS

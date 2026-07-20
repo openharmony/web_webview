@@ -382,8 +382,16 @@ napi_value NapiWebSchemeHandlerRequest::JS_GetHeader(napi_env env, napi_callback
         napi_value headerKey = nullptr;
         napi_value headerValue = nullptr;
         NAPI_CALL(env, napi_create_object(env, &webHeaderObj));
-        napi_create_string_utf8(env, list[index].first.c_str(), NAPI_AUTO_LENGTH, &headerKey);
-        napi_create_string_utf8(env, list[index].second.c_str(), NAPI_AUTO_LENGTH, &headerValue);
+        napi_status status = napi_create_string_utf8(env, list[index].first.c_str(), NAPI_AUTO_LENGTH, &headerKey);
+        if (status != napi_ok) {
+            WVLOG_E("JS_GetHeader create headerKey string failed");
+            continue;
+        }
+        status = napi_create_string_utf8(env, list[index].second.c_str(), NAPI_AUTO_LENGTH, &headerValue);
+        if (status != napi_ok) {
+            WVLOG_E("JS_GetHeader create headerValue string failed");
+            continue;
+        }
         napi_set_named_property(env, webHeaderObj, "headerKey", headerKey);
         napi_set_named_property(env, webHeaderObj, "headerValue", headerValue);
         napi_set_element(env, result, index, webHeaderObj);
@@ -452,6 +460,10 @@ napi_value NapiWebSchemeHandlerRequest::JS_GetReferrer(napi_env env, napi_callba
     
     napi_value value;
     char *result = request->GetReferrer();
+    if (result == nullptr) {
+        WVLOG_E("NapiWebSchemeHandlerRequest::JS_GetReferrer result is nullptr");
+        return nullptr;
+    }
     napi_status status = napi_create_string_utf8(env, result, NAPI_AUTO_LENGTH, &value);
     if (status != napi_ok) {
         WVLOG_E("NapiWebSchemeHandlerRequest::JS_GetReferrer response get url failed");
@@ -587,6 +599,10 @@ napi_value NapiWebSchemeHandlerRequest::JS_GetFrameUrl(napi_env env, napi_callba
     
     napi_value value;
     char *result = request->GetFrameUrl();
+    if (result == nullptr) {
+        WVLOG_E("NapiWebSchemeHandlerRequest::JS_GetFrameUrl result is nullptr");
+        return nullptr;
+    }
     napi_status status = napi_create_string_utf8(env, result, NAPI_AUTO_LENGTH, &value);
     if (status != napi_ok) {
         WVLOG_E("NapiWebSchemeHandlerRequest::JS_GetFrameUrl response get frame url failed");

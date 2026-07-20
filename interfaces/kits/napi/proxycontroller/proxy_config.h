@@ -45,7 +45,7 @@ public:
 private:
     std::vector<std::string> bypassRules_;
     std::vector<ProxyRule> proxyRules_;
-    bool enbaleReverseBypass_;
+    bool enableReverseBypass_ = false;
 };
 } // namespace NWeb
 } // namespace OHOS
