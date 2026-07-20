@@ -531,6 +531,11 @@ int32_t CameraManagerAdapterImpl::InitPreviewOutput(const std::shared_ptr<VideoC
             TransToOriCameraFormat(captureParams->GetPixelFormat()), previewSize.width, previewSize.height);
         previewSurfaceListener_ =
             new (std::nothrow) CameraSurfaceListener(SurfaceType::PREVIEW, previewSurface_, (listener));
+        if (previewSurfaceListener_ == nullptr) {
+            WVLOG_E("Failed to create previewSurfaceListener_");
+            ReportErrorSysEvent(CameraErrorType::CREATE_PREVIEW_SURFACE_FAILED);
+            return result;
+        }
         previewSurface_->RegisterConsumerListener((sptr<IBufferConsumerListener>&)previewSurfaceListener_);
         sptr<IBufferProducer> bp = previewSurface_->GetProducer();
         sptr<Surface> pSurface = Surface::CreateSurfaceAsProducer(bp);
@@ -856,6 +861,7 @@ std::string CameraManagerAdapterImpl::GetCurrentDeviceId()
 
 bool CameraManagerAdapterImpl::IsExistCaptureTask()
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     if (cameraManager_ == nullptr) {
         WVLOG_E("cameraManager_ is nullptr");
         return false;
@@ -865,6 +871,7 @@ bool CameraManagerAdapterImpl::IsExistCaptureTask()
 
 void CameraManagerAdapterImpl::SetForegroundFlag(bool isForeground)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     isForegound_ = isForeground;
 }
 

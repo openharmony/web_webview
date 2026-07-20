@@ -101,6 +101,7 @@ private:
     std::shared_ptr<AudioManagerCallbackAdapterImpl> callback_;
     std::shared_ptr<AudioManagerDeviceChangeCallbackAdapterImpl> deviceChangeCallback_ = nullptr;
     std::map<int32_t, AudioDeviceDescriptor> audioOutputDeviceInfo_;
+    std::mutex mutex_;
 #endif
 };
 } // namespace OHOS::NWeb
