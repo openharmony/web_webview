@@ -118,7 +118,11 @@ bool NetConnectAdapterImpl::HasVpnTransport()
  
     for (sptr<NetManagerStandard::NetHandle> netHandle : netHandleList) {
         NetManagerStandard::NetAllCapabilities netAllCap;
-        NetConnClient::GetInstance().GetNetCapabilities(*netHandle, netAllCap);
+        int32_t capRet = NetConnClient::GetInstance().GetNetCapabilities(*netHandle, netAllCap);
+        if (capRet != NETMANAGER_SUCCESS) {
+            WVLOG_E("get net capabilities failed, ret = %{public}d.", capRet);
+            continue;
+        }
         if (netAllCap.bearerTypes_.count(NetManagerStandard::BEARER_VPN) > 0) {
             return true;
         }
@@ -267,7 +271,11 @@ std::vector<std::string> NetConnectAdapterImpl::GetDnsServersForVpn()
  
     for (sptr<NetManagerStandard::NetHandle> netHandle : netHandleList) {
         NetManagerStandard::NetAllCapabilities netAllCap;
-        NetConnClient::GetInstance().GetNetCapabilities(*netHandle, netAllCap);
+        int32_t capRet = NetConnClient::GetInstance().GetNetCapabilities(*netHandle, netAllCap);
+        if (capRet != NETMANAGER_SUCCESS) {
+            WVLOG_E("get net capabilities for vpn dns failed, ret = %{public}d.", capRet);
+            continue;
+        }
         if (netAllCap.bearerTypes_.count(NetManagerStandard::BEARER_VPN) > 0) {
             WVLOG_I("get dns for vpn");
             return GetDnsServersInternal(*netHandle);
