@@ -78,6 +78,20 @@ typedef void (*NativeArkWeb_OnDestroyCallback)(const char*);
 typedef void (*OH_ArkWeb_OnCookieSaveCallback)(ArkWeb_ErrorCode errorCode);
 
 /**
+ * @brief Defines the callback function type invoked when the cookie fetching operation completes.
+ *
+ * @param errorCode The result code of the cookie fetching operation.
+ *        {@link ARKWEB_SUCCESS} fetch cookie success.
+ *        {@link ARKWEB_INVALID_URL} invalid url.
+ *        {@link ARKWEB_LIBRARY_OPEN_FAILURE} Failed to open the library.
+ *        {@link ARKWEB_LIBRARY_SYMBOL_NOT_FOUND} The required symbol was not found in the library.
+ * @param cookieValue Get the cookie value corresponding to the URL. This function will allocate memory for the
+ *                    cookieValue string and caller must release the string by {@link OH_ArkWeb_ReleaseString}.
+ * @since 26.0.0
+ */
+typedef void (*OH_ArkWeb_OnCookieFetchCallback)(ArkWeb_ErrorCode errorCode, char* cookieValue);
+
+/**
  * @brief Defines the blankless information.
  *
  * @since 20
@@ -380,6 +394,47 @@ void OH_NativeArkWeb_LazyInitializeWebEngineInCookieManager(bool lazy);
 * @since 23
 */
 bool OH_NativeArkWeb_IsActiveWebEngineEvergreen();
+
+/**
+ * @brief Synchronously obtains the cookie value corresponding to a specified URL.
+ *
+ * @param url URL to which the cookie to be obtained belongs. A complete URL is recommended.
+ * @param incognito True indicates that the memory cookies of the webview in privacy mode are obtained,
+ *                  and false indicates that cookies in non-privacy mode are obtained.
+ * @param includeHttpOnly If true HTTP-only cookies will also be included in the cookieValue.
+ * @param includePartitionedCookies If true, allows fetching first-party partitioned cookies.
+ * @param cookieValue Get the cookie value corresponding to the URL. This function will allocate memory for the
+ *                    *cookieValue string and caller must release the string by {@link OH_ArkWeb_ReleaseString}.
+ * @return Fetch cookie result code.
+ *     <ul>
+ *         <li>{@link ARKWEB_SUCCESS} fetch cookie success.</li>
+ *         <li>{@link ARKWEB_INVALID_URL} invalid url.</li>
+ *         <li>{@link ARKWEB_INVALID_PARAM} cookieValue is nullptr.</li>
+ *         <li>{@link ARKWEB_LIBRARY_OPEN_FAILURE} Failed to open the library.</li>
+ *         <li>{@link ARKWEB_LIBRARY_SYMBOL_NOT_FOUND} The required symbol was not found in the library.</li>
+ *         <li>{@link ARKWEB_COOKIE_MANAGER_NOT_INITIALIZED} It is not allowed to call on a non-UI thread without
+ *                                                           initializing the CookieManager interface. please
+ *                                                           initialize the CookieManager interface using
+ *                                                           OH_ArkWeb_GetNativeAPI first.</li>
+ *     </ul>
+ * @since 26.0.0
+ */
+ArkWeb_ErrorCode OH_ArkWebCookieManager_FetchCookieSync(const char* url, bool incognito, bool includeHttpOnly,
+    bool includePartitionedCookies, char** cookieValue);
+
+/**
+ * @brief Asynchronously obtains the cookie value corresponding to a specified URL.
+ *
+ * @param url URL to which the cookie to be obtained belongs. A complete URL is recommended.
+ * @param incognito True indicates that the memory cookies of the webview in privacy mode are obtained,
+ *                  and false indicates that cookies in non-privacy mode are obtained.
+ * @param includeHttpOnly If true HTTP-only cookies will also be included in the cookieValue.
+ * @param includePartitionedCookies If true, allows fetching first-party partitioned cookies.
+ * @param callback Callback execute when fetch cookie done.
+ * @since 26.0.0
+ */
+void OH_ArkWebCookieManager_FetchCookieAsync(const char* url, bool incognito, bool includeHttpOnly,
+    bool includePartitionedCookies, OH_ArkWeb_OnCookieFetchCallback callback);
 
 #ifdef __cplusplus
 };

@@ -22,6 +22,19 @@
 namespace OHOS::ArkWeb {
 
 /*--ark web(source=webcore)--*/
+class ArkMediaSourceDataHandler : public virtual ArkWebBaseRefCounted {
+public:
+    /*--ark web()--*/
+    virtual int64_t HandleDataOpen(const ArkWebString& url, const ArkWebStringMap& header) = 0;
+
+    /*--ark web()--*/
+    virtual void HandleDataRead(int64_t uuid, int64_t offset, int64_t length) = 0;
+
+    /*--ark web()--*/
+    virtual void HandleDataClose(int64_t uuid) = 0;
+};
+
+/*--ark web(source=webcore)--*/
 class ArkPlayerCallbackAdapter : public virtual ArkWebBaseRefCounted {
 public:
     /*--ark web()--*/
@@ -75,6 +88,20 @@ public:
 
     /*--ark web()--*/
     virtual int32_t SetMediaSourceHeader(const ArkWebString& url, const ArkWebStringMap& header) = 0;
+
+    /*--ark web()--*/
+    virtual int32_t SetMediaSourceHeaderForHls(const ArkWebString& url, const ArkWebStringMap& header,
+        ArkWebRefPtr<ArkMediaSourceDataHandler> handler) = 0;
+
+    /*--ark web()--*/
+    virtual void OnDataRespondHeader(int64_t uuid, const ArkWebStringMap& header,
+        const ArkWebString& redirectUrl) = 0;
+
+    /*--ark web()--*/
+    virtual void OnDataRespondData(int64_t uuid, int64_t offset, const ArkWebUint8Vector& data) = 0;
+
+    /*--ark web()--*/
+    virtual void OnDataFinishLoading(int64_t uuid, int32_t errorCode) = 0;
 };
 
 } // namespace OHOS::ArkWeb

@@ -755,6 +755,12 @@ public:
     virtual void PutWebMediaAVSessionEnabled(bool enable) = 0;
 
     /**
+     * @brief Set whether to enable media network proxy (HLS proxy download).
+     */
+    /*--ark web()--*/
+    virtual void PutWebMediaNetworkProxyEnabled(bool enable) = 0;
+
+    /**
      * @brief Set the scale of the font-weight.The default is 1.0f.
      */
     /*--ark web()--*/

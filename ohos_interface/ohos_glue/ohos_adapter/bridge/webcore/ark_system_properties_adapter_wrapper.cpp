@@ -17,6 +17,7 @@
 
 namespace {
 constexpr int32_t DEFAULT_INITIAL_CONGESTION_WINDOW_SIZE = 10;
+constexpr int32_t DEFAULT_RENDER_PROCESS_MODE = 2;
 }
 
 namespace OHOS::ArkWeb {
@@ -382,6 +383,15 @@ int32_t ArkSystemPropertiesAdapterWrapper::GetLTPOIntConfig(const std::string& c
     ArkWebString ark_config_name = ArkWebStringClassToStruct(configName);
     int32_t result = ctocpp_->GetLTPOIntConfig(ark_config_name, defaultValue);
     ArkWebStringStructRelease(ark_config_name);
+    return result;
+}
+
+int32_t ArkSystemPropertiesAdapterWrapper::GetRenderProcessMode()
+{
+    if (!ctocpp_) {
+        return DEFAULT_RENDER_PROCESS_MODE;
+    }
+    int32_t result = ctocpp_->GetRenderProcessMode();
     return result;
 }
 } // namespace OHOS::ArkWeb

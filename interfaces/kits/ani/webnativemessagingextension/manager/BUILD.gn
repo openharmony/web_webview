@@ -66,6 +66,8 @@ ohos_shared_library("web_native_messaging_extension_manager_ani_kit") {
     "runtime_core:ani",
     "safwk:system_ability_fwk",
     "libxml2:libxml2",
+    "node:node_header_notice",
+    "libuv:uv",
   ]
 
   part_name = "webview"

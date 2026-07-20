@@ -444,4 +444,9 @@ int32_t SystemPropertiesAdapterImpl::GetLTPOIntConfig(const std::string& configN
 {
     return NWebConfigHelper::Instance().GetLTPOIntConfig(configName, defaultValue);
 }
+
+int32_t SystemPropertiesAdapterImpl::GetRenderProcessMode()
+{
+    return NWebConfigHelper::Instance().GetRenderProcessMode();
+}
 } // namespace OHOS::NWeb

@@ -219,6 +219,7 @@ ohos_shared_library("nweb_ohos_adapter") {
     "input:libmmi-client",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "node:node_header_notice",
     "netmanager_base:net_conn_manager_if",
     "netmanager_base:net_security_config_if",
     "openssl:libssl_shared",

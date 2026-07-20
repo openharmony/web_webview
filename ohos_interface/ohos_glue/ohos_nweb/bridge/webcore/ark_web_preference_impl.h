@@ -668,6 +668,11 @@ public:
     void PutWebMediaAVSessionEnabled(bool enable) override;
 
     /**
+     * Set whether to enable hls media network proxy.
+     */
+    void PutWebMediaNetworkProxyEnabled(bool enable) override;
+
+    /**
      * @brief Set the scale of the font-weight.The default is 1.0f.
      */
     void SetFontWeightScale(float scale) override;

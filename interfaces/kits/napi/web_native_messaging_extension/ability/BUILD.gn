@@ -60,7 +60,11 @@ ohos_shared_library("webnativemessagingextensionability_napi") {
         ":web_native_messaging_extension_ability_js",
     ]
 
-    external_deps = [ "napi:ace_napi" ]
+    external_deps = [
+        "napi:ace_napi",
+        "node:node_header_notice",
+        "libuv:uv",
+    ]
 
     cflags = [
         "-fstack-protector-strong",
