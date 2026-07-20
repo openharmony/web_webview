@@ -267,7 +267,7 @@ ArkWeb_BlanklessInfo OH_NativeArkWeb_GetBlanklessInfoWithKey(const char* webTag,
         return { ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_INVALID_ARGS, 0.0, 0 };
     }
 
-    size_t keyLen = strlen(key);
+    size_t keyLen = strnlen(key, MAX_KEY_LENGTH + 1);
     if (keyLen == 0 || keyLen > MAX_KEY_LENGTH) {
         WVLOG_E("blankless OH_NativeArkWeb_GetBlanklessInfoWithKey key length is invalid");
         return { ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_INVALID_ARGS, 0.0, 0 };
@@ -305,7 +305,7 @@ ArkWeb_BlanklessErrorCode OH_NativeArkWeb_SetBlanklessLoadingWithKey(const char*
         return ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_INVALID_ARGS;
     }
 
-    size_t keyLen = strlen(key);
+    size_t keyLen = strnlen(key, MAX_KEY_LENGTH + 1);
     if (keyLen == 0 || keyLen > MAX_KEY_LENGTH) {
         WVLOG_E("blankless OH_NativeArkWeb_SetBlanklessLoadingWithKey key length is invalid");
         return ArkWeb_BlanklessErrorCode::ARKWEB_BLANKLESS_ERR_INVALID_ARGS;
@@ -353,7 +353,7 @@ void OH_NativeArkWeb_ClearBlanklessLoadingCache(const char* key[], uint32_t size
         if (key[idx] == nullptr) {
             continue;
         }
-        size_t keyLen = strlen(key[idx]);
+        size_t keyLen = strnlen(key[idx], MAX_KEY_LENGTH + 1);
         if (keyLen == 0 || keyLen > MAX_KEY_LENGTH) {
             continue;
         }

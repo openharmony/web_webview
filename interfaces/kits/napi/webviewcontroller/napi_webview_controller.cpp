@@ -667,19 +667,19 @@ bool ParseBlanklessStringArray(napi_env env, napi_value argv, std::vector<std::s
 napi_value CreateBlanklessInfo(napi_env env, int32_t errCode, double similarity, int32_t loadingTime)
 {
     napi_value result = nullptr;
-    napi_create_object(env, &result);
+    NAPI_CALL(env, napi_create_object(env, &result));
 
     napi_value napiErrCode = nullptr;
-    napi_create_int32(env, errCode, &napiErrCode);
-    napi_set_named_property(env, result, "errCode", napiErrCode);
+    NAPI_CALL(env, napi_create_int32(env, errCode, &napiErrCode));
+    NAPI_CALL(env, napi_set_named_property(env, result, "errCode", napiErrCode));
 
     napi_value napiSimilarity = nullptr;
-    napi_create_double(env, similarity, &napiSimilarity);
-    napi_set_named_property(env, result, "similarity", napiSimilarity);
+    NAPI_CALL(env, napi_create_double(env, similarity, &napiSimilarity));
+    NAPI_CALL(env, napi_set_named_property(env, result, "similarity", napiSimilarity));
 
     napi_value napiLoadingTime = nullptr;
-    napi_create_int32(env, loadingTime, &napiLoadingTime);
-    napi_set_named_property(env, result, "loadingTime", napiLoadingTime);
+    NAPI_CALL(env, napi_create_int32(env, loadingTime, &napiLoadingTime));
+    NAPI_CALL(env, napi_set_named_property(env, result, "loadingTime", napiLoadingTime));
     return result;
 }
 
