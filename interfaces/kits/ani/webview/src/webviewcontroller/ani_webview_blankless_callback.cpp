@@ -58,6 +58,10 @@ void AniWebviewBlanklessCallback::OnReceiveValue(const std::string& key, int32_t
     }
 
     ani_env* env = GetEnv();
+    if (!env) {
+        WVLOG_E("AniWebviewBlanklessCallback::OnReceiveValue env is nullptr");
+        return;
+    }
 
     ani_object blanklessLoadingInfo  = {};
     if (!AniParseUtils::CreateObjectVoid(env, ANI_CLASS_BLANKLESS_LOADING_INFO_INNER, blanklessLoadingInfo)) {
