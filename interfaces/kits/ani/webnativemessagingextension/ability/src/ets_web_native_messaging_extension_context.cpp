@@ -537,19 +537,17 @@ ani_ref CreateEtsWebNativeMessagingExtensionContext(ani_env* env,
     }
     auto serviceContextPtr = std::make_unique<std::weak_ptr<WebNativeMessagingExtensionContext>>(
                                 workContext->GetAbilityContext());
-    auto rawWorkContext = workContext.release();
-    auto autoCleanWorkContext = std::unique_ptr<ETSWebNativeMessagingExtensionContext>(rawWorkContext);
     if ((status = env->Object_New(
-        cls, method, &contextObj, (ani_long)rawWorkContext)) != ANI_OK ||
+        cls, method, &contextObj, (ani_long)workContext.get())) != ANI_OK ||
         contextObj == nullptr) {
         WNMLOG_E("Failed to create object, status : %{public}d", status);
         return nullptr;
     }
+    workContext.release();
     if (!ContextUtil::SetNativeContextLong(env, contextObj, (ani_long)(serviceContextPtr.get()))) {
         WNMLOG_E("Failed to setNativeContextLong ");
         return nullptr;
     }
-    autoCleanWorkContext.release();
     serviceContextPtr.release();
     ContextUtil::CreateEtsBaseContext(env, cls, contextObj, context);
     CreateEtsExtensionContext(env, cls, contextObj, context, context->GetAbilityInfo());

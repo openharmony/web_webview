@@ -315,7 +315,7 @@ void JsWebNativeMessagingExtension::GetSrcPath(std::string& srcPath)
     }
 
     srcPath.append(Extension::abilityInfo_->moduleName);
-    if (!Extension::abilityInfo_->moduleName.empty() && 
+    if (!Extension::abilityInfo_->moduleName.empty() &&
         !Extension::abilityInfo_->srcEntrance.empty()) {
         srcPath.append("/");
     }

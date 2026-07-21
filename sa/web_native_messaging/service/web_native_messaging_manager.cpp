@@ -72,6 +72,11 @@ static int32_t CreateUniqueConnectionID()
 void WebNativeMessagingManager::DeleteIpcConnect(Security::AccessToken::AccessTokenID id, std::string& bundleName)
 {
     std::lock_guard<std::mutex> lock(AbilityConnectMutex_);
+    DeleteIpcConnectUnlock(id, bundleName);
+}
+
+void WebNativeMessagingManager::DeleteIpcConnectUnlock(Security::AccessToken::AccessTokenID id, std::string& bundleName)
+{
     auto iter = AbilityConnectMap_.find(std::pair<Security::AccessToken::AccessTokenID, std::string>(id, bundleName));
     if (iter != AbilityConnectMap_.end()) {
         AbilityConnectMap_.erase(iter);
@@ -81,6 +86,11 @@ void WebNativeMessagingManager::DeleteIpcConnect(Security::AccessToken::AccessTo
 bool WebNativeMessagingManager::IsIpcConnectExist()
 {
     std::lock_guard<std::mutex> lock(AbilityConnectMutex_);
+    return IsIpcConnectExistUnlock();
+}
+
+bool WebNativeMessagingManager::IsIpcConnectExistUnlock()
+{
     return AbilityConnectMap_.size() > 0;
 }
 
@@ -527,8 +537,8 @@ void WebNativeMessagingManager::StopNativeConnectionFromExtension(int32_t innerC
     bool ipcConnectNeedDelete = false;
     int32_t res = ipcConnect->DisconnectNative(innerConnectId, ipcConnectNeedDelete);
     if (ipcConnectNeedDelete) {
-        DeleteIpcConnect(request->GetCallerTokenId(), request->GetTargetBundleName());
-        if (!IsIpcConnectExist() && delayExitTask_) {
+        DeleteIpcConnectUnlock(request->GetCallerTokenId(), request->GetTargetBundleName());
+        if (!IsIpcConnectExistUnlock() && delayExitTask_) {
             delayExitTask_->Start();
         }
     }

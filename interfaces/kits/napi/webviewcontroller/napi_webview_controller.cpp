@@ -1539,10 +1539,12 @@ napi_value NapiWebviewController::InnerGetThisVar(napi_env env, napi_callback_in
     if ((!webviewController) || (status != napi_ok)) {
         WVLOG_E("webviewController is nullptr.");
         napi_value result = nullptr;
-        napi_get_null(env, &result);
+        napi_create_int64(env, 0, &result);
         return result;
     }
-    return thisVar;
+    napi_value result = nullptr;
+    napi_create_int64(env, reinterpret_cast<int64_t>(webviewController), &result);
+    return result;
 }
 
 napi_value NapiWebviewController::SetWebId(napi_env env, napi_callback_info info)
