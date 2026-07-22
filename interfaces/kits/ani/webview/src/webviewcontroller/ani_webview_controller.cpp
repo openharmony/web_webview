@@ -6232,6 +6232,7 @@ static ani_ref CreateWebPrintDocumentAdapter(ani_env* env, ani_object object, an
     WebPrintDocument* webPrintDoc = new (std::nothrow) WebPrintDocument(webPrintDocument);
     if (!webPrintDoc) {
         WVLOG_E("new web print failed");
+        delete static_cast<PrintDocumentAdapterAdapter*>(webPrintDocument);
         return nullptr;
     }
 
@@ -6342,9 +6343,9 @@ static void ParsePrintRangeAdapter(ani_env* env, ani_object pageRange, PrintAttr
     }
     ani_array pagesArrayInt = static_cast<ani_array>(pages);
 
-    printAttr.pageRange.startPage = static_cast<uint32_t>(startPage);
+    printAttr.pageRange.startPage = startPage > 0 ? static_cast<uint32_t>(startPage) : 0;
 
-    printAttr.pageRange.endPage = static_cast<uint32_t>(endPage);
+    printAttr.pageRange.endPage = endPage > 0 ? static_cast<uint32_t>(endPage) : 0;
     WVLOG_D("printAttr.pageRange.startPage is %{public}d,printAttr.pageRange.endPage is %{public}d",
         printAttr.pageRange.startPage, printAttr.pageRange.endPage);
 
@@ -6390,8 +6391,8 @@ static void ParsePrintPageSizeAdapter(ani_env* env, ani_object pageSize, PrintAt
         WVLOG_E("ParsePrintPageSizeAdapter failed to get height");
     }
 
-    printAttr.pageSize.width = static_cast<uint32_t>(width);
-    printAttr.pageSize.height = static_cast<uint32_t>(height);
+    printAttr.pageSize.width = width > 0 ? static_cast<uint32_t>(width) : 0;
+    printAttr.pageSize.height = height > 0 ? static_cast<uint32_t>(height) : 0;
     WVLOG_D("width is %{public}d,height is %{public}d", printAttr.pageSize.width, printAttr.pageSize.height);
 }
 
@@ -6424,10 +6425,10 @@ static void ParsePrintMarginAdapter(ani_env* env, ani_object margin, PrintAttrib
         WVLOG_D("ParsePrintMarginAdapter failed to get right");
     }
 
-    printAttr.margin.top = static_cast<uint32_t>(top);
-    printAttr.margin.bottom = static_cast<uint32_t>(bottom);
-    printAttr.margin.left = static_cast<uint32_t>(left);
-    printAttr.margin.right = static_cast<uint32_t>(right);
+    printAttr.margin.top = top > 0 ? static_cast<uint32_t>(top) : 0;
+    printAttr.margin.bottom = bottom > 0 ? static_cast<uint32_t>(bottom) : 0;
+    printAttr.margin.left = left > 0 ? static_cast<uint32_t>(left) : 0;
+    printAttr.margin.right = right > 0 ? static_cast<uint32_t>(right) : 0;
     WVLOG_D("top is %{public}d,bottom is %{public}d,left is %{public}d,right is %{public}d", printAttr.margin.top,
         printAttr.margin.bottom, printAttr.margin.left, printAttr.margin.right);
 }

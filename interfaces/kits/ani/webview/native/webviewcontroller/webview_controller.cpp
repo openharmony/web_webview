@@ -675,9 +675,17 @@ bool WebviewController::GetRawFileUrl(const std::string &fileName,
     if (hapPath_.empty()) {
         std::shared_ptr<AbilityRuntime::ApplicationContext> context =
             AbilityRuntime::ApplicationContext::GetApplicationContext();
+        if (!context) {
+            WVLOG_E("GetRawFileUrl: failed to get application context");
+            return false;
+        }
         std::string packagePath = "file:///" + context->GetBundleCodeDir() + "/";
         std::string contextBundleName = context->GetBundleName() + "/";
         std::shared_ptr<AppExecFwk::ApplicationInfo> appInfo = context->GetApplicationInfo();
+        if (!appInfo) {
+            WVLOG_E("GetRawFileUrl: failed to get application info");
+            return false;
+        }
         std::string entryDir = appInfo->entryDir;
         bool isStage = entryDir.find("entry") == std::string::npos ? false : true;
         result = isStage ? packagePath + "entry/resources/rawfile/" + fileName :

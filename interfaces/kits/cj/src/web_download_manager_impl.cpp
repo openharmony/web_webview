@@ -190,6 +190,10 @@ namespace {
         OHOS::NWeb::NWebHelper::Instance().LoadNWebSDK();
         NWebDownloadItem *downloadItem = nullptr;
         WebDownloadItem_CreateWebDownloadItem(&downloadItem);
+        if (downloadItem == nullptr) {
+            WEBVIEWLOGE("[DOWNLOAD] CreateWebDownloadItem failed.");
+            return;
+        }
         WebDownloadItem_SetGuid(downloadItem, webDownload->guid.c_str());
         WebDownloadItem_SetUrl(downloadItem, webDownload->url.c_str());
         WebDownloadItem_SetFullPath(downloadItem, webDownload->fullPath.c_str());

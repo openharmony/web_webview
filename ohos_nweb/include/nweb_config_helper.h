@@ -77,6 +77,7 @@ private:
     int32_t ltpoStrategy_ {0};
     int32_t loadUrlStrategy_ {0};
     std::string bundleName_;
+    mutable std::mutex bundleNameLock_;
     bool dvsyncSwitch_;
     mutable std::mutex lock_;
 

@@ -1263,6 +1263,9 @@ extern "C" {
 
     int32_t FfiOHOSWebviewCtlWarmupServiceWorker(char* url)
     {
+        if (url == nullptr) {
+            return NWebError::INVALID_URL;
+        }
         size_t size = strlen(url);
         if (size > URL_MAXIMUM || !regex_match(url, std::regex(URL_REGEXPR, std::regex_constants::icase))) {
             return NWebError::INVALID_URL;
@@ -1273,6 +1276,9 @@ extern "C" {
 
     int32_t FfiOHOSWebviewCtlSetHostIP(char* hostname, char* address, int32_t aliveTime)
     {
+        if (hostname == nullptr || address == nullptr) {
+            return NWebError::PARAM_CHECK_ERROR;
+        }
         if (strlen(hostname) + 1 > UINT_MAX || strlen(address) + 1 > UINT_MAX || aliveTime <= 0) {
             return NWebError::PARAM_CHECK_ERROR;
         }
@@ -1287,6 +1293,9 @@ extern "C" {
 
     int32_t FfiOHOSWebviewCtlClearHostIP(char* hostname)
     {
+        if (hostname == nullptr) {
+            return NWebError::PARAM_CHECK_ERROR;
+        }
         if (strlen(hostname) + 1 > UINT_MAX) {
             return NWebError::PARAM_CHECK_ERROR;
         }
