@@ -63,9 +63,11 @@ void OnRequestStop(const ArkWeb_SchemeHandler* schemeHandler, const ArkWeb_Resou
 
 std::unordered_map<WebSchemeHandler*, const ArkWeb_SchemeHandler*> WebSchemeHandler::webSchemeHandlerMap_;
 std::unordered_map<const ArkWeb_SchemeHandler*, WebSchemeHandler*> WebSchemeHandler::arkWebSchemeHandlerMap_;
+std::mutex WebSchemeHandler::mapMutex_;
 
 const ArkWeb_SchemeHandler* WebSchemeHandler::GetArkWebSchemeHandler(WebSchemeHandler* handler)
 {
+    std::lock_guard<std::mutex> lock(mapMutex_);
     return WebSchemeHandler::webSchemeHandlerMap_.find(handler) != WebSchemeHandler::webSchemeHandlerMap_.end()
                ? WebSchemeHandler::webSchemeHandlerMap_[handler]
                : nullptr;
@@ -73,6 +75,7 @@ const ArkWeb_SchemeHandler* WebSchemeHandler::GetArkWebSchemeHandler(WebSchemeHa
 
 WebSchemeHandler* WebSchemeHandler::GetWebSchemeHandler(const ArkWeb_SchemeHandler* handler)
 {
+    std::lock_guard<std::mutex> lock(mapMutex_);
     return WebSchemeHandler::arkWebSchemeHandlerMap_.find(handler) != WebSchemeHandler::arkWebSchemeHandlerMap_.end()
                ? WebSchemeHandler::arkWebSchemeHandlerMap_[handler]
                : nullptr;
@@ -97,8 +100,11 @@ WebSchemeHandler::WebSchemeHandler(ani_env* env) : vm_(nullptr)
     OH_ArkWebSchemeHandler_SetOnRequestStart(handler, onRequestStart_);
     OH_ArkWebSchemeHandler_SetOnRequestStop(handler, onRequestStop_);
     OH_ArkWebSchemeHandler_SetFromEts(handler, true);
-    webSchemeHandlerMap_.insert(std::make_pair(this, handler));
-    arkWebSchemeHandlerMap_.insert(std::make_pair(handler, this));
+    {
+        std::lock_guard<std::mutex> lock(mapMutex_);
+        webSchemeHandlerMap_.insert(std::make_pair(this, handler));
+        arkWebSchemeHandlerMap_.insert(std::make_pair(handler, this));
+    }
 }
 
 WebSchemeHandler::~WebSchemeHandler()
@@ -119,13 +125,20 @@ WebSchemeHandler::~WebSchemeHandler()
             WVLOG_E("delete reference obj fail");
         }
     }
-    ArkWeb_SchemeHandler* handler = const_cast<ArkWeb_SchemeHandler*>(GetArkWebSchemeHandler(this));
+    ArkWeb_SchemeHandler* handler = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(mapMutex_);
+        auto it = webSchemeHandlerMap_.find(this);
+        if (it != webSchemeHandlerMap_.end()) {
+            handler = const_cast<ArkWeb_SchemeHandler*>(it->second);
+            webSchemeHandlerMap_.erase(this);
+            arkWebSchemeHandlerMap_.erase(handler);
+        }
+    }
     if (!handler) {
         WVLOG_E("~WebSchemeHandler not found ArkWeb_SchemeHandler");
         return;
     }
-    webSchemeHandlerMap_.erase(this);
-    arkWebSchemeHandlerMap_.erase(handler);
     OH_ArkWeb_DestroySchemeHandler(handler);
 }
 

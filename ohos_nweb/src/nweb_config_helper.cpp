@@ -765,11 +765,13 @@ int NWebConfigHelper::safeGetPropAsInt(xmlNode* node, const xmlChar* propName, i
 
 void NWebConfigHelper::SetBundleName(const std::string& bundleName)
 {
+    std::lock_guard<std::mutex> lock(bundleNameLock_);
     bundleName_ = bundleName;
 }
 
 std::string NWebConfigHelper::GetBundleName()
 {
+    std::lock_guard<std::mutex> lock(bundleNameLock_);
     return bundleName_;
 }
 

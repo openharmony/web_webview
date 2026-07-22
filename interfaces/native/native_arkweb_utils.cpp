@@ -28,6 +28,10 @@ std::unordered_map<std::string, std::weak_ptr<OHOS::NWeb::NWeb>> g_nwebMap;
 
 void OH_NativeArkWeb_BindWebTagToWebInstance(const char* webTag, std::weak_ptr<OHOS::NWeb::NWeb> nwebPtr)
 {
+    if (!webTag) {
+        WVLOG_E("native OH_NativeArkWeb_BindWebTagToWebInstance webTag is null");
+        return;
+    }
     WVLOG_I("native OH_NativeArkWeb_BindWebTagToWebInstance webTag: %{public}s", webTag);
     g_nwebMap[webTag] = nwebPtr;
 }
@@ -35,7 +39,8 @@ void OH_NativeArkWeb_BindWebTagToWebInstance(const char* webTag, std::weak_ptr<O
 std::weak_ptr<OHOS::NWeb::NWeb> OH_NativeArkWeb_GetWebInstanceByWebTag(const char* webTag)
 {
     if (!webTag) {
-        WVLOG_I("native OH_NativeArkWeb_GetWebInstanceByWebTag webTag is null");
+        WVLOG_E("native OH_NativeArkWeb_GetWebInstanceByWebTag webTag is null");
+        return {};
     }
     return g_nwebMap[webTag];
 }

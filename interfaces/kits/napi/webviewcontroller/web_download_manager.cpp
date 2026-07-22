@@ -191,6 +191,10 @@ void WebDownloadManager::ResumeDownload(const WebDownloadItem *webDownload)
     NWebHelper::Instance().LoadNWebSDK();
     NWebDownloadItem *downloadItem = nullptr;
     WebDownloadItem_CreateWebDownloadItem(&downloadItem);
+    if (downloadItem == nullptr) {
+        WVLOG_E("[DOWNLOAD] CreateWebDownloadItem failed.");
+        return;
+    }
     WebDownloadItem_SetGuid(downloadItem, webDownload->guid.c_str());
     WebDownloadItem_SetUrl(downloadItem, webDownload->url.c_str());
     WebDownloadItem_SetFullPath(downloadItem, webDownload->fullPath.c_str());

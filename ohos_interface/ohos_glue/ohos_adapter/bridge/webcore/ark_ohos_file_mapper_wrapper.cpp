@@ -32,7 +32,7 @@ int32_t ArkOhosFileMapperWrapper::GetOffset()
 std::string ArkOhosFileMapperWrapper::GetFileName()
 {
     ArkWebString str = ctocpp_->GetFileName();
-    std::string result = ArkWebStringStructToClass(ctocpp_->GetFileName());
+    std::string result = ArkWebStringStructToClass(str);
     ArkWebStringStructRelease(str);
     return result;
 }

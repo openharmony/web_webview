@@ -1121,7 +1121,7 @@ ani_ref ConvertToAniHandlerOfDouble(ani_env* env, std::shared_ptr<NWebMessage> s
     }
 
     ani_object doubleInfoObj;
-    if (env->Object_New(double_cls, doubleInfoCtor, &doubleInfoObj, static_cast<ani_long>(src->GetDouble()))
+    if (env->Object_New(double_cls, doubleInfoCtor, &doubleInfoObj, static_cast<ani_double>(src->GetDouble()))
         != ANI_OK) {
         WVLOG_E("create double object failed");
         return nullptr;

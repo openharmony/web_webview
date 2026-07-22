@@ -17,6 +17,7 @@
 #define OHOS_NWEB_SCHEME_HANDLER_H
 
 #include <ani.h>
+#include <mutex>
 #include <string>
 #include <uv.h>
 
@@ -51,6 +52,7 @@ public:
     ani_ref delegate_ = nullptr;
     static std::unordered_map<WebSchemeHandler*, const ArkWeb_SchemeHandler*> webSchemeHandlerMap_;
     static std::unordered_map<const ArkWeb_SchemeHandler*, WebSchemeHandler*> arkWebSchemeHandlerMap_;
+    static std::mutex mapMutex_;
     ani_env* GetEnv()
     {
         ani_env* env = nullptr;
