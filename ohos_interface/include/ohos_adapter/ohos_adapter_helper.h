@@ -61,6 +61,7 @@
 #include "soc_perf_client_adapter.h"
 #include "surface_control_adapter.h"
 #include "system_properties_adapter.h"
+#include "vpe_video_adapter.h"
 #include "sensor_adapter.h"
 #include "background_task_adapter.h"
 
@@ -178,6 +179,8 @@ public:
     virtual SurfaceControlAdapter& GetSurfaceControlAdapter() = 0;
 
     virtual SurfaceTransactionAdapter& GetSurfaceTransactionAdapter() = 0;
+
+    virtual VpeVideoAdapter& GetVpeVideoAdapterInstance() = 0;
 };
 
 } // namespace OHOS::NWeb

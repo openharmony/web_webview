@@ -312,6 +312,16 @@ public:
 };
 
 /*--ark web(source=webview)--*/
+class ArkVpeVideoAdapter : public virtual ArkWebBaseRefCounted {
+public:
+    /*--ark web()--*/
+    virtual void* CreateVpeSurface(uint64_t surfaceId, void* window) = 0;
+
+    /*--ark web()--*/
+    virtual void ReleaseVpeSurface(uint64_t surfaceId) = 0;
+};
+
+/*--ark web(source=webview)--*/
 class ArkSurfaceTransactionAdapter : public virtual ArkWebBaseRefCounted {
 public:
     /*--ark web()--*/

@@ -236,6 +236,9 @@ public:
 
     /*--ark web()--*/
     virtual ArkWebRefPtr<ArkSurfaceTransactionAdapter> GetSurfaceTransactionAdapter() = 0;
+
+    /*--ark web()--*/
+    virtual ArkWebRefPtr<ArkVpeVideoAdapter> GetVpeVideoAdapterInstance() = 0;
 };
 
 } // namespace OHOS::ArkWeb

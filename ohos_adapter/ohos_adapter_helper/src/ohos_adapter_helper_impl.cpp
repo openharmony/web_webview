@@ -73,6 +73,7 @@
 #include "surface_adapter_impl.h"
 #include "surface_control_adapter_impl.h"
 #include "system_properties_adapter_impl.h"
+#include "vpe_video_adapter_impl.h"
 #include "vsync_adapter_impl.h"
 #include "window_adapter_impl.h"
 #if defined(NWEB_SENSORS_SENSOR_ENABLE)
@@ -412,5 +413,10 @@ SurfaceControlAdapter& OhosAdapterHelperImpl::GetSurfaceControlAdapter()
 SurfaceTransactionAdapter& OhosAdapterHelperImpl::GetSurfaceTransactionAdapter()
 {
     return SurfaceTransactionAdapterImpl::GetInstance();
+}
+
+VpeVideoAdapter& OhosAdapterHelperImpl::GetVpeVideoAdapterInstance()
+{
+    return VpeVideoAdapterImpl::GetInstance();
 }
 } // namespace OHOS::NWeb
