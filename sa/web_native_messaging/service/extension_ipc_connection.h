@@ -39,6 +39,18 @@ public:
 
     ~ExtensionIpcConnection()
     {
+        for (auto& request : pendingRequests_) {
+            if (request) {
+                request->OnFailed(ConnectNativeRet::ABILITY_CONNECTION_ERROR);
+            }
+        }
+        pendingRequests_.clear();
+        for (auto& request : connectedRequests_) {
+            if (request) {
+                request->OnDisconnect();
+            }
+        }
+        connectedRequests_.clear();
         WNMLOG_D("~ExtensionIpcConnection");
     }
 

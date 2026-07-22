@@ -40,8 +40,9 @@ void NAPI_web_WebNativeMessagingExtensionContext_GetJSCode(const char **buf, int
     }
 
     if (bufLen != nullptr) {
-        *bufLen = _binary_web_native_messaging_extension_context_js_end -
+        ptrdiff_t len = _binary_web_native_messaging_extension_context_js_end -
             _binary_web_native_messaging_extension_context_js_start;
+        *bufLen = static_cast<int>(len);
     }
 }
 
@@ -53,7 +54,8 @@ void NAPI_web_WebNativeMessagingExtensionContext_GetABCCode(const char **buf, in
     }
 
     if (bufLen != nullptr) {
-        *bufLen = _binary_web_native_messaging_extension_context_abc_end -
+        ptrdiff_t len = _binary_web_native_messaging_extension_context_abc_end -
             _binary_web_native_messaging_extension_context_abc_start;
+        *bufLen = static_cast<int>(len);
     }
 }

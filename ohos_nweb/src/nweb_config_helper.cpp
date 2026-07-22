@@ -334,8 +334,10 @@ void NWebConfigHelper::ParseConfig(std::shared_ptr<NWebEngineInitArgsImpl> initA
     if (cfgFiles == nullptr) {
         WVLOG_E("Not found webConfigxml,read system config");
         ParseWebConfigXml(defaultConfigPath, initArgs);
-        std::lock_guard<std::mutex> lock(lock_);
-        isConfigParsed_ = true;
+        {
+            std::lock_guard<std::mutex> lock(lock_);
+            isConfigParsed_ = true;
+        }
         return;
     }
 
@@ -826,12 +828,12 @@ bool NWebConfigHelper::IsNativeMessagingEnabled()
             return nativeMessagingEnabled_;
         }
     }
-    
     std::shared_ptr<NWebEngineInitArgsImpl> initArgs = std::make_shared<NWebEngineInitArgsImpl>();
     NWebConfigHelper::Instance().ParseConfig(initArgs);
-    
-    std::lock_guard<std::mutex> lock(lock_);
-    return nativeMessagingEnabled_;
+    {
+        std::lock_guard<std::mutex> lock(lock_);
+        return nativeMessagingEnabled_;
+    }
 }
 
 int32_t NWebConfigHelper::GetRenderProcessMode()

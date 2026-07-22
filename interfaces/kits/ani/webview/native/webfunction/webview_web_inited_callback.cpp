@@ -95,6 +95,10 @@ WebInitedCallbackParam::~WebInitedCallbackParam()
 void WebRunInitedCallbackImpl::RunInitedCallback()
 {
     WVLOG_D("enter RunInitedCallback");
+    if (!param_) {
+        WVLOG_E("param_ is null");
+        return;
+    }
     if (!param_->webInitedCallback_) {
         WVLOG_E("webInitedCallback_ is null");
         return;

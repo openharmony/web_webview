@@ -220,8 +220,8 @@ int32_t IMFTextListenerAdapterImpl::ReceivePrivateCommand(
     if (item != privateCommand.end()) {
         bool isNeedUnderline = false;
         MiscServices::PrivateDataValue data = item->second;
-        std::string previewStyle = std::get<std::string>(data);
-        if (previewStyle == PREVIEW_TEXT_STYLE_UNDERLINE) {
+        const std::string* previewStylePtr = std::get_if<std::string>(&data);
+        if (previewStylePtr && *previewStylePtr == PREVIEW_TEXT_STYLE_UNDERLINE) {
             isNeedUnderline = true;
         }
 
@@ -233,8 +233,10 @@ int32_t IMFTextListenerAdapterImpl::ReceivePrivateCommand(
     item = privateCommand.find(AUTO_FILL_PARAMS_USERNAME);
     if (item != privateCommand.end()) {
         if (listener_) {
-            std::string content = std::get<std::string>(item->second);
-            listener_->AutoFillWithIMFEvent(true, false, false, content);
+            const std::string* contentPtr = std::get_if<std::string>(&item->second);
+            if (contentPtr) {
+                listener_->AutoFillWithIMFEvent(true, false, false, *contentPtr);
+            }
         }
     }
 
