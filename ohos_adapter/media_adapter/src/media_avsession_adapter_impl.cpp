@@ -325,6 +325,10 @@ void MediaAVSessionAdapterImpl::DeActivate()
 
 void MediaAVSessionAdapterImpl::SetMetadata(const std::shared_ptr<MediaAVSessionMetadataAdapter> metadata)
 {
+    if (metadata == nullptr) {
+        WVLOG_E("media avsession adapter SetMetadata metadata is nullptr");
+        return;
+    }
     UpdateMetaDataCache(metadata);
     if (avSession_) {
         Activate();
@@ -378,6 +382,10 @@ void MediaAVSessionAdapterImpl::SetPlaybackPosition(const std::shared_ptr<MediaA
 
 bool MediaAVSessionAdapterImpl::UpdateMetaDataCache(const std::shared_ptr<MediaAVSessionMetadataAdapter> metadata)
 {
+    if (metadata == nullptr) {
+        WVLOG_E("media avsession adapter UpdateMetaDataCache metadata is nullptr");
+        return false;
+    }
     bool updated = false;
     if (avMetadata_->GetTitle() != metadata->GetTitle()) {
         avMetadata_->SetTitle(metadata->GetTitle());
@@ -445,6 +453,10 @@ bool MediaAVSessionAdapterImpl::UpdatePlaybackStateCache(MediaAVSessionPlayState
 bool MediaAVSessionAdapterImpl::UpdatePlaybackStateCache(
     const std::shared_ptr<MediaAVSessionPositionAdapter> position)
 {
+    if (position == nullptr) {
+        WVLOG_E("media avsession adapter UpdatePlaybackStateCache position is nullptr");
+        return false;
+    }
     bool updated = false;
     auto duration = static_cast<int32_t>(position->GetDuration());
     if (avPlaybackState_->GetDuration() != duration) {

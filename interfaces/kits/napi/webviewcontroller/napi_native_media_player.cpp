@@ -753,6 +753,11 @@ static napi_value CreateNativeMediaPlayerHandler(napi_env env, NapiNativeMediaPl
     napi_value jsValue = nullptr;
     napi_create_object(env, &jsValue);
 
+    if (handler == nullptr) {
+        WVLOG_E("native media player handler is null");
+        return nullptr;
+    }
+
     NAPI_CALL(env, napi_wrap(env, jsValue, handler,
         [](napi_env env, void *data, void *hint) {
             NapiNativeMediaPlayerHandlerImpl *handlerImpl = static_cast<NapiNativeMediaPlayerHandlerImpl *>(data);

@@ -79,6 +79,10 @@ void WebviewHasImageCallback::UvAfterWorkCb(uv_work_t* work, int status)
     }
     NApiScope scope(param->env_);
     if (!scope.IsVaild()) {
+        delete param;
+        param = nullptr;
+        delete work;
+        work = nullptr;
         return;
     }
 
