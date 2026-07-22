@@ -49,22 +49,28 @@ private:
             ConnectionManager() = default;
             ~ConnectionManager() {
                 for (const auto& [id, conn] : connections_) {
-                    close(conn.fdRead);
-                    close(conn.fdWrite);
+                    if (conn.fdRead >= 0) {
+                        close(conn.fdRead);
+                    }
+                    if (conn.fdWrite >= 0) {
+                        close(conn.fdWrite);
+                    }
                 }
             }
             void AddConnection(const WNMEConnectionInfo& conn) {
                 auto tmp = GetConnection(conn.connectionId);
                 if (tmp) {
-                    WNMLOG_E("connectionId exists!");
+                    WNMLOG_E("connectionId exists, closing old fds");
+                    if (tmp->fdRead >= 0) { close(tmp->fdRead); }
+                    if (tmp->fdWrite >= 0) { close(tmp->fdWrite); }
                 }
                 connections_[conn.connectionId] = conn;
             }
             void RemoveConnection(const WNMEConnectionInfo& conn) {
                 auto tmp = GetConnection(conn.connectionId);
                 if (tmp) {
-                    close(tmp->fdRead);
-                    close(tmp->fdWrite);
+                    if (tmp->fdRead >= 0) { close(tmp->fdRead); }
+                    if (tmp->fdWrite >= 0) { close(tmp->fdWrite); }
                     connections_.erase(conn.connectionId);
                     return;
                 }

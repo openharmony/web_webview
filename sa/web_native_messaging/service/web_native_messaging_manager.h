@@ -71,6 +71,8 @@ public:
 
 private:
     bool IsIpcConnectExist();
+    bool IsIpcConnectExistUnlock();
+    void DeleteIpcConnectUnlock(Security::AccessToken::AccessTokenID id, std::string& bundleName);
     sptr<ExtensionIpcConnection> LookUpIpcConnectionUnlock(Security::AccessToken::AccessTokenID tokenId,
         std::string& bundleName);
     sptr<ExtensionIpcConnection> LookUpIpcConnection(Security::AccessToken::AccessTokenID tokenId,

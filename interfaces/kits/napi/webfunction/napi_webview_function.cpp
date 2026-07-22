@@ -79,6 +79,7 @@ void RegisterWebInitedCallback(napi_env env, napi_ref callback)
 {
     WebInitedCallbackParam *param = new (std::nothrow) WebInitedCallbackParam(env, callback);
     if (param == nullptr) {
+        napi_delete_reference(env, callback);
         return;
     }
     WebRunInitedCallback *runWebInitedCallbackObj = new (std::nothrow) WebRunInitedCallbackImpl(param);

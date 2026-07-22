@@ -530,32 +530,25 @@ ani_ref CreateEtsWebNativeMessagingExtensionContext(ani_env* env,
         WNMLOG_E("Failed to find constructor, status : %{public}d", status);
         return nullptr;
     }
-    std::unique_ptr<ETSWebNativeMessagingExtensionContext> workContext =
-            std::make_unique<ETSWebNativeMessagingExtensionContext>(context);
+    auto workContext = std::make_unique<ETSWebNativeMessagingExtensionContext>(context);
     if (workContext == nullptr) {
         WNMLOG_E("Failed to create etsServiceExtensionContext");
         return nullptr;
     }
-    auto serviceContextPtr = new std::weak_ptr<WebNativeMessagingExtensionContext>
-                                (workContext->GetAbilityContext());
+    auto serviceContextPtr = std::make_unique<std::weak_ptr<WebNativeMessagingExtensionContext>>(
+                                workContext->GetAbilityContext());
     if ((status = env->Object_New(
-        cls, method, &contextObj, (ani_long)workContext.release())) != ANI_OK ||
+        cls, method, &contextObj, (ani_long)workContext.get())) != ANI_OK ||
         contextObj == nullptr) {
         WNMLOG_E("Failed to create object, status : %{public}d", status);
-        if (serviceContextPtr != nullptr) {
-            delete serviceContextPtr;
-            serviceContextPtr = nullptr;
-        }
         return nullptr;
     }
-    if (!ContextUtil::SetNativeContextLong(env, contextObj, (ani_long)(serviceContextPtr))) {
+    workContext.release();
+    if (!ContextUtil::SetNativeContextLong(env, contextObj, (ani_long)(serviceContextPtr.get()))) {
         WNMLOG_E("Failed to setNativeContextLong ");
-        if (serviceContextPtr != nullptr) {
-            delete serviceContextPtr;
-            serviceContextPtr = nullptr;
-        }
         return nullptr;
     }
+    serviceContextPtr.release();
     ContextUtil::CreateEtsBaseContext(env, cls, contextObj, context);
     CreateEtsExtensionContext(env, cls, contextObj, context, context->GetAbilityInfo());
     return contextObj;

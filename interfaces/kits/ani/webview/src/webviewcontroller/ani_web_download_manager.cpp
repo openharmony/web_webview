@@ -73,6 +73,15 @@ static void SetDownloadDelegate(ani_env* env, ani_object object, ani_object dele
         WVLOG_E("env is nullptr");
         return;
     }
+    if (delegate == nullptr) {
+        WVLOG_E("[DOWNLOAD] SetDownloadDelegate delegate is null");
+        return;
+    }
+    ani_boolean isUndefined = ANI_FALSE;
+    if (env->Reference_IsUndefined(delegate, &isUndefined) != ANI_OK || isUndefined) {
+        WVLOG_E("[DOWNLOAD] SetDownloadDelegate delegate is undefined");
+        return;
+    }
     WebDownloadDelegate* delegateObj = nullptr;
     ani_long thisVar;
     ani_status status = env->Object_GetFieldByName_Long(delegate, "nativePtr", &thisVar);

@@ -143,9 +143,14 @@ void ExtensionIpcConnection::HandleCallerDeath()
 
     auto sp = wpThis_.promote();
     if (sp) {
-        ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(sp);
-        if (err != ERR_OK) {
-            WNMLOG_E("call ability disconnect ability failed, err %{public}d", err);
+        auto abilityClient = AAFwk::AbilityManagerClient::GetInstance();
+        if (!abilityClient) {
+            WNMLOG_E("ability manager is null");
+        } else {
+            ErrCode err = abilityClient->DisconnectAbility(sp);
+            if (err != ERR_OK) {
+                WNMLOG_E("call ability disconnect ability failed, err %{public}d", err);
+            }
         }
     }
 

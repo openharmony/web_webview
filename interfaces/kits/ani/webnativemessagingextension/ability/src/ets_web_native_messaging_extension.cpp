@@ -307,6 +307,7 @@ void ETSWebNativeMessagingExtension::OnDestroy()
 
 void ETSWebNativeMessagingExtension::OnStop()
 {
+    connmgr_.ClearAllConnections();
     OnDestroy();
 }
 

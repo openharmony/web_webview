@@ -55,6 +55,7 @@ ohos_shared_library("webview_ani") {
     "./src/common/ani_parse_utils.cpp",
     "./src/common/ani_parse_utils.h",
     "./src/common/ani_web_net_error_list.h",
+    "./src/common/ani_web_net_error_list.cpp",
     "./src/common/nweb_message_ext.cpp",
     "./src/proxycontroller/ani_proxy_config.cpp",
     "./src/proxycontroller/ani_proxy_config.h",

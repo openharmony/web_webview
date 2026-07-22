@@ -216,8 +216,8 @@ private:
     std::string targetBundleName_;
     std::string targetAbilityName_;
     int32_t targetExtensionPid_ = -1;
-    int32_t fdRead_;
-    int32_t fdWrite_;
+    int32_t fdRead_ = -1;
+    int32_t fdWrite_ = -1;
     sptr<IRemoteObject> appConnectCallback_;
     bool isConnected_ = false;
     sptr<RequestClientDeathRecipient> deathRecipient_;

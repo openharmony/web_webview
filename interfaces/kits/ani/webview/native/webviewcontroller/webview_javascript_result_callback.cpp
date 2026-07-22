@@ -59,7 +59,7 @@ public:
     public:
         explicit Level(ValueConvertState* state) : state_(state)
         {
-            if (state_) {
+            if (state_ && state_->maxRecursionDepth_ > 0) {
                 state_->maxRecursionDepth_--;
             }
         }
@@ -260,8 +260,11 @@ void CallH5FunctionV2(ani_env* env, std::shared_ptr<NWebValue> nwebValue, ani_ob
     auto fromNwebID = FromNwebID(bundle.nwebId);
     if (isObject && fromNwebID) {
         JavaScriptOb::ObjectID returnedObjectId;
-        if (fromNwebID->FindObjectIdInJsTd(env, object, &returnedObjectId)) {
-            fromNwebID->FindObject(returnedObjectId)->AddHolder(bundle.frameRoutingId);
+        auto foundObj = fromNwebID->FindObjectIdInJsTd(env, object, &returnedObjectId)
+                            ? fromNwebID->FindObject(returnedObjectId)
+                            : nullptr;
+        if (foundObj) {
+            foundObj->AddHolder(bundle.frameRoutingId);
         } else {
             returnedObjectId = fromNwebID->AddObject(env, object, false, bundle.frameRoutingId);
         }
@@ -337,6 +340,10 @@ ani_object CreateFunctionForH5(ani_env* env, int32_t nwebId, int32_t frameRoutin
     bundle->h5Id = h5ObjectId;
     bundle->funcName = funcName;
 
+    if (!jsProxyCallbackCls) {
+        WVLOG_E("CreateFunctionForH5 jsProxyCallbackCls is nullptr");
+        return nullptr;
+    }
     ani_status status = ANI_OK;
     ani_method method {};
     status = env->Class_FindMethod(jsProxyCallbackCls, "getCallback", nullptr, &method);
@@ -345,11 +352,12 @@ ani_object CreateFunctionForH5(ani_env* env, int32_t nwebId, int32_t frameRoutin
         return nullptr;
     }
     ani_ref callFuc {};
-    status = env->Object_CallMethod_Ref(callObj, method, &callFuc, reinterpret_cast<void*>(bundle.release()));
+    status = env->Object_CallMethod_Ref(callObj, method, &callFuc, reinterpret_cast<void*>(bundle.get()));
     if (status != ANI_OK) {
         WVLOG_E("CreateFunctionForH5 CallMethod fail");
         return nullptr;
     }
+    bundle.release();
     return static_cast<ani_object>(callFuc);
 }
 
@@ -496,6 +504,10 @@ ani_ref AniCreateMapObject(ani_env* env, WebviewJavaScriptResultCallBack::Object
 
         ani_ref callResult = nullptr;
         ani_object webviewObj = static_cast<ani_object>(jsObj->GetWebviewObject());
+        if (!webviewObj) {
+            WVLOG_E("AniCreateMapObject webviewObj is null");
+            return callResult;
+        }
         ani_status s = env->Object_CallMethodByName_Ref(webviewObj, "getReferenceMap", nullptr, &callResult);
         if (ANI_OK != s || !callResult) {
             WVLOG_E("AniCreateMapObject call method fail,status: %{public}d", s);
@@ -518,6 +530,10 @@ void AniSetFieldForMapObject(ani_env* env, WebviewJavaScriptResultCallBack::Obje
 
         ani_ref callResult;
         ani_object webviewObj = static_cast<ani_object>(jsObj->GetWebviewObject());
+        if (!webviewObj) {
+            WVLOG_E("AniSetFieldForMapObject webviewObj is null");
+            return;
+        }
         ani_status s = env->Object_CallMethodByName_Ref(
             webviewObj, "setFieldForObject", nullptr, &callResult, target, name, value);
         if (ANI_OK != s || !callResult) {
@@ -532,6 +548,10 @@ bool AniIsInt(ani_env* env, ani_object& object)
 {
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
+        return false;
+    }
+    if (object == nullptr) {
+        WVLOG_E("object is nullptr");
         return false;
     }
     ani_class intClass;
@@ -551,6 +571,10 @@ bool AniIsArray(ani_env* env, ani_object arrayObject)
 {
     if (!env) {
         WVLOG_E("env is nullptr");
+        return false;
+    }
+    if (!arrayObject) {
+        WVLOG_E("AniIsArray arrayObject is nullptr");
         return false;
     }
     ani_class cls;
@@ -598,8 +622,8 @@ bool AniGetElement(ani_env* env, ani_array value, uint32_t i, ani_ref* aniTmp)
 
 uint32_t AniGetArrayLength(ani_env* env, ani_array value)
 {
-    if (!env) {
-        WVLOG_E("env is nullptr");
+    if (!env || !value) {
+        WVLOG_E("AniGetArrayLength env or value is nullptr");
         return 0;
     }
     ani_size size = 0;
@@ -651,8 +675,11 @@ void ProcessObjectCaseInJsTdV2(ani_env* env, WebviewJavaScriptResultCallBack::An
 
     JavaScriptOb::ObjectID returnedObjectId;
     auto* inParam = static_cast<WebviewJavaScriptResultCallBack::NapiJsCallBackInParm*>(param->input);
-    if (inParam->webJsResCb->FindObjectIdInJsTd(env, callResult, &returnedObjectId)) {
-        inParam->webJsResCb->FindObject(returnedObjectId)->AddHolder(inParam->frameRoutingId);
+    auto foundObj = inParam->webJsResCb->FindObjectIdInJsTd(env, callResult, &returnedObjectId)
+                        ? inParam->webJsResCb->FindObject(returnedObjectId)
+                        : nullptr;
+    if (foundObj) {
+        foundObj->AddHolder(inParam->frameRoutingId);
     } else {
         returnedObjectId = inParam->webJsResCb->AddObject(env, callResult, false, inParam->frameRoutingId);
     }
@@ -700,6 +727,14 @@ void ExecuteGetJavaScriptResultV2(
         ani_ref callResult = nullptr;
         ani_object nameObj = static_cast<ani_object>(jsObj->GetAniValue());
         ani_object webviewObj = static_cast<ani_object>(jsObj->GetWebviewObject());
+        if (!webviewObj) {
+            WVLOG_E("ExecuteGetJavaScriptResultV2 webviewObj is null");
+            env->DestroyLocalScope();
+            std::unique_lock<std::mutex> lock(param->mutex);
+            param->ready = true;
+            param->condition.notify_all();
+            return;
+        }
         auto argv = *(static_cast<std::vector<ani_object>*>(inParam->data));
         ani_array argvRef = ConvertAniArrayFromVecterObject(env, argv);
         ani_status s = env->Object_CallMethodByName_Ref(
@@ -1056,10 +1091,10 @@ void ParseNapiValue2NwebValueHelper(
     napi_env env, ValueConvertState* state, napi_value& value,
     std::shared_ptr<NWebValue> nwebValue, bool* isOject)
 {
-    ValueConvertState::Level stateLevel(state);
     if (state->HasReachedMaxRecursionDepth()) {
         return;
     }
+    ValueConvertState::Level stateLevel(state);
     if (!nwebValue || ParseBasicTypeNapiValue2NwebValue(env, value, nwebValue, isOject)) {
         return;
     }
@@ -1311,6 +1346,7 @@ bool IsCallableObject(ani_env* env, ani_object& value, std::vector<std::string>*
     s = env->Object_GetFieldByName_Ref(value, annotation.c_str(), &ref_result);
     if (s != ANI_OK) {
         WVLOG_E("IsCallableObject get property call fail");
+        return false;
     }
     result = static_cast<ani_object>(ref_result);
     bool isArray = AniIsArray(env, result);
@@ -1444,10 +1480,10 @@ void ParseAniValue2NwebValueHelper(
     if (!env || !state) {
         return;
     }
-    ValueConvertState::Level stateLevel(state);
     if (state->HasReachedMaxRecursionDepth()) {
         return;
     }
+    ValueConvertState::Level stateLevel(state);
     if (!nwebValue || ParseBasicTypeAniValue2NwebValue(env, value, nwebValue, isOject)) {
         WVLOG_E("ParseAniValue2NwebValueHelper ParseBasicType");
         return;
@@ -1586,11 +1622,11 @@ void ParseAniValue2NwebValueHelperV2(
     if (!env || !state) {
         return;
     }
-    ValueConvertState::Level stateLevel(state);
     if (state->HasReachedMaxRecursionDepth()) {
         WVLOG_E("ParseAniValue2NwebValueHelperV2 state false ");
         return;
     }
+    ValueConvertState::Level stateLevel(state);
     ani_boolean isUndefined = true;
     if ((env->Reference_IsUndefined(value, &isUndefined)) != ANI_OK) {
         WVLOG_E("ParseAniValue2NwebValueHelperV2 call Undefine fail");
@@ -1737,6 +1773,10 @@ ani_object ParseDictionaryNwebValue2AniValueV2(ani_env* env, const std::shared_p
     // create Map
     ani_ref mapObj = AniCreateMapObject(env, objectsMap, id);
     ani_object clsMapObj = static_cast<ani_object>(mapObj);
+    if (!clsMapObj) {
+        WVLOG_E("ParseDictionaryNwebValue2AniValueV2 mapObj is null");
+        return nullptr;
+    }
 
     for (auto& item : dict) {
         ani_string keyObj = AniParseUtils::StringToAniStr(env, item.first);
@@ -1929,6 +1969,10 @@ void JavaScriptOb::AniSetUpMethods()
         return;
     }
     ani_object obj = static_cast<ani_object>(GetAniValue());
+    if (!obj) {
+        WVLOG_E("AniSetUpMethods GetAniValue returned null");
+        return;
+    }
     ani_env* env = GetAniEnv();
     if (env == nullptr) {
         WVLOG_E("env null");
@@ -2111,8 +2155,11 @@ void ProcessObjectCaseInJsTd(
     auto* outParam = static_cast<WebviewJavaScriptResultCallBack::NapiJsCallBackOutParm*>(param->out);
     JavaScriptOb::ObjectID returnedObjectId;
 
-    if (inParam->webJsResCb->FindObjectIdInJsTd(env, callResult, &returnedObjectId)) {
-        inParam->webJsResCb->FindObject(returnedObjectId)->AddHolder(inParam->frameRoutingId);
+    auto foundObj = inParam->webJsResCb->FindObjectIdInJsTd(env, callResult, &returnedObjectId)
+                        ? inParam->webJsResCb->FindObject(returnedObjectId)
+                        : nullptr;
+    if (foundObj) {
+        foundObj->AddHolder(inParam->frameRoutingId);
     } else {
         returnedObjectId = inParam->webJsResCb->AddObject(env, callResult, false, inParam->frameRoutingId);
     }
@@ -2980,8 +3027,11 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultSelfV2(const std::vecto
     WVLOG_D("get javaScript result already in js thread end");
     if (isObject) {
         JavaScriptOb::ObjectID returnedObjectId;
-        if (FindObjectIdInJsTd(jsObj->GetAniEnv(), callResult, &returnedObjectId)) {
-            FindObject(returnedObjectId)->AddHolder(routingId);
+        auto foundObj = FindObjectIdInJsTd(jsObj->GetAniEnv(), callResult, &returnedObjectId)
+                            ? FindObject(returnedObjectId)
+                            : nullptr;
+        if (foundObj) {
+            foundObj->AddHolder(routingId);
         } else {
             returnedObjectId = AddObject(jsObj->GetAniEnv(), callResult, false, routingId);
         }
@@ -3127,9 +3177,10 @@ void WebviewJavaScriptResultCallBack::RemoveTransientJavaScriptObject()
         if (!isHasObj) {
             WVLOG_D("WebviewJavaScriptResultCallBack::RemoveTransientJavaScriptObject "
                     "isHasObj == false");
-            retainedObjectSet_.erase(*iter1);
+            iter1 = retainedObjectSet_.erase(iter1);
+        } else {
+            ++iter1;
         }
-        ++iter1;
     }
 }
 
@@ -3137,8 +3188,9 @@ void WebviewJavaScriptResultCallBack::SetUpAnnotateMethods(
     JavaScriptOb::ObjectID objId, std::vector<std::string>& methodNameList)
 {
     // set up annotate(methodNameListForJsProxy) object method
-    if (objects_[objId]) {
-        objects_[objId]->SetMethods(methodNameList);
+    auto it = objects_.find(objId);
+    if (it != objects_.end() && it->second) {
+        it->second->SetMethods(methodNameList);
     }
 }
 
@@ -3194,7 +3246,10 @@ JavaScriptOb::ObjectID WebviewJavaScriptResultCallBack::AddNamedObject(
         RemoveNamedObject(iter->first);
     }
     if (methodName) {
-        objects_[objectId]->AddName();
+        auto objIt = objects_.find(objectId);
+        if (objIt != objects_.end() && objIt->second) {
+            objIt->second->AddName();
+        }
     } else {
         objectId = AddObject(env, obj, true, 0);
     }
@@ -3219,7 +3274,10 @@ JavaScriptOb::ObjectID WebviewJavaScriptResultCallBack::AddNamedObject(
         RemoveNamedObject(iter->first);
     }
     if (methodName) {
-        objects_[objectId]->AddName();
+        auto objIt = objects_.find(objectId);
+        if (objIt != objects_.end() && objIt->second) {
+            objIt->second->AddName();
+        }
     } else {
         objectId = AddObject(env, obj, true, 0);
     }
@@ -3326,6 +3384,7 @@ void WebviewJavaScriptResultCallBack::CallH5FunctionInternal(
 
 void WebviewJavaScriptResultCallBack::UpdateInstanceId(int32_t newId)
 {
+    std::lock_guard<std::mutex> lock(objectsMutex_);
     for (const auto& [nwebId, obj] : objects_) {
         obj->SetContainerScopeId(newId);
     }
@@ -3336,6 +3395,11 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultFlowbufV2(
     const std::string& objectName, int fd, int32_t routingId, int32_t objectId,
     std::shared_ptr<NWebHapValue> result)
 {
+    // Flowbuf optimization not yet implemented for ANI. Close fd to prevent leak,
+    // engine will fall back to GetJavaScriptResultV2.
+    if (fd >= 0) {
+        close(fd);
+    }
 }
 
 void WebviewJavaScriptResultCallBack::GetJavaScriptObjectMethodsV2(
