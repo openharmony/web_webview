@@ -38,6 +38,31 @@ WebDownloadDelegate::WebDownloadDelegate(ani_env* env)
     WVLOG_D("WebDownloadDelegate::WebDownloadDelegate");
 }
 
+WebDownloadDelegate::WebDownloadDelegate(const WebDownloadDelegate& other)
+    : delegate_(nullptr), nwebId_(other.nwebId_),
+      download_before_start_callback_(nullptr), download_did_update_callback_(nullptr),
+      download_did_finish_callback_(nullptr), download_did_fail_callback_(nullptr), env_(other.env_)
+{
+    if (env_ == nullptr) {
+        return;
+    }
+    if (other.delegate_) {
+        env_->GlobalReference_Create(other.delegate_, &delegate_);
+    }
+    if (other.download_before_start_callback_) {
+        env_->GlobalReference_Create(other.download_before_start_callback_, &download_before_start_callback_);
+    }
+    if (other.download_did_update_callback_) {
+        env_->GlobalReference_Create(other.download_did_update_callback_, &download_did_update_callback_);
+    }
+    if (other.download_did_finish_callback_) {
+        env_->GlobalReference_Create(other.download_did_finish_callback_, &download_did_finish_callback_);
+    }
+    if (other.download_did_fail_callback_) {
+        env_->GlobalReference_Create(other.download_did_fail_callback_, &download_did_fail_callback_);
+    }
+}
+
 WebDownloadDelegate::~WebDownloadDelegate()
 {
     WVLOG_D("[DOWNLOAD] WebDownloadDelegate::~WebDownloadDelegate");
@@ -218,25 +243,89 @@ void WebDownloadDelegate::DownloadDidFinish(WebDownloadItem* webDownloadItem)
 void WebDownloadDelegate::PutDownloadBeforeStart(ani_fn_object callback)
 {
     WVLOG_I("[DOWNLOAD] WebDownloadDelegate::PutDownloadBeforeStart");
-    env_->GlobalReference_Create(reinterpret_cast<ani_ref>(callback), &download_before_start_callback_);
+    if (env_ == nullptr) {
+        WVLOG_E("[DOWNLOAD] PutDownloadBeforeStart nil env");
+        return;
+    }
+    if (callback == nullptr) {
+        WVLOG_E("[DOWNLOAD] PutDownloadBeforeStart nil callback");
+        return;
+    }
+    if (download_before_start_callback_) {
+        env_->GlobalReference_Delete(download_before_start_callback_);
+        download_before_start_callback_ = nullptr;
+    }
+    ani_status status = env_->GlobalReference_Create(
+        reinterpret_cast<ani_ref>(callback), &download_before_start_callback_);
+    if (status != ANI_OK) {
+        WVLOG_E("[DOWNLOAD] PutDownloadBeforeStart create reference failed.");
+    }
 }
 
 void WebDownloadDelegate::PutDownloadDidUpdate(ani_fn_object callback)
 {
     WVLOG_I("[DOWNLOAD] WebDownloadDelegate::PutDownloadDidUpdate");
-    env_->GlobalReference_Create(reinterpret_cast<ani_ref>(callback), &download_did_update_callback_);
+    if (env_ == nullptr) {
+        WVLOG_E("[DOWNLOAD] PutDownloadDidUpdate nil env");
+        return;
+    }
+    if (callback == nullptr) {
+        WVLOG_E("[DOWNLOAD] PutDownloadDidUpdate nil callback");
+        return;
+    }
+    if (download_did_update_callback_) {
+        env_->GlobalReference_Delete(download_did_update_callback_);
+        download_did_update_callback_ = nullptr;
+    }
+    ani_status status = env_->GlobalReference_Create(
+        reinterpret_cast<ani_ref>(callback), &download_did_update_callback_);
+    if (status != ANI_OK) {
+        WVLOG_E("[DOWNLOAD] PutDownloadDidUpdate create reference failed.");
+    }
 }
 
 void WebDownloadDelegate::PutDownloadDidFinish(ani_fn_object callback)
 {
     WVLOG_I("[DOWNLOAD] WebDownloadDelegate::PutDownloadDidFinish");
-    env_->GlobalReference_Create(reinterpret_cast<ani_ref>(callback), &download_did_finish_callback_);
+    if (env_ == nullptr) {
+        WVLOG_E("[DOWNLOAD] PutDownloadDidFinish nil env");
+        return;
+    }
+    if (callback == nullptr) {
+        WVLOG_E("[DOWNLOAD] PutDownloadDidFinish nil callback");
+        return;
+    }
+    if (download_did_finish_callback_) {
+        env_->GlobalReference_Delete(download_did_finish_callback_);
+        download_did_finish_callback_ = nullptr;
+    }
+    ani_status status = env_->GlobalReference_Create(
+        reinterpret_cast<ani_ref>(callback), &download_did_finish_callback_);
+    if (status != ANI_OK) {
+        WVLOG_E("[DOWNLOAD] PutDownloadDidFinish create reference failed.");
+    }
 }
 
 void WebDownloadDelegate::PutDownloadDidFail(ani_fn_object callback)
 {
     WVLOG_I("[DOWNLOAD] WebDownloadDelegate::PutDownloadDidFail");
-    env_->GlobalReference_Create(reinterpret_cast<ani_ref>(callback), &download_did_fail_callback_);
+    if (env_ == nullptr) {
+        WVLOG_E("[DOWNLOAD] PutDownloadDidFail nil env");
+        return;
+    }
+    if (callback == nullptr) {
+        WVLOG_E("[DOWNLOAD] PutDownloadDidFail nil callback");
+        return;
+    }
+    if (download_did_fail_callback_) {
+        env_->GlobalReference_Delete(download_did_fail_callback_);
+        download_did_fail_callback_ = nullptr;
+    }
+    ani_status status = env_->GlobalReference_Create(
+        reinterpret_cast<ani_ref>(callback), &download_did_fail_callback_);
+    if (status != ANI_OK) {
+        WVLOG_E("[DOWNLOAD] PutDownloadDidFail create reference failed.");
+    }
 }
 
 int32_t WebDownloadDelegate::GetNWebId() const

@@ -34,7 +34,7 @@ static const char* ANI_CLASS_WEB_HTTP_COOKIE_SAME_SITE_POLICY = "@ohos.web.webvi
 
 const std::string TASK_ID = "configCookieAsync";
 constexpr long RESULT_OK = 1;
-
+constexpr ani_size MAX_COOKIE_STRING_LENGTH = 40960;
 static void ClearSessionCookieSync(ani_env *env, ani_object aniClass)
 {
     WVLOG_D("[COOKIE] ClearSessionCookieSync");
@@ -92,13 +92,13 @@ static ani_boolean JsIsCookieAllowed(ani_env *env, ani_object aniClass)
 static void JsSetCookieSyncParseString(ani_env *env, ani_string url, ani_string value, std::string& urlStr,
     std::string& valueStr)
 {
-    if (!AniParseUtils::ParseString(env, url, urlStr)) {
+    if (!AniParseUtils::ParseString(env, url, urlStr) || urlStr.size() > MAX_COOKIE_STRING_LENGTH) {
         WVLOG_E("Parse url failed.");
         AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "url", "string"));
         return;
     }
-    if (!AniParseUtils::ParseString(env, value, valueStr)) {
+    if (!AniParseUtils::ParseString(env, value, valueStr) || valueStr.size() > MAX_COOKIE_STRING_LENGTH) {
         WVLOG_E("Parse value failed.");
         AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "value", "string"));
@@ -253,6 +253,12 @@ void UvAfterWorkCbPromise(std::shared_ptr<NWebConfigCookieCallbackImpl> cookieOb
                 NWebError::FormatString(ParamCheckErrorMsgTemplate::INVALID_URL_FOR_COOKIE));
         } else {
             resultRef = AniBusinessError::CreateError(env, result);
+        }
+        if (resultRef == nullptr) {
+            env->GetUndefined(&resultRef);
+            env->PromiseResolver_Reject(resolver, static_cast<ani_error>(resultRef));
+            WVLOG_E("CreateError failed, resultRef is null");
+            return;
         }
         if ((status = env->PromiseResolver_Reject(resolver, reinterpret_cast<ani_error>(resultRef))) != ANI_OK) {
             WVLOG_E("promise reject error status = %{public}d", status);
@@ -456,7 +462,7 @@ static bool JsFetchCookieSyncParseParam(ani_env *env, ani_string url, ani_object
         WVLOG_E("url is undefined");
         return false;
     }
-    if (!AniParseUtils::ParseString(env, url, urlStr)) {
+    if (!AniParseUtils::ParseString(env, url, urlStr) || urlStr.size() > MAX_COOKIE_STRING_LENGTH) {
         WVLOG_E("Parse url failed.");
         AniBusinessError::ThrowError(env, NWebError::PARAM_CHECK_ERROR,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "url", "string"));
@@ -616,6 +622,10 @@ static bool SetRefToObj(ani_env* env, ani_object obj, const char* propertyName, 
 
 static ani_object CreateWebCookieManagerObj(ani_env* env, std::shared_ptr<NWebCookie> cookie)
 {
+    if (!cookie) {
+        WVLOG_E("cookie is null");
+        return nullptr;
+    }
     ani_object obj = {};
     bool ret = AniParseUtils::CreateObjectVoid(env, ANI_CLASS_WEB_HTTP_COOKIE_INNER, obj);
     if (!ret) {
@@ -793,6 +803,7 @@ ani_status StsWebCookieManagerInit(ani_env *env)
     status = env->Class_BindStaticNativeMethods(webCookieManagerCls, allMethods.data(), allMethods.size());
     if (status != ANI_OK) {
         WVLOG_E("Class_BindStaticNativeMethods failed status: %{public}d", status);
+        return status;
     }
 
     return ANI_OK;

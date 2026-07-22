@@ -32,11 +32,21 @@ void ProxyConfig::InsertBypassRule(const std::string& bypassRule)
  
 void ProxyConfig::InsertDirectRule(int32_t proxySchemeFilter)
 {
+    if (proxySchemeFilter < static_cast<int32_t>(ProxySchemeFilter::MATCH_ALL_SCHEMES) ||
+        proxySchemeFilter > static_cast<int32_t>(ProxySchemeFilter::MATCH_HTTPS)) {
+        WVLOG_E("ProxyConfig InsertDirectRule invalid proxySchemeFilter: %{public}d", proxySchemeFilter);
+        proxySchemeFilter = static_cast<int32_t>(ProxySchemeFilter::MATCH_ALL_SCHEMES);
+    }
     proxyRules_.push_back(ProxyRule(DIRECT, proxySchemeFilter));
 }
  
 void ProxyConfig::InsertProxyRule(const std::string& proxyUrl, int32_t proxySchemeFilter)
 {
+    if (proxySchemeFilter < static_cast<int32_t>(ProxySchemeFilter::MATCH_ALL_SCHEMES) ||
+        proxySchemeFilter > static_cast<int32_t>(ProxySchemeFilter::MATCH_HTTPS)) {
+        WVLOG_E("ProxyConfig InsertProxyRule invalid proxySchemeFilter: %{public}d", proxySchemeFilter);
+        proxySchemeFilter = static_cast<int32_t>(ProxySchemeFilter::MATCH_ALL_SCHEMES);
+    }
     proxyRules_.push_back(ProxyRule(proxyUrl, proxySchemeFilter));
 }
  

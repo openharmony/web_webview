@@ -204,6 +204,10 @@ public:
     ani_ref GetAniValue() const
     {
         ani_ref result = nullptr;
+        if (!aniObjRef_) {
+            WVLOG_E("GetAniValue aniObjRef_ is null");
+            return result;
+        }
         ani_env* env = GetAniEnv();
         if (!env) {
             WVLOG_E("env is nullptr");
@@ -251,36 +255,37 @@ public:
     }
     void RemoveName()
     {
-        --namesCount_;
+        if (namesCount_ > 0) {
+            --namesCount_;
+        }
     }
 
     bool HasHolders()
     {
+        std::unique_lock<std::mutex> lock(mutex_);
         return !holders_.empty();
     }
     void AddHolder(int32_t holder)
     {
+        std::unique_lock<std::mutex> lock(mutex_);
         holders_.insert(holder);
     }
     void RemoveHolder(int32_t holder)
     {
+        std::unique_lock<std::mutex> lock(mutex_);
         holders_.erase(holder);
     }
 
     std::vector<std::string> GetMethodNames()
     {
-        if (!isMethodsSetup_) {
-            SetUpMethods();
-        }
+        EnsureMethodsSetup();
         std::unique_lock<std::mutex> lock(mutex_);
         return methods_;
     }
 
     std::vector<std::string> GetSyncMethodNames()
     {
-        if (!isMethodsSetup_) {
-            SetUpMethods();
-        }
+        EnsureMethodsSetup();
         std::unique_lock<std::mutex> lock(mutex_);
         if (asyncMethods_.empty()) {
             return methods_;
@@ -315,9 +320,7 @@ public:
             return false;
         }
 
-        if (!isMethodsSetup_) {
-            SetUpMethods();
-        }
+        EnsureMethodsSetup();
         for (std::vector<std::string>::iterator iter = methods_.begin(); iter != methods_.end(); ++iter) {
             if (*iter == methodName) {
                 return true;
@@ -333,10 +336,7 @@ public:
             return false;
         }
 
-        if (!isMethodsSetup_) {
-            AniSetUpMethods();
-            return false;
-        }
+        EnsureAniMethodsSetup();
         {
             std::unique_lock<std::mutex> lock(mutex_);
             for (std::vector<std::string>::iterator iter = methods_.begin(); iter != methods_.end(); ++iter) {
@@ -350,9 +350,7 @@ public:
 
     napi_value FindMethod(const std::string& methodName)
     {
-        if (!isMethodsSetup_) {
-            SetUpMethods();
-        }
+        EnsureMethodsSetup();
 
         if (HasMethod(methodName)) {
             bool hasFunc = false;
@@ -469,6 +467,21 @@ public:
         isMethodsSetup_ = true;
     }
 
+    void EnsureMethodsSetup()
+    {
+        std::lock_guard<std::mutex> lk(setupMutex_);
+        if (!isMethodsSetup_) {
+            SetUpMethods();
+        }
+    }
+    void EnsureAniMethodsSetup()
+    {
+        std::lock_guard<std::mutex> lk(setupMutex_);
+        if (!isMethodsSetup_) {
+            AniSetUpMethods();
+        }
+    }
+
     void AniSetUpMethods();
 
     void SetMethods(std::vector<std::string> methods_name)
@@ -494,6 +507,10 @@ public:
     {
         std::unique_lock<std::mutex> lock(mutex_);
         ani_env* ani_env_ = GetAniEnv();
+        if (ani_env_ && webviewObj_) {
+            ani_env_->GlobalReference_Delete(webviewObj_);
+            webviewObj_ = nullptr;
+        }
         ani_ref result = nullptr;
         if (ani_env_) {
             ani_status s = ani_env_->GlobalReference_Create(obj, &result);
@@ -580,10 +597,11 @@ private:
 
     // An object must be kept in retainedObjectSet_ either if it has
     // names or if it has a non-empty holders set.
-    int namesCount_;
+    int namesCount_ = 0;
     std::set<int32_t> holders_;
     bool isMethodsSetup_ = false;
     std::mutex mutex_;
+    std::mutex setupMutex_; // Must be acquired before mutex_
 };
 
 class WebviewJavaScriptResultCallBack : public std::enable_shared_from_this<WebviewJavaScriptResultCallBack>,
@@ -759,6 +777,7 @@ private:
     JavaScriptOb::ObjectID nextObjectId_ = 1;
     NamedObjectMap namedObjects_;
     ObjectMap objects_;
+    std::mutex objectsMutex_;
     std::unordered_set<std::shared_ptr<JavaScriptOb>> retainedObjectSet_;
     std::shared_ptr<AppExecFwk::EventHandler> mainHandler_;
 };

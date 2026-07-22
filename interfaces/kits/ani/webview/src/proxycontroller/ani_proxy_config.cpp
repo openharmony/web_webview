@@ -75,7 +75,6 @@ static void JsInsertProxyRule(ani_env *env, ani_object object, ani_string url, a
         }
         proxySchemeFilter = static_cast<int32_t>(enumValue);
     }
-    WVLOG_D("[PROXYCONTROLLER] insert proxy rule %{public}s : %{public}d.", proxyUrl.c_str(), proxySchemeFilter);
     proxyConfig->InsertProxyRule(proxyUrl, proxySchemeFilter);
 }
 
@@ -95,7 +94,7 @@ static ani_ref GetProxyRulesInternal(ani_env *env, ProxyConfig* proxyConfig,
     ani_object arrayObj;
     if (env->Object_New(arrayCls, arrayCtor, &arrayObj, rulesSize) != ANI_OK) {
         WVLOG_E("[PROXYCONTROLLER] Object_New Array Faild.");
-        return arrayObj;
+        return nullptr;
     }
 
     for (size_t i = 0; i < rulesSize; i++) {

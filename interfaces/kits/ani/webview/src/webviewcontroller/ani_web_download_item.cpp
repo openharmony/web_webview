@@ -576,8 +576,10 @@ static ani_object SerializeInternal(ani_env* env, ani_object object)
     browser_service::WebDownload webDownloadPb;
     SetWebDownloadPb(webDownloadPb, webDownloadItem);
     std::string webDownloadValue;
-    webDownloadPb.SerializeToString(&webDownloadValue);
-    WVLOG_D("[DOWNLOAD] webDownloadValue.c_str() is %{public}s", webDownloadValue.c_str());
+    if (!webDownloadPb.SerializeToString(&webDownloadValue)) {
+        WVLOG_E("[DOWNLOAD] SerializeToString failed");
+        return nullptr;
+    }
     void* data = nullptr;
     ani_arraybuffer buffer = nullptr;
     size_t length = webDownloadValue.size();
@@ -621,7 +623,6 @@ void GetWebDownloadPb(const browser_service::WebDownload& webDownloadPb, WebDown
 
 static ani_object DeserializeInternal(ani_env* env, ani_object object, ani_object arrayObject)
 {
-    WVLOG_D("[DOWNLOAD]AniWebDownloadItem::Deserialize");
     if (env == nullptr) {
         WVLOG_E("[DOWNLOAD]env is nullptr");
         return nullptr;
@@ -631,6 +632,11 @@ static ani_object DeserializeInternal(ani_env* env, ani_object object, ani_objec
     ani_status status = env->Object_CallMethodByName_Int(arrayObject, "getByteLength", ":i", &length);
     if (status != ANI_OK || length <= 0) {
         WVLOG_E("[DOWNLOAD]Object_CallMethodByName_Int getByteLength() failed, status is %{public}d.", status);
+        return nullptr;
+    }
+    constexpr int32_t maxDeserializeLength = 50 * 1024 * 1024; /* 50 MB */
+    if (length > maxDeserializeLength) {
+        WVLOG_E("[DOWNLOAD]DeserializeInternal length exceeds limit: %{public}d", length);
         return nullptr;
     }
 

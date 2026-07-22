@@ -46,23 +46,35 @@ char* WebSchemeHandlerResponse::GetUrl()
         WVLOG_E("WebSchemeHandlerResponse is nullptr");
         return nullptr;
     }
-    char* url;
+    char* url = nullptr;
     OH_ArkWebResponse_GetUrl(response_, &url);
     return url;
 }
 
 int32_t WebSchemeHandlerResponse::SetUrl(const char* url)
 {
+    if (!response_) {
+        WVLOG_E("WebSchemeHandlerResponse is nullptr");
+        return ARKWEB_INVALID_PARAM;
+    }
     return OH_ArkWebResponse_SetUrl(response_, url);
 }
 
 int32_t WebSchemeHandlerResponse::GetStatus() const
 {
+    if (!response_) {
+        WVLOG_E("WebSchemeHandlerResponse is nullptr");
+        return 0;
+    }
     return OH_ArkWebResponse_GetStatus(response_);
 }
 
 int32_t WebSchemeHandlerResponse::SetStatus(int32_t status)
 {
+    if (!response_) {
+        WVLOG_E("WebSchemeHandlerResponse is nullptr");
+        return ARKWEB_INVALID_PARAM;
+    }
     return OH_ArkWebResponse_SetStatus(response_, status);
 }
 
@@ -72,13 +84,17 @@ char* WebSchemeHandlerResponse::GetStatusText()
         WVLOG_E("WebSchemeHandlerResponse is nullptr");
         return nullptr;
     }
-    char *statusText;
+    char *statusText = nullptr;
     OH_ArkWebResponse_GetStatusText(response_, &statusText);
     return statusText;
 }
 
 int32_t WebSchemeHandlerResponse::SetStatusText(const char* statusText)
 {
+    if (!response_) {
+        WVLOG_E("WebSchemeHandlerResponse is nullptr");
+        return ARKWEB_INVALID_PARAM;
+    }
     return OH_ArkWebResponse_SetStatusText(response_, statusText);
 }
 
@@ -88,13 +104,17 @@ char* WebSchemeHandlerResponse::GetMimeType()
         WVLOG_E("WebSchemeHandlerResponse is nullptr");
         return nullptr;
     }
-    char *mimeType;
+    char *mimeType = nullptr;
     OH_ArkWebResponse_GetMimeType(response_, &mimeType);
     return mimeType;
 }
 
 int32_t WebSchemeHandlerResponse::SetMimeType(const char* mimeType)
 {
+    if (!response_) {
+        WVLOG_E("WebSchemeHandlerResponse is nullptr");
+        return ARKWEB_INVALID_PARAM;
+    }
     return OH_ArkWebResponse_SetMimeType(response_, mimeType);
 }
 
@@ -104,13 +124,17 @@ char* WebSchemeHandlerResponse::GetEncoding() const
         WVLOG_E("WebSchemeHandlerResponse is nullptr");
         return nullptr;
     }
-    char *encoding;
+    char *encoding = nullptr;
     OH_ArkWebResponse_GetCharset(response_, &encoding);
     return encoding;
 }
 
 int32_t WebSchemeHandlerResponse::SetEncoding(const char* encoding)
 {
+    if (!response_) {
+        WVLOG_E("WebSchemeHandlerResponse is nullptr");
+        return ARKWEB_INVALID_PARAM;
+    }
     return OH_ArkWebResponse_SetCharset(response_, encoding);
 }
 
@@ -120,7 +144,7 @@ char* WebSchemeHandlerResponse::GetHeaderByName(const char* name)
         WVLOG_E("WebSchemeHandlerResponse is nullptr");
         return nullptr;
     }
-    char *value;
+    char *value = nullptr;
     OH_ArkWebResponse_GetHeaderByName(response_, name, &value);
     return value;
 }
@@ -128,16 +152,28 @@ char* WebSchemeHandlerResponse::GetHeaderByName(const char* name)
 int32_t WebSchemeHandlerResponse::SetHeaderByName(
     const char* name, const char* value, bool overwrite)
 {
+    if (!response_) {
+        WVLOG_E("WebSchemeHandlerResponse is nullptr");
+        return ARKWEB_INVALID_PARAM;
+    }
     return OH_ArkWebResponse_SetHeaderByName(response_, name, value, overwrite);
 }
 
 int32_t WebSchemeHandlerResponse::GetErrorCode()
 {
+    if (!response_) {
+        WVLOG_E("WebSchemeHandlerResponse is nullptr");
+        return 0;
+    }
     return static_cast<int32_t>(OH_ArkWebResponse_GetError(response_));
 }
 
 int32_t WebSchemeHandlerResponse::SetErrorCode(int32_t code)
 {
+    if (!response_) {
+        WVLOG_E("WebSchemeHandlerResponse is nullptr");
+        return ARKWEB_INVALID_PARAM;
+    }
     return OH_ArkWebResponse_SetError(response_, static_cast<ArkWeb_NetError>(code));
 }
 
