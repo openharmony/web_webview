@@ -314,6 +314,10 @@ int32_t PlayerAdapterImpl::SetVideoSurfaceNew(void* native_window)
         WVLOG_E("player_ is nullptr");
         return -1;
     }
+    if (!native_window) {
+        WVLOG_E("native_window is nullptr");
+        return -1;
+    }
     OHNativeWindow* ohNativeWindow = reinterpret_cast<OHNativeWindow*>(native_window);
     return player_->SetVideoSurface(ohNativeWindow->surface);
 }

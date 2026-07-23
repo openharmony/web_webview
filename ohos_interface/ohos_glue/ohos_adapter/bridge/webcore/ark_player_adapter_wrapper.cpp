@@ -37,7 +37,9 @@ int32_t ArkPlayerAdapterWrapper::SetPlayerCallback(std::shared_ptr<OHOS::NWeb::P
 int32_t ArkPlayerAdapterWrapper::SetSource(const std::string& url)
 {
     ArkWebString str = ArkWebStringClassToStruct(url);
-    return ctocpp_->SetSource(str);
+    int32_t result = ctocpp_->SetSource(str);
+    ArkWebStringStructRelease(str);
+    return result;
 }
 
 int32_t ArkPlayerAdapterWrapper::SetSource(int32_t fd, int64_t offset, int64_t size)
