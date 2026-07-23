@@ -125,6 +125,7 @@ WebSchemeHandler::~WebSchemeHandler()
                 current_tid, thread_id_);
     }
     napi_delete_reference(env_, request_start_callback_);
+    is_stop_callback_valid_->store(false, std::memory_order_release);
     napi_delete_reference(env_, request_stop_callback_);
     ArkWeb_SchemeHandler* handler =
         const_cast<ArkWeb_SchemeHandler*>(GetArkWebSchemeHandler(this));
@@ -234,8 +235,9 @@ void WebSchemeHandler::RequestStopAfterWorkCb(uv_work_t* work, int status)
     }
     napi_value callbackFunc = nullptr;
     napi_status napiStatus;
-    if (!param->callbackRef_) {
-        WVLOG_E("scheme handler onRequestStop nil env");
+    if (!param->callbackRef_ || !param->isCallbackValid_ ||
+        !param->isCallbackValid_->load(std::memory_order_acquire)) {
+        WVLOG_E("scheme handler onRequestStop callback ref is invalid");
         delete param;
         delete work;
         return;
@@ -300,6 +302,7 @@ void WebSchemeHandler::RequestStop(const ArkWeb_ResourceRequest* resourceRequest
     }
     param->env_ = env_;
     param->callbackRef_ = request_stop_callback_;
+    param->isCallbackValid_ = is_stop_callback_valid_;
     param->request_ = new (std::nothrow) WebSchemeHandlerRequest(resourceRequest);
     if (param->request_ == nullptr) {
         delete work;
@@ -337,6 +340,8 @@ void WebSchemeHandler::PutRequestStop(napi_env, napi_value callback)
     napi_status status = napi_create_reference(env_, callback, 1, &request_stop_callback_);
     if (status != napi_status::napi_ok) {
         WVLOG_E("PutRequestStop create reference failed.");
+    } else {
+        is_stop_callback_valid_->store(true, std::memory_order_release);
     }
 }
 
