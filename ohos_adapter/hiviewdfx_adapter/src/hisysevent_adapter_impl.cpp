@@ -20,6 +20,7 @@
 #include "ohos_resource_adapter_impl.h"
 #include "arkweb_utils.h"
 #include "parameters.h"
+#include "nweb_log.h"
 
 
 namespace OHOS::NWeb {
@@ -119,6 +120,11 @@ template<typename... Args>
 static int ForwardToHiSysEvent(const std::string& eventName, HiSysEventAdapter::EventType type,
     const std::tuple<Args...>& tp)
 {
+    if (static_cast<uint32_t>(type) >= std::size(EVENT_TYPES)) {
+        WVLOG_E("ForwardToHiSysEvent type error, type: %{public}u", static_cast<uint32_t>(type));
+        return -1;
+    }
+
     if (g_versionCode.empty()) {
         g_versionCode = OhosResourceAdapterImpl::GetArkWebVersion();
     }
