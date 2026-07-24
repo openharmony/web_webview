@@ -37,7 +37,7 @@ private:
 class SensorAdapterImpl : public SensorAdapter {
 public:
     SensorAdapterImpl() = default;
-    ~SensorAdapterImpl() = default;
+    ~SensorAdapterImpl() override;
 
     int32_t IsOhosSensorSupported(int32_t sensorTypeId) override;
     int32_t GetOhosSensorReportingMode(int32_t sensorTypeId) override;
@@ -53,6 +53,7 @@ private:
     static void OhosSensorCallback(SensorEvent* event);
     static std::unordered_map<int32_t, std::shared_ptr<SensorCallbackImpl>> sensorCallbackMap;
     static std::mutex sensorCallbackMapMutex_;
+    static std::mutex SensorUserMutex_;
 
     static void handleAccelerometerData(std::shared_ptr<OHOS::NWeb::SensorCallbackImpl> callback,
         SensorEvent* event);

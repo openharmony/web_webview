@@ -145,7 +145,12 @@ std::unique_ptr<OHOS::Location::RequestConfig>& LocationRequestConfigImpl::GetCo
 }
 
 LocationInfoImpl::LocationInfoImpl(std::unique_ptr<OHOS::Location::Location>& location)
-    : location_(std::move(location)) {}
+    : location_(location ? std::move(location) : nullptr)
+{
+    if (!location_) {
+        WVLOG_E("LocationInfoImpl: location is nullptr")
+    }
+}
 
 double LocationInfoImpl::GetLatitude()
 {
@@ -257,6 +262,17 @@ LocationProxyAdapterImpl::LocationProxyAdapterImpl()
                 dlsym(wrapperHandle_, "StopLocating"));
         }
     }
+}
+
+LocationProxyAdapterImpl::~LocationCallbackImpl()
+{
+    std::lock_guard<std::mutex> lock(locating_mutex_);
+    for (auto& item : reg_) {
+        if (stopLocatingFunc_) {
+            stopLocatingFunc_(item.second);
+        }
+    }
+    reg_.clear();
 }
 
 int32_t LocationProxyAdapterImpl::StartLocating(

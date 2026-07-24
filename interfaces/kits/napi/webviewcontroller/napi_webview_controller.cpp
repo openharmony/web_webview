@@ -5550,14 +5550,25 @@ void ParsePrintRangeAdapter(napi_env env, napi_value pageRange, PrintAttributesA
         NapiParseUtils::ParseUint32(env, endPage, printAttr.pageRange.endPage);
     }
     napi_get_named_property(env, pageRange, "pages", &pages);
-    uint32_t pageArrayLength = 0;
-    napi_get_array_length(env, pages, &pageArrayLength);
-    for (uint32_t i = 0; i < pageArrayLength; ++i) {
-        napi_value pagesNumObj = nullptr;
-        napi_get_element(env, pages, i, &pagesNumObj);
-        uint32_t pagesNum;
-        NapiParseUtils::ParseUint32(env, pagesNumObj, pagesNum);
-        printAttr.pageRange.pages.push_back(pagesNum);
+    if (pages != nullptr) {
+        napi_valuetype pagesType = napi_undefined;
+        napi_typeof(env, pages, &pagesType);
+        if (pagesType == napi_object) {
+            uint32_t pageArrayLength = 0;
+            napi_status arrStatus = napi_get_array_length(env, pages, &pageArrayLength);
+            if (arrStatus == napi_ok) {
+                for (uint32_t i = 0; i < pageArrayLength; ++i) {
+                    napi_value pagesNumobj = nullptr;
+                    napi_status elementStatus =napi_get_element(env, pages, i, $pagesNumobj);
+                    if(elemStatus != napi_ok || pagesNumobj == nullptr) {
+                        continue;
+                    }
+                    uint32_t pagesNum;
+                    NapiParseUtils::ParseUint32(env, pagesNumobj, pagesNum);
+                    printAttr.pageRange.pages.push_back(pagesNum);
+                }
+            }
+        }
     }
 }
 
@@ -5819,6 +5830,12 @@ napi_value NapiWebPrintDocument::JsConstructor(napi_env env, napi_callback_info 
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
 
     if (!NapiParseUtils::ParseUint64(env, argv[INTEGER_ZERO], addrWebPrintDoc, &loseLess)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        return nullptr;
+    }
+    
+    if (addrWebPrintDoc == 0) {
+        WVLOG_E("JsConstructor addrWebPrintDoc is null");
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
         return nullptr;
     }

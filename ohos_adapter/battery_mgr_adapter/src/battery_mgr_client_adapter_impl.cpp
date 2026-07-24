@@ -43,10 +43,18 @@ int WebBatteryInfoImpl::ChargingTime()
 NWebBatteryEventSubscriber::NWebBatteryEventSubscriber(
     EventFwk::CommonEventSubscribeInfo& in, std::shared_ptr<WebBatteryEventCallback> cb)
     : EventFwk::CommonEventSubscriber(in), eventCallback_(cb)
-{}
+{
+    if (!eventCallback_) {
+        WVLOG_W("NWebBatteryEventSubscriber: eventCallback is nullptr, ensure RegBatteryEvent is called before StartListen");
+    }
+}
 
 void NWebBatteryEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &data)
 {
+    if (!eventCallback_) {
+        WVLOG_E("OnReceiveEvent: eventCallback is nullptr, ignore event");
+        return;
+    }
     const std::string action = data.GetWant().GetAction();
     WVLOG_I("receive battery action: %{public}s", action.c_str());
     if (action != EventFwk::CommonEventSupport::COMMON_EVENT_BATTERY_CHANGED) {
@@ -84,6 +92,10 @@ void BatteryMgrClientAdapterImpl::RegBatteryEvent(std::shared_ptr<WebBatteryEven
 bool BatteryMgrClientAdapterImpl::StartListen()
 {
     WVLOG_I("start battery listen");
+    if (!cb_){
+        WVLOG_E("StartListen: cb is nullptr, call RegBatteryEvent first");
+        return false;
+    }
     EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
     skill.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_BATTERY_CHANGED);
     EventFwk::CommonEventSubscribeInfo info(skill);
@@ -100,6 +112,7 @@ bool BatteryMgrClientAdapterImpl::StartListen()
 void BatteryMgrClientAdapterImpl::StopListen()
 {
     WVLOG_I("stop battery listen");
+    std::lock_guard<std::mutex> lock(stop_mutex_);
     if (this->commonEventSubscriber_ != nullptr) {
         bool result = EventFwk::CommonEventManager::UnSubscribeCommonEvent(this->commonEventSubscriber_);
         if (result) {

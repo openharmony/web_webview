@@ -25,6 +25,7 @@ namespace OHOS::NWeb {
 
 std::unordered_map<int32_t, std::shared_ptr<SensorCallbackImpl>> SensorAdapterImpl::sensorCallbackMap;
 std::mutex SensorAdapterImpl::sensorCallbackMapMutex_;
+std::mutex SensorAdapterImpl::SensorUserMutex_;
 constexpr double NANOSECONDS_IN_SECOND = 1000000000.0;
 constexpr double DEFAULT_SAMPLE_PERIOD = 200000000.0;
 
@@ -96,9 +97,11 @@ int32_t SensorAdapterImpl::IsOhosSensorSupported(int32_t sensorTypeId)
         for (int i = 0; i < count; i++) {
             if (sensorInfo[i].sensorId == ohosSensorTypeId) {
                 WVLOG_I("IsOhosSensorSupported SUCCESS, sensorTypeId = %{public}d.", sensorTypeId);
+                delete[] sensorInfo;
                 return SENSOR_SUCCESS;
             }
         }
+        delete[] sensorInfo;
     }
     WVLOG_E("IsOhosSensorSupported Error, sensorTypeId = %{public}d is invalid.", sensorTypeId);
     return SENSOR_ERROR;
@@ -293,10 +296,13 @@ void SensorAdapterImpl::handleGameRotationVectorData(std::shared_ptr<OHOS::NWeb:
         WVLOG_E("handleGameRotationVectorData Error.");
         return;
     }
-    GameRotationVectorData* data = reinterpret_cast<GameRotationVectorData*>(event->data);
-    if (data != nullptr) {
-        callback->UpdateOhosSensorData(event->timestamp, data->x, data->y, data->z, data->w);
+    if (event->data == nullptr || event->dataLen < static_cast<uint32_t>(sizeof(GameRotationVectorData))) {
+        WVLOG_E("handleGameRotationVectorData: invalid data buffer, dataLen=%{public}u, expected=%{public}zu",
+            event->dataLen,sizeof(GameRotationVectorData));
+        return;
     }
+    GameRotationVectorData* data = reinterpret_cast<GameRotationVectorData*>(event->data);
+    callback->UpdateOhosSensorData(event->timestamp, data->x, data->y, data->z, data->w);
 }
 
 void SensorAdapterImpl::OhosSensorCallback(SensorEvent* event)
@@ -366,6 +372,7 @@ int32_t SensorAdapterImpl::SubscribeOhosSensor(int32_t sensorTypeId, int64_t sam
         return SENSOR_PARAMETER_ERROR;
     }
 
+    std::lock_guard<std::mutex> lock(sensorUserMutex_);
     std::string userName = SensorTypeToSensorUserName(sensorTypeId);
     int cpyret = strcpy_s(mSensorUser.name, sizeof(mSensorUser.name), userName.c_str());
     if (cpyret != 0) {
@@ -416,6 +423,7 @@ int32_t SensorAdapterImpl::UnsubscribeOhosSensor(int32_t sensorTypeId)
     WVLOG_I("UnsubscribeOhosSensor sensorTypeId: %{public}d.", sensorTypeId);
     int32_t ohosSensorTypeId = SensorTypeToOhosSensorType(sensorTypeId);
     if (ohosSensorTypeId != SENSOR_TYPE_ID_NONE) {
+        std::lock_guard<std::mutex> lock(sensorUserMutex_);
         int32_t ret = DeactivateSensor(ohosSensorTypeId, &mSensorUser);
         if (ret != SENSOR_SUCCESS) {
             WVLOG_E("UnsubscribeOhosSensor error, call DeactivateSensor ret = %{public}d.", ret);
@@ -426,11 +434,29 @@ int32_t SensorAdapterImpl::UnsubscribeOhosSensor(int32_t sensorTypeId)
             WVLOG_E("UnsubscribeOhosSensor error, call UnsubscribeSensor ret = %{public}d.", ret);
             return ret;
         }
-        std::lock_guard<std::mutex> lock(sensorCallbackMapMutex_);
+        std::lock_guard<std::mutex> callbackLock(sensorCallbackMapMutex_);
         sensorCallbackMap.erase(ohosSensorTypeId);
         return SENSOR_SUCCESS;
     }
     WVLOG_E("UnsubscribeOhosSensor error, sensorTypeId is invalid.");
     return SENSOR_PARAMETER_ERROR;
+}
+
+SensorAdapterImpl::~SensorAdapterImpl()
+{
+    std::lock_guard<std::mutex> lock(sensorCallbackMapMutex_);
+    std::lock_guard<std::mutex> callbackLock(sensorCallbackMapMutex_);
+    for (auto& item : sensorCallbackMap) {
+        int32_t ret = DeactivateSensor(item.first, &mSensorUser);
+        if (ret != SENSOR_SUCCESS) {
+            WVLOG_E("UnsubscribeOhosSensor error, call DeactivateSensor ret = %{public}d.", ret);
+            continue;
+        }
+        ret = UnsubscribeOhosSensor(item.first, &mSensorUser);
+        if (ret != SENSOR_SUCCESS) {
+            WVLOG_E("UnsubscribeOhosSensor error, call UnsubscribeSensor ret = %{public}d.", ret);
+        }
+    }
+    sensorCallbackMap.clear();
 }
 } // namespace OHOS::NWeb
