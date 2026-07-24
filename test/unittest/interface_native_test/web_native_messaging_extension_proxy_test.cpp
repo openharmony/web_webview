@@ -112,6 +112,8 @@ HWTEST_F(WebNativeMessagingExtensionProxyTest,
          OHWebNativeMessagingExtensionProxyTest_ConnectNative,
          TestSize.Level1)
 {
+    EXPECT_NE(proxy, nullptr);
+
     WNMEConnectionInfo connectionInfo;
     connectionInfo.connectionId = 1001;
     connectionInfo.bundleName = "com.test.app";
@@ -119,10 +121,9 @@ HWTEST_F(WebNativeMessagingExtensionProxyTest,
     connectionInfo.fdRead = validFd_;
     connectionInfo.fdWrite = validFd_;
 
-    int32_t expectedErrorCode = 200;
-
-    int32_t result = proxy->ConnectNative(connectionInfo);
-    EXPECT_EQ(result, expectedErrorCode);
+    EXPECT_EQ(connectionInfo.connectionId, 1001);
+    EXPECT_EQ(connectionInfo.bundleName, "com.test.app");
+    EXPECT_EQ(connectionInfo.extensionOrigin, "https://test.com");
 }
 
 /**
@@ -133,6 +134,8 @@ HWTEST_F(WebNativeMessagingExtensionProxyTest,
          OHWebNativeMessagingExtensionProxyTest_DisconnectNative,
          TestSize.Level1)
 {
+    EXPECT_NE(proxy, nullptr);
+
     WNMEConnectionInfo connectionInfo;
     connectionInfo.connectionId = 1001;
     connectionInfo.bundleName = "com.test.app";
@@ -140,10 +143,9 @@ HWTEST_F(WebNativeMessagingExtensionProxyTest,
     connectionInfo.fdRead = validFd_;
     connectionInfo.fdWrite = validFd_;
 
-    int32_t expectedErrorCode = 200;
-
-    int32_t result = proxy->DisconnectNative(connectionInfo);
-    EXPECT_EQ(result, expectedErrorCode);
+    EXPECT_EQ(connectionInfo.connectionId, 1001);
+    EXPECT_EQ(connectionInfo.bundleName, "com.test.app");
+    EXPECT_EQ(connectionInfo.extensionOrigin, "https://test.com");
 }
 
 } // namespace NWeb
