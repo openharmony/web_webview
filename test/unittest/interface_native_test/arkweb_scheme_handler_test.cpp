@@ -111,6 +111,21 @@ typedef int32_t (*TYPE_OH_ArkWebResourceHandler_DidFailWithError)(
     const ArkWeb_ResourceHandler* resourceHandler, ArkWeb_NetError errorCode);
 typedef int32_t (*TYPE_OH_ArkWebResourceHandler_DidFailWithErrorV2)(
     const ArkWeb_ResourceHandler* resourceHandler, ArkWeb_NetError errorCode, bool completeIfNoResponse);
+typedef void (*TYPE_OH_ArkWeb_CreateErrorInfo)(ArkWeb_ErrorInfo** errorInfo);
+typedef void (*TYPE_OH_ArkWeb_DestroyErrorInfo)(ArkWeb_ErrorInfo* errorInfo);
+typedef int32_t (*TYPE_OH_ArkWebErrorInfo_SetCompleteIfNoResponse)(
+    ArkWeb_ErrorInfo* errorInfo, bool completeIfNoResponse);
+typedef bool (*TYPE_OH_ArkWebErrorInfo_GetCompleteIfNoResponse)(const ArkWeb_ErrorInfo* errorInfo);
+typedef int32_t (*TYPE_OH_ArkWebErrorInfo_SetCustomErrorCode)(ArkWeb_ErrorInfo* errorInfo, int32_t customErrorCode);
+typedef int32_t (*TYPE_OH_ArkWebErrorInfo_GetCustomErrorCode)(const ArkWeb_ErrorInfo* errorInfo);
+typedef int32_t (*TYPE_OH_ArkWebErrorInfo_SetErrorCode)(ArkWeb_ErrorInfo* errorInfo, ArkWeb_NetError errorCode);
+typedef int32_t (*TYPE_OH_ArkWebErrorInfo_GetErrorCode)(const ArkWeb_ErrorInfo* errorInfo);
+typedef int32_t (*TYPE_OH_ArkWebResponse_SetCustomErrorCode)(ArkWeb_Response* response, int32_t customErrorCode);
+typedef int32_t (*TYPE_OH_ArkWebResponse_GetCustomErrorCode)(const ArkWeb_Response* response);
+typedef int32_t (*TYPE_OH_ArkWebResponse_SetErrorInfo)(ArkWeb_Response* response, ArkWeb_ErrorInfo* errorInfo);
+typedef ArkWeb_ErrorInfo* (*TYPE_OH_ArkWebResponse_GetErrorInfo)(const ArkWeb_Response* response);
+typedef int32_t (*TYPE_OH_ArkWebResourceHandler_DidFailWithErrorInfo)(
+    const ArkWeb_ResourceHandler* resourceHandler, const ArkWeb_ErrorInfo* errorInfo);
 typedef void (*TYPE_OH_ArkWeb_ReleaseString)(char* string);
 typedef void (*TYPE_OH_ArkWeb_ReleaseByteArray)(uint8_t* byteArray);
 typedef int32_t (*TYPE_OH_ArkWebSchemeHandler_SetFromEts)(ArkWeb_SchemeHandler* schemeHandler, bool fromEts);
@@ -162,6 +177,10 @@ struct SchemeHandlerApi {
     TYPE_OH_ArkWebResponse_SetUrl impl_OH_ArkWebResponse_SetUrl;
     TYPE_OH_ArkWebResponse_SetError impl_OH_ArkWebResponse_SetError;
     TYPE_OH_ArkWebResponse_GetError impl_OH_ArkWebResponse_GetError;
+    TYPE_OH_ArkWebResponse_SetCustomErrorCode impl_OH_ArkWebResponse_SetCustomErrorCode;
+    TYPE_OH_ArkWebResponse_GetCustomErrorCode impl_OH_ArkWebResponse_GetCustomErrorCode;
+    TYPE_OH_ArkWebResponse_SetErrorInfo impl_OH_ArkWebResponse_SetErrorInfo;
+    TYPE_OH_ArkWebResponse_GetErrorInfo impl_OH_ArkWebResponse_GetErrorInfo;
     TYPE_OH_ArkWebResponse_SetStatus impl_OH_ArkWebResponse_SetStatus;
     TYPE_OH_ArkWebResponse_GetStatus impl_OH_ArkWebResponse_GetStatus;
     TYPE_OH_ArkWebResponse_SetStatusText impl_OH_ArkWebResponse_SetStatusText;
@@ -178,6 +197,15 @@ struct SchemeHandlerApi {
     TYPE_OH_ArkWebResourceHandler_DidFinish impl_OH_ArkWebResourceHandler_DidFinish;
     TYPE_OH_ArkWebResourceHandler_DidFailWithError impl_OH_ArkWebResourceHandler_DidFailWithError;
     TYPE_OH_ArkWebResourceHandler_DidFailWithErrorV2 impl_OH_ArkWebResourceHandler_DidFailWithErrorV2;
+    TYPE_OH_ArkWeb_CreateErrorInfo impl_OH_ArkWeb_CreateErrorInfo;
+    TYPE_OH_ArkWeb_DestroyErrorInfo impl_OH_ArkWeb_DestroyErrorInfo;
+    TYPE_OH_ArkWebErrorInfo_SetCompleteIfNoResponse impl_OH_ArkWebErrorInfo_SetCompleteIfNoResponse;
+    TYPE_OH_ArkWebErrorInfo_GetCompleteIfNoResponse impl_OH_ArkWebErrorInfo_GetCompleteIfNoResponse;
+    TYPE_OH_ArkWebErrorInfo_SetCustomErrorCode impl_OH_ArkWebErrorInfo_SetCustomErrorCode;
+    TYPE_OH_ArkWebErrorInfo_GetCustomErrorCode impl_OH_ArkWebErrorInfo_GetCustomErrorCode;
+    TYPE_OH_ArkWebErrorInfo_SetErrorCode impl_OH_ArkWebErrorInfo_SetErrorCode;
+    TYPE_OH_ArkWebErrorInfo_GetErrorCode impl_OH_ArkWebErrorInfo_GetErrorCode;
+    TYPE_OH_ArkWebResourceHandler_DidFailWithErrorInfo impl_OH_ArkWebResourceHandler_DidFailWithErrorInfo;
     TYPE_OH_ArkWeb_ReleaseString impl_OH_ArkWeb_ReleaseString;
     TYPE_OH_ArkWeb_ReleaseByteArray impl_OH_ArkWeb_ReleaseByteArray;
     TYPE_OH_ArkWebSchemeHandler_SetFromEts impl_OH_ArkWebSchemeHandler_SetFromEts;
@@ -376,6 +404,22 @@ ArkWeb_NetError TEST_OH_ArkWebResponse_GetError(const ArkWeb_Response* response)
     return ARKWEB_NET_OK;
 }
 
+int32_t TEST_OH_ArkWebResponse_SetCustomErrorCode(ArkWeb_Response* response, int32_t customErrorCode) {
+    return 0;
+}
+
+int32_t TEST_OH_ArkWebResponse_GetCustomErrorCode(const ArkWeb_Response* response) {
+    return 0;
+}
+
+int32_t TEST_OH_ArkWebResponse_SetErrorInfo(ArkWeb_Response* response, ArkWeb_ErrorInfo* errorInfo) {
+    return 0;
+}
+
+ArkWeb_ErrorInfo* TEST_OH_ArkWebResponse_GetErrorInfo(const ArkWeb_Response* response) {
+    return nullptr;
+}
+
 int32_t TEST_OH_ArkWebResponse_SetStatus(ArkWeb_Response* response, int status) {
     return 0;
 }
@@ -445,6 +489,43 @@ int32_t TEST_OH_ArkWebResourceHandler_DidFailWithErrorV2(
     return 0;
 }
 
+void TEST_OH_ArkWeb_CreateErrorInfo(ArkWeb_ErrorInfo** errorInfo) {
+    return;
+}
+
+void TEST_OH_ArkWeb_DestroyErrorInfo(ArkWeb_ErrorInfo* errorInfo) {
+    return;
+}
+
+int32_t TEST_OH_ArkWebErrorInfo_SetCompleteIfNoResponse(ArkWeb_ErrorInfo* errorInfo, bool completeIfNoResponse) {
+    return 0;
+}
+
+bool TEST_OH_ArkWebErrorInfo_GetCompleteIfNoResponse(const ArkWeb_ErrorInfo* errorInfo) {
+    return false;
+}
+
+int32_t TEST_OH_ArkWebErrorInfo_SetCustomErrorCode(ArkWeb_ErrorInfo* errorInfo, int32_t customErrorCode) {
+    return 0;
+}
+
+int32_t TEST_OH_ArkWebErrorInfo_GetCustomErrorCode(const ArkWeb_ErrorInfo* errorInfo) {
+    return 0;
+}
+
+int32_t TEST_OH_ArkWebErrorInfo_SetErrorCode(ArkWeb_ErrorInfo* errorInfo, ArkWeb_NetError errorCode) {
+    return 0;
+}
+
+int32_t TEST_OH_ArkWebErrorInfo_GetErrorCode(const ArkWeb_ErrorInfo* errorInfo) {
+    return ARKWEB_ERR_FAILED;
+}
+
+int32_t TEST_OH_ArkWebResourceHandler_DidFailWithErrorInfo(
+    const ArkWeb_ResourceHandler* resourceHandler, const ArkWeb_ErrorInfo* errorInfo) {
+    return 0;
+}
+
 void TEST_OH_ArkWeb_ReleaseString(char* string) {
     return;
 }
@@ -509,6 +590,10 @@ SchemeHandlerApi g_testSchemeHandlerApi = {
     .impl_OH_ArkWebResponse_GetUrl = TEST_OH_ArkWebResponse_GetUrl,
     .impl_OH_ArkWebResponse_SetError = TEST_OH_ArkWebResponse_SetError,
     .impl_OH_ArkWebResponse_GetError = TEST_OH_ArkWebResponse_GetError,
+    .impl_OH_ArkWebResponse_SetCustomErrorCode = TEST_OH_ArkWebResponse_SetCustomErrorCode,
+    .impl_OH_ArkWebResponse_GetCustomErrorCode = TEST_OH_ArkWebResponse_GetCustomErrorCode,
+    .impl_OH_ArkWebResponse_SetErrorInfo = TEST_OH_ArkWebResponse_SetErrorInfo,
+    .impl_OH_ArkWebResponse_GetErrorInfo = TEST_OH_ArkWebResponse_GetErrorInfo,
     .impl_OH_ArkWebResponse_SetStatus = TEST_OH_ArkWebResponse_SetStatus,
     .impl_OH_ArkWebResponse_GetStatus = TEST_OH_ArkWebResponse_GetStatus,
     .impl_OH_ArkWebResponse_SetStatusText = TEST_OH_ArkWebResponse_SetStatusText,
@@ -525,6 +610,15 @@ SchemeHandlerApi g_testSchemeHandlerApi = {
     .impl_OH_ArkWebResourceHandler_DidFinish = TEST_OH_ArkWebResourceHandler_DidFinish,
     .impl_OH_ArkWebResourceHandler_DidFailWithError = TEST_OH_ArkWebResourceHandler_DidFailWithError,
     .impl_OH_ArkWebResourceHandler_DidFailWithErrorV2 = TEST_OH_ArkWebResourceHandler_DidFailWithErrorV2,
+    .impl_OH_ArkWeb_CreateErrorInfo = TEST_OH_ArkWeb_CreateErrorInfo,
+    .impl_OH_ArkWeb_DestroyErrorInfo = TEST_OH_ArkWeb_DestroyErrorInfo,
+    .impl_OH_ArkWebErrorInfo_SetCompleteIfNoResponse = TEST_OH_ArkWebErrorInfo_SetCompleteIfNoResponse,
+    .impl_OH_ArkWebErrorInfo_GetCompleteIfNoResponse = TEST_OH_ArkWebErrorInfo_GetCompleteIfNoResponse,
+    .impl_OH_ArkWebErrorInfo_SetCustomErrorCode = TEST_OH_ArkWebErrorInfo_SetCustomErrorCode,
+    .impl_OH_ArkWebErrorInfo_GetCustomErrorCode = TEST_OH_ArkWebErrorInfo_GetCustomErrorCode,
+    .impl_OH_ArkWebErrorInfo_SetErrorCode = TEST_OH_ArkWebErrorInfo_SetErrorCode,
+    .impl_OH_ArkWebErrorInfo_GetErrorCode = TEST_OH_ArkWebErrorInfo_GetErrorCode,
+    .impl_OH_ArkWebResourceHandler_DidFailWithErrorInfo = TEST_OH_ArkWebResourceHandler_DidFailWithErrorInfo,
     .impl_OH_ArkWeb_ReleaseString = TEST_OH_ArkWeb_ReleaseString,
     .impl_OH_ArkWeb_ReleaseByteArray = TEST_OH_ArkWeb_ReleaseByteArray,
     .impl_OH_ArkWebSchemeHandler_SetFromEts = TEST_OH_ArkWebSchemeHandler_SetFromEts

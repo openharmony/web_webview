@@ -43,6 +43,13 @@ public:
      * @return The error code.
      */
     virtual int ErrorCode() = 0;
+
+    /**
+     * @brief Get the Custom Error Code.
+     *
+     * @return The custom error code.
+     */
+    virtual int CustomErrorCode() { return 0; }
 };
 
 } // namespace OHOS::NWeb

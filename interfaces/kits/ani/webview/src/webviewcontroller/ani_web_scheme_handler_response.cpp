@@ -414,6 +414,36 @@ static void JsSetNetErrorCode(ani_env* env, ani_object object, ani_enum_item cod
     return;
 }
 
+static void JsSetCustomErrorCode(ani_env* env, ani_object object, ani_int customErrorCode)
+{
+    WVLOG_I("WebSchemeHandlerResponse JsSetCustomErrorCode.");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* schemeHandler = reinterpret_cast<WebSchemeHandlerResponse*>(AniParseUtils::Unwrap(env, object));
+    if (!schemeHandler) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    schemeHandler->SetCustomErrorCode(static_cast<int32_t>(customErrorCode));
+}
+
+static ani_int JsGetCustomErrorCode(ani_env* env, ani_object object)
+{
+    WVLOG_I("WebSchemeHandlerResponse JsGetCustomErrorCode.");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return 0;
+    }
+    auto* schemeHandler = reinterpret_cast<WebSchemeHandlerResponse*>(AniParseUtils::Unwrap(env, object));
+    if (!schemeHandler) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return 0;
+    }
+    return schemeHandler->GetCustomErrorCode();
+}
+
 static void Constructor(ani_env *env, ani_object object)
 {
     WVLOG_D("WebSchemeHandlerResponse native Constructor");
@@ -463,6 +493,8 @@ ani_status StsWebSchemeHandlerResponseInit(ani_env *env)
         ani_native_function { "getHeaderByName", nullptr, reinterpret_cast<void*>(JsGetHeaderByName) },
         ani_native_function { "getNetErrorCode", nullptr, reinterpret_cast<void*>(JsGetNetErrorCode) },
         ani_native_function { "setNetErrorCode", nullptr, reinterpret_cast<void*>(JsSetNetErrorCode) },
+        ani_native_function { "setCustomErrorCode", nullptr, reinterpret_cast<void*>(JsSetCustomErrorCode) },
+        ani_native_function { "getCustomErrorCode", nullptr, reinterpret_cast<void*>(JsGetCustomErrorCode) },
     };
 
     status = env->Class_BindNativeMethods(webSchemeHandlerResponseCls, allMethods.data(), allMethods.size());

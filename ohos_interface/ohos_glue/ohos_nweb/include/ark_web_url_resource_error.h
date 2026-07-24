@@ -40,6 +40,14 @@ public:
      */
     /*--ark web()--*/
     virtual ArkWebString ErrorInfo() = 0;
+
+    /**
+     * @brief Get the custom error code.
+     *
+     * @return The custom error code.
+     */
+    /*--ark web()--*/
+    virtual int CustomErrorCode() = 0;
 };
 
 } // namespace OHOS::ArkWeb

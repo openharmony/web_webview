@@ -76,6 +76,28 @@ int32_t WebResourceHandler::DidFailWithError(ArkWeb_NetError errorCode, bool com
     return ret;
 }
 
+int32_t WebResourceHandler::DidFailWithErrorInfo(ArkWeb_NetError errorCode,
+    bool completeIfNoResponse, int32_t customErrorCode)
+{
+    if (isFinished_) {
+        return ArkWeb_ErrorCode::ARKWEB_ERROR_UNKNOWN;
+    }
+    ArkWeb_ErrorInfo* errorInfo = nullptr;
+    OH_ArkWeb_CreateErrorInfo(&errorInfo);
+    if (!errorInfo) {
+        return ArkWeb_ErrorCode::ARKWEB_ERROR_UNKNOWN;
+    }
+    OH_ArkWebErrorInfo_SetErrorCode(errorInfo, errorCode);
+    OH_ArkWebErrorInfo_SetCompleteIfNoResponse(errorInfo, completeIfNoResponse);
+    OH_ArkWebErrorInfo_SetCustomErrorCode(errorInfo, customErrorCode);
+    int32_t ret = OH_ArkWebResourceHandler_DidFailWithErrorInfo(handler_, errorInfo);
+    OH_ArkWeb_DestroyErrorInfo(errorInfo);
+    if (ret == 0) {
+        isFinished_ = true;
+    }
+    return ret;
+}
+
 void WebResourceHandler::DestoryArkWebResourceHandler()
 {
     if (handler_) {

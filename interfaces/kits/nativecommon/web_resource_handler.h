@@ -32,6 +32,7 @@ public:
     int32_t DidReceiveResponseBody(const uint8_t* buffer, int64_t buflen);
     int32_t DidFinish();
     int32_t DidFailWithError(ArkWeb_NetError errorCode, bool completeIfNoResponse);
+    int32_t DidFailWithErrorInfo(ArkWeb_NetError errorCode, bool completeIfNoResponse, int32_t customErrorCode);
     void DestoryArkWebResourceHandler();
     void SetFinishFlag()
     {

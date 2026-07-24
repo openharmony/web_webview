@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "arkweb_error_code.h"
 #include "web_scheme_handler_response.h"
 
 #include "nweb.h"
@@ -139,6 +140,24 @@ int32_t WebSchemeHandlerResponse::GetErrorCode()
 int32_t WebSchemeHandlerResponse::SetErrorCode(int32_t code)
 {
     return OH_ArkWebResponse_SetError(response_, static_cast<ArkWeb_NetError>(code));
+}
+
+int32_t WebSchemeHandlerResponse::GetCustomErrorCode() const
+{
+    if (!response_) {
+        WVLOG_E("WebSchemeHandlerResponse is nullptr");
+        return 0;
+    }
+    return OH_ArkWebResponse_GetCustomErrorCode(response_);
+}
+
+int32_t WebSchemeHandlerResponse::SetCustomErrorCode(int32_t customErrorCode)
+{
+    if (!response_) {
+        WVLOG_E("WebSchemeHandlerResponse is nullptr");
+        return ARKWEB_INVALID_PARAM;
+    }
+    return OH_ArkWebResponse_SetCustomErrorCode(response_, customErrorCode);
 }
 
 } // namespace NWeb

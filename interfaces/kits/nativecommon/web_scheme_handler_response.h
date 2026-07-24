@@ -42,6 +42,8 @@ public:
     int32_t SetHeaderByName(const char* name, const char* value, bool overwrite);
     int32_t GetErrorCode();
     int32_t SetErrorCode(int32_t code);
+    int32_t GetCustomErrorCode() const;
+    int32_t SetCustomErrorCode(int32_t customErrorCode);
     ArkWeb_Response* GetArkWebResponse()
     {
         return response_;

@@ -264,6 +264,22 @@
         "name": "OH_ArkWebResponse_GetError"
     },
     {
+        "first_introduced": "26.1.0",
+        "name": "OH_ArkWebResponse_SetCustomErrorCode"
+    },
+    {
+        "first_introduced": "26.1.0",
+        "name": "OH_ArkWebResponse_GetCustomErrorCode"
+    },
+    {
+        "first_introduced": "26.1.0",
+        "name": "OH_ArkWebResponse_SetErrorInfo"
+    },
+    {
+        "first_introduced": "26.1.0",
+        "name": "OH_ArkWebResponse_GetErrorInfo"
+    },
+    {
         "first_introduced": "12",
         "name": "OH_ArkWebResponse_SetStatus"
     },
@@ -406,5 +422,41 @@
     {
         "first_introduced": "26.0.0",
         "name": "OH_ArkWebCookieManager_FetchCookieAsync"
+    },
+    {
+        "first_introduced": "26.1.0",
+        "name": "OH_ArkWeb_CreateErrorInfo"
+    },
+    {
+        "first_introduced": "26.1.0",
+        "name": "OH_ArkWeb_DestroyErrorInfo"
+    },
+    {
+        "first_introduced": "26.1.0",
+        "name": "OH_ArkWebErrorInfo_SetCompleteIfNoResponse"
+    },
+    {
+        "first_introduced": "26.1.0",
+        "name": "OH_ArkWebErrorInfo_GetCompleteIfNoResponse"
+    },
+    {
+        "first_introduced": "26.1.0",
+        "name": "OH_ArkWebErrorInfo_SetCustomErrorCode"
+    },
+    {
+        "first_introduced": "26.1.0",
+        "name": "OH_ArkWebErrorInfo_GetCustomErrorCode"
+    },
+    {
+        "first_introduced": "26.1.0",
+        "name": "OH_ArkWebErrorInfo_SetErrorCode"
+    },
+    {
+        "first_introduced": "26.1.0",
+        "name": "OH_ArkWebErrorInfo_GetErrorCode"
+    },
+    {
+        "first_introduced": "26.1.0",
+        "name": "OH_ArkWebResourceHandler_DidFailWithErrorInfo"
     }
 ]

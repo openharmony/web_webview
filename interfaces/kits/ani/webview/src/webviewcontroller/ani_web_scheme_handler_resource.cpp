@@ -183,6 +183,39 @@ static void JsDidFailWithErrorV1(
     return;
 }
 
+static void JsDidFailWithErrorV2(ani_env* env, ani_object object, ani_enum_item errorCode,
+    ani_boolean completeIfNoResponse, ani_int customErrorCode)
+{
+    WVLOG_D("Enter aniwebResourceHandler JsDidFailWithErrorV2");
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+
+    auto* rosourceHandler = reinterpret_cast<WebResourceHandler*>(AniParseUtils::Unwrap(env, object));
+    if (!rosourceHandler) {
+        WVLOG_E("rosourceHandler is nullptr");
+        return;
+    }
+    ani_int iCode;
+    if (env->EnumItem_GetValue_Int(errorCode, &iCode) != ANI_OK) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        WVLOG_E("EnumItem_GetValue_Int failed");
+        return;
+    }
+
+    int32_t codeInt = static_cast<int32_t>(iCode);
+    int32_t ret = rosourceHandler->DidFailWithErrorInfo(
+        static_cast<ArkWeb_NetError>(codeInt), static_cast<bool>(completeIfNoResponse),
+        static_cast<int32_t>(customErrorCode));
+    WVLOG_I("JSDidFailWithErrorV2 ret=%{public}d", ret);
+    if (ret != 0) {
+        AniBusinessError::ThrowErrorByErrCode(env, RESOURCE_HANDLER_INVALID);
+        WVLOG_E("JSDidFailWithErrorV2 ret=%{public}d", ret);
+    }
+    return;
+}
+
 static ani_boolean TransferWebResourceHandlerToStaticInner(
     ani_env* env, ani_class aniClass, ani_object output, ani_object input)
 {
@@ -234,6 +267,7 @@ ani_status StsWebSchemeHandlerResourceInit(ani_env* env)
         ani_native_function { "didReceiveResponse", nullptr, reinterpret_cast<void*>(JSDidReceiveResponse) },
         ani_native_function { "didFailv0", nullptr, reinterpret_cast<void*>(JsDidFailWithError) },
         ani_native_function { "didFailv1", nullptr, reinterpret_cast<void*>(JsDidFailWithErrorV1) },
+        ani_native_function { "didFailv2", nullptr, reinterpret_cast<void*>(JsDidFailWithErrorV2) },
         ani_native_function { "didReceiveResponseBody", nullptr, reinterpret_cast<void*>(JsDidReceiveResponseBody) },
     };
 

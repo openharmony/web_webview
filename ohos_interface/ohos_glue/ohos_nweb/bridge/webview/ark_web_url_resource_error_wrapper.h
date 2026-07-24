@@ -41,6 +41,13 @@ public:
      */
     std::string ErrorInfo() override;
 
+    /**
+     * @brief Get the custom error code.
+     *
+     * @return The custom error code.
+     */
+    int CustomErrorCode() override;
+
 private:
     ArkWebRefPtr<ArkWebUrlResourceError> ark_web_url_resource_error_;
 };
