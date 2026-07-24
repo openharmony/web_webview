@@ -134,6 +134,8 @@ public:
 
     ArkWebRefPtr<ArkSurfaceTransactionAdapter> GetSurfaceTransactionAdapter() override;
 
+    ArkWebRefPtr<ArkVpeVideoAdapter> GetVpeVideoAdapterInstance() override;
+
 private:
     NWeb::OhosAdapterHelper& real_;
 

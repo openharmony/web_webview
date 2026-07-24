@@ -94,6 +94,7 @@ ohos_shared_library("nweb_ohos_adapter") {
     "graphic_adapter/src/surface_control/surface_transaction.cpp",
     "graphic_adapter/src/surface_control/surface_transaction_helper.cpp",
     "graphic_adapter/src/surface_control/interface/oh_surface_control.cpp",
+    "graphic_adapter/src/vpe_video_adapter_impl.cpp",
     "graphic_adapter/src/vsync_adapter_impl.cpp",
     "graphic_adapter/src/window_adapter_impl.cpp",
     "hiviewdfx_adapter/src/hilog_adapter.cpp",
@@ -358,6 +359,13 @@ ohos_shared_library("nweb_ohos_adapter") {
     defines += [ "NWEB_MEDIA_PLAYER_ENABLE" ]
   }
 
+  if (webview_video_processing_engine_enable) {
+    defines += ["NWEB_VIDEO_PROCESSING_ENGINE_ENABLE"]
+    external_deps += [
+      "video_processing_engine:videoprocessingengine",
+      "media_foundation:media_foundation"
+    ]
+  }
   if (webview_camera_enable) {
     sources += [
       "camera_adapter/src/camera_manager_adapter_impl.cpp",

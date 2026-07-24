@@ -136,6 +136,8 @@ public:
     SurfaceControlAdapter& GetSurfaceControlAdapter() override;
 
     SurfaceTransactionAdapter& GetSurfaceTransactionAdapter() override;
+
+    VpeVideoAdapter& GetVpeVideoAdapterInstance() override;
 };
 } // namespace OHOS::NWeb
 

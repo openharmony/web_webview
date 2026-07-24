@@ -73,6 +73,7 @@
 #include "ohos_adapter/bridge/ark_surface_buffer_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_surface_control_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_system_properties_adapter_impl.h"
+#include "ohos_adapter/bridge/ark_vpe_video_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_vsync_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_web_date_timezone_info_impl.h"
 #include "ohos_adapter/bridge/ark_window_adapter_impl.h"
@@ -474,6 +475,13 @@ ArkWebRefPtr<ArkSurfaceTransactionAdapter> ArkOhosAdapterHelperImpl::GetSurfaceT
 {
     static NWeb::SurfaceTransactionAdapter& instance = real_.GetSurfaceTransactionAdapter();
     static ArkWebRefPtr<ArkSurfaceTransactionAdapter> impl = new ArkSurfaceTransactionAdapterImpl(instance);
+    return impl;
+}
+
+ArkWebRefPtr<ArkVpeVideoAdapter> ArkOhosAdapterHelperImpl::GetVpeVideoAdapterInstance()
+{
+    static NWeb::VpeVideoAdapter& instance = real_.GetVpeVideoAdapterInstance();
+    static ArkWebRefPtr<ArkVpeVideoAdapter> impl = new ArkVpeVideoAdapterImpl(instance);
     return impl;
 }
 

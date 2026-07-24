@@ -68,6 +68,7 @@
 #include "ohos_adapter/bridge/ark_surface_buffer_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_surface_control_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_system_properties_adapter_wrapper.h"
+#include "ohos_adapter/bridge/ark_vpe_video_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_vsync_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_web_timezone_info_wrapper.h"
 #include "ohos_adapter/bridge/ark_window_adapter_wrapper.h"
@@ -568,6 +569,12 @@ NWeb::SurfaceControlAdapter& ArkOhosAdapterHelperWrapper::GetSurfaceControlAdapt
 NWeb::SurfaceTransactionAdapter& ArkOhosAdapterHelperWrapper::GetSurfaceTransactionAdapter()
 {
     static ArkSurfaceTransactionAdapterWrapper instance(ctocpp_->GetSurfaceTransactionAdapter());
+    return instance;
+}
+
+NWeb::VpeVideoAdapter& ArkOhosAdapterHelperWrapper::GetVpeVideoAdapterInstance()
+{
+    static ArkVpeVideoAdapterWrapper instance(ctocpp_->GetVpeVideoAdapterInstance());
     return instance;
 }
 
