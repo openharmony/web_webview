@@ -1756,6 +1756,14 @@ public:
      * @param enable bool: Whether enable the error page.
      * @param includeSubframe bool: If true, error page is displayed in iframe when a subframe fails to load.
      */
+    void SetErrorPageEnabled(bool enable, bool includeSubframe) override;
+
+    /**
+     * @brief Set whether enable the error page. onOverrideErrorPage will be triggered when the page error.
+     *
+     * @param enable bool: Whether enable the error page.
+     * @param includeSubframe bool: If true, error page is displayed in iframe when a subframe fails to load.
+     */
     void SetErrorPageEnabledV2(bool enable, bool includeSubframe) override;
 
     /**

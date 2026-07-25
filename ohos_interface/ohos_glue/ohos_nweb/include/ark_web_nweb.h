@@ -2388,13 +2388,22 @@ public:
      * @param includeSubframe bool: Whether also enable error page for iframes.
      */
     /*--ark web()--*/
-    virtual void SetErrorPageEnabledV2(bool enable, bool includeSubframe) = 0;
+    virtual void SetErrorPageEnabled(bool enable, bool includeSubframe) = 0;
 
     /**
      * @brief Get whether iframe error page feature is enabled.
      */
     /*--ark web()--*/
     virtual bool GetSubframeErrorPageEnabled() = 0;
+
+    /**
+     * @brief Set whether enable the error page. onOverrideErrorPage will be triggered when the page error.
+     *
+     * @param enable bool: Whether enable the error page.
+     * @param includeSubframe bool: Whether also enable error page for iframes.
+     */
+    /*--ark web()--*/
+    virtual void SetErrorPageEnabledV2(bool enable, bool includeSubframe) = 0;
 };
 
 } // namespace OHOS::ArkWeb
