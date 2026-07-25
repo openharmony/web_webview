@@ -261,7 +261,7 @@ public:
      * @return the cookie value for given URL.
      */
     /*--ark web()--*/
-    virtual ArkWebString ReturnCookie(const ArkWebString& url, bool& isValid, bool incognitoMode,
+    virtual ArkWebString ReturnCookieV2(const ArkWebString& url, bool& isValid, bool incognitoMode,
         bool includePartitionedCookies) = 0;
 
     /**
@@ -273,7 +273,7 @@ public:
      * @param callback a callback which is executed when the cookies have been gotten.
      */
     /*--ark web()--*/
-    virtual void GetCookieAsync(const ArkWebString& url, bool incognitoMode,
+    virtual void GetCookieAsyncV2(const ArkWebString& url, bool incognitoMode,
         bool includePartitionedCookies, ArkWebRefPtr<ArkWebStringValueCallback> callback) = 0;
 };
 
