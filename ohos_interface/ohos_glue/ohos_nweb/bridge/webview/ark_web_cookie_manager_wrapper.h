@@ -226,6 +226,12 @@ public:
     void GetCookieAsync(const std::string& url, bool incognitoMode,
         bool includePartitionedCookies, std::shared_ptr<OHOS::NWeb::NWebStringValueCallback> callback) override;
 
+    std::string ReturnCookieWithHttpOnly(const std::string& url, bool& isValid, bool incognitoMode,
+        bool includeHttpOnly, bool includePartitionedCookies) override;
+
+    void ReturnCookieWithHttpOnly(const std::string& url, bool incognitoMode, bool includeHttpOnly,
+        bool includePartitionedCookies, std::shared_ptr<OHOS::NWeb::NWebStringValueCallback> callback) override;
+
 private:
     ArkWebRefPtr<ArkWebCookieManager> ark_web_cookie_manager_;
 };
