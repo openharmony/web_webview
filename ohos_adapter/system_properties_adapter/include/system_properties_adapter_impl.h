@@ -106,6 +106,8 @@ public:
 
     int32_t GetLTPOIntConfig(const std::string& configName, int32_t defaultValue) override;
 
+    int32_t GetRenderProcessMode() override;
+
 private:
     SystemPropertiesAdapterImpl();
 

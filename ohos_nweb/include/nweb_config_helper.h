@@ -39,6 +39,7 @@ public:
     int32_t GetLTPOStrategy();
     int32_t GetLTPOIntConfig(const std::string& configName, int32_t defaultValue);
     int32_t GetLoadUrlStrategy();
+    int32_t GetRenderProcessMode();
     int safeGetPropAsInt(xmlNode* node, const xmlChar* propName, int defaultValue);
     std::string GetBundleName();
     void SetBundleName(const std::string& bundleName);
@@ -67,6 +68,7 @@ private:
     void ParseWindowOrientationConfig(xmlNodePtr nodePtr, std::shared_ptr<NWebEngineInitArgsImpl> initArgs);
     void ParseNativeMessagingConfig(xmlNodePtr nodePtr);
     bool ParseNativeMessagingSetting(xmlNodePtr childNodePtr);
+    void ParseRenderProcessMode(xmlNodePtr childNodePtr);
     bool IsDeveloperModeEnabled();
     bool IsPerfConfigEmpty();
 
@@ -76,6 +78,7 @@ private:
     std::map<std::string, int> ltpoIntConfig_;
     int32_t ltpoStrategy_ {0};
     int32_t loadUrlStrategy_ {0};
+    int32_t renderProcessMode_ {2};
     std::string bundleName_;
     bool dvsyncSwitch_;
     mutable std::mutex lock_;

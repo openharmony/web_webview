@@ -54,6 +54,7 @@ const std::string WEB_ALL_BUNDLE_NAME = "*";
 const std::string WEB_THROTTLE_STRATEGY = "throttle_strategy";
 const std::string WEB_THROTTLE_TIMEOUT = "throttle_timeout";
 const std::string WEB_THROTTLE_RATIO = "throttle_ratio";
+const std::string WEB_RENDER_PROCESS_MODE = "render_process_mode";
 const auto XML_ATTR_NAME = "name";
 const auto XML_ATTR_MIN = "min";
 const auto XML_ATTR_MAX = "max";
@@ -410,6 +411,10 @@ void NWebConfigHelper::ParseWebConfigXml(const std::string& configFilePath,
     xmlNodePtr loadUrlConfigNodePtr = GetChildrenNode(rootPtr, WEB_LOAD_URL_CONFIG);
     if (loadUrlConfigNodePtr != nullptr) {
         ParseNWebLoadUrlStrategy(loadUrlConfigNodePtr);
+    }
+    xmlNodePtr renderProcessModeNodePtr = GetChildrenNode(rootPtr, WEB_RENDER_PROCESS_MODE);
+    if (renderProcessModeNodePtr != nullptr) {
+        ParseRenderProcessMode(renderProcessModeNodePtr);
     }
     xmlNodePtr windowOrientationNodePtr = GetChildrenNode(rootPtr, WEB_WINDOW_ORIENTATION_CONFIG);
     if (windowOrientationNodePtr != nullptr) {
@@ -825,5 +830,48 @@ bool NWebConfigHelper::IsNativeMessagingEnabled()
     
     std::lock_guard<std::mutex> lock(lock_);
     return nativeMessagingEnabled_;
+}
+
+int32_t NWebConfigHelper::GetRenderProcessMode()
+{
+    return renderProcessMode_;
+}
+
+void NWebConfigHelper::ParseRenderProcessMode(xmlNodePtr childNodePtr)
+{
+    for (xmlNodePtr curNodePtr = childNodePtr->xmlChildrenNode; curNodePtr; curNodePtr = curNodePtr->next) {
+        if (curNodePtr->name == nullptr || curNodePtr->type == XML_COMMENT_NODE) {
+            WVLOG_E("invalid node!");
+            continue;
+        }
+        char* namePtr = (char*)xmlGetProp(curNodePtr, BAD_CAST(XML_ATTR_NAME));
+        if (!namePtr) {
+            WVLOG_E("invalid node!");
+            continue;
+        }
+        std::string settingName(namePtr);
+        xmlFree(namePtr);
+        if (settingName == WEB_RENDER_PROCESS_MODE) {
+            xmlChar *content = xmlNodeGetContent(curNodePtr);
+            if (content == nullptr) {
+                WVLOG_E("read render_process_mode xml node error");
+                return;
+            }
+            std::string contentStr = reinterpret_cast<const char*>(content);
+            xmlFree(content);
+            if (contentStr == "single") {
+                renderProcessMode_ = static_cast<int32_t>(RenderProcessMode::SINGLE_MODE);
+            } else if (contentStr == "multiple") {
+                renderProcessMode_ = static_cast<int32_t>(RenderProcessMode::MULTIPLE_MODE);
+            } else if (contentStr == "default") {
+                renderProcessMode_ = static_cast<int32_t>(RenderProcessMode::DEFAULT_MODE);
+            } else {
+                WVLOG_W("unknown render_process_mode value: %{public}s, use default", contentStr.c_str());
+                renderProcessMode_ = static_cast<int32_t>(RenderProcessMode::DEFAULT_MODE);
+            }
+            WVLOG_D("render_process_mode is: %{public}d", renderProcessMode_);
+            return;
+        }
+    }
 }
 } // namespace OHOS::NWeb
