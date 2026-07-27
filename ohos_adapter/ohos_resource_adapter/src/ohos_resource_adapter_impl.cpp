@@ -16,6 +16,7 @@
 #include "ohos_resource_adapter_impl.h"
 
 #include <ctime>
+#include <mutex>
 #include <securec.h>
 #include <sstream>
 #include <cerrno>
@@ -232,6 +233,7 @@ bool OhosFileMapperImpl::UnzipData(uint8_t** dest, size_t& len)
 }
 
 std::string OhosResourceAdapterImpl::arkWebCoreHapPathOverride_ = "";
+std::mutex OhosResourceAdapterImpl::arkWebCoreHapPathMutex_;
 std::string OhosResourceAdapterImpl::ConvertToSandboxPath(const std::string& installPath, const std::string& prefixPath)
 {
     if (installPath.empty()) {
@@ -256,7 +258,12 @@ void OhosResourceAdapterImpl::Init(const std::string& hapPath)
 {
     bool newCreate = false;
     std::vector<std::pair<std::string, int>> errorMessage;
-    std::string arkWebHapPath = GetArkWebHapPath(arkWebCoreHapPathOverride_, errorMessage);
+    std::string hapPathOverride;
+    {
+        std::lock_guard<std::mutex> lock(arkWebCoreHapPathMutex_);
+        hapPathOverride = arkWebCoreHapPathOverride_;
+    }
+    std::string arkWebHapPath = GetArkWebHapPath(hapPathOverride, errorMessage);
     if (!arkWebHapPath.empty()) {
         sysExtractor_ = ExtractorUtil::GetExtractor(arkWebHapPath, newCreate);
         if (!sysExtractor_) {
@@ -521,6 +528,7 @@ std::string OhosResourceAdapterImpl::GetArkWebVersion()
 
 void OhosResourceAdapterImpl::SetArkWebCoreHapPathOverride(const std::string& hapPath)
 {
+    std::lock_guard<std::mutex> lock(arkWebCoreHapPathMutex_);
     arkWebCoreHapPathOverride_ = hapPath;
 }
 

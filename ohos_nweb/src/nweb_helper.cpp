@@ -1589,6 +1589,7 @@ void NWebHelper::SetScrollbarMode(ScrollbarMode mode)
 
 void NWebHelper::SetLazyInitializeWebEngine(bool lazy)
 {
+    std::lock_guard<std::mutex> lock(lock_);
     if (initWebEngine_) {
         WVLOG_E("arkweb core has been initialized");
         return;
@@ -1604,6 +1605,7 @@ void NWebHelper::SetLazyInitializeWebEngine(bool lazy)
 
 bool NWebHelper::IsLazyInitializeWebEngine()
 {
+    std::lock_guard<std::mutex> lock(lock_);
     return lazyInitializeWebEngine_ && !initWebEngine_;
 }
 

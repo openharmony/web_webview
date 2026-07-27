@@ -3527,8 +3527,10 @@ napi_value NapiWebviewController::LoadUrlWithHttpHeaders(napi_env env, napi_call
             if (napi_get_named_property(env, obj, "headerValue", &valueObj) != napi_ok) {
                 continue;
             }
-            NapiParseUtils::ParseString(env, keyObj, key);
-            NapiParseUtils::ParseString(env, valueObj, value);
+            if (!NapiParseUtils::ParseString(env, keyObj, key) ||
+                !NapiParseUtils::ParseString(env, valueObj, value)) {
+                continue;
+            }
             httpHeaders[key] = value;
         }
     } else {
