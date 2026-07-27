@@ -293,6 +293,10 @@ public:
         }
         napi_value propertyNames;
         napi_value obj = GetValue();
+        if (!obj) {
+            WVLOG_E("JavaScriptOb SetUpMethods obj null");
+            return;
+        }
         napi_status s = napi_get_all_property_names(env_, obj, napi_key_include_prototypes, napi_key_all_properties,
             napi_key_numbers_to_strings, &propertyNames);
         if (s != napi_ok) {
