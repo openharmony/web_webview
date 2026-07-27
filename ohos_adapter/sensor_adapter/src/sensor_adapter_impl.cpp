@@ -25,7 +25,7 @@ namespace OHOS::NWeb {
 
 std::unordered_map<int32_t, std::shared_ptr<SensorCallbackImpl>> SensorAdapterImpl::sensorCallbackMap;
 std::mutex SensorAdapterImpl::sensorCallbackMapMutex_;
-std::mutex SensorAdapterImpl::SensorUserMutex_;
+std::mutex SensorAdapterImpl::sensorUserMutex_;
 constexpr double NANOSECONDS_IN_SECOND = 1000000000.0;
 constexpr double DEFAULT_SAMPLE_PERIOD = 200000000.0;
 
@@ -444,7 +444,7 @@ int32_t SensorAdapterImpl::UnsubscribeOhosSensor(int32_t sensorTypeId)
 
 SensorAdapterImpl::~SensorAdapterImpl()
 {
-    std::lock_guard<std::mutex> lock(sensorCallbackMapMutex_);
+    std::lock_guard<std::mutex> lock(sensorUserMutex_);
     std::lock_guard<std::mutex> callbackLock(sensorCallbackMapMutex_);
     for (auto& item : sensorCallbackMap) {
         int32_t ret = DeactivateSensor(item.first, &mSensorUser);
@@ -452,7 +452,7 @@ SensorAdapterImpl::~SensorAdapterImpl()
             WVLOG_E("UnsubscribeOhosSensor error, call DeactivateSensor ret = %{public}d.", ret);
             continue;
         }
-        ret = UnsubscribeOhosSensor(item.first, &mSensorUser);
+        ret = UnsubscribeOhosSensor(item.first);
         if (ret != SENSOR_SUCCESS) {
             WVLOG_E("UnsubscribeOhosSensor error, call UnsubscribeSensor ret = %{public}d.", ret);
         }

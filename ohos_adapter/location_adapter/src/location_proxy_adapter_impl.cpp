@@ -264,7 +264,7 @@ LocationProxyAdapterImpl::LocationProxyAdapterImpl()
     }
 }
 
-LocationProxyAdapterImpl::~LocationCallbackImpl()
+LocationProxyAdapterImpl::~LocationProxyAdapterImpl()
 {
     std::lock_guard<std::mutex> lock(locating_mutex_);
     for (auto& item : reg_) {
