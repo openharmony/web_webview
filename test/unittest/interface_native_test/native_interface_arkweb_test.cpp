@@ -33,6 +33,10 @@ namespace {
     void OH_ArkWeb_OnCookieSaveCallbackImpl(ArkWeb_ErrorCode errorCode) {
         g_errorCode = errorCode;
     }
+
+    void OH_ArkWeb_OnCookieFetchCallbackImpl(ArkWeb_ErrorCode errorCode, char* cookieValue) {
+        g_errorCode = errorCode;
+    }
 }
 
 namespace OHOS {
@@ -305,5 +309,31 @@ HWTEST_F(NativeInterfaceArkWebTest, OH_ArkWebCookieManager_SaveCookieAsync_01, T
     EXPECT_EQ(g_errorCode, ArkWeb_ErrorCode::ARKWEB_COOKIE_MANAGER_INITIALIZE_FAILED);
 }
 
+/**
+ * @tc.name  : OH_ArkWebCookieManager_FetchCookieSync_01
+ * @tc.desc  : Test OH_ArkWebCookieManager_FetchCookieSync
+ */
+HWTEST_F(NativeInterfaceArkWebTest, OH_ArkWebCookieManager_FetchCookieSync_01, TestSize.Level1) {
+    char *cookie = nullptr;
+    ArkWeb_ErrorCode ret = OH_ArkWebCookieManager_FetchCookieSync("", false, false, false, &cookie);
+    EXPECT_EQ(ret, ArkWeb_ErrorCode::ARKWEB_LIBRARY_OPEN_FAILURE);
+}
+
+/**
+ * @tc.name  : OH_ArkWebCookieManager_FetchCookieAsync_01
+ * @tc.desc  : Test OH_ArkWebCookieManager_FetchCookieAsync
+ */
+HWTEST_F(NativeInterfaceArkWebTest, OH_ArkWebCookieManager_FetchCookieAsync_01, TestSize.Level1) {
+    OH_ArkWeb_OnCookieFetchCallback callback = nullptr;
+    g_errorCode = ArkWeb_ErrorCode::ARKWEB_SUCCESS;
+    OH_ArkWebCookieManager_FetchCookieAsync("", false, false, false, callback);
+    EXPECT_EQ(g_errorCode, ArkWeb_ErrorCode::ARKWEB_SUCCESS);
+
+    g_errorCode = ArkWeb_ErrorCode::ARKWEB_SUCCESS;
+    callback = OH_ArkWeb_OnCookieFetchCallbackImpl;
+    OH_ArkWebCookieManager_FetchCookieAsync("", false, false, false, callback);
+    EXPECT_EQ(g_errorCode, ArkWeb_ErrorCode::ARKWEB_LIBRARY_OPEN_FAILURE);
+}
+
 } // namespace NWeb
-} // namesapce OHOS
+} // namespace OHOS
