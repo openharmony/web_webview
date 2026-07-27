@@ -45,7 +45,7 @@ NWebBatteryEventSubscriber::NWebBatteryEventSubscriber(
     : EventFwk::CommonEventSubscriber(in), eventCallback_(cb)
 {
     if (!eventCallback_) {
-        WVLOG_W("NWebBatteryEventSubscriber: eventCallback is nullptr, 
+        WVLOG_W("NWebBatteryEventSubscriber: eventCallback is nullptr,
             ensure RegBatteryEvent is called before StartListen");
     }
 }
@@ -93,8 +93,7 @@ void BatteryMgrClientAdapterImpl::RegBatteryEvent(std::shared_ptr<WebBatteryEven
 bool BatteryMgrClientAdapterImpl::StartListen()
 {
     WVLOG_I("start battery listen");
-    if (!cb_) 
-    {
+    if (!cb_) {
         WVLOG_E("StartListen: cb is nullptr, call RegBatteryEvent first");
         return false;
     }

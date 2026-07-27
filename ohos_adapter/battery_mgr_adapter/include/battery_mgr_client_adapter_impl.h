@@ -61,7 +61,7 @@ class BatteryMgrClientAdapterImpl : public BatteryMgrClientAdapter {
 public:
     BatteryMgrClientAdapterImpl() = default;
     ~BatteryMgrClientAdapterImpl()
-    { 
+    {
         StopListen();
     }
 

@@ -5560,8 +5560,7 @@ void ParsePrintRangeAdapter(napi_env env, napi_value pageRange, PrintAttributesA
                 for (uint32_t i = 0; i < pageArrayLength; ++i) {
                     napi_value pagesNumobj = nullptr;
                     napi_status elementStatus = napi_get_element(env, pages, i, $pagesNumobj);
-                    if (elemStatus != napi_ok || pagesNumobj == nullptr) 
-                    {
+                    if (elemStatus != napi_ok || pagesNumobj == nullptr) {
                         continue;
                     }
                     uint32_t pagesNum;
