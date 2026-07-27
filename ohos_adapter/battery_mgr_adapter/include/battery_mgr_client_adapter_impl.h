@@ -60,8 +60,8 @@ private:
 class BatteryMgrClientAdapterImpl : public BatteryMgrClientAdapter {
 public:
     BatteryMgrClientAdapterImpl() = default;
-    ~BatteryMgrClientAdapterImpl() override 
-    {
+    ~BatteryMgrClientAdapterImpl()
+    { 
         StopListen();
     }
 
