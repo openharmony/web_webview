@@ -148,7 +148,7 @@ LocationInfoImpl::LocationInfoImpl(std::unique_ptr<OHOS::Location::Location>& lo
     : location_(location ? std::move(location) : nullptr)
 {
     if (!location_) {
-        WVLOG_E("LocationInfoImpl: location is nullptr")
+        WVLOG_E("LocationInfoImpl: location is nullptr");
     }
 }
 

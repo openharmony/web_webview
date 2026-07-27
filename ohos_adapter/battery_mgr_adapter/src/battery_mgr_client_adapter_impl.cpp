@@ -45,8 +45,8 @@ NWebBatteryEventSubscriber::NWebBatteryEventSubscriber(
     : EventFwk::CommonEventSubscriber(in), eventCallback_(cb)
 {
     if (!eventCallback_) {
-        WVLOG_W("NWebBatteryEventSubscriber: eventCallback is nullptr,
-            ensure RegBatteryEvent is called before StartListen");
+        WVLOG_W("NWebBatteryEventSubscriber: eventCallback is nullptr,"
+            "ensure RegBatteryEvent is called before StartListen");
     }
 }
 
@@ -94,7 +94,7 @@ bool BatteryMgrClientAdapterImpl::StartListen()
 {
     WVLOG_I("start battery listen");
     if (!cb_) {
-        WVLOG_E("StartListen: cb is nullptr, call RegBatteryEvent first");
+        WVLOG_E("StartListen: cb_ is nullptr, call RegBatteryEvent first");
         return false;
     }
     EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();

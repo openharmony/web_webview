@@ -31,7 +31,7 @@ namespace OHOS::NWeb {
 class LocationRequestConfigImpl : public LocationRequestConfig {
 public:
     LocationRequestConfigImpl();
-    virtual ~LocationRequestConfigImpl();
+    virtual ~LocationRequestConfigImpl() = default;
 
     void SetScenario(int32_t scenario) override;
     void SetFixNumber(int32_t number) override;
