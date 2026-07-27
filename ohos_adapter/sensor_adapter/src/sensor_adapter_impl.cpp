@@ -423,7 +423,6 @@ int32_t SensorAdapterImpl::UnsubscribeOhosSensor(int32_t sensorTypeId)
     WVLOG_I("UnsubscribeOhosSensor sensorTypeId: %{public}d.", sensorTypeId);
     int32_t ohosSensorTypeId = SensorTypeToOhosSensorType(sensorTypeId);
     if (ohosSensorTypeId != SENSOR_TYPE_ID_NONE) {
-        std::lock_guard<std::mutex> lock(sensorUserMutex_);
         int32_t ret = DeactivateSensor(ohosSensorTypeId, &mSensorUser);
         if (ret != SENSOR_SUCCESS) {
             WVLOG_E("UnsubscribeOhosSensor error, call DeactivateSensor ret = %{public}d.", ret);
@@ -434,29 +433,11 @@ int32_t SensorAdapterImpl::UnsubscribeOhosSensor(int32_t sensorTypeId)
             WVLOG_E("UnsubscribeOhosSensor error, call UnsubscribeSensor ret = %{public}d.", ret);
             return ret;
         }
-        std::lock_guard<std::mutex> callbackLock(sensorCallbackMapMutex_);
+        std::lock_guard<std::mutex> lock(sensorCallbackMapMutex_);
         sensorCallbackMap.erase(ohosSensorTypeId);
         return SENSOR_SUCCESS;
     }
     WVLOG_E("UnsubscribeOhosSensor error, sensorTypeId is invalid.");
     return SENSOR_PARAMETER_ERROR;
 }
-
-SensorAdapterImpl::~SensorAdapterImpl()
-{
-    std::lock_guard<std::mutex> lock(sensorUserMutex_);
-    std::lock_guard<std::mutex> callbackLock(sensorCallbackMapMutex_);
-    for (auto& item : sensorCallbackMap) {
-        int32_t ret = DeactivateSensor(item.first, &mSensorUser);
-        if (ret != SENSOR_SUCCESS) {
-            WVLOG_E("UnsubscribeOhosSensor error, call DeactivateSensor ret = %{public}d.", ret);
-            continue;
-        }
-        ret = UnsubscribeOhosSensor(item.first);
-        if (ret != SENSOR_SUCCESS) {
-            WVLOG_E("UnsubscribeOhosSensor error, call UnsubscribeSensor ret = %{public}d.", ret);
-        }
-    }
-    sensorCallbackMap.clear();
-}
-} // namespace OHOS::NWeb
+// namespace OHOS::NWeb
