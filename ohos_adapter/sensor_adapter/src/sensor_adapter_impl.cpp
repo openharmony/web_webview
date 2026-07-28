@@ -439,4 +439,4 @@ int32_t SensorAdapterImpl::UnsubscribeOhosSensor(int32_t sensorTypeId)
     WVLOG_E("UnsubscribeOhosSensor error, sensorTypeId is invalid.");
     return SENSOR_PARAMETER_ERROR;
 }
-}// namespace OHOS::NWeb
+} // namespace OHOS::NWeb
