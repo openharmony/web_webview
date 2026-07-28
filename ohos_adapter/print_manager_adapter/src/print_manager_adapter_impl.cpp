@@ -255,7 +255,7 @@ PrintWriteResultCallbackAdapterImpl::PrintWriteResultCallbackAdapterImpl(
 void PrintWriteResultCallbackAdapterImpl::WriteResultCallback(std::string jobId, uint32_t code)
 {
     if (!cb_) {
-        WVLOG_E("WriteResultCallback: cd is empty, skip callback");
+        WVLOG_E("WriteResultCallback: cb is empty, skip callback");
         return;
     }
     cb_(jobId, code);
