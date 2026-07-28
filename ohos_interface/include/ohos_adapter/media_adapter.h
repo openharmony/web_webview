@@ -19,10 +19,29 @@
 #include <string>
 #include <map>
 #include <memory>
+#include <vector>
 
 #include "graphic_adapter.h"
 
 namespace OHOS::NWeb {
+
+// MediaSourceDataHandler: WebView->Chromium data request callback.
+// Chromium implements this to handle data download requests from WebView.
+class MediaSourceDataHandler {
+public:
+    virtual ~MediaSourceDataHandler() = default;
+
+    // Request Chromium to open a URL for data download. Returns a unique ID.
+    virtual int64_t HandleDataOpen(const std::string& url,
+        const std::map<std::string, std::string>& header) = 0;
+
+    // Request Chromium to download data at [offset, offset+length) via HTTP Range.
+    // Async: returns immediately, data delivered via OnDataRespondData.
+    virtual void HandleDataRead(int64_t uuid, int64_t offset, int64_t length) = 0;
+
+    // Cancel an active download and release resources.
+    virtual void HandleDataClose(int64_t uuid) = 0;
+};
 
 enum class PlayerAdapterErrorType : int32_t {
     INVALID_CODE = -1,
@@ -114,6 +133,28 @@ public:
     {
         return -1;
     }
+
+    // Set up HLS proxy download: creates AVMediaSource with LoaderCallback.
+    // Chromium calls this instead of SetMediaSourceHeader for HLS streams.
+    virtual int32_t SetMediaSourceHeaderForHls(
+        const std::string& url,
+        const std::map<std::string, std::string>& header,
+        std::shared_ptr<MediaSourceDataHandler> handler)
+    {
+        return -1;
+    }
+
+    // Chromium->WebView: push response header back after download starts.
+    virtual void OnDataRespondHeader(int64_t uuid,
+        const std::map<std::string, std::string>& header,
+        const std::string& redirectUrl) {}
+
+    // Chromium->WebView: push downloaded data back to WebView.
+    virtual void OnDataRespondData(int64_t uuid, int64_t offset,
+        const std::vector<uint8_t>& data) {}
+
+    // Chromium->WebView: notify download completion or error.
+    virtual void OnDataFinishLoading(int64_t uuid, int32_t errorCode) {}
 };
 
 } // namespace OHOS::NWeb
