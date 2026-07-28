@@ -53,7 +53,6 @@ private:
     static void OhosSensorCallback(SensorEvent* event);
     static std::unordered_map<int32_t, std::shared_ptr<SensorCallbackImpl>> sensorCallbackMap;
     static std::mutex sensorCallbackMapMutex_;
-    static std::mutex SensorUserMutex_;
 
     static void handleAccelerometerData(std::shared_ptr<OHOS::NWeb::SensorCallbackImpl> callback,
         SensorEvent* event);

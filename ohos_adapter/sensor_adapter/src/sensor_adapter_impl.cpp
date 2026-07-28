@@ -371,7 +371,6 @@ int32_t SensorAdapterImpl::SubscribeOhosSensor(int32_t sensorTypeId, int64_t sam
         return SENSOR_PARAMETER_ERROR;
     }
 
-    std::lock_guard<std::mutex> lock(sensorUserMutex_);
     std::string userName = SensorTypeToSensorUserName(sensorTypeId);
     int cpyret = strcpy_s(mSensorUser.name, sizeof(mSensorUser.name), userName.c_str());
     if (cpyret != 0) {
