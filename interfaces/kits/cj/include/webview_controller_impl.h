@@ -329,6 +329,10 @@ public:
 
     bool GetErrorPageEnabled();
 
+    int32_t SetErrorPageEnabled(bool enable, bool includeSubframe);
+
+    bool GetSubframeErrorPageEnabled();
+
     std::string GetLastPostMessageURL();
 
 public:

@@ -887,6 +887,16 @@ public:
         return false;
     }
 
+    ErrCode SetErrorPageEnabled(bool enable, bool includeSubframe)
+    {
+        return 0;
+    }
+
+    bool GetSubframeErrorPageEnabled()
+    {
+        return false;
+    }
+
     void SetSoftKeyboardBehaviorMode(int32_t mode)
     {
         // Mock implementation

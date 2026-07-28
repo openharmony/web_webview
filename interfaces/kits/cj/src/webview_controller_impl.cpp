@@ -1585,7 +1585,26 @@ namespace OHOS::Webview {
         }
         return nweb_ptr->GetErrorPageEnabled();
     }
-    
+
+    int32_t WebviewControllerImpl::SetErrorPageEnabled(bool enable, bool includeSubframe)
+    {
+        auto nweb_ptr = NWeb::NWebHelper::Instance().GetNWeb(nwebId_);
+        if (!nweb_ptr) {
+            return NWebError::INIT_ERROR;
+        }
+        nweb_ptr->SetErrorPageEnabled(enable, includeSubframe);
+        return NWebError::NO_ERROR;
+    }
+
+    bool WebviewControllerImpl::GetSubframeErrorPageEnabled()
+    {
+        auto nweb_ptr = NWeb::NWebHelper::Instance().GetNWeb(nwebId_);
+        if (!nweb_ptr) {
+            return false;
+        }
+        return nweb_ptr->GetSubframeErrorPageEnabled();
+    }
+
     std::string WebviewControllerImpl::GetLastPostMessageURL()
     {
         auto nweb_ptr = NWeb::NWebHelper::Instance().GetNWeb(nwebId_);
