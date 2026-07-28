@@ -514,7 +514,9 @@ void ArkWebPreferenceImpl::PutWebMediaAVSessionEnabled(bool enable)
 
 void ArkWebPreferenceImpl::PutWebMediaNetworkProxyEnabled(bool enable)
 {
-    nweb_preference_->PutWebMediaNetworkProxyEnabled(enable);
+    if (nweb_preference_) {
+        nweb_preference_->PutWebMediaNetworkProxyEnabled(enable);
+    }
 }
 
 void ArkWebPreferenceImpl::SetIntrinsicSizeEnable(bool enable)

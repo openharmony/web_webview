@@ -331,7 +331,6 @@ int32_t PlayerAdapterImpl::SetMediaSourceHeader(const std::string& url,
 }
 
 // --- LoaderCallbackImpl ---
-
 LoaderCallbackImpl::LoaderCallbackImpl(std::shared_ptr<MediaSourceDataHandler> handler)
     : handler_(std::move(handler)) {}
 
@@ -353,17 +352,21 @@ int64_t LoaderCallbackImpl::Open(std::shared_ptr<Media::LoadingRequest>& request
 
 void LoaderCallbackImpl::Read(int64_t uuid, int64_t offset, int64_t length)
 {
+    WVLOG_D("LoaderCallbackImpl::Read enter");
     if (!handler_) {
         WVLOG_E("LoaderCallbackImpl::Read handler_ is nullptr");
+        return;
     }
     handler_->HandleDataRead(uuid, offset, length);
 }
 
 void LoaderCallbackImpl::Close(int64_t uuid)
 {
+    WVLOG_D("LoaderCallbackImpl::Close enter");
     std::lock_guard<std::mutex> lock(mutex_);
     if (!handler_) {
         WVLOG_E("LoaderCallbackImpl::Close handler_ is nullptr");
+        return;
     }
     handler_->HandleDataClose(uuid);
     requests_.erase(uuid);
@@ -372,11 +375,13 @@ void LoaderCallbackImpl::Close(int64_t uuid)
 void LoaderCallbackImpl::OnRespondHeader(int64_t uuid,
     const std::map<std::string, std::string>& header, const std::string& redirectUrl)
 {
+    WVLOG_D("LoaderCallbackImpl::OnRespondHeader enter");
     std::lock_guard<std::mutex> lock(mutex_);
     auto it = requests_.find(uuid);
     if (it != requests_.end()) {
         if (!it->second) {
             WVLOG_E("LoaderCallbackImpl::OnRespondHeader it->second is nullptr");
+            requests_.erase(it);
             return;
         }
         it->second->RespondHeader(uuid, header, redirectUrl);
@@ -386,6 +391,7 @@ void LoaderCallbackImpl::OnRespondHeader(int64_t uuid,
 void LoaderCallbackImpl::OnRespondData(int64_t uuid, int64_t offset,
     const std::vector<uint8_t>& data)
 {
+    WVLOG_D("LoaderCallbackImpl::OnRespondData enter");
     std::lock_guard<std::mutex> lock(mutex_);
     auto it = requests_.find(uuid);
     if (it == requests_.end() || data.empty()) {
@@ -407,6 +413,7 @@ void LoaderCallbackImpl::OnRespondData(int64_t uuid, int64_t offset,
     }
     if (!it->second) {
         WVLOG_E("LoaderCallbackImpl::OnRespondData it->second is nullptr");
+        requests_.erase(it);
         return;
     }
     it->second->RespondData(uuid, offset, mem);
@@ -414,11 +421,13 @@ void LoaderCallbackImpl::OnRespondData(int64_t uuid, int64_t offset,
 
 void LoaderCallbackImpl::OnFinishLoading(int64_t uuid, int32_t errorCode)
 {
+    WVLOG_D("LoaderCallbackImpl::OnFinishLoading enter");
     std::lock_guard<std::mutex> lock(mutex_);
     auto it = requests_.find(uuid);
     if (it != requests_.end()) {
         if (!it->second) {
             WVLOG_E("LoaderCallbackImpl::OnFinishLoading it->second is nullptr");
+            requests_.erase(it);
             return;
         }
         it->second->FinishLoading(uuid, errorCode);
@@ -427,11 +436,11 @@ void LoaderCallbackImpl::OnFinishLoading(int64_t uuid, int32_t errorCode)
 }
 
 // --- PlayerAdapterImpl HLS methods ---
-
 int32_t PlayerAdapterImpl::SetMediaSourceHeaderForHls(const std::string& url,
     const std::map<std::string, std::string>& header,
     std::shared_ptr<MediaSourceDataHandler> handler)
 {
+    WVLOG_D("PlayerAdapterImpl::SetMediaSourceHeaderForHls enter");
     if (!player_ || !handler) {
         WVLOG_E("player_ or handler is nullptr");
         return -1;
@@ -447,6 +456,7 @@ void PlayerAdapterImpl::OnDataRespondHeader(int64_t uuid,
     const std::map<std::string, std::string>& header,
     const std::string& redirectUrl)
 {
+    WVLOG_D("PlayerAdapterImpl::OnDataRespondHeader enter");
     if (loader_callback_) {
         loader_callback_->OnRespondHeader(uuid, header, redirectUrl);
     }
@@ -455,6 +465,7 @@ void PlayerAdapterImpl::OnDataRespondHeader(int64_t uuid,
 void PlayerAdapterImpl::OnDataRespondData(int64_t uuid, int64_t offset,
     const std::vector<uint8_t>& data)
 {
+    WVLOG_D("PlayerAdapterImpl::OnDataRespondData enter");
     if (loader_callback_) {
         loader_callback_->OnRespondData(uuid, offset, data);
     }
@@ -462,6 +473,7 @@ void PlayerAdapterImpl::OnDataRespondData(int64_t uuid, int64_t offset,
 
 void PlayerAdapterImpl::OnDataFinishLoading(int64_t uuid, int32_t errorCode)
 {
+    WVLOG_D("PlayerAdapterImpl::OnDataFinishLoading enter");
     if (loader_callback_) {
         loader_callback_->OnFinishLoading(uuid, errorCode);
     }

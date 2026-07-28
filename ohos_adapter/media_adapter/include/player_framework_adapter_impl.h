@@ -19,7 +19,6 @@
 #include "media_adapter.h"
 #include "player.h"
 #include "loading_request.h"
-
 #include <mutex>
 
 namespace OHOS::NWeb {
@@ -42,14 +41,11 @@ private:
 class LoaderCallbackImpl : public Media::LoaderCallback {
 public:
     explicit LoaderCallbackImpl(std::shared_ptr<MediaSourceDataHandler> handler);
-
     ~LoaderCallbackImpl() = default;
-
     // Called by PlayerServer IPC when HiStreamer needs data
     int64_t Open(std::shared_ptr<Media::LoadingRequest>& request) override;
     void Read(int64_t uuid, int64_t offset, int64_t length) override;
     void Close(int64_t uuid) override;
-
     // Called by PlayerAdapterImpl when Chromium pushes data back
     void OnRespondHeader(int64_t uuid, const std::map<std::string, std::string>& header,
                          const std::string& redirectUrl);
@@ -101,7 +97,6 @@ public:
         const std::string& url,
         const std::map<std::string, std::string>& header,
         std::shared_ptr<MediaSourceDataHandler> handler) override;
-
     // Data response from Chromium
     void OnDataRespondHeader(int64_t uuid,
         const std::map<std::string, std::string>& header,
