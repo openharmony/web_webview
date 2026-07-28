@@ -1761,6 +1761,19 @@ public:
     bool GetErrorPageEnabled() override;
 
     /**
+     * @brief Set whether enable the error page. onOverrideErrorPage will be triggered when the page error.
+     *
+     * @param enable bool: Whether enable the error page.
+     * @param includeSubframe bool: Whether also enable error page for iframes.
+     */
+    void SetErrorPageEnabled(bool enable, bool includeSubframe) override;
+
+    /**
+     * @brief Get whether iframe error page feature is enabled.
+     */
+    bool GetSubframeErrorPageEnabled() override;
+
+    /**
      * @brief Get web component destroy mode.
      * @return The web destroy mode.
      */

@@ -1010,7 +1010,9 @@ export default namespace webview {
         native static enablePrivateNetworkAccess(enable: boolean): void;
         native static isPrivateNetworkAccessEnabled(): boolean;
         native setErrorPageEnabled(enable: boolean): void;
+        native setErrorPageEnabled(enable: boolean, includeSubframe: boolean): void;
         native getErrorPageEnabled(): boolean;
+        native getSubframeErrorPageEnabled(): boolean;
         native getBlanklessInfoWithKey(key: string): BlanklessInfo;
         native setBlanklessLoadingWithKey(key: string, is_start: boolean): WebBlanklessErrorCode;
         native setBlanklessLoadingWithParams(key: string, param: BlanklessLoadingParam): WebBlanklessErrorCode;
