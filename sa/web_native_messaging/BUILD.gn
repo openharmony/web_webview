@@ -88,6 +88,7 @@ ohos_shared_library("web_native_messaging_service") {
   }
   if (target_cpu == "arm64") {
     branch_protector_ret = "pac_ret"
+    branch_protector_frt = "bti"
   }
   cflags = [
     "-Wall",
@@ -147,6 +148,7 @@ ohos_shared_library("web_native_messaging_kit") {
   }
   if (target_cpu == "arm64") {
     branch_protector_ret = "pac_ret"
+    branch_protector_frt = "bti"
   }
 
   cflags = [
