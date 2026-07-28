@@ -27,6 +27,8 @@ public:
     static WebDownloadDelegate *FromNWebID(int32_t nwebId);
 
     explicit WebDownloadDelegate(ani_env* env);
+    WebDownloadDelegate(const WebDownloadDelegate& other);
+    WebDownloadDelegate& operator=(const WebDownloadDelegate&) = delete;
     ~WebDownloadDelegate();
 
     void DownloadBeforeStart(WebDownloadItem *webDownloadItem);

@@ -145,7 +145,6 @@ bool CreateArgs(std::shared_ptr<WebviewJavaScriptExecuteCallback> jsObj, std::sh
             return false;
         }
     } else {
-        WVLOG_I("get string from result : %{public}s", result->GetString().c_str());
         if ((status = env->GetNull(&resultRef[0])) != ANI_OK) {
             WVLOG_E("create null resultRef[0] error");
             return false;
@@ -425,7 +424,6 @@ static ani_string GetString(ani_env* env, ani_object object)
     }
     std::string msgStr = message->GetString();
     env->String_NewUTF8(msgStr.c_str(), msgStr.length(), &result);
-    WVLOG_I("GetString msgStr = %{public}s", msgStr.c_str());
     return result;
 }
 
@@ -511,6 +509,11 @@ static ani_object GetArrayBuffer(ani_env* env, ani_object object)
         return nullptr;
     }
     std::vector<uint8_t> msgArr = message->GetBinary();
+    constexpr size_t maxArraybufferSize = 50 * 1024 * 1024; /* 50 MB */
+    if (msgArr.size() > maxArraybufferSize) {
+        WVLOG_E("GetArrayBuffer size exceeds limit");
+        return nullptr;
+    }
     void* arrayData = nullptr;
     ani_arraybuffer arraybuffer;
     ani_status status = env->CreateArrayBuffer(msgArr.size(), &arrayData, &arraybuffer);
@@ -587,7 +590,6 @@ static ani_object GetErrorDescription(ani_env* env, ani_object object)
     std::string msgStr = message->GetErrorDescription();
     if (!msgStr.empty()) {
         env->String_NewUTF8(msgStr.c_str(), msgStr.length(), &resultString);
-        WVLOG_I("GetErrorDescription msgStr = %{public}s", msgStr.c_str());
         result = static_cast<ani_object>(resultString);
     } else {
         env->GetNull(&resultNull);
