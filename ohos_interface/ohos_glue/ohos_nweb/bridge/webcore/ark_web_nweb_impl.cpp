@@ -1541,7 +1541,7 @@ bool ArkWebNWebImpl::GetErrorPageEnabled()
     return nweb_nweb_->GetErrorPageEnabled();
 }
 
-void ArkWebNWebImpl::SetErrorPageEnabled(bool enable, bool includeSubframe)
+void ArkWebNWebImpl::SetErrorPageEnabledV2(bool enable, bool includeSubframe)
 {
     nweb_nweb_->SetErrorPageEnabled(enable, includeSubframe);
 }

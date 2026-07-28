@@ -1812,7 +1812,7 @@ bool ArkWebNWebWrapper::GetErrorPageEnabled()
 
 void ArkWebNWebWrapper::SetErrorPageEnabled(bool enable, bool includeSubframe)
 {
-    ark_web_nweb_->SetErrorPageEnabled(enable, includeSubframe);
+    ark_web_nweb_->SetErrorPageEnabledV2(enable, includeSubframe);
 }
 
 bool ArkWebNWebWrapper::GetSubframeErrorPageEnabled()
