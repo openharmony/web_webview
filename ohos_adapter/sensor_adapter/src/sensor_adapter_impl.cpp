@@ -25,7 +25,6 @@ namespace OHOS::NWeb {
 
 std::unordered_map<int32_t, std::shared_ptr<SensorCallbackImpl>> SensorAdapterImpl::sensorCallbackMap;
 std::mutex SensorAdapterImpl::sensorCallbackMapMutex_;
-std::mutex SensorAdapterImpl::sensorUserMutex_;
 constexpr double NANOSECONDS_IN_SECOND = 1000000000.0;
 constexpr double DEFAULT_SAMPLE_PERIOD = 200000000.0;
 
@@ -440,4 +439,4 @@ int32_t SensorAdapterImpl::UnsubscribeOhosSensor(int32_t sensorTypeId)
     WVLOG_E("UnsubscribeOhosSensor error, sensorTypeId is invalid.");
     return SENSOR_PARAMETER_ERROR;
 }
-// namespace OHOS::NWeb
+}// namespace OHOS::NWeb

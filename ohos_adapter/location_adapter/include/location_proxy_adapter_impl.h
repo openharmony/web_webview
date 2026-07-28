@@ -85,7 +85,7 @@ using StopLocatingFuncType = bool(*)(
 class LocationProxyAdapterImpl : public LocationProxyAdapter {
 public:
     LocationProxyAdapterImpl();
-    virtual ~LocationProxyAdapterImpl() = default;
+    virtual ~LocationProxyAdapterImpl();
 
     int32_t StartLocating(
         std::shared_ptr<LocationRequestConfig> requestConfig,

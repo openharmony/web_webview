@@ -37,7 +37,7 @@ private:
 class SensorAdapterImpl : public SensorAdapter {
 public:
     SensorAdapterImpl() = default;
-    ~SensorAdapterImpl() override;
+    ~SensorAdapterImpl() = default;
 
     int32_t IsOhosSensorSupported(int32_t sensorTypeId) override;
     int32_t GetOhosSensorReportingMode(int32_t sensorTypeId) override;
