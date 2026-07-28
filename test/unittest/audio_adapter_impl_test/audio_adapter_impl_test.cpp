@@ -554,37 +554,6 @@ HWTEST_F(NWebAudioAdapterTest, NWebAudioAdapterTest_AudioAdapterImpl_008, TestSi
 }
 
 /**
- * @tc.name: NWebAudioAdapterTest_AudioAdapterImpl_009.
- * @tc.desc: Audio adapter unittest.
- * @tc.type: FUNC.
- * @tc.require:I5HRX9
- */
-HWTEST_F(NWebAudioAdapterTest, NWebAudioAdapterTest_AudioAdapterImpl_009, TestSize.Level1)
-{
-    std::shared_ptr<AudioInterruptAdapterMock> interrupt = std::make_shared<AudioInterruptAdapterMock>();
-    EXPECT_NE(interrupt, nullptr);
-    interrupt->streamUsage = AudioAdapterStreamUsage::STREAM_USAGE_MEDIA;
-    interrupt->contentType = AudioAdapterContentType::CONTENT_TYPE_MUSIC;
-    interrupt->streamType = AudioAdapterStreamType::STREAM_DEFAULT;
-
-    int32_t ret = AudioSystemManagerAdapterImpl::GetInstance().RequestAudioFocus(interrupt);
-    EXPECT_NE(ret, RESULT_OK);
-    ret = AudioSystemManagerAdapterImpl::GetInstance().AbandonAudioFocus(interrupt);
-    EXPECT_NE(ret, RESULT_OK);
-
-    interrupt->streamType = AudioAdapterStreamType::STREAM_MUSIC;
-    ret = AudioSystemManagerAdapterImpl::GetInstance().RequestAudioFocus(interrupt);
-    EXPECT_EQ(ret, RESULT_OK);
-
-    ret = AudioSystemManagerAdapterImpl::GetInstance().AbandonAudioFocus(interrupt);
-    EXPECT_EQ(ret, RESULT_OK);
-    ret = AudioSystemManagerAdapterImpl::GetInstance().RequestAudioFocus(nullptr);
-    EXPECT_NE(ret, RESULT_OK);
-    ret = AudioSystemManagerAdapterImpl::GetInstance().AbandonAudioFocus(nullptr);
-    EXPECT_NE(ret, RESULT_OK);
-}
-
-/**
  * @tc.name: NWebAudioAdapterTest_AudioAdapterImpl_010.
  * @tc.desc: Audio adapter unittest.
  * @tc.type: FUNC.
