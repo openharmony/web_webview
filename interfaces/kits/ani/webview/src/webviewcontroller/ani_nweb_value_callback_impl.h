@@ -41,6 +41,7 @@ private:
     std::shared_ptr<AppExecFwk::EventHandler> mainHandler_;
     void WebMessageCallback(ani_env* env, std::shared_ptr<NWebMessage> result);
     void WebMessageOnReceiveValueCallback(std::shared_ptr<NWebMessage> result);
+    bool CreateExtMsgObj(ani_env* env, std::shared_ptr<NWebMessage> result, ani_object& webMsgExt);
 };
 } // namespace NWeb
 } // namespace OHOS

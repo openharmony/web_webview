@@ -16,6 +16,7 @@
 #include "ani_parse_utils.h"
 
 #include <arpa/inet.h>
+#include <climits>
 #include <memory>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -38,6 +39,10 @@ bool AniParseUtils::ParseString(ani_env *env, ani_ref ref, std::string& outValue
     auto status = env->String_GetUTF8Size(str, &strSize);
     if (status != ANI_OK) {
         WVLOG_E("AniUtils_ParseString String_GetUTF8Size failed, status: %{public}d", status);
+        return false;
+    }
+    if (strSize >= UINT_MAX) {
+        WVLOG_E("AniUtils_ParseString String length is too long");
         return false;
     }
     std::vector<char> buffer(strSize + 1);

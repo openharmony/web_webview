@@ -69,6 +69,7 @@ void ProxyChangedCallbackImpl::OnChanged()
     auto status = env_->FunctionalObject_Call(static_cast<ani_fn_object>(jsCallback), ZERO, nullptr, &result);
     if (status != ANI_OK) {
         WVLOG_E("onChanged functionalObject_Call status: %{public}d", status);
+        env_->GlobalReference_Delete(jsCallback);
         return;
     }
     env_->GlobalReference_Delete(jsCallback);
@@ -117,10 +118,23 @@ static void JsApplyProxyOverride(ani_env* env, ani_object object, ani_object pro
         WVLOG_E("ProxyConfig env is nullptr");
         return;
     }
-    ani_ref jsCallback = nullptr;
-    env->GlobalReference_Create(callback, &jsCallback);
-    if (!jsCallback) {
+    if (callback == nullptr) {
         NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
+        return;
+    }
+    ani_ref jsCallback = nullptr;
+    if (env->GlobalReference_Create(callback, &jsCallback) != ANI_OK) {
+        WVLOG_E("ProxyConfig JsApplyProxyOverride create global reference failed");
+        NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
+        return;
+    }
+    if (jsCallback == nullptr) {
+        WVLOG_E("ProxyConfig jsCallback is nullptr");
+        env->GlobalReference_Delete(jsCallback);
+        return;
+    }
+    if (proxyConfigObject == nullptr) {
+        WVLOG_E("ProxyConfig JsApplyProxyOverride proxyConfigObject is null");
         return;
     }
     ProxyConfig* proxyConfig = nullptr;
@@ -146,10 +160,14 @@ static void JsRemoveProxyOverride(ani_env *env, ani_object object, ani_fn_object
         WVLOG_E("ProxyConfig env is nullptr");
         return;
     }
+    if (callback == nullptr) {
+        NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
+        return;
+    }
 
     ani_ref jsCallback = nullptr;
-    env->GlobalReference_Create(callback, &jsCallback);
-    if (!jsCallback) {
+    if (env->GlobalReference_Create(callback, &jsCallback) != ANI_OK || !jsCallback) {
+        WVLOG_E("ProxyConfig JsRemoveProxyOverride create global reference failed");
         NWebError::AniBusinessError::ThrowErrorByErrCode(env, NWebError::PARAM_CHECK_ERROR);
         return;
     }

@@ -16,7 +16,7 @@
 #include "web_download_manager.h"
 
 #include <cstring>
-
+#include <mutex>
 #include "nweb_c_api.h"
 #include "nweb_helper.h"
 #include "nweb_log.h"
@@ -28,9 +28,11 @@ namespace {
 static std::unique_ptr<OHOS::NWeb::WebDownloadDelegate> g_default_delegate;
 static std::unordered_map<int32_t, WebDownloadDelegate *> g_web_download_delegate_map;
 static WebDownloadDelegateCallback *g_download_callback;
-
+static std::mutex g_defaultDelegateMutex;
+static std::mutex g_delegateMapMutex;
 WebDownloadDelegate *GetWebDownloadDelegate(int32_t nwebId)
 {
+    std::lock_guard<std::mutex> lock(g_delegateMapMutex);
     auto it = g_web_download_delegate_map.find(nwebId);
     if (it != g_web_download_delegate_map.end()) {
         return it->second;
@@ -41,6 +43,10 @@ WebDownloadDelegate *GetWebDownloadDelegate(int32_t nwebId)
 void DownloadBeforeStart(NWebDownloadItem *downloadItem, WebBeforeDownloadCallbackWrapper *wrapper)
 {
     WVLOG_D("[DOWNLOAD] DownloadBeforeStart.");
+    if (downloadItem == nullptr) {
+        WVLOG_E("[DOWNLOAD] NWebDownloadItem is null");
+        return;
+    }
     if (wrapper == nullptr) {
         WVLOG_E("[DOWNLOAD] WebBeforeDownloadCallbackWrapper is null");
         return;
@@ -49,6 +55,7 @@ void DownloadBeforeStart(NWebDownloadItem *downloadItem, WebBeforeDownloadCallba
     WebDownloadDelegate *webDownloadDelegate = GetWebDownloadDelegate(nwebId);
     if (!webDownloadDelegate) {
         WVLOG_D("[DOWNLOAD] donn't found delegate for nweb.");
+        std::lock_guard<std::mutex> lock(g_defaultDelegateMutex);
         webDownloadDelegate = g_default_delegate.get();
     }
 
@@ -58,6 +65,10 @@ void DownloadBeforeStart(NWebDownloadItem *downloadItem, WebBeforeDownloadCallba
     }
 
     WebDownloadItem *webDownloadItem = new WebDownloadItem(webDownloadDelegate->GetEnv(), downloadItem);
+    if (webDownloadItem == nullptr) {
+        WVLOG_E("[DOWNLOAD] webDownloadItem is null");
+        return;
+    }
     // destroy download_item since copied content from download_item.
     WebDownloadItem_Destroy(downloadItem);
     webDownloadItem->before_download_callback = wrapper;
@@ -71,12 +82,17 @@ void DownloadDidUpdate(NWebDownloadItem *downloadItem, WebDownloadItemCallbackWr
         WVLOG_E("[DOWNLOAD] WebBeforeDownloadCallbackWrapper is null");
         return;
     }
+    if (downloadItem == nullptr) {
+        WVLOG_E("[DOWNLOAD] downloadItem is null");
+        return;
+    }
 
     int32_t nwebId = WebDownloadItem_NWebId(downloadItem);
 
     WebDownloadDelegate *webDownloadDelegate = GetWebDownloadDelegate(nwebId);
     if (!webDownloadDelegate) {
         WVLOG_D("[DOWNLOAD] didn't find delegate for nweb.");
+        std::lock_guard<std::mutex> lock(g_defaultDelegateMutex);
         webDownloadDelegate = g_default_delegate.get();
     }
 
@@ -118,21 +134,20 @@ void DownloadDidUpdate(NWebDownloadItem *downloadItem, WebDownloadItemCallbackWr
 // static
 void WebDownloadManager::RegisterDownloadCallback()
 {
-    // Only regist once.
-    if (g_download_callback == nullptr) {
+    static std::once_flag onceFlag;
+    std::call_once(onceFlag, []() {
         WVLOG_I("RegisterDownloadCallback.");
         WebDownloader_CreateDownloadDelegateCallback(&g_download_callback);
         WebDownloader_SetDownloadBeforeStart(g_download_callback, &DownloadBeforeStart);
         WebDownloader_SetDownloadDidUpdate(g_download_callback, &DownloadDidUpdate);
         WebDownloadManager_PutDownloadCallback(g_download_callback);
-    } else {
-        WVLOG_I("[DOWNLOAD] had RegisterDownloadCallback.");
-    }
+    });
 }
 
 // static
 void WebDownloadManager::RemoveDownloadDelegate(WebDownloadDelegate *delegate)
 {
+    std::lock_guard<std::mutex> lock(g_delegateMapMutex);
     auto iterator = g_web_download_delegate_map.begin();
     while (iterator != g_web_download_delegate_map.end()) {
         if (iterator->second == delegate) {
@@ -147,6 +162,7 @@ void WebDownloadManager::RemoveDownloadDelegate(WebDownloadDelegate *delegate)
 void WebDownloadManager::AddDownloadDelegateForWeb(int32_t nwebId, WebDownloadDelegate *delegate)
 {
     NWebHelper::Instance().LoadNWebSDK();
+    std::lock_guard<std::mutex> lock(g_delegateMapMutex);
     g_web_download_delegate_map.insert_or_assign(nwebId, delegate);
     RegisterDownloadCallback();
 }
@@ -154,9 +170,16 @@ void WebDownloadManager::AddDownloadDelegateForWeb(int32_t nwebId, WebDownloadDe
 // static
 void WebDownloadManager::RemoveDownloadDelegateRef(int32_t nwebId)
 {
-    auto iter = g_web_download_delegate_map.find(nwebId);
-    if (iter != g_web_download_delegate_map.end()) {
-        iter->second->RemoveSelfRef();
+    WebDownloadDelegate *delegate = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(g_delegateMapMutex);
+        auto iter = g_web_download_delegate_map.find(nwebId);
+        if (iter != g_web_download_delegate_map.end()) {
+            delegate = iter->second;
+        }
+    }
+    if (delegate) {
+        delegate->RemoveSelfRef();
     }
 }
 
@@ -164,8 +187,15 @@ void WebDownloadManager::RemoveDownloadDelegateRef(int32_t nwebId)
 void WebDownloadManager::SetDownloadDelegate(WebDownloadDelegate *delegate)
 {
     NWebHelper::Instance().LoadNWebSDK();
-    if (!g_default_delegate) {
-        g_default_delegate = std::make_unique<WebDownloadDelegate>(*delegate);
+    bool needRegister = false;
+    {
+        std::lock_guard<std::mutex> lock(g_defaultDelegateMutex);
+        if (!g_default_delegate) {
+            g_default_delegate = std::make_unique<WebDownloadDelegate>(*delegate);
+            needRegister = true;
+        }
+    }
+    if (needRegister) {
         RegisterDownloadCallback();
     }
 }
@@ -173,11 +203,8 @@ void WebDownloadManager::SetDownloadDelegate(WebDownloadDelegate *delegate)
 // static
 bool WebDownloadManager::HasValidDelegate()
 {
-    if (!g_default_delegate) {
-        return false;
-    }
-
-    return true;
+    std::lock_guard<std::mutex> lock(g_defaultDelegateMutex);
+    return g_default_delegate != nullptr;
 }
 
 // static

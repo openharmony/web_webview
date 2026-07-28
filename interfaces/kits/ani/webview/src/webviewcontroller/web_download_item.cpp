@@ -73,10 +73,12 @@ WebDownloadItem::WebDownloadItem(ani_env* env, NWebDownloadItem *downloadItem)
     this->percentComplete = WebDownloadItem_PercentComplete(downloadItem);
     this->totalBytes = WebDownloadItem_TotalBytes(downloadItem);
     this->receivedBytes = WebDownloadItem_ReceivedBytes(downloadItem);
-    this->guid = std::string(WebDownloadItem_Guid(downloadItem));
-    this->fullPath = std::string(WebDownloadItem_FullPath(downloadItem));
-    this->url = std::string(WebDownloadItem_Url(downloadItem));
-    this->originalUrl = std::string(WebDownloadItem_OriginalUrl(downloadItem));
+    const char* guidRaw = WebDownloadItem_Guid(downloadItem);
+    this->guid = std::string(guidRaw ? guidRaw : "");
+    this->fullPath = std::string(WebDownloadItem_FullPath(downloadItem) ? WebDownloadItem_FullPath(downloadItem) : "");
+    this->url = std::string(WebDownloadItem_Url(downloadItem) ? WebDownloadItem_Url(downloadItem) : "");
+    this->originalUrl = std::string(WebDownloadItem_OriginalUrl(downloadItem) ? WebDownloadItem_OriginalUrl(
+        downloadItem) : "");
     char* referrer = WebDownloadItem_ReferrerUrl(downloadItem);
     if (referrer) {
         this->referrerUrl = std::string(referrer);
@@ -90,14 +92,18 @@ WebDownloadItem::WebDownloadItem(ani_env* env, NWebDownloadItem *downloadItem)
             }
         }
     }
-    this->suggestedFileName = std::string(WebDownloadItem_SuggestedFileName(downloadItem));
-    this->contentDisposition = std::string(WebDownloadItem_ContentDisposition(downloadItem));
-    this->method = std::string(WebDownloadItem_Method(downloadItem));
-    this->lastModified = std::string(WebDownloadItem_LastModified(downloadItem));
+    this->suggestedFileName = std::string(WebDownloadItem_SuggestedFileName(downloadItem) ?
+        WebDownloadItem_SuggestedFileName(downloadItem) : "");
+    this->contentDisposition = std::string(WebDownloadItem_ContentDisposition(downloadItem) ?
+        WebDownloadItem_ContentDisposition(downloadItem) : "");
+    this->method = std::string(WebDownloadItem_Method(downloadItem) ? WebDownloadItem_Method(downloadItem) : "");
+    this->lastModified = std::string(WebDownloadItem_LastModified(downloadItem) ?
+        WebDownloadItem_LastModified(downloadItem) : "");
     this->lastErrorCode = WebDownloadItem_LastErrorCode(downloadItem);
-    this->receivedSlices = std::string(WebDownloadItem_ReceivedSlices(downloadItem));
-    this->etag = std::string(WebDownloadItem_ETag(downloadItem));
-    this->mimeType = std::string(WebDownloadItem_MimeType(downloadItem));
+    this->receivedSlices = std::string(WebDownloadItem_ReceivedSlices(downloadItem) ?
+        WebDownloadItem_ReceivedSlices(downloadItem) : "");
+    this->etag = std::string(WebDownloadItem_ETag(downloadItem) ? WebDownloadItem_ETag(downloadItem) : "");
+    this->mimeType = std::string(WebDownloadItem_MimeType(downloadItem) ? WebDownloadItem_MimeType(downloadItem) : "");
     this->nwebId = WebDownloadItem_NWebId(downloadItem);
     env_ = env;
 }

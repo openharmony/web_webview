@@ -19,6 +19,7 @@
 #include "ani_business_error.h"
 #include "ani_native_media_player_handler.h"
 #include "ani_parse_utils.h"
+#include "ani_web_net_error_list.h"
 #include "native_media_player_impl.h"
 #include "nweb_helper.h"
 #include "nweb_log.h"
@@ -61,7 +62,13 @@ static void JSDidReceiveResponse(ani_env* env, ani_object object, ani_object res
         return;
     }
 
-    int32_t ret = resourceHandler->DidReceiveResponse(receiveResponse->GetArkWebResponse());
+    ArkWeb_Response* arkResponse = receiveResponse->GetArkWebResponse();
+    if (arkResponse == nullptr) {
+        WVLOG_E("arkResponse is nullptr");
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    int32_t ret = resourceHandler->DidReceiveResponse(arkResponse);
     WVLOG_D("aniwebResourceHandler JSDidReceiveResponse ret = %{public}d", ret);
     if (ret != 0) {
         AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
@@ -142,6 +149,11 @@ static void JsDidFailWithError(ani_env* env, ani_object object, ani_enum_item er
 
     bool completeIfNoResponse = false;
     int32_t codeInt = static_cast<int32_t>(iCode);
+    if (GetErrorIndex(codeInt) < 0) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        WVLOG_E("invalid ArkWeb net error code: %{public}d", codeInt);
+        return;
+    }
     int32_t ret = rosourceHandler->DidFailWithError(static_cast<ArkWeb_NetError>(codeInt), completeIfNoResponse);
     WVLOG_I("JSDidFailWithError ret=%{public}d", ret);
     if (ret != 0) {
@@ -173,6 +185,11 @@ static void JsDidFailWithErrorV1(
     }
 
     int32_t codeInt = static_cast<int32_t>(iCode);
+    if (GetErrorIndex(codeInt) < 0) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        WVLOG_E("invalid ArkWeb net error code: %{public}d", codeInt);
+        return;
+    }
     int32_t ret = rosourceHandler->DidFailWithError(
         static_cast<ArkWeb_NetError>(codeInt), static_cast<bool>(completeIfNoResponse));
     WVLOG_I("JSDidFailWithError ret=%{public}d", ret);

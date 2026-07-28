@@ -110,6 +110,10 @@ NWebValueCallbackImpl::~NWebValueCallbackImpl()
         WVLOG_E("[WebMessagePort] GetEnv status is : %{public}d", status);
         return;
     }
+    if (callback_ == nullptr) {
+        WVLOG_E("[WebMessagePort] callback_ is nullptr");
+        return;
+    }
     if (env) {
         env->GlobalReference_Delete(callback_);
     }
@@ -167,27 +171,17 @@ void NWebValueCallbackImpl::WebMessageCallback(ani_env* env, std::shared_ptr<NWe
         WVLOG_E("[WebMessagePort] env is nullptr");
         return;
     }
+    if (!callback_) {
+        WVLOG_E("[WebMessagePort] callback_ is nullptr");
+        return;
+    }
+    if (!result) {
+        WVLOG_E("[WebMessagePort] result is nullptr");
+        return;
+    }
     ani_object webMsgExt = nullptr;
     if (extention_) {
-        g_WebMessagePort = false;
-        if (!CreateObjectVoid(env, ANI_WEB_MESSAGE_EXT_NAME, webMsgExt)) {
-            return;
-        }
-        g_WebMessagePort = true;
-        if (webMsgExt == nullptr) {
-            WVLOG_E("[WebMessagePort] new webMsgExt failed.");
-            return;
-        }
-        WebMessageExt* webMessageExt = new (std::nothrow) WebMessageExt(result);
-        if (webMessageExt == nullptr) {
-            WVLOG_E("[WebMessagePort] new WebMessageExt failed.");
-            return;
-        }
-        if (!Wrap(env, webMsgExt, ANI_WEB_MESSAGE_EXT_NAME, reinterpret_cast<ani_long>(webMessageExt))) {
-            WVLOG_E("[WebMessagePort] webMessageExt wrap failed");
-            delete webMessageExt;
-            webMessageExt = nullptr;
-            webMsgExt = nullptr;
+        if (!CreateExtMsgObj(env, result, webMsgExt)) {
             return;
         }
     } else {
@@ -204,6 +198,31 @@ void NWebValueCallbackImpl::WebMessageCallback(ani_env* env, std::shared_ptr<NWe
     }
 }
 
+bool NWebValueCallbackImpl::CreateExtMsgObj(ani_env* env, std::shared_ptr<NWebMessage> result, ani_object& webMsgExt)
+{
+    g_WebMessagePort = false;
+    if (!CreateObjectVoid(env, ANI_WEB_MESSAGE_EXT_NAME, webMsgExt)) {
+        return false;
+    }
+    g_WebMessagePort = true;
+    if (webMsgExt == nullptr) {
+        WVLOG_E("[WebMessagePort] new webMsgExt failed.");
+        return false;
+    }
+    WebMessageExt* webMessageExt = new (std::nothrow) WebMessageExt(result);
+    if (webMessageExt == nullptr) {
+        WVLOG_E("[WebMessagePort] new WebMessageExt failed");
+        return false;
+    }
+    if (!Wrap(env, webMsgExt, ANI_WEB_MESSAGE_EXT_NAME, reinterpret_cast<ani_long>(webMessageExt))) {
+        WVLOG_E("[WebMessagePort] webMessageExt wrap failed");
+        delete webMessageExt;
+        webMsgExt = nullptr;
+        return false;
+    }
+    return true;
+}
+
 void NWebValueCallbackImpl::WebMessageOnReceiveValueCallback(std::shared_ptr<NWebMessage> result)
 {
     WVLOG_D("[WebMessagePort] WebMessageOnReceiveValueCallback Start");
@@ -217,29 +236,19 @@ void NWebValueCallbackImpl::WebMessageOnReceiveValueCallback(std::shared_ptr<NWe
         WVLOG_E("[WebMessagePort] env is nullptr");
         return;
     }
+    if (!callback_) {
+        WVLOG_E("[WebMessagePort] callback_ is nullptr");
+        return;
+    }
+    if (!result) {
+        WVLOG_E("[WebMessagePort] result is nullptr");
+        return;
+    }
     ani_boolean errorExists;
     env->ExistUnhandledError(&errorExists);
     ani_object webMsgExt = nullptr;
     if (extention_) {
-        g_WebMessagePort = false;
-        if (!CreateObjectVoid(env, ANI_WEB_MESSAGE_EXT_NAME, webMsgExt)) {
-            return;
-        }
-        g_WebMessagePort = true;
-        if (webMsgExt == nullptr) {
-            WVLOG_E("[WebMessagePort] new webMsgExt failed.");
-            return;
-        }
-        WebMessageExt* webMessageExt = new (std::nothrow) WebMessageExt(result);
-        if (webMessageExt == nullptr) {
-            WVLOG_E("[WebMessagePort] new WebMessageExt failed.");
-            return;
-        }
-        if (!Wrap(env, webMsgExt, ANI_WEB_MESSAGE_EXT_NAME, reinterpret_cast<ani_long>(webMessageExt))) {
-            WVLOG_E("[WebMessagePort] webMessageExt wrap failed");
-            delete webMessageExt;
-            webMessageExt = nullptr;
-            webMsgExt = nullptr;
+        if (!CreateExtMsgObj(env, result, webMsgExt)) {
             return;
         }
     } else {

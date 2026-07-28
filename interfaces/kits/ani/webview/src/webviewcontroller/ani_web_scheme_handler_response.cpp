@@ -381,6 +381,10 @@ static ani_enum_item JsGetNetErrorCode(ani_env* env, ani_object object)
 
     result = schemeHandler->GetErrorCode();
     ani_int index = static_cast<ani_int>(GetErrorIndex(result));
+    if (index < 0) {
+        WVLOG_E("JsGetNetErrorCode unknown net error code: %{public}d", result);
+        return nullptr;
+    }
     ani_enum_item code;
     status = env->Enum_GetEnumItemByIndex(enumType, index, &code);
     if (status != ANI_OK) {

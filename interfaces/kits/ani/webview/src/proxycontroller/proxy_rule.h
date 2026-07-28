@@ -39,7 +39,7 @@ public:
  
 private:
     std::string url_;
-    int32_t schemeFilter_;
+    int32_t schemeFilter_ = static_cast<int32_t>(ProxySchemeFilter::MATCH_ALL_SCHEMES);
 };
 } // namespace NWeb
 } // namespace OHOS

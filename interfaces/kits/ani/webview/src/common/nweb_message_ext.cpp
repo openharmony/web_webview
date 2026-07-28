@@ -106,9 +106,14 @@ std::shared_ptr<NWebMessage> ConvertNwebHap2NwebMessage(std::shared_ptr<NWebHapV
         case NWebHapValue::Type::BINARY: {
             auto length = 0;
             auto buff = hap->GetBinary(length);
-            std::vector<uint8_t> arr(length);
-            memcpy_s(&arr[0], length, buff, length);
             message->SetType(NWebValue::Type::BINARY);
+            if (buff == nullptr || length <= 0) {
+                std::vector<uint8_t> emptyArr;
+                message->SetBinary(emptyArr);
+                break;
+            }
+            std::vector<uint8_t> arr(length);
+            memcpy_s(arr.data(), length, buff, length);
             message->SetBinary(arr);
             break;
         }
