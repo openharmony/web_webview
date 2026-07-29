@@ -786,7 +786,7 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("innerSetFavicon", NapiWebviewController::InnerSetFavicon),
         DECLARE_NAPI_FUNCTION("innerGetCertificate", NapiWebviewController::InnerGetCertificate),
         DECLARE_NAPI_FUNCTION("setAudioMuted", NapiWebviewController::SetAudioMuted),
-        DECLARE_NAPI_FUNCTION("innerGetThisVar", NapiWebviewController::InnerGetThisVar),
+        DECLARE_NAPI_FUNCTION("innerGetControllerId", NapiWebviewController::InnerGetControllerId),
         DECLARE_NAPI_FUNCTION("prefetchPage", NapiWebviewController::PrefetchPage),
         DECLARE_NAPI_FUNCTION("setDownloadDelegate", NapiWebviewController::SetDownloadDelegate),
         DECLARE_NAPI_FUNCTION("startDownload", NapiWebviewController::StartDownload),
@@ -1529,21 +1529,20 @@ napi_value NapiWebviewController::InnerGetWebDebuggingPort(napi_env env, napi_ca
     return NapiParseUtils::ToInt32Value(env, webDebuggingPort);
 }
 
-napi_value NapiWebviewController::InnerGetThisVar(napi_env env, napi_callback_info info)
+napi_value NapiWebviewController::InnerGetControllerId(napi_env env, napi_callback_info info)
 {
-    WVLOG_D("InnerGetThisVar start");
+    WVLOG_D("InnerGetControllerId start");
     napi_value thisVar = nullptr;
+    napi_value result = nullptr;
     napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, nullptr);
     WebviewController *webviewController = nullptr;
     napi_status status = napi_unwrap(env, thisVar, (void **)&webviewController);
     if ((!webviewController) || (status != napi_ok)) {
         WVLOG_E("webviewController is nullptr.");
-        napi_value result = nullptr;
         napi_create_int64(env, 0, &result);
-        return result;
+    } else {
+        napi_create_int64(env, static_cast<int64_t>(webviewController->GetControllerId()), &result);
     }
-    napi_value result = nullptr;
-    napi_create_int64(env, reinterpret_cast<int64_t>(webviewController), &result);
     return result;
 }
 

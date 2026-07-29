@@ -20,9 +20,13 @@ module_output_path = "webview/Web_Framework"
 ohos_unittest("napi_common_test") {
   module_out_path = module_output_path
 
-  sources = [ "napi_parse_utils_unittest.cpp" ]
+  sources = [
+    "napi_parse_utils_unittest.cpp",
+    "napi_webview_controller_test.cpp",
+  ]
 
   include_dirs = [
+    ".",
     "$webview_path/interfaces/kits/nativecommon",
     "$webview_path/interfaces/kits/napi/common",
     "$webview_path/interfaces/kits/napi/webadsblockmanager",

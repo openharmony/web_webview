@@ -181,7 +181,7 @@ public:
 class WebPrintDocument;
 class WebviewController {
 public:
-    explicit WebviewController() = default;
+    explicit WebviewController();
     explicit WebviewController(int32_t nwebId);
     explicit WebviewController(const std::string& webTag);
     ~WebviewController();
@@ -217,6 +217,8 @@ public:
     ErrCode ZoomOut();
 
     int32_t GetWebId() const;
+
+    uint64_t GetControllerId() const { return controllerId_; }
 
     std::string GetUserAgent();
 
@@ -557,6 +559,8 @@ public:
 
 private:
     std::mutex webMtx_;
+    static std::atomic<uint64_t> nextControllerId_;
+    uint64_t controllerId_ = 0;
     int32_t nwebId_ = -1;
     std::shared_ptr<WebviewJavaScriptResultCallBack> javaScriptResultCb_ = nullptr;
     std::string hapPath_ = "";
