@@ -39,7 +39,7 @@ ArkWebU16String ArkWebU16StringClassToStruct(const std::u16string& class_value)
 std::u16string ArkWebU16StringStructToClass(const ArkWebU16String& struct_value)
 {
     std::u16string class_value;
-    if (struct_value.size > 0) {
+    if (struct_value.size > 0 && struct_value.value != nullptr) {
         class_value = struct_value.value;
     }
 
@@ -70,7 +70,7 @@ ArkWebString ArkWebStringClassToStruct(const std::string& class_value)
 std::string ArkWebStringStructToClass(const ArkWebString& struct_value)
 {
     std::string class_value;
-    if (struct_value.size > 0) {
+    if (struct_value.size > 0 && struct_value.value != nullptr) {
         class_value.assign(struct_value.value, struct_value.size);
     }
 
