@@ -33,6 +33,22 @@ OpenHarmony 系统服务层
 | `sa/` | 系统服务：app_fwk_update、web_native_messaging | SA 生命周期管理 |
 | `test/` | 测试：unittest(gtest)、fuzztest(LLVM Fuzzer) | 新增测试用例 |
 
+### 任务入口速查
+
+改动前先按下表定位入口路径，再结合下文「知识路由」读对应文档。
+
+| 用户任务 | 入口路径 | 额外阅读 |
+|---|---|---|
+| 新增/修改 Public API（ArkTS/Native/CJ/ANI） | `interfaces/` | 兼容性评估（见「专家经验与约束」） |
+| 新增胶水层接口 / 理解桥接生成 | `ohos_interface/`、`ohos_glue/` | `docs/knowledge/HOW_TO_ADD_GLUE_LAYER_INTERFACE.md` |
+| 修改引擎行为 / WebView 生命周期 | `ohos_nweb/` | — |
+| 对接或修改系统服务适配 | `ohos_adapter/` | `docs/knowledge/HOW_TO_LOCATE_ADAPTER_IMPL.md` |
+| 运行时配置（PARAM） | `arkweb_utils/`、`param web.*` | `docs/knowledge/HOW_TO_ADD_PARAM_CONFIG.md` |
+| 编译时配置（XML/Feature） | `web_config.xml`、GN | `HOW_TO_ADD_XML_CONFIG.md` / `HOW_TO_ADD_BUILD_FEATURE.md` |
+| 新增/运行测试 | `test/` | — |
+
+> 嵌套指引：本仓库暂无子目录级 `AGENTS.md`；`CLAUDE.md` 通过 `@AGENTS.md` 引入本文件，二者保持同步，勿产生分歧。
+
 ## 知识路由
 
 遇到问题先定位场景，再读对应文档。文档包含完整的领域概念和操作指引。
@@ -46,6 +62,28 @@ OpenHarmony 系统服务层
 | 添加编译时配置项（需重编）、XML 配置 | `docs/knowledge/HOW_TO_ADD_XML_CONFIG.md` |
 | 编译特性开关、条件编译、可选功能的自动检测与 Mock | `docs/knowledge/HOW_TO_ADD_BUILD_FEATURE.md` |
 | 定位适配器的真实实现、判断实现在本仓库还是 chromium_arkweb 仓库 | `docs/knowledge/HOW_TO_LOCATE_ADAPTER_IMPL.md` |
+
+### 按路径路由
+
+改动落点决定该读什么（只列真实存在的文档，未单独成文的路由到「专家经验与约束」）：
+
+| 改动路径 | 必读 / 必做 |
+|---|---|
+| `ohos_interface/`（nweb 或 adapter 方向） | `HOW_TO_ADD_GLUE_LAYER_INTERFACE.md`；adapter 方向禁止新增文件 |
+| `ohos_glue/` | 不手改，改接口后重跑 `prepare.sh` |
+| `ohos_adapter/` | `HOW_TO_LOCATE_ADAPTER_IMPL.md` |
+| `interfaces/`（Public API） | 兼容性评估 + 各语言绑定编译（见「变更前确认」） |
+| 安全 / 权限 / 信任 / 调用方身份 | 见「变更前确认」，先 Ask |
+| 协议 / 持久化数据格式 | 见「变更前确认」，先 Ask |
+| DFX / 日志 / 崩溃（crashpad） | `hilog -T ArkWeb`、`/data/log/crash/`（见「调试命令」） |
+
+### 编辑前必做
+
+动手改之前，先在回复里简述三件事，再开始编辑：
+
+1. **任务类别**：命中上面哪张表的哪一行（场景 / 路径 / 术语）。
+2. **已读文档**：列出实际打开的 `docs/knowledge/*` 或约束章节。
+3. **发现的约束**：列出命中的硬约束、需要 Ask Before 的事项。
 
 ### 领域词汇速查
 
@@ -73,6 +111,8 @@ OpenHarmony 系统服务层
 - **ohos_glue/ 生成物禁止手改**：桥接代码由 `prepare.sh` 生成，修改接口后重跑生成
 - **Public API 兼容性**：修改 `interfaces/` 中的接口签名前必须评估向后兼容性，破坏性变更需升版并走正式废弃流程
 - **DCO 签名**：提交必须使用 `git commit -s`
+- **DFX/日志归因**：新增或修改故障路径须保留 `HiSysEvent`/`hilog` 归因与错误码，不得静默吞掉异常或删除既有日志点
+- **禁止绕过校验**：不得为了让测试通过而绕过权限检查、调用方身份校验或 IPC Parcel 校验
 
 ### 变更前确认（Ask Before）
 
@@ -90,6 +130,7 @@ OpenHarmony 系统服务层
 - ❌ 在 `ohos_interface/include/ohos_adapter/` 下新增接口文件（应扩展现有接口）
 - ❌ 不经兼容性评估修改 Public API 签名（应先评估影响范围）
 - ❌ 绕过 `ohos_adapter/` 在核心引擎中硬编码系统服务调用（应走适配层）
+- ❌ 为让测试通过而屏蔽/绕过权限、调用方身份或 IPC Parcel 校验（应修正测试或升级处理）
 
 ### 依赖关系边界
 
@@ -173,3 +214,16 @@ hidumper -s 8610 -a --memory # SA 内存分析
 5. ✅ 提交带 DCO 签名（`git commit -s`）
 
 如果无法在本地运行构建（如无 OH 源码环境），应在 PR 描述中明确标注验证范围和限制。
+
+### 静态检查与 API 兼容（当前状态）
+
+- **Lint/静态分析**：本仓库当前未接入统一 lint 目标（无 `tools/lint*`）。涉及 NAPI/接口签名变更时需人工核对 ABI 与 API 兼容；团队接入 lint 后请在此补具体命令。
+- **API 兼容自动检查**：当前无 `check_api_compatibility` 类工具。破坏性变更**必须**升版并走正式废弃流程（见「硬性约束」），不得仅凭人工记忆判断。
+
+### 最终回复要求
+
+完成后回复须列出：
+
+1. **改动的文件**（含生成物是否已由 `prepare.sh` 重新生成）。
+2. **已执行的检查**（编译 / 单测 / fuzz / prepare.sh / 兼容性评估）。
+3. **未验证项与残留风险**（如未能本地编译、未跑的语言绑定、待人工复核的兼容性）。
