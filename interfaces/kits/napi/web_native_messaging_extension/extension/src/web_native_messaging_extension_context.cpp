@@ -103,5 +103,5 @@ int WebNativeMessagingExtensionContext::GenerateCurRequestCode()
     return curRequestCode_;
 }
 
-} // namespace NWeb
+} // namespace NWeb test
 } // namespace OHOS

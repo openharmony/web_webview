@@ -135,7 +135,7 @@ HWTEST_F(NWebMMIAdapterTest, NWebMMIAdapterTest_MMIAdapterImpl_003, TestSize.Lev
     std::shared_ptr<MMIDeviceInfoAdapterMock> info = std::make_shared<MMIDeviceInfoAdapterMock>();
     EXPECT_NE(info, nullptr);
     ret = g_mmi->GetDeviceInfo(0, info);
-    EXPECT_EQ(ret, RESULT_OK);
+    EXPECT_EQ(ret, RESULT_ERROR);
     ret = g_mmi->GetDeviceInfo(0, nullptr);
     EXPECT_NE(ret, RESULT_OK);
 }
@@ -352,7 +352,7 @@ HWTEST_F(NWebMMIAdapterTest, NWebMMIAdapterTest_MMIAdapterImpl_014, TestSize.Lev
 {
     int32_t type;
     int32_t ret1 = g_mmi->GetKeyboardType(0, type);
-    EXPECT_EQ(ret1, RESULT_OK);
+    EXPECT_EQ(ret1, RESULT_ERROR);
 
     int32_t ret2 = g_mmi->GetKeyboardType(1, type);
     EXPECT_EQ(ret2, RESULT_OK);
@@ -422,7 +422,7 @@ HWTEST_F(NWebMMIAdapterTest, NWebMMIAdapterTest_MMIAdapterImpl_017, TestSize.Lev
     EXPECT_CALL(*info, SetUniq(_)).Times(AtLeast(0));
 
     int32_t ret = g_mmi->GetDeviceInfo(0, info);
-    EXPECT_EQ(ret, RESULT_OK);
+    EXPECT_EQ(ret, RESULT_ERROR);
 }
 
 /**

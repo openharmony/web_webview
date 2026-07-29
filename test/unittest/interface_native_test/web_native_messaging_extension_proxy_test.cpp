@@ -143,7 +143,7 @@ HWTEST_F(WebNativeMessagingExtensionProxyTest,
     connectionInfo.fdRead = validFd_;
     connectionInfo.fdWrite = validFd_;
 
-    EXPECT_EQ(connectionInfo.connectionId, 1001);
+    EXPECT_EQ(connectionInfo.connectionId, 1001);//test
     EXPECT_EQ(connectionInfo.bundleName, "com.test.app");
     EXPECT_EQ(connectionInfo.extensionOrigin, "https://test.com");
 }
