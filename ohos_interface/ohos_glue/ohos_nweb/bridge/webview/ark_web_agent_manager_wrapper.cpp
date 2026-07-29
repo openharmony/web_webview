@@ -36,6 +36,13 @@ bool ArkWebAgentManagerWrapper::IsAgentEnabled()
     return ark_web_agent_manager_ ? ark_web_agent_manager_->IsAgentEnabled() : false;
 }
 
+void ArkWebAgentManagerWrapper::SetDomExtractionConfig(bool reportDomTree)
+{
+    if (ark_web_agent_manager_) {
+        ark_web_agent_manager_->SetDomExtractionConfig(reportDomTree);
+    }
+}
+
 void ArkWebAgentManagerWrapper::SetContentChangeDetectionConfig(int32_t min_report_time, float text_content_ratio)
 {
     if (ark_web_agent_manager_) {
