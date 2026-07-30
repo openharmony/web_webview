@@ -39,6 +39,18 @@ ohos_unittest("net_proxy_adapter_test") {
 
   deps = [ "../../../../ohos_adapter:nweb_ohos_adapter" ]
 
+
+
+  if (target_cpu == "arm64") {
+    branch_protector_ret = "pac_ret"
+  }
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   external_deps = [
     "ability_base:want",
     "access_token:libaccesstoken_sdk",
