@@ -216,7 +216,8 @@ HWTEST_F(WebNativeMessagingContextTest, StartAbilityForResult_WithCallback_Diffe
         };
 
         ErrCode result = context_->StartAbilityForResult(*want_, startOpts_, requestCode, std::move(task));
-        EXPECT_EQ(result, ConnectNativeRet::IPC_ERROR) << "RequestCode: " << requestCode << ", Actual result: " << result;
+        EXPECT_EQ(result, ConnectNativeRet::IPC_ERROR) << "RequestCode: " << requestCode <<
+        ", Actual result: " << result;
     }
 }
 

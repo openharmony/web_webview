@@ -365,7 +365,7 @@ HWTEST_F(EtsWebNativeMessagingExtensionContextTest, CreateContext_Success, TestS
     auto ctx = std::make_shared<WebNativeMessagingExtensionContext>();
     ani_ref result = CreateEtsWebNativeMessagingExtensionContext(&env, ctx);
     EXPECT_NE(result, nullptr);
-    EXPECT_EQ(env.findClassCount, 2);//test
+    EXPECT_EQ(env.findClassCount, 2);
     EXPECT_EQ(env.findMethodCount, 1);
     EXPECT_EQ(env.objectNewCount, 1);
 }
