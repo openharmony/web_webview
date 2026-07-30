@@ -52,13 +52,13 @@ NWebBatteryEventSubscriber::NWebBatteryEventSubscriber(
 
 void NWebBatteryEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &data)
 {
-    if (!eventCallback_) {
-        WVLOG_E("OnReceiveEvent: eventCallback is nullptr, ignore event");
-        return;
-    }
     const std::string action = data.GetWant().GetAction();
     WVLOG_I("receive battery action: %{public}s", action.c_str());
     if (action != EventFwk::CommonEventSupport::COMMON_EVENT_BATTERY_CHANGED) {
+        return;
+    }
+    if (!eventCallback_) {
+        WVLOG_E("OnReceiveEvent: eventCallback is nullptr, ignore event");
         return;
     }
     int32_t defaultInvalid = -1;
