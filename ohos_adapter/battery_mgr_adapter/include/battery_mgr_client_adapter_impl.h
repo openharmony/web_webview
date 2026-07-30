@@ -16,6 +16,8 @@
 #ifndef BATTERY_MGR_CLIENT_ADAPTER_IMPL_H
 #define BATTERY_MGR_CLIENT_ADAPTER_IMPL_H
 
+#include <mutex>
+
 #include "battery_mgr_client_adapter.h"
 #include "battery_info.h"
 #include "common_event_manager.h"
@@ -58,7 +60,10 @@ private:
 class BatteryMgrClientAdapterImpl : public BatteryMgrClientAdapter {
 public:
     BatteryMgrClientAdapterImpl() = default;
-    ~BatteryMgrClientAdapterImpl() override = default;
+    ~BatteryMgrClientAdapterImpl()
+    {
+        StopListen();
+    }
 
     void RegBatteryEvent(std::shared_ptr<WebBatteryEventCallback> eventCallback) override;
   
@@ -70,6 +75,7 @@ public:
 private:
     std::shared_ptr<WebBatteryEventCallback> cb_ = nullptr;
     std::shared_ptr<EventFwk::CommonEventSubscriber> commonEventSubscriber_ = nullptr;
+    std::mutex stop_mutex_;
 };
 }
 

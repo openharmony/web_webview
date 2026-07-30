@@ -92,6 +92,7 @@ int32_t PrintManagerAdapterImpl::Print(const std::string& printJobName,
     sptr<OHOS::Print::IPrintCallback> iCallback = new (std::nothrow) OHOS::Print::PrintCallback(adapter);
     if (!iCallback) {
         WVLOG_E("iCallback get failed");
+        delete adapter;
         return -1;
     }
     auto attributes = CreateAttrsWithCustomOption(printAttributes);
@@ -123,6 +124,7 @@ int32_t PrintManagerAdapterImpl::Print(const std::string& printJobName,
     sptr<OHOS::Print::IPrintCallback> iCallback = new (std::nothrow) OHOS::Print::PrintCallback(adapter);
     if (!iCallback) {
         WVLOG_E("iCallback get failed");
+        delete adapter;
         return -1;
     }
     auto attributes = CreateAttrsWithCustomOption(printAttributes);
@@ -252,6 +254,10 @@ PrintWriteResultCallbackAdapterImpl::PrintWriteResultCallbackAdapterImpl(
 
 void PrintWriteResultCallbackAdapterImpl::WriteResultCallback(std::string jobId, uint32_t code)
 {
+    if (!cb_) {
+        WVLOG_E("WriteResultCallback: cb is empty, skip callback");
+        return;
+    }
     cb_(jobId, code);
 }
 

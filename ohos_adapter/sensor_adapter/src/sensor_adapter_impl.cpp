@@ -96,9 +96,11 @@ int32_t SensorAdapterImpl::IsOhosSensorSupported(int32_t sensorTypeId)
         for (int i = 0; i < count; i++) {
             if (sensorInfo[i].sensorId == ohosSensorTypeId) {
                 WVLOG_I("IsOhosSensorSupported SUCCESS, sensorTypeId = %{public}d.", sensorTypeId);
+                delete[] sensorInfo;
                 return SENSOR_SUCCESS;
             }
         }
+        delete[] sensorInfo;
     }
     WVLOG_E("IsOhosSensorSupported Error, sensorTypeId = %{public}d is invalid.", sensorTypeId);
     return SENSOR_ERROR;
@@ -293,10 +295,13 @@ void SensorAdapterImpl::handleGameRotationVectorData(std::shared_ptr<OHOS::NWeb:
         WVLOG_E("handleGameRotationVectorData Error.");
         return;
     }
-    GameRotationVectorData* data = reinterpret_cast<GameRotationVectorData*>(event->data);
-    if (data != nullptr) {
-        callback->UpdateOhosSensorData(event->timestamp, data->x, data->y, data->z, data->w);
+    if (event->data == nullptr || event->dataLen < static_cast<uint32_t>(sizeof(GameRotationVectorData))) {
+        WVLOG_E("handleGameRotationVectorData: invalid data buffer, dataLen=%{public}u, expected=%{public}zu",
+            event->dataLen, sizeof(GameRotationVectorData));
+        return;
     }
+    GameRotationVectorData* data = reinterpret_cast<GameRotationVectorData*>(event->data);
+    callback->UpdateOhosSensorData(event->timestamp, data->x, data->y, data->z, data->w);
 }
 
 void SensorAdapterImpl::OhosSensorCallback(SensorEvent* event)

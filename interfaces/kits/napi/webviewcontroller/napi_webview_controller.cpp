@@ -5824,6 +5824,12 @@ napi_value NapiWebPrintDocument::JsConstructor(napi_env env, napi_callback_info 
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
         return nullptr;
     }
+    
+    if (addrWebPrintDoc == 0) {
+        WVLOG_E("JsConstructor addrWebPrintDoc is null");
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
+        return nullptr;
+    }
 
     WebPrintDocument *webPrintDoc = new (std::nothrow) WebPrintDocument(
         reinterpret_cast<NWebPrintDocumentAdapterAdapter *>(addrWebPrintDoc));
