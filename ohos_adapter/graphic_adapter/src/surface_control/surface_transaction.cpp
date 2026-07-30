@@ -14,6 +14,7 @@
  */
 
 #include "surface_transaction.h"
+#include <charconv>
 #include <optional>
 #include <unique_fd.h>
 #include "transaction/rs_transaction.h"
@@ -32,6 +33,8 @@ using OHOS::Rosen::RSUIContextManager;
 
 namespace OHOS {
 namespace NWeb {
+const std::string DELEGATE_CONNECT_TO_RENDER = "delegate_connect_to_render";
+
 void SurfaceTransaction::OnCompleteCallBack(uint64_t timestamp, uint64_t srcId, std::queue<uint64_t> seqNums)
 {
     RS_TRACE_NAME_FMT("SurfaceTransaction::OnCompleteCallBack, timestamp=%llu, srcId=%llu, seqNums size=%u",
@@ -67,22 +70,19 @@ SurfaceTransaction::SurfaceTransaction(OHNativeWindow* nativeWindow)
         return;
     }
 
-    std::string fetchedRSHandle = surface->GetUserData("delegate_connect_to_render");
-    sptr<IRemoteObject> rsHandle = nullptr;
-    if (!fetchedRSHandle.empty()) {
-        uint64_t handle = static_cast<uint64_t>(std::stoull(fetchedRSHandle));
-        if (handle != 0) {
-            IRemoteObject* rawPtr = reinterpret_cast<IRemoteObject*>(handle);
-            rsHandle = OHOS::sptr<IRemoteObject>(rawPtr);
-            rawPtr->DecStrongRef(nullptr);
-        } else {
-            WVLOG_E("DelegateModeDebugTag: handle is invalid");
-            return;
-        }
-    } else {
-        WVLOG_E("DelegateModeDebugTag: get fetchedRSHandle fail");
+    std::string fetchedRSHandle = surface->GetUserData(DELEGATE_CONNECT_TO_RENDER);
+    if (fetchedRSHandle.empty()) {
+        WVLOG_E("DelegateModeDebugTag: fetchedRSHandle is empty");
         return;
     }
+    uint64_t handle = 0;
+    auto [ptr, ec] = std::from_chars(fetchedRSHandle.data(), fetchedRSHandle.data() + fetchedRSHandle.size(), handle);
+    if (ec != std::errc{} || (ptr != fetchedRSHandle.data() + fetchedRSHandle.size()) || handle == 0) {
+        WVLOG_E("DelegateModeDebugTag Failed to parse RS handle from string: %s", fetchedRSHandle.c_str());
+        return;
+    }
+    IRemoteObject* rawPtr = reinterpret_cast<IRemoteObject*>(handle);
+    sptr<IRemoteObject> rsHandle(rawPtr);
     if (rsHandle == nullptr) {
         WVLOG_E("DelegateModeDebugTag: rsHandle is nullptr");
         return;
@@ -155,6 +155,7 @@ void SurfaceTransaction::SetOnComplete(const OnCompleteCallback& callback)
 void SurfaceTransaction::Reparent(SurfaceControl* surfaceControl, SurfaceControl* newParent)
 {
     if (!surfaceControl) {
+        WVLOG_E("surfaceControl is nullptr");
         return;
     }
 
@@ -226,19 +227,6 @@ void SurfaceTransaction::SetBounds(SurfaceControl* surfaceControl, float x, floa
     });
 }
 
-void SurfaceTransaction::SetFrameGravity(SurfaceControl* surfaceControl, int32_t gravity)
-{
-    if (!surfaceControl) {
-        WVLOG_E("surfaceControl is nullptr");
-        return;
-    }
-    transactionCommands_.push_back([surface = sptr<SurfaceControl>(surfaceControl), gravity] {
-        if (surface) {
-            surface->SetFrameGravity(gravity);
-        }
-    });
-}
-
 void SurfaceTransaction::SetPivot(SurfaceControl* surfaceControl, float x, float y)
 {
     if (!surfaceControl) {
@@ -267,40 +255,32 @@ void SurfaceTransaction::SetBufferTransform(SurfaceControl* surfaceControl, Grap
     surfaceControls_.insert(sptr<SurfaceControl>(surfaceControl));
 }
 
-void SurfaceTransaction::SetTranslate(
-    SurfaceControl* surfaceControl, float translateX, float translateY, float translateZ)
-{
-    if (!surfaceControl) {
-        WVLOG_E("surfaceControl is nullptr");
-        return;
-    }
-    transactionCommands_.push_back(
-        [surface = sptr<SurfaceControl>(surfaceControl), translateX, translateY, translateZ] {
-            if (surface) {
-                surface->SetTranslate(translateX, translateY, translateZ);
-            }
-        });
-}
-
 void SurfaceTransaction::SetDamageRegion(SurfaceControl* surfaceControl, const OH_Rect* rects, uint32_t count)
 {
+    static_assert(sizeof(Rect) == sizeof(OH_Rect), "Rect and OH_Rect sizes must be synchronized.");
     if (!surfaceControl) {
         WVLOG_E("surfaceControl is nullptr");
         return;
     }
-    std::shared_ptr<std::vector<Rect>> damageRects;
-    if (count != 0) {
-        damageRects = std::make_shared<std::vector<Rect>>(count);
-        static_assert(sizeof(Rect) == sizeof(OH_Rect));
-        // Make sure OH_Rect and OHOS::Rect are sychronized.
-        if (memcpy_s(damageRects->data(), sizeof(Rect) * count, rects, sizeof(Rect) * count) != EOK) {
+
+    if (!rects) {
+        WVLOG_E("rects is nullptr");
+        return;
+    }
+
+    std::vector<Rect> damageRects;
+    if (count > 0) {
+        damageRects.resize(count);
+        size_t totalSize = sizeof(Rect) * count;
+        if (memcpy_s(damageRects.data(), totalSize, rects, totalSize) != EOK) {
             WVLOG_E("memcpy_s fail");
             return;
         }
     }
-    transactionCommands_.push_back([surface = sptr<SurfaceControl>(surfaceControl), damageRects] {
+    transactionCommands_.push_back([surface = sptr<SurfaceControl>(surfaceControl),
+                                    damageRects = std::move(damageRects)]() mutable {
         if (surface) {
-            surface->SetDamageRegion(damageRects ? std::move(*damageRects) : std::vector<Rect>());
+            surface->SetDamageRegion(std::move(damageRects));
         }
     });
 }
@@ -318,20 +298,6 @@ void SurfaceTransaction::SetBufferAlpha(SurfaceControl* surfaceControl, float al
     });
 }
 
-void SurfaceTransaction::SetForegroundColor(
-    SurfaceControl* surfaceControl, float red, float green, float blue, float alpha)
-{
-    if (!surfaceControl) {
-        WVLOG_E("surfaceControl is nullptr");
-        return;
-    }
-    transactionCommands_.push_back([surface = sptr<SurfaceControl>(surfaceControl), red, green, blue, alpha] {
-        if (surface) {
-            surface->SetForegroundColor(red, green, blue, alpha);
-        }
-    });
-}
-
 void SurfaceTransaction::SetBackgroundColor(
     SurfaceControl* surfaceControl, float red, float green, float blue, float alpha)
 {
@@ -342,49 +308,6 @@ void SurfaceTransaction::SetBackgroundColor(
     transactionCommands_.push_back([surface = sptr<SurfaceControl>(surfaceControl), red, green, blue, alpha] {
         if (surface) {
             surface->SetBackgroundColor(red, green, blue, alpha);
-        }
-    });
-}
-
-void SurfaceTransaction::SetBorderWidth(
-    SurfaceControl* surfaceControl, float left, float top, float right, float bottom)
-{
-    if (!surfaceControl) {
-        WVLOG_E("surfaceControl is nullptr");
-        return;
-    }
-    transactionCommands_.push_back([surface = sptr<SurfaceControl>(surfaceControl), left, top, right, bottom] {
-        if (surface) {
-            surface->SetBorderWidth(left, top, right, bottom);
-        }
-    });
-}
-
-void SurfaceTransaction::SetBorderColor(
-    SurfaceControl* surfaceControl, float red, float green, float blue, float alpha)
-{
-    if (!surfaceControl) {
-        WVLOG_E("surfaceControl is nullptr");
-        return;
-    }
-    transactionCommands_.push_back([surface = sptr<SurfaceControl>(surfaceControl), red, green, blue, alpha] {
-        if (surface) {
-            surface->SetBorderColor(red, green, blue, alpha);
-        }
-    });
-}
-
-void SurfaceTransaction::SetBorderStyle(
-    SurfaceControl* surfaceControl, uint32_t left, uint32_t top, uint32_t right, uint32_t bottom)
-{
-    if (!surfaceControl) {
-        WVLOG_E("surfaceControl is nullptr");
-        return;
-    }
-
-    transactionCommands_.push_back([surface = sptr<SurfaceControl>(surfaceControl), left, top, right, bottom] {
-        if (surface) {
-            surface->SetBorderStyle(left, top, right, bottom);
         }
     });
 }
@@ -450,11 +373,7 @@ void SurfaceTransaction::ClearBufferQueueCache(SurfaceControl* surfaceControl, b
         return;
     }
     RS_TRACE_NAME_FMT("SurfaceTransaction::ClearBufferQueueCache");
-    transactionCommands_.push_back([surface = sptr<SurfaceControl>(surfaceControl), cleanAll] {
-        if (surface) {
-            surface->ClearBufferQueueCache(cleanAll);
-        }
-    });
+    surfaceControl->ClearBufferQueueCache(cleanAll);
 }
 } // namespace NWeb
 } // namespace OHOS

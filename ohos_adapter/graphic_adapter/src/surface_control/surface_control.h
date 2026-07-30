@@ -45,6 +45,13 @@ class RSUIContext;
 class RSC_EXPORT SurfaceControl : public RefBase {
 public:
     using BufferReleaseCallback = std::function<void(int releaseFenceFd)>;
+    explicit SurfaceControl(std::shared_ptr<OHOS::Rosen::RSSurfaceNode> surfaceNode,
+        std::shared_ptr<OHOS::Rosen::RSNode> parentNode, bool isRootSurface);
+    ~SurfaceControl() override;
+    SurfaceControl(const SurfaceControl&) = delete;
+    SurfaceControl& operator=(const SurfaceControl&) = delete;
+    SurfaceControl(SurfaceControl&&) = delete;
+    SurfaceControl& operator=(SurfaceControl&&) = delete;
 
     static sptr<SurfaceControl> CreateFromWindow(NativeWindow* window, const char* name);
     static sptr<SurfaceControl> Create(const char* name);
@@ -57,17 +64,11 @@ public:
     void SetZOrder(int32_t zOrder);
     void SetBuffer(sptr<SurfaceBuffer> buffer, UniqueFd fenceFd, const BufferReleaseCallback& callback);
     void SetBounds(float x, float y, float w, float h);
-    void SetFrameGravity(int32_t gravity);
     void SetPivot(float x, float y);
     void SetBufferTransform(GraphicTransformType transform);
-    void SetTranslate(float translateX, float translateY, float translateZ);
     void SetDamageRegion(std::vector<Rect> rects);
     void SetBufferAlpha(float alpha);
-    void SetForegroundColor(float red, float green, float blue, float alpha);
     void SetBackgroundColor(float red, float green, float blue, float alpha);
-    void SetBorderWidth(float left, float top, float right, float bottom);
-    void SetBorderColor(float red, float green, float blue, float alpha);
-    void SetBorderStyle(uint32_t left, uint32_t top, uint32_t right, uint32_t bottom);
     void SetName(std::string name);
     void SetHardwareEnableHint(bool enable);
     void SetSrcRect(float x, float y, float w, float h);
@@ -76,15 +77,6 @@ public:
     void ClearBufferQueueCache(bool cleanAll);
 
 private:
-    SurfaceControl(std::shared_ptr<OHOS::Rosen::RSSurfaceNode> surfaceNode,
-        std::shared_ptr<OHOS::Rosen::RSNode> parentNode, bool isRootSurface);
-    ~SurfaceControl() override;
-
-    SurfaceControl(const SurfaceControl&) = delete;
-    SurfaceControl& operator=(const SurfaceControl&) = delete;
-    SurfaceControl(SurfaceControl&&) = delete;
-    SurfaceControl& operator=(SurfaceControl&&) = delete;
-
     std::shared_ptr<OHOS::Rosen::RSSurfaceNode> surfaceNode_ = nullptr;
     std::shared_ptr<OHOS::Rosen::RSNode> parentNode_ = nullptr;
     bool isRootSurface_ = false;

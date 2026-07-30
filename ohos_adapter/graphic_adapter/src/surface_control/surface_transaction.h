@@ -21,10 +21,10 @@
 #include <set>
 #include <vector>
 
-#include "surface_control.h"
-#include "ipc_callbacks/rs_delegate_composite_callback.h"
-#include "feature/delegate_composite/rs_delegate_composite_listener.h"
 #include "common/rs_common_def.h"
+#include "feature/delegate_composite/rs_delegate_composite_listener.h"
+#include "ipc_callbacks/rs_delegate_composite_callback.h"
+#include "surface_control.h"
 #include "ui/rs_ui_context_manager.h"
 
 namespace OHOS {
@@ -54,7 +54,7 @@ public:
         if (transaction_) {
             transaction_->Begin();
         } else {
-            RS_TRACE_NAME("ScopedTransaction init fail, transaction is nullptr");
+            RS_TRACE_NAME("ScopedTransaction init fail, transaction_ is nullptr");
         }
     }
 
@@ -64,7 +64,7 @@ public:
             transaction_->Commit();
             RS_TRACE_NAME("~ScopedTransaction commit success");
         } else {
-            RS_TRACE_NAME("~ScopedTransaction commit fail, transaction is nullptr");
+            RS_TRACE_NAME("~ScopedTransaction, transaction_ is nullptr");
         }
     }
 
@@ -73,7 +73,7 @@ public:
         if (transaction_) {
             transaction_->AddCommand(cmd, true);
         } else {
-            RS_TRACE_NAME("ScopedTransaction AddCommand, transaction is nullptr");
+            RS_TRACE_NAME("ScopedTransaction AddCommand fail, transaction_ is nullptr");
         }
     }
 
@@ -99,17 +99,11 @@ public:
     void SetBuffer(SurfaceControl* surfaceControl, SurfaceBuffer* buffer, int acquireFenceFd,
         const BufferReleaseCallback& callback);
     void SetBounds(SurfaceControl* surfaceControl, float x, float y, float w, float h);
-    void SetFrameGravity(SurfaceControl* surfaceControl, int32_t gravity);
     void SetPivot(SurfaceControl* surfaceControl, float x, float y);
     void SetBufferTransform(SurfaceControl* surfaceControl, GraphicTransformType transform);
-    void SetTranslate(SurfaceControl* surfaceControl, float translateX, float translateY, float translateZ);
     void SetDamageRegion(SurfaceControl* surfaceControl, const OH_Rect* rects, uint32_t count);
     void SetBufferAlpha(SurfaceControl* surfaceControl, float alpha);
-    void SetForegroundColor(SurfaceControl* surfaceControl, float red, float green, float blue, float alpha);
     void SetBackgroundColor(SurfaceControl* surfaceControl, float red, float green, float blue, float alpha);
-    void SetBorderWidth(SurfaceControl* surfaceControl, float left, float top, float right, float bottom);
-    void SetBorderColor(SurfaceControl* surfaceControl, float red, float green, float blue, float alpha);
-    void SetBorderStyle(SurfaceControl* surfaceControl, uint32_t left, uint32_t top, uint32_t right, uint32_t bottom);
     void SetName(SurfaceControl* surfaceControl, const char* name);
     void SetHardwareEnableHint(SurfaceControl* surfaceControl, bool enable);
     void SetSrcRect(SurfaceControl* surfaceControl, float x, float y, float w, float h);

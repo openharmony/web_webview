@@ -36,7 +36,6 @@ struct OH_Rect {
     int32_t w;
     int32_t h;
 };
-typedef struct OH_Rect OH_Rect;
 class OH_SurfaceTransaction;
 class OH_SurfaceTransactionStats;
 struct OH_SurfaceControl;
@@ -115,36 +114,18 @@ public:
         static void SetBufferTransform(
             OH_SurfaceTransaction* transaction, OH_SurfaceControl* surfaceControl, int32_t transform);
 
-        static void SetTranslate(OH_SurfaceTransaction* transaction, OH_SurfaceControl* surfaceControl,
-            float translateX, float translateY, float translateZ);
-
         static void SetDamageRegion(OH_SurfaceTransaction* transaction, OH_SurfaceControl* surfaceControl,
             const OH_Rect* rects, uint32_t count);
 
         static void SetBufferAlpha(OH_SurfaceTransaction* transaction, OH_SurfaceControl* surfaceControl, float alpha);
 
-        static void SetForegroundColor(OH_SurfaceTransaction* transaction, OH_SurfaceControl* surfaceControl,
-            float red, float green, float blue, float alpha);
-
         static void SetBackgroundColor(OH_SurfaceTransaction* transaction, OH_SurfaceControl* surfaceControl,
             float red, float green, float blue, float alpha);
-
-        static void SetBorderColor(OH_SurfaceTransaction* transaction, OH_SurfaceControl* surfaceControl,
-            float red, float green, float blue, float alpha);
-
-        static void SetBorderWidth(OH_SurfaceTransaction* transaction, OH_SurfaceControl* surfaceControl,
-            float left, float top, float right, float bottom);
-
-        static void SetBorderStyle(OH_SurfaceTransaction* transaction, OH_SurfaceControl* surfaceControl,
-            uint32_t left, uint32_t top, uint32_t right, uint32_t bottom);
 
         static void SetHardwareEnableHint(OH_SurfaceTransaction* transaction, OH_SurfaceControl* surfaceControl,
             bool enable);
 
         static void SetName(OH_SurfaceTransaction* transaction, OH_SurfaceControl* surfaceControl, const char* name);
-
-        static void SetFrameGravity(
-            OH_SurfaceTransaction* transaction, OH_SurfaceControl* surfaceControl, int32_t gravity);
 
         static void SetSrcRect(
             OH_SurfaceTransaction* transaction, OH_SurfaceControl* surfaceControl, float x, float y, float w, float h);

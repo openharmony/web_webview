@@ -43,12 +43,7 @@ void SurfaceTransactionCallBackHelper::RegisterCallBack(
     const uint64_t& srcId, const uint64_t& seq, SurfaceTransaction::OnCompleteCallback cb)
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    auto iter = callbackMap_.find(srcId);
-    if (iter != callbackMap_.end()) {
-        iter->second[seq] = cb;
-    } else {
-        callbackMap_[srcId][seq] = cb;
-    }
+    callbackMap_[srcId][seq] = cb;
 
     RS_OPTIONAL_TRACE_NAME_FMT("RegisterCallBack: srcId=%llu, seq=%llu", srcId, seq);
 }
