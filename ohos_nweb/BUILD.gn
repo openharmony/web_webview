@@ -170,6 +170,7 @@ ohos_shared_library("libnweb") {
     "ipc:ipc_core",
     "libxml2:libxml2",
     "window_manager:libwm",
+    "faultloggerd::libasync_stack",
   ]
 
   innerapi_tags = [ "platformsdk" ]
