@@ -709,6 +709,8 @@ action("ohos_glue_adapter_prepare") {
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_hisysevent_adapter_impl.h",
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_hitrace_adapter_impl.cpp",
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_hitrace_adapter_impl.h",
+    "${glue_build_gen_dir}/ohos_adapter/bridge/ark_hiviewdfx_adapter_impl.cpp",
+    "${glue_build_gen_dir}/ohos_adapter/bridge/ark_hiviewdfx_adapter_impl.h",
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_ibuffer_consumer_listener_adapter_wrapper.cpp",
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_ibuffer_consumer_listener_adapter_wrapper.h",
     "${glue_build_gen_dir}/ohos_adapter/bridge/ark_iconsumer_surface_adapter_impl.cpp",
