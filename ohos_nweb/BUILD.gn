@@ -170,8 +170,11 @@ ohos_shared_library("libnweb") {
     "ipc:ipc_core",
     "libxml2:libxml2",
     "window_manager:libwm",
-    "faultloggerd:libasync_stack",
   ]
+  if (target_cpu == "arm64") {
+    external_deps += ["faultloggerd:libasync_stack",]
+    defines += [ "HIDEBUG_ASYNC_STACK" ]
+  }
 
   innerapi_tags = [ "platformsdk" ]
   part_name = "webview"
