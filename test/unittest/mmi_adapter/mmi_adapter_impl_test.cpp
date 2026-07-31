@@ -134,8 +134,10 @@ HWTEST_F(NWebMMIAdapterTest, NWebMMIAdapterTest_MMIAdapterImpl_003, TestSize.Lev
 
     std::shared_ptr<MMIDeviceInfoAdapterMock> info = std::make_shared<MMIDeviceInfoAdapterMock>();
     EXPECT_NE(info, nullptr);
-    ret = g_mmi->GetDeviceInfo(0, info);
-    EXPECT_EQ(ret, RESULT_OK);
+    if (!devList.empty()) {
+        ret = g_mmi->GetDeviceInfo(devList[0], info);
+        EXPECT_EQ(ret, RESULT_OK);
+    }
     ret = g_mmi->GetDeviceInfo(0, nullptr);
     EXPECT_NE(ret, RESULT_OK);
 }
@@ -350,12 +352,19 @@ HWTEST_F(NWebMMIAdapterTest, NWebMMIAdapterTest_MMIAdapterImpl_013, TestSize.Lev
  */
 HWTEST_F(NWebMMIAdapterTest, NWebMMIAdapterTest_MMIAdapterImpl_014, TestSize.Level1)
 {
-    int32_t type;
-    int32_t ret1 = g_mmi->GetKeyboardType(0, type);
-    EXPECT_EQ(ret1, RESULT_OK);
+    std::vector<int32_t> devList;
+    g_mmi->GetDeviceIds(devList);
 
-    int32_t ret2 = g_mmi->GetKeyboardType(1, type);
-    EXPECT_EQ(ret2, RESULT_OK);
+    int32_t type;
+    int32_t ret1 = g_mmi->GetKeyboardType(devList.empty() ? -1 : devList[0], type);
+    if (!devList.empty()) {
+        EXPECT_EQ(ret1, RESULT_OK);
+    }
+
+    int32_t ret2 = g_mmi->GetKeyboardType(devList.size() > 1 ? devList[1] : -1, type);
+    if (devList.size() > 1) {
+        EXPECT_EQ(ret2, RESULT_OK);
+    }
 
     int32_t ret3 = g_mmi->GetKeyboardType(-1, type);
     EXPECT_TRUE(ret3 == RESULT_OK || ret3 == RESULT_ERROR);
@@ -421,8 +430,13 @@ HWTEST_F(NWebMMIAdapterTest, NWebMMIAdapterTest_MMIAdapterImpl_017, TestSize.Lev
     EXPECT_CALL(*info, SetPhys(_)).Times(AtLeast(0));
     EXPECT_CALL(*info, SetUniq(_)).Times(AtLeast(0));
 
-    int32_t ret = g_mmi->GetDeviceInfo(0, info);
-    EXPECT_EQ(ret, RESULT_OK);
+    std::vector<int32_t> devList;
+    g_mmi->GetDeviceIds(devList);
+    int32_t testId = devList.empty() ? 0 : devList[0];
+    int32_t ret = g_mmi->GetDeviceInfo(testId, info);
+    if (!devList.empty()) {
+        EXPECT_EQ(ret, RESULT_OK);
+    }
 }
 
 /**

@@ -89,7 +89,7 @@ HWTEST_F(WebNativeMessagingContextTest, StartAbility_Success, TestSize.Level1)
 {
     EXPECT_NE(context_->token_, nullptr) << "Token should be set";
     ErrCode result = context_->StartAbility(*want_, startOpts_);
-    EXPECT_EQ(result, -1) << "Actual result: " << result;
+    EXPECT_EQ(result, ConnectNativeRet::IPC_ERROR) << "Actual result: " << result;
 }
 
 /**
@@ -101,7 +101,7 @@ HWTEST_F(WebNativeMessagingContextTest, StartAbility_Fail, TestSize.Level1)
 {
     EXPECT_NE(context_->token_, nullptr) << "Token should be set";
     ErrCode result = context_->StartAbility(*want_, startOpts_);
-    EXPECT_EQ(result, -1) << "Actual result: " << result;
+    EXPECT_EQ(result, ConnectNativeRet::IPC_ERROR) << "Actual result: " << result;
 }
 
 /**
@@ -112,7 +112,7 @@ HWTEST_F(WebNativeMessagingContextTest, StartAbility_Fail, TestSize.Level1)
 HWTEST_F(WebNativeMessagingContextTest, StopNativeConnection_Success, TestSize.Level1)
 {
     ErrCode result = context_->StopNativeConnection(100);
-    EXPECT_EQ(result, -4) << "Actual result: " << result;
+    EXPECT_EQ(result, ConnectNativeRet::IPC_ERROR) << "Actual result: " << result;
 }
 
 /**
@@ -123,7 +123,7 @@ HWTEST_F(WebNativeMessagingContextTest, StopNativeConnection_Success, TestSize.L
 HWTEST_F(WebNativeMessagingContextTest, StopNativeConnection_Fail, TestSize.Level1)
 {
     ErrCode result = context_->StopNativeConnection(-1);
-    EXPECT_EQ(result, -4) << "Actual result: " << result;
+    EXPECT_EQ(result, ConnectNativeRet::IPC_ERROR) << "Actual result: " << result;
 }
 
 /**
@@ -160,7 +160,7 @@ HWTEST_F(WebNativeMessagingContextTest, StartAbilityForResult_NoCallback_Success
     EXPECT_NE(context_->token_, nullptr) << "Token should be set";
     int requestCode = 1001;
     ErrCode result = context_->StartAbilityForResult(*want_, startOpts_, requestCode);
-    EXPECT_EQ(result, -1) << "Actual result: " << result;
+    EXPECT_EQ(result, ConnectNativeRet::IPC_ERROR) << "Actual result: " << result;
 }
 
 /**
@@ -173,7 +173,7 @@ HWTEST_F(WebNativeMessagingContextTest, StartAbilityForResult_NoCallback_Fail, T
     EXPECT_NE(context_->token_, nullptr) << "Token should be set";
     int requestCode = -1;
     ErrCode result = context_->StartAbilityForResult(*want_, startOpts_, requestCode);
-    EXPECT_EQ(result, -1) << "Actual result: " << result;
+    EXPECT_EQ(result, ConnectNativeRet::IPC_ERROR) << "Actual result: " << result;
 }
 
 /**
@@ -194,7 +194,7 @@ HWTEST_F(WebNativeMessagingContextTest, StartAbilityForResult_WithCallback_Succe
     };
 
     ErrCode result = context_->StartAbilityForResult(*want_, startOpts_, requestCode, std::move(task));
-    EXPECT_EQ(result, -1) << "Actual result: " << result;
+    EXPECT_EQ(result, ConnectNativeRet::IPC_ERROR) << "Actual result: " << result;
     // Callback should not be called on error
     EXPECT_FALSE(callbackCalled) << "Callback should not be called on error";
 }
@@ -216,7 +216,8 @@ HWTEST_F(WebNativeMessagingContextTest, StartAbilityForResult_WithCallback_Diffe
         };
 
         ErrCode result = context_->StartAbilityForResult(*want_, startOpts_, requestCode, std::move(task));
-        EXPECT_EQ(result, -1) << "RequestCode: " << requestCode << ", Actual result: " << result;
+        EXPECT_EQ(result, ConnectNativeRet::IPC_ERROR) << "RequestCode: " << requestCode <<
+        ", Actual result: " << result;
     }
 }
 
