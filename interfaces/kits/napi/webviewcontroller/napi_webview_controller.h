@@ -260,7 +260,7 @@ private:
 
     static napi_value SetAudioMuted(napi_env env, napi_callback_info info);
 
-    static napi_value InnerGetThisVar(napi_env env, napi_callback_info info);
+    static napi_value InnerGetControllerId(napi_env env, napi_callback_info info);
 
     static napi_value PrefetchPage(napi_env env, napi_callback_info info);
 

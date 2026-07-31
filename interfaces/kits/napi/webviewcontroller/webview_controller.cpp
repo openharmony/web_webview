@@ -121,6 +121,7 @@ bool GetAppBundleNameAndModuleName(std::string& bundleName, std::string& moduleN
 using namespace NWebError;
 std::mutex g_objectMtx;
 std::unordered_map<int32_t, WebviewController*> g_webview_controller_map;
+std::atomic<uint64_t> WebviewController::nextControllerId_{1};
 std::string WebviewController::customeSchemeCmdLine_ = "";
 bool WebviewController::existNweb_ = false;
 bool WebviewController::webDebuggingAccess_ = OHOS::system::GetBoolParameter("web.debug.devtools", false);
@@ -130,7 +131,11 @@ std::atomic<int32_t> WebviewController::webTagStrId_ = 0;
 std::mutex WebviewController::webTagMtx_;
 std::map<std::string, WebSchemeHandler*> WebviewController::webServiceWorkerSchemeHandlerMap_;
 
-WebviewController::WebviewController(int32_t nwebId) : nwebId_(nwebId)
+WebviewController::WebviewController() : controllerId_(nextControllerId_++)
+{
+}
+
+WebviewController::WebviewController(int32_t nwebId) : controllerId_(nextControllerId_++), nwebId_(nwebId)
 {
     if (IsInit()) {
         std::unique_lock<std::mutex> lk(g_objectMtx);
@@ -138,7 +143,7 @@ WebviewController::WebviewController(int32_t nwebId) : nwebId_(nwebId)
     }
 }
 
-WebviewController::WebviewController(const std::string& webTag) : webTag_(webTag)
+WebviewController::WebviewController(const std::string& webTag) : controllerId_(nextControllerId_++), webTag_(webTag)
 {
     NWebHelper::Instance().SetWebTag(-1, webTag_.c_str());
 }
