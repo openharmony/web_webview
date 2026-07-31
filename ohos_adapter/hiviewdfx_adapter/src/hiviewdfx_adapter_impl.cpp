@@ -15,7 +15,9 @@
 
 #include "hiviewdfx_adapter_impl.h"
 
+#if defined(hidebug_async_stack)
 #include "async_stack.h"
+#endif
 
 namespace OHOS::NWeb {
 HiViewDfxAdapterImpl& HiViewDfxAdapterImpl::GetInstance()
@@ -26,16 +28,28 @@ HiViewDfxAdapterImpl& HiViewDfxAdapterImpl::GetInstance()
 
 void HiViewDfxAdapterImpl::DfxSetSubmitterStackId(uint64_t ctx)
 {
+#if defined(hidebug_async_stack)
     ::DfxSetSubmitterStackId(ctx);
+#else
+    (void)ctx;
+#endif
 }
 
 void HiViewDfxAdapterImpl::DfxPopSubmitterStackId(uint64_t ctx)
 {
+#if defined(hidebug_async_stack)
     ::DfxPopSubmitterStackId(ctx);
+#else
+    (void)ctx;
+#endif
 }
 
 void HiViewDfxAdapterImpl::ReleaseAsyncContext(uint64_t ctx)
 {
+#if defined(hidebug_async_stack)
     ::ReleaseAsyncContext(ctx);
+#else
+    (void)ctx;
+#endif
 }
 } // namespace OHOS::NWeb

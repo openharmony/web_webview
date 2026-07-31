@@ -173,7 +173,7 @@ ohos_shared_library("libnweb") {
   ]
   if (target_cpu == "arm64") {
     external_deps += ["faultloggerd:libasync_stack",]
-    defines += [ "HIDEBUG_ASYNC_STACK" ]
+    defines += [ "hidebug_async_stack" ]
   }
 
   innerapi_tags = [ "platformsdk" ]

@@ -202,7 +202,6 @@ ohos_shared_library("nweb_ohos_adapter") {
     "drivers_interface_display:libdisplay_composer_proxy_1.0",
     "drivers_peripheral_display:hdi_gralloc_client",
     "eventhandler:libeventhandler",
-    "faultloggerd:libasync_stack",
     "file_api:remote_uri_native",
     "graphic_2d:libcomposer",
     "graphic_2d:libnative_image",
@@ -242,6 +241,11 @@ ohos_shared_library("nweb_ohos_adapter") {
     "jsoncpp:jsoncpp",
   ]
   external_deps += [ "ability_base:want" ]
+
+  if (target_cpu == "arm64") {
+    external_deps += [ "faultloggerd:libasync_stack" ]
+    defines += [ "hidebug_async_stack" ]
+  }
 
   if (webview_soc_perf_enable) {
     external_deps += [ "soc_perf:socperf_client" ]

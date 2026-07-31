@@ -16,8 +16,6 @@
 #ifndef HIVIEWDFX_ADAPTER_IMPL_H
 #define HIVIEWDFX_ADAPTER_IMPL_H
 
-#include "async_stack.h"
-
 #include "hiviewdfx_adapter.h"
 
 namespace OHOS::NWeb {
