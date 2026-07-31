@@ -36,7 +36,9 @@
 #include "parameter.h"
 #include "parameters.h"
 #include "arkweb_utils.h"
+#if defined(hidebug_async_stack)
 #include "async_stack.h"
+#endif
 
 namespace {
 
@@ -1380,9 +1382,11 @@ std::shared_ptr<NWeb> NWebAdapterHelper::CreateNWeb(sptr<Surface> surface,
     std::string socketIdleTimeout = std::to_string(NWebHelper::Instance().GetSocketIdleTimeout());
     initArgs->AddArg(std::string("--socket-idle-timeout=").append(socketIdleTimeout));
     auto createInfo = NWebSurfaceAdapter::Instance().GetCreateInfo(surface, initArgs, width, height, incognitoMode);
+#if defined(hidebug_async_stack)
     uint64_t asyncStackId = DfxCollectAsyncStack(ASYNC_TYPE_ARKWEB);
     WVLOG_D("NWebAdapterHelper::CreateNWeb::SetAsyncStackId %{public}lu.", asyncStackId);
     createInfo->SetAsyncStackId(asyncStackId);
+#endif
     NWebConfigHelper::Instance().ParseConfig(initArgs);
 
     // obtain bundle path
