@@ -505,13 +505,6 @@ void WebNativeMessagingManager::StartAbilityForResult(const sptr<IRemoteObject>&
 }
 void WebNativeMessagingManager::StopNativeConnectionFromExtension(int32_t innerConnectId, int32_t& errorNum)
 {
-    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
-    if (Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenId, PERMISSION_WEB_NATIVE_MESSAGING) !=
-        Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
-        WNMLOG_E("Check permission %{public}s failed.", PERMISSION_WEB_NATIVE_MESSAGING.c_str());
-        errorNum = ConnectNativeRet::PERMISSION_CHECK_ERROR;
-        return;
-    }
     int32_t pid = IPCSkeleton::GetCallingPid();
     std::lock_guard<std::mutex> lock(AbilityConnectMutex_);
     auto request = ConnectionNativeRequest::GetExistConnectId(innerConnectId);
