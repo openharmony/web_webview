@@ -1083,6 +1083,8 @@ component("ohos_adapter_glue_source") {
     "ohos_adapter/ctocpp/ark_hi_sys_event_adapter_ctocpp.h",
     "ohos_adapter/ctocpp/ark_hi_trace_adapter_ctocpp.cpp",
     "ohos_adapter/ctocpp/ark_hi_trace_adapter_ctocpp.h",
+    "ohos_adapter/ctocpp/ark_hi_view_dfx_adapter_ctocpp.cpp",
+    "ohos_adapter/ctocpp/ark_hi_view_dfx_adapter_ctocpp.h",
     "ohos_adapter/ctocpp/ark_iconsumer_surface_adapter_ctocpp.cpp",
     "ohos_adapter/ctocpp/ark_iconsumer_surface_adapter_ctocpp.h",
     "ohos_adapter/ctocpp/ark_imfadapter_ctocpp.cpp",
