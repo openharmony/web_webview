@@ -88,6 +88,8 @@ public:
 
     NWeb::HiTraceAdapter& GetHiTraceAdapterInstance() override;
 
+    NWeb::HiViewDfxAdapter& GetHiViewDfxAdapterInstance() override;
+
     NWeb::NetProxyAdapter& GetNetProxyInstance() override;
 
     NWeb::CameraManagerAdapter& GetCameraManagerAdapter() override;

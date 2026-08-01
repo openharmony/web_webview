@@ -36,6 +36,7 @@
 #include "graphic_adapter.h"
 #include "hisysevent_adapter.h"
 #include "hitrace_adapter.h"
+#include "hiviewdfx_adapter.h"
 #include "imf_adapter.h"
 #include "keystore_adapter.h"
 #include "media_adapter.h"
@@ -132,6 +133,8 @@ public:
     virtual HiSysEventAdapter& GetHiSysEventAdapterInstance() = 0;
 
     virtual HiTraceAdapter& GetHiTraceAdapterInstance() = 0;
+
+    virtual HiViewDfxAdapter& GetHiViewDfxAdapterInstance() = 0;
 
     virtual NetProxyAdapter& GetNetProxyInstance() = 0;
 

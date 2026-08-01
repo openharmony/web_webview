@@ -91,6 +91,8 @@ public:
 
     HiTraceAdapter& GetHiTraceAdapterInstance() override;
 
+    HiViewDfxAdapter& GetHiViewDfxAdapterInstance() override;
+
     NetProxyAdapter& GetNetProxyInstance() override;
 
     CameraManagerAdapter& GetCameraManagerAdapter() override;

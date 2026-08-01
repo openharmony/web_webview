@@ -33,6 +33,7 @@
 #include "flowbuffer_adapter_impl.h"
 #include "hisysevent_adapter_impl.h"
 #include "hitrace_adapter_impl.h"
+#include "hiviewdfx_adapter_impl.h"
 #include "imf_adapter_impl.h"
 #include "keystore_adapter_impl.h"
 #if defined(NWEB_MEDIA_AVSESSION_ENABLE)
@@ -270,6 +271,11 @@ HiSysEventAdapter& OhosAdapterHelperImpl::GetHiSysEventAdapterInstance()
 HiTraceAdapter& OhosAdapterHelperImpl::GetHiTraceAdapterInstance()
 {
     return HiTraceAdapterImpl::GetInstance();
+}
+
+HiViewDfxAdapter& OhosAdapterHelperImpl::GetHiViewDfxAdapterInstance()
+{
+    return HiViewDfxAdapterImpl::GetInstance();
 }
 
 NetProxyAdapter& OhosAdapterHelperImpl::GetNetProxyInstance()

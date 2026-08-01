@@ -88,6 +88,8 @@ public:
 
     ArkWebRefPtr<ArkHiTraceAdapter> GetHiTraceAdapterInstance() override;
 
+    ArkWebRefPtr<ArkHiViewDfxAdapter> GetHiViewDfxAdapterInstance() override;
+
     ArkWebRefPtr<ArkNetProxyAdapter> GetNetProxyInstance() override;
 
     ArkWebRefPtr<ArkCameraManagerAdapter> GetCameraManagerAdapter() override;
