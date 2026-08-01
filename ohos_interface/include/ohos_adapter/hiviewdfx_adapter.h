@@ -28,6 +28,8 @@ public:
 
     virtual void ReleaseAsyncContext(uint64_t ctx) = 0;
 
+    virtual uint64_t DfxCollectAsyncStack() = 0;
+
 protected:
     HiViewDfxAdapter() = default;
 

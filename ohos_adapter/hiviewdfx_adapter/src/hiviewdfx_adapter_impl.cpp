@@ -52,4 +52,13 @@ void HiViewDfxAdapterImpl::ReleaseAsyncContext(uint64_t ctx)
     (void)ctx;
 #endif
 }
+
+uint64_t HiViewDfxAdapterImpl::DfxCollectAsyncStack()
+{
+#if defined(hidebug_async_stack)
+    return ::DfxCollectAsyncStack(ASYNC_TYPE_ARKWEB);
+#else
+    return 0;
+#endif
+}
 } // namespace OHOS::NWeb

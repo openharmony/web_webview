@@ -32,6 +32,8 @@ public:
 
     void ReleaseAsyncContext(uint64_t ctx) override;
 
+    uint64_t DfxCollectAsyncStack() override;
+
 private:
     NWeb::HiViewDfxAdapter& real_;
 

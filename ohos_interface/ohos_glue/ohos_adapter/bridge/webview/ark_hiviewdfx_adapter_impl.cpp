@@ -35,4 +35,9 @@ void ArkHiViewDfxAdapterImpl::ReleaseAsyncContext(uint64_t ctx)
 {
     real_.ReleaseAsyncContext(ctx);
 }
+
+uint64_t ArkHiViewDfxAdapterImpl::DfxCollectAsyncStack()
+{
+    return real_.DfxCollectAsyncStack();
+}
 } // namespace OHOS::ArkWeb

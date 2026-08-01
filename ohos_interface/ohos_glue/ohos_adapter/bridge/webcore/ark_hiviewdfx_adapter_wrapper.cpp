@@ -42,4 +42,12 @@ void ArkHiViewDfxAdapterWrapper::ReleaseAsyncContext(uint64_t ctx)
     }
     ctocpp_->ReleaseAsyncContext(ctx);
 }
+
+uint64_t ArkHiViewDfxAdapterWrapper::DfxCollectAsyncStack()
+{
+    if (!ctocpp_) {
+        return 0;
+    }
+    return ctocpp_->DfxCollectAsyncStack();
+}
 } // namespace OHOS::ArkWeb

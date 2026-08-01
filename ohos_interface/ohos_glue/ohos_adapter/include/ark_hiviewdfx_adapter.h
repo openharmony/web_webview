@@ -33,6 +33,9 @@ public:
 
     /*--ark web()--*/
     virtual void ReleaseAsyncContext(uint64_t ctx) = 0;
+
+    /*--ark web()--*/
+    virtual uint64_t DfxCollectAsyncStack() = 0;
 };
 
 } // namespace OHOS::ArkWeb

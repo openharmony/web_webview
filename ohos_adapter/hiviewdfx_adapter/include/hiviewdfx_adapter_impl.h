@@ -30,6 +30,8 @@ public:
     void DfxPopSubmitterStackId(uint64_t ctx) override;
 
     void ReleaseAsyncContext(uint64_t ctx) override;
+
+    uint64_t DfxCollectAsyncStack() override;
 };
 } // namespace OHOS::NWeb
 
