@@ -63,12 +63,6 @@ private:
 };
 #endif
 
-VpeVideoAdapter& VpeVideoAdapterImpl::GetInstance()
-{
-    static VpeVideoAdapterImpl instance;
-    return instance;
-}
-
 VpeVideoAdapterImpl::~VpeVideoAdapterImpl()
 {
 #if defined(NWEB_VIDEO_PROCESSING_ENGINE_ENABLE)

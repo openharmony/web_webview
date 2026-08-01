@@ -24,13 +24,13 @@ namespace OHOS::ArkWeb {
 
 class ArkVpeVideoAdapterImpl : public ArkVpeVideoAdapter {
 public:
-    explicit ArkVpeVideoAdapterImpl(NWeb::VpeVideoAdapter&);
+    explicit ArkVpeVideoAdapterImpl(std::shared_ptr<NWeb::VpeVideoAdapter>);
 
     void* CreateVpeSurface(uint64_t surfaceId, void* window) override;
 
     void ReleaseVpeSurface(uint64_t surfaceId) override;
 
-    OHOS::NWeb::VpeVideoAdapter& real_;
+    std::shared_ptr<OHOS::NWeb::VpeVideoAdapter> real_;
 
     IMPLEMENT_REFCOUNTING(ArkVpeVideoAdapterImpl);
 };

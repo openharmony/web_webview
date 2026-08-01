@@ -17,16 +17,17 @@
 
 namespace OHOS::ArkWeb {
 
-ArkVpeVideoAdapterImpl::ArkVpeVideoAdapterImpl(NWeb::VpeVideoAdapter& real) : real_(real) {}
+ArkVpeVideoAdapterImpl::ArkVpeVideoAdapterImpl(std::shared_ptr<NWeb::VpeVideoAdapter> real)
+    : real_(std::move(real)) {}
 
 void* ArkVpeVideoAdapterImpl::CreateVpeSurface(uint64_t surfaceId, void* window)
 {
-    return real_.CreateVpeSurface(surfaceId, window);
+    return real_->CreateVpeSurface(surfaceId, window);
 }
 
 void ArkVpeVideoAdapterImpl::ReleaseVpeSurface(uint64_t surfaceId)
 {
-    real_.ReleaseVpeSurface(surfaceId);
+    real_->ReleaseVpeSurface(surfaceId);
 }
 
 } // namespace OHOS::ArkWeb
