@@ -91,8 +91,6 @@ public:
 
     HiTraceAdapter& GetHiTraceAdapterInstance() override;
 
-    HiViewDfxAdapter& GetHiViewDfxAdapterInstance() override;
-
     NetProxyAdapter& GetNetProxyInstance() override;
 
     CameraManagerAdapter& GetCameraManagerAdapter() override;
@@ -140,6 +138,8 @@ public:
     SurfaceTransactionAdapter& GetSurfaceTransactionAdapter() override;
 
     VpeVideoAdapter& GetVpeVideoAdapterInstance() override;
+
+    HiViewDfxAdapter& GetHiViewDfxAdapterInstance() override;
 };
 } // namespace OHOS::NWeb
 

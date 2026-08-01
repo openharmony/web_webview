@@ -134,8 +134,6 @@ public:
 
     virtual HiTraceAdapter& GetHiTraceAdapterInstance() = 0;
 
-    virtual HiViewDfxAdapter& GetHiViewDfxAdapterInstance() = 0;
-
     virtual NetProxyAdapter& GetNetProxyInstance() = 0;
 
     virtual CameraManagerAdapter& GetCameraManagerAdapter() = 0;
@@ -184,6 +182,8 @@ public:
     virtual SurfaceTransactionAdapter& GetSurfaceTransactionAdapter() = 0;
 
     virtual VpeVideoAdapter& GetVpeVideoAdapterInstance() = 0;
+
+    virtual HiViewDfxAdapter& GetHiViewDfxAdapterInstance() = 0;
 };
 
 } // namespace OHOS::NWeb

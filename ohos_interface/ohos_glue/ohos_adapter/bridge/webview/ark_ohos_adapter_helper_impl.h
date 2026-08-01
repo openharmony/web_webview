@@ -88,8 +88,6 @@ public:
 
     ArkWebRefPtr<ArkHiTraceAdapter> GetHiTraceAdapterInstance() override;
 
-    ArkWebRefPtr<ArkHiViewDfxAdapter> GetHiViewDfxAdapterInstance() override;
-
     ArkWebRefPtr<ArkNetProxyAdapter> GetNetProxyInstance() override;
 
     ArkWebRefPtr<ArkCameraManagerAdapter> GetCameraManagerAdapter() override;
@@ -137,6 +135,8 @@ public:
     ArkWebRefPtr<ArkSurfaceTransactionAdapter> GetSurfaceTransactionAdapter() override;
 
     ArkWebRefPtr<ArkVpeVideoAdapter> GetVpeVideoAdapterInstance() override;
+
+    ArkWebRefPtr<ArkHiViewDfxAdapter> GetHiViewDfxAdapterInstance() override;
 
 private:
     NWeb::OhosAdapterHelper& real_;

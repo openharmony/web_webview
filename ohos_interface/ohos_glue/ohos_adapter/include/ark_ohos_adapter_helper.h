@@ -162,9 +162,6 @@ public:
     virtual ArkWebRefPtr<ArkHiTraceAdapter> GetHiTraceAdapterInstance() = 0;
 
     /*--ark web()--*/
-    virtual ArkWebRefPtr<ArkHiViewDfxAdapter> GetHiViewDfxAdapterInstance() = 0;
-
-    /*--ark web()--*/
     virtual ArkWebRefPtr<ArkNetProxyAdapter> GetNetProxyInstance() = 0;
 
     /*--ark web()--*/
@@ -243,6 +240,9 @@ public:
 
     /*--ark web()--*/
     virtual ArkWebRefPtr<ArkVpeVideoAdapter> GetVpeVideoAdapterInstance() = 0;
+
+    /*--ark web()--*/
+    virtual ArkWebRefPtr<ArkHiViewDfxAdapter> GetHiViewDfxAdapterInstance() = 0;
 };
 
 } // namespace OHOS::ArkWeb

@@ -319,13 +319,6 @@ ArkWebRefPtr<ArkHiTraceAdapter> ArkOhosAdapterHelperImpl::GetHiTraceAdapterInsta
     return impl;
 }
 
-ArkWebRefPtr<ArkHiViewDfxAdapter> ArkOhosAdapterHelperImpl::GetHiViewDfxAdapterInstance()
-{
-    static NWeb::HiViewDfxAdapter& instance = real_.GetHiViewDfxAdapterInstance();
-    static ArkWebRefPtr<ArkHiViewDfxAdapter> impl = new ArkHiViewDfxAdapterImpl(instance);
-    return impl;
-}
-
 ArkWebRefPtr<ArkNetProxyAdapter> ArkOhosAdapterHelperImpl::GetNetProxyInstance()
 {
     static NWeb::NetProxyAdapter& instance = real_.GetNetProxyInstance();
@@ -490,6 +483,13 @@ ArkWebRefPtr<ArkVpeVideoAdapter> ArkOhosAdapterHelperImpl::GetVpeVideoAdapterIns
 {
     static NWeb::VpeVideoAdapter& instance = real_.GetVpeVideoAdapterInstance();
     static ArkWebRefPtr<ArkVpeVideoAdapter> impl = new ArkVpeVideoAdapterImpl(instance);
+    return impl;
+}
+
+ArkWebRefPtr<ArkHiViewDfxAdapter> ArkOhosAdapterHelperImpl::GetHiViewDfxAdapterInstance()
+{
+    static NWeb::HiViewDfxAdapter& instance = real_.GetHiViewDfxAdapterInstance();
+    static ArkWebRefPtr<ArkHiViewDfxAdapter> impl = new ArkHiViewDfxAdapterImpl(instance);
     return impl;
 }
 

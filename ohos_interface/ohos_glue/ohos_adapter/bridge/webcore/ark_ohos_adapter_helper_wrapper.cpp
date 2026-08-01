@@ -364,12 +364,6 @@ NWeb::HiTraceAdapter& ArkOhosAdapterHelperWrapper::GetHiTraceAdapterInstance()
     return instance;
 }
 
-NWeb::HiViewDfxAdapter& ArkOhosAdapterHelperWrapper::GetHiViewDfxAdapterInstance()
-{
-    static ArkHiViewDfxAdapterWrapper instance(ctocpp_->GetHiViewDfxAdapterInstance());
-    return instance;
-}
-
 NWeb::NetProxyAdapter& ArkOhosAdapterHelperWrapper::GetNetProxyInstance()
 {
     static ArkNetProxyAdapterWrapper instance(ctocpp_->GetNetProxyInstance());
@@ -582,6 +576,12 @@ NWeb::SurfaceTransactionAdapter& ArkOhosAdapterHelperWrapper::GetSurfaceTransact
 NWeb::VpeVideoAdapter& ArkOhosAdapterHelperWrapper::GetVpeVideoAdapterInstance()
 {
     static ArkVpeVideoAdapterWrapper instance(ctocpp_->GetVpeVideoAdapterInstance());
+    return instance;
+}
+
+NWeb::HiViewDfxAdapter& ArkOhosAdapterHelperWrapper::GetHiViewDfxAdapterInstance()
+{
+    static ArkHiViewDfxAdapterWrapper instance(ctocpp_->GetHiViewDfxAdapterInstance());
     return instance;
 }
 

@@ -273,11 +273,6 @@ HiTraceAdapter& OhosAdapterHelperImpl::GetHiTraceAdapterInstance()
     return HiTraceAdapterImpl::GetInstance();
 }
 
-HiViewDfxAdapter& OhosAdapterHelperImpl::GetHiViewDfxAdapterInstance()
-{
-    return HiViewDfxAdapterImpl::GetInstance();
-}
-
 NetProxyAdapter& OhosAdapterHelperImpl::GetNetProxyInstance()
 {
     return NetProxyAdapterImpl::GetInstance();
@@ -424,5 +419,10 @@ SurfaceTransactionAdapter& OhosAdapterHelperImpl::GetSurfaceTransactionAdapter()
 VpeVideoAdapter& OhosAdapterHelperImpl::GetVpeVideoAdapterInstance()
 {
     return VpeVideoAdapterImpl::GetInstance();
+}
+
+HiViewDfxAdapter& OhosAdapterHelperImpl::GetHiViewDfxAdapterInstance()
+{
+    return HiViewDfxAdapterImpl::GetInstance();
 }
 } // namespace OHOS::NWeb

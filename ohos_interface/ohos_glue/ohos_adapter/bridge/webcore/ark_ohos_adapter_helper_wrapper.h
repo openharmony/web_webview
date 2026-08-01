@@ -88,8 +88,6 @@ public:
 
     NWeb::HiTraceAdapter& GetHiTraceAdapterInstance() override;
 
-    NWeb::HiViewDfxAdapter& GetHiViewDfxAdapterInstance() override;
-
     NWeb::NetProxyAdapter& GetNetProxyInstance() override;
 
     NWeb::CameraManagerAdapter& GetCameraManagerAdapter() override;
@@ -137,6 +135,8 @@ public:
     NWeb::SurfaceTransactionAdapter& GetSurfaceTransactionAdapter() override;
 
     NWeb::VpeVideoAdapter& GetVpeVideoAdapterInstance() override;
+
+    NWeb::HiViewDfxAdapter& GetHiViewDfxAdapterInstance() override;
 
 private:
     ArkWebRefPtr<ArkOhosAdapterHelper> ctocpp_;
