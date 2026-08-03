@@ -133,7 +133,12 @@ bool NetConnectAdapterImpl::HasVpnTransport()
 void NetConnectAdapterImpl::UnRegisterVpnListener()
 {
     if (commonEventSubscriber_) {
-        commonEventSubscriber_ = nullptr;
+        bool result = EventFwk::CommonEventManager::UnSubscribeCommonEvent(commonEventSubscriber_);
+        if (result) {
+            commonEventSubscriber_ = nullptr;
+        } else {
+            WVLOG_E("stop vpn listener, unsubscribe common event failed");
+        }
     }
 }
 
@@ -229,7 +234,8 @@ int32_t NetConnectAdapterImpl::GetDefaultNetConnect(NetConnectType &type, NetCon
     return 0;
 }
 
-std::vector<std::string> NetConnectAdapterImpl::GetDnsServersInternal(const NetHandle &netHandle) {
+std::vector<std::string> NetConnectAdapterImpl::GetDnsServersInternal(const NetHandle &netHandle)
+{
     std::vector<std::string> servers;
     NetLinkInfo info;
     int32_t ret = NetConnClient::GetInstance().GetConnectionProperties(netHandle, info);
