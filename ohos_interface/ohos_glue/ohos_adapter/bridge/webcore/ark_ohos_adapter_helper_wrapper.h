@@ -134,7 +134,7 @@ public:
 
     NWeb::SurfaceTransactionAdapter& GetSurfaceTransactionAdapter() override;
 
-    NWeb::VpeVideoAdapter& GetVpeVideoAdapterInstance() override;
+    std::unique_ptr<NWeb::VpeVideoAdapter> GetVpeVideoAdapter() override;
 
 private:
     ArkWebRefPtr<ArkOhosAdapterHelper> ctocpp_;

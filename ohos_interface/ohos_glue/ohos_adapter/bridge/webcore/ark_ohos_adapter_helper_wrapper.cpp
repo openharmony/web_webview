@@ -572,10 +572,15 @@ NWeb::SurfaceTransactionAdapter& ArkOhosAdapterHelperWrapper::GetSurfaceTransact
     return instance;
 }
 
-NWeb::VpeVideoAdapter& ArkOhosAdapterHelperWrapper::GetVpeVideoAdapterInstance()
+std::unique_ptr<NWeb::VpeVideoAdapter> ArkOhosAdapterHelperWrapper::GetVpeVideoAdapter()
 {
-    static ArkVpeVideoAdapterWrapper instance(ctocpp_->GetVpeVideoAdapterInstance());
-    return instance;
+    ArkWebRefPtr<ArkVpeVideoAdapter> adapter = ctocpp_->GetVpeVideoAdapter();
+
+    if (CHECK_REF_PTR_IS_NULL(adapter)) {
+        return nullptr;
+    }
+
+    return std::make_unique<ArkVpeVideoAdapterWrapper>(adapter);
 }
 
 } // namespace OHOS::ArkWeb

@@ -135,19 +135,6 @@ void VpeVideoAdapterImplTest::SetUp(void)
 void VpeVideoAdapterImplTest::TearDown(void) {}
 
 /**
- * @tc.name: VpeVideoAdapterImplTest_GetInstance_001
- * @tc.desc: GetInstance returns the same singleton.
- * @tc.type: FUNC
- * @tc.require:
- */
-HWTEST_F(VpeVideoAdapterImplTest, GetInstance001, TestSize.Level1)
-{
-    VpeVideoAdapter& instance1 = VpeVideoAdapterImpl::GetInstance();
-    VpeVideoAdapter& instance2 = VpeVideoAdapterImpl::GetInstance();
-    EXPECT_EQ(&instance1, &instance2);
-}
-
-/**
  * @tc.name: VpeVideoAdapterImplTest_CreateVpeSurface_NullWindow_001
  * @tc.desc: Null window returns nullptr; destructor handles empty map and null entries.
  * @tc.type: FUNC

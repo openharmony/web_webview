@@ -415,8 +415,8 @@ SurfaceTransactionAdapter& OhosAdapterHelperImpl::GetSurfaceTransactionAdapter()
     return SurfaceTransactionAdapterImpl::GetInstance();
 }
 
-VpeVideoAdapter& OhosAdapterHelperImpl::GetVpeVideoAdapterInstance()
+std::unique_ptr<VpeVideoAdapter> OhosAdapterHelperImpl::GetVpeVideoAdapter()
 {
-    return VpeVideoAdapterImpl::GetInstance();
+    return std::make_unique<VpeVideoAdapterImpl>();
 }
 } // namespace OHOS::NWeb
