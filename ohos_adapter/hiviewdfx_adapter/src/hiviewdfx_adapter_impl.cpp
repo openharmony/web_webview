@@ -56,7 +56,7 @@ void HiViewDfxAdapterImpl::ReleaseAsyncContext(uint64_t ctx)
 uint64_t HiViewDfxAdapterImpl::DfxCollectAsyncStack()
 {
 #if defined(hidebug_async_stack)
-    return ::DfxCollectAsyncStack(ASYNC_TYPE_ARKWEB);
+    return ::DfxCollectAsyncStack(ASYNC_TYPE_CUSTOMIZE);
 #else
     return 0;
 #endif
