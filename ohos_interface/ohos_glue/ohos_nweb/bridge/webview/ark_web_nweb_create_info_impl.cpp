@@ -72,4 +72,9 @@ ArkWebRefPtr<ArkWebOutputFrameCallback> ArkWebNWebCreateInfoImpl::GetOutputFrame
     return new ArkWebOutputFrameCallbackImpl(nweb_output_frame_callback);
 }
 
+uint64_t ArkWebNWebCreateInfoImpl::GetAsyncStackId()
+{
+    return nweb_create_info_->GetAsyncStackId();
+}
+
 } // namespace OHOS::ArkWeb

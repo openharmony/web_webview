@@ -106,7 +106,8 @@
                 "zlib",
                 "ace_engine",
                 "egl",
-                "opengles"
+                "opengles",
+                "faultloggerd"
             ]
         },
         "build": {

@@ -100,6 +100,7 @@ ohos_shared_library("nweb_ohos_adapter") {
     "hiviewdfx_adapter/src/hilog_adapter.cpp",
     "hiviewdfx_adapter/src/hisysevent_adapter_impl.cpp",
     "hiviewdfx_adapter/src/hitrace_adapter_impl.cpp",
+    "hiviewdfx_adapter/src/hiviewdfx_adapter_impl.cpp",
     "inputmethodframework_adapter/src/imf_adapter_impl.cpp",
     "keystore_adapter/src/keystore_adapter_impl.cpp",
     "migration_manager_adapter/src/migration_manager_adapter_impl.cpp",
@@ -240,6 +241,11 @@ ohos_shared_library("nweb_ohos_adapter") {
     "jsoncpp:jsoncpp",
   ]
   external_deps += [ "ability_base:want" ]
+
+  if (target_cpu == "arm64") {
+    external_deps += [ "faultloggerd:libasync_stack" ]
+    defines += [ "hidebug_async_stack" ]
+  }
 
   if (webview_soc_perf_enable) {
     external_deps += [ "soc_perf:socperf_client" ]

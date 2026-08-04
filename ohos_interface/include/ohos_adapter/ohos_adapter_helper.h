@@ -36,6 +36,7 @@
 #include "graphic_adapter.h"
 #include "hisysevent_adapter.h"
 #include "hitrace_adapter.h"
+#include "hiviewdfx_adapter.h"
 #include "imf_adapter.h"
 #include "keystore_adapter.h"
 #include "media_adapter.h"
@@ -181,6 +182,8 @@ public:
     virtual SurfaceTransactionAdapter& GetSurfaceTransactionAdapter() = 0;
 
     virtual std::unique_ptr<VpeVideoAdapter> GetVpeVideoAdapter() { return nullptr; }
+
+    virtual HiViewDfxAdapter& GetHiViewDfxAdapterInstance() = 0;
 };
 
 } // namespace OHOS::NWeb

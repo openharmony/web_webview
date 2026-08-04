@@ -35,6 +35,7 @@
 #include "ohos_adapter/include/ark_graphic_adapter.h"
 #include "ohos_adapter/include/ark_hisysevent_adapter.h"
 #include "ohos_adapter/include/ark_hitrace_adapter.h"
+#include "ohos_adapter/include/ark_hiviewdfx_adapter.h"
 #include "ohos_adapter/include/ark_imf_adapter.h"
 #include "ohos_adapter/include/ark_keystore_adapter.h"
 #include "ohos_adapter/include/ark_media_adapter.h"
@@ -239,6 +240,9 @@ public:
 
     /*--ark web()--*/
     virtual ArkWebRefPtr<ArkVpeVideoAdapter> GetVpeVideoAdapter() = 0;
+
+    /*--ark web()--*/
+    virtual ArkWebRefPtr<ArkHiViewDfxAdapter> GetHiViewDfxAdapterInstance() = 0;
 };
 
 } // namespace OHOS::ArkWeb

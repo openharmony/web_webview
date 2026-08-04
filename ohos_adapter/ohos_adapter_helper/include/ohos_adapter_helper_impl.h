@@ -138,6 +138,8 @@ public:
     SurfaceTransactionAdapter& GetSurfaceTransactionAdapter() override;
 
     std::unique_ptr<VpeVideoAdapter> GetVpeVideoAdapter() override;
+
+    HiViewDfxAdapter& GetHiViewDfxAdapterInstance() override;
 };
 } // namespace OHOS::NWeb
 

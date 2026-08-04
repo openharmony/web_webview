@@ -136,6 +136,8 @@ public:
 
     std::unique_ptr<NWeb::VpeVideoAdapter> GetVpeVideoAdapter() override;
 
+    NWeb::HiViewDfxAdapter& GetHiViewDfxAdapterInstance() override;
+
 private:
     ArkWebRefPtr<ArkOhosAdapterHelper> ctocpp_;
 };

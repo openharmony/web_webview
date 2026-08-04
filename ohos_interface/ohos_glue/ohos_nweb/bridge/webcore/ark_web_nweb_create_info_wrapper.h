@@ -41,6 +41,8 @@ public:
 
     std::shared_ptr<OHOS::NWeb::NWebOutputFrameCallback> GetOutputFrameCallback() override;
 
+    uint64_t GetAsyncStackId() override;
+
 private:
     ArkWebRefPtr<ArkWebNWebCreateInfo> ark_web_nweb_create_info_;
 };
