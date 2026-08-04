@@ -863,7 +863,6 @@ bool CameraManagerAdapterImpl::IsExistCaptureTask()
 {
     std::lock_guard<std::mutex> lock(mutex_);
     if (cameraManager_ == nullptr) {
-        WVLOG_E("cameraManager_ is nullptr");
         return false;
     }
     return isCapturing_;
