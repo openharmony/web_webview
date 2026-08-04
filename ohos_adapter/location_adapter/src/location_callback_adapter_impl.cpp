@@ -44,20 +44,12 @@ int LocationCallbackImpl::OnRemoteRequest(uint32_t code,
             break;
         }
         case RECEIVE_ERROR_INFO_EVENT: {
-            int32_t errorCode = 0;
-            if (!data.ReadInt32(errorCode)) {
-                WVLOG_E("LocationCallbackImpl read errorCode failed");
-                return -1;
-            }
+            int32_t errorCode = data.ReadInt32();   
             OnErrorReport(errorCode);
             break;
         }
         case RECEIVE_LOCATION_STATUS_EVENT: {
-            int32_t status = 0;
-            if (!data.ReadInt32(status)) {
-                WVLOG_E("LocationCallbackImpl read status failed");
-                return -1;
-            }
+            int32_t status = data.ReadInt32();
             OnLocatingStatusChange(status);
             break;
         }

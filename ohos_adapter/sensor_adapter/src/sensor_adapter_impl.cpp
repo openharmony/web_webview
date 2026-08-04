@@ -96,11 +96,9 @@ int32_t SensorAdapterImpl::IsOhosSensorSupported(int32_t sensorTypeId)
         for (int i = 0; i < count; i++) {
             if (sensorInfo[i].sensorId == ohosSensorTypeId) {
                 WVLOG_I("IsOhosSensorSupported SUCCESS, sensorTypeId = %{public}d.", sensorTypeId);
-                delete[] sensorInfo;
                 return SENSOR_SUCCESS;
             }
         }
-        delete[] sensorInfo;
     }
     WVLOG_E("IsOhosSensorSupported Error, sensorTypeId = %{public}d is invalid.", sensorTypeId);
     return SENSOR_ERROR;
