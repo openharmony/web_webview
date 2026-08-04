@@ -82,7 +82,7 @@ ArkWebString ArkWebCookieManagerImpl::ReturnCookie(const ArkWebString& url, bool
         nweb_cookie_manager_->ReturnCookie(ArkWebStringStructToClass(url), is_valid, incognito_mode));
 }
 
-ArkWebString ArkWebCookieManagerImpl::ReturnCookie(const ArkWebString& url, bool& isValid, bool incognitoMode,
+ArkWebString ArkWebCookieManagerImpl::ReturnCookieV2(const ArkWebString& url, bool& isValid, bool incognitoMode,
     bool includePartitionedCookies)
 {
     return ArkWebStringClassToStruct(nweb_cookie_manager_->ReturnCookie(
@@ -175,7 +175,7 @@ void ArkWebCookieManagerImpl::GetCookieAsync(
         ArkWebStringStructToClass(url), incognitoMode, std::make_shared<ArkWebStringValueCallbackWrapper>(callback));
 }
 
-void ArkWebCookieManagerImpl::GetCookieAsync(const ArkWebString& url, bool incognitoMode,
+void ArkWebCookieManagerImpl::GetCookieAsyncV2(const ArkWebString& url, bool incognitoMode,
     bool includePartitionedCookies, ArkWebRefPtr<ArkWebStringValueCallback> callback)
 {
     if (CHECK_REF_PTR_IS_NULL(callback)) {

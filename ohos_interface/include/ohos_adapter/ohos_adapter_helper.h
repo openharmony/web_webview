@@ -181,7 +181,7 @@ public:
 
     virtual SurfaceTransactionAdapter& GetSurfaceTransactionAdapter() = 0;
 
-    virtual VpeVideoAdapter& GetVpeVideoAdapterInstance() = 0;
+    virtual std::unique_ptr<VpeVideoAdapter> GetVpeVideoAdapter() { return nullptr; }
 
     virtual HiViewDfxAdapter& GetHiViewDfxAdapterInstance() = 0;
 };

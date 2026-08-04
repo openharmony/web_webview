@@ -36,8 +36,6 @@ namespace OHOS::NWeb {
 // pipeline is built only when the feature is enabled.
 class VpeVideoAdapterImpl : public VpeVideoAdapter {
 public:
-    static VpeVideoAdapter& GetInstance();
-
     VpeVideoAdapterImpl() = default;
 
     ~VpeVideoAdapterImpl() override;

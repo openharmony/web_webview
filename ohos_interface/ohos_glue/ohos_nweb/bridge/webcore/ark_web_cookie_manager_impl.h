@@ -195,10 +195,10 @@ public:
 
     ArkWebCookieVector GetAllCookies(bool incognitoMode) override;
 
-    ArkWebString ReturnCookie(const ArkWebString& url, bool& isValid, bool incognitoMode,
+    ArkWebString ReturnCookieV2(const ArkWebString& url, bool& isValid, bool incognitoMode,
         bool includePartitionedCookies) override;
 
-    void GetCookieAsync(const ArkWebString& url, bool incognitoMode,
+    void GetCookieAsyncV2(const ArkWebString& url, bool incognitoMode,
         bool includePartitionedCookies, ArkWebRefPtr<ArkWebStringValueCallback> callback) override;
 
 private:

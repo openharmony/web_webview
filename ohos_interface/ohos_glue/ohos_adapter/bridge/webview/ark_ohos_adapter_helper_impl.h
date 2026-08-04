@@ -134,7 +134,7 @@ public:
 
     ArkWebRefPtr<ArkSurfaceTransactionAdapter> GetSurfaceTransactionAdapter() override;
 
-    ArkWebRefPtr<ArkVpeVideoAdapter> GetVpeVideoAdapterInstance() override;
+    ArkWebRefPtr<ArkVpeVideoAdapter> GetVpeVideoAdapter() override;
 
     ArkWebRefPtr<ArkHiViewDfxAdapter> GetHiViewDfxAdapterInstance() override;
 

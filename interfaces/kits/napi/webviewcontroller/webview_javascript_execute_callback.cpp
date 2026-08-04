@@ -150,6 +150,10 @@ void WebviewJavaScriptExecuteCallback::UvAfterWorkCbAsync(napi_env env, napi_ref
     std::shared_ptr<NWebMessage> result, bool extention)
 {
     WVLOG_D("WebviewJavaScriptExecuteCallback::UvAfterWorkCbAsync");
+    if (!result) {
+        napi_delete_reference(env, callbackRef);
+        return;
+    }
     napi_value setResult[INTEGER_TWO] = {0};
     if (result->GetType() == NWebValue::Type::STRING && result->GetString().empty()) {
         setResult[INTEGER_ZERO] = BusinessError::CreateError(env, NWebError::INVALID_RESOURCE,
@@ -198,6 +202,12 @@ void WebviewJavaScriptExecuteCallback::UvAfterWorkCbPromise(napi_env env, napi_d
     std::shared_ptr<NWebMessage> result, bool extention)
 {
     WVLOG_D("WebviewJavaScriptExecuteCallback::UvAfterWorkCbPromise");
+    if (!result) {
+        napi_value error = BusinessError::CreateError(env, ::OHOS::NWebError::INVALID_RESOURCE,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::JS_RETURN_EMPTY_ARRAYBUFFER));
+        napi_reject_deferred(env, deferred, error);
+        return;
+    }
     napi_value setResult[INTEGER_TWO] = {0};
     setResult[INTEGER_ZERO] = NWebError::BusinessError::CreateError(env, NWebError::INVALID_RESOURCE,
         NWebError::FormatString(ParamCheckErrorMsgTemplate::JS_RETURN_EMPTY_ARRAYBUFFER));
@@ -481,7 +491,11 @@ napi_value NapiJsMessageExt::GetErrorDescription(napi_env env, napi_callback_inf
         return result;
     }
 
-    std::string msgStr = webJsMessageExt->GetJsMsgResult()->GetErrorDescription();
+    std::string msgStr;
+    auto jsMsgResult = webJsMessageExt->GetJsMsgResult();
+    if (jsMsgResult) {
+        msgStr = jsMsgResult->GetErrorDescription();
+    }
     if (!msgStr.empty()) {
         napi_create_string_utf8(env, msgStr.c_str(), msgStr.length(), &result);
     } else {

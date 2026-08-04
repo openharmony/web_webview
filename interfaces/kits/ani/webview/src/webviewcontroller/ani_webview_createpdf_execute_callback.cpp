@@ -51,9 +51,9 @@ WebviewCreatePDFExecuteCallback::WebviewCreatePDFExecuteCallback(ani_env *env,
 
 WebviewCreatePDFExecuteCallback::~WebviewCreatePDFExecuteCallback()
 {
+    ReleaseBuffer();
     aniVm_ = nullptr;
     callback_ = nullptr;
-    ReleaseBuffer();
 }
 
 void WebviewCreatePDFExecuteCallback::ReleaseBuffer()

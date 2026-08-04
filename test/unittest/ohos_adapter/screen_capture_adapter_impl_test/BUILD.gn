@@ -30,6 +30,15 @@ ohos_unittest("screen_capture_adapter_impl_test") {
 
   configs = [ ":module_private_config" ]
 
+  if (target_cpu == "arm64") {
+    branch_protector_ret = "pac_ret"
+  }
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   deps = [ "$webview_path/ohos_adapter:nweb_ohos_adapter" ]
 
   deps += [

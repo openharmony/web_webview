@@ -31,6 +31,7 @@ ohos_source_set("connect_info") {
     }
     if (target_cpu == "arm64") {
         branch_protector_ret = "pac_ret"
+        branch_protector_frt = "bti"
     }
     include_dirs = [
         "include",
@@ -58,6 +59,7 @@ ohos_shared_library("web_extension") {
     }
     if (target_cpu == "arm64") {
         branch_protector_ret = "pac_ret"
+        branch_protector_frt = "bti"
     }
     include_dirs = [
         "include",
@@ -122,6 +124,7 @@ ohos_shared_library("web_native_messaging_extension_module") {
     }
     if (target_cpu == "arm64") {
         branch_protector_ret = "pac_ret"
+        branch_protector_frt = "bti"
     }
     include_dirs = [
         "include",
