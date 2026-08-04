@@ -1383,7 +1383,7 @@ std::shared_ptr<NWeb> NWebAdapterHelper::CreateNWeb(sptr<Surface> surface,
     initArgs->AddArg(std::string("--socket-idle-timeout=").append(socketIdleTimeout));
     auto createInfo = NWebSurfaceAdapter::Instance().GetCreateInfo(surface, initArgs, width, height, incognitoMode);
 #if defined(hidebug_async_stack)
-    uint64_t asyncStackId = DfxCollectAsyncStack(ASYNC_TYPE_ARKWEB);
+    uint64_t asyncStackId = DfxCollectAsyncStack(ASYNC_TYPE_CUSTOMIZE);
     WVLOG_D("NWebAdapterHelper::CreateNWeb::SetAsyncStackId %{public}lu.", asyncStackId);
     createInfo->SetAsyncStackId(asyncStackId);
 #endif
