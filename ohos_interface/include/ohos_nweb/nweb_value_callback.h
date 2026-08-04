@@ -62,7 +62,7 @@ public:
 
     virtual void OnReceiveValue(std::shared_ptr<NWebMessage> value) = 0;
 
-    virtual void OnReceiveValueV2(std::shared_ptr<NWebHapValue> value) {}
+    virtual void OnReceiveValueV2(std::shared_ptr<NWebHapValue> value) = 0;
 };
 
 class OHOS_NWEB_EXPORT NWebWebStorageOriginVectorValueCallback {
@@ -82,9 +82,10 @@ public:
 class OHOS_NWEB_EXPORT NWebImageInfoCallback {
 public:
     virtual ~NWebImageInfoCallback() = default;
- 
+
     virtual void OnReceivedValue(int32_t errorCode, const std::vector<std::shared_ptr<NWebImageInfo>>& imageInfos) = 0;
 };
+
 } // namespace OHOS::NWeb
 
 #endif // NWebValueCallback

@@ -1627,7 +1627,7 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptResultS
 
     std::vector<napi_value> argv = {};
     if (!ConstructArgv(ashmem, args, argv, jsObj, routingId)) {
-    	return ret;
+        return ret;
     }
 
     ret = GetJavaScriptResultSelfHelper(jsObj, method, routingId, argv);
@@ -2647,7 +2647,7 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultSelfFlowbufV2(
 
     std::vector<napi_value> argv = {};
     if (!ConstructArgvV2(ashmem, args, argv, jsObj, routingId)) {
-    	return;
+        return;
     }
 
     GetJavaScriptResultSelfHelperV2(jsObj, method, routingId, argv, result);

@@ -162,7 +162,7 @@ void WebviewJavaScriptExecuteCallback::UvAfterWorkCbAsync(napi_env env, napi_ref
     } else {
         napi_get_undefined(env, &setResult[INTEGER_ZERO]);
         if (!extention) {
-            OHOS::NWeb::NapiParseUtils::ConvertNWebToNapiValue(env, result, setResult[INTEGER_ONE]);
+            NapiParseUtils::ConvertNWebToNapiValue(env, result, setResult[INTEGER_ONE]);
         } else {
             napi_value jsMsgExt = nullptr;
             NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, g_jsMsgExtClassRef, &jsMsgExt));
@@ -203,7 +203,7 @@ void WebviewJavaScriptExecuteCallback::UvAfterWorkCbPromise(napi_env env, napi_d
 {
     WVLOG_D("WebviewJavaScriptExecuteCallback::UvAfterWorkCbPromise");
     if (!result) {
-        napi_value error = BusinessError::CreateError(env, ::OHOS::NWebError::INVALID_RESOURCE,
+        napi_value error = BusinessError::CreateError(env, NWebError::INVALID_RESOURCE,
             NWebError::FormatString(ParamCheckErrorMsgTemplate::JS_RETURN_EMPTY_ARRAYBUFFER));
         napi_reject_deferred(env, deferred, error);
         return;
@@ -212,7 +212,7 @@ void WebviewJavaScriptExecuteCallback::UvAfterWorkCbPromise(napi_env env, napi_d
     setResult[INTEGER_ZERO] = NWebError::BusinessError::CreateError(env, NWebError::INVALID_RESOURCE,
         NWebError::FormatString(ParamCheckErrorMsgTemplate::JS_RETURN_EMPTY_ARRAYBUFFER));
     if (!extention) {
-        OHOS::NWeb::NapiParseUtils::ConvertNWebToNapiValue(env, result, setResult[INTEGER_ONE]);
+        NapiParseUtils::ConvertNWebToNapiValue(env, result, setResult[INTEGER_ONE]);
     } else {
         napi_value jsMsgExt = nullptr;
         napi_status status = napi_get_reference_value(env, g_jsMsgExtClassRef, &jsMsgExt);
