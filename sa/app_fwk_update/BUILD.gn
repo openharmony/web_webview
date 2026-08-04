@@ -55,6 +55,7 @@ if (!webview_app_fwk_update_enable) {
   ohos_shared_library("app_fwk_update_service") {
     if (target_cpu == "arm64") {
       branch_protector_ret = "pac_ret"
+      branch_protector_frt = "bti"
     }
     sanitize = {
       cfi = true
@@ -68,6 +69,7 @@ if (!webview_app_fwk_update_enable) {
   ohos_shared_library("app_fwk_update_service") {
     if (target_cpu == "arm64") {
       branch_protector_ret = "pac_ret"
+      branch_protector_frt = "bti"
     }
     sanitize = {
       cfi = true

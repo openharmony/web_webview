@@ -21,6 +21,7 @@ ohos_shared_library("webview_common") {
   }
   if (target_cpu == "arm64") {
     branch_protector_ret = "pac_ret"
+    branch_protector_frt = "bti"
   }
 
   include_dirs = [
