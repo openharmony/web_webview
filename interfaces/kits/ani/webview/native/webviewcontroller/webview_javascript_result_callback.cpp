@@ -2924,7 +2924,7 @@ void WebviewJavaScriptResultCallBack::CreateUvQueueWork(ani_env* env,
     }
 }
 
-void WebviewJavaScriptResultCallBack::PostGetJavaScriptResultToJsThreadV2(
+void WebviewJavaScriptResultCallBack::ExecGetJavaScriptResult(
     const std::vector<std::shared_ptr<NWebHapValue>>& args, const std::string& method,
     int32_t routingId, int32_t objectId, std::shared_ptr<NWebHapValue> result)
 {
@@ -2937,7 +2937,7 @@ void WebviewJavaScriptResultCallBack::PostGetJavaScriptResultToJsThreadV2(
     WebviewJavaScriptResultCallBack::NapiJsCallBackOutParm* outParam = nullptr;
     WebviewJavaScriptResultCallBack::AniJsCallBackParm* param = nullptr;
     if (!CreateNapiJsCallBackParm(inParam, outParam, param)) {
-        WVLOG_E("WebviewJavaScriptResultCallBack::PostGetJavaScriptResultToJsThreadV2 malloc fail");
+        WVLOG_E("ExecGetJavaScriptResult malloc fail");
         return;
     }
 
@@ -2964,15 +2964,11 @@ void WebviewJavaScriptResultCallBack::PostGetJavaScriptResultToJsThreadV2(
     }
 
     if (mainHandler_ == nullptr) {
-        WVLOG_E("WebviewJavaScriptResultCallBack::PostGetJavaScriptResultToJsThreadV2 mainHandler is null.");
+        WVLOG_E("ExecGetJavaScriptResult mainHandler is null.");
         DeleteNapiJsCallBackParm(inParam, outParam, param);
         return;
     }
-    CreateUvQueueWork(param->env, param, ExecuteGetJavaScriptResultV2);
-    {
-        std::unique_lock<std::mutex> lock(param->mutex);
-        param->condition.wait(lock, [&param] { return param->ready; });
-    }
+    ExecuteGetJavaScriptResultV2(param->env, ANI_OK, param);
     DeleteNapiJsCallBackParm(inParam, outParam, param);
 }
 
@@ -2991,14 +2987,9 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultV2(
         return;
     }
 
-    auto engine = reinterpret_cast<NativeEngine*>(jsObj->GetEnv());
-    if (engine != nullptr && pthread_self() == engine->GetTid()) {
-        WVLOG_D("get javaScript result already in js thread");
-        GetJavaScriptResultSelfV2(args, method, routingId, objectId, result);
-    } else {
-        WVLOG_D("get javaScript result, not in js thread, post task to js thread");
-        PostGetJavaScriptResultToJsThreadV2(args, method, routingId, objectId, result);
-    }
+        // GetJavaScriptResultSelfV2(args, method, routingId, objectId, result);
+        // WVLOG_D("get javaScript result, not in js thread, post task to js thread");
+    ExecGetJavaScriptResult(args, method, routingId, objectId, result);
 }
 
 void WebviewJavaScriptResultCallBack::GetJavaScriptResultSelfV2(const std::vector<std::shared_ptr<NWebHapValue>>& args,
