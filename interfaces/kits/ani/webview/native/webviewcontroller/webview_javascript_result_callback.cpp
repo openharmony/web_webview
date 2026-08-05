@@ -741,8 +741,6 @@ void ExecuteGetJavaScriptResultV2(
             webviewObj, "jsProxyInvokeMethod", nullptr, &callResult, nameObj, methodName, argvRef);
         if (ANI_OK != s || !callResult) {
             WVLOG_E("ExecuteGetJavaScriptResultV2 call method return null");
-            env->DestroyLocalScope();
-            return;
         }
 
         bool isObject = false;
