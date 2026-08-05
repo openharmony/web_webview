@@ -2964,10 +2964,6 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultV2(
     }
 
     ani_env* env = jsObj->GetAniEnv();
-    if (env == nullptr) {
-        WVLOG_E("get javaScript result, env null");
-        return;
-    }
     auto nwebId = GetNWebId();
     std::vector<ani_object> argv = {};
     for (auto& input : args) {
@@ -2994,7 +2990,6 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultSelfV2(const std::vecto
     ani_object callback = jsObj->AniFindMethod(method);
     if (!callback) {
         WVLOG_E("GetJavaScriptResultSelfV2 callback null");
-        return;
     }
 
     ani_env* env = jsObj->GetAniEnv();
