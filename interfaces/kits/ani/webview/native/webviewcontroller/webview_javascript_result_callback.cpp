@@ -2961,11 +2961,11 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultV2(
         return;
     }
 
-    auto nwebId = GetNWebId(); 
-    ani_env* env = jsObj->GetAniEnv(); 
-    std::vector<ani_object> argv = {}; 
-    for (auto& input : args) { 
-        argv.push_back(ParseNwebValue2AniValueV2(env, input, GetObjectMap(), nwebId, routingId, objectId)); 
+    auto nwebId = GetNWebId();
+    ani_env* env = jsObj->GetAniEnv();
+    std::vector<ani_object> argv = {};
+    for (auto& input : args) {
+        argv.push_back(ParseNwebValue2AniValueV2(env, input, GetObjectMap(), nwebId, routingId, objectId));
     }
     ExecGetJavaScriptResult(args, method, routingId, objectId, result);
 }
