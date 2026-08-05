@@ -2923,9 +2923,8 @@ void WebviewJavaScriptResultCallBack::CreateUvQueueWork(ani_env* env,
     }
 }
 
-void WebviewJavaScriptResultCallBack::ExecGetJavaScriptResult(
-    const std::vector<std::shared_ptr<NWebHapValue>>& args, const std::string& method,
-    int32_t routingId, int32_t objectId, std::shared_ptr<NWebHapValue> result)
+void WebviewJavaScriptResultCallBack::ExecGetJavaScriptResult(std::vector<ani_object>& argv,
+    const std::string& method, int32_t routingId, int32_t objectId, std::shared_ptr<NWebHapValue> result)
 {
     std::shared_ptr<JavaScriptOb> jsObj = FindObject(objectId);
     if (!jsObj) {
@@ -2972,6 +2971,13 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultV2(
         return;
     }
 
+    WVLOG_D("get javaScript result, not in js thread, post task to js thread"); 
+    auto nwebId = GetNWebId(); 
+    ani_env* env = jsObj->GetAniEnv(); 
+    std::vector<ani_object> argv = {}; 
+    for (auto& input : args) { 
+        argv.push_back(ParseNwebValue2AniValueV2(env, input, GetObjectMap(), nwebId, routingId, objectId)); 
+    }
     ExecGetJavaScriptResult(args, method, routingId, objectId, result);
 }
 
