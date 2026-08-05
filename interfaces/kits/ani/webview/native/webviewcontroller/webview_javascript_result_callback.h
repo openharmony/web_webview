@@ -749,8 +749,8 @@ private:
 
     void PostRemoveJavaScriptObjectHolderToJsThread(int32_t holder, JavaScriptOb::ObjectID objectId);
 
-    void PostGetJavaScriptResultToJsThreadV2(std::vector<ani_object>& argv, const std::string& method,
-        int32_t routingId, int32_t objectId, std::shared_ptr<NWebHapValue> result);
+    void PostGetJavaScriptResultToJsThreadV2(const std::vector<std::shared_ptr<NWebHapValue>>& args,
+        const std::string& method, int32_t routingId, int32_t objectId, std::shared_ptr<NWebHapValue> result);
 
     void CreateUvQueueWork(ani_env* env, WebviewJavaScriptResultCallBack::AniJsCallBackParm* data,
         void (*handler)(ani_env* env, ani_status status, WebviewJavaScriptResultCallBack::AniJsCallBackParm* data));
