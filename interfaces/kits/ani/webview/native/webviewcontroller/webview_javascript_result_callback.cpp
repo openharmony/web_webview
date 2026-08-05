@@ -2914,7 +2914,7 @@ void WebviewJavaScriptResultCallBack::CreateUvQueueWork(ani_env* env,
     }
 }
 
-void WebviewJavaScriptResultCallBack::PostGetJavaScriptResultToJsThreadV2(std::vector<ani_object>& argv,
+void WebviewJavaScriptResultCallBack::ExecGetJavaScriptResult(std::vector<ani_object>& argv,
     const std::string& method, int32_t routingId, int32_t objectId, std::shared_ptr<NWebHapValue> result)
 {
     std::shared_ptr<JavaScriptOb> jsObj = FindObject(objectId);
@@ -2926,7 +2926,7 @@ void WebviewJavaScriptResultCallBack::PostGetJavaScriptResultToJsThreadV2(std::v
     WebviewJavaScriptResultCallBack::NapiJsCallBackOutParm* outParam = nullptr;
     WebviewJavaScriptResultCallBack::AniJsCallBackParm* param = nullptr;
     if (!CreateNapiJsCallBackParm(inParam, outParam, param)) {
-        WVLOG_E("WebviewJavaScriptResultCallBack::PostGetJavaScriptResultToJsThreadV2 malloc fail");
+        WVLOG_E("ExecGetJavaScriptResult malloc fail");
         return;
     }
 
@@ -2942,25 +2942,7 @@ void WebviewJavaScriptResultCallBack::PostGetJavaScriptResultToJsThreadV2(std::v
     param->out = reinterpret_cast<void*>(outParam);
     param->input = reinterpret_cast<void*>(inParam);
 
-    if (!mainHandler_) {
-        std::shared_ptr<OHOS::AppExecFwk::EventRunner> runner = OHOS::AppExecFwk::EventRunner::Create(TASK_ID);
-        if (!runner) {
-            DeleteNapiJsCallBackParm(inParam, outParam, param);
-            return;
-        }
-        mainHandler_ = std::make_shared<OHOS::AppExecFwk::EventHandler>(runner);
-    }
-
-    if (mainHandler_ == nullptr) {
-        WVLOG_E("WebviewJavaScriptResultCallBack::PostGetJavaScriptResultToJsThreadV2 mainHandler is null.");
-        DeleteNapiJsCallBackParm(inParam, outParam, param);
-        return;
-    }
-    CreateUvQueueWork(param->env, param, ExecuteGetJavaScriptResultV2);
-    {
-        std::unique_lock<std::mutex> lock(param->mutex);
-        param->condition.wait(lock, [&param] { return param->ready; });
-    }
+    ExecuteGetJavaScriptResultV2(param->env, ANI_OK, param);
     DeleteNapiJsCallBackParm(inParam, outParam, param);
 }
 
@@ -2978,7 +2960,14 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultV2(
         WVLOG_E("get javaScript result, jsobj null");
         return;
     }
-    GetJavaScriptResultSelfV2(args, method, routingId, objectId, result);
+
+    ani_env* env = jsObj->GetAniEnv();
+    auto nwebId = GetNWebId();
+    std::vector<ani_object> argv = {};
+    for (auto& input : args) {
+        argv.push_back(ParseNwebValue2AniValueV2(env, input, GetObjectMap(), nwebId, routingId, objectId));
+    }
+    ExecGetJavaScriptResult(argv, method, routingId, objectId, result);
 }
 
 void WebviewJavaScriptResultCallBack::GetJavaScriptResultSelfV2(const std::vector<std::shared_ptr<NWebHapValue>>& args,
