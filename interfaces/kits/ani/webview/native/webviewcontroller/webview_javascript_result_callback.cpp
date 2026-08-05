@@ -2961,7 +2961,6 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultV2(
         return;
     }
 
-    WVLOG_D("get javaScript result, not in js thread, post task to js thread"); 
     auto nwebId = GetNWebId(); 
     ani_env* env = jsObj->GetAniEnv(); 
     std::vector<ani_object> argv = {}; 
