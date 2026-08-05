@@ -35,7 +35,7 @@ const int MAX_ENTRIES = 10;
 const int HEADER_SIZE = (MAX_ENTRIES * 8);  /* 10 * (int position + int length) */
 const int INDEX_SIZE = 2;
 constexpr int32_t REFERENCES_MAX_NUMBER = 16;
-
+const std::string TASK_ID = "javascriptcallback";
 // For the sake of the storage API, make this quite large.
 const uint32_t MAX_RECURSION_DEPTH = 11;
 const uint32_t MAX_DATA_LENGTH = 10000;
@@ -2980,8 +2980,6 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultV2(
     }
     ExecGetJavaScriptResult(args, method, routingId, objectId, result);
 }
-
-
 
 void WebviewJavaScriptResultCallBack::GetJavaScriptResultSelfV2(const std::vector<std::shared_ptr<NWebHapValue>>& args,
     const std::string& method, int32_t routingId, int32_t objectId, std::shared_ptr<NWebHapValue> result)
