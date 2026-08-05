@@ -34,8 +34,8 @@ const int MAX_FLOWBUF_DATA_SIZE = 52428800; /* 50MB*/
 const int MAX_ENTRIES = 10;
 const int HEADER_SIZE = (MAX_ENTRIES * 8);  /* 10 * (int position + int length) */
 const int INDEX_SIZE = 2;
-constexpr int32_t REFERENCES_MAX_NUMBER = 16;
 const std::string TASK_ID = "javascriptcallback";
+constexpr int32_t REFERENCES_MAX_NUMBER = 16;
 // For the sake of the storage API, make this quite large.
 const uint32_t MAX_RECURSION_DEPTH = 11;
 const uint32_t MAX_DATA_LENGTH = 10000;
@@ -735,17 +735,11 @@ void ExecuteGetJavaScriptResultV2(
             return;
         }
         auto argv = *(static_cast<std::vector<ani_object>*>(inParam->data));
-        std::vector<ani_object> argv = {};
         ani_array argvRef = ConvertAniArrayFromVecterObject(env, argv);
         ani_status s = env->Object_CallMethodByName_Ref(
             webviewObj, "jsProxyInvokeMethod", nullptr, &callResult, nameObj, methodName, argvRef);
         if (ANI_OK != s || !callResult) {
             WVLOG_E("ExecuteGetJavaScriptResultV2 call method return null");
-            env->DestroyLocalScope();
-            std::unique_lock<std::mutex> lock(param->mutex);
-            param->ready = true;
-            param->condition.notify_all();
-            return;
         }
 
         bool isObject = false;
@@ -3018,7 +3012,6 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultSelfV2(const std::vecto
         ParseAniValue2NwebValueV2(jsObj->GetAniEnv(), &callResult, result, &isObject);
 
     bool isFunction = AniParseUtils::IsFunction(jsObj->GetAniEnv(), callResult);
-
 
     WVLOG_D("get javaScript result already in js thread end");
     if (isObject) {
