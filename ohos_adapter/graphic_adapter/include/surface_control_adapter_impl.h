@@ -66,32 +66,32 @@ public:
     void SetBufferTransform(void* transaction, void* surfaceControl, int32_t transform) override;
 
     void SetTranslate(
-        void* transaction, void* surfaceControl, float translateX, float translateY, float translateZ) override;
+        void* transaction, void* surfaceControl, float translateX, float translateY, float translateZ) override {}
 
     void SetDamageRegion(void* transaction, void* surfaceControl, const void* rects, uint32_t count) override;
 
     void SetBufferAlpha(void* transaction, void* surfaceControl, float alpha) override;
 
     void SetForegroundColor(
-        void* transaction, void* surfaceControl, float red, float green, float blue, float alpha) override;
+        void* transaction, void* surfaceControl, float red, float green, float blue, float alpha) override {}
 
     void SetBackgroundColor(
         void* transaction, void* surfaceControl, float red, float green, float blue, float alpha) override;
 
     void SetBorderColor(
-        void* transaction, void* surfaceControl, float red, float green, float blue, float alpha) override;
+        void* transaction, void* surfaceControl, float red, float green, float blue, float alpha) override {}
 
     void SetBorderWidth(
-        void* transaction, void* surfaceControl, float left, float top, float right, float bottom) override;
+        void* transaction, void* surfaceControl, float left, float top, float right, float bottom) override {}
 
-    void SetBorderStyle(
-        void* transaction, void* surfaceControl, uint32_t left, uint32_t top, uint32_t right, uint32_t bottom) override;
+    void SetBorderStyle(void* transaction, void* surfaceControl,
+        uint32_t left, uint32_t top, uint32_t right, uint32_t bottom) override {}
 
     void SetHardwareEnableHint(void* transaction, void* surfaceControl, bool enable) override;
 
     void SetName(void* transaction, void* surfaceControl, const char* name) override;
 
-    void SetFrameGravity(void* transaction, void* surfaceControl, int32_t gravity) override;
+    void SetFrameGravity(void* transaction, void* surfaceControl, int32_t gravity) override {}
 
     void SetSrcRect(void* transaction, void* surfaceControl, float x, float y, float w, float h) override;
 

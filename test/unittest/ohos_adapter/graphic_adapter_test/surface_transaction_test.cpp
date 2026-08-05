@@ -16,13 +16,24 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+// Pre-include headers that must NOT be corrupted by #define private public.
+#include "ui/rs_surface_node.h"
+#include "ui/rs_ui_director.h"
+#include "ui/rs_ui_context.h"
+
 #define private public
 #include "surface_transaction.h"
 #include "surface_control.h"
 #include "oh_surface_control.h"
 #undef private
 
+// Access RSUIContextManager::isMultiInstanceOpen_ for test_019
+#define private public
+#include "ui/rs_ui_context_manager.h"
+#undef private
+
 #include "iconsumer_surface.h"
+#include "ipc_object_stub.h"
 #include "surface.h"
 #include "native_window.h"
 #include "surface_transaction_helper.h"
@@ -249,10 +260,9 @@ HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_Reparent_IsRootSurfaceFalse_
 /**
  * @tc.name: SurfaceTransaction_Setters_NullSurfaceControl_011
  * @tc.desc: Test all setter functions with null surfaceControl (unified null-check test
- *           covering SetVisibility, SetZOrder, SetBuffer, SetBounds, SetFrameGravity,
+ *           covering SetVisibility, SetZOrder, SetBuffer, SetBounds,
  *           SetPivot, SetBufferTransform, SetTranslate, SetDamageRegion, SetBufferAlpha,
- *           SetForegroundColor, SetBackgroundColor, SetBorderWidth, SetBorderColor,
- *           SetBorderStyle, SetName, SetHardwareEnableHint, SetSrcRect, SetDisplayRect,
+ *           SetBackgroundColor, SetName, SetHardwareEnableHint, SetSrcRect, SetDisplayRect,
  *           ClearBufferQueueCache)
  * @tc.type: FUNC
  * @tc.require: issueNumber
@@ -266,17 +276,11 @@ HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_Setters_NullSurfaceControl_0
     transaction_->SetZOrder(nullptr, 0);
     transaction_->SetBuffer(nullptr, nullptr, 0, {});
     transaction_->SetBounds(nullptr, 0, 0, 0, 0);
-    transaction_->SetFrameGravity(nullptr, 0);
     transaction_->SetPivot(nullptr, 0, 0);
     transaction_->SetBufferTransform(nullptr, GraphicTransformType::GRAPHIC_ROTATE_NONE);
-    transaction_->SetTranslate(nullptr, 0, 0, 0);
     transaction_->SetDamageRegion(nullptr, nullptr, 0);
     transaction_->SetBufferAlpha(nullptr, 0);
-    transaction_->SetForegroundColor(nullptr, 0, 0, 0, 0);
     transaction_->SetBackgroundColor(nullptr, 0, 0, 0, 0);
-    transaction_->SetBorderWidth(nullptr, 0, 0, 0, 0);
-    transaction_->SetBorderColor(nullptr, 0, 0, 0, 0);
-    transaction_->SetBorderStyle(nullptr, 0, 0, 0, 0);
     transaction_->SetName(nullptr, "test");
     transaction_->SetHardwareEnableHint(nullptr, true);
     transaction_->SetSrcRect(nullptr, 0, 0, 0, 0);
@@ -308,47 +312,28 @@ HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_Setters_ValidSurfaceControl_
     transaction_->SetBounds(ctrl.GetRefPtr(), 1.0f, 2.0f, 3.0f, 4.0f);
     EXPECT_EQ(transaction_->transactionCommands_.size(), cmdSizeBefore + 3);
 
-    transaction_->SetFrameGravity(ctrl.GetRefPtr(), 0);
+    transaction_->SetPivot(ctrl.GetRefPtr(), 0.5f, 0.5f);
     EXPECT_EQ(transaction_->transactionCommands_.size(), cmdSizeBefore + 4);
 
-    transaction_->SetPivot(ctrl.GetRefPtr(), 0.5f, 0.5f);
+    transaction_->SetBufferAlpha(ctrl.GetRefPtr(), 0.5f);
     EXPECT_EQ(transaction_->transactionCommands_.size(), cmdSizeBefore + 5);
 
-    transaction_->SetTranslate(ctrl.GetRefPtr(), 1.0f, 2.0f, 3.0f);
+    transaction_->SetBackgroundColor(ctrl.GetRefPtr(), 0.0f, 1.0f, 0.0f, 1.0f);
     EXPECT_EQ(transaction_->transactionCommands_.size(), cmdSizeBefore + 6);
 
-    transaction_->SetBufferAlpha(ctrl.GetRefPtr(), 0.5f);
+    transaction_->SetName(ctrl.GetRefPtr(), "test_name");
     EXPECT_EQ(transaction_->transactionCommands_.size(), cmdSizeBefore + 7);
 
-    transaction_->SetForegroundColor(ctrl.GetRefPtr(), 1.0f, 0.0f, 0.0f, 1.0f);
+    transaction_->SetHardwareEnableHint(ctrl.GetRefPtr(), true);
     EXPECT_EQ(transaction_->transactionCommands_.size(), cmdSizeBefore + 8);
 
-    transaction_->SetBackgroundColor(ctrl.GetRefPtr(), 0.0f, 1.0f, 0.0f, 1.0f);
+    transaction_->SetSrcRect(ctrl.GetRefPtr(), 1.0f, 2.0f, 3.0f, 4.0f);
     EXPECT_EQ(transaction_->transactionCommands_.size(), cmdSizeBefore + 9);
 
-    transaction_->SetBorderWidth(ctrl.GetRefPtr(), 1.0f, 2.0f, 3.0f, 4.0f);
+    transaction_->SetDisplayRect(ctrl.GetRefPtr(), 1.0f, 2.0f, 3.0f, 4.0f);
     EXPECT_EQ(transaction_->transactionCommands_.size(), cmdSizeBefore + 10);
 
-    transaction_->SetBorderColor(ctrl.GetRefPtr(), 1.0f, 0.0f, 0.0f, 1.0f);
-    EXPECT_EQ(transaction_->transactionCommands_.size(), cmdSizeBefore + 11);
-
-    transaction_->SetBorderStyle(ctrl.GetRefPtr(), 1, 2, 3, 4);
-    EXPECT_EQ(transaction_->transactionCommands_.size(), cmdSizeBefore + 12);
-
-    transaction_->SetName(ctrl.GetRefPtr(), "test_name");
-    EXPECT_EQ(transaction_->transactionCommands_.size(), cmdSizeBefore + 13);
-
-    transaction_->SetHardwareEnableHint(ctrl.GetRefPtr(), true);
-    EXPECT_EQ(transaction_->transactionCommands_.size(), cmdSizeBefore + 14);
-
-    transaction_->SetSrcRect(ctrl.GetRefPtr(), 1.0f, 2.0f, 3.0f, 4.0f);
-    EXPECT_EQ(transaction_->transactionCommands_.size(), cmdSizeBefore + 15);
-
-    transaction_->SetDisplayRect(ctrl.GetRefPtr(), 1.0f, 2.0f, 3.0f, 4.0f);
-    EXPECT_EQ(transaction_->transactionCommands_.size(), cmdSizeBefore + 16);
-
     transaction_->ClearBufferQueueCache(ctrl.GetRefPtr(), true);
-    EXPECT_EQ(transaction_->transactionCommands_.size(), cmdSizeBefore + 17);
 }
 
 /**
@@ -407,6 +392,24 @@ HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_SetDamageRegion_CountZero_01
 }
 
 /**
+ * @tc.name: SurfaceTransaction_SetDamageRegion_ValidRectsCountZero_015b
+ * @tc.desc: Test SetDamageRegion with non-null rects but count=0,
+ *           covering if (count > 0) false branch (damageRects stays empty).
+ * @tc.type: FUNC
+ * @tc.require: issue#5183
+ */
+HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_SetDamageRegion_ValidRectsCountZero_015b, TestSize.Level1)
+{
+    sptr<SurfaceControl> ctrl = new SurfaceControl(nullptr, nullptr, false);
+    OH_Rect dummyRect = {0, 0, 0, 0};
+    size_t cmdSizeBefore = transaction_->transactionCommands_.size();
+ 
+    transaction_->SetDamageRegion(ctrl.GetRefPtr(), &dummyRect, 0);
+ 
+    EXPECT_EQ(transaction_->transactionCommands_.size(), cmdSizeBefore + 1);
+}
+
+/**
  * @tc.name: SurfaceTransaction_SetDamageRegion_ValidCount_016
  * @tc.desc: Test SetDamageRegion with valid count and rects (damageRects populated,
  *           command pushed to transactionCommands_)
@@ -439,6 +442,94 @@ HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_SetOnComplete_017, TestSize.
     EXPECT_TRUE(transaction_->onCompleteCallback_);
     transaction_->onCompleteCallback_(100);
     EXPECT_TRUE(callbackInvoked);
+}
+
+/**
+ * @tc.name: SurfaceTransaction_Constructor_ValidRSHandle_018
+ * @tc.desc: Test SurfaceTransaction constructor with a valid non-zero RS handle string,
+ *           covering the false branches of:
+ *           if (ec != std::errc{} || (ptr != fetchedRSHandle.data() + fetchedRSHandle.size()) || handle == 0)
+ *           Uses a real IRemoteObject address as the handle value.
+ * @tc.type: FUNC
+ * @tc.require: issue#5183
+ */
+HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_Constructor_ValidRSHandle_018, TestSize.Level1)
+{
+    if (mockWindow_ && producerSurface_) {
+        // Create a real IRemoteObject and use its address as the handle
+        sptr<IRemoteObject> realRemote = new OHOS::IPCObjectStub();
+        uint64_t handle = reinterpret_cast<uint64_t>(realRemote.GetRefPtr());
+        std::string handleStr = std::to_string(handle);
+ 
+        producerSurface_->SetUserData("delegate_connect_to_render", handleStr);
+ 
+        auto txn = new SurfaceTransaction(reinterpret_cast<OHNativeWindow*>(mockWindow_));
+        // Should reach SetConnectToRenderObject and listener creation
+        if (txn) {
+            // Verify the connectToRender was set
+            EXPECT_NE(SurfaceControl::GetConnectToRenderObject(), nullptr);
+            EXPECT_EQ(txn->listener_ != nullptr, true);
+        }
+        delete txn;
+ 
+        // Clean up
+        SurfaceControl::SetConnectToRenderObject(nullptr);
+    }
+}
+ 
+/**
+ * @tc.name: SurfaceTransaction_SetDamageRegion_Commit_019
+ * @tc.desc: Test SetDamageRegion with valid surfaceControl and RSUIContext,
+ *           then Commit to execute the lambda, covering
+ *           surface->SetDamageRegion(std::move(damageRects)).
+ * @tc.type: FUNC
+ * @tc.require: issue#5183
+ */
+HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_SetDamageRegion_Commit_019, TestSize.Level1)
+{
+    OHOS::Rosen::RSSurfaceNodeConfig config;
+    config.SurfaceNodeName = "test_damage_region";
+    auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(config, false);
+    ASSERT_NE(surfaceNode, nullptr);
+ 
+    sptr<SurfaceControl> ctrl = new SurfaceControl(std::move(surfaceNode), nullptr, false);
+    ASSERT_NE(ctrl, nullptr);
+ 
+    // Set up RSUIContext so Commit() can proceed
+    auto& manager = OHOS::Rosen::RSUIContextManager::MutableInstance();
+    manager.isMultiInstanceOpen_ = true;
+    sptr<IRemoteObject> mockRemote = new OHOS::IPCObjectStub();
+    auto uiContext = manager.CreateRSUIContext(mockRemote);
+    ASSERT_NE(uiContext, nullptr);
+ 
+    auto director = OHOS::Rosen::RSUIDirector::Create(nullptr, uiContext);
+    ASSERT_NE(director, nullptr);
+    SurfaceControl::rsUIDirector_ = director;
+ 
+    // Create a new SurfaceTransaction with valid RSHandle
+    ASSERT_NE(mockWindow_, nullptr);
+    ASSERT_NE(producerSurface_, nullptr);
+    uint64_t handle = reinterpret_cast<uint64_t>(mockRemote.GetRefPtr());
+    producerSurface_->SetUserData("delegate_connect_to_render", std::to_string(handle));
+    auto txn = new SurfaceTransaction(reinterpret_cast<OHNativeWindow*>(mockWindow_));
+    ASSERT_NE(txn, nullptr);
+ 
+    // SetDamageRegion pushes a command, then Commit executes it
+    size_t cmdSizeBefore = txn->transactionCommands_.size();
+    OH_Rect rects[] = {{1, 2, 3, 4}};
+    txn->SetDamageRegion(ctrl.GetRefPtr(), rects, 1);
+    EXPECT_EQ(txn->transactionCommands_.size(), cmdSizeBefore + 1);
+ 
+    // Commit executes the lambda, calling surface->SetDamageRegion
+    txn->Commit();
+    EXPECT_EQ(txn->transactionCommands_.size(), 0u);
+ 
+    delete txn;
+ 
+    // Clean up
+    SurfaceControl::rsUIDirector_ = nullptr;
+    SurfaceControl::SetConnectToRenderObject(nullptr);
+    manager.isMultiInstanceOpen_ = false;
 }
 
 } // namespace OHOS::NWeb

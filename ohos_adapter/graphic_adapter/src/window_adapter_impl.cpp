@@ -28,6 +28,9 @@ constexpr uint32_t ROTATE_NONE = 0;
 constexpr uint32_t ROTATE_90 = 90;
 constexpr uint32_t ROTATE_180 = 180;
 constexpr uint32_t ROTATE_270 = 270;
+
+const std::string DELEGATE_NODE_ID = "delegate_node_id";
+const std::string DELEGATE_CONNECT_TO_RENDER = "delegate_connect_to_render";
 GraphicTransformType ConvertRotation(uint32_t rotation)
 {
     GraphicTransformType transform = GraphicTransformType::GRAPHIC_ROTATE_BUTT;
@@ -134,8 +137,8 @@ void WindowAdapterImpl::SetWindowNodeIdAndRSHandle(void* nativeWindow, uint64_t 
     }
     OHOS::sptr<OHOS::Surface> surface = window->surface;
     if (surface) {
-        surface->SetUserData("delegate_node_id", std::to_string(nodeId));
-        surface->SetUserData("delegate_connect_to_render", std::to_string(handle));
+        surface->SetUserData(DELEGATE_NODE_ID, std::to_string(nodeId));
+        surface->SetUserData(DELEGATE_CONNECT_TO_RENDER, std::to_string(handle));
     } else {
         WVLOG_E("surface is nullptr, set user data failed");
     }

@@ -28,6 +28,9 @@
 #include "native_window.h"
 
 namespace OHOS::NWeb {
+const std::string DELEGATE_NODE_ID = "delegate_node_id";
+const std::string DELEGATE_CONNECT_TO_RENDER = "delegate_connect_to_render";
+
 BrowserClient::BrowserClient(
     const sptr<IRemoteObject> &impl) : IRemoteProxy<IBrowser>(impl) {}
 
@@ -65,6 +68,7 @@ std::pair<sptr<IRemoteObject>, sptr<IRemoteObject>> BrowserClient::QueryRenderSu
     sptr<IRemoteObject> surface = reply.ReadRemoteObject();
     if (!reply.ReadUint64(nodeId)) {
         WVLOG_W("Read nodeId failed.");
+        return { surface, nullptr };
     }
     sptr<IRemoteObject> rsHandle = nullptr;
     bool hasRSHandle = false;
@@ -175,16 +179,16 @@ void* AafwkBrowserClientAdapterImpl::QueryRenderSurface(int32_t surface_id)
             WVLOG_E("create the native window failed.");
             return nullptr;
         }
-        uint64_t usage = BUFFER_USAGE_MEM_DMA;
         if (window->surface != nullptr) {
-            window->surface->SetUserData("delegate_node_id", std::to_string(node_id));
+            window->surface->SetUserData(DELEGATE_NODE_ID, std::to_string(node_id));
             if (rsHandleObj != nullptr) {
-                rsHandleObj->IncStrongRef(nullptr);
+                rsHandleMap_.emplace(surface_id, rsHandleObj);
                 uint64_t handle = reinterpret_cast<uint64_t>(rsHandleObj.GetRefPtr());
-                window->surface->SetUserData("delegate_connect_to_render", std::to_string(handle));
+                window->surface->SetUserData(DELEGATE_CONNECT_TO_RENDER, std::to_string(handle));
             }
         }
 
+        uint64_t usage = BUFFER_USAGE_MEM_DMA;
         NativeWindowHandleOpt(window, SET_USAGE, usage);
         window_map_.emplace(surface_id, window);
         void* newNativeWindow = reinterpret_cast<NWebNativeWindow>(window);
@@ -247,6 +251,7 @@ void AafwkBrowserClientAdapterImpl::DestroyRenderSurface(int32_t surface_id)
         }
         window_map_.erase(surface_id);
     }
+    rsHandleMap_.erase(surface_id);
     GetInstance().browserHost_->DestroyRenderSurface(surface_id);
     WVLOG_D("Destroy nweb surface id = %{public}d", surface_id);
 }

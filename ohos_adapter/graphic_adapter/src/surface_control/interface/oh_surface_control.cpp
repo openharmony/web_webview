@@ -92,8 +92,6 @@ void SurfaceControlUtils::Transaction::Reparent(
     auto* surface = reinterpret_cast<SurfaceControl*>(surfaceControl);
     auto* parent = reinterpret_cast<SurfaceControl*>(newParent);
     CHECK_NULL_POINTER(txn);
-    CHECK_NULL_POINTER(surface);
-    CHECK_NULL_POINTER(parent);
     txn->Reparent(surface, parent);
 }
 
@@ -106,7 +104,6 @@ void SurfaceControlUtils::Transaction::SetVisibility(
     auto* txn = reinterpret_cast<SurfaceTransaction*>(transaction);
     auto* surface = reinterpret_cast<SurfaceControl*>(surfaceControl);
     CHECK_NULL_POINTER(txn);
-    CHECK_NULL_POINTER(surface);
     txn->SetVisibility(surface, visibility == Visibility::SHOW);
 }
 
@@ -116,7 +113,6 @@ void SurfaceControlUtils::Transaction::SetZOrder(
     auto* txn = reinterpret_cast<SurfaceTransaction*>(transaction);
     auto* surface = reinterpret_cast<SurfaceControl*>(surfaceControl);
     CHECK_NULL_POINTER(txn);
-    CHECK_NULL_POINTER(surface);
     txn->SetZOrder(surface, zOrder);
 }
 
@@ -127,7 +123,6 @@ void SurfaceControlUtils::Transaction::SetBuffer(OH_SurfaceTransaction* transact
     auto* surface = reinterpret_cast<SurfaceControl*>(surfaceControl);
     auto* surfaceBuffer = OHOS::SurfaceBuffer::NativeBufferToSurfaceBuffer(buffer);
     CHECK_NULL_POINTER(txn);
-    CHECK_NULL_POINTER(surface);
     CHECK_NULL_POINTER(surfaceBuffer);
     txn->SetBuffer(surface, surfaceBuffer, acquireFenceFd,
         [context, func](int releaseFenceFd) { func(context, releaseFenceFd); });
@@ -139,7 +134,6 @@ void SurfaceControlUtils::Transaction::SetBounds(
     auto* txn = reinterpret_cast<SurfaceTransaction*>(transaction);
     auto* surface = reinterpret_cast<SurfaceControl*>(surfaceControl);
     CHECK_NULL_POINTER(txn);
-    CHECK_NULL_POINTER(surface);
     txn->SetBounds(surface, x, y, w, h);
 }
 
@@ -149,7 +143,6 @@ void SurfaceControlUtils::Transaction::SetPivot(
     auto* txn = reinterpret_cast<SurfaceTransaction*>(transaction);
     auto* surface = reinterpret_cast<SurfaceControl*>(surfaceControl);
     CHECK_NULL_POINTER(txn);
-    CHECK_NULL_POINTER(surface);
     txn->SetPivot(surface, x, y);
 }
 
@@ -178,18 +171,7 @@ void SurfaceControlUtils::Transaction::SetBufferTransform(
     auto* txn = reinterpret_cast<SurfaceTransaction*>(transaction);
     auto* surface = reinterpret_cast<SurfaceControl*>(surfaceControl);
     CHECK_NULL_POINTER(txn);
-    CHECK_NULL_POINTER(surface);
     txn->SetBufferTransform(surface, static_cast<OHOS::GraphicTransformType>(transform));
-}
-
-void SurfaceControlUtils::Transaction::SetTranslate(OH_SurfaceTransaction* transaction,
-    OH_SurfaceControl* surfaceControl, float translateX, float translateY, float translateZ)
-{
-    auto* txn = reinterpret_cast<SurfaceTransaction*>(transaction);
-    auto* surface = reinterpret_cast<SurfaceControl*>(surfaceControl);
-    CHECK_NULL_POINTER(txn);
-    CHECK_NULL_POINTER(surface);
-    txn->SetTranslate(surface, translateX, translateY, translateZ);
 }
 
 void SurfaceControlUtils::Transaction::SetDamageRegion(
@@ -198,7 +180,6 @@ void SurfaceControlUtils::Transaction::SetDamageRegion(
     auto* txn = reinterpret_cast<SurfaceTransaction*>(transaction);
     auto* surface = reinterpret_cast<SurfaceControl*>(surfaceControl);
     CHECK_NULL_POINTER(txn);
-    CHECK_NULL_POINTER(surface);
     txn->SetDamageRegion(surface, rects, count);
 }
 
@@ -208,18 +189,7 @@ void SurfaceControlUtils::Transaction::SetBufferAlpha(
     auto* txn = reinterpret_cast<SurfaceTransaction*>(transaction);
     auto* surface = reinterpret_cast<SurfaceControl*>(surfaceControl);
     CHECK_NULL_POINTER(txn);
-    CHECK_NULL_POINTER(surface);
     txn->SetBufferAlpha(surface, alpha);
-}
-
-void SurfaceControlUtils::Transaction::SetForegroundColor(OH_SurfaceTransaction* transaction,
-    OH_SurfaceControl* surfaceControl, float red, float green, float blue, float alpha)
-{
-    auto* txn = reinterpret_cast<SurfaceTransaction*>(transaction);
-    auto* surface = reinterpret_cast<SurfaceControl*>(surfaceControl);
-    CHECK_NULL_POINTER(txn);
-    CHECK_NULL_POINTER(surface);
-    txn->SetForegroundColor(surface, red, green, blue, alpha);
 }
 
 void SurfaceControlUtils::Transaction::SetBackgroundColor(OH_SurfaceTransaction* transaction,
@@ -228,38 +198,7 @@ void SurfaceControlUtils::Transaction::SetBackgroundColor(OH_SurfaceTransaction*
     auto* txn = reinterpret_cast<SurfaceTransaction*>(transaction);
     auto* surface = reinterpret_cast<SurfaceControl*>(surfaceControl);
     CHECK_NULL_POINTER(txn);
-    CHECK_NULL_POINTER(surface);
     txn->SetBackgroundColor(surface, red, green, blue, alpha);
-}
-
-void SurfaceControlUtils::Transaction::SetBorderColor(OH_SurfaceTransaction* transaction,
-    OH_SurfaceControl* surfaceControl, float red, float green, float blue, float alpha)
-{
-    auto* txn = reinterpret_cast<SurfaceTransaction*>(transaction);
-    auto* surface = reinterpret_cast<SurfaceControl*>(surfaceControl);
-    CHECK_NULL_POINTER(txn);
-    CHECK_NULL_POINTER(surface);
-    txn->SetBorderColor(surface, red, green, blue, alpha);
-}
-
-void SurfaceControlUtils::Transaction::SetBorderWidth(OH_SurfaceTransaction* transaction,
-    OH_SurfaceControl* surfaceControl, float left, float top, float right, float bottom)
-{
-    auto* txn = reinterpret_cast<SurfaceTransaction*>(transaction);
-    auto* surface = reinterpret_cast<SurfaceControl*>(surfaceControl);
-    CHECK_NULL_POINTER(txn);
-    CHECK_NULL_POINTER(surface);
-    txn->SetBorderWidth(surface, left, top, right, bottom);
-}
-
-void SurfaceControlUtils::Transaction::SetBorderStyle(OH_SurfaceTransaction* transaction,
-    OH_SurfaceControl* surfaceControl, uint32_t left, uint32_t top, uint32_t right, uint32_t bottom)
-{
-    auto* txn = reinterpret_cast<SurfaceTransaction*>(transaction);
-    auto* surface = reinterpret_cast<SurfaceControl*>(surfaceControl);
-    CHECK_NULL_POINTER(txn);
-    CHECK_NULL_POINTER(surface);
-    txn->SetBorderStyle(surface, left, top, right, bottom);
 }
 
 void SurfaceControlUtils::Transaction::SetHardwareEnableHint(OH_SurfaceTransaction* transaction,
@@ -268,7 +207,6 @@ void SurfaceControlUtils::Transaction::SetHardwareEnableHint(OH_SurfaceTransacti
     auto* txn = reinterpret_cast<SurfaceTransaction*>(transaction);
     auto* surface = reinterpret_cast<SurfaceControl*>(surfaceControl);
     CHECK_NULL_POINTER(txn);
-    CHECK_NULL_POINTER(surface);
     txn->SetHardwareEnableHint(surface, enable);
 }
 
@@ -278,18 +216,7 @@ void SurfaceControlUtils::Transaction::SetName(
     auto* txn = reinterpret_cast<SurfaceTransaction*>(transaction);
     auto* surface = reinterpret_cast<SurfaceControl*>(surfaceControl);
     CHECK_NULL_POINTER(txn);
-    CHECK_NULL_POINTER(surface);
     txn->SetName(surface, name);
-}
-
-void SurfaceControlUtils::Transaction::SetFrameGravity(
-    OH_SurfaceTransaction* transaction, OH_SurfaceControl* surfaceControl, int32_t gravity)
-{
-    auto* txn = reinterpret_cast<SurfaceTransaction*>(transaction);
-    auto* surface = reinterpret_cast<SurfaceControl*>(surfaceControl);
-    CHECK_NULL_POINTER(txn);
-    CHECK_NULL_POINTER(surface);
-    txn->SetFrameGravity(surface, gravity);
 }
 
 void SurfaceControlUtils::Transaction::SetSrcRect(
@@ -298,7 +225,6 @@ void SurfaceControlUtils::Transaction::SetSrcRect(
     auto* txn = reinterpret_cast<SurfaceTransaction*>(transaction);
     auto* surface = reinterpret_cast<SurfaceControl*>(surfaceControl);
     CHECK_NULL_POINTER(txn);
-    CHECK_NULL_POINTER(surface);
     txn->SetSrcRect(surface, x, y, w, h);
 }
 
@@ -308,7 +234,6 @@ void SurfaceControlUtils::Transaction::SetDisplayRect(
     auto* txn = reinterpret_cast<SurfaceTransaction*>(transaction);
     auto* surface = reinterpret_cast<SurfaceControl*>(surfaceControl);
     CHECK_NULL_POINTER(txn);
-    CHECK_NULL_POINTER(surface);
     txn->SetDisplayRect(surface, x, y, w, h);
 }
 
@@ -318,7 +243,6 @@ void SurfaceControlUtils::Transaction::ClearBufferQueueCache(
     auto* txn = reinterpret_cast<SurfaceTransaction*>(transaction);
     auto* surface = reinterpret_cast<SurfaceControl*>(surfaceControl);
     CHECK_NULL_POINTER(txn);
-    CHECK_NULL_POINTER(surface);
     txn->ClearBufferQueueCache(surface, cleanAll);
 }
 } // namespace NWeb

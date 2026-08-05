@@ -15,6 +15,7 @@
 
 #include "surface_control.h"
 #include <algorithm>
+#include <charconv>
 #include <iostream>
 #include <mutex>
 #include "surface_buffer.h"
@@ -36,6 +37,8 @@ using namespace OHOS::Rosen;
 namespace OHOS {
 namespace NWeb {
 namespace {
+const std::string DELEGATE_NODE_ID = "delegate_node_id";
+
 #define CHECK_NULL_POINTER(ptr) \
     do { \
         if (!(ptr)) { \
@@ -45,6 +48,7 @@ namespace {
     } while (0)
 
 #define API_COMPATIBLE_VERSION 18 // compatible with RS version 1.8, set by surface node
+
 class RSSurfaceNodeReleaseBufferWorker {
 public:
     static std::shared_ptr<RSSurfaceNodeReleaseBufferWorker> GetInstance();
@@ -139,10 +143,16 @@ sptr<SurfaceControl> SurfaceControl::CreateFromWindow(NativeWindow* window, cons
         return nullptr;
     }
 
-    std::string fetchedNodeId = surface->GetUserData("delegate_node_id");
+    std::string fetchedNodeId = surface->GetUserData(DELEGATE_NODE_ID);
     uint64_t nodeId = 0;
     if (!fetchedNodeId.empty()) {
-        nodeId = std::stoull(fetchedNodeId);
+        auto [ptr, ec] = std::from_chars(fetchedNodeId.data(),
+                                         fetchedNodeId.data() + fetchedNodeId.size(),
+                                         nodeId);
+        if (ec != std::errc{} || (ptr != fetchedNodeId.data() + fetchedNodeId.size())) {
+            WVLOG_E("DelegateDebug Failed to parse node id from string: %s", fetchedNodeId.c_str());
+            nodeId = 0;
+        }
     }
 
     ScopedTransaction scopedTransaction;
@@ -171,7 +181,7 @@ sptr<SurfaceControl> SurfaceControl::CreateFromWindow(NativeWindow* window, cons
     }
     parentNode->OHOS::Rosen::RSNode::AddChild(surfaceNode, -1);
     WVLOG_I("CreateFromWindow success, nodeId: %{public}" PRIu64, nodeId);
-    return new SurfaceControl(std::move(surfaceNode), std::move(parentNode), true);
+    return sptr<SurfaceControl>::MakeSptr(std::move(surfaceNode), std::move(parentNode), true);
 }
 
 sptr<SurfaceControl> SurfaceControl::Create(const char* name)
@@ -183,7 +193,7 @@ sptr<SurfaceControl> SurfaceControl::Create(const char* name)
         return nullptr;
     }
     auto surfaceNode = CreateSurfaceNode(name, uiContext, RSSurfaceNodeType::SELF_DRAWING_NODE, false);
-    return new SurfaceControl(std::move(surfaceNode), std::shared_ptr<OHOS::Rosen::RSNode>(), false);
+    return sptr<SurfaceControl>::MakeSptr(std::move(surfaceNode), std::shared_ptr<OHOS::Rosen::RSNode>(), false);
 }
 
 SurfaceControl::SurfaceControl(std::shared_ptr<Rosen::RSSurfaceNode> surfaceNode,
@@ -280,19 +290,12 @@ void SurfaceControl::SetBounds(float x, float y, float w, float h)
             surfaceNode_->GetId(), x, y, w, h);
         return;
     }
-    const float epsilon = 1e-5;
-    if (w <= epsilon || h <= epsilon) {
+    if (w <= 0.0f || h <= 0.0f) {
         WVLOG_E("Invalid bounds, x: %.2f, y: %.2f, w: %.2f, h: %.2f", x, y, w, h);
         return;
     }
     surfaceNode_->SetBounds(x, y, w, h);
     surfaceNode_->SetDelegateDstRect(x, y, w, h);
-}
-
-void SurfaceControl::SetFrameGravity(int32_t gravity)
-{
-    CHECK_NULL_POINTER(surfaceNode_);
-    surfaceNode_->SetFrameGravity(static_cast<OHOS::Rosen::Gravity>(gravity));
 }
 
 void SurfaceControl::SetPivot(float x, float y)
@@ -307,12 +310,6 @@ void SurfaceControl::SetBufferTransform(GraphicTransformType transform)
     surfaceNode_->SetBufferTransform(transform);
 }
 
-void SurfaceControl::SetTranslate(float translateX, float translateY, float translateZ)
-{
-    CHECK_NULL_POINTER(surfaceNode_);
-    surfaceNode_->SetTranslate(translateX, translateY, translateZ);
-}
-
 void SurfaceControl::SetDamageRegion(std::vector<Rect> rects)
 {
     CHECK_NULL_POINTER(surfaceNode_);
@@ -322,18 +319,11 @@ void SurfaceControl::SetDamageRegion(std::vector<Rect> rects)
 void SurfaceControl::SetBufferAlpha(float alpha)
 {
     CHECK_NULL_POINTER(surfaceNode_);
-    const float epsilon = 1e-5;
-    if (alpha < -epsilon) {
+    if (alpha < 0.0f) {
         WVLOG_E("Invalid alpha: %.2f", alpha);
         return;
     }
     surfaceNode_->SetAlpha(alpha);
-}
-
-void SurfaceControl::SetForegroundColor(float red, float green, float blue, float alpha)
-{
-    CHECK_NULL_POINTER(surfaceNode_);
-    surfaceNode_->SetForegroundColor(ToARGB(red, green, blue, alpha));
 }
 
 void SurfaceControl::SetBackgroundColor(float red, float green, float blue, float alpha)
@@ -342,24 +332,6 @@ void SurfaceControl::SetBackgroundColor(float red, float green, float blue, floa
     RS_TRACE_NAME_FMT("SurfaceControl::SetBackgroundColor: [r:%f, g:%f, b:%f, a:%f], nodeId=%llu",
         red, green, blue, alpha, surfaceNode_->GetId());
     surfaceNode_->SetBackgroundColor(ToARGB(red, green, blue, alpha));
-}
-
-void SurfaceControl::SetBorderWidth(float left, float top, float right, float bottom)
-{
-    CHECK_NULL_POINTER(surfaceNode_);
-    surfaceNode_->SetBorderWidth(left, top, right, bottom);
-}
-
-void SurfaceControl::SetBorderColor(float red, float green, float blue, float alpha)
-{
-    CHECK_NULL_POINTER(surfaceNode_);
-    surfaceNode_->SetBorderColor(ToARGB(red, green, blue, alpha));
-}
-
-void SurfaceControl::SetBorderStyle(uint32_t left, uint32_t top, uint32_t right, uint32_t bottom)
-{
-    CHECK_NULL_POINTER(surfaceNode_);
-    surfaceNode_->SetBorderStyle(left, top, right, bottom);
 }
 
 void SurfaceControl::SetName(std::string name)
@@ -408,34 +380,29 @@ std::shared_ptr<RSSurfaceNodeReleaseBufferWorker> RSSurfaceNodeReleaseBufferWork
 
 void RSSurfaceNodeReleaseBufferWorker::RegisterNode(std::shared_ptr<Rosen::RSSurfaceNode> nodePtr)
 {
-    std::lock_guard<std::mutex> lock(mutex);
     if (!nodePtr) {
         return;
     }
+
+    std::lock_guard<std::mutex> lock(mutex);
     NodeId id = nodePtr->GetId();
-    auto itr = surfaceNodeMap_.find(id);
-    if (itr != surfaceNodeMap_.end()) {
+    auto [itr, inserted] = surfaceNodeMap_.emplace(id, Rosen::RSSurfaceNode::WeakPtr(nodePtr));
+    if (!inserted) {
         return;
     }
-    Rosen::RSSurfaceNode::WeakPtr ptr(nodePtr);
-    surfaceNodeMap_.emplace(id, ptr);
-    RS_TRACE_NAME_FMT("add surfaceNodeMap_ size=%u, id=%llu", surfaceNodeMap_.size(), id);
-    return;
+    RS_TRACE_NAME_FMT("RegisterNode surfaceNodeMap_ size=%u, id=%llu", surfaceNodeMap_.size(), id);
 }
 
 void RSSurfaceNodeReleaseBufferWorker::UnRegisterNode(std::shared_ptr<Rosen::RSSurfaceNode> nodePtr)
 {
-    std::lock_guard<std::mutex> lock(mutex);
     if (!nodePtr) {
         return;
     }
+
+    std::lock_guard<std::mutex> lock(mutex);
     NodeId id = nodePtr->GetId();
-    auto itr = surfaceNodeMap_.find(id);
-    bool findit = false;
-    if (itr != surfaceNodeMap_.end()) {
-        findit = true;
-        surfaceNodeMap_.erase(itr);
-    }
+    size_t erasedCount = surfaceNodeMap_.erase(id);
+    bool findit = (erasedCount > 0);
     RS_TRACE_NAME_FMT("UnregisterNode surfaceNodeMap_ size=%u, findit=%d, nodeId=%llu",
         surfaceNodeMap_.size(), findit, id);
 }
