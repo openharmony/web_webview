@@ -749,17 +749,11 @@ private:
 
     void PostRemoveJavaScriptObjectHolderToJsThread(int32_t holder, JavaScriptOb::ObjectID objectId);
 
-    void PostGetJavaScriptResultToJsThreadV2(const std::vector<std::shared_ptr<NWebHapValue>>& args,
-        const std::string& method, int32_t routingId, int32_t objectId, std::shared_ptr<NWebHapValue> result);
-
-    void CreateUvQueueWork(ani_env* env, WebviewJavaScriptResultCallBack::AniJsCallBackParm* data,
-        void (*handler)(ani_env* env, ani_status status, WebviewJavaScriptResultCallBack::AniJsCallBackParm* data));
+    void ExecGetJavaScriptResult(const std::vector<std::shared_ptr<NWebHapValue>>& args, const std::string& method,
+        int32_t routingId, int32_t objectId, std::shared_ptr<NWebHapValue> result);
 
     std::shared_ptr<NWebValue> GetJavaScriptResultSelf(std::vector<std::shared_ptr<NWebValue>> args,
         const std::string& method, const std::string& objName, int32_t routingId, int32_t objectId);
-
-    void GetJavaScriptResultSelfV2(const std::vector<std::shared_ptr<NWebHapValue>>& args, const std::string& method,
-        int32_t routingId, int32_t objectId, std::shared_ptr<NWebHapValue> result);
 
     bool ConstructArgv(void* ashmem, std::vector<std::shared_ptr<NWebValue>> args,
     	std::vector<napi_value>& argv, std::shared_ptr<JavaScriptOb> jsObj, int32_t routingId);
@@ -779,7 +773,6 @@ private:
     ObjectMap objects_;
     std::mutex objectsMutex_;
     std::unordered_set<std::shared_ptr<JavaScriptOb>> retainedObjectSet_;
-    std::shared_ptr<AppExecFwk::EventHandler> mainHandler_;
 };
 }
 #endif

@@ -34,7 +34,6 @@ const int MAX_FLOWBUF_DATA_SIZE = 52428800; /* 50MB*/
 const int MAX_ENTRIES = 10;
 const int HEADER_SIZE = (MAX_ENTRIES * 8);  /* 10 * (int position + int length) */
 const int INDEX_SIZE = 2;
-const std::string TASK_ID = "javascriptcallback";
 constexpr int32_t REFERENCES_MAX_NUMBER = 16;
 
 // For the sake of the storage API, make this quite large.
@@ -2954,20 +2953,6 @@ void WebviewJavaScriptResultCallBack::ExecGetJavaScriptResult(
     param->out = reinterpret_cast<void*>(outParam);
     param->input = reinterpret_cast<void*>(inParam);
 
-    if (!mainHandler_) {
-        std::shared_ptr<OHOS::AppExecFwk::EventRunner> runner = OHOS::AppExecFwk::EventRunner::Create(TASK_ID);
-        if (!runner) {
-            DeleteNapiJsCallBackParm(inParam, outParam, param);
-            return;
-        }
-        mainHandler_ = std::make_shared<OHOS::AppExecFwk::EventHandler>(runner);
-    }
-
-    if (mainHandler_ == nullptr) {
-        WVLOG_E("ExecGetJavaScriptResult mainHandler is null.");
-        DeleteNapiJsCallBackParm(inParam, outParam, param);
-        return;
-    }
     ExecuteGetJavaScriptResultV2(param->env, ANI_OK, param);
     DeleteNapiJsCallBackParm(inParam, outParam, param);
 }
@@ -2987,10 +2972,10 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultV2(
         return;
     }
 
-        // GetJavaScriptResultSelfV2(args, method, routingId, objectId, result);
-        // WVLOG_D("get javaScript result, not in js thread, post task to js thread");
     ExecGetJavaScriptResult(args, method, routingId, objectId, result);
 }
+
+
 
 void WebviewJavaScriptResultCallBack::GetJavaScriptResultSelfV2(const std::vector<std::shared_ptr<NWebHapValue>>& args,
     const std::string& method, int32_t routingId, int32_t objectId, std::shared_ptr<NWebHapValue> result)
@@ -3007,39 +2992,34 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultSelfV2(const std::vecto
         argv.push_back(ParseNwebValue2AniValueV2(jsObj->GetAniEnv(), input, GetObjectMap(), GetNWebId(),
                                                  routingId, objectId));
     }
+    ani_object callback = jsObj->AniFindMethod(method);
+    if (!callback) {
+        WVLOG_E("GetJavaScriptResultSelfV2 callback null");
+    }
+
     ani_env* env = jsObj->GetAniEnv();
     if (env == nullptr) {
         WVLOG_E("env null");
         return;
     }
-
+    ani_object callResult = nullptr;
     ani_status status = ANI_OK;
-    ani_object nameObj = static_cast<ani_object>(jsObj->GetAniValue());
-    if (!nameObj) {
-        WVLOG_E("GetJavaScriptResultSelfV2 callback null");
-        return;
-    }
-    ani_object webviewObj = static_cast<ani_object>(jsObj->GetWebviewObject());
-    if (!webviewObj) {
-        WVLOG_E("GetJavaScriptResultSelfV2 webviewObj null");
-        return;
-    }
-
-    ani_string methodName = AniParseUtils::StringToAniStr(env, method);
-    ani_array argvRef = ConvertAniArrayFromVecterObject(env, argv);
-    ani_ref callObj = nullptr;
-    status = env->Object_CallMethodByName_Ref(
-        webviewObj, "jsProxyInvokeMethod", nullptr, &callObj, nameObj, methodName, argvRef);
-    if (status != ANI_OK || !callObj) {
+    ani_ref resultVal;
+    ani_array arrayRef = ConvertAniArrayFromVecterObject(env, argv);
+    ani_ref argvRef = static_cast<ani_ref>(arrayRef);
+    if ((status = env->FunctionalObject_Call(static_cast<ani_fn_object>(callback),
+                                             argv.size(), &argvRef, &resultVal)) != ANI_OK) {
         WVLOG_E("GetJavaScriptResultSelfV2 call Failed status : %{public}d!", status);
         return;
     }
-    ani_object callResult = static_cast<ani_object>(callObj);
+
+    callResult = static_cast<ani_object>(resultVal);
     bool isObject = false;
     std::vector<std::string> methodNameList =
         ParseAniValue2NwebValueV2(jsObj->GetAniEnv(), &callResult, result, &isObject);
 
     bool isFunction = AniParseUtils::IsFunction(jsObj->GetAniEnv(), callResult);
+
 
     WVLOG_D("get javaScript result already in js thread end");
     if (isObject) {
