@@ -734,12 +734,8 @@ void ExecuteGetJavaScriptResultV2(
             param->condition.notify_all();
             return;
         }
-        auto args = *(static_cast<std::vector<std::shared_ptr<NWebHapValue>>*>(inParam->data));
+        auto argv = *(static_cast<std::vector<ani_object>*>(inParam->data));
         std::vector<ani_object> argv = {};
-        for (auto& input : args) {
-            argv.push_back(ParseNwebValue2AniValueV2(env, input, inParam->webJsResCb->GetObjectMap(),
-                                                     inParam->nwebId, inParam->frameRoutingId, inParam->objId));
-        }
         ani_array argvRef = ConvertAniArrayFromVecterObject(env, argv);
         ani_status s = env->Object_CallMethodByName_Ref(
             webviewObj, "jsProxyInvokeMethod", nullptr, &callResult, nameObj, methodName, argvRef);
@@ -2944,8 +2940,7 @@ void WebviewJavaScriptResultCallBack::ExecGetJavaScriptResult(std::vector<ani_ob
     inParam->nwebId = GetNWebId();
     inParam->methodName = method;
     inParam->frameRoutingId = routingId;
-    auto* argsPtr = const_cast<std::vector<std::shared_ptr<NWebHapValue>>*>(&args);
-    inParam->data = reinterpret_cast<void*>(argsPtr);
+    inParam->data = reinterpret_cast<void*>(&argv);
     outParam->ret = reinterpret_cast<void*>(&result);
 
     param->env = jsObj->GetAniEnv();
