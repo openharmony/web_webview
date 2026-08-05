@@ -741,6 +741,8 @@ void ExecuteGetJavaScriptResultV2(
             webviewObj, "jsProxyInvokeMethod", nullptr, &callResult, nameObj, methodName, argvRef);
         if (ANI_OK != s || !callResult) {
             WVLOG_E("ExecuteGetJavaScriptResultV2 call method return null");
+            env->DestroyLocalScope();
+            return;
         }
 
         bool isObject = false;
@@ -2961,13 +2963,17 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultV2(
         return;
     }
 
-    auto nwebId = GetNWebId();
     ani_env* env = jsObj->GetAniEnv();
+    if (env == nullptr) {
+        WVLOG_E("get javaScript result, env null");
+        return;
+    }
+    auto nwebId = GetNWebId();
     std::vector<ani_object> argv = {};
     for (auto& input : args) {
         argv.push_back(ParseNwebValue2AniValueV2(env, input, GetObjectMap(), nwebId, routingId, objectId));
     }
-    ExecGetJavaScriptResult(args, method, routingId, objectId, result);
+    ExecGetJavaScriptResult(argv, method, routingId, objectId, result);
 }
 
 void WebviewJavaScriptResultCallBack::GetJavaScriptResultSelfV2(const std::vector<std::shared_ptr<NWebHapValue>>& args,
@@ -2988,6 +2994,7 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultSelfV2(const std::vecto
     ani_object callback = jsObj->AniFindMethod(method);
     if (!callback) {
         WVLOG_E("GetJavaScriptResultSelfV2 callback null");
+        return;
     }
 
     ani_env* env = jsObj->GetAniEnv();
