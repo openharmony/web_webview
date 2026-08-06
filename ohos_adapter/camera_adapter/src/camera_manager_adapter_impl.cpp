@@ -857,7 +857,6 @@ std::string CameraManagerAdapterImpl::GetCurrentDeviceId()
 bool CameraManagerAdapterImpl::IsExistCaptureTask()
 {
     if (cameraManager_ == nullptr) {
-        WVLOG_E("cameraManager_ is nullptr");
         return false;
     }
     return isCapturing_;
