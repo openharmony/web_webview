@@ -28,8 +28,6 @@ const double MAX_PLAYBACK_RATE = 10.0;
 
 void NapiNativeMediaPlayerHandler::Init(napi_env env, napi_value value)
 {
-    WVLOG_I("begin to init native media player napi properties");
-
     napi_property_descriptor transferDesc[] = {
         DECLARE_NAPI_FUNCTION("__createNativeMediaPlayerHandlerTransfer__",
             MediaPlayerTransfer::CreateNativeMediaPlayerHandlerTransfer),
