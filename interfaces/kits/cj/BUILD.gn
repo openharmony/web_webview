@@ -92,7 +92,6 @@ ohos_shared_library("cj_webview_ffi") {
       "napi:cj_bind_native",
       "protobuf:protobuf_lite",
       "samgr:samgr_proxy",
-      "bounds_checking_function:libsec_shared",
     ]
   } else {
     defines += [ "PREVIEWER" ]
