@@ -44,7 +44,7 @@ int LocationCallbackImpl::OnRemoteRequest(uint32_t code,
             break;
         }
         case RECEIVE_ERROR_INFO_EVENT: {
-            int32_t errorCode = data.ReadInt32();   
+            int32_t errorCode = data.ReadInt32();
             OnErrorReport(errorCode);
             break;
         }
