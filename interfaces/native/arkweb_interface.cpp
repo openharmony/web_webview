@@ -232,7 +232,7 @@ static bool LoadCookieManagerAPI()
         return true;
     }
 
-    g_CookieManagerImpl = new ArkWeb_CookieManagerAPI();
+    g_CookieManagerImpl = new (std::nothrow) ArkWeb_CookieManagerAPI();
     if (!g_CookieManagerImpl) {
         WVLOG_E("NativeArkWeb cookie manager api is nullptr");
         return false;
@@ -242,6 +242,8 @@ static bool LoadCookieManagerAPI()
     bool lazy = OHOS::NWeb::NWebHelper::Instance().IsLazyInitializeWebEngine();
     if (!OHOS::NWeb::NWebHelper::Instance().LoadWebEngine(true, !lazy)) {
         WVLOG_E("NativeArkWeb webEngineHandle is nullptr");
+        delete g_CookieManagerImpl;
+        g_CookieManagerImpl = nullptr;
         return false;
     }
 #define ARKWEB_NATIVE_LOAD_FN_PTR(fn, ndkFn) LoadFunction(#ndkFn, &(g_CookieManagerImpl->fn))
