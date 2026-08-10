@@ -23,6 +23,10 @@
 
 #if defined(NWEB_VIDEO_PROCESSING_ENGINE_ENABLE)
 #include "detail_enhancer_video.h"
+// Order matters: native_window.h's `struct NativeWindow` (surface/include) has
+// a `sptr<Surface>` member and pulls in window.h's NativeObjectMagic enum, so
+// surface.h / surface/window.h must be included first. Keep native_window.h
+// after the surface headers.
 #include "surface.h"
 #include "surface/window.h"
 #include "native_window.h"
@@ -61,48 +65,7 @@ public:
 private:
     std::weak_ptr<VpeVideo> video_;
 };
-#endif
 
-VpeVideoAdapterImpl::~VpeVideoAdapterImpl()
-{
-#if defined(NWEB_VIDEO_PROCESSING_ENGINE_ENABLE)
-    std::unordered_map<uint64_t, std::shared_ptr<VpeVideo>> videos;
-    {
-        std::lock_guard<std::mutex> lock(vpeVideoLock_);
-        videos.swap(allVpeVideo_);
-    }
-    for (auto& item : videos) {
-        if (item.second != nullptr) {
-            item.second->Stop();
-            item.second->Release();
-        }
-    }
-#endif
-}
-
-void VpeVideoAdapterImpl::ReleaseVpeSurface(uint64_t surfaceId)
-{
-#if defined(NWEB_VIDEO_PROCESSING_ENGINE_ENABLE)
-    std::shared_ptr<VpeVideo> video;
-    {
-        std::lock_guard<std::mutex> lock(vpeVideoLock_);
-        auto it = allVpeVideo_.find(surfaceId);
-        if (it == allVpeVideo_.end()) {
-            return;
-        }
-        video = it->second;
-        allVpeVideo_.erase(it);
-    }
-    if (video != nullptr) {
-        VPEAlgoErrCode stopRet = video->Stop();
-        VPEAlgoErrCode releaseRet = video->Release();
-        WVLOG_I("ReleaseVpeSurface Stop:%{public}d, Release:%{public}d, surfaceId:%{public}" PRIu64,
-            static_cast<int32_t>(stopRet), static_cast<int32_t>(releaseRet), surfaceId);
-    }
-#endif
-}
-
-#if defined(NWEB_VIDEO_PROCESSING_ENGINE_ENABLE)
 bool VpeVideoAdapterImpl::SetVpeParameter(const std::shared_ptr<VpeVideo>& video, uint32_t type)
 {
     if (type == VIDEO_TYPE_DETAIL_ENHANCER) {
@@ -116,43 +79,168 @@ bool VpeVideoAdapterImpl::SetVpeParameter(const std::shared_ptr<VpeVideo>& video
     return true;
 }
 
-sptr<Surface> VpeVideoAdapterImpl::BuildVpeForType(uint32_t type, uint64_t surfaceId,
-    const sptr<Surface>& surface, std::shared_ptr<VpeVideo>& outVideo)
+void VpeVideoAdapterImpl::DestroyPipeline(VpePipeline& pipeline)
 {
-    if (!VpeVideo::IsSurfaceSupported(type, surface)) {
-        WVLOG_D("BuildVpeForType surface not supported, type:%{public}u", type);
-        return surface;
+    if (pipeline.vpeWindow != nullptr) {
+        OH_NativeWindow_DestroyNativeWindow(pipeline.vpeWindow);
+        pipeline.vpeWindow = nullptr;
     }
-    ReleaseVpeSurface(surfaceId);
+    // Tear down stages in reverse build order: input-side stages last so each
+    // stage's output surface consumer (the next stage) has already stopped.
+    for (auto it = pipeline.videos.rbegin(); it != pipeline.videos.rend(); ++it) {
+        if (*it != nullptr) {
+            auto stopRet = (*it)->Stop();
+            auto releaseRet = (*it)->Release();
+            WVLOG_I("DestroyPipeline Stop:%{public}d, Release:%{public}d",
+                static_cast<int32_t>(stopRet), static_cast<int32_t>(releaseRet));
+        }
+    }
+    pipeline.videos.clear();
+    if (pipeline.rawSurface != nullptr) {
+        pipeline.rawSurface->SetDefaultUsage(pipeline.originUsage);
+        pipeline.rawSurface = nullptr;
+    }
+}
+#endif
+
+VpeVideoAdapterImpl::~VpeVideoAdapterImpl()
+{
+#if defined(NWEB_VIDEO_PROCESSING_ENGINE_ENABLE)
+    std::unordered_map<uint64_t, VpePipeline> maps;
+    {
+        std::lock_guard<std::mutex> lock(vpeVideoLock_);
+        maps.swap(pipelines_);
+    }
+    for (auto& item : maps) {
+        DestroyPipeline(item.second);
+    }
+#endif
+}
+
+void VpeVideoAdapterImpl::ReleaseVpeSurface(uint64_t surfaceId)
+{
+#if defined(NWEB_VIDEO_PROCESSING_ENGINE_ENABLE)
+    VpePipeline pipeline;
+    bool found = false;
+    {
+        std::lock_guard<std::mutex> lock(vpeVideoLock_);
+        auto it = pipelines_.find(surfaceId);
+        if (it != pipelines_.end()) {
+            pipeline = std::move(it->second);
+            pipelines_.erase(it);
+            found = true;
+        }
+    }
+    if (!found) {
+        WVLOG_W("ReleaseVpeSurface surfaceId not found:%{public}" PRIu64, surfaceId);
+        return;
+    }
+    DestroyPipeline(pipeline);
+    WVLOG_I("ReleaseVpeSurface released, surfaceId:%{public}" PRIu64, surfaceId);
+#endif
+}
+
+#if defined(NWEB_VIDEO_PROCESSING_ENGINE_ENABLE)
+// Build a single VPE stage of `type` whose output is `outputSurface`.
+// On success appends the new video stage to `pipeline.videos` and returns the
+// stage's input surface (which becomes the next stage's consumer); on any
+// failure returns `outputSurface` unchanged and leaves `pipeline` untouched.
+sptr<Surface> VpeVideoAdapterImpl::BuildVpeStage(
+    uint32_t type, uint64_t surfaceId, const sptr<Surface>& outputSurface, VpePipeline& pipeline)
+{
+    if (!VpeVideo::IsSurfaceSupported(type, outputSurface)) {
+        WVLOG_D("BuildVpeStage surface not supported, type:%{public}u", type);
+        return outputSurface;
+    }
     std::shared_ptr<VpeVideo> video = VpeVideo::Create(type);
     if (video == nullptr) {
-        WVLOG_E("BuildVpeForType Create failed, type:%{public}u", type);
-        return surface;
+        WVLOG_E("BuildVpeStage Create failed, type:%{public}u", type);
+        return outputSurface;
     }
     auto callback = std::make_shared<VpeVideoCallbackImpl>(video);
     if (video->RegisterCallback(callback) != 0) {
-        WVLOG_E("BuildVpeForType RegisterCallback failed, type:%{public}u", type);
-        return surface;
+        WVLOG_E("BuildVpeStage RegisterCallback failed, type:%{public}u", type);
+        return outputSurface;
     }
     if (!SetVpeParameter(video, type)) {
-        return surface;
+        return outputSurface;
     }
-    if (video->SetOutputSurface(surface) != 0) {
-        WVLOG_E("BuildVpeForType SetOutputSurface failed, type:%{public}u", type);
-        return surface;
+    if (video->SetOutputSurface(outputSurface) != 0) {
+        WVLOG_E("BuildVpeStage SetOutputSurface failed, type:%{public}u", type);
+        return outputSurface;
     }
     sptr<Surface> inputSurface = video->GetInputSurface();
     if (inputSurface == nullptr) {
-        WVLOG_E("BuildVpeForType GetInputSurface failed, type:%{public}u", type);
-        return surface;
+        WVLOG_E("BuildVpeStage GetInputSurface failed, type:%{public}u", type);
+        return outputSurface;
     }
     if (video->Start() != 0) {
-        WVLOG_E("BuildVpeForType Start failed, type:%{public}u", type);
-        return surface;
+        WVLOG_E("BuildVpeStage Start failed, type:%{public}u", type);
+        return outputSurface;
     }
-    outVideo = video;
-    WVLOG_I("BuildVpeForType vpe created, type:%{public}u, surfaceId:%{public}" PRIu64, type, surfaceId);
+    pipeline.videos.push_back(video);
+    WVLOG_I("BuildVpeStage vpe stage created, type:%{public}u, surfaceId:%{public}" PRIu64, type, surfaceId);
     return inputSurface;
+}
+
+// Build a fresh pipeline for `window` from scratch. Pure: touches neither
+// pipelines_ nor the lock. On success returns a pipeline with vpeWindow set;
+// on any failure returns a pipeline with vpeWindow == nullptr and any surface
+// usage it changed restored.
+VpeVideoAdapterImpl::VpePipeline VpeVideoAdapterImpl::BuildPipeline(uint64_t surfaceId, void* window)
+{
+    VpePipeline pipeline;
+    if (!VpeVideo::IsSupported()) {
+        WVLOG_I("BuildPipeline VPE not supported, surfaceId:%{public}" PRIu64, surfaceId);
+        return pipeline; // vpeWindow == nullptr
+    }
+    OHNativeWindow* nativeWindow = reinterpret_cast<OHNativeWindow*>(window);
+    sptr<Surface> rawSurface = nativeWindow->surface;
+    if (rawSurface == nullptr) {
+        WVLOG_E("BuildPipeline invalid native window, surfaceId:%{public}" PRIu64, surfaceId);
+        return pipeline; // vpeWindow == nullptr
+    }
+
+    pipeline.rawWindow = window;
+    pipeline.rawSurface = rawSurface;
+    pipeline.originUsage = rawSurface->GetDefaultUsage();
+    // Hardware-composer usage is required for the VPE output path; restored by
+    // DestroyPipeline on teardown.
+    rawSurface->SetDefaultUsage(pipeline.originUsage | BUFFER_USAGE_HW_COMPOSER);
+
+    // Build stages in chain order. The output surface of stage[i] is the input
+    // surface of stage[i-1]; the first stage's output is the original raw
+    // surface, and the last stage's input surface becomes the producer-facing
+    // surface returned to the caller. Types are tried in priority order; a
+    // chain with zero successful stages falls back to the raw window.
+    Media::Format parameter {};
+    std::vector<uint32_t> supportTypes = { VIDEO_TYPE_DETAIL_ENHANCER, VIDEO_TYPE_AIHDR_ENHANCER };
+    sptr<Surface> outputSurface = rawSurface;
+    for (uint32_t type : supportTypes) {
+        if (!VpeVideo::IsSupported(type, parameter)) {
+            WVLOG_D("BuildPipeline type not supported:%{public}u", type);
+            continue;
+        }
+        outputSurface = BuildVpeStage(type, surfaceId, outputSurface, pipeline);
+    }
+
+    if (pipeline.videos.empty()) {
+        // Nothing was built; restore the usage we changed and reset to a clean
+        // empty state so the returned pipeline is uniform (vpeWindow == nullptr
+        // implies rawSurface == nullptr / no resources held).
+        rawSurface->SetDefaultUsage(pipeline.originUsage);
+        pipeline.rawSurface = nullptr;
+        return pipeline; // vpeWindow == nullptr
+    }
+
+    OHNativeWindow* vpeWindow = OH_NativeWindow_CreateNativeWindow(&outputSurface);
+    if (vpeWindow == nullptr) {
+        WVLOG_E("BuildPipeline CreateNativeWindow failed, surfaceId:%{public}" PRIu64, surfaceId);
+        DestroyPipeline(pipeline);
+        return pipeline; // vpeWindow == nullptr
+    }
+    pipeline.vpeWindow = vpeWindow;
+    return pipeline;
 }
 #endif
 
@@ -164,46 +252,53 @@ void* VpeVideoAdapterImpl::CreateVpeSurface(uint64_t surfaceId, void* window)
         WVLOG_E("CreateVpeSurface window is null, surfaceId:%{public}" PRIu64, surfaceId);
         return nullptr;
     }
-    if (!VpeVideo::IsSupported()) {
-        WVLOG_I("CreateVpeSurface VPE not supported, passthrough window");
-        return window;
-    }
-    OHNativeWindow* nativeWindow = reinterpret_cast<OHNativeWindow*>(window);
-    sptr<Surface> rawSurface = nativeWindow->surface;
-    if (rawSurface == nullptr) {
-        WVLOG_E("CreateVpeSurface invalid native window, surfaceId:%{public}" PRIu64, surfaceId);
-        return window;
-    }
-    uint64_t originUsage = rawSurface->GetDefaultUsage();
-    rawSurface->SetDefaultUsage(originUsage | BUFFER_USAGE_HW_COMPOSER);
-    sptr<Surface> vpeSurface = rawSurface;
-    Media::Format parameter {};
-    std::vector<uint32_t> supportTypes = { VIDEO_TYPE_DETAIL_ENHANCER, VIDEO_TYPE_AIHDR_ENHANCER };
-    for (uint32_t type : supportTypes) {
-        if (!VpeVideo::IsSupported(type, parameter)) {
-            WVLOG_D("CreateVpeSurface type not supported:%{public}u", type);
-            continue;
-        }
-        std::shared_ptr<VpeVideo> video;
-        vpeSurface = BuildVpeForType(type, surfaceId, vpeSurface, video);
-        if (video != nullptr) {
-            std::lock_guard<std::mutex> lock(vpeVideoLock_);
-            allVpeVideo_[surfaceId] = video;
+    // Idempotency: a pipeline already bound to surfaceId is reused as-is and
+    // the same borrowed window is returned. Create(Create(x)) == Create(x): no
+    // teardown, no rebuild, no pipeline interruption. The caller is expected to
+    // keep surfaceId mapped to the same window; a mismatch is logged but never
+    // triggers a rebuild (that would break idempotency).
+    {
+        std::lock_guard<std::mutex> lock(vpeVideoLock_);
+        auto it = pipelines_.find(surfaceId);
+        if (it != pipelines_.end() && it->second.vpeWindow != nullptr) {
+            if (window != it->second.rawWindow) {
+                WVLOG_W("CreateVpeSurface surfaceId reused with different window:%{public}" PRIu64, surfaceId);
+            }
+            WVLOG_D("CreateVpeSurface reuse existing pipeline, surfaceId:%{public}" PRIu64, surfaceId);
+            return it->second.vpeWindow;
         }
     }
-    // If the VPE surface build failed, vpeSurface stays equal to rawSurface; restore the original usage.
-    if (vpeSurface.GetRefPtr() == rawSurface.GetRefPtr()) {
-        rawSurface->SetDefaultUsage(originUsage);
+
+    // Build a fresh pipeline off the lock; BuildPipeline is pure (touches
+    // neither pipelines_ nor the lock). vpeWindow == nullptr means any failure
+    // (VPE unsupported / all stages failed / native-window creation failed);
+    // in that case passthrough the original window.
+    VpePipeline pipeline = BuildPipeline(surfaceId, window);
+    if (pipeline.vpeWindow == nullptr) {
         return window;
     }
-    OHNativeWindow* vpeWindow = OH_NativeWindow_CreateNativeWindow(&vpeSurface);
-    if (vpeWindow == nullptr) {
-        WVLOG_E("CreateVpeSurface CreateNativeWindow failed, surfaceId:%{public}" PRIu64, surfaceId);
-        ReleaseVpeSurface(surfaceId);
-        rawSurface->SetDefaultUsage(originUsage);
-        return window;
+    // Capture the borrowed window before moving the pipeline into the map.
+    OHNativeWindow* vpeWindow = pipeline.vpeWindow;
+
+    {
+        // Double-check under the lock: another thread may have raced ahead and
+        // inserted a pipeline for the same surfaceId while we built this one
+        // unlocked. If so, drop the one we just built (its window/videos would
+        // otherwise leak forever, since map insertion would overwrite it) and
+        // return the winner. DestroyPipeline operates only on the local
+        // `pipeline` — it touches neither `pipelines_` nor the lock, so holding
+        // the lock here cannot deadlock.
+        std::lock_guard<std::mutex> lock(vpeVideoLock_);
+        auto it = pipelines_.find(surfaceId);
+        if (it != pipelines_.end() && it->second.vpeWindow != nullptr) {
+            WVLOG_W("CreateVpeSurface concurrent build discarded, surfaceId:%{public}" PRIu64, surfaceId);
+            DestroyPipeline(pipeline);
+            return it->second.vpeWindow;
+        }
+        pipelines_[surfaceId] = std::move(pipeline);
     }
-    // Ownership of vpeWindow is transferred to the caller; the caller must OH_NativeWindow_DestroyNativeWindow it.
+    // Ownership note: the adapter owns vpeWindow. The caller borrows it and
+    // must NOT destroy it; it is destroyed on Release/next Create/destruction.
     return vpeWindow;
 #else
     return window;
