@@ -361,7 +361,11 @@ napi_value NapiWebSchemeHandlerRequest::JS_GetHeader(napi_env env, napi_callback
     napi_value thisVar = nullptr;
     void *data = nullptr;
     WebSchemeHandlerRequest *request = nullptr;
-    napi_get_cb_info(env, cbinfo, nullptr, nullptr, &thisVar, &data);
+    napi_status status = napi_get_cb_info(env, cbinfo, nullptr, nullptr, &thisVar, &data);
+    if (status != napi_ok) {
+        WVLOG_E("NapiWebSchemeHandlerRequest::JS_GetHeader get cb info failed");
+        return nullptr;
+    }
 
     napi_unwrap(env, thisVar, (void **)&request);
     if (!request) {
@@ -371,7 +375,11 @@ napi_value NapiWebSchemeHandlerRequest::JS_GetHeader(napi_env env, napi_callback
     
     WebHeaderList list = request->GetHeader();
     napi_value result = nullptr;
-    napi_create_array(env, &result);
+    status = napi_create_array(env, &result);
+    if (status != napi_ok) {
+        WVLOG_E("NapiWebSchemeHandlerRequest::JS_GetHeader create array failed");
+        return nullptr;
+    }
     size_t headerSize = list.size();
     for (size_t index = 0; index < headerSize; index++) {
         NApiScope scope(env);
@@ -382,7 +390,7 @@ napi_value NapiWebSchemeHandlerRequest::JS_GetHeader(napi_env env, napi_callback
         napi_value headerKey = nullptr;
         napi_value headerValue = nullptr;
         NAPI_CALL(env, napi_create_object(env, &webHeaderObj));
-        napi_status status = napi_create_string_utf8(env, list[index].first.c_str(), NAPI_AUTO_LENGTH, &headerKey);
+        status = napi_create_string_utf8(env, list[index].first.c_str(), NAPI_AUTO_LENGTH, &headerKey);
         if (status != napi_ok) {
             WVLOG_E("JS_GetHeader create headerKey string failed");
             continue;
@@ -392,8 +400,14 @@ napi_value NapiWebSchemeHandlerRequest::JS_GetHeader(napi_env env, napi_callback
             WVLOG_E("JS_GetHeader create headerValue string failed");
             continue;
         }
-        napi_set_named_property(env, webHeaderObj, "headerKey", headerKey);
-        napi_set_named_property(env, webHeaderObj, "headerValue", headerValue);
+        if (napi_set_named_property(env, webHeaderObj, "headerKey", headerKey) != napi_ok) {
+            WVLOG_E("JS_GetHeader set headerKey property failed");
+            continue;
+        }
+        if (napi_set_named_property(env, webHeaderObj, "headerValue", headerValue) != napi_ok) {
+            WVLOG_E("JS_GetHeader set headerValue property failed");
+            continue;
+        }
         napi_set_element(env, result, index, webHeaderObj);
     }
     return result;

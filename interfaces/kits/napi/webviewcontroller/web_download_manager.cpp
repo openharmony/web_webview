@@ -214,6 +214,7 @@ void WebDownloadManager::ResumeDownload(const WebDownloadItem *webDownload)
         WebDownloadItem_SetUrlChain(downloadItem, urlChainArray.data(), urlChainArray.size());
     }
     WebDownloader_ResumeDownloadStatic(downloadItem);
+    WebDownloadItem_Destroy(downloadItem);
     return;
 }
 } // namespace NWeb

@@ -60,7 +60,12 @@ void WebDownloadDelegate::RemoveSelfRef()
         uint32_t refCount;
         napi_reference_unref(env_, delegate_, &refCount);
         if (refCount == 0) {
-            napi_delete_reference(env_, delegate_);
+            napi_status status = napi_delete_reference(env_, delegate_);
+            if (status != napi_ok) {
+                WVLOG_E("[DOWNLOAD] WebDownloadDelegate::RemoveSelfRef delete reference failed, ret = %{public}d",
+                        status);
+                return;
+            }
             delegate_ = nullptr;
             WVLOG_I("[DOWNLOAD] WebDownloadDelegate::RemoveSelfRef after decrease refCount is 0, delete ref");
         }
@@ -95,8 +100,13 @@ void WebDownloadDelegate::DownloadBeforeStart(WebDownloadItem *webDownloadItem)
     }
 
     napi_value webDownloadItemValue = nullptr;
-    napi_create_object(env_, &webDownloadItemValue);
-    napi_wrap(
+    status = napi_create_object(env_, &webDownloadItemValue);
+    if (status != napi_ok) {
+        WVLOG_E("[DOWNLOAD] downloadBeforeStart create object failed.");
+        delete webDownloadItem;
+        return;
+    }
+    status = napi_wrap(
         env_, webDownloadItemValue, webDownloadItem,
         [](napi_env                             /* env */, void *data, void * /* hint */) {
             if (data) {
@@ -112,6 +122,11 @@ void WebDownloadDelegate::DownloadBeforeStart(WebDownloadItem *webDownloadItem)
             }
         },
         nullptr, nullptr);
+    if (status != napi_ok) {
+        WVLOG_E("[DOWNLOAD] downloadBeforeStart wrap object failed.");
+        delete webDownloadItem;
+        return;
+    }
     NapiWebDownloadItem::DefineProperties(env_, &webDownloadItemValue);
 
     napi_value result = nullptr;
@@ -148,8 +163,13 @@ void WebDownloadDelegate::DownloadDidUpdate(WebDownloadItem *webDownloadItem)
     }
 
     napi_value webDownloadItemValue = nullptr;
-    napi_create_object(env_, &webDownloadItemValue);
-    napi_wrap(
+    status = napi_create_object(env_, &webDownloadItemValue);
+    if (status != napi_ok) {
+        WVLOG_E("[DOWNLOAD] downloadDidUpdate create object failed.");
+        delete webDownloadItem;
+        return;
+    }
+    status = napi_wrap(
         env_, webDownloadItemValue, webDownloadItem,
         [](napi_env                             /* env */, void *data, void * /* hint */) {
             if (data) {
@@ -158,6 +178,11 @@ void WebDownloadDelegate::DownloadDidUpdate(WebDownloadItem *webDownloadItem)
             }
         },
         nullptr, nullptr);
+    if (status != napi_ok) {
+        WVLOG_E("[DOWNLOAD] downloadDidUpdate wrap object failed.");
+        delete webDownloadItem;
+        return;
+    }
     NapiWebDownloadItem::DefineProperties(env_, &webDownloadItemValue);
 
     napi_value result = nullptr;
@@ -195,8 +220,13 @@ void WebDownloadDelegate::DownloadDidFail(WebDownloadItem *webDownloadItem)
     }
 
     napi_value webDownloadItemValue = nullptr;
-    napi_create_object(env_, &webDownloadItemValue);
-    napi_wrap(
+    status = napi_create_object(env_, &webDownloadItemValue);
+    if (status != napi_ok) {
+        WVLOG_E("[DOWNLOAD] downloadDidFail create object failed.");
+        delete webDownloadItem;
+        return;
+    }
+    status = napi_wrap(
         env_, webDownloadItemValue, webDownloadItem,
         [](napi_env                             /* env */, void *data, void * /* hint */) {
             if (data) {
@@ -205,6 +235,11 @@ void WebDownloadDelegate::DownloadDidFail(WebDownloadItem *webDownloadItem)
             }
         },
         nullptr, nullptr);
+    if (status != napi_ok) {
+        WVLOG_E("[DOWNLOAD] downloadDidFail wrap object failed.");
+        delete webDownloadItem;
+        return;
+    }
     NapiWebDownloadItem::DefineProperties(env_, &webDownloadItemValue);
 
     napi_value result = nullptr;
@@ -242,8 +277,13 @@ void WebDownloadDelegate::DownloadDidFinish(WebDownloadItem *webDownloadItem)
     }
 
     napi_value webDownloadItemValue = nullptr;
-    napi_create_object(env_, &webDownloadItemValue);
-    napi_wrap(
+    status = napi_create_object(env_, &webDownloadItemValue);
+    if (status != napi_ok) {
+        WVLOG_E("[DOWNLOAD] downloadDidFinish create object failed.");
+        delete webDownloadItem;
+        return;
+    }
+    status = napi_wrap(
         env_, webDownloadItemValue, webDownloadItem,
         [](napi_env                             /* env */, void *data, void * /* hint */) {
             if (data) {
@@ -252,6 +292,11 @@ void WebDownloadDelegate::DownloadDidFinish(WebDownloadItem *webDownloadItem)
             }
         },
         nullptr, nullptr);
+    if (status != napi_ok) {
+        WVLOG_E("[DOWNLOAD] downloadDidFinish wrap object failed.");
+        delete webDownloadItem;
+        return;
+    }
     NapiWebDownloadItem::DefineProperties(env_, &webDownloadItemValue);
 
     napi_value result = nullptr;
