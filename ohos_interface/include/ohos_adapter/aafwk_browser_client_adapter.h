@@ -17,6 +17,7 @@
 #define AAFWK_BROWSER_CLIENT_ADAPTER_H
 
 #include <cstdint>
+#include <string>
 
 #include "res_sched_client_adapter.h"
 
@@ -33,6 +34,8 @@ public:
     virtual void PassSurface(int64_t surface_id) = 0;
 
     virtual void DestroyRenderSurface(int32_t surface_id) = 0;
+
+    virtual std::string QueryBufferTypeLeak(int32_t surface_id) = 0;
 };
 } // namespace OHOS::NWeb
 

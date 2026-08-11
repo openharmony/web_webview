@@ -44,4 +44,13 @@ void ArkAafwkBrowserClientAdapterWrapper::DestroyRenderSurface(int32_t surface_i
     ctocpp_->DestroyRenderSurface(surface_id);
 }
 
+std::string ArkAafwkBrowserClientAdapterWrapper::QueryBufferTypeLeak(int32_t surface_id)
+{
+    ArkWebString str = ctocpp_->QueryBufferTypeLeak(surface_id);
+    std::string result = ArkWebStringStructToClass(str);
+
+    ArkWebStringStructRelease(str);
+    return result;
+}
+
 } // namespace OHOS::ArkWeb

@@ -182,6 +182,10 @@ void OhosNativeBufferAdapterImpl::Describe(std::shared_ptr<NativeBufferConfigAda
         WVLOG_E("native buffer describe, buffer is null.");
         return;
     }
+    if (bufferConfig == nullptr) {
+        WVLOG_E("native buffer describe, bufferConfig is null.");
+        return;
+    }
     WVLOG_D("native buffer describe buffer %{private}p.", buffer);
 
     OH_NativeBuffer_Config config = {};

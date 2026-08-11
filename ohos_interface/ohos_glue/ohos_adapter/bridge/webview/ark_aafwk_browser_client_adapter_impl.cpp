@@ -41,4 +41,9 @@ void ArkAafwkBrowserClientAdapterImpl::DestroyRenderSurface(int32_t surface_id)
     return real_->DestroyRenderSurface(surface_id);
 }
 
+ArkWebString ArkAafwkBrowserClientAdapterImpl::QueryBufferTypeLeak(int32_t surface_id)
+{
+    return ArkWebStringClassToStruct(real_->QueryBufferTypeLeak(surface_id));
+}
+
 } // namespace OHOS::ArkWeb

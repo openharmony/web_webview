@@ -49,6 +49,8 @@ class MockBrowserClient : public BrowserClient {
     void PassSurface(sptr<Surface> surface, int64_t surface_id);
 
     void DestroyRenderSurface(int32_t surface_id);
+
+    std::string QueryBufferTypeLeak(int32_t surface_id);
 };
 
 std::pair<sptr<IRemoteObject>, sptr<IRemoteObject>> MockBrowserClient::QueryRenderSurface(
@@ -76,6 +78,12 @@ void MockBrowserClient::PassSurface(sptr<Surface> surface, int64_t surface_id)
 void MockBrowserClient::DestroyRenderSurface(int32_t surface_id)
 {
     (void)surface_id;
+}
+
+std::string MockBrowserClient::QueryBufferTypeLeak(int32_t surface_id)
+{
+    (void)surface_id;
+    return "";
 }
 
 bool AafwkBrowserClientAdapterFuzzTest(const uint8_t* data, size_t size)
