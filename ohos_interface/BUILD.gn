@@ -256,6 +256,8 @@ action("webview_glue_nweb_prepare") {
     "//base/web/webview/ohos_interface/ohos_glue/ohos_nweb/include/ark_web_js_all_ssl_error_result.h",
     "//base/web/webview/ohos_interface/ohos_glue/ohos_nweb/include/ark_web_nweb.h",
     "//base/web/webview/ohos_interface/ohos_glue/ohos_nweb/include/ark_web_agent_manager.h",
+    "//base/web/webview/ohos_interface/ohos_glue/ohos_nweb/include/ark_web_auto_fill_item.h",
+    "//base/web/webview/ohos_interface/ohos_glue/ohos_nweb/include/ark_web_auto_fill_item_vector.h",
     "//base/web/webview/ohos_interface/ohos_glue/ohos_nweb/include/ark_web_command_action.h",
     "//base/web/webview/ohos_interface/ohos_glue/ohos_nweb/include/ark_web_command_action_info.h",
     "//base/web/webview/ohos_interface/ohos_glue/ohos_nweb/include/ark_web_command_action_manager.h",
