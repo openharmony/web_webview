@@ -31,7 +31,9 @@ void ArkMigrationListenerAdapterImpl::OnMigrationReply(
     errorIndexVec = ArkWebBasicVectorStructToClass<int32_t, ArkWebInt32Vector>(errorIndex);
     codeListVec = ArkWebBasicVectorStructToClass<int32_t, ArkWebInt32Vector>(codeList);
 
-    real_->OnMigrationReply(errorCode, succussCount, errorIndexVec, codeListVec);
+    if (real_) {
+        real_->OnMigrationReply(errorCode, succussCount, errorIndexVec, codeListVec);
+    }
 }
 
 } // namespace OHOS::ArkWeb

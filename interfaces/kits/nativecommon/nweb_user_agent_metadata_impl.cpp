@@ -17,7 +17,7 @@
 
 namespace OHOS::NWeb {
 
-NWebUserAgentMetadataImpl::NWebUserAgentMetadataImpl() {}
+NWebUserAgentMetadataImpl::NWebUserAgentMetadataImpl() : isMobile_(false), isWow64_(false) {}
 
 NWebUserAgentMetadataImpl::NWebUserAgentMetadataImpl(const std::vector<std::string>& brand,
     const std::vector<std::string>& majorVersion, const std::vector<std::string>& brandFullVersion,

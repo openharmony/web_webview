@@ -96,6 +96,10 @@ private:
 using namespace OHOS;
 void OH_NativeArkWeb_RunJavaScript(const char* webTag, const char* jsCode, NativeArkWeb_OnJavaScriptCallback callback)
 {
+    if (!webTag || !jsCode) {
+        WVLOG_E("native RunJavaScript webTag or jsCode is null");
+        return;
+    }
     std::weak_ptr<OHOS::NWeb::NWeb> nwebWeak = OH_NativeArkWeb_GetWebInstanceByWebTag(webTag);
     if (auto nweb = nwebWeak.lock()) {
         auto callbackImpl = std::make_shared<OHOS::NWeb::NativeJavaScriptExecuteCallback>(callback);
@@ -109,9 +113,17 @@ void OH_NativeArkWeb_RunJavaScript(const char* webTag, const char* jsCode, Nativ
 void OH_NativeArkWeb_RegisterJavaScriptProxy(const char* webTag, const char* objName, const char** methodList,
     NativeArkWeb_OnJavaScriptProxyCallback* callback, int32_t size, bool isNeedRefresh)
 {
+    if (!webTag || !objName || !methodList || !callback) {
+        WVLOG_E("native OH_NativeArkWeb_RegisterJavaScriptProxy invalid param");
+        return;
+    }
     WVLOG_I("native OH_NativeArkWeb_RegisterJavaScriptProxy webTag:%{public}s", webTag);
     std::vector<std::shared_ptr<OHOS::NWeb::NWebJsProxyCallback>> proxyCallbacks;
     for (int i = 0; i < size; i++) {
+        if (!methodList[i]) {
+            WVLOG_E("native OH_NativeArkWeb_RegisterJavaScriptProxy methodList[%{public}d] is null", i);
+            continue;
+        }
         std::shared_ptr<OHOS::NWeb::NWebJsProxyCallback> proxyCallback =
             std::make_shared<OHOS::NWeb::NWebJsProxyCallbackImpl>(methodList[i], callback[i]);
         proxyCallbacks.push_back(proxyCallback);
