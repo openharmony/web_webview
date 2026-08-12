@@ -17,6 +17,8 @@
 #define OHOS_NWEB_SCHEME_HANDLER_H
 
 #include <ani.h>
+#include <atomic>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <uv.h>
@@ -68,6 +70,7 @@ private:
         ani_ref callbackRef_;
         WebSchemeHandlerRequest* request_;
         const ArkWeb_ResourceRequest* arkWebRequest_;
+        std::shared_ptr<std::atomic<bool>> isCallbackValid_;
     } RequestStopParam;
 
     void RequestStopAfterWorkCb(RequestStopParam* param);
@@ -78,6 +81,7 @@ private:
     ArkWeb_OnRequestStop onRequestStop_ = nullptr;
     ani_ref request_start_callback_ = nullptr;
     ani_ref request_stop_callback_ = nullptr;
+    std::shared_ptr<std::atomic<bool>> is_stop_callback_valid_ = std::make_shared<std::atomic<bool>>(false);
 };
 class WebHttpBodyStream {
 public:

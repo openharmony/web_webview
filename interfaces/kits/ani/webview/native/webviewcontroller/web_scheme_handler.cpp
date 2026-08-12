@@ -110,6 +110,7 @@ WebSchemeHandler::WebSchemeHandler(ani_env* env) : vm_(nullptr)
 WebSchemeHandler::~WebSchemeHandler()
 {
     WVLOG_D("WebSchemeHandler::~WebSchemeHandler");
+    is_stop_callback_valid_->store(false, std::memory_order_release);
     ani_env* env = GetEnv();
     if (!env) {
         WVLOG_E("env is null");
@@ -258,8 +259,9 @@ void WebSchemeHandler::RequestStopAfterWorkCb(RequestStopParam* param)
         delete param;
         return;
     }
-    if (param->env_ == nullptr || !param->callbackRef_) {
-        WVLOG_E("RequestStopAfterWorkCb: callbackRef_ or env_ is null");
+    if (param->env_ == nullptr || !param->callbackRef_ || !param->isCallbackValid_ ||
+        !param->isCallbackValid_->load(std::memory_order_acquire)) {
+        WVLOG_E("RequestStopAfterWorkCb: callbackRef_ or env_ is invalid");
         param->request_->DecStrongRef(param->request_);
         delete param;
         return;
@@ -360,6 +362,7 @@ void WebSchemeHandler::RequestStop(const ArkWeb_ResourceRequest* resourceRequest
     param->callbackRef_ = request_stop_callback_;
     param->request_ = request;
     param->arkWebRequest_ = resourceRequest;
+    param->isCallbackValid_ = is_stop_callback_valid_;
     auto task = [this, param]() { WebSchemeHandler::RequestStopAfterWorkCb(param); };
         mainHandler_->PostTask(task, TASK_ID);
     vm_->DetachCurrentThread();
@@ -409,6 +412,8 @@ void WebSchemeHandler::PutRequestStop(ani_env* env, ani_vm* vm, ani_fn_object ca
     ani_status status = env->GlobalReference_Create(reinterpret_cast<ani_ref>(callback), &request_stop_callback_);
     if (status != ANI_OK) {
         WVLOG_E("PutRequestStop create reference failed.");
+    } else {
+        is_stop_callback_valid_->store(true, std::memory_order_release);
     }
 }
 

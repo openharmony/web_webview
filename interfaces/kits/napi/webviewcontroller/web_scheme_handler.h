@@ -16,6 +16,8 @@
 #ifndef NWEB_WEB_SCHEME_HANDLER_H
 #define NWEB_WEB_SCHEME_HANDLER_H
 
+#include <atomic>
+#include <memory>
 #include <string>
 #include <unistd.h>
 #include <uv.h>
@@ -59,6 +61,7 @@ private:
         napi_ref callbackRef_;
         WebSchemeHandlerRequest* request_;
         const ArkWeb_ResourceRequest* arkWebRequest_;
+        std::shared_ptr<std::atomic<bool>> isCallbackValid_;
     } RequestStopParam;
 
     static void RequestStopAfterWorkCb(uv_work_t* work, int status);
@@ -68,6 +71,7 @@ private:
     ArkWeb_OnRequestStop onRequestStop_ = nullptr;
     napi_ref request_start_callback_ = nullptr;
     napi_ref request_stop_callback_ = nullptr;
+    std::shared_ptr<std::atomic<bool>> is_stop_callback_valid_ = std::make_shared<std::atomic<bool>>(false);
     pid_t thread_id_;
 };
 
