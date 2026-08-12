@@ -47,6 +47,8 @@ private:
 
     int32_t HandleDestroyRenderSurface(MessageParcel &data, MessageParcel &reply);
 
+    int32_t HandleQueryBufferTypeLeak(MessageParcel &data, MessageParcel &reply);
+
     using BrowserHostFunc = std::function<int32_t(BrowserHost*, MessageParcel &data, MessageParcel &reply)>;
 
     std::map<uint32_t, BrowserHostFunc> memberFuncMap_;
@@ -68,8 +70,11 @@ public:
     void PassSurface(sptr<Surface> surface, int64_t surface_id) override;
 
     void DestroyRenderSurface(int32_t surface_id) override;
+
+    std::string QueryBufferTypeLeak(int32_t surface_id) override;
 private:
     std::map<int64_t, sptr<Surface>> surface_map_;
+    std::map<int32_t, sptr<Surface>> renderSurfaceCache_;
     std::shared_ptr<AafwkBrowserHostAdapter> browserHostAdapter_;
     std::mutex map_mutex_;
 };

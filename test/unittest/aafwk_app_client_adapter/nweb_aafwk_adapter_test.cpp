@@ -117,6 +117,8 @@ public:
     void PassSurface(sptr<Surface>surface, int64_t surface_id);
 
     void DestroyRenderSurface(int32_t surface_id);
+
+    std::string QueryBufferTypeLeak(int32_t surface_id);
 };
 
 QuerySurfaceResult MockBrowserClient::QueryRenderSurface(int32_t surfaceId, uint64_t& nodeId)
@@ -143,6 +145,12 @@ void MockBrowserClient::PassSurface(sptr<Surface>surface, int64_t surface_id)
 void MockBrowserClient::DestroyRenderSurface(int32_t surface_id)
 {
     (void)surface_id;
+}
+
+std::string MockBrowserClient::QueryBufferTypeLeak(int32_t surface_id)
+{
+    (void)surface_id;
+    return "";
 }
 
 class MockMessageParcel : public MessageParcel {
@@ -220,6 +228,8 @@ public:
     MOCK_METHOD(void, PassSurface, (sptr<Surface> surface, int64_t surface_id), (override));
 
     MOCK_METHOD(void, DestroyRenderSurface, (int32_t surface_id), (override));
+
+    MOCK_METHOD(std::string, QueryBufferTypeLeak, (int32_t surface_id), (override));
     
     MOCK_METHOD(sptr<IRemoteObject>, AsObject, (), (override));
 };

@@ -156,6 +156,30 @@ void BrowserClient::DestroyRenderSurface(int32_t surface_id)
     return;
 }
 
+std::string BrowserClient::QueryBufferTypeLeak(int32_t surface_id)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return "";
+    }
+    data.WriteInt32(surface_id);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        WVLOG_E("Remote is NULL.");
+        return "";
+    }
+    int32_t ret = remote->SendRequest(
+        static_cast<uint32_t>(IBrowser::Message::QUERY_BUFFER_TYPE_LEAK),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        WVLOG_E("SendRequest failed, error code = %{public}d", ret);
+        return "";
+    }
+    return reply.ReadString();
+}
+
 AafwkBrowserClientAdapterImpl::AafwkBrowserClientAdapterImpl() {}
 
 AafwkBrowserClientAdapterImpl& AafwkBrowserClientAdapterImpl::GetInstance()
@@ -174,6 +198,12 @@ void* AafwkBrowserClientAdapterImpl::QueryRenderSurface(int32_t surface_id)
         // get return value
         sptr<IBufferProducer> bufferProducer = iface_cast<IBufferProducer>(surfaceObject);
         sptr<Surface> surface = Surface::CreateSurfaceAsProducer(bufferProducer);
+        if (surface != nullptr) {
+            std::string bufferTypeLeak = GetInstance().browserHost_->QueryBufferTypeLeak(surface_id);
+            if (!bufferTypeLeak.empty()) {
+                surface->SetBufferTypeLeak(bufferTypeLeak);
+            }
+        }
         OHNativeWindow* window = ::CreateNativeWindowFromSurface(&surface);
         if (!window) {
             WVLOG_E("create the native window failed.");
@@ -254,5 +284,14 @@ void AafwkBrowserClientAdapterImpl::DestroyRenderSurface(int32_t surface_id)
     rsHandleMap_.erase(surface_id);
     GetInstance().browserHost_->DestroyRenderSurface(surface_id);
     WVLOG_D("Destroy nweb surface id = %{public}d", surface_id);
+}
+
+std::string AafwkBrowserClientAdapterImpl::QueryBufferTypeLeak(int32_t surface_id)
+{
+    if (!GetInstance().browserHost_) {
+        WVLOG_E("browserHost_ is not exist");
+        return "";
+    }
+    return GetInstance().browserHost_->QueryBufferTypeLeak(surface_id);
 }
 } // namespace OHOS::NWeb

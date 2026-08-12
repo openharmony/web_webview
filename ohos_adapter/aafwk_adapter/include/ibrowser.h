@@ -40,11 +40,14 @@ public:
 
     virtual void DestroyRenderSurface(int32_t surface_id) = 0;
 
+    virtual std::string QueryBufferTypeLeak(int32_t surface_id) = 0;
+
     enum class Message {
         QUERY_RENDER_SURFACE = 1,
         REPORT_THREAD = 2,
         PASS_SURFACE = 3,
         DESTROY_RENDER_SURFACE = 4,
+        QUERY_BUFFER_TYPE_LEAK = 5,
     };
 };
 } // namespace NWeb

@@ -52,6 +52,10 @@ BrowserHost::BrowserHost()
         [](BrowserHost* that, MessageParcel &data, MessageParcel &reply) {
             return that->HandleDestroyRenderSurface(data, reply);
         };
+    memberFuncMap_[static_cast<uint32_t>(IBrowser::Message::QUERY_BUFFER_TYPE_LEAK)] =
+        [](BrowserHost* that, MessageParcel &data, MessageParcel &reply) {
+            return that->HandleQueryBufferTypeLeak(data, reply);
+        };
 }
 
 BrowserHost::~BrowserHost()
@@ -145,6 +149,14 @@ int BrowserHost::HandleDestroyRenderSurface(MessageParcel &data, MessageParcel &
     return 0;
 }
 
+int BrowserHost::HandleQueryBufferTypeLeak(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t surface_id = data.ReadInt32();
+    std::string bufferTypeLeak = QueryBufferTypeLeak(surface_id);
+    reply.WriteString(bufferTypeLeak);
+    return 0;
+}
+
 AafwkBrowserHostImpl::AafwkBrowserHostImpl(std::shared_ptr<AafwkBrowserHostAdapter> adapter)
     : browserHostAdapter_(adapter) {}
 
@@ -192,6 +204,8 @@ std::pair<sptr<IRemoteObject>, sptr<IRemoteObject>> AafwkBrowserHostImpl::QueryR
             nodeId = 0;
         }
     }
+    std::unique_lock<std::mutex> map_lock(map_mutex_);
+    renderSurfaceCache_[surfaceId] = surface;
     std::string fetchedRSHandle = surface->GetUserData(DELEGATE_CONNECT_TO_RENDER);
     sptr<IRemoteObject> rsHandle = nullptr;
     if (!fetchedRSHandle.empty()) {
@@ -243,6 +257,19 @@ void AafwkBrowserHostImpl::DestroyRenderSurface(int32_t surface_id)
     }
     browserHostAdapter_->DestroySurfaceFromKernel(surface_id);
     WVLOG_D("Destroy render surface id is %{public}d", surface_id);
+}
+
+std::string AafwkBrowserHostImpl::QueryBufferTypeLeak(int32_t surface_id)
+{
+    std::unique_lock<std::mutex> map_lock(map_mutex_);
+    auto it = renderSurfaceCache_.find(surface_id);
+    if (it != renderSurfaceCache_.end() && it->second != nullptr) {
+        std::string bufferTypeLeak = it->second->GetBufferTypeLeak();
+        renderSurfaceCache_.erase(surface_id);
+        return bufferTypeLeak;
+    }
+    WVLOG_E("browser host impl query buffer type leak failed for window id = %{public}d", surface_id);
+    return "";
 }
 
 } // namespace OHOS::NWeb

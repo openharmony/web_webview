@@ -39,6 +39,8 @@ public:
     virtual void PassSurface(sptr<Surface> surface, int64_t surface_id) override;
 
     virtual void DestroyRenderSurface(int32_t surface_id) override;
+
+    virtual std::string QueryBufferTypeLeak(int32_t surface_id) override;
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     static inline BrokerDelegator<BrowserClient> delegator_;
@@ -60,6 +62,8 @@ public:
     void PassSurface(int64_t surface_id) override;
 
     void DestroyRenderSurface(int32_t surface_id) override;
+
+    std::string QueryBufferTypeLeak(int32_t surface_id) override;
 
     sptr<IBrowser> browserHost_;
 private:
