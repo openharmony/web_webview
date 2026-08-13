@@ -44,6 +44,10 @@ const std::string TASK_ID = "unload";
 const std::string PERSIST_ARKWEBCORE_PACKAGE_NAME = "persist.arkwebcore.package_name";
 const std::set<std::string> ARK_WEB_DEFAULT_BUNDLE_NAME_SET = { "com.ohos.nweb", "com.ohos.arkwebcore" };
 const std::string NWEB_HAP_PATH_MODULE_UPDATE = "/module_update/ArkWebCore/app/com.ohos.nweb/NWeb.hap";
+
+const std::string BOOT_POLLING_TASK_ID = "boot_completed_poller";
+constexpr int32_t BOOT_POLLING_MAX_RETRY_COUNT = 5;
+constexpr int32_t BOOT_POLLING_DELAY_TIME = 2000; // 2s
 } // namespace
 
 PackageChangedReceiver::PackageChangedReceiver(
@@ -87,7 +91,12 @@ void PackageChangedReceiver::OnReceiveEvent(const EventFwk::CommonEventData& dat
 
 AppFwkUpdateService::AppFwkUpdateService(int32_t saId, bool runOnCreate) : SystemAbility(saId, runOnCreate) {}
 
-AppFwkUpdateService::~AppFwkUpdateService() {}
+AppFwkUpdateService::~AppFwkUpdateService()
+{
+    if (unloadHandler_ != nullptr) {
+        unloadHandler_->RemoveTask(BOOT_POLLING_TASK_ID);
+    }
+}
 
 ErrCode AppFwkUpdateService::NotifyFWKAfterBmsStart()
 {
@@ -95,21 +104,48 @@ ErrCode AppFwkUpdateService::NotifyFWKAfterBmsStart()
         WVLOG_E("GetCallingUid is not FOUNDATION_UID");
         return ERR_INVALID_VALUE;
     }
-    const std::string bundleName = OHOS::system::GetParameter(PERSIST_ARKWEBCORE_PACKAGE_NAME, "");
-    if (bundleName.empty()) {
+    bundleName_ = OHOS::system::GetParameter(PERSIST_ARKWEBCORE_PACKAGE_NAME, "");
+    if (bundleName_.empty()) {
         WVLOG_E("NotifyFWKAfterBmsStart bundleName is empty");
         return ERR_INVALID_VALUE;
     }
-    WVLOG_I("NotifyFWKAfterBmsStart bundleName: %{public}s", bundleName.c_str());
-    int ret = SendAppSpawnMessage(bundleName, MSG_LOAD_WEBLIB_IN_APPSPAWN);
-    if (ret != 0) {
-        return ERR_INVALID_VALUE;
-    }
-    ret = OHOS::system::SetParameter("web.engine.install.completed", "true");
+
+    WVLOG_I("NotifyFWKAfterBmsStart bundleName: %{public}s", bundleName_.c_str());
+    // Refresh unload task to prevent SA from exiting early. SA will exit one minute after refresh.
+    PostDelayUnloadTask();
+    // Start the first polling, poll 5 times * 2s, with a maximum duration of 10s.
+    DoBootCompletedPolling();
+
+    int ret = OHOS::system::SetParameter("web.engine.install.completed", "true");
     if (ret != 0) {
         return ERR_INVALID_VALUE;
     }
     return ERR_OK;
+}
+
+void AppFwkUpdateService::DoBootCompletedPolling(int retryCount)
+{
+    bool bootCompleted = OHOS::system::GetBoolParameter("bootevent.boot.completed", false);
+    WVLOG_I("bootCompleted: %{public}d, retry count: %{public}d",
+            bootCompleted, retryCount);
+    if (bootCompleted || retryCount >= BOOT_POLLING_MAX_RETRY_COUNT) {
+        int ret = SendAppSpawnMessage(bundleName_, MSG_LOAD_WEBLIB_IN_APPSPAWN);
+        if (ret != 0) {
+            WVLOG_E("SendAppSpawnMessage failed");
+        }
+        return;
+    }
+    if (unloadHandler_ == nullptr) {
+        WVLOG_E("unloadHandler_ is null");
+        return;
+    }
+
+    WVLOG_I("continue polling");
+    auto nextTask = [this, retryCount]() {
+        DoBootCompletedPolling(retryCount + 1);
+    };
+    unloadHandler_->RemoveTask(BOOT_POLLING_TASK_ID);
+    unloadHandler_->PostTask(nextTask, BOOT_POLLING_TASK_ID, BOOT_POLLING_DELAY_TIME);
 }
 
 ErrCode AppFwkUpdateService::NotifyArkWebInstallSuccess()

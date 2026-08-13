@@ -69,11 +69,13 @@ private:
     int SetWebCorePackageName(const std::string& packageName);
     int SendAppSpawnMessage(const std::string& packageName, AppSpawnMsgType msgType);
     int SendNWebSpawnMesage(const std::string& packageName);
+    void DoBootCompletedPolling(int retryCount = 0);
     std::shared_ptr<AppExecFwk::EventHandler> unloadHandler_;
     std::shared_ptr<AppExecFwk::EventRunner> runner_;
     bool registerToService_ = false;
     std::shared_ptr<EventFwk::CommonEventSubscriber> pkgSubscriber_;
     std::mutex lock_;
+    std::string bundleName_;
 };
 } // namespace OHOS::NWeb
 
