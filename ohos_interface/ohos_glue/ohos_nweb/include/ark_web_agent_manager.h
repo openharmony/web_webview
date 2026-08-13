@@ -76,6 +76,21 @@ public:
      */
     /*--ark web()--*/
     virtual void RequestWebDomJsonString(ArkWebRefPtr<ArkWebMessageValueCallback> callback) = 0;
+
+    /**
+     * @brief Request page scene query for input controls.
+     *
+     * @param ruleJson JSON string of selector configuration and callback routing.
+     * @param ruleId Rule identifier.
+     * @param nodeTypes Node type tags to observe. Empty = query only, non-empty = query + observer.
+     * @param callback Result callback for immediate query result.
+     */
+    /*--ark web()--*/
+    virtual void RequestPageSceneQuery(
+        const ArkWebString& ruleJson,
+        const ArkWebString& ruleId,
+        const ArkWebStringVector& nodeTypes,
+        ArkWebRefPtr<ArkWebMessageValueCallback> callback) = 0;
 };
 
 } // namespace OHOS::ArkWeb
