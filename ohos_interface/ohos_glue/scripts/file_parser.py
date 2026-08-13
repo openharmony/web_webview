@@ -406,7 +406,7 @@ _simpletypes = {
     'ArkWebSelectPopupMenuItemVector':[
         'ArkWebSelectPopupMenuItemVector', 'ark_web_select_popup_menu_item_vector_default'
     ],
-    'ArkWebAutoFillItemVector':['ArkWebAutoFillItemVector', 'ark_web_auto_fill_item_vector_default'],
+    'ArkWebAutoFillItemVector': ['ArkWebAutoFillItemVector', 'ark_web_auto_fill_item_vector_default'],
     'char* const': ['char* const', 'NULL'],
     'cef_color_t': ['cef_color_t', '0'],
     'cef_json_parser_error_t': ['cef_json_parser_error_t', 'JSON_NO_ERROR'],
