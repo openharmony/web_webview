@@ -289,7 +289,7 @@ int32_t CertManagerAdapterImpl::GetSytemRootCertData(uint32_t certCount, uint8_t
         return CM_FAILURE;
     }
 
-    if (certCount >= certList->certsCount) {
+    if (certCount > certList->certsCount) {
         WVLOG_E("GetSytemRootCertData, cert count invailed, cert count = %{public}d ", certCount);
         FreeCMBlobData(&(certInfo.certInfo));
         FreeCertList(certList);
@@ -373,7 +373,7 @@ int32_t CertManagerAdapterImpl::GetUserRootCertData(uint32_t certCount, uint8_t*
         return CM_FAILURE;
     }
 
-    if (certCount >= certList->certsCount) {
+    if (certCount > certList->certsCount) {
         WVLOG_E("GetUserRootCertData, cert count invailed, cert count = %{public}d ", certCount);
         FreeCMBlobData(&(certInfo.certInfo));
         FreeCertList(certList);
