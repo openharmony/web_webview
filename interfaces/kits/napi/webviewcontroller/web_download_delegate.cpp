@@ -58,7 +58,11 @@ void WebDownloadDelegate::RemoveSelfRef()
 {
     if (delegate_) {
         uint32_t refCount;
-        napi_reference_unref(env_, delegate_, &refCount);
+        napi_status status = napi_reference_unref(env_, delegate_, &refCount);
+        if (status != napi_ok) {
+            WVLOG_E("[DOWNLOAD] WebDownloadDelegate::RemoveSelfRef napi_reference_unref failed");
+            return;
+        }
         if (refCount == 0) {
             napi_delete_reference(env_, delegate_);
             delegate_ = nullptr;
