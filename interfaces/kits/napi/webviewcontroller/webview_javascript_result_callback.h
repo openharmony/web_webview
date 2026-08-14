@@ -545,8 +545,6 @@ private:
     std::shared_ptr<NWebValue> GetJavaScriptResultSelfFlowbuf(std::vector<std::shared_ptr<NWebValue>> args,
         const std::string& method, const std::string& objName, int fd, int32_t routingId, int32_t objectId);
 
-    void PostRemoveTransientJavaScriptObjectToJsThread(std::shared_ptr<JavaScriptOb> jsObj);
-
     bool ConstructArgvV2(void* ashmem, const std::vector<std::shared_ptr<NWebHapValue>>& args,
         std::vector<napi_value>& argv, std::shared_ptr<JavaScriptOb> jsObj, int32_t routingId);
 
@@ -563,6 +561,8 @@ private:
         int32_t routingId, int32_t objectId, std::shared_ptr<NWebHapValue> result);
 
     void PostGetJavaScriptObjectMethodsToJsThreadV2(int32_t objectId, std::shared_ptr<NWebHapValue> result);
+
+    void PostRemoveTransientJavaScriptObjectToJsThread(std::shared_ptr<JavaScriptOb> jsObj);
 
     int32_t nwebId_ = -1;
 
