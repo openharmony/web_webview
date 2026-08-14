@@ -781,6 +781,7 @@ HWTEST_F(AppFwkUpdateServiceTest, NotifyFWKAfterBmsStart_002, testing::ext::Test
     service_->OnAddSystemAbility(COMMON_EVENT_SERVICE_ID - 1, "9527");
     g_parameter = 1;
     g_setParameter = 1;
+    g_boolParameter = 1;
     EXPECT_EQ(service_->NotifyFWKAfterBmsStart(), ERR_INVALID_VALUE);
 }
 
@@ -798,7 +799,8 @@ HWTEST_F(AppFwkUpdateServiceTest, NotifyFWKAfterBmsStart_003, testing::ext::Test
     EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientSendMsg(_, _, _)).Times(0);
     EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientDestroy(nullptr)).WillOnce(Return(0));
     g_parameter = 1;
-    EXPECT_EQ(service_->NotifyFWKAfterBmsStart(), ERR_INVALID_VALUE);
+    g_boolParameter = 1;
+    EXPECT_EQ(service_->NotifyFWKAfterBmsStart(), ERR_OK);
 }
 
 /**
@@ -823,7 +825,112 @@ HWTEST_F(AppFwkUpdateServiceTest, NotifyFWKAfterBmsStart_004, testing::ext::Test
     service_->OnAddSystemAbility(COMMON_EVENT_SERVICE_ID - 1, "9527");
     g_parameter = 1;
     g_setParameter = 0;
+    g_boolParameter = 1;
     EXPECT_EQ(service_->NotifyFWKAfterBmsStart(), ERR_OK);
+}
+
+/**
+ * @tc.name: DoBootCompletedPolling_001
+ * @tc.desc: DoBootCompletedPolling - bootCompleted is true
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(AppFwkUpdateServiceTest, DoBootCompletedPolling_001, testing::ext::TestSize.Level0)
+{
+    AppSpawnClientHandle clientHandle = reinterpret_cast<AppSpawnClientHandle>(1);
+    AppSpawnReqMsgHandle reqHandle = reinterpret_cast<AppSpawnReqMsgHandle>(1);
+
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientInit(APPSPAWN_SERVER_NAME, _))
+        .WillOnce(DoAll(SetArgPointee<1>(clientHandle), Return(0)));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(MSG_LOAD_WEBLIB_IN_APPSPAWN, _, _))
+        .WillOnce(DoAll(SetArgPointee<2>(reqHandle), Return(0)));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientSendMsg(_, _, _)).WillOnce(Return(0));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientDestroy(_)).WillOnce(Return(0));
+
+    service_->bundleName_ = "com.ohos.nweb";
+    g_boolParameter = 1;
+    service_->DoBootCompletedPolling(0);
+}
+
+/**
+ * @tc.name: DoBootCompletedPolling_002
+ * @tc.desc: DoBootCompletedPolling - bootCompleted is false, retryCount < max, unloadHandler_ not null
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(AppFwkUpdateServiceTest, DoBootCompletedPolling_002, testing::ext::TestSize.Level0)
+{
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientInit(_, _)).Times(0);
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(_, _, _)).Times(0);
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientSendMsg(_, _, _)).Times(0);
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientDestroy(_)).Times(0);
+
+    service_->bundleName_ = "com.ohos.nweb";
+    service_->PostDelayUnloadTask();
+    ASSERT_NE(service_->unloadHandler_, nullptr);
+    g_boolParameter = 0;
+    service_->DoBootCompletedPolling(0);
+}
+
+/**
+ * @tc.name: DoBootCompletedPolling_003
+ * @tc.desc: DoBootCompletedPolling - bootCompleted is false, retryCount < max, unloadHandler_ is null
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(AppFwkUpdateServiceTest, DoBootCompletedPolling_003, testing::ext::TestSize.Level0)
+{
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientInit(_, _)).Times(0);
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(_, _, _)).Times(0);
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientSendMsg(_, _, _)).Times(0);
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientDestroy(_)).Times(0);
+
+    service_->bundleName_ = "com.ohos.nweb";
+    service_->unloadHandler_ = nullptr;
+    g_boolParameter = 0;
+    service_->DoBootCompletedPolling(0);
+}
+
+/**
+ * @tc.name: DoBootCompletedPolling_004
+ * @tc.desc: DoBootCompletedPolling - retryCount >= max, SendAppSpawnMessage is called
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(AppFwkUpdateServiceTest, DoBootCompletedPolling_004, testing::ext::TestSize.Level0)
+{
+    AppSpawnClientHandle clientHandle = reinterpret_cast<AppSpawnClientHandle>(1);
+    AppSpawnReqMsgHandle reqHandle = reinterpret_cast<AppSpawnReqMsgHandle>(1);
+
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientInit(APPSPAWN_SERVER_NAME, _))
+        .WillOnce(DoAll(SetArgPointee<1>(clientHandle), Return(0)));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(MSG_LOAD_WEBLIB_IN_APPSPAWN, _, _))
+        .WillOnce(DoAll(SetArgPointee<2>(reqHandle), Return(0)));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientSendMsg(_, _, _)).WillOnce(Return(0));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientDestroy(_)).WillOnce(Return(0));
+
+    service_->bundleName_ = "com.ohos.nweb";
+    g_boolParameter = 0;
+    service_->DoBootCompletedPolling(5);
+}
+
+/**
+ * @tc.name: DoBootCompletedPolling_005
+ * @tc.desc: DoBootCompletedPolling - bootCompleted is true, SendAppSpawnMessage fails
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(AppFwkUpdateServiceTest, DoBootCompletedPolling_005, testing::ext::TestSize.Level0)
+{
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientInit(APPSPAWN_SERVER_NAME, _))
+        .WillRepeatedly(Return(-1));
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnReqMsgCreate(_, _, _)).Times(0);
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientSendMsg(_, _, _)).Times(0);
+    EXPECT_CALL(*mockAppSpawnFunctions_, AppSpawnClientDestroy(nullptr)).WillOnce(Return(0));
+
+    service_->bundleName_ = "com.ohos.nweb";
+    g_boolParameter = 1;
+    service_->DoBootCompletedPolling(0);
 }
 
 /**
