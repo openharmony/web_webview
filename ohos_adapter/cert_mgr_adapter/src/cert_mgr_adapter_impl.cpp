@@ -280,7 +280,11 @@ int32_t CertManagerAdapterImpl::GetSytemRootCertData(uint32_t certCount, uint8_t
 
     struct CertInfo certInfo;
     unsigned int len = sizeof(struct CertInfo);
-    (void)memset_s(&certInfo, len, 0, len);
+    if (memset_s(&certInfo, len, 0, len) != EOK) {
+        WVLOG_E("GetSytemRootCertData, memset_s failed");
+        FreeCertList(certList);
+        return CM_FAILURE;
+    }
     ret = InitCertInfo(&certInfo);
     if (ret != CM_SUCCESS) {
         WVLOG_E("GetSytemRootCertData, init cert failed, ret = %{public}d ", ret);
@@ -309,6 +313,7 @@ int32_t CertManagerAdapterImpl::GetSytemRootCertData(uint32_t certCount, uint8_t
     if (ret != CM_SUCCESS) {
         WVLOG_E("GetSytemRootCertData, get cert info failed, ret = %{public}d ", ret);
         FreeCMBlobData(&(certInfo.certInfo));
+        (void)memset_s(&certInfo, sizeof(struct CertInfo), 0, sizeof(struct CertInfo));
         FreeCertList(certList);
         return CM_FAILURE;
     }
@@ -316,11 +321,13 @@ int32_t CertManagerAdapterImpl::GetSytemRootCertData(uint32_t certCount, uint8_t
     if (memcpy_s(certData, MAX_LEN_CERTIFICATE, certInfo.certInfo.data, certInfo.certInfo.size) != EOK) {
         WVLOG_E("GetSytemRootCertData, memory copy failed");
         FreeCMBlobData(&(certInfo.certInfo));
+        (void)memset_s(&certInfo, sizeof(struct CertInfo), 0, sizeof(struct CertInfo));
         FreeCertList(certList);
         return CM_FAILURE;
     }
 
     FreeCMBlobData(&(certInfo.certInfo));
+    (void)memset_s(&certInfo, sizeof(struct CertInfo), 0, sizeof(struct CertInfo));
     FreeCertList(certList);
     return CM_SUCCESS;
 }
