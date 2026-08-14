@@ -38,4 +38,12 @@ std::string ArkWebUrlResourceErrorWrapper::ErrorInfo()
     return objErrorInfo;
 }
 
+int ArkWebUrlResourceErrorWrapper::CustomErrorCode()
+{
+    if (!ark_web_url_resource_error_) {
+        return 0;
+    }
+    return ark_web_url_resource_error_->CustomErrorCode();
+}
+
 } // namespace OHOS::ArkWeb

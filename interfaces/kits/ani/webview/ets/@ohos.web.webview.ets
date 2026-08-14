@@ -1147,6 +1147,8 @@ export default namespace webview {
         native getHeaderByName(name: string): string;
         native setNetErrorCode(code: WebNetErrorList): void;
         native getNetErrorCode(): WebNetErrorList;
+        native setCustomErrorCode(customErrorCode: int): void;
+        native getCustomErrorCode(): int;
     }
 
      export class WebSchemeHandler {
@@ -1267,6 +1269,10 @@ export default namespace webview {
         native didFailv1(code: WebNetErrorList, completeIfNoResponse: boolean): void
         didFail(code: WebNetErrorList, completeIfNoResponse: boolean): void {
             this.didFailv1(code, completeIfNoResponse);
+        }
+        native didFailv2(code: WebNetErrorList, completeIfNoResponse: boolean, customErrorCode: int): void;
+        didFail(code: WebNetErrorList, completeIfNoResponse: boolean, customErrorCode: int): void {
+            this.didFailv2(code, completeIfNoResponse, customErrorCode);
         }
         native didReceiveResponseBody(data: ArrayBuffer): void;
 

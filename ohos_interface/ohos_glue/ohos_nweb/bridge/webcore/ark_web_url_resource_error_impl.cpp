@@ -34,4 +34,12 @@ ArkWebString ArkWebUrlResourceErrorImpl::ErrorInfo()
     return ArkWebStringClassToStruct(nweb_url_resource_error_->ErrorInfo());
 }
 
+int ArkWebUrlResourceErrorImpl::CustomErrorCode()
+{
+    if (!nweb_url_resource_error_) {
+        return 0;
+    }
+    return nweb_url_resource_error_->CustomErrorCode();
+}
+
 } // namespace OHOS::ArkWeb

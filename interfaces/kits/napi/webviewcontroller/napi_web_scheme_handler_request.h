@@ -99,6 +99,8 @@ public:
     static napi_value JS_SetHeaderByName(napi_env env, napi_callback_info cbinfo);
     static napi_value JS_GetNetErrorCode(napi_env env, napi_callback_info cbinfo);
     static napi_value JS_SetNetErrorCode(napi_env env, napi_callback_info cbinfo);
+    static napi_value JS_GetCustomErrorCode(napi_env env, napi_callback_info cbinfo);
+    static napi_value JS_SetCustomErrorCode(napi_env env, napi_callback_info cbinfo);
 };
 
 class NapiWebSchemeHandler {

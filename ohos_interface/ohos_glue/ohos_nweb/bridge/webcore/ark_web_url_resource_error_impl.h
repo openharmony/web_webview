@@ -43,6 +43,13 @@ public:
      */
     ArkWebString ErrorInfo() override;
 
+    /**
+     * @brief Get the custom error code.
+     *
+     * @return The custom error code.
+     */
+    int CustomErrorCode() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebUrlResourceError> nweb_url_resource_error_;
 };

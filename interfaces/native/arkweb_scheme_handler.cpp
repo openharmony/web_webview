@@ -74,6 +74,10 @@ namespace {
     DO(OH_ArkWebResponse_SetUrl);                       \
     DO(OH_ArkWebResponse_SetError);                     \
     DO(OH_ArkWebResponse_GetError);                     \
+    DO(OH_ArkWebResponse_SetCustomErrorCode);           \
+    DO(OH_ArkWebResponse_GetCustomErrorCode);           \
+    DO(OH_ArkWebResponse_SetErrorInfo);                 \
+    DO(OH_ArkWebResponse_GetErrorInfo);                 \
     DO(OH_ArkWebResponse_SetStatus);                    \
     DO(OH_ArkWebResponse_GetStatus);                    \
     DO(OH_ArkWebResponse_SetStatusText);                \
@@ -90,6 +94,15 @@ namespace {
     DO(OH_ArkWebResourceHandler_DidFinish);             \
     DO(OH_ArkWebResourceHandler_DidFailWithError);      \
     DO(OH_ArkWebResourceHandler_DidFailWithErrorV2);    \
+    DO(OH_ArkWeb_CreateErrorInfo);                      \
+    DO(OH_ArkWeb_DestroyErrorInfo);                     \
+    DO(OH_ArkWebErrorInfo_SetCompleteIfNoResponse);     \
+    DO(OH_ArkWebErrorInfo_GetCompleteIfNoResponse);     \
+    DO(OH_ArkWebErrorInfo_SetCustomErrorCode);          \
+    DO(OH_ArkWebErrorInfo_GetCustomErrorCode);          \
+    DO(OH_ArkWebErrorInfo_SetErrorCode);                \
+    DO(OH_ArkWebErrorInfo_GetErrorCode);                \
+    DO(OH_ArkWebResourceHandler_DidFailWithErrorInfo);  \
     DO(OH_ArkWeb_ReleaseString);                        \
     DO(OH_ArkWeb_ReleaseByteArray);                     \
     DO(OH_ArkWebSchemeHandler_SetFromEts)
@@ -827,6 +840,137 @@ int32_t OH_ArkWebResourceHandler_DidFailWithErrorV2(
  
     WVLOG_E("OH_ArkWeb_ResourceHandler_DidFailWithError not found.");
     return ARKWEB_ERROR_UNKNOWN;
+}
+
+void OH_ArkWeb_CreateErrorInfo(ArkWeb_ErrorInfo** errorInfo)
+{
+    if (!g_SchemeHandlerApi || !g_SchemeHandlerApi->impl_OH_ArkWeb_CreateErrorInfo) {
+        WVLOG_E("OH_ArkWeb_CreateErrorInfo not found.");
+        return;
+    }
+
+    return g_SchemeHandlerApi->impl_OH_ArkWeb_CreateErrorInfo(errorInfo);
+}
+
+void OH_ArkWeb_DestroyErrorInfo(ArkWeb_ErrorInfo* errorInfo)
+{
+    if (!g_SchemeHandlerApi || !g_SchemeHandlerApi->impl_OH_ArkWeb_DestroyErrorInfo) {
+        WVLOG_E("OH_ArkWeb_DestroyErrorInfo not found.");
+        return;
+    }
+
+    return g_SchemeHandlerApi->impl_OH_ArkWeb_DestroyErrorInfo(errorInfo);
+}
+
+int32_t OH_ArkWebErrorInfo_SetCompleteIfNoResponse(ArkWeb_ErrorInfo* errorInfo, bool completeIfNoResponse)
+{
+    if (!g_SchemeHandlerApi || !g_SchemeHandlerApi->impl_OH_ArkWebErrorInfo_SetCompleteIfNoResponse) {
+        WVLOG_E("OH_ArkWebErrorInfo_SetCompleteIfNoResponse not found.");
+        return ARKWEB_INVALID_PARAM;
+    }
+
+    return g_SchemeHandlerApi->impl_OH_ArkWebErrorInfo_SetCompleteIfNoResponse(errorInfo, completeIfNoResponse);
+}
+
+bool OH_ArkWebErrorInfo_GetCompleteIfNoResponse(const ArkWeb_ErrorInfo* errorInfo)
+{
+    if (!g_SchemeHandlerApi || !g_SchemeHandlerApi->impl_OH_ArkWebErrorInfo_GetCompleteIfNoResponse) {
+        WVLOG_E("OH_ArkWebErrorInfo_GetCompleteIfNoResponse not found.");
+        return false;
+    }
+
+    return g_SchemeHandlerApi->impl_OH_ArkWebErrorInfo_GetCompleteIfNoResponse(errorInfo);
+}
+
+int32_t OH_ArkWebErrorInfo_SetCustomErrorCode(ArkWeb_ErrorInfo* errorInfo, int32_t customErrorCode)
+{
+    if (!g_SchemeHandlerApi || !g_SchemeHandlerApi->impl_OH_ArkWebErrorInfo_SetCustomErrorCode) {
+        WVLOG_E("OH_ArkWebErrorInfo_SetCustomErrorCode not found.");
+        return ARKWEB_INVALID_PARAM;
+    }
+
+    return g_SchemeHandlerApi->impl_OH_ArkWebErrorInfo_SetCustomErrorCode(errorInfo, customErrorCode);
+}
+
+int32_t OH_ArkWebErrorInfo_GetCustomErrorCode(const ArkWeb_ErrorInfo* errorInfo)
+{
+    if (!g_SchemeHandlerApi || !g_SchemeHandlerApi->impl_OH_ArkWebErrorInfo_GetCustomErrorCode) {
+        WVLOG_E("OH_ArkWebErrorInfo_GetCustomErrorCode not found.");
+        return 0;
+    }
+
+    return g_SchemeHandlerApi->impl_OH_ArkWebErrorInfo_GetCustomErrorCode(errorInfo);
+}
+
+int32_t OH_ArkWebErrorInfo_SetErrorCode(ArkWeb_ErrorInfo* errorInfo, ArkWeb_NetError errorCode)
+{
+    if (!g_SchemeHandlerApi || !g_SchemeHandlerApi->impl_OH_ArkWebErrorInfo_SetErrorCode) {
+        WVLOG_E("OH_ArkWebErrorInfo_SetErrorCode not found.");
+        return ARKWEB_INVALID_PARAM;
+    }
+
+    return g_SchemeHandlerApi->impl_OH_ArkWebErrorInfo_SetErrorCode(errorInfo, errorCode);
+}
+
+ArkWeb_NetError OH_ArkWebErrorInfo_GetErrorCode(const ArkWeb_ErrorInfo* errorInfo)
+{
+    if (!g_SchemeHandlerApi || !g_SchemeHandlerApi->impl_OH_ArkWebErrorInfo_GetErrorCode) {
+        WVLOG_E("OH_ArkWebErrorInfo_GetErrorCode not found.");
+        return ARKWEB_ERR_FAILED;
+    }
+
+    return g_SchemeHandlerApi->impl_OH_ArkWebErrorInfo_GetErrorCode(errorInfo);
+}
+
+int32_t OH_ArkWebResponse_SetCustomErrorCode(ArkWeb_Response* response, int32_t customErrorCode)
+{
+    if (!g_SchemeHandlerApi || !g_SchemeHandlerApi->impl_OH_ArkWebResponse_SetCustomErrorCode) {
+        WVLOG_E("OH_ArkWebResponse_SetCustomErrorCode not found.");
+        return ARKWEB_ERROR_UNKNOWN;
+    }
+
+    return g_SchemeHandlerApi->impl_OH_ArkWebResponse_SetCustomErrorCode(response, customErrorCode);
+}
+
+int32_t OH_ArkWebResponse_GetCustomErrorCode(const ArkWeb_Response* response)
+{
+    if (!g_SchemeHandlerApi || !g_SchemeHandlerApi->impl_OH_ArkWebResponse_GetCustomErrorCode) {
+        WVLOG_E("OH_ArkWebResponse_GetCustomErrorCode not found.");
+        return 0;
+    }
+
+    return g_SchemeHandlerApi->impl_OH_ArkWebResponse_GetCustomErrorCode(response);
+}
+
+int32_t OH_ArkWebResponse_SetErrorInfo(ArkWeb_Response* response, ArkWeb_ErrorInfo* errorInfo)
+{
+    if (!g_SchemeHandlerApi || !g_SchemeHandlerApi->impl_OH_ArkWebResponse_SetErrorInfo) {
+        WVLOG_E("OH_ArkWebResponse_SetErrorInfo not found.");
+        return ARKWEB_ERROR_UNKNOWN;
+    }
+
+    return g_SchemeHandlerApi->impl_OH_ArkWebResponse_SetErrorInfo(response, errorInfo);
+}
+
+ArkWeb_ErrorInfo* OH_ArkWebResponse_GetErrorInfo(const ArkWeb_Response* response)
+{
+    if (!g_SchemeHandlerApi || !g_SchemeHandlerApi->impl_OH_ArkWebResponse_GetErrorInfo) {
+        WVLOG_E("OH_ArkWebResponse_GetErrorInfo not found.");
+        return nullptr;
+    }
+
+    return g_SchemeHandlerApi->impl_OH_ArkWebResponse_GetErrorInfo(response);
+}
+
+int32_t OH_ArkWebResourceHandler_DidFailWithErrorInfo(
+    const ArkWeb_ResourceHandler* resourceHandler, const ArkWeb_ErrorInfo* errorInfo)
+{
+    if (!g_SchemeHandlerApi || !g_SchemeHandlerApi->impl_OH_ArkWebResourceHandler_DidFailWithErrorInfo) {
+        WVLOG_E("OH_ArkWebResourceHandler_DidFailWithErrorInfo not found.");
+        return ARKWEB_ERROR_UNKNOWN;
+    }
+
+    return g_SchemeHandlerApi->impl_OH_ArkWebResourceHandler_DidFailWithErrorInfo(resourceHandler, errorInfo);
 }
 
 void OH_ArkWeb_ReleaseString(char* string)
