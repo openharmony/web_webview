@@ -370,11 +370,11 @@ void NWebConfigHelper::ParseWebConfigXml(const std::string& configFilePath,
         WVLOG_E("load xml error!");
         return;
     }
+    std::unique_ptr<xmlDoc, decltype(&xmlFreeDoc)> docGuard(docPtr, xmlFreeDoc);
     xmlNodePtr rootPtr = xmlDocGetRootElement(docPtr);
     if (rootPtr == nullptr || rootPtr->name == nullptr ||
         xmlStrcmp(rootPtr->name, reinterpret_cast<const xmlChar *>("WEB"))) {
         WVLOG_E("get root element failed!");
-        xmlFreeDoc(docPtr);
         return;
     }
     xmlNodePtr initNodePtr = GetChildrenNode(rootPtr, INIT_CONFIG);
@@ -428,7 +428,7 @@ void NWebConfigHelper::ParseWebConfigXml(const std::string& configFilePath,
         WVLOG_D("read config from native messaging node");
         ParseNativeMessagingConfig(nativeMessagingNodePtr);
     }
-    xmlFreeDoc(docPtr);
+    // docPtr released by docGuard (RAII) at scope exit
 }
 
 void NWebConfigHelper::ParseNWebLTPOConfig(xmlNodePtr nodePtr)
