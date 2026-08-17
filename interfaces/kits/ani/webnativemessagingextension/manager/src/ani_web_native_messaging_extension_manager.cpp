@@ -225,7 +225,8 @@ void HandleOnFailedCallBack(ani_env* env, std::shared_ptr<AniExtensionConnection
         return;
     }
     ani_string aniErrorMsg = nullptr;
-    if (auto status = env->String_NewUTF8(errorMsg.c_str(), errorMsg.size(), &aniErrorMsg) != ANI_OK) {
+    auto status = env->String_NewUTF8(errorMsg.c_str(), errorMsg.size(), &aniErrorMsg);
+    if (status != ANI_OK) {
         WNMLOG_E("String_NewUTF8 error status is %{public}d", status);
         return;
     }

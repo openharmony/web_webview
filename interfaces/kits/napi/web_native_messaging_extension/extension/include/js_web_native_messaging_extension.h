@@ -48,6 +48,9 @@ private:
         public:
             ConnectionManager() = default;
             ~ConnectionManager() {
+                ClearAllConnections();
+            }
+            void ClearAllConnections() {
                 for (const auto& [id, conn] : connections_) {
                     if (conn.fdRead >= 0) {
                         close(conn.fdRead);
@@ -56,6 +59,7 @@ private:
                         close(conn.fdWrite);
                     }
                 }
+                connections_.clear();
             }
             void AddConnection(const WNMEConnectionInfo& conn) {
                 auto tmp = GetConnection(conn.connectionId);
