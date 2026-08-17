@@ -537,13 +537,16 @@ ani_ref CreateEtsWebNativeMessagingExtensionContext(ani_env* env,
     }
     auto serviceContextPtr = std::make_unique<std::weak_ptr<WebNativeMessagingExtensionContext>>(
                                 workContext->GetAbilityContext());
-    // Use release() to transfer ownership to ANI object immediately. ANI Finalizer
-    // reads nativeEtsContext and deletes the pointer on GC. If SetNativeContextLong
-    // fails, the ANI object (contextObj) will be GC'd and Finalizer handles cleanup.
+    // Transfer ownership out of unique_ptr. If Object_New fails, explicitly delete
+    // the raw pointer. If SetNativeContextLong fails, ANI object (contextObj) will
+    // be GC'd and Finalizer handles cleanup. Using get() would cause double-free
+    // on SetNativeContextLong failure (both unique_ptr and Finalizer delete).
+    auto* rawContext = workContext.release();
     if ((status = env->Object_New(
-        cls, method, &contextObj, (ani_long)workContext.release())) != ANI_OK ||
+        cls, method, &contextObj, (ani_long)rawContext)) != ANI_OK ||
         contextObj == nullptr) {
         WNMLOG_E("Failed to create object, status : %{public}d", status);
+        delete rawContext;
         return nullptr;
     }
     if (!ContextUtil::SetNativeContextLong(env, contextObj, (ani_long)(serviceContextPtr.get()))) {
