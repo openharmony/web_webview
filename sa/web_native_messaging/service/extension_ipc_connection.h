@@ -76,7 +76,7 @@ public:
     // shared_ptr parameter is implicitly converted to weak_ptr to avoid circular reference
     void SetManagerPtr(std::shared_ptr<IWebNativeMessagingManager> managerPt)
     {
-        wpManager_  = managerPt;
+        wpManager_ = managerPt;
     }
 
     std::string& GetTargetBundleName()

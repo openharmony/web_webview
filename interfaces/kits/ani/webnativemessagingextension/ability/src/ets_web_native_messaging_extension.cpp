@@ -323,14 +323,29 @@ void ETSWebNativeMessagingExtension::OnAbilityResult(int requestCode, int result
 
 void ETSWebNativeMessagingExtension::GetSrcPath(std::string& srcPath)
 {
-    if (!Extension::abilityInfo_->srcEntrance.empty()) {
-        srcPath.append(Extension::abilityInfo_->moduleName + "/");
-        srcPath.append(Extension::abilityInfo_->srcEntrance);
-        auto pos = srcPath.rfind(".");
-        if (pos != std::string::npos) {
-            srcPath.erase(pos);
-            srcPath.append(".abc");
-        }
+    const std::string& srcEntrance = Extension::abilityInfo_->srcEntrance;
+    const std::string& moduleName = Extension::abilityInfo_->moduleName;
+    if (srcEntrance.empty()) {
+        return;
+    }
+    if (srcEntrance.find("..") != std::string::npos ||
+        moduleName.find("..") != std::string::npos) {
+        WNMLOG_E("Path traversal detected in srcEntrance or moduleName");
+        return;
+    }
+    if (srcEntrance[0] == '/' || (!moduleName.empty() && moduleName[0] == '/')) {
+        WNMLOG_E("Absolute path is not allowed in srcEntrance or moduleName");
+        return;
+    }
+    srcPath.append(moduleName);
+    if (!moduleName.empty() && !srcEntrance.empty()) {
+        srcPath.append("/");
+    }
+    srcPath.append(srcEntrance);
+    auto pos = srcPath.rfind(".");
+    if (pos != std::string::npos) {
+        srcPath.erase(pos);
+        srcPath.append(".abc");
     }
 }
 } // namespace NWeb

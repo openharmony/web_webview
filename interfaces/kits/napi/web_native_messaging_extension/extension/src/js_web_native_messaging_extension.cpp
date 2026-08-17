@@ -317,7 +317,7 @@ void JsWebNativeMessagingExtension::GetSrcPath(std::string& srcPath)
         return;
     }
 
-    if (srcEntrance[0] == '/' || moduleName[0] == '/') {
+    if (srcEntrance[0] == '/' || (!moduleName.empty() && moduleName[0] == '/')) {
         WNMLOG_E("Absolute path is not allowed in srcEntrance or moduleName");
         return;
     }

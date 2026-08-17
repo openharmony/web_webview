@@ -288,6 +288,9 @@ static void UvInvokeDeleteJsCall(uv_work_t* work, int status)
         delete work;
         return;
     }
+    // Always execute DoDeleteJsCall to release napi references.
+    // Original code skipped DoDeleteJsCall when status != 0 (uv_cancel), which leaked napi references.
+    // DoDeleteJsCall only calls napi_delete_reference (cleanup, not business logic), safe to execute on cancel.
     DoDeleteJsCall(data);
     delete data;
     delete work;
