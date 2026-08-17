@@ -531,7 +531,8 @@ void WebNativeMessagingManager::StopNativeConnectionFromExtension(int32_t innerC
         }
     }
 
-    // No lock: DisconnectNative involves IPC calls, avoid holding AbilityConnectMutex_ to prevent blocking other threads
+    // No lock: DisconnectNative involves IPC calls, avoid holding
+    // AbilityConnectMutex_ to prevent blocking other threads
     bool ipcConnectNeedDelete = false;
     int32_t res = ipcConnect->DisconnectNative(innerConnectId, ipcConnectNeedDelete);
     if (ipcConnectNeedDelete) {
