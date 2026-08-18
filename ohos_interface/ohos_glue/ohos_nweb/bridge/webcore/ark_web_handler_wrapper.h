@@ -921,6 +921,8 @@ public:
      */
     void OnVideoStatusChanged(const int action, const std::map<std::string, std::string> &param) override;
 
+    bool OnColorChooserShow(uint32_t initialColor,
+        std::shared_ptr<OHOS::NWeb::NWebColorChooserCallback> callback) override;
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };

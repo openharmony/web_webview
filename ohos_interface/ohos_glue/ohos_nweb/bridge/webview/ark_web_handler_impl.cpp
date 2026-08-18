@@ -18,6 +18,7 @@
 #include "ohos_nweb/bridge/ark_web_access_request_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_all_ssl_error_info_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_app_link_callback_wrapper.h"
+#include "ohos_nweb/bridge/ark_web_color_chooser_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_console_log_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_context_menu_callback_wrapper.h"
 #include "ohos_nweb/bridge/ark_web_context_menu_params_wrapper.h"
@@ -1264,5 +1265,13 @@ void ArkWebHandlerImpl::ModifyRenderFit(int32_t fitType)
 bool ArkWebHandlerImpl::OnNestedFling(float& velocity_x, float& velocity_y)
 {
     return nweb_handler_->OnNestedFling(velocity_x, velocity_y);
+bool ArkWebHandlerImpl::OnColorChooserShow(uint32_t initialColor, ArkWebRefPtr<ArkWebColorChooserCallback> callback)
+{
+    if (CHECK_REF_PTR_IS_NULL(callback)) {
+        return nweb_handler_->OnColorChooserShow(initialColor, nullptr);
+    }
+
+    return nweb_handler_->OnColorChooserShow(
+        initialColor, std::make_shared<ArkWebColorChooserCallbackWrapper>(callback));
 }
 } // namespace OHOS::ArkWeb
