@@ -338,7 +338,7 @@ void ETSWebNativeMessagingExtension::GetSrcPath(std::string& srcPath)
         return;
     }
     srcPath.append(moduleName);
-    if (!moduleName.empty() && !srcEntrance.empty()) {
+    if (!moduleName.empty()) {
         srcPath.append("/");
     }
     srcPath.append(srcEntrance);

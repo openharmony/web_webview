@@ -412,8 +412,18 @@ void WebNativeMessagingManager::DisconnectWebNativeMessagingExtension(int32_t co
     bool ipcConnectNeedDelete = false;
     int32_t res = ipcConnect->DisconnectNative(innerId, ipcConnectNeedDelete);
     if (ipcConnectNeedDelete) {
-        DeleteIpcConnect(tokenId, request->GetTargetBundleName());
-        if (!IsIpcConnectExist() && delayExitTask_) {
+        std::lock_guard<std::mutex> lock(AbilityConnectMutex_);
+        // Re-check: another thread may have reused this ipcConnect and added
+        // new requests between DisconnectNative and re-acquiring the lock
+        if (!ipcConnect->IsRequestListEmpty()) {
+            WNMLOG_W("DisconnectExtension: ipcConnect reused with new requests, skip map deletion, "
+                "innerId=%{public}d", innerId);
+            errorNum = ConnectNativeRet::SUCCESS;
+            return;
+        }
+        WNMLOG_I("DisconnectExtension: deleting ipcConnect from map, innerId=%{public}d", innerId);
+        DeleteIpcConnectUnlock(tokenId, request->GetTargetBundleName());
+        if (!IsIpcConnectExistUnlock() && delayExitTask_) {
             delayExitTask_->Start();
         }
     }
@@ -538,6 +548,16 @@ void WebNativeMessagingManager::StopNativeConnectionFromExtension(int32_t innerC
     if (ipcConnectNeedDelete) {
         // Lock: clean up connection records, check if delayed exit should start
         std::lock_guard<std::mutex> lock(AbilityConnectMutex_);
+        // Re-check: another thread may have reused this ipcConnect and added
+        // new requests between DisconnectNative and re-acquiring the lock
+        if (!ipcConnect->IsRequestListEmpty()) {
+            WNMLOG_W("StopNativeConnection: ipcConnect reused with new requests, skip map deletion, "
+                "innerConnectId=%{public}d", innerConnectId);
+            errorNum = ConnectNativeRet::SUCCESS;
+            return;
+        }
+        WNMLOG_I("StopNativeConnection: deleting ipcConnect from map, innerConnectId=%{public}d",
+            innerConnectId);
         DeleteIpcConnectUnlock(ipcConnect->GetCallerTokenId(), ipcConnect->GetTargetBundleName());
         if (!IsIpcConnectExistUnlock() && delayExitTask_) {
             delayExitTask_->Start();
