@@ -18,6 +18,7 @@
 #include "ohos_nweb/bridge/ark_web_access_request_impl.h"
 #include "ohos_nweb/bridge/ark_web_all_ssl_error_info_impl.h"
 #include "ohos_nweb/bridge/ark_web_applink_callback_impl.h"
+#include "ohos_nweb/bridge/ark_web_color_chooser_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_console_log_impl.h"
 #include "ohos_nweb/bridge/ark_web_context_menu_callback_impl.h"
 #include "ohos_nweb/bridge/ark_web_context_menu_params_impl.h"
@@ -1451,5 +1452,17 @@ void ArkWebHandlerWrapper::OnVideoStatusChanged(const int action, const std::map
     ArkWebStringMap paramStruct = ArkWebStringMapClassToStruct(param);
     ark_web_handler_->OnVideoStatusChanged(action, paramStruct);
     ArkWebStringMapStructRelease(paramStruct);
+}
+
+bool ArkWebHandlerWrapper::OnColorChooserShow(
+    uint32_t initialColor, std::shared_ptr<OHOS::NWeb::NWebColorChooserCallback> callback)
+{
+    if (CHECK_SHARED_PTR_IS_NULL(callback)) {
+        return false;
+    }
+    ArkWebRefPtr<ArkWebColorChooserCallback> ark_web_color_chooser_callback =
+        new ArkWebColorChooserCallbackImpl(callback);
+
+    return ark_web_handler_->OnColorChooserShow(initialColor, ark_web_color_chooser_callback);
 }
 } // namespace OHOS::ArkWeb

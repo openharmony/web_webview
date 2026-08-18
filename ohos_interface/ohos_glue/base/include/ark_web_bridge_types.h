@@ -144,6 +144,8 @@ enum ArkWebBridgeType {
     ARK_WEB_USER_AGENT_METADATA_ACK = 120,
     ARK_WEB_COMMAND_ACTION_INFO = 121,
     ARK_WEB_COMMAND_ACTION_MANAGER = 122,
+    ARK_WEB_COLOR_CHOOSER_CALLBACK = 123,
+
     /*Note: The end of nweb interface bridge type*/
     ARK_WEB_NWEB_INTERFACE_BUTT,
 

@@ -879,6 +879,7 @@ public:
      * @param param The parameter map containing video status details.
      */
     void OnVideoStatusChanged(const int action, const ArkWebStringMap &param) override;
+    bool OnColorChooserShow(uint32_t initialColor, ArkWebRefPtr<ArkWebColorChooserCallback> callback) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };
