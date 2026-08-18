@@ -18,6 +18,7 @@
 #pragma once
 
 #include "include/nweb_agent_manager.h"
+#include <vector>
 #include "ohos_nweb/include/ark_web_agent_manager.h"
 
 namespace OHOS::ArkWeb {
@@ -70,6 +71,20 @@ public:
      */
     void RequestWebDomJsonString(std::shared_ptr<OHOS::NWeb::NWebMessageValueCallback> callback) override;
 
+    /**
+     * @brief Request page scene query for input controls.
+     *
+     * @param ruleJson JSON string of selector configuration and callback routing.
+     * @param ruleId Rule identifier.
+     * @param nodeTypes Node type tags to observe. Empty = query only, non-empty = query + observer.
+     * @param callback Result callback for immediate query result.
+     */
+    void RequestPageSceneQuery(
+        const std::string& ruleJson,
+        const std::string& ruleId,
+        const std::vector<std::string>& nodeTypes,
+        std::shared_ptr<OHOS::NWeb::NWebMessageValueCallback> callback) override;
+
 private:
     ArkWebRefPtr<ArkWebAgentManager> ark_web_agent_manager_;
 };
@@ -77,3 +92,4 @@ private:
 }  // namespace OHOS::ArkWeb
 
 #endif // ARK_WEB_AGENT_MANAGER_WRAPPER_H_
+
