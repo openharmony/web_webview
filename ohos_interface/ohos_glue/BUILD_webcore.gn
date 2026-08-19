@@ -707,7 +707,7 @@ component("ohos_adapter_glue_source") {
     "ohos_adapter/bridge/ark_format_adapter_wrapper.h",
     "ohos_adapter/bridge/ark_frame_available_listener_impl.cpp",
     "ohos_adapter/bridge/ark_frame_available_listener_impl.h",
-    "ohos_adapter/bridge/ark_hilog_adapter_wrapper.cpp",
+    #"ohos_adapter/bridge/ark_hilog_adapter_wrapper.cpp",
     "ohos_adapter/bridge/ark_hisysevent_adapter_wrapper.cpp",
     "ohos_adapter/bridge/ark_hisysevent_adapter_wrapper.h",
     "ohos_adapter/bridge/ark_hitrace_adapter_wrapper.cpp",
