@@ -41,4 +41,9 @@ void ArkAafwkBrowserClientAdapterImpl::DestroyRenderSurface(int32_t surface_id)
     return real_->DestroyRenderSurface(surface_id);
 }
 
+void ArkAafwkBrowserClientAdapterImpl::DestroyPassedSurface(int64_t surface_id)
+{
+    return real_->DestroyPassedSurface(surface_id);
+}
+
 } // namespace OHOS::ArkWeb

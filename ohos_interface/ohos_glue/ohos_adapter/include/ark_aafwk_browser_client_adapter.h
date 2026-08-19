@@ -35,6 +35,9 @@ public:
 
     /*--ark web()--*/
     virtual void DestroyRenderSurface(int32_t surface_id) = 0;
+
+    /*--ark web()--*/
+    virtual void DestroyPassedSurface(int64_t surface_id) = 0;
 };
 
 } // namespace OHOS::ArkWeb

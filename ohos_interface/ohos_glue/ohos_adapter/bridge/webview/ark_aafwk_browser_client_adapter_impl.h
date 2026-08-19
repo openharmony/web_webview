@@ -34,6 +34,8 @@ public:
 
     void DestroyRenderSurface(int32_t surface_id) override;
 
+    void DestroyPassedSurface(int64_t surface_id) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::AafwkBrowserClientAdapter> real_;
 
