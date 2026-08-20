@@ -941,8 +941,9 @@ std::shared_ptr<NWeb> NWebHelper::CreateNWeb(std::shared_ptr<NWebCreateInfo> cre
         return nullptr;
     }
 
+    auto result = nwebEngine_->CreateNWeb(create_info);
     initWebEngine_ = true;
-    return nwebEngine_->CreateNWeb(create_info);
+    return result;
 }
 
 std::shared_ptr<NWebCookieManager> NWebHelper::GetCookieManager()
