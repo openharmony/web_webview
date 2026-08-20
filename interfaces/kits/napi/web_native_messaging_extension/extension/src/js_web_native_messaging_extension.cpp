@@ -299,27 +299,34 @@ void JsWebNativeMessagingExtension::OnDestroy()
 
 void JsWebNativeMessagingExtension::OnStop()
 {
+    connmgr_.ClearAllConnections();
     OnDestroy();
 }
 
 void JsWebNativeMessagingExtension::GetSrcPath(std::string& srcPath)
 {
-    if (Extension::abilityInfo_->srcEntrance.empty()) {
+    const std::string& srcEntrance = Extension::abilityInfo_->srcEntrance;
+    const std::string& moduleName = Extension::abilityInfo_->moduleName;
+    if (srcEntrance.empty()) {
         return;
     }
 
-    if (Extension::abilityInfo_->srcEntrance.find("..") != std::string::npos ||
-        Extension::abilityInfo_->moduleName.find("..") != std::string::npos) {
+    if (srcEntrance.find("..") != std::string::npos ||
+        moduleName.find("..") != std::string::npos) {
         WNMLOG_E("Path traversal detected in srcEntrance or moduleName");
         return;
     }
 
-    srcPath.append(Extension::abilityInfo_->moduleName);
-    if (!Extension::abilityInfo_->moduleName.empty() &&
-        !Extension::abilityInfo_->srcEntrance.empty()) {
+    if (srcEntrance[0] == '/' || (!moduleName.empty() && moduleName[0] == '/')) {
+        WNMLOG_E("Absolute path is not allowed in srcEntrance or moduleName");
+        return;
+    }
+
+    srcPath.append(moduleName);
+    if (!moduleName.empty()) {
         srcPath.append("/");
     }
-    srcPath.append(Extension::abilityInfo_->srcEntrance);
+    srcPath.append(srcEntrance);
 
     auto pos = srcPath.rfind('.');
     if (pos != std::string::npos && pos < srcPath.size()) {

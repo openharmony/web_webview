@@ -37,19 +37,11 @@ public:
         callerTokenId_(callerTokenId), targetBundleName_(targetBundleName),
         targetAbilityName_(targetAbilityName), token_(token), eventHandler_(eventHandler) {}
 
+    // Only clear containers in destructor, do not call OnFailed/OnDisconnect.
+    // Normal flow: HandleCallerDeath/OnAbilityDisconnectDone already cover all callback scenarios.
     ~ExtensionIpcConnection()
     {
-        for (auto& request : pendingRequests_) {
-            if (request) {
-                request->OnFailed(ConnectNativeRet::ABILITY_CONNECTION_ERROR);
-            }
-        }
         pendingRequests_.clear();
-        for (auto& request : connectedRequests_) {
-            if (request) {
-                request->OnDisconnect();
-            }
-        }
         connectedRequests_.clear();
         WNMLOG_D("~ExtensionIpcConnection");
     }
@@ -81,9 +73,10 @@ public:
         callerUserId_ = userId;
     }
 
-    void SetManagerWptr(std::shared_ptr<IWebNativeMessagingManager> wp)
+    // shared_ptr parameter is implicitly converted to weak_ptr to avoid circular reference
+    void SetManagerPtr(std::shared_ptr<IWebNativeMessagingManager> managerPt)
     {
-        wpManager_ = wp;
+        wpManager_ = managerPt;
     }
 
     std::string& GetTargetBundleName()
