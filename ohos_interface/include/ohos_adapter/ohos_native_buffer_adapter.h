@@ -79,6 +79,9 @@ public:
     virtual int Unlock(void* buffer, int32_t* fence) = 0;
 
     virtual int FreeNativeBuffer(void* nativeBuffer) = 0;
+
+    // 未经过NWeb胶水层直接访问OhosNativeBufferAdapterImpl单例，提供默认实现
+    virtual bool IsColorSpaceSupported(void* nativeBuffer) { return false; }
 };
 
 } // namespace OHOS::NWeb
