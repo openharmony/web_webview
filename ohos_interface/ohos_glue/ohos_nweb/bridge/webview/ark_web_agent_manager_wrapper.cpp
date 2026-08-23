@@ -66,4 +66,15 @@ void ArkWebAgentManagerWrapper::RequestWebDomJsonString(std::shared_ptr<OHOS::NW
     }
 }
 
+void ArkWebAgentManagerWrapper::RequestWebDomJsonStringWithOptions(
+    std::shared_ptr<OHOS::NWeb::NWebMessageValueCallback> callback,
+    int32_t mode)
+{
+    if (CHECK_SHARED_PTR_IS_NULL(callback)) {
+        ark_web_agent_manager_->RequestWebDomJsonStringWithOptions(nullptr, mode);
+    } else {
+        ark_web_agent_manager_->RequestWebDomJsonStringWithOptions(
+            new ArkWebMessageValueCallbackImpl(callback), mode);
+    }
+}
 }  // namespace OHOS::ArkWeb
