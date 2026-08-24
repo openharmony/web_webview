@@ -1481,6 +1481,7 @@ char* WebviewJavaScriptResultCallBack::FlowbufStrAtIndex(void* mem, int flowbufI
 
     int* entry = header + (flowbufIndex * INDEX_SIZE);
     if (*entry >= MAX_ENTRIES || *entry < 0) { // Check if entry value is within valid range
+        WVLOG_E("flow buffer entry value out of range");
         *argIndex = -1;
         return nullptr;
     }
