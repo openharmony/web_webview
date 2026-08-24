@@ -1480,7 +1480,7 @@ char* WebviewJavaScriptResultCallBack::FlowbufStrAtIndex(void* mem, int flowbufI
     }
 
     int* entry = header + (flowbufIndex * INDEX_SIZE);
-    if (*entry >= MAX_ENTRIES || *entry < 0 ) { // Check if argIndex is valid
+    if (*entry >= MAX_ENTRIES || *entry < 0) { // Check if entry value is within valid range
         *argIndex = -1;
         return nullptr;
     }
