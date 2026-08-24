@@ -24,6 +24,17 @@
 #include "nweb_value_callback.h"
 
 namespace OHOS::NWeb {
+
+/**
+ * @brief Enumeration for DOM extraction mode.
+ */
+enum class NWebDomExtractionMode : int32_t {
+    /** Extract the full DOM tree */
+    FULL_TREE = 0,
+    /** Extract only viewport-visible DOM nodes */
+    VIEWPORT_ONLY = 1,
+};
+
 class OHOS_NWEB_EXPORT NWebAgentManager {
 public:
     NWebAgentManager() = default;
@@ -90,6 +101,17 @@ public:
         const std::string& ruleId,
         const std::vector<std::string>& nodeTypes,
         std::shared_ptr<NWebMessageValueCallback> callback) {}
+
+    /**
+     * @brief Request web dom json string with extraction mode
+     *
+     * @param callback request callback
+     * @param mode DOM extraction mode, 0 for full tree (default), 1 for viewport only.
+     *             see NWebDomExtractionMode for details.
+     */
+    virtual void RequestWebDomJsonStringWithOptions(
+        std::shared_ptr<NWebMessageValueCallback> callback,
+        int32_t mode) {}
 };
 }  // namespace OHOS::NWeb
 
