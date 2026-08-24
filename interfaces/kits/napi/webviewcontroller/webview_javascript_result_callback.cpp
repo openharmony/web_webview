@@ -1474,12 +1474,16 @@ char* WebviewJavaScriptResultCallBack::FlowbufStrAtIndex(void* mem, int flowbufI
     int* header = static_cast<int*>(mem); // Cast the memory block to int* for easier access
     int offset = 0;
 
-    if (flowbufIndex >=  MAX_ENTRIES) {
+    if (flowbufIndex >= MAX_ENTRIES || flowbufIndex < 0) {
         *argIndex = -1;
         return nullptr;
     }
 
     int* entry = header + (flowbufIndex * INDEX_SIZE);
+    if (*entry >= MAX_ENTRIES || *entry < 0 ) { // Check if argIndex is valid
+        *argIndex = -1;
+        return nullptr;
+    }
     if (*(entry + 1) == 0) { // Check if length is 0, indicating unused entry
         *argIndex = -1;
         return nullptr;
@@ -1491,6 +1495,11 @@ char* WebviewJavaScriptResultCallBack::FlowbufStrAtIndex(void* mem, int flowbufI
     }
 
     *strLen = *(header + (i * INDEX_SIZE) + 1) - 1;
+    if ((offset + *strLen + 1) > MAX_FLOWBUF_DATA_SIZE) {
+        WVLOG_E("flow buffer offset bigger than MAX_FLOWBUF_DATA_SIZE");
+        *argIndex = -1;
+        return nullptr;
+    }
 
     *argIndex = *entry;
 
@@ -1672,11 +1681,12 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptResultF
         int strLen = 0;
         do {
             char* flowbufStr = FlowbufStrAtIndex(ashmem, flowbufIndex, &argIndex, &strLen);
-            if (argIndex == -1) {
+            if (argIndex < 0 || argIndex > static_cast<int>(args.size())) {
                 break;
             }
+
             flowbufIndex++;
-            std::string str(flowbufStr);
+            std::string str(flowbufStr, strLen);
             std::shared_ptr<NWebValue> insertArg = std::make_shared<NWebValue>(str);
             args.insert(args.begin() + argIndex, insertArg);
         } while (argIndex <= MAX_ENTRIES);
