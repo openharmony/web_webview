@@ -2804,11 +2804,11 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultFlowbufV2(
         std::vector<napi_value> argv = {};
         do {
             char* flowbufStr = FlowbufStrAtIndex(ashmem, flowbufIndex, &argIndex, &strLen);
-            if (argIndex < 0) {
+            if (argIndex == -1) {
                 break;
             }
             flowbufIndex++;
-            std::string str(flowbufStr, strLen);
+            std::string str(flowbufStr);
 
             napi_value napiValue = nullptr;
             napi_status s = napi_create_string_utf8(env, str.c_str(), NAPI_AUTO_LENGTH, &napiValue);
