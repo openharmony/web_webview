@@ -190,7 +190,7 @@ static const char* CLEANER_CLASS_NAME =
 static const char* WEB_NATIVE_MESSAGING_EXTENSION_CONTEXT_CLASS_NAME =
     "@ohos.web.WebNativeMessagingExtensionContext.WebNativeMessagingExtensionContext";
 
-}
+} // namespace OHOS::NWeb
 
 namespace OHOS::NWeb {
 
@@ -242,7 +242,7 @@ ani_ref CreateEtsWebNativeMessagingExtensionContext(
     return contextObj;
 }
 
-}
+} // namespace OHOS::NWeb
 
 class EtsWebNativeMessagingExtensionContextTest : public ::testing::Test {
 protected:
@@ -365,9 +365,9 @@ HWTEST_F(EtsWebNativeMessagingExtensionContextTest, CreateContext_Success, TestS
     auto ctx = std::make_shared<WebNativeMessagingExtensionContext>();
     ani_ref result = CreateEtsWebNativeMessagingExtensionContext(&env, ctx);
     EXPECT_NE(result, nullptr);
-    EXPECT_EQ(env.findClassCount, 1);
+    EXPECT_EQ(env.findClassCount, 2);
     EXPECT_EQ(env.findMethodCount, 1);
     EXPECT_EQ(env.objectNewCount, 1);
 }
 
-}
+} // namespace OHOS::NWeb

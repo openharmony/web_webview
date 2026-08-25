@@ -25,7 +25,6 @@
 #include "ets_extension_context.h"
 #include "web_native_messaging_common.h"
 #include "web_native_messaging_log.h"
-#include "nweb_log.h"
 #include "web_errors.h"
 
 namespace OHOS {
@@ -146,7 +145,7 @@ private:
     {
         WNMLOG_D("OnTerminateSelf");
         if (env == nullptr) {
-            WVLOG_E("env is nullptr");
+            WNMLOG_E("env is nullptr");
             return;
         }
         auto innerErrCode = std::make_shared<ErrCode>(ERR_OK);
@@ -181,7 +180,7 @@ private:
     {
         WNMLOG_D("OnStartAbility");
         if (env == nullptr) {
-            WVLOG_E("env is nullptr");
+            WNMLOG_E("env is nullptr");
             return;
         }
         AAFwk::Want want;
@@ -210,7 +209,7 @@ private:
     {
         WNMLOG_D("OnStopNativeConnection");
         if (env == nullptr) {
-            WVLOG_E("env is nullptr");
+            WNMLOG_E("env is nullptr");
             return;
         }
 
@@ -258,7 +257,7 @@ private:
 
         context = context_.lock();
         if (!context) {
-            WNMLOG_E("[WNWN_SAFR] context is null");
+            WNMLOG_E("[WNM_SAFR] context is null");
             int32_t errCode = static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
             if (!RejectWithError(env, resolver, errCode)) {
                 return false;
@@ -433,7 +432,7 @@ private:
     ani_object OnStartAbilityForResult(ani_env* env, ani_object obj, ani_object wantObj, ani_object startOptionsObj)
     {
         if (env == nullptr) {
-            WVLOG_E("env is nullptr");
+            WNMLOG_E("env is nullptr");
             return nullptr;
         }
         AAFwk::Want want;
@@ -465,7 +464,7 @@ private:
 bool BindNativeMethods(ani_env *env, ani_class &cls)
 {
     if (env == nullptr) {
-        WVLOG_E("env is nullptr");
+        WNMLOG_E("env is nullptr");
         return ANI_ERROR;
     }
     ani_status status = ANI_ERROR;
@@ -507,7 +506,7 @@ ani_ref CreateEtsWebNativeMessagingExtensionContext(ani_env* env,
     std::shared_ptr<WebNativeMessagingExtensionContext> context)
 {
     if (env == nullptr) {
-        WVLOG_E("env is nullptr");
+        WNMLOG_E("env is nullptr");
         return nullptr;
     }
     ani_class cls = nullptr;
@@ -530,17 +529,22 @@ ani_ref CreateEtsWebNativeMessagingExtensionContext(ani_env* env,
         WNMLOG_E("Failed to find constructor, status : %{public}d", status);
         return nullptr;
     }
+    if (context == nullptr) {
+        WNMLOG_E("context is nullptr");
+        return nullptr;
+    }
     auto workContext = std::make_unique<ETSWebNativeMessagingExtensionContext>(context);
     if (workContext == nullptr) {
-        WNMLOG_E("Failed to create etsServiceExtensionContext");
+        WNMLOG_E("Failed to create ETSWebNativeMessagingExtensionContext");
         return nullptr;
     }
     auto serviceContextPtr = std::make_unique<std::weak_ptr<WebNativeMessagingExtensionContext>>(
                                 workContext->GetAbilityContext());
     // Transfer ownership out of unique_ptr. If Object_New fails, explicitly delete
     // the raw pointer. If SetNativeContextLong fails, ANI object (contextObj) will
-    // be GC'd and Finalizer handles cleanup. Using get() would cause double-free
-    // on SetNativeContextLong failure (both unique_ptr and Finalizer delete).
+    // be GC'd and Finalizer handles cleanup (constructor already set nativeEtsContext).
+    // Using get() would cause double-free on SetNativeContextLong failure
+    // (both unique_ptr and Finalizer delete).
     auto* rawContext = workContext.release();
     if ((status = env->Object_New(
         cls, method, &contextObj, (ani_long)rawContext)) != ANI_OK ||
