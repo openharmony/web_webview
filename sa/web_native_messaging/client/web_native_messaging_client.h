@@ -44,8 +44,11 @@ public:
     int StartAbilityForResult(const sptr<IRemoteObject>& token, const AAFwk::Want& want,
         const AAFwk::StartOptions& options, int requestCode);
     int StopNativeConnectionFromExtension(int32_t connectionId);
+    // Thread-safe setter; called from the JS/NAPI thread while the death
+    // recipient callback may fire concurrently from a binder thread.
     void SetUserDefineDiedRecipient(std::function<void()> deathCallback)
     {
+        std::lock_guard<std::mutex> lock(mutex_);
         deathCallback_ = deathCallback;
     }
 
@@ -60,6 +63,8 @@ private:
     };
 
 private:
+    // Guarded by mutex_; written by SetUserDefineDiedRecipient (JS thread),
+    // read and invoked by WebNativeMessagingOnRemoteDied (binder thread).
     std::function<void()> deathCallback_ = nullptr;
     std::condition_variable loadSaCondition_;
     std::mutex loadSaMutex_;

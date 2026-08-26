@@ -7651,7 +7651,7 @@ napi_value NapiWebviewController::WaitForAttached(napi_env env, napi_callback_in
     napi_value promise = nullptr;
     napi_create_promise(env, &deferred, &promise);
     if (promise && deferred) {
-        webviewController->WaitForAttachedPromise(env, timeout, deferred);
+        webviewController->WaitForAttachedPromise(env, thisVar, timeout, deferred);
     }
     return promise;
 }
