@@ -412,15 +412,9 @@ void WebNativeMessagingManager::DisconnectWebNativeMessagingExtension(int32_t co
     bool ipcConnectNeedDelete = false;
     int32_t res = ipcConnect->DisconnectNative(innerId, ipcConnectNeedDelete);
     if (ipcConnectNeedDelete) {
+        // DisconnectNative set status_ to DISCONNECTED, when ipcConnectNeedDelete is true,
+        // preventing new ConnectNative() from adding requests to this ipconnect
         std::lock_guard<std::mutex> lock(AbilityConnectMutex_);
-        // Re-check: another thread may have reused this ipcConnect and added
-        // new requests between DisconnectNative and re-acquiring the lock
-        if (!ipcConnect->IsRequestListEmpty()) {
-            WNMLOG_W("DisconnectExtension: ipcConnect reused with new requests, skip map deletion, "
-                "innerId=%{public}d", innerId);
-            errorNum = ConnectNativeRet::SUCCESS;
-            return;
-        }
         WNMLOG_I("DisconnectExtension: deleting ipcConnect from map, innerId=%{public}d", innerId);
         DeleteIpcConnectUnlock(tokenId, request->GetTargetBundleName());
         if (!IsIpcConnectExistUnlock() && delayExitTask_) {
@@ -491,7 +485,7 @@ void WebNativeMessagingManager::StartAbilityForResult(const sptr<IRemoteObject>&
         errorNum = ConnectNativeRet::PERMISSION_CHECK_ERROR;
         return;
     }
- 
+
     if (!CheckAbilityIsUIAbility(want.GetBundle(), want.GetElement().GetAbilityName(), userId)) {
         WNMLOG_E("start ability is not UIAbility.");
         errorNum = ConnectNativeRet::PERMISSION_CHECK_ERROR;
@@ -546,16 +540,9 @@ void WebNativeMessagingManager::StopNativeConnectionFromExtension(int32_t innerC
     bool ipcConnectNeedDelete = false;
     int32_t res = ipcConnect->DisconnectNative(innerConnectId, ipcConnectNeedDelete);
     if (ipcConnectNeedDelete) {
-        // Lock: clean up connection records, check if delayed exit should start
+        // DisconnectNative set status_ to DISCONNECTED, when ipcConnectNeedDelete is true,
+        // preventing new ConnectNative() from adding requests to this ipconnect
         std::lock_guard<std::mutex> lock(AbilityConnectMutex_);
-        // Re-check: another thread may have reused this ipcConnect and added
-        // new requests between DisconnectNative and re-acquiring the lock
-        if (!ipcConnect->IsRequestListEmpty()) {
-            WNMLOG_W("StopNativeConnection: ipcConnect reused with new requests, skip map deletion, "
-                "innerConnectId=%{public}d", innerConnectId);
-            errorNum = ConnectNativeRet::SUCCESS;
-            return;
-        }
         WNMLOG_I("StopNativeConnection: deleting ipcConnect from map, innerConnectId=%{public}d",
             innerConnectId);
         DeleteIpcConnectUnlock(ipcConnect->GetCallerTokenId(), ipcConnect->GetTargetBundleName());
