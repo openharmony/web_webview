@@ -373,6 +373,14 @@ void AppFwkUpdateService::OnStop()
 {
     WVLOG_I("Ready to stop service.");
     registerToService_ = false;
+    if (unloadHandler_ != nullptr) {
+        unloadHandler_->RemoveTask(TASK_ID);
+    }
+    if (pkgSubscriber_ != nullptr) {
+        bool result = OHOS::EventFwk::CommonEventManager::UnSubscribeCommonEvent(pkgSubscriber_);
+        WVLOG_I("OnStop UnSubscribeCommonEvent result = %{public}d", result);
+        pkgSubscriber_ = nullptr;
+    }
 }
 
 void AppFwkUpdateService::PostDelayUnloadTask()
@@ -388,7 +396,7 @@ void AppFwkUpdateService::PostDelayUnloadTask()
         return;
     }
 
-    auto task = [this]() {
+    auto task = []() {
         auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         if (samgrProxy == nullptr) {
             WVLOG_I("Get samgrProxy failed.");
