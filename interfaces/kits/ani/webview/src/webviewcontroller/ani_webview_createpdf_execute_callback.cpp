@@ -44,6 +44,9 @@ WebviewCreatePDFExecuteCallback::WebviewCreatePDFExecuteCallback(ani_env *env,
     ani_vm *vm = nullptr;
     if (ANI_OK != env->GetVM(&vm)) {
         WVLOG_E("GetVM failed");
+        env->GlobalReference_Delete(callbackRef_);
+        callbackRef_ = nullptr;
+        return;
     }
     aniVm_ = vm;
     callback_ = callback;
@@ -63,14 +66,25 @@ void WebviewCreatePDFExecuteCallback::ReleaseBuffer()
         result_ = nullptr;
     }
     if (callbackRef_ != nullptr && aniVm_ != nullptr) {
-        ani_env *env;
+        ani_env *env = nullptr;
+        bool needDetach = false;
         auto status = aniVm_->GetEnv(ANI_VERSION_1, &env);
         if (status != ANI_OK) {
-            WVLOG_E("vm GetEnv, err: %{private}d", status);
-            return;
+            ani_options aniArgs { 0, nullptr };
+            status = aniVm_->AttachCurrentThread(&aniArgs, ANI_VERSION_1, &env);
+            if (status != ANI_OK) {
+                WVLOG_E("vm GetEnv and AttachCurrentThread failed, err: %{private}d", status);
+                callbackRef_ = nullptr;
+                return;
+            }
+            needDetach = true;
         }
         if (ANI_OK != env->GlobalReference_Delete(callbackRef_)) {
             WVLOG_E("GlobalReference_Delete failed");
+        }
+        callbackRef_ = nullptr;
+        if (needDetach) {
+            aniVm_->DetachCurrentThread();
         }
     }
 }

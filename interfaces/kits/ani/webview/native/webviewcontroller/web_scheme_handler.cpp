@@ -229,6 +229,11 @@ void WebSchemeHandler::RequestStart(
         reinterpret_cast<ani_fn_object>(request_start_callback_), vec.size(), vec.data(), &fnReturnVal);
     if (status != ANI_OK) {
         WVLOG_E("scheme handler call onRequestStart failed.");
+        *intercept = false;
+        env->DestroyLocalScope();
+        resourceHandler->SetFinishFlag();
+        resourceHandler->DecStrongRef(resourceHandler);
+        return;
     }
     if (!AniParseUtils::ParseBoolean(env, fnReturnVal, *intercept)) {
         WVLOG_E("scheme handler onRequestStart intercept parse failed");
@@ -279,6 +284,7 @@ void WebSchemeHandler::RequestStopAfterWorkCb(RequestStopParam* param)
     if (!AniParseUtils::CreateObjectVoid(param->env_,
         ANI_WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME, requestValue)) {
         WVLOG_E("RequestStopAfterWorkCb: create requestValue failed");
+        param->env_->GlobalReference_Delete(callbackFunc);
         param->request_->DecStrongRef(param->request_);
         delete param;
         return;
@@ -286,6 +292,7 @@ void WebSchemeHandler::RequestStopAfterWorkCb(RequestStopParam* param)
     if (!AniParseUtils::Wrap(param->env_, requestValue, ANI_WEB_WEBSCHEME_HANDLER_REQUEST_CLASS_NAME,
         reinterpret_cast<ani_long>(param->request_))) {
         WVLOG_E("RequestStopAfterWorkCb: WebSchemeHandlerRequest wrap failed");
+        param->env_->GlobalReference_Delete(callbackFunc);
         param->request_->DecStrongRef(param->request_);
         delete param;
         return;
@@ -297,6 +304,7 @@ void WebSchemeHandler::RequestStopAfterWorkCb(RequestStopParam* param)
         reinterpret_cast<ani_fn_object>(callbackFunc), vec.size(), vec.data(), &fnReturnVal);
     if (status != ANI_OK) {
         WVLOG_E("RequestStopAfterWorkCb:FunctionalObject_Call failed.");
+        param->env_->GlobalReference_Delete(callbackFunc);
         param->request_->DecStrongRef(param->request_);
         delete param;
         return;
@@ -386,9 +394,14 @@ void WebSchemeHandler::PutRequestStart(ani_env* env, ani_vm* vm, ani_fn_object c
     }
 
     vm_ = vm;
+    if (request_start_callback_ != nullptr) {
+        env->GlobalReference_Delete(request_start_callback_);
+        request_start_callback_ = nullptr;
+    }
     ani_status status = env->GlobalReference_Create(reinterpret_cast<ani_ref>(callback), &request_start_callback_);
     if (status != ANI_OK) {
         WVLOG_E("PutRequestStart create reference failed.");
+        request_start_callback_ = nullptr;
     }
 }
 
@@ -409,9 +422,14 @@ void WebSchemeHandler::PutRequestStop(ani_env* env, ani_vm* vm, ani_fn_object ca
         return;
     }
     vm_ = vm;
+    if (request_stop_callback_ != nullptr) {
+        env->GlobalReference_Delete(request_stop_callback_);
+        request_stop_callback_ = nullptr;
+    }
     ani_status status = env->GlobalReference_Create(reinterpret_cast<ani_ref>(callback), &request_stop_callback_);
     if (status != ANI_OK) {
         WVLOG_E("PutRequestStop create reference failed.");
+        request_stop_callback_ = nullptr;
     } else {
         is_stop_callback_valid_->store(true, std::memory_order_release);
     }
@@ -595,6 +613,7 @@ void WebHttpBodyStream::ExecuteRead(uint8_t* buffer, int bytesRead)
     };
     if (asyncCtx == nullptr) {
         WVLOG_E("WebHttpBodyStream::ExecuteRead asyncCtx is nullptr");
+        delete[] buffer;
         return;
     }
     WVLOG_D("WebHttpBodyStream::ExecuteRead task started");

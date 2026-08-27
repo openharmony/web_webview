@@ -259,6 +259,7 @@ void WebDownloadDelegate::PutDownloadBeforeStart(ani_fn_object callback)
         reinterpret_cast<ani_ref>(callback), &download_before_start_callback_);
     if (status != ANI_OK) {
         WVLOG_E("[DOWNLOAD] PutDownloadBeforeStart create reference failed.");
+        download_before_start_callback_ = nullptr;
     }
 }
 
@@ -281,6 +282,7 @@ void WebDownloadDelegate::PutDownloadDidUpdate(ani_fn_object callback)
         reinterpret_cast<ani_ref>(callback), &download_did_update_callback_);
     if (status != ANI_OK) {
         WVLOG_E("[DOWNLOAD] PutDownloadDidUpdate create reference failed.");
+        download_did_update_callback_ = nullptr;
     }
 }
 
@@ -303,6 +305,7 @@ void WebDownloadDelegate::PutDownloadDidFinish(ani_fn_object callback)
         reinterpret_cast<ani_ref>(callback), &download_did_finish_callback_);
     if (status != ANI_OK) {
         WVLOG_E("[DOWNLOAD] PutDownloadDidFinish create reference failed.");
+        download_did_finish_callback_ = nullptr;
     }
 }
 
@@ -325,6 +328,7 @@ void WebDownloadDelegate::PutDownloadDidFail(ani_fn_object callback)
         reinterpret_cast<ani_ref>(callback), &download_did_fail_callback_);
     if (status != ANI_OK) {
         WVLOG_E("[DOWNLOAD] PutDownloadDidFail create reference failed.");
+        download_did_fail_callback_ = nullptr;
     }
 }
 

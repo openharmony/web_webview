@@ -29,7 +29,7 @@ ArkWebNativeWindow ArkWindowAdapterWrapper::CreateNativeWindowFromSurface(void* 
 
 void ArkWindowAdapterWrapper::DestroyNativeWindow(ArkWebNativeWindow window)
 {
-    if (!ctocpp_) {
+    if (!ctocpp_ || !window) {
         return;
     }
     ctocpp_->DestroyNativeWindow(window);
@@ -37,7 +37,7 @@ void ArkWindowAdapterWrapper::DestroyNativeWindow(ArkWebNativeWindow window)
 
 int32_t ArkWindowAdapterWrapper::NativeWindowSetBufferGeometry(ArkWebNativeWindow window, int32_t width, int32_t height)
 {
-    if (!ctocpp_) {
+    if (!ctocpp_ || !window) {
         return -1;
     }
     return ctocpp_->NativeWindowSetBufferGeometry(window, width, height);
@@ -45,7 +45,7 @@ int32_t ArkWindowAdapterWrapper::NativeWindowSetBufferGeometry(ArkWebNativeWindo
 
 void ArkWindowAdapterWrapper::NativeWindowSurfaceCleanCache(ArkWebNativeWindow window)
 {
-    if (!ctocpp_) {
+    if (!ctocpp_ || !window) {
         return;
     }
     ctocpp_->NativeWindowSurfaceCleanCache(window);
@@ -53,7 +53,7 @@ void ArkWindowAdapterWrapper::NativeWindowSurfaceCleanCache(ArkWebNativeWindow w
 
 void ArkWindowAdapterWrapper::NativeWindowSurfaceCleanCacheWithPara(ArkWebNativeWindow window, bool cleanAll)
 {
-    if (!ctocpp_) {
+    if (!ctocpp_ || !window) {
         return;
     }
     ctocpp_->NativeWindowSurfaceCleanCacheWithPara(window, cleanAll);
@@ -61,7 +61,7 @@ void ArkWindowAdapterWrapper::NativeWindowSurfaceCleanCacheWithPara(ArkWebNative
 
 void ArkWindowAdapterWrapper::SetTransformHint(uint32_t rotation, ArkWebNativeWindow window)
 {
-    if (!ctocpp_) {
+    if (!ctocpp_ || !window) {
         return;
     }
     ctocpp_->SetTransformHint(rotation, window);
@@ -69,7 +69,7 @@ void ArkWindowAdapterWrapper::SetTransformHint(uint32_t rotation, ArkWebNativeWi
 
 void ArkWindowAdapterWrapper::AddNativeWindowRef(ArkWebNativeWindow window)
 {
-    if (!ctocpp_) {
+    if (!ctocpp_ || !window) {
         return;
     }
     ctocpp_->AddNativeWindowRef(window);
@@ -77,7 +77,7 @@ void ArkWindowAdapterWrapper::AddNativeWindowRef(ArkWebNativeWindow window)
 
 void ArkWindowAdapterWrapper::NativeWindowUnRef(ArkWebNativeWindow window)
 {
-    if (!ctocpp_) {
+    if (!ctocpp_ || !window) {
         return;
     }
     ctocpp_->NativeWindowUnRef(window);

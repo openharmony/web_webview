@@ -741,6 +741,11 @@ void ExecuteGetJavaScriptResultV2(
             webviewObj, "jsProxyInvokeMethod", nullptr, &callResult, nameObj, methodName, argvRef);
         if (ANI_OK != s || !callResult) {
             WVLOG_E("ExecuteGetJavaScriptResultV2 call method return null");
+            env->DestroyLocalScope();
+            std::unique_lock<std::mutex> lock(param->mutex);
+            param->ready = true;
+            param->condition.notify_all();
+            return;
         }
 
         bool isObject = false;

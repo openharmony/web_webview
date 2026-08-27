@@ -54,7 +54,7 @@ bool AniParseUtils::ParseString(ani_env *env, ani_ref ref, std::string& outValue
         return false;
     }
     utfBuffer[bytes_written] = '\0';
-    outValue = std::string(utfBuffer, strSize);
+    outValue = std::string(utfBuffer, bytes_written);
     return true;
 }
 
