@@ -500,7 +500,7 @@ public:
 
     static void TriggerWaitforAttachedPromise(napi_env env, napi_status status, void *data);
 
-    napi_value WaitForAttachedPromise(napi_env env, int32_t timeout, napi_deferred deferred);
+    napi_value WaitForAttachedPromise(napi_env env, napi_value thisVar, int32_t timeout, napi_deferred deferred);
 
     int32_t GetBlanklessInfoWithKey(const std::string& key, double* similarity, int32_t* loadingTime);
 

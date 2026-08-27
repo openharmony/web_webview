@@ -73,6 +73,11 @@ struct WaitForAttachParam {
     int32_t timeout;
     WebviewController* webviewController;
     int32_t state;
+    // Strong reference to the JS WebviewController object, kept alive for the
+    // duration of the async work to prevent GC from running the napi_wrap
+    // finalizer (which would delete the native WebviewController) while the
+    // worker thread is still accessing it.
+    napi_ref controllerRef = nullptr;
 };
 
 bool ResolveEmptyStringPromiseIfCallingFromM132(napi_env env, napi_deferred deferred, const char* funcName)
@@ -2596,6 +2601,12 @@ void WebviewController::TriggerWaitforAttachedPromise(napi_env env, napi_status 
     napi_handle_scope scope = nullptr;
     napi_open_handle_scope(env, &scope);
     if (scope == nullptr) {
+        // Release the strong reference before freeing the param to avoid
+        // leaking the JS object on this error path.
+        if (param->controllerRef != nullptr) {
+            napi_delete_reference(env, param->controllerRef);
+            param->controllerRef = nullptr;
+        }
         delete param;
         param = nullptr;
         return;
@@ -2608,12 +2619,19 @@ void WebviewController::TriggerWaitforAttachedPromise(napi_env env, napi_status 
         napi_resolve_deferred(env, param->deferred, jsState);
     }
     napi_close_handle_scope(env, scope);
+    // Release the strong reference now that the async work is complete;
+    // the JS object becomes eligible for GC again.
+    if (param->controllerRef != nullptr) {
+        napi_delete_reference(env, param->controllerRef);
+        param->controllerRef = nullptr;
+    }
     napi_delete_async_work(env, param->asyncWork);
     delete param;
     param = nullptr;
 }
 
-napi_value WebviewController::WaitForAttachedPromise(napi_env env, int32_t timeout, napi_deferred deferred)
+napi_value WebviewController::WaitForAttachedPromise(napi_env env, napi_value thisVar,
+    int32_t timeout, napi_deferred deferred)
 {
     napi_value result = nullptr;
     napi_value resourceName = nullptr;
@@ -2623,15 +2641,46 @@ napi_value WebviewController::WaitForAttachedPromise(napi_env env, int32_t timeo
         .timeout = timeout,
         .webviewController = this,
         .state = static_cast<int32_t>(attachState_),
+        .controllerRef = nullptr,
     };
     if (param == nullptr) {
         return nullptr;
     }
 
-    NAPI_CALL(env, napi_create_string_utf8(env, EVENT_WAIT_FOR_ATTACH.c_str(), NAPI_AUTO_LENGTH, &resourceName));
-    NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, WaitForAttached,
-        TriggerWaitforAttachedPromise, static_cast<void *>(param), &param->asyncWork));
-    NAPI_CALL(env, napi_queue_async_work_with_qos(env, param->asyncWork, napi_qos_user_initiated));
+    // Hold a strong reference to the JS object to prevent GC from triggering
+    // the napi_wrap finalizer (which deletes the WebviewController) while the
+    // async work is still running on the libuv worker thread.
+    napi_status refStatus = napi_create_reference(env, thisVar, 1, &param->controllerRef);
+    if (refStatus != napi_ok) {
+        WVLOG_E("WaitForAttachedPromise: failed to create reference to controller");
+        delete param;
+        return nullptr;
+    }
+
+    napi_status callStatus = napi_create_string_utf8(
+        env, EVENT_WAIT_FOR_ATTACH.c_str(), NAPI_AUTO_LENGTH, &resourceName);
+    if (callStatus != napi_ok) {
+        WVLOG_E("WaitForAttachedPromise: failed to create resource name");
+        napi_delete_reference(env, param->controllerRef);
+        delete param;
+        return nullptr;
+    }
+    callStatus = napi_create_async_work(env, nullptr, resourceName, WaitForAttached,
+        TriggerWaitforAttachedPromise, static_cast<void *>(param), &param->asyncWork);
+    if (callStatus != napi_ok) {
+        WVLOG_E("WaitForAttachedPromise: failed to create async work");
+        napi_delete_reference(env, param->controllerRef);
+        delete param;
+        return nullptr;
+    }
+    callStatus = napi_queue_async_work_with_qos(env, param->asyncWork, napi_qos_user_initiated);
+    if (callStatus != napi_ok) {
+        WVLOG_E("WaitForAttachedPromise: failed to queue async work");
+        napi_delete_async_work(env, param->asyncWork);
+        napi_delete_reference(env, param->controllerRef);
+        delete param;
+        return nullptr;
+    }
     napi_get_undefined(env, &result);
     return result;
 }

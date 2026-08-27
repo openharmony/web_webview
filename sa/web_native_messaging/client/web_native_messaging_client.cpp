@@ -284,8 +284,16 @@ void WebNativeMessagingClient::WebNativeMessagingOnRemoteDied(const wptr<IRemote
     }
     remotePromote->RemoveDeathRecipient(webNativeMessagingDiedRecipient_);
     SetWebNativeMessagingProxy(nullptr);
-    if (deathCallback_) {
-        deathCallback_();
+    // Copy the callback under the lock, then invoke it outside the lock
+    // to avoid potential deadlock if the callback acquires other locks
+    // that may be held by code waiting on deathCallbackMutex_.
+    std::function<void()> deathCallbackCopy;
+    {
+        std::lock_guard<std::mutex> lock(deathCallbackMutex_);
+        deathCallbackCopy = deathCallback_;
+    }
+    if (deathCallbackCopy) {
+        deathCallbackCopy();
     }
 }
 } // namespace OHOS::NWeb
