@@ -2657,10 +2657,30 @@ napi_value WebviewController::WaitForAttachedPromise(napi_env env, napi_value th
         return nullptr;
     }
 
-    NAPI_CALL(env, napi_create_string_utf8(env, EVENT_WAIT_FOR_ATTACH.c_str(), NAPI_AUTO_LENGTH, &resourceName));
-    NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, WaitForAttached,
-        TriggerWaitforAttachedPromise, static_cast<void *>(param), &param->asyncWork));
-    NAPI_CALL(env, napi_queue_async_work_with_qos(env, param->asyncWork, napi_qos_user_initiated));
+    napi_status callStatus = napi_create_string_utf8(
+        env, EVENT_WAIT_FOR_ATTACH.c_str(), NAPI_AUTO_LENGTH, &resourceName);
+    if (callStatus != napi_ok) {
+        WVLOG_E("WaitForAttachedPromise: failed to create resource name");
+        napi_delete_reference(env, param->controllerRef);
+        delete param;
+        return nullptr;
+    }
+    callStatus = napi_create_async_work(env, nullptr, resourceName, WaitForAttached,
+        TriggerWaitforAttachedPromise, static_cast<void *>(param), &param->asyncWork);
+    if (callStatus != napi_ok) {
+        WVLOG_E("WaitForAttachedPromise: failed to create async work");
+        napi_delete_reference(env, param->controllerRef);
+        delete param;
+        return nullptr;
+    }
+    callStatus = napi_queue_async_work_with_qos(env, param->asyncWork, napi_qos_user_initiated);
+    if (callStatus != napi_ok) {
+        WVLOG_E("WaitForAttachedPromise: failed to queue async work");
+        napi_delete_async_work(env, param->asyncWork);
+        napi_delete_reference(env, param->controllerRef);
+        delete param;
+        return nullptr;
+    }
     napi_get_undefined(env, &result);
     return result;
 }

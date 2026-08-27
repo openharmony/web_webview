@@ -48,7 +48,7 @@ public:
     // recipient callback may fire concurrently from a binder thread.
     void SetUserDefineDiedRecipient(std::function<void()> deathCallback)
     {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::lock_guard<std::mutex> lock(deathCallbackMutex_);
         deathCallback_ = deathCallback;
     }
 
@@ -63,13 +63,16 @@ private:
     };
 
 private:
-    // Guarded by mutex_; written by SetUserDefineDiedRecipient (JS thread),
-    // read and invoked by WebNativeMessagingOnRemoteDied (binder thread).
+    // Guarded by deathCallbackMutex_; written by SetUserDefineDiedRecipient
+    // (JS thread), read and invoked by WebNativeMessagingOnRemoteDied (binder thread).
     std::function<void()> deathCallback_ = nullptr;
     std::condition_variable loadSaCondition_;
     std::mutex loadSaMutex_;
     bool loadSaFinished_ { false };
     std::mutex mutex_;
+    // Dedicated mutex for deathCallback_; kept separate from mutex_ to avoid
+    // coupling with webNativeMessagingProxy_ lock and reduce lock contention.
+    std::mutex deathCallbackMutex_;
     sptr<IWebNativeMessagingService> webNativeMessagingProxy_ = nullptr;
     sptr<WebNativeMessagingDiedRecipient> webNativeMessagingDiedRecipient_ = nullptr;
     DISALLOW_COPY_AND_MOVE(WebNativeMessagingClient);

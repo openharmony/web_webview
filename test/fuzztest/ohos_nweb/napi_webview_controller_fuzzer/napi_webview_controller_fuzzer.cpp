@@ -46,7 +46,7 @@ bool NapiWebViewControllerFuzzTest(const uint8_t* data, size_t size)
 
     webviewController.UnregisterStateChangeCallback(env, type, handler);
     webviewController.RegisterStateChangeCallback(env, type, handler);
-    webviewController.WaitForAttachedPromise(env, handler, timeout, deferred);
+    webviewController.WaitForAttachedPromise(env, nullptr, timeout, deferred);
 
     return true;
 }

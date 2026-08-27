@@ -286,10 +286,10 @@ void WebNativeMessagingClient::WebNativeMessagingOnRemoteDied(const wptr<IRemote
     SetWebNativeMessagingProxy(nullptr);
     // Copy the callback under the lock, then invoke it outside the lock
     // to avoid potential deadlock if the callback acquires other locks
-    // that may be held by code waiting on mutex_.
+    // that may be held by code waiting on deathCallbackMutex_.
     std::function<void()> deathCallbackCopy;
     {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::lock_guard<std::mutex> lock(deathCallbackMutex_);
         deathCallbackCopy = deathCallback_;
     }
     if (deathCallbackCopy) {
