@@ -174,7 +174,7 @@ NativeArkWeb_OnDestroyCallback OH_NativeArkWeb_GetDestroyCallback(const char* we
     WVLOG_I("native OH_Web_GetDestroyCallback, webTag: %{public}s", webTag);
     if (webTag == nullptr) {
         WVLOG_E("native OH_Web_GetDestroyCallback webTag is null");
-        return;
+        return nullptr;
     }
     std::lock_guard<std::mutex> guard(g_mtxMap);
     std::unordered_map<std::string, NativeArkWeb_OnDestroyCallback>::iterator iter;
