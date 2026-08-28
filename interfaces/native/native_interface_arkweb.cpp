@@ -154,10 +154,6 @@ void OH_NativeArkWeb_UnregisterJavaScriptProxy(const char* webTag, const char* o
 void OH_NativeArkWeb_SetDestroyCallback(const char* webTag, NativeArkWeb_OnDestroyCallback callback)
 {
     WVLOG_I("native RegisterDestroyCallback, webTag: %{public}s", webTag);
-    if (webTag == nullptr) {
-        WVLOG_E("native RegisterDestroyCallback webTag is null");
-        return;
-    }
     std::lock_guard<std::mutex> guard(g_mtxMap);
     g_destroyMap[webTag] = callback;
     std::weak_ptr<OHOS::NWeb::NWeb> nwebWeak = OH_NativeArkWeb_GetWebInstanceByWebTag(webTag);
@@ -172,10 +168,6 @@ void OH_NativeArkWeb_SetDestroyCallback(const char* webTag, NativeArkWeb_OnDestr
 NativeArkWeb_OnDestroyCallback OH_NativeArkWeb_GetDestroyCallback(const char* webTag)
 {
     WVLOG_I("native OH_Web_GetDestroyCallback, webTag: %{public}s", webTag);
-    if (webTag == nullptr) {
-        WVLOG_E("native OH_Web_GetDestroyCallback webTag is null");
-        return nullptr;
-    }
     std::lock_guard<std::mutex> guard(g_mtxMap);
     std::unordered_map<std::string, NativeArkWeb_OnDestroyCallback>::iterator iter;
     if ((iter = g_destroyMap.find(webTag)) != g_destroyMap.end()) {
