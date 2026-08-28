@@ -116,6 +116,9 @@ WebSchemeHandler::~WebSchemeHandler()
         WVLOG_E("env is null");
         return;
     }
+    if (mainHandler_) {
+        mainHandler_->RemoveTask(TASK_ID);
+    }
     if (request_start_callback_) {
         if (env->GlobalReference_Delete(request_start_callback_) != ANI_OK) {
             WVLOG_E("delete reference obj fail");
@@ -247,13 +250,13 @@ void WebSchemeHandler::RequestStopAfterWorkCb(RequestStopParam* param)
         WVLOG_E("RequestStopAfterWorkCb: param is null");
         return;
     }
-    if (vm_ == nullptr) {
+    if (param->vm_ == nullptr) {
         WVLOG_E("RequestStopAfterWorkCb: nil vm");
         param->request_->DecStrongRef(param->request_);
         delete param;
         return;
     }
-    if (vm_->GetEnv(ANI_VERSION_1, &param->env_) != ANI_OK) {
+    if (param->vm_->GetEnv(ANI_VERSION_1, &param->env_) != ANI_OK) {
         WVLOG_E("RequestStopAfterWorkCb: GetEnv failed");
         param->request_->DecStrongRef(param->request_);
         delete param;
@@ -359,12 +362,13 @@ void WebSchemeHandler::RequestStop(const ArkWeb_ResourceRequest* resourceRequest
         return;
     }
     param->env_ = env;
+    param->vm_ = vm_;
     param->callbackRef_ = request_stop_callback_;
     param->request_ = request;
     param->arkWebRequest_ = resourceRequest;
     param->isCallbackValid_ = is_stop_callback_valid_;
-    auto task = [this, param]() { WebSchemeHandler::RequestStopAfterWorkCb(param); };
-        mainHandler_->PostTask(task, TASK_ID);
+    auto task = [param]() { WebSchemeHandler::RequestStopAfterWorkCb(param); };
+    mainHandler_->PostTask(task, TASK_ID);
     vm_->DetachCurrentThread();
 }
 
