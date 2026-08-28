@@ -55,6 +55,15 @@ public:
      */
     /*--ark web()--*/
     virtual int32_t HandleGestureCommand(ArkWebRefPtr<ArkWebCommandActionInfo> action) = 0;
+
+    /**
+     * @brief Handle auto fill command action.
+     *
+     * @param info The command action info for auto fill events.
+     * @return The result of command. 0 on success, negative error code on failure.
+     */
+    /*--ark web()--*/
+    virtual int32_t HandleAutoFillCommand(ArkWebRefPtr<ArkWebCommandActionInfo> info) = 0;
 };
 
 }  // namespace OHOS::ArkWeb

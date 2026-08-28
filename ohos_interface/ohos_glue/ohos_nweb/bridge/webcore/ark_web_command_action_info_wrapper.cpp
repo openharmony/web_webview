@@ -14,6 +14,7 @@
  */
 
 #include "ohos_nweb/bridge/ark_web_command_action_info_wrapper.h"
+#include "ohos_nweb/ctocpp/ark_web_auto_fill_item_vector_ctocpp.h"
 
 #include "base/bridge/ark_web_bridge_macros.h"
 
@@ -101,4 +102,18 @@ int32_t ArkWebCommandActionInfoWrapper::GetSpeed() const
 {
     return info_->GetSpeed();
 }
+
+std::vector<std::shared_ptr<OHOS::NWeb::AutoFillItem>> ArkWebCommandActionInfoWrapper::GetAutoFillItems() const
+{
+    ArkWebAutoFillItemVector vector = info_->GetAutoFillItems();
+    std::vector<std::shared_ptr<OHOS::NWeb::AutoFillItem>> result = ArkWebAutoFillItemVectorStructToClass(vector);
+    ArkWebAutoFillItemVectorStructRelease(vector);
+    return result;
+}
+ 
+OHOS::NWeb::AutoFillMode ArkWebCommandActionInfoWrapper::GetDefaultMode() const
+{
+    return static_cast<OHOS::NWeb::AutoFillMode>(info_->GetDefaultMode());
+}
+
 } // namespace OHOS::ArkWeb

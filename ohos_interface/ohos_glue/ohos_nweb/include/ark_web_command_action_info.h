@@ -19,6 +19,7 @@
 
 #include "base/include/ark_web_base_ref_counted.h"
 #include "base/include/ark_web_types.h"
+#include "ohos_nweb/include/ark_web_auto_fill_item_vector.h"
 
 namespace OHOS::ArkWeb {
 
@@ -121,6 +122,22 @@ public:
      */
     /*--ark web()--*/
     virtual int32_t GetSpeed() = 0;
+
+    // inputAutoFill batch fill getters
+ 
+    /**
+     * @brief Get auto fill items for batch fill.
+     * @return The auto fill items vector.
+     */
+    /*--ark web()--*/
+    virtual ArkWebAutoFillItemVector GetAutoFillItems() = 0;
+ 
+    /**
+     * @brief Get default fill mode for batch fill.
+     * @return The default mode as AutoFillMode enum value (int32_t).
+     */
+    /*--ark web()--*/
+    virtual int32_t GetDefaultMode() = 0;
 };
 
 }  // namespace OHOS::ArkWeb
