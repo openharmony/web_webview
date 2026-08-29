@@ -153,6 +153,10 @@ void OH_NativeArkWeb_UnregisterJavaScriptProxy(const char* webTag, const char* o
 
 void OH_NativeArkWeb_SetDestroyCallback(const char* webTag, NativeArkWeb_OnDestroyCallback callback)
 {
+    if (webTag == nullptr) {
+        WVLOG_E("native RegisterDestroyCallback webTag is null");
+        return;
+    }
     WVLOG_I("native RegisterDestroyCallback, webTag: %{public}s", webTag);
     std::lock_guard<std::mutex> guard(g_mtxMap);
     g_destroyMap[webTag] = callback;
@@ -167,6 +171,10 @@ void OH_NativeArkWeb_SetDestroyCallback(const char* webTag, NativeArkWeb_OnDestr
 
 NativeArkWeb_OnDestroyCallback OH_NativeArkWeb_GetDestroyCallback(const char* webTag)
 {
+    if (webTag == nullptr) {
+        WVLOG_E("native OH_Web_GetDestroyCallback webTag is null");
+        return nullptr;
+    }
     WVLOG_I("native OH_Web_GetDestroyCallback, webTag: %{public}s", webTag);
     std::lock_guard<std::mutex> guard(g_mtxMap);
     std::unordered_map<std::string, NativeArkWeb_OnDestroyCallback>::iterator iter;
