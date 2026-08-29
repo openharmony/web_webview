@@ -196,6 +196,10 @@ void NWebNativeMediaPlayerBridgeImpl::UpdateRect(double x, double y, double widt
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
     }
+    if (value_ == nullptr) {
+        WVLOG_E("value is nullptr");
+        return;
+    }
 
     ani_object updateRectObjOne;
     ani_object updateRectObjTwo;
@@ -243,6 +247,10 @@ void NWebNativeMediaPlayerBridgeImpl::Play()
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
     }
+    if (value_ == nullptr) {
+        WVLOG_E("value is nullptr");
+        return;
+    }
     ani_ref argv[INTEGER_ZERO];
     ani_ref playRef {};
     ani_ref ref;
@@ -263,6 +271,10 @@ void NWebNativeMediaPlayerBridgeImpl::Pause()
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
     }
+    if (value_ == nullptr) {
+        WVLOG_E("value is nullptr");
+        return;
+    }
     ani_ref argv[INTEGER_ZERO];
     ani_ref pauseRef {};
     ani_ref ref;
@@ -281,6 +293,10 @@ void NWebNativeMediaPlayerBridgeImpl::Seek(double time)
     WVLOG_D("begin to seek, nweb id is %{public}d, time is %{public}f", nwebId_, time);
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
+        return;
+    }
+    if (value_ == nullptr) {
+        WVLOG_E("value is nullptr");
         return;
     }
 
@@ -307,6 +323,10 @@ void NWebNativeMediaPlayerBridgeImpl::SetVolume(double volume)
     WVLOG_D("begin to set volume, nweb id is %{public}d, volume is %{public}f", nwebId_, volume);
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
+        return;
+    }
+    if (value_ == nullptr) {
+        WVLOG_E("value is nullptr");
         return;
     }
 
@@ -336,6 +356,10 @@ void NWebNativeMediaPlayerBridgeImpl::SetMuted(bool isMuted)
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
     }
+    if (value_ == nullptr) {
+        WVLOG_E("value is nullptr");
+        return;
+    }
 
     ani_object setMutedObj;
     if (!CreateBooleanByName(env, "std.core.Boolean", setMutedObj, isMuted)) {
@@ -361,6 +385,10 @@ void NWebNativeMediaPlayerBridgeImpl::SetPlaybackRate(double playbackRate)
     WVLOG_D("begin to set playback rate, nweb id is %{public}d, playback rate is %{public}f", nwebId_, playbackRate);
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
+        return;
+    }
+    if (value_ == nullptr) {
+        WVLOG_E("value is nullptr");
         return;
     }
 
@@ -391,11 +419,16 @@ void NWebNativeMediaPlayerBridgeImpl::Release()
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
     }
+    if (value_ == nullptr) {
+        WVLOG_E("value is nullptr");
+        return;
+    }
     ani_ref argv[INTEGER_ZERO];
     ani_ref releaseRef {};
     ani_ref ref;
     if (env->Object_GetPropertyByName_Ref(reinterpret_cast<ani_object>(value_), "release", &releaseRef) != ANI_OK) {
         WVLOG_E("Release failed");
+        return;
     }
     if (env->FunctionalObject_Call(static_cast<ani_fn_object>(releaseRef), ani_size(INTEGER_ZERO), argv, &ref) !=
         ANI_OK) {
@@ -408,6 +441,10 @@ void NWebNativeMediaPlayerBridgeImpl::EnterFullScreen()
     WVLOG_D("begin to enter full screen, nweb id is %{public}d", nwebId_);
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
+        return;
+    }
+    if (value_ == nullptr) {
+        WVLOG_E("value is nullptr");
         return;
     }
     ani_ref argv[INTEGER_ZERO];
@@ -431,6 +468,10 @@ void NWebNativeMediaPlayerBridgeImpl::ExitFullScreen()
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
     }
+    if (value_ == nullptr) {
+        WVLOG_E("value is nullptr");
+        return;
+    }
     ani_ref argv[INTEGER_ZERO];
     ani_ref exitFullScreenRef {};
     ani_ref ref;
@@ -452,6 +493,10 @@ void NWebNativeMediaPlayerBridgeImpl::ResumeMediaPlayer()
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
         return;
     }
+    if (value_ == nullptr) {
+        WVLOG_E("value is nullptr");
+        return;
+    }
     ani_ref argv[INTEGER_ZERO];
     ani_ref resumeRef {};
     ani_ref ref;
@@ -470,6 +515,10 @@ void NWebNativeMediaPlayerBridgeImpl::SuspendMediaPlayer(SuspendType type)
     WVLOG_D("begin to suspend media player, nweb id is %{public}d %{public}d", nwebId_, static_cast<int>(type));
     ani_env* env = nullptr;
     if (vm_->GetEnv(ANI_VERSION_1, &env) != ANI_OK) {
+        return;
+    }
+    if (value_ == nullptr) {
+        WVLOG_E("value is nullptr");
         return;
     }
 
@@ -683,8 +732,14 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructHeaders(const std::
     for (const auto& header : headers) {
         ani_string key;
         ani_string value;
-        env->String_NewUTF8(header.first.c_str(), header.first.length(), &key);
-        env->String_NewUTF8(header.second.c_str(), header.second.length(), &value);
+        if (ANI_OK != env->String_NewUTF8(header.first.c_str(), header.first.length(), &key)) {
+            WVLOG_E("ConstructHeaders key String_NewUTF8 failed");
+            return nullptr;
+        }
+        if (ANI_OK != env->String_NewUTF8(header.second.c_str(), header.second.length(), &value)) {
+            WVLOG_E("ConstructHeaders value String_NewUTF8 failed");
+            return nullptr;
+        }
         if (ANI_OK != env->Object_CallMethod_Void(object, set, key, value)) {
             return nullptr;
         }
@@ -718,8 +773,14 @@ ani_object NWebCreateNativeMediaPlayerCallbackImpl::ConstructAttributes(
     for (const auto& attribute : attributes) {
         ani_string key;
         ani_string value;
-        env->String_NewUTF8(attribute.first.c_str(), attribute.first.length(), &key);
-        env->String_NewUTF8(attribute.second.c_str(), attribute.second.length(), &value);
+        if (ANI_OK != env->String_NewUTF8(attribute.first.c_str(), attribute.first.length(), &key)) {
+            WVLOG_E("ConstructAttributes key String_NewUTF8 failed");
+            return nullptr;
+        }
+        if (ANI_OK != env->String_NewUTF8(attribute.second.c_str(), attribute.second.length(), &value)) {
+            WVLOG_E("ConstructAttributes value String_NewUTF8 failed");
+            return nullptr;
+        }
         if (ANI_OK != env->Object_CallMethod_Void(object, set, key, value)) {
             return nullptr;
         }

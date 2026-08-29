@@ -6823,14 +6823,14 @@ ani_object CreateBlanklessInfo(ani_env* env, int32_t errCode, double similarity,
 
 ani_object GetBlanklessInfoWithKey(ani_env* env, ani_object object, ani_object keyObj)
 {
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
     ProductDeviceType deviceType = SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType();
     if (deviceType != ProductDeviceType::DEVICE_TYPE_MOBILE) {
         WVLOG_E("GetBlanklessInfoWithKey capability not supported.");
         AniBusinessError::ThrowErrorByErrCode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
-        return nullptr;
-    }
-    if (env == nullptr) {
-        WVLOG_E("env is nullptr");
         return nullptr;
     }
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
@@ -6858,14 +6858,14 @@ ani_object GetBlanklessInfoWithKey(ani_env* env, ani_object object, ani_object k
 
 ani_enum_item SetBlanklessLoadingWithKey(ani_env* env, ani_object object, ani_object keyObj, ani_boolean is_start)
 {
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
     ProductDeviceType deviceType = SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType();
     if (deviceType != ProductDeviceType::DEVICE_TYPE_MOBILE) {
         WVLOG_E("SetBlanklessLoadingWithKey capability not supported.");
         AniBusinessError::ThrowErrorByErrCode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
-        return nullptr;
-    }
-    if (env == nullptr) {
-        WVLOG_E("env is nullptr");
         return nullptr;
     }
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
@@ -6939,14 +6939,14 @@ int32_t ParseBlanklessLoadingParam(ani_env* env, ani_object param, AniBlanklessL
 
 ani_enum_item SetBlanklessLoadingWithParams(ani_env* env, ani_object object, ani_object keyObj, ani_object param)
 {
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return nullptr;
+    }
     ProductDeviceType deviceType = SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType();
     if (deviceType != ProductDeviceType::DEVICE_TYPE_MOBILE) {
         WVLOG_E("SetBlanklessLoadingWithParams capability not supported.");
         AniBusinessError::ThrowErrorByErrCode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
-        return nullptr;
-    }
-    if (env == nullptr) {
-        WVLOG_E("env is nullptr");
         return nullptr;
     }
     auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
@@ -6983,14 +6983,14 @@ ani_enum_item SetBlanklessLoadingWithParams(ani_env* env, ani_object object, ani
 
 static ani_int SetBlanklessLoadingCacheCapacity(ani_env* env, ani_object object, ani_int capacityObj)
 {
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return static_cast<ani_int>(0);
+    }
     ProductDeviceType deviceType = SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType();
     if (deviceType != ProductDeviceType::DEVICE_TYPE_MOBILE) {
         WVLOG_E("SetBlanklessLoadingCacheCapacity capability not supported.");
         AniBusinessError::ThrowErrorByErrCode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
-        return static_cast<ani_int>(0);
-    }
-    if (env == nullptr) {
-        WVLOG_E("env is nullptr");
         return static_cast<ani_int>(0);
     }
 
@@ -7008,14 +7008,14 @@ static ani_int SetBlanklessLoadingCacheCapacity(ani_env* env, ani_object object,
 
 static void ClearBlanklessLoadingCache(ani_env* env, ani_object object, ani_object keysObj)
 {
+    if (env == nullptr) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
     ProductDeviceType deviceType = SystemPropertiesAdapterImpl::GetInstance().GetProductDeviceType();
     if (deviceType != ProductDeviceType::DEVICE_TYPE_MOBILE) {
         WVLOG_E("ClearBlanklessLoadingCache capability not supported.");
         AniBusinessError::ThrowErrorByErrCode(env, CAPABILITY_NOT_SUPPORTED_ERROR);
-        return;
-    }
-    if (env == nullptr) {
-        WVLOG_E("env is nullptr");
         return;
     }
 
@@ -7657,6 +7657,12 @@ static void SetActiveWebEngineVersion(ani_env *env, ani_object object, ani_enum_
 {
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
+        return;
+    }
+
+    ani_boolean isUndefined = ANI_FALSE;
+    if (env->Reference_IsUndefined(aniEngineVersion, &isUndefined) != ANI_OK || isUndefined) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
         return;
     }
 
