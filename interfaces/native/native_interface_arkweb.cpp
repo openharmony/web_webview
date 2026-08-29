@@ -186,6 +186,10 @@ NativeArkWeb_OnDestroyCallback OH_NativeArkWeb_GetDestroyCallback(const char* we
 
 void OH_NativeArkWeb_SetJavaScriptProxyValidCallback(const char* webTag, NativeArkWeb_OnValidCallback callback)
 {
+    if (!webTag) {
+        WVLOG_E("native SetJavaScriptProxyValidCallback webTag is null");
+        return;
+    }
     WVLOG_I("native RegisterValidCallback, webTag: %{public}s", webTag);
     std::lock_guard<std::mutex> guard(g_mtxMap);
     g_validMap[webTag] = callback;
@@ -200,6 +204,10 @@ void OH_NativeArkWeb_SetJavaScriptProxyValidCallback(const char* webTag, NativeA
 
 NativeArkWeb_OnValidCallback OH_NativeArkWeb_GetJavaScriptProxyValidCallback(const char* webTag)
 {
+    if (!webTag) {
+        WVLOG_E("native GetJavaScriptProxyValidCallback webTag is null");
+        return nullptr;
+    }
     WVLOG_I("native OH_Web_GetValidCallback, webTag: %{public}s", webTag);
     std::lock_guard<std::mutex> guard(g_mtxMap);
     std::unordered_map<std::string, NativeArkWeb_OnValidCallback>::iterator iter;
