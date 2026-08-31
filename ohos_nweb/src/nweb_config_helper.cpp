@@ -15,6 +15,10 @@
 
 
 #include <cstdint>
+#include <charconv>
+#include <cctype>
+#include <cstring>
+#include <system_error>
 #include <dirent.h>
 #include <dlfcn.h>
 #include <memory>
@@ -175,6 +179,36 @@ const std::unordered_map<std::string_view, std::function<std::string(std::string
             return contentStr == "true" ? std::string("--ohos-disable-next-previous-flag") : std::string();
         } }
 };
+
+bool ParseConfigInt32(const char *text, int32_t &out)
+{
+    if (text == nullptr) {
+        return false;
+    }
+    const char *first = text;
+    while (*first != '\0' && std::isspace(static_cast<unsigned char>(*first))) {
+        ++first;
+    }
+    if (*first == '\0') {
+        return false;
+    }
+    const char *last = first + std::strlen(first);
+    int32_t value = 0;
+    auto result = std::from_chars(first, last, value);
+    if (result.ec != std::errc()) {
+        return false;
+    }
+    const char *end = result.ptr;
+    while (end < last && std::isspace(static_cast<unsigned char>(*end))) {
+        ++end;
+    }
+    if (end != last) {
+        return false;
+    }
+    out = value;
+    return true;
+}
+
 } // namespace
 
 namespace OHOS::NWeb {
@@ -506,7 +540,13 @@ void NWebConfigHelper::ParseNWebLTPOStrategy(xmlNodePtr nodePtr)
         WVLOG_E("read ltpo xml node error");
         return;
     }
-    ltpoStrategy_ = atoi((char *)content);
+    int32_t strategy = 0;
+    if (!ParseConfigInt32(reinterpret_cast<const char *>(content), strategy)) {
+        WVLOG_E("invalid ltpo strategy");
+        xmlFree(content);
+        return;
+    }
+    ltpoStrategy_ = strategy;
     xmlFree(content);
     WVLOG_D("ltpo strategy is: %{public}d", ltpoStrategy_);
 }
@@ -518,7 +558,13 @@ void NWebConfigHelper::ParseNWebLTPOIntConfig(xmlNodePtr nodePtr, const std::str
         WVLOG_E("read ltpo xml node error");
         return;
     }
-    ltpoIntConfig_[configName] = atoi((char *)content);
+    int32_t intConfig = 0;
+    if (!ParseConfigInt32(reinterpret_cast<const char *>(content), intConfig)) {
+        WVLOG_E("invalid ltpo int config: %{public}s", configName.c_str());
+        xmlFree(content);
+        return;
+    }
+    ltpoIntConfig_[configName] = intConfig;
     xmlFree(content);
     WVLOG_D("ltpo %{public}s is: %{public}d", configName.c_str(), ltpoIntConfig_[configName]);
 }
@@ -543,7 +589,13 @@ void NWebConfigHelper::ParseNWebLoadUrlStrategy(xmlNodePtr nodePtr)
                 WVLOG_E("read load_url xml node error");
                 return;
             }
-            loadUrlStrategy_ = atoi((char *)content);
+            int32_t strategy = 0;
+            if (!ParseConfigInt32(reinterpret_cast<const char *>(content), strategy)) {
+                WVLOG_E("invalid load_url strategy");
+                xmlFree(content);
+                return;
+            }
+            loadUrlStrategy_ = strategy;
             xmlFree(content);
             WVLOG_D("load_url is: %{public}d", loadUrlStrategy_);
             return;
@@ -602,7 +654,13 @@ void NWebConfigHelper::ParseNWebDvsyncSwitch(xmlNodePtr nodePtr)
         WVLOG_E("read dvsyncSwitch xml node error");
         return;
     }
-    dvsyncSwitch_ = atoi((char*)content) == 1;
+    int32_t switchValue = 0;
+    if (!ParseConfigInt32(reinterpret_cast<const char *>(content), switchValue)) {
+        WVLOG_E("invalid dvsync switch");
+        xmlFree(content);
+        return;
+    }
+    dvsyncSwitch_ = switchValue == 1;
     xmlFree(content);
     WVLOG_D("dvsync switch is: %{public}d", dvsyncSwitch_);
 }
@@ -760,7 +818,14 @@ void NWebConfigHelper::ParseWindowOrientationConfig(xmlNodePtr nodePtr,
 int NWebConfigHelper::safeGetPropAsInt(xmlNode* node, const xmlChar* propName, int defaultValue)
 {
     xmlChar* propValue = xmlGetProp(node, propName);
-    int value = (propValue) ? atoi((const char*)propValue) : defaultValue;
+    if (propValue == nullptr) {
+        return defaultValue;
+    }
+    int32_t value = 0;
+    if (!ParseConfigInt32(reinterpret_cast<const char *>(propValue), value)) {
+        xmlFree(propValue);
+        return defaultValue;
+    }
     xmlFree(propValue);
     return value;
 }
