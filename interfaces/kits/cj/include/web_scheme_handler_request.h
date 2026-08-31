@@ -108,8 +108,8 @@ namespace OHOS::Webview {
                 return;
             }
             for (int32_t index = 0; index < size; index++) {
-                char* key;
-                char* value;
+                char* key = nullptr;
+                char* value = nullptr;
                 OH_ArkWebRequestHeaderList_GetHeader(arkWebHeaderlist, index, &key, &value);
                 if (!key || !value) {
                     continue;
