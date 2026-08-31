@@ -130,11 +130,11 @@ static void JsApplyProxyOverride(ani_env* env, ani_object object, ani_object pro
     }
     if (jsCallback == nullptr) {
         WVLOG_E("ProxyConfig jsCallback is nullptr");
-        env->GlobalReference_Delete(jsCallback);
         return;
     }
     if (proxyConfigObject == nullptr) {
         WVLOG_E("ProxyConfig JsApplyProxyOverride proxyConfigObject is null");
+        env->GlobalReference_Delete(jsCallback);
         return;
     }
     ProxyConfig* proxyConfig = nullptr;
@@ -142,11 +142,13 @@ static void JsApplyProxyOverride(ani_env* env, ani_object object, ani_object pro
     ani_status status = env->Object_GetFieldByName_Long(proxyConfigObject, "nativePtr", &thisVar);
     if (status != ANI_OK) {
         WVLOG_E("AniUtils_Unwrap Object_GetFieldByName_Long status: %{public}d", status);
+        env->GlobalReference_Delete(jsCallback);
         return;
     }
     proxyConfig = reinterpret_cast<ProxyConfig*>(thisVar);
     if (!proxyConfig) {
         WVLOG_E("ProxyConfig JsApplyProxyOverride proxyConfig is null");
+        env->GlobalReference_Delete(jsCallback);
         return;
     }
     InnerApplyProxyOverride(proxyConfig, env, jsCallback);

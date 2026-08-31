@@ -116,6 +116,7 @@ WebSchemeHandler::~WebSchemeHandler()
         WVLOG_E("env is null");
         return;
     }
+    std::lock_guard<std::mutex> lock(mainHandlerMutex_);
     if (mainHandler_) {
         mainHandler_->RemoveTask(TASK_ID);
     }
@@ -331,6 +332,10 @@ void WebSchemeHandler::RequestStop(const ArkWeb_ResourceRequest* resourceRequest
         WVLOG_E("RequestStop: RequestStop nil vm");
         return;
     }
+    if (resourceRequest == nullptr) {
+        WVLOG_E("RequestStop: resourceRequest is nullptr");
+        return;
+    }
     ani_env* env = nullptr;
     ani_options aniArgs { 0, nullptr };
     if (vm_->AttachCurrentThread(&aniArgs, ANI_VERSION_1, &env) != ANI_OK) {
@@ -342,6 +347,7 @@ void WebSchemeHandler::RequestStop(const ArkWeb_ResourceRequest* resourceRequest
         vm_->DetachCurrentThread();
         return;
     }
+    std::lock_guard<std::mutex> lock(mainHandlerMutex_);
     if (!mainHandler_) {
         std::shared_ptr<AppExecFwk::EventRunner> runner = AppExecFwk::EventRunner::GetMainEventRunner();
         if (!runner) {
@@ -376,7 +382,13 @@ void WebSchemeHandler::RequestStop(const ArkWeb_ResourceRequest* resourceRequest
     param->arkWebRequest_ = resourceRequest;
     param->isCallbackValid_ = is_stop_callback_valid_;
     auto task = [param]() { WebSchemeHandler::RequestStopAfterWorkCb(param); };
-    mainHandler_->PostTask(task, TASK_ID);
+    if (!mainHandler_->PostTask(task, TASK_ID)) {
+        WVLOG_E("RequestStop: PostTask failed");
+        request->DecStrongRef(request);
+        delete param;
+        vm_->DetachCurrentThread();
+        return;
+    }
     vm_->DetachCurrentThread();
 }
 
@@ -633,9 +645,22 @@ void WebHttpBodyStream::ExecuteRead(uint8_t* buffer, int bytesRead)
         delete asyncCtx;
         return;
     }
-    if (memcpy_s(bufferData, asyncCtx->bytesRead, asyncCtx->buffer, asyncCtx->bytesRead) != 0 &&
-        asyncCtx->bytesRead > 0) {
+    if (bufferData == nullptr) {
+        WVLOG_E("WebHttpBodyStream::ExecuteRead bufferData is nullptr");
+        delete[] asyncCtx->buffer;
+        if (asyncCtx->buffer) {
+            delete[] asyncCtx->buffer;
+        }
+        asyncCtx->env->PromiseResolver_Resolve(asyncCtx->deferred, arraybuffer);
+        return;
+    }
+    if (asyncCtx->bytesRead > 0 &&
+        memcpy_s(bufferData, asyncCtx->bytesRead, asyncCtx->buffer, asyncCtx->bytesRead) != 0) {
         WVLOG_E("WebHttpBodyStream::ExecuteRead memcpy failed");
+        asyncCtx->env->PromiseResolver_Resolve(asyncCtx->deferred, arraybuffer);
+        delete[] asyncCtx->buffer;
+        delete asyncCtx;
+        return;
     }
     if (asyncCtx->buffer) {
         delete[] asyncCtx->buffer;

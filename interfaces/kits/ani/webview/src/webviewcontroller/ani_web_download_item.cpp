@@ -446,6 +446,10 @@ static void Start(ani_env* env, ani_object object, ani_object pathObj)
         WVLOG_E("[DOWNLOAD]unwrap webDownloadItem failed");
         return;
     }
+    if (!webDownloadItem->before_download_callback) {
+        WVLOG_E("[DOWNLOAD]before_download_callback function is nullptr");
+        return;
+    }
     webDownloadItem->hasStarted = true;
     webDownloadItem->downloadPath = path;
     WVLOG_D("AniWebDownloadItem::Start, download_path: %s", webDownloadItem->downloadPath.c_str());

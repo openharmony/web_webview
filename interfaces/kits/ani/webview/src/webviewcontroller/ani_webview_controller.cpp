@@ -3308,6 +3308,10 @@ static void BackOrForward(ani_env* env, ani_object object, ani_int step)
 static void SetWebDebuggingAccess(ani_env* env, ani_object object, ani_boolean aniDebugAccess)
 {
     WVLOG_D(" SetWebDebuggingAccess start");
+    if (OHOS::system::GetBoolParameter("web.debug.devtools", false)) {
+        WVLOG_D("SetWebDebuggingAccess is disabled by web.debug.devtools");
+        return;
+    }
     if (!env) {
         WVLOG_E("env is nullptr");
         return;
@@ -3327,6 +3331,10 @@ static void SetWebDebuggingAccessAndPort(
     ani_env* env, ani_object object, ani_boolean aniDebugAccess, ani_int aniDebugPort)
 {
     WVLOG_D(" SetWebDebuggingAccess start");
+    if (OHOS::system::GetBoolParameter("web.debug.devtools", false)) {
+        WVLOG_D("SetWebDebuggingAccess is disabled by web.debug.devtools");
+        return;
+    }
     if (!env) {
         WVLOG_E("env is nullptr");
         return;
