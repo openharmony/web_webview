@@ -24,9 +24,12 @@ config("module_private_config") {
     defines = [ "NWEB_AUDIO_ENABLE" ]
   }
 
-  include_dirs = [ 
+  # ohos_nweb/include is needed for nweb_log.h (WVLOG) pulled in by the audio
+  # adapter impl sources compiled into this test (see sources below).
+  include_dirs = [
     "../../../ohos_adapter/audio_adapter/include",
     "../../../ohos_interface/include/ohos_adapter",
+    "../../../ohos_nweb/include",
   ]
 }
 
@@ -36,15 +39,6 @@ ohos_unittest("nweb_audio_adapter_test") {
   sources = [ "audio_adapter_impl_test.cpp" ]
 
   configs = [ ":module_private_config" ]
-
-  if (target_cpu == "arm64") {
-    branch_protector_ret = "pac_ret"
-  }
-  sanitize = {
-    cfi = true
-    cfi_cross_dso = true
-    debug = false
-  }
 
   deps = [ "$webview_path/ohos_adapter:nweb_ohos_adapter" ]
 
@@ -69,9 +63,22 @@ ohos_unittest("nweb_audio_adapter_test") {
   }
 
   if (webview_audio_enable) {
+    # Compile the audio adapter impl directly into the test binary so that the
+    # virtual calls on the mock objects (RequestAudioFocus on AudioInterruptAdapter,
+    # renderer/capturer on their option & callback adapters, etc.) become in-module
+    # calls of the (non-CFI) test executable. Otherwise those would be cross-DSO
+    # virtual calls issued by the CFI-enabled libnweb_ohos_adapter.z.so and trip
+    # __cfi_check -> SIGABRT. The source set mirrors nweb_ohos_adapter's audio set.
+    sources += [
+      "$webview_path/ohos_adapter/audio_adapter/src/audio_system_manager_adapter_impl.cpp",
+      "$webview_path/ohos_adapter/audio_adapter/src/audio_renderer_adapter_impl.cpp",
+      "$webview_path/ohos_adapter/audio_adapter/src/audio_capturer_adapter_impl.cpp",
+      "$webview_path/ohos_adapter/audio_adapter/src/audio_device_desc_adapter_impl.cpp",
+    ]
     external_deps += [
       "audio_framework:audio_client",
       "audio_framework:audio_renderer",
+      "audio_framework:audio_foundation",
     ]
   }
 }

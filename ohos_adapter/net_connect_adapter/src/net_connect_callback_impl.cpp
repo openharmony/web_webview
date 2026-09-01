@@ -101,6 +101,10 @@ int32_t NetConnectCallbackImpl::NetConnectionPropertiesChange(sptr<NetHandle> &n
 
 int32_t NetConnectCallbackImpl::NetLost(sptr<NetHandle> &netHandle)
 {
+    if (netHandle == nullptr) {
+        WVLOG_E("NetConnCallback enter, NetLost, netHandle is nullptr.");
+        return 0;
+    }
     WVLOG_I("NetConnCallback enter, NetLost, net id = %{public}d.", netHandle->GetNetId());
     if (cb_ != nullptr) {
         return cb_->NetUnavailable();
@@ -119,6 +123,10 @@ int32_t NetConnectCallbackImpl::NetUnavailable()
 
 int32_t NetConnectCallbackImpl::NetBlockStatusChange(sptr<NetHandle> &netHandle, bool blocked)
 {
+    if (netHandle == nullptr) {
+        WVLOG_E("NetConnCallback enter, NetBlockStatusChange, netHandle is nullptr.");
+        return 0;
+    }
     WVLOG_I("NetConnCallback enter, NetBlockStatusChange, net id = %{public}d, blocked = %{public}d.",
         netHandle->GetNetId(), blocked);
     return 0;
