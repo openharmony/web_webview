@@ -279,6 +279,10 @@ void WebSchemeHandler::RequestStopAfterWorkCb(uv_work_t* work, int status)
 void WebSchemeHandler::RequestStop(const ArkWeb_ResourceRequest* resourceRequest)
 {
     WVLOG_D("WebSchemeHandler::RequestStop");
+    if (resourceRequest == nullptr) {
+        WVLOG_E("WebSchemeHandler::RequestStop resourceRequest is nullptr");
+        return;
+    }
     uv_loop_s *loop = nullptr;
     uv_work_t *work = nullptr;
     napi_get_uv_event_loop(env_, &loop);
@@ -308,6 +312,7 @@ void WebSchemeHandler::RequestStop(const ArkWeb_ResourceRequest* resourceRequest
         RequestStopAfterWorkCb, uv_qos_user_initiated, "WebviewWebSchemeHandler");
     if (ret != 0) {
         if (param != nullptr) {
+            delete param->request_;
             delete param;
             param = nullptr;
         }
@@ -550,7 +555,7 @@ void WebHttpBodyStream::ExecuteReadComplete(napi_env env, napi_status status, vo
     NApiScope scope(env);
     if (!scope.IsVaild()) {
         if (param->buffer) {
-            delete param->buffer;
+            delete[] param->buffer;
         }
         delete param;
         return;
@@ -563,7 +568,7 @@ void WebHttpBodyStream::ExecuteReadComplete(napi_env env, napi_status status, vo
         WVLOG_W("WebHttpBodyStream::ExecuteRead memcpy failed");
     }
     if (param->buffer) {
-        delete param->buffer;
+        delete[] param->buffer;
     }
     if (param->callbackRef) {
         napi_value callback = nullptr;
@@ -592,6 +597,7 @@ void WebHttpBodyStream::ExecuteRead(uint8_t* buffer, int bytesRead)
 {
     if (!env_) {
         DeleteReadJsCallbackRef();
+        delete[] buffer;
         return;
     }
     ReadParam *param = new (std::nothrow) ReadParam {
@@ -604,11 +610,13 @@ void WebHttpBodyStream::ExecuteRead(uint8_t* buffer, int bytesRead)
     };
     if (param == nullptr) {
         DeleteReadJsCallbackRef();
+        delete[] buffer;
         return;
     }
     napi_value resourceName = nullptr;
     if (napi_create_string_utf8(env_, __func__, NAPI_AUTO_LENGTH, &resourceName) != napi_status::napi_ok) {
         DeleteReadJsCallbackRef();
+        delete[] param->buffer;
         delete param;
         return;
     }
@@ -616,12 +624,14 @@ void WebHttpBodyStream::ExecuteRead(uint8_t* buffer, int bytesRead)
         [](napi_env env, void *data) {},
         ExecuteReadComplete, static_cast<void *>(param), &param->asyncWork) != napi_status::napi_ok) {
         DeleteReadJsCallbackRef();
+        delete[] param->buffer;
         delete param;
         return;
     }
     if (napi_queue_async_work_with_qos(env_, param->asyncWork, napi_qos_user_initiated) != napi_status::napi_ok) {
         napi_delete_async_work(env_, param->asyncWork);
         DeleteReadJsCallbackRef();
+        delete[] param->buffer;
         delete param;
     }
 }

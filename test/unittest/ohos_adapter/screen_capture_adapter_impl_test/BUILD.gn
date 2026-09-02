@@ -20,7 +20,16 @@ module_output_path = "webview/Multimedia"
 config("module_private_config") {
   visibility = [ ":*" ]
 
-  include_dirs = [ "$webview_path/ohos_adapter/screen_capture_adapter/include" ]
+  # Compile the adapter impl directly into the test binary so that the virtual
+  # calls on the mock config objects (inside Init/ConvertScreenCaptureConfig)
+  # become in-module calls of the (non-CFI) test executable. Otherwise those
+  # calls would be cross-DSO virtual calls issued by the CFI-enabled
+  # libnweb_ohos_adapter.z.so and trip __cfi_check -> SIGABRT.
+  include_dirs = [
+    "$webview_path/ohos_adapter/screen_capture_adapter/include",
+    "$webview_path/ohos_adapter/graphic_adapter/include",
+    "$webview_path/ohos_nweb/include",
+  ]
 }
 
 ohos_unittest("screen_capture_adapter_impl_test") {
@@ -52,7 +61,10 @@ ohos_unittest("screen_capture_adapter_impl_test") {
   ]
 
   if (webview_media_player_enable) {
-    sources += [ "screen_capture_adapter_impl_test.cpp" ]
+    sources += [
+      "screen_capture_adapter_impl_test.cpp",
+      "$webview_path/ohos_adapter/screen_capture_adapter/src/screen_capture_adapter_impl.cpp",
+    ]
     external_deps += [
       "audio_framework:audio_client",
       "av_codec:av_codec_client",

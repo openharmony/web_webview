@@ -58,7 +58,11 @@ void WebDownloadDelegate::RemoveSelfRef()
 {
     if (delegate_) {
         uint32_t refCount;
-        napi_reference_unref(env_, delegate_, &refCount);
+        napi_status status = napi_reference_unref(env_, delegate_, &refCount);
+        if (status != napi_ok) {
+            WVLOG_E("[DOWNLOAD] WebDownloadDelegate::RemoveSelfRef napi_reference_unref failed");
+            return;
+        }
         if (refCount == 0) {
             napi_delete_reference(env_, delegate_);
             delegate_ = nullptr;
@@ -72,6 +76,7 @@ void WebDownloadDelegate::DownloadBeforeStart(WebDownloadItem *webDownloadItem)
     WVLOG_D("[DOWNLOAD] WebDownloadDelegate::DownloadBeforeStart");
     if (!env_) {
         WVLOG_E("[DOWNLOAD] WebDownloadDelegate::DownloadBeforeStart nil env");
+        delete webDownloadItem;
         return;
     }
     size_t paramCount = 1;
@@ -83,11 +88,13 @@ void WebDownloadDelegate::DownloadBeforeStart(WebDownloadItem *webDownloadItem)
 
     if (!download_before_start_callback_) {
         WVLOG_E("[DOWNLOAD] downloadBeforeStart nil env");
+        delete webDownloadItem;
         return;
     }
     status = napi_get_reference_value(env_, download_before_start_callback_, &callbackFunc);
     if (status != napi_ok || callbackFunc == nullptr) {
         WVLOG_E("[DOWNLOAD] get downloadBeforeStart func failed.");
+        delete webDownloadItem;
         return;
     }
 
@@ -122,6 +129,7 @@ void WebDownloadDelegate::DownloadDidUpdate(WebDownloadItem *webDownloadItem)
     WVLOG_D("[DOWNLOAD] WebDownloadDelegate::DownloadDidUpdate");
     if (!env_) {
         WVLOG_E("[DOWNLOAD] WebDownloadDelegate::DownloadDidUpdate nil env.");
+        delete webDownloadItem;
         return;
     }
     size_t paramCount = 1;
@@ -133,11 +141,13 @@ void WebDownloadDelegate::DownloadDidUpdate(WebDownloadItem *webDownloadItem)
 
     if (!download_did_update_callback_) {
         WVLOG_E("[DOWNLOAD] downloadDidUpdate not exists.");
+        delete webDownloadItem;
         return;
     }
     status = napi_get_reference_value(env_, download_did_update_callback_, &callbackFunc);
     if (status != napi_ok || callbackFunc == nullptr) {
         WVLOG_E("[DOWNLOAD] get downloadDidUpdate func failed.");
+        delete webDownloadItem;
         return;
     }
 
@@ -166,6 +176,7 @@ void WebDownloadDelegate::DownloadDidFail(WebDownloadItem *webDownloadItem)
     WVLOG_D("WebDownloadDelegate::DownloadDidFail");
     if (!env_) {
         WVLOG_E("[DOWNLOAD] WebDownloadDelegate::DownloadDidFail nil env.");
+        delete webDownloadItem;
         return;
     }
     size_t paramCount = 1;
@@ -177,11 +188,13 @@ void WebDownloadDelegate::DownloadDidFail(WebDownloadItem *webDownloadItem)
 
     if (!download_did_fail_callback_) {
         WVLOG_E("[DOWNLOAD] DownloadDidFail not exists.");
+        delete webDownloadItem;
         return;
     }
     status = napi_get_reference_value(env_, download_did_fail_callback_, &callbackFunc);
     if (status != napi_ok || callbackFunc == nullptr) {
         WVLOG_E("[DOWNLOAD] get downloadDidFail func failed.");
+        delete webDownloadItem;
         return;
     }
 
@@ -210,6 +223,7 @@ void WebDownloadDelegate::DownloadDidFinish(WebDownloadItem *webDownloadItem)
     WVLOG_D("WebDownloadDelegate::DownloadDidFinish");
     if (!env_) {
         WVLOG_E("[DOWNLOAD] WebDownloadDelegate::DownloadDidFinish nil env.");
+        delete webDownloadItem;
         return;
     }
     size_t paramCount = 1;
@@ -221,11 +235,13 @@ void WebDownloadDelegate::DownloadDidFinish(WebDownloadItem *webDownloadItem)
 
     if (!download_did_finish_callback_) {
         WVLOG_E("[DOWNLOAD] downloadDidFinish not exists.");
+        delete webDownloadItem;
         return;
     }
     status = napi_get_reference_value(env_, download_did_finish_callback_, &callbackFunc);
     if (status != napi_ok || callbackFunc == nullptr) {
         WVLOG_E("[DOWNLOAD] get downloadDidFinish func failed.");
+        delete webDownloadItem;
         return;
     }
 

@@ -364,6 +364,10 @@ void NetProxyAdapterImpl::GetProperty(std::string& host, uint16_t& port, std::st
     int32_t ret = NetManagerStandard::NetConnClient::GetInstance().GetDefaultHttpProxy(httpProxy);
     if (ret != NetManagerStandard::NET_CONN_SUCCESS) {
         WVLOG_E("netproxy config change, get default http proxy from OH network failed");
+        host = std::string();
+        port = 0;
+        pacUrl = std::string();
+        exclusion = std::string();
         return;
     }
 

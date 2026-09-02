@@ -290,6 +290,7 @@ HWTEST_F(NetConnectAdapterImplTest, NetConnectAdapterImplTest_005, TestSize.Leve
     EXPECT_EQ(dns_servers.size(), 0);
     g_getAllNets = static_cast<int32_t>(NETMANAGER_SUCCESS);
     g_getNetProp = static_cast<int32_t>(NETMANAGER_SUCCESS);
+    g_getNetCap = static_cast<int32_t>(NETMANAGER_SUCCESS);
     g_vpnCount = 1;
     dns_servers = netConnectAdapterImpl->GetDnsServersForVpn();
     EXPECT_EQ(dns_servers.size(), 1);
