@@ -479,9 +479,9 @@ ArkWebRefPtr<ArkSurfaceTransactionAdapter> ArkOhosAdapterHelperImpl::GetSurfaceT
     return impl;
 }
 
-ArkWebRefPtr<ArkVpeVideoAdapter> ArkOhosAdapterHelperImpl::GetVpeVideoAdapter()
+ArkWebRefPtr<ArkVpeVideoAdapter> ArkOhosAdapterHelperImpl::CreateVpeVideoAdapter()
 {
-    std::unique_ptr<NWeb::VpeVideoAdapter> adapter = real_.GetVpeVideoAdapter();
+    std::unique_ptr<NWeb::VpeVideoAdapter> adapter = real_.CreateVpeVideoAdapter();
     std::shared_ptr<NWeb::VpeVideoAdapter> shared = std::move(adapter);
     return new ArkVpeVideoAdapterImpl(shared);
 }
