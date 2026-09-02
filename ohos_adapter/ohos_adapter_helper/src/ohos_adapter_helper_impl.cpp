@@ -416,7 +416,7 @@ SurfaceTransactionAdapter& OhosAdapterHelperImpl::GetSurfaceTransactionAdapter()
     return SurfaceTransactionAdapterImpl::GetInstance();
 }
 
-std::unique_ptr<VpeVideoAdapter> OhosAdapterHelperImpl::GetVpeVideoAdapter()
+std::unique_ptr<VpeVideoAdapter> OhosAdapterHelperImpl::CreateVpeVideoAdapter()
 {
     return std::make_unique<VpeVideoAdapterImpl>();
 }

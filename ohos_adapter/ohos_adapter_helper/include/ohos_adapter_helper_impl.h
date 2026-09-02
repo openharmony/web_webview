@@ -137,7 +137,7 @@ public:
 
     SurfaceTransactionAdapter& GetSurfaceTransactionAdapter() override;
 
-    std::unique_ptr<VpeVideoAdapter> GetVpeVideoAdapter() override;
+    std::unique_ptr<VpeVideoAdapter> CreateVpeVideoAdapter() override;
 
     HiViewDfxAdapter& GetHiViewDfxAdapterInstance() override;
 };

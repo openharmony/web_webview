@@ -134,7 +134,7 @@ public:
 
     NWeb::SurfaceTransactionAdapter& GetSurfaceTransactionAdapter() override;
 
-    std::unique_ptr<NWeb::VpeVideoAdapter> GetVpeVideoAdapter() override;
+    std::unique_ptr<NWeb::VpeVideoAdapter> CreateVpeVideoAdapter() override;
 
     NWeb::HiViewDfxAdapter& GetHiViewDfxAdapterInstance() override;
 
