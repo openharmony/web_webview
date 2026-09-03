@@ -2189,6 +2189,12 @@ public:
     virtual void SetTouchHandleExistState(bool touchHandleExist) {}
 
     /**
+     * @brief Set whether click extension is enabled.
+     * @param enable Whether to enable click extension feature.
+     */
+    virtual void SetClickExtEnabled(bool enable) {}
+
+    /**
      * @brief Get the current scroll offset of the webpage.
      * @param offset_x The current horizontal scroll offset of the webpage.
      * @param offset_y The current vertical scroll offset of the webpage.
