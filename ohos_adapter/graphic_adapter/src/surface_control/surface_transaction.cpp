@@ -159,10 +159,6 @@ void SurfaceTransaction::Reparent(SurfaceControl* surfaceControl, SurfaceControl
         return;
     }
 
-    if (surfaceControl->IsRootSurface()) {
-        return;
-    }
-
     transactionCommands_.push_back(
         [surface = sptr<SurfaceControl>(surfaceControl), parent = sptr<SurfaceControl>(newParent)] {
             if (surface) {
