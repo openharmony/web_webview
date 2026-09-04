@@ -1563,7 +1563,8 @@ void WebPrintDocument::OnJobStateChanged(const std::string& jobId, uint32_t stat
     }
 }
 
-std::unique_ptr<NWebPrintDocumentAdapterAdapter> webviewController::CreateWebPrintDocumentAdapter(const std::string& jobName)
+std::unique_ptr<NWebPrintDocumentAdapterAdapter> webviewController::CreateWebPrintDocumentAdapter(
+    const std::string& jobName)
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
     if (!nweb_ptr) {
