@@ -321,6 +321,7 @@ public:
         }
 
         EnsureMethodsSetup();
+        std::unique_lock<std::mutex> lock(mutex_);
         for (std::vector<std::string>::iterator iter = methods_.begin(); iter != methods_.end(); ++iter) {
             if (*iter == methodName) {
                 return true;
