@@ -1577,7 +1577,6 @@ void* WebviewController::CreateWebPrintDocumentAdapter(const std::string& jobNam
             if (!nweb_ptr) {
                 return nullptr;
             }
-
             return nweb_ptr->CreateWebPrintDocumentAdapterV2(jobName);
         }
     return nullptr;
