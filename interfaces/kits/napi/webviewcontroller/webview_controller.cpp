@@ -1570,12 +1570,16 @@ void* WebviewController::CreateWebPrintDocumentAdapter(const std::string& jobNam
         return nullptr;
     }
 
-    std::unique_ptr<NWebPrintDocumentAdapterAdapter> adapter =
-        nweb_ptr->CreateWebPrintDocumentAdapterV2(jobName);
-    if (adapter) {
-        return adapter.release();
-    }
+    std::unique_ptr<NWebPrintDocumentAdapterAdapter>
+        webviewController::CreateWebPrintDocumentAdapter(const std::string& jobName)
+        {
+            auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+            if (!nweb_ptr) {
+                return nullptr;
+            }
 
+            return nweb_ptr->CreateWebPrintDocumentAdapterV2(jobName);
+        }
     return nullptr;
 }
 
