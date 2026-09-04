@@ -176,7 +176,7 @@ class SelectorDialog {
       }
       .constraintSize({ minHeight: 56 })
       .width('calc(100% - 40vp)')
-      .border({ width: { bottom: 0.5 } as EdgeWidths, color: '#33000000' })
+      .border({ width: { bottom: 0.5 } as EdgeWidths, color: $r('sys.color.ohos_id_color_button_divider') })
     }
     .onClick((e) => {
       UIContext.resolveUIContext()?.getPromptAction().closeCustomDialog(this.customDialogComponentId)

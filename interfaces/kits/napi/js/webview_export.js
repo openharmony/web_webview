@@ -2385,6 +2385,8 @@ class SelectorDialog extends ViewPU {
     this.__video_recording = new ObservedPropertyObjectPU({ 'id': -1, 'type': -1, params: ['sys.string.video_recording'], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' }, this, 'video_recording');
     this.__gallery = new ObservedPropertyObjectPU({ 'id': -1, 'type': -1, params: ['sys.string.gallery'], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' }, this, 'gallery');
     this.__document = new ObservedPropertyObjectPU({ 'id': -1, 'type': -1, params: ['sys.string.document'], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' }, this, 'document');
+    this.__fontPrimaryColor = new ObservedPropertyObjectPU({ 'id': -1, 'type': -1, params: ['sys.color.font_primary'], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' }, this, 'fontPrimaryColor');
+    this.__dividerColor = new ObservedPropertyObjectPU({ 'id': -1, 'type': -1, params: ['sys.color.ohos_id_color_button_divider'], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' }, this, 'dividerColor');
     this.setInitiallyProvidedValue(params);
   }
 
@@ -2402,6 +2404,8 @@ class SelectorDialog extends ViewPU {
     this.__video_recording.purgeDependencyOnElmtId(rmElmtId);
     this.__gallery.purgeDependencyOnElmtId(rmElmtId);
     this.__document.purgeDependencyOnElmtId(rmElmtId);
+    this.__fontPrimaryColor.purgeDependencyOnElmtId(rmElmtId);
+    this.__dividerColor.purgeDependencyOnElmtId(rmElmtId);
   }
 
   aboutToBeDeleted() {
@@ -2425,6 +2429,8 @@ class SelectorDialog extends ViewPU {
     this.__video_recording.aboutToBeDeleted();
     this.__gallery.aboutToBeDeleted();
     this.__document.aboutToBeDeleted();
+    this.__fontPrimaryColor.aboutToBeDeleted();
+    this.__dividerColor.aboutToBeDeleted();
     SubscriberManager.Get().delete(this.id__());
     this.aboutToBeDeletedInternal();
   }
@@ -2485,6 +2491,22 @@ class SelectorDialog extends ViewPU {
     this.__document.set(newValue);
   }
 
+  get fontPrimaryColor() {
+    return this.__fontPrimaryColor.get();
+  }
+
+  set fontPrimaryColor(newValue) {
+    this.__fontPrimaryColor.set(newValue);
+  }
+
+  get dividerColor() {
+    return this.__dividerColor.get();
+  }
+
+  set dividerColor(newValue) {
+    this.__dividerColor.set(newValue);
+  }
+
   fileSelectorListItem(callback, sysResource, text, func) {
     this.observeComponentCreation2((elmtId, isInitialRender) => {
       Row.create();
@@ -2501,13 +2523,13 @@ class SelectorDialog extends ViewPU {
       SymbolGlyph.margin({
         end: LengthMetrics.vp(16)
       });
-      SymbolGlyph.fontColor([{ 'id': -1, 'type': -1, params: ['sys.color.font_primary'], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' }]);
+      SymbolGlyph.fontColor([this.fontPrimaryColor]);
     }, SymbolGlyph);
     this.observeComponentCreation2((elmtId, isInitialRender) => {
       Row.create();
       Row.constraintSize({ minHeight: 56 });
       Row.width('calc(100% - 40vp)');
-      Row.border({ width: { bottom: 0.5 }, color: '#33000000' });
+      Row.border({ width: { bottom: 0.5 }, color: this.dividerColor });
     }, Row);
     this.observeComponentCreation2((elmtId, isInitialRender) => {
       switch (text) {
@@ -2644,6 +2666,8 @@ class SelectorDialog extends ViewPU {
           this.document = value;
         });
     }, 200);
+    this.fontPrimaryColor = { 'id': -1, 'type': -1, params: ['sys.color.font_primary'], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' };
+    this.dividerColor = { 'id': -1, 'type': -1, params: ['sys.color.ohos_id_color_button_divider'], 'bundleName': 'com.example.selectdialog', 'moduleName': 'entry' };
   }
 
   initialRender() {
