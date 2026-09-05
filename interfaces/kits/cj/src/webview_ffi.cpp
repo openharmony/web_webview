@@ -1417,25 +1417,26 @@ extern "C" {
         }
         int64_t count = maps.size;
         for (int64_t i = 0; i < count; i++) {
-            COfflineResourceMap map = maps.head[i];
+            const auto& map = maps.head[i];
             std::vector<std::string> urlList;
+            urlList.reserve(map.urlList.size);
             for (int j = 0; j < map.urlList.size; j++) {
-                urlList.push_back(std::string(map.urlList.head[j]));
+                urlList.emplace_back(map.urlList.head[j]);
             }
-            for (auto url : urlList) {
+            for (const auto& url : urlList) {
                 if (!CheckUrl(url)) {
                     return NWebError::INVALID_URL;
                 }
             }
             std::vector<uint8_t> resource;
+            resource.reserve(map.resourceCSize);
             for (int j = 0; j < map.resourceCSize; j++) {
                 resource.push_back(map.resource[j]);
             }
             std::map<std::string, std::string> responseHeaders;
             for (int j = 0; j < map.responseHeaders.size; j++) {
-                std::string key = map.responseHeaders.head[j].headerKey;
-                std::string value = map.responseHeaders.head[j].headerValue;
-                responseHeaders[key] = value;
+                responseHeaders[map.responseHeaders.head[j].headerKey] =
+                    map.responseHeaders.head[j].headerValue;
             }
             uint32_t type = map.type;
             nativeWebviewCtl->InjectOfflineResources(urlList, resource, responseHeaders, type);

@@ -65,7 +65,7 @@ char* WebSchemeHandlerResponseImpl::GetStatusText()
         WEBVIEWLOGE("WebSchemeHandlerResponse is nullptr");
         return nullptr;
     }
-    char* statusText;
+    char* statusText = nullptr;
     OH_ArkWebResponse_GetStatusText(response_, &statusText);
     return statusText;
 }
@@ -81,7 +81,7 @@ char* WebSchemeHandlerResponseImpl::GetMimeType()
         WEBVIEWLOGE("WebSchemeHandlerResponse is nullptr");
         return nullptr;
     }
-    char* mimeType;
+    char* mimeType = nullptr;
     OH_ArkWebResponse_GetMimeType(response_, &mimeType);
     return mimeType;
 }
