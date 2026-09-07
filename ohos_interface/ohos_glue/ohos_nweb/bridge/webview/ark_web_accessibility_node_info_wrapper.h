@@ -141,6 +141,10 @@ public:
 
     std::string GetExpandedState() override;
 
+    std::string GetAddText() override;
+
+    std::string GetRemoveText() override;
+
 private:
     ArkWebRefPtr<ArkWebAccessibilityNodeInfo> ark_web_accessibility_node_info_;
 };
