@@ -5517,6 +5517,7 @@ napi_value NapiWebviewController::CreateWebPrintDocumentAdapter(napi_env env, na
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
         return result;
     }
+    (void)webviewController.release();
     return proxy;
 }
 
