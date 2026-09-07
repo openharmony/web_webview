@@ -88,7 +88,6 @@ public:
     virtual void RequestWebDomJsonString(std::shared_ptr<NWebMessageValueCallback> callback) {}
 
     /**
-
      * @brief Request page scene query for input controls.
      *
      * @param ruleJson JSON string serving both as query config (passed to JS __psQuery())
@@ -102,8 +101,9 @@ public:
         const std::string& ruleId,
         const std::vector<std::string>& nodeTypes,
         std::shared_ptr<NWebMessageValueCallback> callback) {}
-         * @brief Request web dom json string with extraction mode
-    
+
+    /**    
+     * @brief Request web dom json string with extraction mode
      *
      * @param callback request callback
      * @param mode DOM extraction mode, 0 for full tree (default), 1 for viewport only.
