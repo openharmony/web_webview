@@ -67,4 +67,26 @@ void ArkWebAgentManagerImpl::RequestWebDomJsonString(ArkWebRefPtr<ArkWebMessageV
     nweb_agent_manager_->RequestWebDomJsonString(std::make_shared<ArkWebMessageValueCallbackWrapper>(callback));
 }
 
+void ArkWebAgentManagerImpl::RequestPageSceneQuery(
+    const ArkWebString& ruleJson,
+    const ArkWebString& ruleId,
+    const ArkWebStringVector& nodeTypes,
+    ArkWebRefPtr<ArkWebMessageValueCallback> callback)
+{
+    ARK_WEB_BRIDGE_INFO_LOG("RequestPageSceneQuery webview-Impl entered [NWebJS]");
+    if (!nweb_agent_manager_) {
+        return;
+    }
+    auto ruleJsonClass = ArkWebStringStructToClass(ruleJson);
+    auto ruleIdClass = ArkWebStringStructToClass(ruleId);
+    auto nodeTypesClass = ArkWebStringVectorStructToClass(nodeTypes);
+    if (CHECK_REF_PTR_IS_NULL(callback)) {
+        nweb_agent_manager_->RequestPageSceneQuery(ruleJsonClass, ruleIdClass, nodeTypesClass, nullptr);
+        return;
+    }
+    nweb_agent_manager_->RequestPageSceneQuery(
+        ruleJsonClass, ruleIdClass, nodeTypesClass,
+        std::make_shared<ArkWebMessageValueCallbackWrapper>(callback));
+}
+
 }  // namespace OHOS::ArkWeb

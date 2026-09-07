@@ -18,6 +18,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "nweb_export.h"
 #include "nweb_value_callback.h"
@@ -74,6 +75,21 @@ public:
      * @param callback request callabck
      */
     virtual void RequestWebDomJsonString(std::shared_ptr<NWebMessageValueCallback> callback) {}
+
+    /**
+     * @brief Request page scene query for input controls.
+     *
+     * @param ruleJson JSON string serving both as query config (passed to JS __psQuery())
+     *                 and as observer callback routing identifier (passed to onDomReady(result, ruleJson)).
+     * @param ruleId Rule identifier (observer).
+     * @param nodeTypes Node type tags to observe. Empty = query only, non-empty = query + observer.
+     * @param callback Result callback for immediate query result.
+     */
+    virtual void RequestPageSceneQuery(
+        const std::string& ruleJson,
+        const std::string& ruleId,
+        const std::vector<std::string>& nodeTypes,
+        std::shared_ptr<NWebMessageValueCallback> callback) {}
 };
 }  // namespace OHOS::NWeb
 
