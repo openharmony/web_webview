@@ -71,6 +71,7 @@ public:
      */
     void RequestWebDomJsonString(std::shared_ptr<OHOS::NWeb::NWebMessageValueCallback> callback) override;
 
+    /**
      * @brief Request page scene query for input controls.
      *
      * @param ruleJson JSON string of selector configuration and callback routing.
