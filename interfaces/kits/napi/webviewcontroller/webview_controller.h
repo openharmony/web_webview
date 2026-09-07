@@ -348,7 +348,7 @@ public:
     ErrCode PrefetchPage(std::string& url, std::map<std::string, std::string> additionalHttpHeaders,
         std::shared_ptr<NWebPrefetchOptions> prefetchOptions);
 
-    void* CreateWebPrintDocumentAdapter(const std::string &jobName);
+    std::unique_ptr<NWebPrintDocumentAdapterAdapter> CreateWebPrintDocumentAdapter(const std::string &jobName);
 
     ErrCode PostUrl(std::string& url, std::vector<char>& postData);
 

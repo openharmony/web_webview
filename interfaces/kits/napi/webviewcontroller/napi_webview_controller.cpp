@@ -5509,7 +5509,7 @@ napi_value NapiWebviewController::CreateWebPrintDocumentAdapter(napi_env env, na
     napi_value webPrintDoc = nullptr;
     NAPI_CALL(env, napi_get_reference_value(env, g_webPrintDocClassRef, &webPrintDoc));
     napi_value consParam[INTEGER_ONE] = {0};
-    NAPI_CALL(env, napi_create_bigint_uint64(env, reinterpret_cast<uint64_t>(webPrintDocument),
+    NAPI_CALL(env, napi_create_bigint_uint64(env, reinterpret_cast<uint64_t>(webPrintDocument.get()),
                                              &consParam[INTEGER_ZERO]));
     napi_value proxy = nullptr;
     status = napi_new_instance(env, webPrintDoc, INTEGER_ONE, &consParam[INTEGER_ZERO], &proxy);
@@ -5517,6 +5517,7 @@ napi_value NapiWebviewController::CreateWebPrintDocumentAdapter(napi_env env, na
         BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR);
         return result;
     }
+    (void)webPrintDocument.release();
     return proxy;
 }
 

@@ -1563,20 +1563,14 @@ void WebPrintDocument::OnJobStateChanged(const std::string& jobId, uint32_t stat
     }
 }
 
-void* WebviewController::CreateWebPrintDocumentAdapter(const std::string& jobName)
+std::unique_ptr<NWebPrintDocumentAdapterAdapter> WebviewController::CreateWebPrintDocumentAdapter(
+    const std::string& jobName)
 {
     auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
     if (!nweb_ptr) {
         return nullptr;
     }
-
-    std::unique_ptr<NWebPrintDocumentAdapterAdapter> adapter =
-        nweb_ptr->CreateWebPrintDocumentAdapterV2(jobName);
-    if (adapter) {
-        return adapter.release();
-    }
-
-    return nullptr;
+    return nweb_ptr->CreateWebPrintDocumentAdapterV2(jobName);
 }
 
 void WebviewController::CloseAllMediaPresentations()
