@@ -71,6 +71,19 @@ public:
      * @param callback request callabck
      */
     void RequestWebDomJsonString(ArkWebRefPtr<ArkWebMessageValueCallback> callback) override;
+        
+     * @brief Request page scene query for input controls.
+     *
+     * @param ruleJson JSON string of selector configuration and callback routing.
+     * @param ruleId Rule identifier.
+     * @param nodeTypes Node type tags to observe. Empty = query only, non-empty = query + observer.
+     * @param callback Result callback for immediate query result.
+     */
+    void RequestPageSceneQuery(
+        const ArkWebString& ruleJson,
+        const ArkWebString& ruleId,
+        const ArkWebStringVector& nodeTypes,
+        ArkWebRefPtr<ArkWebMessageValueCallback> callback) override;
 
     /**
      * @brief Request web dom json string with extraction mode

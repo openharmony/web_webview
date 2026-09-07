@@ -938,8 +938,9 @@ std::shared_ptr<NWeb> NWebHelper::CreateNWeb(std::shared_ptr<NWebCreateInfo> cre
         return nullptr;
     }
 
+    auto result = nwebEngine_->CreateNWeb(create_info);
     initWebEngine_ = true;
-    return nwebEngine_->CreateNWeb(create_info);
+    return result;
 }
 
 std::shared_ptr<NWebCookieManager> NWebHelper::GetCookieManager()
@@ -1065,6 +1066,11 @@ void NWebHelper::SetConnectionTimeout(const int32_t& timeout)
 
 void NWebHelper::AddIntelligentTrackingPreventionBypassingList(const std::vector<std::string>& hosts)
 {
+    if (!initWebEngine_) {
+        WVLOG_E("AddIntelligentTrackingPreventionBypassingList, not initialized");
+        return;
+    }
+
     if (nwebEngine_ == nullptr) {
         WVLOG_E("web engine is nullptr");
         return;
@@ -1075,6 +1081,11 @@ void NWebHelper::AddIntelligentTrackingPreventionBypassingList(const std::vector
 
 void NWebHelper::RemoveIntelligentTrackingPreventionBypassingList(const std::vector<std::string>& hosts)
 {
+    if (!initWebEngine_) {
+        WVLOG_E("RemoveIntelligentTrackingPreventionBypassingList, not initialized");
+        return;
+    }
+
     if (nwebEngine_ == nullptr) {
         WVLOG_E("web engine is nullptr");
         return;
@@ -1085,6 +1096,11 @@ void NWebHelper::RemoveIntelligentTrackingPreventionBypassingList(const std::vec
 
 void NWebHelper::ClearIntelligentTrackingPreventionBypassingList()
 {
+    if (!initWebEngine_) {
+        WVLOG_E("ClearIntelligentTrackingPreventionBypassingList, not initialized");
+        return;
+    }
+
     if (nwebEngine_ == nullptr) {
         WVLOG_E("web engine is nullptr");
         return;

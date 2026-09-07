@@ -16,6 +16,7 @@
 #ifndef NWEB_HELPER_H
 #define NWEB_HELPER_H
 
+#include <atomic>
 #include <iosfwd>
 #include <memory>
 #include <mutex>
@@ -184,7 +185,7 @@ private:
     bool initFlag_ = false;
     bool autoPreconnectEnabled_ = true;
     bool lazyInitializeWebEngine_ = false;
-    bool initWebEngine_ = false;
+    std::atomic<bool> initWebEngine_ = false;
     std::string bundlePath_;
     std::string customSchemeCmdLine_;
     std::shared_ptr<NWebEngine> nwebEngine_ = nullptr;
