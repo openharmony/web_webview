@@ -71,7 +71,8 @@ public:
      * @param callback request callabck
      */
     void RequestWebDomJsonString(ArkWebRefPtr<ArkWebMessageValueCallback> callback) override;
-        
+
+    /**
      * @brief Request page scene query for input controls.
      *
      * @param ruleJson JSON string of selector configuration and callback routing.
