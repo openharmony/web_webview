@@ -308,4 +308,15 @@ ArkWebString ArkWebAccessibilityNodeInfoImpl::GetHtmlElementId()
 {
     return ArkWebStringClassToStruct(nweb_accessibility_node_info_->GetHtmlElementId());
 }
+
+ArkWebString ArkWebAccessibilityNodeInfoImpl::GetAddText()
+{
+    return ArkWebStringClassToStruct(nweb_accessibility_node_info_->GetAddText());
+}
+
+ArkWebString ArkWebAccessibilityNodeInfoImpl::GetRemoveText()
+{
+    return ArkWebStringClassToStruct(nweb_accessibility_node_info_->GetRemoveText());
+}
+
 } // namespace OHOS::ArkWeb

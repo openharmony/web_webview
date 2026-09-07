@@ -219,6 +219,20 @@ public:
 
     /*--ark web()--*/
     virtual ArkWebString GetExpandedState() = 0;
+
+    /**
+     * @Description: Get the add text of the accessibility node.
+     * @Return: The add text of the accessibility node.
+     */
+    /*--ark web()--*/
+    virtual ArkWebString GetAddText() = 0;
+
+    /**
+     * @Description: Get the remove text of the accessibility node.
+     * @Return: The remove text of the accessibility node.
+     */
+    /*--ark web()--*/
+    virtual ArkWebString GetRemoveText() = 0;
 };
 
 } // namespace OHOS::ArkWeb

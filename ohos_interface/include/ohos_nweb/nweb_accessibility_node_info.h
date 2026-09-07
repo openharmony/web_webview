@@ -163,6 +163,16 @@ public:
     {
         return std::string();
     }
+
+    virtual std::string GetAddText()
+    {
+        return std::string();
+    }
+
+    virtual std::string GetRemoveText()
+    {
+        return std::string();
+    }
 };
 
 } // namespace OHOS::NWeb
