@@ -101,8 +101,8 @@ public:
         const std::string& ruleId,
         const std::vector<std::string>& nodeTypes,
         std::shared_ptr<NWebMessageValueCallback> callback) {}
-
-    /**    
+    
+    /**
      * @brief Request web dom json string with extraction mode
      *
      * @param callback request callback
