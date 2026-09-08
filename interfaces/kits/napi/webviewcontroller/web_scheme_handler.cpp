@@ -229,6 +229,7 @@ void WebSchemeHandler::RequestStopAfterWorkCb(uv_work_t* work, int status)
     }
     NApiScope scope(param->env_);
     if (!scope.IsVaild()) {
+        delete param->request_;
         delete param;
         delete work;
         return;
@@ -238,6 +239,7 @@ void WebSchemeHandler::RequestStopAfterWorkCb(uv_work_t* work, int status)
     if (!param->callbackRef_ || !param->isCallbackValid_ ||
         !param->isCallbackValid_->load(std::memory_order_acquire)) {
         WVLOG_E("scheme handler onRequestStop callback ref is invalid");
+        delete param->request_;
         delete param;
         delete work;
         return;
@@ -245,19 +247,32 @@ void WebSchemeHandler::RequestStopAfterWorkCb(uv_work_t* work, int status)
     napiStatus = napi_get_reference_value(param->env_, param->callbackRef_, &callbackFunc);
     if (napiStatus != napi_ok || callbackFunc == nullptr) {
         WVLOG_E("scheme handler get onRequestStop func failed.");
+        delete param->request_;
         delete param;
         delete work;
         return;
     }
     napi_value requestValue;
-    napi_create_object(param->env_, &requestValue);
-    napi_wrap(
+    if (napi_create_object(param->env_, &requestValue) != napi_ok) {
+        WVLOG_E("scheme handler create request object failed");
+        delete param->request_;
+        delete param;
+        delete work;
+        return;
+    }
+    if (napi_wrap(
         param->env_, requestValue, param->request_,
         [](napi_env /* env */, void *data, void * /* hint */) {
             WebSchemeHandlerRequest *request = (WebSchemeHandlerRequest *)data;
             delete request;
         },
-        nullptr, nullptr);
+        nullptr, nullptr) != napi_ok) {
+        WVLOG_E("scheme handler wrap request object failed");
+        delete param->request_;
+        delete param;
+        delete work;
+        return;
+    }
     NapiWebSchemeHandlerRequest::DefineProperties(param->env_, &requestValue);
     napi_value result = nullptr;
     napiStatus = napi_call_function(
