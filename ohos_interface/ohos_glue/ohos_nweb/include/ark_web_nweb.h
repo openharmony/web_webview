@@ -1907,6 +1907,13 @@ public:
     virtual void SetTouchHandleExistState(bool touchHandleExist) = 0;
 
     /**
+     * @brief Set whether click extension is enabled.
+     * @param enable Whether to enable click extension feature.
+     */
+    /*--ark web()--*/
+    virtual void SetClickExtEnabled(bool enable) = 0;
+
+    /**
      * @brief Sets the bottom avoidance height of the web visible viewport.
      * @param avoidHeight The height value of the visible viewport avoidance. Unit: px.
      */

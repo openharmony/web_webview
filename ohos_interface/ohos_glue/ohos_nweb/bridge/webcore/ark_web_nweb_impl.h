@@ -1701,6 +1701,12 @@ public:
     void SetTouchHandleExistState(bool touchHandleExist) override;
 
     /**
+     * @brief Set whether click extension is enabled.
+     * @param enable Whether to enable click extension feature.
+     */
+    void SetClickExtEnabled(bool enable) override;
+
+    /**
      * @brief Sets the bottom avoidance height of the web visible viewport.
      * @param avoidHeight The height value of the visible viewport avoidance. Unit: px.
      */
