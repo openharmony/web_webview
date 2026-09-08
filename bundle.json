@@ -124,7 +124,8 @@
                 "//base/web/webview/ohos_adapter:nweb_ohos_adapter",
                 "//base/web/webview/ohos_wrapper:nweb_ohos_wrapper",
                 "//base/web/webview/sa/web_native_messaging:web_native_messaging",
-                "//base/web/webview/arkweb_utils:libarkweb_utils"
+                "//base/web/webview/arkweb_utils:libarkweb_utils",
+                "//base/web/webview/sa/create_dummy_paths:create_dummy_paths_cfg"
             ],
             "inner_kits": [
                 {
