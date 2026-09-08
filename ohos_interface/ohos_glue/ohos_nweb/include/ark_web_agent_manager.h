@@ -91,6 +91,17 @@ public:
         const ArkWebString& ruleId,
         const ArkWebStringVector& nodeTypes,
         ArkWebRefPtr<ArkWebMessageValueCallback> callback) = 0;
+
+    /**
+     * @brief Request web dom json string with extraction mode
+     *
+     * @param callback request callback
+     * @param mode DOM extraction mode, 0 for full tree (default), 1 for viewport only.
+     */
+    /*--ark web()--*/
+    virtual void RequestWebDomJsonStringWithOptions(
+        ArkWebRefPtr<ArkWebMessageValueCallback> callback,
+        int32_t mode) = 0;
 };
 
 } // namespace OHOS::ArkWeb

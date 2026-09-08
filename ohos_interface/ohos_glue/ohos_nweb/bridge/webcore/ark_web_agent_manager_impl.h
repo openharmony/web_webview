@@ -86,6 +86,16 @@ public:
         const ArkWebStringVector& nodeTypes,
         ArkWebRefPtr<ArkWebMessageValueCallback> callback) override;
 
+    /**
+     * @brief Request web dom json string with extraction mode
+     *
+     * @param callback request callback
+     * @param mode DOM extraction mode, 0 for full tree (default), 1 for viewport only.
+     */
+    void RequestWebDomJsonStringWithOptions(
+        ArkWebRefPtr<ArkWebMessageValueCallback> callback,
+        int32_t mode) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebAgentManager> nweb_agent_manager_;
 };
