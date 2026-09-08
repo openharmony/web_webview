@@ -2106,8 +2106,8 @@ class VideoPlayerLogic {
       return;
     }
 
+    let param = mutedStatus === MutedStatus.MUTED ? 1 : 0;
     if (this.handler) {
-      let param = mutedStatus === MutedStatus.MUTED ? 1 : 0;
       this.handler.requestMediaControl(MediaControlAction.SET_MUTED, String(param));
       this.state.isMuted = mutedStatus;
     } else {
