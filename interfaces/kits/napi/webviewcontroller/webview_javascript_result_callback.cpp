@@ -335,18 +335,6 @@ void CreateProxyForH5Object(napi_env env, napi_value* result)
     }
 }
 
-napi_handle_scope OpenScope(napi_env env)
-{
-    napi_handle_scope scope = nullptr;
-    NAPI_CALL(env, napi_open_handle_scope(env, &scope));
-    return scope;
-}
-
-void CloseScope(napi_env env, napi_handle_scope scope)
-{
-    (void)napi_close_handle_scope(env, scope);
-}
-
 void CreateUvQueueWorkEnhanced(napi_env env, WebviewJavaScriptResultCallBack::NapiJsCallBackParm* data,
     void (*handler)(napi_env env, napi_status status, WebviewJavaScriptResultCallBack::NapiJsCallBackParm* data))
 {
@@ -370,8 +358,7 @@ void CreateUvQueueWorkEnhanced(napi_env env, WebviewJavaScriptResultCallBack::Na
         }
 
         napi_env env = workData->env_;
-        auto closeScope = [env](napi_handle_scope scope) { CloseScope(env, scope); };
-        std::unique_ptr<napi_handle_scope__, decltype(closeScope)> scope(OpenScope(env), closeScope);
+        NApiScope scope(env);
 
         workData->handler_(workData->env_, static_cast<napi_status>(status), workData->data_);
 
@@ -1371,7 +1358,15 @@ void ExecuteGetJavaScriptResult(
             return;
         }
         napi_value callResult = nullptr;
-        napi_call_function(env, jsObj->GetValue(), callback, argv.size(), &argv[0], &callResult);
+        napi_status callStatus = napi_call_function(
+            env, jsObj->GetValue(), callback, argv.size(), argv.data(), &callResult);
+        if (callStatus != napi_ok) {
+            WVLOG_E("WebviewJavaScriptResultCallBack::ExecuteGetJavaScriptResult napi api call fail");
+            std::unique_lock<std::mutex> lock(param->mutex);
+            param->ready = true;
+            param->condition.notify_all();
+            return;
+        }
         bool isObject = false;
         std::vector<std::string> methodNameList;
         methodNameList = ParseNapiValue2NwebValue(
@@ -1412,7 +1407,12 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptResultS
         return ret;
     }
     napi_value callResult = nullptr;
-    napi_call_function(jsObj->GetEnv(), jsObj->GetValue(), callback, argv.size(), &argv[0], &callResult);
+    napi_status status = napi_call_function(
+        jsObj->GetEnv(), jsObj->GetValue(), callback, argv.size(), argv.data(), &callResult);
+    if (status != napi_ok) {
+        WVLOG_E("WebviewJavaScriptResultCallBack::GetJavaScriptResultSelf napi api call fail");
+        return ret;
+    }
     bool isObject = false;
     std::vector<std::string> methodNameList = ParseNapiValue2NwebValue(jsObj->GetEnv(), &callResult, ret, &isObject);
     napi_valuetype valueType = napi_undefined;
@@ -1584,7 +1584,12 @@ std::shared_ptr<NWebValue> WebviewJavaScriptResultCallBack::GetJavaScriptResultS
         return ret;
     }
     napi_value callResult = nullptr;
-    napi_call_function(jsObj->GetEnv(), jsObj->GetValue(), callback, argv.size(), &argv[0], &callResult);
+    napi_status status = napi_call_function(
+        jsObj->GetEnv(), jsObj->GetValue(), callback, argv.size(), argv.data(), &callResult);
+    if (status != napi_ok) {
+        WVLOG_E("WebviewJavaScriptResultCallBack::GetJavaScriptResultSelfHelper napi api call fail");
+        return ret;
+    }
     bool isObject = false;
     std::vector<std::string> methodNameList = ParseNapiValue2NwebValue(jsObj->GetEnv(), &callResult, ret, &isObject);
     napi_valuetype valueType = napi_undefined;
@@ -2416,7 +2421,15 @@ void ExecuteGetJavaScriptResultV2(
 
         napi_value callResult = nullptr;
         auto argv = *(static_cast<std::vector<napi_value>*>(inParam->data));
-        napi_call_function(env, jsObj->GetValue(), callback, argv.size(), &argv[0], &callResult);
+        napi_status callStatus = napi_call_function(
+            env, jsObj->GetValue(), callback, argv.size(), argv.data(), &callResult);
+        if (callStatus != napi_ok) {
+            WVLOG_E("WebviewJavaScriptResultCallBack::ExecuteGetJavaScriptResultV2 napi api call fail");
+            std::unique_lock<std::mutex> lock(param->mutex);
+            param->ready = true;
+            param->condition.notify_all();
+            return;
+        }
 
         bool isObject = false;
         std::vector<std::string> methodNameList;
@@ -2556,7 +2569,12 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultSelfV2(const std::vecto
     }
 
     napi_value callResult = nullptr;
-    napi_call_function(jsObj->GetEnv(), jsObj->GetValue(), callback, argv.size(), &argv[0], &callResult);
+    napi_status status = napi_call_function(
+        jsObj->GetEnv(), jsObj->GetValue(), callback, argv.size(), argv.data(), &callResult);
+    if (status != napi_ok) {
+        WVLOG_E("WebviewJavaScriptResultCallBack::GetJavaScriptResultSelfV2 napi api call fail");
+        return;
+    }
     bool isObject = false;
     std::vector<std::string> methodNameList =
         ParseNapiValue2NwebValueV2(jsObj->GetEnv(), &callResult, result, &isObject);
@@ -2599,7 +2617,12 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultSelfHelperV2(std::share
     }
 
     napi_value callResult = nullptr;
-    napi_call_function(jsObj->GetEnv(), jsObj->GetValue(), callback, argv.size(), &argv[0], &callResult);
+    napi_status status = napi_call_function(
+        jsObj->GetEnv(), jsObj->GetValue(), callback, argv.size(), argv.data(), &callResult);
+    if (status != napi_ok) {
+        WVLOG_E("WebviewJavaScriptResultCallBack::GetJavaScriptResultSelfHelperV2 napi api call fail");
+        return;
+    }
 
     bool isObject = false;
     std::vector<std::string> methodNameList;

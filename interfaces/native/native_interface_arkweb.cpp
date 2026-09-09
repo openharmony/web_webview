@@ -113,15 +113,16 @@ void OH_NativeArkWeb_RunJavaScript(const char* webTag, const char* jsCode, Nativ
 void OH_NativeArkWeb_RegisterJavaScriptProxy(const char* webTag, const char* objName, const char** methodList,
     NativeArkWeb_OnJavaScriptProxyCallback* callback, int32_t size, bool isNeedRefresh)
 {
-    if (!webTag || !objName || !methodList || !callback) {
+    if (!webTag || !objName || !methodList || !callback || size <= 0) {
         WVLOG_E("native OH_NativeArkWeb_RegisterJavaScriptProxy invalid param");
         return;
     }
     WVLOG_I("native OH_NativeArkWeb_RegisterJavaScriptProxy webTag:%{public}s", webTag);
     std::vector<std::shared_ptr<OHOS::NWeb::NWebJsProxyCallback>> proxyCallbacks;
     for (int i = 0; i < size; i++) {
-        if (!methodList[i]) {
-            WVLOG_E("native OH_NativeArkWeb_RegisterJavaScriptProxy methodList[%{public}d] is null", i);
+        if (!methodList[i] || !callback[i]) {
+            WVLOG_E("native OH_NativeArkWeb_RegisterJavaScriptProxy methodList[%{public}d] "
+                "or callback[%{public}d] is null", i, i);
             continue;
         }
         std::shared_ptr<OHOS::NWeb::NWebJsProxyCallback> proxyCallback =
