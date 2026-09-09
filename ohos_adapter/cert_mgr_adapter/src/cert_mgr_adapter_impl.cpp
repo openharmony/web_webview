@@ -360,6 +360,10 @@ uint32_t CertManagerAdapterImpl::GetUserRootCertSum()
 
 int32_t CertManagerAdapterImpl::GetUserRootCertData(uint32_t certCount, uint8_t* certData)
 {
+    if (certData == nullptr) {
+        WVLOG_E("GetUserRootCertData, certData is nullptr");
+        return CM_FAILURE;
+    }
     struct CertList *certList = nullptr;
     int32_t ret = InitCertList(&certList);
     if (ret != CM_SUCCESS) {

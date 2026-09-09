@@ -6173,10 +6173,16 @@ bool GetHostList(napi_env env, napi_value array, std::vector<std::string>& hosts
 
     for (uint32_t i = 0; i < arrayLen; i++) {
         napi_value hostItem = nullptr;
-        napi_get_element(env, array, i, &hostItem);
+        if (napi_get_element(env, array, i, &hostItem) != napi_ok) {
+            WVLOG_E("get host item failed, index = %{public}u", i);
+            return false;
+        }
 
         size_t hostLen = 0;
-        napi_get_value_string_utf8(env, hostItem, nullptr, 0, &hostLen);
+        if (napi_get_value_string_utf8(env, hostItem, nullptr, 0, &hostLen) != napi_ok) {
+            WVLOG_E("get host item length failed, index = %{public}u", i);
+            return false;
+        }
         if (hostLen == 0 || hostLen > URL_MAXIMUM) {
             WVLOG_E("hostitem length is invalid");
             return false;
