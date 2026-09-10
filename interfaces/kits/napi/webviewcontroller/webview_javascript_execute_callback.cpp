@@ -240,6 +240,8 @@ void WebviewJavaScriptExecuteCallback::UvAfterWorkCbPromise(napi_env env, napi_d
             nullptr, nullptr);
         if (status != napi_status::napi_ok) {
             WVLOG_E("napi_wrap failed.");
+            delete webJsMessageExt;
+            webJsMessageExt = nullptr;
             return;
         }
     }
