@@ -36,6 +36,7 @@
 #include "ohos_adapter/bridge/ark_flowbuffer_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_hisysevent_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_hitrace_adapter_impl.h"
+#include "ohos_adapter/bridge/ark_hiviewdfx_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_iconsumer_surface_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_imf_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_keystore_adapter_impl.h"
@@ -474,6 +475,13 @@ ArkWebRefPtr<ArkSurfaceTransactionAdapter> ArkOhosAdapterHelperImpl::GetSurfaceT
 {
     static NWeb::SurfaceTransactionAdapter& instance = real_.GetSurfaceTransactionAdapter();
     static ArkWebRefPtr<ArkSurfaceTransactionAdapter> impl = new ArkSurfaceTransactionAdapterImpl(instance);
+    return impl;
+}
+
+ArkWebRefPtr<ArkHiViewDfxAdapter> ArkOhosAdapterHelperImpl::GetHiViewDfxAdapterInstance()
+{
+    static NWeb::HiViewDfxAdapter& instance = real_.GetHiViewDfxAdapterInstance();
+    static ArkWebRefPtr<ArkHiViewDfxAdapter> impl = new ArkHiViewDfxAdapterImpl(instance);
     return impl;
 }
 

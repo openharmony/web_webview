@@ -45,6 +45,9 @@ public:
 
     /*--ark web()--*/
     virtual ArkWebRefPtr<ArkWebOutputFrameCallback> GetOutputFrameCallback() = 0;
+
+    /*--ark web()--*/
+    virtual uint64_t GetAsyncStackId() = 0;
 };
 
 } // namespace OHOS::ArkWeb

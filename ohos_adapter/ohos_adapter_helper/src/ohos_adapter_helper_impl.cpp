@@ -33,6 +33,7 @@
 #include "flowbuffer_adapter_impl.h"
 #include "hisysevent_adapter_impl.h"
 #include "hitrace_adapter_impl.h"
+#include "hiviewdfx_adapter_impl.h"
 #include "imf_adapter_impl.h"
 #include "keystore_adapter_impl.h"
 #if defined(NWEB_MEDIA_AVSESSION_ENABLE)
@@ -412,5 +413,10 @@ SurfaceControlAdapter& OhosAdapterHelperImpl::GetSurfaceControlAdapter()
 SurfaceTransactionAdapter& OhosAdapterHelperImpl::GetSurfaceTransactionAdapter()
 {
     return SurfaceTransactionAdapterImpl::GetInstance();
+}
+
+HiViewDfxAdapter& OhosAdapterHelperImpl::GetHiViewDfxAdapterInstance()
+{
+    return HiViewDfxAdapterImpl::GetInstance();
 }
 } // namespace OHOS::NWeb

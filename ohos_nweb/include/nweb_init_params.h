@@ -125,9 +125,20 @@ public:
         return outputFrameCallback_;
     }
 
+    void SetAsyncStackId(uint64_t stackId)
+    {
+        stackId_ = stackId;
+    }
+
+    uint64_t GetAsyncStackId() override
+    {
+        return stackId_;
+    }
+
 private:
     uint32_t width_ = 0;
     uint32_t height_ = 0;
+    uint64_t stackId_ = 0;
 
     bool isIncognitoMode_ = false;
 

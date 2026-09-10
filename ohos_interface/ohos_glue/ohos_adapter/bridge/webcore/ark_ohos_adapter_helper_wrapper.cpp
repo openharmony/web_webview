@@ -36,6 +36,7 @@
 #include "ohos_adapter/bridge/ark_flowbuffer_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_hisysevent_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_hitrace_adapter_wrapper.h"
+#include "ohos_adapter/bridge/ark_hiviewdfx_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_iconsumer_surface_adapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_imfadapter_wrapper.h"
 #include "ohos_adapter/bridge/ark_keystore_adapter_wrapper.h"
@@ -568,6 +569,12 @@ NWeb::SurfaceControlAdapter& ArkOhosAdapterHelperWrapper::GetSurfaceControlAdapt
 NWeb::SurfaceTransactionAdapter& ArkOhosAdapterHelperWrapper::GetSurfaceTransactionAdapter()
 {
     static ArkSurfaceTransactionAdapterWrapper instance(ctocpp_->GetSurfaceTransactionAdapter());
+    return instance;
+}
+
+NWeb::HiViewDfxAdapter& ArkOhosAdapterHelperWrapper::GetHiViewDfxAdapterInstance()
+{
+    static ArkHiViewDfxAdapterWrapper instance(ctocpp_->GetHiViewDfxAdapterInstance());
     return instance;
 }
 
