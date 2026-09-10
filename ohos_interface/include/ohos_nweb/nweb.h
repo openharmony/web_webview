@@ -149,6 +149,7 @@ public:
     virtual void* GetEnhanceSurfaceInfo() = 0;
 
     virtual bool GetIsIncognitoMode() = 0;
+    virtual uint64_t GetAsyncStackId() = 0;
 };
 
 enum class OHOS_NWEB_EXPORT DragAction {

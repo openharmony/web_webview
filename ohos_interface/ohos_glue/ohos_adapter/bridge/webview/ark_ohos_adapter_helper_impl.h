@@ -134,6 +134,8 @@ public:
 
     ArkWebRefPtr<ArkSurfaceTransactionAdapter> GetSurfaceTransactionAdapter() override;
 
+    ArkWebRefPtr<ArkHiViewDfxAdapter> GetHiViewDfxAdapterInstance() override;
+
 private:
     NWeb::OhosAdapterHelper& real_;
 

@@ -36,6 +36,7 @@
 #include "graphic_adapter.h"
 #include "hisysevent_adapter.h"
 #include "hitrace_adapter.h"
+#include "hiviewdfx_adapter.h"
 #include "imf_adapter.h"
 #include "keystore_adapter.h"
 #include "media_adapter.h"
@@ -178,6 +179,8 @@ public:
     virtual SurfaceControlAdapter& GetSurfaceControlAdapter() = 0;
 
     virtual SurfaceTransactionAdapter& GetSurfaceTransactionAdapter() = 0;
+
+    virtual HiViewDfxAdapter& GetHiViewDfxAdapterInstance() = 0;
 };
 
 } // namespace OHOS::NWeb

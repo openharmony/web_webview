@@ -136,6 +136,8 @@ public:
     SurfaceControlAdapter& GetSurfaceControlAdapter() override;
 
     SurfaceTransactionAdapter& GetSurfaceTransactionAdapter() override;
+
+    HiViewDfxAdapter& GetHiViewDfxAdapterInstance() override;
 };
 } // namespace OHOS::NWeb
 

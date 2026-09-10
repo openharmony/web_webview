@@ -72,4 +72,9 @@ std::shared_ptr<OHOS::NWeb::NWebOutputFrameCallback> ArkWebNWebCreateInfoWrapper
     return std::make_shared<ArkWebOutputFrameCallbackWrapper>(ark_web_output_frame_callback);
 }
 
+uint64_t ArkWebNWebCreateInfoWrapper::GetAsyncStackId()
+{
+    return ark_web_nweb_create_info_->GetAsyncStackId();
+}
+
 } // namespace OHOS::ArkWeb
