@@ -44,6 +44,10 @@ public:
     int32_t GetTapCount() override;
     int32_t GetSpeed() override;
 
+    // inputAutoFill batch fill getters
+    ArkWebAutoFillItemVector GetAutoFillItems() override;
+    int32_t GetDefaultMode() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebCommandActionInfo> info_;
 };
