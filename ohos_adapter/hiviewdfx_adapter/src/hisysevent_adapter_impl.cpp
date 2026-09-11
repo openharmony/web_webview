@@ -34,6 +34,7 @@ const HiviewDFX::HiSysEvent::EventType EVENT_TYPES[] = {
 }
 
 const int kBase10 = 10;
+static constexpr int32_t BASE_USER_RANGE = 200000;
 bool ConvertToLongLong(const std::string& str, long long& value)
 {
     char* end;
@@ -171,7 +172,7 @@ int ProcessEventPageLoadTime(const std::string& eventName, HiSysEventAdapter::Ev
     if (appInfo == nullptr) {
         return -1;
     }
-    AppExecFwk::ElementName elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
+    AppExecFwk::ElementName elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility(appInfo->uid / BASE_USER_RANGE);
 
     std::tuple<const std::string, const std::string> sysData = {
         "ABILITY_NAME", elementName.GetAbilityName(),
@@ -229,7 +230,7 @@ int ProcessEventFirstMeaningfulPaintDone(const std::string& eventName, HiSysEven
     if (appInfo == nullptr) {
         return -1;
     }
-    AppExecFwk::ElementName elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
+    AppExecFwk::ElementName elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility(appInfo->uid / BASE_USER_RANGE);
 
     std::tuple<const std::string, const std::string> sysData = {
         "ABILITY_NAME", elementName.GetAbilityName(),
@@ -317,7 +318,7 @@ int HiSysEventAdapterImpl::Write(const std::string& eventName, EventType type,
     if (appInfo == nullptr) {
         return -1;
     }
-    AppExecFwk::ElementName elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
+    AppExecFwk::ElementName elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility(appInfo->uid / BASE_USER_RANGE);
 
     systemData sysData = {
         "VERSION_CODE", appInfo->versionCode,
@@ -338,7 +339,7 @@ int HiSysEventAdapterImpl::Write(const std::string& eventName, EventType type,
     if (appInfo == nullptr) {
         return -1;
     }
-    AppExecFwk::ElementName elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
+    AppExecFwk::ElementName elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility(appInfo->uid / BASE_USER_RANGE);
 
     std::tuple<const std::string, const std::string, const std::string, const std::string,
         const std::string, const std::string> sysData = {
@@ -369,7 +370,7 @@ int HiSysEventAdapterImpl::Write(const std::string& eventName, EventType type,
     if (appInfo == nullptr) {
         return -1;
     }
-    AppExecFwk::ElementName elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
+    AppExecFwk::ElementName elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility(appInfo->uid / BASE_USER_RANGE);
 
     std::tuple<const std::string, const std::string> sysData = {
         "ABILITY_NAME", elementName.GetAbilityName(),
