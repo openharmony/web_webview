@@ -29,38 +29,14 @@ const std::string JS_EXT_ARR_CLASS_NAME = "PdfData";
 thread_local napi_ref g_jsArrExtClassRef;
 
 namespace {
-class NapiRefGuard {
-public:
-    NapiRefGuard(napi_env env, napi_ref ref) : env_(env), ref_(ref) {}
-    ~NapiRefGuard() {
-        if(ref_ != nullptr) {
-            WVLOG_I("NapiRefGuard releasing callbackref on exit path");
-            napi_delete_reference(env_, ref_);
-        } else {
-            WVLOG_I("NapiRefGuard ref_ is null, skip release");
-        }
-    }
-    NapiRefGuard(const NapiRefGuard&) = delete;
-    NapiRefGuard& operator=(const NapiRefGuard&) = delete;
-    NapiRefGuard(NapiRefGuard&& other) noexcept : env_(other.env_), ref_(other.ref_) {
-        other.ref_ = nullptr;
-    }
-    NapiRefGuard& operator=(NapiRefGuard&& other) noexcept {
-        if (this != &other) {
-            if (ref_ != nullptr) {
-                napi_delete_reference(env_, ref_);
-            }
-            env_ = other.env_;
-            ref_ = other.ref_;
-            other.ref_ = nullptr;
-        }
-        return *this;
-    }
-    napi_ref Get() const { return ref_; }
-
-private:
+struct NapiRefDeleter {
     napi_env env_;
-    napi_ref ref_;
+    void operator()(napi_ref ref) const {
+        if (ref != nullptr) {
+            WVLOG_E("napirefdeleter releasing callbackref on exit path");
+            napi_delete_reference(env_, ref);
+        }
+    }
 };
 }
 // static
@@ -151,6 +127,7 @@ void WebviewCreatePDFExecuteCallback::UvAfterWorkCbAsync(
     napi_env env, napi_ref callbackRef, const char* result, const long size)
 {
     napi_value setResult[INTEGER_TWO] = { 0 };
+    std::unique_ptr<napi_ref, NapiRefDeleter> callbackGuard(&callbackRef, {env});
 
     if (result == nullptr) {
         setResult[INTEGER_ZERO] = BusinessError::CreateError(env, NWebError::INVALID_RESOURCE);
@@ -196,7 +173,6 @@ void WebviewCreatePDFExecuteCallback::UvAfterWorkCbPromise(
     napi_env env, napi_deferred deferred, const char* result, const long size)
 {
     napi_value setResult[INTEGER_TWO] = { 0 };
-    NapiRefGuard callbackGuard(env, callbackRef);
     setResult[INTEGER_ZERO] = NWebError::BusinessError::CreateError(env, NWebError::INVALID_RESOURCE);
 
     napi_value jsArrExt = nullptr;
