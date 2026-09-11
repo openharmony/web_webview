@@ -89,4 +89,14 @@ int32_t ArkWebCommandActionInfoImpl::GetSpeed()
     return info_->GetSpeed();
 }
 
+ArkWebAutoFillItemVector ArkWebCommandActionInfoImpl::GetAutoFillItems()
+{
+    return ArkWebAutoFillItemVectorClassToStruct(info_->GetAutoFillItems());
+}
+ 
+int32_t ArkWebCommandActionInfoImpl::GetDefaultMode()
+{
+    return static_cast<int32_t>(info_->GetDefaultMode());
+}
+
 }  // namespace OHOS::ArkWeb

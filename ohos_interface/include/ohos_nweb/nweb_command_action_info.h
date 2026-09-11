@@ -26,6 +26,49 @@
 namespace OHOS::NWeb {
 
 /**
+ * @brief Enum for auto-fill mode.
+ */
+enum class AutoFillMode : int32_t {
+    Unspecified = -1,  // item-level unspecified, fallback to defaultMode
+    Overwrite = 0,
+    Insert = 1,
+};
+ 
+inline AutoFillMode StringToAutoFillMode(const std::string& modeStr)
+{
+    if (modeStr == "insert") {
+        return AutoFillMode::Insert;
+    }
+    return AutoFillMode::Overwrite;
+}
+ 
+inline std::string AutoFillModeToString(AutoFillMode mode)
+{
+    switch (mode) {
+        case AutoFillMode::Insert:
+            return "insert";
+        case AutoFillMode::Overwrite:
+        default:
+            return "overwrite";
+    }
+}
+ 
+/**
+ * @brief Item class for inputAutoFill batch filling.
+ * Abstract base class — concrete instances created via AutoFillItemImpl.
+ */
+class OHOS_NWEB_EXPORT AutoFillItem {
+public:
+    AutoFillItem() = default;
+    virtual ~AutoFillItem() = default;
+ 
+    virtual std::string GetXPath() const = 0;
+    virtual std::string GetContent() const = 0;
+    virtual int32_t GetIndex() const = 0;
+    virtual AutoFillMode GetMode() const = 0;
+};
+
+/**
  * @brief Interface for DOM command action information.
  * Carries parsed parameters from ace_engine to webview for execution.
  */
@@ -97,6 +140,17 @@ public:
     virtual int32_t GetSpeed() const
     {
         return 0;
+    }
+
+    // inputAutoFill batch fill getters
+    virtual std::vector<std::shared_ptr<AutoFillItem>> GetAutoFillItems() const
+    {
+        return {};
+    }
+
+    virtual AutoFillMode GetDefaultMode() const
+    {
+        return AutoFillMode::Unspecified;
     }
 };
 

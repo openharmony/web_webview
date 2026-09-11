@@ -51,6 +51,14 @@ public:
      */
     int32_t HandleGestureCommand(std::shared_ptr<OHOS::NWeb::NWebCommandActionInfo> info) override;
 
+    /**
+     * @brief Handle auto fill command action.
+     *
+     * @param info The command action info for auto fill events.
+     * @return The result of command. 0 on success, negative error code on failure.
+     */
+    int32_t HandleAutoFillCommand(std::shared_ptr<OHOS::NWeb::NWebCommandActionInfo> info) override;
+
 private:
     ArkWebRefPtr<ArkWebCommandActionManager> ark_web_command_action_manager_;
 };
