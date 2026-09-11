@@ -32,7 +32,8 @@ namespace {
 class NapiRefGuard {
 public:
     NapiRefGuard(napi_env env, napi_ref ref) : env_(env), ref_(ref) {}
-    ~NapiRefGuard() {
+    ~NapiRefGuard()
+    {
         if(ref_ != nullptr) {
             WVLOG_I("NapiRefGuard releasing callbackref on exit path");
             napi_delete_reference(env_, ref_);
@@ -42,10 +43,13 @@ public:
     }
     NapiRefGuard(const NapiRefGuard&) = delete;
     NapiRefGuard& operator=(const NapiRefGuard&) = delete;
-    NapiRefGuard(NapiRefGuard&& other) noexcept : env_(other.env_), ref_(other.ref_) {
+    NapiRefGuard(NapiRefGuard&& other) noexcept
+        : env_(other.env_), ref_(other.ref_)
+    {
         other.ref_ = nullptr;
     }
-    NapiRefGuard& operator=(NapiRefGuard&& other) noexcept {
+    NapiRefGuard& operator=(NapiRefGuard&& other) noexcept
+    {
         if (this != &other) {
             if (ref_ != nullptr) {
                 napi_delete_reference(env_, ref_);
