@@ -101,6 +101,7 @@ ohos_shared_library("cj_webview_ffi") {
 
   if (current_os == "ohos") {
     defines += [ "OHOS_PLATFORM" ]
+    version_script = "libcj_webview_ffi.map"
   }
 
   if (current_os == "mingw") {
