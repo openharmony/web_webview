@@ -127,7 +127,8 @@ void WebviewCreatePDFExecuteCallback::UvAfterWorkCbAsync(
     napi_env env, napi_ref callbackRef, const char* result, const long size)
 {
     napi_value setResult[INTEGER_TWO] = { 0 };
-    std::unique_ptr<napi_ref, NapiRefDeleter> callbackGuard(&callbackRef, {env});
+    NapiRefDeleter deleter = {env};
+    std::unique_ptr<napi_ref, NapiRefDeleter> callbackGuard(&callbackRef, deleter);
 
     if (result == nullptr) {
         setResult[INTEGER_ZERO] = BusinessError::CreateError(env, NWebError::INVALID_RESOURCE);
