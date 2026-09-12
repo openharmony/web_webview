@@ -23,6 +23,8 @@
       "OHOS::Webview::WebviewControllerImpl::SetNWebJavaScriptResultCallBack()";
       "OHOS::Webview::WebviewControllerImpl::InnerSetHapPath(std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char>> const&)";
       "OHOS::Webview::WebviewControllerImpl::RegisterJavaScriptProxy(std::__h::vector<std::__h::function<char* (char const*)>, std::__h::allocator<std::__h::function<char* (char const*)>>> const&, std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char>> const&, std::__h::vector<std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char>>, std::__h::allocator<std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char>>>> const&)";
+      "OHOS::Webview::WebviewControllerImpl::customeSchemeCmdLine_";
+      "OHOS::Webview::WebviewControllerImpl::webDebuggingAccess_";
     };
   local:
     *;
