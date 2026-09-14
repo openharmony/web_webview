@@ -39,8 +39,8 @@ public:
         }
     }
 private:
-        napi_env env_;
-        napi_ref ref_;
+    napi_env env_;
+    napi_ref ref_;
 };
 }
 // static
