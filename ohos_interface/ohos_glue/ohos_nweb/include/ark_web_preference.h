@@ -842,6 +842,13 @@ public:
      */
     /*--ark web()--*/
     virtual void PutFullScreenVideoOverlayEnable(bool enable) = 0;
+
+    /**
+     * @brief Set whether to support transform rotate and skew when reporting the visibility of
+     *        native embed. The default is false.
+     */
+    /*--ark web()--*/
+    virtual void SetTransformRotateAndSkewEnabled(bool enable) = 0;
 };
 
 } // namespace OHOS::ArkWeb

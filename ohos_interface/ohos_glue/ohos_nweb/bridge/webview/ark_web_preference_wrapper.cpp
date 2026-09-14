@@ -665,4 +665,11 @@ void ArkWebPreferenceWrapper::PutTouchEventFeatureDetectionEnabled(bool enable)
         ark_web_preference_->PutTouchEventFeatureDetectionEnabled(enable);
     }
 }
+
+void ArkWebPreferenceWrapper::SetTransformRotateAndSkewEnabled(bool enable)
+{
+    if (ark_web_preference_) {
+        ark_web_preference_->SetTransformRotateAndSkewEnabled(enable);
+    }
+}
 } // namespace OHOS::ArkWeb

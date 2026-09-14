@@ -742,6 +742,12 @@ public:
      */
     void PutFullScreenVideoOverlayEnable(bool enable) override;
 
+    /**
+     * @brief Set whether to support transform rotate and skew when reporting the visibility of
+     *        native embed. The default is false.
+     */
+    void SetTransformRotateAndSkewEnabled(bool enable) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebPreference> nweb_preference_;
 };

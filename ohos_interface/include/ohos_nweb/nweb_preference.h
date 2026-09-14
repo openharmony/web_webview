@@ -745,6 +745,12 @@ public:
      * @param enable bool: Indicates the flag whether full screen video overlay is enabled.
      */
     virtual void PutFullScreenVideoOverlayEnable(bool enable) {}
+
+    /**
+     * Set whether to support transform rotate and skew when reporting the visibility of native embed.
+     * The default is false.
+     */
+    virtual void SetTransformRotateAndSkewEnabled(bool enable) {}
 };
 
 } // namespace OHOS::NWeb
