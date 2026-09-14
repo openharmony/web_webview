@@ -38,6 +38,9 @@ public:
             napi_delete_reference(env_, ref_);
         }
     }
+private:
+        napi_env env_;
+        napi_ref ref_;
 };
 }
 // static
