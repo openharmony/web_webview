@@ -46,10 +46,6 @@ private:
 // static
 void WebviewCreatePDFExecuteCallback::InitJSExcute(napi_env env, napi_value exports)
 {
-    if (g_jsArrExtClassRef != nullptr) {
-        napi_delete_reference(env, g_jsArrExtClassRef);
-        g_jsArrExtClassRef = nullptr;
-    }
     napi_value jsArrExtClass = nullptr;
     napi_property_descriptor jsArrExtClsProperties[] = { DECLARE_NAPI_FUNCTION(
         "pdfArrayBuffer", NapiArrayBufferExt::GetArrayBuffer) };
