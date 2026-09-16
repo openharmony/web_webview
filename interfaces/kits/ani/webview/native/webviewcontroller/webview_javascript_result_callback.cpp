@@ -2993,6 +2993,7 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultSelfV2(const std::vecto
     ani_object callback = jsObj->AniFindMethod(method);
     if (!callback) {
         WVLOG_E("GetJavaScriptResultSelfV2 callback null");
+        return;
     }
 
     ani_env* env = jsObj->GetAniEnv();
@@ -3004,6 +3005,10 @@ void WebviewJavaScriptResultCallBack::GetJavaScriptResultSelfV2(const std::vecto
     ani_status status = ANI_OK;
     ani_ref resultVal;
     ani_array arrayRef = ConvertAniArrayFromVecterObject(env, argv);
+    if (!arrayRef) {
+        WVLOG_E("GetJavaScriptResultSelfV2 argv array is null");
+        return;
+    }
     ani_ref argvRef = static_cast<ani_ref>(arrayRef);
     if ((status = env->FunctionalObject_Call(static_cast<ani_fn_object>(callback),
                                              argv.size(), &argvRef, &resultVal)) != ANI_OK) {

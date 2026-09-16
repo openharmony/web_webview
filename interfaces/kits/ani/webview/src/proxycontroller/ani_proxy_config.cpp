@@ -125,8 +125,8 @@ static ani_ref GetProxyRulesInternal(ani_env *env, ProxyConfig* proxyConfig,
             return arrayObj;
         }
 
-        if (env->Object_CallMethodByName_Void(arrayObj, "$_set", "iY:", i, inputObject) != ANI_OK) {
-            WVLOG_E("[PROXYCONTROLLER] Object_New status: %{public}d", status);
+        if ((status = env->Object_CallMethodByName_Void(arrayObj, "$_set", "iY:", i, inputObject)) != ANI_OK) {
+            WVLOG_E("[PROXYCONTROLLER] Object_CallMethodByName_Void status: %{public}d", status);
             return arrayObj;
         }
     }

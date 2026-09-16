@@ -78,6 +78,7 @@ private:
     ani_env* env_ = nullptr;
     ani_vm* vm_ = nullptr;
     std::shared_ptr<AppExecFwk::EventHandler> mainHandler_;
+    std::mutex mainHandlerMutex_;
     ArkWeb_OnRequestStart onRequestStart_ = nullptr;
     ArkWeb_OnRequestStop onRequestStop_ = nullptr;
     ani_ref request_start_callback_ = nullptr;

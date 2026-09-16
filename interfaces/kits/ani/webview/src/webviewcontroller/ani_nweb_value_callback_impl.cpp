@@ -181,7 +181,10 @@ void NWebValueCallbackImpl::WebMessageCallback(ani_env* env, std::shared_ptr<NWe
     } else {
         webMsgExt = static_cast<ani_object>(AniParseUtils::ConvertNWebToAniValue(env, result));
     }
-
+    if (webMsgExt == nullptr) {
+        WVLOG_E("[WebMessagePort] webMsgExt is nullptr after ConvertNWebToAniValue");
+        return;
+    }
     ani_ref placeHodler = nullptr;
     std::vector<ani_ref> vec;
     vec.push_back(static_cast<ani_ref>(webMsgExt));
@@ -247,6 +250,10 @@ void NWebValueCallbackImpl::WebMessageOnReceiveValueCallback(std::shared_ptr<NWe
         }
     } else {
         webMsgExt = static_cast<ani_object>(AniParseUtils::ConvertNWebToAniValue(env, result));
+    }
+    if (webMsgExt == nullptr) {
+        WVLOG_E("[WebMessagePort] webMsgExt is nullptr after ConvertNWebToAniValue");
+        return;
     }
     ani_ref placeHodler = nullptr;
     std::vector<ani_ref> vec;
