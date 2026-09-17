@@ -25,7 +25,7 @@
 #include "render_service_client/core/feature/hyper_graphic_manager/rs_frame_rate_linker.h"
 
 namespace OHOS::NWeb {
-using SetApsSceneFuncType = bool(*)(
+using SetApsSceneFuncType = void(*)(
     std::string, std::string, uint32_t);
 class VSyncAdapterImpl : public VSyncAdapter {
 public:
