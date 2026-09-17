@@ -14,11 +14,11 @@
  */
 
 #include "surface_transaction.h"
+#include "aafwk_browser_client_adapter_impl.h"
 #include <charconv>
 #include <optional>
 #include <unique_fd.h>
 #include "transaction/rs_transaction.h"
-#include "ui/rs_ui_context_manager.h"
 #include "surface_buffer.h"
 #include "interface/oh_surface_control.h"
 #include "rs_trace.h"
@@ -29,7 +29,6 @@
 #include "native_window.h"
 
 using namespace OHOS::Rosen;
-using OHOS::Rosen::RSUIContextManager;
 
 namespace OHOS {
 namespace NWeb {
@@ -120,7 +119,7 @@ void SurfaceTransaction::Commit()
     RS_TRACE_NAME_FMT("transactionCommands_ size:%u bufferCommands_ size:%u surfaceControls_ size:%u, transaction=%d",
         transactionCommands_.size(), bufferCommands_.size(), surfaceControls_.size(), transaction != nullptr);
 
-    ScopedTransaction scopedTransaction;
+    ScopedTransaction scopedTransaction(uiContext);
     if (listener_) {
         uint64_t seqNum = 0;
         std::unique_ptr<OHOS::Rosen::RSCommand> cmd = listener_->GetCommand(seqNum);
@@ -156,6 +155,12 @@ void SurfaceTransaction::Reparent(SurfaceControl* surfaceControl, SurfaceControl
 {
     if (!surfaceControl) {
         WVLOG_E("surfaceControl is nullptr");
+        return;
+    }
+
+    if (surfaceControl->IsRootSurface()) {
+        AafwkBrowserClientAdapterImpl::GetInstance().UpdateDelegateContainerNode(
+            surfaceControl->GetRosenWebNodeId(), nullptr, false);
         return;
     }
 

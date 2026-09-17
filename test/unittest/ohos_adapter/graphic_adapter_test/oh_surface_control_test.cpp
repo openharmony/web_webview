@@ -25,6 +25,8 @@
 #include "iconsumer_surface.h"
 #include "surface.h"
 #include "native_window.h"
+#include "ui/rs_surface_node.h"
+#include "ui/rs_ui_context_manager.h"
 
 using testing::ext::TestSize;
 
@@ -142,6 +144,72 @@ HWTEST_F(OHSurfaceControlTest, OHSurfaceControl_Transaction_SetOnCommit_Removed_
         SurfaceControlUtils::Transaction::SetOnComplete(txn, nullptr, nullptr);
         SurfaceControlUtils::Transaction::Delete(txn);
     }
+}
+
+/**
+ * @tc.name: OHSurfaceControl_UpdateDelegateContainerNodeOnClient_AddNode_009.
+ * @tc.desc: Test SurfaceControlUtils::UpdateDelegateContainerNodeOnClient with isAddNode=true,
+ *           covering the AddDelegateContainerNodeOnClient branch. Uses parentNodeId=0 for early return.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(OHSurfaceControlTest, OHSurfaceControl_UpdateDelegateContainerNodeOnClient_AddNode_009, TestSize.Level1)
+{
+    sptr<IRemoteObject> mockRemote;
+    auto uiContext = OHOS::Rosen::RSUIContextManager::MutableInstance().CreateRSUIContext(mockRemote);
+    OHOS::Rosen::RSSurfaceNodeConfig config;
+    config.SurfaceNodeName = "update_add_node";
+    auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(config, false);
+    // parentNodeId=0 triggers early return in AddDelegateContainerNodeOnClient
+    SurfaceControlUtils::UpdateDelegateContainerNodeOnClient(0, uiContext, surfaceNode, true);
+    EXPECT_EQ(SurfaceControl::delegateContainerNodeMap_.count(0), 0u);
+}
+
+/**
+ * @tc.name: OHSurfaceControl_UpdateDelegateContainerNodeOnClient_RemoveNode_010.
+ * @tc.desc: Test SurfaceControlUtils::UpdateDelegateContainerNodeOnClient with isAddNode=false,
+ *           covering the RemoveDelegateContainerNodeOnClient branch. Uses parentNodeId=0 for early return.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(OHSurfaceControlTest, OHSurfaceControl_UpdateDelegateContainerNodeOnClient_RemoveNode_010, TestSize.Level1)
+{
+    sptr<IRemoteObject> mockRemote;
+    auto uiContext = OHOS::Rosen::RSUIContextManager::MutableInstance().CreateRSUIContext(mockRemote);
+    // parentNodeId=0 triggers early return in RemoveDelegateContainerNodeOnClient
+    SurfaceControlUtils::UpdateDelegateContainerNodeOnClient(0, uiContext, nullptr, false);
+    // Should not crash
+}
+
+/**
+ * @tc.name: OHSurfaceControl_UpdateDelegateContainerNodeOnClient_AddNullUIContext_011.
+ * @tc.desc: Test SurfaceControlUtils::UpdateDelegateContainerNodeOnClient with isAddNode=true
+ *           and nullptr rsUIContext (early return in AddDelegateContainerNodeOnClient).
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(OHSurfaceControlTest, OHSurfaceControl_UpdateDelegateContainerNodeOnClient_AddNullUIContext_011,
+    TestSize.Level1)
+{
+    OHOS::Rosen::RSSurfaceNodeConfig config;
+    config.SurfaceNodeName = "update_add_null_uictx";
+    auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(config, false);
+    SurfaceControlUtils::UpdateDelegateContainerNodeOnClient(100, nullptr, surfaceNode, true);
+    EXPECT_EQ(SurfaceControl::delegateContainerNodeMap_.count(100), 0u);
+}
+
+/**
+ * @tc.name: OHSurfaceControl_UpdateDelegateContainerNodeOnClient_RemoveNullUIContext_012.
+ * @tc.desc: Test SurfaceControlUtils::UpdateDelegateContainerNodeOnClient with isAddNode=false
+ *           and nullptr rsUIContext (early return in RemoveDelegateContainerNodeOnClient).
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(OHSurfaceControlTest, OHSurfaceControl_UpdateDelegateContainerNodeOnClient_RemoveNullUIContext_012,
+    TestSize.Level1)
+{
+    SurfaceControlUtils::UpdateDelegateContainerNodeOnClient(100, nullptr, nullptr, false);
+    // Should not crash
 }
 
 } // namespace OHOS::NWeb

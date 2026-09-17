@@ -41,7 +41,8 @@ public:
 
     void NativeWindowUnRef(NWebNativeWindow window) override;
 
-    void SetWindowNodeIdAndRSHandle(void* nativeWindow, uint64_t nodeId, uint64_t handle) override;
+    void SetWindowInfoForDelegateCompositing(void* nativeWindow, uint64_t nodeId, uint64_t handle,
+        uint64_t rsUIContextToken) override;
 };
 } // namespace OHOS::NWeb
 

@@ -84,4 +84,9 @@ uint64_t ArkWebEngineInitArgsImpl::GetSurfaceRSHandle()
     return nweb_engine_init_args_->GetSurfaceRSHandle();
 }
 
+uint64_t ArkWebEngineInitArgsImpl::GetSurfaceRSUIContextToken()
+{
+    return nweb_engine_init_args_->GetSurfaceRSUIContextToken();
+}
+
 } // namespace OHOS::ArkWeb

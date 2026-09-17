@@ -43,6 +43,7 @@ ohos_unittest("nweb_aafwk_client_test") {
     "graphic_2d:libcomposer",
     "graphic_2d:libgraphic_utils",
     "graphic_2d:libnative_image",
+    "graphic_2d:librender_service_base",
     "graphic_2d:librender_service_client",
     "graphic_surface:surface",
     "hilog:libhilog",

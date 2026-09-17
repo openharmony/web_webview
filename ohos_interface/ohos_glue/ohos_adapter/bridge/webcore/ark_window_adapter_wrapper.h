@@ -46,6 +46,9 @@ public:
 
     void SetWindowNodeIdAndRSHandle(void* nativeWindow, uint64_t nodeId, uint64_t handle) override;
 
+    void SetWindowInfoForDelegateCompositing(void* nativeWindow, uint64_t nodeId, uint64_t handle,
+        uint64_t rsUIContextToken) override;
+
 private:
     ArkWebRefPtr<ArkWindowAdapter> ctocpp_;
 };

@@ -29,6 +29,10 @@
 #include "ibrowser.h"
 #include "res_sched_client_adapter.h"
 
+namespace OHOS::Rosen {
+    class RSSurfaceNode;
+    class RSUIContext;
+}
 namespace OHOS::NWeb {
 class BrowserHost : public IRemoteStub<IBrowser> {
 public:
@@ -48,6 +52,8 @@ private:
     int32_t HandleDestroyRenderSurface(MessageParcel &data, MessageParcel &reply);
 
     int32_t HandleQueryBufferTypeLeak(MessageParcel &data, MessageParcel &reply);
+
+    int32_t HandleUpdateDelegateContainerNode(MessageParcel &data, MessageParcel &reply);
 
     using BrowserHostFunc = std::function<int32_t(BrowserHost*, MessageParcel &data, MessageParcel &reply)>;
 
@@ -72,9 +78,15 @@ public:
     void DestroyRenderSurface(int32_t surface_id) override;
 
     std::string QueryBufferTypeLeak(int32_t surface_id) override;
+
+    void UpdateDelegateContainerNode(uint64_t parentNodeId,
+        const std::shared_ptr<Rosen::RSSurfaceNode>& surfaceNode, bool isAddNode) override;
+
 private:
     std::map<int64_t, sptr<Surface>> surface_map_;
     std::map<int32_t, sptr<Surface>> renderSurfaceCache_;
+    std::map<uint64_t, std::shared_ptr<Rosen::RSUIContext>> rsUIContextMap_;
+    std::map<int32_t, uint64_t> surfaceIdToNodeId_;
     std::shared_ptr<AafwkBrowserHostAdapter> browserHostAdapter_;
     std::mutex map_mutex_;
 };

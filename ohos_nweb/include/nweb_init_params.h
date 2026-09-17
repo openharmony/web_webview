@@ -264,10 +264,11 @@ public:
         return useCloudControlAutoLayoutConfig_;
     }
 
-    void SetSurfaceNodeIdAndRSHandle(uint64_t nodeId, uint64_t rsHandle)
+    void SetParamsForDelegateCompositing(uint64_t nodeId, uint64_t rsHandle, uint64_t rsUIContextToken)
     {
         rsHandle_ = rsHandle;
         surfaceNodeId_ = nodeId;
+        rsUIContextToken_ = rsUIContextToken;
     }
 
     uint64_t GetSurfaceNodeId() override
@@ -278,6 +279,11 @@ public:
     uint64_t GetSurfaceRSHandle() override
     {
         return rsHandle_;
+    }
+
+    uint64_t GetSurfaceRSUIContextToken() override
+    {
+        return rsUIContextToken_;
     }
 
 private:
@@ -295,6 +301,7 @@ private:
     bool useCloudControlAutoLayoutConfig_ = false;
     uint64_t rsHandle_ = 0;
     uint64_t surfaceNodeId_ = 0;
+    uint64_t rsUIContextToken_ = 0;
 };
 
 class NWebEnginePrefetchArgsImpl : public NWebEnginePrefetchArgs {

@@ -45,9 +45,8 @@ private:
 
 class ScopedTransaction {
 public:
-    ScopedTransaction()
+    explicit ScopedTransaction(const std::shared_ptr<OHOS::Rosen::RSUIContext>& uiContext)
     {
-        std::shared_ptr<OHOS::Rosen::RSUIContext> uiContext = SurfaceControl::GetRSUIContext();
         if (uiContext) {
             transaction_ = uiContext->GetRSTransaction();
         }

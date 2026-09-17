@@ -176,6 +176,10 @@ public:
 
     /*--ark web()--*/
     virtual void SetWindowNodeIdAndRSHandle(void* nativeWindow, uint64_t nodeId, uint64_t handle) {}
+
+    /*--ark web()--*/
+    virtual void SetWindowInfoForDelegateCompositing(void* nativeWindow, uint64_t nodeId, uint64_t handle,
+        uint64_t rsUIContextToken) {}
 };
 
 /*--ark web(source=webview)--*/

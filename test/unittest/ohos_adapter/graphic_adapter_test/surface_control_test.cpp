@@ -539,7 +539,7 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_Constructor_SurfaceNodeNonNullParent
 
     if (surfaceNode && parentSurfaceNode) {
         std::shared_ptr<OHOS::Rosen::RSNode> parentNode = parentSurfaceNode;
-        sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), std::move(parentNode), true);
+        sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), std::move(parentNode), true, 0);
         EXPECT_NE(sc, nullptr);
         EXPECT_NE(sc->surfaceNode_, nullptr);
         EXPECT_NE(sc->parentNode_, nullptr);
@@ -562,7 +562,7 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_Constructor_SurfaceNodeNonNullParent
     auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(config, false);
 
     if (surfaceNode) {
-        sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), nullptr, false);
+        sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), nullptr, false, 0);
         EXPECT_NE(sc, nullptr);
         EXPECT_NE(sc->surfaceNode_, nullptr);
         EXPECT_EQ(sc->parentNode_, nullptr);
@@ -580,7 +580,7 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_Constructor_SurfaceNodeNonNullParent
  */
 HWTEST_F(SurfaceControlTest, SurfaceControl_Constructor_SurfaceNodeNull_036, TestSize.Level1)
 {
-    sptr<SurfaceControl> sc = new SurfaceControl(nullptr, nullptr, false);
+    sptr<SurfaceControl> sc = new SurfaceControl(nullptr, nullptr, false, 0);
     EXPECT_NE(sc, nullptr);
     EXPECT_EQ(sc->surfaceNode_, nullptr);
     EXPECT_EQ(sc->parentNode_, nullptr);
@@ -610,7 +610,7 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_Destructor_ParentNonNull_037, TestSi
         EXPECT_EQ(parentRef->GetChildren().size(), 0);
 
         std::shared_ptr<OHOS::Rosen::RSNode> parentNode = parentSurfaceNode;
-        sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), std::move(parentNode), true);
+        sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), std::move(parentNode), true, 0);
 
         sc = nullptr;
         EXPECT_EQ(parentRef->GetChildren().size(), 0);
@@ -630,7 +630,7 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_Destructor_ParentNull_038, TestSize.
     auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(config, false);
 
     if (surfaceNode) {
-        sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), nullptr, false);
+        sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), nullptr, false, 0);
         EXPECT_NE(sc, nullptr);
         sc = nullptr;
     }
@@ -644,7 +644,7 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_Destructor_ParentNull_038, TestSize.
  */
 HWTEST_F(SurfaceControlTest, SurfaceControl_Destructor_SurfaceNodeNull_039, TestSize.Level1)
 {
-    sptr<SurfaceControl> sc = new SurfaceControl(nullptr, nullptr, false);
+    sptr<SurfaceControl> sc = new SurfaceControl(nullptr, nullptr, false, 0);
     EXPECT_NE(sc, nullptr);
     sc = nullptr;
 }
@@ -676,8 +676,9 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_SetParent_OldParentNonNullNewParentV
         EXPECT_EQ(oldParentRef->GetChildren().size(), 0);
 
         std::shared_ptr<OHOS::Rosen::RSNode> oldParentNode = oldParentSurfaceNode;
-        sptr<SurfaceControl> childSc = new SurfaceControl(std::move(childSurfaceNode), std::move(oldParentNode), true);
-        sptr<SurfaceControl> newParentSc = new SurfaceControl(std::move(newParentSurfaceNode), nullptr, false);
+        sptr<SurfaceControl> childSc = new SurfaceControl(
+            std::move(childSurfaceNode), std::move(oldParentNode), true, 0);
+        sptr<SurfaceControl> newParentSc = new SurfaceControl(std::move(newParentSurfaceNode), nullptr, false, 0);
 
         childSc->SetParent(newParentSc.GetRefPtr());
 
@@ -704,8 +705,8 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_SetParent_OldParentNullNewParentVali
     auto newParentSurfaceNode = OHOS::Rosen::RSSurfaceNode::Create(newParentConfig, false);
 
     if (childSurfaceNode && newParentSurfaceNode) {
-        sptr<SurfaceControl> childSc = new SurfaceControl(std::move(childSurfaceNode), nullptr, false);
-        sptr<SurfaceControl> newParentSc = new SurfaceControl(std::move(newParentSurfaceNode), nullptr, false);
+        sptr<SurfaceControl> childSc = new SurfaceControl(std::move(childSurfaceNode), nullptr, false, 0);
+        sptr<SurfaceControl> newParentSc = new SurfaceControl(std::move(newParentSurfaceNode), nullptr, false, 0);
 
         childSc->SetParent(newParentSc.GetRefPtr());
 
@@ -735,7 +736,7 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_SetParent_NewParentNull_042, TestSiz
         parentSurfaceNode->AddChild(childSurfaceNode, -1);
 
         std::shared_ptr<OHOS::Rosen::RSNode> parentNode = parentSurfaceNode;
-        sptr<SurfaceControl> childSc = new SurfaceControl(std::move(childSurfaceNode), std::move(parentNode), true);
+        sptr<SurfaceControl> childSc = new SurfaceControl(std::move(childSurfaceNode), std::move(parentNode), true, 0);
 
         childSc->SetParent(nullptr);
 
@@ -756,8 +757,8 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_SetParent_NewParentNonNullSurfaceNod
     auto childSurfaceNode = OHOS::Rosen::RSSurfaceNode::Create(childConfig, false);
 
     if (childSurfaceNode) {
-        sptr<SurfaceControl> childSc = new SurfaceControl(std::move(childSurfaceNode), nullptr, false);
-        sptr<SurfaceControl> nullSurfaceParentSc = new SurfaceControl(nullptr, nullptr, false);
+        sptr<SurfaceControl> childSc = new SurfaceControl(std::move(childSurfaceNode), nullptr, false, 0);
+        sptr<SurfaceControl> nullSurfaceParentSc = new SurfaceControl(nullptr, nullptr, false, 0);
 
         childSc->SetParent(nullSurfaceParentSc.GetRefPtr());
 
@@ -773,7 +774,7 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_SetParent_NewParentNonNullSurfaceNod
  */
 HWTEST_F(SurfaceControlTest, SurfaceControl_SetZOrder_SurfaceNodeNull_044, TestSize.Level1)
 {
-    sptr<SurfaceControl> sc = new SurfaceControl(nullptr, nullptr, false);
+    sptr<SurfaceControl> sc = new SurfaceControl(nullptr, nullptr, false, 0);
     sc->SetZOrder(5);
 }
 
@@ -797,7 +798,7 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_SetZOrder_ParentExists_045, TestSize
         parentSurfaceNode->AddChild(childSurfaceNode, -1);
 
         std::shared_ptr<OHOS::Rosen::RSNode> parentNode = parentSurfaceNode;
-        sptr<SurfaceControl> sc = new SurfaceControl(std::move(childSurfaceNode), std::move(parentNode), true);
+        sptr<SurfaceControl> sc = new SurfaceControl(std::move(childSurfaceNode), std::move(parentNode), true, 0);
 
         EXPECT_NE(sc->surfaceNode_->GetParent(), nullptr);
         sc->SetZOrder(5);
@@ -817,7 +818,7 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_SetZOrder_ParentNull_046, TestSize.L
     auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(config, false);
 
     if (surfaceNode) {
-        sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), nullptr, false);
+        sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), nullptr, false, 0);
 
         EXPECT_EQ(sc->surfaceNode_->GetParent(), nullptr);
         sc->SetZOrder(5);
@@ -832,7 +833,7 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_SetZOrder_ParentNull_046, TestSize.L
  */
 HWTEST_F(SurfaceControlTest, SurfaceControl_SetBounds_SurfaceNodeNull_047, TestSize.Level1)
 {
-    sptr<SurfaceControl> sc = new SurfaceControl(nullptr, nullptr, false);
+    sptr<SurfaceControl> sc = new SurfaceControl(nullptr, nullptr, false, 0);
     sc->SetBounds(0.0f, 0.0f, 100.0f, 100.0f);
 }
 
@@ -849,7 +850,7 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_SetBounds_NameNotDelegateContainer_0
     auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(config, false);
 
     if (surfaceNode) {
-        sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), nullptr, false);
+        sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), nullptr, false, 0);
 
         sc->surfaceNode_->SetBounds(10.0f, 20.0f, 50.0f, 60.0f);
         auto boundsBefore = sc->surfaceNode_->GetStagingProperties().GetBounds();
@@ -877,7 +878,7 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_SetBounds_DelegateContainerInvalidBo
     auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(config, false);
 
     if (surfaceNode) {
-        sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), nullptr, false);
+        sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), nullptr, false, 0);
 
         sc->surfaceNode_->SetBounds(10.0f, 20.0f, 50.0f, 60.0f);
         auto boundsBefore = sc->surfaceNode_->GetStagingProperties().GetBounds();
@@ -904,7 +905,7 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_SetBounds_DelegateContainerInvalidH_
     auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(config, false);
  
     if (surfaceNode) {
-        sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), nullptr, false);
+        sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), nullptr, false, 0);
  
         sc->surfaceNode_->SetBounds(10.0f, 20.0f, 50.0f, 60.0f);
         auto boundsBefore = sc->surfaceNode_->GetStagingProperties().GetBounds();
@@ -930,7 +931,7 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_SetBounds_DelegateContainerValidBoun
     auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(config, false);
 
     if (surfaceNode) {
-        sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), nullptr, false);
+        sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), nullptr, false, 0);
 
         sc->SetBounds(0.0f, 0.0f, 100.0f, 200.0f);
 
@@ -948,7 +949,7 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_SetBounds_DelegateContainerValidBoun
  */
 HWTEST_F(SurfaceControlTest, SurfaceControl_SetBufferAlpha_SurfaceNodeNull_051, TestSize.Level1)
 {
-    sptr<SurfaceControl> sc = new SurfaceControl(nullptr, nullptr, false);
+    sptr<SurfaceControl> sc = new SurfaceControl(nullptr, nullptr, false, 0);
     sc->SetBufferAlpha(0.5f);
 }
 
@@ -965,7 +966,7 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_SetBufferAlpha_NegativeAlpha_052, Te
     auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(config, false);
 
     if (surfaceNode) {
-        sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), nullptr, false);
+        sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), nullptr, false, 0);
 
         sc->surfaceNode_->SetAlpha(1.0f);
         float alphaBefore = sc->surfaceNode_->GetStagingProperties().GetAlpha();
@@ -990,7 +991,7 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_SetBufferAlpha_ValidAlpha_053, TestS
     auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(config, false);
 
     if (surfaceNode) {
-        sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), nullptr, false);
+        sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), nullptr, false, 0);
 
         sc->SetBufferAlpha(0.5f);
 
@@ -1013,10 +1014,10 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_RegisterNode_AlreadyInMap_054, TestS
     auto surfaceNodeCopy = surfaceNode;
 
     if (surfaceNode) {
-        sptr<SurfaceControl> sc1 = new SurfaceControl(std::move(surfaceNode), nullptr, false);
+        sptr<SurfaceControl> sc1 = new SurfaceControl(std::move(surfaceNode), nullptr, false, 0);
         EXPECT_NE(sc1, nullptr);
 
-        sptr<SurfaceControl> sc2 = new SurfaceControl(std::move(surfaceNodeCopy), nullptr, false);
+        sptr<SurfaceControl> sc2 = new SurfaceControl(std::move(surfaceNodeCopy), nullptr, false, 0);
         EXPECT_NE(sc2, nullptr);
 
         EXPECT_EQ(sc1->surfaceNode_.get(), sc2->surfaceNode_.get());
@@ -1031,7 +1032,7 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_RegisterNode_AlreadyInMap_054, TestS
  */
 HWTEST_F(SurfaceControlTest, SurfaceControl_UnRegisterNode_NullNodePtr_055, TestSize.Level1)
 {
-    sptr<SurfaceControl> sc = new SurfaceControl(nullptr, nullptr, false);
+    sptr<SurfaceControl> sc = new SurfaceControl(nullptr, nullptr, false, 0);
     EXPECT_NE(sc, nullptr);
     sc = nullptr;
 }
@@ -1050,8 +1051,8 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_UnRegisterNode_NotInMap_056, TestSiz
     auto surfaceNodeCopy = surfaceNode;
 
     if (surfaceNode) {
-        sptr<SurfaceControl> sc1 = new SurfaceControl(std::move(surfaceNode), nullptr, false);
-        sptr<SurfaceControl> sc2 = new SurfaceControl(std::move(surfaceNodeCopy), nullptr, false);
+        sptr<SurfaceControl> sc1 = new SurfaceControl(std::move(surfaceNode), nullptr, false, 0);
+        sptr<SurfaceControl> sc2 = new SurfaceControl(std::move(surfaceNodeCopy), nullptr, false, 0);
 
         sc1 = nullptr;
         sc2 = nullptr;
@@ -1155,4 +1156,263 @@ HWTEST_F(SurfaceControlTest, SurfaceControl_Create_MakeSptr_059, TestSize.Level1
     SurfaceControl::rsUIDirector_ = nullptr;
 }
 
+/**
+ * @tc.name: SurfaceControl_GetRosenWebNodeId_DefaultZero_060.
+ * @tc.desc: Test GetRosenWebNodeId returns 0 when constructed with rosenWebNodeId=0.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(SurfaceControlTest, SurfaceControl_GetRosenWebNodeId_DefaultZero_060, TestSize.Level1)
+{
+    OHOS::Rosen::RSSurfaceNodeConfig config;
+    config.SurfaceNodeName = "test_node_id_zero";
+    auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(config, false);
+    ASSERT_NE(surfaceNode, nullptr);
+    sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), nullptr, false, 0);
+    ASSERT_NE(sc, nullptr);
+    EXPECT_EQ(sc->GetRosenWebNodeId(), 0u);
+}
+
+/**
+ * @tc.name: SurfaceControl_GetRosenWebNodeId_NonZero_061.
+ * @tc.desc: Test GetRosenWebNodeId returns the value passed to constructor.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(SurfaceControlTest, SurfaceControl_GetRosenWebNodeId_NonZero_061, TestSize.Level1)
+{
+    OHOS::Rosen::RSSurfaceNodeConfig config;
+    config.SurfaceNodeName = "test_node_id_nonzero";
+    auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(config, false);
+    ASSERT_NE(surfaceNode, nullptr);
+    uint64_t testNodeId = 123456789;
+    sptr<SurfaceControl> sc = new SurfaceControl(std::move(surfaceNode), nullptr, false, testNodeId);
+    ASSERT_NE(sc, nullptr);
+    EXPECT_EQ(sc->GetRosenWebNodeId(), testNodeId);
+}
+
+/**
+ * @tc.name: SurfaceControl_AddDelegateContainerNodeOnClient_NodeIdZero_062.
+ * @tc.desc: Test AddDelegateContainerNodeOnClient when parentNodeId is 0 (early return).
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(SurfaceControlTest, SurfaceControl_AddDelegateContainerNodeOnClient_NodeIdZero_062, TestSize.Level1)
+{
+    sptr<IRemoteObject> mockRemote;
+    auto uiContext = OHOS::Rosen::RSUIContextManager::MutableInstance().CreateRSUIContext(mockRemote);
+    OHOS::Rosen::RSSurfaceNodeConfig config;
+    config.SurfaceNodeName = "add_node_zero";
+    auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(config, false);
+    // parentNodeId=0, should early-return without crash
+    SurfaceControl::AddDelegateContainerNodeOnClient(0, uiContext, surfaceNode);
+    // Verify nothing was added to the map
+    EXPECT_EQ(SurfaceControl::delegateContainerNodeMap_.count(0), 0u);
+}
+
+/**
+ * @tc.name: SurfaceControl_AddDelegateContainerNodeOnClient_NullUIContext_063.
+ * @tc.desc: Test AddDelegateContainerNodeOnClient when rsUIContext is nullptr (early return).
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(SurfaceControlTest, SurfaceControl_AddDelegateContainerNodeOnClient_NullUIContext_063, TestSize.Level1)
+{
+    OHOS::Rosen::RSSurfaceNodeConfig config;
+    config.SurfaceNodeName = "add_null_uictx";
+    auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(config, false);
+    SurfaceControl::AddDelegateContainerNodeOnClient(100, nullptr, surfaceNode);
+    EXPECT_EQ(SurfaceControl::delegateContainerNodeMap_.count(100), 0u);
+}
+
+/**
+ * @tc.name: SurfaceControl_AddDelegateContainerNodeOnClient_NullSurfaceNode_064.
+ * @tc.desc: Test AddDelegateContainerNodeOnClient when surfaceNode is nullptr (early return).
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(SurfaceControlTest, SurfaceControl_AddDelegateContainerNodeOnClient_NullSurfaceNode_064, TestSize.Level1)
+{
+    sptr<IRemoteObject> mockRemote;
+    auto uiContext = OHOS::Rosen::RSUIContextManager::MutableInstance().CreateRSUIContext(mockRemote);
+    SurfaceControl::AddDelegateContainerNodeOnClient(100, uiContext, nullptr);
+    EXPECT_EQ(SurfaceControl::delegateContainerNodeMap_.count(100), 0u);
+}
+
+/**
+ * @tc.name: SurfaceControl_AddDelegateContainerNodeOnClient_ParentNotFound_065.
+ * @tc.desc: Test AddDelegateContainerNodeOnClient when parentNode is not found in NodeMap.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(SurfaceControlTest, SurfaceControl_AddDelegateContainerNodeOnClient_ParentNotFound_065, TestSize.Level1)
+{
+    auto& manager = OHOS::Rosen::RSUIContextManager::MutableInstance();
+    manager.isMultiInstanceOpen_ = true;
+    sptr<IRemoteObject> mockRemote = new OHOS::IPCObjectStub();
+    auto uiContext = manager.CreateRSUIContext(mockRemote);
+    ASSERT_NE(uiContext, nullptr);
+
+    OHOS::Rosen::RSSurfaceNodeConfig config;
+    config.SurfaceNodeName = "add_parent_not_found";
+    auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(config, false);
+    ASSERT_NE(surfaceNode, nullptr);
+
+    // parentNodeId 99999 is not in the NodeMap, should early-return
+    SurfaceControl::AddDelegateContainerNodeOnClient(99999, uiContext, surfaceNode);
+    EXPECT_EQ(SurfaceControl::delegateContainerNodeMap_.count(99999), 0u);
+
+    manager.isMultiInstanceOpen_ = false;
+}
+
+/**
+ * @tc.name: SurfaceControl_AddDelegateContainerNodeOnClient_Success_066.
+ * @tc.desc: Test AddDelegateContainerNodeOnClient with valid args (parent node registered in NodeMap).
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(SurfaceControlTest, SurfaceControl_AddDelegateContainerNodeOnClient_Success_066, TestSize.Level1)
+{
+    auto& manager = OHOS::Rosen::RSUIContextManager::MutableInstance();
+    manager.isMultiInstanceOpen_ = true;
+    sptr<IRemoteObject> mockRemote = new OHOS::IPCObjectStub();
+    auto uiContext = manager.CreateRSUIContext(mockRemote);
+    ASSERT_NE(uiContext, nullptr);
+
+    // Create and register a parent node
+    OHOS::Rosen::RSSurfaceNodeConfig parentConfig;
+    parentConfig.SurfaceNodeName = "parent_node_add";
+    auto parentNode = OHOS::Rosen::RSSurfaceNode::Create(parentConfig, false);
+    ASSERT_NE(parentNode, nullptr);
+    uiContext->GetMutableNodeMap().RegisterNode(parentNode);
+    uint64_t parentNodeId = parentNode->GetId();
+
+    // Create a child surface node to add as delegate container
+    OHOS::Rosen::RSSurfaceNodeConfig childConfig;
+    childConfig.SurfaceNodeName = "child_delegate_node";
+    auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(childConfig, false);
+    ASSERT_NE(surfaceNode, nullptr);
+
+    SurfaceControl::AddDelegateContainerNodeOnClient(parentNodeId, uiContext, surfaceNode);
+    // Verify the node was added to delegateContainerNodeMap_
+    EXPECT_EQ(SurfaceControl::delegateContainerNodeMap_.count(parentNodeId), 1u);
+
+    // Clean up
+    SurfaceControl::delegateContainerNodeMap_.erase(parentNodeId);
+    manager.isMultiInstanceOpen_ = false;
+}
+
+/**
+ * @tc.name: SurfaceControl_RemoveDelegateContainerNodeOnClient_NodeIdZero_067.
+ * @tc.desc: Test RemoveDelegateContainerNodeOnClient when parentNodeId is 0 (early return).
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(SurfaceControlTest, SurfaceControl_RemoveDelegateContainerNodeOnClient_NodeIdZero_067, TestSize.Level1)
+{
+    sptr<IRemoteObject> mockRemote;
+    auto uiContext = OHOS::Rosen::RSUIContextManager::MutableInstance().CreateRSUIContext(mockRemote);
+    SurfaceControl::RemoveDelegateContainerNodeOnClient(0, uiContext);
+    // Should not crash
+}
+
+/**
+ * @tc.name: SurfaceControl_RemoveDelegateContainerNodeOnClient_NullUIContext_068.
+ * @tc.desc: Test RemoveDelegateContainerNodeOnClient when rsUIContext is nullptr (early return).
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(SurfaceControlTest, SurfaceControl_RemoveDelegateContainerNodeOnClient_NullUIContext_068, TestSize.Level1)
+{
+    SurfaceControl::RemoveDelegateContainerNodeOnClient(100, nullptr);
+    // Should not crash
+}
+
+/**
+ * @tc.name: SurfaceControl_RemoveDelegateContainerNodeOnClient_ParentNotFound_069.
+ * @tc.desc: Test RemoveDelegateContainerNodeOnClient when parentNode is not in NodeMap.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(SurfaceControlTest, SurfaceControl_RemoveDelegateContainerNodeOnClient_ParentNotFound_069, TestSize.Level1)
+{
+    auto& manager = OHOS::Rosen::RSUIContextManager::MutableInstance();
+    manager.isMultiInstanceOpen_ = true;
+    sptr<IRemoteObject> mockRemote = new OHOS::IPCObjectStub();
+    auto uiContext = manager.CreateRSUIContext(mockRemote);
+    ASSERT_NE(uiContext, nullptr);
+
+    // parentNodeId 88888 not in NodeMap, should early-return
+    SurfaceControl::RemoveDelegateContainerNodeOnClient(88888, uiContext);
+
+    manager.isMultiInstanceOpen_ = false;
+}
+
+/**
+ * @tc.name: SurfaceControl_RemoveDelegateContainerNodeOnClient_NotInMap_070.
+ * @tc.desc: Test RemoveDelegateContainerNodeOnClient when parentNodeId is not in
+ *           delegateContainerNodeMap_ (no-op within the found parent node branch).
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(SurfaceControlTest, SurfaceControl_RemoveDelegateContainerNodeOnClient_NotInMap_070, TestSize.Level1)
+{
+    auto& manager = OHOS::Rosen::RSUIContextManager::MutableInstance();
+    manager.isMultiInstanceOpen_ = true;
+    sptr<IRemoteObject> mockRemote = new OHOS::IPCObjectStub();
+    auto uiContext = manager.CreateRSUIContext(mockRemote);
+    ASSERT_NE(uiContext, nullptr);
+
+    // Create and register a parent node
+    OHOS::Rosen::RSSurfaceNodeConfig parentConfig;
+    parentConfig.SurfaceNodeName = "parent_node_remove";
+    auto parentNode = OHOS::Rosen::RSSurfaceNode::Create(parentConfig, false);
+    ASSERT_NE(parentNode, nullptr);
+    uiContext->GetMutableNodeMap().RegisterNode(parentNode);
+    uint64_t parentNodeId = parentNode->GetId();
+
+    // parentNodeId is NOT in delegateContainerNodeMap_, should be a no-op
+    SurfaceControl::RemoveDelegateContainerNodeOnClient(parentNodeId, uiContext);
+    EXPECT_EQ(SurfaceControl::delegateContainerNodeMap_.count(parentNodeId), 0u);
+
+    manager.isMultiInstanceOpen_ = false;
+}
+
+/**
+ * @tc.name: SurfaceControl_RemoveDelegateContainerNodeOnClient_Success_071.
+ * @tc.desc: Test RemoveDelegateContainerNodeOnClient after adding a delegate container node,
+ *           verifying it is removed from delegateContainerNodeMap_.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(SurfaceControlTest, SurfaceControl_RemoveDelegateContainerNodeOnClient_Success_071, TestSize.Level1)
+{
+    auto& manager = OHOS::Rosen::RSUIContextManager::MutableInstance();
+    manager.isMultiInstanceOpen_ = true;
+    sptr<IRemoteObject> mockRemote = new OHOS::IPCObjectStub();
+    auto uiContext = manager.CreateRSUIContext(mockRemote);
+    ASSERT_NE(uiContext, nullptr);
+
+    // Create and register parent node
+    OHOS::Rosen::RSSurfaceNodeConfig parentConfig;
+    parentConfig.SurfaceNodeName = "parent_remove_success";
+    auto parentNode = OHOS::Rosen::RSSurfaceNode::Create(parentConfig, false);
+    ASSERT_NE(parentNode, nullptr);
+    uiContext->GetMutableNodeMap().RegisterNode(parentNode);
+    uint64_t parentNodeId = parentNode->GetId();
+
+    // Create and add child node
+    OHOS::Rosen::RSSurfaceNodeConfig childConfig;
+    childConfig.SurfaceNodeName = "child_remove_success";
+    auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(childConfig, false);
+    ASSERT_NE(surfaceNode, nullptr);
+    SurfaceControl::AddDelegateContainerNodeOnClient(parentNodeId, uiContext, surfaceNode);
+    ASSERT_EQ(SurfaceControl::delegateContainerNodeMap_.count(parentNodeId), 1u);
+
+    // Now remove it
+    SurfaceControl::RemoveDelegateContainerNodeOnClient(parentNodeId, uiContext);
+    EXPECT_EQ(SurfaceControl::delegateContainerNodeMap_.count(parentNodeId), 0u);
+
+    manager.isMultiInstanceOpen_ = false;
+}
 }

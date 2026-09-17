@@ -65,4 +65,10 @@ void ArkWindowAdapterImpl::SetWindowNodeIdAndRSHandle(void* nativeWindow, uint64
 {
     return real_.SetWindowNodeIdAndRSHandle(nativeWindow, nodeId, handle);
 }
+
+void ArkWindowAdapterImpl::SetWindowInfoForDelegateCompositing(void* nativeWindow, uint64_t nodeId, uint64_t handle,
+    uint64_t rsUIContextToken)
+{
+    return real_.SetWindowInfoForDelegateCompositing(nativeWindow, nodeId, handle, rsUIContextToken);
+}
 } // namespace OHOS::ArkWeb
