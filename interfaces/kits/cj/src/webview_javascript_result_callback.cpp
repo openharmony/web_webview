@@ -29,7 +29,7 @@ using namespace OHOS::NWeb;
 
 namespace OHOS::Webview {
 
-constexpr uint64_t WEBVIEW_FDSAN_TAG = static_cast<uint64_t>(LOG_DOMAIN) << 32 | 0xFFFD;
+constexpr uint64_t WEBVIEW_FDSAN_TAG = static_cast<uint64_t>(LOG_DOMAIN) << 32 | 0x1ULL;
 
 std::unordered_map<int32_t, WebviewJavaScriptResultCallBackImpl*> g_webviewJsResultCallbackMap;
 std::mutex g_objectMtx;
