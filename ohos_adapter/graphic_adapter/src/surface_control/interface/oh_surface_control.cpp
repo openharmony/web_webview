@@ -73,6 +73,17 @@ void SurfaceControlUtils::Transaction::Commit(OH_SurfaceTransaction* transaction
     txn->Commit();
 }
 
+void SurfaceControlUtils::UpdateDelegateContainerNodeOnClient(uint64_t parentNodeId,
+    const std::shared_ptr<Rosen::RSUIContext>& rsUIContext, const std::shared_ptr<Rosen::RSSurfaceNode>& surfaceNode,
+    bool isAddNode)
+{
+    if (isAddNode) {
+        SurfaceControl::AddDelegateContainerNodeOnClient(parentNodeId, rsUIContext, surfaceNode);
+    } else {
+        SurfaceControl::RemoveDelegateContainerNodeOnClient(parentNodeId, rsUIContext);
+    }
+}
+
 void SurfaceControlUtils::Transaction::SetOnComplete(
     OH_SurfaceTransaction* transaction, void* context, OH_SurfaceTransaction_OnComplete func)
 {

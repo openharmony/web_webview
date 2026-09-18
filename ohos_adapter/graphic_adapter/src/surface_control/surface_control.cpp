@@ -14,6 +14,7 @@
  */
 
 #include "surface_control.h"
+#include "aafwk_browser_client_adapter_impl.h"
 #include <algorithm>
 #include <charconv>
 #include <iostream>
@@ -36,6 +37,9 @@ using namespace OHOS::Rosen;
 
 namespace OHOS {
 namespace NWeb {
+std::map<uint64_t, std::shared_ptr<Rosen::RSSurfaceNode>> SurfaceControl::delegateContainerNodeMap_;
+static inline std::mutex g_delegateContainerNodeMutex;
+
 namespace {
 const std::string DELEGATE_NODE_ID = "delegate_node_id";
 
@@ -152,53 +156,47 @@ sptr<SurfaceControl> SurfaceControl::CreateFromWindow(NativeWindow* window, cons
         if (ec != std::errc{} || (ptr != fetchedNodeId.data() + fetchedNodeId.size())) {
             WVLOG_E("DelegateDebug Failed to parse node id from string: %s", fetchedNodeId.c_str());
             nodeId = 0;
+            return nullptr;
         }
     }
-
-    ScopedTransaction scopedTransaction;
 
     auto uiContext = SurfaceControl::GetRSUIContext();
     if (!uiContext) {
         WVLOG_E("DelegateModeDebugTag UIContext is nullptr");
         return nullptr;
     }
-
-    auto parentNode = uiContext->GetNodeMap().GetNode(nodeId);
-    if (!parentNode) {
-        WVLOG_E("DelegateModeDebugTag ParentNode is nullptr, reCreate in nodeId=[%{public}" PRIu64 "]", nodeId);
-        parentNode = Rosen::RSProxyNode::Create(nodeId, "root_proxy", uiContext);
-    }
-
-    if (!parentNode) {
-        WVLOG_E("DelegateModeDebugTag recreate parent failed");
-        return nullptr;
-    }
-
+    ScopedTransaction scopedTransaction(uiContext);
     auto surfaceNode = CreateSurfaceNode(name, uiContext, RSSurfaceNodeType::SELF_DRAWING_NODE, true);
     if (!surfaceNode) {
         WVLOG_E("CreateSurfaceNode failed");
         return nullptr;
     }
-    parentNode->OHOS::Rosen::RSNode::AddChild(surfaceNode, -1);
-    WVLOG_I("CreateFromWindow success, nodeId: %{public}" PRIu64, nodeId);
-    return sptr<SurfaceControl>::MakeSptr(std::move(surfaceNode), std::move(parentNode), true);
+
+    AafwkBrowserClientAdapterImpl::GetInstance().UpdateDelegateContainerNode(nodeId, surfaceNode, true);
+    WVLOG_I("DelegateTag CreateFromWindow success, nodeId: %{public}" PRIu64, nodeId);
+    return sptr<SurfaceControl>::MakeSptr(std::move(surfaceNode), std::shared_ptr<OHOS::Rosen::RSNode>(), true, nodeId);
 }
 
 sptr<SurfaceControl> SurfaceControl::Create(const char* name)
 {
-    ScopedTransaction scopedTransaction;
     auto uiContext = SurfaceControl::GetRSUIContext();
     if (!uiContext) {
         WVLOG_E("DelegateModeDebugTag UIContext is nullptr");
         return nullptr;
     }
+    ScopedTransaction scopedTransaction(uiContext);
     auto surfaceNode = CreateSurfaceNode(name, uiContext, RSSurfaceNodeType::SELF_DRAWING_NODE, false);
-    return sptr<SurfaceControl>::MakeSptr(std::move(surfaceNode), std::shared_ptr<OHOS::Rosen::RSNode>(), false);
+    if (!surfaceNode) {
+        WVLOG_E("DelegateTag CreateSurfaceNode failed");
+        return nullptr;
+    }
+    return sptr<SurfaceControl>::MakeSptr(std::move(surfaceNode), std::shared_ptr<OHOS::Rosen::RSNode>(), false, 0);
 }
 
 SurfaceControl::SurfaceControl(std::shared_ptr<Rosen::RSSurfaceNode> surfaceNode,
-    std::shared_ptr<OHOS::Rosen::RSNode> parentNode, bool isRootSurface)
-    : surfaceNode_(std::move(surfaceNode)), parentNode_(std::move(parentNode)), isRootSurface_(isRootSurface)
+    std::shared_ptr<OHOS::Rosen::RSNode> parentNode, bool isRootSurface, uint64_t rosenWebNodeId)
+    : surfaceNode_(std::move(surfaceNode)), parentNode_(std::move(parentNode)), isRootSurface_(isRootSurface),
+      rosenWebNodeId_(rosenWebNodeId)
 {
     if (surfaceNode_) {
         surfaceNode_->SetDelegateMode(true);
@@ -356,6 +354,78 @@ void SurfaceControl::ClearBufferQueueCache(bool cleanAll)
     WVLOG_I("SurfaceControl::ClearBufferQueueCache: %{public}d", cleanAll);
     CHECK_NULL_POINTER(surfaceNode_);
     surfaceNode_->CleanBuffer(cleanAll);
+}
+
+void SurfaceControl::AddDelegateContainerNodeOnClient(uint64_t parentNodeId,
+    const std::shared_ptr<Rosen::RSUIContext>& rsUIContext, const std::shared_ptr<Rosen::RSSurfaceNode>& surfaceNode)
+{
+    if (parentNodeId == 0) {
+        WVLOG_E("DelegateTag parentNodeId invalid");
+        return;
+    }
+
+    if (rsUIContext == nullptr) {
+        WVLOG_E("DelegateTag rsUIContext is nullptr");
+        return;
+    }
+
+    if (surfaceNode == nullptr) {
+        WVLOG_E("DelegateTag surfaceNode is nullptr");
+        return;
+    }
+    ScopedTransaction scopedTransaction(rsUIContext);
+    auto parentNode = rsUIContext->GetMutableNodeMap().GetNode(parentNodeId);
+    if (!parentNode) {
+        WVLOG_E("DelegateTag get parentNode failed, id=[%{public}" PRIu64 "]", parentNodeId);
+        return;
+    }
+
+    parentNode->OHOS::Rosen::RSNode::AddChild(surfaceNode, -1);
+    {
+        std::lock_guard<std::mutex> lock(g_delegateContainerNodeMutex);
+        delegateContainerNodeMap_[parentNodeId] = surfaceNode;
+    }
+
+    RS_TRACE_NAME_FMT("Add delegate container node success");
+    WVLOG_I("DelegateTag add rosenWebId: %{public}" PRIu64 ", containerNodeId: %{public}" PRIu64 "",
+        parentNodeId, surfaceNode->GetId());
+}
+
+void SurfaceControl::RemoveDelegateContainerNodeOnClient(uint64_t parentNodeId,
+    const std::shared_ptr<Rosen::RSUIContext>& rsUIContext)
+{
+    if (parentNodeId == 0) {
+        WVLOG_E("DelegateTag parentNodeId invalid");
+        return;
+    }
+
+    if (rsUIContext == nullptr) {
+        WVLOG_E("DelegateTag rsUIContext is nullptr");
+        return;
+    }
+
+    ScopedTransaction scopedTransaction(rsUIContext);
+    auto parentNode = rsUIContext->GetMutableNodeMap().GetNode(parentNodeId);
+    if (!parentNode) {
+        WVLOG_E("DelegateTag get parentNode failed, id=[%{public}" PRIu64 "]", parentNodeId);
+        return;
+    }
+
+    std::shared_ptr<Rosen::RSSurfaceNode> containerNode;
+    {
+        std::lock_guard<std::mutex> lock(g_delegateContainerNodeMutex);
+        auto iter = delegateContainerNodeMap_.find(parentNodeId);
+        if (iter != delegateContainerNodeMap_.end()) {
+            containerNode = iter->second;
+            delegateContainerNodeMap_.erase(iter);
+        }
+    }
+
+    if (containerNode) {
+        WVLOG_I("DelegateTag remove rosenWebId: %{public}" PRIu64 ", containerNodeId: %{public}" PRId64,
+            parentNodeId, static_cast<int64_t>(containerNode->GetId()));
+        parentNode->RemoveChild(containerNode);
+    }
 }
 
 RSSurfaceNodeReleaseBufferWorker::RSSurfaceNodeReleaseBufferWorker(OHOS::sptr<OHOS::IRemoteObject> connectToRender)

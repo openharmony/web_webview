@@ -29,6 +29,10 @@ struct OH_SurfaceControl;
 typedef struct OH_SurfaceControl OH_SurfaceControl;
 
 namespace OHOS {
+namespace Rosen {
+class RSUIContext;
+class RSSurfaceNode;
+}
 namespace NWeb {
 struct OH_Rect {
     int32_t x;
@@ -51,6 +55,10 @@ public:
 
     static OH_SurfaceControl* CreateSurfaceControlFromNativeWindow(NativeWindow* parent, const char* name);
     static OH_SurfaceControl* Create(const char* name);
+    static void UpdateDelegateContainerNodeOnClient(uint64_t parentNodeId,
+        const std::shared_ptr<Rosen::RSUIContext>& rsUIContext,
+        const std::shared_ptr<Rosen::RSSurfaceNode>& surfaceNode,
+        bool isAddNode);
 
     // 引用计数管理
     static void Release(OH_SurfaceControl* surfaceControl);

@@ -19,8 +19,10 @@
 #include "iremote_broker.h"
 #include "irender_scheduler.h"
 #include "surface.h"
-
 namespace OHOS {
+namespace Rosen {
+    class RSSurfaceNode;
+}
 namespace NWeb {
 
 /**
@@ -42,12 +44,16 @@ public:
 
     virtual std::string QueryBufferTypeLeak(int32_t surface_id) = 0;
 
+    virtual void UpdateDelegateContainerNode(uint64_t parentNodeId,
+        const std::shared_ptr<Rosen::RSSurfaceNode>& surfaceNode, bool isAddNode) = 0;
+
     enum class Message {
         QUERY_RENDER_SURFACE = 1,
         REPORT_THREAD = 2,
         PASS_SURFACE = 3,
         DESTROY_RENDER_SURFACE = 4,
         QUERY_BUFFER_TYPE_LEAK = 5,
+        UPDATE_DELEGATE_CONTAINER_NODE = 6,
     };
 };
 } // namespace NWeb

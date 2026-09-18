@@ -27,12 +27,19 @@
 #include "native_window.h"
 #include "external_window.h"
 #include "transaction/rs_interfaces.h"
+#include "ui/rs_ui_context.h"
+#include "ui/rs_ui_context_manager.h"
+#include "../../graphic_adapter/src/surface_control/interface/oh_surface_control.h"
 #include "../../../ohos_interface/ohos_glue/base/include/ark_web_errno.h"
+
+using namespace OHOS::Rosen;
+using OHOS::Rosen::RSUIContextManager;
 
 namespace OHOS::NWeb {
 
 const std::string DELEGATE_NODE_ID = "delegate_node_id";
 const std::string DELEGATE_CONNECT_TO_RENDER = "delegate_connect_to_render";
+const std::string DELEGATE_CONTEXT_TOKEN = "delegate_context_token";
 
 BrowserHost::BrowserHost()
 {
@@ -55,6 +62,10 @@ BrowserHost::BrowserHost()
     memberFuncMap_[static_cast<uint32_t>(IBrowser::Message::QUERY_BUFFER_TYPE_LEAK)] =
         [](BrowserHost* that, MessageParcel &data, MessageParcel &reply) {
             return that->HandleQueryBufferTypeLeak(data, reply);
+        };
+    memberFuncMap_[static_cast<uint32_t>(IBrowser::Message::UPDATE_DELEGATE_CONTAINER_NODE)] =
+        [](BrowserHost* that, MessageParcel &data, MessageParcel &reply) {
+            return that->HandleUpdateDelegateContainerNode(data, reply);
         };
 }
 
@@ -157,6 +168,35 @@ int BrowserHost::HandleQueryBufferTypeLeak(MessageParcel &data, MessageParcel &r
     return 0;
 }
 
+int BrowserHost::HandleUpdateDelegateContainerNode(MessageParcel &data, MessageParcel &reply)
+{
+    uint64_t parentNodeId;
+    if (!data.ReadUint64(parentNodeId)) {
+        WVLOG_E("DelegateTag read parentNodeId failed");
+        return 0;
+    }
+    bool isAddNode;
+    if (!data.ReadBool(isAddNode)) {
+        WVLOG_E("DelegateTag read isAddNode failed");
+        return 0;
+    }
+    std::shared_ptr<Rosen::RSSurfaceNode> surfaceNode = nullptr;
+    bool hasSurfaceNode;
+    if (!data.ReadBool(hasSurfaceNode)) {
+        WVLOG_E("DelegateTag read hasSurfaceNode failed");
+        return 0;
+    }
+    if (hasSurfaceNode) {
+        surfaceNode = Rosen::RSSurfaceNode::Unmarshalling(data);
+        if (surfaceNode == nullptr) {
+            WVLOG_E("DelegateTag Unmarshalling surfaceNode failed");
+            return 0;
+        }
+    }
+    UpdateDelegateContainerNode(parentNodeId, surfaceNode, isAddNode);
+    return 0;
+}
+
 AafwkBrowserHostImpl::AafwkBrowserHostImpl(std::shared_ptr<AafwkBrowserHostAdapter> adapter)
     : browserHostAdapter_(adapter) {}
 
@@ -217,6 +257,19 @@ std::pair<sptr<IRemoteObject>, sptr<IRemoteObject>> AafwkBrowserHostImpl::QueryR
         }
     }
 
+    std::string fetchedContextToken = surface->GetUserData(DELEGATE_CONTEXT_TOKEN);
+    std::shared_ptr<Rosen::RSUIContext> rsUIContext = nullptr;
+    if (!fetchedContextToken.empty()) {
+        uint64_t contextToken = 0;
+        if (parseUint64(fetchedContextToken, contextToken) && contextToken != 0) {
+            rsUIContext = RSUIContextManager::Instance().GetRSUIContext(contextToken);
+        } else {
+            WVLOG_E("DelegateDebug Failed to parse rs ui context from string: %s", fetchedContextToken.c_str());
+        }
+    }
+    rsUIContextMap_[nodeId] = rsUIContext;
+    surfaceIdToNodeId_[surfaceId] = nodeId;
+
     if (surface->GetProducer() == nullptr) {
         WVLOG_W("Surface producer is null");
         return { nullptr, nullptr };
@@ -256,6 +309,13 @@ void AafwkBrowserHostImpl::DestroyRenderSurface(int32_t surface_id)
         return;
     }
     browserHostAdapter_->DestroySurfaceFromKernel(surface_id);
+
+    std::unique_lock<std::mutex> map_lock(map_mutex_);
+    auto iter = surfaceIdToNodeId_.find(surface_id);
+    if (iter != surfaceIdToNodeId_.end()) {
+        rsUIContextMap_.erase(iter->second);
+        surfaceIdToNodeId_.erase(iter);
+    }
     WVLOG_D("Destroy render surface id is %{public}d", surface_id);
 }
 
@@ -270,6 +330,21 @@ std::string AafwkBrowserHostImpl::QueryBufferTypeLeak(int32_t surface_id)
     }
     WVLOG_E("browser host impl query buffer type leak failed for window id = %{public}d", surface_id);
     return "";
+}
+
+void AafwkBrowserHostImpl::UpdateDelegateContainerNode(uint64_t parentNodeId,
+    const std::shared_ptr<Rosen::RSSurfaceNode>& surfaceNode, bool isAddNode)
+{
+    std::shared_ptr<Rosen::RSUIContext> rsUIContext = nullptr;
+    {
+        std::unique_lock<std::mutex> map_lock(map_mutex_);
+        auto iter = rsUIContextMap_.find(parentNodeId);
+        if (iter != rsUIContextMap_.end()) {
+            rsUIContext = iter->second;
+        }
+    }
+
+    SurfaceControlUtils::UpdateDelegateContainerNodeOnClient(parentNodeId, rsUIContext, surfaceNode, isAddNode);
 }
 
 } // namespace OHOS::NWeb

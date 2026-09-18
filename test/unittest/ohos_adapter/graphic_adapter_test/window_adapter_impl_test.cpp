@@ -25,6 +25,7 @@ namespace OHOS::NWeb {
 namespace {
 constexpr uint64_t TEST_NODE_ID = 123456;
 constexpr uint64_t TEST_RS_HANDLE = 789012;
+constexpr uint64_t TEST_RS_UI_CONTEXT_TOKEN = 345678;
 constexpr uint64_t TEST_ZERO_VALUE = 0;
 constexpr uint64_t TEST_LARGE_VALUE = UINT64_MAX;
 constexpr uint64_t TEST_LARGE_VALUE_MINUS_ONE = UINT64_MAX - 1;
@@ -109,9 +110,9 @@ HWTEST(WindowAdapterImplTest, WindowAdapterImplTest_001, TestSize.Level1)
 
 /**
  * @tc.name: WindowAdapterImpl_SetWindowNodeIdAndRSHandle_NullWindow_002.
- * @tc.desc: Test SetWindowNodeIdAndRSHandle when nativeWindow is nullptr.
+ * @tc.desc: Test SetWindowInfoForDelegateCompositing when nativeWindow is nullptr.
  * @tc.type: FUNC.
- * @tc.require: issue#5183
+ * @tc.require: issue#I16d68
  */
 HWTEST(WindowAdapterImplTest, WindowAdapterImpl_SetWindowNodeIdAndRSHandle_NullWindow_002, TestSize.Level1)
 {
@@ -119,15 +120,17 @@ HWTEST(WindowAdapterImplTest, WindowAdapterImpl_SetWindowNodeIdAndRSHandle_NullW
     void* nullWindow = nullptr;
     uint64_t nodeId = TEST_NODE_ID;
     uint64_t rsHandle = TEST_RS_HANDLE;
-    adapter.SetWindowNodeIdAndRSHandle(nullWindow, nodeId, rsHandle);
+    uint64_t rsUIContextToken = TEST_RS_UI_CONTEXT_TOKEN;
+    adapter.SetWindowInfoForDelegateCompositing(nullWindow, nodeId, rsHandle, rsUIContextToken);
     EXPECT_EQ(nullWindow, nullptr);
 }
 
 /**
  * @tc.name: WindowAdapterImpl_SetWindowNodeIdAndRSHandle_ValidSurface_003.
- * @tc.desc: Test SetWindowNodeIdAndRSHandle when surface is valid.
+ * @tc.desc: Test SetWindowInfoForDelegateCompositing when surface is valid,
+ *           verifying all three UserData entries (node_id, connect_to_render, context_token).
  * @tc.type: FUNC.
- * @tc.require: issue#5183
+ * @tc.require: issue#I16d68
  */
 HWTEST(WindowAdapterImplTest, WindowAdapterImpl_SetWindowNodeIdAndRSHandle_ValidSurface_003, TestSize.Level1)
 {
@@ -144,22 +147,26 @@ HWTEST(WindowAdapterImplTest, WindowAdapterImpl_SetWindowNodeIdAndRSHandle_Valid
     ASSERT_NE(nativeWindow->surface, nullptr);
     uint64_t nodeId = TEST_NODE_ID;
     uint64_t rsHandle = TEST_RS_HANDLE;
-    OhosAdapterHelper::GetInstance().GetWindowAdapterInstance().SetWindowNodeIdAndRSHandle(window, nodeId, rsHandle);
+    uint64_t rsUIContextToken = TEST_RS_UI_CONTEXT_TOKEN;
+    OhosAdapterHelper::GetInstance().GetWindowAdapterInstance().SetWindowInfoForDelegateCompositing(
+        window, nodeId, rsHandle, rsUIContextToken);
     EXPECT_NE(window, nullptr);
     if (nativeWindow->surface) {
         auto fetchedNodeId = nativeWindow->surface->GetUserData("delegate_node_id");
         auto fetchedRSHandle = nativeWindow->surface->GetUserData("delegate_connect_to_render");
+        auto fetchedContextToken = nativeWindow->surface->GetUserData("delegate_context_token");
         EXPECT_EQ(fetchedNodeId, std::to_string(nodeId));
         EXPECT_EQ(fetchedRSHandle, std::to_string(rsHandle));
+        EXPECT_EQ(fetchedContextToken, std::to_string(rsUIContextToken));
     }
     OhosAdapterHelper::GetInstance().GetWindowAdapterInstance().DestroyNativeWindow(window);
 }
 
 /**
  * @tc.name: WindowAdapterImpl_SetWindowNodeIdAndRSHandle_NullSurface_004.
- * @tc.desc: Test SetWindowNodeIdAndRSHandle when window->surface is nullptr.
+ * @tc.desc: Test SetWindowInfoForDelegateCompositing when window->surface is nullptr.
  * @tc.type: FUNC.
- * @tc.require: issue#5183
+ * @tc.require: issue#I16d68
  */
 HWTEST(WindowAdapterImplTest, WindowAdapterImpl_SetWindowNodeIdAndRSHandle_NullSurface_004, TestSize.Level1)
 {
@@ -176,7 +183,9 @@ HWTEST(WindowAdapterImplTest, WindowAdapterImpl_SetWindowNodeIdAndRSHandle_NullS
     nativeWindow->surface = nullptr;
     uint64_t nodeId = TEST_NODE_ID;
     uint64_t rsHandle = TEST_RS_HANDLE;
-    OhosAdapterHelper::GetInstance().GetWindowAdapterInstance().SetWindowNodeIdAndRSHandle(window, nodeId, rsHandle);
+    uint64_t rsUIContextToken = TEST_RS_UI_CONTEXT_TOKEN;
+    OhosAdapterHelper::GetInstance().GetWindowAdapterInstance().SetWindowInfoForDelegateCompositing(
+        window, nodeId, rsHandle, rsUIContextToken);
     EXPECT_NE(window, nullptr);
     EXPECT_EQ(nativeWindow->surface, nullptr);
     OhosAdapterHelper::GetInstance().GetWindowAdapterInstance().DestroyNativeWindow(window);
@@ -184,9 +193,9 @@ HWTEST(WindowAdapterImplTest, WindowAdapterImpl_SetWindowNodeIdAndRSHandle_NullS
 
 /**
  * @tc.name: WindowAdapterImpl_SetWindowNodeIdAndRSHandle_ZeroValues_005.
- * @tc.desc: Test SetWindowNodeIdAndRSHandle with zero nodeId and rsHandle.
+ * @tc.desc: Test SetWindowInfoForDelegateCompositing with zero nodeId, rsHandle and rsUIContextToken.
  * @tc.type: FUNC.
- * @tc.require: issue#5183
+ * @tc.require: issue#I16d68
  */
 HWTEST(WindowAdapterImplTest, WindowAdapterImpl_SetWindowNodeIdAndRSHandle_ZeroValues_005, TestSize.Level1)
 {
@@ -203,22 +212,26 @@ HWTEST(WindowAdapterImplTest, WindowAdapterImpl_SetWindowNodeIdAndRSHandle_ZeroV
     ASSERT_NE(nativeWindow->surface, nullptr);
     uint64_t nodeId = TEST_ZERO_VALUE;
     uint64_t rsHandle = TEST_ZERO_VALUE;
-    OhosAdapterHelper::GetInstance().GetWindowAdapterInstance().SetWindowNodeIdAndRSHandle(window, nodeId, rsHandle);
+    uint64_t rsUIContextToken = TEST_ZERO_VALUE;
+    OhosAdapterHelper::GetInstance().GetWindowAdapterInstance().SetWindowInfoForDelegateCompositing(
+        window, nodeId, rsHandle, rsUIContextToken);
     EXPECT_NE(window, nullptr);
     if (nativeWindow->surface) {
         auto fetchedNodeId = nativeWindow->surface->GetUserData("delegate_node_id");
         auto fetchedRSHandle = nativeWindow->surface->GetUserData("delegate_connect_to_render");
+        auto fetchedContextToken = nativeWindow->surface->GetUserData("delegate_context_token");
         EXPECT_EQ(fetchedNodeId, "0");
         EXPECT_EQ(fetchedRSHandle, "0");
+        EXPECT_EQ(fetchedContextToken, "0");
     }
     OhosAdapterHelper::GetInstance().GetWindowAdapterInstance().DestroyNativeWindow(window);
 }
 
 /**
  * @tc.name: WindowAdapterImpl_SetWindowNodeIdAndRSHandle_LargeValues_006.
- * @tc.desc: Test SetWindowNodeIdAndRSHandle with large nodeId and rsHandle values.
+ * @tc.desc: Test SetWindowInfoForDelegateCompositing with large nodeId, rsHandle and rsUIContextToken values.
  * @tc.type: FUNC.
- * @tc.require: issue#5183
+ * @tc.require: issue#I16d68
  */
 HWTEST(WindowAdapterImplTest, WindowAdapterImpl_SetWindowNodeIdAndRSHandle_LargeValues_006, TestSize.Level1)
 {
@@ -235,14 +248,35 @@ HWTEST(WindowAdapterImplTest, WindowAdapterImpl_SetWindowNodeIdAndRSHandle_Large
     ASSERT_NE(nativeWindow->surface, nullptr);
     uint64_t nodeId = TEST_LARGE_VALUE;
     uint64_t rsHandle = TEST_LARGE_VALUE_MINUS_ONE;
-    OhosAdapterHelper::GetInstance().GetWindowAdapterInstance().SetWindowNodeIdAndRSHandle(window, nodeId, rsHandle);
+    uint64_t rsUIContextToken = TEST_LARGE_VALUE;
+    OhosAdapterHelper::GetInstance().GetWindowAdapterInstance().SetWindowInfoForDelegateCompositing(
+        window, nodeId, rsHandle, rsUIContextToken);
     EXPECT_NE(window, nullptr);
     if (nativeWindow->surface) {
         auto fetchedNodeId = nativeWindow->surface->GetUserData("delegate_node_id");
         auto fetchedRSHandle = nativeWindow->surface->GetUserData("delegate_connect_to_render");
+        auto fetchedContextToken = nativeWindow->surface->GetUserData("delegate_context_token");
         EXPECT_EQ(fetchedNodeId, std::to_string(nodeId));
         EXPECT_EQ(fetchedRSHandle, std::to_string(rsHandle));
+        EXPECT_EQ(fetchedContextToken, std::to_string(rsUIContextToken));
     }
     OhosAdapterHelper::GetInstance().GetWindowAdapterInstance().DestroyNativeWindow(window);
+}
+
+/**
+ * @tc.name: WindowAdapterImpl_SetWindowInfoForDelegateCompositing_NullWindow_007.
+ * @tc.desc: Test SetWindowInfoForDelegateCompositing when nativeWindow is nullptr.
+ * @tc.type: FUNC.
+ * @tc.require: issue#I16d68
+ */
+HWTEST(WindowAdapterImplTest, WindowAdapterImpl_SetWindowInfoForDelegateCompositing_NullWindow_007, TestSize.Level1)
+{
+    auto& adapter = OhosAdapterHelper::GetInstance().GetWindowAdapterInstance();
+    void* nullWindow = nullptr;
+    uint64_t nodeId = TEST_NODE_ID;
+    uint64_t rsHandle = TEST_RS_HANDLE;
+    uint64_t rsUIContextToken = TEST_RS_UI_CONTEXT_TOKEN;
+    adapter.SetWindowInfoForDelegateCompositing(nullWindow, nodeId, rsHandle, rsUIContextToken);
+    EXPECT_EQ(nullWindow, nullptr);
 }
 } // namespace OHOS::NWeb

@@ -240,6 +240,9 @@ public:
     virtual void NativeWindowUnRef(NWebNativeWindow window) = 0;
 
     virtual void SetWindowNodeIdAndRSHandle(void* nativeWindow, uint64_t nodeId, uint64_t handle) {}
+
+    virtual void SetWindowInfoForDelegateCompositing(void* nativeWindow, uint64_t nodeId, uint64_t handle,
+        uint64_t rsUIContextToken) {}
 };
 
 class AshmemAdapter {

@@ -250,7 +250,7 @@ HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_Reparent_NullSurfaceControl_
  */
 HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_Reparent_IsRootSurfaceFalse_010, TestSize.Level1)
 {
-    sptr<SurfaceControl> ctrl = new SurfaceControl(nullptr, nullptr, false);
+    sptr<SurfaceControl> ctrl = new SurfaceControl(nullptr, nullptr, false, 0);
     EXPECT_FALSE(ctrl->IsRootSurface()); // isRootSurface_=false
     size_t cmdSizeBefore = transaction_->transactionCommands_.size();
     transaction_->Reparent(ctrl.GetRefPtr(), nullptr);
@@ -300,7 +300,7 @@ HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_Setters_NullSurfaceControl_0
  */
 HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_Setters_ValidSurfaceControl_012, TestSize.Level1)
 {
-    sptr<SurfaceControl> ctrl = new SurfaceControl(nullptr, nullptr, false);
+    sptr<SurfaceControl> ctrl = new SurfaceControl(nullptr, nullptr, false, 0);
     size_t cmdSizeBefore = transaction_->transactionCommands_.size();
 
     transaction_->SetVisibility(ctrl.GetRefPtr(), true);
@@ -345,7 +345,7 @@ HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_Setters_ValidSurfaceControl_
  */
 HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_SetBuffer_Valid_013, TestSize.Level1)
 {
-    sptr<SurfaceControl> ctrl = new SurfaceControl(nullptr, nullptr, false);
+    sptr<SurfaceControl> ctrl = new SurfaceControl(nullptr, nullptr, false, 0);
     size_t bufCmdSizeBefore = transaction_->bufferCommands_.size();
     size_t surfCtrlSizeBefore = transaction_->surfaceControls_.size();
 
@@ -364,7 +364,7 @@ HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_SetBuffer_Valid_013, TestSiz
  */
 HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_SetBufferTransform_Valid_014, TestSize.Level1)
 {
-    sptr<SurfaceControl> ctrl = new SurfaceControl(nullptr, nullptr, false);
+    sptr<SurfaceControl> ctrl = new SurfaceControl(nullptr, nullptr, false, 0);
     size_t cmdSizeBefore = transaction_->transactionCommands_.size();
     size_t surfCtrlSizeBefore = transaction_->surfaceControls_.size();
 
@@ -383,7 +383,7 @@ HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_SetBufferTransform_Valid_014
  */
 HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_SetDamageRegion_CountZero_015, TestSize.Level1)
 {
-    sptr<SurfaceControl> ctrl = new SurfaceControl(nullptr, nullptr, false);
+    sptr<SurfaceControl> ctrl = new SurfaceControl(nullptr, nullptr, false, 0);
     size_t cmdSizeBefore = transaction_->transactionCommands_.size();
 
     transaction_->SetDamageRegion(ctrl.GetRefPtr(), nullptr, 0);
@@ -400,7 +400,7 @@ HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_SetDamageRegion_CountZero_01
  */
 HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_SetDamageRegion_ValidRectsCountZero_015b, TestSize.Level1)
 {
-    sptr<SurfaceControl> ctrl = new SurfaceControl(nullptr, nullptr, false);
+    sptr<SurfaceControl> ctrl = new SurfaceControl(nullptr, nullptr, false, 0);
     OH_Rect dummyRect = {0, 0, 0, 0};
     size_t cmdSizeBefore = transaction_->transactionCommands_.size();
  
@@ -418,7 +418,7 @@ HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_SetDamageRegion_ValidRectsCo
  */
 HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_SetDamageRegion_ValidCount_016, TestSize.Level1)
 {
-    sptr<SurfaceControl> ctrl = new SurfaceControl(nullptr, nullptr, false);
+    sptr<SurfaceControl> ctrl = new SurfaceControl(nullptr, nullptr, false, 0);
     OH_Rect rects[] = {{1, 2, 3, 4}, {5, 6, 7, 8}};
     size_t cmdSizeBefore = transaction_->transactionCommands_.size();
 
@@ -492,7 +492,7 @@ HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_SetDamageRegion_Commit_019, 
     auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(config, false);
     ASSERT_NE(surfaceNode, nullptr);
  
-    sptr<SurfaceControl> ctrl = new SurfaceControl(std::move(surfaceNode), nullptr, false);
+    sptr<SurfaceControl> ctrl = new SurfaceControl(std::move(surfaceNode), nullptr, false, 0);
     ASSERT_NE(ctrl, nullptr);
  
     // Set up RSUIContext so Commit() can proceed
@@ -529,6 +529,76 @@ HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_SetDamageRegion_Commit_019, 
     // Clean up
     SurfaceControl::rsUIDirector_ = nullptr;
     SurfaceControl::SetConnectToRenderObject(nullptr);
+    manager.isMultiInstanceOpen_ = false;
+}
+
+/**
+ * @tc.name: SurfaceTransaction_Reparent_IsRootSurfaceTrue_020
+ * @tc.desc: Test Reparent with root SurfaceControl (IsRootSurface=true),
+ *           which now calls UpdateDelegateContainerNode with isAddNode=false and returns early.
+ *           No command should be pushed to transactionCommands_.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_Reparent_IsRootSurfaceTrue_020, TestSize.Level1)
+{
+    OHOS::Rosen::RSSurfaceNodeConfig config;
+    config.SurfaceNodeName = "root_surface_reparent";
+    auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(config, false);
+    ASSERT_NE(surfaceNode, nullptr);
+    uint64_t testNodeId = 555;
+    sptr<SurfaceControl> ctrl = new SurfaceControl(std::move(surfaceNode), nullptr, true, testNodeId);
+    ASSERT_NE(ctrl, nullptr);
+    EXPECT_TRUE(ctrl->IsRootSurface());
+    EXPECT_EQ(ctrl->GetRosenWebNodeId(), testNodeId);
+
+    size_t cmdSizeBefore = transaction_->transactionCommands_.size();
+    // IsRootSurface=true → calls UpdateDelegateContainerNode(nodeId, nullptr, false) and returns
+    // No command is pushed
+    transaction_->Reparent(ctrl.GetRefPtr(), nullptr);
+    EXPECT_EQ(transaction_->transactionCommands_.size(), cmdSizeBefore);
+}
+
+/**
+ * @tc.name: SurfaceTransaction_ScopedTransaction_NullUIContext_021
+ * @tc.desc: Test ScopedTransaction constructor with nullptr uiContext,
+ *           transaction_ should not be set.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_ScopedTransaction_NullUIContext_021, TestSize.Level1)
+{
+    std::shared_ptr<OHOS::Rosen::RSUIContext> nullContext = nullptr;
+    {
+        ScopedTransaction scopedTransaction(nullContext);
+        // With null uiContext, transaction_ is not set (stays empty/null)
+        // The ScopedTransaction should not crash
+    }
+    // If we reach here, the test passed
+    EXPECT_TRUE(true);
+}
+
+/**
+ * @tc.name: SurfaceTransaction_ScopedTransaction_ValidUIContext_022
+ * @tc.desc: Test ScopedTransaction constructor with a valid uiContext,
+ *           transaction_ should be set from GetRSTransaction().
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(SurfaceTransactionTest, SurfaceTransaction_ScopedTransaction_ValidUIContext_022, TestSize.Level1)
+{
+    auto& manager = OHOS::Rosen::RSUIContextManager::MutableInstance();
+    manager.isMultiInstanceOpen_ = true;
+    sptr<IRemoteObject> mockRemote = new OHOS::IPCObjectStub();
+    auto uiContext = manager.CreateRSUIContext(mockRemote);
+    ASSERT_NE(uiContext, nullptr);
+    {
+        ScopedTransaction scopedTransaction(uiContext);
+        // With valid uiContext, transaction_ is set from GetRSTransaction()
+        // The ScopedTransaction destructor will flush the transaction
+    }
+    // If we reach here without crash, the test passed
+    EXPECT_TRUE(true);
     manager.isMultiInstanceOpen_ = false;
 }
 

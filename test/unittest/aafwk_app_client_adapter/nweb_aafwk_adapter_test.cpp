@@ -31,6 +31,7 @@
 #include "ohos_adapter_helper.h"
 #include "process_uid_define.h"
 #include "surface_utils.h"
+#include "ui/rs_surface_node.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -119,6 +120,14 @@ public:
     void DestroyRenderSurface(int32_t surface_id);
 
     std::string QueryBufferTypeLeak(int32_t surface_id);
+
+    void UpdateDelegateContainerNode(uint64_t parentNodeId,
+        const std::shared_ptr<Rosen::RSSurfaceNode>& surfaceNode, bool isAddNode) override
+    {
+        (void)parentNodeId;
+        (void)surfaceNode;
+        (void)isAddNode;
+    }
 };
 
 QuerySurfaceResult MockBrowserClient::QueryRenderSurface(int32_t surfaceId, uint64_t& nodeId)
@@ -230,7 +239,10 @@ public:
     MOCK_METHOD(void, DestroyRenderSurface, (int32_t surface_id), (override));
 
     MOCK_METHOD(std::string, QueryBufferTypeLeak, (int32_t surface_id), (override));
-    
+
+    MOCK_METHOD(void, UpdateDelegateContainerNode,
+        (uint64_t parentNodeId, const std::shared_ptr<Rosen::RSSurfaceNode>& surfaceNode, bool isAddNode), (override));
+
     MOCK_METHOD(sptr<IRemoteObject>, AsObject, (), (override));
 };
 
@@ -1607,4 +1619,448 @@ HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_BrowserHostImpl_QueryRenderSurfa
  
     delete host;
 }
+
+/**
+ * @tc.name: NWebAafwkAdapter_BrowserClient_UpdateDelegateContainerNode_NullRemote_001.
+ * @tc.desc: Test BrowserClient::UpdateDelegateContainerNode when Remote() returns nullptr.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_BrowserClient_UpdateDelegateContainerNode_NullRemote_001,
+    TestSize.Level1)
+{
+    sptr<IRemoteObject> impl;
+    auto client = new BrowserClient(impl);
+    ASSERT_NE(client, nullptr);
+    uint64_t parentNodeId = 100;
+    bool isAddNode = true;
+    // surfaceNode is nullptr, should write hasSurfaceNode=false then return early (Remote is null)
+    client->UpdateDelegateContainerNode(parentNodeId, nullptr, isAddNode);
+    EXPECT_NE(client, nullptr);
+    delete client;
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_BrowserClient_UpdateDelegateContainerNode_SendRequestFail_002.
+ * @tc.desc: Test BrowserClient::UpdateDelegateContainerNode when SendRequest fails.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_BrowserClient_UpdateDelegateContainerNode_SendRequestFail_002,
+    TestSize.Level1)
+{
+    sptr<MockIRemoteObject> mockImpl = new MockIRemoteObject();
+    auto mockClient = new BrowserClient(mockImpl);
+    ASSERT_NE(mockClient, nullptr);
+    uint64_t parentNodeId = 100;
+    bool isAddNode = true;
+    EXPECT_CALL(*mockImpl, SendRequest(_, _, _, _)).WillOnce(Return(NWEB_ERROR));
+    mockClient->UpdateDelegateContainerNode(parentNodeId, nullptr, isAddNode);
+    EXPECT_NE(mockClient, nullptr);
+    delete mockClient;
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_BrowserClient_UpdateDelegateContainerNode_Success_003.
+ * @tc.desc: Test BrowserClient::UpdateDelegateContainerNode when SendRequest succeeds with surfaceNode=nullptr.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_BrowserClient_UpdateDelegateContainerNode_Success_003, TestSize.Level1)
+{
+    sptr<MockIRemoteObject> mockImpl = new MockIRemoteObject();
+    auto mockClient = new BrowserClient(mockImpl);
+    ASSERT_NE(mockClient, nullptr);
+    uint64_t parentNodeId = 200;
+    bool isAddNode = false;
+    EXPECT_CALL(*mockImpl, SendRequest(_, _, _, _))
+        .WillOnce([](uint32_t, MessageParcel &, MessageParcel &, MessageOption &) {
+            return NO_ERROR;
+        });
+    mockClient->UpdateDelegateContainerNode(parentNodeId, nullptr, isAddNode);
+    EXPECT_NE(mockClient, nullptr);
+    delete mockClient;
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_BrowserClient_UpdateDelegateContainerNode_WithSurfaceNode_004.
+ * @tc.desc: Test BrowserClient::UpdateDelegateContainerNode when surfaceNode is non-null,
+ *           covering the Marshalling branch (hasSurfaceNode=true).
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_BrowserClient_UpdateDelegateContainerNode_WithSurfaceNode_004,
+    TestSize.Level1)
+{
+    sptr<MockIRemoteObject> mockImpl = new MockIRemoteObject();
+    auto mockClient = new BrowserClient(mockImpl);
+    ASSERT_NE(mockClient, nullptr);
+    uint64_t parentNodeId = 300;
+    bool isAddNode = true;
+    OHOS::Rosen::RSSurfaceNodeConfig config;
+    config.SurfaceNodeName = "delegate_test_node";
+    auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(config, false);
+    ASSERT_NE(surfaceNode, nullptr);
+    EXPECT_CALL(*mockImpl, SendRequest(_, _, _, _))
+        .WillOnce([](uint32_t, MessageParcel &, MessageParcel &, MessageOption &) {
+            return NO_ERROR;
+        });
+    mockClient->UpdateDelegateContainerNode(parentNodeId, surfaceNode, isAddNode);
+    EXPECT_NE(mockClient, nullptr);
+    delete mockClient;
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_UpdateDelegateContainerNode_NullBrowserHost_005.
+ * @tc.desc: Test AafwkBrowserClientAdapterImpl::UpdateDelegateContainerNode when browserHost_ is nullptr.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_UpdateDelegateContainerNode_NullBrowserHost_005, TestSize.Level1)
+{
+    std::shared_ptr<AafwkBrowserClientAdapterImpl> clientAdapter = std::make_shared<AafwkBrowserClientAdapterImpl>();
+    ASSERT_NE(clientAdapter, nullptr);
+    clientAdapter->GetInstance().browserHost_ = nullptr;
+    uint64_t parentNodeId = 100;
+    bool isAddNode = true;
+    // Should early-return without crash
+    clientAdapter->UpdateDelegateContainerNode(parentNodeId, nullptr, isAddNode);
+    EXPECT_NE(clientAdapter, nullptr);
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_UpdateDelegateContainerNode_WithMockBrowser_006.
+ * @tc.desc: Test AafwkBrowserClientAdapterImpl::UpdateDelegateContainerNode with mock browserHost_.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_UpdateDelegateContainerNode_WithMockBrowser_006, TestSize.Level1)
+{
+    std::shared_ptr<AafwkBrowserClientAdapterImpl> clientAdapter = std::make_shared<AafwkBrowserClientAdapterImpl>();
+    ASSERT_NE(clientAdapter, nullptr);
+    sptr<MockIBrowser> mockBrowser = new MockIBrowser();
+    clientAdapter->GetInstance().browserHost_ = mockBrowser;
+    uint64_t parentNodeId = 100;
+    bool isAddNode = true;
+    EXPECT_CALL(*mockBrowser, UpdateDelegateContainerNode(parentNodeId, ::testing::_, isAddNode)).Times(1);
+    clientAdapter->UpdateDelegateContainerNode(parentNodeId, nullptr, isAddNode);
+    EXPECT_NE(clientAdapter, nullptr);
+    clientAdapter->GetInstance().browserHost_ = nullptr;
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_BrowserHost_HandleUpdateDelegateContainerNode_NoSurfaceNode_007.
+ * @tc.desc: Test BrowserHost::HandleUpdateDelegateContainerNode with hasSurfaceNode=false.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_BrowserHost_HandleUpdateDelegateContainerNode_NoSurfaceNode_007,
+    TestSize.Level1)
+{
+    std::shared_ptr<AafwkBrowserHostAdapter> hostAdapter = nullptr;
+    auto host = new AafwkBrowserHostImpl(hostAdapter);
+    ASSERT_NE(host, nullptr);
+
+    MessageParcel data;
+    MessageParcel reply;
+    uint64_t parentNodeId = 500;
+    bool isAddNode = true;
+    bool hasSurfaceNode = false;
+    data.WriteUint64(parentNodeId);
+    data.WriteBool(isAddNode);
+    data.WriteBool(hasSurfaceNode);
+
+    int result = host->HandleUpdateDelegateContainerNode(data, reply);
+    EXPECT_EQ(result, 0);
+    delete host;
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_BrowserHost_HandleUpdateDelegateContainerNode_WithSurfaceNode_008.
+ * @tc.desc: Test BrowserHost::HandleUpdateDelegateContainerNode with hasSurfaceNode=true,
+ *           exercising the Unmarshalling path.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_BrowserHost_HandleUpdateDelegateContainerNode_WithSurfaceNode_008,
+    TestSize.Level1)
+{
+    std::shared_ptr<AafwkBrowserHostAdapter> hostAdapter = nullptr;
+    auto host = new AafwkBrowserHostImpl(hostAdapter);
+    ASSERT_NE(host, nullptr);
+
+    MessageParcel data;
+    MessageParcel reply;
+    uint64_t parentNodeId = 600;
+    bool isAddNode = false;
+    bool hasSurfaceNode = true;
+    // Write a dummy surfaceNode parcel (Unmarshalling may return nullptr in test env)
+    OHOS::Rosen::RSSurfaceNodeConfig config;
+    config.SurfaceNodeName = "handle_test_node";
+    auto surfaceNode = OHOS::Rosen::RSSurfaceNode::Create(config, false);
+    data.WriteUint64(parentNodeId);
+    data.WriteBool(isAddNode);
+    data.WriteBool(hasSurfaceNode);
+    if (surfaceNode) {
+        surfaceNode->Marshalling(data);
+    }
+
+    int result = host->HandleUpdateDelegateContainerNode(data, reply);
+    EXPECT_EQ(result, 0);
+    delete host;
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_BrowserHost_OnRemoteRequest_UpdateDelegateContainerNode_009.
+ * @tc.desc: Test BrowserHost::OnRemoteRequest with code 6 (UPDATE_DELEGATE_CONTAINER_NODE).
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_BrowserHost_OnRemoteRequest_UpdateDelegateContainerNode_009,
+    TestSize.Level1)
+{
+    std::shared_ptr<AafwkBrowserHostAdapter> hostAdapter = nullptr;
+    auto host = new AafwkBrowserHostImpl(hostAdapter);
+    ASSERT_NE(host, nullptr);
+
+    uint32_t code = static_cast<uint32_t>(IBrowser::Message::UPDATE_DELEGATE_CONTAINER_NODE);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    data.WriteInterfaceToken(BrowserHost::GetDescriptor());
+    data.WriteUint64(700);
+    data.WriteBool(true);
+    data.WriteBool(false); // hasSurfaceNode=false
+
+    int result = host->OnRemoteRequest(code, data, reply, option);
+    EXPECT_EQ(result, 0);
+    delete host;
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_BrowserHostImpl_UpdateDelegateContainerNode_NotInMap_010.
+ * @tc.desc: Test AafwkBrowserHostImpl::UpdateDelegateContainerNode when parentNodeId
+ *           is not in rsUIContextMap_ (rsUIContext stays nullptr).
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_BrowserHostImpl_UpdateDelegateContainerNode_NotInMap_010,
+    TestSize.Level1)
+{
+    std::shared_ptr<AafwkBrowserHostAdapter> hostAdapter = nullptr;
+    auto host = new AafwkBrowserHostImpl(hostAdapter);
+    ASSERT_NE(host, nullptr);
+
+    // rsUIContextMap_ is empty, rsUIContext will be nullptr
+    // UpdateDelegateContainerNodeOnClient will early-return since rsUIContext is nullptr
+    host->UpdateDelegateContainerNode(999, nullptr, true);
+    EXPECT_NE(host, nullptr);
+    delete host;
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_BrowserHostImpl_UpdateDelegateContainerNode_InMap_011.
+ * @tc.desc: Test AafwkBrowserHostImpl::UpdateDelegateContainerNode when parentNodeId
+ *           is in rsUIContextMap_ (rsUIContext is nullptr from map).
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_BrowserHostImpl_UpdateDelegateContainerNode_InMap_011, TestSize.Level1)
+{
+    std::shared_ptr<AafwkBrowserHostAdapter> hostAdapter = nullptr;
+    auto host = new AafwkBrowserHostImpl(hostAdapter);
+    ASSERT_NE(host, nullptr);
+
+    // Pre-populate rsUIContextMap_ with a nullptr entry
+    uint64_t parentNodeId = 800;
+    host->rsUIContextMap_[parentNodeId] = nullptr;
+    // rsUIContext is nullptr from map, surfaceNode is nullptr
+    // UpdateDelegateContainerNodeOnClient -> RemoveDelegateContainerNodeOnClient will early-return
+    host->UpdateDelegateContainerNode(parentNodeId, nullptr, false);
+    EXPECT_NE(host, nullptr);
+    delete host;
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_BrowserHostImpl_QueryRenderSurface_ContextTokenEmpty_012.
+ * @tc.desc: Test QueryRenderSurface when delegate_context_token is empty,
+ *           rsUIContext stays nullptr but rsUIContextMap_ and surfaceIdToNodeId_ are populated.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_BrowserHostImpl_QueryRenderSurface_ContextTokenEmpty_012,
+    TestSize.Level1)
+{
+    class MockBrowserHostAdapterTokenEmpty : public AafwkBrowserHostAdapter {
+    public:
+        void* GetSurfaceFromKernel(int32_t surface_id) override {
+            auto cSurface = IConsumerSurface::Create("test_token_empty");
+            auto producer = cSurface->GetProducer();
+            auto pSurface = Surface::CreateSurfaceAsProducer(producer);
+            OHNativeWindow* window = ::CreateNativeWindowFromSurface(&pSurface);
+            if (window && window->surface) {
+                window->surface->SetUserData("delegate_node_id", std::to_string(TEST_DELEGATE_NODE_ID));
+                window->surface->SetUserData("delegate_context_token", "");
+            }
+            return window;
+        }
+        void DestroySurfaceFromKernel(int32_t surface_id) override {}
+        void* GetSurfaceFromKernelWithRef(int32_t surface_id) override {
+            return GetSurfaceFromKernel(surface_id);
+        }
+    };
+
+    auto mockHostAdapter = std::make_shared<MockBrowserHostAdapterTokenEmpty>();
+    auto host = new AafwkBrowserHostImpl(mockHostAdapter);
+    ASSERT_NE(host, nullptr);
+
+    int32_t surfaceId = 1;
+    uint64_t nodeId = 0;
+    auto result = host->QueryRenderSurface(surfaceId, nodeId);
+    EXPECT_NE(result.first, nullptr);
+    EXPECT_EQ(nodeId, TEST_DELEGATE_NODE_ID);
+
+    // Verify maps are populated
+    EXPECT_EQ(host->surfaceIdToNodeId_.count(surfaceId), 1u);
+    EXPECT_EQ(host->rsUIContextMap_.count(TEST_DELEGATE_NODE_ID), 1u);
+    EXPECT_EQ(host->rsUIContextMap_[TEST_DELEGATE_NODE_ID], nullptr);
+
+    delete host;
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_BrowserHostImpl_QueryRenderSurface_ContextTokenZero_013.
+ * @tc.desc: Test QueryRenderSurface when delegate_context_token is "0",
+ *           parseUint64 succeeds but contextToken==0, rsUIContext stays nullptr.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_BrowserHostImpl_QueryRenderSurface_ContextTokenZero_013,
+    TestSize.Level1)
+{
+    class MockBrowserHostAdapterTokenZero : public AafwkBrowserHostAdapter {
+    public:
+        void* GetSurfaceFromKernel(int32_t surface_id) override {
+            auto cSurface = IConsumerSurface::Create("test_token_zero");
+            auto producer = cSurface->GetProducer();
+            auto pSurface = Surface::CreateSurfaceAsProducer(producer);
+            OHNativeWindow* window = ::CreateNativeWindowFromSurface(&pSurface);
+            if (window && window->surface) {
+                window->surface->SetUserData("delegate_node_id", std::to_string(TEST_DELEGATE_NODE_ID));
+                window->surface->SetUserData("delegate_context_token", "0");
+            }
+            return window;
+        }
+        void DestroySurfaceFromKernel(int32_t surface_id) override {}
+        void* GetSurfaceFromKernelWithRef(int32_t surface_id) override {
+            return GetSurfaceFromKernel(surface_id);
+        }
+    };
+
+    auto mockHostAdapter = std::make_shared<MockBrowserHostAdapterTokenZero>();
+    auto host = new AafwkBrowserHostImpl(mockHostAdapter);
+    ASSERT_NE(host, nullptr);
+
+    int32_t surfaceId = 1;
+    uint64_t nodeId = 0;
+    auto result = host->QueryRenderSurface(surfaceId, nodeId);
+    EXPECT_NE(result.first, nullptr);
+    EXPECT_EQ(host->rsUIContextMap_[TEST_DELEGATE_NODE_ID], nullptr);
+
+    delete host;
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_BrowserHostImpl_QueryRenderSurface_ContextTokenInvalid_014.
+ * @tc.desc: Test QueryRenderSurface when delegate_context_token is non-numeric,
+ *           parseUint64 fails, rsUIContext stays nullptr.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_BrowserHostImpl_QueryRenderSurface_ContextTokenInvalid_014,
+    TestSize.Level1)
+{
+    class MockBrowserHostAdapterTokenInvalid : public AafwkBrowserHostAdapter {
+    public:
+        void* GetSurfaceFromKernel(int32_t surface_id) override {
+            auto cSurface = IConsumerSurface::Create("test_token_invalid");
+            auto producer = cSurface->GetProducer();
+            auto pSurface = Surface::CreateSurfaceAsProducer(producer);
+            OHNativeWindow* window = ::CreateNativeWindowFromSurface(&pSurface);
+            if (window && window->surface) {
+                window->surface->SetUserData("delegate_node_id", std::to_string(TEST_DELEGATE_NODE_ID));
+                window->surface->SetUserData("delegate_context_token", "not_a_number");
+            }
+            return window;
+        }
+        void DestroySurfaceFromKernel(int32_t surface_id) override {}
+        void* GetSurfaceFromKernelWithRef(int32_t surface_id) override {
+            return GetSurfaceFromKernel(surface_id);
+        }
+    };
+
+    auto mockHostAdapter = std::make_shared<MockBrowserHostAdapterTokenInvalid>();
+    auto host = new AafwkBrowserHostImpl(mockHostAdapter);
+    ASSERT_NE(host, nullptr);
+
+    int32_t surfaceId = 1;
+    uint64_t nodeId = 0;
+    auto result = host->QueryRenderSurface(surfaceId, nodeId);
+    EXPECT_NE(result.first, nullptr);
+    EXPECT_EQ(host->rsUIContextMap_[TEST_DELEGATE_NODE_ID], nullptr);
+
+    delete host;
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_BrowserHostImpl_DestroyRenderSurface_MapCleanup_015.
+ * @tc.desc: Test DestroyRenderSurface cleans up rsUIContextMap_ and surfaceIdToNodeId_
+ *           when surfaceId exists in surfaceIdToNodeId_.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_BrowserHostImpl_DestroyRenderSurface_MapCleanup_015, TestSize.Level1)
+{
+    auto mockHostAdapter = std::make_shared<AafwkBrowserHostAdapterImpl>();
+    auto host = new AafwkBrowserHostImpl(mockHostAdapter);
+    ASSERT_NE(host, nullptr);
+
+    int32_t surfaceId = 42;
+    uint64_t nodeId = 999;
+    // Pre-populate maps
+    host->surfaceIdToNodeId_[surfaceId] = nodeId;
+    host->rsUIContextMap_[nodeId] = nullptr;
+
+    // DestroyRenderSurface will clean up maps
+    host->DestroyRenderSurface(surfaceId);
+
+    // Verify maps are cleaned up
+    EXPECT_EQ(host->surfaceIdToNodeId_.count(surfaceId), 0u);
+    EXPECT_EQ(host->rsUIContextMap_.count(nodeId), 0u);
+
+    delete host;
+}
+
+/**
+ * @tc.name: NWebAafwkAdapter_BrowserHostImpl_DestroyRenderSurface_NotInMap_016.
+ * @tc.desc: Test DestroyRenderSurface when surfaceId is not in surfaceIdToNodeId_,
+ *           should not crash and maps remain unchanged.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(NWebAafwkAdapterTest, NWebAafwkAdapter_BrowserHostImpl_DestroyRenderSurface_NotInMap_016, TestSize.Level1)
+{
+    auto mockHostAdapter = std::make_shared<AafwkBrowserHostAdapterImpl>();
+    auto host = new AafwkBrowserHostImpl(mockHostAdapter);
+    ASSERT_NE(host, nullptr);
+
+    int32_t surfaceId = 99;
+    // surfaceIdToNodeId_ does not contain surfaceId
+    host->DestroyRenderSurface(surfaceId);
+    // No crash, maps remain empty
+    EXPECT_EQ(host->surfaceIdToNodeId_.count(surfaceId), 0u);
+
+    delete host;
+}
+
 }

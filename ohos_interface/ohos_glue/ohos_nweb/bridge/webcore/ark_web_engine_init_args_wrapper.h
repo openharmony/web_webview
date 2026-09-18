@@ -51,6 +51,7 @@ public:
 
     uint64_t GetSurfaceRSHandle() override;
 
+    uint64_t GetSurfaceRSUIContextToken() override;
 private:
     ArkWebRefPtr<ArkWebEngineInitArgs> ark_web_engine_init_args_;
 };

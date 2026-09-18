@@ -805,5 +805,70 @@ HWTEST_F(NwebHelperTest, NWebHelper_EnableAdvancedSecurityMode_004, TestSize.Lev
     EXPECT_TRUE(NWebHelper::Instance().securityOptions_->GetDisableWebAssembly());
 }
 
+/**
+ * @tc.name: NWebEngineInitArgs_SetParamsForDelegateCompositing_001
+ * @tc.desc: Test SetParamsForDelegateCompositing and GetSurfaceNodeId/GetSurfaceRSHandle/GetSurfaceRSUIContextToken.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(NwebHelperTest, NWebEngineInitArgs_SetParamsForDelegateCompositing_001, TestSize.Level1)
+{
+    std::shared_ptr<NWebEngineInitArgsImpl> initArgs = std::make_shared<NWebEngineInitArgsImpl>();
+    ASSERT_NE(initArgs, nullptr);
+
+    uint64_t nodeId = 123456;
+    uint64_t rsHandle = 789012;
+    uint64_t rsUIContextToken = 345678;
+    initArgs->SetParamsForDelegateCompositing(nodeId, rsHandle, rsUIContextToken);
+
+    EXPECT_EQ(initArgs->GetSurfaceNodeId(), nodeId);
+    EXPECT_EQ(initArgs->GetSurfaceRSHandle(), rsHandle);
+    EXPECT_EQ(initArgs->GetSurfaceRSUIContextToken(), rsUIContextToken);
+}
+
+/**
+ * @tc.name: NWebEngineInitArgs_SetParamsForDelegateCompositing_ZeroValues_002
+ * @tc.desc: Test SetParamsForDelegateCompositing with zero values and verify default state.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(NwebHelperTest, NWebEngineInitArgs_SetParamsForDelegateCompositing_ZeroValues_002, TestSize.Level1)
+{
+    std::shared_ptr<NWebEngineInitArgsImpl> initArgs = std::make_shared<NWebEngineInitArgsImpl>();
+    ASSERT_NE(initArgs, nullptr);
+
+    // Default values should be 0
+    EXPECT_EQ(initArgs->GetSurfaceNodeId(), 0u);
+    EXPECT_EQ(initArgs->GetSurfaceRSHandle(), 0u);
+    EXPECT_EQ(initArgs->GetSurfaceRSUIContextToken(), 0u);
+
+    // Set with zero values
+    initArgs->SetParamsForDelegateCompositing(0, 0, 0);
+    EXPECT_EQ(initArgs->GetSurfaceNodeId(), 0u);
+    EXPECT_EQ(initArgs->GetSurfaceRSHandle(), 0u);
+    EXPECT_EQ(initArgs->GetSurfaceRSUIContextToken(), 0u);
+}
+
+/**
+ * @tc.name: NWebEngineInitArgs_SetParamsForDelegateCompositing_LargeValues_003
+ * @tc.desc: Test SetParamsForDelegateCompositing with large uint64 values.
+ * @tc.type: FUNC
+ * @tc.require: issue#I16d68
+ */
+HWTEST_F(NwebHelperTest, NWebEngineInitArgs_SetParamsForDelegateCompositing_LargeValues_003, TestSize.Level1)
+{
+    std::shared_ptr<NWebEngineInitArgsImpl> initArgs = std::make_shared<NWebEngineInitArgsImpl>();
+    ASSERT_NE(initArgs, nullptr);
+
+    uint64_t nodeId = UINT64_MAX;
+    uint64_t rsHandle = UINT64_MAX - 1;
+    uint64_t rsUIContextToken = UINT64_MAX - 2;
+    initArgs->SetParamsForDelegateCompositing(nodeId, rsHandle, rsUIContextToken);
+
+    EXPECT_EQ(initArgs->GetSurfaceNodeId(), nodeId);
+    EXPECT_EQ(initArgs->GetSurfaceRSHandle(), rsHandle);
+    EXPECT_EQ(initArgs->GetSurfaceRSUIContextToken(), rsUIContextToken);
+}
+
 } // namespace OHOS::NWeb
 }

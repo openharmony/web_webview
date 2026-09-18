@@ -46,7 +46,7 @@ class RSC_EXPORT SurfaceControl : public RefBase {
 public:
     using BufferReleaseCallback = std::function<void(int releaseFenceFd)>;
     explicit SurfaceControl(std::shared_ptr<OHOS::Rosen::RSSurfaceNode> surfaceNode,
-        std::shared_ptr<OHOS::Rosen::RSNode> parentNode, bool isRootSurface);
+        std::shared_ptr<OHOS::Rosen::RSNode> parentNode, bool isRootSurface, uint64_t rosenWebNodeId);
     ~SurfaceControl() override;
     SurfaceControl(const SurfaceControl&) = delete;
     SurfaceControl& operator=(const SurfaceControl&) = delete;
@@ -58,6 +58,11 @@ public:
     static std::shared_ptr<OHOS::Rosen::RSUIContext> GetRSUIContext();
     static void SetConnectToRenderObject(OHOS::sptr<OHOS::IRemoteObject> rsHandle);
     static OHOS::sptr<OHOS::IRemoteObject> GetConnectToRenderObject();
+    static void AddDelegateContainerNodeOnClient(uint64_t parentNodeId,
+        const std::shared_ptr<Rosen::RSUIContext>& rsUIContext,
+        const std::shared_ptr<Rosen::RSSurfaceNode>& surfaceNode);
+    static void RemoveDelegateContainerNodeOnClient(uint64_t parentNodeId,
+        const std::shared_ptr<Rosen::RSUIContext>& rsUIContext);
 
     void SetParent(SurfaceControl* newParent);
     void SetVisibility(bool visibility);
@@ -75,15 +80,18 @@ public:
     void SetDisplayRect(float x, float y, float w, float h);
     bool IsRootSurface() const;
     void ClearBufferQueueCache(bool cleanAll);
+    uint64_t GetRosenWebNodeId() { return rosenWebNodeId_; }
 
 private:
     std::shared_ptr<OHOS::Rosen::RSSurfaceNode> surfaceNode_ = nullptr;
     std::shared_ptr<OHOS::Rosen::RSNode> parentNode_ = nullptr;
     bool isRootSurface_ = false;
+    uint64_t rosenWebNodeId_ = 0;
 
     static inline std::mutex rsUiContextMutex_;
     static inline OHOS::sptr<OHOS::IRemoteObject> connectToRender_ = nullptr;
     static inline std::shared_ptr<OHOS::Rosen::RSUIDirector> rsUIDirector_ = nullptr;
+    static std::map<uint64_t, std::shared_ptr<OHOS::Rosen::RSSurfaceNode>> delegateContainerNodeMap_;
 };
 } // namespace OHOS::NWeb
 

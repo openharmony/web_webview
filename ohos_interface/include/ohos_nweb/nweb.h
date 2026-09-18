@@ -121,6 +121,7 @@ public:
     virtual bool GetUseCloudControlAutoLayoutConfig() {return false;}
     virtual uint64_t GetSurfaceNodeId() { return 0; }
     virtual uint64_t GetSurfaceRSHandle() { return 0; }
+    virtual uint64_t GetSurfaceRSUIContextToken() { return 0; }
 };
 
 class OHOS_NWEB_EXPORT NWebOutputFrameCallback {

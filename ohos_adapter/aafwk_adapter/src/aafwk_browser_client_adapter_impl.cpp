@@ -26,6 +26,7 @@
 #include "ipc_types.h"
 #include "surface/window.h"
 #include "native_window.h"
+#include "ui/rs_surface_node.h"
 
 namespace OHOS::NWeb {
 const std::string DELEGATE_NODE_ID = "delegate_node_id";
@@ -180,6 +181,50 @@ std::string BrowserClient::QueryBufferTypeLeak(int32_t surface_id)
     return reply.ReadString();
 }
 
+void BrowserClient::UpdateDelegateContainerNode(uint64_t parentNodeId,
+    const std::shared_ptr<Rosen::RSSurfaceNode>& surfaceNode, bool isAddNode)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        WVLOG_E("DelegateTag Write token failed");
+        return;
+    }
+    if (!data.WriteUint64(parentNodeId)) {
+        WVLOG_E("DelegateTag Write parentNodeId failed");
+        return;
+    }
+    if (!data.WriteBool(isAddNode)) {
+        WVLOG_E("DelegateTag Write isAddNode failed");
+        return;
+    }
+
+    if (!data.WriteBool(surfaceNode != nullptr)) {
+        WVLOG_E("DelegateTag Write hasSurfaceNode failed");
+        return;
+    }
+
+    if (surfaceNode) {
+        if (!surfaceNode->Marshalling(data)) {
+            WVLOG_E("DelegateTag Marshalling surfaceNode failed");
+            return;
+        }
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        WVLOG_E("DelegateTag Remote is NULL.");
+        return;
+    }
+
+    int32_t ret = remote->SendRequest(static_cast<uint32_t>(IBrowser::Message::UPDATE_DELEGATE_CONTAINER_NODE),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        WVLOG_E("SendRequest failed, error code = %{public}d", ret);
+    }
+    return;
+}
+
 AafwkBrowserClientAdapterImpl::AafwkBrowserClientAdapterImpl() {}
 
 AafwkBrowserClientAdapterImpl& AafwkBrowserClientAdapterImpl::GetInstance()
@@ -293,5 +338,16 @@ std::string AafwkBrowserClientAdapterImpl::QueryBufferTypeLeak(int32_t surface_i
         return "";
     }
     return GetInstance().browserHost_->QueryBufferTypeLeak(surface_id);
+}
+
+void AafwkBrowserClientAdapterImpl::UpdateDelegateContainerNode(uint64_t parentNodeId,
+    const std::shared_ptr<Rosen::RSSurfaceNode>& surfaceNode, bool isAddNode)
+{
+    if (!GetInstance().browserHost_) {
+        WVLOG_E("DelegateTag browserHost_ is not exist!");
+        return;
+    }
+    GetInstance().browserHost_->UpdateDelegateContainerNode(parentNodeId, surfaceNode, isAddNode);
+    return;
 }
 } // namespace OHOS::NWeb
