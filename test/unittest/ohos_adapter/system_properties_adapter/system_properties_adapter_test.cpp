@@ -13,7 +13,12 @@
  * limitations under the License.
  */
 
+#include <atomic>
+#include <chrono>
+#include <condition_variable>
 #include <cstring>
+#include <mutex>
+#include <thread>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -53,21 +58,33 @@ class SystemPropertiesObserverTest : public SystemPropertiesObserver {
 
     void PropertiesUpdate(const char* value) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
         if (strcmp(value, "true") == 0) {
-            updateValue = true;
+            updateValue_ = true;
         } else if (strcmp(value, "false") == 0) {
-            updateValue = false;
+            updateValue_ = false;
         } else {
             WVLOG_E("SystemPropertiesObserverTest return value is invalid");
         }
+        cv_.notify_all();
     }
 
     bool UpdateValue()
     {
-        return updateValue;
+        return updateValue_.load();
     }
+
+    bool WaitForValue(bool expected, int timeoutMs = 2000)
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        return cv_.wait_for(lock, std::chrono::milliseconds(timeoutMs),
+            [this, expected] { return updateValue_.load() == expected; });
+    }
+
  private:
-    bool updateValue = false;
+    std::atomic<bool> updateValue_{false};
+    std::mutex mutex_;
+    std::condition_variable cv_;
 };
 
 /**
@@ -115,15 +132,19 @@ HWTEST_F(SystemPropertiesAdapterTest, SystemPropertiesAdapterTest_OptSystemPrope
     auto observer = std::make_shared<SystemPropertiesObserverTest>();
     system_properties_adapter.AttachSysPropObserver(PropertiesKey::PROP_RENDER_DUMP, observer.get());
     system("param set web.render.dump true");
+    EXPECT_TRUE(observer->WaitForValue(true));
     bool resultFirst = observer->UpdateValue();
     EXPECT_TRUE(resultFirst);
     system("param set web.render.dump false");
+    EXPECT_TRUE(observer->WaitForValue(false));
     bool resultSecond = observer->UpdateValue();
     EXPECT_FALSE(resultSecond);
 
     system_properties_adapter.DetachSysPropObserver(PropertiesKey::PROP_RENDER_DUMP, nullptr);
     system_properties_adapter.DetachSysPropObserver(PropertiesKey::PROP_RENDER_DUMP, observer.get());
     system("param set web.render.dump true");
+    // After detach, observer should not receive callback; wait briefly then verify
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
     bool resultThird = observer->UpdateValue();
     EXPECT_FALSE(resultThird);
 }
