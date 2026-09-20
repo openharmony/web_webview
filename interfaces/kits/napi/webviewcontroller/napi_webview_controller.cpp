@@ -19,6 +19,7 @@
 #include <cctype>
 #include <chrono>
 #include <climits>
+#include <cmath>
 #include <cstdint>
 #include <regex>
 #include <securec.h>
@@ -901,6 +902,8 @@ napi_value NapiWebviewController::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setUserAgentMetadata", NapiWebviewController::SetUserAgentMetadata),
         DECLARE_NAPI_FUNCTION("getUserAgentMetadata", NapiWebviewController::GetUserAgentMetadata),
         DECLARE_NAPI_FUNCTION("getLastPostMessageURL", NapiWebviewController::GetLastPostMessageURL),
+        DECLARE_NAPI_FUNCTION("setZoomFactor", NapiWebviewController::SetZoomFactor),
+        DECLARE_NAPI_FUNCTION("getZoomFactor", NapiWebviewController::GetZoomFactor),
     };
     napi_value constructor = nullptr;
     napi_define_class(env, WEBVIEW_CONTROLLER_CLASS_NAME.c_str(), WEBVIEW_CONTROLLER_CLASS_NAME.length(),
@@ -8957,6 +8960,79 @@ napi_value NapiWebviewController::GetLastPostMessageURL(napi_env env, napi_callb
 
     std::string lastPostMessageUrl = webviewController->GetLastPostMessageURL();
     napi_create_string_utf8(env, lastPostMessageUrl.c_str(), lastPostMessageUrl.length(), &result);
+    return result;
+}
+
+napi_value NapiWebviewController::SetZoomFactor(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
+    size_t argc = INTEGER_ONE;
+    napi_value argv[INTEGER_ONE] = { 0 };
+
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (argc != INTEGER_ONE) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::PARAM_NUMBERS_ERROR_ONE, "one"));
+        return result;
+    }
+    double zoomFactor = 0.0;
+    if (!NapiParseUtils::ParseDouble(env, argv[0], zoomFactor)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "zoomFactor", "number"));
+        return result;
+    }
+    if (!std::isfinite(zoomFactor)) {
+        BusinessError::ThrowErrorByErrcode(env, PARAM_CHECK_ERROR,
+            NWebError::FormatString(ParamCheckErrorMsgTemplate::TYPE_ERROR, "zoomFactor", "number"));
+        return result;
+    }
+
+    WebviewController *controller = nullptr;
+    napi_unwrap(env, thisVar, reinterpret_cast<void **>(&controller));
+    if (!controller || !controller->IsInit()) {
+        BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
+        return result;
+    }
+
+    ErrCode ret = controller->SetZoomFactor(zoomFactor);
+    if (ret != NO_ERROR) {
+        if (ret == NWEB_ERROR) {
+            WVLOG_E("SetZoomFactor failed.");
+            return result;
+        }
+        BusinessError::ThrowErrorByErrcode(env, ret);
+    }
+
+    NAPI_CALL(env, napi_get_undefined(env, &result));
+    return result;
+}
+
+napi_value NapiWebviewController::GetZoomFactor(napi_env env, napi_callback_info info)
+{
+    napi_value result = nullptr;
+    napi_value thisVar = nullptr;
+
+    napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, nullptr);
+    WebviewController *controller = nullptr;
+    napi_unwrap(env, thisVar, reinterpret_cast<void **>(&controller));
+    if (!controller || !controller->IsInit()) {
+        BusinessError::ThrowErrorByErrcode(env, INIT_ERROR);
+        return result;
+    }
+
+    double zoomFactor = 1.0;
+    ErrCode ret = controller->GetZoomFactor(zoomFactor);
+    if (ret != NO_ERROR) {
+        if (ret == NWEB_ERROR) {
+            WVLOG_E("GetZoomFactor failed.");
+            return result;
+        }
+        BusinessError::ThrowErrorByErrcode(env, ret);
+        return result;
+    }
+
+    NAPI_CALL(env, napi_create_double(env, zoomFactor, &result));
     return result;
 }
 } // namespace NWeb

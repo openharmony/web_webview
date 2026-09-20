@@ -23,6 +23,7 @@ ohos_unittest("napi_common_test") {
   sources = [
     "napi_parse_utils_unittest.cpp",
     "napi_webview_controller_test.cpp",
+    "webview_controller_zoom_factor_test.cpp",
   ]
 
   include_dirs = [
@@ -38,10 +39,13 @@ ohos_unittest("napi_common_test") {
     "$webview_path/interfaces/kits/napi/webviewcontroller",
     "$target_gen_dir/protos",
     "$webview_path/interfaces/native",
+    "$webview_path/test/unittest/common",
     "../../../ohos_adapter/ohos_resource_adapter/include",
   ]
 
   use_exceptions = true
+
+  defines = [ "WEBVIEW_UNIT_TEST" ]
 
   deps = [
     "$webview_path/interfaces/native:ohweb",
@@ -62,6 +66,7 @@ ohos_unittest("napi_common_test") {
     "common_event_service:cesfwk_innerkits",
     "googletest:gmock_main",
     "googletest:gtest_main",
+    "graphic_2d:librender_service_client",
     "hilog:libhilog",
     "image_framework:image",
     "image_framework:image_native",

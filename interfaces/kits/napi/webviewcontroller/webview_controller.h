@@ -39,6 +39,11 @@
 
 namespace OHOS {
 namespace NWeb {
+// Browser zoom factor boundaries shared by the napi/ani binding layers.
+// Values beyond the range are clamped to the boundary.
+constexpr double MIN_BROWSER_ZOOM_FACTOR = 0.25;
+constexpr double MAX_BROWSER_ZOOM_FACTOR = 5.0;
+
 enum class WebHitTestType : int {
     EDIT = 0,
     EMAIL,
@@ -527,6 +532,10 @@ public:
     std::shared_ptr<NWebUserAgentMetadata> GetUserAgentMetadata(const std::string& userAgent);
 
     std::string GetLastPostMessageURL();
+
+    ErrCode SetZoomFactor(double factor);
+
+    ErrCode GetZoomFactor(double& factor);
 
 private:
     int ConverToWebHitTestType(int hitType);

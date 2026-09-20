@@ -879,6 +879,8 @@ public:
      * @param param The parameter map containing video status details.
      */
     void OnVideoStatusChanged(const int action, const ArkWebStringMap &param) override;
+
+    void OnZoomFactorChanged(double old_zoom_factor, double new_zoom_factor) override;
 private:
     std::shared_ptr<OHOS::NWeb::NWebHandler> nweb_handler_;
 };

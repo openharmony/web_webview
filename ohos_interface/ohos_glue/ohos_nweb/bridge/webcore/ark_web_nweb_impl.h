@@ -2109,6 +2109,9 @@ public:
     ArkWebRefPtr<ArkWebAccessibilityNodeInfo> GetAccessibilityNodeInfoByParams(
         int64_t accessibility_id, int32_t direction, int32_t element_type, const ArkWebStringMap& params) override;
 
+    void SetZoomFactor(double zoom_factor) override;
+    double GetZoomFactor() override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_nweb_;
 };

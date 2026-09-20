@@ -454,6 +454,8 @@ private:
     static napi_value SetUserAgentMetadata(napi_env env, napi_callback_info info);
     static napi_value GetUserAgentMetadata(napi_env env, napi_callback_info info);
     static napi_value GetLastPostMessageURL(napi_env env, napi_callback_info info);
+    static napi_value SetZoomFactor(napi_env env, napi_callback_info info);
+    static napi_value GetZoomFactor(napi_env env, napi_callback_info info);
 };
 
 class ArkWebTransfer {

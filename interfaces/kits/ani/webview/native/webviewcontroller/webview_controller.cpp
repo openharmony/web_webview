@@ -15,6 +15,8 @@
 
 #include "webview_controller.h"
 
+#include <algorithm>
+#include <cmath>
 #include <memory>
 #include <unordered_map>
 #include <securec.h>
@@ -59,6 +61,8 @@ namespace OHOS {
 namespace NWeb {
 namespace {
 constexpr uint32_t URL_MAXIMUM = 2 * 1024 * 1024;
+constexpr double MIN_BROWSER_ZOOM_FACTOR = 0.25;
+constexpr double MAX_BROWSER_ZOOM_FACTOR = 5.0;
 
 struct WaitForAttachParam {
     arkts::concurrency_helpers::AsyncWork* asyncWork;
@@ -2649,6 +2653,30 @@ std::string WebviewController::GetLastPostMessageURL()
     }
 
     return nweb_ptr->GetLastPostMessageURL();
+}
+
+ErrCode WebviewController::SetZoomFactor(double factor)
+{
+    if (!std::isfinite(factor)) {
+        return PARAM_CHECK_ERROR;
+    }
+    factor = std::clamp(factor, MIN_BROWSER_ZOOM_FACTOR, MAX_BROWSER_ZOOM_FACTOR);
+    auto nwebPtr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nwebPtr) {
+        return INIT_ERROR;
+    }
+    nwebPtr->SetZoomFactor(factor);
+    return NWebError::NO_ERROR;
+}
+
+ErrCode WebviewController::GetZoomFactor(double& factor)
+{
+    auto nwebPtr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nwebPtr) {
+        return INIT_ERROR;
+    }
+    factor = nwebPtr->GetZoomFactor();
+    return NWebError::NO_ERROR;
 }
 } // namespace NWeb
 } // namespace OHOS

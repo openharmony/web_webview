@@ -1090,6 +1090,8 @@ export default namespace webview {
             return target;
         }
         native getLastPostMessageURL(): string;
+        native setZoomFactor(zoomFactor: double): void;
+        native getZoomFactor(): double;
     }
 
     export class jsProxyCallbackWrapper {
