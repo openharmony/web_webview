@@ -19,6 +19,8 @@
 #include <unordered_map>
 #include <securec.h>
 #include <regex>
+#include <algorithm>
+#include <cmath>
 
 #include "application_context.h"
 #include "arkweb_utils.h"
@@ -2838,6 +2840,32 @@ std::string WebviewController::GetLastPostMessageURL()
     }
 
     return nweb_ptr->GetLastPostMessageURL();
+}
+
+ErrCode WebviewController::SetZoomFactor(double factor)
+{
+    if (!std::isfinite(factor)) {
+        return PARAM_CHECK_ERROR;
+    }
+    factor = std::clamp(factor, MIN_BROWSER_ZOOM_FACTOR, MAX_BROWSER_ZOOM_FACTOR);
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return INIT_ERROR;
+    }
+    nweb_ptr->SetZoomFactor(factor);
+
+    return NWebError::NO_ERROR;
+}
+
+ErrCode WebviewController::GetZoomFactor(double& factor)
+{
+    auto nweb_ptr = NWebHelper::Instance().GetNWeb(nwebId_);
+    if (!nweb_ptr) {
+        return INIT_ERROR;
+    }
+    factor = nweb_ptr->GetZoomFactor();
+
+    return NWebError::NO_ERROR;
 }
 } // namespace NWeb
 } // namespace OHOS

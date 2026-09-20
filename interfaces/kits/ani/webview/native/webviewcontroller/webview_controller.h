@@ -497,6 +497,10 @@ public:
 
     std::string GetLastPostMessageURL();
 
+    ErrCode SetZoomFactor(double factor);
+
+    ErrCode GetZoomFactor(double& factor);
+
 private:
     int ConverToWebHitTestType(int hitType);
 

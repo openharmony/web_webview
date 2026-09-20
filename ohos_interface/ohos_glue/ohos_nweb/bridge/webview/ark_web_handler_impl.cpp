@@ -1265,4 +1265,9 @@ bool ArkWebHandlerImpl::OnNestedFling(float& velocity_x, float& velocity_y)
 {
     return nweb_handler_->OnNestedFling(velocity_x, velocity_y);
 }
+
+void ArkWebHandlerImpl::OnZoomFactorChanged(double old_zoom_factor, double new_zoom_factor)
+{
+    nweb_handler_->OnZoomFactorChanged(old_zoom_factor, new_zoom_factor);
+}
 } // namespace OHOS::ArkWeb

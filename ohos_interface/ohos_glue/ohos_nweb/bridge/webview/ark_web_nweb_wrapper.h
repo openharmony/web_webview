@@ -2117,6 +2117,9 @@ public:
         int64_t accessibility_id, int32_t direction, int32_t element_type,
         const std::map<std::string, std::string>& params) override;
 
+    void SetZoomFactor(double zoom_factor) override;
+    double GetZoomFactor() override;
+
 private:
     ArkWebRefPtr<ArkWebNWeb> ark_web_nweb_;
 };

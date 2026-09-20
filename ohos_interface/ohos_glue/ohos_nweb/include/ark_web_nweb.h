@@ -2402,6 +2402,27 @@ public:
      */
     /*--ark web()--*/
     virtual bool GetSubframeErrorPageEnabled() = 0;
+
+    // Keep newly added virtual methods at the end of this cross-library
+    // interface so existing vtable slots remain ABI-compatible.
+    /**
+     * @brief Sets the browser zoom level for this NWeb. Both text and images
+     *        are scaled and the page is re-laid out (reflow).
+     *
+     * @param zoom_factor: the browser zoom factor to set, in the range
+     *        [0.25, 5.0]. Values beyond the range are clamped to the boundary.
+     */
+    /*--ark web()--*/
+    virtual void SetZoomFactor(double zoom_factor) = 0;
+
+    /**
+     * @brief Gets the current browser zoom level for this NWeb.
+     *
+     * @return double: the current browser zoom factor, in the range
+     *        [0.25, 5.0]. The default value is 1.0.
+     */
+    /*--ark web()--*/
+    virtual double GetZoomFactor() = 0;
 };
 
 } // namespace OHOS::ArkWeb

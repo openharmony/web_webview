@@ -1888,4 +1888,14 @@ ArkWebRefPtr<ArkWebAccessibilityNodeInfo> ArkWebNWebImpl::GetAccessibilityNodeIn
 
     return new ArkWebAccessibilityNodeInfoImpl(nweb_accessibility_node_info);
 }
+
+void ArkWebNWebImpl::SetZoomFactor(double zoom_factor)
+{
+    nweb_nweb_->SetZoomFactor(zoom_factor);
+}
+
+double ArkWebNWebImpl::GetZoomFactor()
+{
+    return nweb_nweb_->GetZoomFactor();
+}
 } // namespace OHOS::ArkWeb

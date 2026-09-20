@@ -2233,4 +2233,14 @@ std::shared_ptr<OHOS::NWeb::NWebAccessibilityNodeInfo> ArkWebNWebWrapper::GetAcc
 
     return std::make_shared<ArkWebAccessibilityNodeInfoWrapper>(ark_web_accessibility_node_info);
 }
+
+void ArkWebNWebWrapper::SetZoomFactor(double zoom_factor)
+{
+    ark_web_nweb_->SetZoomFactor(zoom_factor);
+}
+
+double ArkWebNWebWrapper::GetZoomFactor()
+{
+    return ark_web_nweb_->GetZoomFactor();
+}
 } // namespace OHOS::ArkWeb

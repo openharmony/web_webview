@@ -1527,6 +1527,19 @@ public:
      * @param param The parameters related to the video status change.
      */
     virtual void OnVideoStatusChanged(const int action, const std::map<std::string, std::string> &param) {}
+
+    // Keep newly added virtual methods at the end of this cross-library
+    // interface so existing vtable slots remain ABI-compatible.
+    /**
+     * @brief Called when the browser zoom factor of the page changes.
+     *
+     * Triggered only by browser zoom level changes; page display scale
+     * changes are notified by OnScaleChanged instead.
+     *
+     * @param oldZoomFactor the browser zoom factor before the change.
+     * @param newZoomFactor the browser zoom factor after the change.
+     */
+    virtual void OnZoomFactorChanged(double oldZoomFactor, double newZoomFactor) {}
 };
 
 } // namespace OHOS::NWeb

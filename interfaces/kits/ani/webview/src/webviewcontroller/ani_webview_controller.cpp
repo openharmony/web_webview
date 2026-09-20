@@ -14,6 +14,7 @@
  */
 
 #include <array>
+#include <cmath>
 #include <iostream>
 
 #ifndef WEBVIEW_UNIT_TEST
@@ -7740,6 +7741,56 @@ static ani_int InnerGetWebDebuggingPort(ani_env* env, ani_object object)
     return static_cast<ani_int>(webDebuggingPort);
 }
 
+WEBVIEW_ANI_STATIC void SetZoomFactor(ani_env *env, ani_object object, ani_double zoom_factor)
+{
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return;
+    }
+    if (!std::isfinite(zoom_factor)) {
+        AniBusinessError::ThrowErrorByErrCode(env, PARAM_CHECK_ERROR);
+        return;
+    }
+    ErrCode ret = controller->SetZoomFactor(zoom_factor);
+    if (ret != NO_ERROR) {
+        if (ret == NWEB_ERROR) {
+            WVLOG_E("SetZoomFactor failed.");
+            return;
+        }
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+    }
+}
+
+WEBVIEW_ANI_STATIC ani_double GetZoomFactor(ani_env *env, ani_object object)
+{
+    ani_double result = 0;
+    if (!env) {
+        WVLOG_E("env is nullptr");
+        return result;
+    }
+    auto* controller = reinterpret_cast<WebviewController *>(AniParseUtils::Unwrap(env, object));
+    if (!controller || !controller->IsInit()) {
+        AniBusinessError::ThrowErrorByErrCode(env, INIT_ERROR);
+        return result;
+    }
+    double zoomFactor = 1.0;
+    ErrCode ret = controller->GetZoomFactor(zoomFactor);
+    if (ret != NO_ERROR) {
+        if (ret == NWEB_ERROR) {
+            WVLOG_E("GetZoomFactor failed.");
+            return result;
+        }
+        AniBusinessError::ThrowErrorByErrCode(env, ret);
+        return result;
+    }
+    return zoomFactor;
+}
+
 ani_status StsWebviewControllerInit(ani_env *env)
 {
     WVLOG_D("[DOWNLOAD] StsWebviewControllerInit");
@@ -7983,6 +8034,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function {
             "getUserAgentClientHintsEnabled", nullptr, reinterpret_cast<void*>(GetUserAgentClientHintsEnabled) },
         ani_native_function { "setSocketIdleTimeout", nullptr, reinterpret_cast<void *>(SetSocketIdleTimeout) },
+        ani_native_function { "setZoomFactor", nullptr, reinterpret_cast<void *>(SetZoomFactor) },
+        ani_native_function { "getZoomFactor", nullptr, reinterpret_cast<void *>(GetZoomFactor) },
     };
     status = env->Class_BindStaticNativeMethods(webviewControllerCls, controllerStaticMethods.data(),
         controllerStaticMethods.size());

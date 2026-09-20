@@ -921,6 +921,8 @@ public:
      */
     void OnVideoStatusChanged(const int action, const std::map<std::string, std::string> &param) override;
 
+    void OnZoomFactorChanged(double old_zoom_factor, double new_zoom_factor) override;
+
 private:
     ArkWebRefPtr<ArkWebHandler> ark_web_handler_;
 };

@@ -2632,6 +2632,37 @@ public:
      * @brief Get whether iframe error page feature is enabled.
      */
     virtual bool GetSubframeErrorPageEnabled() { return false; }
+
+    // Keep newly added virtual methods at the end of this cross-library
+    // interface so existing vtable slots remain ABI-compatible.
+    /**
+     * @brief Sets the browser zoom level for this NWeb.
+     *
+     * Both text and images are scaled and the page is re-laid out (reflow).
+     * The zoom factor is clamped to the range [0.25, 5.0]. Values beyond the
+     * range are clamped to the boundary. Setting the same value as the current
+     * one is a no-op. The zoom state is isolated per NWeb instance and is not
+     * persisted. It is retained after in-page cross-document navigation.
+     *
+     * @param zoomFactor double: the browser zoom factor to set, in the range
+     * [0.25, 5.0].
+     */
+    virtual void SetZoomFactor(double zoomFactor) {}
+
+    /**
+     * @brief Gets the current browser zoom level for this NWeb.
+     *
+     * Returns the effective browser zoom factor, which is 1.0 when no zoom
+     * has been set. The value is isolated per NWeb instance and is not
+     * persisted.
+     *
+     * @return double: the current browser zoom factor, in the range
+     * [0.25, 5.0]. The default value is 1.0.
+     */
+    virtual double GetZoomFactor()
+    {
+        return 1.0;
+    }
 };
 } // namespace OHOS::NWeb
 

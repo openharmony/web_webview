@@ -1452,4 +1452,9 @@ void ArkWebHandlerWrapper::OnVideoStatusChanged(const int action, const std::map
     ark_web_handler_->OnVideoStatusChanged(action, paramStruct);
     ArkWebStringMapStructRelease(paramStruct);
 }
+
+void ArkWebHandlerWrapper::OnZoomFactorChanged(double old_zoom_factor, double new_zoom_factor)
+{
+    ark_web_handler_->OnZoomFactorChanged(old_zoom_factor, new_zoom_factor);
+}
 } // namespace OHOS::ArkWeb

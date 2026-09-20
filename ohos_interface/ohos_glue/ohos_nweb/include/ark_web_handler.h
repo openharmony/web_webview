@@ -1226,6 +1226,11 @@ public:
      */
     /*--ark web()--*/
     virtual void OnVideoStatusChanged(const int action, const ArkWebStringMap &param) = 0;
+
+    // Keep newly added virtual methods at the end of this cross-library
+    // interface so existing vtable slots remain ABI-compatible.
+    /*--ark web()--*/
+    virtual void OnZoomFactorChanged(double old_zoom_factor, double new_zoom_factor) = 0;
 };
 
 } // namespace OHOS::ArkWeb

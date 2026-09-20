@@ -221,7 +221,9 @@ public:
     explicit WebviewController(const std::string& tag = "")
         : tag_(tag), isInitialized_(false), onActiveCalled_(false), onInactiveCalled_(false), webId_(-1), scrollX_(0),
           scrollY_(0), scrollByCalled_(false), zoomOutCalled_(false), zoomInCalled_(false), zoomCalled_(false),
-          zoomOutReturnValue_(0), zoomInReturnValue_(0), zoomReturnValue_(0), getPageOffsetCalled_(false),
+          setZoomFactorCalled_(false), zoomOutReturnValue_(0), zoomInReturnValue_(0), zoomReturnValue_(0),
+          setZoomFactorReturnValue_(0), getZoomFactorCalled_(false), getZoomFactorReturnValue_(0),
+          getPageOffsetCalled_(false),
           pageDownCalled_(false), pageUpCalled_(false), getLastHitTestCalled_(false), getScrollOffsetCalled_(false),
           slideScrollCalled_(false), requestFocusCalled_(false)
     {
@@ -427,6 +429,20 @@ public:
     {
         zoomCalled_ = true;
         return zoomReturnValue_;
+    }
+
+    ErrCode SetZoomFactor(double factor)
+    {
+        setZoomFactorCalled_ = true;
+        lastZoomFactorArg_ = factor;
+        return setZoomFactorReturnValue_;
+    }
+
+    ErrCode GetZoomFactor(double& factor)
+    {
+        getZoomFactorCalled_ = true;
+        factor = mockZoomFactorValue_;
+        return getZoomFactorReturnValue_;
     }
 
     void RequestFocus()
@@ -1036,6 +1052,21 @@ public:
         zoomReturnValue_ = returnValue;
     }
 
+    void SetZoomFactorReturnValue(int returnValue)
+    {
+        setZoomFactorReturnValue_ = returnValue;
+    }
+
+    void SetZoomFactorMockValue(double value)
+    {
+        mockZoomFactorValue_ = value;
+    }
+
+    void SetGetZoomFactorReturnValue(int returnValue)
+    {
+        getZoomFactorReturnValue_ = returnValue;
+    }
+
     bool WasOnActiveCalled() const
     {
         return onActiveCalled_;
@@ -1065,6 +1096,12 @@ public:
         zoomOutReturnValue_ = 0;
         zoomInReturnValue_ = 0;
         zoomReturnValue_ = 0;
+        setZoomFactorCalled_ = false;
+        setZoomFactorReturnValue_ = 0;
+        lastZoomFactorArg_ = 0.0;
+        getZoomFactorCalled_ = false;
+        getZoomFactorReturnValue_ = 0;
+        mockZoomFactorValue_ = 1.0;
         getPageOffsetCalled_ = false;
         pageDownCalled_ = false;
         pageUpCalled_ = false;
@@ -1077,6 +1114,9 @@ public:
     bool WasZoomOutCalled() const { return zoomOutCalled_; }
     bool WasZoomInCalled() const { return zoomInCalled_; }
     bool WasZoomCalled() const { return zoomCalled_; }
+    bool WasSetZoomFactorCalled() const { return setZoomFactorCalled_; }
+    double GetLastZoomFactorArg() const { return lastZoomFactorArg_; }
+    bool WasGetZoomFactorCalled() const { return getZoomFactorCalled_; }
     bool WasGetPageOffsetCalled() const { return getPageOffsetCalled_; }
     bool WasPageDownCalled() const { return pageDownCalled_; }
     bool WasPageUpCalled() const { return pageUpCalled_; }
@@ -1110,9 +1150,15 @@ private:
     bool zoomOutCalled_;
     bool zoomInCalled_;
     bool zoomCalled_;
+    bool setZoomFactorCalled_;
     int zoomOutReturnValue_;
     int zoomInReturnValue_;
     int zoomReturnValue_;
+    int setZoomFactorReturnValue_;
+    double lastZoomFactorArg_ = 0.0;
+    bool getZoomFactorCalled_;
+    int getZoomFactorReturnValue_;
+    double mockZoomFactorValue_ = 1.0;
     bool getPageOffsetCalled_;
     bool pageDownCalled_;
     bool pageUpCalled_;
