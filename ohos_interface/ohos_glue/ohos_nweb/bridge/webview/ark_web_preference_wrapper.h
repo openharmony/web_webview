@@ -691,6 +691,12 @@ public:
      */
     void SetGestureFocusMode(int32_t mode) override;
 
+    /**
+     * @brief Set whether to support transform rotate and skew when reporting the visibility of
+     *        native embed. The default is false.
+     */
+    void SetTransformRotateAndSkewEnabled(bool enable) override;
+
 private:
     ArkWebRefPtr<ArkWebPreference> ark_web_preference_;
 };
