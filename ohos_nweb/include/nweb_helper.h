@@ -21,7 +21,6 @@
 #include <memory>
 #include <mutex>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include "nweb.h"
@@ -60,12 +59,6 @@ public:
     std::shared_ptr<NWebDataBase> GetDataBase();
     std::shared_ptr<NWebWebStorage> GetWebStorage();
     std::shared_ptr<NWeb> GetNWeb(int32_t nweb_id);
-#ifdef WEBVIEW_UNIT_TEST
-    void SetNWebEngineForTest(std::shared_ptr<NWebEngine> nwebEngine)
-    {
-        nwebEngine_ = std::move(nwebEngine);
-    }
-#endif
     void SetBundlePath(const std::string& path);
     void SetHttpDns(std::shared_ptr<NWebDOHConfig> config);
     void SetWebTag(int32_t nwebId, const char* webTag);
