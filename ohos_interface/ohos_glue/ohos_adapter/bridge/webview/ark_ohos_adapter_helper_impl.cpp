@@ -74,6 +74,7 @@
 #include "ohos_adapter/bridge/ark_surface_buffer_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_surface_control_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_system_properties_adapter_impl.h"
+#include "ohos_adapter/bridge/ark_vpe_video_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_vsync_adapter_impl.h"
 #include "ohos_adapter/bridge/ark_web_date_timezone_info_impl.h"
 #include "ohos_adapter/bridge/ark_window_adapter_impl.h"
@@ -483,6 +484,13 @@ ArkWebRefPtr<ArkHiViewDfxAdapter> ArkOhosAdapterHelperImpl::GetHiViewDfxAdapterI
     static NWeb::HiViewDfxAdapter& instance = real_.GetHiViewDfxAdapterInstance();
     static ArkWebRefPtr<ArkHiViewDfxAdapter> impl = new ArkHiViewDfxAdapterImpl(instance);
     return impl;
+}
+
+ArkWebRefPtr<ArkVpeVideoAdapter> ArkOhosAdapterHelperImpl::CreateVpeVideoAdapter()
+{
+    std::unique_ptr<NWeb::VpeVideoAdapter> adapter = real_.CreateVpeVideoAdapter();
+    std::shared_ptr<NWeb::VpeVideoAdapter> shared = std::move(adapter);
+    return new ArkVpeVideoAdapterImpl(shared);
 }
 
 } // namespace OHOS::ArkWeb

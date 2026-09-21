@@ -136,6 +136,8 @@ public:
 
     ArkWebRefPtr<ArkHiViewDfxAdapter> GetHiViewDfxAdapterInstance() override;
 
+    ArkWebRefPtr<ArkVpeVideoAdapter> CreateVpeVideoAdapter() override;
+
 private:
     NWeb::OhosAdapterHelper& real_;
 

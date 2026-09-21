@@ -240,6 +240,9 @@ public:
 
     /*--ark web()--*/
     virtual ArkWebRefPtr<ArkHiViewDfxAdapter> GetHiViewDfxAdapterInstance() = 0;
+
+    /*--ark web()--*/
+    virtual ArkWebRefPtr<ArkVpeVideoAdapter> CreateVpeVideoAdapter() = 0;
 };
 
 } // namespace OHOS::ArkWeb

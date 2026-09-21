@@ -31,6 +31,7 @@ declare_args() {
   webview_app_fwk_update_enable = true
   webview_api_metrics_enable = true
   webview_histogram_metrics_enable = true
+  webview_video_processing_engine_enable = false
 
   if (defined(global_parts_info) &&
       !defined(global_parts_info.resourceschedule_soc_perf)) {
@@ -48,6 +49,11 @@ declare_args() {
   if (defined(global_parts_info) &&
       !defined(global_parts_info.multimedia_player_framework)) {
     webview_media_player_enable = false
+  }
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.multimedia_video_processing_engine) &&
+      defined(global_parts_info.multimedia_video_processing_engine_ext)) {
+    webview_video_processing_engine_enable = true
   }
   if (defined(global_parts_info) &&
       (!defined(global_parts_info.multimedia_camera_framework) ||

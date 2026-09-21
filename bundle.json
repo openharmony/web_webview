@@ -87,6 +87,7 @@
                 "soc_perf",
                 "time_service",
                 "udmf",
+                "video_processing_engine",
                 "window_manager",
                 "netstack",
                 "protobuf",
