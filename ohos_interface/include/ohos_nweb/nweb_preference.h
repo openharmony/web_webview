@@ -695,7 +695,7 @@ public:
     virtual void SetGestureFocusMode(int32_t mode) {}
 
     /**
-     * Set whether to support transform rotate and skew when reporting the visibility of native embed.
+     * Set whether to support transform rotate and skew.
      * The default is false.
      */
     virtual void SetTransformRotateAndSkewEnabled(bool enable) {}
