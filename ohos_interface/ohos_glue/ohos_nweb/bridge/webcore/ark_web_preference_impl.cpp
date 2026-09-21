@@ -530,4 +530,11 @@ void ArkWebPreferenceImpl::SetGestureFocusMode(int32_t mode)
 {
     nweb_preference_->SetGestureFocusMode(mode);
 }
+
+void ArkWebPreferenceImpl::SetTransformRotateAndSkewEnabled(bool enable)
+{
+    if (nweb_preference_) {
+        nweb_preference_->SetTransformRotateAndSkewEnabled(enable);
+    }
+}
 } // namespace OHOS::ArkWeb

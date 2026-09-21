@@ -694,6 +694,12 @@ public:
      */
     void SetGestureFocusMode(int32_t mode) override;
 
+    /**
+     * @brief Set whether to support transform rotate and skew 
+     *        The default is false.
+     */
+    void SetTransformRotateAndSkewEnabled(bool enable) override;
+
 private:
     std::shared_ptr<OHOS::NWeb::NWebPreference> nweb_preference_;
 };

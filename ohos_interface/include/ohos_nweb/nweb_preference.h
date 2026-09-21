@@ -693,6 +693,12 @@ public:
      * Set the gesture focus mode.
      */
     virtual void SetGestureFocusMode(int32_t mode) {}
+
+    /**
+     * Set whether to support transform rotate and skew.
+     * The default is false.
+     */
+    virtual void SetTransformRotateAndSkewEnabled(bool enable) {}
 };
 
 } // namespace OHOS::NWeb

@@ -612,4 +612,11 @@ void ArkWebPreferenceWrapper::SetGestureFocusMode(int32_t mode)
         ark_web_preference_->SetGestureFocusMode(mode);
     }
 }
+
+void ArkWebPreferenceWrapper::SetTransformRotateAndSkewEnabled(bool enable)
+{
+    if (ark_web_preference_) {
+        ark_web_preference_->SetTransformRotateAndSkewEnabled(enable);
+    }
+}
 } // namespace OHOS::ArkWeb
