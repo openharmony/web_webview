@@ -7826,6 +7826,8 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function { "getPageOffset", nullptr, reinterpret_cast<void *>(GetPageOffset) },
         ani_native_function { "slideScroll", nullptr, reinterpret_cast<void *>(SlideScroll) },
         ani_native_function { "zoom", nullptr, reinterpret_cast<void *>(Zoom) },
+        ani_native_function { "setZoomFactor", nullptr, reinterpret_cast<void *>(SetZoomFactor) },
+        ani_native_function { "getZoomFactor", nullptr, reinterpret_cast<void *>(GetZoomFactor) },
         ani_native_function { "pageDown", nullptr, reinterpret_cast<void *>(PageDown) },
         ani_native_function { "pageUp", nullptr, reinterpret_cast<void *>(PageUp) },
         ani_native_function { "isAdsBlockEnabledForCurPage", nullptr,
@@ -8034,8 +8036,6 @@ ani_status StsWebviewControllerInit(ani_env *env)
         ani_native_function {
             "getUserAgentClientHintsEnabled", nullptr, reinterpret_cast<void*>(GetUserAgentClientHintsEnabled) },
         ani_native_function { "setSocketIdleTimeout", nullptr, reinterpret_cast<void *>(SetSocketIdleTimeout) },
-        ani_native_function { "setZoomFactor", nullptr, reinterpret_cast<void *>(SetZoomFactor) },
-        ani_native_function { "getZoomFactor", nullptr, reinterpret_cast<void *>(GetZoomFactor) },
     };
     status = env->Class_BindStaticNativeMethods(webviewControllerCls, controllerStaticMethods.data(),
         controllerStaticMethods.size());
