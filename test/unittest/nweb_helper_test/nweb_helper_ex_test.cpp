@@ -223,6 +223,12 @@ struct TestNWeb : public NWebMock {
     {
         return nullptr;
     }
+    void RegisterArkJSfunction(
+        const std::string& object_name, const std::vector<std::string>& method_list, const int32_t object_id) override
+    {}
+    void RegisterArkJSfunction(const std::string& object_name, const std::vector<std::string>& method_list,
+        const std::vector<std::string>& async_method_list, const int32_t object_id) override
+    {}
     void DragResize(uint32_t width, uint32_t height, uint32_t pre_height, uint32_t pre_width) override {}
 };
 
