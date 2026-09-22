@@ -936,13 +936,16 @@ void NWebHelper::SetBundlePath(const std::string& path)
 
 std::shared_ptr<NWeb> NWebHelper::CreateNWeb(std::shared_ptr<NWebCreateInfo> create_info)
 {
+    std::lock_guard<std::mutex> lock(lock_);
     if (nwebEngine_ == nullptr) {
         WVLOG_E("web engine is nullptr");
         return nullptr;
     }
 
     auto result = nwebEngine_->CreateNWeb(create_info);
-    initWebEngine_ = true;
+    if (result != nullptr) {
+        initWebEngine_ = true;
+    }
     return result;
 }
 
@@ -1634,7 +1637,7 @@ void NWebHelper::SetLazyInitializeWebEngine(bool lazy)
 bool NWebHelper::IsLazyInitializeWebEngine()
 {
     std::lock_guard<std::mutex> lock(lock_);
-    return lazyInitializeWebEngine_ && !initWebEngine_;
+    return lazyInitializeWebEngine_;
 }
 
 void NWebHelper::SetNWebActiveStatus(int32_t nwebId, bool nwebActiveStatus)

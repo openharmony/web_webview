@@ -182,9 +182,9 @@ private:
 private:
     int coreApiLevel_ = 0;
     int32_t socketIdleTimeout_ = 300;
-    bool initFlag_ = false;
+    std::atomic<bool> initFlag_ = false;
     bool autoPreconnectEnabled_ = true;
-    bool lazyInitializeWebEngine_ = false;
+    std::atomic<bool> lazyInitializeWebEngine_ = false;
     std::atomic<bool> initWebEngine_ = false;
     std::string bundlePath_;
     std::string customSchemeCmdLine_;
