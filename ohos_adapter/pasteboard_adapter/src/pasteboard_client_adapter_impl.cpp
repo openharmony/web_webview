@@ -17,6 +17,7 @@
 
 #include <mutex>
 #include <securec.h>
+#include <cinttypes>
 
 #include "application_context.h"
 #include "hisysevent_adapter.h"
@@ -237,6 +238,11 @@ bool PasteDataRecordAdapterImpl::SetImgData(std::shared_ptr<ClipBoardImageDataAd
     }
     uint64_t stride = static_cast<uint64_t>(imageData->GetWidth()) << 2;
     uint64_t bufferSize = stride * static_cast<uint64_t>(imageData->GetHeight());
+    size_t dataSize = imageData->GetDataSize();
+    if (dataSize == 0 || dataSize == SIZE_MAX || bufferSize > dataSize) {
+        WVLOG_E("buffer size mismatch, computed: %{public}" PRIu64 ", actual: %{public}zu", bufferSize, dataSize);
+        return false;
+    }
     uint32_t ret = pixelMap->WritePixels(reinterpret_cast<const uint8_t *>(imageData->GetData()), bufferSize);
     if (ret != Media::SUCCESS) {
         WVLOG_E("write pixel map failed %{public}u", ret);
