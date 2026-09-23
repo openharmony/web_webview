@@ -23,6 +23,7 @@
 #include "want.h"
 #include "web_native_messaging_common.h"
 #include "web_native_messaging_log.h"
+#include "web_native_messaging_extension_connect_info.h"
 
 namespace OHOS::NWeb {
 class InnerConnectIdMapKey {
@@ -191,15 +192,8 @@ public:
 
     void ResetAllFileDescriptors()
     {
-        if (fdRead_ >= 0) {
-            close(fdRead_);
-            fdRead_ = -1;
-        }
-
-        if (fdWrite_ >= 0) {
-            close(fdWrite_);
-            fdWrite_ = -1;
-        }
+        WnmCloseFdWithTag(fdRead_);
+        WnmCloseFdWithTag(fdWrite_);
     }
 
     bool IsConnected()

@@ -85,11 +85,14 @@ bool WNMEConnectionInfoParcel::Unmarshalling(MessageParcel& in, WNMEConnectionIn
         WNMLOG_E("fail read");
         return false;
     }
+    WnmExchangeFdOwnerTag(conn_info.fdRead);
     conn_info.fdWrite = in.ReadFileDescriptor();
     if (conn_info.fdWrite < 0) {
+        WnmCloseFdWithTag(conn_info.fdRead);
         WNMLOG_E("fail read");
         return false;
     }
+    WnmExchangeFdOwnerTag(conn_info.fdWrite);
     return true;
 }
 } // namespace NWeb

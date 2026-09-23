@@ -155,6 +155,7 @@ ConnectNativeRet ConnectionNativeRequest::FillRequestWithWant(const AAFwk::Want&
         return ConnectNativeRet::WANT_FORMAT_ERROR;
     }
     fdRead_ = readFd;
+    WnmExchangeFdOwnerTag(fdRead_);
 
     int32_t writeFd = -1;
     AAFwk::WantParams writePipeParams = want.GetParams().GetWantParams(WANT_WRITE_PIPE_PARAM_KEY);
@@ -164,6 +165,7 @@ ConnectNativeRet ConnectionNativeRequest::FillRequestWithWant(const AAFwk::Want&
         return ConnectNativeRet::WANT_FORMAT_ERROR;
     }
     fdWrite_ = writeFd;
+    WnmExchangeFdOwnerTag(fdWrite_);
     return ConnectNativeRet::SUCCESS;
 }
 

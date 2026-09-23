@@ -227,21 +227,25 @@ bool FindMethod(ani_env* env,
 }
 
 void ETSWebNativeMessagingExtension::InvokeCallback(
-    const char* methodName, const WNMEConnectionInfo& params)
+    const char* methodName, WNMEConnectionInfo& params)
 {
     auto env = etsRuntime_.GetAniEnv();
     if (env == nullptr) {
         WVLOG_E("env is nullptr");
+        // 未进入连接管理（AddConnection/RemoveConnection），需关闭本次事务持有的 fd 防泄漏
+        ConnectionManager::CloseConnectionFds(params);
         return;
     }
     if (!etsObj_) {
         WVLOG_E("etsObj_ is nullptr");
+        ConnectionManager::CloseConnectionFds(params);
         return;
     }
     ani_object object = etsObj_->aniObj;
     ani_method method = {};
     if (!FindMethod(env, method, methodName, CONNECTION_INFO_SIGNATUR)) {
         WVLOG_E("find method failed");
+        ConnectionManager::CloseConnectionFds(params);
         return;
     }
     ani_object info = ConnInfoToAni(env, params);
@@ -262,11 +266,15 @@ int32_t ETSWebNativeMessagingExtension::InvokeCallbackInMainThread(
 {
     if (handler_ == nullptr) {
         WNMLOG_E("handler_ is nullptr");
+        // 无法投递到主线程，params 持有的 fd 将被丢弃，先关闭防泄漏
+        WnmCloseFdWithTag(params.fdRead);
+        WnmCloseFdWithTag(params.fdWrite);
         return -1;
     }
     auto etsServiceExtension =
         std::static_pointer_cast<ETSWebNativeMessagingExtension>(shared_from_this());
-    auto task = [etsServiceExtension, methodName, data = params]() {
+    // mutable：data 为值拷贝，InvokeCallback 需要非 const 引用以便关闭 fd 后置 -1
+    auto task = [etsServiceExtension, methodName, data = params]() mutable {
         if (etsServiceExtension) {
             etsServiceExtension->InvokeCallback(methodName.c_str(), data);
         }
