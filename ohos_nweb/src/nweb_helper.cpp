@@ -1390,6 +1390,10 @@ std::shared_ptr<NWeb> NWebAdapterHelper::CreateNWeb(sptr<Surface> surface,
         WVLOG_E("fail to create nweb, input surface is nullptr");
         return nullptr;
     }
+    if (!initArgs) {
+        WVLOG_E("fail to create nweb, input initArgs is nullptr");
+        return nullptr;
+    }
     if (width > NWEB_SURFACE_MAX_WIDTH || height > NWEB_SURFACE_MAX_HEIGHT) {
         WVLOG_E("input size %{public}u*%{public}u is invalid.", width, height);
         return nullptr;

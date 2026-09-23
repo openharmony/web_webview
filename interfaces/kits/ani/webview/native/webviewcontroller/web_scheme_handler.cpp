@@ -614,6 +614,7 @@ void WebHttpBodyStream::ExecuteRead(uint8_t* buffer, int bytesRead)
 {
     WVLOG_D("WebHttpBodyStream::ExecuteRead");
     if (!env_) {
+        delete[] buffer;
         return;
     }
     if (bytesRead < 0) {
@@ -635,6 +636,7 @@ void WebHttpBodyStream::ExecuteRead(uint8_t* buffer, int bytesRead)
     WVLOG_D("WebHttpBodyStream::ExecuteRead task started");
     if (!asyncCtx->env) {
         WVLOG_E("WebHttpBodyStream::ExecuteRead asyncCtx or env is nullptr");
+        delete[] asyncCtx->buffer;
         delete asyncCtx;
         return;
     }
@@ -642,6 +644,7 @@ void WebHttpBodyStream::ExecuteRead(uint8_t* buffer, int bytesRead)
     void* bufferData = nullptr;
     if (env_->CreateArrayBuffer(asyncCtx->bytesRead, &bufferData, &arraybuffer) != ANI_OK) {
         WVLOG_E("WebHttpBodyStream::ExecuteRead CreateArrayBuffer failed");
+        delete[] asyncCtx->buffer;
         delete asyncCtx;
         return;
     }

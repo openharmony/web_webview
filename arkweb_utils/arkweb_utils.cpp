@@ -61,6 +61,7 @@ const std::string NWEB_RELRO_PATH = SHARED_RELRO_DIR + "/libwebviewchromium64.re
 const size_t RESERVED_VMA_SIZE = 512 * 1024 * 1024;
 const std::string DATA_MIGRATE_APP_ALL = "All";
 const std::string DATA_MIGRATE_APP_NONE = "None";
+static constexpr size_t MAX_ARRAY_SIZE = 10000;
 
 #if defined(webview_arm64)
 const std::string ARK_WEB_CORE_MOCK_HAP_LIB_PATH =
@@ -193,6 +194,11 @@ static void ProcessLegacyAppParam(const Json::Value& value)
         return;
     }
 
+    if (value.size() > MAX_ARRAY_SIZE) {
+        WVLOG_E("Array size exceeds limit for web.engine.legacyApp");
+        return;
+    }
+
     auto appSet = std::make_unique<std::unordered_set<std::string>>();
     for (const auto& item : value) {
         if (item.isString()) {
@@ -202,7 +208,10 @@ static void ProcessLegacyAppParam(const Json::Value& value)
         }
     }
 
-    g_legacyApp = std::move(appSet);
+    {
+        std::lock_guard<std::mutex> lock(g_appInfoMutex);
+        g_legacyApp = std::move(appSet);
+    }
     WVLOG_I("Successfully stored legacyApp in heap memory using smart pointer.");
 }
 
@@ -210,6 +219,11 @@ static void ProcessDataMigrateAppParam(const Json::Value& value)
 {
     if (!value.isArray()) {
         WVLOG_E("Unsupported type for param web.engine.dataMigrateApp, must be array");
+        return;
+    }
+
+    if (value.size() > MAX_ARRAY_SIZE) {
+        WVLOG_E("Array size exceeds limit for web.engine.dataMigrateApp");
         return;
     }
 
@@ -222,7 +236,10 @@ static void ProcessDataMigrateAppParam(const Json::Value& value)
         }
     }
 
-    g_dataMigrateApp = std::move(appSet);
+    {
+        std::lock_guard<std::mutex> lock(g_appInfoMutex);
+        g_dataMigrateApp = std::move(appSet);
+    }
     WVLOG_I("Successfully stored dataMigrateApp in heap memory using smart pointer.");
 }
 
@@ -348,18 +365,21 @@ static void ParseCloudCfg()
 
 void SelectWebcoreBeforeProcessRun(const std::string& appBundleName)
 {
-    if (g_legacyApp && g_legacyApp->find(appBundleName) != g_legacyApp->end()) {
-        g_cloudEnableAppVersion = static_cast<int>(ArkWebEngineType::LEGACY);
+    {
+        std::lock_guard<std::mutex> lock(g_appInfoMutex);
+        if (g_legacyApp && g_legacyApp->find(appBundleName) != g_legacyApp->end()) {
+            g_cloudEnableAppVersion = static_cast<int>(ArkWebEngineType::LEGACY);
+        }
+        g_legacyApp.reset();
     }
 
     g_activeEngineVersion = CalculateActiveWebEngineVersion();
-
-    g_legacyApp.reset();
 }
 
 bool IsDataMigrate(const std::string& appBundleName)
 {
     WVLOG_I("IsDataMigrate for app %{public}s.", appBundleName.c_str());
+    std::lock_guard<std::mutex> lock(g_appInfoMutex);
     if (g_dataMigrateApp && g_dataMigrateApp->find(DATA_MIGRATE_APP_NONE) != g_dataMigrateApp->end()) {
         return false;
     }

@@ -3362,6 +3362,9 @@ napi_value NapiWebviewController::GetHitTestValue(napi_env env, napi_callback_in
     std::shared_ptr<HitTestResult> nwebResult = webviewController->GetHitTestValue();
 
     napi_create_object(env, &result);
+    if (result == nullptr) {
+        return nullptr;
+    }
 
     napi_value type;
     if (nwebResult) {
