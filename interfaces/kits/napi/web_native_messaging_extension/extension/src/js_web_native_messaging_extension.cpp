@@ -211,7 +211,7 @@ bool CheckValueType(const napi_env& env, const napi_value& value, const napi_val
     return valuetype == type;
 }
 
-void JsWebNativeMessagingExtension::InvokeCallback(const char* methodName, const WNMEConnectionInfo& params)
+void JsWebNativeMessagingExtension::InvokeCallback(const char* methodName, WNMEConnectionInfo& params)
 {
     AbilityRuntime::HandleScope handleScope(jsRuntime_);
     napi_env env = jsRuntime_.GetNapiEnv();
@@ -220,10 +220,13 @@ void JsWebNativeMessagingExtension::InvokeCallback(const char* methodName, const
     napi_get_named_property(env, abilityObj, methodName, &method);
     if (method== nullptr) {
         WNMLOG_E("no find %{public}s", methodName);
+        // 未进入连接管理（AddConnection/RemoveConnection），需关闭本次事务持有的 fd 防泄漏
+        ConnectionManager::CloseConnectionFds(params);
         return;
     }
     if (!CheckValueType(env, method, napi_valuetype::napi_function)) {
         WNMLOG_E("wrong type %{public}s", methodName);
+        ConnectionManager::CloseConnectionFds(params);
         return;
     }
     napi_value arg[ARGC_ONE];
@@ -247,10 +250,14 @@ int32_t JsWebNativeMessagingExtension::InvokeCallbackInMainThread(
 {
     if (handler_ == nullptr) {
         WNMLOG_E("handler_ is nullptr");
+        // 无法投递到主线程，params 持有的 fd 将被丢弃，先关闭防泄漏
+        WnmCloseFdWithTag(params.fdRead);
+        WnmCloseFdWithTag(params.fdWrite);
         return -1;
     }
     auto jsServiceExtension = std::static_pointer_cast<JsWebNativeMessagingExtension>(shared_from_this());
-    auto task = [jsServiceExtension, methodName, data = params]() {
+    // mutable：data 为值拷贝，InvokeCallback 需要非 const 引用以便关闭 fd 后置 -1
+    auto task = [jsServiceExtension, methodName, data = params]() mutable {
         if (jsServiceExtension) {
             jsServiceExtension->InvokeCallback(methodName.c_str(), data);
         }
