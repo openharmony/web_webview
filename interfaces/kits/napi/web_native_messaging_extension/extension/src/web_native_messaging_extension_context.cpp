@@ -50,4 +50,4 @@ ErrCode WebNativeMessagingExtensionContext::StopNativeConnection(int32_t connect
 }
 
 } // namespace NWeb
-} // namespace OHOS
+} // namespace OHOS test
