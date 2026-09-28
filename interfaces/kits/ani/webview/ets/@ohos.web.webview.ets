@@ -555,15 +555,15 @@ export default namespace webview {
 
     export interface NativeMediaPlayerBridge {
         updateRect: UpdateRectFn;
-        play: ZeroParamFn<>;
-        pause: ZeroParamFn<>;
+        play: ZeroParamFn<void>;
+        pause: ZeroParamFn<void>;
         seek: OneParamFn<double>;
         setVolume: OneParamFn<double>;
         setMuted: OneParamFn<boolean>;
         setPlaybackRate: OneParamFn<double>;
-        release: ZeroParamFn<>;
-        enterFullscreen: ZeroParamFn<>;
-        exitFullscreen: ZeroParamFn<>;
+        release: ZeroParamFn<void>;
+        enterFullscreen: ZeroParamFn<void>;
+        exitFullscreen: ZeroParamFn<void>;
         resumePlayer?: ResumePlayerFn;
         suspendPlayer?: SuspendPlayerFn;
     }
