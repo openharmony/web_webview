@@ -69,7 +69,7 @@ public:
     MOCK_METHOD0(SetPrivacyAuthorityEnabled, int32_t());
     MOCK_METHOD1(SetCaptureAreaHighlight, int32_t(AVScreenCaptureHighlightConfig));
     MOCK_METHOD1(UpdateSurface, int32_t(sptr<Surface>));
-    MOCK_METHOD1(SetScreenCaptureStrategy, int32_t(ScreenCaptureStrategy));
+    MOCK_METHOD1(SetScreenCaptureStrategy, int32_t(const ScreenCaptureStrategy&));
     MOCK_METHOD2(SetCaptureArea, int32_t(uint64_t, OHOS::Rect));
     MOCK_METHOD2(GetMultiDisplayCaptureCapability, int32_t(const std::vector<uint64_t>&, MultiDisplayCapability&));
     MOCK_METHOD0(PauseScreenCapture, int32_t());
